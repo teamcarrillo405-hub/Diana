@@ -22,6 +22,7 @@ export default function Nav({ displayName }: NavProps) {
 
   const links = [
     { href: "/dashboard", label: "Home" },
+    { href: "/inbox", label: "Inbox" },
     { href: "/classes", label: "Classes" },
   ]
 
