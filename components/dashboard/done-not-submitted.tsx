@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 interface Assignment {
   id: string
   title: string
-  submission_link: string | null
+  submission_url: string | null
   classes: { name: string; color: string } | null
 }
 
@@ -54,9 +54,9 @@ export function DoneNotSubmitted({ assignments }: { assignments: Assignment[] })
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {a.submission_link && (
+              {a.submission_url && (
                 <a
-                  href={a.submission_link}
+                  href={a.submission_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-blue-600 underline"

@@ -44,11 +44,12 @@ export default function SignupPage() {
 
     // Insert profile row
     if (data.user) {
-      await supabase.from("profiles").insert({
-        id: data.user.id,
+      await supabase.from("profiles").upsert({
+        user_id: data.user.id,
         display_name: name,
         date_of_birth: dob,
-      })
+        age_bracket: new Date().getFullYear() - new Date(dob).getFullYear() < 13 ? "under_13" : "13_plus",
+      }, { onConflict: "user_id" })
     }
 
     setDone(true)

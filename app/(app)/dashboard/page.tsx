@@ -11,14 +11,14 @@ export default async function DashboardPage() {
   const { data: profile } = await supabase
     .from("profiles")
     .select("display_name")
-    .eq("id", user!.id)
+    .eq("user_id", user!.id)
     .single()
 
   // "Your next 5 minutes" — overdue + due soon, prioritized
   const { data: urgentAssignments } = await supabase
     .from("assignments")
     .select("*, classes(name, color)")
-    .eq("user_id", user!.id)
+    .eq("owner_id", user!.id)
     .in("state", ["captured", "planned", "in_progress"])
     .not("due_at", "is", null)
     .order("due_at", { ascending: true })
@@ -28,14 +28,14 @@ export default async function DashboardPage() {
   const { data: doneNotSubmitted } = await supabase
     .from("assignments")
     .select("*, classes(name, color)")
-    .eq("user_id", user!.id)
+    .eq("owner_id", user!.id)
     .eq("state", "done")
     .order("updated_at", { ascending: false })
 
   const { data: classes } = await supabase
     .from("classes")
     .select("id")
-    .eq("user_id", user!.id)
+    .eq("owner_id", user!.id)
 
   const firstName = profile?.display_name?.split(" ")[0] ?? "there"
   const hasClasses = classes && classes.length > 0

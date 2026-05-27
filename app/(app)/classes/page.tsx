@@ -16,7 +16,7 @@ export default async function ClassesPage() {
   const { data: classes } = await supabase
     .from("classes")
     .select("*, assignments(id, state)")
-    .eq("user_id", user!.id)
+    .eq("owner_id", user!.id)
     .is("archived_at", null)
     .order("created_at", { ascending: false })
 
@@ -46,8 +46,8 @@ export default async function ClassesPage() {
                   <div className="w-3 h-3 rounded-full" style={{ backgroundColor: cls.color }} />
                   <div>
                     <p className="font-medium text-stone-900">{cls.name}</p>
-                    {cls.teacher_name && (
-                      <p className="text-xs text-stone-400">{cls.teacher_name}</p>
+                    {cls.teacher && (
+                      <p className="text-xs text-stone-400">{cls.teacher}</p>
                     )}
                   </div>
                 </div>

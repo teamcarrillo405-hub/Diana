@@ -29,7 +29,7 @@ interface Assignment {
   due_at: string | null
   estimated_minutes: number | null
   assignment_type: string | null
-  submission_link: string | null
+  submission_url: string | null
 }
 
 export function AssignmentList({ assignments, classId }: { assignments: Assignment[]; classId: string }) {
@@ -84,9 +84,9 @@ export function AssignmentList({ assignments, classId }: { assignments: Assignme
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {isDone && a.submission_link && (
+              {isDone && a.submission_url && (
                 <a
-                  href={a.submission_link}
+                  href={a.submission_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-blue-600 underline"

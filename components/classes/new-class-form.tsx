@@ -67,10 +67,10 @@ export function NewClassForm() {
     const { data: cls, error: insertError } = await supabase
       .from("classes")
       .insert({
-        user_id: user.id,
+        owner_id: user.id,
         name,
         subject_category: subject,
-        teacher_name: teacher,
+        teacher,
         schedule_text: schedule,
         color,
         ai_policy: aiPolicy,

@@ -16,7 +16,7 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
     .from("classes")
     .select("*, class_documents(*)")
     .eq("id", classId)
-    .eq("user_id", user!.id)
+    .eq("owner_id", user!.id)
     .single()
 
   if (!cls) notFound()
@@ -44,8 +44,8 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
           <div className="w-4 h-4 rounded-full mt-0.5" style={{ backgroundColor: cls.color }} />
           <div>
             <h1 className="text-xl font-bold text-stone-900">{cls.name}</h1>
-            {cls.teacher_name && (
-              <p className="text-sm text-stone-400">{cls.teacher_name}</p>
+            {cls.teacher && (
+              <p className="text-sm text-stone-400">{cls.teacher}</p>
             )}
           </div>
         </div>

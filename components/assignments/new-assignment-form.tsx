@@ -48,15 +48,16 @@ export function NewAssignmentForm({ classId }: { classId: string }) {
     const dueAtFull = dueAt ? `${dueAt}T${dueTime}:00` : null
 
     const { error: insertError } = await supabase.from("assignments").insert({
-      user_id: user.id,
+      owner_id: user.id,
       class_id: classId,
       title,
       description: description || null,
       assignment_type: type,
       due_at: dueAtFull,
       estimated_minutes: estimatedMinutes ? parseInt(estimatedMinutes) : null,
-      submission_link: submissionLink || null,
+      submission_url: submissionLink || null,
       state: "captured",
+      status: "captured",
     })
 
     if (insertError) {
