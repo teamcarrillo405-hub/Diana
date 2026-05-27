@@ -92,6 +92,13 @@ export function NewClassForm() {
         title: "Rubric (pasted)",
         extracted_text: rubricText.trim(),
       })
+
+      // Fire-and-forget rubric summarization
+      fetch('/api/classes/summarize-rubric', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classId: cls.id }),
+      }).catch(() => {})
     }
 
     router.push(`/classes/${cls.id}`)

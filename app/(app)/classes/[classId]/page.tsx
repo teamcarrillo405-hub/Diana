@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { AssignmentList } from "@/components/assignments/assignment-list"
+import { RubricSummary } from "@/components/classes/rubric-summary"
 
 const STATE_ORDER = ["in_progress", "planned", "captured", "done", "submitted", "graded"]
 
@@ -51,6 +52,12 @@ export default async function ClassPage({ params }: { params: Promise<{ classId:
         </div>
         <Badge variant="outline">{AI_LABELS[cls.ai_policy]}</Badge>
       </div>
+
+      {cls.rubric_summary ? (
+        <RubricSummary summary={cls.rubric_summary} />
+      ) : cls.class_documents?.length > 0 ? (
+        <p className="text-sm text-stone-400 italic">Diana is reading your rubric...</p>
+      ) : null}
 
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-stone-500 uppercase tracking-wide">Assignments</h2>
