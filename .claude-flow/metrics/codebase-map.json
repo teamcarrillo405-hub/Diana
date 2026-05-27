@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-27T22:03:35.259Z",
+  "projectRoot": "C:\\Users\\glcar\\Documents\\Diana",
+  "structure": {
+    "hasPackageJson": true,
+    "hasTsConfig": true,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1779919415259
+}
