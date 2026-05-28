@@ -19,7 +19,7 @@ export default async function DashboardPage({
 
   const { data: assignments } = await supabase
     .from("assignments")
-    .select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load")
+    .select("id, title, due_at, created_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load")
     .neq("status", "submitted")
     .neq("status", "graded")
     .neq("status", "abandoned")
@@ -82,7 +82,12 @@ export default async function DashboardPage({
                 </p>
                 {top.due_at && (
                   <div className="mt-3">
-                    <TimeBar dueAt={top.due_at} />
+                    <TimeBar
+                      dueAt={top.due_at}
+                      createdAt={
+                        (assignments ?? []).find((a) => a.id === top.id)?.created_at ?? undefined
+                      }
+                    />
                   </div>
                 )}
                 {top.reasons.length > 0 && (

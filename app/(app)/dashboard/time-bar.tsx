@@ -4,12 +4,22 @@ import { formatDueAt } from "@/lib/format";
  * Visual representation of time-until-due. Externalizes the "felt sense"
  * of a deadline for students with time blindness.
  *
- * - >7 days: shows a calm full bar
- * - 1-7 days: bar fills proportionally, warm color
- * - <24h: orange, no animation (calm urgency)
- * - past due: replaced with a "smallest next step" reframe
+ * Formula (per GAP-05 spec):
+ *   pct = (dueAt - now) / (dueAt - createdAt), clamped to [0, 100]
+ *
+ * Fallback when createdAt is missing or window is < 1 hour: 7-day sliding
+ * window (legacy behaviour) so very short-notice tasks don't show as empty.
+ *
+ * Past-due: replaced with a "smallest next step" reframe. The actual
+ * "Create micro-task" button is added in wave 4 (02-04).
  */
-export function TimeBar({ dueAt }: { dueAt: string }) {
+export function TimeBar({
+  dueAt,
+  createdAt,
+}: {
+  dueAt: string;
+  createdAt?: string;
+}) {
   const now = Date.now();
   const due = new Date(dueAt).getTime();
   const diffMs = due - now;
@@ -27,15 +37,27 @@ export function TimeBar({ dueAt }: { dueAt: string }) {
   let pct = 0;
   let tint = "bg-emerald-500";
   let label = formatDueAt(dueAt);
-  if (diffDays >= 7) {
-    pct = 100;
-    tint = "bg-emerald-500";
-  } else if (diffDays >= 1) {
-    pct = (diffDays / 7) * 100;
-    tint = "bg-sky-500";
+
+  if (createdAt) {
+    const created = new Date(createdAt).getTime();
+    const totalWindow = due - created;
+    // Fallback if the window is too small to be meaningful (< 1h).
+    if (totalWindow >= 60 * 60 * 1000) {
+      pct = Math.max(0, Math.min(100, (diffMs / totalWindow) * 100));
+    } else {
+      pct = Math.max(8, (diffHours / 168) * 100); // fall to 7-day window
+    }
   } else {
-    pct = Math.max(8, (diffHours / 24) * 100);
-    tint = "bg-amber-500";
+    // No createdAt: use legacy 7-day sliding window.
+    pct = Math.max(8, Math.min(100, (diffHours / 168) * 100));
+  }
+
+  // Color bands (no red — F20 constraint). Green > 50%, sky 25-50%, amber < 25%.
+  if (pct > 50) tint = "bg-emerald-500";
+  else if (pct >= 25) tint = "bg-sky-500";
+  else tint = "bg-amber-500";
+
+  if (diffHours < 24) {
     label = `${Math.round(diffHours)} hours left · ${formatDueAt(dueAt)}`;
   }
 
