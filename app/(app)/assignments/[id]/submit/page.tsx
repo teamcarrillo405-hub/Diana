@@ -38,6 +38,9 @@ export default async function SubmitPage({
         <p className="text-sm text-muted">
           Tick each box as you check it. Required boxes have to be checked.
         </p>
+        <p className="text-xs text-muted">
+          Add your own checks as needed; remove any that don&apos;t apply.
+        </p>
       </header>
 
       <SubmitChecklist

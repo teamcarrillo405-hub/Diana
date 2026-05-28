@@ -3,7 +3,13 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check } from "lucide-react";
-import { toggleChecklistItem, setSubmissionUrl, transitionAssignment } from "../actions";
+import {
+  toggleChecklistItem,
+  setSubmissionUrl,
+  transitionAssignment,
+  addChecklistItem,
+  deleteChecklistItem,
+} from "../actions";
 
 type Item = {
   id: string;
@@ -28,6 +34,7 @@ export function SubmitChecklist({
   const [url, setUrl] = useState(currentUrl ?? "");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [newItemLabel, setNewItemLabel] = useState("");
 
   const requiredOk = items.filter((i) => i.required).every((i) => i.checked);
 
@@ -40,6 +47,31 @@ export function SubmitChecklist({
         setItems((xs) => xs.map((x) => (x.id === item.id ? { ...x, checked: !next } : x)));
         setError(result.error);
       }
+    });
+  }
+
+  function addItem() {
+    const label = newItemLabel.trim();
+    if (!label) return;
+    startTransition(async () => {
+      const result = await addChecklistItem({ assignmentId, label });
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      setNewItemLabel("");
+      router.refresh();
+    });
+  }
+
+  function removeItem(itemId: string) {
+    startTransition(async () => {
+      const result = await deleteChecklistItem({ itemId });
+      if (result?.error) {
+        setError(result.error);
+        return;
+      }
+      setItems((xs) => xs.filter((x) => x.id !== itemId));
     });
   }
 
@@ -75,11 +107,11 @@ export function SubmitChecklist({
     <div className="space-y-6">
       <ul className="divide-y divide-border rounded-xl border border-border bg-card">
         {items.map((item) => (
-          <li key={item.id}>
+          <li key={item.id} className="flex items-stretch">
             <button
               type="button"
               onClick={() => toggle(item)}
-              className="flex w-full items-start gap-3 px-4 py-3 text-left hover:bg-border/30"
+              className="flex flex-1 items-start gap-3 px-4 py-3 text-left hover:bg-border/30"
             >
               <span
                 className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border ${
@@ -106,9 +138,41 @@ export function SubmitChecklist({
                 )}
               </span>
             </button>
+            <button
+              type="button"
+              onClick={() => removeItem(item.id)}
+              aria-label={`Remove ${item.label}`}
+              className="px-3 text-xs text-muted hover:text-fg hover:bg-border/30"
+            >
+              Remove
+            </button>
           </li>
         ))}
       </ul>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addItem();
+        }}
+        className="flex gap-2 rounded-xl border border-dashed border-border bg-card p-3"
+      >
+        <input
+          type="text"
+          value={newItemLabel}
+          onChange={(e) => setNewItemLabel(e.target.value)}
+          placeholder="Add your own check (e.g. 'attach the rubric')"
+          maxLength={200}
+          className="flex-1 rounded-md border border-border bg-transparent px-3 py-2 text-sm"
+        />
+        <button
+          type="submit"
+          disabled={pending || !newItemLabel.trim()}
+          className="rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-border/30 disabled:opacity-50"
+        >
+          Add
+        </button>
+      </form>
 
       <div className="space-y-2 rounded-xl border border-border bg-card p-4">
         <label htmlFor="submission-url" className="block text-sm font-medium">
