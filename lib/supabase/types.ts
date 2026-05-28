@@ -177,6 +177,7 @@ export type Database = {
         Row: {
           accommodations: string[];
           age_bracket: string;
+          class_count_hint: number | null;
           consent_ai: boolean;
           consent_ai_at: string | null;
           created_at: string;
@@ -199,6 +200,7 @@ export type Database = {
         Insert: {
           accommodations?: string[];
           age_bracket: string;
+          class_count_hint?: number | null;
           consent_ai?: boolean;
           consent_ai_at?: string | null;
           created_at?: string;
@@ -221,6 +223,7 @@ export type Database = {
         Update: {
           accommodations?: string[];
           age_bracket?: string;
+          class_count_hint?: number | null;
           consent_ai?: boolean;
           consent_ai_at?: string | null;
           created_at?: string;

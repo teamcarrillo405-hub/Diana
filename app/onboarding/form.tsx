@@ -36,6 +36,8 @@ const YEARS = [
   { value: 13, label: "Gap year / other" },
 ] as const;
 
+const CLASS_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
+
 export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -45,6 +47,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
   const [accommodations, setAccommodations] = useState<string[]>(initial.accommodations ?? []);
   const [year, setYear] = useState<number | null>(initial.school_year);
   const [extraTime, setExtraTime] = useState<number>(initial.extra_time_pct ?? 0);
+  const [classCount, setClassCount] = useState<number | null>(initial.class_count_hint ?? null);
 
   function toggle(list: string[], setter: (xs: string[]) => void, value: string) {
     setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
@@ -59,6 +62,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
         accommodations: accommodations as Accommodation[],
         school_year: year,
         extra_time_pct: extraTime,
+        class_count_hint: classCount,
         // Smart defaults derived from diagnoses; the user can change in Settings.
         dyslexia_font: diagnoses.includes("dyslexia"),
         tts_enabled: diagnoses.includes("dyslexia"),
@@ -146,6 +150,25 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
         </div>
       </fieldset>
 
+      <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
+        <legend className="px-1 text-sm font-semibold">
+          4. How many classes do you have?
+        </legend>
+        <p className="text-xs text-muted">
+          Helps Diana know how heavy your day looks. Skip if it varies.
+        </p>
+        <div className="grid grid-cols-4 gap-2 pt-2 sm:grid-cols-8">
+          {CLASS_COUNTS.map((n) => (
+            <Chip
+              key={n}
+              label={String(n)}
+              active={classCount === n}
+              onClick={() => setClassCount(n)}
+            />
+          ))}
+        </div>
+      </fieldset>
+
       {error && (
         <div className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
@@ -162,6 +185,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
                 accommodations: [],
                 school_year: null,
                 extra_time_pct: 0,
+                class_count_hint: null,
               });
               router.push("/dashboard");
               router.refresh();

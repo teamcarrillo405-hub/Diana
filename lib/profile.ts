@@ -6,6 +6,7 @@ export type ProfilePrefs = Pick<
   | "user_id"
   | "display_name"
   | "age_bracket"
+  | "class_count_hint"
   | "diagnoses"
   | "accommodations"
   | "school_year"
@@ -28,7 +29,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "user_id, display_name, age_bracket, diagnoses, accommodations, school_year, extra_time_pct, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, onboarded_at, consent_ai, timezone",
+      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, onboarded_at, consent_ai, timezone",
     )
     .eq("user_id", user.id)
     .single();
