@@ -42,3 +42,12 @@ export const STATUS_HINT: Record<AssignmentStatus, string> = {
   graded: "Grade came back.",
   abandoned: "Set aside for now — you can pick it back up.",
 };
+
+/**
+ * Helper for detail page: a one-line summary of a pivot that just happened.
+ * Returns null if no pivot was recorded.
+ */
+export function pivotSummary(pivotNote: string | null): string | null {
+  if (!pivotNote || pivotNote.trim().length === 0) return null;
+  return `Paused earlier: ${pivotNote.trim()}`;
+}

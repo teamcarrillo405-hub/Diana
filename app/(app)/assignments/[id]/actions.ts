@@ -240,3 +240,40 @@ export async function createMicroTask(input: z.infer<typeof MicroTask>) {
   revalidatePath("/assignments");
   return { ok: true, childId: child!.id };
 }
+
+const Pivot = z.object({
+  id: z.string().uuid(),
+  note: z.string().max(500),
+});
+
+/**
+ * GAP-07: pivot away from drafting back to todo, with a one-line note
+ * explaining the change. State machine already allows drafting→todo;
+ * this action also persists pivot_note.
+ */
+export async function pivotAssignment(input: z.infer<typeof Pivot>) {
+  const parsed = Pivot.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+
+  if (!canTransition("drafting", "todo")) {
+    return { error: "Pivot not allowed from current state." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  const { error } = await supabase
+    .from("assignments")
+    .update({
+      status: "todo",
+      pivot_note: parsed.data.note || null,
+    })
+    .eq("id", parsed.data.id)
+    .eq("status", "drafting");
+  if (error) return { error: error.message };
+
+  revalidatePath(`/assignments/${parsed.data.id}`);
+  revalidatePath("/dashboard");
+  return { ok: true };
+}

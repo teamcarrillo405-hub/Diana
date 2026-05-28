@@ -23,7 +23,17 @@ export function StatusButtons({
   function go(to: AssignmentStatus) {
     startTransition(async () => {
       const result = await transitionAssignment({ id: assignmentId, from, to });
-      if (result?.redirect) router.push(result.redirect);
+      if ("error" in result && result.error) return;
+      if (result.redirect) {
+        router.push(result.redirect);
+        return;
+      }
+      // GAP-07: after todo→drafting, focus the breadcrumb so the student
+      // captures "where will you start?" before context switching.
+      if (from === "todo" && to === "drafting") {
+        router.push(`/assignments/${assignmentId}?focus=breadcrumb`);
+        return;
+      }
       router.refresh();
     });
   }

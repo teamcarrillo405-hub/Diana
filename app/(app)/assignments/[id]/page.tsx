@@ -7,6 +7,7 @@ import { STATUS_LABEL, STATUS_HINT, nextStatesFor } from "@/lib/state-machine/as
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { StatusButtons } from "./status-buttons";
 import { Breadcrumb } from "./breadcrumb";
+import { PivotForm } from "./pivot-form";
 import { TtsButton } from "@/components/tts-button";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 
@@ -82,6 +83,12 @@ export default async function AssignmentDetailPage({
 
       {(status === "drafting" || status === "checking") && (
         <Breadcrumb assignmentId={id} initial={a.last_thought ?? ""} />
+      )}
+
+      {status === "drafting" && (
+        <div className="flex justify-end">
+          <PivotForm assignmentId={id} />
+        </div>
       )}
 
       {status === "exporting" && (
