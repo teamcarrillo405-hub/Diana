@@ -28,6 +28,16 @@ export type ScoredAssignment = Assignment & {
 };
 
 /**
+ * A task_signals row narrowed to the fields the scorer needs.
+ * Fetched by the dashboard for the last 4 hours, filtered to
+ * kind in ('started', 'completed').
+ */
+export type RecentSignal = {
+  assignment_id: string;
+  occurred_at: string; // ISO 8601
+};
+
+/**
  * Rule-based "what should I do in the next 5 minutes?" scorer.
  *
  * Heuristics (intentionally simple and inspectable):
@@ -40,6 +50,7 @@ export type ScoredAssignment = Assignment & {
  */
 export function rankAssignments(
   assignments: Assignment[],
+  signals: RecentSignal[] = [],
   now: Date = new Date(),
   energy: EnergyLevel = "medium",
   profile: ScorerProfile = { diagnoses: [], extra_time_pct: 0 },
@@ -51,12 +62,13 @@ export function rankAssignments(
         a.status !== "graded" &&
         a.status !== "abandoned",
     )
-    .map((a) => score(a, now, energy, profile))
+    .map((a) => score(a, signals, now, energy, profile))
     .sort((x, y) => y.score - x.score);
 }
 
 function score(
   a: Assignment,
+  signals: RecentSignal[],
   now: Date,
   energy: EnergyLevel,
   profile: ScorerProfile,
@@ -84,9 +96,18 @@ function score(
     }
   }
 
-  if (a.status === "drafting" || a.status === "checking") {
-    s += 25;
-    reasons.push("already started");
+  const lastSignal = signals.find((sig) => sig.assignment_id === a.id);
+  if (lastSignal) {
+    const ageHours =
+      (now.getTime() - new Date(lastSignal.occurred_at).getTime()) / 36e5;
+    if (ageHours < 2) {
+      s += 25;
+      reasons.push("recently worked on");
+    } else if (ageHours < 8) {
+      s += 10;
+      reasons.push("worked on earlier today");
+    }
+    // Older than 8h: no bump (decay floor)
   }
 
   const est = a.estimated_minutes ?? null;
