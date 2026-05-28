@@ -87,6 +87,8 @@ export default async function DashboardPage({
                       createdAt={
                         (assignments ?? []).find((a) => a.id === top.id)?.created_at ?? undefined
                       }
+                      status={top.status as import("@/lib/supabase/types").AssignmentStatus}
+                      assignmentId={top.id}
                     />
                   </div>
                 )}

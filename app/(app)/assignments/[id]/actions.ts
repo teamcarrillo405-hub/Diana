@@ -195,3 +195,48 @@ export async function deleteChecklistItem(input: z.infer<typeof DeleteItem>) {
   }
   return { ok: true };
 }
+
+const MicroTask = z.object({
+  originalId: z.string().uuid(),
+});
+
+/**
+ * GAP-06: past-due reframe. Creates a 5-minute micro-task that links back
+ * to the original assignment via parent_assignment_id. No red color, no
+ * "past due" phrasing — this is the actionable next step.
+ */
+export async function createMicroTask(input: z.infer<typeof MicroTask>) {
+  const parsed = MicroTask.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  // Fetch the original to inherit class_id + a clean title.
+  const { data: original } = await supabase
+    .from("assignments")
+    .select("title, class_id")
+    .eq("id", parsed.data.originalId)
+    .single();
+  if (!original) return { error: "Original assignment not found." };
+
+  const { data: child, error } = await supabase
+    .from("assignments")
+    .insert({
+      owner_id: user.id,
+      class_id: original.class_id,
+      title: `5-min start: ${original.title}`,
+      estimated_minutes: 5,
+      kind: "other",
+      parent_assignment_id: parsed.data.originalId,
+      status: "todo",
+    })
+    .select("id")
+    .single();
+  if (error) return { error: error.message };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/assignments");
+  return { ok: true, childId: child!.id };
+}
