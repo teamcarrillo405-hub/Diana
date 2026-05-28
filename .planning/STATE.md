@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-05-28  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 2 (executing — plan 02-01 complete, 02-02 next)  
-**Last session:** Completed 02-01 (schema migrations 0006/0007, Vitest setup, types.ts sync)
+**Active phase:** Phase 2 (executing — plans 02-01, 02-02 complete; 02-03 next)  
+**Last session:** Completed 02-02 (scorer signal-recency decay, 6 tests green, dashboard wired)
 
 ---
 
@@ -31,6 +31,13 @@
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 2 decisions (02-02)
+
+- signals parameter inserted second in rankAssignments (before now/energy/profile); default [] for backward compat
+- Status-based momentum (drafting/checking → +25) fully removed; signals are the sole momentum source
+- assignment_id nullable in task_signals — dashboard filters before passing to scorer
+- 1.6x dyslexia reading_load multiplier codified in REQUIREMENTS.md (was 1.5x in spec); implementation matches, test verifies
 
 ## Phase 2 decisions (02-01)
 

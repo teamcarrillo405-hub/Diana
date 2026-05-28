@@ -129,7 +129,7 @@ The state machine tracks `in_progress` but stores no "where was I?" breadcrumb. 
 
 ---
 
-### GAP-08: Scorer Reads task_signals + Dyslexia-Aware Weighting
+### GAP-08: Scorer Reads task_signals + Dyslexia-Aware Weighting — COMPLETE (02-02)
 
 **Priority:** P2  
 **Evidence:** Slice-1 evidence review §2 #8; scorer gives `+25` for `drafting`/`checking` but ignores `task_signals` rows and `reading_load`
