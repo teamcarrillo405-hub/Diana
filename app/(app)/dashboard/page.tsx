@@ -25,10 +25,29 @@ export default async function DashboardPage({
     .neq("status", "abandoned")
     .order("due_at", { ascending: true, nullsFirst: false });
 
-  const ranked = rankAssignments(assignments ?? [], new Date(), energy, {
-    diagnoses: profile?.diagnoses ?? [],
-    extra_time_pct: profile?.extra_time_pct ?? 0,
-  });
+  // GAP-08: scorer recency. Pull the latest 'started'/'completed' signals in
+  // the last 4 hours so rankAssignments can apply the momentum bump per task.
+  const fourHoursAgoIso = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
+  const { data: signals } = await supabase
+    .from("task_signals")
+    .select("assignment_id, occurred_at")
+    .in("kind", ["started", "completed"])
+    .gte("occurred_at", fourHoursAgoIso)
+    .order("occurred_at", { ascending: false });
+
+  const recentSignals = (signals ?? [])
+    .filter((s): s is { assignment_id: string; occurred_at: string } => s.assignment_id !== null);
+
+  const ranked = rankAssignments(
+    assignments ?? [],
+    recentSignals,
+    new Date(),
+    energy,
+    {
+      diagnoses: profile?.diagnoses ?? [],
+      extra_time_pct: profile?.extra_time_pct ?? 0,
+    },
+  );
   const top = ranked[0];
   const rest = ranked.slice(1, 4);
 
