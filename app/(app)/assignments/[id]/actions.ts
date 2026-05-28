@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { canTransition } from "@/lib/state-machine/assignment";
+import { buildChecklist } from "@/lib/checklists/templates";
+import type { AssignmentKind } from "@/lib/supabase/types";
 
 const STATUSES = ["todo","drafting","checking","exporting","submitted","graded","abandoned"] as const;
 
@@ -12,15 +14,6 @@ const Input = z.object({
   from: z.enum(STATUSES),
   to: z.enum(STATUSES),
 });
-
-const DEFAULT_CHECKLIST: Array<{ label: string; detail: string | null; required: boolean }> = [
-  { label: "Your name is on the file", detail: "Or required in the document header.", required: true },
-  { label: "File is in the format the teacher asked for", detail: "PDF, .docx, link, etc.", required: true },
-  { label: "Reread the rubric for what's worth points", detail: "Even the parts that feel obvious.", required: true },
-  { label: "You actually answered the prompt — not a tangent", detail: null, required: true },
-  { label: "Spell-check finished without red", detail: null, required: false },
-  { label: "Citations or sources included if needed", detail: null, required: false },
-];
 
 export async function transitionAssignment(input: z.infer<typeof Input>) {
   const parsed = Input.safeParse(input);
@@ -58,8 +51,16 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
       .eq("assignment_id", id);
 
     if (!count) {
+      // Look up assignment kind + user's diagnoses to assemble the checklist.
+      const [{ data: a }, { data: p }] = await Promise.all([
+        supabase.from("assignments").select("kind").eq("id", id).single(),
+        supabase.from("profiles").select("diagnoses").eq("user_id", user.id).single(),
+      ]);
+      const kind = (a?.kind ?? "other") as AssignmentKind;
+      const diagnoses = p?.diagnoses ?? [];
+      const items = buildChecklist(kind, diagnoses);
       await supabase.from("submission_checklist").insert(
-        DEFAULT_CHECKLIST.map((c, i) => ({
+        items.map((c, i) => ({
           owner_id: user.id,
           assignment_id: id,
           label: c.label,
@@ -107,5 +108,20 @@ export async function setSubmissionUrl(input: z.infer<typeof Url>) {
     .eq("id", parsed.data.id);
   if (error) return { error: error.message };
   revalidatePath(`/assignments/${parsed.data.id}/submit`);
+  return { ok: true };
+}
+
+const Breadcrumb = z.object({ id: z.string().uuid(), text: z.string().max(500) });
+export async function saveBreadcrumb(input: z.infer<typeof Breadcrumb>) {
+  const parsed = Breadcrumb.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("assignments")
+    .update({ last_thought: parsed.data.text || null })
+    .eq("id", parsed.data.id);
+  if (error) return { error: error.message };
+  revalidatePath(`/assignments/${parsed.data.id}`);
   return { ok: true };
 }

@@ -1,15 +1,16 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { loadProfile } from "@/lib/profile";
 import { SignOutButton } from "./sign-out";
+import { AccessibilityPrefs } from "./accessibility-prefs";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function SettingsPage() {
+  const profile = await loadProfile();
+  if (!profile) redirect("/login");
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name, age_bracket, consent_ai, timezone")
-    .eq("user_id", user!.id)
-    .single();
 
   return (
     <div className="space-y-8">
@@ -18,29 +19,61 @@ export default async function SettingsPage() {
       </header>
 
       <section className="space-y-2 rounded-xl border border-border bg-card p-4">
-        <Row label="Signed in as" value={user!.email ?? ""} />
-        <Row label="Name" value={profile?.display_name || "—"} />
+        <Row label="Signed in as" value={user?.email ?? ""} />
+        <Row label="Name" value={profile.display_name || "—"} />
         <Row
           label="Age group"
           value={
-            profile?.age_bracket === "13_to_17"
+            profile.age_bracket === "13_to_17"
               ? "13–17"
-              : profile?.age_bracket === "adult"
+              : profile.age_bracket === "adult"
               ? "18+"
-              : profile?.age_bracket === "under_13"
+              : profile.age_bracket === "under_13"
               ? "under 13"
               : "—"
           }
         />
-        <Row label="Timezone" value={profile?.timezone ?? "—"} />
+        <Row label="School year" value={profile.school_year ? String(profile.school_year) : "—"} />
+        <Row label="Timezone" value={profile.timezone} />
       </section>
+
+      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <h2 className="text-sm font-semibold">Your profile</h2>
+        <Row
+          label="Diagnoses on file"
+          value={
+            profile.diagnoses?.length
+              ? profile.diagnoses.map(formatDiagnosis).join(", ")
+              : "none specified"
+          }
+        />
+        <Row
+          label="Accommodations"
+          value={
+            profile.accommodations?.length
+              ? profile.accommodations.map(formatAccommodation).join(", ")
+              : "none specified"
+          }
+        />
+        {profile.extra_time_pct > 0 && (
+          <Row label="Extra time" value={`+${profile.extra_time_pct}%`} />
+        )}
+        <p className="pt-2 text-xs text-muted">
+          <Link href="/onboarding" className="text-accent underline-offset-2 hover:underline">
+            Re-run onboarding
+          </Link>{" "}
+          to update.
+        </p>
+      </section>
+
+      <AccessibilityPrefs initial={profile} />
 
       <section className="space-y-3 rounded-xl border border-border bg-card p-4">
         <h2 className="text-sm font-semibold">AI features</h2>
         <p className="text-sm text-muted">
-          {profile?.age_bracket === "under_13"
+          {profile.age_bracket === "under_13"
             ? "AI features aren't available for under-13 accounts."
-            : profile?.consent_ai
+            : profile.consent_ai
             ? "You've consented to AI features."
             : "You haven't consented to AI features yet. They stay off until you do."}
         </p>
@@ -68,4 +101,30 @@ function Row({ label, value }: { label: string; value: string }) {
       <span className="text-right">{value}</span>
     </div>
   );
+}
+
+function formatDiagnosis(d: string): string {
+  return ({
+    adhd: "ADHD",
+    dyslexia: "Dyslexia",
+    dyscalculia: "Dyscalculia",
+    dysgraphia: "Dysgraphia",
+    asd: "ASD",
+    anxiety: "Anxiety",
+    other: "Other",
+    none: "None",
+  } as Record<string, string>)[d] ?? d;
+}
+
+function formatAccommodation(a: string): string {
+  return ({
+    extended_time: "Extended time",
+    reduced_quantity: "Reduced quantity",
+    alternate_format: "Alternate format",
+    reader: "Reader",
+    scribe: "Scribe",
+    breaks: "Breaks",
+    quiet_setting: "Quiet setting",
+    other: "Other",
+  } as Record<string, string>)[a] ?? a;
 }

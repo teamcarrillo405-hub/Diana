@@ -2,13 +2,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { STATUS_LABEL } from "@/lib/state-machine/assignment";
 import { formatDueAt } from "@/lib/format";
-import type { AssignmentStatus } from "@/lib/supabase/types";
+import { KIND_LABEL } from "@/lib/checklists/templates";
+import type { AssignmentStatus, AssignmentKind } from "@/lib/supabase/types";
 
 export default async function AssignmentsPage() {
   const supabase = await createClient();
   const { data: assignments } = await supabase
     .from("assignments")
-    .select("id, title, due_at, status, classes(name, color)")
+    .select("id, title, due_at, status, kind, classes(name, color)")
     .order("due_at", { ascending: true, nullsFirst: false });
 
   const groups: Record<string, typeof assignments> = {
@@ -44,7 +45,7 @@ function Section({
   muted = false,
 }: {
   title: string;
-  items: Array<{ id: string; title: string; due_at: string | null; status: string; classes: { name: string; color: string } | null }>;
+  items: Array<{ id: string; title: string; due_at: string | null; status: string; kind: AssignmentKind; classes: { name: string; color: string } | null }>;
   muted?: boolean;
 }) {
   if (items.length === 0) return null;
@@ -67,6 +68,8 @@ function Section({
                 <p className="truncate font-medium">{a.title}</p>
                 <p className="text-xs text-muted">
                   {a.classes?.name}
+                  {" · "}
+                  {KIND_LABEL[a.kind]}
                   {a.due_at && ` · ${formatDueAt(a.due_at)}`}
                 </p>
               </div>

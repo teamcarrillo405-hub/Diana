@@ -2,8 +2,15 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/classes", "/assignments", "/settings"];
+// Default-deny: everything requires auth unless explicitly allowed here.
+const PUBLIC_EXACT = new Set(["/", "/manifest.webmanifest"]);
+const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
+
+function isPublic(path: string): boolean {
+  if (PUBLIC_EXACT.has(path)) return true;
+  return PUBLIC_PREFIXES.some((p) => path === p || path.startsWith(p + "/"));
+}
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -32,7 +39,7 @@ export async function updateSession(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
 
-  if (!user && PROTECTED_PREFIXES.some((p) => path.startsWith(p))) {
+  if (!user && !isPublic(path)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", path);

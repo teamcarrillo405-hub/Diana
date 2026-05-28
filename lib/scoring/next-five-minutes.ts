@@ -2,42 +2,70 @@ import type { Tables } from "@/lib/supabase/types";
 
 export type Assignment = Pick<
   Tables<"assignments">,
-  "id" | "title" | "due_at" | "status" | "estimated_minutes" | "difficulty" | "class_id"
+  | "id"
+  | "title"
+  | "due_at"
+  | "status"
+  | "estimated_minutes"
+  | "difficulty"
+  | "class_id"
+  | "kind"
+  | "reading_load"
+  | "writing_load"
 >;
 
 export type EnergyLevel = "low" | "medium" | "high";
 
+export type ScorerProfile = {
+  diagnoses: string[];
+  extra_time_pct: number;
+};
+
 export type ScoredAssignment = Assignment & {
   score: number;
   reasons: string[];
+  effective_minutes: number | null;   // user's true cost, after accommodations
 };
 
 /**
  * Rule-based "what should I do in the next 5 minutes?" scorer.
  *
- * Inputs: assignments not yet submitted, current time, optional energy level.
- * Output: ordered by score desc with short, human reasons.
- *
- * Heuristics intentionally simple and inspectable (no ML for slice 1):
- *   - closer deadlines score higher
- *   - already-started (drafting/checking) gets a momentum bump
- *   - high energy → harder/longer tasks promoted; low energy → quick wins promoted
- *   - missing estimate gently penalized (encourage user to set one)
+ * Heuristics (intentionally simple and inspectable):
+ *   - closer deadline → higher score
+ *   - already-started → momentum bump
+ *   - high energy promotes harder/longer tasks; low energy promotes quick wins
+ *   - if dyslexia is in the profile, reading-heavy tasks are de-promoted at
+ *     low energy and inflated in time estimate
+ *   - if extra_time_pct > 0, the displayed effective minutes reflect it
  */
 export function rankAssignments(
   assignments: Assignment[],
   now: Date = new Date(),
   energy: EnergyLevel = "medium",
+  profile: ScorerProfile = { diagnoses: [], extra_time_pct: 0 },
 ): ScoredAssignment[] {
   return assignments
-    .filter((a) => a.status !== "submitted" && a.status !== "graded" && a.status !== "abandoned")
-    .map((a) => score(a, now, energy))
+    .filter(
+      (a) =>
+        a.status !== "submitted" &&
+        a.status !== "graded" &&
+        a.status !== "abandoned",
+    )
+    .map((a) => score(a, now, energy, profile))
     .sort((x, y) => y.score - x.score);
 }
 
-function score(a: Assignment, now: Date, energy: EnergyLevel): ScoredAssignment {
+function score(
+  a: Assignment,
+  now: Date,
+  energy: EnergyLevel,
+  profile: ScorerProfile,
+): ScoredAssignment {
   let s = 0;
   const reasons: string[] = [];
+  const hasDyslexia = profile.diagnoses.includes("dyslexia");
+  const readingHeavy = (a.reading_load ?? 0) >= 3;
+  const writingHeavy = (a.writing_load ?? 0) >= 3;
 
   if (a.due_at) {
     const hoursUntilDue = (new Date(a.due_at).getTime() - now.getTime()) / 36e5;
@@ -69,25 +97,45 @@ function score(a: Assignment, now: Date, energy: EnergyLevel): ScoredAssignment 
       s += 15;
       reasons.push("quick win for low energy");
     }
-    if (diff <= 2) {
-      s += 8;
-    }
-    if (diff >= 4) {
-      s -= 10;
+    if (diff <= 2) s += 8;
+    if (diff >= 4) s -= 10;
+    if (hasDyslexia && readingHeavy) {
+      s -= 12;
+      reasons.push("reading-heavy — save for higher energy");
     }
   } else if (energy === "high") {
     if (diff >= 4) {
       s += 15;
       reasons.push("good fit while focused");
     }
-    if (est !== null && est >= 30) {
-      s += 8;
+    if (est !== null && est >= 30) s += 8;
+    if (hasDyslexia && readingHeavy) {
+      s += 6;
+      reasons.push("focus window is the right time for this");
     }
+    if (writingHeavy) s += 4;
   }
 
-  if (est === null) {
-    s -= 3;
-  }
+  if (est === null) s -= 3;
 
-  return { ...a, score: s, reasons };
+  const effective_minutes = adjustForUser(a, profile);
+
+  return { ...a, score: s, reasons, effective_minutes };
+}
+
+/**
+ * Convert a teacher-estimated minutes value into the student's actual
+ * expected minutes, factoring (a) IEP/504 extra-time percentage and
+ * (b) a dyslexia penalty on reading-heavy tasks.
+ */
+function adjustForUser(a: Assignment, p: ScorerProfile): number | null {
+  if (a.estimated_minutes == null) return null;
+  let minutes = a.estimated_minutes;
+  if (p.extra_time_pct > 0) {
+    minutes = Math.round(minutes * (1 + p.extra_time_pct / 100));
+  }
+  if (p.diagnoses.includes("dyslexia") && (a.reading_load ?? 0) >= 3) {
+    minutes = Math.round(minutes * 1.6);
+  }
+  return minutes;
 }

@@ -46,3 +46,54 @@ button, [role="button"], a {
   outline-offset: 2px;
   border-radius: 4px;
 }
+
+/* ------------------------------------------------------------------
+   Accessibility profile classes — set on <body> per profile.
+   Pulled forward from F20 (slice 6) because dyslexia accommodations
+   need to ship in slice 1.
+   ------------------------------------------------------------------ */
+
+/* Font size (root for rem cascade). */
+.font-size-small  { font-size: 14px; }
+.font-size-normal { font-size: 16px; }
+.font-size-large  { font-size: 18px; }
+.font-size-xlarge { font-size: 20px; }
+
+/* Line spacing. */
+.line-spacing-compact { line-height: 1.35; }
+.line-spacing-normal  { line-height: 1.55; }
+.line-spacing-loose   { line-height: 1.85; letter-spacing: 0.01em; }
+
+/* Dyslexia-friendly type stack (Lexend / Atkinson Hyperlegible / OpenDyslexic
+   if installed by the OS, otherwise falls back to a friendly humanist sans). */
+.dyslexia-font, .dyslexia-font * {
+  font-family: "Lexend", "Atkinson Hyperlegible", "OpenDyslexic",
+               "Verdana", "Trebuchet MS", system-ui, sans-serif !important;
+  word-spacing: 0.08em;
+}
+
+/* Reduced motion: kill non-essential transitions and transforms. */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High contrast: bump foreground and border contrast in both modes. */
+.high-contrast {
+  --fg: 0 0 0;
+  --muted: 30 41 59;       /* slate-800 */
+  --border: 71 85 105;     /* slate-600 */
+  --card: 255 255 255;
+}
+@media (prefers-color-scheme: dark) {
+  .high-contrast {
+    --fg: 255 255 255;
+    --muted: 226 232 240;  /* slate-200 */
+    --border: 148 163 184; /* slate-400 */
+    --card: 0 0 0;
+  }
+}

@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
+import { loadProfile } from "@/lib/profile";
 import { EnergyPicker } from "./energy-picker";
+import { TimeBar } from "./time-bar";
 import { formatDueAt } from "@/lib/format";
+import { KIND_LABEL } from "@/lib/checklists/templates";
+import { TtsButton } from "@/components/tts-button";
 
 export default async function DashboardPage({
   searchParams,
@@ -10,26 +14,25 @@ export default async function DashboardPage({
   searchParams: Promise<{ energy?: "low" | "medium" | "high" }>;
 }) {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const profile = await loadProfile();
   const energy = (await searchParams).energy ?? "medium";
 
   const { data: assignments } = await supabase
     .from("assignments")
-    .select("id, title, due_at, status, estimated_minutes, difficulty, class_id")
+    .select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load")
     .neq("status", "submitted")
     .neq("status", "graded")
     .neq("status", "abandoned")
     .order("due_at", { ascending: true, nullsFirst: false });
 
-  const ranked = rankAssignments(assignments ?? [], new Date(), energy);
+  const ranked = rankAssignments(assignments ?? [], new Date(), energy, {
+    diagnoses: profile?.diagnoses ?? [],
+    extra_time_pct: profile?.extra_time_pct ?? 0,
+  });
   const top = ranked[0];
   const rest = ranked.slice(1, 4);
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("display_name")
-    .eq("user_id", user!.id)
-    .single();
+  const ttsOn = profile?.tts_enabled;
 
   return (
     <div className="space-y-8">
@@ -49,15 +52,19 @@ export default async function DashboardPage({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Right now
           </h2>
-          <Link
-            href={`/assignments/${top.id}`}
-            className="block rounded-2xl border border-accent bg-accent/5 p-5 transition hover:bg-accent/10"
-          >
+          <div className="rounded-2xl border border-accent bg-accent/5 p-5">
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
+              <Link href={`/assignments/${top.id}`} className="min-w-0 flex-1">
                 <p className="text-lg font-semibold">{top.title}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {KIND_LABEL[top.kind]}
+                  {top.effective_minutes != null &&
+                    ` · ~${top.effective_minutes} min for you`}
+                </p>
                 {top.due_at && (
-                  <p className="mt-1 text-sm text-muted">{formatDueAt(top.due_at)}</p>
+                  <div className="mt-3">
+                    <TimeBar dueAt={top.due_at} />
+                  </div>
                 )}
                 {top.reasons.length > 0 && (
                   <ul className="mt-3 flex flex-wrap gap-1.5">
@@ -71,12 +78,20 @@ export default async function DashboardPage({
                     ))}
                   </ul>
                 )}
-              </div>
-              <span className="shrink-0 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white">
+              </Link>
+              <Link
+                href={`/assignments/${top.id}`}
+                className="shrink-0 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white"
+              >
                 Start
-              </span>
+              </Link>
             </div>
-          </Link>
+            {ttsOn && (
+              <div className="mt-3">
+                <TtsButton text={`${top.title}. ${KIND_LABEL[top.kind]}. ${top.due_at ? formatDueAt(top.due_at) : ""}.`} />
+              </div>
+            )}
+          </div>
         </section>
       )}
 
@@ -94,9 +109,10 @@ export default async function DashboardPage({
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">{a.title}</p>
-                    {a.due_at && (
-                      <p className="text-xs text-muted">{formatDueAt(a.due_at)}</p>
-                    )}
+                    <p className="text-xs text-muted">
+                      {KIND_LABEL[a.kind]}
+                      {a.due_at && ` · ${formatDueAt(a.due_at)}`}
+                    </p>
                   </div>
                   <span className="text-xs text-muted">{a.reasons[0] ?? ""}</span>
                 </Link>

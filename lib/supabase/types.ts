@@ -55,13 +55,17 @@ export type Database = {
           due_at: string | null;
           estimated_minutes: number | null;
           id: string;
+          kind: AssignmentKind;
+          last_thought: string | null;
           owner_id: string;
+          reading_load: number;
           rubric_id: string | null;
           status: string;
           submission_url: string | null;
           submitted_at: string | null;
           title: string;
           updated_at: string;
+          writing_load: number;
         };
         Insert: {
           class_id: string;
@@ -71,13 +75,17 @@ export type Database = {
           due_at?: string | null;
           estimated_minutes?: number | null;
           id?: string;
+          kind?: AssignmentKind;
+          last_thought?: string | null;
           owner_id: string;
+          reading_load?: number;
           rubric_id?: string | null;
           status?: string;
           submission_url?: string | null;
           submitted_at?: string | null;
           title: string;
           updated_at?: string;
+          writing_load?: number;
         };
         Update: {
           class_id?: string;
@@ -87,13 +95,17 @@ export type Database = {
           due_at?: string | null;
           estimated_minutes?: number | null;
           id?: string;
+          kind?: AssignmentKind;
+          last_thought?: string | null;
           owner_id?: string;
+          reading_load?: number;
           rubric_id?: string | null;
           status?: string;
           submission_url?: string | null;
           submitted_at?: string | null;
           title?: string;
           updated_at?: string;
+          writing_load?: number;
         };
         Relationships: [
           {
@@ -150,35 +162,68 @@ export type Database = {
       };
       profiles: {
         Row: {
+          accommodations: string[];
           age_bracket: string;
           consent_ai: boolean;
           consent_ai_at: string | null;
           created_at: string;
           date_of_birth: string;
+          diagnoses: string[];
           display_name: string | null;
+          dyslexia_font: boolean;
+          extra_time_pct: number;
+          font_size: FontSize;
+          high_contrast: boolean;
+          line_spacing: LineSpacing;
+          onboarded_at: string | null;
+          reduced_motion: boolean;
+          school_year: number | null;
           timezone: string;
+          tts_enabled: boolean;
           updated_at: string;
           user_id: string;
         };
         Insert: {
+          accommodations?: string[];
           age_bracket: string;
           consent_ai?: boolean;
           consent_ai_at?: string | null;
           created_at?: string;
           date_of_birth: string;
+          diagnoses?: string[];
           display_name?: string | null;
+          dyslexia_font?: boolean;
+          extra_time_pct?: number;
+          font_size?: FontSize;
+          high_contrast?: boolean;
+          line_spacing?: LineSpacing;
+          onboarded_at?: string | null;
+          reduced_motion?: boolean;
+          school_year?: number | null;
           timezone?: string;
+          tts_enabled?: boolean;
           updated_at?: string;
           user_id: string;
         };
         Update: {
+          accommodations?: string[];
           age_bracket?: string;
           consent_ai?: boolean;
           consent_ai_at?: string | null;
           created_at?: string;
           date_of_birth?: string;
+          diagnoses?: string[];
           display_name?: string | null;
+          dyslexia_font?: boolean;
+          extra_time_pct?: number;
+          font_size?: FontSize;
+          high_contrast?: boolean;
+          line_spacing?: LineSpacing;
+          onboarded_at?: string | null;
+          reduced_motion?: boolean;
+          school_year?: number | null;
           timezone?: string;
+          tts_enabled?: boolean;
           updated_at?: string;
           user_id?: string;
         };
@@ -331,6 +376,38 @@ export type AssignmentStatus =
   | "abandoned";
 
 export type AgeBracket = "under_13" | "13_to_17" | "adult";
+
+export type AssignmentKind =
+  | "essay"
+  | "lab"
+  | "problem_set"
+  | "presentation"
+  | "test_prep"
+  | "reading"
+  | "other";
+
+export type FontSize = "small" | "normal" | "large" | "xlarge";
+export type LineSpacing = "compact" | "normal" | "loose";
+
+export type Diagnosis =
+  | "adhd"
+  | "dyslexia"
+  | "dyscalculia"
+  | "dysgraphia"
+  | "asd"
+  | "anxiety"
+  | "other"
+  | "none";
+
+export type Accommodation =
+  | "extended_time"
+  | "reduced_quantity"
+  | "alternate_format"
+  | "reader"
+  | "scribe"
+  | "breaks"
+  | "quiet_setting"
+  | "other";
 
 export type Tables<T extends keyof Database["public"]["Tables"]> =
   Database["public"]["Tables"][T]["Row"];

@@ -8,6 +8,7 @@ const config: Config = {
   ],
   safelist: [
     { pattern: /bg-(slate|indigo|emerald|amber|rose|sky|violet)-500/ },
+    { pattern: /(bg|text|border)-(amber|sky|emerald)-(300|500|700)/ },
   ],
   theme: {
     extend: {

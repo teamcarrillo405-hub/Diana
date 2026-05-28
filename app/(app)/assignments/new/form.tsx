@@ -3,8 +3,21 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createAssignment } from "./actions";
+import { VoiceTextarea } from "@/components/voice-textarea";
+import type { AssignmentKind } from "@/lib/supabase/types";
+import { KIND_LABEL } from "@/lib/checklists/templates";
 
 type ClassOption = { id: string; name: string; color: string };
+
+const KINDS: AssignmentKind[] = [
+  "essay",
+  "lab",
+  "problem_set",
+  "presentation",
+  "test_prep",
+  "reading",
+  "other",
+];
 
 export function NewAssignmentForm({ classes }: { classes: ClassOption[] }) {
   const router = useRouter();
@@ -13,9 +26,12 @@ export function NewAssignmentForm({ classes }: { classes: ClassOption[] }) {
 
   const [title, setTitle] = useState("");
   const [classId, setClassId] = useState(classes[0]?.id ?? "");
+  const [kind, setKind] = useState<AssignmentKind>("other");
   const [dueAt, setDueAt] = useState("");
   const [estimate, setEstimate] = useState("");
   const [difficulty, setDifficulty] = useState<number>(3);
+  const [readingLoad, setReadingLoad] = useState<number>(1);
+  const [writingLoad, setWritingLoad] = useState<number>(1);
   const [description, setDescription] = useState("");
 
   function onSubmit(e: React.FormEvent) {
@@ -28,9 +44,12 @@ export function NewAssignmentForm({ classes }: { classes: ClassOption[] }) {
       const result = await createAssignment({
         title: title.trim(),
         classId,
+        kind,
         dueAt: dueAt || null,
         estimate: estimate ? Number(estimate) : null,
         difficulty,
+        readingLoad,
+        writingLoad,
         description: description.trim() || null,
       });
       if (result.error) return setError(result.error);
@@ -51,17 +70,30 @@ export function NewAssignmentForm({ classes }: { classes: ClassOption[] }) {
         />
       </Field>
 
-      <Field label="Class">
-        <select
-          value={classId}
-          onChange={(e) => setClassId(e.target.value)}
-          className="input"
-        >
-          {classes.map((c) => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-      </Field>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label="Class">
+          <select
+            value={classId}
+            onChange={(e) => setClassId(e.target.value)}
+            className="input"
+          >
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </Field>
+        <Field label="Type">
+          <select
+            value={kind}
+            onChange={(e) => setKind(e.target.value as AssignmentKind)}
+            className="input"
+          >
+            {KINDS.map((k) => (
+              <option key={k} value={k}>{KIND_LABEL[k]}</option>
+            ))}
+          </select>
+        </Field>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label="Due">
@@ -97,13 +129,41 @@ export function NewAssignmentForm({ classes }: { classes: ClassOption[] }) {
         />
       </Field>
 
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Field label={`Reading load: ${readingLoad}/5`}>
+          <input
+            type="range"
+            min={0}
+            max={5}
+            value={readingLoad}
+            onChange={(e) => setReadingLoad(Number(e.target.value))}
+            className="w-full"
+          />
+          <span className="text-xs text-muted">How much reading does this require?</span>
+        </Field>
+        <Field label={`Writing load: ${writingLoad}/5`}>
+          <input
+            type="range"
+            min={0}
+            max={5}
+            value={writingLoad}
+            onChange={(e) => setWritingLoad(Number(e.target.value))}
+            className="w-full"
+          />
+          <span className="text-xs text-muted">How much writing?</span>
+        </Field>
+      </div>
+
       <Field label="Notes">
-        <textarea
+        <VoiceTextarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          onTranscript={(chunk) =>
+            setDescription((d) => (d ? d + " " + chunk : chunk))
+          }
           rows={3}
           className="input"
-          placeholder="What does the teacher want? Anything to remember?"
+          placeholder="What does the teacher want? Anything to remember? Tap the mic to dictate."
         />
       </Field>
 
