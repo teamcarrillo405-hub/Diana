@@ -1,5 +1,16 @@
 import type { Metadata, Viewport } from "next";
+import { Lexend } from "next/font/google";
 import "./globals.css";
+
+// GAP-01: Lexend is referenced in .dyslexia-font CSS but must be explicitly
+// loaded by next/font/google to actually download. The CSS variable is
+// always present on <html>; the .dyslexia-font class (applied in (app)/layout
+// based on profile) toggles whether the body actually uses it.
+const lexend = Lexend({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-lexend",
+});
 
 export const metadata: Metadata = {
   title: "Diana",
@@ -29,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={lexend.variable}>
       <body>{children}</body>
     </html>
   );

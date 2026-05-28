@@ -64,11 +64,12 @@ button, [role="button"], a {
 .line-spacing-normal  { line-height: 1.55; }
 .line-spacing-loose   { line-height: 1.85; letter-spacing: 0.01em; }
 
-/* Dyslexia-friendly type stack (Lexend / Atkinson Hyperlegible / OpenDyslexic
-   if installed by the OS, otherwise falls back to a friendly humanist sans). */
+/* Dyslexia-friendly type stack. The --font-lexend CSS variable is set on
+   <html> by next/font/google in app/layout.tsx. Atkinson Hyperlegible /
+   OpenDyslexic are fallbacks if the user has them installed. */
 .dyslexia-font, .dyslexia-font * {
-  font-family: "Lexend", "Atkinson Hyperlegible", "OpenDyslexic",
-               "Verdana", "Trebuchet MS", system-ui, sans-serif !important;
+  font-family: var(--font-lexend), "Lexend", "Atkinson Hyperlegible",
+               "OpenDyslexic", "Verdana", "Trebuchet MS", system-ui, sans-serif !important;
   word-spacing: 0.08em;
 }
 
