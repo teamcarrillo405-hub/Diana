@@ -7,7 +7,7 @@ Gap-closure requirements (GAP-xx) are from the evidence review §7 ranked fix li
 
 ## Phase 2 Requirements: Evidence-Review Gap Closure
 
-### GAP-01: Accessibility Profile (Pull Forward from Slice 6)
+### GAP-01: Accessibility Profile (Pull Forward from Slice 6) — COMPLETE (02-03)
 
 **Priority:** P0 — unblocks entire dyslexic user base  
 **Effort:** ~1 day  
@@ -25,7 +25,7 @@ Font size, line height, dyslexia-leaning font (Lexend), TTS toggle, voice input 
 
 ---
 
-### GAP-02: Onboarding Flow
+### GAP-02: Onboarding Flow — COMPLETE (02-03)
 
 **Priority:** P0 — drives all downstream personalization  
 **Effort:** ~half day  
@@ -62,7 +62,7 @@ New users currently see email + password + DOB only. We can't personalize anythi
 
 ---
 
-### GAP-04: Per-Kind Checklist Templates
+### GAP-04: Per-Kind Checklist Templates — COMPLETE (02-03, custom add/remove)
 
 **Priority:** P1  
 **Effort:** ~1 day (static map + UI plumbing)  
@@ -81,7 +81,7 @@ The six hardcoded generic checklist items in `actions.ts` need to become per-kin
 
 ---
 
-### GAP-05: Time-Blindness Visualization on Dashboard
+### GAP-05: Time-Blindness Visualization on Dashboard — COMPLETE (02-03)
 
 **Priority:** P1  
 **Evidence:** Slice-1 evidence review §2 #4, §7 #5

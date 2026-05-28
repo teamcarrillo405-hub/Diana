@@ -43,7 +43,7 @@
 **Plans:** 4 plans in 4 waves (wave 2 + wave 3 run in parallel)
 - [x] 02-01-PLAN.md — Schema migrations (0006 + 0007), Vitest setup, types.ts sync
 - [x] 02-02-PLAN.md — Scorer extension: RecentSignal type + signal-recency decay + 4 unit tests + dashboard wiring
-- [ ] 02-03-PLAN.md — Low-risk UI: Lexend font load, onboarding class-count step (+0008 migration), TimeBar formula fix, custom checklist add/remove
+- [x] 02-03-PLAN.md — Low-risk UI: Lexend font load, onboarding class-count step (+0008 migration), TimeBar formula fix, custom checklist add/remove
 - [ ] 02-04-PLAN.md — New UI logic: createMicroTask + past-due button, pivotAssignment + PivotForm, breadcrumb auto-focus + "You left off here" callout
 
 ---

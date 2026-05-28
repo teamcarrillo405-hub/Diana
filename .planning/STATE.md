@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-05-28  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 2 (executing — plans 02-01, 02-02 complete; 02-03 next)  
-**Last session:** Completed 02-02 (scorer signal-recency decay, 6 tests green, dashboard wired)
+**Active phase:** Phase 2 (executing — plans 02-01, 02-02, 02-03 complete; 02-04 next)  
+**Last session:** Completed 02-03 (Lexend font, class-count onboarding, TimeBar spec formula, checklist add/remove)
 
 ---
 
@@ -38,6 +38,15 @@
 - Status-based momentum (drafting/checking → +25) fully removed; signals are the sole momentum source
 - assignment_id nullable in task_signals — dashboard filters before passing to scorer
 - 1.6x dyslexia reading_load multiplier codified in REQUIREMENTS.md (was 1.5x in spec); implementation matches, test verifies
+
+## Phase 2 decisions (02-03)
+
+- lexend.variable only (not lexend.className) — Lexend is opt-in via .dyslexia-font, not the global body font
+- class_count_hint nullable, no default — null = skipped during onboarding
+- TimeBar createdAt lookup by id from original Supabase array — no scorer type coupling
+- TimeBar fallback to 7-day window when totalWindow < 1h (last-minute tasks)
+- Custom checklist items required=false — never block submission
+- deleteChecklistItem allows removing required items — student owns their checklist
 
 ## Phase 2 decisions (02-01)
 
