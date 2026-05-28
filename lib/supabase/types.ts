@@ -58,6 +58,8 @@ export type Database = {
           kind: AssignmentKind;
           last_thought: string | null;
           owner_id: string;
+          parent_assignment_id: string | null;
+          pivot_note: string | null;
           reading_load: number;
           rubric_id: string | null;
           status: string;
@@ -78,6 +80,8 @@ export type Database = {
           kind?: AssignmentKind;
           last_thought?: string | null;
           owner_id: string;
+          parent_assignment_id?: string | null;
+          pivot_note?: string | null;
           reading_load?: number;
           rubric_id?: string | null;
           status?: string;
@@ -98,6 +102,8 @@ export type Database = {
           kind?: AssignmentKind;
           last_thought?: string | null;
           owner_id?: string;
+          parent_assignment_id?: string | null;
+          pivot_note?: string | null;
           reading_load?: number;
           rubric_id?: string | null;
           status?: string;
@@ -113,6 +119,13 @@ export type Database = {
             columns: ["class_id"];
             isOneToOne: false;
             referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assignments_parent_assignment_id_fkey";
+            columns: ["parent_assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
             referencedColumns: ["id"];
           },
           {
