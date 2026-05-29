@@ -44,22 +44,44 @@ export function StatusButtons({
   }
 
   return (
-    <div className="flex flex-wrap gap-2 pt-1">
-      {options.map((to) => (
-        <button
-          key={to}
-          type="button"
-          disabled={pending}
-          onClick={() => go(to)}
-          className={`rounded-md px-3 py-2 text-sm font-medium disabled:opacity-50 ${
-            isPrimary(from, to)
-              ? "bg-accent text-white hover:opacity-90"
-              : "border border-border bg-card hover:bg-border/30"
-          } ${flashedTo === to ? "btn-complete-flash" : ""}`}
-        >
-          {labelFor(from, to)}
-        </button>
-      ))}
+    <div className="relative">
+      {flashedTo !== null && (
+        <div className="absolute -top-8 left-0 flex items-center gap-1.5 pointer-events-none">
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            fill="none"
+            stroke="rgb(22 163 74)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="20 6 9 17 4 12" className="check-draw" />
+          </svg>
+          <span className="text-sm font-medium text-ok check-draw" style={{ animationDelay: "100ms" }}>
+            Done!
+          </span>
+        </div>
+      )}
+      <div className="flex flex-wrap gap-2 pt-1">
+        {options.map((to) => (
+          <button
+            key={to}
+            type="button"
+            disabled={pending}
+            onClick={() => go(to)}
+            className={`rounded-md px-3 py-2 text-sm font-medium disabled:opacity-50 ${
+              isPrimary(from, to)
+                ? `bg-accent text-white hover:opacity-90 ${flashedTo === to ? "btn-complete-flash" : ""}`
+                : "border border-border bg-card hover:bg-border/30"
+            }`}
+          >
+            {labelFor(from, to)}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
