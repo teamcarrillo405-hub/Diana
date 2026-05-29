@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import { STATUS_LABEL } from "@/lib/state-machine/assignment";
@@ -17,12 +17,17 @@ export function StatusButtons({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [flashedTo, setFlashedTo] = useState<AssignmentStatus | null>(null);
 
   if (options.length === 0) return null;
 
   function go(to: AssignmentStatus) {
     startTransition(async () => {
       const result = await transitionAssignment({ id: assignmentId, from, to });
+      if (isPrimary(from, to) && !("error" in result && result.error)) {
+        setFlashedTo(to);
+        setTimeout(() => setFlashedTo(null), 700);
+      }
       if ("error" in result && result.error) return;
       if (result.redirect) {
         router.push(result.redirect);
@@ -50,7 +55,7 @@ export function StatusButtons({
             isPrimary(from, to)
               ? "bg-accent text-white hover:opacity-90"
               : "border border-border bg-card hover:bg-border/30"
-          }`}
+          } ${flashedTo === to ? "btn-complete-flash" : ""}`}
         >
           {labelFor(from, to)}
         </button>
