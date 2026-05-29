@@ -33,7 +33,7 @@ export default async function DashboardPage({
 
   const { data: assignments } = await supabase
     .from("assignments")
-    .select("id, title, due_at, created_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load")
+    .select("id, title, due_at, created_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)")
     .neq("status", "submitted")
     .neq("status", "graded")
     .neq("status", "abandoned")
@@ -128,10 +128,23 @@ export default async function DashboardPage({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Right now
           </h2>
-          <div className="rounded-2xl border border-accent bg-accent/5 p-5">
+          <div className="rounded-2xl border-2 border-accent/30 bg-card p-6 shadow-sm">
+            {(top as any).classes && (
+              <div className="mb-3 flex items-center gap-2">
+                <span
+                  className="inline-block h-2.5 w-2.5 rounded-full"
+                  style={{ background: (top as any).classes?.color ?? "#6366f1" }}
+                />
+                <span className="text-xs font-medium text-muted">
+                  {(top as any).classes?.name}
+                </span>
+              </div>
+            )}
             <div className="flex items-start justify-between gap-3">
-              <Link href={`/assignments/${top.id}`} className="min-w-0 flex-1">
-                <p className="text-lg font-semibold">{top.title}</p>
+              <Link href={`/assignments/${top.id}`} className="block group min-w-0 flex-1">
+                <p className="text-2xl font-bold leading-snug group-hover:text-accent transition-colors">
+                  {top.title}
+                </p>
                 <p className="mt-1 text-sm text-muted">
                   {KIND_LABEL[top.kind]}
                   {top.effective_minutes != null &&
