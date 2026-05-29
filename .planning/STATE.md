@@ -2,23 +2,23 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 07
-stopped_at: Phase 07-01 complete — F20 tone-audit + F13 timer core delivered
-last_updated: "2026-05-29T17:53:53.336Z"
+status: Phase 07 COMPLETE
+stopped_at: Phase 07-03 complete — F13 timer UI + T2-03 body-doubling + nav Timer item delivered
+last_updated: "2026-05-29T18:27:00Z"
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 7
   total_plans: 21
-  completed_plans: 20
+  completed_plans: 21
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — NEXT  
-**Last session:** 2026-05-29T17:53:53.333Z
-**Stopped at:** Phase 07-01 complete — F20 tone-audit + F13 timer core delivered
+**Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — COMPLETE  
+**Last session:** 2026-05-29T18:27:00Z
+**Stopped at:** Phase 07-03 complete — F13 timer UI + T2-03 body-doubling + nav Timer item delivered. v1.0 milestone COMPLETE.
 
 ---
 
@@ -54,6 +54,17 @@ progress:
 - Template picker placed BEFORE title field — student picks scaffold first, then adds assignment-specific title
 - getTemplates and getTemplateById added to lib/templates/templates.ts as simple array wrappers (no extra DB calls) — required by success criteria
 - inbox/[id]/actions.ts updated with templateId: null — all callers of createAssignment must include the new field
+
+## Phase 7 decisions (07-03)
+
+- Countdown hidden by default (showCountdown=false) — time-blindness accommodation per F13 spec; toggle persists via localStorage
+- Ring progress uses rgb(var(--accent)) only — no red states at any progress level, calm invariant maintained
+- Audio CDN-free placeholder approach — public/sounds/ directory committed empty; actual .mp3 assets are manual follow-up
+- HTML5 Audio API play() wrapped in .catch(()=>{}) — browsers block autoplay; first Start click is user gesture; silent degradation if files missing
+- body-double-pulse keyframe in globals.css (not CSS module) — single-use global utility, module overhead not warranted
+- prefers-reduced-motion gate on body-double-pulse — vestibular/motion sensitivity comorbid with ADHD; reduced-motion = static dot
+- Body-double copy 'No one else can see you' — explicit expectation management, no false networking promise (T2-03 spec)
+- Timer between Study and Classes in nav — adjacent to work-mode items, before metadata items; nav now 6 items
 
 ## Phase 7 decisions (07-01)
 

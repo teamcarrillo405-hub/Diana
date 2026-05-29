@@ -208,7 +208,7 @@ Per-user daily token budget (`ai_usage_daily` table). Soft cap 200K input / 30K 
 
 ## Phase 7 Requirements: Polish + Tier 2
 
-### F13: Configurable Timer with Premack Rewards
+### F13: Configurable Timer with Premack Rewards ✓ COMPLETE (07-03)
 15/20/25/30 min sessions. Movement prompts on breaks. Premack reward chain configurable. No auto-restart, no block-failure penalty.
 
 ### F20: Tone and Copy Audit
@@ -220,5 +220,5 @@ DBQ 7-point checklist, CER lab report, 5-paragraph essay, FRQ tagger.
 ### T2-02: Reading-Load Awareness View
 "You have 47 pages queued tonight." Dashboard panel.
 
-### T2-03: Body-Doubling Mode
+### T2-03: Body-Doubling Mode ✓ COMPLETE (07-03)
 Silent peer-presence framing. Community, not surveillance.
