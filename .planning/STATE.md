@@ -3,22 +3,22 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 04
-stopped_at: Completed 04-01-PLAN.md
-last_updated: "2026-05-29T11:15:00.007Z"
+stopped_at: Completed 04-02-PLAN.md
+last_updated: "2026-05-29T11:27:34.916Z"
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 11
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 4 in progress (04-01 done — reading_font migration + pure TTS utilities)  
-**Last session:** 2026-05-29T11:15:00.005Z
-**Stopped at:** Completed 04-01-PLAN.md
+**Active phase:** Phase 4 in progress (04-02 done — font loading + reading CSS + TTS word-highlight hook)  
+**Last session:** 2026-05-29T11:27:34.914Z
+**Stopped at:** Completed 04-02-PLAN.md
 
 ---
 
@@ -46,6 +46,15 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 4 decisions (04-02)
+
+- Atkinson_Hyperlegible_Next loaded via next/font/google (not fontsource) for built-in Next.js font optimization + self-hosting
+- OpenDyslexic loaded via @fontsource/opendyslexic (weight 400 only — no all.css, Pitfall 7 guard)
+- .reading-view CSS scoped to blocks only (not global body) — prevents typography leaking into non-reading UI
+- useTtsHighlight exposes pause/resume/stop separately — TtsHighlightButton drives 3-state UI
+- Word spans rendered only when state !== 'idle' — Pitfall 3 guard for screen reader compatibility
+- aria-live='polite' on paragraph container only — prevents excessive screen reader announcements per word
 
 ## Phase 4 decisions (04-01)
 
