@@ -80,6 +80,11 @@
 
 **Requirement IDs:** F06, F07, F19
 
+**Plans:** 3 plans in 3 sequential waves
+- [ ] 04-01-PLAN.md — Migration 0010 (reading_font column) + pure TTS utility functions (tts-utils.ts) + profileBodyClass extension + 13 unit tests
+- [ ] 04-02-PLAN.md — Font loading (Atkinson Hyperlegible Next + OpenDyslexic in layout.tsx) + reading-view CSS typography + useTtsHighlight hook + TtsHighlightButton component
+- [ ] 04-03-PLAN.md — ReadingPanel component + reading-scaffold Edge Function + assignment detail wiring + Settings font picker
+
 ---
 
 ## Phase 5: Notes + Study Layer (Slice 4)
@@ -129,3 +134,4 @@
 *Roadmap bootstrapped from `docs/spec/features.md` and `docs/review/slice-1-evidence-review.md` on 2026-05-28.*
 *Phase 2 plans expanded 2026-05-28.*
 *Phase 3 plans created 2026-05-29.*
+*Phase 4 plans created 2026-05-29.*
