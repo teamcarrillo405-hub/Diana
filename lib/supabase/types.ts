@@ -360,6 +360,7 @@ export type Database = {
           school_year: number | null;
           timezone: string;
           tts_enabled: boolean;
+          reading_font: string;
           updated_at: string;
           user_id: string;
         };
@@ -383,6 +384,7 @@ export type Database = {
           school_year?: number | null;
           timezone?: string;
           tts_enabled?: boolean;
+          reading_font?: string;
           updated_at?: string;
           user_id: string;
         };
@@ -406,6 +408,7 @@ export type Database = {
           school_year?: number | null;
           timezone?: string;
           tts_enabled?: boolean;
+          reading_font?: string;
           updated_at?: string;
           user_id?: string;
         };
