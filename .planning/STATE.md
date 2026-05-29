@@ -1,9 +1,9 @@
 # Diana — Project State
 
-**Last updated:** 2026-05-28  
+**Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 2 (executing — plans 02-01, 02-02, 02-03 complete; 02-04 next)  
-**Last session:** Completed 02-03 (Lexend font, class-count onboarding, TimeBar spec formula, checklist add/remove)
+**Active phase:** Phase 2 COMPLETE (all 4 plans done — 02-01, 02-02, 02-03, 02-04)  
+**Last session:** Completed 02-04 (createMicroTask, pivotAssignment, PivotForm, Breadcrumb auto-focus, ?focus=breadcrumb redirect)
 
 ---
 
@@ -31,6 +31,15 @@
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 2 decisions (02-04)
+
+- PastDueMicroTaskButton extracted to its own client component — TimeBar stays a server component
+- inProgress = todo || drafting only — checking/exporting are near-done, no micro-task escape hatch needed
+- pivotAssignment race-guard: .eq("status","drafting") on update prevents concurrent pivot writes
+- PivotForm copy: "Pause and revisit" / "Pause this" (not "Pivot") — pause framing per Pitfall 6
+- Breadcrumb auto-focus via useSearchParams + useEffect; triggered by ?focus=breadcrumb URL param
+- pivotSummary helper exported but rendering deferred to Phase 3 to keep plan scope contained
 
 ## Phase 2 decisions (02-02)
 

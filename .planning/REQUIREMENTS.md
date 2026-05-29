@@ -97,7 +97,7 @@ The six hardcoded generic checklist items in `actions.ts` need to become per-kin
 
 ---
 
-### GAP-06: Past-Due Reframe
+### GAP-06: Past-Due Reframe — COMPLETE (02-04)
 
 **Priority:** P1  
 **Evidence:** Slice-1 evidence review §2 #5, §7 #6
@@ -113,7 +113,7 @@ Past-due tasks currently show a "past due" pill. Shame-management should be a sl
 
 ---
 
-### GAP-07: Interrupt-Recovery Breadcrumb
+### GAP-07: Interrupt-Recovery Breadcrumb — COMPLETE (02-04)
 
 **Priority:** P2  
 **Evidence:** Slice-1 evidence review §2 #3, §7 #7 — 10–25 min recovery cost per interruption (Mark, UC Irvine)

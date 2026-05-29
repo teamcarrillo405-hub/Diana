@@ -44,7 +44,9 @@
 - [x] 02-01-PLAN.md — Schema migrations (0006 + 0007), Vitest setup, types.ts sync
 - [x] 02-02-PLAN.md — Scorer extension: RecentSignal type + signal-recency decay + 4 unit tests + dashboard wiring
 - [x] 02-03-PLAN.md — Low-risk UI: Lexend font load, onboarding class-count step (+0008 migration), TimeBar formula fix, custom checklist add/remove
-- [ ] 02-04-PLAN.md — New UI logic: createMicroTask + past-due button, pivotAssignment + PivotForm, breadcrumb auto-focus + "You left off here" callout
+- [x] 02-04-PLAN.md — New UI logic: createMicroTask + past-due button, pivotAssignment + PivotForm, breadcrumb auto-focus + "You left off here" callout
+
+**Phase 2 STATUS: COMPLETE** — All 8 GAPs closed. Run `/gsd:verify-work` before starting Phase 3.
 
 ---
 
