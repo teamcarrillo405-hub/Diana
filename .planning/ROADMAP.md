@@ -119,11 +119,17 @@
 - F15: Authorship log
 - F16: Per-class AI traffic-light
 - F17: Refuse-with-redirect
-- F18: Frustration escape valve
+- F18: Frustration escape valve (intentional spec divergence — break + talk-through instead of worked example; see 06-01 objective)
 - Per-user AI cost ceiling (daily token budget)
 - Content safety layer for minors in study-buddy chat
 
 **Requirement IDs:** F09, F10, F11, F15, F16, F17, F18, AI-SAFETY-01
+
+**Plans:** 4 plans in 3 waves
+- [x] 06-01-PLAN.md (wave 1) — Migration 0012 (classes.ai_mode, ai_interactions, profiles token budget) + lib/ai/{safety,refuse-redirect,frustration,system-prompts} + supabase/functions/_shared/ Deno mirrors (23 unit tests) + F18 spec-divergence decision note
+- [ ] 06-02-PLAN.md (wave 2, parallel with 06-03) — F16 per-class AI mode settings page + un-hardcode assignment detail + F15 /settings/ai-history with CSV export + amber TokenBudgetBanner on dashboard
+- [ ] 06-03-PLAN.md (wave 2, parallel with 06-02) — F09 math-step (Haiku 4.5) + F10 writing-aid (Sonnet 4.6) + F11 citation-gen (Haiku 4.5) Edge Functions ONLY (F17 + F18 system prompts injected via shared module)
+- [ ] 06-04-PLAN.md (wave 3, depends on 06-01 + 06-02 + 06-03) — ai-tools-actions.ts (three server actions) + math-helper.tsx / writing-aid.tsx / citation-tool.tsx client components + assignment detail conditional rendering with single classAiMode binding + manual smoke-test checkpoint
 
 ---
 
@@ -147,3 +153,7 @@
 *Phase 4 verified complete 2026-05-29.*
 *Phase 5 plans created 2026-05-29.*
 *Phase 5 verified complete 2026-05-29.*
+*Phase 6 plans created 2026-05-29.*
+*Phase 6 plans revised 2026-05-29 — split 06-03 into 06-03 (Edge Functions) + 06-04 (UI/actions/page wiring) to resolve scope/dependency blockers; added F18 decision note.*
+</content>
+</invoke>

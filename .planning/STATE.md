@@ -2,23 +2,23 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 05 COMPLETE — ready for Phase 06
-stopped_at: Phase 5 verified complete — F08/F12 delivered (notes + FSRS flashcards)
-last_updated: "2026-05-29T06:30:00.000Z"
+status: Executing Phase 06
+stopped_at: "Phase 06 Plan 01 complete — migration 0012, lib/ai safety layer, Deno mirrors"
+last_updated: "2026-05-29T14:38:00.000Z"
 progress:
   total_phases: 7
-  completed_phases: 5
-  total_plans: 14
-  completed_plans: 14
+  completed_phases: 4
+  total_plans: 18
+  completed_plans: 15
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 6 (AI Feature Core — Slice 5) — NEXT  
-**Last session:** 2026-05-29T06:30:00.000Z
-**Stopped at:** Phase 5 verified complete — F08/F12 delivered (notes + FSRS flashcards)
+**Active phase:** Phase 6 (AI Feature Core — Slice 5) — IN PROGRESS  
+**Last session:** 2026-05-29T14:38:00.000Z
+**Stopped at:** Phase 06 Plan 01 complete — migration 0012, lib/ai safety layer, Deno mirrors
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 6 decisions (06-01)
+
+- ai_interactions is SEPARATE from ai_calls: ai_calls=cost/security audit (kept per privacy policy); ai_interactions=student-facing authorship log (exportable, per-assignment, per F15)
+- UTC daily reset boundary for token budget (todayIsoDate): consistent for v1; per-user TZ-aware reset deferred to Phase 7+
+- daily_token_budget default 50000 on profiles directly (not a separate usage_daily table): atomic single UPDATE, no JOIN per request, matches spec wording
+- F18 divergence: FRUSTRATION_REDIRECT offers 5-min break + talk-through instead of worked example — lower cognitive load for ADHD/dyslexia student; worked-example path deferred to Phase 7+
+- Deno mirror convention: duplicate lib/ai strings verbatim in _shared/ rather than shared package — overkill for ~150 lines of strings
 
 ## Phase 5 decisions (05-02)
 
