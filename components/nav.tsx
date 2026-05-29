@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Home,
   BookOpen,
+  Brain,
   CheckSquare,
   Settings as Cog,
 } from "lucide-react";
@@ -12,6 +13,7 @@ import {
 const ITEMS = [
   { href: "/dashboard", label: "Today", icon: Home },
   { href: "/assignments", label: "Tasks", icon: CheckSquare },
+  { href: "/flashcards", label: "Study", icon: Brain },
   { href: "/classes", label: "Classes", icon: BookOpen },
   { href: "/settings", label: "Settings", icon: Cog },
 ] as const;
