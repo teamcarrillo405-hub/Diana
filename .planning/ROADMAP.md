@@ -146,8 +146,8 @@
 
 **Requirement IDs:** F13, F20, T2-01, T2-02, T2-03
 
-**Plans:** 1/3 plans executed
-- [ ] 07-01-PLAN.md — F20 tone audit script + F13 pure timer state machine + React hook
+**Plans:** 2/3 plans executed
+- [x] 07-01-PLAN.md — F20 tone audit script + F13 pure timer state machine + React hook
 - [x] 07-02-PLAN.md — T2-01 assignment templates (migration 0013 + DBQ/CER/5-para seeds + /assignments/new picker) + T2-02 reading-load dashboard toggle
 - [ ] 07-03-PLAN.md — F13 timer UI (ring progress, Premack reward, ambient sound, localStorage) + T2-03 body-doubling mode + dashboard quick-start + nav update
 

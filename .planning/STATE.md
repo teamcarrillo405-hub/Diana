@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 07
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-05-29T17:32:47.842Z"
+stopped_at: Phase 07-01 complete — F20 tone-audit + F13 timer core delivered
+last_updated: "2026-05-29T17:53:53.336Z"
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 21
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — NEXT  
-**Last session:** 2026-05-29T17:32:47.839Z
-**Stopped at:** Completed 07-02-PLAN.md
+**Last session:** 2026-05-29T17:53:53.333Z
+**Stopped at:** Phase 07-01 complete — F20 tone-audit + F13 timer core delivered
 
 ---
 
@@ -54,6 +54,16 @@ progress:
 - Template picker placed BEFORE title field — student picks scaffold first, then adds assignment-specific title
 - getTemplates and getTemplateById added to lib/templates/templates.ts as simple array wrappers (no extra DB calls) — required by success criteria
 - inbox/[id]/actions.ts updated with templateId: null — all callers of createAssignment must include the new field
+
+## Phase 7 decisions (07-01)
+
+- tone-audit uses tsx (not ts-node) — works cleanly with Next 15 ESM/CJS hybrid
+- SKIP_LINE_PATTERNS excludes comment lines, console.error, imports, export declarations, DB enum comparisons — targets actual UI copy not code identifiers
+- lib/ai/ and supabase/functions/ skipped in tone-audit — AI system prompts name banned words as anti-examples, server API responses are not student-facing
+- docs/ skipped entirely — design/architecture docs reference banned words as anti-patterns being documented
+- TimerStatus union is exactly 'idle'|'running'|'paused'|'break'|'done' — 'failed'/'missed' permanently excluded per calm invariant
+- tickTimer work->break transition keeps status='running' and sets phase='break' — only break-end flips to 'done'; Premack reward surfaces at 'done' only
+- useTimer uses setInterval(1000) not rAF — rAF throttled in background tabs, timer would stall
 
 ## Phase 6 decisions (06-04)
 
