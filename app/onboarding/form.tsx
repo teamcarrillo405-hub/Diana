@@ -70,7 +70,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
         font_size: diagnoses.includes("dyslexia") ? "large" : "normal",
       });
       if (result?.error) return setError(result.error);
-      router.push("/dashboard");
+      router.push("/onboarding/done");
       router.refresh();
     });
   }
