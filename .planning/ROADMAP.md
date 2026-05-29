@@ -69,7 +69,7 @@
 
 ---
 
-## Phase 4: Dyslexia Reading Layer (Slice 3)
+## Phase 4: Dyslexia Reading Layer (Slice 3) — COMPLETE
 
 **Goal:** Full TTS + comprehension scaffolds + reading typography.
 
@@ -80,10 +80,12 @@
 
 **Requirement IDs:** F06, F07, F19
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 - [x] 04-01-PLAN.md — Migration 0010 (reading_font column) + pure TTS utility functions (tts-utils.ts) + profileBodyClass extension + 13 unit tests
 - [x] 04-02-PLAN.md — Font loading (Atkinson Hyperlegible Next + OpenDyslexic in layout.tsx) + reading-view CSS typography + useTtsHighlight hook + TtsHighlightButton component
-- [ ] 04-03-PLAN.md — ReadingPanel component + reading-scaffold Edge Function + assignment detail wiring + Settings font picker
+- [x] 04-03-PLAN.md — ReadingPanel component + reading-scaffold Edge Function + assignment detail wiring + Settings font picker
+
+**Phase 4 STATUS: COMPLETE** — F06/F07/F19 delivered. Verified 2026-05-29.
 
 ---
 
@@ -135,3 +137,4 @@
 *Phase 2 plans expanded 2026-05-28.*
 *Phase 3 plans created 2026-05-29.*
 *Phase 4 plans created 2026-05-29.*
+*Phase 4 verified complete 2026-05-29.*
