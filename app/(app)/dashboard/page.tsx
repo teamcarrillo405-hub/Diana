@@ -134,7 +134,16 @@ export default async function DashboardPage({
       <ReadingLoadToggle active={isReadingLoadView} />
 
       {!top ? (
-        <EmptyState />
+        <div className="space-y-2 rounded-2xl border border-border bg-card p-6 text-center">
+          <p className="text-lg font-semibold">Nothing on deck.</p>
+          <p className="text-sm text-muted">That&apos;s the goal.</p>
+          <Link
+            href="/assignments/new"
+            className="inline-block mt-2 text-sm text-accent hover:underline"
+          >
+            Add something?
+          </Link>
+        </div>
       ) : (
         <section className="space-y-3">
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
