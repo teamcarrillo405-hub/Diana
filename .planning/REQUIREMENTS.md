@@ -179,28 +179,29 @@ FSRS-5 scheduling. Target retention 90%. Card types: basic, cloze, image, audio.
 
 ## Phase 6 Requirements: AI Feature Core
 
-### F09: Math Step Organizer
+### F09: Math Step Organizer — COMPLETE (06-03 + 06-04)
 Socratic-only. Validate each step, never reveal next step. Hint ladder → worked example of a *different* problem. Step ledger PDF export.
 
-### F10: Writing Aids
+### F10: Writing Aids — COMPLETE (06-03 + 06-04)
 Rule-explain, never auto-correct. Mechanics / style / substance layers by traffic-light. "Read my draft to me" TTS. Authorship log.
 
-### F11: Citation Generator
+### F11: Citation Generator — COMPLETE (06-03 + 06-04)
 MLA 9 / APA 7 / Chicago. Rule explanations with each citation. Copy-to-clipboard. Stored per assignment.
 
-### F15: Authorship Log
+### F15: Authorship Log — COMPLETE (06-02)
 Every AI interaction logged. Student can view "what I did vs. what Diana did." Export to PDF. Parent/teacher access opt-in only.
 
-### F16: Per-Class AI Traffic-Light
+### F16: Per-Class AI Traffic-Light — COMPLETE (06-02)
 red / yellow / green per class; per-assignment override. Visible badge in class context. Not a security boundary — authorship log is.
 
-### F17: Refuse-with-Redirect
+### F17: Refuse-with-Redirect — COMPLETE (06-01 + 06-03)
 Every refusal includes 2–4 concrete alternatives. Non-judgmental tone. Logged as positive signal.
 
-### F18: Frustration Escape Valve
+### F18: Frustration Escape Valve — COMPLETE (06-01 + 06-03)
 After 3 Socratic prompts with no progress, proactively offer worked example of an analogous different problem. Student-invokable at any time.
+NOTE: spec divergence — offers break + talk-through (not worked example) per 06-01 decision note.
 
-### AI-SAFETY-01: Cost Ceiling + Content Safety for Minors
+### AI-SAFETY-01: Cost Ceiling + Content Safety for Minors — COMPLETE (06-01 + 06-02)
 Per-user daily token budget (`ai_usage_daily` table). Soft cap 200K input / 30K output. Hard cap 500K / 75K — features pause. Content safety filter on study-buddy chat. Self-harm / eating-disorder detection before study-buddy ships.
 
 ---

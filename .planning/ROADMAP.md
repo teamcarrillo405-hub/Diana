@@ -125,11 +125,13 @@
 
 **Requirement IDs:** F09, F10, F11, F15, F16, F17, F18, AI-SAFETY-01
 
-**Plans:** 2/4 plans executed
+**Plans:** 4/4 plans executed — COMPLETE
 - [x] 06-01-PLAN.md (wave 1) — Migration 0012 (classes.ai_mode, ai_interactions, profiles token budget) + lib/ai/{safety,refuse-redirect,frustration,system-prompts} + supabase/functions/_shared/ Deno mirrors (23 unit tests) + F18 spec-divergence decision note
 - [x] 06-02-PLAN.md (wave 2, parallel with 06-03) — F16 per-class AI mode settings page + un-hardcode assignment detail + F15 /settings/ai-history with CSV export + amber TokenBudgetBanner on dashboard
-- [ ] 06-03-PLAN.md (wave 2, parallel with 06-02) — F09 math-step (Haiku 4.5) + F10 writing-aid (Sonnet 4.6) + F11 citation-gen (Haiku 4.5) Edge Functions ONLY (F17 + F18 system prompts injected via shared module)
-- [ ] 06-04-PLAN.md (wave 3, depends on 06-01 + 06-02 + 06-03) — ai-tools-actions.ts (three server actions) + math-helper.tsx / writing-aid.tsx / citation-tool.tsx client components + assignment detail conditional rendering with single classAiMode binding + manual smoke-test checkpoint
+- [x] 06-03-PLAN.md (wave 2, parallel with 06-02) — F09 math-step (Haiku 4.5) + F10 writing-aid (Sonnet 4.6) + F11 citation-gen (Haiku 4.5) Edge Functions ONLY (F17 + F18 system prompts injected via shared module)
+- [x] 06-04-PLAN.md (wave 3, depends on 06-01 + 06-02 + 06-03) — ai-tools-actions.ts (three server actions) + math-helper.tsx / writing-aid.tsx / citation-tool.tsx client components + assignment detail conditional rendering with single classAiMode binding + manual smoke-test checkpoint
+
+**Phase 6 STATUS: COMPLETE** — F09/F10/F11/F15/F16/F17/F18/AI-SAFETY-01 delivered. Verified 2026-05-29.
 
 ---
 

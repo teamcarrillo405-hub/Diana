@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Executing Phase 06
-stopped_at: "Phase 06 Plan 03 complete — math-step, writing-aid, citation-gen Edge Functions"
-last_updated: "2026-05-29T15:12:00.000Z"
+status: Phase 06 COMPLETE
+stopped_at: "Phase 06 Plan 04 complete — MathHelper, WritingAid, CitationTool + page wiring. Phase 6 fully delivered."
+last_updated: "2026-05-29T16:10:00.000Z"
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
 ---
 
 # Diana — Project State
@@ -46,6 +46,15 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 6 decisions (06-04)
+
+- Single classAiMode const replaces Plan 06-02 inline narrowing — one source of truth shared by ReadingPanel + three new tools
+- calmError helper shared by all three server actions — identical calm copy for quota exhausted and ai_mode off errors
+- CitationTool visible on yellow (F16 spec: yellow = citation help only); MathHelper + WritingAid hidden on yellow
+- citation-gen content surfaces as raw JSON string from server action; CitationTool does JSON.parse client-side with raw-text fallback
+- F18 frustration UX lives entirely in the Edge Function system prompt — no client-side frustration button in v1
+- Phase 6 is COMPLETE: F09, F10, F11, F15, F16, F17, F18, AI-SAFETY-01 all delivered
 
 ## Phase 6 decisions (06-03)
 
