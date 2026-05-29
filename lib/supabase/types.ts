@@ -113,6 +113,171 @@ export type Database = {
         };
         Relationships: [];
       };
+      flashcard_reviews: {
+        Row: {
+          card_id: string;
+          difficulty: number;
+          elapsed_days: number;
+          id: number;
+          lapses: number;
+          owner_id: string;
+          rating: number;
+          reps: number;
+          reviewed_at: string;
+          scheduled_days: number;
+          scheduled_for: string;
+          stability: number;
+          state: string;
+        };
+        Insert: {
+          card_id: string;
+          difficulty: number;
+          elapsed_days: number;
+          id?: number;
+          lapses: number;
+          owner_id: string;
+          rating: number;
+          reps: number;
+          reviewed_at?: string;
+          scheduled_days: number;
+          scheduled_for: string;
+          stability: number;
+          state: string;
+        };
+        Update: {
+          card_id?: string;
+          difficulty?: number;
+          elapsed_days?: number;
+          id?: number;
+          lapses?: number;
+          owner_id?: string;
+          rating?: number;
+          reps?: number;
+          reviewed_at?: string;
+          scheduled_days?: number;
+          scheduled_for?: string;
+          stability?: number;
+          state?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "flashcard_reviews_card_id_fkey";
+            columns: ["card_id"];
+            isOneToOne: false;
+            referencedRelation: "flashcards";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      flashcards: {
+        Row: {
+          back: string;
+          created_at: string;
+          difficulty: number;
+          due_at: string;
+          front: string;
+          id: string;
+          image_storage_key: string | null;
+          lapses: number;
+          last_review_at: string | null;
+          owner_id: string;
+          reps: number;
+          source_note_id: string | null;
+          stability: number;
+          state: string;
+          updated_at: string;
+        };
+        Insert: {
+          back: string;
+          created_at?: string;
+          difficulty?: number;
+          due_at?: string;
+          front: string;
+          id?: string;
+          image_storage_key?: string | null;
+          lapses?: number;
+          last_review_at?: string | null;
+          owner_id: string;
+          reps?: number;
+          source_note_id?: string | null;
+          stability?: number;
+          state?: string;
+          updated_at?: string;
+        };
+        Update: {
+          back?: string;
+          created_at?: string;
+          difficulty?: number;
+          due_at?: string;
+          front?: string;
+          id?: string;
+          image_storage_key?: string | null;
+          lapses?: number;
+          last_review_at?: string | null;
+          owner_id?: string;
+          reps?: number;
+          source_note_id?: string | null;
+          stability?: number;
+          state?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "flashcards_source_note_id_fkey";
+            columns: ["source_note_id"];
+            isOneToOne: false;
+            referencedRelation: "notes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      notes: {
+        Row: {
+          assignment_id: string | null;
+          audio_storage_key: string | null;
+          body_text: string;
+          created_at: string;
+          id: string;
+          outline_json: Json | null;
+          owner_id: string;
+          title: string;
+          transcript_text: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          assignment_id?: string | null;
+          audio_storage_key?: string | null;
+          body_text?: string;
+          created_at?: string;
+          id?: string;
+          outline_json?: Json | null;
+          owner_id: string;
+          title?: string;
+          transcript_text?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          assignment_id?: string | null;
+          audio_storage_key?: string | null;
+          body_text?: string;
+          created_at?: string;
+          id?: string;
+          outline_json?: Json | null;
+          owner_id?: string;
+          title?: string;
+          transcript_text?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "notes_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       inbox_items: {
         Row: {
           assignment_id: string | null;
