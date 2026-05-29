@@ -28,6 +28,9 @@ const SKIP_PATH_PREFIXES = [
   "scripts/tone-audit.ts",  // the script itself names the banned words
 ];
 
+// File-suffix skip patterns — test files may assert banned words are absent (meta-testing).
+const SKIP_FILE_SUFFIXES = [".test.ts", ".test.tsx", ".spec.ts", ".spec.tsx"];
+
 // Line-level patterns that indicate a line is NOT user-facing copy.
 // Lines matching these are skipped by the scanner.
 const SKIP_LINE_PATTERNS = [
@@ -64,6 +67,7 @@ async function walk(dir: string, acc: string[] = []): Promise<string[]> {
     const rel = relative(ROOT, full).replace(/\\/g, "/");
     if (SKIP_DIRS.has(ent.name)) continue;
     if (SKIP_PATH_PREFIXES.some((p) => rel.startsWith(p))) continue;
+    if (SKIP_FILE_SUFFIXES.some((s) => ent.name.endsWith(s))) continue;
     if (ent.isDirectory()) {
       await walk(full, acc);
     } else if (SCAN_EXTENSIONS.some((ext) => ent.name.endsWith(ext))) {
