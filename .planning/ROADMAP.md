@@ -61,11 +61,11 @@
 
 **Requirement IDs:** F04, F05, F14
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 - [x] 03-01-PLAN.md — Schema migration 0009 + lib/inbox types + offline queue + time-budget compute + calibration libs (with 13 unit tests)
 - [x] 03-02-PLAN.md — Capture inbox UI: /quick-add CaptureForm (voice/photo/text tabs + offline drain), /inbox list + detail, classify-inbox Edge Function
 - [x] 03-03-PLAN.md — Time budget: TimeBudget dashboard section, time_log open/close in transitionAssignment, calibration hint in NewAssignmentForm
-- [ ] 03-04-PLAN.md — Implementation-intention prompt: IntentionPrompt component, saveIntention action, ?intent=new redirect from form
+- [x] 03-04-PLAN.md — Implementation-intention prompt: IntentionPrompt component, saveIntention action, ?intent=new redirect from form
 
 ---
 

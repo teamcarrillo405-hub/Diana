@@ -3,20 +3,21 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 03
-last_updated: "2026-05-29T10:11:17.578Z"
+last_updated: "2026-05-28T08:03:00Z"
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Diana — Project State
 
-**Last updated:** 2026-05-29  
+**Last updated:** 2026-05-28  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 3 in progress (03-01 complete — migration 0009, inbox queue, time-budget libs)  
-**Last session:** 2026-05-29T10:11:17.576Z
+**Active phase:** Phase 3 complete (03-04 done — F14 implementation-intention prompt wired)  
+**Last session:** 2026-05-28T08:03:00Z  
+**Stopped at:** Completed 03-04-PLAN.md
 
 ---
 
@@ -44,6 +45,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 3 decisions (03-04)
+
+- DB column is `cue_text` (not `cue_value`) in assignment_intentions — plan spec diverged from actual migration 0009 schema
+- `action_text` column absent from assignment_intentions — removed from insert and zod schema
+- `cueType` made optional in IntentionInput zod schema, defaults to "other" in server action body
+- `?intent=new` URL param pattern: server page reads searchParams, client component cleans URL on mount via `router.replace(pathname)` (Pitfall 6 guard)
+- `saveIntention` does not call `revalidatePath` — intention data never rendered server-side
 
 ## Phase 3 decisions (03-01)
 
