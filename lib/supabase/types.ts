@@ -10,6 +10,172 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      assignment_intentions: {
+        Row: {
+          assignment_id: string;
+          created_at: string;
+          cue_text: string;
+          cue_type: string;
+          fired_at: string | null;
+          id: string;
+          owner_id: string;
+          scheduled_for: string | null;
+        };
+        Insert: {
+          assignment_id: string;
+          created_at?: string;
+          cue_text: string;
+          cue_type: string;
+          fired_at?: string | null;
+          id?: string;
+          owner_id: string;
+          scheduled_for?: string | null;
+        };
+        Update: {
+          assignment_id?: string;
+          created_at?: string;
+          cue_text?: string;
+          cue_type?: string;
+          fired_at?: string | null;
+          id?: string;
+          owner_id?: string;
+          scheduled_for?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assignment_intentions_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assignment_time_log: {
+        Row: {
+          assignment_id: string;
+          edited_by_student: boolean;
+          elapsed_minutes: number | null;
+          ended_at: string | null;
+          id: number;
+          owner_id: string;
+          started_at: string;
+        };
+        Insert: {
+          assignment_id: string;
+          edited_by_student?: boolean;
+          elapsed_minutes?: number | null;
+          ended_at?: string | null;
+          id?: number;
+          owner_id: string;
+          started_at?: string;
+        };
+        Update: {
+          assignment_id?: string;
+          edited_by_student?: boolean;
+          elapsed_minutes?: number | null;
+          ended_at?: string | null;
+          id?: number;
+          owner_id?: string;
+          started_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assignment_time_log_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assignment_type_estimates: {
+        Row: {
+          kind: string;
+          mean_minutes: number;
+          n_samples: number;
+          owner_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          kind: string;
+          mean_minutes?: number;
+          n_samples?: number;
+          owner_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          kind?: string;
+          mean_minutes?: number;
+          n_samples?: number;
+          owner_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      inbox_items: {
+        Row: {
+          assignment_id: string | null;
+          capture_mode: string;
+          created_at: string;
+          id: string;
+          owner_id: string;
+          photo_storage_key: string | null;
+          raw: string;
+          status: string;
+          suggested_class_id: string | null;
+          suggested_due_at: string | null;
+          suggested_kind: string | null;
+          suggestion_confidence: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          assignment_id?: string | null;
+          capture_mode: string;
+          created_at?: string;
+          id?: string;
+          owner_id: string;
+          photo_storage_key?: string | null;
+          raw: string;
+          status?: string;
+          suggested_class_id?: string | null;
+          suggested_due_at?: string | null;
+          suggested_kind?: string | null;
+          suggestion_confidence?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          assignment_id?: string | null;
+          capture_mode?: string;
+          created_at?: string;
+          id?: string;
+          owner_id?: string;
+          photo_storage_key?: string | null;
+          raw?: string;
+          status?: string;
+          suggested_class_id?: string | null;
+          suggested_due_at?: string | null;
+          suggested_kind?: string | null;
+          suggestion_confidence?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inbox_items_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inbox_items_suggested_class_id_fkey";
+            columns: ["suggested_class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       ai_calls: {
         Row: {
           blocked_reason: string | null;
