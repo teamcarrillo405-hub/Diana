@@ -201,3 +201,9 @@ button, [role="button"], a {
 @media (prefers-reduced-motion: reduce) {
   .check-draw { animation: none; opacity: 0; }
 }
+
+body[data-accent="violet"]  { --accent: 139 92 246; }
+body[data-accent="emerald"] { --accent: 16 185 129; }
+body[data-accent="rose"]    { --accent: 244 63 94;  }
+body[data-accent="amber"]   { --accent: 245 158 11; }
+body[data-accent="sky"]     { --accent: 14 165 233; }

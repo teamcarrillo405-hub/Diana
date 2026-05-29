@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadProfile, profileBodyClass } from "@/lib/profile";
 import { BottomNav, SideNav } from "@/components/nav";
 import { Fab } from "@/components/fab";
+import { AccentProvider } from "@/components/accent-provider";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -23,6 +24,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </main>
         <BottomNav />
         <Fab />
+        <AccentProvider />
       </div>
     </div>
   );

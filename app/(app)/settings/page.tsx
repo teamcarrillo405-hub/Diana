@@ -2,6 +2,7 @@ import Link from "next/link";
 import { loadProfile } from "@/lib/profile";
 import { SignOutButton } from "./sign-out";
 import { AccessibilityPrefs } from "./accessibility-prefs";
+import { AccentPicker } from "@/components/accent-picker";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -64,6 +65,11 @@ export default async function SettingsPage() {
           </Link>{" "}
           to update.
         </p>
+      </section>
+
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
+        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Appearance</h2>
+        <AccentPicker />
       </section>
 
       <AccessibilityPrefs initial={profile} />
