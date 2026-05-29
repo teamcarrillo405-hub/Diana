@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile, profileBodyClass } from "@/lib/profile";
 import { BottomNav, SideNav } from "@/components/nav";
+import { Fab } from "@/components/fab";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -21,6 +22,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </div>
         </main>
         <BottomNav />
+        <Fab />
       </div>
     </div>
   );
