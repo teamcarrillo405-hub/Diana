@@ -126,6 +126,21 @@ None — no external service configuration required. The `assignment_intentions`
 - `assignment_intentions` rows are available for future phases (e.g., reminder notifications, recap summaries)
 - No blockers
 
+## Self-Check: PASSED
+
+Files verified:
+- FOUND: app/(app)/assignments/[id]/intention-prompt.tsx
+- FOUND: app/(app)/assignments/[id]/actions.ts (saveIntention export)
+- FOUND: app/(app)/assignments/[id]/page.tsx (searchParams + IntentionPrompt)
+- FOUND: app/(app)/assignments/new/form.tsx (intent=new redirect)
+- FOUND: .planning/phases/03-capture-time-layer-slice-2/03-04-SUMMARY.md
+
+Commits verified:
+- FOUND: 1c2fcf7 — feat(03-04): saveIntention action + IntentionPrompt component
+- FOUND: b2897cc — feat(03-04): wire intent=new into detail page + form redirect
+
+Build: clean (npm run build succeeded, npx tsc --noEmit clean)
+
 ---
 *Phase: 03-capture-time-layer-slice-2*
 *Completed: 2026-05-28*
