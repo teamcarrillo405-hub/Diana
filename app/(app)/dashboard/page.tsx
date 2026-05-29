@@ -145,7 +145,7 @@ export default async function DashboardPage({
           </Link>
         </div>
       ) : (
-        <section className="space-y-3">
+        <section className="space-y-3 animate-slide-up">
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Right now
           </h2>
@@ -220,7 +220,7 @@ export default async function DashboardPage({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             {isReadingLoadView ? "By reading load" : "Also on deck"}
           </h2>
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+          <ul className="divide-y divide-border rounded-xl border border-border bg-card animate-fade-in" style={{ animationDelay: "60ms" }}>
             {rest.map((a) => (
               <li key={a.id}>
                 <Link
