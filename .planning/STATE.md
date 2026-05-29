@@ -2,21 +2,21 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-05-29T05:20:12.151Z"
+status: Executing Phase 03
+last_updated: "2026-05-29T09:25:43.651Z"
 progress:
   total_phases: 7
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 8
+  completed_plans: 5
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 2 COMPLETE (all 4 plans done — 02-01, 02-02, 02-03, 02-04)  
-**Last session:** Completed 02-04 (createMicroTask, pivotAssignment, PivotForm, Breadcrumb auto-focus, ?focus=breadcrumb redirect)
+**Active phase:** Phase 3 in progress (03-01 complete — migration 0009, inbox queue, time-budget libs)  
+**Last session:** 2026-05-29T09:25:43.648Z
 
 ---
 
@@ -44,6 +44,15 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 3 decisions (03-01)
+
+- jsdom installed as devDependency for vitest jsdom environment (required by queue.test.ts @vitest-environment annotation)
+- idb-keyval KEY_PREFIX "inbox-queue:" namespaces queue items from other IDB data
+- Calibration n >= 3 gate before surfacing hint to prevent premature guidance
+- Calibration 20% threshold ignores minor variance; surfaces hint only when student substantially underestimates
+- upsert_type_estimate as atomic Postgres function to prevent client-side race condition (Pitfall 7)
+- Dyslexia 1.6x multiplier applied in computeNightBudget only when reading_load >= 3 (consistent with scorer)
 
 ## Phase 2 decisions (02-04)
 
