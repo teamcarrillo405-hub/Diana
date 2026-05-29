@@ -218,12 +218,20 @@ export default async function DashboardPage({
                   href={`/assignments/${a.id}`}
                   className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-border/30"
                 >
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">{a.title}</p>
-                    <p className="text-xs text-muted">
-                      {KIND_LABEL[a.kind]}
-                      {a.due_at && ` · ${formatDueAt(a.due_at)}`}
-                    </p>
+                  <div className="flex min-w-0 items-center gap-2">
+                    {(a as any).classes?.color && (
+                      <span
+                        className="mt-0.5 h-2 w-2 shrink-0 rounded-full"
+                        style={{ background: (a as any).classes.color }}
+                      />
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{a.title}</p>
+                      <p className="text-xs text-muted">
+                        {KIND_LABEL[a.kind]}
+                        {a.due_at && ` · ${formatDueAt(a.due_at)}`}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {isReadingLoadView && <ReadingLoadBadge load={a.reading_load} />}
