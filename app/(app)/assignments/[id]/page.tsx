@@ -11,6 +11,9 @@ import { PivotForm } from "./pivot-form";
 import { TtsButton } from "@/components/tts-button";
 import { IntentionPrompt } from "./intention-prompt";
 import { ReadingPanel } from "./reading-panel";
+import { MathHelper } from "./math-helper";
+import { WritingAid } from "./writing-aid";
+import { CitationTool } from "./citation-tool";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 
 export default async function AssignmentDetailPage({
@@ -34,6 +37,10 @@ export default async function AssignmentDetailPage({
 
   const status = a.status as AssignmentStatus;
   const nexts = nextStatesFor(status);
+  const classAiMode: "red" | "yellow" | "green" =
+    a.classes?.ai_mode === "red" || a.classes?.ai_mode === "yellow"
+      ? a.classes.ai_mode
+      : "green";
   const ttsOn = profile?.tts_enabled;
   const readAloudText = [a.title, a.description].filter(Boolean).join(". ");
 
@@ -78,13 +85,20 @@ export default async function AssignmentDetailPage({
       {(a.kind === "reading" || (a.reading_load != null && a.reading_load >= 3)) && a.description && (
         <ReadingPanel
           text={a.description}
-          classAiMode={
-            (a.classes?.ai_mode === "red" || a.classes?.ai_mode === "yellow")
-              ? a.classes.ai_mode
-              : "green"
-          }
+          classAiMode={classAiMode}
         />
       )}
+
+      {(a.kind === "problem_set" || a.kind === "test_prep") && (
+        <MathHelper assignmentId={a.id} classAiMode={classAiMode} />
+      )}
+
+      {a.kind === "essay" && (
+        <WritingAid assignmentId={a.id} classAiMode={classAiMode} />
+      )}
+
+      {/* Citation tool is always available — any assignment may need a source citation */}
+      <CitationTool assignmentId={a.id} classAiMode={classAiMode} />
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-baseline justify-between">
