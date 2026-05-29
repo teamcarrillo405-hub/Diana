@@ -28,7 +28,7 @@ html, body { height: 100%; }
 body {
   background: rgb(var(--bg));
   color: rgb(var(--fg));
-  font-family: var(--font-sans, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+  font-family: var(--font-lexend, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
 

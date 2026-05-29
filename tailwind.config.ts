@@ -23,7 +23,7 @@ const config: Config = {
         border: "rgb(var(--border) / <alpha-value>)",
       },
       fontFamily: {
-        sans: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
+        sans: ["var(--font-lexend)", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
       },
     },
   },
