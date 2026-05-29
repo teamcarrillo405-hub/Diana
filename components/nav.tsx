@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 
 const ITEMS = [
-  { href: "/dashboard", label: "Today", icon: Home },
-  { href: "/assignments", label: "Tasks", icon: CheckSquare },
+  { href: "/dashboard", label: "Focus", icon: Home },
+  { href: "/assignments", label: "Assignments", icon: CheckSquare },
   { href: "/flashcards", label: "Study", icon: Brain },
   { href: "/timer", label: "Timer", icon: Timer },
   { href: "/classes", label: "Classes", icon: BookOpen },
