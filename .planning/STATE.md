@@ -3,22 +3,22 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 04
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-05-29T11:27:34.916Z"
+stopped_at: Completed 04-03-PLAN.md
+last_updated: "2026-05-29T12:00:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 4 in progress (04-02 done — font loading + reading CSS + TTS word-highlight hook)  
-**Last session:** 2026-05-29T11:27:34.914Z
-**Stopped at:** Completed 04-02-PLAN.md
+**Active phase:** Phase 4 complete (04-03 done — ReadingPanel + reading-scaffold Edge Function + Settings font picker)  
+**Last session:** 2026-05-29T12:00:00.000Z
+**Stopped at:** Completed 04-03-PLAN.md
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 4 decisions (04-03)
+
+- classAiMode defaults to 'green' in assignment detail page; Phase 6 (F16) adds per-class traffic-light column
+- Scaffold buttons opt-in behind "Help me with this reading" tap — not shown by default (Pitfall 5 guard)
+- reading-scaffold Edge Function uses claude-sonnet-4-6 with 512 max_tokens; truncates to 1500 chars for pre, 4000 for mid/post
+- server-side aiMode='red' guard in Edge Function returns 403 (defense in depth — client-side guard is not sufficient alone)
+- reading_font field added to settings Prefs zod schema; existing supabase update call handles it without further changes
 
 ## Phase 4 decisions (04-02)
 
