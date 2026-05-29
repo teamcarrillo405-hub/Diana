@@ -27,7 +27,7 @@ export default async function AssignmentDetailPage({
 
   const { data: a } = await supabase
     .from("assignments")
-    .select("id, title, description, due_at, status, kind, reading_load, writing_load, estimated_minutes, difficulty, last_thought, classes(id, name, color), rubric_id")
+    .select("id, title, description, due_at, status, kind, reading_load, writing_load, estimated_minutes, difficulty, last_thought, classes(id, name, color, ai_mode), rubric_id")
     .eq("id", id)
     .single();
   if (!a) notFound();
@@ -79,9 +79,9 @@ export default async function AssignmentDetailPage({
         <ReadingPanel
           text={a.description}
           classAiMode={
-            // Pass class AI mode. Currently class doesn't have an ai_mode column (Phase 6 feature).
-            // Default to 'green' until Phase 6 adds per-class traffic-light.
-            "green"
+            (a.classes?.ai_mode === "red" || a.classes?.ai_mode === "yellow")
+              ? a.classes.ai_mode
+              : "green"
           }
         />
       )}

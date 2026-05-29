@@ -13,7 +13,7 @@ export default async function ClassDetailPage({
 
   const { data: cls } = await supabase
     .from("classes")
-    .select("id, name, teacher, color, notes")
+    .select("id, name, teacher, color, notes, ai_mode")
     .eq("id", id)
     .single();
   if (!cls) notFound();
@@ -39,9 +39,14 @@ export default async function ClassDetailPage({
           <h1 className="text-2xl font-bold">{cls.name}</h1>
         </div>
         {cls.teacher && <p className="text-muted">{cls.teacher}</p>}
-        <Link href="/classes" className="inline-block text-xs text-muted hover:underline">
-          ← All classes
-        </Link>
+        <div className="flex items-center gap-1">
+          <Link href="/classes" className="inline-block text-xs text-muted hover:underline">
+            ← All classes
+          </Link>
+          <Link href={`/classes/${id}/settings`} className="ml-3 text-xs text-muted hover:underline">
+            AI mode: {cls.ai_mode ?? "green"}
+          </Link>
+        </div>
       </header>
 
       <section className="space-y-3">
