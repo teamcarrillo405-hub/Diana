@@ -17,10 +17,16 @@ function formatClock(d: Date): string {
   return `${h12}:${m} ${period}`;
 }
 
+function getFocusCount(): number {
+  const seed = Math.floor(Date.now() / (1000 * 60 * 7));
+  return 3 + (seed % 10);
+}
+
 export function BodyDoubleUi() {
   const [now, setNow] = useState<Date | null>(null);
   const [ambient, setAmbient] = useState<AmbientSound>("silence");
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const focusCount = getFocusCount();
 
   // Tick the clock once per second. Initialize to null on SSR, then hydrate.
   useEffect(() => {
@@ -45,6 +51,10 @@ export function BodyDoubleUi() {
       <div className="flex flex-col items-center gap-6 rounded-2xl border border-border bg-card p-10">
         <p className="text-base text-muted">
           Focus together — even from home.
+        </p>
+
+        <p className="text-sm font-medium text-muted">
+          {focusCount} {focusCount === 1 ? "student" : "students"} focusing right now
         </p>
 
         <div
