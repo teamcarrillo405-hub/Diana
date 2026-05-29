@@ -3,22 +3,22 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 05
-stopped_at: Phase 5 Plan 01 complete — migration 0011 + FSRS-5 + useAutoSaveNote
-last_updated: "2026-05-29T05:46:00.000Z"
+stopped_at: Phase 5 Plan 03 complete — flashcards UI + FSRS review session + DueCards dashboard tile
+last_updated: "2026-05-29T13:16:13.607Z"
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 14
-  completed_plans: 12
+  completed_plans: 14
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 5 (Notes + Study Layer — Slice 4) — Plan 01 complete  
-**Last session:** 2026-05-29T05:46:00.000Z
-**Stopped at:** Phase 5 Plan 01 complete — migration 0011 + FSRS-5 + useAutoSaveNote
+**Active phase:** Phase 5 (Notes + Study Layer — Slice 4) — Plan 03 complete  
+**Last session:** 2026-05-29T06:17:00.000Z
+**Stopped at:** Phase 5 Plan 03 complete — flashcards UI + FSRS review session + DueCards dashboard tile
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 5 decisions (05-03)
+
+- rateCard uses sequential await calls (load → update flashcards → insert flashcard_reviews) rather than a Postgres RPC — matches inbox classification pattern; atomicity is sufficient for FSRS correctness
+- Flashcard-from-note link (/notes/[id] → /flashcards/new?note={id}) intentionally deferred: ?note= wiring and source_note_id FK exist; adding the link is a one-line follow-up in Phase 5 polish or Phase 6
+- DueCards tile returns null when count=0 — no empty-state nagging for students who haven't created cards yet
+- RATINGS array uses Anki-convention labels (Again/Hard/Good/Easy) — neutral, no shame, mirrors FSRS spec
+- ReviewSession client component tracks idx in local state; revalidatePath('/flashcards') ensures server data is fresh on back-navigation
 
 ## Phase 5 decisions (05-01)
 

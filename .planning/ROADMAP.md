@@ -102,7 +102,7 @@
 **Plans:** 3 plans in 2 waves (05-02 + 05-03 share Wave 2; both depend on 05-01)
 - [x] 05-01-PLAN.md — Migration 0011 (notes + flashcards + flashcard_reviews) + Supabase types sync + lib/fsrs (FSRS-5 algorithm with 10 unit tests) + lib/notes/types + useAutoSaveNote hook (30 s debounce, 6 unit tests)
 - [ ] 05-02-PLAN.md — Notes UI: /notes list, /notes/new editor (VoiceTextarea + 30 s auto-save), /notes/[id] detail (TTS playback of transcript + outline), transcribe-note Edge Function (Sonnet 4.6)
-- [ ] 05-03-PLAN.md — Flashcards UI: /flashcards deck (due today + coming up), /flashcards/new manual card form, /flashcards/[id]/review session (flip + Again/Hard/Good/Easy → schedule + flashcard_reviews log), dashboard DueCards tile + Study nav item
+- [x] 05-03-PLAN.md — Flashcards UI: /flashcards deck (due today + coming up), /flashcards/new manual card form, /flashcards/[id]/review session (flip + Again/Hard/Good/Easy → schedule + flashcard_reviews log), dashboard DueCards tile + Study nav item
 
 ---
 
