@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 07 VERIFIED — v1.0 ACHIEVED
-stopped_at: Phase 07 VERIFIED — 5/5 must-haves verified, 92 tests pass, TypeScript clean. v1.0 milestone ACHIEVED.
-last_updated: "2026-05-29T19:00:00Z"
+status: Executing Phase 8
+stopped_at: Completed 08-02-PLAN.md
+last_updated: "2026-05-29T20:51:25.038Z"
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 21
-  completed_plans: 21
+  total_phases: 8
+  completed_phases: 6
+  total_plans: 24
+  completed_plans: 23
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-29T19:00:00Z
-**Stopped at:** Phase 07 VERIFIED — v1.0 milestone ACHIEVED. All 7 phases complete, 92 tests pass, TypeScript clean.
+**Last session:** 2026-05-29T20:50:47.103Z
+**Stopped at:** Completed 08-02-PLAN.md
 
 ---
 
@@ -46,6 +46,15 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 8 decisions (08-02)
+
+- INTERLEAVE_PENALTY=15: calibrated to de-promote non-urgent same-class tasks; typical non-urgent score range 10-30, so 15 is enough to rotate subjects without overriding urgency signals
+- Urgency override: "due now" (+80) and "due today" (+60) assignments bypass the interleave penalty — Pitfall 6; urgency always wins
+- Cookie over localStorage: diana_last_class cookie is readable by App Router server components on every request with zero latency; localStorage requires client-side hydration
+- 12-hour maxAge: bounded session memory — natural overnight reset, no explicit "forget class" UI needed
+- Silent de-promotion: no reason string added to scored assignment so the UI never shows "de-promoted by interleaving" (avoids self-fulfilling subject avoidance)
+- Fire-and-forget void setLastShownClass(): cookie write never blocks dashboard render; graceful degradation if it fails
 
 ## Phase 7 decisions (07-02)
 
@@ -220,6 +229,12 @@ progress:
 - Math expression parser (needed Phase 6) — MathLive + SymPy WASM
 - Rich text editor (needed Phase 6) — TipTap
 - Email service for parent verification — Resend or SendGrid
+
+## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 8 added: Provider Wiring + Scorer Interleaving + Intentions Evening Trigger
 
 ## Repo pointers
 

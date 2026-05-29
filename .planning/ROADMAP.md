@@ -153,6 +153,16 @@
 
 **Phase 7 STATUS: COMPLETE** — F13 + F20 + T2-01 + T2-02 + T2-03 all delivered. v1.0 milestone complete. Verified 2026-05-29 — 5/5 must-haves verified, 92 tests pass, TypeScript clean. v1.0 milestone ACHIEVED.
 
+### Phase 8: Provider Wiring + Scorer Interleaving + Intentions Evening Trigger
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 7
+**Plans:** 1/3 plans executed
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 8 to break down)
+
 ---
 
 *Roadmap bootstrapped from `docs/spec/features.md` and `docs/review/slice-1-evidence-review.md` on 2026-05-28.*
