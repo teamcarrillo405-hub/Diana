@@ -21,6 +21,9 @@ export type ProfilePrefs = Pick<
   | "consent_ai"
   | "timezone"
   | "reading_font" // F19: reading font picker
+  | "daily_token_budget" // AI-SAFETY-01: per-user daily token ceiling
+  | "tokens_used_today"  // AI-SAFETY-01: running total for today
+  | "token_reset_date"   // AI-SAFETY-01: UTC date of last reset
 >;
 
 export async function loadProfile(): Promise<ProfilePrefs | null> {
@@ -30,7 +33,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, onboarded_at, consent_ai, timezone, reading_font",
+      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date",
     )
     .eq("user_id", user.id)
     .single();

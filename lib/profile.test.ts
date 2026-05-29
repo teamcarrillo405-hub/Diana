@@ -22,6 +22,9 @@ const BASE: ProfilePrefs = {
   consent_ai: false,
   timezone: "UTC",
   reading_font: "system",
+  daily_token_budget: 50000,
+  tokens_used_today: 0,
+  token_reset_date: "2026-05-29",
 };
 
 describe("profileBodyClass reading_font", () => {

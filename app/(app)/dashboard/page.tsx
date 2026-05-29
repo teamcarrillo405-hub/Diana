@@ -10,6 +10,7 @@ import { KIND_LABEL } from "@/lib/checklists/templates";
 import { TtsButton } from "@/components/tts-button";
 import { computeNightBudget } from "@/lib/time-budget/compute";
 import { DueCards } from "./due-cards";
+import { TokenBudgetBanner } from "./token-budget-banner";
 
 export default async function DashboardPage({
   searchParams,
@@ -90,6 +91,8 @@ export default async function DashboardPage({
         </h1>
         <p className="text-muted">Pick the next 5 minutes.</p>
       </header>
+
+      {profile && <TokenBudgetBanner profile={profile} />}
 
       <EnergyPicker current={energy} />
 
