@@ -14,7 +14,8 @@ import { DueCards } from "./due-cards";
 import { TokenBudgetBanner } from "./token-budget-banner";
 import { ReadingLoadToggle, ReadingLoadBadge } from "./reading-load-toggle";
 import { StartSessionButton } from "./start-session-button";
-import { setLastShownClass } from "./actions";
+import { setLastShownClass, getEventIntentions } from "./actions";
+import { EveningPlanning } from "./evening-planning";
 
 export default async function DashboardPage({
   searchParams,
@@ -71,6 +72,8 @@ export default async function DashboardPage({
     },
     lastShownClassId,
   );
+  const eveningIntentions = await getEventIntentions();
+
   const top = ranked[0];
   if (top?.class_id) {
     // Fire-and-forget: persist for next render's interleaving.
@@ -112,6 +115,8 @@ export default async function DashboardPage({
       </header>
 
       {profile && <TokenBudgetBanner profile={profile} />}
+
+      <EveningPlanning intentions={eveningIntentions} />
 
       <EnergyPicker current={energy} />
       <ReadingLoadToggle active={isReadingLoadView} />
