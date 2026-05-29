@@ -377,6 +377,47 @@ export type Database = {
         };
         Relationships: [];
       };
+      ai_interactions: {
+        Row: {
+          assignment_id: string | null;
+          created_at: string;
+          feature: string;
+          id: string;
+          model: string;
+          owner_id: string;
+          prompt_summary: string | null;
+          tokens_used: number;
+        };
+        Insert: {
+          assignment_id?: string | null;
+          created_at?: string;
+          feature: string;
+          id?: string;
+          model: string;
+          owner_id: string;
+          prompt_summary?: string | null;
+          tokens_used?: number;
+        };
+        Update: {
+          assignment_id?: string | null;
+          created_at?: string;
+          feature?: string;
+          id?: string;
+          model?: string;
+          owner_id?: string;
+          prompt_summary?: string | null;
+          tokens_used?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ai_interactions_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       assignments: {
         Row: {
           class_id: string;
@@ -470,6 +511,7 @@ export type Database = {
       };
       classes: {
         Row: {
+          ai_mode: string;
           archived_at: string | null;
           color: string;
           created_at: string;
@@ -481,6 +523,7 @@ export type Database = {
           updated_at: string;
         };
         Insert: {
+          ai_mode?: string;
           archived_at?: string | null;
           color?: string;
           created_at?: string;
@@ -492,6 +535,7 @@ export type Database = {
           updated_at?: string;
         };
         Update: {
+          ai_mode?: string;
           archived_at?: string | null;
           color?: string;
           created_at?: string;
@@ -512,6 +556,7 @@ export type Database = {
           consent_ai: boolean;
           consent_ai_at: string | null;
           created_at: string;
+          daily_token_budget: number;
           date_of_birth: string;
           diagnoses: string[];
           display_name: string | null;
@@ -521,11 +566,13 @@ export type Database = {
           high_contrast: boolean;
           line_spacing: LineSpacing;
           onboarded_at: string | null;
+          reading_font: string;
           reduced_motion: boolean;
           school_year: number | null;
           timezone: string;
+          token_reset_date: string;
+          tokens_used_today: number;
           tts_enabled: boolean;
-          reading_font: string;
           updated_at: string;
           user_id: string;
         };
@@ -536,6 +583,7 @@ export type Database = {
           consent_ai?: boolean;
           consent_ai_at?: string | null;
           created_at?: string;
+          daily_token_budget?: number;
           date_of_birth: string;
           diagnoses?: string[];
           display_name?: string | null;
@@ -545,11 +593,13 @@ export type Database = {
           high_contrast?: boolean;
           line_spacing?: LineSpacing;
           onboarded_at?: string | null;
+          reading_font?: string;
           reduced_motion?: boolean;
           school_year?: number | null;
           timezone?: string;
+          token_reset_date?: string;
+          tokens_used_today?: number;
           tts_enabled?: boolean;
-          reading_font?: string;
           updated_at?: string;
           user_id: string;
         };
@@ -560,6 +610,7 @@ export type Database = {
           consent_ai?: boolean;
           consent_ai_at?: string | null;
           created_at?: string;
+          daily_token_budget?: number;
           date_of_birth?: string;
           diagnoses?: string[];
           display_name?: string | null;
@@ -569,11 +620,13 @@ export type Database = {
           high_contrast?: boolean;
           line_spacing?: LineSpacing;
           onboarded_at?: string | null;
+          reading_font?: string;
           reduced_motion?: boolean;
           school_year?: number | null;
           timezone?: string;
+          token_reset_date?: string;
+          tokens_used_today?: number;
           tts_enabled?: boolean;
-          reading_font?: string;
           updated_at?: string;
           user_id?: string;
         };
