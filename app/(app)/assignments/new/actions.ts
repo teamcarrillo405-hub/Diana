@@ -18,6 +18,7 @@ const Input = z.object({
   readingLoad: z.number().int().min(0).max(5),
   writingLoad: z.number().int().min(0).max(5),
   description: z.string().max(2000).nullable(),
+  templateId: z.string().uuid().nullable(),
 });
 
 export async function createAssignment(input: z.infer<typeof Input>) {
@@ -45,6 +46,28 @@ export async function createAssignment(input: z.infer<typeof Input>) {
     .select("id")
     .single();
   if (error) return { error: error.message };
+
+  // T2-01: if a template was selected, seed the assignment's checklist from template items.
+  if (parsed.data.templateId) {
+    const { data: tmpl } = await supabase
+      .from("assignment_templates")
+      .select("checklist_items")
+      .eq("id", parsed.data.templateId)
+      .maybeSingle();
+
+    if (tmpl && Array.isArray(tmpl.checklist_items) && tmpl.checklist_items.length > 0) {
+      // Shape into ChecklistItem rows (label/detail/required).
+      const items = (tmpl.checklist_items as Array<{ label: string; required?: boolean }>).map(
+        (it) => ({ label: it.label, detail: null, required: it.required ?? false }),
+      );
+      await supabase.from("assignment_checklists").insert({
+        assignment_id: data.id,
+        owner_id: user.id,
+        items,
+      });
+      // Best-effort — if this fails the assignment still exists with default checklist.
+    }
+  }
 
   revalidatePath("/assignments");
   revalidatePath("/dashboard");

@@ -55,6 +55,7 @@ export async function confirmInboxItem(
     readingLoad: 1,
     writingLoad: 1,
     description: null,
+    templateId: null,
   });
 
   if (assignmentResult.error) return { ok: false, error: assignmentResult.error };

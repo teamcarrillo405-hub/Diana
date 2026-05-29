@@ -2,12 +2,13 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { NewAssignmentForm } from "./form";
 import type { CalibrationStats } from "@/lib/time-budget/calibration";
+import { parseTemplateRow, type AssignmentTemplate } from "@/lib/templates/templates";
 
 export default async function NewAssignmentPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ data: classes }, { data: estimates }] = await Promise.all([
+  const [{ data: classes }, { data: estimates }, { data: templates }] = await Promise.all([
     supabase
       .from("classes")
       .select("id, name, color")
@@ -19,6 +20,10 @@ export default async function NewAssignmentPage() {
           .select("kind, mean_minutes, n_samples")
           .eq("owner_id", user.id)
       : Promise.resolve({ data: [] }),
+    supabase
+      .from("assignment_templates")
+      .select("id, name, kind, checklist_items, rubric_items")
+      .order("name", { ascending: true }),
   ]);
 
   // Build a map of kind -> CalibrationStats for hint display
@@ -28,6 +33,8 @@ export default async function NewAssignmentPage() {
       calibrationMap[row.kind] = { mean: row.mean_minutes, n: row.n_samples };
     }
   }
+
+  const parsedTemplates: AssignmentTemplate[] = (templates ?? []).map(parseTemplateRow);
 
   if (!classes || classes.length === 0) {
     return (
@@ -55,7 +62,7 @@ export default async function NewAssignmentPage() {
           ← All tasks
         </Link>
       </header>
-      <NewAssignmentForm classes={classes} calibrationMap={calibrationMap} />
+      <NewAssignmentForm classes={classes} calibrationMap={calibrationMap} templates={parsedTemplates} />
     </div>
   );
 }

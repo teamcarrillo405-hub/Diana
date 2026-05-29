@@ -7,6 +7,7 @@ import { VoiceTextarea } from "@/components/voice-textarea";
 import type { AssignmentKind } from "@/lib/supabase/types";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { getCalibrationHint } from "@/lib/time-budget/calibration";
+import { templateToDescription, type AssignmentTemplate } from "@/lib/templates/templates";
 
 type ClassOption = { id: string; name: string; color: string };
 
@@ -23,14 +24,17 @@ const KINDS: AssignmentKind[] = [
 export function NewAssignmentForm({
   classes,
   calibrationMap,
+  templates,
 }: {
   classes: ClassOption[];
   calibrationMap?: Record<string, { mean: number; n: number }>;
+  templates: AssignmentTemplate[];
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  const [templateId, setTemplateId] = useState<string>("");
   const [title, setTitle] = useState("");
   const [classId, setClassId] = useState(classes[0]?.id ?? "");
   const [kind, setKind] = useState<AssignmentKind>("other");
@@ -58,6 +62,7 @@ export function NewAssignmentForm({
         readingLoad,
         writingLoad,
         description: description.trim() || null,
+        templateId: templateId || null,
       });
       if (result.error) return setError(result.error);
       router.push(`/assignments/${result.id}?intent=new`);
@@ -67,6 +72,34 @@ export function NewAssignmentForm({
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 rounded-xl border border-border bg-card p-4">
+      {templates.length > 0 && (
+        <Field label="Start from a template (optional)">
+          <select
+            value={templateId}
+            onChange={(e) => {
+              const next = e.target.value;
+              setTemplateId(next);
+              if (next) {
+                const tmpl = templates.find((t) => t.id === next);
+                if (tmpl) {
+                  setKind(tmpl.kind as AssignmentKind);
+                  setDescription(templateToDescription(tmpl));
+                }
+              }
+            }}
+            className="input"
+          >
+            <option value="">— No template —</option>
+            {templates.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </select>
+          <span className="text-xs text-muted">
+            Pre-fills the checklist and the notes field. You can still edit anything.
+          </span>
+        </Field>
+      )}
+
       <Field label="Title">
         <input
           required
