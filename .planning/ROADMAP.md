@@ -61,6 +61,12 @@
 
 **Requirement IDs:** F04, F05, F14
 
+**Plans:** 4 plans in 3 waves
+- [ ] 03-01-PLAN.md — Schema migration 0009 + lib/inbox types + offline queue + time-budget compute + calibration libs (with 13 unit tests)
+- [ ] 03-02-PLAN.md — Capture inbox UI: /quick-add CaptureForm (voice/photo/text tabs + offline drain), /inbox list + detail, classify-inbox Edge Function
+- [ ] 03-03-PLAN.md — Time budget: TimeBudget dashboard section, time_log open/close in transitionAssignment, calibration hint in NewAssignmentForm
+- [ ] 03-04-PLAN.md — Implementation-intention prompt: IntentionPrompt component, saveIntention action, ?intent=new redirect from form
+
 ---
 
 ## Phase 4: Dyslexia Reading Layer (Slice 3)
@@ -122,3 +128,4 @@
 
 *Roadmap bootstrapped from `docs/spec/features.md` and `docs/review/slice-1-evidence-review.md` on 2026-05-28.*
 *Phase 2 plans expanded 2026-05-28.*
+*Phase 3 plans created 2026-05-29.*
