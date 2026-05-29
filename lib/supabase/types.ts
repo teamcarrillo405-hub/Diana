@@ -10,6 +10,38 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      assignment_checklists: {
+        Row: {
+          id: string;
+          assignment_id: string;
+          owner_id: string;
+          items: Json;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          assignment_id: string;
+          owner_id: string;
+          items?: Json;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          assignment_id?: string;
+          owner_id?: string;
+          items?: Json;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assignment_checklists_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       assignment_intentions: {
         Row: {
           assignment_id: string;
@@ -50,6 +82,33 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      assignment_templates: {
+        Row: {
+          id: string;
+          name: string;
+          kind: string;
+          checklist_items: Json;
+          rubric_items: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          kind: string;
+          checklist_items?: Json;
+          rubric_items?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          kind?: string;
+          checklist_items?: Json;
+          rubric_items?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       assignment_time_log: {
         Row: {
