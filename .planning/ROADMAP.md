@@ -108,7 +108,7 @@
 
 ---
 
-## Phase 6: AI Feature Core (Slice 5)
+## Phase 6: AI Feature Core (Slice 5) — COMPLETE
 
 **Goal:** Full AI feature suite with integrity safeguards.
 
@@ -157,5 +157,4 @@
 *Phase 5 verified complete 2026-05-29.*
 *Phase 6 plans created 2026-05-29.*
 *Phase 6 plans revised 2026-05-29 — split 06-03 into 06-03 (Edge Functions) + 06-04 (UI/actions/page wiring) to resolve scope/dependency blockers; added F18 decision note.*
-</content>
-</invoke>
+*Phase 6 verified complete 2026-05-29 — 8/8 must-haves verified, 74 tests pass, TypeScript clean.*

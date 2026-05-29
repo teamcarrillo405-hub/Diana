@@ -2,23 +2,23 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 06 COMPLETE
-stopped_at: "Phase 06 Plan 04 complete — MathHelper, WritingAid, CitationTool + page wiring. Phase 6 fully delivered."
-last_updated: "2026-05-29T16:10:00.000Z"
+status: Phase 06 COMPLETE — Phase 07 NEXT
+stopped_at: "Phase 06 verified complete — F09/F10/F11/F15/F16/F17/F18/AI-SAFETY-01 delivered. Phase 7 (Polish + Tier 2) is next."
+last_updated: "2026-05-29T09:17:00Z"
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 18
-  completed_plans: 17
+  completed_plans: 18
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 6 (AI Feature Core — Slice 5) — IN PROGRESS  
-**Last session:** 2026-05-29T15:12:00.000Z
-**Stopped at:** Phase 06 Plan 03 complete — math-step, writing-aid, citation-gen Edge Functions
+**Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — NEXT  
+**Last session:** 2026-05-29T09:17:00Z
+**Stopped at:** Phase 06 fully verified — all 4 plans complete, 74 tests pass, TypeScript clean
 
 ---
 
