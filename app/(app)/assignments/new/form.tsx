@@ -60,7 +60,7 @@ export function NewAssignmentForm({
         description: description.trim() || null,
       });
       if (result.error) return setError(result.error);
-      router.push(`/assignments/${result.id}`);
+      router.push(`/assignments/${result.id}?intent=new`);
       router.refresh();
     });
   }

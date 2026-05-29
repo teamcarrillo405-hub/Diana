@@ -9,14 +9,18 @@ import { StatusButtons } from "./status-buttons";
 import { Breadcrumb } from "./breadcrumb";
 import { PivotForm } from "./pivot-form";
 import { TtsButton } from "@/components/tts-button";
+import { IntentionPrompt } from "./intention-prompt";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 
 export default async function AssignmentDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ intent?: string; focus?: string }>;
 }) {
   const { id } = await params;
+  const { intent } = await searchParams;
   const supabase = await createClient();
   const profile = await loadProfile();
 
@@ -104,6 +108,10 @@ export default async function AssignmentDetailPage({
             Open the checklist
           </Link>
         </div>
+      )}
+
+      {intent === "new" && (
+        <IntentionPrompt assignmentId={id} />
       )}
     </div>
   );
