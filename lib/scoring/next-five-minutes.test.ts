@@ -112,3 +112,53 @@ describe("GAP-08 — signal recency + dyslexia weighting", () => {
     expect(stale[0].reasons).not.toContain("worked on earlier today");
   });
 });
+
+describe("Phase 8 — interleaving de-promotion", () => {
+  const now = new Date("2026-06-01T12:00:00Z");
+
+  it("INTERLEAVE-01: applies -15 penalty when top assignment shares class_id with lastShownClassId and is NOT due within 24h", () => {
+    const a = makeAssignment({
+      id: "a1",
+      class_id: "english",
+      due_at: new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days out → "due in 2 days" (+30), well above 15
+      reading_load: 1,
+    });
+    const baseline = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, null);
+    const demoted = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, "english");
+    expect(baseline[0].score - demoted[0].score).toBe(15);
+  });
+
+  it("INTERLEAVE-02: does NOT apply penalty when top assignment is due within 24h (urgency wins)", () => {
+    const a = makeAssignment({
+      id: "a1",
+      class_id: "english",
+      due_at: new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString(), // 3 hours out → "due today"
+    });
+    const baseline = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, null);
+    const sameButShown = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, "english");
+    expect(sameButShown[0].score).toBe(baseline[0].score);
+    expect(sameButShown[0].reasons).toContain("due today");
+  });
+
+  it("INTERLEAVE-03: does NOT apply penalty when lastShownClassId is null", () => {
+    const a = makeAssignment({
+      id: "a1",
+      class_id: "english",
+      due_at: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    const noShown = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, null);
+    const explicitNull = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, null);
+    expect(noShown[0].score).toBe(explicitNull[0].score);
+  });
+
+  it("INTERLEAVE-04: lastShownClassId from a different class has zero effect on a same-class top", () => {
+    const a = makeAssignment({
+      id: "a1",
+      class_id: "english",
+      due_at: new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    const noShown = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, null);
+    const otherShown = rankAssignments([a], [], now, "medium", { diagnoses: [], extra_time_pct: 0 }, "math");
+    expect(otherShown[0].score).toBe(noShown[0].score);
+  });
+});

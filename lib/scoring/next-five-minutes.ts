@@ -38,6 +38,14 @@ export type RecentSignal = {
 };
 
 /**
+ * Phase 8: Interleaving penalty. When the previous top task was from the same
+ * class, this much score is subtracted to favor subject variety (g=0.42 effect
+ * from interleaved-practice research). NOT applied to "due now" / "due today"
+ * assignments — urgency wins (Pitfall 6).
+ */
+const INTERLEAVE_PENALTY = 15;
+
+/**
  * Rule-based "what should I do in the next 5 minutes?" scorer.
  *
  * Heuristics (intentionally simple and inspectable):
@@ -54,16 +62,32 @@ export function rankAssignments(
   now: Date = new Date(),
   energy: EnergyLevel = "medium",
   profile: ScorerProfile = { diagnoses: [], extra_time_pct: 0 },
+  lastShownClassId: string | null = null,
 ): ScoredAssignment[] {
-  return assignments
+  const scored = assignments
     .filter(
       (a) =>
         a.status !== "submitted" &&
         a.status !== "graded" &&
         a.status !== "abandoned",
     )
-    .map((a) => score(a, signals, now, energy, profile))
-    .sort((x, y) => y.score - x.score);
+    .map((a) => score(a, signals, now, energy, profile));
+
+  if (lastShownClassId) {
+    for (const s of scored) {
+      if (s.class_id === lastShownClassId) {
+        const isUrgent =
+          s.reasons.includes("due now") || s.reasons.includes("due today");
+        if (!isUrgent) {
+          s.score = Math.max(0, s.score - INTERLEAVE_PENALTY);
+          // Silent de-promotion: no reason pushed so the UI doesn't reveal the
+          // mechanic to the student (avoids self-fulfilling avoidance).
+        }
+      }
+    }
+  }
+
+  return scored.sort((x, y) => y.score - x.score);
 }
 
 function score(
