@@ -5,7 +5,13 @@ import { VoiceTextarea } from "@/components/voice-textarea";
 import { useAutoSaveNote } from "@/lib/notes/auto-save";
 import { createNote, saveNote } from "../actions";
 
-export function NoteEditor({ assignmentId }: { assignmentId: string | null }) {
+export function NoteEditor({
+  assignmentId,
+  ttsProvider = "browser",
+}: {
+  assignmentId: string | null;
+  ttsProvider?: "browser" | "openai";
+}) {
   const router = useRouter();
   const [noteId, setNoteId] = useState<string | null>(null);
   const [title, setTitle] = useState("Untitled note");
@@ -87,6 +93,7 @@ export function NoteEditor({ assignmentId }: { assignmentId: string | null }) {
           rows={12}
           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
           placeholder="Tap the mic to dictate, or type here."
+          provider={ttsProvider}
         />
       )}
 

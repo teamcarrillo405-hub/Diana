@@ -17,6 +17,7 @@ export type ProfilePrefs = Pick<
   | "reduced_motion"
   | "high_contrast"
   | "tts_enabled"
+  | "tts_provider" // F4/F6/F8: 'browser' | 'openai' — opt-in to Whisper STT + OpenAI TTS
   | "onboarded_at"
   | "consent_ai"
   | "timezone"
@@ -33,7 +34,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date",
+      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, tts_provider, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date",
     )
     .eq("user_id", user.id)
     .single();

@@ -632,6 +632,7 @@ export type Database = {
           token_reset_date: string;
           tokens_used_today: number;
           tts_enabled: boolean;
+          tts_provider: string;
           updated_at: string;
           user_id: string;
         };
@@ -659,6 +660,7 @@ export type Database = {
           token_reset_date?: string;
           tokens_used_today?: number;
           tts_enabled?: boolean;
+          tts_provider?: string;
           updated_at?: string;
           user_id: string;
         };
@@ -686,6 +688,7 @@ export type Database = {
           token_reset_date?: string;
           tokens_used_today?: number;
           tts_enabled?: boolean;
+          tts_provider?: string;
           updated_at?: string;
           user_id?: string;
         };

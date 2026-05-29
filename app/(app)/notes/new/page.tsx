@@ -1,3 +1,4 @@
+import { loadProfile } from "@/lib/profile";
 import { NoteEditor } from "./note-editor";
 
 export default async function NewNotePage({
@@ -6,6 +7,8 @@ export default async function NewNotePage({
   searchParams: Promise<{ assignment?: string }>;
 }) {
   const { assignment } = await searchParams;
+  const profile = await loadProfile();
+  const ttsProvider = (profile?.tts_provider ?? "browser") as "browser" | "openai";
   return (
     <div className="space-y-6">
       <header className="space-y-1">
@@ -14,7 +17,7 @@ export default async function NewNotePage({
           Talk or type — Diana saves every 30 seconds.
         </p>
       </header>
-      <NoteEditor assignmentId={assignment ?? null} />
+      <NoteEditor assignmentId={assignment ?? null} ttsProvider={ttsProvider} />
     </div>
   );
 }

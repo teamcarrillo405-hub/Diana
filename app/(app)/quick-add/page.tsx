@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import { loadProfile } from "@/lib/profile";
 import { CaptureForm } from "./capture-form";
 
 export default async function QuickAddPage() {
@@ -9,13 +10,16 @@ export default async function QuickAddPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
+  const profile = await loadProfile();
+  const ttsProvider = (profile?.tts_provider ?? "browser") as "browser" | "openai";
+
   return (
     <div className="space-y-6">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold">Quick add</h1>
         <p className="text-sm text-muted">What do you need to remember?</p>
       </header>
-      <CaptureForm />
+      <CaptureForm ttsProvider={ttsProvider} />
     </div>
   );
 }

@@ -10,7 +10,7 @@ import { VoiceTextarea } from "@/components/voice-textarea";
 type Tab = "text" | "voice" | "photo";
 type Status = "idle" | "saved" | "offline" | "error";
 
-export function CaptureForm() {
+export function CaptureForm({ ttsProvider = "browser" }: { ttsProvider?: "browser" | "openai" }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<Tab>("text");
@@ -190,6 +190,7 @@ export function CaptureForm() {
             rows={4}
             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
             placeholder="Tap the mic to dictate, or type here."
+            provider={ttsProvider}
           />
         )}
 
