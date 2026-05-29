@@ -16,6 +16,7 @@ import { ReadingLoadToggle, ReadingLoadBadge } from "./reading-load-toggle";
 import { StartSessionButton } from "./start-session-button";
 import { setLastShownClass, getEventIntentions } from "./actions";
 import { EveningPlanning } from "./evening-planning";
+import { DoneToday } from "./done-today";
 
 export default async function DashboardPage({
   searchParams,
@@ -51,6 +52,15 @@ export default async function DashboardPage({
 
   const recentSignals = (signals ?? [])
     .filter((s): s is { assignment_id: string; occurred_at: string } => s.assignment_id !== null);
+
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const { data: doneToday } = await supabase
+    .from("task_signals")
+    .select("id")
+    .eq("kind", "completed")
+    .gte("occurred_at", todayStart.toISOString());
+  const doneTodayCount = doneToday?.length ?? 0;
 
   // F12: due flashcards for dashboard tile (calm framing — never "you're behind")
   const { data: dueCards } = await supabase
@@ -113,6 +123,8 @@ export default async function DashboardPage({
         </h1>
         <p className="text-muted">Pick the next 5 minutes.</p>
       </header>
+
+      <DoneToday count={doneTodayCount} />
 
       {profile && <TokenBudgetBanner profile={profile} />}
 
