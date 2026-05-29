@@ -146,6 +146,11 @@
 
 **Requirement IDs:** F13, F20, T2-01, T2-02, T2-03
 
+**Plans:** 1/3 plans executed
+- [ ] 07-01-PLAN.md — F20 tone audit script + F13 pure timer state machine + React hook
+- [x] 07-02-PLAN.md — T2-01 assignment templates (migration 0013 + DBQ/CER/5-para seeds + /assignments/new picker) + T2-02 reading-load dashboard toggle
+- [ ] 07-03-PLAN.md — F13 timer UI (ring progress, Premack reward, ambient sound, localStorage) + T2-03 body-doubling mode + dashboard quick-start + nav update
+
 ---
 
 *Roadmap bootstrapped from `docs/spec/features.md` and `docs/review/slice-1-evidence-review.md` on 2026-05-28.*
@@ -158,3 +163,4 @@
 *Phase 6 plans created 2026-05-29.*
 *Phase 6 plans revised 2026-05-29 — split 06-03 into 06-03 (Edge Functions) + 06-04 (UI/actions/page wiring) to resolve scope/dependency blockers; added F18 decision note.*
 *Phase 6 verified complete 2026-05-29 — 8/8 must-haves verified, 74 tests pass, TypeScript clean.*
+*Phase 7 plans created 2026-05-29.*

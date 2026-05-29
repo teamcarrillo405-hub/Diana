@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 06 COMPLETE — Phase 07 NEXT
-stopped_at: "Phase 06 verified complete — F09/F10/F11/F15/F16/F17/F18/AI-SAFETY-01 delivered. Phase 7 (Polish + Tier 2) is next."
-last_updated: "2026-05-29T09:17:00Z"
+status: Executing Phase 07
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-05-29T17:32:47.842Z"
 progress:
   total_phases: 7
-  completed_phases: 6
-  total_plans: 18
-  completed_plans: 18
+  completed_phases: 5
+  total_plans: 21
+  completed_plans: 19
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — NEXT  
-**Last session:** 2026-05-29T09:17:00Z
-**Stopped at:** Phase 06 fully verified — all 4 plans complete, 74 tests pass, TypeScript clean
+**Last session:** 2026-05-29T17:32:47.839Z
+**Stopped at:** Completed 07-02-PLAN.md
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 7 decisions (07-02)
+
+- assignment_checklists created in migration 0013 — was missing from all prior migrations despite being referenced as "existing" in Phase 3/4 plan interfaces
+- Reading-load view shows 5 items vs 3 for normal view — students sorting by load want to see the full heavy-reading set
+- Template picker placed BEFORE title field — student picks scaffold first, then adds assignment-specific title
+- getTemplates and getTemplateById added to lib/templates/templates.ts as simple array wrappers (no extra DB calls) — required by success criteria
+- inbox/[id]/actions.ts updated with templateId: null — all callers of createAssignment must include the new field
 
 ## Phase 6 decisions (06-04)
 
