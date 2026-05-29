@@ -8,12 +8,14 @@ import {
   Brain,
   CheckSquare,
   Settings as Cog,
+  Timer,
 } from "lucide-react";
 
 const ITEMS = [
   { href: "/dashboard", label: "Today", icon: Home },
   { href: "/assignments", label: "Tasks", icon: CheckSquare },
   { href: "/flashcards", label: "Study", icon: Brain },
+  { href: "/timer", label: "Timer", icon: Timer },
   { href: "/classes", label: "Classes", icon: BookOpen },
   { href: "/settings", label: "Settings", icon: Cog },
 ] as const;

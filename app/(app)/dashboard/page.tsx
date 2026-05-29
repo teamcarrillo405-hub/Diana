@@ -12,6 +12,7 @@ import { computeNightBudget } from "@/lib/time-budget/compute";
 import { DueCards } from "./due-cards";
 import { TokenBudgetBanner } from "./token-budget-banner";
 import { ReadingLoadToggle, ReadingLoadBadge } from "./reading-load-toggle";
+import { StartSessionButton } from "./start-session-button";
 
 export default async function DashboardPage({
   searchParams,
@@ -196,7 +197,8 @@ export default async function DashboardPage({
 
       <TimeBudget totalMinutes={budget.totalMinutes} items={budget.items} />
 
-      <div className="pt-2">
+      <div className="flex flex-wrap gap-2 pt-2">
+        <StartSessionButton />
         <Link
           href="/assignments/new"
           className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm hover:bg-border/30"
