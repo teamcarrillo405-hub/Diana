@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 06
-stopped_at: "Phase 06 Plan 01 complete — migration 0012, lib/ai safety layer, Deno mirrors"
-last_updated: "2026-05-29T14:38:00.000Z"
+stopped_at: Phase 06 Plan 02 complete — F15/F16/AI-SAFETY-01 user surfaces
+last_updated: "2026-05-29T15:05:55.182Z"
 progress:
   total_phases: 7
   completed_phases: 4
   total_plans: 18
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 6 (AI Feature Core — Slice 5) — IN PROGRESS  
-**Last session:** 2026-05-29T14:38:00.000Z
-**Stopped at:** Phase 06 Plan 01 complete — migration 0012, lib/ai safety layer, Deno mirrors
+**Last session:** 2026-05-29T15:05:55.179Z
+**Stopped at:** Phase 06 Plan 02 complete — F15/F16/AI-SAFETY-01 user surfaces
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 6 decisions (06-02)
+
+- saveClassAiMode takes typed object {classId, aiMode} — zod enum is defense in depth above DB check constraint
+- CSV export: server action returns string body, client builds Blob + triggers download via createObjectURL — avoids binary streaming in Next.js 15 server actions
+- TokenBudgetBanner server-rendered (no polling) — ratio thresholds: <0.9 null, >=0.9 close warning, >=1.0 at-limit copy
+- classAiMode narrowed with === 'red' || === 'yellow' guard — defaults to 'green', defensive against unexpected DB string values
+- token_reset_date added to ProfilePrefs Select alongside budget fields for future TZ-aware reset logic
 
 ## Phase 6 decisions (06-01)
 
@@ -80,7 +88,7 @@ progress:
 
 ## Phase 4 decisions (04-03)
 
-- classAiMode defaults to 'green' in assignment detail page; Phase 6 (F16) adds per-class traffic-light column
+- classAiMode defaults to 'green' in assignment detail page; Phase 6 (F16) adds per-class traffic-light column [RESOLVED in 06-02]
 - Scaffold buttons opt-in behind "Help me with this reading" tap — not shown by default (Pitfall 5 guard)
 - reading-scaffold Edge Function uses claude-sonnet-4-6 with 512 max_tokens; truncates to 1500 chars for pre, 4000 for mid/post
 - server-side aiMode='red' guard in Edge Function returns 403 (defense in depth — client-side guard is not sufficient alone)

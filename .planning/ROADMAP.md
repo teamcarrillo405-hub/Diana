@@ -127,7 +127,7 @@
 
 **Plans:** 4 plans in 3 waves
 - [x] 06-01-PLAN.md (wave 1) — Migration 0012 (classes.ai_mode, ai_interactions, profiles token budget) + lib/ai/{safety,refuse-redirect,frustration,system-prompts} + supabase/functions/_shared/ Deno mirrors (23 unit tests) + F18 spec-divergence decision note
-- [ ] 06-02-PLAN.md (wave 2, parallel with 06-03) — F16 per-class AI mode settings page + un-hardcode assignment detail + F15 /settings/ai-history with CSV export + amber TokenBudgetBanner on dashboard
+- [x] 06-02-PLAN.md (wave 2, parallel with 06-03) — F16 per-class AI mode settings page + un-hardcode assignment detail + F15 /settings/ai-history with CSV export + amber TokenBudgetBanner on dashboard
 - [ ] 06-03-PLAN.md (wave 2, parallel with 06-02) — F09 math-step (Haiku 4.5) + F10 writing-aid (Sonnet 4.6) + F11 citation-gen (Haiku 4.5) Edge Functions ONLY (F17 + F18 system prompts injected via shared module)
 - [ ] 06-04-PLAN.md (wave 3, depends on 06-01 + 06-02 + 06-03) — ai-tools-actions.ts (three server actions) + math-helper.tsx / writing-aid.tsx / citation-tool.tsx client components + assignment detail conditional rendering with single classAiMode binding + manual smoke-test checkpoint
 
