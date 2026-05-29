@@ -80,8 +80,8 @@
 
 **Requirement IDs:** F06, F07, F19
 
-**Plans:** 3 plans in 3 sequential waves
-- [ ] 04-01-PLAN.md — Migration 0010 (reading_font column) + pure TTS utility functions (tts-utils.ts) + profileBodyClass extension + 13 unit tests
+**Plans:** 1/3 plans executed
+- [x] 04-01-PLAN.md — Migration 0010 (reading_font column) + pure TTS utility functions (tts-utils.ts) + profileBodyClass extension + 13 unit tests
 - [ ] 04-02-PLAN.md — Font loading (Atkinson Hyperlegible Next + OpenDyslexic in layout.tsx) + reading-view CSS typography + useTtsHighlight hook + TtsHighlightButton component
 - [ ] 04-03-PLAN.md — ReadingPanel component + reading-scaffold Edge Function + assignment detail wiring + Settings font picker
 

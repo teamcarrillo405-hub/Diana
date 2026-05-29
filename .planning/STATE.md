@@ -2,23 +2,23 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-05-29T10:34:40.621Z"
+status: Executing Phase 04
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-05-29T11:15:00.007Z"
 progress:
   total_phases: 7
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 11
+  completed_plans: 9
 ---
 
 # Diana — Project State
 
-**Last updated:** 2026-05-28  
+**Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 3 complete (03-04 done — F14 implementation-intention prompt wired)  
-**Last session:** 2026-05-28T08:03:00Z  
-**Stopped at:** Completed 03-04-PLAN.md
+**Active phase:** Phase 4 in progress (04-01 done — reading_font migration + pure TTS utilities)  
+**Last session:** 2026-05-29T11:15:00.005Z
+**Stopped at:** Completed 04-01-PLAN.md
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 4 decisions (04-01)
+
+- reading_font stored as TEXT NOT NULL DEFAULT 'system' with DB check constraint ('system'|'lexend'|'atkinson'|'opendyslexic')
+- reading_font='lexend' maps to existing .dyslexia-font CSS class (no new CSS needed; Lexend loaded Phase 2)
+- Dedup guard in profileBodyClass prevents duplicate dyslexia-font class when dyslexia_font=true AND reading_font=lexend
+- tts-utils.ts injects synth object into safeCancel for mockability — no window globals — enables node-environment Vitest
+- types.ts manually annotated with reading_font until migration applied and supabase:types regenerated
 
 ## Phase 3 decisions (03-04)
 
