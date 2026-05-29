@@ -89,7 +89,7 @@
 
 ---
 
-## Phase 5: Notes + Study Layer (Slice 4)
+## Phase 5: Notes + Study Layer (Slice 4) — COMPLETE
 
 **Goal:** In-class note-taking and spaced repetition.
 
@@ -103,6 +103,8 @@
 - [x] 05-01-PLAN.md — Migration 0011 (notes + flashcards + flashcard_reviews) + Supabase types sync + lib/fsrs (FSRS-5 algorithm with 10 unit tests) + lib/notes/types + useAutoSaveNote hook (30 s debounce, 6 unit tests)
 - [x] 05-02-PLAN.md — Notes UI: /notes list, /notes/new editor (VoiceTextarea + 30 s auto-save), /notes/[id] detail (TTS playback of transcript + outline), transcribe-note Edge Function (Sonnet 4.6)
 - [x] 05-03-PLAN.md — Flashcards UI: /flashcards deck (due today + coming up), /flashcards/new manual card form, /flashcards/[id]/review session (flip + Again/Hard/Good/Easy → schedule + flashcard_reviews log), dashboard DueCards tile + Study nav item
+
+**Phase 5 STATUS: COMPLETE** — F08/F12 delivered. Verified 2026-05-29.
 
 ---
 
@@ -144,3 +146,4 @@
 *Phase 4 plans created 2026-05-29.*
 *Phase 4 verified complete 2026-05-29.*
 *Phase 5 plans created 2026-05-29.*
+*Phase 5 verified complete 2026-05-29.*
