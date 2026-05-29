@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 8
-stopped_at: Completed 08-02-PLAN.md
-last_updated: "2026-05-29T20:51:25.038Z"
+stopped_at: Completed 08-03-PLAN.md
+last_updated: "2026-05-29T21:02:49.616Z"
 progress:
   total_phases: 8
-  completed_phases: 6
+  completed_phases: 7
   total_plans: 24
-  completed_plans: 23
+  completed_plans: 24
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-29T20:50:47.103Z
-**Stopped at:** Completed 08-02-PLAN.md
+**Last session:** 2026-05-29T21:02:49.614Z
+**Stopped at:** Completed 08-03-PLAN.md
 
 ---
 
@@ -54,6 +54,14 @@ progress:
 - No logInteraction in transcribe-voice/tts-generate — non-Claude AI calls; Whisper/TTS usage auditable via OpenAI dashboard
 - TtsHighlightButton OpenAI variant omits word-highlight — OpenAI TTS 1 API emits no word boundary events; estimator wiring deferred to follow-up
 - stt_transcribe + tts_generate added to LogParams.feature union in both safety.ts mirrors — must stay in sync
+
+## Phase 8 decisions (08-03)
+
+- Client-side time gate for evening planning — Next.js server components run in UTC; student's local clock needed for 17–20h window; useEffect on client is the correct gate (Pitfall 4)
+- Optimistic dismiss in EveningPlanning — local Set updated before markIntentionFired server call so UI stays calm even if server write fails (Pitfall 5)
+- 17:00–20:00 hardcoded in v1; profiles.timezone column exists for future per-user TZ-aware personalization
+- vitest include extended to app/**/*.test.tsx — test file co-located with component per plan spec; prior include only covered lib/ and components/
+- findByText replaced with getByText in EVENING-02 — vi.useFakeTimers() intercepts Testing Library's internal setTimeout polling; synchronous getByText after act(runAllTimers) is the correct pattern
 
 ## Phase 8 decisions (08-02)
 
