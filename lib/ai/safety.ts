@@ -14,7 +14,9 @@ export interface LogParams {
     | "writing_aid"
     | "citation_gen"
     | "reading_scaffold"
-    | "transcribe_note";
+    | "transcribe_note"
+    | "stt_transcribe"
+    | "tts_generate";
   model: string;
   promptSummary: string;
   tokensUsed: number;
