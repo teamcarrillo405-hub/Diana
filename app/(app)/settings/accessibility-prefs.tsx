@@ -30,6 +30,9 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
   const [reducedMotion, setReducedMotion] = useState(initial.reduced_motion);
   const [highContrast, setHighContrast] = useState(initial.high_contrast);
   const [ttsEnabled, setTtsEnabled] = useState(initial.tts_enabled);
+  const [readingFont, setReadingFont] = useState<"system" | "lexend" | "atkinson" | "opendyslexic">(
+    (initial as any).reading_font ?? "system"
+  );
 
   function commit(next: Partial<{
     font_size: FontSize;
@@ -38,6 +41,7 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
     reduced_motion: boolean;
     high_contrast: boolean;
     tts_enabled: boolean;
+    reading_font: "system" | "lexend" | "atkinson" | "opendyslexic"; // F19
   }>) {
     startTransition(async () => {
       await savePrefs(next);
@@ -87,6 +91,33 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
         on={dyslexiaFont}
         onChange={(v) => { setDyslexiaFont(v); commit({ dyslexia_font: v }); }}
       />
+
+      <Group label="Reading font">
+        <p className="mb-2 text-xs text-muted">
+          Applies to reading assignments and long-form text blocks.
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {(
+            [
+              { value: "system", label: "System" },
+              { value: "lexend", label: "Lexend" },
+              { value: "atkinson", label: "Atkinson" },
+              { value: "opendyslexic", label: "OpenDyslexic" },
+            ] as const
+          ).map((o) => (
+            <Pill
+              key={o.value}
+              label={o.label}
+              active={readingFont === o.value}
+              onClick={() => {
+                setReadingFont(o.value);
+                commit({ reading_font: o.value });
+              }}
+            />
+          ))}
+        </div>
+      </Group>
+
       <Toggle
         label="Read-aloud buttons"
         hint="Adds a 🔊 button to task titles and descriptions. Uses your browser's voice — nothing is sent to a server."

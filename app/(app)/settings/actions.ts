@@ -11,6 +11,7 @@ const Prefs = z.object({
   reduced_motion: z.boolean().optional(),
   high_contrast: z.boolean().optional(),
   tts_enabled: z.boolean().optional(),
+  reading_font: z.enum(["system","lexend","atkinson","opendyslexic"]).optional(), // F19
 });
 
 export async function savePrefs(input: z.infer<typeof Prefs>) {

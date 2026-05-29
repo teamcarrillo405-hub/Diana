@@ -10,6 +10,7 @@ import { Breadcrumb } from "./breadcrumb";
 import { PivotForm } from "./pivot-form";
 import { TtsButton } from "@/components/tts-button";
 import { IntentionPrompt } from "./intention-prompt";
+import { ReadingPanel } from "./reading-panel";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 
 export default async function AssignmentDetailPage({
@@ -73,6 +74,17 @@ export default async function AssignmentDetailPage({
           </p>
         )}
       </header>
+
+      {(a.kind === "reading" || (a.reading_load != null && a.reading_load >= 3)) && a.description && (
+        <ReadingPanel
+          text={a.description}
+          classAiMode={
+            // Pass class AI mode. Currently class doesn't have an ai_mode column (Phase 6 feature).
+            // Default to 'green' until Phase 6 adds per-class traffic-light.
+            "green"
+          }
+        />
+      )}
 
       <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-baseline justify-between">
