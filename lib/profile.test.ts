@@ -18,6 +18,7 @@ const BASE: ProfilePrefs = {
   reduced_motion: false,
   high_contrast: false,
   tts_enabled: false,
+  tts_provider: "browser",
   onboarded_at: null,
   consent_ai: false,
   timezone: "UTC",

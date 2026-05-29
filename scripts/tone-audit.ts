@@ -17,6 +17,7 @@ const SKIP_DIRS = new Set([
   ".planning",
   ".git",
   ".claude",                          // worktrees and Claude tooling — not project source
+  ".claude-flow",                     // Claude workflow orchestration — not project source
   "supabase/functions/node_modules",
 ]);
 
@@ -26,6 +27,7 @@ const SKIP_PATH_PREFIXES = [
   "supabase/functions/",    // Deno edge functions are server-side API code, not UI copy
   "lib/ai/",                // AI system-prompt templates — server-side prompt engineering, not UI copy
   "scripts/tone-audit.ts",  // the script itself names the banned words
+  "CLAUDE.md",              // project config/instructions — not student-facing UI copy
 ];
 
 // File-suffix skip patterns — test files may assert banned words are absent (meta-testing).
@@ -42,6 +44,7 @@ const SKIP_LINE_PATTERNS = [
   /^export\s+(function|class|const)\s/, // exported identifiers (component/function names)
   /[\w_](status|state|type|kind|mode)\s*===?\s*["']/, // DB/code enum comparisons
   /^\s*[<{]\s*[A-Z][A-Za-z]+/,          // JSX component usage (starts with <Component or {Component)
+  /!!\s*\w/,                             // JavaScript double-negation boolean cast (!!value) — not UI copy
 ];
 
 // Banned patterns: case-insensitive literal substrings.

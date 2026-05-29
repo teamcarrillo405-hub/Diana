@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
@@ -13,6 +14,7 @@ import { DueCards } from "./due-cards";
 import { TokenBudgetBanner } from "./token-budget-banner";
 import { ReadingLoadToggle, ReadingLoadBadge } from "./reading-load-toggle";
 import { StartSessionButton } from "./start-session-button";
+import { setLastShownClass } from "./actions";
 
 export default async function DashboardPage({
   searchParams,
@@ -24,6 +26,9 @@ export default async function DashboardPage({
   const energy = (await searchParams).energy ?? "medium";
   const view = (await searchParams).view;
   const isReadingLoadView = view === "reading-load";
+
+  const cookieStore = await cookies();
+  const lastShownClassId = cookieStore.get("diana_last_class")?.value ?? null;
 
   const { data: assignments } = await supabase
     .from("assignments")
@@ -64,8 +69,13 @@ export default async function DashboardPage({
       diagnoses: profile?.diagnoses ?? [],
       extra_time_pct: profile?.extra_time_pct ?? 0,
     },
+    lastShownClassId,
   );
   const top = ranked[0];
+  if (top?.class_id) {
+    // Fire-and-forget: persist for next render's interleaving.
+    void setLastShownClass(top.class_id);
+  }
   const rest = isReadingLoadView
     ? [...ranked]
         .filter((a) => a.id !== top?.id)
@@ -156,7 +166,10 @@ export default async function DashboardPage({
             </div>
             {ttsOn && (
               <div className="mt-3">
-                <TtsButton text={`${top.title}. ${KIND_LABEL[top.kind]}. ${top.due_at ? formatDueAt(top.due_at) : ""}.`} />
+                <TtsButton
+                  text={`${top.title}. ${KIND_LABEL[top.kind]}. ${top.due_at ? formatDueAt(top.due_at) : ""}.`}
+                  provider={(profile?.tts_provider as "browser" | "openai" | undefined) ?? "browser"}
+                />
               </div>
             )}
           </div>
