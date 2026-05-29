@@ -9,6 +9,7 @@ import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { TtsButton } from "@/components/tts-button";
 import { computeNightBudget } from "@/lib/time-budget/compute";
+import { DueCards } from "./due-cards";
 
 export default async function DashboardPage({
   searchParams,
@@ -39,6 +40,15 @@ export default async function DashboardPage({
 
   const recentSignals = (signals ?? [])
     .filter((s): s is { assignment_id: string; occurred_at: string } => s.assignment_id !== null);
+
+  // F12: due flashcards for dashboard tile (calm framing — never "you're behind")
+  const { data: dueCards } = await supabase
+    .from("flashcards")
+    .select("id")
+    .lte("due_at", new Date().toISOString())
+    .order("due_at", { ascending: true });
+  const dueCount = dueCards?.length ?? 0;
+  const firstDueId = dueCards?.[0]?.id ?? null;
 
   const ranked = rankAssignments(
     assignments ?? [],
@@ -166,6 +176,8 @@ export default async function DashboardPage({
           </ul>
         </section>
       )}
+
+      <DueCards count={dueCount} firstCardId={firstDueId} />
 
       <TimeBudget totalMinutes={budget.totalMinutes} items={budget.items} />
 
