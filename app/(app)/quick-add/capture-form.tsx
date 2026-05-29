@@ -73,7 +73,7 @@ export function CaptureForm() {
         setErrorMsg(result.error);
       }
     } catch {
-      setErrorMsg("Photo upload failed. Try again.");
+      setErrorMsg("Photo upload did not go through. Try again.");
     } finally {
       setPhotoUploading(false);
     }

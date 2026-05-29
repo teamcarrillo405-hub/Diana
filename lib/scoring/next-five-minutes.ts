@@ -83,7 +83,7 @@ function score(
     const hoursUntilDue = (new Date(a.due_at).getTime() - now.getTime()) / 36e5;
     if (hoursUntilDue < 0) {
       s += 80;
-      reasons.push("past due");
+      reasons.push("due now");
     } else if (hoursUntilDue < 24) {
       s += 60;
       reasons.push("due today");

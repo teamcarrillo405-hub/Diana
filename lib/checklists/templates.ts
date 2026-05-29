@@ -62,7 +62,7 @@ const BY_KIND: Record<AssignmentKind, ChecklistItem[]> = {
 const DYSLEXIA_EXTRAS: ChecklistItem[] = [
   {
     label: "Spell-check was reviewed by you, not just accepted",
-    detail: "Autocorrect can swap a real word for the wrong one (e.g. 'defiantly' for 'definitely'). Skim each suggestion.",
+    detail: "Autocorrect can swap a real word for an unintended one (e.g. 'defiantly' for 'definitely'). Skim each suggestion.",
     required: true,
   },
   {
