@@ -86,6 +86,16 @@ export default async function SettingsPage() {
         </p>
       </section>
 
+      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <h2 className="text-sm font-semibold">AI history</h2>
+        <p className="text-sm text-muted">
+          See every time Diana used AI for you. Download it any time.
+        </p>
+        <Link href="/settings/ai-history" className="text-sm text-accent underline-offset-2 hover:underline">
+          Open AI history →
+        </Link>
+      </section>
+
       <section className="space-y-3 rounded-xl border border-border bg-card p-4">
         <h2 className="text-sm font-semibold">Account</h2>
         <SignOutButton />
