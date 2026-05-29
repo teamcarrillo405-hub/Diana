@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 06
-stopped_at: Phase 06 Plan 02 complete — F15/F16/AI-SAFETY-01 user surfaces
-last_updated: "2026-05-29T15:05:55.182Z"
+stopped_at: "Phase 06 Plan 03 complete — math-step, writing-aid, citation-gen Edge Functions"
+last_updated: "2026-05-29T15:12:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 4
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 6 (AI Feature Core — Slice 5) — IN PROGRESS  
-**Last session:** 2026-05-29T15:05:55.179Z
-**Stopped at:** Phase 06 Plan 02 complete — F15/F16/AI-SAFETY-01 user surfaces
+**Last session:** 2026-05-29T15:12:00.000Z
+**Stopped at:** Phase 06 Plan 03 complete — math-step, writing-aid, citation-gen Edge Functions
 
 ---
 
@@ -47,13 +47,16 @@ progress:
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
 
-## Phase 6 decisions (06-02)
+## Phase 6 decisions (06-03)
 
-- saveClassAiMode takes typed object {classId, aiMode} — zod enum is defense in depth above DB check constraint
-- CSV export: server action returns string body, client builds Blob + triggers download via createObjectURL — avoids binary streaming in Next.js 15 server actions
-- TokenBudgetBanner server-rendered (no polling) — ratio thresholds: <0.9 null, >=0.9 close warning, >=1.0 at-limit copy
-- classAiMode narrowed with === 'red' || === 'yellow' guard — defaults to 'green', defensive against unexpected DB string values
-- token_reset_date added to ProfilePrefs Select alongside budget fields for future TZ-aware reset logic
+- math-step uses Haiku 4.5 (400 max_tokens) — Socratic hints are low-complexity; budget stretches further; quality within tolerance for "what do you think comes next?" prompts
+- writing-aid uses Sonnet 4.6 (500 max_tokens) — grammar/style nuance (homophones, comma splices, parallelism) requires higher model; F10 spec explicitly names Sonnet 4.6
+- citation-gen uses Haiku 4.5 (600 max_tokens) — pure text-transform, no reasoning; three-format output fits within budget
+- Yellow aiMode allows citations only (F16 traffic-light: yellow = citation-help); blocks math + writing (higher Socratic concern)
+- citation-gen injects MINOR_SAFETY only, no F17/F18 — citations are not Socratic; formatting metadata is not doing work for student
+- History capped at 6 turns for math-step: cost-efficient + frustration detector cares about last 3–5 turns only
+- writing-aid has no history: each sentence review is independent; history would confuse "explain one rule" framing
+- Fire-and-forget side effects: Promise.resolve().then(async()=>{}).catch() — AI-SAFETY-01 mandates side effects never block response
 
 ## Phase 6 decisions (06-01)
 
@@ -88,7 +91,7 @@ progress:
 
 ## Phase 4 decisions (04-03)
 
-- classAiMode defaults to 'green' in assignment detail page; Phase 6 (F16) adds per-class traffic-light column [RESOLVED in 06-02]
+- classAiMode defaults to 'green' in assignment detail page; Phase 6 (F16) adds per-class traffic-light column
 - Scaffold buttons opt-in behind "Help me with this reading" tap — not shown by default (Pitfall 5 guard)
 - reading-scaffold Edge Function uses claude-sonnet-4-6 with 512 max_tokens; truncates to 1500 chars for pre, 4000 for mid/post
 - server-side aiMode='red' guard in Edge Function returns 403 (defense in depth — client-side guard is not sufficient alone)
