@@ -2,23 +2,23 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase 04 COMPLETE — Phase 05 NEXT
-stopped_at: Verified 04-VERIFICATION.md
-last_updated: "2026-05-29T04:50:00.000Z"
+status: Executing Phase 05
+stopped_at: Phase 5 Plan 01 complete — migration 0011 + FSRS-5 + useAutoSaveNote
+last_updated: "2026-05-29T05:46:00.000Z"
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 11
-  completed_plans: 11
+  total_plans: 14
+  completed_plans: 12
 ---
 
 # Diana — Project State
 
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 5 NEXT (Notes + Study Layer — Slice 4)  
-**Last session:** 2026-05-29T04:50:00.000Z
-**Stopped at:** Phase 4 verification complete — 04-VERIFICATION.md written
+**Active phase:** Phase 5 (Notes + Study Layer — Slice 4) — Plan 01 complete  
+**Last session:** 2026-05-29T05:46:00.000Z
+**Stopped at:** Phase 5 Plan 01 complete — migration 0011 + FSRS-5 + useAutoSaveNote
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 5 decisions (05-01)
+
+- FSRS-5 default weights (v5 Anki release) used; 19-parameter personalized optimization deferred to Phase 7+
+- @testing-library/react installed as devDep — React 19 standalone renderHook/act not available in this environment
+- useAutoSaveNote accepts saver as prop (not note body) — hook stays generic and testable without mocking server actions
+- FsrsCard.difficulty=0 on new cards; initialDifficulty computed on first schedule() call to prevent clamping artifacts
+- Good on new card → learning (not review) — mirrors Anki two-step graduation; Easy is the only direct-to-review rating
 
 ## Phase 4 decisions (04-03)
 
