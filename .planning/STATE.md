@@ -47,6 +47,14 @@ progress:
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
 
+## Phase 8 decisions (08-01)
+
+- OpenAI provider path uses direct fetch for binary audio — supabase.functions.invoke parses JSON, losing binary blob from tts-generate; direct fetch to ${SUPABASE_URL}/functions/v1/tts-generate preserves audio/mpeg
+- tts_provider defaults to 'browser' for all users — opt-in requires Settings UI (deferred); column + prop wiring is the foundation
+- No logInteraction in transcribe-voice/tts-generate — non-Claude AI calls; Whisper/TTS usage auditable via OpenAI dashboard
+- TtsHighlightButton OpenAI variant omits word-highlight — OpenAI TTS 1 API emits no word boundary events; estimator wiring deferred to follow-up
+- stt_transcribe + tts_generate added to LogParams.feature union in both safety.ts mirrors — must stay in sync
+
 ## Phase 8 decisions (08-02)
 
 - INTERLEAVE_PENALTY=15: calibrated to de-promote non-urgent same-class tasks; typical non-urgent score range 10-30, so 15 is enough to rotate subjects without overriding urgency signals
