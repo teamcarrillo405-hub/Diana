@@ -316,3 +316,32 @@ export async function pivotAssignment(input: z.infer<typeof Pivot>) {
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+const IntentionInput = z.object({
+  assignmentId: z.string().uuid(),
+  cueValue:     z.string().min(1).max(500),
+  cueType:      z.enum(["time", "event", "location", "other"]).optional(),
+});
+
+export async function saveIntention(
+  input: z.infer<typeof IntentionInput>
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = IntentionInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const { error } = await supabase
+    .from("assignment_intentions")
+    .insert({
+      owner_id:      user.id,
+      assignment_id: parsed.data.assignmentId,
+      cue_type:      parsed.data.cueType ?? "other",
+      cue_text:      parsed.data.cueValue,
+    });
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
