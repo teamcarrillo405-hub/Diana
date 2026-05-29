@@ -7,14 +7,14 @@ import type { ProfilePrefs } from "@/lib/profile";
 import type { Diagnosis, Accommodation } from "@/lib/supabase/types";
 
 const DIAGNOSES = [
-  { value: "adhd", label: "ADHD" },
-  { value: "dyslexia", label: "Dyslexia" },
-  { value: "dyscalculia", label: "Dyscalculia" },
-  { value: "dysgraphia", label: "Dysgraphia" },
-  { value: "asd", label: "Autism / ASD" },
-  { value: "anxiety", label: "Anxiety" },
-  { value: "other", label: "Other" },
-  { value: "none", label: "None of these" },
+  { value: "adhd",        label: "I get distracted easily" },
+  { value: "dyslexia",    label: "Reading takes more effort" },
+  { value: "dyscalculia", label: "Math is extra hard" },
+  { value: "dysgraphia",  label: "Writing things out is tough" },
+  { value: "asd",         label: "I prefer clear structure" },
+  { value: "anxiety",     label: "I worry a lot" },
+  { value: "other",       label: "Something else" },
+  { value: "none",        label: "None of these" },
 ] as const;
 
 const ACCOMMODATIONS = [
@@ -79,11 +79,10 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
     <form onSubmit={onSubmit} className="space-y-8">
       <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
         <legend className="px-1 text-sm font-semibold">
-          1. Anything Diana should know?
+          1. How does your brain tend to work?
         </legend>
         <p className="text-xs text-muted">
-          Pick any that apply. This shapes the UI and the suggestions — for example, if dyslexia is selected,
-          Diana turns on a reader-friendly font and reading-aloud buttons by default.
+          Pick anything that sounds like you. Diana uses this to adjust the UI and suggestions — for example, &quot;Reading takes more effort&quot; turns on a dyslexia-friendly font and read-aloud buttons.
         </p>
         <div className="grid grid-cols-2 gap-2 pt-2">
           {DIAGNOSES.map((d) => (
