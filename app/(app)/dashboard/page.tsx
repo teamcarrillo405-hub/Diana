@@ -11,15 +11,18 @@ import { TtsButton } from "@/components/tts-button";
 import { computeNightBudget } from "@/lib/time-budget/compute";
 import { DueCards } from "./due-cards";
 import { TokenBudgetBanner } from "./token-budget-banner";
+import { ReadingLoadToggle, ReadingLoadBadge } from "./reading-load-toggle";
 
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ energy?: "low" | "medium" | "high" }>;
+  searchParams: Promise<{ energy?: "low" | "medium" | "high"; view?: "reading-load" }>;
 }) {
   const supabase = await createClient();
   const profile = await loadProfile();
   const energy = (await searchParams).energy ?? "medium";
+  const view = (await searchParams).view;
+  const isReadingLoadView = view === "reading-load";
 
   const { data: assignments } = await supabase
     .from("assignments")
@@ -62,7 +65,12 @@ export default async function DashboardPage({
     },
   );
   const top = ranked[0];
-  const rest = ranked.slice(1, 4);
+  const rest = isReadingLoadView
+    ? [...ranked]
+        .filter((a) => a.id !== top?.id)
+        .sort((a, b) => (b.reading_load ?? 0) - (a.reading_load ?? 0))
+        .slice(0, 5)
+    : ranked.slice(1, 4);
 
   const budget = computeNightBudget(
     (assignments ?? []).map((a) => ({
@@ -95,6 +103,7 @@ export default async function DashboardPage({
       {profile && <TokenBudgetBanner profile={profile} />}
 
       <EnergyPicker current={energy} />
+      <ReadingLoadToggle active={isReadingLoadView} />
 
       {!top ? (
         <EmptyState />
@@ -156,7 +165,7 @@ export default async function DashboardPage({
       {rest.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-            Also on deck
+            {isReadingLoadView ? "By reading load" : "Also on deck"}
           </h2>
           <ul className="divide-y divide-border rounded-xl border border-border bg-card">
             {rest.map((a) => (
@@ -172,7 +181,10 @@ export default async function DashboardPage({
                       {a.due_at && ` · ${formatDueAt(a.due_at)}`}
                     </p>
                   </div>
-                  <span className="text-xs text-muted">{a.reasons[0] ?? ""}</span>
+                  <div className="flex items-center gap-3">
+                    {isReadingLoadView && <ReadingLoadBadge load={a.reading_load} />}
+                    <span className="text-xs text-muted">{a.reasons[0] ?? ""}</span>
+                  </div>
                 </Link>
               </li>
             ))}
