@@ -54,7 +54,8 @@ export function SideNav() {
   return (
     <aside className="hidden w-56 shrink-0 border-r border-border bg-card md:block">
       <div className="px-5 py-5">
-        <Link href="/dashboard" className="text-lg font-bold">
+        <Link href="/dashboard" className="flex items-center gap-1.5 text-lg font-bold">
+          <span className="text-accent text-xl leading-none">✦</span>
           Diana
         </Link>
       </div>
