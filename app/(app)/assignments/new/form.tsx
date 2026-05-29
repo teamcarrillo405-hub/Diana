@@ -6,6 +6,7 @@ import { createAssignment } from "./actions";
 import { VoiceTextarea } from "@/components/voice-textarea";
 import type { AssignmentKind } from "@/lib/supabase/types";
 import { KIND_LABEL } from "@/lib/checklists/templates";
+import { getCalibrationHint } from "@/lib/time-budget/calibration";
 
 type ClassOption = { id: string; name: string; color: string };
 
@@ -19,7 +20,13 @@ const KINDS: AssignmentKind[] = [
   "other",
 ];
 
-export function NewAssignmentForm({ classes }: { classes: ClassOption[] }) {
+export function NewAssignmentForm({
+  classes,
+  calibrationMap,
+}: {
+  classes: ClassOption[];
+  calibrationMap?: Record<string, { mean: number; n: number }>;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -115,6 +122,19 @@ export function NewAssignmentForm({ classes }: { classes: ClassOption[] }) {
             className="input"
             placeholder="e.g. 45"
           />
+          {calibrationMap && estimate && (
+            (() => {
+              const stats = calibrationMap[kind];
+              if (!stats) return null;
+              const hint = getCalibrationHint(stats, Number(estimate));
+              if (!hint) return null;
+              return (
+                <p className="mt-1 text-xs text-muted">
+                  {hint}
+                </p>
+              );
+            })()
+          )}
         </Field>
       </div>
 

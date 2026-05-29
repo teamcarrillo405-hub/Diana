@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { canTransition } from "@/lib/state-machine/assignment";
 import { buildChecklist } from "@/lib/checklists/templates";
 import type { AssignmentKind } from "@/lib/supabase/types";
+import { openTimeLog, recordElapsedTime } from "@/lib/time-budget/calibration";
 
 const STATUSES = ["todo","drafting","checking","exporting","submitted","graded","abandoned"] as const;
 
@@ -42,6 +43,44 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
       kind: to === "drafting" ? "started" : "completed",
       assignment_id: id,
     });
+  }
+
+  // Time-log: open on enter 'drafting'; close on exit to 'exporting' or 'submitted'
+  if (to === "drafting") {
+    try {
+      await openTimeLog(supabase, user.id, id);
+    } catch (err) {
+      console.error("[time-log] openTimeLog failed:", err);
+    }
+  }
+
+  if (to === "exporting" || to === "submitted") {
+    try {
+      // Fetch open log row and assignment kind
+      const [{ data: logRow }, { data: assignment }] = await Promise.all([
+        supabase
+          .from("assignment_time_log")
+          .select("started_at")
+          .eq("assignment_id", id)
+          .is("ended_at", null)
+          .order("started_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("assignments")
+          .select("kind")
+          .eq("id", id)
+          .single(),
+      ]);
+      if (logRow?.started_at && assignment?.kind) {
+        const elapsedMinutes = Math.round(
+          (Date.now() - new Date(logRow.started_at).getTime()) / 60000,
+        );
+        await recordElapsedTime(supabase, user.id, id, assignment.kind, elapsedMinutes);
+      }
+    } catch (err) {
+      console.error("[time-log] recordElapsedTime failed:", err);
+    }
   }
 
   if (to === "exporting") {

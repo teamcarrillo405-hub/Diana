@@ -1,14 +1,33 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { NewAssignmentForm } from "./form";
+import type { CalibrationStats } from "@/lib/time-budget/calibration";
 
 export default async function NewAssignmentPage() {
   const supabase = await createClient();
-  const { data: classes } = await supabase
-    .from("classes")
-    .select("id, name, color")
-    .is("archived_at", null)
-    .order("created_at", { ascending: false });
+  const { data: { user } } = await supabase.auth.getUser();
+
+  const [{ data: classes }, { data: estimates }] = await Promise.all([
+    supabase
+      .from("classes")
+      .select("id, name, color")
+      .is("archived_at", null)
+      .order("created_at", { ascending: false }),
+    user
+      ? supabase
+          .from("assignment_type_estimates")
+          .select("kind, mean_minutes, n_samples")
+          .eq("owner_id", user.id)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  // Build a map of kind -> CalibrationStats for hint display
+  const calibrationMap: Record<string, CalibrationStats> = {};
+  for (const row of estimates ?? []) {
+    if (row.kind && row.mean_minutes != null && row.n_samples != null) {
+      calibrationMap[row.kind] = { mean: row.mean_minutes, n: row.n_samples };
+    }
+  }
 
   if (!classes || classes.length === 0) {
     return (
@@ -36,7 +55,7 @@ export default async function NewAssignmentPage() {
           ← All tasks
         </Link>
       </header>
-      <NewAssignmentForm classes={classes} />
+      <NewAssignmentForm classes={classes} calibrationMap={calibrationMap} />
     </div>
   );
 }
