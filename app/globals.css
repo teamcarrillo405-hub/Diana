@@ -98,3 +98,48 @@ button, [role="button"], a {
     --card: 0 0 0;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* F19: Reading typography defaults — evidence-backed (BDA + Rello 2012) */
+/* Applied ONLY to .reading-view blocks — NOT the global UI.           */
+/* Background: off-white #FAF8F3 (warm, lower contrast than pure white) */
+/* Line height 1.6 (BDA recommended).                                   */
+/* Letter spacing 0.02em (Rello et al. 2012 modest spacing benefit).    */
+/* Max-width 70ch (BDA 60–70 CPL recommendation).                       */
+/* ------------------------------------------------------------------ */
+.reading-view {
+  background: #FAF8F3;
+  line-height: 1.6;
+  letter-spacing: 0.02em;
+}
+.reading-view .reading-content {
+  max-width: 70ch;
+  font-size: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .reading-view {
+    background: #1a1814;   /* warm dark equivalent */
+  }
+}
+
+/* Reading font picker — scoped to .reading-view (Pitfall 4 guard).   */
+/* reading_font='atkinson': uses --font-atkinson set on <html>         */
+/* reading_font='opendyslexic': uses @fontsource/opendyslexic (weight 400) */
+/* reading_font='lexend': reuses existing .dyslexia-font class in profileBodyClass */
+.reading-font-atkinson .reading-view,
+.reading-font-atkinson .reading-view * {
+  font-family: var(--font-atkinson), "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif !important;
+}
+.reading-font-opendyslexic .reading-view,
+.reading-font-opendyslexic .reading-view * {
+  font-family: "OpenDyslexic", system-ui, sans-serif !important;
+}
+
+/* TTS word highlight — only visible while TTS is playing */
+.tts-word-active {
+  border-radius: 0.2em;
+  background-color: rgb(var(--accent) / 0.15);
+  color: rgb(var(--accent));
+  font-weight: 500;
+}
