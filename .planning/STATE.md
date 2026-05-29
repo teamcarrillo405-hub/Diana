@@ -47,6 +47,13 @@ progress:
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
 
+## Phase 5 decisions (05-02)
+
+- Create-on-first-save pattern: NoteEditor creates row on first auto-save (not page load) to avoid orphan draft rows in the database
+- Dual-refresh strategy: setTimeout router.refresh() at 3s and 8s after triggerTranscript — surfaces AI result without a polling loop
+- transcribe-note uses claude-sonnet-4-6 with max_tokens=1500 — reasoning quality needed for outline structuring per STATE.md model selection
+- note-audio Storage bucket is a runtime dep (must be created in Supabase dashboard); same pattern as inbox-photos from Phase 3
+
 ## Phase 5 decisions (05-03)
 
 - rateCard uses sequential await calls (load → update flashcards → insert flashcard_reviews) rather than a Postgres RPC — matches inbox classification pattern; atomicity is sufficient for FSRS correctness
