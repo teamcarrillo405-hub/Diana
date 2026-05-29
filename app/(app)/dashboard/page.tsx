@@ -4,9 +4,11 @@ import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
 import { EnergyPicker } from "./energy-picker";
 import { TimeBar } from "./time-bar";
+import { TimeBudget } from "./time-budget";
 import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { TtsButton } from "@/components/tts-button";
+import { computeNightBudget } from "@/lib/time-budget/compute";
 
 export default async function DashboardPage({
   searchParams,
@@ -50,6 +52,23 @@ export default async function DashboardPage({
   );
   const top = ranked[0];
   const rest = ranked.slice(1, 4);
+
+  const budget = computeNightBudget(
+    (assignments ?? []).map((a) => ({
+      id:                a.id,
+      title:             a.title,
+      classId:           a.class_id,
+      kind:              a.kind,
+      estimated_minutes: a.estimated_minutes,
+      reading_load:      a.reading_load,
+      due_at:            a.due_at,
+      status:            a.status,
+    })),
+    {
+      diagnoses:      profile?.diagnoses ?? [],
+      extra_time_pct: profile?.extra_time_pct ?? 0,
+    },
+  );
 
   const ttsOn = profile?.tts_enabled;
 
@@ -147,6 +166,8 @@ export default async function DashboardPage({
           </ul>
         </section>
       )}
+
+      <TimeBudget totalMinutes={budget.totalMinutes} items={budget.items} />
 
       <div className="pt-2">
         <Link
