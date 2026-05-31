@@ -209,6 +209,28 @@ Plans:
 
 ---
 
+## Phase 10: Audio Upload + Whisper STT + Auto-Class Routing
+
+**Goal:** Enable students to upload Plaud Note recordings (or any .m4a/.mp3) directly into Diana, automatically transcribe them with Whisper STT, clean and structure the transcript with the existing Claude pipeline, and pre-select the right class via keyword matching.
+
+**What it delivers:**
+- Audio file upload on /notes/new (.m4a, .mp3, .wav, .webm; stored in Supabase Storage)
+- Whisper STT Edge Function (OpenAI Whisper API) → raw transcript
+- Existing `transcribe-note` Claude cleanup pipeline produces ADHD/dyslexia-optimized output (headings + bullets + cleaned prose)
+- Auto-class routing — keyword matcher compares transcript against student's class list, pre-selects most likely class (student can override)
+- Note detail view respects student's `reading_font` profile preference
+
+**Requirement IDs:** F4-AUDIO, F8-UPLOAD, F16-AUTOCLASSIFY
+
+**Depends on:** Phase 9
+
+**Plans:** 1/3 plans executed
+- [x] 10-01-PLAN.md — Migration 0018 (notes.class_id) + lib/notes/{mime,upload-validation,class-router} pure modules + transcribe-voice MIME fallback fix
+- [ ] 10-02-PLAN.md — triggerAudioTranscription orchestrator + AudioUploadTab client component + NoteEditor 3-tab switcher + class dropdown
+- [ ] 10-03-PLAN.md — Supabase types sync + createNote/saveNote classId persistence + notes list/detail class label + smoke-test checkpoint
+
+---
+
 *Roadmap bootstrapped from `docs/spec/features.md` and `docs/review/slice-1-evidence-review.md` on 2026-05-28.*
 *Phase 2 plans expanded 2026-05-28.*
 *Phase 3 plans created 2026-05-29.*
@@ -222,3 +244,4 @@ Plans:
 *Phase 7 plans created 2026-05-29.*
 *Phase 7 verified complete 2026-05-29 — 5/5 must-haves verified, 92 tests pass, TypeScript clean. v1.0 milestone ACHIEVED.
 *Phase 9 plans created 2026-05-29 — 4 plans in 2 waves (09-01/02/03 parallel; 09-04 sequenced after 09-01 to avoid LogParams.feature union merge collision).*
+*Phase 10 plans created 2026-05-30 — 3 plans in 3 waves (10-01 foundation: schema + pure modules + Edge Function MIME fix; 10-02 UI: upload tab + orchestrator action; 10-03 wire: types sync + classId persistence + smoke test).*

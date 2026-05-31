@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Milestone complete
-stopped_at: "Completed 09-09: F20-POLISH dark mode + vocab hover (Phase 9 COMPLETE)"
-last_updated: "2026-05-31T01:50:52.871Z"
+status: Executing Phase 10
+stopped_at: "Completed 10-01: Audio upload foundation (migration + mime + upload-validation + class-router)"
+last_updated: "2026-05-31T02:48:35.562Z"
 progress:
-  total_phases: 9
+  total_phases: 10
   completed_phases: 8
-  total_plans: 33
-  completed_plans: 33
+  total_plans: 36
+  completed_plans: 34
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T01:37:48.160Z
-**Stopped at:** Completed 09-09: F20-POLISH dark mode + vocab hover (Phase 9 COMPLETE)
+**Last session:** 2026-05-31T02:48:35.559Z
+**Stopped at:** Completed 10-01: Audio upload foundation (migration + mime + upload-validation + class-router)
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 10 decisions (10-01)
+
+- getExtension uses lastIndexOf('.') on basename — handles storage key paths (e.g. 'user-id/file.m4a') and returns '' for no-extension files (split+pop returns whole string when no dot)
+- MIN_SCORE=2 — single keyword match is too low-signal; two hits required before auto-routing to avoid false class assignment
+- mimeByExt duplicated inline in transcribe-voice Edge Function — Deno cannot import lib/notes/mime.ts; mirrors safety.ts Deno-mirror pattern from Phase 6
+- 25MB blocks at-or-above (file.size >= MAX_FILE_BYTES); 20MB warns at-or-above — matches Whisper hard cap behavior
+- scoreClass uses set intersection (not bag-of-words count) — prevents repeated filler words from inflating scores
 
 ## Phase 9 decisions (09-09)
 
