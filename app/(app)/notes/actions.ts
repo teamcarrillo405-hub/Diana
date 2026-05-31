@@ -283,7 +283,7 @@ export async function triggerDocExtraction(
   });
 
   if (error || !data?.ok) {
-    return { ok: false, error: "We couldn't process your file. Try a clearer photo or a smaller PDF." };
+    return { ok: false, error: data?.error ?? "We couldn't process your file. Try a clearer photo or a smaller PDF." };
   }
 
   const text = typeof data.text === "string" ? data.text : "";

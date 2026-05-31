@@ -2,26 +2,22 @@
 //
 // Phase 11: F04-PHOTO / F08-NOTE — photo & PDF extraction Edge Function.
 //
-// Flow: download file from note-docs bucket -> chunked base64 -> Claude
-// Sonnet 4.6 (image block for jpg/png/webp/gif, document block for pdf)
+// Flow: download file from note-docs bucket -> chunked base64 -> GPT-4o
+// (image_url block for jpg/png/webp/gif, file block for pdf)
 // -> write notes.body_text + notes.doc_storage_key -> fire-and-forget
 // transcribe-note (existing Claude cleanup pipeline; unchanged).
 //
 // REQUIRES:
-//   ANTHROPIC_API_KEY in Supabase Edge Function secrets
-//   note-docs Storage bucket (created out-of-band in Wave 3)
+//   OPENAI_API_KEY in Supabase Edge Function secrets
+//   note-docs Storage bucket (created in Wave 3)
 //   migration 0019 applied
 //
-// Pitfall guards in this file:
-//   1 (HEIC at Claude): we DO NOT accept heic/heif here — UI converts to JPEG before upload.
-//     If a heic key sneaks through anyway, we return 400 with a calm error.
+// Pitfall guards:
+//   1 (HEIC at API): UI converts HEIC to JPEG before upload; we 400 if it slips through.
 //   2 (btoa stack overflow): uint8ArrayToBase64 chunks at 8192 bytes.
-//   3 (32 MB API limit): 20 MB upload limit upstream means base64 stays under 26.6 MB.
+//   3 (32 MB API limit): 20 MB upload limit upstream keeps base64 under 26.6 MB.
 //   4 (blob.type empty): MIME resolved from storageKey extension, never from blob.type.
-//   5 (less-than-20-chars guard): mirrors Phase 10 Pitfall 7 — refuse Claude cleanup chain.
-//
-// Mirrors transcribe-voice/index.ts pattern: AWAIT extraction, FIRE-AND-FORGET
-// transcribe-note cleanup (Phase 5 pattern).
+//   5 (less-than-20-chars guard): skip Claude cleanup chain for near-empty results.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
@@ -31,11 +27,11 @@ import {
   logInteraction,
 } from "../_shared/safety.ts";
 
-const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const OPENAI_API_KEY      = Deno.env.get("OPENAI_API_KEY") ?? "";
+const SUPABASE_URL        = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-// Pitfall 4: blob.type can be "" or "application/octet-stream" — resolve by ext.
+// Pitfall 4: resolve MIME from extension, not blob.type.
 const MIME_BY_EXT: Record<string, string> = {
   jpg:  "image/jpeg",
   jpeg: "image/jpeg",
@@ -46,7 +42,7 @@ const MIME_BY_EXT: Record<string, string> = {
 };
 
 const IMAGE_EXTS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-const PDF_EXTS = new Set(["pdf"]);
+const PDF_EXTS   = new Set(["pdf"]);
 
 const MIN_EXTRACT_CHARS = 20;
 
@@ -61,8 +57,7 @@ const PDF_EXTRACT_PROMPT = `Extract all text content from this document.
 Preserve headings, lists, and paragraph breaks as plain text.
 Output the extracted text only — no preamble, no JSON wrapper, no markdown fence.`;
 
-// Pitfall 2: btoa(String.fromCharCode(...new Uint8Array(buf))) overflows the
-// call stack for large arrays. Chunked encode at 8192 bytes is safe.
+// Pitfall 2: btoa(String.fromCharCode(...new Uint8Array(buf))) overflows for large arrays.
 function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   let binary = "";
   const chunkSize = 8192;
@@ -101,40 +96,38 @@ Deno.serve(async (req: Request) => {
     const { storageKey, noteId, bucket = "note-docs" } = body;
 
     if (!storageKey || !noteId) {
-      return jsonResponse({ error: "storageKey and noteId required" }, 400);
+      return jsonResponse({ ok: false, error: "storageKey and noteId required" }, 200);
     }
 
     // Extension routing — DO NOT trust blob.type (Pitfall 4).
     const ext = (storageKey.split(".").pop() ?? "").toLowerCase();
     if (ext === "heic" || ext === "heif") {
-      // HEIC should never reach here — UI converts to JPEG first (Pitfall 1).
-      return jsonResponse({ error: "Please share this photo as JPEG." }, 400);
+      return jsonResponse({ ok: false, error: "Please share this photo as JPEG." }, 200);
     }
     const isImage = IMAGE_EXTS.has(ext);
-    const isPdf = PDF_EXTS.has(ext);
+    const isPdf   = PDF_EXTS.has(ext);
     if (!isImage && !isPdf) {
-      return jsonResponse({ error: "Pick a photo (.jpg, .png, .webp, .gif) or .pdf file." }, 400);
+      return jsonResponse({ ok: false, error: "Pick a photo (.jpg, .png, .webp, .gif) or .pdf file." }, 200);
     }
     const mimeType = MIME_BY_EXT[ext];
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Belt-and-suspenders: confirm note ownership before any work.
     const { data: note, error: noteErr } = await supabase
       .from("notes")
       .select("id, owner_id")
       .eq("id", noteId)
       .single();
     if (noteErr || !note) {
-      return jsonResponse({ error: "Note not found" }, 404);
+      return jsonResponse({ ok: false, error: "Note not found" }, 200);
     }
     const ownerId = note.owner_id as string;
 
-    // Token budget gate (CLAUDE.md "Adding a new AI feature" step 2).
+    // Token budget gate.
     await resetBudgetIfNewDay(ownerId, supabase);
     const budget = await checkTokenBudget(ownerId, supabase);
     if (!budget.allowed) {
-      return jsonResponse({ error: "Daily token budget reached. Try again tomorrow." }, 402);
+      return jsonResponse({ ok: false, error: "Daily token budget reached. Try again tomorrow." }, 200);
     }
 
     // Download the doc bytes.
@@ -142,78 +135,75 @@ Deno.serve(async (req: Request) => {
       .from(bucket)
       .download(storageKey);
     if (dlError || !blob) {
-      return jsonResponse({ error: "File not found" }, 404);
+      return jsonResponse({ ok: false, error: "File not found in storage" }, 200);
     }
 
     // Chunked base64 (Pitfall 2).
-    const arrayBuf = await blob.arrayBuffer();
-    const base64Data = uint8ArrayToBase64(new Uint8Array(arrayBuf));
+    const arrayBuf    = await blob.arrayBuffer();
+    const base64Data  = uint8ArrayToBase64(new Uint8Array(arrayBuf));
 
-    // Build Claude payload — image block vs document block.
-    const contentBlock = isPdf
+    // Build GPT-4o content block — image_url for photos, file for PDFs.
+    const fileBlock = isPdf
       ? {
-          type: "document" as const,
-          source: { type: "base64" as const, media_type: mimeType, data: base64Data },
+          type: "file" as const,
+          file: { file_data: `data:${mimeType};base64,${base64Data}`, filename: "document.pdf" },
         }
       : {
-          type: "image" as const,
-          source: { type: "base64" as const, media_type: mimeType, data: base64Data },
+          type: "image_url" as const,
+          image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" as const },
         };
 
-    const userText = isPdf
+    const systemPrompt = isPdf ? PDF_EXTRACT_PROMPT : IMAGE_EXTRACT_PROMPT;
+    const userText     = isPdf
       ? "Extract all text from this document."
       : "Extract all visible text from this photo of student class notes.";
+    const maxTokens    = isPdf ? 4000 : 2000;
 
-    const systemPrompt = isPdf ? PDF_EXTRACT_PROMPT : IMAGE_EXTRACT_PROMPT;
-    const maxTokens = isPdf ? 4000 : 2000;
-
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
+    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type":  "application/json",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
+        model:      "gpt-4o",
         max_tokens: maxTokens,
-        system: systemPrompt,
         messages: [
+          { role: "system", content: systemPrompt },
           {
-            role: "user",
-            content: [contentBlock, { type: "text", text: userText }],
+            role:    "user",
+            content: [fileBlock, { type: "text", text: userText }],
           },
         ],
       }),
     });
 
-    if (!anthropicRes.ok) {
-      const errText = await anthropicRes.text();
-      console.error("anthropic extract-note-doc error:", errText);
-      return jsonResponse({ error: "We couldn't read that file. Try a clearer photo or a smaller PDF." }, 502);
+    if (!openaiRes.ok) {
+      const errText = await openaiRes.text();
+      console.error("openai extract-note-doc error:", errText);
+      return jsonResponse({ ok: false, error: "We couldn't read that file. Try a clearer photo or a smaller PDF." }, 200);
     }
 
-    const anthropicData = (await anthropicRes.json()) as {
-      content?: Array<{ type: string; text?: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
+    const openaiData = (await openaiRes.json()) as {
+      choices?: Array<{ message?: { content?: string } }>;
+      usage?: { prompt_tokens?: number; completion_tokens?: number };
     };
-    const extracted = (anthropicData.content?.[0]?.text ?? "").trim();
-    const inTok = Number(anthropicData.usage?.input_tokens ?? 0);
-    const outTok = Number(anthropicData.usage?.output_tokens ?? 0);
+    const extracted = (openaiData.choices?.[0]?.message?.content ?? "").trim();
+    const inTok  = Number(openaiData.usage?.prompt_tokens   ?? 0);
+    const outTok = Number(openaiData.usage?.completion_tokens ?? 0);
 
     // Pitfall 5: very short text -> save storageKey + tiny body, skip cleanup.
     if (extracted.length < MIN_EXTRACT_CHARS) {
       await supabase
         .from("notes")
         .update({
-          body_text:        extracted,
-          doc_storage_key:  storageKey,
-          updated_at:       new Date().toISOString(),
+          body_text:       extracted,
+          doc_storage_key: storageKey,
+          updated_at:      new Date().toISOString(),
         })
         .eq("id", noteId)
         .eq("owner_id", ownerId);
 
-      // Fire-and-forget budget bookkeeping even on short result.
       void incrementTokens(ownerId, inTok + outTok, supabase).catch((e) =>
         console.warn("incrementTokens (short) failed", e),
       );
@@ -221,7 +211,7 @@ Deno.serve(async (req: Request) => {
         {
           ownerId,
           feature: "doc_extract",
-          model: "claude-sonnet-4-6",
+          model:   "gpt-4o",
           promptSummary: isPdf ? "doc_extract:pdf:short" : "doc_extract:image:short",
           tokensUsed: inTok + outTok,
         },
@@ -235,24 +225,22 @@ Deno.serve(async (req: Request) => {
     const { error: updErr } = await supabase
       .from("notes")
       .update({
-        body_text:        extracted,
-        doc_storage_key:  storageKey,
-        updated_at:       new Date().toISOString(),
+        body_text:       extracted,
+        doc_storage_key: storageKey,
+        updated_at:      new Date().toISOString(),
       })
       .eq("id", noteId)
       .eq("owner_id", ownerId);
     if (updErr) {
       console.error("notes update error:", updErr);
-      return jsonResponse({ error: updErr.message }, 500);
+      return jsonResponse({ ok: false, error: updErr.message }, 200);
     }
 
     // Fire-and-forget Claude cleanup (Phase 5 transcribe-note pipeline).
-    // Identical pattern to triggerAudioTranscription Step 3.
     void supabase.functions
       .invoke("transcribe-note", { body: { noteId } })
       .catch((e) => console.warn("transcribe-note kickoff", e));
 
-    // Fire-and-forget token bookkeeping (CLAUDE.md "Adding a new AI feature" step 5).
     void incrementTokens(ownerId, inTok + outTok, supabase).catch((e) =>
       console.warn("incrementTokens failed", e),
     );
@@ -260,7 +248,7 @@ Deno.serve(async (req: Request) => {
       {
         ownerId,
         feature: "doc_extract",
-        model: "claude-sonnet-4-6",
+        model:   "gpt-4o",
         promptSummary: isPdf ? "doc_extract:pdf" : "doc_extract:image",
         tokensUsed: inTok + outTok,
       },
@@ -270,6 +258,6 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ ok: true, text: extracted });
   } catch (err) {
     console.error("extract-note-doc error:", err);
-    return jsonResponse({ error: "Internal error" }, 500);
+    return jsonResponse({ ok: false, error: "Something went wrong. Try again." }, 200);
   }
 });
