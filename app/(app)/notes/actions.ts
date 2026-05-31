@@ -87,3 +87,105 @@ export async function uploadNoteAudio(
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
 }
+
+const TriggerAudioInput = z.object({
+  noteId:     z.string().uuid(),
+  storageKey: z.string().min(1),
+});
+
+const MIN_TRANSCRIPT_CHARS = 20;
+
+/**
+ * Phase 10 orchestrator. Chains Whisper STT (awaited — need text to write body)
+ * → notes.body_text write → fire-and-forget transcribe-note (Claude cleanup).
+ *
+ * Why not merge into saveNote: separation of concerns. saveNote is the auto-save
+ * happy path; this is the upload-specific, two-step audio pipeline.
+ *
+ * Why await Whisper but fire-and-forget Claude:
+ *   - Whisper text is needed RIGHT NOW to populate the body and run class routing.
+ *   - Claude cleanup (outline + cleaned prose) is best-effort; page reload picks
+ *     up transcript_text + outline_json when it lands. Matches Phase 5 pattern.
+ *
+ * Pitfall 7 (research): Whisper hallucinates on near-empty audio. We refuse to
+ * call Claude cleanup when text length < 20 chars and surface a calm message.
+ */
+export async function triggerAudioTranscription(
+  input: z.infer<typeof TriggerAudioInput>,
+): Promise<
+  | { ok: true; text: string; bodyTooShort?: false }
+  | { ok: true; text: ""; bodyTooShort: true }
+  | { ok: false; error: string }
+> {
+  const parsed = TriggerAudioInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  // Belt-and-suspenders: confirm the note belongs to the caller before we
+  // burn Whisper tokens on it.
+  const { data: note, error: noteErr } = await supabase
+    .from("notes")
+    .select("id, owner_id")
+    .eq("id", parsed.data.noteId)
+    .single();
+  if (noteErr || !note || note.owner_id !== user.id) {
+    return { ok: false, error: "Note not found." };
+  }
+
+  // Step 1 — Whisper STT (AWAITED). Pitfall 3 confirmed: invoke() works for
+  // JSON-returning Edge Functions; only tts-generate needs direct fetch.
+  const { data, error } = await supabase.functions.invoke("transcribe-voice", {
+    body: {
+      audioStorageKey: parsed.data.storageKey,
+      bucket:          "note-audio",
+    },
+  });
+
+  if (error || !data?.ok || typeof data.text !== "string") {
+    return { ok: false, error: "We couldn't process your recording. Try again, or paste text." };
+  }
+
+  const text = data.text.trim();
+
+  // Pitfall 7 — Whisper hallucinates on silence. Refuse to chain Claude.
+  if (text.length < MIN_TRANSCRIPT_CHARS) {
+    // Still save the storage key + any tiny text so the student isn't surprised.
+    await supabase
+      .from("notes")
+      .update({
+        body_text:         text,
+        audio_storage_key: parsed.data.storageKey,
+        updated_at:        new Date().toISOString(),
+      })
+      .eq("id", parsed.data.noteId)
+      .eq("owner_id", user.id);
+    return { ok: true, text: "", bodyTooShort: true };
+  }
+
+  // Step 2 — write the raw transcript as body_text + persist audio_storage_key.
+  const { error: updErr } = await supabase
+    .from("notes")
+    .update({
+      body_text:         text,
+      audio_storage_key: parsed.data.storageKey,
+      updated_at:        new Date().toISOString(),
+    })
+    .eq("id", parsed.data.noteId)
+    .eq("owner_id", user.id);
+
+  if (updErr) return { ok: false, error: updErr.message };
+
+  // Step 3 — fire-and-forget Claude cleanup. Same pattern as Phase 5.
+  // Never await — never block the response. Failures are logged server-side.
+  void supabase.functions
+    .invoke("transcribe-note", { body: { noteId: parsed.data.noteId } })
+    .catch((e) => console.warn("transcribe-note kickoff", e));
+
+  revalidatePath("/notes");
+  revalidatePath(`/notes/${parsed.data.noteId}`);
+
+  return { ok: true, text };
+}
