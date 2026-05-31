@@ -3,6 +3,7 @@ import { loadProfile } from "@/lib/profile";
 import { SignOutButton } from "./sign-out";
 import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AccentPicker } from "@/components/accent-picker";
+import { LmsConnections } from "./lms-connections";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -73,6 +74,14 @@ export default async function SettingsPage() {
       </section>
 
       <AccessibilityPrefs initial={profile} />
+
+      {await (async () => {
+        const { data } = await supabase
+          .from("lms_connections")
+          .select("id, provider, config, last_synced_at")
+          .order("created_at", { ascending: false });
+        return <LmsConnections initial={(data ?? []) as never} />;
+      })()}
 
       <section className="space-y-3 rounded-xl border border-border bg-card p-4">
         <h2 className="text-sm font-semibold">AI features</h2>
