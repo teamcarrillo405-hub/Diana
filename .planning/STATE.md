@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 09
-stopped_at: Completed 09-01-PLAN.md
-last_updated: "2026-05-31T00:40:13.228Z"
+stopped_at: Completed 09-04-PLAN.md
+last_updated: "2026-05-31T00:48:40.503Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 33
-  completed_plans: 27
+  completed_plans: 28
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T00:40:13.225Z
-**Stopped at:** Completed 09-01-PLAN.md
+**Last session:** 2026-05-31T00:48:40.500Z
+**Stopped at:** Completed 09-04-PLAN.md
 
 ---
 
@@ -62,6 +62,16 @@ progress:
 - No logInteraction in transcribe-voice/tts-generate — non-Claude AI calls; Whisper/TTS usage auditable via OpenAI dashboard
 - TtsHighlightButton OpenAI variant omits word-highlight — OpenAI TTS 1 API emits no word boundary events; estimator wiring deferred to follow-up
 - stt_transcribe + tts_generate added to LogParams.feature union in both safety.ts mirrors — must stay in sync
+
+## Phase 9 decisions (09-04)
+
+- math_example added to LogParams.feature union in both lib/ai/safety.ts and supabase/functions/_shared/safety.ts (Deno mirror, Pitfall 4 pattern)
+- Formula accordion renders on yellow aiMode (zero AI cost, D-07) — formula reference is library data, not AI content generation
+- Red aiMode returns null entirely; yellow renders formulas only; green renders full math tools (Socratic chat + worked example + formula reference)
+- math-example is a separate Edge Function from math-step — analogous problem only, never the student's actual problem (D-03, D-04)
+- Static formula data (lib/math/formulas.ts) uses plain text Unicode — no KaTeX dependency, saves ~300KB bundle (D-02)
+- Worked example uses Haiku 4.5 at max_tokens=500 — slightly higher than math-step's 400 because multi-step solution requires more output (D-06)
+- composeSystemPrompt with includeFrustration=false for math-example — the worked example IS the F18 redirect; no need to layer frustration prompt on top
 
 ## Phase 9 decisions (09-02)
 
