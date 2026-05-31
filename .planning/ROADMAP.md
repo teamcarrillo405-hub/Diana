@@ -196,9 +196,9 @@ Plans:
 
 **Depends on:** Phase 8
 
-**Plans:** 1/9 plans executed
-- [ ] 09-01-PLAN.md — F6 AI task breakdown (wave 1)
-- [ ] 09-02-PLAN.md — F7 reminder banner (wave 1)
+**Plans:** 3/9 plans executed
+- [x] 09-01-PLAN.md — F6 AI task breakdown (wave 1)
+- [x] 09-02-PLAN.md — F7 reminder banner (wave 1)
 - [x] 09-03-PLAN.md — F8 wins feed (wave 1)
 - [ ] 09-04-PLAN.md — AP Math depth (wave 2, after 09-01)
 - [ ] 09-05-PLAN.md — F15 LMS import: Google Classroom + Canvas + .ics (wave 3)

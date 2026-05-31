@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 09
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-05-31T00:38:59.356Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-05-31T00:40:13.228Z"
 progress:
   total_phases: 9
   completed_phases: 7
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T00:38:56.684Z
-**Stopped at:** Completed 09-02-PLAN.md
+**Last session:** 2026-05-31T00:40:13.225Z
+**Stopped at:** Completed 09-01-PLAN.md
 
 ---
 
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 9 decisions (09-01)
+
+- Edge Function returns raw content string — parsing deferred to server action so parseStepsFromContent is testable in vitest (node) instead of Deno
+- task-breakdown gates only on aiMode=red (yellow allowed — task breakdown is pure planning, not content generation per F16 traffic-light spec)
+- Upsert on assignment_id unique index — regenerating replaces previous steps cleanly without needing to DELETE first
+- Optimistic toggleStepDone — local state updated before fire-and-forget server call (mirrors EveningPlanning Pitfall 5 pattern)
+- task_breakdown added to LogParams.feature union in both lib/ai/safety.ts and supabase/functions/_shared/safety.ts per Deno mirror convention
 
 ## Phase 8 decisions (08-01)
 
