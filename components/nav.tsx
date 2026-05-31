@@ -9,6 +9,7 @@ import {
   CheckSquare,
   Settings as Cog,
   Timer,
+  Sparkles,
 } from "lucide-react";
 
 const ITEMS = [
@@ -16,6 +17,7 @@ const ITEMS = [
   { href: "/assignments", label: "Assignments", icon: CheckSquare },
   { href: "/flashcards", label: "Study", icon: Brain },
   { href: "/timer", label: "Timer", icon: Timer },
+  { href: "/wins", label: "Wins", icon: Sparkles },
   { href: "/classes", label: "Classes", icon: BookOpen },
   { href: "/settings", label: "Settings", icon: Cog },
 ] as const;
