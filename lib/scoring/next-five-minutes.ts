@@ -173,7 +173,7 @@ function score(
  * expected minutes, factoring (a) IEP/504 extra-time percentage and
  * (b) a dyslexia penalty on reading-heavy tasks.
  */
-function adjustForUser(a: Assignment, p: ScorerProfile): number | null {
+export function adjustForUser(a: Assignment, p: ScorerProfile): number | null {
   if (a.estimated_minutes == null) return null;
   let minutes = a.estimated_minutes;
   if (p.extra_time_pct > 0) {
