@@ -224,10 +224,12 @@ Plans:
 
 **Depends on:** Phase 9
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed — COMPLETE
 - [x] 10-01-PLAN.md — Migration 0018 (notes.class_id) + lib/notes/{mime,upload-validation,class-router} pure modules + transcribe-voice MIME fallback fix
 - [x] 10-02-PLAN.md — triggerAudioTranscription orchestrator + AudioUploadTab client component + NoteEditor 3-tab switcher + class dropdown
-- [ ] 10-03-PLAN.md — Supabase types sync + createNote/saveNote classId persistence + notes list/detail class label + smoke-test checkpoint
+- [x] 10-03-PLAN.md — Supabase types sync + createNote/saveNote classId persistence + notes list/detail class label + smoke-test checkpoint
+
+**Phase 10 STATUS: COMPLETE** — F4-AUDIO / F8-UPLOAD / F16-AUTOCLASSIFY delivered. All 6 smoke tests passed. Verified 2026-05-30.
 
 ---
 
