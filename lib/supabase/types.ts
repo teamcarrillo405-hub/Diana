@@ -780,6 +780,36 @@ export type Database = {
           },
         ];
       };
+      share_links: {
+        Row: {
+          id: string;
+          token: string;
+          owner_id: string;
+          share_type: "parent_summary" | "teacher_snapshot";
+          expires_at: string;
+          revoked_at: string | null;
+          created_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          token?: string;
+          owner_id: string;
+          share_type: "parent_summary" | "teacher_snapshot";
+          expires_at?: string;
+          revoked_at?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          token?: string;
+          owner_id?: string;
+          share_type?: "parent_summary" | "teacher_snapshot";
+          expires_at?: string;
+          revoked_at?: string | null;
+          created_at?: string | null;
+        };
+        Relationships: [];
+      };
       submission_checklist: {
         Row: {
           assignment_id: string;
