@@ -11,11 +11,13 @@ import {
   Settings as Cog,
   Timer,
   Sparkles,
+  FileText,
 } from "lucide-react";
 
 const ITEMS = [
   { href: "/dashboard", label: "Focus", icon: Home },
   { href: "/assignments", label: "Assignments", icon: CheckSquare },
+  { href: "/notes", label: "Notes", icon: FileText },
   { href: "/flashcards", label: "Study", icon: Brain },
   { href: "/timer", label: "Timer", icon: Timer },
   { href: "/calendar", label: "Calendar", icon: Calendar },
