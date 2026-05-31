@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 10
-stopped_at: "Completed 10-02: Audio upload UX — AudioUploadTab + triggerAudioTranscription + NoteEditor 3-tab"
-last_updated: "2026-05-31T02:56:53.244Z"
+stopped_at: "10-03 checkpoint — Tasks 1+2 done, awaiting human-verify smoke test (Task 3)"
+last_updated: "2026-05-30T20:03:00.000Z"
 progress:
   total_phases: 10
   completed_phases: 8
@@ -46,6 +46,13 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 10 decisions (10-03)
+
+- types.ts manually annotated with notes.class_id (Row + Insert + Update + Relationship) — supabase gen types failed; regen deferred until migration 0018 is applied to linked project
+- notes_class_id_fkey added to types.ts Relationships to resolve SelectQueryError from nested classes(id,name) select
+- classId in saver/ensureNoteId — undefined and null both clear the class (no leave-unchanged sentinel, matches audioStorageKey semantics)
+- classLabel prop name used in NoteDetail to avoid collision with React className
 
 ## Phase 10 decisions (10-02)
 
