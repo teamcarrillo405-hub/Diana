@@ -224,9 +224,9 @@ Plans:
 
 **Depends on:** Phase 9
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 - [x] 10-01-PLAN.md — Migration 0018 (notes.class_id) + lib/notes/{mime,upload-validation,class-router} pure modules + transcribe-voice MIME fallback fix
-- [ ] 10-02-PLAN.md — triggerAudioTranscription orchestrator + AudioUploadTab client component + NoteEditor 3-tab switcher + class dropdown
+- [x] 10-02-PLAN.md — triggerAudioTranscription orchestrator + AudioUploadTab client component + NoteEditor 3-tab switcher + class dropdown
 - [ ] 10-03-PLAN.md — Supabase types sync + createNote/saveNote classId persistence + notes list/detail class label + smoke-test checkpoint
 
 ---

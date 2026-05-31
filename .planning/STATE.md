@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 10
-stopped_at: "Completed 10-01: Audio upload foundation (migration + mime + upload-validation + class-router)"
-last_updated: "2026-05-31T02:48:35.562Z"
+stopped_at: "Completed 10-02: Audio upload UX — AudioUploadTab + triggerAudioTranscription + NoteEditor 3-tab"
+last_updated: "2026-05-31T02:56:53.244Z"
 progress:
   total_phases: 10
   completed_phases: 8
   total_plans: 36
-  completed_plans: 34
+  completed_plans: 35
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T02:48:35.559Z
-**Stopped at:** Completed 10-01: Audio upload foundation (migration + mime + upload-validation + class-router)
+**Last session:** 2026-05-31T02:56:53.240Z
+**Stopped at:** Completed 10-02: Audio upload UX — AudioUploadTab + triggerAudioTranscription + NoteEditor 3-tab
 
 ---
 
@@ -46,6 +46,15 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 10 decisions (10-02)
+
+- Await Whisper (transcribe-voice), fire-and-forget Claude cleanup (transcribe-note) — body_text needed synchronously for class routing; outline is best-effort per page reload
+- Pitfall 7 guard: text < 20 chars returns bodyTooShort:true without chaining Claude — prevents silence hallucination in outline
+- classId state in NoteEditor but not yet persisted — 10-03 wires classId into saveNote + createNote payloads
+- ensureNoteId extracted as useCallback in NoteEditor — creates note row on first audio pick, prevents orphan rows (Pitfall 4)
+- Class dropdown visible on all tabs above title — student can pre-select class before typing or picking audio
+- Manual smoke test deferred to 10-03: requires OPENAI_API_KEY secret + note-audio Storage bucket confirmed in Supabase dashboard
 
 ## Phase 10 decisions (10-01)
 
