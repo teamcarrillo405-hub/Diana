@@ -17,7 +17,8 @@ export interface LogParams {
     | "transcribe_note"
     | "stt_transcribe"
     | "tts_generate"
-    | "task_breakdown";
+    | "task_breakdown"
+    | "math_example";
   model: string;
   promptSummary: string;
   tokensUsed: number;
