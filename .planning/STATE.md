@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 09
-stopped_at: "Completed 09-07: AI transparency surfaces (AiTooltip, AiUsageLog, onboarding literacy step)"
-last_updated: "2026-05-31T01:25:35.903Z"
+stopped_at: "Completed 09-09: F20-POLISH dark mode + vocab hover (Phase 9 COMPLETE)"
+last_updated: "2026-05-31T01:37:48.163Z"
 progress:
   total_phases: 9
-  completed_phases: 7
+  completed_phases: 8
   total_plans: 33
-  completed_plans: 32
+  completed_plans: 33
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T01:25:35.900Z
-**Stopped at:** Completed 09-07: AI transparency surfaces (AiTooltip, AiUsageLog, onboarding literacy step)
+**Last session:** 2026-05-31T01:37:48.160Z
+**Stopped at:** Completed 09-09: F20-POLISH dark mode + vocab hover (Phase 9 COMPLETE)
 
 ---
 
@@ -46,6 +46,18 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 9 decisions (09-09)
+
+- ThemeProvider wraps children (unlike AccentProvider which is childless) — required because ThemePicker needs context access from within the layout subtree
+- afterEach(cleanup) required in vocab-hover-provider tests — prevents stale DOM elements across test cases (matches ai-tooltip.test.tsx pattern)
+- Dynamic import of supabase client in VocabHoverProvider — avoids module init errors in jsdom test environment; auth is best-effort
+- vocab-hover Edge Function receives ownerId in request body (not from auth header) — consistent with math-step, writing-aid, citation-gen pattern
+- suppressHydrationWarning on html tag — required when inline script mutates classList before React hydration
+- Flash-prevention IIFE reads diana_theme from localStorage, falls back to window.matchMedia — synchronous script in head before first paint
+- tailwind darkMode: 'class' + .dark CSS block + @media block both kept — class toggle for ThemePicker, media query as system-default fallback
+- VocabHoverProvider uses dblclick + getSelection (deliberate trigger) — ADHD users need intentional triggers, not surprise overlays on hover
+- Storage key: 'diana_theme', values: 'light' | 'dark' — ThemePicker labels "Light" / "Dark" (calm invariant)
 
 ## Phase 9 decisions (09-07)
 

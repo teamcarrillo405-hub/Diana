@@ -196,16 +196,16 @@ Plans:
 
 **Depends on:** Phase 8
 
-**Plans:** 6/9 plans executed
+**Plans:** 9/9 plans complete
 - [x] 09-01-PLAN.md — F6 AI task breakdown (wave 1)
 - [x] 09-02-PLAN.md — F7 reminder banner (wave 1)
 - [x] 09-03-PLAN.md — F8 wins feed (wave 1)
 - [x] 09-04-PLAN.md — AP Math depth (wave 2, after 09-01)
 - [x] 09-05-PLAN.md — F15 LMS import: Google Classroom + Canvas + .ics (wave 3)
 - [x] 09-06-PLAN.md — F9 calendar week view (wave 3, parallel with 09-05)
-- [ ] 09-07-PLAN.md — AI Transparency: authorship log UI + AI-explained tooltip + literacy onboarding (wave 4)
-- [ ] 09-08-PLAN.md — F13 parent share + F14 teacher snapshot (wave 4, parallel with 09-07)
-- [ ] 09-09-PLAN.md — Final polish: dark mode onboarding + vocabulary hover (wave 5)
+- [x] 09-07-PLAN.md — AI Transparency: authorship log UI + AI-explained tooltip + literacy onboarding (wave 4)
+- [x] 09-08-PLAN.md — F13 parent share + F14 teacher snapshot (wave 4, parallel with 09-07)
+- [x] 09-09-PLAN.md — Final polish: dark mode onboarding + vocabulary hover (wave 5)
 
 ---
 
