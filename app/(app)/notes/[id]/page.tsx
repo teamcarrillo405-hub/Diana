@@ -11,11 +11,14 @@ export default async function NoteDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const { data: n } = await supabase
-    .from("notes")
-    .select("id, title, body_text, transcript_text, outline_json, assignment_id, updated_at, class_id, classes(id, name)")
-    .eq("id", id)
-    .single();
+  const [{ data: n }, { data: classes }] = await Promise.all([
+    supabase
+      .from("notes")
+      .select("id, title, body_text, transcript_text, outline_json, assignment_id, updated_at, class_id, classes(id, name)")
+      .eq("id", id)
+      .single(),
+    supabase.from("classes").select("id, name").order("name"),
+  ]);
   if (!n) notFound();
 
   const outline = (n.outline_json as OutlineNode[] | null) ?? null;
@@ -34,7 +37,8 @@ export default async function NoteDetailPage({
         bodyText={n.body_text}
         transcriptText={n.transcript_text}
         outline={outline}
-        classLabel={(n as { classes?: { name: string } | null }).classes?.name ?? null}
+        classId={n.class_id ?? null}
+        classes={classes ?? []}
       />
     </div>
   );

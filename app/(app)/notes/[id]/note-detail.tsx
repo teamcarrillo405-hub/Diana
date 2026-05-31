@@ -5,25 +5,35 @@ import { Sparkles, Trash2 } from "lucide-react";
 import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import type { OutlineNode } from "@/lib/notes/types";
-import { deleteNote, triggerTranscript } from "./actions";
+import { deleteNote, triggerTranscript, updateNoteClass } from "./actions";
 
 export function NoteDetail({
   id,
   bodyText,
   transcriptText,
   outline,
-  classLabel,
+  classId: initialClassId,
+  classes,
 }: {
   id: string;
   bodyText: string;
   transcriptText: string | null;
   outline: OutlineNode[] | null;
-  classLabel?: string | null;
+  classId: string | null;
+  classes: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [transcribing, setTranscribing] = useState(false);
   const [askingDelete, setAskingDelete] = useState(false);
+  const [classId, setClassId] = useState<string | null>(initialClassId);
+
+  function handleClassChange(newId: string | null) {
+    setClassId(newId);
+    startTransition(async () => {
+      await updateNoteClass({ id, classId: newId });
+    });
+  }
 
   function handleTranscribe() {
     setTranscribing(true);
@@ -44,9 +54,21 @@ export function NoteDetail({
 
   return (
     <div className="space-y-6">
-      {/* Class label — shown when note is linked to a class */}
-      {classLabel && (
-        <p className="text-sm text-muted">{classLabel}</p>
+      {/* Class picker — always visible if student has classes */}
+      {classes.length > 0 && (
+        <label className="block">
+          <span className="block text-xs font-medium uppercase tracking-wider text-muted mb-1">Class</span>
+          <select
+            value={classId ?? ""}
+            onChange={(e) => handleClassChange(e.target.value || null)}
+            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+          >
+            <option value="">No class</option>
+            {classes.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </label>
       )}
 
       {/* Body — what the student wrote/dictated */}

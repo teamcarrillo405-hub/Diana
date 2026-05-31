@@ -6,6 +6,33 @@ import { createClient } from "@/lib/supabase/server";
 
 const IdInput = z.object({ id: z.string().uuid() });
 
+const UpdateClassInput = z.object({
+  id: z.string().uuid(),
+  classId: z.string().uuid().nullable(),
+});
+
+export async function updateNoteClass(
+  input: z.infer<typeof UpdateClassInput>,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = UpdateClassInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const { error } = await supabase
+    .from("notes")
+    .update({ class_id: parsed.data.classId, updated_at: new Date().toISOString() })
+    .eq("id", parsed.data.id)
+    .eq("owner_id", user.id);
+
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/notes/${parsed.data.id}`);
+  revalidatePath("/notes");
+  return { ok: true };
+}
+
 export async function deleteNote(
   input: z.infer<typeof IdInput>,
 ): Promise<{ ok: true } | { ok: false; error: string }> {

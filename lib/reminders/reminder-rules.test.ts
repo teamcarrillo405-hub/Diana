@@ -159,7 +159,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: "2026-05-01T00:00:00Z",
-        pastDue: true,
+        stillOpen: true,
         quietHours: true,
         weekend: false,
       }),
@@ -170,7 +170,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: "2026-05-01T00:00:00Z",
-        pastDue: true,
+        stillOpen: true,
         quietHours: false,
         weekend: true,
       }),
@@ -181,7 +181,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: "2026-05-01T00:00:00Z",
-        pastDue: true,
+        stillOpen: true,
         quietHours: true,
         weekend: true,
       }),
@@ -192,7 +192,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: "2026-06-02T00:00:00Z",
-        pastDue: false,
+        stillOpen: false,
         quietHours: true,
         weekend: false,
       }),
@@ -203,7 +203,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: "2026-06-02T00:00:00Z",
-        pastDue: false,
+        stillOpen: false,
         quietHours: false,
         weekend: true,
       }),
@@ -214,7 +214,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: "2026-06-02T00:00:00Z",
-        pastDue: false,
+        stillOpen: false,
         quietHours: false,
         weekend: false,
       }),
@@ -225,7 +225,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: null,
-        pastDue: false,
+        stillOpen: false,
         quietHours: false,
         weekend: false,
       }),
@@ -236,7 +236,7 @@ describe("shouldShowReminder", () => {
     expect(
       shouldShowReminder({
         dueAt: null,
-        pastDue: false,
+        stillOpen: false,
         quietHours: false,
         weekend: false,
       }),

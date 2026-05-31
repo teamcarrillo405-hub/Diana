@@ -24,18 +24,19 @@ export function isPastDue(dueAt: string | null, now: Date): boolean {
 export function hoursUntilDue(dueAt: string | null, now: Date): number | null {
   if (!dueAt) return null;
   const diffMs = new Date(dueAt).getTime() - now.getTime();
-  if (diffMs < 0) return null; // past due → undefined window
+  if (diffMs < 0) return null; // already open beyond due window — no hours to show
   return Math.floor(diffMs / (60 * 60 * 1000));
 }
 
 export function shouldShowReminder(input: {
   dueAt: string | null;
-  pastDue: boolean;
+  /** true when the assignment's due date has already passed */
+  stillOpen: boolean;
   quietHours: boolean;
   weekend: boolean;
 }): boolean {
-  // D-04: past-due bypasses BOTH quiet hours and weekend
-  if (input.pastDue) return true;
+  // D-04: open-beyond-due items bypass BOTH quiet hours and weekend (escalation)
+  if (input.stillOpen) return true;
   if (!input.dueAt) return false;
   if (input.quietHours) return false;
   if (input.weekend) return false;
