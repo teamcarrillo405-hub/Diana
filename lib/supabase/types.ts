@@ -324,6 +324,7 @@ export type Database = {
           body_text: string;
           class_id: string | null; // 0018 migration; manually annotated until supabase:types regen
           created_at: string;
+          doc_storage_key: string | null; // 0019 migration; manually annotated until supabase:types regen
           id: string;
           outline_json: Json | null;
           owner_id: string;
@@ -337,6 +338,7 @@ export type Database = {
           body_text?: string;
           class_id?: string | null; // 0018 migration; manually annotated until supabase:types regen
           created_at?: string;
+          doc_storage_key?: string | null; // 0019 migration; manually annotated until supabase:types regen
           id?: string;
           outline_json?: Json | null;
           owner_id: string;
@@ -350,6 +352,7 @@ export type Database = {
           body_text?: string;
           class_id?: string | null; // 0018 migration; manually annotated until supabase:types regen
           created_at?: string;
+          doc_storage_key?: string | null; // 0019 migration; manually annotated until supabase:types regen
           id?: string;
           outline_json?: Json | null;
           owner_id?: string;
