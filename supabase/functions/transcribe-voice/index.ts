@@ -42,13 +42,26 @@ Deno.serve(async (req: Request) => {
     }
 
     // Build FormData for Whisper API
-    // Pitfall 1: never let type be empty — blob.type from Storage may be empty or generic
+    // Pitfall 2 (Phase 10 research): Storage download may return blob.type === ""
+    // or "application/octet-stream". Detect extension from storage key and pick
+    // the correct Whisper-supported MIME. Mirror of lib/notes/mime.ts mapping.
+    const ext = (audioStorageKey.split(".").pop() ?? "").toLowerCase();
+    const mimeByExt: Record<string, string> = {
+      m4a:  "audio/mp4",
+      mp3:  "audio/mpeg",
+      wav:  "audio/wav",
+      webm: "audio/webm",
+    };
+    const resolvedMime =
+      blob.type && blob.type !== "application/octet-stream"
+        ? blob.type
+        : (mimeByExt[ext] ?? "audio/webm");
+    const filename = `audio.${ext || "webm"}`;
+
     const formData = new FormData();
     formData.append(
       "file",
-      new File([await blob.arrayBuffer()], "audio.webm", {
-        type: blob.type || "audio/webm",
-      }),
+      new File([await blob.arrayBuffer()], filename, { type: resolvedMime }),
     );
     formData.append("model", "whisper-1");
 
