@@ -16,7 +16,8 @@ export interface LogParams {
     | "reading_scaffold"
     | "transcribe_note"
     | "stt_transcribe"
-    | "tts_generate";
+    | "tts_generate"
+    | "task_breakdown";
   model: string;
   promptSummary: string;
   tokensUsed: number;

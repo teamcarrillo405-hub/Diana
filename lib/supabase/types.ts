@@ -10,6 +10,33 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      assignment_steps: {
+        Row: {
+          id: string;
+          owner_id: string;
+          assignment_id: string;
+          steps: Array<{ step: number; action: string; minutes: number; done: boolean }>;
+          generated_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          assignment_id: string;
+          steps?: Array<{ step: number; action: string; minutes: number; done: boolean }>;
+          generated_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          assignment_id?: string;
+          steps?: Array<{ step: number; action: string; minutes: number; done: boolean }>;
+          generated_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       assignment_checklists: {
         Row: {
           id: string;
