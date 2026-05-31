@@ -3,20 +3,26 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { VoiceTextarea } from "@/components/voice-textarea";
 import { useAutoSaveNote } from "@/lib/notes/auto-save";
+import type { ClassCandidate } from "@/lib/notes/class-router";
 import { createNote, saveNote } from "../actions";
+import { AudioUploadTab } from "./audio-upload-tab";
 
 export function NoteEditor({
   assignmentId,
   ttsProvider = "browser",
+  classCandidates = [],
 }: {
   assignmentId: string | null;
   ttsProvider?: "browser" | "openai";
+  classCandidates?: ClassCandidate[];
 }) {
   const router = useRouter();
   const [noteId, setNoteId] = useState<string | null>(null);
   const [title, setTitle] = useState("Untitled note");
   const [body, setBody] = useState("");
-  const [tab, setTab] = useState<"text" | "voice">("text");
+  const [tab, setTab] = useState<"text" | "voice" | "upload">("text");
+  // classId is captured here; 10-03 wires it into saveNote + createNote payloads.
+  const [classId, setClassId] = useState<string | null>(null);
 
   // The saver closure uses the latest title/body and creates the row on first call.
   const saver = useCallback(async () => {
@@ -37,6 +43,15 @@ export function NoteEditor({
 
   const { status, save, flushNow } = useAutoSaveNote(saver);
 
+  /** Called by AudioUploadTab before upload. Creates the note row if it doesn't exist yet. */
+  const ensureNoteId = useCallback(async (): Promise<string | null> => {
+    if (noteId) return noteId;
+    const res = await createNote({ title, assignmentId });
+    if (!res.ok) return null;
+    setNoteId(res.id);
+    return res.id;
+  }, [noteId, title, assignmentId]);
+
   // Schedule a save whenever title or body changes (after first character).
   useEffect(() => {
     if (title === "Untitled note" && body === "") return;
@@ -50,6 +65,23 @@ export function NoteEditor({
 
   return (
     <div className="space-y-4">
+      {/* Class dropdown — visible on all tabs; pre-selected by AudioUploadTab via scoreClassMatch */}
+      {classCandidates.length > 0 && (
+        <label className="block">
+          <span className="block text-sm font-medium text-foreground mb-1">Class</span>
+          <select
+            value={classId ?? ""}
+            onChange={(e) => setClassId(e.target.value || null)}
+            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+          >
+            <option value="">No class</option>
+            {classCandidates.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </label>
+      )}
+
       <input
         type="text"
         value={title}
@@ -58,9 +90,9 @@ export function NoteEditor({
         placeholder="Note title"
       />
 
-      {/* Tab switcher — voice (browser Web Speech API) vs plain text */}
+      {/* Tab switcher — Text / Voice (browser Web Speech API) / Upload */}
       <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
-        {(["text", "voice"] as const).map((t) => (
+        {(["text", "voice", "upload"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -69,12 +101,12 @@ export function NoteEditor({
               tab === t ? "bg-accent text-white" : "text-muted hover:bg-border/30"
             }`}
           >
-            {t === "text" ? "Text" : "Voice"}
+            {t === "text" ? "Text" : t === "voice" ? "Voice" : "Upload"}
           </button>
         ))}
       </div>
 
-      {tab === "text" ? (
+      {tab === "text" && (
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
@@ -83,7 +115,8 @@ export function NoteEditor({
           placeholder="Type what you're hearing in class."
           autoFocus
         />
-      ) : (
+      )}
+      {tab === "voice" && (
         <VoiceTextarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
@@ -94,6 +127,14 @@ export function NoteEditor({
           className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
           placeholder="Tap the mic to dictate, or type here."
           provider={ttsProvider}
+        />
+      )}
+      {tab === "upload" && (
+        <AudioUploadTab
+          ensureNoteId={ensureNoteId}
+          onTranscriptReady={(text) => setBody(text)}
+          onClassSuggested={(id) => { if (id) setClassId(id); }}
+          classCandidates={classCandidates}
         />
       )}
 
