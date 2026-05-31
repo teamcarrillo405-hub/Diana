@@ -1,6 +1,9 @@
 // @vitest-environment jsdom
-import { describe, it, expect } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+/// <reference types="@testing-library/jest-dom" />
+import { describe, it, expect, afterEach } from "vitest";
+import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+
+afterEach(() => cleanup());
 import { AiTooltip, AI_FEATURE_DESCRIPTIONS } from "./ai-tooltip";
 
 describe("AiTooltip", () => {
