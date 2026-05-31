@@ -24,33 +24,34 @@ export function NoteEditor({
   // classId is captured here; 10-03 wires it into saveNote + createNote payloads.
   const [classId, setClassId] = useState<string | null>(null);
 
-  // The saver closure uses the latest title/body and creates the row on first call.
+  // The saver closure uses the latest title/body/classId and creates the row on first call.
   const saver = useCallback(async () => {
     if (!noteId) {
-      const res = await createNote({ title, assignmentId });
+      const res = await createNote({ title, assignmentId, classId });
       if (!res.ok) return { ok: false as const, error: res.error };
       setNoteId(res.id);
       const upd = await saveNote({
         id:         res.id,
         title,
         bodyText:   body,
+        classId,
       });
       return upd.ok ? { ok: true as const } : { ok: false as const, error: upd.error };
     }
-    const upd = await saveNote({ id: noteId, title, bodyText: body });
+    const upd = await saveNote({ id: noteId, title, bodyText: body, classId });
     return upd.ok ? { ok: true as const } : { ok: false as const, error: upd.error };
-  }, [noteId, title, body, assignmentId]);
+  }, [noteId, title, body, assignmentId, classId]);
 
   const { status, save, flushNow } = useAutoSaveNote(saver);
 
   /** Called by AudioUploadTab before upload. Creates the note row if it doesn't exist yet. */
   const ensureNoteId = useCallback(async (): Promise<string | null> => {
     if (noteId) return noteId;
-    const res = await createNote({ title, assignmentId });
+    const res = await createNote({ title, assignmentId, classId });
     if (!res.ok) return null;
     setNoteId(res.id);
     return res.id;
-  }, [noteId, title, assignmentId]);
+  }, [noteId, title, assignmentId, classId]);
 
   // Schedule a save whenever title or body changes (after first character).
   useEffect(() => {

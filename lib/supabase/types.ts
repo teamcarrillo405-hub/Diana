@@ -365,6 +365,13 @@ export type Database = {
             referencedRelation: "assignments";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "notes_class_id_fkey"; // 0018 migration; manually annotated until supabase:types regen
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
         ];
       };
       inbox_items: {

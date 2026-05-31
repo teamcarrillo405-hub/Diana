@@ -12,11 +12,13 @@ export function NoteDetail({
   bodyText,
   transcriptText,
   outline,
+  classLabel,
 }: {
   id: string;
   bodyText: string;
   transcriptText: string | null;
   outline: OutlineNode[] | null;
+  classLabel?: string | null;
 }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
@@ -42,6 +44,11 @@ export function NoteDetail({
 
   return (
     <div className="space-y-6">
+      {/* Class label — shown when note is linked to a class */}
+      {classLabel && (
+        <p className="text-sm text-muted">{classLabel}</p>
+      )}
+
       {/* Body — what the student wrote/dictated */}
       <section className="space-y-2">
         <h2 className="text-xs font-medium uppercase tracking-wider text-muted">

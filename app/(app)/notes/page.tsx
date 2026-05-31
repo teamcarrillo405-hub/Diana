@@ -6,7 +6,7 @@ export default async function NotesPage() {
   const supabase = await createClient();
   const { data: notes } = await supabase
     .from("notes")
-    .select("id, title, body_text, transcript_text, updated_at, assignment_id")
+    .select("id, title, body_text, transcript_text, updated_at, assignment_id, class_id, classes(id, name)")
     .order("updated_at", { ascending: false });
 
   return (
@@ -44,7 +44,14 @@ export default async function NotesPage() {
                 href={`/notes/${n.id}`}
                 className="block px-4 py-3 hover:bg-border/30"
               >
-                <p className="truncate font-medium">{n.title}</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="truncate font-medium">{n.title}</p>
+                  {(n as { classes?: { name: string } | null }).classes?.name && (
+                    <span className="shrink-0 text-xs text-muted">
+                      · {(n as { classes?: { name: string } | null }).classes!.name}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-0.5 line-clamp-1 text-xs text-muted">
                   {n.transcript_text || n.body_text || "Empty note"}
                 </p>
