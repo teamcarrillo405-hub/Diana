@@ -16,6 +16,7 @@ import { WritingAid } from "./writing-aid";
 import { CitationTool } from "./citation-tool";
 import { TaskBreakdown } from "./task-breakdown";
 import { AiUsageLog } from "@/components/ai-usage-log";
+import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/parse";
 
@@ -92,9 +93,11 @@ export default async function AssignmentDetailPage({
           </div>
         )}
         {a.description && (
-          <p className="whitespace-pre-wrap rounded-lg border border-border bg-card p-3 text-sm">
-            {a.description}
-          </p>
+          <VocabHoverProvider>
+            <p className="whitespace-pre-wrap rounded-lg border border-border bg-card p-3 text-sm">
+              {a.description}
+            </p>
+          </VocabHoverProvider>
         )}
       </header>
 

@@ -3,6 +3,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Sparkles, Trash2 } from "lucide-react";
 import { TtsHighlightButton } from "@/components/tts-highlight-button";
+import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import type { OutlineNode } from "@/lib/notes/types";
 import { deleteNote, triggerTranscript } from "./actions";
 
@@ -46,9 +47,11 @@ export function NoteDetail({
         <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
           Your notes
         </h2>
-        <p className="reading-view whitespace-pre-wrap rounded-lg border border-border bg-card p-4 text-sm">
-          {bodyText || "(empty)"}
-        </p>
+        <VocabHoverProvider>
+          <p className="reading-view whitespace-pre-wrap rounded-lg border border-border bg-card p-4 text-sm">
+            {bodyText || "(empty)"}
+          </p>
+        </VocabHoverProvider>
       </section>
 
       {/* Transcript — AI-cleaned version, if generated */}
@@ -57,10 +60,12 @@ export function NoteDetail({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Cleaned transcript
           </h2>
-          <div className="reading-view rounded-lg border border-border bg-card p-4">
-            <TtsHighlightButton text={transcriptText} />
-            <p className="mt-3 whitespace-pre-wrap text-sm">{transcriptText}</p>
-          </div>
+          <VocabHoverProvider>
+            <div className="reading-view rounded-lg border border-border bg-card p-4">
+              <TtsHighlightButton text={transcriptText} />
+              <p className="mt-3 whitespace-pre-wrap text-sm">{transcriptText}</p>
+            </div>
+          </VocabHoverProvider>
         </section>
       ) : (
         <section className="space-y-2">
