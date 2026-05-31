@@ -158,6 +158,31 @@ const ToggleStepInput = z.object({
   done: z.boolean(),
 });
 
+// ─── F6: AP Math worked example ──────────────────────────────────────────────
+
+const MathExampleInput = z.object({
+  assignmentId: z.string().uuid().nullable(),
+  aiMode: z.enum(["red", "yellow", "green"]).default("green"),
+  problem: z.string().min(1).max(2000),
+  subject: z.enum(["calculus", "physics", "algebra"]),
+});
+
+export async function requestMathExample(
+  input: z.infer<typeof MathExampleInput>,
+): Promise<{ content: string } | { error: string }> {
+  const parsed = MathExampleInput.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { error: "Not signed in." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.functions.invoke("math-example", {
+    body: { ownerId, ...parsed.data },
+  });
+  if (error) return { error: calmError(error.message) };
+  return { content: (data as { content: string }).content ?? "" };
+}
+
 export async function toggleStepDone(
   input: z.infer<typeof ToggleStepInput>,
 ): Promise<{ ok: true } | { error: string }> {
