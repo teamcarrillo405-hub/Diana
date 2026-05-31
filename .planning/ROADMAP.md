@@ -165,79 +165,47 @@ Plans:
 
 ---
 
-## Phase 9: Academic Engine Depth
+## Phase 9: Perfect Score Initiative — Academic Engine + AI Transparency + LMS + Ecosystem
 
-**Goal:** Close the four highest-impact scoring gaps — task breakdown, smart reminders, wins feed, and AP-level math scaffolding — so a student with ADHD + dyslexia has every tool needed to succeed in AP Calculus or AP Physics.
+**Goal:** Achieve 90+/100 on the product scorecard by delivering all remaining high-impact features in one consolidated phase: task breakdown, smart reminders, wins feed, AP Math depth, LMS integration, calendar view, AI transparency, parent/teacher sharing, and final polish.
 
 **What it delivers:**
-- F6: AI task breakdown — splits any assignment into ≤15-min atomic steps via Claude Haiku (the #1 ADHD executive-function intervention)
-- F7: Smart reminders — in-app dashboard banner; quiet-hours-aware, no-weekend rule, past-due escalation; NO browser push (no service worker exists)
-- F8: Wins feed — calm, shame-free log of completed work backed by existing task_signals; daily/weekly counts; no streak language
-- AP Math depth: static formula reference panel (lib/math/formulas.ts, plain text Unicode) + worked-example math-example Edge Function for problem_set and test_prep kinds
 
-**Requirement IDs:** F6, F7, F8
+*Wave 1–2 (Academic Engine):*
+- F6: AI task breakdown — splits any assignment into ≤15-min atomic steps via Claude Haiku
+- F7: Smart reminders — in-app dashboard banner; quiet-hours-aware, no-weekend rule
+- F8: Wins feed — calm, shame-free log backed by existing task_signals; no streak language
+- AP Math depth: formula reference panel + worked-example Edge Function
+
+*Wave 3 (LMS + Calendar):*
+- F15: Calendar imports — Google Classroom OAuth, Canvas API token, .ics URL; due dates land in assignments automatically
+- F9: Calendar/week view — 7-day grid with workload-weight bars; highlights overloaded days
+
+*Wave 4 (AI Transparency):*
+- Authorship log surfaced to student — visible on every assignment detail
+- AI-explained tooltip on AI-generated outputs — one-tap explanation
+- AI literacy onboarding step — 30-second explainer in onboarding flow
+
+*Wave 5 (Ecosystem + Polish):*
+- F13: Parent share — student-initiated weekly read-only summary; explicit consent toggle
+- F14: Teacher snapshot — one-page IEP/504 status doc; student-controlled share link
+- Dark mode toggle surfaced in onboarding and Settings
+- Vocabulary hover — plain-language word definition (Claude Haiku, respects AI traffic light)
+
+**Requirement IDs:** F6, F7, F8, F9, F13, F14, F15, AI-LITERACY-01, AI-LITERACY-02, F20-POLISH
 
 **Depends on:** Phase 8
 
-**Plans:** 4 plans in 2 waves (09-01, 09-02, 09-03 parallel in wave 1; 09-04 in wave 2 sequenced after 09-01 to avoid LogParams.feature union merge collision)
-- [ ] 09-01-PLAN.md — F6 AI task breakdown: 0015 migration (assignment_steps) + task-breakdown Edge Function (Haiku 4.5) + parse library with tests + BreakdownPanel on assignment detail + LogParams sync (both mirrors)
-- [ ] 09-02-PLAN.md — F7 in-app reminder banner: lib/reminders/reminder-rules.ts pure helpers + tests + ReminderBanner client component on dashboard + getReminderItems action + /reminders explanation page (NO push, NO SW)
-- [ ] 09-03-PLAN.md — F8 wins feed: lib/wins/group-by-day.ts pure helpers + tests + /wins Server Component (replaces ComingSoon; queries task_signals.kind='completed') + WinsList component + Wins nav item (Sparkles icon)
-- [ ] 09-04-PLAN.md — AP Math depth: lib/math/formulas.ts static reference (Calc/Physics/Algebra, ≥24 entries, plain text Unicode) + math-example Edge Function (Haiku 4.5, analogous-problem worked solution) + accordion + Worked example button added to MathHelper + LogParams sync
-
----
-
-## Phase 10: LMS Integration & Calendar View
-
-**Goal:** Unlock school and district willingness-to-pay by importing due dates from Google Classroom, Canvas, and .ics feeds; add a week-ahead calendar view so students can plan AP exam prep sprints.
-
-**What it delivers:**
-- F15: Calendar imports — Google Classroom OAuth, Canvas API token, .ics URL; due dates land in `assignments` automatically with source attribution
-- F9: Calendar/week view — 7-day grid with workload-weight bars per day (uses `effective_minutes`), highlights overloaded days
-- Multi-week AP exam prep mode — countdown view from today to exam date with daily task allocation
-
-**Requirement IDs:** F9, F15
-
-**Depends on:** Phase 9
-
-**Plans:** 0/0 plans — run /gsd:plan-phase 10
-
----
-
-## Phase 11: AI Transparency & Literacy
-
-**Goal:** Make Diana's AI usage visible and educational so students develop real AI-collaboration skills and teachers/parents can trust what the app produces.
-
-**What it delivers:**
-- Authorship log surfaced to student — "Diana suggested this outline; you wrote the content" visible on every assignment detail
-- AI-explained tooltip on every AI-generated output — one-tap explanation of what the model did and why
-- AI literacy onboarding step — 30-second explainer added to onboarding: what Diana's AI can and can't do, when to verify
-- Prompting improvement loop — after each AI tool use, surface one better prompt the student could try next time (scaffolded prompting skill)
-
-**Requirement IDs:** AI-LITERACY-01, AI-LITERACY-02
-
-**Depends on:** Phase 8
-
-**Plans:** 0/0 plans — run /gsd:plan-phase 11
-
----
-
-## Phase 12: Parent & Teacher Ecosystem + Final Polish
-
-**Goal:** Close the remaining willingness-to-pay gap for schools and parents; complete the accessibility profile; surface dark mode in onboarding; reach 90+/100 on the product scorecard.
-
-**What it delivers:**
-- F13: Parent share — student-initiated weekly read-only summary email; explicit consent toggle; no real-time surveillance
-- F14: Teacher snapshot — one-page IEP/504 status doc (current assignments, accommodations active, recent wins); student-controlled share link
-- Dark mode toggle surfaced in onboarding step and Settings
-- Reading scaffold extended to rubrics and class notes (not just assignment descriptions)
-- Vocabulary support — hover any word to get a plain-language definition (uses Claude Haiku, respects AI traffic light)
-
-**Requirement IDs:** F13, F14, F20-POLISH
-
-**Depends on:** Phase 11
-
-**Plans:** 0/0 plans — run /gsd:plan-phase 12
+**Plans:** 4 plans created (waves 1–2); waves 3–5 plans pending
+- [ ] 09-01-PLAN.md — F6 AI task breakdown (wave 1)
+- [ ] 09-02-PLAN.md — F7 reminder banner (wave 1)
+- [ ] 09-03-PLAN.md — F8 wins feed (wave 1)
+- [ ] 09-04-PLAN.md — AP Math depth (wave 2, after 09-01)
+- [ ] 09-05-PLAN.md — F15 LMS import: Google Classroom + Canvas + .ics (wave 3)
+- [ ] 09-06-PLAN.md — F9 calendar week view (wave 3, parallel with 09-05)
+- [ ] 09-07-PLAN.md — AI Transparency: authorship log UI + AI-explained tooltip + literacy onboarding (wave 4)
+- [ ] 09-08-PLAN.md — F13 parent share + F14 teacher snapshot (wave 4, parallel with 09-07)
+- [ ] 09-09-PLAN.md — Final polish: dark mode onboarding + vocabulary hover (wave 5)
 
 ---
 
