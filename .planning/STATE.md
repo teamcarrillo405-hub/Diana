@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 11
-stopped_at: "Completed 11-02: DocUploadTab + uploadNoteDoc/triggerDocExtraction + NoteEditor 4-tab strip"
-last_updated: "2026-05-31T20:15:00.000Z"
+stopped_at: "Paused at 11-03 Task 3 checkpoint: infra live (migration 0019 + note-docs bucket + extract-note-doc ACTIVE + types.ts synced) — awaiting human smoke test"
+last_updated: "2026-05-31T20:20:00.000Z"
 progress:
   total_phases: 11
   completed_phases: 9
@@ -46,6 +46,13 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 11 decisions (11-03)
+
+- Migration history repair via `supabase migration repair --status applied` needed when remote uses timestamp-format names but local uses sequential (0001-0019); this is the standard CLI workaround
+- Bucket and RLS policies created via `npx supabase --experimental db query --linked` — only path available when local Postgres stack is not running
+- types.ts doc_storage_key manually annotated (Row required, Insert/Update optional) — same pattern as class_id in 10-03; regen deferred until supabase gen types works cleanly against linked project
+- ANTHROPIC_API_KEY confirmed present via indirect evidence: 4 deployed ACTIVE functions (classify-inbox, math-step, reading-scaffold, transcribe-note) all use the same secret
 
 ## Phase 11 decisions (11-02)
 
