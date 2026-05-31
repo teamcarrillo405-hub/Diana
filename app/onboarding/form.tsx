@@ -42,6 +42,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [step, setStep] = useState<"form" | "literacy">("form");
 
   const [diagnoses, setDiagnoses] = useState<string[]>(initial.diagnoses ?? []);
   const [accommodations, setAccommodations] = useState<string[]>(initial.accommodations ?? []);
@@ -53,9 +54,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
     setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
   }
 
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
+  function commit() {
     startTransition(async () => {
       const result = await saveOnboarding({
         diagnoses: diagnoses as Diagnosis[],
@@ -69,10 +68,58 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
         line_spacing: diagnoses.includes("dyslexia") ? "loose" : "normal",
         font_size: diagnoses.includes("dyslexia") ? "large" : "normal",
       });
-      if (result?.error) return setError(result.error);
+      if (result?.error) {
+        setError(result.error);
+        setStep("form");
+        return;
+      }
       router.push("/onboarding/done");
       router.refresh();
     });
+  }
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setStep("literacy");
+  }
+
+  if (step === "literacy") {
+    return (
+      <div className="space-y-6 rounded-xl border border-border bg-card p-6">
+        <h2 className="text-lg font-semibold">A quick word about the AI</h2>
+        <p className="text-sm text-foreground">
+          Diana uses Claude to help — not to do your work.
+        </p>
+        <ul className="space-y-2 text-sm text-muted">
+          <li>• It never writes your essay or solves your problem.</li>
+          <li>• It asks questions to help you think it through.</li>
+          <li>• Every time it helps, you&apos;ll see a small (i) so you know.</li>
+        </ul>
+        {error && (
+          <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+            {error}
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setStep("form")}
+            className="text-sm text-muted hover:underline"
+          >
+            Back
+          </button>
+          <button
+            type="button"
+            onClick={commit}
+            disabled={pending}
+            className="rounded-lg bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
+          >
+            {pending ? "Saving…" : "Got it"}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
