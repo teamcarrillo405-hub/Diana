@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 11
-stopped_at: "Completed 11-01: migration 0019 + validateDocFile + heic-convert + extract-note-doc Edge Function"
-last_updated: "2026-05-31T19:30:29.630Z"
+stopped_at: "Completed 11-02: DocUploadTab + uploadNoteDoc/triggerDocExtraction + NoteEditor 4-tab strip"
+last_updated: "2026-05-31T20:15:00.000Z"
 progress:
   total_phases: 11
   completed_phases: 9
   total_plans: 39
-  completed_plans: 37
+  completed_plans: 38
 ---
 
 # Diana — Project State
@@ -46,6 +46,14 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 11 decisions (11-02)
+
+- triggerDocExtraction awaits extract-note-doc and relays result only — Edge Function handles body_text write + transcribe-note fire-and-forget internally
+- DocUploadTab props shape byte-identical to AudioUploadTabProps — NoteEditor wires both identically
+- Tab key "upload" renamed to "audio" — string identity change only, AudioUploadTab behavior unchanged
+- heicConverting status added to DocUploadTab state machine (not in AudioUploadTab) — guards Pitfall 1 (HEIC before Claude)
+- Pitfall 6 fallback: catch around convertHeicToJpeg shows calm iPhone JPEG re-share guidance
 
 ## Phase 11 decisions (11-01)
 

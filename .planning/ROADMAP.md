@@ -236,9 +236,9 @@ Plans:
 **Goal:** Enable photo and PDF upload to notes — Claude Vision OCR + PDF extraction -> transcribe-note cleanup pipeline + auto-class routing.
 **Requirements**: F04-PHOTO, F08-NOTE
 **Depends on:** Phase 10
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 - [x] 11-01-PLAN.md — Migration 0019 (notes.doc_storage_key) + validateDocFile + heic-convert + extract-note-doc Edge Function
-- [ ] 11-02-PLAN.md — DocUploadTab + uploadNoteDoc/triggerDocExtraction actions + NoteEditor 4th tab
+- [x] 11-02-PLAN.md — DocUploadTab + uploadNoteDoc/triggerDocExtraction actions + NoteEditor 4th tab
 - [ ] 11-03-PLAN.md — note-docs bucket + migration apply + Edge Function deploy + smoke-test checkpoint
 
 ---
