@@ -104,3 +104,84 @@ export async function requestCitation(
   // we surface it verbatim and let the client JSON.parse — keeps this layer dumb.
   return { content: (data as { content: string }).content ?? "" };
 }
+
+// ─── F6: AI task breakdown ────────────────────────────────────────────────────
+
+import { parseStepsFromContent, type BreakdownStep } from "@/lib/task-breakdown/parse";
+
+const TaskBreakdownInput = z.object({
+  assignmentId: z.string().uuid(),
+  aiMode: z.enum(["red", "yellow", "green"]).default("green"),
+  title: z.string().min(1).max(500),
+  description: z.string().max(4000).optional(),
+  kind: z.string().min(1).max(50),
+  estimatedMinutes: z.number().int().min(1).max(600).optional(),
+});
+
+export async function requestTaskBreakdown(
+  input: z.infer<typeof TaskBreakdownInput>,
+): Promise<{ steps: BreakdownStep[] } | { error: string }> {
+  const parsed = TaskBreakdownInput.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { error: "Not signed in." };
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.functions.invoke("task-breakdown", {
+    body: { ownerId, ...parsed.data },
+  });
+  if (error) return { error: calmError(error.message) };
+
+  const content = (data as { content: string }).content ?? "";
+  const steps = parseStepsFromContent(content);
+
+  // Persist via upsert on assignment_id (unique index ensures one row per assignment)
+  await supabase
+    .from("assignment_steps")
+    .upsert(
+      {
+        owner_id: ownerId,
+        assignment_id: parsed.data.assignmentId,
+        steps,
+        generated_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "assignment_id" },
+    );
+
+  return { steps };
+}
+
+const ToggleStepInput = z.object({
+  assignmentId: z.string().uuid(),
+  stepIndex: z.number().int().min(0).max(11),
+  done: z.boolean(),
+});
+
+export async function toggleStepDone(
+  input: z.infer<typeof ToggleStepInput>,
+): Promise<{ ok: true } | { error: string }> {
+  const parsed = ToggleStepInput.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { error: "Not signed in." };
+
+  const supabase = await createClient();
+  const { data: row } = await supabase
+    .from("assignment_steps")
+    .select("steps")
+    .eq("assignment_id", parsed.data.assignmentId)
+    .single();
+  if (!row) return { error: "No breakdown to update." };
+
+  const steps = (row.steps as BreakdownStep[]).map((s, i) =>
+    i === parsed.data.stepIndex ? { ...s, done: parsed.data.done } : s,
+  );
+  await supabase
+    .from("assignment_steps")
+    .update({ steps, updated_at: new Date().toISOString() })
+    .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId);
+
+  return { ok: true };
+}

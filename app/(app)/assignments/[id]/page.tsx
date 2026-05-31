@@ -14,7 +14,9 @@ import { ReadingPanel } from "./reading-panel";
 import { MathHelper } from "./math-helper";
 import { WritingAid } from "./writing-aid";
 import { CitationTool } from "./citation-tool";
+import { TaskBreakdown } from "./task-breakdown";
 import type { AssignmentStatus } from "@/lib/supabase/types";
+import type { BreakdownStep } from "@/lib/task-breakdown/parse";
 
 export default async function AssignmentDetailPage({
   params,
@@ -34,6 +36,13 @@ export default async function AssignmentDetailPage({
     .eq("id", id)
     .single();
   if (!a) notFound();
+
+  const { data: stepsRow } = await supabase
+    .from("assignment_steps")
+    .select("steps")
+    .eq("assignment_id", id)
+    .maybeSingle();
+  const initialSteps: BreakdownStep[] = (stepsRow?.steps as BreakdownStep[]) ?? [];
 
   const status = a.status as AssignmentStatus;
   const nexts = nextStatesFor(status);
@@ -81,6 +90,16 @@ export default async function AssignmentDetailPage({
           </p>
         )}
       </header>
+
+      <TaskBreakdown
+        assignmentId={a.id}
+        classAiMode={classAiMode}
+        assignmentTitle={a.title}
+        assignmentDescription={a.description ?? null}
+        assignmentKind={a.kind}
+        estimatedMinutes={a.estimated_minutes ?? null}
+        initialSteps={initialSteps}
+      />
 
       {(a.kind === "reading" || (a.reading_load != null && a.reading_load >= 3)) && a.description && (
         <ReadingPanel
