@@ -6,6 +6,7 @@ import { useAutoSaveNote } from "@/lib/notes/auto-save";
 import type { ClassCandidate } from "@/lib/notes/class-router";
 import { createNote, saveNote } from "../actions";
 import { AudioUploadTab } from "./audio-upload-tab";
+import { DocUploadTab } from "./doc-upload-tab";
 
 export function NoteEditor({
   assignmentId,
@@ -20,7 +21,7 @@ export function NoteEditor({
   const [noteId, setNoteId] = useState<string | null>(null);
   const [title, setTitle] = useState("Untitled note");
   const [body, setBody] = useState("");
-  const [tab, setTab] = useState<"text" | "voice" | "upload">("text");
+  const [tab, setTab] = useState<"text" | "voice" | "audio" | "photo-pdf">("text");
   // classId is captured here; 10-03 wires it into saveNote + createNote payloads.
   const [classId, setClassId] = useState<string | null>(null);
 
@@ -91,9 +92,9 @@ export function NoteEditor({
         placeholder="Note title"
       />
 
-      {/* Tab switcher — Text / Voice (browser Web Speech API) / Upload */}
+      {/* Tab switcher — Text / Voice (browser Web Speech API) / Audio / Photo/PDF */}
       <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
-        {(["text", "voice", "upload"] as const).map((t) => (
+        {(["text", "voice", "audio", "photo-pdf"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -102,7 +103,10 @@ export function NoteEditor({
               tab === t ? "bg-accent text-white" : "text-muted hover:bg-border/30"
             }`}
           >
-            {t === "text" ? "Text" : t === "voice" ? "Voice" : "Upload"}
+            {t === "text"      ? "Text"
+              : t === "voice"  ? "Voice"
+              : t === "audio"  ? "Audio"
+              : "Photo/PDF"}
           </button>
         ))}
       </div>
@@ -130,10 +134,18 @@ export function NoteEditor({
           provider={ttsProvider}
         />
       )}
-      {tab === "upload" && (
+      {tab === "audio" && (
         <AudioUploadTab
           ensureNoteId={ensureNoteId}
-          onTranscriptReady={(text) => setBody(text)}
+          onTranscriptReady={(text) => { setBody(text); setTab("text"); }}
+          onClassSuggested={(id) => { if (id) setClassId(id); }}
+          classCandidates={classCandidates}
+        />
+      )}
+      {tab === "photo-pdf" && (
+        <DocUploadTab
+          ensureNoteId={ensureNoteId}
+          onTranscriptReady={(text) => { setBody(text); setTab("text"); }}
           onClassSuggested={(id) => { if (id) setClassId(id); }}
           classCandidates={classCandidates}
         />
