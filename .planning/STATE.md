@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 09
-stopped_at: Completed 09-04-PLAN.md
-last_updated: "2026-05-31T00:48:40.503Z"
+stopped_at: Completed 09-06-PLAN.md
+last_updated: "2026-05-31T01:00:09.674Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 33
-  completed_plans: 28
+  completed_plans: 29
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T00:48:40.500Z
-**Stopped at:** Completed 09-04-PLAN.md
+**Last session:** 2026-05-31T01:00:09.671Z
+**Stopped at:** Completed 09-06-PLAN.md
 
 ---
 
@@ -62,6 +62,17 @@ progress:
 - No logInteraction in transcribe-voice/tts-generate — non-Claude AI calls; Whisper/TTS usage auditable via OpenAI dashboard
 - TtsHighlightButton OpenAI variant omits word-highlight — OpenAI TTS 1 API emits no word boundary events; estimator wiring deferred to follow-up
 - stt_transcribe + tts_generate added to LogParams.feature union in both safety.ts mirrors — must stay in sync
+
+## Phase 9 decisions (09-06)
+
+- Calendar groups assignments by UTC date to match how due_at is stored in Postgres; midnight-UTC due date appears on UTC calendar day (documented design decision)
+- Workload tier colors use calm palette: emerald-100 (light 0–90 min), amber-100 (moderate 91–150), amber-300 (heavy 151–240), violet-200 (overloaded 241+) — no red anywhere per calm invariant
+- adjustForUser exported from lib/scoring/next-five-minutes.ts for reuse in calendar per-day workload math (consistent with scorer + nightly budget)
+- Empty calendar day columns render no copy — no "Nothing due!" encouragement language (calm invariant)
+- date-fns v4.1.0 already in package.json — no new install needed
+- assignments table uses owner_id column (not user_id) — calendar query uses .eq("owner_id", user.id)
+- lib/supabase/server.ts exports createClient (not createSupabaseServerClient) — import adjusted to match
+- Calendar nav item inserted between /timer and /wins (after /timer as plan specified; /wins was in between in current nav)
 
 ## Phase 9 decisions (09-04)
 
