@@ -19,7 +19,7 @@ export interface BudgetCheck { allowed: boolean; remaining: number; }
 export interface LogParams {
   ownerId: string;
   assignmentId?: string | null;
-  feature: "math_step" | "writing_aid" | "citation_gen" | "reading_scaffold" | "transcribe_note" | "stt_transcribe" | "tts_generate" | "task_breakdown" | "math_example";
+  feature: "math_step" | "writing_aid" | "citation_gen" | "reading_scaffold" | "transcribe_note" | "stt_transcribe" | "tts_generate" | "task_breakdown" | "math_example" | "vocab_hover";
   model: string;
   promptSummary: string;
   tokensUsed: number;

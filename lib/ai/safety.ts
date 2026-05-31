@@ -18,7 +18,8 @@ export interface LogParams {
     | "stt_transcribe"
     | "tts_generate"
     | "task_breakdown"
-    | "math_example";
+    | "math_example"
+    | "vocab_hover";
   model: string;
   promptSummary: string;
   tokensUsed: number;
