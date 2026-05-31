@@ -139,6 +139,18 @@ None — `requestTaskBreakdown` calls the live Edge Function and persists real d
 - Edge Function follows established safety pattern — ready for production
 - Parser library is independent utility usable by future plans
 
+## Self-Check: PASSED
+
+- `supabase/migrations/0015_assignment_steps.sql` — FOUND
+- `lib/task-breakdown/parse.ts` — FOUND
+- `lib/task-breakdown/parse.test.ts` — FOUND (15 tests pass)
+- `supabase/functions/task-breakdown/index.ts` — FOUND
+- `app/(app)/assignments/[id]/task-breakdown.tsx` — FOUND
+- Commit `e59a51e` — FOUND (Task 1)
+- Commit `3d050ce` — FOUND (Task 2)
+- Commit `2e5b3a6` — FOUND (Task 3)
+- Commit `5c8a1e7` — FOUND (metadata)
+
 ---
 *Phase: 09-academic-engine-depth*
 *Completed: 2026-05-30*
