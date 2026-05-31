@@ -512,8 +512,11 @@ export type Database = {
           difficulty: number | null;
           due_at: string | null;
           estimated_minutes: number | null;
+          external_id: string | null;
+          external_source: string | null;
           id: string;
           kind: AssignmentKind;
+          last_synced_at: string | null;
           last_thought: string | null;
           owner_id: string;
           parent_assignment_id: string | null;
@@ -534,8 +537,11 @@ export type Database = {
           difficulty?: number | null;
           due_at?: string | null;
           estimated_minutes?: number | null;
+          external_id?: string | null;
+          external_source?: string | null;
           id?: string;
           kind?: AssignmentKind;
+          last_synced_at?: string | null;
           last_thought?: string | null;
           owner_id: string;
           parent_assignment_id?: string | null;
@@ -556,8 +562,11 @@ export type Database = {
           difficulty?: number | null;
           due_at?: string | null;
           estimated_minutes?: number | null;
+          external_id?: string | null;
+          external_source?: string | null;
           id?: string;
           kind?: AssignmentKind;
+          last_synced_at?: string | null;
           last_thought?: string | null;
           owner_id?: string;
           parent_assignment_id?: string | null;
@@ -811,6 +820,41 @@ export type Database = {
             columns: ["assignment_id"];
             isOneToOne: false;
             referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      lms_connections: {
+        Row: {
+          id: string;
+          owner_id: string;
+          provider: string;
+          config: Json;
+          last_synced_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          provider: string;
+          config?: Json;
+          last_synced_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          provider?: string;
+          config?: Json;
+          last_synced_at?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "lms_connections_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
             referencedColumns: ["id"];
           },
         ];
