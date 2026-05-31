@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 09
-stopped_at: "09-05 checkpoint: Tasks 1-5 complete, awaiting Task 6 human-verify (Google Classroom OAuth + real-account sync test)"
-last_updated: "2026-05-31T01:03:36.535Z"
+stopped_at: "09-08 complete: F13 parent share + F14 teacher snapshot delivered"
+last_updated: "2026-05-30T18:21:00.000Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 33
-  completed_plans: 30
+  completed_plans: 31
 ---
 
 # Diana — Project State
@@ -46,6 +46,16 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 9 decisions (09-08)
+
+- Migration 0017 used for share_links (0016 already used by lms_connections in 09-05)
+- Service-role client (lib/supabase/service.ts) extends the 3-client pattern: used only for public /share/[token] route to bypass RLS for token lookup
+- Public share route lives at app/share/[token]/ outside app/(app)/ so the auth+onboarding redirect never fires
+- Study time query uses assignment_time_log.started_at/ended_at (time_logs table does not exist)
+- task_signals.occurred_at is the correct timestamp column (not created_at) per migration 0001
+- profiles.user_id is the FK column for profile lookup (not profiles.id)
+- profiles.diagnoses (string array containing "dyslexia") used instead of disability_flags (does not exist)
 
 ## Phase 9 decisions (09-01)
 
