@@ -26,7 +26,7 @@ export function StatusButtons({
       const result = await transitionAssignment({ id: assignmentId, from, to });
       if (isPrimary(from, to) && !("error" in result && result.error)) {
         setFlashedTo(to);
-        setTimeout(() => setFlashedTo(null), 700);
+        setTimeout(() => setFlashedTo(null), 1200);
       }
       if ("error" in result && result.error) return;
       if (result.redirect) {
