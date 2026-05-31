@@ -322,6 +322,7 @@ export type Database = {
           assignment_id: string | null;
           audio_storage_key: string | null;
           body_text: string;
+          class_id: string | null; // 0018 migration; manually annotated until supabase:types regen
           created_at: string;
           id: string;
           outline_json: Json | null;
@@ -334,6 +335,7 @@ export type Database = {
           assignment_id?: string | null;
           audio_storage_key?: string | null;
           body_text?: string;
+          class_id?: string | null; // 0018 migration; manually annotated until supabase:types regen
           created_at?: string;
           id?: string;
           outline_json?: Json | null;
@@ -346,6 +348,7 @@ export type Database = {
           assignment_id?: string | null;
           audio_storage_key?: string | null;
           body_text?: string;
+          class_id?: string | null; // 0018 migration; manually annotated until supabase:types regen
           created_at?: string;
           id?: string;
           outline_json?: Json | null;

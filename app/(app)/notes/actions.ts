@@ -5,15 +5,17 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
 const CreateInput = z.object({
-  title: z.string().min(1).max(200).default("Untitled note"),
+  title:        z.string().min(1).max(200).default("Untitled note"),
   assignmentId: z.string().uuid().nullable().optional(),
+  classId:      z.string().uuid().nullable().optional(),
 });
 
 const SaveInput = z.object({
-  id: z.string().uuid(),
-  title: z.string().min(1).max(200),
-  bodyText: z.string().max(50_000),
+  id:              z.string().uuid(),
+  title:           z.string().min(1).max(200),
+  bodyText:        z.string().max(50_000),
   audioStorageKey: z.string().optional().nullable(),
+  classId:         z.string().uuid().nullable().optional(),
 });
 
 export async function createNote(
@@ -32,6 +34,7 @@ export async function createNote(
       owner_id:      user.id,
       title:         parsed.data.title,
       assignment_id: parsed.data.assignmentId ?? null,
+      class_id:      parsed.data.classId ?? null,
       body_text:     "",
     })
     .select("id")
@@ -58,6 +61,7 @@ export async function saveNote(
       title:             parsed.data.title,
       body_text:         parsed.data.bodyText,
       audio_storage_key: parsed.data.audioStorageKey ?? null,
+      class_id:          parsed.data.classId ?? null,
       updated_at:        new Date().toISOString(),
     })
     .eq("id", parsed.data.id)
