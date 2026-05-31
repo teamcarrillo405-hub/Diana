@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { requestWritingAid } from "./ai-tools-actions";
+import { AiTooltip } from "@/components/ai-tooltip";
 
 interface WritingAidProps {
   assignmentId: string;
@@ -46,9 +47,12 @@ export function WritingAid({ assignmentId, classAiMode }: WritingAidProps) {
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Writing aid
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted">
+                Writing aid
+              </p>
+              {result && <AiTooltip feature="writing_aid" />}
+            </div>
             <p className="text-xs text-muted">Diana explains, you rewrite.</p>
           </div>
           <textarea

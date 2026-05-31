@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { BookOpen, Copy, Check } from "lucide-react";
 import { requestCitation } from "./ai-tools-actions";
+import { AiTooltip } from "@/components/ai-tooltip";
 
 interface CitationToolProps {
   assignmentId: string;
@@ -71,9 +72,12 @@ export function CitationTool({ assignmentId, classAiMode }: CitationToolProps) {
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Citation generator
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted">
+                Citation generator
+              </p>
+              {result && <AiTooltip feature="citation_gen" />}
+            </div>
           </div>
 
           <div className="flex gap-2 text-xs">

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { BookOpen, Calculator, FlaskConical } from "lucide-react";
 import { requestMathStep, requestMathExample } from "./ai-tools-actions";
+import { AiTooltip } from "@/components/ai-tooltip";
 import { CALC_FORMULAS, PHYSICS_FORMULAS, ALGEBRA_FORMULAS, type Formula } from "@/lib/math/formulas";
 
 interface MathHelperProps {
@@ -137,9 +138,12 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Math step organizer
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted">
+                Math step organizer
+              </p>
+              {history.length > 0 && <AiTooltip feature="math_step" />}
+            </div>
             <p className="text-xs text-muted">Diana hints, never solves.</p>
           </div>
 
@@ -190,6 +194,7 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
             <div className="flex items-center gap-2">
               <FlaskConical size={13} className="text-muted" />
               <p className="text-xs font-medium uppercase tracking-wider text-muted">Show a worked example</p>
+              {example && <AiTooltip feature="math_example" />}
             </div>
             <p className="text-xs text-muted">Diana solves a similar problem so you can see the pattern. Yours stays yours.</p>
             <div className="flex flex-wrap gap-2">
