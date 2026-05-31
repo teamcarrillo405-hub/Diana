@@ -101,3 +101,60 @@ export async function markIntentionFired(
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+// ---------- F7 — Smart reminders ----------
+
+export type ReminderItem = {
+  id: string;
+  title: string;
+  due_at: string | null;
+  class_name: string | null;
+  class_color: string | null;
+  is_past_due: boolean;
+  hours_until_due: number | null;
+};
+
+/**
+ * F7 — Fetch reminder candidates. Returns assignments that are either:
+ *   - past due (due_at < now), OR
+ *   - due within 48 hours (due_at < now + 48h)
+ * Excludes submitted/graded/abandoned. Quiet-hours and weekend gating happens
+ * client-side in ReminderBanner (Pitfall 1 — server runs UTC).
+ */
+export async function getReminderItems(): Promise<ReminderItem[]> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return [];
+
+  const now = new Date();
+  const window48hIso = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString();
+
+  const { data, error } = await supabase
+    .from("assignments")
+    .select("id, title, due_at, classes(name, color)")
+    .eq("owner_id", user.id)
+    .not("status", "in", "(submitted,graded,abandoned)")
+    .not("due_at", "is", null)
+    .lt("due_at", window48hIso)
+    .order("due_at", { ascending: true })
+    .limit(10);
+
+  if (error || !data) return [];
+
+  return (data as Array<{ id: string; title: string; due_at: string | null; classes: { name: string; color: string } | null }>)
+    .map((row) => {
+      const past = row.due_at ? new Date(row.due_at) < now : false;
+      const hours = row.due_at && !past
+        ? Math.floor((new Date(row.due_at).getTime() - now.getTime()) / (60 * 60 * 1000))
+        : null;
+      return {
+        id: row.id,
+        title: row.title,
+        due_at: row.due_at,
+        class_name: row.classes?.name ?? null,
+        class_color: row.classes?.color ?? null,
+        is_past_due: past,
+        hours_until_due: hours,
+      };
+    });
+}

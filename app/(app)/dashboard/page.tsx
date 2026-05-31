@@ -14,9 +14,10 @@ import { DueCards } from "./due-cards";
 import { TokenBudgetBanner } from "./token-budget-banner";
 import { ReadingLoadToggle, ReadingLoadBadge } from "./reading-load-toggle";
 import { StartSessionButton } from "./start-session-button";
-import { setLastShownClass, getEventIntentions } from "./actions";
+import { setLastShownClass, getEventIntentions, getReminderItems } from "./actions";
 import { EveningPlanning } from "./evening-planning";
 import { DoneToday } from "./done-today";
+import { ReminderBanner } from "./reminder-banner";
 
 export default async function DashboardPage({
   searchParams,
@@ -83,6 +84,7 @@ export default async function DashboardPage({
     lastShownClassId,
   );
   const eveningIntentions = await getEventIntentions();
+  const reminderItems = await getReminderItems();
 
   const top = ranked[0];
   if (top?.class_id) {
@@ -125,6 +127,8 @@ export default async function DashboardPage({
       </header>
 
       <DoneToday count={doneTodayCount} />
+
+      <ReminderBanner items={reminderItems} />
 
       {profile && <TokenBudgetBanner profile={profile} />}
 
