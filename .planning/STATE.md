@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 09
-stopped_at: Completed 09-03-PLAN.md
-last_updated: "2026-05-31T00:37:22.752Z"
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-05-31T00:38:59.356Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 33
-  completed_plans: 25
+  completed_plans: 27
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T00:37:22.749Z
-**Stopped at:** Completed 09-03-PLAN.md
+**Last session:** 2026-05-31T00:38:56.684Z
+**Stopped at:** Completed 09-02-PLAN.md
 
 ---
 
@@ -54,6 +54,14 @@ progress:
 - No logInteraction in transcribe-voice/tts-generate — non-Claude AI calls; Whisper/TTS usage auditable via OpenAI dashboard
 - TtsHighlightButton OpenAI variant omits word-highlight — OpenAI TTS 1 API emits no word boundary events; estimator wiring deferred to follow-up
 - stt_transcribe + tts_generate added to LogParams.feature union in both safety.ts mirrors — must stay in sync
+
+## Phase 9 decisions (09-02)
+
+- shouldShowReminder uses 'stillOpen' property name instead of 'pastDue' — tone-audit bans `past[\s-]?due` regex including camelCase `pastDue`; calm invariant enforced; DB field `is_past_due` unaffected (underscore separator not matched)
+- User-facing copy "still open beyond its due date" replaces "past due" in /reminders explanation page — same calm-invariant constraint
+- Client-side time gate in ReminderBanner via `useEffect(() => setNow(new Date()), [])` — Pitfall 1: server runs UTC, student's local clock needed for quiet-hours check
+- Per-session dismiss via `useState<Set<string>>` (not persisted) — D-05 mirrors EveningPlanning pattern from Phase 8-03
+- No push infrastructure — D-01: in-app only for v1; no SW, no VAPID, no push_subscriptions table
 
 ## Phase 8 decisions (08-03)
 
