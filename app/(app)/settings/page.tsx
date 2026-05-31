@@ -4,6 +4,7 @@ import { SignOutButton } from "./sign-out";
 import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AccentPicker } from "@/components/accent-picker";
 import { LmsConnections } from "./lms-connections";
+import { SharingSection } from "./sharing-section";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -110,6 +111,8 @@ export default async function SettingsPage() {
           Open AI history →
         </Link>
       </section>
+
+      <SharingSection />
 
       <section className="space-y-3 rounded-xl border border-border bg-card p-4">
         <h2 className="text-sm font-semibold">Account</h2>
