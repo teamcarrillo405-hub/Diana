@@ -15,6 +15,7 @@ import { MathHelper } from "./math-helper";
 import { WritingAid } from "./writing-aid";
 import { CitationTool } from "./citation-tool";
 import { TaskBreakdown } from "./task-breakdown";
+import { AiUsageLog } from "@/components/ai-usage-log";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/parse";
 
@@ -36,6 +37,12 @@ export default async function AssignmentDetailPage({
     .eq("id", id)
     .single();
   if (!a) notFound();
+
+  const { data: aiLog } = await supabase
+    .from("ai_interactions")
+    .select("feature, model, tokens_used, created_at")
+    .eq("assignment_id", id)
+    .order("created_at", { ascending: false });
 
   const { data: stepsRow } = await supabase
     .from("assignment_steps")
@@ -158,6 +165,8 @@ export default async function AssignmentDetailPage({
       {intent === "new" && (
         <IntentionPrompt assignmentId={id} />
       )}
+
+      <AiUsageLog interactions={aiLog ?? []} />
     </div>
   );
 }
