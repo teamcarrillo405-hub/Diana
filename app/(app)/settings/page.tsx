@@ -3,6 +3,7 @@ import { loadProfile } from "@/lib/profile";
 import { SignOutButton } from "./sign-out";
 import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AccentPicker } from "@/components/accent-picker";
+import { ThemePicker } from "@/components/theme-picker";
 import { LmsConnections } from "./lms-connections";
 import { SharingSection } from "./sharing-section";
 import { redirect } from "next/navigation";
@@ -71,6 +72,10 @@ export default async function SettingsPage() {
 
       <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
         <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Appearance</h2>
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Theme</span>
+          <ThemePicker />
+        </div>
         <AccentPicker />
       </section>
 

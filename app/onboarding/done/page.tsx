@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemePicker } from "@/components/theme-picker";
 
 export default function OnboardingDonePage() {
   return (
@@ -9,6 +10,10 @@ export default function OnboardingDonePage() {
         <p className="text-muted">
           Your settings are saved. You can adjust anything in Settings later.
         </p>
+      </div>
+      <div className="flex w-full items-center justify-between rounded-md border border-border bg-card p-3">
+        <span className="text-sm">Theme</span>
+        <ThemePicker />
       </div>
       <Link
         href="/dashboard"

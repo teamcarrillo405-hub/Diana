@@ -24,6 +24,16 @@
   }
 }
 
+/* Class-based dark mode — mirrors the media query above so toggle works */
+.dark {
+  --bg: 2 6 23;          /* slate-950 */
+  --fg: 241 245 249;     /* slate-100 */
+  --muted: 148 163 184;  /* slate-400 */
+  --accent: 129 140 248; /* indigo-400 */
+  --card: 15 23 42;      /* slate-900 */
+  --border: 30 41 59;    /* slate-800 */
+}
+
 html, body { height: 100%; }
 body {
   background: rgb(var(--bg));
