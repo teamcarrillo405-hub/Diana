@@ -231,6 +231,16 @@ Plans:
 
 **Phase 10 STATUS: COMPLETE** — F4-AUDIO / F8-UPLOAD / F16-AUTOCLASSIFY delivered. All 6 smoke tests passed. Verified 2026-05-30.
 
+### Phase 11: Photo and PDF upload to notes
+
+**Goal:** Enable photo and PDF upload to notes — Claude Vision OCR + PDF extraction -> transcribe-note cleanup pipeline + auto-class routing.
+**Requirements**: F04-PHOTO, F08-NOTE
+**Depends on:** Phase 10
+**Plans:** 1/3 plans executed
+- [x] 11-01-PLAN.md — Migration 0019 (notes.doc_storage_key) + validateDocFile + heic-convert + extract-note-doc Edge Function
+- [ ] 11-02-PLAN.md — DocUploadTab + uploadNoteDoc/triggerDocExtraction actions + NoteEditor 4th tab
+- [ ] 11-03-PLAN.md — note-docs bucket + migration apply + Edge Function deploy + smoke-test checkpoint
+
 ---
 
 *Roadmap bootstrapped from `docs/spec/features.md` and `docs/review/slice-1-evidence-review.md` on 2026-05-28.*

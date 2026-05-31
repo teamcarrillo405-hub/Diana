@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Milestone complete
-stopped_at: "Completed 10-03: classId wire-through + smoke test approved — Phase 10 COMPLETE (all 36 plans done)"
-last_updated: "2026-05-31T17:30:01.419Z"
+status: Executing Phase 11
+stopped_at: "Completed 11-01: migration 0019 + validateDocFile + heic-convert + extract-note-doc Edge Function"
+last_updated: "2026-05-31T19:30:29.630Z"
 progress:
-  total_phases: 10
+  total_phases: 11
   completed_phases: 9
-  total_plans: 36
-  completed_plans: 36
+  total_plans: 39
+  completed_plans: 37
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-30  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 10 COMPLETE — F4-AUDIO / F8-UPLOAD / F16-AUTOCLASSIFY all delivered  
-**Last session:** 2026-05-30T21:00:00.000Z
-**Stopped at:** Completed 10-03: classId wire-through + smoke test approved — Phase 10 COMPLETE (all 36 plans done)
+**Last session:** 2026-05-31T19:30:29.627Z
+**Stopped at:** Completed 11-01: migration 0019 + validateDocFile + heic-convert + extract-note-doc Edge Function
 
 ---
 
@@ -46,6 +46,18 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 11 decisions (11-01)
+
+- doc_extract added to LogParams.feature union in both safety.ts mirrors (Next.js + Deno) per Deno-mirror convention from Phase 9
+- heic2any dynamic import in convertHeicToJpeg defers 200KB gzip bundle to runtime — only loaded when user picks HEIC file
+- uint8ArrayToBase64 chunks at 8192 bytes to prevent btoa stack overflow on large files (Pitfall 2 guard)
+- Extension routing in extract-note-doc Edge Function uses storageKey extension, never blob.type (Pitfall 4 guard)
+- MIN_EXTRACT_CHARS=20 in Edge Function mirrors Phase 10 Pitfall 7 guard — < 20 chars returns tooShort:true without chaining transcribe-note
+- HEIC/HEIF rejected at Edge Function boundary with calm error "Please share this photo as JPEG" — UI handles conversion before upload (Pitfall 1 guard)
+- DOC_MAX_FILE_BYTES=20MB hard block keeps base64-encoded payload (26.6 MB) safely under Anthropic 32 MB request limit (Pitfall 3 guard)
+- note-docs bucket creation deferred to Wave 3 (11-03) via Supabase MCP — SQL migrations cannot manage storage.buckets safely
+- No @types/heic2any package exists (2026-05); type shape declared inline in heic-convert.ts
 
 ## Phase 10 decisions (10-03)
 
@@ -345,6 +357,7 @@ progress:
 ### Roadmap Evolution
 
 - Phase 8 added: Provider Wiring + Scorer Interleaving + Intentions Evening Trigger
+- Phase 11 added: Photo and PDF upload to notes — Claude Vision/PDF extraction → transcribe-note cleanup pipeline + auto-class routing
 
 ## Repo pointers
 
