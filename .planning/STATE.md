@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Executing Phase 09
-stopped_at: "09-08 complete: F13 parent share + F14 teacher snapshot delivered"
-last_updated: "2026-05-30T18:21:00.000Z"
+stopped_at: "Completed 09-07: AI transparency surfaces (AiTooltip, AiUsageLog, onboarding literacy step)"
+last_updated: "2026-05-31T01:25:35.903Z"
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 33
-  completed_plans: 31
+  completed_plans: 32
 ---
 
 # Diana — Project State
@@ -17,8 +17,8 @@ progress:
 **Last updated:** 2026-05-29  
 **Current branch:** `claude/adhd-app-jxpn9`  
 **Active phase:** Phase 7 (Polish + Tier 2 — Slice 6) — VERIFIED (v1.0 COMPLETE)  
-**Last session:** 2026-05-31T01:03:36.532Z
-**Stopped at:** 09-05 checkpoint: Tasks 1-5 complete, awaiting Task 6 human-verify (Google Classroom OAuth + real-account sync test)
+**Last session:** 2026-05-31T01:25:35.900Z
+**Stopped at:** Completed 09-07: AI transparency surfaces (AiTooltip, AiUsageLog, onboarding literacy step)
 
 ---
 
@@ -46,6 +46,17 @@ progress:
 - No interrupt-recovery breadcrumb
 - `task_signals` rows inserted but scorer ignores them
 - Shame-management stubbed (slice 4) — should be slice-1 invariant
+
+## Phase 9 decisions (09-07)
+
+- AiTooltip conditionally shown only when AI output is visible (history.length>0, result!=null, example!=null) — tooltip at point of use, never before request fires
+- tokensToWords: tokens/4 rounded to nearest 10 — calm approximate word count ("About N words of AI help")
+- "AI was used on this assignment N times" framing (never "You used AI") — calm peer-register invariant
+- Onboarding literacy step uses step state ('form'|'literacy') — commit() extracted from onSubmit() to separate form validation from actual save
+- Skip for now bypasses literacy step — user-initiated skip acceptable; literacy step is for new completions only
+- @testing-library/jest-dom + vitest.setup.ts added — required for toBeInTheDocument matchers in jsdom component tests
+- afterEach(cleanup) added to component test files — prevents DOM pollution between tests in same file
+- BreakdownPanel AiTooltip deferred — AI_FEATURE_DESCRIPTIONS["task_breakdown"] ready; wire when component ships
 
 ## Phase 9 decisions (09-08)
 
