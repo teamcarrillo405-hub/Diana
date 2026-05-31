@@ -193,3 +193,110 @@ export async function triggerAudioTranscription(
 
   return { ok: true, text };
 }
+
+/**
+ * Phase 11: F04-PHOTO / F08-NOTE — photo & PDF upload to Supabase Storage.
+ * Mirrors uploadNoteAudio but uses the note-docs bucket and accepts the
+ * "doc" FormData field (image or PDF; HEIC is already converted to JPEG
+ * by DocUploadTab before this action runs — see lib/notes/heic-convert.ts
+ * and Pitfall 1 in RESEARCH.md).
+ */
+export async function uploadNoteDoc(
+  formData: FormData,
+): Promise<{ ok: true; storageKey: string } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const file = formData.get("doc") as File | null;
+  if (!file) return { ok: false, error: "No file provided." };
+
+  // Trust the file extension (DocUploadTab has already validated + converted HEIC).
+  // Default to "jpg" if missing — Storage requires a key with extension.
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
+  const storageKey = `${user.id}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from("note-docs")
+    .upload(storageKey, file, { contentType: file.type });
+
+  if (error) return { ok: false, error: error.message };
+  return { ok: true, storageKey };
+}
+
+const TriggerDocInput = z.object({
+  noteId:     z.string().uuid(),
+  storageKey: z.string().min(1),
+});
+
+const MIN_DOC_EXTRACT_CHARS = 20;
+
+/**
+ * Phase 11 orchestrator. Mirrors triggerAudioTranscription (Phase 10).
+ *
+ * Why a separate action from triggerAudioTranscription: keeps each pipeline
+ * single-purpose. Storage bucket, Edge Function, and downstream state are
+ * different enough that conflating them would obscure the flow.
+ *
+ * Why AWAIT extract-note-doc but not transcribe-note: extract-note-doc
+ * INTERNALLY fires-and-forgets transcribe-note. We only need its text result
+ * to (a) confirm body_text was written (the Edge Function handles the write) and
+ * (b) return text for class routing in the client via scoreClassMatch.
+ *
+ * Pitfall 5 (RESEARCH.md): extract returns tooShort:true when text < 20 chars
+ * (matches Phase 10 Pitfall 7 for Whisper). We surface bodyTooShort:true so
+ * the UI shows a calm message.
+ */
+export async function triggerDocExtraction(
+  input: z.infer<typeof TriggerDocInput>,
+): Promise<
+  | { ok: true; text: string; bodyTooShort?: false }
+  | { ok: true; text: ""; bodyTooShort: true }
+  | { ok: false; error: string }
+> {
+  const parsed = TriggerDocInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  // Belt-and-suspenders: confirm the note belongs to the caller.
+  const { data: note, error: noteErr } = await supabase
+    .from("notes")
+    .select("id, owner_id")
+    .eq("id", parsed.data.noteId)
+    .single();
+  if (noteErr || !note || note.owner_id !== user.id) {
+    return { ok: false, error: "Note not found." };
+  }
+
+  // AWAITED: extract-note-doc runs Claude Vision/PDF synchronously.
+  // It also writes body_text + doc_storage_key and fires-and-forgets
+  // transcribe-note internally — we don't have to chain it here.
+  const { data, error } = await supabase.functions.invoke("extract-note-doc", {
+    body: {
+      storageKey: parsed.data.storageKey,
+      noteId:     parsed.data.noteId,
+      bucket:     "note-docs",
+    },
+  });
+
+  if (error || !data?.ok) {
+    return { ok: false, error: "We couldn't process your file. Try a clearer photo or a smaller PDF." };
+  }
+
+  const text = typeof data.text === "string" ? data.text : "";
+
+  // Pitfall 5 surface: tooShort comes back from extract-note-doc directly.
+  if (data.tooShort === true || text.length < MIN_DOC_EXTRACT_CHARS) {
+    revalidatePath("/notes");
+    revalidatePath(`/notes/${parsed.data.noteId}`);
+    return { ok: true, text: "", bodyTooShort: true };
+  }
+
+  revalidatePath("/notes");
+  revalidatePath(`/notes/${parsed.data.noteId}`);
+
+  return { ok: true, text };
+}
