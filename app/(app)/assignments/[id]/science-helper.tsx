@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Atom, Beaker, FlaskConical, GitBranch, NotebookText, Sigma } from "lucide-react";
 import { AiTooltip } from "@/components/ai-tooltip";
+import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { requestScienceScaffold } from "./ai-tools-actions";
 import type { ScienceScaffoldMode, ScienceScaffoldResult } from "@/lib/science/scaffold";
 
@@ -51,15 +52,21 @@ export function ScienceHelper({
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+    <SubjectToolShell
+      theme="science"
+      eyebrow="Science lab"
+      title={open ? "Hypothesis cards" : "Open science lab"}
+      subtitle={open ? "Predict, test, explain, and check the model." : "Turn prompts into lab-ready thinking cards."}
+      icon={FlaskConical}
+    >
       {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground"
+          className="touch-target inline-flex w-full items-center justify-center gap-2 rounded-xl border border-subject-science/25 bg-surface-raised px-4 py-2 text-sm font-medium text-teal-700 hover:bg-subject-science/10 dark:text-teal-300"
         >
           <FlaskConical size={13} />
-          Open science scaffold
+          Open hypothesis cards
         </button>
       ) : (
         <>
@@ -89,7 +96,7 @@ export function ScienceHelper({
                 disabled={loading || !prompt.trim()}
                 className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs ${
                   activeMode === mode
-                    ? "border-accent bg-accent/10 text-accent"
+                    ? "border-subject-science bg-subject-science/10 text-teal-700 dark:text-teal-300"
                     : "border-border text-muted hover:bg-border/30"
                 } disabled:opacity-50`}
               >
@@ -147,6 +154,6 @@ export function ScienceHelper({
           )}
         </>
       )}
-    </section>
+    </SubjectToolShell>
   );
 }

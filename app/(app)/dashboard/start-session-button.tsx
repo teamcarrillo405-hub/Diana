@@ -9,7 +9,7 @@ export function StartSessionButton({ roughMode = false, difficulty = null }: { r
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm hover:bg-border/30"
+      className="touch-target inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-raised px-4 py-2 text-sm hover:bg-surface-soft"
     >
       <Timer size={16} />
       Start a work session

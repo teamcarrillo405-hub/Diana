@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FileText, Gauge, MessageSquare, Pencil, Quote, Wand2 } from "lucide-react";
 import { requestWritingAid, requestWritingCoauthor } from "./ai-tools-actions";
 import { AiTooltip } from "@/components/ai-tooltip";
+import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { authorshipPercent, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
 
 interface WritingAidProps {
@@ -13,7 +14,7 @@ interface WritingAidProps {
 
 const MODES: Array<{ mode: WritingCoauthorMode; label: string; icon: typeof FileText }> = [
   { mode: "essay_scaffold", label: "Scaffold", icon: FileText },
-  { mode: "cowrite", label: "Ghost text", icon: Wand2 },
+  { mode: "cowrite", label: "Continuation", icon: Wand2 },
   { mode: "transition", label: "Transition", icon: MessageSquare },
   { mode: "evidence", label: "Evidence", icon: Quote },
   { mode: "argument", label: "Argument", icon: Pencil },
@@ -76,12 +77,18 @@ export function WritingAid({ assignmentId, classAiMode }: WritingAidProps) {
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+    <SubjectToolShell
+      theme="writing"
+      eyebrow="Writing studio"
+      title={open ? "Draft studio" : "Open draft studio"}
+      subtitle={open ? "Suggestions, chips, and authorship stay visible." : "Plan, revise, and keep the writing yours."}
+      icon={Pencil}
+    >
       {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground"
+          className="touch-target inline-flex w-full items-center justify-center gap-2 rounded-xl border border-subject-writing/25 bg-surface-raised px-4 py-2 text-sm font-medium text-violet-700 hover:bg-subject-writing/10 dark:text-violet-300"
         >
           <Pencil size={13} />
           Open writing studio
@@ -99,7 +106,7 @@ export function WritingAid({ assignmentId, classAiMode }: WritingAidProps) {
           </div>
 
           <div className="h-2 overflow-hidden rounded-full bg-border" aria-label="Student-authored text percentage">
-            <div className="h-full bg-accent" style={{ width: `${studentShare}%` }} />
+            <div className="h-full bg-subject-writing" style={{ width: `${studentShare}%` }} />
           </div>
 
           <textarea
@@ -170,9 +177,9 @@ export function WritingAid({ assignmentId, classAiMode }: WritingAidProps) {
                       <button
                         type="button"
                         onClick={() => acceptGhostText(suggestion.text)}
-                        className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-white"
+                        className="rounded-md bg-brand px-3 py-1 text-xs font-medium text-white"
                       >
-                        Accept ghost text
+                        Add continuation
                       </button>
                     )}
                   </div>
@@ -188,6 +195,6 @@ export function WritingAid({ assignmentId, classAiMode }: WritingAidProps) {
           )}
         </>
       )}
-    </section>
+    </SubjectToolShell>
   );
 }

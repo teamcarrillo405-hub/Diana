@@ -11,21 +11,23 @@ export function ReadingLoadToggle({ active }: { active: boolean }) {
   const baseParams = new URLSearchParams(params.toString());
   // Preserve ?energy=... but remove view
   baseParams.delete("view");
-  const offHref = pathname + "?" + baseParams.toString();
+  const offQuery = baseParams.toString();
+  const offHref = offQuery ? `${pathname}?${offQuery}` : pathname;
 
   const onParams = new URLSearchParams(params.toString());
   onParams.set("view", "reading-load");
-  const onHref = pathname + "?" + onParams.toString();
+  const onQuery = onParams.toString();
+  const onHref = onQuery ? `${pathname}?${onQuery}` : pathname;
 
   return (
-    <div className="flex items-center gap-2 text-xs">
-      <span className="text-muted">Sort by:</span>
+    <div className="flex flex-wrap items-center gap-2 text-xs">
+      <span className="font-medium uppercase tracking-wider text-muted">Sort</span>
       <Link
         href={offHref}
         className={
           !active
-            ? "rounded-full bg-accent/15 px-2 py-1 text-accent"
-            : "rounded-full border border-border px-2 py-1 text-muted hover:bg-border/30"
+            ? "touch-target inline-flex items-center rounded-full bg-brand/10 px-3 py-1 text-brand-strong dark:text-brand"
+            : "touch-target inline-flex items-center rounded-full border border-border px-3 py-1 text-muted hover:bg-surface-soft"
         }
       >
         Right now
@@ -34,8 +36,8 @@ export function ReadingLoadToggle({ active }: { active: boolean }) {
         href={onHref}
         className={
           active
-            ? "rounded-full bg-accent/15 px-2 py-1 text-accent"
-            : "rounded-full border border-border px-2 py-1 text-muted hover:bg-border/30"
+            ? "touch-target inline-flex items-center rounded-full bg-brand/10 px-3 py-1 text-brand-strong dark:text-brand"
+            : "touch-target inline-flex items-center rounded-full border border-border px-3 py-1 text-muted hover:bg-surface-soft"
         }
       >
         <span className="inline-flex items-center gap-1">

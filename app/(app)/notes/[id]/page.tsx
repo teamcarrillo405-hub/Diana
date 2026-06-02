@@ -54,11 +54,14 @@ export default async function NoteDetailPage({
 
   return (
     <div className="space-y-6">
-      <header className="space-y-1">
-        <Link href="/notes" className="text-xs text-muted hover:underline">
+      <header className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm sm:p-5">
+        <Link href="/notes" className="text-xs font-medium text-muted hover:underline">
           &larr; Notes
         </Link>
-        <h1 className="text-2xl font-bold">{n.title}</h1>
+        <p className="mt-3 text-xs font-medium uppercase tracking-wider text-violet-700 dark:text-violet-300">
+          Note detail
+        </p>
+        <h1 className="mt-1 text-3xl font-bold leading-tight">{n.title}</h1>
       </header>
 
       <NoteDetail

@@ -3,7 +3,7 @@ import { LoginForm } from "./form";
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="text-sm text-muted">Loading…</div>}>
+    <Suspense fallback={<div className="text-sm text-muted">Loading...</div>}>
       <LoginForm />
     </Suspense>
   );

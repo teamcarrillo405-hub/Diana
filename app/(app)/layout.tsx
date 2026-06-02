@@ -25,7 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <SideNav />
         <div className="flex min-w-0 flex-1 flex-col">
           <main className="flex-1 pb-20 md:pb-6">
-            <div className="mx-auto max-w-2xl px-4 py-6 md:max-w-3xl md:px-8">
+            <div className="mx-auto w-full max-w-2xl min-w-0 px-4 py-6 md:max-w-5xl md:px-8">
               {children}
             </div>
           </main>

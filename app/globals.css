@@ -6,11 +6,24 @@
   --bg: 248 250 252;       /* slate-50 */
   --fg: 15 23 42;          /* slate-900 */
   --muted: 100 116 139;    /* slate-500 */
-  --accent: 79 70 229;     /* indigo-600 */
+  --accent: 124 58 237;    /* violet-600 */
   --danger: 180 83 9;      /* amber-700 */
   --ok: 22 163 74;         /* green-600 */
   --card: 255 255 255;
   --border: 226 232 240;   /* slate-200 */
+  --surface: 248 250 252;
+  --surface-raised: 255 255 255;
+  --surface-soft: 241 245 249;
+  --brand: 124 58 237;
+  --brand-strong: 91 33 182;
+  --brand-soft: 237 233 254;
+  --subject-math: 14 165 233;
+  --subject-writing: 139 92 246;
+  --subject-reading: 16 185 129;
+  --subject-science: 20 184 166;
+  --subject-history: 245 158 11;
+  --subject-wellness: 244 114 182;
+  --subject-ap: 99 102 241;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -18,9 +31,15 @@
     --bg: 2 6 23;          /* slate-950 */
     --fg: 241 245 249;     /* slate-100 */
     --muted: 148 163 184;  /* slate-400 */
-    --accent: 129 140 248; /* indigo-400 */
+    --accent: 167 139 250; /* violet-400 */
     --card: 15 23 42;      /* slate-900 */
     --border: 30 41 59;    /* slate-800 */
+    --surface: 2 6 23;
+    --surface-raised: 15 23 42;
+    --surface-soft: 15 23 42;
+    --brand: 167 139 250;
+    --brand-strong: 196 181 253;
+    --brand-soft: 46 16 101;
   }
 }
 
@@ -29,17 +48,53 @@
   --bg: 2 6 23;          /* slate-950 */
   --fg: 241 245 249;     /* slate-100 */
   --muted: 148 163 184;  /* slate-400 */
-  --accent: 129 140 248; /* indigo-400 */
+  --accent: 167 139 250; /* violet-400 */
   --card: 15 23 42;      /* slate-900 */
   --border: 30 41 59;    /* slate-800 */
+  --surface: 2 6 23;
+  --surface-raised: 15 23 42;
+  --surface-soft: 15 23 42;
+  --brand: 167 139 250;
+  --brand-strong: 196 181 253;
+  --brand-soft: 46 16 101;
 }
 
-html, body { height: 100%; }
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   background: rgb(var(--bg));
   color: rgb(var(--fg));
   font-family: var(--font-lexend, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
   -webkit-font-smoothing: antialiased;
+}
+
+img, svg, video, canvas, input, textarea, select {
+  max-width: 100%;
+}
+
+.command-gradient {
+  background:
+    radial-gradient(circle at 20% 15%, rgb(var(--brand) / 0.18), transparent 28rem),
+    linear-gradient(135deg, rgb(var(--surface-raised)) 0%, rgb(var(--brand-soft) / 0.55) 45%, rgb(var(--surface-raised)) 100%);
+}
+
+.focus-surface {
+  background:
+    linear-gradient(135deg, rgb(var(--brand) / 0.14), rgb(var(--subject-reading) / 0.08)),
+    rgb(var(--surface-raised));
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
 }
 
 /* PWA: when running standalone, hide any browser-only chrome we might add. */

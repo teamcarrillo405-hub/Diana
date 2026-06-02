@@ -32,45 +32,51 @@ export default async function NotesPage({
 
   return (
     <div className="space-y-6">
-      <header className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-bold">Notes</h1>
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-violet-700 dark:text-violet-300">
+            Notes studio
+          </p>
+          <h1 className="mt-1 text-3xl font-bold leading-tight">Notes</h1>
+          <p className="mt-1 text-sm text-muted">Capture class thinking, then turn useful pieces into study tools.</p>
+        </div>
         <Link
           href="/notes/new"
-          className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white"
+          className="touch-target inline-flex w-full items-center justify-center rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-strong sm:w-auto"
         >
-          + New note
+          New note
         </Link>
       </header>
 
       <NoteSynthesisPanel />
 
-      <form action="/notes" className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4 sm:flex-row">
+      <form action="/notes" className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-raised p-4 sm:flex-row">
         <label className="min-w-0 flex-1">
           <span className="sr-only">Search notes</span>
           <input
             type="search"
             name="q"
             defaultValue={search}
-            className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm"
+            className="touch-target w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
             placeholder="Search notes"
           />
         </label>
         {tagFilter && <input type="hidden" name="tag" value={tagFilter} />}
         <button
           type="submit"
-          className="rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-border/30"
+          className="touch-target rounded-xl border border-border bg-surface px-3 py-2 text-sm hover:bg-surface-soft"
         >
           Search
         </button>
         {(search || tagFilter) && (
-          <Link href="/notes" className="rounded-md border border-border bg-card px-3 py-2 text-center text-sm hover:bg-border/30">
+          <Link href="/notes" className="touch-target inline-flex items-center justify-center rounded-xl border border-border bg-surface px-3 py-2 text-center text-sm hover:bg-surface-soft">
             Clear
           </Link>
         )}
       </form>
 
       {(!notes || notes.length === 0) ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+        <div className="rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
           <p className="text-lg font-medium">{search || tagFilter ? "No matching notes." : "No notes yet."}</p>
           <p className="mt-1 text-sm text-muted">
             {search || tagFilter
@@ -80,19 +86,19 @@ export default async function NotesPage({
           <div className="mt-4">
             <Link
               href="/notes/new"
-              className="rounded-md bg-accent px-3 py-2 text-sm text-white"
+              className="touch-target inline-flex items-center justify-center rounded-xl bg-brand px-3 py-2 text-sm text-white hover:bg-brand-strong"
             >
               Start a note
             </Link>
           </div>
         </div>
       ) : (
-        <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface-raised">
           {notes.map((n) => (
             <li key={n.id}>
               <Link
                 href={`/notes/${n.id}`}
-                className="block px-4 py-3 hover:bg-border/30"
+                className="block min-w-0 px-4 py-3 hover:bg-surface-soft"
               >
                 <div className="flex items-baseline gap-2">
                   <p className="truncate font-medium">{n.title}</p>

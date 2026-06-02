@@ -3,6 +3,7 @@ import { useState } from "react";
 import { BookOpen, Calculator, Camera, FlaskConical, PenLine, Ruler } from "lucide-react";
 import { requestMathStep, requestMathExample, requestMathScaffold, uploadMathPhoto } from "./ai-tools-actions";
 import { AiTooltip } from "@/components/ai-tooltip";
+import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { CALC_FORMULAS, PHYSICS_FORMULAS, ALGEBRA_FORMULAS, type Formula } from "@/lib/math/formulas";
 import type { MathScaffoldResult, MathSubject } from "@/lib/math/scaffold";
 
@@ -44,7 +45,13 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
   // Gate 2: yellow → render formula accordion only (formulas have zero AI cost — D-07)
   if (classAiMode === "yellow") {
     return (
-      <section className="space-y-3 rounded-xl border border-border bg-card p-4">
+      <SubjectToolShell
+        theme="math"
+        eyebrow="Math lab"
+        title="Formula board"
+        subtitle="Static references are available for this class mode."
+        icon={Calculator}
+      >
         <div className="flex items-center gap-2">
           <Calculator size={15} className="text-muted" />
           <p className="text-sm font-medium">Math tools</p>
@@ -83,7 +90,7 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
             );
           })}
         </div>
-      </section>
+      </SubjectToolShell>
     );
   }
 
@@ -171,15 +178,21 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+    <SubjectToolShell
+      theme="math"
+      eyebrow="Math lab"
+      title={open ? "Step board" : "Math step board"}
+      subtitle={open ? "Photo, units, graph shape, and the next line." : "Diana hints, never solves."}
+      icon={Calculator}
+    >
       {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground"
+          className="touch-target inline-flex w-full items-center justify-center gap-2 rounded-xl border border-subject-math/25 bg-surface-raised px-4 py-2 text-sm font-medium text-sky-700 hover:bg-subject-math/10 dark:text-sky-300"
         >
           <Calculator size={13} />
-          Help me with this math
+          Open step board
         </button>
       ) : (
         <>
@@ -363,7 +376,7 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
               disabled={loading || !prompt.trim()}
               className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
             >
-              {loading ? "Thinking…" : "Get a hint"}
+              {loading ? "Thinking..." : "Get a hint"}
             </button>
           </div>
 
@@ -396,7 +409,7 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
                 disabled={exampleLoading || !prompt.trim()}
                 className="rounded-md bg-accent px-3 py-1 text-xs font-medium text-white disabled:opacity-50"
               >
-                {exampleLoading ? "Writing…" : "Show example"}
+                {exampleLoading ? "Writing..." : "Show example"}
               </button>
             </div>
             {exampleError && (
@@ -447,6 +460,6 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
           </div>
         </>
       )}
-    </section>
+    </SubjectToolShell>
   );
 }

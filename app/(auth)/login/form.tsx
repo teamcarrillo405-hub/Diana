@@ -27,9 +27,13 @@ export function LoginForm() {
   }
 
   return (
-    <div className="space-y-6">
-      <header>
+    <div className="w-full min-w-0 space-y-6 rounded-3xl border border-border bg-surface-raised p-5 shadow-sm sm:p-6">
+      <header className="space-y-2">
+        <Link href="/" className="inline-flex text-sm font-bold text-brand">
+          Diana
+        </Link>
         <h1 className="text-2xl font-bold">Welcome back</h1>
+        <p className="text-sm text-muted">Open your focus command center.</p>
       </header>
 
       <form onSubmit={onSubmit} className="space-y-4">
@@ -67,9 +71,9 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={pending}
-          className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-white disabled:opacity-50"
+          className="touch-target w-full rounded-xl bg-brand px-4 py-3 font-medium text-white transition hover:bg-brand-strong disabled:opacity-50"
         >
-          {pending ? "Signing in…" : "Sign in"}
+          {pending ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
@@ -83,11 +87,13 @@ export function LoginForm() {
       <style jsx>{`
         :global(.input) {
           width: 100%;
+          box-sizing: border-box;
           border: 1px solid rgb(var(--border));
-          background: rgb(var(--card));
+          background: rgb(var(--surface-raised));
           color: rgb(var(--fg));
-          border-radius: 0.5rem;
-          padding: 0.625rem 0.75rem;
+          border-radius: 0.75rem;
+          min-height: 44px;
+          padding: 0.7rem 0.8rem;
           font-size: 1rem;
         }
       `}</style>

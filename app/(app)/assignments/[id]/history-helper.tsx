@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Columns3, FileText, GitBranch, Landmark, Map, Newspaper, ScrollText, Upload } from "lucide-react";
 import { AiTooltip } from "@/components/ai-tooltip";
+import { SubjectToolShell } from "@/components/subject-tool-shell";
 import {
   requestHistoryMapAnnotation,
   requestHistoryScaffold,
@@ -95,15 +96,21 @@ export function HistoryHelper({
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+    <SubjectToolShell
+      theme="history"
+      eyebrow="History desk"
+      title={open ? "Source analysis cards" : "Open source desk"}
+      subtitle={open ? "Source, cause, context, and map work in one place." : "Break sources into usable evidence."}
+      icon={Landmark}
+    >
       {!open ? (
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-foreground"
+          className="touch-target inline-flex w-full items-center justify-center gap-2 rounded-xl border border-subject-history/25 bg-surface-raised px-4 py-2 text-sm font-medium text-amber-700 hover:bg-subject-history/10 dark:text-amber-300"
         >
           <Landmark size={13} />
-          Open history scaffold
+          Open source desk
         </button>
       ) : (
         <>
@@ -142,7 +149,7 @@ export function HistoryHelper({
                 disabled={loading || !sourceText.trim()}
                 className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs ${
                   activeMode === mode
-                    ? "border-accent bg-accent/10 text-accent"
+                    ? "border-subject-history bg-subject-history/10 text-amber-700 dark:text-amber-300"
                     : "border-border text-muted hover:bg-border/30"
                 } disabled:opacity-50`}
               >
@@ -207,7 +214,7 @@ export function HistoryHelper({
           {status && <p className="text-sm text-muted">{status}</p>}
         </>
       )}
-    </section>
+    </SubjectToolShell>
   );
 }
 

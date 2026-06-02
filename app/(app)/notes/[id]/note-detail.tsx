@@ -166,7 +166,7 @@ export function NoteDetail({
           <select
             value={classId ?? ""}
             onChange={(e) => handleClassChange(e.target.value || null)}
-            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="touch-target w-full rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
           >
             <option value="">No class</option>
             {classes.map((c) => (
@@ -176,7 +176,7 @@ export function NoteDetail({
         </label>
       )}
 
-      <section className="space-y-3 rounded-lg border border-border bg-card p-4">
+      <section className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4">
         <div className="flex items-center justify-between gap-2">
           <h2 className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
             <Tags size={13} />
@@ -185,7 +185,7 @@ export function NoteDetail({
           <button
             type="button"
             onClick={requestSuggestedTags}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs text-muted hover:bg-border/30"
+            className="touch-target inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1 text-xs text-muted hover:bg-surface-soft"
           >
             <Sparkles size={13} />
             Suggest
@@ -197,7 +197,7 @@ export function NoteDetail({
               key={tag}
               type="button"
               onClick={() => removeTag(tag)}
-              className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent"
+              className="inline-flex items-center gap-1 rounded-full bg-subject-writing/10 px-2 py-0.5 text-xs text-violet-700 dark:text-violet-300"
               aria-label={`Remove ${tag}`}
             >
               {tag}
@@ -213,7 +213,7 @@ export function NoteDetail({
                 key={tag}
                 type="button"
                 onClick={() => addTag(tag)}
-                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-muted hover:bg-border/30"
+                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-muted hover:bg-surface-soft"
               >
                 <Plus size={11} />
                 {tag}
@@ -231,13 +231,13 @@ export function NoteDetail({
                 addTag(tagInput);
               }
             }}
-            className="min-w-0 flex-1 rounded-md border border-border bg-bg px-3 py-2 text-sm"
+            className="touch-target min-w-0 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm"
             placeholder="Add tag"
           />
           <button
             type="button"
             onClick={() => addTag(tagInput)}
-            className="rounded-md border border-border px-3 py-2 text-sm hover:bg-border/30"
+            className="touch-target rounded-xl border border-border px-3 py-2 text-sm hover:bg-surface-soft"
           >
             Add
           </button>
@@ -252,7 +252,7 @@ export function NoteDetail({
         </h2>
         <VocabHoverProvider ownerId={ownerId} aiMode={classAiMode} sourceType="note" sourceId={id}>
           <div
-            className="reading-view whitespace-pre-wrap rounded-lg border border-border bg-card p-4"
+            className="reading-view whitespace-pre-wrap rounded-2xl border border-subject-reading/25 p-4"
             onMouseUp={captureSelection}
             onKeyUp={captureSelection}
           >
@@ -289,7 +289,7 @@ export function NoteDetail({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Action items sent to inbox
           </h2>
-          <ul className="space-y-2 rounded-lg border border-border bg-card p-4 text-sm">
+          <ul className="space-y-2 rounded-2xl border border-border bg-surface-raised p-4 text-sm">
             {actionItems.map((item) => (
               <li key={item} className="text-muted">{item}</li>
             ))}
@@ -303,7 +303,7 @@ export function NoteDetail({
             Cleaned transcript
           </h2>
           <VocabHoverProvider ownerId={ownerId} aiMode={classAiMode} sourceType="note" sourceId={id}>
-            <div className="reading-view rounded-lg border border-border bg-card p-4">
+            <div className="reading-view rounded-2xl border border-subject-reading/25 p-4">
               {ttsOn && (
                 <TtsHighlightButton
                   text={transcriptText}
@@ -336,10 +336,10 @@ export function NoteDetail({
             type="button"
             onClick={handleTranscribe}
             disabled={transcribing || !bodyText.trim()}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-border/30 disabled:opacity-50"
+            className="touch-target inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm hover:bg-surface-soft disabled:opacity-50"
           >
             <Sparkles size={14} />
-            {transcribing ? "Thinking\u2026" : "Generate transcript + outline"}
+            {transcribing ? "Thinking..." : "Generate transcript + outline"}
           </button>
         </section>
       )}
@@ -350,7 +350,7 @@ export function NoteDetail({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Outline
           </h2>
-          <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+          <div className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4">
             {outline.map((node, i) => (
               <div key={i}>
                 <p className="text-sm font-medium">{node.heading}</p>
@@ -375,7 +375,7 @@ export function NoteDetail({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Related notes
           </h2>
-          <ul className="space-y-2 rounded-lg border border-border bg-card p-4">
+          <ul className="space-y-2 rounded-2xl border border-border bg-surface-raised p-4">
             {relatedNotes.map((note) => (
               <li key={note.id}>
                 <Link href={`/notes/${note.id}`} className="text-sm font-medium text-accent underline-offset-2 hover:underline">
@@ -405,14 +405,14 @@ export function NoteDetail({
             <button
               type="button"
               onClick={handleDelete}
-              className="rounded-md bg-accent px-3 py-1 text-sm font-medium text-white"
+              className="touch-target rounded-xl bg-danger px-3 py-1 text-sm font-medium text-white"
             >
               Yes, delete
             </button>
             <button
               type="button"
               onClick={() => setAskingDelete(false)}
-              className="rounded-md border border-border bg-card px-3 py-1 text-sm hover:bg-border/30"
+              className="touch-target rounded-xl border border-border bg-surface-raised px-3 py-1 text-sm hover:bg-surface-soft"
             >
               Keep
             </button>
@@ -438,7 +438,7 @@ function SelectionCardControl({
         type="button"
         onClick={onSave}
         disabled={!selectedText}
-        className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-muted hover:bg-border/30 disabled:opacity-50"
+        className="touch-target inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-raised px-3 py-1.5 text-xs text-muted hover:bg-surface-soft disabled:opacity-50"
       >
         <Plus size={13} />
         Create card from highlight

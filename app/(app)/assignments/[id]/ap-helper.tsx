@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { GraduationCap } from "lucide-react";
+import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { requestApScaffold } from "./ai-tools-actions";
 import {
   AP_SUBJECTS,
@@ -55,12 +57,13 @@ export function ApHelper({
   }
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
-      <div className="space-y-1">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">AP command helper</h2>
-        <p className="text-sm text-muted">Match the prompt to AP format before adding practice.</p>
-      </div>
-
+    <SubjectToolShell
+      theme="ap"
+      eyebrow="AP command"
+      title="Exam command center"
+      subtitle="Match the prompt to FRQ, MCQ, or a study plan before adding practice."
+      icon={GraduationCap}
+    >
       <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr]">
         <label className="space-y-1 text-sm">
           <span className="font-medium">Subject</span>
@@ -76,20 +79,32 @@ export function ApHelper({
             {AP_SUBJECTS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
           </select>
         </label>
-        <label className="space-y-1 text-sm">
+        <div className="space-y-1 text-sm">
           <span className="font-medium">Mode</span>
-          <select
-            value={mode}
-            onChange={(event) => {
-              const next = event.target.value as ApScaffoldMode;
-              setMode(next);
-              refreshLocal(subject, next);
-            }}
-            className="w-full rounded-md border border-border bg-background px-3 py-2"
-          >
-            {MODES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-          </select>
-        </label>
+          <div className="grid grid-cols-3 gap-2">
+            {MODES.map((item) => {
+              const active = item.value === mode;
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => {
+                    setMode(item.value);
+                    refreshLocal(subject, item.value);
+                  }}
+                  aria-pressed={active}
+                  className={`touch-target rounded-xl border px-2 py-2 text-xs font-medium ${
+                    active
+                      ? "border-subject-ap bg-subject-ap/10 text-indigo-700 dark:text-indigo-300"
+                      : "border-border bg-surface-raised text-muted hover:bg-surface-soft"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <textarea
@@ -104,19 +119,19 @@ export function ApHelper({
         type="button"
         onClick={run}
         disabled={pending || classAiMode !== "green" || prompt.trim().length < 2}
-        className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+        className="touch-target rounded-xl bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-strong disabled:opacity-50"
       >
         Build AP scaffold
       </button>
       {classAiMode !== "green" && <p className="text-sm text-muted">AI help is off for this class.</p>}
       {status && <p className="text-sm text-muted">{status}</p>}
 
-      <div className="space-y-3 rounded-xl border border-border bg-background p-3">
+      <div className="space-y-3 rounded-xl border border-subject-ap/25 bg-surface-raised p-3">
         <h3 className="text-sm font-medium">{result.title}</h3>
         {result.outline.length > 0 && (
           <div className="grid gap-2 md:grid-cols-2">
             {result.outline.map((step) => (
-              <article key={step.label} className="rounded-md border border-border bg-card p-3 text-sm">
+              <article key={step.label} className="rounded-md border border-border bg-background p-3 text-sm">
                 <p className="font-medium">{step.label}</p>
                 <p className="mt-1 text-muted">{step.prompt}</p>
                 <p className="mt-2 text-xs text-accent">{step.evidence}</p>
@@ -125,7 +140,7 @@ export function ApHelper({
           </div>
         )}
         {result.questions.map((question) => (
-          <article key={question.stem} className="rounded-md border border-border bg-card p-3 text-sm">
+          <article key={question.stem} className="rounded-md border border-border bg-background p-3 text-sm">
             <p className="font-medium">{question.stem}</p>
             <p className="mt-1 text-xs text-muted">Skill: {question.skill} | Best fit: {question.bestChoice}</p>
             <ul className="mt-2 space-y-1">
@@ -150,6 +165,6 @@ export function ApHelper({
           </ul>
         </div>
       </div>
-    </section>
+    </SubjectToolShell>
   );
 }

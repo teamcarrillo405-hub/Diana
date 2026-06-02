@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Search, Sparkles } from "lucide-react";
+import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { synthesizeNotes, type NoteSynthesisResult } from "./actions";
 
 export function NoteSynthesisPanel() {
@@ -29,11 +30,13 @@ export function NoteSynthesisPanel() {
   }
 
   return (
-    <section className="space-y-3 rounded-xl border border-border bg-card p-4" aria-label="Synthesize notes">
-      <div className="flex items-center gap-2">
-        <Sparkles size={16} className="text-accent" />
-        <h2 className="text-sm font-semibold">Ask across notes</h2>
-      </div>
+    <SubjectToolShell
+      theme="notes"
+      eyebrow="Notes studio"
+      title="Ask across notes"
+      subtitle="Pull a calm summary from the notes you already captured."
+      icon={Sparkles}
+    >
       <div className="flex flex-col gap-2 sm:flex-row">
         <label className="min-w-0 flex-1">
           <span className="sr-only">Question for notes</span>
@@ -43,7 +46,7 @@ export function NoteSynthesisPanel() {
             onKeyDown={(event) => {
               if (event.key === "Enter") runSynthesis();
             }}
-            className="w-full rounded-md border border-border bg-bg px-3 py-2 text-sm"
+            className="touch-target w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
             placeholder="What do my notes say about cells?"
           />
         </label>
@@ -51,7 +54,7 @@ export function NoteSynthesisPanel() {
           type="button"
           onClick={runSynthesis}
           disabled={pending}
-          className="inline-flex items-center justify-center gap-1.5 rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-strong disabled:opacity-50"
         >
           <Search size={15} />
           {pending ? "Reading..." : "Synthesize"}
@@ -61,7 +64,7 @@ export function NoteSynthesisPanel() {
       {error && <p className="rounded-md bg-border/40 px-3 py-2 text-sm text-muted">{error}</p>}
 
       {result && (
-        <div className="space-y-3 rounded-lg border border-border bg-bg p-4">
+        <div className="space-y-3 rounded-xl border border-border bg-surface-raised p-4">
           <p className="whitespace-pre-wrap text-sm leading-relaxed">{result.summary}</p>
           {result.citations.length > 0 && (
             <div className="space-y-1">
@@ -81,6 +84,6 @@ export function NoteSynthesisPanel() {
           )}
         </div>
       )}
-    </section>
+    </SubjectToolShell>
   );
 }

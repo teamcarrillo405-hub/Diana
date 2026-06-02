@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { HelpCircle } from "lucide-react";
+import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { AccessibleReadingText, type ReadingPrefs } from "@/components/accessible-reading-text";
 import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
@@ -51,7 +52,13 @@ export function ReadingPanel({
   }
 
   return (
-    <section className="reading-view space-y-4 rounded-2xl border border-border p-5" aria-label="Reading support">
+    <SubjectToolShell
+      theme="reading"
+      eyebrow="Reading room"
+      title="Annotation reader"
+      subtitle="Read aloud, vocabulary, and check-ins stay together."
+    >
+      <div className="reading-view space-y-4 rounded-2xl border border-subject-reading/25 p-4" aria-label="Reading support">
       <TtsHighlightButton
         text={text}
         provider={ttsProvider}
@@ -72,7 +79,7 @@ export function ReadingPanel({
             <button
               type="button"
               onClick={() => setScaffoldOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs text-muted transition-colors hover:text-foreground"
+              className="touch-target inline-flex items-center gap-2 rounded-xl border border-subject-reading/25 bg-surface-raised px-3 py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-subject-reading/10 dark:text-emerald-300"
             >
               <HelpCircle size={13} />
               Help me with this reading
@@ -88,7 +95,7 @@ export function ReadingPanel({
                   onClick={() => requestScaffold("pre")}
                   disabled={loadingScaffold}
                   aria-pressed={scaffoldType === "pre"}
-                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs transition-colors hover:bg-border/30 disabled:opacity-50"
+                  className="touch-target rounded-xl border border-border bg-surface-raised px-3 py-1.5 text-xs transition-colors hover:bg-surface-soft disabled:opacity-50"
                 >
                   Key vocabulary
                 </button>
@@ -97,7 +104,7 @@ export function ReadingPanel({
                   onClick={() => requestScaffold("mid")}
                   disabled={loadingScaffold}
                   aria-pressed={scaffoldType === "mid"}
-                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs transition-colors hover:bg-border/30 disabled:opacity-50"
+                  className="touch-target rounded-xl border border-border bg-surface-raised px-3 py-1.5 text-xs transition-colors hover:bg-surface-soft disabled:opacity-50"
                 >
                   What just happened?
                 </button>
@@ -106,7 +113,7 @@ export function ReadingPanel({
                   onClick={() => requestScaffold("post")}
                   disabled={loadingScaffold}
                   aria-pressed={scaffoldType === "post"}
-                  className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs transition-colors hover:bg-border/30 disabled:opacity-50"
+                  className="touch-target rounded-xl border border-border bg-surface-raised px-3 py-1.5 text-xs transition-colors hover:bg-surface-soft disabled:opacity-50"
                 >
                   Check understanding
                 </button>
@@ -123,7 +130,7 @@ export function ReadingPanel({
               )}
 
               {scaffoldResult && !loadingScaffold && (
-                <div className="whitespace-pre-wrap rounded-xl border border-border bg-card/60 p-4 text-sm leading-relaxed">
+                <div className="whitespace-pre-wrap rounded-xl border border-border bg-surface-raised/80 p-4 text-sm leading-relaxed">
                   {scaffoldResult}
                 </div>
               )}
@@ -131,6 +138,7 @@ export function ReadingPanel({
           )}
         </div>
       )}
-    </section>
+      </div>
+    </SubjectToolShell>
   );
 }

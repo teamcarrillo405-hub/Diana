@@ -4,11 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
 import { EnergyPicker } from "./energy-picker";
-import { TimeBar } from "./time-bar";
 import { TimeBudget } from "./time-budget";
 import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
-import { TtsButton } from "@/components/tts-button";
 import { computeNightBudget } from "@/lib/time-budget/compute";
 import { DueCards } from "./due-cards";
 import { TokenBudgetBanner } from "./token-budget-banner";
@@ -29,6 +27,7 @@ import {
   shouldShowMoodCheckIn,
 } from "@/lib/emotional/session";
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
+import { FocusHeroCard } from "./focus-hero-card";
 
 export default async function DashboardPage({
   searchParams,
@@ -56,8 +55,6 @@ export default async function DashboardPage({
     .neq("status", "abandoned")
     .order("due_at", { ascending: true, nullsFirst: false });
 
-  // GAP-08: scorer recency. Pull the latest 'started'/'completed' signals in
-  // the last 4 hours so rankAssignments can apply the momentum bump per task.
   const fourHoursAgoIso = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
   const { data: signals } = await supabase
     .from("task_signals")
@@ -67,7 +64,7 @@ export default async function DashboardPage({
     .order("occurred_at", { ascending: false });
 
   const recentSignals = (signals ?? [])
-    .filter((s): s is { assignment_id: string; occurred_at: string } => s.assignment_id !== null);
+    .filter((signal): signal is { assignment_id: string; occurred_at: string } => signal.assignment_id !== null);
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -122,7 +119,6 @@ export default async function DashboardPage({
   );
   const energy = search.energy ?? sleepAdjustment.energyOverride ?? adaptation.energyOverride ?? "medium";
 
-  // F12: due flashcards for dashboard tile (calm framing — never "you're behind")
   const { data: dueCards } = await supabase
     .from("flashcards")
     .select("id")
@@ -147,157 +143,78 @@ export default async function DashboardPage({
 
   const top = ranked[0];
   if (top?.class_id) {
-    // Fire-and-forget: persist for next render's interleaving.
     void setLastShownClass(top.class_id);
   }
   const rest = isReadingLoadView
     ? [...ranked]
-        .filter((a) => a.id !== top?.id)
+        .filter((assignment) => assignment.id !== top?.id)
         .sort((a, b) => (b.reading_load ?? 0) - (a.reading_load ?? 0))
         .slice(0, 5)
     : ranked.slice(1, 1 + adaptation.visibleTaskCount);
 
   const budget = computeNightBudget(
-    (assignments ?? []).map((a) => ({
-      id:                a.id,
-      title:             a.title,
-      classId:           a.class_id,
-      kind:              a.kind,
-      estimated_minutes: a.estimated_minutes,
-      reading_load:      a.reading_load,
-      due_at:            a.due_at,
-      status:            a.status,
+    (assignments ?? []).map((assignment) => ({
+      id: assignment.id,
+      title: assignment.title,
+      classId: assignment.class_id,
+      kind: assignment.kind,
+      estimated_minutes: assignment.estimated_minutes,
+      reading_load: assignment.reading_load,
+      due_at: assignment.due_at,
+      status: assignment.status,
     })),
     {
-      diagnoses:      profile?.diagnoses ?? [],
+      diagnoses: profile?.diagnoses ?? [],
       extra_time_pct: profile?.extra_time_pct ?? 0,
     },
   );
 
   const ttsOn = profile?.tts_enabled;
+  const topCreatedAt = top
+    ? (assignments ?? []).find((assignment) => assignment.id === top.id)?.created_at ?? null
+    : null;
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-bold">
+    <div className="space-y-7">
+      <header className="space-y-2">
+        <p className="text-xs font-medium uppercase tracking-wider text-brand-strong dark:text-brand">
+          Command center
+        </p>
+        <h1 className="text-3xl font-bold leading-tight">
           Hi {profile?.display_name || "there"}.
         </h1>
-        <p className="text-muted">Pick the next 5 minutes.</p>
+        <p className="max-w-2xl text-muted">
+          Your right-now plan adapts to energy, reading load, due dates, and what you already started.
+        </p>
       </header>
 
-      <DoneToday count={doneTodayCount} />
-
-      <ReminderBanner items={reminderItems} />
-
-      <MoodCheckIn
-        visible={shouldShowMoodCheckIn({
-          disabled: profile?.mood_checkin_disabled,
-          lastCheckInAt: profile?.last_mood_checkin_at,
-          now,
-        })}
-      />
-
-      <SessionAdaptationCard adaptation={adaptation} />
-
-      <BurnoutCue show={burnout.show} message={burnout.message} />
-
-      <SleepRecoveryCard message={sleepAdjustment.message} />
-
-      {profile && <TokenBudgetBanner profile={profile} />}
-
-      <EveningPlanning intentions={eveningIntentions} />
-
-      <WeeklyReflection
-        lastReflectedAt={profile?.last_weekly_reflection_at ?? null}
-        mood={profile?.session_mood ?? null}
-      />
-
-      <EnergyPicker current={energy} />
-      <ReadingLoadToggle active={isReadingLoadView} />
+      <section className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+        <EnergyPicker current={energy} />
+        <div className="rounded-2xl border border-border bg-surface-raised p-3">
+          <ReadingLoadToggle active={isReadingLoadView} />
+        </div>
+      </section>
 
       {!top ? (
-        <div className="space-y-2 rounded-2xl border border-border bg-card p-6 text-center">
-          <p className="text-lg font-semibold">Nothing on deck.</p>
-          <p className="text-sm text-muted">That&apos;s the goal.</p>
-          <Link
-            href="/assignments/new"
-            className="inline-block mt-2 text-sm text-accent hover:underline"
-          >
-            Add something?
-          </Link>
-        </div>
+        <EmptyState />
       ) : (
-        <section className="space-y-3 animate-slide-up">
-          <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-            Right now
-          </h2>
-          <div className="rounded-2xl border-2 border-accent/30 bg-card p-6 shadow-sm">
-            {(top as any).classes && (
-              <div className="mb-3 flex items-center gap-2">
-                <span
-                  className="inline-block h-2.5 w-2.5 rounded-full"
-                  style={{ background: (top as any).classes?.color ?? "#6366f1" }}
-                />
-                <span className="text-xs font-medium text-muted">
-                  {(top as any).classes?.name}
-                </span>
-              </div>
-            )}
-            <div className="flex items-start justify-between gap-3">
-              <Link href={`/assignments/${top.id}`} className="block group min-w-0 flex-1">
-                <p className="text-2xl font-bold leading-snug group-hover:text-accent transition-colors">
-                  {top.title}
-                </p>
-                <p className="mt-1 text-sm text-muted">
-                  {KIND_LABEL[top.kind]}
-                  {top.effective_minutes != null &&
-                    ` · ~${top.effective_minutes} min for you`}
-                </p>
-                {top.due_at && (
-                  <div className="mt-3">
-                    <TimeBar
-                      dueAt={top.due_at}
-                      createdAt={
-                        (assignments ?? []).find((a) => a.id === top.id)?.created_at ?? undefined
-                      }
-                      status={top.status as import("@/lib/supabase/types").AssignmentStatus}
-                      assignmentId={top.id}
-                    />
-                  </div>
-                )}
-                {top.reasons.length > 0 && (
-                  <ul className="mt-3 flex flex-wrap gap-1.5">
-                    {top.reasons.map((r) => (
-                      <li
-                        key={r}
-                        className="rounded-full bg-accent/15 px-2 py-0.5 text-xs text-accent"
-                      >
-                        {r}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Link>
-              <Link
-                href={`/assignments/${top.id}`}
-                className="shrink-0 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white"
-              >
-                Start
-              </Link>
-            </div>
-            {ttsOn && (
-              <div className="mt-3">
-                <TtsButton
-                  text={`${top.title}. ${KIND_LABEL[top.kind]}. ${top.due_at ? formatDueAt(top.due_at) : ""}.`}
-                  provider={profile?.tts_provider ?? "browser"}
-                  speed={Number(profile?.tts_speed ?? 1)}
-                  pitch={Number(profile?.tts_pitch ?? 1)}
-                  voice={profile?.tts_voice ?? "nova"}
-                />
-              </div>
-            )}
-          </div>
-        </section>
+        <FocusHeroCard
+          assignment={top as any}
+          createdAt={topCreatedAt}
+          energy={energy}
+          roughMode={adaptation.mood === "rough"}
+          tts={
+            ttsOn
+              ? {
+                  text: `${top.title}. ${KIND_LABEL[top.kind]}. ${top.due_at ? formatDueAt(top.due_at) : ""}.`,
+                  provider: profile?.tts_provider ?? "browser",
+                  speed: Number(profile?.tts_speed ?? 1),
+                  pitch: Number(profile?.tts_pitch ?? 1),
+                  voice: profile?.tts_voice ?? "nova",
+                }
+              : undefined
+          }
+        />
       )}
 
       {rest.length > 0 && (
@@ -305,31 +222,33 @@ export default async function DashboardPage({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             {isReadingLoadView ? "By reading load" : "Also on deck"}
           </h2>
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card animate-fade-in" style={{ animationDelay: "60ms" }}>
-            {rest.map((a) => (
-              <li key={a.id}>
+          <ul className="animate-fade-in divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface-raised" style={{ animationDelay: "60ms" }}>
+            {rest.map((assignment) => (
+              <li key={assignment.id}>
                 <Link
-                  href={`/assignments/${a.id}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-border/30"
+                  href={`/assignments/${assignment.id}`}
+                  className="flex min-w-0 items-center justify-between gap-3 px-4 py-3 hover:bg-surface-soft"
                 >
                   <div className="flex min-w-0 items-center gap-2">
-                    {(a as any).classes?.color && (
+                    {(assignment as any).classes?.color && (
                       <span
                         className="mt-0.5 h-2 w-2 shrink-0 rounded-full"
-                        style={{ background: (a as any).classes.color }}
+                        style={{ background: (assignment as any).classes.color }}
                       />
                     )}
                     <div className="min-w-0">
-                      <p className="truncate font-medium">{a.title}</p>
-                      <p className="text-xs text-muted">
-                        {KIND_LABEL[a.kind]}
-                        {a.due_at && ` · ${formatDueAt(a.due_at)}`}
+                      <p className="truncate font-medium">{assignment.title}</p>
+                      <p className="truncate text-xs text-muted">
+                        {KIND_LABEL[assignment.kind]}
+                        {assignment.due_at && ` | ${formatDueAt(assignment.due_at)}`}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    {isReadingLoadView && <ReadingLoadBadge load={a.reading_load} />}
-                    <span className="text-xs text-muted">{a.reasons[0] ?? ""}</span>
+                  <div className="flex shrink-0 items-center gap-3">
+                    {isReadingLoadView && <ReadingLoadBadge load={assignment.reading_load} />}
+                    <span className="hidden max-w-32 truncate text-xs text-muted sm:inline">
+                      {assignment.reasons[0] ?? ""}
+                    </span>
                   </div>
                 </Link>
               </li>
@@ -338,17 +257,47 @@ export default async function DashboardPage({
         </section>
       )}
 
+      <section className="space-y-3">
+        <details className="group">
+          <summary className="touch-target flex cursor-pointer items-center justify-between rounded-2xl border border-border bg-surface-raised px-4 py-3 text-sm font-medium">
+            <span>Support cues</span>
+            <span className="text-xs text-muted group-open:hidden">Show</span>
+            <span className="hidden text-xs text-muted group-open:inline">Hide</span>
+          </summary>
+          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+            <DoneToday count={doneTodayCount} />
+            <ReminderBanner items={reminderItems} />
+            <MoodCheckIn
+              visible={shouldShowMoodCheckIn({
+                disabled: profile?.mood_checkin_disabled,
+                lastCheckInAt: profile?.last_mood_checkin_at,
+                now,
+              })}
+            />
+            <SessionAdaptationCard adaptation={adaptation} />
+            <BurnoutCue show={burnout.show} message={burnout.message} />
+            <SleepRecoveryCard message={sleepAdjustment.message} />
+            {profile && <TokenBudgetBanner profile={profile} />}
+            <EveningPlanning intentions={eveningIntentions} />
+            <WeeklyReflection
+              lastReflectedAt={profile?.last_weekly_reflection_at ?? null}
+              mood={profile?.session_mood ?? null}
+            />
+          </div>
+        </details>
+      </section>
+
       <DueCards count={dueCount} firstCardId={firstDueId} />
 
       <TimeBudget totalMinutes={budget.totalMinutes} items={budget.items} />
 
-      <div className="flex flex-wrap gap-2 pt-2">
+      <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:flex-wrap">
         <StartSessionButton roughMode={adaptation.mood === "rough"} difficulty={top?.difficulty ?? null} />
         <Link
           href="/assignments/new"
-          className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm hover:bg-border/30"
+          className="touch-target inline-flex items-center justify-center rounded-xl border border-border bg-surface-raised px-4 py-2 text-sm hover:bg-surface-soft"
         >
-          + Add an assignment
+          Add an assignment
         </Link>
       </div>
     </div>
@@ -357,21 +306,21 @@ export default async function DashboardPage({
 
 function EmptyState() {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+    <div className="rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
       <p className="text-lg font-medium">Nothing on deck.</p>
       <p className="mt-1 text-sm text-muted">
         Add an assignment to get started. Or add a class first so it has somewhere to live.
       </p>
-      <div className="mt-4 flex justify-center gap-2">
+      <div className="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
         <Link
           href="/classes"
-          className="rounded-md border border-border px-3 py-2 text-sm hover:bg-border/30"
+          className="touch-target inline-flex items-center justify-center rounded-xl border border-border px-3 py-2 text-sm hover:bg-surface-soft"
         >
           Set up a class
         </Link>
         <Link
           href="/assignments/new"
-          className="rounded-md bg-accent px-3 py-2 text-sm text-white hover:opacity-90"
+          className="touch-target inline-flex items-center justify-center rounded-xl bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-strong"
         >
           Add an assignment
         </Link>
