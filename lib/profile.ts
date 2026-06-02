@@ -5,19 +5,37 @@ export type ProfilePrefs = Pick<
   Tables<"profiles">,
   | "user_id"
   | "display_name"
+  | "ai_verbosity_by_subject"
   | "age_bracket"
   | "class_count_hint"
   | "diagnoses"
   | "accommodations"
   | "school_year"
   | "extra_time_pct"
+  | "interests"
+  | "mastery_signals"
+  | "session_mood"
+  | "bionic_reading"
+  | "visual_pacing"
+  | "line_focus"
+  | "reading_letter_spacing"
+  | "reading_word_spacing"
   | "font_size"
   | "line_spacing"
+  | "last_mood_checkin_at"
+  | "last_weekly_reflection_at"
   | "dyslexia_font"
+  | "mood_checkin_disabled"
+  | "notification_preferences"
+  | "privacy_preferences"
   | "reduced_motion"
+  | "rough_mode_until"
   | "high_contrast"
   | "tts_enabled"
-  | "tts_provider" // F4/F6/F8: 'browser' | 'openai' — opt-in to Whisper STT + OpenAI TTS
+  | "tts_provider" // F4/F6/F8/F31: browser, OpenAI, or ElevenLabs TTS provider
+  | "tts_speed"
+  | "tts_pitch"
+  | "tts_voice"
   | "onboarded_at"
   | "consent_ai"
   | "timezone"
@@ -34,7 +52,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, tts_provider, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date",
+      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, interests, mastery_signals, session_mood, last_mood_checkin_at, last_weekly_reflection_at, mood_checkin_disabled, rough_mode_until, ai_verbosity_by_subject, notification_preferences, privacy_preferences, bionic_reading, visual_pacing, line_focus, reading_letter_spacing, reading_word_spacing, font_size, line_spacing, dyslexia_font, reduced_motion, high_contrast, tts_enabled, tts_provider, tts_speed, tts_pitch, tts_voice, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date",
     )
     .eq("user_id", user.id)
     .single();
@@ -57,6 +75,11 @@ export function profileBodyClass(p: ProfilePrefs | null): string {
     readingFontClass,
     p.reduced_motion ? "reduced-motion" : "",
     p.high_contrast ? "high-contrast" : "",
+    p.bionic_reading ? "bionic-reading" : "",
+    p.line_focus ? "line-focus" : "",
+    `visual-pacing-${p.visual_pacing}`,
+    `reading-letter-${p.reading_letter_spacing}`,
+    `reading-word-${p.reading_word_spacing}`,
   ]
     .filter(Boolean)
     // deduplicate (dyslexia_font=true AND reading_font=lexend both add dyslexia-font)

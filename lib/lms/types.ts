@@ -1,7 +1,7 @@
 // F15 — Shared types for LMS Calendar Import.
 // All three providers normalize through NormalizedAssignment before upsert.
 
-export type LmsProvider = "canvas" | "google_classroom" | "ics";
+export type LmsProvider = "canvas" | "google_classroom" | "ics" | "clever";
 
 export type LmsConnection = {
   id: string;
@@ -18,6 +18,8 @@ export type NormalizedAssignment = {
   description: string | null;
   due_at: string;               // ISO 8601 — fetchers MUST filter out null due dates
   external_source: LmsProvider;
+  external_url?: string | null;
+  rubric_text?: string | null;
 };
 
 export type SyncResult = {

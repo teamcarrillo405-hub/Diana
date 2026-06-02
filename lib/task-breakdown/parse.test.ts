@@ -5,10 +5,10 @@ const FALLBACK_STEP = { step: 1, action: "Read the assignment description.", min
 
 describe("parseStepsFromContent", () => {
   it("parses a clean JSON array with one step", () => {
-    const result = parseStepsFromContent('[{"step":1,"action":"Read pages 47-52","minutes":10}]');
+    const result = parseStepsFromContent('[{"step":1,"action":"Read pages 47-48","minutes":5}]');
     expect(result).toHaveLength(1);
-    expect(result[0].action).toBe("Read pages 47-52");
-    expect(result[0].minutes).toBe(10);
+    expect(result[0].action).toBe("Read pages 47-48");
+    expect(result[0].minutes).toBe(5);
     expect(result[0].done).toBe(false);
   });
 
@@ -30,10 +30,10 @@ describe("parseStepsFromContent", () => {
     expect(result[0]).toEqual(FALLBACK_STEP);
   });
 
-  it("clamps minutes > 15 to 15", () => {
+  it("clamps minutes > 5 to 5", () => {
     const result = parseStepsFromContent('[{"step":1,"action":"x","minutes":30}]');
     expect(result).toHaveLength(1);
-    expect(result[0].minutes).toBe(15);
+    expect(result[0].minutes).toBe(5);
   });
 
   it("drops steps with empty action; returns fallback if all invalid", () => {
@@ -60,7 +60,7 @@ describe("parseStepsFromContent", () => {
   it("renumbers steps after filtering", () => {
     const steps = [
       { step: 1, action: "", minutes: 5 },
-      { step: 2, action: "Valid step", minutes: 10 },
+      { step: 2, action: "Valid step", minutes: 5 },
     ];
     const result = parseStepsFromContent(JSON.stringify(steps));
     expect(result).toHaveLength(1);
@@ -81,8 +81,8 @@ describe("isValidStep", () => {
     expect(isValidStep({ step: 1, action: "x", minutes: 0 })).toBe(false);
   });
 
-  it("returns false for minutes > 15", () => {
-    expect(isValidStep({ step: 1, action: "x", minutes: 16 })).toBe(false);
+  it("returns false for minutes > 5", () => {
+    expect(isValidStep({ step: 1, action: "x", minutes: 6 })).toBe(false);
   });
 
   it("returns false when step field is missing", () => {

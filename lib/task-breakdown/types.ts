@@ -6,4 +6,4 @@ export interface BreakdownStep {
 }
 
 export const MAX_STEPS = 12;
-export const MAX_MINUTES_PER_STEP = 15;
+export const MAX_MINUTES_PER_STEP = 5;

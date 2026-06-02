@@ -14,6 +14,8 @@ export type ParentSummary = {
   completedThisWeek: number;
   upcomingNext7Days: number;
   studyMinutesThisWeek: number;
+  masteryConcepts: { name: string; level: number }[];
+  progressNotes: { authorName: string; noteText: string; createdAt: string }[];
   weekStartIso: string;
   expiresAt: string;
 };

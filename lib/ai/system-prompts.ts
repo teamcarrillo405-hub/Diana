@@ -26,6 +26,31 @@ export interface ComposeOptions {
   includeRefuseRedirect?: boolean; // default true
   includeFrustration?: boolean; // default true
   includeMinorSafety?: boolean; // default true
+  personalization?: string | null;
+}
+
+export function buildPersonalizationPrompt(input: {
+  interests?: readonly string[] | null;
+  sessionMood?: string | null;
+}): string | null {
+  const interests = (input.interests ?? [])
+    .map((interest) => interest.trim())
+    .filter(Boolean)
+    .slice(0, 5);
+
+  const lines: string[] = [];
+  if (interests.length > 0) {
+    lines.push(
+      `The student chose these interests: ${interests.join(", ")}. When an analogy would help, use one of these interests as context. Do not force an analogy into every response.`,
+    );
+  }
+  if (input.sessionMood === "rough") {
+    lines.push("The student marked this session as rough. Prefer shorter steps and fewer choices.");
+  } else if (input.sessionMood === "meh") {
+    lines.push("The student marked this session as meh. Keep the next step clear and lightweight.");
+  }
+
+  return lines.length > 0 ? `Student personalization:\n${lines.join("\n")}` : null;
 }
 
 export function composeSystemPrompt(
@@ -37,6 +62,7 @@ export function composeSystemPrompt(
   const includeMinor = opts.includeMinorSafety !== false;
   return [
     featureSpecificPrompt,
+    opts.personalization ?? null,
     CALM_TONE,
     includeRefuse ? REDIRECT_PROMPT : null,
     includeFrust ? FRUSTRATION_REDIRECT : null,

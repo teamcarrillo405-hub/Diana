@@ -27,10 +27,13 @@ export interface UseTtsHighlightReturn {
   supported: boolean;
 }
 
-export function useTtsHighlight(text: string): UseTtsHighlightReturn {
+export function useTtsHighlight(
+  text: string,
+  options: { initialRate?: number; pitch?: number } = {},
+): UseTtsHighlightReturn {
   const [state, setState] = useState<TtsState>("idle");
   const [highlightedWordIdx, setHighlightedWordIdx] = useState<number>(-1);
-  const [rate, setRate] = useState(1.0);
+  const [rate, setRate] = useState(options.initialRate ?? 1.0);
   const [supported] = useState(() =>
     typeof window !== "undefined" && "speechSynthesis" in window,
   );
@@ -60,6 +63,7 @@ export function useTtsHighlight(text: string): UseTtsHighlightReturn {
 
     const utter = new SpeechSynthesisUtterance(text);
     utter.rate = rate;
+    utter.pitch = options.pitch ?? 1.0;
     utterRef.current = utter;
     setState("playing");
 
@@ -97,7 +101,7 @@ export function useTtsHighlight(text: string): UseTtsHighlightReturn {
     };
 
     window.speechSynthesis.speak(utter);
-  }, [text, rate, words, supported, clearFallbackTimers]);
+  }, [text, rate, options.pitch, words, supported, clearFallbackTimers]);
 
   const pause = useCallback(() => {
     if (!supported || state !== "playing") return;

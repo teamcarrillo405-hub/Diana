@@ -12,6 +12,8 @@ type CanvasAssignment = {
   name: string;
   description: string | null;
   due_at: string | null;
+  html_url?: string | null;
+  rubric?: Array<{ description?: string; long_description?: string; points?: number }>;
 };
 
 function parseNextLink(linkHeader: string | null): string | null {
@@ -71,9 +73,23 @@ export async function fetchCanvasAssignments(
         description: a.description ?? null,
         due_at: a.due_at,
         external_source: "canvas",
+        external_url: a.html_url ?? null,
+        rubric_text: formatCanvasRubric(a.rubric),
       });
     }
   }
 
   return { items, skipped };
+}
+
+function formatCanvasRubric(rubric: CanvasAssignment["rubric"]): string | null {
+  if (!Array.isArray(rubric) || rubric.length === 0) return null;
+  return rubric
+    .map((item) => [
+      item.description?.trim(),
+      item.long_description?.trim(),
+      typeof item.points === "number" ? `${item.points} pts` : "",
+    ].filter(Boolean).join(" - "))
+    .filter(Boolean)
+    .join("\n");
 }

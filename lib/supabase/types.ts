@@ -10,6 +10,385 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      study_groups: {
+        Row: {
+          id: string;
+          owner_id: string;
+          name: string;
+          subject: string;
+          join_code: string;
+          visibility: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          name: string;
+          subject?: string;
+          join_code?: string;
+          visibility?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          name?: string;
+          subject?: string;
+          join_code?: string;
+          visibility?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      study_group_members: {
+        Row: {
+          group_id: string;
+          owner_id: string;
+          display_name: string | null;
+          role: string;
+          joined_at: string;
+        };
+        Insert: {
+          group_id: string;
+          owner_id: string;
+          display_name?: string | null;
+          role?: string;
+          joined_at?: string;
+        };
+        Update: {
+          group_id?: string;
+          owner_id?: string;
+          display_name?: string | null;
+          role?: string;
+          joined_at?: string;
+        };
+        Relationships: [];
+      };
+      study_group_sessions: {
+        Row: {
+          id: string;
+          group_id: string;
+          owner_id: string;
+          title: string;
+          work_minutes: number;
+          break_minutes: number;
+          starts_at: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          owner_id: string;
+          title: string;
+          work_minutes?: number;
+          break_minutes?: number;
+          starts_at?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          owner_id?: string;
+          title?: string;
+          work_minutes?: number;
+          break_minutes?: number;
+          starts_at?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      shared_flashcard_decks: {
+        Row: {
+          id: string;
+          group_id: string;
+          owner_id: string;
+          title: string;
+          source: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          owner_id: string;
+          title: string;
+          source?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          owner_id?: string;
+          title?: string;
+          source?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      shared_flashcard_cards: {
+        Row: {
+          id: string;
+          deck_id: string;
+          owner_id: string;
+          front: string;
+          back: string;
+          position: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          deck_id: string;
+          owner_id: string;
+          front: string;
+          back: string;
+          position?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          deck_id?: string;
+          owner_id?: string;
+          front?: string;
+          back?: string;
+          position?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      shared_flashcard_installs: {
+        Row: {
+          deck_id: string;
+          owner_id: string;
+          installed_at: string;
+        };
+        Insert: {
+          deck_id: string;
+          owner_id: string;
+          installed_at?: string;
+        };
+        Update: {
+          deck_id?: string;
+          owner_id?: string;
+          installed_at?: string;
+        };
+        Relationships: [];
+      };
+      collaborative_notes: {
+        Row: {
+          id: string;
+          group_id: string;
+          owner_id: string;
+          title: string;
+          body_text: string;
+          version: number;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          owner_id: string;
+          title?: string;
+          body_text?: string;
+          version?: number;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          owner_id?: string;
+          title?: string;
+          body_text?: string;
+          version?: number;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      peer_explanations: {
+        Row: {
+          id: string;
+          group_id: string;
+          owner_id: string;
+          concept: string;
+          explanation: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          owner_id: string;
+          concept: string;
+          explanation: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          owner_id?: string;
+          concept?: string;
+          explanation?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      group_project_tasks: {
+        Row: {
+          id: string;
+          group_id: string;
+          owner_id: string;
+          title: string;
+          assignee_name: string | null;
+          status: string;
+          due_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          group_id: string;
+          owner_id: string;
+          title: string;
+          assignee_name?: string | null;
+          status?: string;
+          due_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          group_id?: string;
+          owner_id?: string;
+          title?: string;
+          assignee_name?: string | null;
+          status?: string;
+          due_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      data_retention_runs: {
+        Row: {
+          id: string;
+          ran_at: string;
+          due_requests: number;
+          completed_requests: number;
+          notes: string | null;
+        };
+        Insert: {
+          id?: string;
+          ran_at?: string;
+          due_requests?: number;
+          completed_requests?: number;
+          notes?: string | null;
+        };
+        Update: {
+          id?: string;
+          ran_at?: string;
+          due_requests?: number;
+          completed_requests?: number;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
+      mastery_concepts: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string;
+          name: string;
+          source: string;
+          mastery_level: number;
+          self_confidence: number | null;
+          last_practiced_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id: string;
+          name: string;
+          source?: string;
+          mastery_level?: number;
+          self_confidence?: number | null;
+          last_practiced_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string;
+          name?: string;
+          source?: string;
+          mastery_level?: number;
+          self_confidence?: number | null;
+          last_practiced_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "mastery_concepts_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      mastery_events: {
+        Row: {
+          id: number;
+          owner_id: string;
+          concept_id: string;
+          source: string;
+          rating: number | null;
+          delta: number;
+          evidence_text: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          owner_id: string;
+          concept_id: string;
+          source: string;
+          rating?: number | null;
+          delta?: number;
+          evidence_text?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          owner_id?: string;
+          concept_id?: string;
+          source?: string;
+          rating?: number | null;
+          delta?: number;
+          evidence_text?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "mastery_events_concept_id_fkey";
+            columns: ["concept_id"];
+            isOneToOne: false;
+            referencedRelation: "mastery_concepts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       assignment_steps: {
         Row: {
           id: string;
@@ -175,6 +554,107 @@ export type Database = {
           },
         ];
       };
+      ap_exam_plans: {
+        Row: {
+          id: string;
+          owner_id: string;
+          subject: string;
+          exam_date: string;
+          goal_band: string | null;
+          current_focus: string | null;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          subject: string;
+          exam_date: string;
+          goal_band?: string | null;
+          current_focus?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          subject?: string;
+          exam_date?: string;
+          goal_band?: string | null;
+          current_focus?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ap_exam_plans_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      ap_practice_attempts: {
+        Row: {
+          id: string;
+          owner_id: string;
+          plan_id: string | null;
+          subject: string;
+          practice_type: string;
+          correct_count: number | null;
+          total_count: number | null;
+          score_band: string | null;
+          notes: string | null;
+          practiced_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          plan_id?: string | null;
+          subject: string;
+          practice_type: string;
+          correct_count?: number | null;
+          total_count?: number | null;
+          score_band?: string | null;
+          notes?: string | null;
+          practiced_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          plan_id?: string | null;
+          subject?: string;
+          practice_type?: string;
+          correct_count?: number | null;
+          total_count?: number | null;
+          score_band?: string | null;
+          notes?: string | null;
+          practiced_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ap_practice_attempts_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "ap_practice_attempts_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: false;
+            referencedRelation: "ap_exam_plans";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       assignment_type_estimates: {
         Row: {
           kind: string;
@@ -264,6 +744,7 @@ export type Database = {
           front: string;
           id: string;
           image_storage_key: string | null;
+          concept_id: string | null; // 0023 migration; manually annotated until supabase:types regen
           lapses: number;
           last_review_at: string | null;
           owner_id: string;
@@ -281,6 +762,7 @@ export type Database = {
           front: string;
           id?: string;
           image_storage_key?: string | null;
+          concept_id?: string | null; // 0023 migration; manually annotated until supabase:types regen
           lapses?: number;
           last_review_at?: string | null;
           owner_id: string;
@@ -298,6 +780,7 @@ export type Database = {
           front?: string;
           id?: string;
           image_storage_key?: string | null;
+          concept_id?: string | null; // 0023 migration; manually annotated until supabase:types regen
           lapses?: number;
           last_review_at?: string | null;
           owner_id?: string;
@@ -315,6 +798,13 @@ export type Database = {
             referencedRelation: "notes";
             referencedColumns: ["id"];
           },
+          {
+            foreignKeyName: "flashcards_concept_id_fkey"; // 0023 migration; manually annotated until supabase:types regen
+            columns: ["concept_id"];
+            isOneToOne: false;
+            referencedRelation: "mastery_concepts";
+            referencedColumns: ["id"];
+          },
         ];
       };
       notes: {
@@ -323,11 +813,16 @@ export type Database = {
           audio_storage_key: string | null;
           body_text: string;
           class_id: string | null; // 0018 migration; manually annotated until supabase:types regen
+          action_items_json: Json; // 0020 migration; manually annotated until supabase:types regen
+          ai_suggested_tags: string[]; // 0022 migration; manually annotated until supabase:types regen
           created_at: string;
           doc_storage_key: string | null; // 0019 migration; manually annotated until supabase:types regen
           id: string;
           outline_json: Json | null;
           owner_id: string;
+          search_vector: unknown; // 0022 generated column; manually annotated until supabase:types regen
+          source: string; // 0020 migration; manually annotated until supabase:types regen
+          tags: string[]; // 0022 migration; manually annotated until supabase:types regen
           title: string;
           transcript_text: string | null;
           updated_at: string;
@@ -337,11 +832,15 @@ export type Database = {
           audio_storage_key?: string | null;
           body_text?: string;
           class_id?: string | null; // 0018 migration; manually annotated until supabase:types regen
+          action_items_json?: Json; // 0020 migration; manually annotated until supabase:types regen
+          ai_suggested_tags?: string[]; // 0022 migration; manually annotated until supabase:types regen
           created_at?: string;
           doc_storage_key?: string | null; // 0019 migration; manually annotated until supabase:types regen
           id?: string;
           outline_json?: Json | null;
           owner_id: string;
+          source?: string; // 0020 migration; manually annotated until supabase:types regen
+          tags?: string[]; // 0022 migration; manually annotated until supabase:types regen
           title?: string;
           transcript_text?: string | null;
           updated_at?: string;
@@ -351,11 +850,15 @@ export type Database = {
           audio_storage_key?: string | null;
           body_text?: string;
           class_id?: string | null; // 0018 migration; manually annotated until supabase:types regen
+          action_items_json?: Json; // 0020 migration; manually annotated until supabase:types regen
+          ai_suggested_tags?: string[]; // 0022 migration; manually annotated until supabase:types regen
           created_at?: string;
           doc_storage_key?: string | null; // 0019 migration; manually annotated until supabase:types regen
           id?: string;
           outline_json?: Json | null;
           owner_id?: string;
+          source?: string; // 0020 migration; manually annotated until supabase:types regen
+          tags?: string[]; // 0022 migration; manually annotated until supabase:types regen
           title?: string;
           transcript_text?: string | null;
           updated_at?: string;
@@ -377,6 +880,144 @@ export type Database = {
           },
         ];
       };
+      vocabulary_terms: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          note_id: string | null;
+          assignment_id: string | null;
+          flashcard_id: string | null;
+          word: string;
+          context_text: string | null;
+          definition: string;
+          phonics: Json; // 0029 migration; manually annotated until supabase:types regen
+          source: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          note_id?: string | null;
+          assignment_id?: string | null;
+          flashcard_id?: string | null;
+          word: string;
+          context_text?: string | null;
+          definition: string;
+          phonics?: Json; // 0029 migration; manually annotated until supabase:types regen
+          source?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          note_id?: string | null;
+          assignment_id?: string | null;
+          flashcard_id?: string | null;
+          word?: string;
+          context_text?: string | null;
+          definition?: string;
+          phonics?: Json; // 0029 migration; manually annotated until supabase:types regen
+          source?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "vocabulary_terms_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "vocabulary_terms_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "vocabulary_terms_flashcard_id_fkey";
+            columns: ["flashcard_id"];
+            isOneToOne: false;
+            referencedRelation: "flashcards";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "vocabulary_terms_note_id_fkey";
+            columns: ["note_id"];
+            isOneToOne: false;
+            referencedRelation: "notes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      reading_annotations: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          note_id: string | null;
+          assignment_id: string | null;
+          selected_text: string;
+          note_text: string;
+          color: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          note_id?: string | null;
+          assignment_id?: string | null;
+          selected_text: string;
+          note_text: string;
+          color?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          note_id?: string | null;
+          assignment_id?: string | null;
+          selected_text?: string;
+          note_text?: string;
+          color?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "reading_annotations_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reading_annotations_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reading_annotations_note_id_fkey";
+            columns: ["note_id"];
+            isOneToOne: false;
+            referencedRelation: "notes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       inbox_items: {
         Row: {
           assignment_id: string | null;
@@ -386,6 +1027,7 @@ export type Database = {
           owner_id: string;
           photo_storage_key: string | null;
           raw: string;
+          source_note_id: string | null; // 0020 migration; manually annotated until supabase:types regen
           status: string;
           suggested_class_id: string | null;
           suggested_due_at: string | null;
@@ -401,6 +1043,7 @@ export type Database = {
           owner_id: string;
           photo_storage_key?: string | null;
           raw: string;
+          source_note_id?: string | null; // 0020 migration; manually annotated until supabase:types regen
           status?: string;
           suggested_class_id?: string | null;
           suggested_due_at?: string | null;
@@ -416,6 +1059,7 @@ export type Database = {
           owner_id?: string;
           photo_storage_key?: string | null;
           raw?: string;
+          source_note_id?: string | null; // 0020 migration; manually annotated until supabase:types regen
           status?: string;
           suggested_class_id?: string | null;
           suggested_due_at?: string | null;
@@ -436,6 +1080,13 @@ export type Database = {
             columns: ["suggested_class_id"];
             isOneToOne: false;
             referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inbox_items_source_note_id_fkey"; // 0020 migration; manually annotated until supabase:types regen
+            columns: ["source_note_id"];
+            isOneToOne: false;
+            referencedRelation: "notes";
             referencedColumns: ["id"];
           },
         ];
@@ -517,6 +1168,177 @@ export type Database = {
           },
         ];
       };
+      feature_flags: {
+        Row: {
+          id: string;
+          owner_id: string;
+          flag_key: string;
+          description: string | null;
+          enabled: boolean;
+          rollout_pct: number;
+          audience: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          flag_key: string;
+          description?: string | null;
+          enabled?: boolean;
+          rollout_pct?: number;
+          audience?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          flag_key?: string;
+          description?: string | null;
+          enabled?: boolean;
+          rollout_pct?: number;
+          audience?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      analytics_events: {
+        Row: {
+          id: number;
+          owner_id: string;
+          event_name: string;
+          feature: string | null;
+          route: string | null;
+          duration_ms: number | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          owner_id: string;
+          event_name: string;
+          feature?: string | null;
+          route?: string | null;
+          duration_ms?: number | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          owner_id?: string;
+          event_name?: string;
+          feature?: string | null;
+          route?: string | null;
+          duration_ms?: number | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      error_events: {
+        Row: {
+          id: number;
+          owner_id: string;
+          route: string | null;
+          message: string;
+          stack: string | null;
+          severity: string;
+          diagnosis_tags: string[];
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          owner_id: string;
+          route?: string | null;
+          message: string;
+          stack?: string | null;
+          severity?: string;
+          diagnosis_tags?: string[];
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          owner_id?: string;
+          route?: string | null;
+          message?: string;
+          stack?: string | null;
+          severity?: string;
+          diagnosis_tags?: string[];
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      performance_events: {
+        Row: {
+          id: number;
+          owner_id: string;
+          route: string;
+          metric_name: string;
+          value: number;
+          budget_value: number | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: number;
+          owner_id: string;
+          route: string;
+          metric_name: string;
+          value: number;
+          budget_value?: number | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: number;
+          owner_id?: string;
+          route?: string;
+          metric_name?: string;
+          value?: number;
+          budget_value?: number | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      experiments: {
+        Row: {
+          id: string;
+          owner_id: string;
+          experiment_key: string;
+          description: string | null;
+          surface: string;
+          variants: Json;
+          enabled: boolean;
+          allocation_pct: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          experiment_key: string;
+          description?: string | null;
+          surface?: string;
+          variants?: Json;
+          enabled?: boolean;
+          allocation_pct?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          experiment_key?: string;
+          description?: string | null;
+          surface?: string;
+          variants?: Json;
+          enabled?: boolean;
+          allocation_pct?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       assignments: {
         Row: {
           class_id: string;
@@ -525,8 +1347,10 @@ export type Database = {
           difficulty: number | null;
           due_at: string | null;
           estimated_minutes: number | null;
+          ai_mode_override: string | null; // 0030 migration; manually annotated until supabase:types regen
           external_id: string | null;
           external_source: string | null;
+          external_url: string | null; // 0024 migration; manually annotated until supabase:types regen
           id: string;
           kind: AssignmentKind;
           last_synced_at: string | null;
@@ -538,7 +1362,10 @@ export type Database = {
           rubric_id: string | null;
           status: string;
           submission_url: string | null;
+          submission_synced_at: string | null; // 0024 migration; manually annotated until supabase:types regen
+          submission_sync_status: string | null; // 0024 migration; manually annotated until supabase:types regen
           submitted_at: string | null;
+          rubric_text: string | null; // 0024 migration; manually annotated until supabase:types regen
           title: string;
           updated_at: string;
           writing_load: number;
@@ -550,8 +1377,10 @@ export type Database = {
           difficulty?: number | null;
           due_at?: string | null;
           estimated_minutes?: number | null;
+          ai_mode_override?: string | null; // 0030 migration; manually annotated until supabase:types regen
           external_id?: string | null;
           external_source?: string | null;
+          external_url?: string | null; // 0024 migration; manually annotated until supabase:types regen
           id?: string;
           kind?: AssignmentKind;
           last_synced_at?: string | null;
@@ -563,7 +1392,10 @@ export type Database = {
           rubric_id?: string | null;
           status?: string;
           submission_url?: string | null;
+          submission_synced_at?: string | null; // 0024 migration; manually annotated until supabase:types regen
+          submission_sync_status?: string | null; // 0024 migration; manually annotated until supabase:types regen
           submitted_at?: string | null;
+          rubric_text?: string | null; // 0024 migration; manually annotated until supabase:types regen
           title: string;
           updated_at?: string;
           writing_load?: number;
@@ -575,8 +1407,10 @@ export type Database = {
           difficulty?: number | null;
           due_at?: string | null;
           estimated_minutes?: number | null;
+          ai_mode_override?: string | null; // 0030 migration; manually annotated until supabase:types regen
           external_id?: string | null;
           external_source?: string | null;
+          external_url?: string | null; // 0024 migration; manually annotated until supabase:types regen
           id?: string;
           kind?: AssignmentKind;
           last_synced_at?: string | null;
@@ -588,7 +1422,10 @@ export type Database = {
           rubric_id?: string | null;
           status?: string;
           submission_url?: string | null;
+          submission_synced_at?: string | null; // 0024 migration; manually annotated until supabase:types regen
+          submission_sync_status?: string | null; // 0024 migration; manually annotated until supabase:types regen
           submitted_at?: string | null;
+          rubric_text?: string | null; // 0024 migration; manually annotated until supabase:types regen
           title?: string;
           updated_at?: string;
           writing_load?: number;
@@ -656,13 +1493,214 @@ export type Database = {
         };
         Relationships: [];
       };
+      class_roster_members: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string;
+          display_name: string;
+          email: string | null;
+          role: string;
+          status: string;
+          consent_visible: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id: string;
+          display_name: string;
+          email?: string | null;
+          role?: string;
+          status?: string;
+          consent_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string;
+          display_name?: string;
+          email?: string | null;
+          role?: string;
+          status?: string;
+          consent_visible?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "class_roster_members_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      teacher_progress_notes: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          assignment_id: string | null;
+          author_name: string;
+          note_text: string;
+          visible_to_parent: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          assignment_id?: string | null;
+          author_name: string;
+          note_text: string;
+          visible_to_parent?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          assignment_id?: string | null;
+          author_name?: string;
+          note_text?: string;
+          visible_to_parent?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "teacher_progress_notes_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "teacher_progress_notes_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      accommodation_confirmations: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          confirmed_by: string;
+          extra_time_pct: number;
+          tts_enabled: boolean;
+          dyslexia_font: boolean;
+          accommodations: Json;
+          notes: string | null;
+          confirmed_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          confirmed_by: string;
+          extra_time_pct?: number;
+          tts_enabled?: boolean;
+          dyslexia_font?: boolean;
+          accommodations?: Json;
+          notes?: string | null;
+          confirmed_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          confirmed_by?: string;
+          extra_time_pct?: number;
+          tts_enabled?: boolean;
+          dyslexia_font?: boolean;
+          accommodations?: Json;
+          notes?: string | null;
+          confirmed_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "accommodation_confirmations_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      session_handoffs: {
+        Row: {
+          owner_id: string;
+          route: string;
+          context: Json;
+          updated_at: string;
+        };
+        Insert: {
+          owner_id: string;
+          route: string;
+          context?: Json;
+          updated_at?: string;
+        };
+        Update: {
+          owner_id?: string;
+          route?: string;
+          context?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      data_deletion_requests: {
+        Row: {
+          id: string;
+          owner_id: string;
+          status: string;
+          requested_at: string;
+          ai_disabled_at: string | null;
+          export_offered: boolean;
+          notes: string | null;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          status?: string;
+          requested_at?: string;
+          ai_disabled_at?: string | null;
+          export_offered?: boolean;
+          notes?: string | null;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          status?: string;
+          requested_at?: string;
+          ai_disabled_at?: string | null;
+          export_offered?: boolean;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
       profiles: {
         Row: {
           accommodations: string[];
           age_bracket: string;
+          ai_verbosity_by_subject: Json; // 0032 migration; manually annotated until supabase:types regen
           class_count_hint: number | null;
           consent_ai: boolean;
           consent_ai_at: string | null;
+          bionic_reading: boolean; // 0021 migration; manually annotated until supabase:types regen
           created_at: string;
           daily_token_budget: number;
           date_of_birth: string;
@@ -672,25 +1710,43 @@ export type Database = {
           extra_time_pct: number;
           font_size: FontSize;
           high_contrast: boolean;
+          interests: string[]; // 0020 migration; manually annotated until supabase:types regen
+          line_focus: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing: LineSpacing;
+          last_mood_checkin_at: string | null; // 0025 migration; manually annotated until supabase:types regen
+          last_weekly_reflection_at: string | null; // 0025 migration; manually annotated until supabase:types regen
+          mastery_signals: Json; // 0020 migration; manually annotated until supabase:types regen
+          mood_checkin_disabled: boolean; // 0025 migration; manually annotated until supabase:types regen
           onboarded_at: string | null;
+          notification_preferences: Json; // 0032 migration; manually annotated until supabase:types regen
+          privacy_preferences: Json; // 0032 migration; manually annotated until supabase:types regen
+          reading_letter_spacing: ReadingSpacing; // 0021 migration; manually annotated until supabase:types regen
           reading_font: string;
+          reading_word_spacing: ReadingSpacing; // 0021 migration; manually annotated until supabase:types regen
           reduced_motion: boolean;
+          rough_mode_until: string | null; // 0025 migration; manually annotated until supabase:types regen
           school_year: number | null;
+          session_mood: string | null; // 0020 migration; manually annotated until supabase:types regen
           timezone: string;
           token_reset_date: string;
           tokens_used_today: number;
           tts_enabled: boolean;
-          tts_provider: string;
+          tts_pitch: number; // 0021 migration; manually annotated until supabase:types regen
+          tts_provider: TtsProvider;
+          tts_speed: number; // 0021 migration; manually annotated until supabase:types regen
+          tts_voice: string; // 0021 migration; manually annotated until supabase:types regen
           updated_at: string;
           user_id: string;
+          visual_pacing: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
         };
         Insert: {
           accommodations?: string[];
           age_bracket: string;
+          ai_verbosity_by_subject?: Json; // 0032 migration; manually annotated until supabase:types regen
           class_count_hint?: number | null;
           consent_ai?: boolean;
           consent_ai_at?: string | null;
+          bionic_reading?: boolean; // 0021 migration; manually annotated until supabase:types regen
           created_at?: string;
           daily_token_budget?: number;
           date_of_birth: string;
@@ -700,25 +1756,43 @@ export type Database = {
           extra_time_pct?: number;
           font_size?: FontSize;
           high_contrast?: boolean;
+          interests?: string[]; // 0020 migration; manually annotated until supabase:types regen
+          line_focus?: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing?: LineSpacing;
+          last_mood_checkin_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
+          last_weekly_reflection_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
+          mastery_signals?: Json; // 0020 migration; manually annotated until supabase:types regen
+          mood_checkin_disabled?: boolean; // 0025 migration; manually annotated until supabase:types regen
           onboarded_at?: string | null;
+          notification_preferences?: Json; // 0032 migration; manually annotated until supabase:types regen
+          privacy_preferences?: Json; // 0032 migration; manually annotated until supabase:types regen
+          reading_letter_spacing?: ReadingSpacing; // 0021 migration; manually annotated until supabase:types regen
           reading_font?: string;
+          reading_word_spacing?: ReadingSpacing; // 0021 migration; manually annotated until supabase:types regen
           reduced_motion?: boolean;
+          rough_mode_until?: string | null; // 0025 migration; manually annotated until supabase:types regen
           school_year?: number | null;
+          session_mood?: string | null; // 0020 migration; manually annotated until supabase:types regen
           timezone?: string;
           token_reset_date?: string;
           tokens_used_today?: number;
           tts_enabled?: boolean;
-          tts_provider?: string;
+          tts_pitch?: number; // 0021 migration; manually annotated until supabase:types regen
+          tts_provider?: TtsProvider;
+          tts_speed?: number; // 0021 migration; manually annotated until supabase:types regen
+          tts_voice?: string; // 0021 migration; manually annotated until supabase:types regen
           updated_at?: string;
           user_id: string;
+          visual_pacing?: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
         };
         Update: {
           accommodations?: string[];
           age_bracket?: string;
+          ai_verbosity_by_subject?: Json; // 0032 migration; manually annotated until supabase:types regen
           class_count_hint?: number | null;
           consent_ai?: boolean;
           consent_ai_at?: string | null;
+          bionic_reading?: boolean; // 0021 migration; manually annotated until supabase:types regen
           created_at?: string;
           daily_token_budget?: number;
           date_of_birth?: string;
@@ -728,20 +1802,71 @@ export type Database = {
           extra_time_pct?: number;
           font_size?: FontSize;
           high_contrast?: boolean;
+          interests?: string[]; // 0020 migration; manually annotated until supabase:types regen
+          line_focus?: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing?: LineSpacing;
+          last_mood_checkin_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
+          last_weekly_reflection_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
+          mastery_signals?: Json; // 0020 migration; manually annotated until supabase:types regen
+          mood_checkin_disabled?: boolean; // 0025 migration; manually annotated until supabase:types regen
           onboarded_at?: string | null;
+          notification_preferences?: Json; // 0032 migration; manually annotated until supabase:types regen
+          privacy_preferences?: Json; // 0032 migration; manually annotated until supabase:types regen
+          reading_letter_spacing?: ReadingSpacing; // 0021 migration; manually annotated until supabase:types regen
           reading_font?: string;
+          reading_word_spacing?: ReadingSpacing; // 0021 migration; manually annotated until supabase:types regen
           reduced_motion?: boolean;
+          rough_mode_until?: string | null; // 0025 migration; manually annotated until supabase:types regen
           school_year?: number | null;
+          session_mood?: string | null; // 0020 migration; manually annotated until supabase:types regen
           timezone?: string;
           token_reset_date?: string;
           tokens_used_today?: number;
           tts_enabled?: boolean;
-          tts_provider?: string;
+          tts_pitch?: number; // 0021 migration; manually annotated until supabase:types regen
+          tts_provider?: TtsProvider;
+          tts_speed?: number; // 0021 migration; manually annotated until supabase:types regen
+          tts_voice?: string; // 0021 migration; manually annotated until supabase:types regen
           updated_at?: string;
           user_id?: string;
+          visual_pacing?: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
         };
         Relationships: [];
+      };
+      iep_imports: {
+        Row: {
+          id: string;
+          owner_id: string;
+          source_name: string | null;
+          extracted_summary: Json;
+          applied_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          source_name?: string | null;
+          extracted_summary?: Json;
+          applied_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          source_name?: string | null;
+          extracted_summary?: Json;
+          applied_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "iep_imports_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       rubrics: {
         Row: {
@@ -902,6 +2027,281 @@ export type Database = {
           },
         ];
       };
+      wellness_activity_logs: {
+        Row: {
+          id: string;
+          owner_id: string;
+          logged_for: string;
+          activity_type: string;
+          duration_minutes: number;
+          felt: string;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          logged_for?: string;
+          activity_type: string;
+          duration_minutes: number;
+          felt: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          logged_for?: string;
+          activity_type?: string;
+          duration_minutes?: number;
+          felt?: string;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wellness_activity_logs_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      wellness_goals: {
+        Row: {
+          id: string;
+          owner_id: string;
+          title: string;
+          category: string;
+          target_text: string;
+          next_step: string | null;
+          active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          title: string;
+          category: string;
+          target_text: string;
+          next_step?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          title?: string;
+          category?: string;
+          target_text?: string;
+          next_step?: string | null;
+          active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "wellness_goals_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      sleep_logs: {
+        Row: {
+          id: string;
+          owner_id: string;
+          sleep_date: string;
+          sleep_quality: string;
+          sleep_hours: number | null;
+          focus_note: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          sleep_date?: string;
+          sleep_quality: string;
+          sleep_hours?: number | null;
+          focus_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          sleep_date?: string;
+          sleep_quality?: string;
+          sleep_hours?: number | null;
+          focus_note?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "sleep_logs_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      portfolios: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          title: string;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          title: string;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          title?: string;
+          description?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "portfolios_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "portfolios_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      portfolio_items: {
+        Row: {
+          id: string;
+          owner_id: string;
+          portfolio_id: string;
+          title: string;
+          reflection_text: string | null;
+          storage_bucket: string;
+          storage_key: string | null;
+          mime_type: string | null;
+          metadata: Json;
+          position: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          portfolio_id: string;
+          title: string;
+          reflection_text?: string | null;
+          storage_bucket?: string;
+          storage_key?: string | null;
+          mime_type?: string | null;
+          metadata?: Json;
+          position?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          portfolio_id?: string;
+          title?: string;
+          reflection_text?: string | null;
+          storage_bucket?: string;
+          storage_key?: string | null;
+          mime_type?: string | null;
+          metadata?: Json;
+          position?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "portfolio_items_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "portfolio_items_portfolio_id_fkey";
+            columns: ["portfolio_id"];
+            isOneToOne: false;
+            referencedRelation: "portfolios";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      student_reflections: {
+        Row: {
+          id: string;
+          owner_id: string;
+          week_start: string;
+          mood: string | null;
+          body: string;
+          ai_reflection: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          week_start: string;
+          mood?: string | null;
+          body: string;
+          ai_reflection?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          week_start?: string;
+          mood?: string | null;
+          body?: string;
+          ai_reflection?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "student_reflections_owner_id_fkey";
+            columns: ["owner_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       task_signals: {
         Row: {
           assignment_id: string | null;
@@ -939,7 +2339,28 @@ export type Database = {
       };
     };
     Views: { [_ in never]: never };
-    Functions: { [_ in never]: never };
+    Functions: {
+      join_study_group: {
+        Args: { p_join_code: string; p_display_name?: string | null };
+        Returns: string;
+      };
+      install_shared_deck_for_members: {
+        Args: { p_deck_id: string };
+        Returns: number;
+      };
+      is_study_group_member: {
+        Args: { p_group_id: string };
+        Returns: boolean;
+      };
+      is_study_group_owner: {
+        Args: { p_group_id: string };
+        Returns: boolean;
+      };
+      purge_due_deletion_requests: {
+        Args: { p_now?: string };
+        Returns: number;
+      };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };
@@ -967,6 +2388,9 @@ export type AssignmentKind =
 
 export type FontSize = "small" | "normal" | "large" | "xlarge";
 export type LineSpacing = "compact" | "normal" | "loose";
+export type VisualPacing = "off" | "word" | "line";
+export type ReadingSpacing = "normal" | "wide" | "wider";
+export type TtsProvider = "browser" | "openai" | "elevenlabs";
 
 export type Diagnosis =
   | "adhd"

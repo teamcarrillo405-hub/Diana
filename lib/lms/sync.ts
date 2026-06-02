@@ -9,6 +9,7 @@ const SHADOW_CLASS_TITLE: Record<LmsProvider, string> = {
   canvas: "Canvas (imported)",
   google_classroom: "Google Classroom (imported)",
   ics: "Calendar (imported)",
+  clever: "Clever (imported)",
 };
 
 async function ensureShadowClass(
@@ -57,6 +58,8 @@ export async function syncLmsAssignments(
     due_at: i.due_at,
     external_source: source,
     external_id: i.external_id,
+    external_url: i.external_url ?? null,
+    rubric_text: i.rubric_text ?? null,
     last_synced_at: now,
   }));
 

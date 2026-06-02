@@ -10,8 +10,23 @@ const BASE: ProfilePrefs = {
   class_count_hint: null,
   diagnoses: [],
   accommodations: [],
+  ai_verbosity_by_subject: {},
   school_year: null,
   extra_time_pct: 0,
+  interests: [],
+  mastery_signals: {},
+  session_mood: null,
+  last_mood_checkin_at: null,
+  last_weekly_reflection_at: null,
+  mood_checkin_disabled: false,
+  notification_preferences: {},
+  privacy_preferences: {},
+  rough_mode_until: null,
+  bionic_reading: false,
+  visual_pacing: "off",
+  line_focus: false,
+  reading_letter_spacing: "normal",
+  reading_word_spacing: "normal",
   font_size: "normal",
   line_spacing: "normal",
   dyslexia_font: false,
@@ -19,6 +34,9 @@ const BASE: ProfilePrefs = {
   high_contrast: false,
   tts_enabled: false,
   tts_provider: "browser",
+  tts_speed: 1,
+  tts_pitch: 1,
+  tts_voice: "nova",
   onboarded_at: null,
   consent_ai: false,
   timezone: "UTC",
@@ -57,5 +75,21 @@ describe("profileBodyClass reading_font", () => {
     const classes = profileBodyClass({ ...BASE, dyslexia_font: true, reading_font: "lexend" });
     const parts = classes.split(" ").filter((c) => c === "dyslexia-font");
     expect(parts).toHaveLength(1);
+  });
+
+  it("returns reading mode classes for Phase 13 preferences", () => {
+    const classes = profileBodyClass({
+      ...BASE,
+      bionic_reading: true,
+      visual_pacing: "line",
+      line_focus: true,
+      reading_letter_spacing: "wide",
+      reading_word_spacing: "wider",
+    });
+    expect(classes).toContain("bionic-reading");
+    expect(classes).toContain("line-focus");
+    expect(classes).toContain("visual-pacing-line");
+    expect(classes).toContain("reading-letter-wide");
+    expect(classes).toContain("reading-word-wider");
   });
 });

@@ -8,7 +8,7 @@ const FALLBACK_STEPS: BreakdownStep[] = [
 
 /**
  * Checks whether an unknown value looks like a valid step object.
- * Valid = has numeric step, non-empty action string, and minutes in [1, 15].
+ * Valid = has numeric step, non-empty action string, and minutes in [1, 5].
  */
 export function isValidStep(
   x: unknown,

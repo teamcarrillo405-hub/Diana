@@ -10,7 +10,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const MATH_PROMPT = `You are a Socratic math tutor for a high-school student.
 The student will share a math problem they are stuck on. Your rules:
@@ -96,11 +96,23 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("interests, session_mood")
+      .eq("user_id", ownerId)
+      .single();
+
+    const personalization = buildPersonalizationPrompt({
+      interests: Array.isArray(profile?.interests) ? profile.interests : [],
+      sessionMood: typeof profile?.session_mood === "string" ? profile.session_mood : null,
+    });
+
     // 5. Compose system prompt with F17 + F18 + MINOR_SAFETY fragments
     const systemPrompt = composeSystemPrompt(MATH_PROMPT, {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
+      personalization,
     });
 
     // 6. Build messages — cap history at last 6 turns (cost + frustration detection window)

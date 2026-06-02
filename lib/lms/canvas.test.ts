@@ -80,4 +80,25 @@ describe("fetchCanvasAssignments", () => {
     expect(r.items[0].external_source).toBe("canvas");
     expect(r.items[0].external_id).toBe("42");
   });
+
+  it("normalizes assignment links and rubric text", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(mockResponse([{ id: 1, name: "Math" }]))
+      .mockResolvedValueOnce(mockResponse([{
+        id: 42,
+        name: "HW",
+        due_at: "2026-07-01T23:59:00Z",
+        html_url: "https://canvas.test/courses/1/assignments/42",
+        rubric: [
+          { description: "Reasoning", long_description: "Show each step", points: 4 },
+          { description: "Units", points: 2 },
+        ],
+      }]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const r = await fetchCanvasAssignments({ base_url: "https://x.canvas.com", token: "t" });
+    expect(r.items[0].external_url).toBe("https://canvas.test/courses/1/assignments/42");
+    expect(r.items[0].rubric_text).toContain("Reasoning - Show each step - 4 pts");
+    expect(r.items[0].rubric_text).toContain("Units - 2 pts");
+  });
 });

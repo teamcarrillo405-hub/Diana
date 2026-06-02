@@ -10,6 +10,8 @@ export interface Note {
   audioStorageKey: string | null;
   transcriptText: string | null;
   outlineJson: OutlineNode[] | null;
+  tags: string[];
+  aiSuggestedTags: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -25,6 +27,7 @@ export interface Flashcard {
   id: string;
   ownerId: string;
   sourceNoteId: string | null;
+  conceptId: string | null;
   front: string;
   back: string;
   imageStorageKey: string | null;

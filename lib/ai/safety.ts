@@ -12,15 +12,29 @@ export interface LogParams {
   feature:
     | "math_step"
     | "writing_aid"
+    | "writing_cowrite"
     | "citation_gen"
     | "reading_scaffold"
+    | "reading_level"
+    | "science_scaffold"
+    | "history_scaffold"
+    | "cs_scaffold"
+    | "language_scaffold"
     | "transcribe_note"
     | "stt_transcribe"
     | "tts_generate"
     | "task_breakdown"
     | "math_example"
+    | "math_scaffold"
+    | "visual_tool"
     | "vocab_hover"
-    | "doc_extract";
+    | "doc_extract"
+    | "note_synthesis"
+    | "note_tags"
+    | "weekly_reflection"
+    | "arts_scaffold"
+    | "health_scaffold"
+    | "ap_scaffold";
   model: string;
   promptSummary: string;
   tokensUsed: number;
