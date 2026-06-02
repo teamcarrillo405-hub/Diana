@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { normalizeInterestIds } from "@/lib/student-identity/interests";
 
 const DIAGNOSES = z.enum([
   "adhd","dyslexia","dyscalculia","dysgraphia","asd","anxiety","other","none",
@@ -19,6 +20,7 @@ const Input = z.object({
   school_year: z.number().int().min(9).max(13).nullable(),
   extra_time_pct: z.number().int().min(0).max(100),
   class_count_hint: z.number().int().min(1).max(8).nullable(),
+  interests: z.array(z.string()).max(5).optional(),
   dyslexia_font: z.boolean().optional(),
   tts_enabled: z.boolean().optional(),
   line_spacing: LINE_SPACING.optional(),
@@ -39,6 +41,7 @@ export async function saveOnboarding(input: z.infer<typeof Input>) {
     school_year: parsed.data.school_year,
     extra_time_pct: parsed.data.extra_time_pct,
     class_count_hint: parsed.data.class_count_hint,
+    interests: normalizeInterestIds(parsed.data.interests),
     onboarded_at: new Date().toISOString(),
     ...(parsed.data.dyslexia_font !== undefined && { dyslexia_font: parsed.data.dyslexia_font }),
     ...(parsed.data.tts_enabled !== undefined && { tts_enabled: parsed.data.tts_enabled }),

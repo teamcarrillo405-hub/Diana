@@ -6,6 +6,7 @@ import {
   countThisWeek,
   type Completion,
 } from "@/lib/wins/group-by-day";
+import { quietMilestone } from "@/lib/emotional/session";
 import { WinsList } from "./wins-list";
 
 export default async function WinsPage() {
@@ -58,6 +59,7 @@ export default async function WinsPage() {
   const today = countToday(completions, now);
   const week = countThisWeek(completions, now);
   const groups = groupCompletionsByDay(completions, now);
+  const milestone = quietMilestone(week);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 py-6">
@@ -80,6 +82,13 @@ export default async function WinsPage() {
           </p>
         </div>
       </section>
+
+      {milestone && (
+        <section className="rounded-xl border border-border bg-card p-4">
+          <p className="text-xs uppercase tracking-wider text-muted">Quiet milestone</p>
+          <p className="mt-1 text-sm font-medium">{milestone}</p>
+        </section>
+      )}
 
       {groups.length === 0 ? (
         <section className="rounded-xl border border-dashed border-border bg-card p-8 text-center">

@@ -1,12 +1,15 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { VoiceTextarea } from "@/components/voice-textarea";
 import { useAutoSaveNote } from "@/lib/notes/auto-save";
 import type { ClassCandidate } from "@/lib/notes/class-router";
-import { createNote, saveNote } from "../actions";
+import { queueOfflineNoteSave, registerOfflineSync } from "@/lib/offline/store";
+import { createNote, saveNote, triggerNoteStructuring } from "../actions";
 import { AudioUploadTab } from "./audio-upload-tab";
 import { DocUploadTab } from "./doc-upload-tab";
+
+type NoteSource = "manual" | "voice" | "audio_upload" | "doc_upload" | "lecture";
 
 export function NoteEditor({
   assignmentId,
@@ -19,40 +22,83 @@ export function NoteEditor({
 }) {
   const router = useRouter();
   const [noteId, setNoteId] = useState<string | null>(null);
+  const noteIdRef = useRef<string | null>(null);
   const [title, setTitle] = useState("Untitled note");
   const [body, setBody] = useState("");
-  const [tab, setTab] = useState<"text" | "voice" | "audio" | "photo-pdf">("text");
+  const [tab, setTab] = useState<"text" | "voice" | "lecture" | "audio" | "photo-pdf">("text");
   // classId is captured here; 10-03 wires it into saveNote + createNote payloads.
   const [classId, setClassId] = useState<string | null>(null);
 
+  function sourceForCurrentTab(): NoteSource {
+    if (tab === "voice") return "voice";
+    if (tab === "lecture") return "lecture";
+    return "manual";
+  }
+
+  async function queueLocalDraft(targetNoteId: string | null, source: NoteSource) {
+    const tempId = targetNoteId ?? `new-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    await queueOfflineNoteSave({
+      tempId,
+      noteId: targetNoteId,
+      title,
+      bodyText: body,
+      classId,
+      assignmentId,
+      source,
+      updatedAt: new Date().toISOString(),
+    });
+    await registerOfflineSync();
+    return { ok: true as const };
+  }
+
   // The saver closure uses the latest title/body/classId and creates the row on first call.
   const saver = useCallback(async () => {
-    if (!noteId) {
-      const res = await createNote({ title, assignmentId, classId });
-      if (!res.ok) return { ok: false as const, error: res.error };
-      setNoteId(res.id);
-      const upd = await saveNote({
-        id:         res.id,
-        title,
-        bodyText:   body,
-        classId,
-      });
+    const source = sourceForCurrentTab();
+    try {
+      if (!noteId) {
+        const res = await createNote({ title, assignmentId, classId, source });
+        if (!res.ok) {
+          return !navigator.onLine
+            ? queueLocalDraft(null, source)
+            : { ok: false as const, error: res.error };
+        }
+        setNoteId(res.id);
+        noteIdRef.current = res.id;
+        const upd = await saveNote({
+          id:         res.id,
+          title,
+          bodyText:   body,
+          classId,
+          source,
+        });
+        if (!upd.ok && !navigator.onLine) return queueLocalDraft(res.id, source);
+        return upd.ok ? { ok: true as const } : { ok: false as const, error: upd.error };
+      }
+      const upd = await saveNote({ id: noteId, title, bodyText: body, classId });
+      if (!upd.ok && !navigator.onLine) return queueLocalDraft(noteId, source);
       return upd.ok ? { ok: true as const } : { ok: false as const, error: upd.error };
+    } catch (error) {
+      if (!navigator.onLine) return queueLocalDraft(noteId, source);
+      return { ok: false as const, error: error instanceof Error ? error.message : "Save paused." };
     }
-    const upd = await saveNote({ id: noteId, title, bodyText: body, classId });
-    return upd.ok ? { ok: true as const } : { ok: false as const, error: upd.error };
-  }, [noteId, title, body, assignmentId, classId]);
+  }, [noteId, title, body, assignmentId, classId, tab]);
 
   const { status, save, flushNow } = useAutoSaveNote(saver);
 
-  /** Called by AudioUploadTab before upload. Creates the note row if it doesn't exist yet. */
-  const ensureNoteId = useCallback(async (): Promise<string | null> => {
+  /** Called by upload tabs before upload. Creates the note row if it doesn't exist yet. */
+  const ensureNoteId = useCallback(async (source: NoteSource = sourceForCurrentTab()): Promise<string | null> => {
     if (noteId) return noteId;
-    const res = await createNote({ title, assignmentId, classId });
+    if (noteIdRef.current) return noteIdRef.current;
+    if (!navigator.onLine) {
+      await queueLocalDraft(null, source);
+      return null;
+    }
+    const res = await createNote({ title, assignmentId, classId, source });
     if (!res.ok) return null;
     setNoteId(res.id);
+    noteIdRef.current = res.id;
     return res.id;
-  }, [noteId, title, assignmentId, classId]);
+  }, [noteId, title, assignmentId, classId, tab]);
 
   // Schedule a save whenever title or body changes (after first character).
   useEffect(() => {
@@ -62,7 +108,15 @@ export function NoteEditor({
 
   async function handleDone() {
     await flushNow();
-    if (noteId) router.push(`/notes/${noteId}`);
+    const id = noteId ?? noteIdRef.current;
+    if (id) {
+      if (tab === "lecture" && body.trim().length >= 5) {
+        await triggerNoteStructuring({ noteId: id });
+      }
+      router.push(`/notes/${id}`);
+      return;
+    }
+    router.push("/notes");
   }
 
   return (
@@ -94,7 +148,7 @@ export function NoteEditor({
 
       {/* Tab switcher — Text / Voice (browser Web Speech API) / Audio / Photo/PDF */}
       <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
-        {(["text", "voice", "audio", "photo-pdf"] as const).map((t) => (
+        {(["text", "voice", "lecture", "audio", "photo-pdf"] as const).map((t) => (
           <button
             key={t}
             type="button"
@@ -105,6 +159,7 @@ export function NoteEditor({
           >
             {t === "text"      ? "Text"
               : t === "voice"  ? "Voice"
+              : t === "lecture" ? "Lecture"
               : t === "audio"  ? "Audio"
               : "Photo/PDF"}
           </button>
@@ -134,9 +189,27 @@ export function NoteEditor({
           provider={ttsProvider}
         />
       )}
+      {tab === "lecture" && (
+        <div className="space-y-2">
+          <VoiceTextarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            onTranscript={(chunk) =>
+              setBody((prev) => (prev ? prev + " " + chunk : chunk))
+            }
+            rows={14}
+            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+            placeholder="Start the mic, then let lecture notes land here."
+            provider={ttsProvider}
+          />
+          <p className="text-xs text-muted">
+            Lecture notes are marked for action-item extraction when you generate an outline.
+          </p>
+        </div>
+      )}
       {tab === "audio" && (
         <AudioUploadTab
-          ensureNoteId={ensureNoteId}
+          ensureNoteId={() => ensureNoteId("audio_upload")}
           onTranscriptReady={(text) => { setBody(text); setTab("text"); }}
           onClassSuggested={(id) => { if (id) setClassId(id); }}
           classCandidates={classCandidates}
@@ -144,7 +217,7 @@ export function NoteEditor({
       )}
       {tab === "photo-pdf" && (
         <DocUploadTab
-          ensureNoteId={ensureNoteId}
+          ensureNoteId={() => ensureNoteId("doc_upload")}
           onTranscriptReady={(text) => { setBody(text); setTab("text"); }}
           onClassSuggested={(id) => { if (id) setClassId(id); }}
           classCandidates={classCandidates}

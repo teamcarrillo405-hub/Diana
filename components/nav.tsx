@@ -8,21 +8,31 @@ import {
   Brain,
   Calendar,
   CheckSquare,
+  HeartPulse,
+  Images,
+  BarChart3,
   Settings as Cog,
   Timer,
   Sparkles,
   FileText,
+  GraduationCap,
+  UsersRound,
 } from "lucide-react";
 
 const ITEMS = [
   { href: "/dashboard", label: "Focus", icon: Home },
   { href: "/assignments", label: "Assignments", icon: CheckSquare },
   { href: "/notes", label: "Notes", icon: FileText },
+  { href: "/portfolio", label: "Portfolio", icon: Images },
+  { href: "/wellness", label: "Wellness", icon: HeartPulse },
+  { href: "/ap", label: "AP", icon: GraduationCap },
   { href: "/flashcards", label: "Study", icon: Brain },
+  { href: "/study-groups", label: "Groups", icon: UsersRound },
   { href: "/timer", label: "Timer", icon: Timer },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/wins", label: "Wins", icon: Sparkles },
   { href: "/classes", label: "Classes", icon: BookOpen },
+  { href: "/insights", label: "Insights", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: Cog },
 ] as const;
 

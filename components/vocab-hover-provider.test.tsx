@@ -14,6 +14,7 @@ describe('VocabHoverProvider', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     global.fetch = vi.fn();
+    window.localStorage.clear();
   });
 
   afterEach(() => {
@@ -28,7 +29,7 @@ describe('VocabHoverProvider', () => {
       json: async () => ({ definition: 'How plants make food.' }),
     });
     render(
-      <VocabHoverProvider>
+      <VocabHoverProvider ownerId="user-1" aiMode="green">
         <p data-testid="content">photosynthesis is cool</p>
       </VocabHoverProvider>
     );
@@ -81,7 +82,7 @@ describe('VocabHoverProvider', () => {
       json: async () => ({ definition: 'Cell division.' }),
     });
     render(
-      <VocabHoverProvider>
+      <VocabHoverProvider ownerId="user-1" aiMode="green">
         <p data-testid="c">mitosis</p>
       </VocabHoverProvider>
     );
@@ -98,7 +99,7 @@ describe('VocabHoverProvider', () => {
       json: async () => ({ definition: 'Cell division.' }),
     });
     render(
-      <VocabHoverProvider>
+      <VocabHoverProvider ownerId="user-1" aiMode="green">
         <p data-testid="c">mitosis</p>
       </VocabHoverProvider>
     );
@@ -110,17 +111,29 @@ describe('VocabHoverProvider', () => {
     });
   });
 
-  it('renders nothing on API failure (silent)', async () => {
+  it('keeps context clue on API failure without rendering definition', async () => {
     mockSelection('mitosis');
     (global.fetch as any).mockResolvedValue({ ok: false });
     render(
-      <VocabHoverProvider>
+      <VocabHoverProvider ownerId="user-1" aiMode="green">
         <p data-testid="c">mitosis</p>
       </VocabHoverProvider>
     );
     fireEvent.doubleClick(screen.getByTestId('c'));
-    // Give it a tick
-    await new Promise(r => setTimeout(r, 50));
-    expect(screen.queryByRole('dialog')).toBeNull();
+    await waitFor(() => screen.getByRole('dialog'));
+    expect(screen.queryByText('Cell division.')).toBeNull();
+  });
+
+  it('opens context clue on first hover without fetching definition', async () => {
+    render(
+      <VocabHoverProvider ownerId="user-1" aiMode="green">
+        <p data-testid="c" data-reading-surface="true">
+          Cells use <span data-vocab-word="mitosis">mitosis</span> to divide.
+        </p>
+      </VocabHoverProvider>
+    );
+    fireEvent.mouseOver(screen.getByText('mitosis'));
+    expect(await screen.findByRole('dialog')).toBeTruthy();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

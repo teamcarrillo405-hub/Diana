@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { saveOnboarding } from "./actions";
 import type { ProfilePrefs } from "@/lib/profile";
 import type { Diagnosis, Accommodation } from "@/lib/supabase/types";
+import { INTEREST_OPTIONS, normalizeInterestIds } from "@/lib/student-identity/interests";
 
 const DIAGNOSES = [
   { value: "adhd",        label: "I get distracted easily" },
@@ -49,6 +50,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
   const [year, setYear] = useState<number | null>(initial.school_year);
   const [extraTime, setExtraTime] = useState<number>(initial.extra_time_pct ?? 0);
   const [classCount, setClassCount] = useState<number | null>(initial.class_count_hint ?? null);
+  const [interests, setInterests] = useState<string[]>(normalizeInterestIds(initial.interests));
 
   function toggle(list: string[], setter: (xs: string[]) => void, value: string) {
     setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
@@ -62,6 +64,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
         school_year: year,
         extra_time_pct: extraTime,
         class_count_hint: classCount,
+        interests,
         // Smart defaults derived from diagnoses; the user can change in Settings.
         dyslexia_font: diagnoses.includes("dyslexia"),
         tts_enabled: diagnoses.includes("dyslexia"),
@@ -82,6 +85,14 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
     e.preventDefault();
     setError(null);
     setStep("literacy");
+  }
+
+  function toggleInterest(value: string) {
+    setInterests((current) => {
+      if (current.includes(value)) return current.filter((id) => id !== value);
+      if (current.length >= 5) return current;
+      return [...current, value];
+    });
   }
 
   if (step === "literacy") {
@@ -215,6 +226,26 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
         </div>
       </fieldset>
 
+      <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
+        <legend className="px-1 text-sm font-semibold">
+          5. Pick up to five interests
+        </legend>
+        <p className="text-xs text-muted">
+          Diana can use these for examples when an analogy would help.
+        </p>
+        <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-3">
+          {INTEREST_OPTIONS.map((interest) => (
+            <Chip
+              key={interest.id}
+              label={interest.label}
+              active={interests.includes(interest.id)}
+              onClick={() => toggleInterest(interest.id)}
+            />
+          ))}
+        </div>
+        <p className="text-xs text-muted">{interests.length}/5 selected</p>
+      </fieldset>
+
       {error && (
         <div className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
           {error}
@@ -232,6 +263,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
                 school_year: null,
                 extra_time_pct: 0,
                 class_count_hint: null,
+                interests,
               });
               router.push("/dashboard");
               router.refresh();

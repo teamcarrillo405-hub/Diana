@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sparkles } from "lucide-react";
 import { requestTaskBreakdown, toggleStepDone } from "./ai-tools-actions";
 import type { BreakdownStep } from "@/lib/task-breakdown/parse";
@@ -26,6 +26,8 @@ export function TaskBreakdown({
   const [steps, setSteps] = useState<BreakdownStep[]>(initialSteps);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [recovery, setRecovery] = useState<{ stepIndex: number; scrollY: number } | null>(null);
+  const stepRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   // Hidden when AI is fully off for this class
   if (classAiMode === "red") return null;
@@ -45,9 +47,36 @@ export function TaskBreakdown({
       setErrorMsg(res.error);
     } else {
       setSteps(res.steps);
+      saveRecovery(0, res.steps);
     }
     setLoading(false);
   }
+
+  useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(recoveryKey(assignmentId));
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { stepIndex?: unknown; scrollY?: unknown };
+      const stepIndex = typeof parsed.stepIndex === "number" ? parsed.stepIndex : 0;
+      const scrollY = typeof parsed.scrollY === "number" ? parsed.scrollY : 0;
+      if (steps[stepIndex]) setRecovery({ stepIndex, scrollY });
+    } catch {
+      // Ignore malformed local recovery state.
+    }
+  }, [assignmentId, steps]);
+
+  useEffect(() => {
+    function persistScroll() {
+      const nextIndex = firstOpenStepIndex(steps);
+      if (nextIndex >= 0) saveRecovery(nextIndex, steps);
+    }
+    window.addEventListener("pagehide", persistScroll);
+    document.addEventListener("visibilitychange", persistScroll);
+    return () => {
+      window.removeEventListener("pagehide", persistScroll);
+      document.removeEventListener("visibilitychange", persistScroll);
+    };
+  }, [assignmentId, steps]);
 
   async function handleToggle(index: number) {
     const current = steps[index];
@@ -57,6 +86,8 @@ export function TaskBreakdown({
       i === index ? { ...s, done: !s.done } : s,
     );
     setSteps(updated);
+    const nextIndex = firstOpenStepIndex(updated);
+    if (nextIndex >= 0) saveRecovery(nextIndex, updated);
     // Fire-and-forget server update
     void toggleStepDone({
       assignmentId,
@@ -79,6 +110,27 @@ export function TaskBreakdown({
         </p>
       )}
 
+      {recovery && steps[recovery.stepIndex] && (
+        <div className="rounded-md border border-border bg-background px-3 py-2 text-sm">
+          <p className="font-medium">
+            Welcome back. You were on step {recovery.stepIndex + 1} of {steps.length}. Continue?
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              window.scrollTo({ top: recovery.scrollY, behavior: "smooth" });
+              window.setTimeout(() => {
+                stepRefs.current[recovery.stepIndex]?.focus();
+              }, 250);
+              setRecovery(null);
+            }}
+            className="mt-2 rounded-md border border-border px-3 py-1.5 text-xs hover:bg-border/30"
+          >
+            Continue
+          </button>
+        </div>
+      )}
+
       {steps.length === 0 ? (
         <button
           type="button"
@@ -95,6 +147,9 @@ export function TaskBreakdown({
             {steps.map((step, i) => (
               <li key={i} className="flex items-start gap-2.5">
                 <input
+                  ref={(node) => {
+                    stepRefs.current[i] = node;
+                  }}
                   type="checkbox"
                   id={`step-${assignmentId}-${i}`}
                   checked={step.done}
@@ -125,4 +180,21 @@ export function TaskBreakdown({
       )}
     </section>
   );
+
+  function saveRecovery(stepIndex: number, currentSteps: BreakdownStep[]) {
+    if (typeof window === "undefined") return;
+    if (currentSteps.length === 0) return;
+    window.localStorage.setItem(
+      recoveryKey(assignmentId),
+      JSON.stringify({ stepIndex, scrollY: window.scrollY }),
+    );
+  }
+}
+
+function firstOpenStepIndex(steps: BreakdownStep[]): number {
+  return steps.findIndex((step) => !step.done);
+}
+
+function recoveryKey(assignmentId: string): string {
+  return `diana:assignment-recovery:${assignmentId}`;
 }

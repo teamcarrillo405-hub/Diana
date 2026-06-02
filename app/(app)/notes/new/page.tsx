@@ -10,7 +10,7 @@ export default async function NewNotePage({
 }) {
   const { assignment } = await searchParams;
   const profile = await loadProfile();
-  const ttsProvider = (profile?.tts_provider ?? "browser") as "browser" | "openai";
+  const ttsProvider = profile?.tts_provider === "openai" ? "openai" : "browser";
 
   // Fetch class candidates for the auto-router + class dropdown.
   const supabase = await createClient();

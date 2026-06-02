@@ -113,10 +113,34 @@ async function buildParentSummary(
     return c > o ? acc + (c - o) : acc;
   }, 0);
 
+  const { data: masteryRows } = await supabase
+    .from("mastery_concepts")
+    .select("name, mastery_level")
+    .eq("owner_id", ownerId)
+    .order("mastery_level", { ascending: true })
+    .limit(5);
+
+  const { data: progressRows } = await supabase
+    .from("teacher_progress_notes")
+    .select("author_name, note_text, created_at")
+    .eq("owner_id", ownerId)
+    .eq("visible_to_parent", true)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
   return {
     completedThisWeek: completedThisWeek ?? 0,
     upcomingNext7Days: upcomingNext7Days ?? 0,
     studyMinutesThisWeek: Math.round(totalMs / 60000),
+    masteryConcepts: (masteryRows ?? []).map((row) => ({
+      name: row.name,
+      level: Number(row.mastery_level ?? 0),
+    })),
+    progressNotes: (progressRows ?? []).map((row) => ({
+      authorName: row.author_name,
+      noteText: row.note_text,
+      createdAt: row.created_at,
+    })),
     weekStartIso,
     expiresAt,
   };

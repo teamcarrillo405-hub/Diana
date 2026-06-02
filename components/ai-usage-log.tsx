@@ -22,6 +22,8 @@ const FEATURE_LABEL: Record<string, string> = {
   writing_aid: "Writing aid",
   citation_gen: "Citation help",
   reading_scaffold: "Reading scaffold",
+  reading_level: "Reading level",
+  vocab_hover: "Vocabulary definition",
   transcribe_note: "Voice-to-text",
 };
 

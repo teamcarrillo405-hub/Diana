@@ -29,9 +29,10 @@ export function VoiceTextarea(
   props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & {
     onTranscript?: (full: string) => void;
     provider?: "browser" | "openai";
+    speechLang?: string;
   },
 ) {
-  const { onTranscript, provider = "browser", ...rest } = props;
+  const { onTranscript, provider = "browser", speechLang = "en-US", ...rest } = props;
   const [recording, setRecording] = useState(false);
   const [supported, setSupported] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
@@ -61,7 +62,7 @@ export function VoiceTextarea(
     if (!SR) return;
     setSupported(true);
     const rec = new SR();
-    rec.lang = "en-US";
+    rec.lang = speechLang;
     rec.continuous = true;
     rec.interimResults = false;
     rec.onresult = (event) => {
@@ -75,7 +76,7 @@ export function VoiceTextarea(
     rec.onerror = () => setRecording(false);
     recogRef.current = rec;
     return () => rec.stop();
-  }, [onTranscript, provider]);
+  }, [onTranscript, provider, speechLang]);
 
   async function toggleOpenAI() {
     if (recording) {

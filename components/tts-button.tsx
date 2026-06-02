@@ -1,46 +1,41 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Volume2, Square } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { Square, Volume2 } from "lucide-react";
+import type { TtsProvider } from "@/lib/supabase/types";
 
-/**
- * Read-aloud button.
- *
- * provider='browser' (default): uses browser Web Speech API — no server cost, works offline.
- * provider='openai': invokes tts-generate Edge Function, plays returned audio/mpeg via HTMLAudioElement.
- *
- * Falls back to a no-op when provider='browser' and the browser doesn't support speechSynthesis.
- * OpenAI mode is always "supported" in modern browsers (Audio in window).
- */
 export function TtsButton({
   text,
   label = "Read aloud",
   className = "",
   provider = "browser",
+  speed = 1,
+  pitch = 1,
+  voice = "nova",
 }: {
   text: string;
   label?: string;
   className?: string;
-  provider?: "browser" | "openai";
+  provider?: TtsProvider;
+  speed?: number;
+  pitch?: number;
+  voice?: string;
 }) {
   const [speaking, setSpeaking] = useState(false);
   const [supported, setSupported] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (provider === "openai") {
-      setSupported(typeof window !== "undefined" && "Audio" in window);
+    if (provider === "browser") {
+      setSupported(typeof window !== "undefined" && "speechSynthesis" in window);
     } else {
-      setSupported(
-        typeof window !== "undefined" && "speechSynthesis" in window,
-      );
+      setSupported(typeof window !== "undefined" && "Audio" in window);
     }
     return () => {
       if (provider === "browser" && typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
-      if (provider === "openai" && audioRef.current) {
+      if (provider !== "browser" && audioRef.current) {
         audioRef.current.pause();
         if (audioRef.current.src) URL.revokeObjectURL(audioRef.current.src);
       }
@@ -49,34 +44,23 @@ export function TtsButton({
 
   if (!supported) return null;
 
-  async function playOpenAI() {
+  async function playRemote() {
     setSpeaking(true);
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase.functions.invoke("tts-generate", {
-        body: { text },
-      });
-
-      if (error || !data) {
-        console.error("tts-generate error:", error);
-        setSpeaking(false);
-        return;
-      }
-
-      // data from invoke is already parsed — for binary, we need to handle as blob
-      // Use fetch directly since invoke may not return raw binary correctly
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+      const anonKey =
+        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+        "";
 
-      // Fetch the TTS audio as a blob
       const res = await fetch(`${supabaseUrl}/functions/v1/tts-generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "apikey": anonKey,
-          "Authorization": `Bearer ${anonKey}`,
+          apikey: anonKey,
+          Authorization: `Bearer ${anonKey}`,
         },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, provider, voice, speed }),
       });
 
       if (!res.ok) {
@@ -87,7 +71,6 @@ export function TtsButton({
 
       const blob = await res.blob();
       const objectUrl = URL.createObjectURL(blob);
-
       const audio = new Audio(objectUrl);
       audioRef.current = audio;
 
@@ -102,12 +85,12 @@ export function TtsButton({
 
       await audio.play().catch(() => setSpeaking(false));
     } catch (err) {
-      console.error("OpenAI TTS playback error:", err);
+      console.error("TTS playback error:", err);
       setSpeaking(false);
     }
   }
 
-  function stopOpenAI() {
+  function stopRemote() {
     if (audioRef.current) {
       audioRef.current.pause();
       if (audioRef.current.src) URL.revokeObjectURL(audioRef.current.src);
@@ -120,8 +103,8 @@ export function TtsButton({
     const synth = window.speechSynthesis;
     synth.cancel();
     const utter = new SpeechSynthesisUtterance(text);
-    utter.rate = 0.95;
-    utter.pitch = 1.0;
+    utter.rate = speed;
+    utter.pitch = pitch;
     utter.onend = () => setSpeaking(false);
     utter.onerror = () => setSpeaking(false);
     setSpeaking(true);
@@ -135,11 +118,12 @@ export function TtsButton({
 
   function handleClick() {
     if (speaking) {
-      if (provider === "openai") stopOpenAI();
-      else stopBrowser();
+      if (provider === "browser") stopBrowser();
+      else stopRemote();
+    } else if (provider === "browser") {
+      playBrowser();
     } else {
-      if (provider === "openai") void playOpenAI();
-      else playBrowser();
+      void playRemote();
     }
   }
 

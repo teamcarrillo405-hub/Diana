@@ -3,8 +3,13 @@ import { createClient } from "@/lib/supabase/server";
 import { loadProfile, profileBodyClass } from "@/lib/profile";
 import { BottomNav, SideNav } from "@/components/nav";
 import { Fab } from "@/components/fab";
+import { OverwhelmedButton } from "@/components/overwhelmed-button";
+import { QuickCapture } from "@/components/quick-capture";
 import { AccentProvider } from "@/components/accent-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PlatformAnalyticsTracker } from "@/components/platform-analytics-tracker";
+import { PwaRuntime } from "@/components/pwa-runtime";
+import { SessionHandoffTracker } from "@/components/session-handoff-tracker";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -26,7 +31,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           </main>
           <BottomNav />
           <Fab />
+          <QuickCapture />
+          <OverwhelmedButton />
           <AccentProvider />
+          <PlatformAnalyticsTracker />
+          <SessionHandoffTracker />
+          <PwaRuntime />
         </div>
       </div>
     </ThemeProvider>

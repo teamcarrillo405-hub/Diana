@@ -8,6 +8,12 @@ const CreateInput = z.object({
   title:        z.string().min(1).max(200).default("Untitled note"),
   assignmentId: z.string().uuid().nullable().optional(),
   classId:      z.string().uuid().nullable().optional(),
+  source:       z.enum(["manual", "voice", "audio_upload", "doc_upload", "lecture"]).default("manual"),
+});
+
+const SynthesisInput = z.object({
+  query: z.string().min(3).max(500),
+  classId: z.string().uuid().nullable().optional(),
 });
 
 const SaveInput = z.object({
@@ -16,6 +22,7 @@ const SaveInput = z.object({
   bodyText:        z.string().max(50_000),
   audioStorageKey: z.string().optional().nullable(),
   classId:         z.string().uuid().nullable().optional(),
+  source:          z.enum(["manual", "voice", "audio_upload", "doc_upload", "lecture"]).optional(),
 });
 
 export async function createNote(
@@ -36,6 +43,7 @@ export async function createNote(
       assignment_id: parsed.data.assignmentId ?? null,
       class_id:      parsed.data.classId ?? null,
       body_text:     "",
+      source:        parsed.data.source,
     })
     .select("id")
     .single();
@@ -43,6 +51,47 @@ export async function createNote(
   if (error) return { ok: false, error: error.message };
   revalidatePath("/notes");
   return { ok: true, id: data.id };
+}
+
+export type NoteSynthesisResult = {
+  summary: string;
+  citations: Array<{ label: string; noteId: string; title: string; reason: string }>;
+};
+
+export async function synthesizeNotes(
+  input: z.infer<typeof SynthesisInput>,
+): Promise<{ ok: true; result: NoteSynthesisResult } | { ok: false; error: string }> {
+  const parsed = SynthesisInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Enter a note question." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const { data, error } = await supabase.functions.invoke("note-synthesis", {
+    body: {
+      ownerId: user.id,
+      query: parsed.data.query,
+      classId: parsed.data.classId ?? null,
+    },
+  });
+
+  if (error || !data?.summary) {
+    return { ok: false, error: data?.error ?? "Synthesis not available right now." };
+  }
+
+  return {
+    ok: true,
+    result: {
+      summary: String(data.summary),
+      citations: Array.isArray(data.citations)
+        ? data.citations.filter((item: unknown): item is NoteSynthesisResult["citations"][number] => {
+            const c = item as Record<string, unknown>;
+            return typeof c.noteId === "string" && typeof c.title === "string";
+          })
+        : [],
+    },
+  };
 }
 
 export async function saveNote(
@@ -62,6 +111,7 @@ export async function saveNote(
       body_text:         parsed.data.bodyText,
       audio_storage_key: parsed.data.audioStorageKey ?? null,
       class_id:          parsed.data.classId ?? null,
+      ...(parsed.data.source && { source: parsed.data.source }),
       updated_at:        new Date().toISOString(),
     })
     .eq("id", parsed.data.id)
@@ -299,4 +349,36 @@ export async function triggerDocExtraction(
   revalidatePath(`/notes/${parsed.data.noteId}`);
 
   return { ok: true, text };
+}
+
+const TriggerStructuringInput = z.object({
+  noteId: z.string().uuid(),
+});
+
+export async function triggerNoteStructuring(
+  input: z.infer<typeof TriggerStructuringInput>,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = TriggerStructuringInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const { data: note, error: noteErr } = await supabase
+    .from("notes")
+    .select("id, owner_id")
+    .eq("id", parsed.data.noteId)
+    .single();
+  if (noteErr || !note || note.owner_id !== user.id) {
+    return { ok: false, error: "Note not found." };
+  }
+
+  void supabase.functions.invoke("transcribe-note", {
+    body: { noteId: parsed.data.noteId },
+  });
+
+  revalidatePath("/notes");
+  revalidatePath(`/notes/${parsed.data.noteId}`);
+  return { ok: true };
 }

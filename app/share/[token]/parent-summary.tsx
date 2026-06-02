@@ -44,6 +44,34 @@ export function ParentSummaryView({ summary }: { summary: ParentSummary }) {
         </p>
       </section>
 
+      {summary.masteryConcepts.length > 0 && (
+        <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+          <h2 className="text-sm font-medium">Concept confidence</h2>
+          <ul className="space-y-1 text-sm text-muted">
+            {summary.masteryConcepts.map((concept) => (
+              <li key={concept.name} className="flex items-center justify-between gap-3">
+                <span className="capitalize">{concept.name}</span>
+                <span>{concept.level.toFixed(0)} of 4</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {summary.progressNotes.length > 0 && (
+        <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+          <h2 className="text-sm font-medium">Progress notes shared by the student</h2>
+          <ul className="space-y-2 text-sm text-muted">
+            {summary.progressNotes.map((note) => (
+              <li key={`${note.createdAt}-${note.authorName}`} className="rounded-lg border border-border bg-background/40 p-3">
+                <p className="font-medium text-foreground">{note.authorName}</p>
+                <p>{note.noteText}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <footer className="text-xs text-muted">
         This link works until {expiresLabel}.
       </footer>

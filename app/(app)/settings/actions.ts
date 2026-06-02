@@ -11,6 +11,15 @@ const Prefs = z.object({
   reduced_motion: z.boolean().optional(),
   high_contrast: z.boolean().optional(),
   tts_enabled: z.boolean().optional(),
+  tts_provider: z.enum(["browser", "openai", "elevenlabs"]).optional(),
+  tts_speed: z.number().min(0.7).max(1.5).optional(),
+  tts_pitch: z.number().min(0.5).max(1.5).optional(),
+  tts_voice: z.string().trim().min(1).max(80).optional(),
+  bionic_reading: z.boolean().optional(),
+  visual_pacing: z.enum(["off", "word", "line"]).optional(),
+  line_focus: z.boolean().optional(),
+  reading_letter_spacing: z.enum(["normal", "wide", "wider"]).optional(),
+  reading_word_spacing: z.enum(["normal", "wide", "wider"]).optional(),
   reading_font: z.enum(["system","lexend","atkinson","opendyslexic"]).optional(), // F19
 });
 

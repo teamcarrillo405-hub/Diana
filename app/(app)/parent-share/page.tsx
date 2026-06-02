@@ -1,5 +1,94 @@
-import { ComingSoon } from "@/components/coming-soon";
-export default function Page() {
-  return <ComingSoon slug="F13" title="Parent share" slice={4}
-    summary="Optional weekly read-only summary, with explicit teen consent." />;
+import { createClient } from "@/lib/supabase/server";
+import { SharingSection } from "../settings/sharing-section";
+
+export default async function ParentPortalPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  const ownerId = user?.id ?? "";
+  const now = new Date();
+  const day = now.getUTCDay();
+  const daysFromMonday = (day + 6) % 7;
+  const weekStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - daysFromMonday));
+  const weekStartIso = weekStart.toISOString();
+  const next7Iso = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [{ count: completedThisWeek }, { count: upcomingNext7Days }, { data: logs }, { data: notes }] = await Promise.all([
+    supabase
+      .from("task_signals")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", ownerId)
+      .eq("kind", "completed")
+      .gte("occurred_at", weekStartIso),
+    supabase
+      .from("assignments")
+      .select("id", { count: "exact", head: true })
+      .eq("owner_id", ownerId)
+      .gte("due_at", now.toISOString())
+      .lte("due_at", next7Iso)
+      .not("status", "in", "(done,submitted,graded)"),
+    supabase
+      .from("assignment_time_log")
+      .select("started_at, ended_at")
+      .eq("owner_id", ownerId)
+      .gte("started_at", weekStartIso)
+      .not("ended_at", "is", null),
+    supabase
+      .from("teacher_progress_notes")
+      .select("author_name, note_text, created_at")
+      .eq("owner_id", ownerId)
+      .eq("visible_to_parent", true)
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
+
+  const totalMs = (logs ?? []).reduce((acc, row) => {
+    const start = row.started_at ? new Date(row.started_at).getTime() : 0;
+    const end = row.ended_at ? new Date(row.ended_at).getTime() : 0;
+    return end > start ? acc + (end - start) : acc;
+  }, 0);
+
+  return (
+    <div className="space-y-6">
+      <header className="space-y-2">
+        <p className="text-xs font-medium uppercase tracking-wider text-muted">Parent portal</p>
+        <h1 className="text-2xl font-bold">Read-only weekly summary</h1>
+        <p className="text-sm text-muted">
+          Parent links show effort, time, upcoming workload, and student-approved progress notes. They do not show assignment names, grades, private notes, or AI interaction details.
+        </p>
+      </header>
+
+      <section className="grid gap-3 md:grid-cols-3">
+        <Stat label="Assignments finished this week" value={completedThisWeek ?? 0} />
+        <Stat label="Upcoming in the next 7 days" value={upcomingNext7Days ?? 0} />
+        <Stat label="Minutes spent studying this week" value={Math.round(totalMs / 60000)} />
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-border bg-card p-4">
+        <h2 className="text-sm font-semibold">Parent-visible progress notes</h2>
+        {(notes ?? []).length === 0 ? (
+          <p className="text-sm text-muted">No shared progress notes yet.</p>
+        ) : (
+          <ul className="space-y-2">
+            {(notes ?? []).map((note) => (
+              <li key={`${note.created_at}-${note.author_name}`} className="rounded-lg border border-border bg-bg p-3 text-sm">
+                <p className="font-medium">{note.author_name}</p>
+                <p className="text-muted">{note.note_text}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <SharingSection />
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <p className="text-3xl font-semibold tabular-nums">{value}</p>
+      <p className="mt-1 text-xs text-muted">{label}</p>
+    </div>
+  );
 }

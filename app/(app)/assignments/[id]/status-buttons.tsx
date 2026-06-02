@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import { STATUS_LABEL } from "@/lib/state-machine/assignment";
+import { queueOfflineAssignmentStatus, registerOfflineSync } from "@/lib/offline/store";
 import { transitionAssignment } from "./actions";
 
 export function StatusButtons({
@@ -23,7 +24,39 @@ export function StatusButtons({
 
   function go(to: AssignmentStatus) {
     startTransition(async () => {
-      const result = await transitionAssignment({ id: assignmentId, from, to });
+      let result: Awaited<ReturnType<typeof transitionAssignment>>;
+      try {
+        result = await transitionAssignment({ id: assignmentId, from, to });
+      } catch {
+        if (!navigator.onLine) {
+          await queueOfflineAssignmentStatus({
+            tempId: `${assignmentId}-${to}-${Date.now()}`,
+            assignmentId,
+            from,
+            to,
+            queuedAt: new Date().toISOString(),
+          });
+          await registerOfflineSync();
+          if (isPrimary(from, to)) {
+            setFlashedTo(to);
+            setTimeout(() => setFlashedTo(null), 1200);
+          }
+          router.refresh();
+        }
+        return;
+      }
+      if ("error" in result && result.error && !navigator.onLine) {
+        await queueOfflineAssignmentStatus({
+          tempId: `${assignmentId}-${to}-${Date.now()}`,
+          assignmentId,
+          from,
+          to,
+          queuedAt: new Date().toISOString(),
+        });
+        await registerOfflineSync();
+        router.refresh();
+        return;
+      }
       if (isPrimary(from, to) && !("error" in result && result.error)) {
         setFlashedTo(to);
         setTimeout(() => setFlashedTo(null), 1200);

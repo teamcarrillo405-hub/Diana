@@ -11,8 +11,15 @@ type CourseWork = {
   description?: string;
   dueDate?: ClassroomDate;
   dueTime?: ClassroomTime;
+  alternateLink?: string;
 };
 type Course = { id: string; name: string };
+type Announcement = {
+  id: string;
+  text?: string;
+  alternateLink?: string;
+  updateTime?: string;
+};
 
 function reconstructDueIso(d?: ClassroomDate, t?: ClassroomTime): string | null {
   if (!d) return null;
@@ -84,7 +91,28 @@ export async function POST(req: Request) {
           description: w.description ?? null,
           due_at: due,
           external_source: "google_classroom",
+          external_url: w.alternateLink ?? null,
         });
+      }
+
+      const announcementsResp = await fetchJson<{ announcements?: Announcement[] }>(
+        `https://classroom.googleapis.com/v1/courses/${course.id}/announcements`,
+        providerToken,
+      ).catch(() => ({ announcements: [] }));
+      const announcements = (announcementsResp.announcements ?? [])
+        .filter((announcement) => announcement.text?.trim())
+        .slice(0, 10);
+      if (announcements.length > 0) {
+        await supabase.from("inbox_items").insert(announcements.map((announcement) => ({
+          owner_id: user.id,
+          raw: [
+            `Google Classroom announcement from ${course.name}`,
+            announcement.text,
+            announcement.alternateLink ? `Link: ${announcement.alternateLink}` : "",
+          ].filter(Boolean).join("\n"),
+          capture_mode: "text",
+          status: "unclassified",
+        })));
       }
     }
 

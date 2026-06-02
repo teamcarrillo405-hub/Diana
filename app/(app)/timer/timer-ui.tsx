@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTimer } from "@/lib/timer/use-timer";
 import { Play, Pause, RotateCcw, Volume2, VolumeX, Eye, EyeOff } from "lucide-react";
 import type { TimerStatus } from "@/lib/timer/timer";
+import { adaptiveBreakMinutes, type SessionMood } from "@/lib/executive/session";
 
 type AmbientSound = "silence" | "rain" | "white-noise";
 
@@ -65,15 +66,34 @@ function statusLabel(s: ReturnType<typeof useTimer>["state"]): string {
   return "Break time";
 }
 
-export function TimerUi() {
+export function TimerUi({
+  roughMode = false,
+  sessionMood = null,
+  difficulty = null,
+}: {
+  roughMode?: boolean;
+  sessionMood?: SessionMood;
+  difficulty?: number | null;
+}) {
   const { state, start, pause, resume, reset } = useTimer();
   const [settings, setSettings] = useState<PersistedSettings>(DEFAULTS);
+  const [ritualCount, setRitualCount] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Hydrate from localStorage on mount.
   useEffect(() => {
-    setSettings(loadSettings());
-  }, []);
+    const loaded = loadSettings();
+    setSettings(
+      roughMode
+        ? {
+            ...loaded,
+            workMin: Math.min(loaded.workMin, 10),
+            breakMin: Math.max(loaded.breakMin, 5),
+            showCountdown: false,
+          }
+        : loaded,
+    );
+  }, [roughMode]);
 
   // Persist on every settings change (after hydration).
   useEffect(() => {
@@ -104,6 +124,32 @@ export function TimerUi() {
   // 0..1 — fraction COMPLETED of current phase.
 
   const isIdleOrDone = state.status === "idle" || state.status === "done";
+  const adaptiveBreak = adaptiveBreakMinutes({
+    workMinutes: settings.workMin,
+    baseBreakMinutes: settings.breakMin,
+    mood: roughMode ? "rough" : sessionMood,
+    difficulty,
+  });
+
+  function startWithRitual() {
+    if (ritualCount !== null) return;
+    setRitualCount(3);
+  }
+
+  useEffect(() => {
+    if (ritualCount === null) return;
+    if (ritualCount === 0) {
+      setRitualCount(null);
+      start({
+        workMin: settings.workMin,
+        breakMin: adaptiveBreak,
+        premackReward: settings.premackReward.trim() || null,
+      });
+      return;
+    }
+    const id = window.setTimeout(() => setRitualCount((value) => (value === null ? null : value - 1)), 800);
+    return () => window.clearTimeout(id);
+  }, [adaptiveBreak, ritualCount, settings.premackReward, settings.workMin, start]);
 
   return (
     <div className="space-y-6">
@@ -128,17 +174,11 @@ export function TimerUi() {
         <div className="flex items-center gap-2">
           {state.status === "idle" || state.status === "done" ? (
             <button
-              onClick={() =>
-                start({
-                  workMin: settings.workMin,
-                  breakMin: settings.breakMin,
-                  premackReward: settings.premackReward.trim() || null,
-                })
-              }
+              onClick={startWithRitual}
               className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
             >
               <Play size={16} />
-              Start session
+              {ritualCount === null ? "Start session" : "Starting..."}
             </button>
           ) : state.status === "running" ? (
             <button
@@ -204,6 +244,11 @@ export function TimerUi() {
               />
             </label>
           </div>
+          {adaptiveBreak !== settings.breakMin && (
+            <p className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted">
+              Diana will use a {adaptiveBreak}-minute break for this session.
+            </p>
+          )}
 
           <label className="block space-y-1 text-sm">
             <span className="font-medium">After this block I get to…</span>
@@ -260,6 +305,15 @@ export function TimerUi() {
           preload="auto"
           aria-hidden="true"
         />
+      )}
+
+      {ritualCount !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <div className="rounded-2xl border border-border bg-card px-10 py-8 text-center shadow-lg">
+            <p className="text-sm text-muted">Ready.</p>
+            <p className="mt-2 text-6xl font-bold tabular-nums">{ritualCount === 0 ? "Start" : ritualCount}</p>
+          </div>
+        </div>
       )}
     </div>
   );

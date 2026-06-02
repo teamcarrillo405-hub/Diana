@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { ExternalSubmissionSync } from "../external-submission-sync";
 import { SubmitChecklist } from "./checklist";
 
 export default async function SubmitPage({
@@ -13,7 +14,7 @@ export default async function SubmitPage({
 
   const { data: a } = await supabase
     .from("assignments")
-    .select("id, title, status, submission_url, classes(name)")
+    .select("id, title, status, submission_url, external_source, external_url, submission_sync_status, classes(name)")
     .eq("id", id)
     .single();
   if (!a) notFound();
@@ -47,6 +48,13 @@ export default async function SubmitPage({
         assignmentId={id}
         items={items ?? []}
         currentUrl={a.submission_url}
+      />
+
+      <ExternalSubmissionSync
+        assignmentId={id}
+        provider={a.external_source}
+        externalUrl={a.external_url}
+        initialStatus={a.submission_sync_status}
       />
     </div>
   );

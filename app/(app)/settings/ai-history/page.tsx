@@ -79,6 +79,8 @@ function featureLabel(f: string): string {
     writing_aid: "Writing aid",
     citation_gen: "Citation generator",
     reading_scaffold: "Reading scaffold",
+    reading_level: "Reading level",
+    vocab_hover: "Vocabulary definition",
     transcribe_note: "Note transcript",
   } as Record<string, string>)[f] ?? f;
 }

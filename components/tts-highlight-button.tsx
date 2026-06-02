@@ -1,54 +1,50 @@
-// components/tts-highlight-button.tsx
-// Full TTS button with word-level highlight and speed controls.
-// Use for long-form reading (ReadingPanel). For short text (titles, descriptions),
-// the existing TtsButton remains — this component has higher DOM overhead.
-//
-// Pitfall 3: word spans rendered ONLY while playing; at idle, plain text shows.
-// aria-live="polite" on highlight container only — not on individual spans.
-//
-// Phase 8: OpenAI TTS word-highlight uses estimator — boundary events unavailable per OpenAI TTS 1 API.
-// When provider='openai', this component renders a simplified Audio-element variant without word highlight.
 "use client";
+
 import { useRef, useState } from "react";
-import { Volume2, Square, PauseCircle, PlayCircle } from "lucide-react";
+import { PauseCircle, PlayCircle, Square, Volume2 } from "lucide-react";
 import { useTtsHighlight } from "@/lib/tts/use-tts-highlight";
+import type { TtsProvider } from "@/lib/supabase/types";
 
 export function TtsHighlightButton({
   text,
   provider = "browser",
+  speed = 1,
+  pitch = 1,
+  voice = "nova",
 }: {
   text: string;
-  provider?: "browser" | "openai";
+  provider?: TtsProvider;
+  speed?: number;
+  pitch?: number;
+  voice?: string;
 }) {
-  // Browser path: full hook with word-level highlights
-  const browserTts = useTtsHighlight(text);
-
-  // OpenAI path: simplified Audio-element variant (no word highlight — boundary events unavailable)
+  const browserTts = useTtsHighlight(text, { initialRate: speed, pitch });
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [openAiState, setOpenAiState] = useState<"idle" | "playing" | "paused">("idle");
+  const [remoteState, setRemoteState] = useState<"idle" | "playing" | "paused">("idle");
 
-  if (provider === "openai") {
-    // OpenAI TTS via tts-generate Edge Function
-    // tts-generate is invoked here — no word-level boundary events from OpenAI TTS 1 API
+  if (provider !== "browser") {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
+    const anonKey =
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
+      "";
 
-    async function speakOpenAI() {
-      setOpenAiState("playing");
+    async function speakRemote() {
+      setRemoteState("playing");
       try {
         const res = await fetch(`${supabaseUrl}/functions/v1/tts-generate`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "apikey": anonKey,
-            "Authorization": `Bearer ${anonKey}`,
+            apikey: anonKey,
+            Authorization: `Bearer ${anonKey}`,
           },
-          body: JSON.stringify({ text }),
+          body: JSON.stringify({ text, provider, voice, speed }),
         });
 
         if (!res.ok) {
           console.error("tts-generate error:", res.status);
-          setOpenAiState("idle");
+          setRemoteState("idle");
           return;
         }
 
@@ -58,169 +54,75 @@ export function TtsHighlightButton({
         audioRef.current = audio;
 
         audio.onended = () => {
-          setOpenAiState("idle");
+          setRemoteState("idle");
           URL.revokeObjectURL(objectUrl);
         };
         audio.onerror = () => {
-          setOpenAiState("idle");
+          setRemoteState("idle");
           URL.revokeObjectURL(objectUrl);
         };
 
-        await audio.play().catch(() => setOpenAiState("idle"));
+        await audio.play().catch(() => setRemoteState("idle"));
       } catch (err) {
-        console.error("OpenAI TTS playback error:", err);
-        setOpenAiState("idle");
+        console.error("TTS playback error:", err);
+        setRemoteState("idle");
       }
     }
 
-    function pauseOpenAI() {
+    function pauseRemote() {
       audioRef.current?.pause();
-      setOpenAiState("paused");
+      setRemoteState("paused");
     }
 
-    function resumeOpenAI() {
-      audioRef.current?.play().catch(() => setOpenAiState("idle"));
-      setOpenAiState("playing");
+    function resumeRemote() {
+      audioRef.current?.play().catch(() => setRemoteState("idle"));
+      setRemoteState("playing");
     }
 
-    function stopOpenAI() {
+    function stopRemote() {
       if (audioRef.current) {
         audioRef.current.pause();
         if (audioRef.current.src) URL.revokeObjectURL(audioRef.current.src);
         audioRef.current = null;
       }
-      setOpenAiState("idle");
+      setRemoteState("idle");
     }
 
     return (
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
-          {openAiState === "idle" && (
-            <button
-              type="button"
-              onClick={() => void speakOpenAI()}
-              aria-label="Read aloud"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-            >
-              <Volume2 size={14} />
-              Read aloud
-            </button>
-          )}
-          {openAiState === "playing" && (
-            <>
-              <button
-                type="button"
-                onClick={pauseOpenAI}
-                aria-label="Pause reading"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-              >
-                <PauseCircle size={14} />
-                Pause
-              </button>
-              <button
-                type="button"
-                onClick={stopOpenAI}
-                aria-label="Stop reading"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-              >
-                <Square size={14} />
-                Stop
-              </button>
-            </>
-          )}
-          {openAiState === "paused" && (
-            <>
-              <button
-                type="button"
-                onClick={resumeOpenAI}
-                aria-label="Resume reading"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-accent/10 px-3 py-1.5 text-sm text-accent hover:bg-accent/20 transition-colors"
-              >
-                <PlayCircle size={14} />
-                Resume
-              </button>
-              <button
-                type="button"
-                onClick={stopOpenAI}
-                aria-label="Stop reading"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-              >
-                <Square size={14} />
-                Stop
-              </button>
-            </>
-          )}
-        </div>
+        <RemoteControls
+          state={remoteState}
+          onSpeak={() => void speakRemote()}
+          onPause={pauseRemote}
+          onResume={resumeRemote}
+          onStop={stopRemote}
+        />
       </div>
     );
   }
 
-  // Browser path: full word-level highlight
   const { state, highlightedWordIdx, words, rate, setRate, speak, stop, pause, resume, supported } = browserTts;
-
   if (!supported) return null;
 
   return (
     <div className="space-y-3">
-      {/* Controls */}
       <div className="flex flex-wrap items-center gap-2">
         {state === "idle" && (
-          <button
-            type="button"
-            onClick={speak}
-            aria-label="Read aloud"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-          >
-            <Volume2 size={14} />
-            Read aloud
-          </button>
+          <ControlButton onClick={speak} label="Read aloud" icon={<Volume2 size={14} />} />
         )}
         {state === "playing" && (
           <>
-            <button
-              type="button"
-              onClick={pause}
-              aria-label="Pause reading"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-            >
-              <PauseCircle size={14} />
-              Pause
-            </button>
-            <button
-              type="button"
-              onClick={stop}
-              aria-label="Stop reading"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-            >
-              <Square size={14} />
-              Stop
-            </button>
+            <ControlButton onClick={pause} label="Pause" ariaLabel="Pause reading" icon={<PauseCircle size={14} />} />
+            <ControlButton onClick={stop} label="Stop" ariaLabel="Stop reading" icon={<Square size={14} />} />
           </>
         )}
         {state === "paused" && (
           <>
-            <button
-              type="button"
-              onClick={resume}
-              aria-label="Resume reading"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-accent/10 px-3 py-1.5 text-sm text-accent hover:bg-accent/20 transition-colors"
-            >
-              <PlayCircle size={14} />
-              Resume
-            </button>
-            <button
-              type="button"
-              onClick={stop}
-              aria-label="Stop reading"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm hover:bg-border/30 transition-colors"
-            >
-              <Square size={14} />
-              Stop
-            </button>
+            <ControlButton onClick={resume} label="Resume" ariaLabel="Resume reading" icon={<PlayCircle size={14} />} accent />
+            <ControlButton onClick={stop} label="Stop" ariaLabel="Stop reading" icon={<Square size={14} />} />
           </>
         )}
 
-        {/* Speed selector — visible whenever TTS is active */}
         {state !== "idle" && (
           <label className="inline-flex items-center gap-1.5 text-xs text-muted">
             Speed
@@ -230,31 +132,87 @@ export function TtsHighlightButton({
               className="rounded border border-border bg-card px-1 py-0.5 text-xs"
             >
               <option value={0.75}>0.75x</option>
-              <option value={1.0}>1x</option>
+              <option value={1}>1x</option>
+              <option value={1.15}>1.15x</option>
               <option value={1.25}>1.25x</option>
-              <option value={1.5}>1.5x</option>
             </select>
           </label>
         )}
       </div>
 
-      {/* Word-highlighted text — ONLY rendered when playing or paused (Pitfall 3) */}
       {state !== "idle" && (
-        <p
-          aria-live="polite"
-          aria-label="Text being read aloud"
-          className="text-sm leading-relaxed"
-        >
+        <p aria-live="polite" aria-label="Text being read aloud" className="text-sm leading-relaxed">
           {words.map((w, i) => (
-            <span
-              key={i}
-              className={i === highlightedWordIdx ? "tts-word-active" : ""}
-            >
+            <span key={i} className={i === highlightedWordIdx ? "tts-word-active" : ""}>
               {w.word}{" "}
             </span>
           ))}
         </p>
       )}
     </div>
+  );
+}
+
+function RemoteControls({
+  state,
+  onSpeak,
+  onPause,
+  onResume,
+  onStop,
+}: {
+  state: "idle" | "playing" | "paused";
+  onSpeak: () => void;
+  onPause: () => void;
+  onResume: () => void;
+  onStop: () => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {state === "idle" && (
+        <ControlButton onClick={onSpeak} label="Read aloud" icon={<Volume2 size={14} />} />
+      )}
+      {state === "playing" && (
+        <>
+          <ControlButton onClick={onPause} label="Pause" ariaLabel="Pause reading" icon={<PauseCircle size={14} />} />
+          <ControlButton onClick={onStop} label="Stop" ariaLabel="Stop reading" icon={<Square size={14} />} />
+        </>
+      )}
+      {state === "paused" && (
+        <>
+          <ControlButton onClick={onResume} label="Resume" ariaLabel="Resume reading" icon={<PlayCircle size={14} />} accent />
+          <ControlButton onClick={onStop} label="Stop" ariaLabel="Stop reading" icon={<Square size={14} />} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function ControlButton({
+  onClick,
+  label,
+  ariaLabel,
+  icon,
+  accent = false,
+}: {
+  onClick: () => void;
+  label: string;
+  ariaLabel?: string;
+  icon: React.ReactNode;
+  accent?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel ?? label}
+      className={`inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm transition-colors ${
+        accent
+          ? "bg-accent/10 text-accent hover:bg-accent/20"
+          : "bg-card hover:bg-border/30"
+      }`}
+    >
+      {icon}
+      {label}
+    </button>
   );
 }

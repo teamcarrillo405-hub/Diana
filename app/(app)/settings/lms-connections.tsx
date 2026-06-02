@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { connectCanvas, connectIcs, connectClassroom, disconnectLms } from "./lms-actions";
+import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { connectCanvas, connectIcs, connectClassroom, connectClever, disconnectLms } from "./lms-actions";
 
 type Connection = {
   id: string;
-  provider: "canvas" | "ics" | "google_classroom";
+  provider: "canvas" | "ics" | "google_classroom" | "clever";
   config: Record<string, unknown>;
   last_synced_at: string | null;
 };
@@ -17,12 +19,14 @@ const PROVIDER_LABEL = {
   canvas: "Canvas",
   ics: "Calendar URL",
   google_classroom: "Google Classroom",
+  clever: "Clever",
 } as const;
 
 const SYNC_ENDPOINT = {
   canvas: "/api/lms/canvas-sync",
   ics: "/api/lms/ics-sync",
   google_classroom: "/api/lms/classroom-sync",
+  clever: null,
 } as const;
 
 function formatSyncedAt(iso: string | null): string {
@@ -32,13 +36,37 @@ function formatSyncedAt(iso: string | null): string {
 }
 
 export function LmsConnections({ initial }: { initial: Connection[] }) {
+  const router = useRouter();
   const [banner, setBanner] = useState<Banner>(null);
   const [pending, startTransition] = useTransition();
 
+  useEffect(() => {
+    const hasStale = initial.some((connection) => {
+      if (connection.provider === "clever") return false;
+      if (!connection.last_synced_at) return true;
+      return Date.now() - new Date(connection.last_synced_at).getTime() > 6 * 60 * 60 * 1000;
+    });
+    if (!hasStale) return;
+    void fetch("/api/lms/sync-all", { method: "POST" })
+      .then((res) => res.json())
+      .then((body: { imported?: number }) => {
+        if (typeof body.imported === "number" && body.imported > 0) {
+          setBanner({ tone: "ok", message: `Imported ${body.imported} assignments in the background` });
+          router.refresh();
+        }
+      })
+      .catch(() => undefined);
+  }, [initial, router]);
+
   async function runSync(c: Connection) {
     setBanner(null);
+    const endpoint = SYNC_ENDPOINT[c.provider];
+    if (!endpoint) {
+      setBanner({ tone: "warn", message: "This connection is provisioned by your school" });
+      return;
+    }
     try {
-      const res = await fetch(SYNC_ENDPOINT[c.provider], {
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ connectionId: c.id }),
@@ -62,8 +90,11 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
     <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
       <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Connected calendars</h2>
       <p className="text-sm text-muted">
-        Pull your due dates from Canvas, a calendar URL, or Google Classroom. Syncing happens when you press the button.
+        Pull due dates from Canvas, a calendar URL, or Google Classroom. Diana also checks connected sources in the background when Settings opens.
       </p>
+      <Link href="/api/calendar.ics" className="inline-flex w-fit rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-border/30">
+        Export Diana due dates
+      </Link>
 
       {banner && (
         <div
@@ -88,14 +119,16 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
               <p className="text-xs text-muted">{formatSyncedAt(c.last_synced_at)}</p>
             </div>
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => runSync(c)}
-                disabled={pending}
-                className="rounded-md border border-border px-3 py-1 text-sm hover:bg-card"
-              >
-                Sync now
-              </button>
+              {c.provider !== "clever" && (
+                <button
+                  type="button"
+                  onClick={() => runSync(c)}
+                  disabled={pending}
+                  className="rounded-md border border-border px-3 py-1 text-sm hover:bg-card"
+                >
+                  Sync now
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() =>
@@ -116,12 +149,16 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
 
       <details className="rounded-lg border border-border bg-background p-3">
         <summary className="cursor-pointer text-sm font-medium">Connect Canvas</summary>
+        <form action="/api/lms/canvas-oauth/start" method="get" className="mt-3 space-y-2">
+          <input name="base_url" placeholder="https://yourschool.instructure.com" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <button type="submit" className="rounded-md border border-border bg-card px-3 py-1 text-sm">Connect with Canvas</button>
+        </form>
         <form
           action={async (fd) => {
             const r = await connectCanvas(fd);
             setBanner(r.ok ? null : { tone: "warn", message: r.message });
           }}
-          className="mt-3 space-y-2"
+          className="mt-4 space-y-2 border-t border-border pt-3"
         >
           <input name="base_url" placeholder="https://yourschool.instructure.com" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
           <input name="token" type="password" placeholder="Personal access token" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
@@ -159,6 +196,21 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
             <button type="submit" className="rounded-md border border-border bg-card px-3 py-1 text-sm">Connect Google Classroom</button>
           </form>
         </div>
+      </details>
+
+      <details className="rounded-lg border border-border bg-background p-3">
+        <summary className="cursor-pointer text-sm font-medium">Clever school-managed setup</summary>
+        <form
+          action={async (fd) => {
+            const r = await connectClever(fd);
+            setBanner(r.ok ? null : { tone: "warn", message: r.message });
+          }}
+          className="mt-3 space-y-2"
+        >
+          <input name="district" placeholder="District or school name" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <input name="note" placeholder="IT contact or setup note" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <button type="submit" className="rounded-md border border-border bg-card px-3 py-1 text-sm">Save Clever marker</button>
+        </form>
       </details>
     </section>
   );

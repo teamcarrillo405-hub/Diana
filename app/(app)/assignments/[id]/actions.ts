@@ -150,6 +150,34 @@ export async function setSubmissionUrl(input: z.infer<typeof Url>) {
   return { ok: true };
 }
 
+const ExternalSubmission = z.object({
+  id: z.string().uuid(),
+  status: z.enum(["not_started", "opened_external", "marked_submitted", "not_supported"]),
+});
+
+export async function markExternalSubmission(input: z.infer<typeof ExternalSubmission>) {
+  const parsed = ExternalSubmission.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  const { error } = await supabase
+    .from("assignments")
+    .update({
+      submission_sync_status: parsed.data.status,
+      submission_synced_at: new Date().toISOString(),
+    })
+    .eq("id", parsed.data.id)
+    .eq("owner_id", user.id);
+  if (error) return { error: error.message };
+
+  revalidatePath(`/assignments/${parsed.data.id}`);
+  revalidatePath(`/assignments/${parsed.data.id}/submit`);
+  return { ok: true, message: "School system handoff saved" };
+}
+
 const Breadcrumb = z.object({ id: z.string().uuid(), text: z.string().max(500) });
 export async function saveBreadcrumb(input: z.infer<typeof Breadcrumb>) {
   const parsed = Breadcrumb.safeParse(input);

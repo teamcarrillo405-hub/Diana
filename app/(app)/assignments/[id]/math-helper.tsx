@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
-import { BookOpen, Calculator, FlaskConical } from "lucide-react";
-import { requestMathStep, requestMathExample } from "./ai-tools-actions";
+import { BookOpen, Calculator, Camera, FlaskConical, PenLine, Ruler } from "lucide-react";
+import { requestMathStep, requestMathExample, requestMathScaffold, uploadMathPhoto } from "./ai-tools-actions";
 import { AiTooltip } from "@/components/ai-tooltip";
 import { CALC_FORMULAS, PHYSICS_FORMULAS, ALGEBRA_FORMULAS, type Formula } from "@/lib/math/formulas";
+import type { MathScaffoldResult, MathSubject } from "@/lib/math/scaffold";
 
 interface MathHelperProps {
   assignmentId: string;
@@ -30,6 +31,12 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
   const [exampleLoading, setExampleLoading] = useState(false);
   const [exampleError, setExampleError] = useState<string | null>(null);
   const [exampleSubject, setExampleSubject] = useState<"calculus" | "physics" | "algebra">("calculus");
+  const [scaffoldSubject, setScaffoldSubject] = useState<MathSubject>("algebra");
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [scaffold, setScaffold] = useState<MathScaffoldResult | null>(null);
+  const [scaffoldLoading, setScaffoldLoading] = useState(false);
+  const [scaffoldError, setScaffoldError] = useState<string | null>(null);
+  const [studentWork, setStudentWork] = useState<Record<string, string>>({});
 
   // Gate 1: red → render nothing at all
   if (classAiMode === "red") return null;
@@ -124,6 +131,45 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
     setExampleLoading(false);
   }
 
+  async function buildScaffold() {
+    if (!prompt.trim() && !photoFile) {
+      setScaffoldError("Paste the problem or add a photo first.");
+      return;
+    }
+    setScaffoldLoading(true);
+    setScaffoldError(null);
+    setScaffold(null);
+    setStudentWork({});
+
+    let storageKey: string | undefined;
+    if (photoFile) {
+      const formData = new FormData();
+      formData.append("mathPhoto", photoFile);
+      const upload = await uploadMathPhoto(formData);
+      if (!upload.ok) {
+        setScaffoldError(upload.error);
+        setScaffoldLoading(false);
+        return;
+      }
+      storageKey = upload.storageKey;
+    }
+
+    const result = await requestMathScaffold({
+      assignmentId,
+      aiMode: classAiMode,
+      subject: scaffoldSubject,
+      problemText: prompt.trim() || undefined,
+      storageKey,
+    });
+    if (result.ok) {
+      setScaffold(result.result);
+      if (!prompt.trim()) setPrompt(result.result.extractedProblem);
+    } else {
+      setScaffoldError(result.error);
+    }
+    setScaffoldLoading(false);
+  }
+
   return (
     <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
       {!open ? (
@@ -171,6 +217,138 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
             className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             rows={3}
           />
+
+          <div className="space-y-3 rounded-lg border border-border bg-background/60 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <PenLine size={13} className="text-muted" />
+                <p className="text-xs font-medium uppercase tracking-wider text-muted">Step board</p>
+                {scaffold && <AiTooltip feature="math_scaffold" />}
+              </div>
+              <p className="text-xs text-muted">Photo, units, graph shape, next step.</p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {(["algebra", "geometry", "precalculus", "calculus", "statistics", "physics", "chemistry"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setScaffoldSubject(s)}
+                  aria-pressed={scaffoldSubject === s}
+                  className={`rounded-md border px-2 py-1 text-xs ${
+                    scaffoldSubject === s
+                      ? "border-accent bg-accent/10 text-accent"
+                      : "border-border bg-card text-muted hover:bg-border/20"
+                  }`}
+                >
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+
+            <label className="block">
+              <span className="mb-1 flex items-center gap-1.5 text-xs text-muted">
+                <Camera size={12} />
+                Photo scan
+              </span>
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp,.gif,image/*"
+                onChange={(e) => setPhotoFile(e.target.files?.[0] ?? null)}
+                className="block w-full rounded-md border border-border bg-card px-2 py-1.5 text-xs file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-2 file:py-1 file:text-xs file:font-medium file:text-white"
+              />
+            </label>
+
+            {scaffoldError && (
+              <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+                {scaffoldError}
+              </p>
+            )}
+
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={buildScaffold}
+                disabled={scaffoldLoading || (!prompt.trim() && !photoFile)}
+                className="rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50"
+              >
+                {scaffoldLoading ? "Building..." : "Build step board"}
+              </button>
+            </div>
+
+            {scaffold && (
+              <div className="space-y-3 border-t border-border pt-3">
+                <div className="rounded-md border border-border bg-card px-3 py-2">
+                  <p className="text-xs font-medium text-muted">Problem Diana read</p>
+                  <p className="mt-1 whitespace-pre-wrap text-sm">{scaffold.extractedProblem}</p>
+                  {scaffold.latex && (
+                    <p className="mt-1 font-mono text-xs text-muted">{scaffold.latex}</p>
+                  )}
+                </div>
+
+                <ol className="grid gap-2 md:grid-cols-2">
+                  {scaffold.steps.map((step, index) => (
+                    <li key={step.id} className="space-y-2 rounded-md border border-border bg-card p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs font-medium uppercase tracking-wider text-muted">
+                          Step {index + 1}
+                        </p>
+                        <p className="text-xs text-muted">{step.label}</p>
+                      </div>
+                      <p className="text-sm">{step.prompt}</p>
+                      {step.unitHint && (
+                        <p className="rounded border border-amber-500/30 bg-amber-50 px-2 py-1 text-xs text-amber-900">
+                          {step.unitHint}
+                        </p>
+                      )}
+                      <textarea
+                        value={studentWork[step.id] ?? ""}
+                        onChange={(e) => setStudentWork((prev) => ({ ...prev, [step.id]: e.target.value }))}
+                        placeholder="Write your line here."
+                        rows={2}
+                        className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                      />
+                      {step.studentCheck && <p className="text-xs text-muted">{step.studentCheck}</p>}
+                    </li>
+                  ))}
+                </ol>
+
+                <div className="grid gap-2 md:grid-cols-2">
+                  <div className="rounded-md border border-border bg-card p-3">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted">Common check</p>
+                    <p className="mt-1 text-sm">{scaffold.commonError}</p>
+                  </div>
+                  {scaffold.unitTracker.length > 0 && (
+                    <div className="rounded-md border border-border bg-card p-3">
+                      <div className="flex items-center gap-1.5">
+                        <Ruler size={13} className="text-muted" />
+                        <p className="text-xs font-medium uppercase tracking-wider text-muted">Unit tracker</p>
+                      </div>
+                      <ul className="mt-2 space-y-1">
+                        {scaffold.unitTracker.map((unit, index) => (
+                          <li key={`${unit.unit}-${index}`} className="text-sm">
+                            <span className="font-medium">{unit.quantity}</span>
+                            <span className="text-muted"> / {unit.unit}: {unit.note}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {scaffold.graphSketch && (
+                  <div className="rounded-md border border-border bg-card p-3">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted">Graph sketch</p>
+                    <p className="mt-1 text-sm">{scaffold.graphSketch.prompt}</p>
+                    <div className="mt-2 grid gap-2 text-xs text-muted md:grid-cols-2">
+                      <p>{scaffold.graphSketch.xBehavior}</p>
+                      <p>{scaffold.graphSketch.yBehavior}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {errorMsg && (
             <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">

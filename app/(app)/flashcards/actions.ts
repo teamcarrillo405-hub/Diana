@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createCard } from "@/lib/fsrs/fsrs";
+import { normalizeConceptNames } from "@/lib/mastery/concepts";
 
 const CreateInput = z.object({
   front:           z.string().min(1).max(2000),
@@ -26,6 +27,14 @@ export async function createFlashcard(
 
   // Initialize FSRS card state — new, due now, stability=0, difficulty=0.
   const fresh = createCard(new Date());
+  const conceptId = parsed.data.sourceNoteId
+    ? await resolveConceptForSourceNote({
+        supabase,
+        ownerId: user.id,
+        sourceNoteId: parsed.data.sourceNoteId,
+        fallbackName: parsed.data.front,
+      })
+    : null;
 
   const { data, error } = await supabase
     .from("flashcards")
@@ -34,6 +43,7 @@ export async function createFlashcard(
       front:             parsed.data.front,
       back:              parsed.data.back,
       source_note_id:    parsed.data.sourceNoteId ?? null,
+      concept_id:        conceptId,
       image_storage_key: parsed.data.imageStorageKey ?? null,
       state:             fresh.state,
       stability:         fresh.stability,
@@ -50,6 +60,50 @@ export async function createFlashcard(
   revalidatePath("/flashcards");
   revalidatePath("/dashboard");
   return { ok: true, id: data.id };
+}
+
+async function resolveConceptForSourceNote({
+  supabase,
+  ownerId,
+  sourceNoteId,
+  fallbackName,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  ownerId: string;
+  sourceNoteId: string;
+  fallbackName: string;
+}): Promise<string | null> {
+  const { data: note } = await supabase
+    .from("notes")
+    .select("class_id, tags, ai_suggested_tags, title")
+    .eq("id", sourceNoteId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!note?.class_id) return null;
+
+  const name = normalizeConceptNames([
+    ...((note.tags ?? []) as string[]),
+    ...((note.ai_suggested_tags ?? []) as string[]),
+    note.title ?? "",
+    fallbackName,
+  ])[0];
+  if (!name) return null;
+
+  const { data: existing } = await supabase
+    .from("mastery_concepts")
+    .select("id")
+    .eq("owner_id", ownerId)
+    .eq("class_id", note.class_id)
+    .eq("name", name)
+    .maybeSingle();
+  if (existing?.id) return existing.id;
+
+  const { data } = await supabase
+    .from("mastery_concepts")
+    .insert({ owner_id: ownerId, class_id: note.class_id, name, source: "flashcard" })
+    .select("id")
+    .single();
+  return data?.id ?? null;
 }
 
 export async function deleteFlashcard(

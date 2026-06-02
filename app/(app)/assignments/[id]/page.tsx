@@ -7,16 +7,26 @@ import { STATUS_LABEL, STATUS_HINT, nextStatesFor } from "@/lib/state-machine/as
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { StatusButtons } from "./status-buttons";
 import { Breadcrumb } from "./breadcrumb";
+import { ExternalSubmissionSync } from "./external-submission-sync";
 import { PivotForm } from "./pivot-form";
 import { TtsButton } from "@/components/tts-button";
+import { AssignmentReadingBlock } from "@/components/assignment-reading-block";
 import { IntentionPrompt } from "./intention-prompt";
+import { ApHelper } from "./ap-helper";
+import { ArtsHelper } from "./arts-helper";
 import { ReadingPanel } from "./reading-panel";
+import { ComputerScienceHelper } from "./computer-science-helper";
+import { ForeignLanguageHelper } from "./foreign-language-helper";
+import { HealthHelper } from "./health-helper";
+import { HistoryHelper } from "./history-helper";
 import { MathHelper } from "./math-helper";
+import { ScienceHelper } from "./science-helper";
 import { WritingAid } from "./writing-aid";
 import { CitationTool } from "./citation-tool";
 import { TaskBreakdown } from "./task-breakdown";
+import { TaskSwitchCue } from "./task-switch-cue";
 import { AiUsageLog } from "@/components/ai-usage-log";
-import { VocabHoverProvider } from "@/components/vocab-hover-provider";
+import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/parse";
 
@@ -34,7 +44,7 @@ export default async function AssignmentDetailPage({
 
   const { data: a } = await supabase
     .from("assignments")
-    .select("id, title, description, due_at, status, kind, reading_load, writing_load, estimated_minutes, difficulty, last_thought, classes(id, name, color, ai_mode), rubric_id")
+    .select("id, title, description, due_at, status, kind, reading_load, writing_load, estimated_minutes, difficulty, last_thought, external_source, external_url, rubric_text, submission_sync_status, ai_mode_override, classes(id, name, color, ai_mode), rubric_id")
     .eq("id", id)
     .single();
   if (!a) notFound();
@@ -54,12 +64,50 @@ export default async function AssignmentDetailPage({
 
   const status = a.status as AssignmentStatus;
   const nexts = nextStatesFor(status);
-  const classAiMode: "red" | "yellow" | "green" =
+  const classMode: AiMode =
     a.classes?.ai_mode === "red" || a.classes?.ai_mode === "yellow"
       ? a.classes.ai_mode
       : "green";
+  const assignmentOverride: AiMode | null =
+    a.ai_mode_override === "red" || a.ai_mode_override === "yellow" || a.ai_mode_override === "green"
+      ? a.ai_mode_override
+      : null;
+  const classAiMode = effectiveAiMode(classMode, assignmentOverride);
   const ttsOn = profile?.tts_enabled;
+  const ttsProvider = profile?.tts_provider ?? "browser";
+  const ttsSpeed = Number(profile?.tts_speed ?? 1);
+  const ttsPitch = Number(profile?.tts_pitch ?? 1);
+  const ttsVoice = profile?.tts_voice ?? "nova";
+  const ownerId = profile?.user_id ?? "";
+  const readingPrefs = {
+    bionic_reading: Boolean(profile?.bionic_reading),
+    visual_pacing: profile?.visual_pacing ?? "off",
+    line_focus: Boolean(profile?.line_focus),
+  };
   const readAloudText = [a.title, a.description].filter(Boolean).join(". ");
+  const scienceLike =
+    a.kind === "lab" ||
+    /(biology|chemistry|physics|science|environmental)/i.test(a.classes?.name ?? "");
+  const assignmentText = [a.title, a.description ?? ""].join("\n");
+  const historyLike =
+    /(history|social studies|government|civics|economics|geography|apush|human geography)/i.test(a.classes?.name ?? "") ||
+    /(primary source|dbq|document-based|happ|historical|cause and effect|map annotation|current events)/i.test(assignmentText);
+  const computerScienceLike =
+    /(computer science|programming|coding|software|web design|ap csp|ap csa|javascript|python)/i.test(a.classes?.name ?? "") ||
+    /(code|program|algorithm|debug|pseudocode|javascript|python|java\b|array|loop|function)/i.test(assignmentText);
+  const foreignLanguageLike =
+    /(spanish|french|german|mandarin|chinese|italian|latin|foreign language|world language|ap language)/i.test(a.classes?.name ?? "") ||
+    /(vocab|vocabulary|conjugat|translate|speaking|pronunciation|spanish|french|german|mandarin|latin)/i.test(assignmentText);
+  const artsLike =
+    /(art|music|drama|theater|theatre|speech|photography|film|media arts|choir|band|orchestra|elective)/i.test(a.classes?.name ?? "") ||
+    /(portfolio|artist statement|reflection|scale|triad|chord|monologue|stage direction|storyboard|shot list|formal analysis|ap art history)/i.test(assignmentText);
+  const healthLike =
+    /(health|wellness|physical education|\bpe\b|first aid|cpr|sports medicine)/i.test(a.classes?.name ?? "") ||
+    /(health question|first aid|cpr|sleep|recovery|movement goal|nutrition|mental health|reproductive health)/i.test(assignmentText);
+  const apLike =
+    /\bap\b|advanced placement|college board/i.test(a.classes?.name ?? "") ||
+    a.kind === "test_prep" ||
+    /\bfrq\b|\bdbq\b|synthesis essay|multiple choice|\bmcq\b|score band|college board/i.test(assignmentText);
 
   return (
     <div className="space-y-8">
@@ -72,12 +120,33 @@ export default async function AssignmentDetailPage({
         </Link>
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-2xl font-bold">{a.title}</h1>
-          {ttsOn && <TtsButton text={readAloudText} />}
+          {ttsOn && (
+            <TtsButton
+              text={readAloudText}
+              provider={ttsProvider}
+              speed={ttsSpeed}
+              pitch={ttsPitch}
+              voice={ttsVoice}
+            />
+          )}
         </div>
         <p className="text-sm text-muted">
           {KIND_LABEL[a.kind]}
           {a.due_at && ` · ${formatDueAt(a.due_at)}`}
         </p>
+        {a.external_source && (
+          <p className="text-xs text-muted">
+            Imported from {formatExternalSource(a.external_source)}
+            {a.external_url && (
+              <>
+                {" "}
+                <Link href={a.external_url} target="_blank" className="text-accent hover:underline">
+                  Open original
+                </Link>
+              </>
+            )}
+          </p>
+        )}
         {(a.reading_load >= 3 || a.writing_load >= 3) && (
           <div className="flex flex-wrap gap-1.5 text-xs">
             {a.reading_load >= 3 && (
@@ -93,13 +162,24 @@ export default async function AssignmentDetailPage({
           </div>
         )}
         {a.description && (
-          <VocabHoverProvider>
-            <p className="whitespace-pre-wrap rounded-lg border border-border bg-card p-3 text-sm">
-              {a.description}
-            </p>
-          </VocabHoverProvider>
+          <AssignmentReadingBlock
+            assignmentId={a.id}
+            ownerId={ownerId}
+            text={a.description}
+            readingPrefs={readingPrefs}
+            aiMode={classAiMode}
+          />
         )}
       </header>
+
+      <TaskSwitchCue assignmentId={a.id} classId={a.classes?.id ?? null} title={a.title} />
+
+      {a.rubric_text && (
+        <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+          <h2 className="text-sm font-medium">Imported rubric</h2>
+          <p className="whitespace-pre-wrap text-sm text-muted">{a.rubric_text}</p>
+        </section>
+      )}
 
       <TaskBreakdown
         assignmentId={a.id}
@@ -114,12 +194,75 @@ export default async function AssignmentDetailPage({
       {(a.kind === "reading" || (a.reading_load != null && a.reading_load >= 3)) && a.description && (
         <ReadingPanel
           text={a.description}
+          ownerId={ownerId}
+          assignmentId={a.id}
           classAiMode={classAiMode}
+          readingPrefs={readingPrefs}
+          ttsProvider={ttsProvider}
+          ttsSpeed={ttsSpeed}
+          ttsPitch={ttsPitch}
+          ttsVoice={ttsVoice}
         />
       )}
 
       {(a.kind === "problem_set" || a.kind === "test_prep") && (
         <MathHelper assignmentId={a.id} classAiMode={classAiMode} />
+      )}
+
+      {scienceLike && (
+        <ScienceHelper
+          assignmentId={a.id}
+          classAiMode={classAiMode}
+          initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+        />
+      )}
+
+      {historyLike && (
+        <HistoryHelper
+          assignmentId={a.id}
+          classAiMode={classAiMode}
+          initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+        />
+      )}
+
+      {computerScienceLike && (
+        <ComputerScienceHelper
+          assignmentId={a.id}
+          classAiMode={classAiMode}
+          initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+        />
+      )}
+
+      {foreignLanguageLike && (
+        <ForeignLanguageHelper
+          assignmentId={a.id}
+          classAiMode={classAiMode}
+          initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+        />
+      )}
+
+      {artsLike && (
+        <ArtsHelper
+          assignmentId={a.id}
+          classAiMode={classAiMode}
+          initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+        />
+      )}
+
+      {healthLike && (
+        <HealthHelper
+          assignmentId={a.id}
+          classAiMode={classAiMode}
+          initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+        />
+      )}
+
+      {apLike && (
+        <ApHelper
+          assignmentId={a.id}
+          classAiMode={classAiMode}
+          initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+        />
       )}
 
       {a.kind === "essay" && (
@@ -139,6 +282,15 @@ export default async function AssignmentDetailPage({
         <p className="text-lg font-semibold">{STATUS_LABEL[status]}</p>
         <StatusButtons assignmentId={id} from={status} options={nexts} />
       </section>
+
+      {(status === "exporting" || status === "submitted") && (
+        <ExternalSubmissionSync
+          assignmentId={a.id}
+          provider={a.external_source}
+          externalUrl={a.external_url}
+          initialStatus={a.submission_sync_status}
+        />
+      )}
 
       {(status === "drafting" || status === "checking") && (
         <Breadcrumb assignmentId={id} initial={a.last_thought ?? ""} />
@@ -172,4 +324,13 @@ export default async function AssignmentDetailPage({
       <AiUsageLog interactions={aiLog ?? []} />
     </div>
   );
+}
+
+function formatExternalSource(source: string): string {
+  return ({
+    canvas: "Canvas",
+    google_classroom: "Google Classroom",
+    ics: "calendar",
+    clever: "Clever",
+  } as Record<string, string>)[source] ?? source.replace(/_/g, " ");
 }

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" role="img" aria-label="Diana">
+  <rect width="192" height="192" rx="40" fill="#4f46e5"/>
+  <circle cx="140" cy="52" r="18" fill="#facc15"/>
+  <path d="M46 48h42c36 0 58 18 58 48s-22 48-58 48H46V48zm34 28v40h10c17 0 26-7 26-20s-9-20-26-20H80z" fill="#ffffff"/>
+</svg>

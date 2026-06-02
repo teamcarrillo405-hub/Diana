@@ -4,10 +4,13 @@ import { SignOutButton } from "./sign-out";
 import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AccentPicker } from "@/components/accent-picker";
 import { ThemePicker } from "@/components/theme-picker";
+import { IepImport } from "./iep-import";
 import { LmsConnections } from "./lms-connections";
 import { SharingSection } from "./sharing-section";
+import { PwaSettings } from "@/components/pwa-settings";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { labelsForInterests } from "@/lib/student-identity/interests";
 
 export default async function SettingsPage() {
   const profile = await loadProfile();
@@ -62,6 +65,14 @@ export default async function SettingsPage() {
         {profile.extra_time_pct > 0 && (
           <Row label="Extra time" value={`+${profile.extra_time_pct}%`} />
         )}
+        <Row
+          label="Interests"
+          value={
+            labelsForInterests(profile.interests).length
+              ? labelsForInterests(profile.interests).join(", ")
+              : "none specified"
+          }
+        />
         <p className="pt-2 text-xs text-muted">
           <Link href="/onboarding" className="text-accent underline-offset-2 hover:underline">
             Re-run onboarding
@@ -80,6 +91,20 @@ export default async function SettingsPage() {
       </section>
 
       <AccessibilityPrefs initial={profile} />
+
+      <IepImport />
+
+      <PwaSettings />
+
+      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
+        <h2 className="text-sm font-semibold">Data and privacy</h2>
+        <p className="text-sm text-muted">
+          Export your data, tune AI style by class, manage notifications, and review privacy controls.
+        </p>
+        <Link href="/export" className="text-sm text-accent underline-offset-2 hover:underline">
+          Open data and privacy
+        </Link>
+      </section>
 
       {await (async () => {
         const { data } = await supabase

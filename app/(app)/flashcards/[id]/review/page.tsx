@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { loadProfile } from "@/lib/profile";
 import { ReviewSession } from "./review-session";
 
 export default async function ReviewPage({
@@ -10,12 +11,13 @@ export default async function ReviewPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const profile = await loadProfile();
   const nowIso = new Date().toISOString();
 
   // Load all currently-due cards (ordered by due_at). The session walks this list.
   const { data: queue } = await supabase
     .from("flashcards")
-    .select("id, front, back, state")
+    .select("id, front, back, state, stability, difficulty, due_at, reps, lapses, last_review_at")
     .lte("due_at", nowIso)
     .order("due_at", { ascending: true });
 
@@ -52,7 +54,13 @@ export default async function ReviewPage({
       <Link href="/flashcards" className="text-xs text-muted hover:underline">
         ← Study
       </Link>
-      <ReviewSession queue={ordered} />
+      <ReviewSession
+        queue={ordered}
+        ttsProvider={profile?.tts_provider ?? "browser"}
+        ttsSpeed={Number(profile?.tts_speed ?? 1)}
+        ttsPitch={Number(profile?.tts_pitch ?? 1)}
+        ttsVoice={profile?.tts_voice ?? "nova"}
+      />
     </div>
   );
 }

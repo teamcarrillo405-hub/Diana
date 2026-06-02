@@ -11,7 +11,7 @@ export default async function QuickAddPage() {
   if (!user) redirect("/login");
 
   const profile = await loadProfile();
-  const ttsProvider = (profile?.tts_provider ?? "browser") as "browser" | "openai";
+  const ttsProvider = profile?.tts_provider === "openai" ? "openai" : "browser";
 
   return (
     <div className="space-y-6">

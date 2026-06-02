@@ -1,6 +1,14 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { TtsButton } from "@/components/tts-button";
+import { shouldOfferDifferentApproach } from "@/lib/emotional/session";
+import type { TtsProvider } from "@/lib/supabase/types";
+import {
+  cacheOfflineFlashcards,
+  queueOfflineFlashcardReview,
+  registerOfflineSync,
+} from "@/lib/offline/store";
 import { rateCard } from "../actions";
 
 export type QueueCard = {
@@ -8,6 +16,12 @@ export type QueueCard = {
   front: string;
   back:  string;
   state: string;
+  stability: number;
+  difficulty: number;
+  due_at: string;
+  reps: number;
+  lapses: number;
+  last_review_at: string | null;
 };
 
 const RATINGS = [
@@ -17,14 +31,46 @@ const RATINGS = [
   { value: 4 as const, label: "Easy",   hint: "Knew it cold" },
 ];
 
-export function ReviewSession({ queue }: { queue: QueueCard[] }) {
+export function ReviewSession({
+  queue,
+  ttsProvider,
+  ttsSpeed,
+  ttsPitch,
+  ttsVoice,
+}: {
+  queue: QueueCard[];
+  ttsProvider: TtsProvider;
+  ttsSpeed: number;
+  ttsPitch: number;
+  ttsVoice: string;
+}) {
   const router = useRouter();
   const [, startTransition] = useTransition();
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [rating, setRating] = useState(false);
+  const [needsSupportCount, setNeedsSupportCount] = useState(0);
+  const [showSupport, setShowSupport] = useState(false);
 
   const card = queue[idx];
+
+  useEffect(() => {
+    void cacheOfflineFlashcards(
+      "due",
+      queue.map((item) => ({
+        id: item.id,
+        front: item.front,
+        back: item.back,
+        state: item.state,
+        stability: Number(item.stability),
+        difficulty: Number(item.difficulty),
+        dueAt: item.due_at,
+        reps: item.reps,
+        lapses: item.lapses,
+        lastReviewAt: item.last_review_at,
+      })),
+    );
+  }, [queue]);
 
   if (!card) {
     return (
@@ -46,8 +92,34 @@ export function ReviewSession({ queue }: { queue: QueueCard[] }) {
 
   function handleRate(value: 1 | 2 | 3 | 4) {
     setRating(true);
+    const nextNeedsSupport = value === 1 ? needsSupportCount + 1 : needsSupportCount;
+    setNeedsSupportCount(nextNeedsSupport);
+    if (shouldOfferDifferentApproach({ needsSupportCount: nextNeedsSupport })) {
+      setShowSupport(true);
+    }
     startTransition(async () => {
-      await rateCard({ id: card.id, rating: value });
+      try {
+        const result = await rateCard({ id: card.id, rating: value });
+        if (!result.ok && !navigator.onLine) {
+          await queueOfflineFlashcardReview({
+            tempId: `${card.id}-${Date.now()}`,
+            cardId: card.id,
+            rating: value,
+            queuedAt: new Date().toISOString(),
+          });
+          await registerOfflineSync();
+        }
+      } catch {
+        if (!navigator.onLine) {
+          await queueOfflineFlashcardReview({
+            tempId: `${card.id}-${Date.now()}`,
+            cardId: card.id,
+            rating: value,
+            queuedAt: new Date().toISOString(),
+          });
+          await registerOfflineSync();
+        }
+      }
       // Advance to next card; reset flip state.
       setFlipped(false);
       setRating(false);
@@ -61,19 +133,55 @@ export function ReviewSession({ queue }: { queue: QueueCard[] }) {
         Card {idx + 1} of {queue.length}
       </p>
 
+      {showSupport && (
+        <section className="rounded-xl border border-amber-400/40 bg-amber-50 p-4 text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
+          <p className="text-sm font-medium">Try a different path?</p>
+          <p className="mt-1 text-sm">
+            Switch to audio, take a short reset, or review one note before the next card.
+          </p>
+          <button
+            type="button"
+            onClick={() => setShowSupport(false)}
+            className="mt-3 rounded-md border border-amber-500/40 px-3 py-2 text-sm hover:bg-amber-100/60 dark:hover:bg-amber-900/40"
+          >
+            Keep reviewing
+          </button>
+        </section>
+      )}
+
       {/* Front + (optional) back */}
       <div className="rounded-2xl border border-border bg-card p-6">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted">
-          Front
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted">
+            Front
+          </p>
+          <TtsButton
+            text={card.front}
+            label="Audio"
+            provider={ttsProvider}
+            speed={ttsSpeed}
+            pitch={ttsPitch}
+            voice={ttsVoice}
+          />
+        </div>
         <p className="mt-2 whitespace-pre-wrap text-base">{card.front}</p>
 
         {flipped && (
           <>
             <hr className="my-4 border-border" />
-            <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Back
-            </p>
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted">
+                Back
+              </p>
+              <TtsButton
+                text={card.back}
+                label="Audio"
+                provider={ttsProvider}
+                speed={ttsSpeed}
+                pitch={ttsPitch}
+                voice={ttsVoice}
+              />
+            </div>
             <p className="mt-2 whitespace-pre-wrap text-base">{card.back}</p>
           </>
         )}

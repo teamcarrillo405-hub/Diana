@@ -18,6 +18,17 @@ import { setLastShownClass, getEventIntentions, getReminderItems } from "./actio
 import { EveningPlanning } from "./evening-planning";
 import { DoneToday } from "./done-today";
 import { ReminderBanner } from "./reminder-banner";
+import { BurnoutCue } from "./burnout-cue";
+import { MoodCheckIn } from "./mood-check-in";
+import { SessionAdaptationCard } from "./session-adaptation-card";
+import { WeeklyReflection } from "./weekly-reflection";
+import { SleepRecoveryCard } from "./sleep-recovery-card";
+import {
+  burnoutSignal,
+  sessionAdaptationForMood,
+  shouldShowMoodCheckIn,
+} from "@/lib/emotional/session";
+import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 
 export default async function DashboardPage({
   searchParams,
@@ -26,8 +37,12 @@ export default async function DashboardPage({
 }) {
   const supabase = await createClient();
   const profile = await loadProfile();
-  const energy = (await searchParams).energy ?? "medium";
-  const view = (await searchParams).view;
+  const search = await searchParams;
+  const now = new Date();
+  const roughActive =
+    profile?.rough_mode_until ? new Date(profile.rough_mode_until).getTime() > now.getTime() : false;
+  const adaptation = sessionAdaptationForMood(roughActive ? "rough" : profile?.session_mood);
+  const view = search.view;
   const isReadingLoadView = view === "reading-load";
 
   const cookieStore = await cookies();
@@ -63,6 +78,50 @@ export default async function DashboardPage({
     .gte("occurred_at", todayStart.toISOString());
   const doneTodayCount = doneToday?.length ?? 0;
 
+  const { data: timeLogs } = await supabase
+    .from("assignment_time_log")
+    .select("started_at, ended_at, elapsed_minutes")
+    .gte("started_at", todayStart.toISOString());
+  const minutesToday = (timeLogs ?? []).reduce((sum, log) => {
+    if (typeof log.elapsed_minutes === "number") return sum + log.elapsed_minutes;
+    if (log.ended_at) {
+      return sum + Math.max(0, Math.round((new Date(log.ended_at).getTime() - new Date(log.started_at).getTime()) / 60000));
+    }
+    return sum;
+  }, 0);
+  const openSessionMinutes = (timeLogs ?? []).reduce((sum, log) => {
+    if (log.ended_at) return sum;
+    return sum + Math.max(0, Math.round((now.getTime() - new Date(log.started_at).getTime()) / 60000));
+  }, 0);
+  const { data: overwhelmedToday } = await supabase
+    .from("task_signals")
+    .select("id")
+    .eq("kind", "overwhelmed")
+    .gte("occurred_at", todayStart.toISOString());
+  const burnout = burnoutSignal({
+    minutesToday,
+    openSessionMinutes,
+    overwhelmedSignals: overwhelmedToday?.length ?? 0,
+    mood: adaptation.mood,
+  });
+  const { data: latestSleep } = await supabase
+    .from("sleep_logs")
+    .select("sleep_date, sleep_quality, sleep_hours")
+    .order("sleep_date", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const sleepAdjustment = sleepRecoveryAdjustment(
+    latestSleep
+      ? {
+          sleep_date: latestSleep.sleep_date,
+          sleep_quality: latestSleep.sleep_quality as SleepQuality,
+          sleep_hours: latestSleep.sleep_hours === null ? null : Number(latestSleep.sleep_hours),
+        }
+      : null,
+    now,
+  );
+  const energy = search.energy ?? sleepAdjustment.energyOverride ?? adaptation.energyOverride ?? "medium";
+
   // F12: due flashcards for dashboard tile (calm framing — never "you're behind")
   const { data: dueCards } = await supabase
     .from("flashcards")
@@ -96,7 +155,7 @@ export default async function DashboardPage({
         .filter((a) => a.id !== top?.id)
         .sort((a, b) => (b.reading_load ?? 0) - (a.reading_load ?? 0))
         .slice(0, 5)
-    : ranked.slice(1, 4);
+    : ranked.slice(1, 1 + adaptation.visibleTaskCount);
 
   const budget = computeNightBudget(
     (assignments ?? []).map((a) => ({
@@ -130,9 +189,28 @@ export default async function DashboardPage({
 
       <ReminderBanner items={reminderItems} />
 
+      <MoodCheckIn
+        visible={shouldShowMoodCheckIn({
+          disabled: profile?.mood_checkin_disabled,
+          lastCheckInAt: profile?.last_mood_checkin_at,
+          now,
+        })}
+      />
+
+      <SessionAdaptationCard adaptation={adaptation} />
+
+      <BurnoutCue show={burnout.show} message={burnout.message} />
+
+      <SleepRecoveryCard message={sleepAdjustment.message} />
+
       {profile && <TokenBudgetBanner profile={profile} />}
 
       <EveningPlanning intentions={eveningIntentions} />
+
+      <WeeklyReflection
+        lastReflectedAt={profile?.last_weekly_reflection_at ?? null}
+        mood={profile?.session_mood ?? null}
+      />
 
       <EnergyPicker current={energy} />
       <ReadingLoadToggle active={isReadingLoadView} />
@@ -211,7 +289,10 @@ export default async function DashboardPage({
               <div className="mt-3">
                 <TtsButton
                   text={`${top.title}. ${KIND_LABEL[top.kind]}. ${top.due_at ? formatDueAt(top.due_at) : ""}.`}
-                  provider={(profile?.tts_provider as "browser" | "openai" | undefined) ?? "browser"}
+                  provider={profile?.tts_provider ?? "browser"}
+                  speed={Number(profile?.tts_speed ?? 1)}
+                  pitch={Number(profile?.tts_pitch ?? 1)}
+                  voice={profile?.tts_voice ?? "nova"}
                 />
               </div>
             )}
@@ -262,7 +343,7 @@ export default async function DashboardPage({
       <TimeBudget totalMinutes={budget.totalMinutes} items={budget.items} />
 
       <div className="flex flex-wrap gap-2 pt-2">
-        <StartSessionButton />
+        <StartSessionButton roughMode={adaptation.mood === "rough"} difficulty={top?.difficulty ?? null} />
         <Link
           href="/assignments/new"
           className="inline-flex items-center justify-center rounded-lg border border-border bg-card px-4 py-2 text-sm hover:bg-border/30"

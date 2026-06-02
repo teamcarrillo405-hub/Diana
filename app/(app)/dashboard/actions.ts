@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { fallbackReflection, roughModeUntil, startOfWeekIsoDate } from "@/lib/emotional/session";
 
 const ClassIdInput = z.string().uuid();
 
@@ -157,4 +158,110 @@ export async function getReminderItems(): Promise<ReminderItem[]> {
         hours_until_due: hours,
       };
     });
+}
+
+// ---------- Phase 24 - session mood + weekly reflection ----------
+
+const MoodInput = z.object({
+  mood: z.enum(["good", "meh", "rough"]).nullable(),
+  disable: z.boolean().optional(),
+});
+
+export async function saveMoodCheckIn(
+  input: z.infer<typeof MoodInput>,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = MoodInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const now = new Date();
+  const patch = {
+    session_mood: parsed.data.mood,
+    last_mood_checkin_at: now.toISOString(),
+    mood_checkin_disabled: parsed.data.disable ?? false,
+    rough_mode_until: parsed.data.mood === "rough" ? roughModeUntil(now) : null,
+  };
+
+  const { error } = await supabase
+    .from("profiles")
+    .update(patch)
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+
+  await supabase.from("task_signals").insert({
+    owner_id: user.id,
+    kind: "mood_checkin",
+    value: { mood: parsed.data.mood, disabled: parsed.data.disable ?? false },
+  });
+
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+const ReflectionInput = z.object({
+  body: z.string().trim().min(2).max(1500),
+  mood: z.enum(["good", "meh", "rough"]).nullable().optional(),
+});
+
+export async function saveWeeklyReflection(
+  input: z.infer<typeof ReflectionInput>,
+): Promise<{ ok: true; reflection: string } | { ok: false; error: string }> {
+  const parsed = ReflectionInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Add a few words first." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  let aiReflection = fallbackReflection(parsed.data.body);
+  const { data } = await supabase.functions.invoke("weekly-reflection", {
+    body: {
+      ownerId: user.id,
+      reflection: parsed.data.body,
+      mood: parsed.data.mood ?? null,
+    },
+  }).catch(() => ({ data: null }));
+  if (typeof data?.reflection === "string" && data.reflection.trim()) {
+    aiReflection = data.reflection.trim();
+  }
+
+  const now = new Date();
+  const weekStart = startOfWeekIsoDate(now);
+  const { error } = await supabase
+    .from("student_reflections")
+    .upsert({
+      owner_id: user.id,
+      week_start: weekStart,
+      mood: parsed.data.mood ?? null,
+      body: parsed.data.body,
+      ai_reflection: aiReflection,
+      updated_at: now.toISOString(),
+    }, { onConflict: "owner_id,week_start" });
+  if (error) return { ok: false, error: error.message };
+
+  await supabase
+    .from("profiles")
+    .update({ last_weekly_reflection_at: now.toISOString() })
+    .eq("user_id", user.id);
+
+  revalidatePath("/dashboard");
+  return { ok: true, reflection: aiReflection };
+}
+
+export async function skipWeeklyReflection(): Promise<{ ok: true } | { ok: false; error: string }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ last_weekly_reflection_at: new Date().toISOString() })
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/dashboard");
+  return { ok: true };
 }

@@ -7,7 +7,7 @@
   --fg: 15 23 42;          /* slate-900 */
   --muted: 100 116 139;    /* slate-500 */
   --accent: 79 70 229;     /* indigo-600 */
-  --danger: 220 38 38;     /* red-600 */
+  --danger: 180 83 9;      /* amber-700 */
   --ok: 22 163 74;         /* green-600 */
   --card: 255 255 255;
   --border: 226 232 240;   /* slate-200 */
@@ -99,6 +99,7 @@ button, [role="button"], a {
   --muted: 30 41 59;       /* slate-800 */
   --border: 71 85 105;     /* slate-600 */
   --card: 255 255 255;
+  --danger: 146 64 14;     /* amber-800 */
 }
 @media (prefers-color-scheme: dark) {
   .high-contrast {
@@ -106,6 +107,7 @@ button, [role="button"], a {
     --muted: 226 232 240;  /* slate-200 */
     --border: 148 163 184; /* slate-400 */
     --card: 0 0 0;
+    --danger: 252 211 77;  /* amber-300 */
   }
 }
 
@@ -121,6 +123,18 @@ button, [role="button"], a {
   background: #FAF8F3;
   line-height: 1.6;
   letter-spacing: 0.02em;
+}
+.reading-letter-wide .reading-view {
+  letter-spacing: 0.035em;
+}
+.reading-letter-wider .reading-view {
+  letter-spacing: 0.055em;
+}
+.reading-word-wide .reading-view {
+  word-spacing: 0.08em;
+}
+.reading-word-wider .reading-view {
+  word-spacing: 0.14em;
 }
 .reading-view .reading-content {
   max-width: 70ch;

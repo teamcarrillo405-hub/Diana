@@ -4,7 +4,13 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { savePrefs } from "./actions";
 import type { ProfilePrefs } from "@/lib/profile";
-import type { FontSize, LineSpacing } from "@/lib/supabase/types";
+import type {
+  FontSize,
+  LineSpacing,
+  ReadingSpacing,
+  TtsProvider,
+  VisualPacing,
+} from "@/lib/supabase/types";
 
 const FONT_SIZES: { value: FontSize; label: string }[] = [
   { value: "small", label: "Small" },
@@ -19,6 +25,49 @@ const LINE_SPACINGS: { value: LineSpacing; label: string }[] = [
   { value: "loose", label: "Loose" },
 ];
 
+const VISUAL_PACING: { value: VisualPacing; label: string }[] = [
+  { value: "off", label: "Off" },
+  { value: "word", label: "Word" },
+  { value: "line", label: "Line" },
+];
+
+const READING_SPACING: { value: ReadingSpacing; label: string }[] = [
+  { value: "normal", label: "Normal" },
+  { value: "wide", label: "Wide" },
+  { value: "wider", label: "Wider" },
+];
+
+const TTS_PROVIDERS: { value: TtsProvider; label: string }[] = [
+  { value: "browser", label: "Browser" },
+  { value: "openai", label: "OpenAI" },
+  { value: "elevenlabs", label: "ElevenLabs" },
+];
+
+const TTS_SPEEDS = [0.75, 1, 1.15, 1.25] as const;
+const TTS_PITCHES = [0.85, 1, 1.15] as const;
+
+const OPENAI_VOICES = [
+  { value: "alloy", label: "Alloy" },
+  { value: "echo", label: "Echo" },
+  { value: "fable", label: "Fable" },
+  { value: "nova", label: "Nova" },
+  { value: "shimmer", label: "Shimmer" },
+] as const;
+
+const ELEVENLABS_VOICES = [
+  { value: "JBFqnCBsd6RMkjVDRZzb", label: "Calm" },
+  { value: "21m00Tcm4TlvDq8ikWAM", label: "Rachel" },
+  { value: "EXAVITQu4vr4xnSDxMaL", label: "Bella" },
+] as const;
+
+type ReadingFont = "system" | "lexend" | "atkinson" | "opendyslexic";
+
+function defaultVoiceForProvider(provider: TtsProvider): string {
+  if (provider === "openai") return "nova";
+  if (provider === "elevenlabs") return ELEVENLABS_VOICES[0].value;
+  return "default";
+}
+
 export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -30,8 +79,17 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
   const [reducedMotion, setReducedMotion] = useState(initial.reduced_motion);
   const [highContrast, setHighContrast] = useState(initial.high_contrast);
   const [ttsEnabled, setTtsEnabled] = useState(initial.tts_enabled);
-  const [readingFont, setReadingFont] = useState<"system" | "lexend" | "atkinson" | "opendyslexic">(
-    (initial as any).reading_font ?? "system"
+  const [ttsProvider, setTtsProvider] = useState<TtsProvider>(initial.tts_provider);
+  const [ttsSpeed, setTtsSpeed] = useState(Number(initial.tts_speed ?? 1));
+  const [ttsPitch, setTtsPitch] = useState(Number(initial.tts_pitch ?? 1));
+  const [ttsVoice, setTtsVoice] = useState(initial.tts_voice ?? defaultVoiceForProvider(initial.tts_provider));
+  const [bionicReading, setBionicReading] = useState(initial.bionic_reading);
+  const [visualPacing, setVisualPacing] = useState<VisualPacing>(initial.visual_pacing);
+  const [lineFocus, setLineFocus] = useState(initial.line_focus);
+  const [readingLetterSpacing, setReadingLetterSpacing] = useState<ReadingSpacing>(initial.reading_letter_spacing);
+  const [readingWordSpacing, setReadingWordSpacing] = useState<ReadingSpacing>(initial.reading_word_spacing);
+  const [readingFont, setReadingFont] = useState<ReadingFont>(
+    (initial as { reading_font?: ReadingFont }).reading_font ?? "system",
   );
 
   function commit(next: Partial<{
@@ -41,7 +99,16 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
     reduced_motion: boolean;
     high_contrast: boolean;
     tts_enabled: boolean;
-    reading_font: "system" | "lexend" | "atkinson" | "opendyslexic"; // F19
+    tts_provider: TtsProvider;
+    tts_speed: number;
+    tts_pitch: number;
+    tts_voice: string;
+    bionic_reading: boolean;
+    visual_pacing: VisualPacing;
+    line_focus: boolean;
+    reading_letter_spacing: ReadingSpacing;
+    reading_word_spacing: ReadingSpacing;
+    reading_font: ReadingFont;
   }>) {
     startTransition(async () => {
       await savePrefs(next);
@@ -52,12 +119,51 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
   }
 
   return (
-    <section className="space-y-4 rounded-xl border border-border bg-card p-4">
+    <section className="space-y-5 rounded-xl border border-border bg-card p-4">
       <div className="flex items-baseline justify-between">
         <h2 className="text-sm font-semibold">Accessibility</h2>
-        {pending && <span className="text-xs text-muted">Saving…</span>}
+        {pending && <span className="text-xs text-muted">Saving...</span>}
         {saved && !pending && <span className="text-xs text-ok">Saved.</span>}
       </div>
+
+      <Group label="Reading assist">
+        <div className="grid gap-2 sm:grid-cols-2">
+          <Toggle
+            label="Bionic reading"
+            hint="Bold starts on long-form reading text."
+            on={bionicReading}
+            onChange={(v) => {
+              setBionicReading(v);
+              commit({ bionic_reading: v });
+            }}
+          />
+          <Toggle
+            label="Line focus"
+            hint="Dim nearby lines while reading."
+            on={lineFocus}
+            onChange={(v) => {
+              setLineFocus(v);
+              commit({ line_focus: v });
+            }}
+          />
+        </div>
+      </Group>
+
+      <Group label="Visual pacing">
+        <div className="flex flex-wrap gap-2">
+          {VISUAL_PACING.map((o) => (
+            <Pill
+              key={o.value}
+              label={o.label}
+              active={visualPacing === o.value}
+              onClick={() => {
+                setVisualPacing(o.value);
+                commit({ visual_pacing: o.value });
+              }}
+            />
+          ))}
+        </div>
+      </Group>
 
       <Group label="Text size">
         <div className="flex flex-wrap gap-2">
@@ -66,7 +172,10 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
               key={o.value}
               label={o.label}
               active={fontSize === o.value}
-              onClick={() => { setFontSize(o.value); commit({ font_size: o.value }); }}
+              onClick={() => {
+                setFontSize(o.value);
+                commit({ font_size: o.value });
+              }}
             />
           ))}
         </div>
@@ -79,7 +188,42 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
               key={o.value}
               label={o.label}
               active={lineSpacing === o.value}
-              onClick={() => { setLineSpacing(o.value); commit({ line_spacing: o.value }); }}
+              onClick={() => {
+                setLineSpacing(o.value);
+                commit({ line_spacing: o.value });
+              }}
+            />
+          ))}
+        </div>
+      </Group>
+
+      <Group label="Letter spacing">
+        <div className="flex flex-wrap gap-2">
+          {READING_SPACING.map((o) => (
+            <Pill
+              key={o.value}
+              label={o.label}
+              active={readingLetterSpacing === o.value}
+              onClick={() => {
+                setReadingLetterSpacing(o.value);
+                commit({ reading_letter_spacing: o.value });
+              }}
+            />
+          ))}
+        </div>
+      </Group>
+
+      <Group label="Word spacing">
+        <div className="flex flex-wrap gap-2">
+          {READING_SPACING.map((o) => (
+            <Pill
+              key={o.value}
+              label={o.label}
+              active={readingWordSpacing === o.value}
+              onClick={() => {
+                setReadingWordSpacing(o.value);
+                commit({ reading_word_spacing: o.value });
+              }}
             />
           ))}
         </div>
@@ -87,15 +231,15 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
 
       <Toggle
         label="Dyslexia-friendly font"
-        hint="Swap to a humanist sans (Lexend / Atkinson) with wider word spacing."
+        hint="Swap the full interface to a humanist typeface."
         on={dyslexiaFont}
-        onChange={(v) => { setDyslexiaFont(v); commit({ dyslexia_font: v }); }}
+        onChange={(v) => {
+          setDyslexiaFont(v);
+          commit({ dyslexia_font: v });
+        }}
       />
 
       <Group label="Reading font">
-        <p className="mb-2 text-xs text-muted">
-          Applies to reading assignments and long-form text blocks.
-        </p>
         <div className="flex flex-wrap gap-2">
           {(
             [
@@ -120,21 +264,124 @@ export function AccessibilityPrefs({ initial }: { initial: ProfilePrefs }) {
 
       <Toggle
         label="Read-aloud buttons"
-        hint="Adds a 🔊 button to task titles and descriptions. Uses your browser's voice — nothing is sent to a server."
+        hint="Show TTS controls on task descriptions and notes."
         on={ttsEnabled}
-        onChange={(v) => { setTtsEnabled(v); commit({ tts_enabled: v }); }}
+        onChange={(v) => {
+          setTtsEnabled(v);
+          commit({ tts_enabled: v });
+        }}
       />
+
+      <Group label="Read-aloud provider">
+        <div className="flex flex-wrap gap-2">
+          {TTS_PROVIDERS.map((o) => (
+            <Pill
+              key={o.value}
+              label={o.label}
+              active={ttsProvider === o.value}
+              onClick={() => {
+                const voice = defaultVoiceForProvider(o.value);
+                setTtsProvider(o.value);
+                setTtsVoice(voice);
+                commit({ tts_provider: o.value, tts_voice: voice });
+              }}
+            />
+          ))}
+        </div>
+      </Group>
+
+      {ttsProvider === "openai" && (
+        <Group label="OpenAI voice">
+          <div className="flex flex-wrap gap-2">
+            {OPENAI_VOICES.map((o) => (
+              <Pill
+                key={o.value}
+                label={o.label}
+                active={ttsVoice === o.value}
+                onClick={() => {
+                  setTtsVoice(o.value);
+                  commit({ tts_voice: o.value });
+                }}
+              />
+            ))}
+          </div>
+        </Group>
+      )}
+
+      {ttsProvider === "elevenlabs" && (
+        <Group label="ElevenLabs voice">
+          <div className="flex flex-wrap gap-2">
+            {ELEVENLABS_VOICES.map((o) => (
+              <Pill
+                key={o.value}
+                label={o.label}
+                active={ttsVoice === o.value}
+                onClick={() => {
+                  setTtsVoice(o.value);
+                  commit({ tts_voice: o.value });
+                }}
+              />
+            ))}
+          </div>
+          <input
+            value={ttsVoice}
+            onChange={(event) => setTtsVoice(event.target.value)}
+            onBlur={() => commit({ tts_voice: ttsVoice })}
+            aria-label="ElevenLabs voice ID"
+            className="mt-2 w-full rounded-md border border-border bg-bg px-3 py-2 text-sm"
+          />
+        </Group>
+      )}
+
+      <Group label="Read-aloud speed">
+        <div className="flex flex-wrap gap-2">
+          {TTS_SPEEDS.map((speed) => (
+            <Pill
+              key={speed}
+              label={`${speed}x`}
+              active={ttsSpeed === speed}
+              onClick={() => {
+                setTtsSpeed(speed);
+                commit({ tts_speed: speed });
+              }}
+            />
+          ))}
+        </div>
+      </Group>
+
+      <Group label="Read-aloud pitch">
+        <div className="flex flex-wrap gap-2">
+          {TTS_PITCHES.map((pitch) => (
+            <Pill
+              key={pitch}
+              label={`${pitch}x`}
+              active={ttsPitch === pitch}
+              onClick={() => {
+                setTtsPitch(pitch);
+                commit({ tts_pitch: pitch });
+              }}
+            />
+          ))}
+        </div>
+      </Group>
+
       <Toggle
         label="Reduce motion"
-        hint="Disables animations and transitions."
+        hint="Disable animations and transitions."
         on={reducedMotion}
-        onChange={(v) => { setReducedMotion(v); commit({ reduced_motion: v }); }}
+        onChange={(v) => {
+          setReducedMotion(v);
+          commit({ reduced_motion: v });
+        }}
       />
       <Toggle
         label="High contrast"
-        hint="Stronger borders, darker text. Helpful in bright rooms or with low vision."
+        hint="Use stronger borders and foreground contrast."
         on={highContrast}
-        onChange={(v) => { setHighContrast(v); commit({ high_contrast: v }); }}
+        onChange={(v) => {
+          setHighContrast(v);
+          commit({ high_contrast: v });
+        }}
       />
     </section>
   );
@@ -153,6 +400,7 @@ function Pill({ label, active, onClick }: { label: string; active: boolean; onCl
   return (
     <button
       type="button"
+      aria-pressed={active}
       onClick={onClick}
       className={`rounded-md border px-3 py-1.5 text-sm transition ${
         active
@@ -179,6 +427,8 @@ function Toggle({
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={on}
       onClick={() => onChange(!on)}
       className="flex w-full items-start justify-between gap-3 rounded-md border border-border bg-transparent px-3 py-3 text-left hover:bg-border/30"
     >
