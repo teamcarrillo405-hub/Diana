@@ -41,7 +41,7 @@ export function ReadingPanel({
     setLoadingScaffold(true);
     setScaffoldError(null);
     setScaffoldType(type);
-    const res = await fetchScaffold({ type, text, aiMode: classAiMode });
+    const res = await fetchScaffold({ assignmentId, type, text, aiMode: classAiMode });
     if ("error" in res) {
       setScaffoldError(res.error);
     } else {
@@ -66,7 +66,7 @@ export function ReadingPanel({
         </VocabHoverProvider>
       </div>
 
-      {classAiMode !== "red" && (
+      {classAiMode === "green" && (
         <div className="border-t border-border pt-3">
           {!scaffoldOpen ? (
             <button

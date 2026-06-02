@@ -1,85 +1,134 @@
 // supabase/functions/reading-scaffold/index.ts
-// F07: Reading comprehension scaffolds — pre/mid/post.
-// Pitfall 5: aiMode='red' returns 403 (defense in depth — client also hides buttons).
+// F07: Reading comprehension scaffolds - pre/mid/post.
+// ai_mode: 'red' and 'yellow' both return 403 for content-generating support.
 // Model: claude-sonnet-4-6 (comprehension needs reasoning quality, not Haiku).
 // Never produces numeric scores per F07 spec.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-
-const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
+import { createClient } from "jsr:@supabase/supabase-js@2";
+import {
+  checkTokenBudget,
+  incrementTokens,
+  logInteraction,
+  resetBudgetIfNewDay,
+} from "../_shared/safety.ts";
+import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const PROMPTS: Record<"pre" | "mid" | "post", string> = {
   pre: `You are helping a high school student who has dyslexia prepare to read an assignment.
-List 5–8 vocabulary words from this text that might be unfamiliar to a 9th–12th grader.
+List 5-8 vocabulary words from this text that might be unfamiliar to a 9th-12th grader.
 For each word: the word, a plain-language definition (1 sentence), and how it is used in context.
 Do NOT summarize the text. Do NOT give away the main argument.
 Format as a simple list. Calm, encouraging tone. No scores.`,
 
   mid: `You are helping a high school student who has dyslexia check in during reading.
-In 2–4 sentences, describe what has happened so far in plain language.
+In 2-4 sentences, describe what has happened so far in plain language.
 Then ask one open-ended question to help them think about what they just read.
 Keep it encouraging. Do not answer the question for them. No scores.`,
 
   post: `You are helping a high school student who has dyslexia review what they read.
 Write 3 retrieval questions about the main ideas. Each question should be answerable from the text.
-Questions only — no answers. No numeric scores. Calm, encouraging tone.`,
+Questions only - no answers. No numeric scores. Calm, encouraging tone.`,
 };
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, content-type",
+};
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const body = await req.json() as {
+      ownerId?: unknown;
+      assignmentId?: unknown;
+      type?: unknown;
+      text?: unknown;
+      aiMode?: unknown;
+    };
+
+    const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
+    const assignmentId = typeof body.assignmentId === "string" ? body.assignmentId : null;
+    const type = body.type as "pre" | "mid" | "post";
+    const text = typeof body.text === "string" ? body.text : "";
+    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+
+    if (!ownerId || text.trim().length < 10) return json({ error: "Reading input required" }, 400);
+    if (!PROMPTS[type]) return json({ error: "Invalid scaffold type" }, 400);
+    if (aiMode === "red" || aiMode === "yellow") {
+      return json({ error: "AI not available for this class" }, 403);
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
+    await resetBudgetIfNewDay(ownerId, supabase);
+    const { allowed } = await checkTokenBudget(ownerId, supabase);
+    if (!allowed) return json({ error: "You've used your AI quota for today - resets at midnight." }, 429);
+
+    // Truncate text: pre uses first 1500 chars (vocab from opening); mid/post use 4000 chars.
+    const truncatedText = type === "pre" ? text.slice(0, 1500) : text.slice(0, 4000);
+    const system = composeSystemPrompt(PROMPTS[type], {
+      includeRefuseRedirect: true,
+      includeFrustration: true,
+      includeMinorSafety: true,
+    });
+
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
       headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "authorization, content-type",
+        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
       },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 512,
+        system,
+        messages: [{ role: "user", content: `Reading text:\n\n${truncatedText}` }],
+      }),
     });
+
+    if (!res.ok) {
+      console.error("reading-scaffold anthropic error:", await res.text());
+      return json({ error: "AI request failed" }, 502);
+    }
+
+    const data = await res.json() as {
+      content: Array<{ type: string; text: string }>;
+      usage?: { input_tokens: number; output_tokens: number };
+    };
+    const content = data.content?.[0]?.text ?? "";
+    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+
+    Promise.resolve()
+      .then(async () => {
+        await logInteraction({
+          ownerId,
+          assignmentId,
+          feature: "reading_scaffold",
+          model: "claude-sonnet-4-6",
+          promptSummary: `${type}: ${text.slice(0, 180)}`,
+          tokensUsed: tokens,
+        }, supabase);
+        await incrementTokens(ownerId, tokens, supabase);
+      })
+      .catch((e) => console.warn("reading-scaffold side effects failed", e));
+
+    return json({ content });
+  } catch (err) {
+    console.error("reading-scaffold error:", err);
+    return json({ error: "Internal error" }, 500);
   }
-
-  const { type, text, aiMode } = await req.json() as {
-    type: "pre" | "mid" | "post";
-    text: string;
-    aiMode: string;
-  };
-
-  // Pitfall 5: server-side aiMode guard (defense in depth)
-  if (aiMode === "red") {
-    return new Response(JSON.stringify({ error: "AI disabled for this class" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  if (!PROMPTS[type]) {
-    return new Response(JSON.stringify({ error: "Invalid scaffold type" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  // Truncate text: pre uses first 1500 chars (vocab from opening); mid/post use 4000 chars
-  const truncatedText = type === "pre" ? text.slice(0, 1500) : text.slice(0, 4000);
-
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 512,
-      system: PROMPTS[type],
-      messages: [{ role: "user", content: `Reading text:\n\n${truncatedText}` }],
-    }),
-  });
-
-  const data = await res.json() as { content: Array<{ type: string; text: string }> };
-  const content = data.content?.[0]?.text ?? "";
-
-  return new Response(JSON.stringify({ content }), {
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-    },
-  });
 });
