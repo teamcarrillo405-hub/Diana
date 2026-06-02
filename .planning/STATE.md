@@ -1,24 +1,24 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Milestone v1.0 COMPLETE
-stopped_at: "All 11 phases delivered. Teen Identity Layer + Phase 11 photo/PDF upload smoke-test approved 2026-05-31."
-last_updated: "2026-05-31T22:00:00.000Z"
+milestone: v2.0
+milestone_name: The Complete Academic Platform
+status: Milestone v2.0 COMPLETE - Phase 35 COMPLETE
+stopped_at: "Completed Phase 35: COPPA retention enforcement, launch audit, launch readiness docs, critical-path coverage gate, migration 0034, and final static gates. Milestone v2.0 complete."
+last_updated: "2026-06-02T12:47:04.0000000-07:00"
 progress:
-  total_phases: 11
-  completed_phases: 11
-  total_plans: 39
-  completed_plans: 39
+  total_phases: 35
+  completed_phases: 35
+  total_plans: 63
+  completed_plans: 63
 ---
 
 # Diana — Project State
 
-**Last updated:** 2026-05-30  
+**Last updated:** 2026-06-01
 **Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 10 COMPLETE — F4-AUDIO / F8-UPLOAD / F16-AUTOCLASSIFY all delivered  
-**Last session:** 2026-05-31T19:30:29.627Z
-**Stopped at:** Completed 11-01: migration 0019 + validateDocFile + heic-convert + extract-note-doc Edge Function
+**Active phase:** Phase 35 COMPLETE - v2.0 launch hardening delivered
+**Last session:** 2026-06-02T12:47:04.0000000-07:00
+**Stopped at:** Completed Phase 35 with final v2.0 verification; milestone v2.0 is complete
 
 ---
 
@@ -53,6 +53,298 @@ progress:
 - Bucket and RLS policies created via `npx supabase --experimental db query --linked` — only path available when local Postgres stack is not running
 - types.ts doc_storage_key manually annotated (Row required, Insert/Update optional) — same pattern as class_id in 10-03; regen deferred until supabase gen types works cleanly against linked project
 - ANTHROPIC_API_KEY confirmed present via indirect evidence: 4 deployed ACTIVE functions (classify-inbox, math-step, reading-scaffold, transcribe-note) all use the same secret
+
+## Phase 12 decisions (12-01)
+
+- `profiles.interests`, `profiles.mastery_signals`, and `profiles.session_mood` added in migration 0020 as the v2 identity substrate; Phase 15 can replace/extend `mastery_signals` with concept tables.
+- Interest IDs are stored as stable lowercase ids; labels live in `lib/student-identity/interests.ts`.
+- `buildPersonalizationPrompt` is mirrored in Next.js and Deno prompt helpers so subject engines can inject interests without weakening calm/safety fragments.
+- `math-step` now loads `profiles.interests` and `session_mood` server-side before composing the prompt; this proves F23 on the highest-priority subject engine first.
+- The notes editor has a dedicated Lecture tab. It uses the existing speech capture component and creates notes with `source="lecture"`.
+- `transcribe-note` now returns `actionItems`; for lecture notes only, those are mirrored into `inbox_items` with `source_note_id` for student review.
+- Migration 0020 is applied remotely and `math-step` + `transcribe-note` are ACTIVE after deploy on 2026-06-01.
+
+## Phase 13 decisions (13-01)
+
+- `profiles.bionic_reading`, `visual_pacing`, `line_focus`, `reading_letter_spacing`, and `reading_word_spacing` added in migration 0021 as persistent reading accessibility preferences.
+- `profiles.tts_speed`, `tts_pitch`, and `tts_voice` added in migration 0021; `profiles_tts_provider_check` now allows `browser`, `openai`, and `elevenlabs`.
+- Bionic reading uses a deterministic local word-splitting helper in `lib/accessibility/reading-tools.ts`; it approximates first syllable without AI calls.
+- `AccessibleReadingText` is the reusable reading renderer for assignment descriptions, reading panels, note bodies, and cleaned transcripts.
+- Visual pacing uses keyboard-reachable next/previous controls with arrow-key support; line focus dims non-current logical lines.
+- Browser TTS supports saved speed and pitch. Remote TTS uses saved provider, voice, and speed.
+- `tts-generate` now supports OpenAI and ElevenLabs. ElevenLabs requires `ELEVENLABS_API_KEY` in Supabase Edge Function secrets; local `.env.local` does not contain an ElevenLabs key.
+- The `danger` token is amber, including high-contrast variants, so existing error UI remains calm without changing every call site.
+- Migration 0021 is applied remotely and `tts-generate` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 14 decisions (14-01)
+
+- `notes.tags`, `notes.ai_suggested_tags`, and generated `notes.search_vector` added in migration 0022; search/tag GIN indexes are in place.
+- `/notes` now has a synthesis panel backed by the `note-synthesis` Edge Function; responses include source-note citations that link back to note detail.
+- `/notes` full-text search uses `textSearch("search_vector", ...)` and local `snippetForQuery` previews.
+- Related notes are computed at render time with deterministic text/tag/class overlap in `lib/notes/related.ts`; no embedding/vector dependency yet.
+- Note detail tags are student-controlled; AI suggestions are stored separately in `ai_suggested_tags` and require a student tap to accept.
+- `note-tags` uses Claude Haiku 4.5 and stores short tags only; server action falls back to deterministic tags if the function is unavailable.
+- Highlight-to-flashcard verifies the highlighted text belongs to the note body/transcript, then inserts a new FSRS flashcard with `source_note_id`.
+- The existing generated outline section is the Phase 14 outline view surface.
+- Migration 0022 is applied remotely; `note-synthesis` and `note-tags` are ACTIVE after deploy on 2026-06-01.
+
+## Phase 15 decisions (15-01)
+
+- `mastery_concepts` and `mastery_events` added in migration 0023 as the v2 adaptive mastery substrate; `flashcards.concept_id` links FSRS reviews to concepts.
+- Class concept maps are seeded on class page render from notes, note tags, assignments, and rubrics. If class evidence is sparse, safe fallback concepts keep the map useful with at least five items.
+- Flashcard mastery is intentionally conservative: every three correct concept-linked reviews increases mastery by one level, capped at 4.
+- Self-confidence is stored separately from mastery and writes append-only `self_confidence` evidence without directly changing the mastery score.
+- AI quiz results write append-only `ai_quiz` evidence and move mastery toward the quiz rating by at most one level upward or half a level downward.
+- Review-next chooses the lowest-mastery concept and `gapBridgeSuggestion` connects it to the strongest concept when available.
+- Teacher progress export is a class-scoped PDF containing assignment completion and concept confidence; no raw AI interaction content is exposed.
+- Parent share summaries now include read-only concept confidence for the lowest-mastery concepts.
+- Migration 0023 is applied remotely and remote schema checks confirm `mastery_concepts`, `mastery_events`, and `flashcards.concept_id` exist.
+
+## Phase 16 decisions (16-01)
+
+- `math-scaffold` is a new Edge Function instead of overloading `math-step`; the existing chat hint remains available while the new function returns structured whiteboard data.
+- Photo extraction uses GPT-4o against images stored in the existing `note-docs` bucket; no new storage bucket or database migration was needed.
+- `math-scaffold` then asks Claude Haiku 4.5 for JSON with steps, common check, unit tracker, and graph sketch guidance. The prompt forbids final-answer reveal.
+- `lib/math/scaffold.ts` normalizes model JSON and provides local fallback steps, unit hints, and graph-sketch prompts so malformed model output still renders as a usable scaffold.
+- The assignment Math Helper now exposes one surface for photo scan, step board, Socratic hint chat, formula reference, and analogous worked example.
+- The photo upload path allows jpg/jpeg/png/webp/gif under 10 MB; HEIC conversion is not part of Phase 16 and remains handled in the notes document-upload flow.
+- `math_scaffold` was added to both AI safety feature unions and the AI tooltip descriptions.
+- `math-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 17 decisions (17-01)
+
+- Visual learning attaches to note detail because notes are the durable source material for mind maps, concept graphs, timelines, and comparison tables.
+- `visual-tools` is one Edge Function with mode routing instead of four separate text functions; diagram annotation is included as an image mode.
+- Class AI traffic-light is enforced in server actions before invoking `visual-tools`, and the Edge Function repeats the aiMode guard.
+- `lib/visual-learning/tools.ts` provides typed parsing and deterministic fallbacks so malformed AI JSON still renders a useful visual.
+- Color-coded outline uses existing `outline_json` locally and does not spend AI tokens.
+- Diagram annotation reuses the `note-docs` bucket and stores no new database rows; annotations are ephemeral study aids on the note page.
+- Phase 16's math step board is treated as the Phase 17 equation whiteboard surface rather than duplicating the same concept in notes.
+- `visual_tool` was added to both AI safety feature unions and the AI tooltip descriptions.
+- `visual-tools` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 18 decisions (18-01)
+
+- The existing essay `WritingAid` surface was expanded into the Writing Studio instead of creating a separate writing route.
+- `writing-cowrite` is a new Edge Function because co-author modes require different prompts and JSON structure from the original `writing-aid` rule explainer.
+- The original `writing-aid` flow remains available as `Explain one rule`; this preserves Phase 6 behavior.
+- Ghost text is short and only appended after explicit student acceptance; accepted ghost text increments local AI-character count for authorship percentage.
+- Evidence finder pulls recent class notes for the assignment class in `loadWritingEvidenceContext`; it never invents evidence without note context.
+- Citation formatting remains the existing `CitationTool`, which already supports MLA/APA/Chicago and yellow AI mode.
+- Authorship percentage is local to the active draft; durable AI usage remains in `ai_interactions`.
+- `writing_cowrite` was added to both AI safety feature unions and the AI tooltip descriptions.
+- `writing-cowrite` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 19 decisions (19-01)
+
+- The Science Helper renders on lab assignments and science-like class names instead of adding a separate subject route.
+- `science-scaffold` is a new Edge Function so hypothesis-first science prompts stay separate from math and writing prompts.
+- Mode routing covers hypothesis, lab report, scientific method, formula context, chemistry balancing, diagram generation, and AP-style FRQ scaffolds.
+- Mermaid diagrams are generated as Mermaid source text in the helper; live client-side rendering is deferred to avoid a new dependency in Phase 19.
+- Chemistry balancing guidance prompts atom counting and coefficient iteration without dumping a complete balanced equation.
+- Science prompt context is loaded from recent class notes through `loadScienceClassContext`.
+- `science_scaffold` was added to both AI safety feature unions and the AI tooltip descriptions.
+- `science-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 20 decisions (20-01)
+
+- The History Helper renders on history/social-studies class names and history-specific prompt keywords instead of adding a separate subject route.
+- `history-scaffold` is a new Edge Function so evidence-first history prompts stay separate from science, math, and writing prompts.
+- Text mode routing covers primary source, cause/effect, HAPP, DBQ, compare/contrast, and current-events scaffolds with Claude Haiku 4.5.
+- Map annotation is the image mode and uses GPT-4o against images stored in the existing `note-docs` bucket.
+- Primary source upload in the helper uses browser `File.text()` for text-like files; PDF/DOCX extraction remains in the notes document-upload flow.
+- DBQ scaffolding uses a six-part outline contract.
+- History prompt context is loaded from recent class notes through `loadHistoryClassContext`.
+- `history_scaffold` was added to both AI safety feature unions and the AI tooltip descriptions.
+- `history-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 21 decisions (21-01)
+
+- The Coding Scaffold renders on computer-science class names and CS-specific assignment keywords instead of adding a separate subject route.
+- JavaScript execution runs only in a disposable browser Worker with a 1.2 second timeout; no code is executed server-side.
+- Python execution uses a local Python Lite runner for print, variables, arithmetic, and `for range(...)` loops; Pyodide was not bundled in Phase 21 to avoid adding a large dependency.
+- Algorithm visualization is local deterministic logic for bubble sort, binary search, and linked-list traversal.
+- `cs-scaffold` is a new Edge Function for error hints, pseudocode bridge, code review, debug log, and AP CSP / AP CSA project scaffolds.
+- Error hint prompts require a guiding question first and forbid complete corrected-code dumps.
+- CS prompt context is loaded from recent class notes through `loadCsClassContext`.
+- `cs_scaffold` was added to both AI safety feature unions and the AI tooltip descriptions.
+- `cs-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 22 decisions (22-01)
+
+- The Foreign Language Helper renders on language class names and language-specific prompt keywords instead of adding a separate subject route.
+- `language-scaffold` is a new Edge Function for vocabulary, conjugation, reading, speaking, writing, and culture scaffolds.
+- Vocabulary cards include cognate hints, interest-based sentences, and pronunciation text.
+- Speaking practice uses target-language browser STT through `VoiceTextarea.speechLang`; feedback is based on the transcript, not acoustic scoring.
+- Vocabulary card save reuses the existing FSRS `createFlashcard` action and schema.
+- Flashcard review now exposes TTS buttons for front/back audio, using the saved provider; ElevenLabs works when selected and configured.
+- Language prompt context is loaded from recent class notes through `loadLanguageClassContext`.
+- `language_scaffold` was added to both AI safety feature unions and the AI tooltip descriptions.
+- `language-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 23 decisions (23-01)
+
+- `0024_school_system_integration.sql` extends the existing Phase 15 LMS substrate instead of creating separate provider-specific assignment tables.
+- Canvas OAuth saves into `lms_connections.config` using the same shape as manual Canvas connections, with `oauth: true`, optional refresh metadata, and immediate best-effort assignment sync on callback.
+- Canvas assignment import now stores original assignment URLs and normalized rubric text on `assignments` for detail-page visibility.
+- Google Classroom sync continues to rely on Supabase `session.provider_token`; Classroom scopes must be granted during Google sign-in provisioning.
+- Google Classroom announcements are captured into `inbox_items` as text for student review instead of becoming assignments.
+- Clever support is a district-provisioning marker row in Phase 23; full Clever API SSO requires district IT credentials and is not simulated locally.
+- IEP/504 import is deterministic text extraction and paste flow. Uploaded PDFs only work when the browser exposes readable text; scanned-PDF OCR remains outside Phase 23.
+- Imported accommodations update `profiles.extra_time_pct`, `tts_enabled`, `dyslexia_font`, `font_size`, `line_spacing`, and `accommodations`, and store an `iep_imports` audit row.
+- Background sync is app-triggered from Settings when non-Clever connections are unsynced or older than six hours; no cron, service worker, or push background job was added.
+- Submission sync is an explicit student handoff: open Canvas/Classroom, submit there, then record `opened_external` or `marked_submitted` in Diana.
+- `/api/calendar.ics` exports Diana due dates as VEVENT rows for calendar clients; it is an authenticated, no-store calendar export route.
+- Migration 0024 is applied remotely and `npx supabase migration list --linked` shows local and remote both at `0024`.
+
+## Phase 24 decisions (24-01)
+
+- `0025_emotional_intelligence_session_adaptation.sql` adds mood cadence fields to `profiles` and a student-owned `student_reflections` table with RLS.
+- Dashboard is the session-start surface for mood check-in, rough/light adaptation, reset cue, and Sunday-evening weekly reflection.
+- Mood check-in stores the latest `profiles.session_mood`, daily check-in timestamp, optional permanent disable, and a 24-hour `rough_mode_until` when the student chooses rough.
+- Rough mode sets low-energy ranking, fewer secondary tasks, and a `/timer?mode=rough` path with shorter work blocks.
+- The global overwhelmed button lives in the authenticated app layout so it appears across app surfaces; on assignment detail routes it creates a 5-minute child assignment linked to the current assignment.
+- Flashcard review is the first concrete F105 repeated-attempt surface. Three `Again` ratings in one session trigger a neutral different-path prompt.
+- `weekly-reflection` is a new Edge Function using Claude Haiku 4.5 with token-budget checks, minor safety, calm tone, and `ai_interactions` logging.
+- Weekly reflection falls back to deterministic local reflection text if the Edge Function is unavailable, so saving never depends entirely on AI availability.
+- Wins quiet milestones are private and text-only: no confetti, streaks, ranking, or public celebration.
+- Burnout/reset cue is advisory only and uses daily time logs, open session time, rough mood, and overwhelmed signals; it never forces a break.
+- Migration 0025 is applied remotely and `weekly-reflection` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 25 decisions (25-01)
+
+- `0026_portfolios_and_electives.sql` adds student-owned `portfolios` and `portfolio_items` with RLS and indexes; files reuse the existing private `note-docs` bucket.
+- Portfolio uploads store files under `portfolio/{studentId}/...`; image items render through short-lived signed URLs alongside reflection text and metadata.
+- The Portfolio route is the first dedicated arts project surface and is reachable from the authenticated navigation.
+- The Arts Helper renders on arts/electives class names and assignment keywords instead of adding a separate subject route.
+- Art reflection prompts are deterministic and visible before the AI action; the student process remains first.
+- Music theory scale, triad, and interval helpers are local deterministic logic so major/minor scale and chord triad support does not depend on an AI call.
+- `arts-scaffold` is a new Edge Function for art reflection, music theory, drama/speech, AP Art History, and storyboard scaffolds.
+- AP Art History support is a formal-analysis scaffold for image context and student observation; automatic image-vision annotation is not part of Phase 25.
+- `arts_scaffold` was added to both AI safety feature unions.
+- Migration 0026 is applied remotely and `arts-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 26 decisions (26-01)
+
+- `0027_health_wellness_engine.sql` adds student-owned `wellness_activity_logs`, `wellness_goals`, and `sleep_logs` with RLS and indexes.
+- The same migration extends the `task_signals.kind` constraint for `overwhelmed`, `mood_checkin`, `activity_log`, and `sleep_log`; this repairs the Phase24 signal insert path as well as enabling Phase26 signals.
+- No body weight, BMI, or calorie columns were added; movement logs track activity type, duration, how it felt, and notes.
+- Wellness goals are limited to skill, endurance, strength, flexibility, consistency, and recovery categories, with a server-side guard against appearance/body-metric goal text.
+- `/wellness` is the dedicated student surface for activity logs, personal goals, sleep logs, and CPR / first aid FSRS card creation.
+- CPR / first aid support seeds the existing `flashcards` table instead of creating a separate study system.
+- Dashboard reads the latest sleep log and uses `sleepRecoveryAdjustment` to lower the default energy after rough/short sleep; explicit student energy selection still wins.
+- The Health Helper renders on PE/health assignment names and prompt keywords instead of adding a separate subject route.
+- `health-scaffold` is a new Edge Function for health questions, movement goals, CPR / first aid, and sleep recovery scaffolds with factual, age-appropriate guardrails.
+- `health_scaffold` was added to both AI safety feature unions.
+- Migration 0027 is applied remotely and `health-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 27 decisions (27-01)
+
+- `0028_ap_command_center.sql` adds student-owned `ap_exam_plans` and `ap_practice_attempts` with RLS and indexes.
+- `/ap` is the dedicated command center for AP exam plans, countdowns, FRQ format reminders, practice attempts, and score-band estimates.
+- AP subject coverage is centralized in `AP_SUBJECTS`, including US History, World History, English Language, English Literature, Biology, Chemistry, Physics, Calculus AB/BC, Statistics, Computer Science A/CSP, Spanish, French, Art History, Psychology, Micro/Macro Economics, and Government.
+- FRQ scaffolds are deterministic by AP format first; the Edge Function can refine them from assignment context but the UI always has a local format outline.
+- MCQ parsing requires explanations for every answer choice; UI copy uses best-fit / less-supported language.
+- Score prediction uses broad bands such as `3-4`, never pass/fail framing.
+- AP milestone plans change by days until exam and stay advisory.
+- The AP Helper renders on AP class names, AP prompt keywords, and test-prep assignments instead of adding a separate assignment route.
+- `ap-scaffold` is a new Edge Function for FRQ outlines, MCQ practice, and study plans.
+- `ap_scaffold` was added to both AI safety feature unions.
+- Migration 0028 is applied remotely and `ap-scaffold` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 28 decisions (28-01)
+
+- No new migration was needed; Phase 28 reuses `assignment_steps`, `inbox_items`, `assignment_time_log`, `assignment_type_estimates`, and browser-local recovery state.
+- `task-breakdown` now uses a five-minute contract across the Edge Function prompt, `MAX_MINUTES_PER_STEP`, parser validation, and tests.
+- The timer start action now runs through a three-second `Ready.` ritual before a focus session begins.
+- Adaptive Pomodoro breaks are deterministic in `lib/executive/session.ts` and account for session mood, task difficulty, and long work blocks.
+- Body-doubling v2 remains local/deterministic in this phase and splits the focus count into Math, Reading, Writing, and Review categories.
+- Global `QuickCapture` lives in the authenticated layout and inserts unclassified text captures into `inbox_items` without leaving the current route.
+- Assignment task-breakdown recovery persists the current step and scroll position under `diana:assignment-recovery:{assignmentId}` and restores focus when the student continues.
+- The task-switch cue is browser-local and compares the prior assignment context to the current assignment before showing the 15-minute warm-up message.
+- F134 time estimate calibration remains on the existing `assignment_time_log` and `assignment_type_estimates` path surfaced by the new assignment form.
+- `task-breakdown` is ACTIVE after redeploy on 2026-06-01.
+
+## Phase 29 decisions (29-01)
+
+- `0029_vocabulary_reading_scaffold.sql` adds student-owned `vocabulary_terms` and `reading_annotations` with RLS; vocabulary review still uses the existing FSRS `flashcards` table.
+- `reading_annotations` requires exactly one source (`note_id` or `assignment_id`) so annotation mode stays tied to a concrete text surface.
+- `AccessibleReadingText` now emits `data-vocab-word` spans; this makes existing note, transcript, assignment, and reading-panel text vocabulary-aware without duplicating renderers.
+- `VocabHoverProvider` opens a local context-clue and phonics popover on first hover; definitions are fetched on request or after the word has been seen once.
+- `vocab-hover` now returns structured definition/context/phonics JSON and loads `profiles.interests` for light student-context personalization.
+- `reading-level` is a new Edge Function for simpler and more-detail text adaptation with red/yellow AI policy gating, token-budget checks, and `reading_level` interaction logging.
+- `ReadingLevelAdapter`, `ReadingAnnotationControl`, and `AssignmentReadingBlock` are reusable client surfaces for notes and assignments.
+- Hover vocabulary card saves create both a new FSRS flashcard and a linked `vocabulary_terms` row; note-sourced vocabulary cards keep `source_note_id`.
+- `vocab_hover` and `reading_level` have AI transparency labels in assignment usage logs and settings AI history.
+- Migration 0029 is applied remotely, `vocab-hover` is ACTIVE, and `reading-level` is ACTIVE after deploy on 2026-06-01.
+
+## Phase 30 decisions (30-01)
+
+- `0030_teacher_parent_portal.sql` adds `assignments.ai_mode_override`, `class_roster_members`, `teacher_progress_notes`, and `accommodation_confirmations` with owner RLS.
+- Assignment-level AI policy is nullable: null means use class policy, otherwise `green`, `yellow`, or `red` overrides the class for that assignment.
+- Assignment detail computes effective AI mode server-side with `effectiveAiMode(classMode, aiModeOverride)` before rendering AI tool surfaces.
+- `/teacher-share` is the student-controlled teacher portal for teacher-created assignments, class contacts, class analytics, progress notes, accommodation confirmation, and IEP / 504 import.
+- Teacher-created assignments write directly to `assignments` and can include `rubric_text` plus `ai_mode_override`.
+- Class analytics are aggregate per class only; no roster member ranking or individual comparison is shown.
+- `teacher_progress_notes.visible_to_parent` controls whether a note appears in `/parent-share` and public parent summary links.
+- `/parent-share` is a read-only parent-dashboard preview plus existing share-link creation/revocation.
+- Public parent summary links continue to omit assignment names, grades, private notes, and AI interaction details.
+- Migration 0030 is applied remotely; Phase 30 adds no new Edge Functions.
+
+## Phase 31 decisions (31-01)
+
+- `0031_platform_intelligence_analytics.sql` adds owner-scoped `feature_flags`, `analytics_events`, `error_events`, `performance_events`, and `experiments` with RLS and indexes.
+- `/insights` is the operational dashboard for daily AI token totals, feature usage, route session length, assignment completion rate, app monitor reports, web vital budgets, flags, and UI experiments.
+- `PlatformAnalyticsTracker` runs only inside the authenticated app layout and writes page views, route duration, and Core Web Vitals through first-party monitoring routes.
+- App monitor reports are Sentry-compatible but local-first in Phase 31; no external SDK was added.
+- Diagnosis context is stored only as anonymous categories from `anonymizedDiagnosisTags`, never raw profile diagnosis values.
+- UI experiment safety is enforced in both `isExperimentSurfaceAllowed` and the database surface check; content, AI, privacy, safety, IEP, and accommodation surfaces are rejected.
+- Feature flags and experiments are per owner and can be toggled without deploy through `/insights`.
+- Migration 0031 is applied remotely; Phase 31 adds no Edge Functions.
+
+## Phase 32 decisions (32-01)
+
+- Phase 32 adds no database migration; offline durability is browser-local through IndexedDB and the service worker cache.
+- `public/sw.js` is a first-party service worker rather than adding `next-pwa` or Serwist; it handles route cache, `/offline` fallback, sync messages, and notification clicks.
+- Offline writes are queued in `lib/offline/store.ts` with separate prefixes for note saves, assignment status changes, flashcard reviews, and cached due-card snapshots.
+- `PwaRuntime` is mounted only in the authenticated layout and drains queues on mount, reconnect, and the `diana-offline-sync` service worker message.
+- Note editor autosave queues drafts when the server path is unavailable, including new notes that do not yet have a database id.
+- Assignment status buttons queue status transitions when offline; replay uses the existing `transitionAssignment` action so state-machine and time-log behavior remain centralized.
+- Flashcard review caches due-card snapshots and queues rating events; replay uses the existing `rateCard` action so FSRS scheduling remains server-authoritative.
+- `/api/share-target` is the manifest share target; authenticated shares create a note and upload shared files to `note-docs`.
+- Optional reminders are local/browser-permission gated through Settings and `/api/pwa/reminders`; no external push vendor was added.
+
+## Phase 33 decisions (33-01)
+
+- `0032_personalization_settings_v2.sql` adds durable profile JSON for AI style, notification preferences, and privacy preferences, plus owner-scoped `session_handoffs` and `data_deletion_requests`.
+- `/export` is the student-owned data and privacy center for inventory, AI context, JSON/PDF export, per-class AI style, notification toggles, backup, handoff, category clearing, and deletion request.
+- Data export reads profile, classes, assignments, notes, flashcards, AI interactions, mastery concepts, and share links directly through RLS-scoped Supabase queries.
+- Account deletion is a request workflow: Diana disables AI immediately on profile/classes/assignments and records the 30-day COPPA purge request in `data_deletion_requests`.
+- Profile backup encryption is browser-local PBKDF2 + AES-GCM; the passphrase is never posted to server actions.
+- `SessionHandoffTracker` runs only inside the authenticated layout and upserts the latest route through `/api/profile/handoff`.
+- Privacy category clearing is scoped to student-owned Diana data categories; it does not delete the Supabase auth identity directly.
+- Migration 0032 is applied remotely; Phase 33 adds no Edge Functions.
+
+## Phase 34 decisions (34-01)
+
+- `0033_social_collaboration.sql` adds invite-only `study_groups`, membership rows, shared sessions, shared deck/card/install tables, collaborative notes, peer explanations, and group project tasks.
+- RLS uses `is_study_group_member` and `is_study_group_owner` helper functions to avoid self-recursive member policies while keeping group data membership-scoped.
+- Joining a room goes through the `join_study_group` security-definer RPC; there is no public group directory.
+- Shared deck creation calls `install_shared_deck_for_members`, which creates real due `flashcards` rows for every current group member and records installs to avoid duplicate deck installs.
+- Collaborative notes use optimistic version checks and the client refreshes at `COLLAB_NOTE_REFRESH_MS = 500` while a group note is open.
+- The Groups route combines shared Pomodoro sessions, decks, notes, peer explanations, and project tasks in one opt-in workspace.
+- No leaderboard, ranking, streak, public discovery, or default sharing surface was added.
+- Migration 0033 is applied remotely; Phase 34 adds no Edge Functions.
+
+## Phase 35 decisions (35-01)
+
+- `0034_launch_hardening_retention.sql` adds `data_retention_runs` and service-role RPC `purge_due_deletion_requests` for 30-day COPPA deletion request purges.
+- The purge RPC dynamically clears public tables with `owner_id`, deletes the profile row, marks the deletion request completed, and records each run.
+- `npm run launch-audit` is the v2.0 readiness gate for required launch docs, performance budgets, and critical-path test coverage.
+- Critical-path coverage gate is set at 80 percent; current launch audit reports 100 percent for the named critical paths.
+- Launch docs cover accessibility, performance budgets, OWASP review mapping, data retention, mobile matrix, beta rollout, and operational launch gates.
+- Phase 35 adds no Edge Functions; retention is a database RPC intended for a service-role scheduled job.
+- Migration 0034 is applied remotely; final static gates are green.
 
 ## Phase 11 decisions (11-02)
 

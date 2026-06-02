@@ -236,10 +236,238 @@ Plans:
 **Goal:** Enable photo and PDF upload to notes — Claude Vision OCR + PDF extraction -> transcribe-note cleanup pipeline + auto-class routing.
 **Requirements**: F04-PHOTO, F08-NOTE
 **Depends on:** Phase 10
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 - [x] 11-01-PLAN.md — Migration 0019 (notes.doc_storage_key) + validateDocFile + heic-convert + extract-note-doc Edge Function
 - [x] 11-02-PLAN.md — DocUploadTab + uploadNoteDoc/triggerDocExtraction actions + NoteEditor 4th tab
-- [ ] 11-03-PLAN.md — note-docs bucket + migration apply + Edge Function deploy + smoke-test checkpoint
+- [x] 11-03-PLAN.md — note-docs bucket + migration apply + Edge Function deploy + smoke-test checkpoint
+
+**Phase 11 STATUS: COMPLETE** — F04-PHOTO / F08-NOTE delivered. Runtime infrastructure verified, smoke-test approval carried forward from state. Verified 2026-05-31.
+
+---
+
+---
+
+## Milestone v2.0 — The Complete Academic Platform (Phases 12–35)
+
+**Goal:** Diana becomes the single platform a high school student needs — every subject, every learning style, every accommodation, better than every competitor.
+
+**Full plan:** `.planning/MILESTONE-V2-MASTER-PLAN.md`
+
+---
+
+### Phase 12 — Student Identity + Live Capture
+**Goal:** Interest profiling, AI personalization engine, live lecture transcription (F22–F25)
+**Plans:** 1/1 complete
+- [x] 12-01-PLAN.md — 0020 student identity schema + interest onboarding + math prompt personalization + lecture capture + action-item extraction
+
+**Phase 12 STATUS: COMPLETE** — F22/F23/F24/F25 implemented, migration 0020 applied remotely, updated Edge Functions deployed, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, migration list, and functions list.
+
+---
+
+### Phase 13 — Accessibility Engine v2
+**Goal:** Bionic reading, visual pacing, line focus, OpenDyslexic, TTS expansion (F26–F32)
+**Plans:** 1/1 complete
+- [x] 13-01-PLAN.md — 0021 accessibility preferences + bionic/line/word pacing renderer + assignment/note TTS + OpenAI/ElevenLabs TTS provider path
+
+**Phase 13 STATUS: COMPLETE** — F26/F27/F28/F29/F30/F31/F32 implemented, migration 0021 applied remotely, `tts-generate` deployed, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, migration list, column query, and functions list. ElevenLabs playback requires `ELEVENLABS_API_KEY` as an Edge Function secret.
+
+---
+
+### Phase 14 — Smart Notes v2: Synthesis + Linking
+**Goal:** Cross-note synthesis, semantic note linking, outline view, note tagging (F33–F38)
+**Plans:** 1/1 complete
+- [x] 14-01-PLAN.md — 0022 note search/tag schema + synthesis/tag Edge Functions + related notes + search snippets + highlight-to-flashcard
+
+**Phase 14 STATUS: COMPLETE** — F33/F34/F35/F36/F37/F38 implemented, migration 0022 applied remotely, `note-synthesis` and `note-tags` deployed, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, migration list, column query, and functions list.
+
+---
+
+### Phase 15 — Adaptive Mastery Tracker
+**Goal:** Per-subject concept mastery map, shame-free progress visualization, teacher export (F39–F44)
+**Plans:** 1/1 complete
+- [x] 15-01-PLAN.md — 0023 mastery concept schema + class mastery map + flashcard/AI-quiz/confidence evidence + PDF export + parent summary
+
+**Phase 15 STATUS: COMPLETE** — F39/F40/F41/F42/F43/F44 implemented, migration 0023 applied remotely, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, migration list, and schema queries.
+
+---
+
+### Phase 16 — Math Scaffold Engine
+**Goal:** Step-by-step math with photo input, whiteboard layout, Socratic never-solve policy (F45–F51)
+**Plans:** 1/1 complete
+- [x] 16-01-PLAN.md — math-scaffold Edge Function + photo scan + whiteboard step board + unit/graph/common-check helpers
+
+**Phase 16 STATUS: COMPLETE** — F45/F46/F47/F48/F49/F50/F51 implemented, `math-scaffold` deployed ACTIVE, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and functions list.
+
+---
+
+### Phase 17 — Visual Learning Tools
+**Goal:** Mind maps, concept graphs, timelines, diagram annotation (F52–F58)
+**Plans:** 1/1 complete
+- [x] 17-01-PLAN.md — visual-tools Edge Function + note detail visual learning panel + diagram annotation + color outlines
+
+**Phase 17 STATUS: COMPLETE** — F52/F53/F54/F55/F56/F57/F58 implemented, `visual-tools` deployed ACTIVE, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and functions list.
+
+---
+
+### Phase 18 — Writing Co-Author Engine
+**Goal:** Essay scaffold, co-write mode, revision assistant, authorship log (F59–F67)
+**Plans:** 1/1 complete
+- [x] 18-01-PLAN.md — writing-cowrite Edge Function + essay Writing Studio + authorship percentage + evidence/readability/tone modes
+
+**Phase 18 STATUS: COMPLETE** — F59/F60/F61/F62/F63/F64/F65/F66/F67 implemented, `writing-cowrite` deployed ACTIVE, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and functions list.
+
+---
+
+### Phase 19 — Science Scaffold Engine
+**Goal:** Hypothesis-first methodology, lab report assistant, formula toolkit (F68–F74)
+**Plans:** 1/1 complete
+- [x] 19-01-PLAN.md — science-scaffold Edge Function + lab/science assignment helper + hypothesis/lab/method/formula/chemistry/diagram/FRQ modes
+
+**Phase 19 STATUS: COMPLETE** — F68/F69/F70/F71/F72/F73/F74 implemented, `science-scaffold` deployed ACTIVE, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and functions list.
+
+---
+
+### Phase 20 — History & Social Studies Engine
+**Goal:** Primary source analysis, cause-effect chains, DBQ scaffold, timeline AI (F75–F81)
+**Plans:** 1/1 complete
+- [x] 20-01-PLAN.md — history-scaffold Edge Function + assignment History Helper + source/HAPP/DBQ/compare/current-events/map modes
+
+**Phase 20 STATUS: COMPLETE** — F75/F76/F77/F78/F79/F80/F81 implemented, `history-scaffold` deployed ACTIVE, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and functions list.
+
+---
+
+### Phase 21 — Computer Science Engine
+**Goal:** In-browser code execution, error→hint chain, algorithm visualizer (F82–F88)
+**Plans:** 1/1 complete
+- [x] 21-01-PLAN.md — cs-scaffold Edge Function + assignment Coding Scaffold + local JS/Python execution + algorithm visualizer
+
+**Phase 21 STATUS: COMPLETE** — F82/F83/F84/F85/F86/F87/F88 implemented, `cs-scaffold` deployed ACTIVE, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and functions list.
+
+---
+
+### Phase 22 — Foreign Language Engine
+**Goal:** Immersive vocabulary scaffold, conjugation guide, speaking practice (F89–F95)
+**Plans:** 1/1 complete
+- [x] 22-01-PLAN.md — language-scaffold Edge Function + assignment Language Scaffold + vocab/conjugation/reading/speaking/writing/culture modes + FSRS card save/audio review
+
+**Phase 22 STATUS: COMPLETE** — F89/F90/F91/F92/F93/F94/F95 implemented, `language-scaffold` deployed ACTIVE, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and functions list.
+
+---
+
+### Phase 23 — School System Integration
+**Goal:** Canvas LMS sync, Google Classroom sync, Clever SSO, IEP import (F96–F102)
+**Plans:** 1/1 complete
+- [x] 23-01-PLAN.md — Canvas OAuth/import + Google Classroom coursework/announcements + Clever marker + IEP import + background sync + submission handoff + calendar export
+
+**Phase 23 STATUS: COMPLETE** — F96/F97/F98/F99/F100/F101/F102 implemented, migration `0024_school_system_integration.sql` applied remotely, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, and linked migration list.
+
+---
+
+### Phase 24 — Emotional Intelligence + Session Adaptation
+**Goal:** Mood check-in, frustration detection, session adaptation, weekly reflection (F103–F109)
+**Plans:** 1/1 complete
+- [x] 24-01-PLAN.md — mood check-in + rough/light adaptation + overwhelmed micro-step + weekly reflection Edge Function + flashcard threshold prompt + reset cue + quiet milestone
+
+**Phase 24 STATUS: COMPLETE** — F103/F104/F105/F106/F107/F108/F109 implemented, `weekly-reflection` deployed ACTIVE, migration `0025_emotional_intelligence_session_adaptation.sql` applied remotely, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, functions list, and linked migration list.
+
+---
+
+### Phase 25 — Arts & Electives Engine
+**Goal:** Portfolio mode, reflection prompts, music theory, AP Art History scaffold (F110–F115)
+**Plans:** 1/1 complete
+- [x] 25-01-PLAN.md — portfolio builder + private upload rendering + arts reflection prompts + music theory deterministic helpers + drama/speech + AP Art History + storyboard scaffold + arts-scaffold Edge Function
+
+**Phase 25 STATUS: COMPLETE** — F110/F111/F112/F113/F114/F115 implemented, `arts-scaffold` deployed ACTIVE, migration `0026_portfolios_and_electives.sql` applied remotely, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, functions list, and linked migration list.
+
+---
+
+### Phase 26 — PE, Health & Wellness Engine
+**Goal:** Non-judgmental activity logging, goal setting, health education scaffold (F116–F120)
+**Plans:** 1/1 complete
+- [x] 26-01-PLAN.md — wellness activity logs + capability-focused goals + sleep recovery task sizing + CPR/first aid FSRS cards + health-scaffold Edge Function
+
+**Phase 26 STATUS: COMPLETE** — F116/F117/F118/F119/F120 implemented, `health-scaffold` deployed ACTIVE, migration `0027_health_wellness_engine.sql` applied remotely, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, functions list, and linked migration list.
+
+---
+
+### Phase 27 — Advanced Placement Command Center
+**Goal:** AP exam prep, FRQ scaffold, practice question engine, 17 AP subjects (F121–F126)
+**Plans:** 1/1 complete
+- [x] 27-01-PLAN.md — AP command center route + exam plans + practice attempts + score bands + AP format helper + ap-scaffold Edge Function
+
+**Phase 27 STATUS: COMPLETE** — F121/F122/F123/F124/F125/F126 implemented, `ap-scaffold` deployed ACTIVE, migration `0028_ap_command_center.sql` applied remotely, and static gates green. Verified 2026-06-01 with typecheck, test suite, tone-audit, production build, diff check, functions list, and linked migration list.
+
+---
+
+### Phase 28 — Micro-Task + ADHD Executive Function Tools v2
+**Goal:** Micro-step decomposition, task initiation ritual, working memory offload (F127–F134)
+**Plans:** 1/1 complete
+- [x] 28-01-PLAN.md — five-minute task breakdown + initiation ritual + body-double categories + adaptive breaks + interrupt recovery + quick capture + task-switch cue + calibration continuity
+
+**Phase 28 STATUS: COMPLETE** — F127/F128/F129/F130/F131/F132/F133/F134 implemented, `task-breakdown` redeployed ACTIVE, no migration needed, and static gates green. Verified 2026-06-01 with targeted tests, typecheck, full test suite, tone-audit, production build, diff check, functions list, and linked migration list.
+
+---
+
+### Phase 29 — Vocabulary + Reading Scaffold Engine
+**Goal:** Hover definitions, read-aloud with sync highlight, vocabulary FSRS deck (F135–F141)
+**Plans:** 1/1 complete
+- [x] 29-01-PLAN.md — vocabulary terms + reading annotations schema, structured vocab-hover, reading-level adapter, annotation controls, hover-to-FSRS card save, phonics/context clue support
+
+**Phase 29 STATUS: COMPLETE** — F135/F136/F137/F138/F139/F140/F141 implemented, migration `0029_vocabulary_reading_scaffold.sql` applied remotely, `vocab-hover` and `reading-level` deployed ACTIVE, and static gates green. Verified 2026-06-01 with targeted tests, typecheck, full test suite, tone-audit, production build, diff check, functions list, and linked migration list.
+
+---
+
+### Phase 30 — Teacher + Parent Portal
+**Goal:** Teacher assignment creation, AI policy management, parent read-only dashboard (F142–F148)
+**Plans:** 1/1 complete
+- [x] 30-01-PLAN.md — assignment-level AI policy, teacher-created assignment form, roster management, class analytics, progress notes, parent dashboard, accommodation confirmation, IEP import continuity
+
+**Phase 30 STATUS: COMPLETE** — F142/F143/F144/F145/F146/F147/F148 implemented, migration `0030_teacher_parent_portal.sql` applied remotely, and static gates green. Verified 2026-06-01 with targeted tests, typecheck, full test suite, tone-audit, production build, diff check, and linked migration list.
+
+---
+
+### Phase 31 — Platform Intelligence + Analytics
+**Goal:** Usage analytics, AI cost monitoring, feature flags, error monitoring (F149–F154)
+**Plans:** 1/1 complete
+- [x] 31-01-PLAN.md — analytics schema, live Insights dashboard, feature flags, UI experiments, app monitoring, web vital budget tracking
+
+**Phase 31 STATUS: COMPLETE** — F149/F150/F151/F152/F153/F154 implemented, migration `0031_platform_intelligence_analytics.sql` applied remotely, `/insights` live, and static gates green. Verified 2026-06-01 with targeted tests, typecheck, full test suite, tone-audit, production build, diff check, local route smoke, and linked migration list.
+
+---
+
+### Phase 32 — Offline + PWA Excellence
+**Goal:** Full offline editing with background sync, push notifications, iOS share target (F155–F161)
+**Plans:** 1/1 complete
+- [x] 32-01-PLAN.md — service worker, offline queues, PWA runtime/settings, share target, reminders, offline fallback
+
+**Phase 32 STATUS: COMPLETE** — F155/F156/F157/F158/F159/F160/F161 implemented, no migration needed, and static gates green. Verified 2026-06-01 with targeted tests, typecheck, full test suite, tone-audit, production build, diff check, and local PWA smoke.
+
+---
+
+### Phase 33 — Personalization Settings v2
+**Goal:** Per-subject AI verbosity, data export, COPPA account deletion, privacy dashboard (F162–F168)
+**Plans:** 1/1 complete
+- [x] 33-01-PLAN.md — preference/privacy schema, live data dashboard, export/backup/delete flows, handoff tracker
+
+**Phase 33 STATUS: COMPLETE** — F162/F163/F164/F165/F166/F167/F168 implemented, migration `0032_personalization_settings_v2.sql` applied remotely, `/export` live, and static gates green. Verified 2026-06-02 with targeted tests, typecheck, full test suite, tone-audit, production build, diff check, linked migration list, and local route smoke.
+
+---
+
+### Phase 34 — Social + Collaboration Features
+**Goal:** Opt-in study groups, shared flashcard decks, collaborative notes (F169–F173)
+**Plans:** 1/1 complete
+- [x] 34-01-PLAN.md — invite-only study groups, shared sessions, shared decks, collaborative notes, peer explanations, group project tasks
+
+**Phase 34 STATUS: COMPLETE** — F169/F170/F171/F172/F173 implemented, migration `0033_social_collaboration.sql` applied remotely, `/study-groups` live, and static gates green. Verified 2026-06-02 with targeted tests, typecheck, full test suite, tone-audit, production build, diff check, linked migration list, and local route smoke.
+
+---
+
+### Phase 35 — v2.0 Hardening + Launch
+**Goal:** WCAG 2.1 AA audit, penetration test, load test, beta rollout, v2.0 GA release
+**Plans:** 1/1 complete
+- [x] 35-01-PLAN.md — retention enforcement, launch audit, critical-path coverage gate, launch readiness docs
+
+**Phase 35 STATUS: COMPLETE** — v2.0 hardening and launch readiness implemented, migration `0034_launch_hardening_retention.sql` applied remotely, launch audit ready, and final static gates green. Verified 2026-06-02 with targeted tests, typecheck, launch audit, linked migration list, full test suite, tone-audit, production build, and diff check.
 
 ---
 
