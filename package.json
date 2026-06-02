@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "tone-audit": "npx tsx scripts/tone-audit.ts"
+    "tone-audit": "npx tsx scripts/tone-audit.ts",
+    "launch-audit": "npx tsx scripts/launch-audit.ts"
   },
   "dependencies": {
     "@fontsource/opendyslexic": "^5.2.5",

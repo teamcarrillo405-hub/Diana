@@ -16,8 +16,10 @@ const SKIP_DIRS = new Set([
   "dist",
   ".planning",
   ".git",
+  ".agents",                          // generated agent/tooling skills — not project source
   ".claude",                          // worktrees and Claude tooling — not project source
   ".claude-flow",                     // Claude workflow orchestration — not project source
+  ".codex",                           // Codex tooling metadata — not project source
   "supabase/functions/node_modules",
 ]);
 
@@ -27,6 +29,7 @@ const SKIP_PATH_PREFIXES = [
   "supabase/functions/",    // Deno edge functions are server-side API code, not UI copy
   "lib/ai/",                // AI system-prompt templates — server-side prompt engineering, not UI copy
   "scripts/tone-audit.ts",  // the script itself names the banned words
+  "AGENTS.md",              // project config/instructions — not student-facing UI copy
   "CLAUDE.md",              // project config/instructions — not student-facing UI copy
 ];
 
