@@ -1,0 +1,64 @@
+{
+  "generatedAt": "2026-06-03T19:58:18.199Z",
+  "sections": [
+    {
+      "id": "first_screen_clarity",
+      "label": "First screen clarity",
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "dianaTarget": "The first screen should make the next school move visible before the student has to prompt a chatbot.",
+      "competitorEdge": "Quizlet and Gemini feel fast because the first useful action is obvious."
+    },
+    {
+      "id": "mobile_thumb_flow",
+      "label": "Mobile thumb flow",
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "dianaTarget": "Mobile should keep Focus, Assignments, Notes, Study, and More reachable with no horizontal overflow.",
+      "competitorEdge": "Quizlet has a familiar mobile rhythm, and Gemini keeps the core chat action close."
+    },
+    {
+      "id": "unstuck_speed",
+      "label": "Unstuck speed",
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "dianaTarget": "Diana should get the student to one assignment-specific academic action faster than generic chat.",
+      "competitorEdge": "Generic chat feels useful when it responds quickly to a typed stuck prompt."
+    },
+    {
+      "id": "teen_voice_control",
+      "label": "Teen voice and control",
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "dianaTarget": "Diana should sound direct, private, and student-owned without pressure language.",
+      "competitorEdge": "Quizlet and Gemini feel consumer-grade instead of school-admin-first."
+    },
+    {
+      "id": "embedded_study_loop",
+      "label": "Embedded study loop",
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "dianaTarget": "Diana should turn the current assignment into source-linked cards, practice, review, and next support.",
+      "competitorEdge": "Quizlet wins by turning material into familiar study artifacts fast."
+    },
+    {
+      "id": "trust_without_takeover",
+      "label": "Trust without takeover",
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "dianaTarget": "Diana should make help boundaries visible without making the experience feel like a warning screen.",
+      "competitorEdge": "Gemini and Khanmigo keep learning help distinct from simply producing answers."
+    }
+  ],
+  "repoScore": 10,
+  "repoTen": true,
+  "marketTenClaimAllowed": false,
+  "marketGate": "Market 10/10 stays gated until 4 of 5 teens prefer Diana on stuck tasks and zero students confuse help with final work.",
+  "nextBacklog": []
+}

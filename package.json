@@ -12,7 +12,8 @@
     "test:run": "vitest run",
     "tone-audit": "npx tsx scripts/tone-audit.ts",
     "launch-audit": "npx tsx scripts/launch-audit.ts",
-    "competitive-score": "npx tsx scripts/competitive-score.ts"
+    "competitive-score": "npx tsx scripts/competitive-score.ts",
+    "teen-ux-score": "npx tsx scripts/teen-ux-score.ts"
   },
   "dependencies": {
     "@fontsource/opendyslexic": "^5.2.5",

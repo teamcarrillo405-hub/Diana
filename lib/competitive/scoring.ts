@@ -60,6 +60,9 @@ export type CompetitiveScoreEvidence = {
   noVisibleBannedCopy: boolean;
   priorityMobileNav: boolean;
   teenTestProtocol: boolean;
+  teenNativeUxSectionModel: boolean;
+  teenNativeUxScoreCommand: boolean;
+  teenNativeUxProofPanel: boolean;
   benchmarkHarness: boolean;
   proofDashboard: boolean;
   privacyCoverage: boolean;
@@ -120,6 +123,9 @@ export function scoreCompetitiveSystem(
       criterion("copy_clean", "Visible QA has no banned copy or pressure language.", evidence.noVisibleBannedCopy, "Remove visible shame, red-error, and streak language."),
       criterion("priority_nav", "Mobile nav prioritizes Focus, Assignments, Notes, Study, More.", evidence.priorityMobileNav, "Collapse secondary routes into More."),
       criterion("teen_protocol", "Teen-test protocol exists and blocks unsupported claims.", evidence.teenTestProtocol, "Make teen testing executable and scoreable."),
+      criterion("teen_ux_sections", "Teen-native UX is split into explicit competitor-beating sections.", evidence.teenNativeUxSectionModel, "Add a teen-native UX section model."),
+      criterion("teen_ux_command", "Teen-native UX has its own repeatable score command.", evidence.teenNativeUxScoreCommand, "Add npm run teen-ux-score."),
+      criterion("teen_ux_panel", "Proof page exposes the teen-native UX evidence panel.", evidence.teenNativeUxProofPanel, "Render the teen-native UX proof panel."),
     ]),
     bar("proof_and_outcomes", "Proof and outcomes", [
       criterion("benchmark", "Fixed benchmark harness exists.", evidence.benchmarkHarness, "Create fixed competitor benchmark scenarios."),

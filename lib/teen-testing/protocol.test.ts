@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { scoreTeenProxySession, TEEN_TEST_TASKS, type TeenProxyObservation } from "./protocol";
+import { TEEN_NATIVE_UX_SECTIONS } from "./ux-scorecard";
 
 describe("teen testing protocol", () => {
   it("covers the five competitive bars with concrete teen tasks", () => {
@@ -13,6 +14,14 @@ describe("teen testing protocol", () => {
     ]);
     expect(TEEN_TEST_TASKS[0].prompt).toContain("tired but focused");
     expect(TEEN_TEST_TASKS[4].passSignal).toContain("ownership meter");
+  });
+
+  it("maps live teen tasks back to every teen-native UX section", () => {
+    const coveredSections = new Set(TEEN_TEST_TASKS.flatMap((task) => task.uxSections));
+
+    expect([...coveredSections].sort()).toEqual(
+      TEEN_NATIVE_UX_SECTIONS.map((section) => section.id).sort(),
+    );
   });
 
   it("requires strong pass rates and zero final-work confusion", () => {

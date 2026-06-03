@@ -2,6 +2,7 @@ import { Trophy, ShieldCheck, TimerReset } from "lucide-react";
 import { COMPETITIVE_CAPABILITY_BARS } from "@/lib/competitive/capability-matrix";
 import { COMPETITIVE_BENCHMARK_SCENARIOS } from "@/lib/benchmark/competitive";
 import { TEEN_TEST_TASKS } from "@/lib/teen-testing/protocol";
+import { TeenNativeUxEvidencePanel } from "@/components/teen-native-ux-evidence-panel";
 
 export default function ProofPage() {
   return (
@@ -21,6 +22,8 @@ export default function ProofPage() {
         <ProofMetric icon={TimerReset} label="Benchmark tasks" value={`${COMPETITIVE_BENCHMARK_SCENARIOS.length} fixed`} />
         <ProofMetric icon={ShieldCheck} label="Teen test gate" value={`${TEEN_TEST_TASKS.length} tasks`} />
       </section>
+
+      <TeenNativeUxEvidencePanel />
 
       <section className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4 shadow-sm">
         <h2 className="text-base font-semibold">Capability bars</h2>

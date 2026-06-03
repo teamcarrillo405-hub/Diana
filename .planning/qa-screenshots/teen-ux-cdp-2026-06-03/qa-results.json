@@ -1,0 +1,752 @@
+[
+    {
+        "route":  "/",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-landing.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  687
+    },
+    {
+        "route":  "/login",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-login.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-signup.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/signup",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  253
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-proof.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fproof",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-dashboard.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fdashboard",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-assignments.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fassignments",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-notes.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fnotes",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-flashcards.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fflashcards",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-settings-ai-history.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fsettings%2Fai-history",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\375x812-teacher-share.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fteacher-share",
+        "title":  "Diana",
+        "scrollWidth":  375,
+        "clientWidth":  375,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-landing.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  687
+    },
+    {
+        "route":  "/login",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-login.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-signup.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/signup",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  253
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-proof.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fproof",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-dashboard.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fdashboard",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-assignments.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fassignments",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-notes.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fnotes",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-flashcards.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fflashcards",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-settings-ai-history.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fsettings%2Fai-history",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\390x844-teacher-share.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fteacher-share",
+        "title":  "Diana",
+        "scrollWidth":  390,
+        "clientWidth":  390,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-landing.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  687
+    },
+    {
+        "route":  "/login",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-login.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-signup.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/signup",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  253
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-proof.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fproof",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-dashboard.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fdashboard",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-assignments.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fassignments",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-notes.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fnotes",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-flashcards.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fflashcards",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-settings-ai-history.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fsettings%2Fai-history",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\768x1024-teacher-share.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fteacher-share",
+        "title":  "Diana",
+        "scrollWidth":  768,
+        "clientWidth":  768,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-landing.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  687
+    },
+    {
+        "route":  "/login",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-login.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-signup.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/signup",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  253
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-proof.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fproof",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-dashboard.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fdashboard",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-assignments.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fassignments",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-notes.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fnotes",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-flashcards.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fflashcards",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-settings-ai-history.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fsettings%2Fai-history",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1024x768-teacher-share.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fteacher-share",
+        "title":  "Diana",
+        "scrollWidth":  1024,
+        "clientWidth":  1024,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-landing.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  687
+    },
+    {
+        "route":  "/login",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-login.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-signup.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/signup",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  253
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-proof.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fproof",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-dashboard.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fdashboard",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-assignments.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fassignments",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-notes.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fnotes",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-flashcards.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fflashcards",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-settings-ai-history.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fsettings%2Fai-history",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-ux-cdp-2026-06-03\\1440x1000-teacher-share.png",
+        "statusText":  "ok",
+        "finalUrl":  "http://127.0.0.1:3031/login?next=%2Fteacher-share",
+        "title":  "Diana",
+        "scrollWidth":  1440,
+        "clientWidth":  1440,
+        "hasHorizontalOverflow":  false,
+        "bannedVisible":  [
+
+                          ],
+        "bodyChars":  104
+    }
+]

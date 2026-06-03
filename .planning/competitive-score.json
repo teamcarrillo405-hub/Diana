@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-03T17:40:21.392Z",
+  "generatedAt": "2026-06-03T19:58:18.199Z",
   "bars": [
     {
       "id": "start_the_work",
@@ -283,6 +283,30 @@
           "passed": true,
           "evidence": "present",
           "backlog": "Make teen testing executable and scoreable.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "teen_ux_sections",
+          "label": "Teen-native UX is split into explicit competitor-beating sections.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add a teen-native UX section model.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "teen_ux_command",
+          "label": "Teen-native UX has its own repeatable score command.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add npm run teen-ux-score.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "teen_ux_panel",
+          "label": "Proof page exposes the teen-native UX evidence panel.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Render the teen-native UX proof panel.",
           "repoVerifiable": true
         }
       ],

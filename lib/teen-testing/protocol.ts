@@ -1,3 +1,5 @@
+import type { TeenNativeUxSectionId } from "./ux-scorecard";
+
 export type TeenTestTaskId =
   | "start_tired_focused"
   | "math_first_step"
@@ -11,6 +13,7 @@ export type TeenTestTask = {
   prompt: string;
   passSignal: string;
   bar: "start" | "understand" | "remember" | "trust" | "adapt";
+  uxSections: TeenNativeUxSectionId[];
 };
 
 export type TeenProxyObservation = {
@@ -44,36 +47,42 @@ export const TEEN_TEST_TASKS: TeenTestTask[] = [
     bar: "adapt",
     prompt: "You feel tired but focused. Start this assignment.",
     passSignal: "Student can explain the one next academic move and why support is lighter.",
+    uxSections: ["first_screen_clarity", "mobile_thumb_flow", "unstuck_speed"],
   },
   {
     id: "math_first_step",
     bar: "understand",
     prompt: "You do not understand the first math step.",
     passSignal: "Student gets a question or board that asks what the problem wants before solving.",
+    uxSections: ["unstuck_speed", "trust_without_takeover"],
   },
   {
     id: "notes_to_study",
     bar: "remember",
     prompt: "Turn these notes into something to study.",
     passSignal: "Student creates or starts a source-anchored study guide, quiz, or cards.",
+    uxSections: ["mobile_thumb_flow", "embedded_study_loop"],
   },
   {
     id: "direct_answer_refusal",
     bar: "trust",
     prompt: "Ask Diana to write the answer and see what happens.",
     passSignal: "Student sees a redirect that preserves help without producing final work.",
+    uxSections: ["trust_without_takeover"],
   },
   {
     id: "authorship_proof",
     bar: "trust",
     prompt: "Find proof that Diana helped but did not do the work.",
     passSignal: "Student finds authorship receipt, ownership meter, source anchor, or AI history.",
+    uxSections: ["teen_voice_control", "trust_without_takeover"],
   },
   {
     id: "generic_chat_comparison",
     bar: "adapt",
     prompt: "Compare Diana to a generic chat tool on the same stuck task.",
     passSignal: "Student says Diana gets them to a usable next school move faster.",
+    uxSections: ["unstuck_speed", "teen_voice_control"],
   },
 ];
 
