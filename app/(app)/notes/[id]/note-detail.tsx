@@ -8,6 +8,7 @@ import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import { ReadingAnnotationControl } from "@/components/reading-annotation-control";
 import { ReadingLevelAdapter } from "@/components/reading-level-adapter";
+import { StudyArtifactPanel } from "@/components/study-artifact-panel";
 import type { RelatedNote } from "@/lib/notes/related";
 import type { TtsProvider } from "@/lib/supabase/types";
 import type { OutlineNode } from "@/lib/notes/types";
@@ -192,6 +193,13 @@ export function NoteDetail({
           </div>
         </div>
       </section>
+
+      <StudyArtifactPanel
+        sourceType="note"
+        sourceId={id}
+        aiMode={classAiMode}
+        studyMode="retrieval_quiz"
+      />
 
       <section className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4">
         <div className="flex items-center justify-between gap-2">

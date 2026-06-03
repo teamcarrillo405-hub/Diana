@@ -3,6 +3,7 @@ export type DataInventoryInput = {
   assignments: number;
   notes: number;
   flashcards: number;
+  studyArtifacts: number;
   aiInteractions: number;
   masteryConcepts: number;
   shareLinks: number;
@@ -26,6 +27,7 @@ export type AiVerbosity = "minimal" | "balanced" | "detailed";
 export const PRIVACY_DELETE_CATEGORIES = [
   "notes",
   "flashcards",
+  "study_artifacts",
   "ai_interactions",
   "mastery_concepts",
   "share_links",
@@ -48,6 +50,7 @@ export function buildDataInventory(input: DataInventoryInput): DataInventoryRow[
     { label: "Assignments", count: input.assignments },
     { label: "Notes", count: input.notes },
     { label: "Flashcards", count: input.flashcards },
+    { label: "Study artifacts", count: input.studyArtifacts },
     { label: "AI interactions", count: input.aiInteractions },
     { label: "Mastery concepts", count: input.masteryConcepts },
     { label: "Share links", count: input.shareLinks },
@@ -106,6 +109,7 @@ export function categoryLabel(category: PrivacyDeleteCategory): string {
   return ({
     notes: "Notes",
     flashcards: "Flashcards",
+    study_artifacts: "Study artifacts",
     ai_interactions: "AI history",
     mastery_concepts: "Mastery data",
     share_links: "Share links",

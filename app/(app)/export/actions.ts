@@ -101,6 +101,7 @@ export async function exportUserDataJson(): Promise<string> {
     assignments,
     notes,
     flashcards,
+    studyArtifacts,
     aiInteractions,
     masteryConcepts,
     shareLinks,
@@ -110,6 +111,7 @@ export async function exportUserDataJson(): Promise<string> {
     supabase.from("assignments").select("*").eq("owner_id", user.id),
     supabase.from("notes").select("*").eq("owner_id", user.id),
     supabase.from("flashcards").select("*").eq("owner_id", user.id),
+    supabase.from("study_artifacts").select("*").eq("owner_id", user.id),
     supabase.from("ai_interactions").select("*").eq("owner_id", user.id),
     supabase.from("mastery_concepts").select("*").eq("owner_id", user.id),
     supabase.from("share_links").select("*").eq("owner_id", user.id),
@@ -123,6 +125,7 @@ export async function exportUserDataJson(): Promise<string> {
     assignments: assignments.data ?? [],
     notes: notes.data ?? [],
     flashcards: flashcards.data ?? [],
+    studyArtifacts: studyArtifacts.data ?? [],
     aiInteractions: aiInteractions.data ?? [],
     masteryConcepts: masteryConcepts.data ?? [],
     shareLinks: shareLinks.data ?? [],
@@ -233,6 +236,11 @@ export async function deleteDataCategory(
   revalidatePath("/export");
   if (category === "notes") revalidatePath("/notes");
   if (category === "flashcards") revalidatePath("/flashcards");
+  if (category === "study_artifacts") {
+    revalidatePath("/notes");
+    revalidatePath("/assignments");
+    revalidatePath("/flashcards");
+  }
   if (category === "mastery_concepts") revalidatePath("/classes");
   return { ok: true, label: categoryLabel(category) };
 }
@@ -244,6 +252,7 @@ export async function inventoryForUser(ownerId: string) {
     assignments,
     notes,
     flashcards,
+    studyArtifacts,
     aiInteractions,
     masteryConcepts,
     shareLinks,
@@ -252,6 +261,7 @@ export async function inventoryForUser(ownerId: string) {
     supabase.from("assignments").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("notes").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("study_artifacts").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("ai_interactions").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("mastery_concepts").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("share_links").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
@@ -261,6 +271,7 @@ export async function inventoryForUser(ownerId: string) {
     assignments: assignments.count ?? 0,
     notes: notes.count ?? 0,
     flashcards: flashcards.count ?? 0,
+    studyArtifacts: studyArtifacts.count ?? 0,
     aiInteractions: aiInteractions.count ?? 0,
     masteryConcepts: masteryConcepts.count ?? 0,
     shareLinks: shareLinks.count ?? 0,
@@ -277,6 +288,8 @@ async function deleteCategoryRows(
       return supabase.from("notes").delete().eq("owner_id", ownerId);
     case "flashcards":
       return supabase.from("flashcards").delete().eq("owner_id", ownerId);
+    case "study_artifacts":
+      return supabase.from("study_artifacts").delete().eq("owner_id", ownerId);
     case "ai_interactions":
       return supabase.from("ai_interactions").delete().eq("owner_id", ownerId);
     case "mastery_concepts":

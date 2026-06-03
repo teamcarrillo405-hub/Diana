@@ -17,6 +17,7 @@ export type FrictionSignals = {
   overwhelmedLast24h?: number;
   contextSwitchesLast24h?: number;
   helpRequestsLast24h?: number;
+  modeSwitchesLast24h?: number;
 };
 
 export type MilestoneMemory = {
@@ -61,15 +62,18 @@ export function readinessFromSignalValue(value: unknown): ReadinessCheckIn | nul
 }
 
 export function summarizeFrictionSignals(
-  signals: Array<{ kind: string; assignment_id?: string | null }>,
+  signals: Array<{ kind: string; assignment_id?: string | null; value?: unknown }>,
   assignmentId: string,
 ): FrictionSignals {
   const matching = signals.filter((signal) => signal.assignment_id === assignmentId);
+  const helperEvents = matching.filter((signal) => signal.kind === "study_helper_event");
   return {
     startsLast24h: matching.filter((signal) => signal.kind === "started").length,
     completionsLast24h: matching.filter((signal) => signal.kind === "completed").length,
     overwhelmedLast24h: matching.filter((signal) => signal.kind === "overwhelmed").length,
     contextSwitchesLast24h: signals.filter((signal) => signal.kind === "context_switch").length,
+    helpRequestsLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "escape_valve").length,
+    modeSwitchesLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "mode_selected").length,
   };
 }
 
@@ -109,11 +113,12 @@ function classifyStruggle(input: {
   const overwhelmed = friction.overwhelmedLast24h ?? 0;
   const contextSwitches = friction.contextSwitchesLast24h ?? 0;
   const helpRequests = friction.helpRequestsLast24h ?? 0;
+  const modeSwitches = friction.modeSwitchesLast24h ?? 0;
 
   if (overwhelmed >= 2 || (readiness?.body === "low" && readiness.focus === "scattered")) {
     return "overload";
   }
-  if ((starts >= 2 && completions === 0) || contextSwitches >= 3 || helpRequests >= 3) {
+  if ((starts >= 2 && completions === 0) || contextSwitches >= 3 || helpRequests >= 3 || (modeSwitches >= 2 && completions === 0)) {
     return "blocked";
   }
   if (starts > 0 && completions === 0) return "productive";
@@ -262,4 +267,10 @@ function isBodyState(value: unknown): value is BodyState {
 
 function isFocusState(value: unknown): value is FocusState {
   return value === "scattered" || value === "steady" || value === "locked";
+}
+
+function signalValueEvent(value: unknown): string | null {
+  if (!value || typeof value !== "object") return null;
+  const event = (value as { event?: unknown }).event;
+  return typeof event === "string" ? event : null;
 }

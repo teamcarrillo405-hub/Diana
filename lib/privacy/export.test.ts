@@ -15,6 +15,7 @@ describe("privacy export helpers", () => {
       assignments: 5,
       notes: 7,
       flashcards: 11,
+      studyArtifacts: 4,
       aiInteractions: 13,
       masteryConcepts: 3,
       shareLinks: 1,
@@ -23,6 +24,7 @@ describe("privacy export helpers", () => {
       { label: "Assignments", count: 5 },
       { label: "Notes", count: 7 },
       { label: "Flashcards", count: 11 },
+      { label: "Study artifacts", count: 4 },
       { label: "AI interactions", count: 13 },
       { label: "Mastery concepts", count: 3 },
       { label: "Share links", count: 1 },
@@ -62,6 +64,7 @@ describe("privacy export helpers", () => {
 
   it("labels privacy delete categories", () => {
     expect(categoryLabel("ai_interactions")).toBe("AI history");
+    expect(categoryLabel("study_artifacts")).toBe("Study artifacts");
     expect(categoryLabel("session_handoff")).toBe("Device handoff");
   });
 });

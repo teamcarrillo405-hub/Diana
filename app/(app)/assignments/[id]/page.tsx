@@ -27,12 +27,19 @@ import { TaskBreakdown } from "./task-breakdown";
 import { TaskSwitchCue } from "./task-switch-cue";
 import { StudyHelperModeCard } from "./study-helper-mode-card";
 import { AiUsageLog } from "@/components/ai-usage-log";
+import { StudyArtifactPanel } from "@/components/study-artifact-panel";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import {
   buildStudyHelperContext,
   normalizeStudyHelperMode,
   shellContextFromStudyHelper,
 } from "@/lib/study-helper/modes";
+import {
+  buildSupportPlan,
+  energyFromBody,
+  readinessFromSignalValue,
+  summarizeFrictionSignals,
+} from "@/lib/support/policy";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/parse";
 
@@ -67,6 +74,13 @@ export default async function AssignmentDetailPage({
     .eq("assignment_id", id)
     .maybeSingle();
   const initialSteps: BreakdownStep[] = (stepsRow?.steps as BreakdownStep[]) ?? [];
+
+  const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: recentSignals } = await supabase
+    .from("task_signals")
+    .select("kind, assignment_id, value, occurred_at")
+    .gte("occurred_at", since24h)
+    .order("occurred_at", { ascending: false });
 
   const status = a.status as AssignmentStatus;
   const nexts = nextStatesFor(status);
@@ -114,12 +128,29 @@ export default async function AssignmentDetailPage({
     /\bap\b|advanced placement|college board/i.test(a.classes?.name ?? "") ||
     a.kind === "test_prep" ||
     /\bfrq\b|\bdbq\b|synthesis essay|multiple choice|\bmcq\b|score band|college board/i.test(assignmentText);
+  const latestReadiness = (recentSignals ?? [])
+    .map((signal) => readinessFromSignalValue(signal.value))
+    .find(Boolean) ?? null;
+  const supportPlan = buildSupportPlan({
+    assignment: {
+      kind: a.kind,
+      reading_load: a.reading_load,
+      writing_load: a.writing_load,
+      difficulty: a.difficulty,
+      effective_minutes: a.estimated_minutes ?? 20,
+      status: a.status,
+    },
+    readiness: latestReadiness,
+    energy: energyFromBody(latestReadiness?.body) ?? "medium",
+    friction: summarizeFrictionSignals(recentSignals ?? [], a.id),
+  });
   const studyHelperContext = buildStudyHelperContext({
     assignmentKind: a.kind,
     classAiMode,
     selectedMode: normalizeStudyHelperMode(study),
     readingLoad: a.reading_load,
     writingLoad: a.writing_load,
+    supportIntensity: supportPlan.intensity,
     focusNextStep: focus === "next-step",
   });
   const shellStudyContext = shellContextFromStudyHelper(studyHelperContext);
@@ -201,6 +232,13 @@ export default async function AssignmentDetailPage({
       )}
 
       <StudyHelperModeCard assignmentId={a.id} context={studyHelperContext} />
+
+      <StudyArtifactPanel
+        sourceType="assignment"
+        sourceId={a.id}
+        aiMode={classAiMode}
+        studyMode={studyHelperContext.selectedMode}
+      />
 
       {a.rubric_text && (
         <section className="space-y-2 rounded-xl border border-border bg-card p-4">

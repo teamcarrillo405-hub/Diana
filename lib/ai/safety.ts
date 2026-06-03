@@ -34,7 +34,8 @@ export interface LogParams {
     | "weekly_reflection"
     | "arts_scaffold"
     | "health_scaffold"
-    | "ap_scaffold";
+    | "ap_scaffold"
+    | "study_artifacts";
   model: string;
   promptSummary: string;
   tokensUsed: number;

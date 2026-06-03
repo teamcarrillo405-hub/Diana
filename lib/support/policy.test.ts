@@ -47,10 +47,18 @@ describe("body-aware support policy", () => {
           { kind: "started", assignment_id: "a1" },
           { kind: "started", assignment_id: "a1" },
           { kind: "context_switch", assignment_id: null },
+          { kind: "study_helper_event", assignment_id: "a1", value: { event: "mode_selected" } },
+          { kind: "study_helper_event", assignment_id: "a1", value: { event: "escape_valve" } },
         ],
         "a1",
       ),
-    ).toMatchObject({ startsLast24h: 2, completionsLast24h: 0, contextSwitchesLast24h: 1 });
+    ).toMatchObject({
+      startsLast24h: 2,
+      completionsLast24h: 0,
+      contextSwitchesLast24h: 1,
+      helpRequestsLast24h: 1,
+      modeSwitchesLast24h: 1,
+    });
   });
 
   it("gives low-energy high-focus students a concrete setup step", () => {
@@ -76,6 +84,19 @@ describe("body-aware support policy", () => {
     expect(plan.struggle).toBe("blocked");
     expect(plan.intensity).toBe("scaffolded");
     expect(plan.nextStep).toContain("write what it is asking for");
+  });
+
+  it("treats repeated helper mode changes without progress as a blocked step", () => {
+    const plan = buildSupportPlan({
+      assignment: { ...assignment, kind: "reading" },
+      readiness: { body: "okay", focus: "steady" },
+      energy: "medium",
+      friction: { modeSwitchesLast24h: 2, completionsLast24h: 0 },
+    });
+
+    expect(plan.struggle).toBe("blocked");
+    expect(plan.intensity).toBe("scaffolded");
+    expect(plan.nextStep).toContain("mark one sentence");
   });
 
   it("uses milestone memory only when there is enough evidence", () => {

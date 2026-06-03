@@ -150,6 +150,7 @@ export function PrivacyDashboard({
           <p>Class AI policy, rubric context, and selected AI style.</p>
           <p>Profile accessibility settings and accommodation context.</p>
           <p>AI interaction logs used for budget and authorship history.</p>
+          <p>Saved study artifacts created from notes or assignments.</p>
         </div>
       </section>
 

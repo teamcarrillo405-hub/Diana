@@ -10,6 +10,59 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      study_artifacts: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          source_type: "assignment" | "note";
+          source_id: string;
+          artifact_type: "study_guide" | "practice_test" | "flashcard_set";
+          study_mode: "guided_steps" | "visual_breakdown" | "retrieval_quiz" | "flashcard_builder";
+          title: string;
+          payload: Json;
+          ai_policy: "green" | "yellow" | "red";
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          source_type: "assignment" | "note";
+          source_id: string;
+          artifact_type: "study_guide" | "practice_test" | "flashcard_set";
+          study_mode: "guided_steps" | "visual_breakdown" | "retrieval_quiz" | "flashcard_builder";
+          title: string;
+          payload?: Json;
+          ai_policy: "green" | "yellow" | "red";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          source_type?: "assignment" | "note";
+          source_id?: string;
+          artifact_type?: "study_guide" | "practice_test" | "flashcard_set";
+          study_mode?: "guided_steps" | "visual_breakdown" | "retrieval_quiz" | "flashcard_builder";
+          title?: string;
+          payload?: Json;
+          ai_policy?: "green" | "yellow" | "red";
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "study_artifacts_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       study_groups: {
         Row: {
           id: string;
