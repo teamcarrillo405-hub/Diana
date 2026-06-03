@@ -2,21 +2,21 @@ import { ArrowRight, BookOpen, CheckCircle2, Clock3, PenLine, Sparkles } from "l
 
 export function ProductPreviewCard() {
   return (
-    <div className="command-gradient w-full min-w-0 overflow-hidden rounded-3xl border border-brand/20 p-4 shadow-sm sm:p-5">
-      <div className="rounded-2xl border border-white/60 bg-surface-raised/90 p-4 shadow-sm backdrop-blur dark:border-border sm:p-5">
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
+    <div className="command-gradient w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-brand/20 p-4 shadow-sm sm:p-5">
+      <div className="min-w-0 max-w-full rounded-2xl border border-white/60 bg-surface-raised/90 p-4 shadow-sm backdrop-blur dark:border-border sm:p-5">
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
             <p className="text-xs font-medium uppercase tracking-wider text-muted">Right now</p>
             <h2 className="mt-1 text-xl font-bold leading-tight">Bio lab conclusion</h2>
           </div>
-          <div className="rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand-strong dark:text-brand">
+          <div className="shrink-0 rounded-full bg-brand/10 px-3 py-1 text-xs font-medium text-brand-strong dark:text-brand">
             9 min for you
           </div>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_0.88fr]">
-          <section className="rounded-2xl border border-subject-science/25 bg-subject-science/10 p-3">
-            <div className="flex items-center gap-2">
+        <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-[1fr_0.88fr]">
+          <section className="min-w-0 rounded-2xl border border-subject-science/25 bg-subject-science/10 p-3">
+            <div className="flex min-w-0 items-center gap-2">
               <span className="flex size-8 items-center justify-center rounded-xl bg-subject-science/15 text-teal-700 dark:text-teal-300">
                 <BookOpen size={16} />
               </span>
@@ -31,8 +31,8 @@ export function ProductPreviewCard() {
             </button>
           </section>
 
-          <section className="rounded-2xl border border-border bg-surface-raised p-3">
-            <div className="flex items-center gap-2">
+          <section className="min-w-0 rounded-2xl border border-border bg-surface-raised p-3">
+            <div className="flex min-w-0 items-center gap-2">
               <Sparkles size={15} className="text-brand" />
               <p className="text-xs font-medium uppercase tracking-wider text-muted">AI scaffold</p>
             </div>
@@ -53,7 +53,7 @@ export function ProductPreviewCard() {
           </section>
         </div>
 
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+        <div className="mt-3 grid min-w-0 gap-2 sm:grid-cols-3">
           <PreviewCue icon={Clock3} label="Started" />
           <PreviewCue icon={PenLine} label="One step done" />
           <PreviewCue icon={CheckCircle2} label="Ready to submit" />

@@ -24,8 +24,8 @@ describe("isFrustrationDetected", () => {
     expect(isFrustrationDetected([])).toBe(false);
   });
 
-  it("FRUSTRATION_REDIRECT includes '5-minute break' and 'talk through what's confusing'", () => {
-    expect(FRUSTRATION_REDIRECT).toContain("5-minute break");
+  it("FRUSTRATION_REDIRECT includes a next academic move and a talk-through option", () => {
+    expect(FRUSTRATION_REDIRECT).toContain("next academic move");
     expect(FRUSTRATION_REDIRECT).toContain("talk through what");
   });
 });

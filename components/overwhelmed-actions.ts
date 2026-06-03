@@ -67,6 +67,6 @@ export async function recordOverwhelmed(
     childId,
     message: childId
       ? "I made a 5-minute next step."
-      : "Take one 5-minute reset, then pick the smallest visible step.",
+      : "I will keep the dashboard to one visible school move so you are not choosing from everything.",
   };
 }

@@ -28,6 +28,12 @@ import {
 } from "@/lib/emotional/session";
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 import { FocusHeroCard } from "./focus-hero-card";
+import {
+  buildSupportPlan,
+  energyFromBody,
+  readinessFromSignalValue,
+  summarizeFrictionSignals,
+} from "@/lib/support/policy";
 
 export default async function DashboardPage({
   searchParams,
@@ -68,6 +74,15 @@ export default async function DashboardPage({
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
+  const { data: latestReadinessSignal } = await supabase
+    .from("task_signals")
+    .select("value, occurred_at")
+    .eq("kind", "mood_checkin")
+    .gte("occurred_at", todayStart.toISOString())
+    .order("occurred_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   const { data: doneToday } = await supabase
     .from("task_signals")
     .select("id")
@@ -95,6 +110,24 @@ export default async function DashboardPage({
     .select("id")
     .eq("kind", "overwhelmed")
     .gte("occurred_at", todayStart.toISOString());
+
+  const last24hIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const { data: supportSignals } = await supabase
+    .from("task_signals")
+    .select("assignment_id, kind, occurred_at")
+    .in("kind", ["started", "completed", "overwhelmed", "context_switch"])
+    .gte("occurred_at", last24hIso)
+    .order("occurred_at", { ascending: false });
+
+  const twoWeeksAgoIso = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: completionMilestones } = await supabase
+    .from("task_signals")
+    .select("assignment_id, assignments(kind)")
+    .eq("kind", "completed")
+    .gte("occurred_at", twoWeeksAgoIso)
+    .not("assignment_id", "is", null)
+    .limit(100);
+
   const burnout = burnoutSignal({
     minutesToday,
     openSessionMinutes,
@@ -117,7 +150,8 @@ export default async function DashboardPage({
       : null,
     now,
   );
-  const energy = search.energy ?? sleepAdjustment.energyOverride ?? adaptation.energyOverride ?? "medium";
+  const readiness = readinessFromSignalValue(latestReadinessSignal?.value);
+  const energy = search.energy ?? energyFromBody(readiness?.body) ?? sleepAdjustment.energyOverride ?? adaptation.energyOverride ?? "medium";
 
   const { data: dueCards } = await supabase
     .from("flashcards")
@@ -173,6 +207,22 @@ export default async function DashboardPage({
   const topCreatedAt = top
     ? (assignments ?? []).find((assignment) => assignment.id === top.id)?.created_at ?? null
     : null;
+  const sameKindCompletions14d = top
+    ? (completionMilestones ?? []).filter((row) => {
+        const joined = (row as { assignments?: { kind?: unknown } | Array<{ kind?: unknown }> | null }).assignments;
+        const kind = Array.isArray(joined) ? joined[0]?.kind : joined?.kind;
+        return kind === top.kind;
+      }).length
+    : 0;
+  const supportPlan = top
+    ? buildSupportPlan({
+        assignment: top,
+        readiness,
+        energy,
+        friction: summarizeFrictionSignals(supportSignals ?? [], top.id),
+        milestones: { sameKindCompletions14d },
+      })
+    : null;
 
   return (
     <div className="space-y-7">
@@ -203,6 +253,7 @@ export default async function DashboardPage({
           createdAt={topCreatedAt}
           energy={energy}
           roughMode={adaptation.mood === "rough"}
+          supportPlan={supportPlan}
           tts={
             ttsOn
               ? {

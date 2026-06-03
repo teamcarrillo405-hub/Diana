@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { fallbackReflection, roughModeUntil, startOfWeekIsoDate } from "@/lib/emotional/session";
+import { moodFromReadiness } from "@/lib/support/policy";
 
 const ClassIdInput = z.string().uuid();
 
@@ -163,7 +164,9 @@ export async function getReminderItems(): Promise<ReminderItem[]> {
 // ---------- Phase 24 - session mood + weekly reflection ----------
 
 const MoodInput = z.object({
-  mood: z.enum(["good", "meh", "rough"]).nullable(),
+  mood: z.enum(["good", "meh", "rough"]).nullable().optional(),
+  body: z.enum(["low", "okay", "ready"]).optional(),
+  focus: z.enum(["scattered", "steady", "locked"]).optional(),
   disable: z.boolean().optional(),
 });
 
@@ -178,11 +181,14 @@ export async function saveMoodCheckIn(
   if (!user) return { ok: false, error: "Not signed in." };
 
   const now = new Date();
+  const readinessMood = parsed.data.body && parsed.data.focus
+    ? moodFromReadiness({ body: parsed.data.body, focus: parsed.data.focus })
+    : parsed.data.mood ?? null;
   const patch = {
-    session_mood: parsed.data.mood,
+    session_mood: readinessMood,
     last_mood_checkin_at: now.toISOString(),
     mood_checkin_disabled: parsed.data.disable ?? false,
-    rough_mode_until: parsed.data.mood === "rough" ? roughModeUntil(now) : null,
+    rough_mode_until: readinessMood === "rough" ? roughModeUntil(now) : null,
   };
 
   const { error } = await supabase
@@ -194,7 +200,12 @@ export async function saveMoodCheckIn(
   await supabase.from("task_signals").insert({
     owner_id: user.id,
     kind: "mood_checkin",
-    value: { mood: parsed.data.mood, disabled: parsed.data.disable ?? false },
+    value: {
+      mood: readinessMood,
+      body: parsed.data.body ?? null,
+      focus: parsed.data.focus ?? null,
+      disabled: parsed.data.disable ?? false,
+    },
   });
 
   revalidatePath("/dashboard");

@@ -39,21 +39,29 @@ export function OverwhelmedButton() {
             {childId && (
               <Link
                 href={`/assignments/${childId}`}
-                className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white"
+                className="touch-target rounded-xl bg-brand px-3 py-2 text-sm font-medium text-white"
               >
-                Open it
+                Open next step
+              </Link>
+            )}
+            {!childId && (
+              <Link
+                href="/dashboard"
+                className="touch-target rounded-xl bg-brand px-3 py-2 text-sm font-medium text-white"
+              >
+                Show one move
               </Link>
             )}
             <Link
               href="/timer?mode=rough"
-              className="rounded-md border border-border px-3 py-2 text-sm hover:bg-border/30"
+              className="touch-target rounded-xl border border-border px-3 py-2 text-sm hover:bg-surface-soft"
             >
-              5 min timer
+              Add timer
             </Link>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-md border border-border px-3 py-2 text-sm text-muted hover:bg-border/30"
+              className="touch-target rounded-xl border border-border px-3 py-2 text-sm text-muted hover:bg-surface-soft"
             >
               Close
             </button>

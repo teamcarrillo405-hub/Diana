@@ -21,7 +21,7 @@ export function sessionAdaptationForMood(mood: string | null | undefined): Sessi
       visibleTaskCount: 2,
       energyOverride: "low",
       headline: "Rough mode",
-      nextStep: "One small step, then a real break.",
+      nextStep: "One concrete school move, then decide whether to pause.",
     };
   }
   if (mood === "meh") {
@@ -101,13 +101,13 @@ export function burnoutSignal(input: {
   const total = input.minutesToday + (input.openSessionMinutes ?? 0);
   const overwhelmed = input.overwhelmedSignals ?? 0;
   if (total >= 150) {
-    return { show: true, message: "Your brain has done a lot today. A short reset is a useful next step." };
+    return { show: true, message: "Your brain has done a lot today. Save one next line or setup note before you pause." };
   }
   if (input.mood === "rough" && total >= 60) {
     return { show: true, message: "Rough day plus steady work is enough data. Take the next step smaller." };
   }
   if (overwhelmed >= 3) {
-    return { show: true, message: "You have asked for smaller steps a few times. Switch to a lighter block for now." };
+    return { show: true, message: "You have asked for smaller steps a few times. Switch to one visible academic move for now." };
   }
   return { show: false, message: "" };
 }

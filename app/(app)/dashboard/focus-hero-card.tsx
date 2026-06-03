@@ -6,6 +6,7 @@ import { KIND_LABEL } from "@/lib/checklists/templates";
 import { TtsButton } from "@/components/tts-button";
 import type { ScoredAssignment } from "@/lib/scoring/next-five-minutes";
 import type { AssignmentStatus, TtsProvider } from "@/lib/supabase/types";
+import type { SupportPlan } from "@/lib/support/policy";
 
 type DashboardAssignment = ScoredAssignment & {
   created_at?: string | null;
@@ -25,12 +26,14 @@ export function FocusHeroCard({
   createdAt,
   energy,
   roughMode,
+  supportPlan,
   tts,
 }: {
   assignment: DashboardAssignment;
   createdAt?: string | null;
   energy: "low" | "medium" | "high";
   roughMode: boolean;
+  supportPlan?: SupportPlan | null;
   tts?: TtsConfig;
 }) {
   const classColor = assignment.classes?.color ?? "rgb(var(--brand))";
@@ -99,6 +102,31 @@ export function FocusHeroCard({
               </ul>
             </div>
           )}
+
+          {supportPlan && (
+            <div className="rounded-2xl border border-brand/20 bg-surface-raised/85 p-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="text-xs font-medium uppercase tracking-wider text-brand-strong dark:text-brand">
+                  {supportPlan.headline}
+                </p>
+                {supportPlan.chips.map((chip) => (
+                  <span key={chip} className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] text-brand-strong dark:text-brand">
+                    {chip}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2 text-sm text-muted">{supportPlan.rationale}</p>
+              <p className="mt-3 text-sm font-medium">
+                Next logical step: <span className="font-normal">{supportPlan.nextStep}</span>
+              </p>
+              {supportPlan.bodyCue && (
+                <p className="mt-2 text-xs text-muted">{supportPlan.bodyCue}</p>
+              )}
+              {supportPlan.patternNote && (
+                <p className="mt-2 text-xs text-muted">{supportPlan.patternNote}</p>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="w-full shrink-0 space-y-3 lg:w-64">
@@ -109,6 +137,14 @@ export function FocusHeroCard({
             Start focus
             <ArrowRight size={17} />
           </Link>
+          {supportPlan && (
+            <Link
+              href={`/assignments/${assignment.id}?focus=next-step`}
+              className="touch-target inline-flex w-full items-center justify-center rounded-2xl border border-border bg-surface-raised px-4 py-3 text-sm font-semibold text-fg transition hover:bg-surface-soft"
+            >
+              Ask for next step
+            </Link>
+          )}
           {tts && (
             <TtsButton
               text={tts.text}

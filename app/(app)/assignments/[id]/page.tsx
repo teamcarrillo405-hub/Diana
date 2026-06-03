@@ -38,7 +38,7 @@ export default async function AssignmentDetailPage({
   searchParams: Promise<{ intent?: string; focus?: string }>;
 }) {
   const { id } = await params;
-  const { intent } = await searchParams;
+  const { intent, focus } = await searchParams;
   const supabase = await createClient();
   const profile = await loadProfile();
 
@@ -173,6 +173,17 @@ export default async function AssignmentDetailPage({
       </header>
 
       <TaskSwitchCue assignmentId={a.id} classId={a.classes?.id ?? null} title={a.title} />
+
+      {focus === "next-step" && (
+        <section className="rounded-2xl border border-brand/20 bg-brand/10 p-4">
+          <p className="text-sm font-medium text-brand-strong dark:text-brand">
+            Next-step mode
+          </p>
+          <p className="mt-1 text-sm text-muted">
+            Start with the first visible academic move below. If the steps are not built yet, use Break it down first.
+          </p>
+        </section>
+      )}
 
       {a.rubric_text && (
         <section className="space-y-2 rounded-xl border border-border bg-card p-4">
