@@ -3,6 +3,8 @@ import type { LucideIcon } from "lucide-react";
 import { HelpCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { subjectTheme, type SubjectThemeId } from "@/lib/ui/subject-themes";
 import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
+import { HelpOwnershipMeter } from "@/components/help-ownership-meter";
+import { buildHelpOwnershipMeter, type HelpOwnershipMeter as HelpOwnershipMeterValue } from "@/lib/student-state/model";
 
 export function SubjectToolShell({
   theme,
@@ -12,6 +14,7 @@ export function SubjectToolShell({
   icon,
   actions,
   studyContext,
+  ownershipMeter,
   children,
   className = "",
 }: {
@@ -22,11 +25,22 @@ export function SubjectToolShell({
   icon?: LucideIcon;
   actions?: ReactNode;
   studyContext?: StudyHelperShellContext;
+  ownershipMeter?: HelpOwnershipMeterValue;
   children: ReactNode;
   className?: string;
 }) {
   const subject = subjectTheme(theme);
   const Icon = icon ?? subject.icon;
+  const meter = ownershipMeter ?? (studyContext
+    ? buildHelpOwnershipMeter({
+        aiPolicy: studyContext.aiPolicyLabel.includes("no content")
+          ? "red"
+          : studyContext.aiPolicyLabel.includes("scaffolding")
+            ? "yellow"
+            : "green",
+        supportIntensity: "guided",
+      })
+    : null);
 
   return (
     <section
@@ -74,6 +88,7 @@ export function SubjectToolShell({
           </div>
         </div>
       )}
+      {meter && <HelpOwnershipMeter meter={meter} compact />}
       <div className={`rounded-2xl border ${subject.borderClass} ${subject.surfaceClass} p-3 sm:p-4`}>
         {children}
       </div>

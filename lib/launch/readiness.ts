@@ -32,6 +32,12 @@ export const CRITICAL_PATHS: CriticalPath[] = [
   { source: "lib/offline/store.ts", test: "lib/offline/store.test.ts" },
   { source: "lib/mastery/concepts.ts", test: "lib/mastery/concepts.test.ts" },
   { source: "lib/lms/canvas.ts", test: "lib/lms/canvas.test.ts" },
+  { source: "lib/student-state/model.ts", test: "lib/student-state/model.test.ts" },
+  { source: "lib/teen-testing/protocol.ts", test: "lib/teen-testing/protocol.test.ts" },
+  { source: "lib/competitive/capability-matrix.ts", test: "lib/competitive/capability-matrix.test.ts" },
+  { source: "lib/study-helper/guided-learning.ts", test: "lib/study-helper/guided-learning.test.ts" },
+  { source: "lib/study-helper/visual-breakdown.ts", test: "lib/study-helper/visual-breakdown.test.ts" },
+  { source: "lib/benchmark/competitive.ts", test: "lib/benchmark/competitive.test.ts" },
 ];
 
 export function criticalPathCoveragePercent(

@@ -3,6 +3,7 @@ import {
   buildFallbackStudyArtifact,
   extractStudyTerms,
   parseStudyArtifactResponse,
+  withEditedCards,
 } from "./artifacts";
 
 describe("study artifacts", () => {
@@ -44,6 +45,9 @@ describe("study artifacts", () => {
     expect(artifact.sourceType).toBe("note");
     expect(artifact.quiz[0].question).toContain("photosynthesis");
     expect(artifact.cards[0].front).toContain("chlorophyll");
+    expect(artifact.practiceSettings.questionCount).toBe(8);
+    expect(artifact.visualBreakdown?.sourceAnchored).toBe(true);
+    expect(artifact.authorshipReceiptDetail.finalWorkProtected).toBe(true);
   });
 
   it("falls back to active recall when AI output is not parseable", () => {
@@ -79,5 +83,40 @@ describe("study artifacts", () => {
     expect(artifact.quiz[0].hint).toContain("source");
     expect(artifact.nextSteps[0]).toContain("question");
     expect(artifact.trustNote).toContain("class material");
+  });
+
+  it("prefers concrete assignment and rubric anchors when present", () => {
+    const artifact = buildFallbackStudyArtifact({
+      type: "flashcard_set",
+      sourceTitle: "DBQ essay",
+      sourceType: "assignment",
+      mode: "flashcard_builder",
+      sourceText: [
+        "Assignment: DBQ essay",
+        "Prompt:\nUse two documents to support a claim. Explain source reliability.",
+        "Rubric:\nUse evidence from documents.\nExplain reasoning.",
+      ].join("\n\n"),
+    });
+
+    const anchors = artifact.cards.map((card) => card.sourceAnchor).join(" ");
+    expect(anchors).toContain("Assignment prompt sentence");
+    expect(anchors).toContain("Rubric line");
+  });
+
+  it("tracks student edits before cards enter review", () => {
+    const artifact = buildFallbackStudyArtifact({
+      type: "flashcard_set",
+      sourceTitle: "Biology notes",
+      sourceType: "note",
+      mode: "flashcard_builder",
+      sourceText,
+    });
+    const edited = withEditedCards(artifact, [
+      { ...artifact.cards[0], front: "Explain chlorophyll in your own words" },
+    ], "2026-06-03T00:00:00.000Z");
+
+    expect(edited.editState.cardsReviewed).toBe(1);
+    expect(edited.editState.cardsEdited).toBe(1);
+    expect(edited.authorshipReceiptDetail.studentActions.join(" ")).toContain("Edited card wording");
   });
 });

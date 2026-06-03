@@ -7,6 +7,7 @@ import { AiTooltip } from "@/components/ai-tooltip";
 import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { authorshipPercent, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
 import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
+import { buildHelpOwnershipMeter } from "@/lib/student-state/model";
 
 interface WritingAidProps {
   assignmentId: string;
@@ -86,6 +87,11 @@ export function WritingAid({ assignmentId, classAiMode, studyContext }: WritingA
       subtitle={open ? "Suggestions, chips, and authorship stay visible." : "Plan, revise, and keep the writing yours."}
       icon={Pencil}
       studyContext={studyContext}
+      ownershipMeter={buildHelpOwnershipMeter({
+        aiPolicy: classAiMode,
+        supportIntensity: "guided",
+        studentSharePercent: studentShare,
+      })}
     >
       {!open ? (
         <button

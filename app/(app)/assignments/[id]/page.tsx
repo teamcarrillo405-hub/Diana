@@ -28,6 +28,8 @@ import { TaskSwitchCue } from "./task-switch-cue";
 import { StudyHelperModeCard } from "./study-helper-mode-card";
 import { AiUsageLog } from "@/components/ai-usage-log";
 import { StudyArtifactPanel } from "@/components/study-artifact-panel";
+import { LearningTurnCard } from "@/components/learning-turn-card";
+import { VisualBreakdownPanel } from "@/components/visual-breakdown-panel";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import {
   buildStudyHelperContext,
@@ -35,11 +37,13 @@ import {
   shellContextFromStudyHelper,
 } from "@/lib/study-helper/modes";
 import {
-  buildSupportPlan,
   energyFromBody,
   readinessFromSignalValue,
-  summarizeFrictionSignals,
 } from "@/lib/support/policy";
+import { StudentStateCard } from "@/components/student-state-card";
+import { buildStudentStateModel, sourceAnchorsFromAssignment } from "@/lib/student-state/model";
+import { buildLearningTurn } from "@/lib/study-helper/guided-learning";
+import { buildVisualBreakdown } from "@/lib/study-helper/visual-breakdown";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/parse";
 
@@ -57,7 +61,7 @@ export default async function AssignmentDetailPage({
 
   const { data: a } = await supabase
     .from("assignments")
-    .select("id, title, description, due_at, status, kind, reading_load, writing_load, estimated_minutes, difficulty, last_thought, external_source, external_url, rubric_text, submission_sync_status, ai_mode_override, classes(id, name, color, ai_mode), rubric_id")
+    .select("id, title, description, due_at, status, kind, reading_load, writing_load, estimated_minutes, difficulty, class_id, last_thought, external_source, external_url, rubric_text, submission_sync_status, ai_mode_override, classes(id, name, color, ai_mode), rubric_id")
     .eq("id", id)
     .single();
   if (!a) notFound();
@@ -131,19 +135,30 @@ export default async function AssignmentDetailPage({
   const latestReadiness = (recentSignals ?? [])
     .map((signal) => readinessFromSignalValue(signal.value))
     .find(Boolean) ?? null;
-  const supportPlan = buildSupportPlan({
+  const assignmentSourceAnchors = sourceAnchorsFromAssignment({
+    title: a.title,
+    description: a.description ?? null,
+    rubricText: a.rubric_text ?? null,
+  });
+  const studentStateModel = buildStudentStateModel({
     assignment: {
+      id: a.id,
+      title: a.title,
       kind: a.kind,
       reading_load: a.reading_load,
       writing_load: a.writing_load,
       difficulty: a.difficulty,
       effective_minutes: a.estimated_minutes ?? 20,
-      status: a.status,
+      status: a.status as AssignmentStatus,
+      class_id: a.class_id,
     },
+    aiPolicy: classAiMode,
     readiness: latestReadiness,
     energy: energyFromBody(latestReadiness?.body) ?? "medium",
-    friction: summarizeFrictionSignals(recentSignals ?? [], a.id),
+    signals: recentSignals ?? [],
+    sourceAnchors: assignmentSourceAnchors,
   });
+  const supportPlan = studentStateModel.supportPlan;
   const studyHelperContext = buildStudyHelperContext({
     assignmentKind: a.kind,
     classAiMode,
@@ -154,6 +169,18 @@ export default async function AssignmentDetailPage({
     focusNextStep: focus === "next-step",
   });
   const shellStudyContext = shellContextFromStudyHelper(studyHelperContext);
+  const learningTurn = buildLearningTurn({
+    assignmentKind: a.kind,
+    studentPrompt: [intent ?? "", focus ?? "", study ?? ""].join(" "),
+    sourceAnchors: assignmentSourceAnchors,
+    supportIntensity: supportPlan.intensity,
+  });
+  const visualBreakdown = buildVisualBreakdown({
+    assignmentKind: a.kind,
+    className: a.classes?.name ?? null,
+    sourceAnchors: assignmentSourceAnchors,
+    title: a.title,
+  });
 
   return (
     <div className="space-y-8">
@@ -232,6 +259,12 @@ export default async function AssignmentDetailPage({
       )}
 
       <StudyHelperModeCard assignmentId={a.id} context={studyHelperContext} />
+
+      <StudentStateCard model={studentStateModel} title="Adaptive support state" />
+
+      <LearningTurnCard turn={learningTurn} />
+
+      <VisualBreakdownPanel breakdown={visualBreakdown} />
 
       <StudyArtifactPanel
         sourceType="assignment"

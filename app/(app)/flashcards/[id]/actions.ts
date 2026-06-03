@@ -5,7 +5,9 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { schedule, type FsrsCard } from "@/lib/fsrs/fsrs";
 import { masteryLevelFromCorrectReviews } from "@/lib/mastery/concepts";
+import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 import type { FsrsState } from "@/lib/notes/types";
+import type { Json } from "@/lib/supabase/types";
 
 const RateInput = z.object({
   id:     z.string().uuid(),
@@ -28,7 +30,7 @@ export async function rateCard(
   // 1. Load current FSRS state for this card
   const { data: row, error: loadError } = await supabase
     .from("flashcards")
-    .select("id, state, stability, difficulty, due_at, reps, lapses, last_review_at, concept_id")
+    .select("id, state, stability, difficulty, due_at, reps, lapses, last_review_at, concept_id, source_assignment_id, source_artifact_id, source_anchor, student_required_action")
     .eq("id", parsed.data.id)
     .eq("owner_id", user.id)
     .single();
@@ -94,6 +96,39 @@ export async function rateCard(
       rating: parsed.data.rating,
     });
   }
+
+  await supabase.from("task_signals").insert({
+    owner_id: user.id,
+    assignment_id: row.source_assignment_id,
+    kind: "recall_result",
+    value: {
+      cardId: row.id,
+      artifactId: row.source_artifact_id,
+      rating: parsed.data.rating,
+      sourceAnchor: row.source_anchor,
+      studentAction: row.student_required_action,
+      state: result.card.state,
+    } as Json,
+  });
+
+  if (row.source_artifact_id) {
+    await supabase
+      .from("study_artifacts")
+      .update({
+        loop_state: parsed.data.rating >= 3 ? "mastery_linked" : "reviewing",
+        last_reviewed_at: result.log.reviewedAt,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", row.source_artifact_id)
+      .eq("owner_id", user.id);
+  }
+
+  await recordStudentStateSnapshot({
+    supabase,
+    ownerId: user.id,
+    assignmentId: row.source_assignment_id,
+    trigger: "flashcard_recall_result",
+  });
 
   revalidatePath("/flashcards");
   revalidatePath("/dashboard");

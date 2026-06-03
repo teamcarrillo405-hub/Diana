@@ -1,0 +1,1952 @@
+[
+  {
+    "size": "375x812",
+    "page": "landing",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-landing.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 360,
+    "finalUrl": "http://127.0.0.1:3023/",
+    "firstActions": [
+      {
+        "height": 44,
+        "left": 16,
+        "text": "Get started",
+        "top": 362,
+        "width": 328
+      },
+      {
+        "height": 46,
+        "left": 16,
+        "text": "I already have an account",
+        "top": 418,
+        "width": 328
+      },
+      {
+        "height": 44,
+        "left": 63,
+        "text": "Start focus",
+        "top": 955,
+        "width": 234
+      }
+    ],
+    "h1": "Your next 5 minutes, made clear.",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "login",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-login.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://127.0.0.1:3023/login",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "signup",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-signup.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://127.0.0.1:3023/signup",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 89,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Create account",
+        "top": 634,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 217,
+        "text": "Log in",
+        "top": 707,
+        "width": 42
+      }
+    ],
+    "h1": "Create your account",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "proof",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-proof.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://localhost:3023/login?next=%2Fproof",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "dashboard",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-dashboard.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://localhost:3023/login?next=%2Fdashboard",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "assignment-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-assignment-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://localhost:3023/login?next=%2Fassignments%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "note-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-note-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://localhost:3023/login?next=%2Fnotes%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "flashcard-review",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-flashcard-review.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://localhost:3023/login?next=%2Fflashcards%2F00000000-0000-0000-0000-000000000000%2Freview",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "ai-history",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-ai-history.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://localhost:3023/login?next=%2Fsettings%2Fai-history",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "375x812",
+    "page": "teacher-share",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/375x812-teacher-share.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://localhost:3023/login?next=%2Fteacher-share",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 217,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 506,
+        "width": 301
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 579,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 375,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 375,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "landing",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-landing.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 375,
+    "finalUrl": "http://127.0.0.1:3023/",
+    "firstActions": [
+      {
+        "height": 44,
+        "left": 16,
+        "text": "Get started",
+        "top": 327,
+        "width": 343
+      },
+      {
+        "height": 46,
+        "left": 16,
+        "text": "I already have an account",
+        "top": 383,
+        "width": 343
+      },
+      {
+        "height": 44,
+        "left": 63,
+        "text": "Start focus",
+        "top": 900,
+        "width": 249
+      }
+    ],
+    "h1": "Your next 5 minutes, made clear.",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "login",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-login.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://127.0.0.1:3023/login",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "signup",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-signup.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://127.0.0.1:3023/signup",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 113,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Create account",
+        "top": 642,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 217,
+        "text": "Log in",
+        "top": 715,
+        "width": 42
+      }
+    ],
+    "h1": "Create your account",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "proof",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-proof.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://localhost:3023/login?next=%2Fproof",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "dashboard",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-dashboard.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://localhost:3023/login?next=%2Fdashboard",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "assignment-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-assignment-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://localhost:3023/login?next=%2Fassignments%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "note-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-note-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://localhost:3023/login?next=%2Fnotes%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "flashcard-review",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-flashcard-review.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://localhost:3023/login?next=%2Fflashcards%2F00000000-0000-0000-0000-000000000000%2Freview",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "ai-history",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-ai-history.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://localhost:3023/login?next=%2Fsettings%2Fai-history",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "390x844",
+    "page": "teacher-share",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/390x844-teacher-share.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 390,
+    "finalUrl": "http://localhost:3023/login?next=%2Fteacher-share",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 37,
+        "text": "Diana",
+        "top": 233,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 37,
+        "text": "Sign in",
+        "top": 522,
+        "width": 316
+      },
+      {
+        "height": 18,
+        "left": 112,
+        "text": "Create an account",
+        "top": 595,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 390,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 390,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "landing",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-landing.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://127.0.0.1:3023/",
+    "firstActions": [
+      {
+        "height": 44,
+        "left": 24,
+        "text": "Get started",
+        "top": 523,
+        "width": 119
+      },
+      {
+        "height": 46,
+        "left": 24,
+        "text": "I already have an account",
+        "top": 579,
+        "width": 228
+      },
+      {
+        "height": 56,
+        "left": 432,
+        "text": "Start focus",
+        "top": 504,
+        "width": 118
+      }
+    ],
+    "h1": "Your next 5 minutes, made clear.",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "login",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-login.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://127.0.0.1:3023/login",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "signup",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-signup.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://127.0.0.1:3023/signup",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 203,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Create account",
+        "top": 732,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 365,
+        "text": "Log in",
+        "top": 805,
+        "width": 42
+      }
+    ],
+    "h1": "Create your account",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "proof",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-proof.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://localhost:3023/login?next=%2Fproof",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "dashboard",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-dashboard.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://localhost:3023/login?next=%2Fdashboard",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "assignment-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-assignment-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://localhost:3023/login?next=%2Fassignments%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "note-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-note-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://localhost:3023/login?next=%2Fnotes%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "flashcard-review",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-flashcard-review.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://localhost:3023/login?next=%2Fflashcards%2F00000000-0000-0000-0000-000000000000%2Freview",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "ai-history",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-ai-history.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://localhost:3023/login?next=%2Fsettings%2Fai-history",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "768x1024",
+    "page": "teacher-share",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/768x1024-teacher-share.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 768,
+    "finalUrl": "http://localhost:3023/login?next=%2Fteacher-share",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 185,
+        "text": "Diana",
+        "top": 323,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 185,
+        "text": "Sign in",
+        "top": 612,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 260,
+        "text": "Create an account",
+        "top": 685,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 768,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 768,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "landing",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-landing.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://127.0.0.1:3023/",
+    "firstActions": [
+      {
+        "height": 46,
+        "left": 32,
+        "text": "Get started",
+        "top": 443,
+        "width": 119
+      },
+      {
+        "height": 46,
+        "left": 163,
+        "text": "I already have an account",
+        "top": 443,
+        "width": 228
+      },
+      {
+        "height": 44,
+        "left": 550,
+        "text": "Start focus",
+        "top": 366,
+        "width": 187
+      }
+    ],
+    "h1": "Your next 5 minutes, made clear.",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "login",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-login.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://127.0.0.1:3023/login",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "signup",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-signup.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://127.0.0.1:3023/signup",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 75,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Create account",
+        "top": 604,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 493,
+        "text": "Log in",
+        "top": 677,
+        "width": 42
+      }
+    ],
+    "h1": "Create your account",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "proof",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-proof.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://localhost:3023/login?next=%2Fproof",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "dashboard",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-dashboard.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://localhost:3023/login?next=%2Fdashboard",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "assignment-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-assignment-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://localhost:3023/login?next=%2Fassignments%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "note-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-note-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://localhost:3023/login?next=%2Fnotes%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "flashcard-review",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-flashcard-review.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://localhost:3023/login?next=%2Fflashcards%2F00000000-0000-0000-0000-000000000000%2Freview",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "ai-history",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-ai-history.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://localhost:3023/login?next=%2Fsettings%2Fai-history",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1024x768",
+    "page": "teacher-share",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1024x768-teacher-share.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1024,
+    "finalUrl": "http://localhost:3023/login?next=%2Fteacher-share",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 313,
+        "text": "Diana",
+        "top": 195,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 313,
+        "text": "Sign in",
+        "top": 484,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 388,
+        "text": "Create an account",
+        "top": 557,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1024,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1024,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "landing",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-landing.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://127.0.0.1:3023/",
+    "firstActions": [
+      {
+        "height": 46,
+        "left": 144,
+        "text": "Get started",
+        "top": 569,
+        "width": 119
+      },
+      {
+        "height": 46,
+        "left": 275,
+        "text": "I already have an account",
+        "top": 569,
+        "width": 228
+      },
+      {
+        "height": 44,
+        "left": 751,
+        "text": "Start focus",
+        "top": 486,
+        "width": 242
+      }
+    ],
+    "h1": "Your next 5 minutes, made clear.",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "login",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-login.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://127.0.0.1:3023/login",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "signup",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-signup.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://127.0.0.1:3023/signup",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 191,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Create account",
+        "top": 720,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 701,
+        "text": "Log in",
+        "top": 793,
+        "width": 42
+      }
+    ],
+    "h1": "Create your account",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "proof",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-proof.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://localhost:3023/login?next=%2Fproof",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "dashboard",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-dashboard.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://localhost:3023/login?next=%2Fdashboard",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "assignment-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-assignment-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://localhost:3023/login?next=%2Fassignments%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "note-detail",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-note-detail.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://localhost:3023/login?next=%2Fnotes%2F00000000-0000-0000-0000-000000000000",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "flashcard-review",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-flashcard-review.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://localhost:3023/login?next=%2Fflashcards%2F00000000-0000-0000-0000-000000000000%2Freview",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "ai-history",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-ai-history.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://localhost:3023/login?next=%2Fsettings%2Fai-history",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  },
+  {
+    "size": "1440x1000",
+    "page": "teacher-share",
+    "screenshot": "C:/Users/glcar/Diana/.planning/qa-screenshots/competitive-score-prod-2026-06-03/1440x1000-teacher-share.png",
+    "bannedVisible": [],
+    "bodyScrollWidth": 1440,
+    "finalUrl": "http://localhost:3023/login?next=%2Fteacher-share",
+    "firstActions": [
+      {
+        "height": 20,
+        "left": 521,
+        "text": "Diana",
+        "top": 311,
+        "width": 43
+      },
+      {
+        "height": 48,
+        "left": 521,
+        "text": "Sign in",
+        "top": 600,
+        "width": 398
+      },
+      {
+        "height": 18,
+        "left": 596,
+        "text": "Create an account",
+        "top": 673,
+        "width": 125
+      }
+    ],
+    "h1": "Welcome back",
+    "hasHorizontalOverflow": false,
+    "innerWidth": 1440,
+    "offenderCount": 0,
+    "offenders": [],
+    "scrollWidth": 1440,
+    "statusText": "rendered",
+    "title": "Diana"
+  }
+]

@@ -13,7 +13,7 @@ export default function LandingPage() {
               <span className="min-w-0 truncate">Built for high school focus</span>
             </div>
             <h1 className="mt-5 max-w-full text-[2rem] font-bold leading-[1.08] tracking-normal sm:max-w-3xl sm:text-5xl lg:text-6xl">
-              <span className="block">Your next 5</span>
+              <span className="block">Your next 5{" "}</span>
               <span className="block">minutes, made clear.</span>
             </h1>
             <p className="mt-5 max-w-full text-base leading-7 text-muted sm:max-w-xl sm:text-lg">
@@ -44,7 +44,7 @@ export default function LandingPage() {
               Subject tools that match how the class works.
             </div>
             <div className="min-w-0 rounded-2xl border border-border bg-surface-raised p-3">
-              Private progress without streak pressure.
+              Private progress without pressure.
             </div>
           </div>
 

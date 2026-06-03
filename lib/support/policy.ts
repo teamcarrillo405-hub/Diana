@@ -9,15 +9,24 @@ export type ReadinessCheckIn = {
 };
 
 export type StruggleState = "steady" | "productive" | "blocked" | "overload";
-export type SupportIntensity = "steady" | "guided" | "scaffolded" | "recovery";
+export type SupportIntensity = "steady" | "guided" | "scaffolded" | "one_move" | "recovery";
 
 export type FrictionSignals = {
   startsLast24h?: number;
+  restartsLast24h?: number;
   completionsLast24h?: number;
   overwhelmedLast24h?: number;
   contextSwitchesLast24h?: number;
   helpRequestsLast24h?: number;
   modeSwitchesLast24h?: number;
+  directAnswerRequestsLast24h?: number;
+  stillStuckLast24h?: number;
+  longIdleResumesLast24h?: number;
+  artifactGenerationsLast24h?: number;
+  cardsSavedLast24h?: number;
+  recallAttemptsLast7d?: number;
+  recallNeedsReviewLast7d?: number;
+  recallSecureLast7d?: number;
 };
 
 export type MilestoneMemory = {
@@ -67,13 +76,28 @@ export function summarizeFrictionSignals(
 ): FrictionSignals {
   const matching = signals.filter((signal) => signal.assignment_id === assignmentId);
   const helperEvents = matching.filter((signal) => signal.kind === "study_helper_event");
+  const recallEvents = matching.filter((signal) => signal.kind === "recall_result");
+  const starts = matching.filter((signal) => signal.kind === "started").length;
+  const completions = matching.filter((signal) => signal.kind === "completed").length;
   return {
-    startsLast24h: matching.filter((signal) => signal.kind === "started").length,
-    completionsLast24h: matching.filter((signal) => signal.kind === "completed").length,
+    startsLast24h: starts,
+    restartsLast24h: Math.max(0, starts - Math.max(completions, 1)),
+    completionsLast24h: completions,
     overwhelmedLast24h: matching.filter((signal) => signal.kind === "overwhelmed").length,
     contextSwitchesLast24h: signals.filter((signal) => signal.kind === "context_switch").length,
     helpRequestsLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "escape_valve").length,
     modeSwitchesLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "mode_selected").length,
+    directAnswerRequestsLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "direct_answer_request").length,
+    stillStuckLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "still_stuck").length,
+    longIdleResumesLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "long_idle_resume").length,
+    artifactGenerationsLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "artifact_generated").length,
+    cardsSavedLast24h: helperEvents.filter((signal) => signalValueEvent(signal.value) === "cards_saved").length,
+    recallAttemptsLast7d: recallEvents.length,
+    recallNeedsReviewLast7d: recallEvents.filter((signal) => {
+      const rating = signalValueRating(signal.value);
+      return rating > 0 && rating <= 2;
+    }).length,
+    recallSecureLast7d: recallEvents.filter((signal) => signalValueRating(signal.value) >= 3).length,
   };
 }
 
@@ -114,14 +138,27 @@ function classifyStruggle(input: {
   const contextSwitches = friction.contextSwitchesLast24h ?? 0;
   const helpRequests = friction.helpRequestsLast24h ?? 0;
   const modeSwitches = friction.modeSwitchesLast24h ?? 0;
+  const directAnswerRequests = friction.directAnswerRequestsLast24h ?? 0;
+  const stillStuck = friction.stillStuckLast24h ?? 0;
+  const longIdleResumes = friction.longIdleResumesLast24h ?? 0;
+  const recallNeedsReview = friction.recallNeedsReviewLast7d ?? 0;
 
-  if (overwhelmed >= 2 || (readiness?.body === "low" && readiness.focus === "scattered")) {
+  if (overwhelmed >= 2 || stillStuck >= 2 || (readiness?.body === "low" && readiness.focus === "scattered")) {
     return "overload";
   }
-  if ((starts >= 2 && completions === 0) || contextSwitches >= 3 || helpRequests >= 3 || (modeSwitches >= 2 && completions === 0)) {
+  if (
+    (starts >= 2 && completions === 0) ||
+    contextSwitches >= 3 ||
+    helpRequests >= 3 ||
+    directAnswerRequests >= 1 ||
+    longIdleResumes >= 2 ||
+    recallNeedsReview >= 3 ||
+    (modeSwitches >= 2 && completions === 0)
+  ) {
     return "blocked";
   }
   if (starts > 0 && completions === 0) return "productive";
+  if (recallNeedsReview > 0) return "productive";
   return "steady";
 }
 
@@ -134,10 +171,11 @@ function chooseIntensity(
   },
   struggle: StruggleState,
 ): SupportIntensity {
-  if (struggle === "overload") return "recovery";
+  if (struggle === "overload") return "one_move";
   if (struggle === "blocked") return "scaffolded";
   if (input.readiness?.body === "low" && input.readiness.focus === "locked") return "guided";
   if (input.readiness?.body === "ready" && input.readiness.focus === "scattered") return "guided";
+  if ((input.friction?.recallNeedsReviewLast7d ?? 0) >= 2) return "guided";
   if (input.energy === "low" && ((input.assignment.difficulty ?? 3) >= 4 || (input.assignment.reading_load ?? 0) >= 3)) {
     return "scaffolded";
   }
@@ -153,7 +191,7 @@ function nextLogicalStep(
   const lowBodyLockedFocus = readiness?.body === "low" && readiness.focus === "locked";
   const prefix = lowBodyLockedFocus
     ? "Keep the start low-lift: "
-    : intensity === "recovery"
+    : intensity === "one_move" || intensity === "recovery"
       ? "Use one tiny academic action: "
       : "";
 
@@ -195,7 +233,7 @@ function patternNoteFor(kind: AssignmentKind, milestones?: MilestoneMemory): str
 }
 
 function headlineFor(intensity: SupportIntensity): string {
-  if (intensity === "recovery") return "One-move support";
+  if (intensity === "one_move" || intensity === "recovery") return "One-move support";
   if (intensity === "scaffolded") return "Extra structure";
   if (intensity === "guided") return "Guided start";
   return "Steady support";
@@ -211,6 +249,9 @@ function rationaleFor(
 ): string {
   if (struggle === "overload") return "Today calls for smaller steps and fewer visible choices.";
   if (struggle === "blocked") return "This task has had a few restarts, so Diana is making the next move more specific.";
+  if ((input.friction?.recallNeedsReviewLast7d ?? 0) > 0) {
+    return "Recent recall says this needs one more anchored practice pass before moving on.";
+  }
   if (input.readiness?.body === "low" && input.readiness.focus === "locked") {
     return "Focus is strong enough for setup, but energy says not to make the first move too heavy.";
   }
@@ -222,6 +263,7 @@ function chipsFor(
   input: {
     assignment: SupportAssignment;
     readiness?: ReadinessCheckIn | null;
+    friction?: FrictionSignals;
   },
   struggle: StruggleState,
   intensity: SupportIntensity,
@@ -232,11 +274,13 @@ function chipsFor(
   if ((input.assignment.writing_load ?? 0) >= 3) chips.push("writing-aware");
   if (input.readiness?.body === "low") chips.push("low-energy");
   if (input.readiness?.focus === "scattered") chips.push("focus-contained");
+  if ((input.friction?.recallNeedsReviewLast7d ?? 0) > 0) chips.push("recall-aware");
   return chips.slice(0, 4);
 }
 
 function intensityLabel(intensity: SupportIntensity): string {
   return intensity === "recovery"
+    || intensity === "one_move"
     ? "one move visible"
     : intensity === "scaffolded"
       ? "more structure"
@@ -273,4 +317,10 @@ function signalValueEvent(value: unknown): string | null {
   if (!value || typeof value !== "object") return null;
   const event = (value as { event?: unknown }).event;
   return typeof event === "string" ? event : null;
+}
+
+function signalValueRating(value: unknown): number {
+  if (!value || typeof value !== "object") return 0;
+  const rating = (value as { rating?: unknown }).rating;
+  return typeof rating === "number" ? rating : 0;
 }

@@ -20,6 +20,7 @@ const CONTENT_GENERATING_EDGE_FUNCTIONS = [
   "reading-level",
   "reading-scaffold",
   "science-scaffold",
+  "study-artifacts",
   "visual-tools",
   "vocab-hover",
   "writing-aid",
@@ -42,6 +43,7 @@ describe("AI methodology contracts", () => {
     expect(prompt).toContain("Tone: calm");
     expect(prompt).toContain("If the student asks you to do the work for them");
     expect(prompt).toContain("If the student shows frustration");
+    expect(prompt).toContain("anchor help to that material");
     expect(prompt).toContain("The student is a minor");
   });
 

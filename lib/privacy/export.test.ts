@@ -16,6 +16,10 @@ describe("privacy export helpers", () => {
       notes: 7,
       flashcards: 11,
       studyArtifacts: 4,
+      studentStateSnapshots: 6,
+      authorshipLog: 8,
+      competitiveBenchmarks: 9,
+      teenTestObservations: 10,
       aiInteractions: 13,
       masteryConcepts: 3,
       shareLinks: 1,
@@ -25,6 +29,10 @@ describe("privacy export helpers", () => {
       { label: "Notes", count: 7 },
       { label: "Flashcards", count: 11 },
       { label: "Study artifacts", count: 4 },
+      { label: "Student state snapshots", count: 6 },
+      { label: "Authorship log", count: 8 },
+      { label: "Competitive benchmarks", count: 9 },
+      { label: "Teen test observations", count: 10 },
       { label: "AI interactions", count: 13 },
       { label: "Mastery concepts", count: 3 },
       { label: "Share links", count: 1 },
@@ -65,6 +73,10 @@ describe("privacy export helpers", () => {
   it("labels privacy delete categories", () => {
     expect(categoryLabel("ai_interactions")).toBe("AI history");
     expect(categoryLabel("study_artifacts")).toBe("Study artifacts");
+    expect(categoryLabel("student_state_snapshots")).toBe("Student state snapshots");
+    expect(categoryLabel("authorship_log")).toBe("Authorship log");
+    expect(categoryLabel("competitive_benchmarks")).toBe("Competitive benchmarks");
+    expect(categoryLabel("teen_test_observations")).toBe("Teen test observations");
     expect(categoryLabel("session_handoff")).toBe("Device handoff");
   });
 });

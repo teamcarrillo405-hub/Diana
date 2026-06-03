@@ -25,7 +25,33 @@ Rules:
   "cards": [{"front": string, "back": string, "sourceAnchor": string}],
   "nextSteps": string[],
   "trustNote": string,
-  "authorshipReceipt": string
+  "authorshipReceipt": string,
+  "practiceSettings": {
+    "questionCount": number,
+    "difficulty": "light" | "standard" | "challenge",
+    "questionTypes": ("short_response" | "multiple_choice" | "evidence_check" | "application")[]
+  },
+  "editState": {
+    "cardsReviewed": number,
+    "cardsEdited": number,
+    "lastEditedAt": null,
+    "readyForReview": boolean
+  },
+  "visualBreakdown": {
+    "kind": string,
+    "title": string,
+    "sourceAnchored": boolean,
+    "blocks": [{"label": string, "prompt": string, "sourceAnchor": string, "studentAction": string}],
+    "quizPrompt": string
+  },
+  "authorshipReceiptDetail": {
+    "sourceAnchors": string[],
+    "dianaActions": string[],
+    "studentActions": string[],
+    "aiContribution": "none" | "organize" | "hint" | "practice" | "draft_suggestion",
+    "finalWorkProtected": true,
+    "shareSummary": string
+  }
 }
 
 Artifact expectations:

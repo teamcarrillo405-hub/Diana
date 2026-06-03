@@ -22,6 +22,14 @@ export type Database = {
           title: string;
           payload: Json;
           ai_policy: "green" | "yellow" | "red";
+          loop_state: "generated" | "cards_saved" | "reviewing" | "mastery_linked";
+          cards_saved_count: number;
+          source_anchor_count: number;
+          last_reviewed_at: string | null;
+          artifact_edit_state: Json;
+          practice_settings: Json;
+          visual_breakdown: Json;
+          authorship_receipt: Json;
           created_at: string;
           updated_at: string;
         };
@@ -36,6 +44,14 @@ export type Database = {
           title: string;
           payload?: Json;
           ai_policy: "green" | "yellow" | "red";
+          loop_state?: "generated" | "cards_saved" | "reviewing" | "mastery_linked";
+          cards_saved_count?: number;
+          source_anchor_count?: number;
+          last_reviewed_at?: string | null;
+          artifact_edit_state?: Json;
+          practice_settings?: Json;
+          visual_breakdown?: Json;
+          authorship_receipt?: Json;
           created_at?: string;
           updated_at?: string;
         };
@@ -50,6 +66,14 @@ export type Database = {
           title?: string;
           payload?: Json;
           ai_policy?: "green" | "yellow" | "red";
+          loop_state?: "generated" | "cards_saved" | "reviewing" | "mastery_linked";
+          cards_saved_count?: number;
+          source_anchor_count?: number;
+          last_reviewed_at?: string | null;
+          artifact_edit_state?: Json;
+          practice_settings?: Json;
+          visual_breakdown?: Json;
+          authorship_receipt?: Json;
           created_at?: string;
           updated_at?: string;
         };
@@ -62,6 +86,201 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      student_state_snapshots: {
+        Row: {
+          id: string;
+          owner_id: string;
+          assignment_id: string | null;
+          class_id: string | null;
+          state_version: number;
+          trigger: string;
+          assignment_kind: string | null;
+          ai_policy: "green" | "yellow" | "red";
+          readiness: Json;
+          friction_signals: Json;
+          recall_signals: Json;
+          mastery_signals: Json;
+          support_intensity: "steady" | "guided" | "scaffolded" | "one_move" | "recovery";
+          struggle_state: "steady" | "productive" | "blocked" | "overload";
+          next_step: string;
+          ownership_meter: Json;
+          source_anchors: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          assignment_id?: string | null;
+          class_id?: string | null;
+          state_version?: number;
+          trigger: string;
+          assignment_kind?: string | null;
+          ai_policy: "green" | "yellow" | "red";
+          readiness?: Json;
+          friction_signals?: Json;
+          recall_signals?: Json;
+          mastery_signals?: Json;
+          support_intensity: "steady" | "guided" | "scaffolded" | "one_move" | "recovery";
+          struggle_state: "steady" | "productive" | "blocked" | "overload";
+          next_step: string;
+          ownership_meter?: Json;
+          source_anchors?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          assignment_id?: string | null;
+          class_id?: string | null;
+          state_version?: number;
+          trigger?: string;
+          assignment_kind?: string | null;
+          ai_policy?: "green" | "yellow" | "red";
+          readiness?: Json;
+          friction_signals?: Json;
+          recall_signals?: Json;
+          mastery_signals?: Json;
+          support_intensity?: "steady" | "guided" | "scaffolded" | "one_move" | "recovery";
+          struggle_state?: "steady" | "productive" | "blocked" | "overload";
+          next_step?: string;
+          ownership_meter?: Json;
+          source_anchors?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "student_state_snapshots_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "student_state_snapshots_class_id_fkey";
+            columns: ["class_id"];
+            isOneToOne: false;
+            referencedRelation: "classes";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      authorship_log: {
+        Row: {
+          id: string;
+          owner_id: string;
+          assignment_id: string | null;
+          source_artifact_id: string | null;
+          actor: "student" | "diana" | "system";
+          event_type: string;
+          payload: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          assignment_id?: string | null;
+          source_artifact_id?: string | null;
+          actor: "student" | "diana" | "system";
+          event_type: string;
+          payload?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          assignment_id?: string | null;
+          source_artifact_id?: string | null;
+          actor?: "student" | "diana" | "system";
+          event_type?: string;
+          payload?: Json;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "authorship_log_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "authorship_log_source_artifact_id_fkey";
+            columns: ["source_artifact_id"];
+            isOneToOne: false;
+            referencedRelation: "study_artifacts";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      competitive_benchmark_runs: {
+        Row: {
+          id: string;
+          owner_id: string | null;
+          run_label: string;
+          scenario_id: string;
+          competitor_pattern: string;
+          observations: Json;
+          score: Json;
+          passed: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id?: string | null;
+          run_label?: string;
+          scenario_id: string;
+          competitor_pattern: string;
+          observations?: Json;
+          score?: Json;
+          passed?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string | null;
+          run_label?: string;
+          scenario_id?: string;
+          competitor_pattern?: string;
+          observations?: Json;
+          score?: Json;
+          passed?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      teen_test_observations: {
+        Row: {
+          id: string;
+          owner_id: string | null;
+          session_label: string;
+          task_id: string;
+          observation: Json;
+          score: Json;
+          no_pii: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id?: string | null;
+          session_label?: string;
+          task_id: string;
+          observation?: Json;
+          score?: Json;
+          no_pii?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string | null;
+          session_label?: string;
+          task_id?: string;
+          observation?: Json;
+          score?: Json;
+          no_pii?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
       };
       study_groups: {
         Row: {
@@ -798,6 +1017,11 @@ export type Database = {
           id: string;
           image_storage_key: string | null;
           concept_id: string | null; // 0023 migration; manually annotated until supabase:types regen
+          source_assignment_id: string | null; // 0037 migration; manually annotated until supabase:types regen
+          source_artifact_id: string | null; // 0037 migration; manually annotated until supabase:types regen
+          source_anchor: string | null; // 0037 migration; manually annotated until supabase:types regen
+          student_required_action: string | null; // 0037 migration; manually annotated until supabase:types regen
+          ai_contribution_level: "none" | "organize" | "hint" | "practice" | "draft_suggestion"; // 0037 migration
           lapses: number;
           last_review_at: string | null;
           owner_id: string;
@@ -816,6 +1040,11 @@ export type Database = {
           id?: string;
           image_storage_key?: string | null;
           concept_id?: string | null; // 0023 migration; manually annotated until supabase:types regen
+          source_assignment_id?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          source_artifact_id?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          source_anchor?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          student_required_action?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          ai_contribution_level?: "none" | "organize" | "hint" | "practice" | "draft_suggestion"; // 0037 migration
           lapses?: number;
           last_review_at?: string | null;
           owner_id: string;
@@ -834,6 +1063,11 @@ export type Database = {
           id?: string;
           image_storage_key?: string | null;
           concept_id?: string | null; // 0023 migration; manually annotated until supabase:types regen
+          source_assignment_id?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          source_artifact_id?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          source_anchor?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          student_required_action?: string | null; // 0037 migration; manually annotated until supabase:types regen
+          ai_contribution_level?: "none" | "organize" | "hint" | "practice" | "draft_suggestion"; // 0037 migration
           lapses?: number;
           last_review_at?: string | null;
           owner_id?: string;
@@ -856,6 +1090,20 @@ export type Database = {
             columns: ["concept_id"];
             isOneToOne: false;
             referencedRelation: "mastery_concepts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "flashcards_source_assignment_id_fkey";
+            columns: ["source_assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "flashcards_source_artifact_id_fkey";
+            columns: ["source_artifact_id"];
+            isOneToOne: false;
+            referencedRelation: "study_artifacts";
             referencedColumns: ["id"];
           },
         ];

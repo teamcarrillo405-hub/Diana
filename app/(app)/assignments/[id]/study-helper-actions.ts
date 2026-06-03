@@ -2,12 +2,13 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 
 const StudyHelperEventInput = z.object({
   assignmentId: z.string().uuid(),
   mode: z.enum(["guided_steps", "visual_breakdown", "retrieval_quiz", "flashcard_builder"]),
   bar: z.enum(["start", "understand", "remember", "trust", "adapt"]),
-  event: z.enum(["mode_selected", "escape_valve"]),
+  event: z.enum(["mode_selected", "escape_valve", "direct_answer_request", "still_stuck", "long_idle_resume"]),
   source: z.enum(["assignment_detail", "subject_helper"]).default("assignment_detail"),
 });
 
@@ -34,5 +35,19 @@ export async function recordStudyHelperEvent(input: z.input<typeof StudyHelperEv
   });
 
   if (error) return { ok: false as const };
+  await recordStudentStateSnapshot({
+    supabase,
+    ownerId: user.id,
+    assignmentId: parsed.data.assignmentId,
+    trigger: triggerForStudyHelperEvent(parsed.data.event),
+  });
   return { ok: true as const };
+}
+
+function triggerForStudyHelperEvent(event: z.infer<typeof StudyHelperEventInput>["event"]): string {
+  if (event === "escape_valve") return "student_requested_stuck_path";
+  if (event === "direct_answer_request") return "direct_answer_redirect";
+  if (event === "still_stuck") return "student_still_stuck";
+  if (event === "long_idle_resume") return "long_idle_resume";
+  return "study_helper_mode_selected";
 }

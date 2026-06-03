@@ -7,6 +7,7 @@ import { canTransition } from "@/lib/state-machine/assignment";
 import { buildChecklist } from "@/lib/checklists/templates";
 import type { AssignmentKind } from "@/lib/supabase/types";
 import { openTimeLog, recordElapsedTime } from "@/lib/time-budget/calibration";
+import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 
 const STATUSES = ["todo","drafting","checking","exporting","submitted","graded","abandoned"] as const;
 
@@ -42,6 +43,12 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
       owner_id: user.id,
       kind: to === "drafting" ? "started" : "completed",
       assignment_id: id,
+    });
+    await recordStudentStateSnapshot({
+      supabase,
+      ownerId: user.id,
+      assignmentId: id,
+      trigger: to === "drafting" ? "assignment_started" : "assignment_completed",
     });
   }
 

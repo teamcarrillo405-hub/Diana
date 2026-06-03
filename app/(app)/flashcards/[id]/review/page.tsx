@@ -17,7 +17,7 @@ export default async function ReviewPage({
   // Load all currently-due cards (ordered by due_at). The session walks this list.
   const { data: queue } = await supabase
     .from("flashcards")
-    .select("id, front, back, state, stability, difficulty, due_at, reps, lapses, last_review_at")
+    .select("id, front, back, state, stability, difficulty, due_at, reps, lapses, last_review_at, source_anchor, student_required_action")
     .lte("due_at", nowIso)
     .order("due_at", { ascending: true });
 

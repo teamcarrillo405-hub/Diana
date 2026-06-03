@@ -26,4 +26,18 @@ describe("buildPersonalizationPrompt", () => {
     expect(prompt.indexOf("Student personalization")).toBeGreaterThan(prompt.indexOf("Feature prompt"));
     expect(prompt.indexOf("Student personalization")).toBeLessThan(prompt.indexOf("Tone: calm"));
   });
+
+  it("injects source anchoring into every composed prompt", () => {
+    const prompt = composeSystemPrompt("Feature prompt");
+
+    expect(prompt).toContain("anchor help to that material");
+    expect(prompt).toContain("Rubric line 1");
+  });
+
+  it("injects Diana's competitive learning loop into every composed prompt", () => {
+    const prompt = composeSystemPrompt("Feature prompt");
+
+    expect(prompt).toContain("ask one targeted question");
+    expect(prompt).toContain("knowledge check or authorship receipt");
+  });
 });

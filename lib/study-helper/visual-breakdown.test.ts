@@ -1,0 +1,18 @@
+import { describe, expect, it } from "vitest";
+import { buildVisualBreakdown } from "./visual-breakdown";
+
+describe("visual breakdown", () => {
+  it("builds subject-native boards with source anchors", () => {
+    const board = buildVisualBreakdown({
+      assignmentKind: "problem_set",
+      sourceAnchors: [{ label: "Assignment prompt sentence 1", sourceType: "assignment", detail: "Solve for x." }],
+    });
+    expect(board.kind).toBe("math_step_board");
+    expect(board.sourceAnchored).toBe(true);
+    expect(board.blocks.map((block) => block.label)).toEqual(["Known", "Needed", "Rule", "Check"]);
+  });
+
+  it("uses AP mode for test prep", () => {
+    expect(buildVisualBreakdown({ assignmentKind: "test_prep", className: "AP Biology" }).kind).toBe("ap_exam_board");
+  });
+});

@@ -4,6 +4,10 @@ export type DataInventoryInput = {
   notes: number;
   flashcards: number;
   studyArtifacts: number;
+  studentStateSnapshots: number;
+  authorshipLog: number;
+  competitiveBenchmarks: number;
+  teenTestObservations: number;
   aiInteractions: number;
   masteryConcepts: number;
   shareLinks: number;
@@ -28,6 +32,10 @@ export const PRIVACY_DELETE_CATEGORIES = [
   "notes",
   "flashcards",
   "study_artifacts",
+  "student_state_snapshots",
+  "authorship_log",
+  "competitive_benchmarks",
+  "teen_test_observations",
   "ai_interactions",
   "mastery_concepts",
   "share_links",
@@ -51,6 +59,10 @@ export function buildDataInventory(input: DataInventoryInput): DataInventoryRow[
     { label: "Notes", count: input.notes },
     { label: "Flashcards", count: input.flashcards },
     { label: "Study artifacts", count: input.studyArtifacts },
+    { label: "Student state snapshots", count: input.studentStateSnapshots },
+    { label: "Authorship log", count: input.authorshipLog },
+    { label: "Competitive benchmarks", count: input.competitiveBenchmarks },
+    { label: "Teen test observations", count: input.teenTestObservations },
     { label: "AI interactions", count: input.aiInteractions },
     { label: "Mastery concepts", count: input.masteryConcepts },
     { label: "Share links", count: input.shareLinks },
@@ -110,6 +122,10 @@ export function categoryLabel(category: PrivacyDeleteCategory): string {
     notes: "Notes",
     flashcards: "Flashcards",
     study_artifacts: "Study artifacts",
+    student_state_snapshots: "Student state snapshots",
+    authorship_log: "Authorship log",
+    competitive_benchmarks: "Competitive benchmarks",
+    teen_test_observations: "Teen test observations",
     ai_interactions: "AI history",
     mastery_concepts: "Mastery data",
     share_links: "Share links",

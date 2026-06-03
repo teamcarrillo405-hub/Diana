@@ -147,7 +147,7 @@ function recommendedModeFor(input: {
   supportIntensity?: SupportIntensity | null;
   focusNextStep?: boolean;
 }): StudyHelperMode {
-  if (input.focusNextStep || input.supportIntensity === "recovery") return "guided_steps";
+  if (input.focusNextStep || input.supportIntensity === "one_move" || input.supportIntensity === "recovery") return "guided_steps";
   if (input.assignmentKind === "reading") return "retrieval_quiz";
   if (input.assignmentKind === "test_prep") return "retrieval_quiz";
   if (input.assignmentKind === "lab" || input.assignmentKind === "presentation") return "visual_breakdown";
@@ -169,7 +169,7 @@ function reasonFor(
   if (input.classAiMode === "red") {
     return "This class has content AI off, so Diana keeps support to reading, organization, and student-authored work.";
   }
-  if (input.focusNextStep || input.supportIntensity === "recovery") {
+  if (input.focusNextStep || input.supportIntensity === "one_move" || input.supportIntensity === "recovery") {
     return "Diana is keeping one academic move visible before adding more options.";
   }
   if (mode === "visual_breakdown") return "This assignment benefits from seeing the pieces before writing or solving.";
@@ -221,7 +221,7 @@ function trustNoteFor(mode: StudyHelperAiMode): string {
 }
 
 function adaptNoteFor(intensity?: SupportIntensity | null, focusNextStep?: boolean): string {
-  if (focusNextStep || intensity === "recovery") return "Adapt bar is active: fewer choices and one move at a time.";
+  if (focusNextStep || intensity === "one_move" || intensity === "recovery") return "Adapt bar is active: fewer choices and one move at a time.";
   if (intensity === "scaffolded") return "Adapt bar is active: Diana should add more structure.";
   if (intensity === "guided") return "Adapt bar is active: Diana should start with a guided first move.";
   return "Adapt bar is ready: body/focus and task signals can change the support level.";

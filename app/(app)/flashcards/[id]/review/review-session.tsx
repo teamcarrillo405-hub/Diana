@@ -22,6 +22,8 @@ export type QueueCard = {
   reps: number;
   lapses: number;
   last_review_at: string | null;
+  source_anchor: string | null;
+  student_required_action: string | null;
 };
 
 const RATINGS = [
@@ -165,6 +167,12 @@ export function ReviewSession({
           />
         </div>
         <p className="mt-2 whitespace-pre-wrap text-base">{card.front}</p>
+        {(card.source_anchor || card.student_required_action) && (
+          <div className="mt-4 rounded-xl border border-border bg-surface-soft p-3 text-xs text-muted">
+            {card.source_anchor && <p><span className="font-medium text-fg">Source:</span> {card.source_anchor}</p>}
+            {card.student_required_action && <p className="mt-1">{card.student_required_action}</p>}
+          </div>
+        )}
 
         {flipped && (
           <>

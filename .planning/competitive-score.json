@@ -1,0 +1,382 @@
+{
+  "generatedAt": "2026-06-03T17:40:21.392Z",
+  "bars": [
+    {
+      "id": "start_the_work",
+      "label": "Start the work",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "landing_hero",
+          "label": "Public page leads with the next 5 minutes ritual.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Keep the landing page centered on the next school move.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "dashboard_focus",
+          "label": "Dashboard has a first-screen focus card.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Restore a prominent dashboard focus card.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "next_five_minutes",
+          "label": "Next-five-minutes scorer exists and is tested.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Wire the priority scorer into the dashboard.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "state_context",
+          "label": "Start logic uses student-state context.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Connect readiness and friction signals to the start surface.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "step_by_step_learning",
+      "label": "Step-by-step learning",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "guided_loop",
+          "label": "Guided learning turn primitive exists.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add reusable guided turn sequencing.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "direct_redirect",
+          "label": "Direct final-work requests redirect to learning support.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Tighten direct-answer detection and redirect tests.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "knowledge_checks",
+          "label": "Knowledge checks are part of the learning turn.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add short checks after explanations.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "source_hints",
+          "label": "Hints are source-anchored before more help.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Require source anchors in all hint ladders.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "guided_visual_learning",
+      "label": "Guided visual / multimodal learning",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "subject_coverage",
+          "label": "Visual breakdown kinds cover major subject helpers.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add missing subject-native visual boards.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "visual_panel",
+          "label": "Assignment detail renders the visual helper panel.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Render visual breakdowns inside assignment detail.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "visual_quiz",
+          "label": "Visual boards include a quiz or check prompt.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add a source-linked check prompt to every visual board.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "visual_sources",
+          "label": "Visual blocks are source-anchored.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Block source-less visual output.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "socratic_trust",
+      "label": "Socratic trust and anti-cheat",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "ownership_meter",
+          "label": "Help-without-taking-over meter is visible.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Surface the ownership meter in helper and artifact flows.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "authorship_receipts",
+          "label": "Authorship receipts are structured.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Store what Diana did, what the student did, and what remains student-owned.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "refusal_logged",
+          "label": "Refusal redirects are logged as learning events.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Log direct-answer redirects as positive support events.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "share_proof",
+          "label": "Proof/share surfaces can show help without sensitive readiness details.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Expose teacher/share proof without readiness details.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "study_artifacts",
+      "label": "Study artifacts and memory",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "editable_artifacts",
+          "label": "Artifacts are editable before saving.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add editable card and study guide drafts.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "practice_settings",
+          "label": "Practice tests have settings.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add question count, type, and difficulty settings.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "fsrs_loop",
+          "label": "Cards feed FSRS review and recall signals.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Connect saved cards to FSRS and recall logging.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "artifact_sources",
+          "label": "Artifacts preserve source anchors.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Carry source anchors through cards, quizzes, and review.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "student_state_adaptation",
+      "label": "Student-state adaptation",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "rule_path",
+          "label": "Support intensity has a visible rule path.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Expose the rule path beside support intensity.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "one_move",
+          "label": "One-move support exists for overload.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Replace break-only recovery with one academic move.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "struggle_signals",
+          "label": "Struggle signals include starts, direct-answer requests, stuck actions, and recall.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add missing friction signals to the state model.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "readiness_limit",
+          "label": "Readiness check-in stays within two questions and three choices.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Keep readiness lightweight and non-medical.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "teen_native_ux",
+      "label": "Teen-native UX",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "responsive_qa",
+          "label": "Browser QA has no overflow or server errors.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Run responsive browser QA and fix layout issues.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "copy_clean",
+          "label": "Visible QA has no banned copy or pressure language.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Remove visible shame, red-error, and streak language.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "priority_nav",
+          "label": "Mobile nav prioritizes Focus, Assignments, Notes, Study, More.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Collapse secondary routes into More.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "teen_protocol",
+          "label": "Teen-test protocol exists and blocks unsupported claims.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Make teen testing executable and scoreable.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "proof_and_outcomes",
+      "label": "Proof and outcomes",
+      "score": 10,
+      "repoVerifiable": false,
+      "criteria": [
+        {
+          "id": "benchmark",
+          "label": "Fixed benchmark harness exists.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Create fixed competitor benchmark scenarios.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "proof_dashboard",
+          "label": "Proof dashboard exposes bars and benchmark tasks.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add a proof route for product gates.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "privacy",
+          "label": "New proof data is covered by privacy export/delete.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add benchmark and teen-test data to export/delete.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "live_teen_gate",
+          "label": "Live teen-test results pass 4/5 and no takeover confusion.",
+          "passed": false,
+          "evidence": "missing",
+          "backlog": "Run real teen testing before market 10/10 claims.",
+          "repoVerifiable": false
+        }
+      ],
+      "nextBacklog": []
+    },
+    {
+      "id": "distribution_content_readiness",
+      "label": "Distribution / content readiness",
+      "score": 10,
+      "repoVerifiable": true,
+      "criteria": [
+        {
+          "id": "seed_content",
+          "label": "Seven Diana-owned seed content packs are source-linked.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add source-linked high school and AP content packs.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "profiles",
+          "label": "Competitor profiles are centralized and honest.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add comparison data for each named competitor.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "claim_gate",
+          "label": "Market 10/10 claim is gated by live teen proof.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Prevent score output from claiming market 10/10 without teen proof.",
+          "repoVerifiable": true
+        },
+        {
+          "id": "score_command",
+          "label": "Competitive score command exists.",
+          "passed": true,
+          "evidence": "present",
+          "backlog": "Add npm run competitive-score.",
+          "repoVerifiable": true
+        }
+      ],
+      "nextBacklog": []
+    }
+  ],
+  "overallRepoScore": 10,
+  "allRepoVerifiableBarsAtTen": true,
+  "marketTenClaimAllowed": false,
+  "marketGate": {
+    "liveTeenTestPassed": false,
+    "reason": "Market 10/10 is gated until real teen testing passes the 4/5 preference bar with zero final-work confusion."
+  },
+  "nextBacklog": []
+}

@@ -9,10 +9,13 @@ import {
 import {
   artifactLabel,
   type StudyArtifact,
+  type StudyArtifactCard,
   type StudyArtifactSourceType,
   type StudyArtifactType,
 } from "@/lib/study-helper/artifacts";
 import type { StudyHelperMode } from "@/lib/study-helper/modes";
+import { HelpOwnershipMeter } from "@/components/help-ownership-meter";
+import { buildHelpOwnershipMeter } from "@/lib/student-state/model";
 
 const ARTIFACT_OPTIONS = [
   {
@@ -54,9 +57,15 @@ export function StudyArtifactPanel({
   const [pending, startTransition] = useTransition();
   const [artifact, setArtifact] = useState<StudyArtifact | null>(null);
   const [artifactId, setArtifactId] = useState<string | null>(null);
+  const [editableCards, setEditableCards] = useState<StudyArtifactCard[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<StudyArtifactType>("practice_test");
   const aiAvailable = aiMode === "green";
+  const ownershipMeter = buildHelpOwnershipMeter({
+    aiPolicy: aiMode,
+    supportIntensity: studyMode === "retrieval_quiz" || studyMode === "flashcard_builder" ? "guided" : "scaffolded",
+    studentSharePercent: 100,
+  });
 
   function generate(type: StudyArtifactType) {
     setSelectedType(type);
@@ -71,6 +80,7 @@ export function StudyArtifactPanel({
       if (res.ok) {
         setArtifact(res.artifact);
         setArtifactId(res.id);
+        setEditableCards(res.artifact.cards);
         setStatus(`${artifactLabel(type)} saved.`);
       } else {
         setStatus(res.error);
@@ -82,9 +92,15 @@ export function StudyArtifactPanel({
     if (!artifactId) return;
     setStatus("Saving cards...");
     startTransition(async () => {
-      const res = await saveArtifactFlashcards({ artifactId });
+      const res = await saveArtifactFlashcards({ artifactId, cards: editableCards });
       setStatus(res.ok ? `${res.count} cards saved to Study.` : res.error);
     });
+  }
+
+  function updateCard(index: number, field: keyof Pick<StudyArtifactCard, "front" | "back">, value: string) {
+    setEditableCards((cards) =>
+      cards.map((card, i) => i === index ? { ...card, [field]: value } : card),
+    );
   }
 
   return (
@@ -140,6 +156,8 @@ export function StudyArtifactPanel({
 
       {status && <p className="text-sm text-muted">{status}</p>}
 
+      <HelpOwnershipMeter meter={ownershipMeter} compact />
+
       {artifact && (
         <div className="space-y-3 rounded-2xl border border-border bg-background p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -159,6 +177,44 @@ export function StudyArtifactPanel({
               </button>
             )}
           </div>
+
+          <div className="grid gap-2 text-xs sm:grid-cols-3">
+            <div className="rounded-xl border border-border bg-surface-soft p-3">
+              <p className="font-medium text-fg">Practice settings</p>
+              <p className="mt-1 text-muted">
+                {artifact.practiceSettings.questionCount} questions | {artifact.practiceSettings.difficulty}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-surface-soft p-3">
+              <p className="font-medium text-fg">Review state</p>
+              <p className="mt-1 text-muted">
+                {artifact.editState.cardsReviewed} reviewed | {artifact.editState.cardsEdited} edited
+              </p>
+            </div>
+            <div className="rounded-xl border border-border bg-surface-soft p-3">
+              <p className="font-medium text-fg">Question types</p>
+              <p className="mt-1 text-muted">{artifact.practiceSettings.questionTypes.join(", ")}</p>
+            </div>
+          </div>
+
+          {artifact.visualBreakdown && (
+            <div className="space-y-2 rounded-2xl border border-border bg-surface-soft p-3">
+              <p className="text-xs font-medium uppercase tracking-wider text-muted">{artifact.visualBreakdown.title}</p>
+              <div className="grid gap-2 md:grid-cols-2">
+                {artifact.visualBreakdown.blocks.slice(0, 4).map((block) => (
+                  <div key={`${block.label}-${block.sourceAnchor}`} className="rounded-xl border border-border bg-background p-3">
+                    <p className="text-sm font-semibold">{block.label}</p>
+                    <p className="mt-1 text-xs text-muted">{block.prompt}</p>
+                    <p className="mt-2 text-xs font-medium">{block.studentAction}</p>
+                    <p className="mt-1 text-xs text-muted">Source: {block.sourceAnchor}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="rounded-xl border border-border bg-background px-3 py-2 text-sm">
+                {artifact.visualBreakdown.quizPrompt}
+              </p>
+            </div>
+          )}
 
           <div className="grid gap-3 lg:grid-cols-3">
             {artifact.guide.length > 0 && (
@@ -190,13 +246,29 @@ export function StudyArtifactPanel({
               </div>
             )}
 
-            {artifact.cards.length > 0 && (
+            {editableCards.length > 0 && (
               <div className="space-y-2 rounded-2xl border border-border bg-surface-soft p-3">
-                <p className="text-xs font-medium uppercase tracking-wider text-muted">Cards</p>
-                {artifact.cards.slice(0, 3).map((card) => (
-                  <div key={card.front} className="space-y-1">
-                    <p className="text-sm font-semibold">{card.front}</p>
-                    <p className="line-clamp-2 text-xs text-muted">{card.back}</p>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted">Editable cards</p>
+                {editableCards.slice(0, 3).map((card, index) => (
+                  <div key={`${card.sourceAnchor}-${index}`} className="space-y-2 rounded-xl border border-border bg-background p-2">
+                    <label className="block text-xs font-medium text-muted">
+                      Front
+                      <input
+                        value={card.front}
+                        onChange={(event) => updateCard(index, "front", event.target.value)}
+                        className="mt-1 w-full rounded-lg border border-border bg-surface-raised px-2 py-1.5 text-sm text-fg"
+                      />
+                    </label>
+                    <label className="block text-xs font-medium text-muted">
+                      Back
+                      <textarea
+                        value={card.back}
+                        onChange={(event) => updateCard(index, "back", event.target.value)}
+                        rows={2}
+                        className="mt-1 w-full rounded-lg border border-border bg-surface-raised px-2 py-1.5 text-sm text-fg"
+                      />
+                    </label>
+                    <p className="text-xs text-muted">Source: {card.sourceAnchor}</p>
                   </div>
                 ))}
               </div>
@@ -204,9 +276,25 @@ export function StudyArtifactPanel({
           </div>
 
           <div className="rounded-2xl border border-border bg-surface-soft p-3 text-xs text-muted">
+            <p className="font-medium text-fg">Source anchors</p>
+            <p className="mt-1">
+              {[...new Set([
+                ...artifact.quiz.map((item) => item.sourceAnchor),
+                ...editableCards.map((card) => card.sourceAnchor),
+              ].filter(Boolean))]
+                .slice(0, 6)
+                .join(" | ") || "Diana will ask for source material before adding more help."}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-border bg-surface-soft p-3 text-xs text-muted">
             <p className="font-medium text-fg">Authorship receipt</p>
             <p className="mt-1">{artifact.authorshipReceipt}</p>
             <p className="mt-1">{artifact.trustNote}</p>
+            <p className="mt-2 font-medium text-fg">{artifact.authorshipReceiptDetail.shareSummary}</p>
+            <p className="mt-1">
+              Student actions: {artifact.authorshipReceiptDetail.studentActions.join(" | ")}
+            </p>
           </div>
         </div>
       )}

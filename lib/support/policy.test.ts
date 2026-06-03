@@ -49,6 +49,7 @@ describe("body-aware support policy", () => {
           { kind: "context_switch", assignment_id: null },
           { kind: "study_helper_event", assignment_id: "a1", value: { event: "mode_selected" } },
           { kind: "study_helper_event", assignment_id: "a1", value: { event: "escape_valve" } },
+          { kind: "study_helper_event", assignment_id: "a1", value: { event: "direct_answer_request" } },
         ],
         "a1",
       ),
@@ -58,6 +59,7 @@ describe("body-aware support policy", () => {
       contextSwitchesLast24h: 1,
       helpRequestsLast24h: 1,
       modeSwitchesLast24h: 1,
+      directAnswerRequestsLast24h: 1,
     });
   });
 
@@ -97,6 +99,33 @@ describe("body-aware support policy", () => {
     expect(plan.struggle).toBe("blocked");
     expect(plan.intensity).toBe("scaffolded");
     expect(plan.nextStep).toContain("mark one sentence");
+  });
+
+  it("uses recall results to increase structure without shame language", () => {
+    const plan = buildSupportPlan({
+      assignment: { ...assignment, kind: "test_prep" },
+      readiness: { body: "okay", focus: "steady" },
+      energy: "medium",
+      friction: { recallAttemptsLast7d: 3, recallNeedsReviewLast7d: 3, completionsLast24h: 0 },
+    });
+
+    expect(plan.struggle).toBe("blocked");
+    expect(plan.intensity).toBe("scaffolded");
+    expect(plan.rationale).toContain("next move more specific");
+    expect(plan.chips).toContain("recall-aware");
+  });
+
+  it("turns repeated still-stuck signals into one-move support", () => {
+    const plan = buildSupportPlan({
+      assignment: { ...assignment, kind: "reading" },
+      readiness: { body: "okay", focus: "steady" },
+      energy: "medium",
+      friction: { stillStuckLast24h: 2, completionsLast24h: 0 },
+    });
+
+    expect(plan.struggle).toBe("overload");
+    expect(plan.intensity).toBe("one_move");
+    expect(plan.headline).toBe("One-move support");
   });
 
   it("uses milestone memory only when there is enough evidence", () => {

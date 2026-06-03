@@ -4,11 +4,16 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createCard } from "@/lib/fsrs/fsrs";
+import { normalizeConceptNames } from "@/lib/mastery/concepts";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 import {
   buildFallbackStudyArtifact,
+  completeStudyArtifact,
   parseStudyArtifactResponse,
+  withEditedCards,
   type StudyArtifact,
+  type StudyArtifactCard,
   type StudyArtifactSourceType,
   type StudyArtifactType,
 } from "@/lib/study-helper/artifacts";
@@ -24,6 +29,12 @@ const StudyArtifactInput = z.object({
 
 const SaveArtifactCardsInput = z.object({
   artifactId: z.string().uuid(),
+  cards: z.array(z.object({
+    front: z.string().trim().min(1).max(240),
+    back: z.string().trim().min(1).max(600),
+    sourceAnchor: z.string().trim().max(120).default("Source material"),
+    studentRequiredAction: z.string().trim().max(140).optional(),
+  })).max(12).optional(),
 });
 
 type StudySource = {
@@ -106,6 +117,11 @@ export async function generateStudyArtifact(
       title: artifact.title,
       payload: artifact as unknown as Json,
       ai_policy: source.aiMode,
+      source_anchor_count: countArtifactAnchors(artifact),
+      artifact_edit_state: artifact.editState as unknown as Json,
+      practice_settings: artifact.practiceSettings as unknown as Json,
+      visual_breakdown: (artifact.visualBreakdown ?? {}) as unknown as Json,
+      authorship_receipt: artifact.authorshipReceiptDetail as unknown as Json,
     })
     .select("id")
     .single();
@@ -121,6 +137,20 @@ export async function generateStudyArtifact(
     artifactType: parsed.data.artifactType,
     studyMode: parsed.data.studyMode,
     event: "artifact_generated",
+  });
+  await recordAuthorshipEvent({
+    supabase,
+    ownerId: user.id,
+    assignmentId: source.assignmentId,
+    artifactId: row.id,
+    eventType: "study_artifact_generated",
+    payload: artifact.authorshipReceiptDetail as unknown as Json,
+  });
+  await recordStudentStateSnapshot({
+    supabase,
+    ownerId: user.id,
+    assignmentId: source.assignmentId,
+    trigger: "study_artifact_generated",
   });
 
   revalidatePath(source.revalidatePath);
@@ -146,17 +176,35 @@ export async function saveArtifactFlashcards(
     .single();
   if (error || !artifact) return { ok: false, error: "Study set was not found." };
 
-  const payload = artifact.payload as unknown as StudyArtifact;
+  const originalPayload = completeStudyArtifact(artifact.payload);
+  const payload = parsed.data.cards
+    ? withEditedCards(originalPayload, parsed.data.cards as StudyArtifactCard[], new Date().toISOString())
+    : originalPayload;
   const cards = Array.isArray(payload.cards) ? payload.cards.slice(0, 12) : [];
   if (cards.length === 0) return { ok: false, error: "This study set does not have card drafts yet." };
+  const sourceAssignmentId = artifact.source_type === "assignment"
+    ? artifact.source_id
+    : await loadAssignmentIdForNote(supabase, user.id, artifact.source_id);
 
   const now = new Date();
-  const rows = cards.map((card, index) => {
+  const rows = await Promise.all(cards.map(async (card, index) => {
     const fresh = createCard(new Date(now.getTime() + index));
+    const conceptId = await resolveConceptForArtifactCard({
+      supabase,
+      ownerId: user.id,
+      classId: artifact.class_id,
+      front: card.front,
+      back: card.back,
+    });
     return {
       owner_id: user.id,
       source_note_id: artifact.source_type === "note" ? artifact.source_id : null,
-      concept_id: null,
+      source_assignment_id: sourceAssignmentId,
+      source_artifact_id: artifact.id,
+      source_anchor: card.sourceAnchor || null,
+      student_required_action: card.studentRequiredAction || "Review and edit this card before treating it as learned.",
+      ai_contribution_level: "practice" as const,
+      concept_id: conceptId,
       front: card.front,
       back: [card.back, card.sourceAnchor ? `Source: ${card.sourceAnchor}` : ""].filter(Boolean).join("\n\n"),
       image_storage_key: null,
@@ -168,10 +216,26 @@ export async function saveArtifactFlashcards(
       lapses: fresh.lapses,
       last_review_at: fresh.lastReviewAt,
     };
-  });
+  }));
 
   const { error: insertErr } = await supabase.from("flashcards").insert(rows);
   if (insertErr) return { ok: false, error: insertErr.message };
+
+  await supabase
+    .from("study_artifacts")
+    .update({
+      loop_state: "cards_saved",
+      cards_saved_count: cards.length,
+      source_anchor_count: countArtifactAnchors(payload),
+      payload: payload as unknown as Json,
+      artifact_edit_state: payload.editState as unknown as Json,
+      practice_settings: payload.practiceSettings as unknown as Json,
+      visual_breakdown: (payload.visualBreakdown ?? {}) as unknown as Json,
+      authorship_receipt: payload.authorshipReceiptDetail as unknown as Json,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", artifact.id)
+    .eq("owner_id", user.id);
 
   await recordStudyArtifactSignal({
     supabase,
@@ -187,10 +251,81 @@ export async function saveArtifactFlashcards(
     event: "cards_saved",
     count: cards.length,
   });
+  await recordAuthorshipEvent({
+    supabase,
+    ownerId: user.id,
+    assignmentId: sourceAssignmentId,
+    artifactId: artifact.id,
+    eventType: "artifact_cards_saved",
+    payload: payload.authorshipReceiptDetail as unknown as Json,
+  });
+  await recordStudentStateSnapshot({
+    supabase,
+    ownerId: user.id,
+    assignmentId: sourceAssignmentId,
+    trigger: "artifact_cards_saved",
+  });
 
   revalidatePath("/flashcards");
   revalidatePath(artifact.source_type === "assignment" ? `/assignments/${artifact.source_id}` : `/notes/${artifact.source_id}`);
   return { ok: true, count: cards.length };
+}
+
+async function loadAssignmentIdForNote(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ownerId: string,
+  noteId: string,
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("notes")
+    .select("assignment_id")
+    .eq("id", noteId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  return data?.assignment_id ?? null;
+}
+
+async function resolveConceptForArtifactCard({
+  supabase,
+  ownerId,
+  classId,
+  front,
+  back,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  ownerId: string;
+  classId: string | null;
+  front: string;
+  back: string;
+}): Promise<string | null> {
+  if (!classId) return null;
+  const name = normalizeConceptNames([front, back])[0];
+  if (!name) return null;
+
+  const { data: existing } = await supabase
+    .from("mastery_concepts")
+    .select("id")
+    .eq("owner_id", ownerId)
+    .eq("class_id", classId)
+    .eq("name", name)
+    .maybeSingle();
+  if (existing?.id) return existing.id;
+
+  const { data } = await supabase
+    .from("mastery_concepts")
+    .insert({ owner_id: ownerId, class_id: classId, name, source: "flashcard" })
+    .select("id")
+    .single();
+  return data?.id ?? null;
+}
+
+function countArtifactAnchors(artifact: StudyArtifact): number {
+  const anchors = new Set<string>();
+  const quiz = Array.isArray(artifact.quiz) ? artifact.quiz : [];
+  const cards = Array.isArray(artifact.cards) ? artifact.cards : [];
+  for (const item of quiz) if (item.sourceAnchor) anchors.add(item.sourceAnchor);
+  for (const card of cards) if (card.sourceAnchor) anchors.add(card.sourceAnchor);
+  return anchors.size;
 }
 
 async function loadAssignmentSource(
@@ -337,6 +472,31 @@ async function recordStudyArtifactSignal({
       sourceId: source.sourceId,
       count: count ?? null,
     } as Json,
+  });
+}
+
+async function recordAuthorshipEvent({
+  supabase,
+  ownerId,
+  assignmentId,
+  artifactId,
+  eventType,
+  payload,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  ownerId: string;
+  assignmentId: string | null;
+  artifactId: string;
+  eventType: "study_artifact_generated" | "artifact_cards_saved";
+  payload: Json;
+}) {
+  await supabase.from("authorship_log").insert({
+    owner_id: ownerId,
+    assignment_id: assignmentId,
+    source_artifact_id: artifactId,
+    actor: "diana",
+    event_type: eventType,
+    payload,
   });
 }
 

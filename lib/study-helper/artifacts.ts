@@ -1,12 +1,28 @@
 import type { StudyHelperMode } from "./modes";
+import { buildAuthorshipReceipt, type AuthorshipReceipt } from "./authorship";
+import { buildVisualBreakdown, type VisualBreakdown } from "./visual-breakdown";
 
 export type StudyArtifactSourceType = "assignment" | "note";
 export type StudyArtifactType = "study_guide" | "practice_test" | "flashcard_set";
+
+export type PracticeTestSettings = {
+  questionCount: number;
+  difficulty: "light" | "standard" | "challenge";
+  questionTypes: Array<"short_response" | "multiple_choice" | "evidence_check" | "application">;
+};
+
+export type ArtifactEditState = {
+  cardsReviewed: number;
+  cardsEdited: number;
+  lastEditedAt: string | null;
+  readyForReview: boolean;
+};
 
 export type StudyArtifactCard = {
   front: string;
   back: string;
   sourceAnchor: string;
+  studentRequiredAction?: string;
 };
 
 export type StudyArtifactQuizItem = {
@@ -35,6 +51,10 @@ export type StudyArtifact = {
   nextSteps: string[];
   trustNote: string;
   authorshipReceipt: string;
+  practiceSettings: PracticeTestSettings;
+  editState: ArtifactEditState;
+  visualBreakdown: VisualBreakdown | null;
+  authorshipReceiptDetail: AuthorshipReceipt;
 };
 
 export function artifactLabel(type: StudyArtifactType): string {
@@ -70,6 +90,10 @@ export function parseStudyArtifactResponse(
     nextSteps: normalizeStringList(draft.nextSteps, fallbackArtifact.nextSteps, 4, 140),
     trustNote: cleanString(draft.trustNote, fallbackArtifact.trustNote, 260),
     authorshipReceipt: cleanString(draft.authorshipReceipt, fallbackArtifact.authorshipReceipt, 260),
+    practiceSettings: normalizePracticeSettings(draft.practiceSettings, fallbackArtifact.practiceSettings),
+    editState: normalizeEditState(draft.editState, fallbackArtifact.editState),
+    visualBreakdown: normalizeVisualBreakdown(draft.visualBreakdown, fallbackArtifact.visualBreakdown),
+    authorshipReceiptDetail: normalizeAuthorshipReceipt(draft.authorshipReceiptDetail, fallbackArtifact.authorshipReceiptDetail),
   };
 }
 
@@ -84,11 +108,12 @@ export function buildFallbackStudyArtifact(input: {
   const sentences = extractSentences(input.sourceText);
   const terms = extractStudyTerms(input.sourceText, sourceTitle);
   const anchors = sentences.length > 0 ? sentences : terms.map((term) => `Review ${term}.`);
+  const anchorLabels = sourceAnchorLabels(input.sourceText, input.sourceType);
   const summary = anchors.slice(0, 3).join(" ");
   const cards = terms.slice(0, 8).map((term, index) => ({
     front: `Explain ${term}`,
     back: anchors[index % anchors.length] ?? `Use your notes to define ${term}.`,
-    sourceAnchor: anchorLabel(input.sourceType, index + 1),
+    sourceAnchor: anchorLabels[index % Math.max(anchorLabels.length, 1)] ?? anchorLabel(input.sourceType, index + 1),
   }));
 
   const quiz = anchors.slice(0, 5).map((sentence, index) => {
@@ -98,11 +123,11 @@ export function buildFallbackStudyArtifact(input: {
       choices: [],
       answer: sentence,
       hint: "Use the source line before opening more help.",
-      sourceAnchor: anchorLabel(input.sourceType, index + 1),
+      sourceAnchor: anchorLabels[index % Math.max(anchorLabels.length, 1)] ?? anchorLabel(input.sourceType, index + 1),
     };
   });
 
-  return {
+  const artifactBase = {
     type: input.type,
     title: `${artifactLabel(input.type)} from ${sourceTitle}`,
     sourceTitle,
@@ -131,6 +156,123 @@ export function buildFallbackStudyArtifact(input: {
     ],
     trustNote: "Diana used the provided class material and kept the output as study support.",
     authorshipReceipt: "Student source material stayed primary; Diana created practice prompts, not final assignment work.",
+    practiceSettings: defaultPracticeTestSettings(input.type),
+    editState: defaultArtifactEditState(),
+    visualBreakdown: buildVisualBreakdown({
+      assignmentKind: input.type === "practice_test" ? "test_prep" : "reading",
+      title: sourceTitle,
+    }),
+  } satisfies Omit<StudyArtifact, "authorshipReceiptDetail">;
+
+  return {
+    ...artifactBase,
+    authorshipReceiptDetail: buildAuthorshipReceipt({
+      artifact: artifactBase,
+      aiPolicy: "green",
+      aiContribution: "practice",
+    }),
+  };
+}
+
+export function defaultPracticeTestSettings(type: StudyArtifactType): PracticeTestSettings {
+  return {
+    questionCount: type === "practice_test" ? 8 : 4,
+    difficulty: "standard",
+    questionTypes: type === "flashcard_set"
+      ? ["short_response", "evidence_check"]
+      : ["short_response", "multiple_choice", "evidence_check", "application"],
+  };
+}
+
+export function defaultArtifactEditState(): ArtifactEditState {
+  return {
+    cardsReviewed: 0,
+    cardsEdited: 0,
+    lastEditedAt: null,
+    readyForReview: false,
+  };
+}
+
+export function withEditedCards(
+  artifact: StudyArtifact,
+  cards: StudyArtifactCard[],
+  nowIso: string,
+): StudyArtifact {
+  const cleanedCards = normalizeCards(cards, artifact.cards);
+  const editedCount = cleanedCards.filter((card, index) =>
+    card.front !== artifact.cards[index]?.front || card.back !== artifact.cards[index]?.back,
+  ).length;
+  const next = {
+    ...artifact,
+    cards: cleanedCards,
+    editState: {
+      cardsReviewed: cleanedCards.length,
+      cardsEdited: editedCount,
+      lastEditedAt: nowIso,
+      readyForReview: cleanedCards.length > 0,
+    },
+  };
+  return {
+    ...next,
+    authorshipReceiptDetail: buildAuthorshipReceipt({
+      artifact: next,
+      aiPolicy: "green",
+      aiContribution: "practice",
+      studentActions: [
+        "Reviewed card drafts.",
+        editedCount > 0 ? "Edited card wording before saving." : "Checked card wording before saving.",
+        "Kept final assignment work student-made.",
+      ],
+    }),
+  };
+}
+
+export function completeStudyArtifact(value: unknown): StudyArtifact {
+  const raw = value && typeof value === "object" ? value as Partial<StudyArtifact> : {};
+  const type = raw.type === "study_guide" || raw.type === "practice_test" || raw.type === "flashcard_set"
+    ? raw.type
+    : "study_guide";
+  const sourceTitle = typeof raw.sourceTitle === "string" ? raw.sourceTitle : "Class material";
+  const sourceType = raw.sourceType === "assignment" || raw.sourceType === "note" ? raw.sourceType : "assignment";
+  const mode = raw.mode === "guided_steps" || raw.mode === "visual_breakdown" || raw.mode === "retrieval_quiz" || raw.mode === "flashcard_builder"
+    ? raw.mode
+    : "guided_steps";
+  const fallback = buildFallbackStudyArtifact({
+    type,
+    sourceTitle,
+    sourceType,
+    mode,
+    sourceText: [
+      typeof raw.summary === "string" ? raw.summary : "",
+      ...(Array.isArray(raw.cards) ? raw.cards.map((card) => `${card.front} ${card.back}`) : []),
+    ].join(" "),
+  });
+
+  const completed = {
+    ...fallback,
+    ...raw,
+    type,
+    sourceTitle,
+    sourceType,
+    mode,
+    guide: normalizeGuide(raw.guide, fallback.guide),
+    quiz: normalizeQuiz(raw.quiz, fallback.quiz),
+    cards: normalizeCards(raw.cards, fallback.cards),
+    practiceSettings: normalizePracticeSettings(raw.practiceSettings, fallback.practiceSettings),
+    editState: normalizeEditState(raw.editState, fallback.editState),
+    visualBreakdown: normalizeVisualBreakdown(raw.visualBreakdown, fallback.visualBreakdown),
+  } satisfies Omit<StudyArtifact, "authorshipReceiptDetail"> & { authorshipReceiptDetail?: AuthorshipReceipt };
+
+  return {
+    ...completed,
+    authorshipReceiptDetail: normalizeAuthorshipReceipt(
+      raw.authorshipReceiptDetail,
+      buildAuthorshipReceipt({
+        artifact: completed,
+        aiPolicy: "green",
+        aiContribution: "practice",
+      }),
+    ),
   };
 }
 
@@ -191,10 +333,78 @@ function normalizeCards(value: unknown, fallback: StudyArtifactCard[]): StudyArt
       front: cleanString(item.front, "", 240),
       back: cleanString(item.back, "", 600),
       sourceAnchor: cleanString(item.sourceAnchor, "Source material", 120),
+      studentRequiredAction: cleanString(item.studentRequiredAction, "Review and edit before studying.", 140),
     }))
     .filter((card) => card.front && card.back)
     .slice(0, 12);
   return cards.length > 0 ? cards : fallback;
+}
+
+function normalizePracticeSettings(value: unknown, fallback: PracticeTestSettings): PracticeTestSettings {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const questionCount = typeof raw.questionCount === "number"
+    ? Math.max(1, Math.min(20, Math.round(raw.questionCount)))
+    : fallback.questionCount;
+  const difficulty = raw.difficulty === "light" || raw.difficulty === "challenge" || raw.difficulty === "standard"
+    ? raw.difficulty
+    : fallback.difficulty;
+  const allowed = new Set(["short_response", "multiple_choice", "evidence_check", "application"]);
+  const questionTypes = Array.isArray(raw.questionTypes)
+    ? raw.questionTypes.filter((item): item is PracticeTestSettings["questionTypes"][number] => typeof item === "string" && allowed.has(item)).slice(0, 4)
+    : fallback.questionTypes;
+  return {
+    questionCount,
+    difficulty,
+    questionTypes: questionTypes.length > 0 ? questionTypes : fallback.questionTypes,
+  };
+}
+
+function normalizeEditState(value: unknown, fallback: ArtifactEditState): ArtifactEditState {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  return {
+    cardsReviewed: typeof raw.cardsReviewed === "number" ? Math.max(0, Math.round(raw.cardsReviewed)) : fallback.cardsReviewed,
+    cardsEdited: typeof raw.cardsEdited === "number" ? Math.max(0, Math.round(raw.cardsEdited)) : fallback.cardsEdited,
+    lastEditedAt: typeof raw.lastEditedAt === "string" ? raw.lastEditedAt : fallback.lastEditedAt,
+    readyForReview: typeof raw.readyForReview === "boolean" ? raw.readyForReview : fallback.readyForReview,
+  };
+}
+
+function normalizeVisualBreakdown(value: unknown, fallback: VisualBreakdown | null): VisualBreakdown | null {
+  if (!value || typeof value !== "object") return fallback;
+  const raw = value as Record<string, unknown>;
+  if (!Array.isArray(raw.blocks)) return fallback;
+  const blocks = raw.blocks
+    .map((item) => item as Record<string, unknown>)
+    .map((item) => ({
+      label: cleanString(item.label, "", 80),
+      prompt: cleanString(item.prompt, "", 180),
+      sourceAnchor: cleanString(item.sourceAnchor, "Source material", 120),
+      studentAction: cleanString(item.studentAction, "Add one student-owned note.", 140),
+    }))
+    .filter((block) => block.label && block.prompt)
+    .slice(0, 6);
+  if (blocks.length === 0 || typeof raw.kind !== "string") return fallback;
+  return {
+    kind: raw.kind as VisualBreakdown["kind"],
+    title: cleanString(raw.title, fallback?.title ?? "Visual breakdown", 120),
+    sourceAnchored: blocks.every((block) => block.sourceAnchor.length > 0),
+    blocks,
+    quizPrompt: cleanString(raw.quizPrompt, fallback?.quizPrompt ?? "What should you remember from the source?", 220),
+  };
+}
+
+function normalizeAuthorshipReceipt(value: unknown, fallback: AuthorshipReceipt): AuthorshipReceipt {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  return {
+    sourceAnchors: normalizeStringList(raw.sourceAnchors, fallback.sourceAnchors, 12, 120),
+    dianaActions: normalizeStringList(raw.dianaActions, fallback.dianaActions, 6, 140),
+    studentActions: normalizeStringList(raw.studentActions, fallback.studentActions, 6, 140),
+    aiContribution: raw.aiContribution === "none" || raw.aiContribution === "organize" || raw.aiContribution === "hint" || raw.aiContribution === "practice" || raw.aiContribution === "draft_suggestion"
+      ? raw.aiContribution
+      : fallback.aiContribution,
+    finalWorkProtected: typeof raw.finalWorkProtected === "boolean" ? raw.finalWorkProtected : fallback.finalWorkProtected,
+    shareSummary: cleanString(raw.shareSummary, fallback.shareSummary, 240),
+  };
 }
 
 function normalizeStringList(value: unknown, fallback: string[], maxItems: number, maxLength: number): string[] {
@@ -239,7 +449,31 @@ function extractSentences(text: string): string[] {
 }
 
 function anchorLabel(sourceType: StudyArtifactSourceType, index: number): string {
-  return sourceType === "assignment" ? `Assignment line ${index}` : `Note line ${index}`;
+  return sourceType === "assignment" ? `Assignment prompt sentence ${index}` : `Note paragraph ${index}`;
+}
+
+function sourceAnchorLabels(text: string, sourceType: StudyArtifactSourceType): string[] {
+  const labels: string[] = [];
+  const sections = text.split(/\n{2,}/).map((section) => section.trim()).filter(Boolean);
+  sections.forEach((section, sectionIndex) => {
+    const lower = section.toLowerCase();
+    if (lower.startsWith("rubric:")) {
+      const lineCount = section.split(/\r?\n/).filter((line) => line.trim()).length;
+      for (let i = 1; i <= Math.max(1, Math.min(4, lineCount - 1)); i += 1) labels.push(`Rubric line ${i}`);
+      return;
+    }
+    if (lower.startsWith("prompt:") || lower.startsWith("assignment:")) {
+      const sentenceCount = extractSentences(section).length || 1;
+      for (let i = 1; i <= Math.min(4, sentenceCount); i += 1) labels.push(`Assignment prompt sentence ${i}`);
+      return;
+    }
+    if (lower.startsWith("note:")) {
+      labels.push(`Note paragraph ${sectionIndex + 1}`);
+      return;
+    }
+    labels.push(anchorLabel(sourceType, sectionIndex + 1));
+  });
+  return labels.length > 0 ? labels.slice(0, 12) : [anchorLabel(sourceType, 1)];
 }
 
 function titleCase(value: string): string {

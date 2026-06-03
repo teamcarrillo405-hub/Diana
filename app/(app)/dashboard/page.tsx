@@ -29,11 +29,13 @@ import {
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 import { FocusHeroCard } from "./focus-hero-card";
 import {
-  buildSupportPlan,
   energyFromBody,
   readinessFromSignalValue,
-  summarizeFrictionSignals,
 } from "@/lib/support/policy";
+import { StudentStateCard } from "@/components/student-state-card";
+import { buildStudentStateModel, sourceAnchorsFromAssignment } from "@/lib/student-state/model";
+import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import type { AssignmentStatus } from "@/lib/supabase/types";
 
 export default async function DashboardPage({
   searchParams,
@@ -55,7 +57,7 @@ export default async function DashboardPage({
 
   const { data: assignments } = await supabase
     .from("assignments")
-    .select("id, title, due_at, created_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)")
+    .select("id, title, description, rubric_text, due_at, created_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, ai_mode_override, classes(name, color, ai_mode)")
     .neq("status", "submitted")
     .neq("status", "graded")
     .neq("status", "abandoned")
@@ -114,8 +116,8 @@ export default async function DashboardPage({
   const last24hIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
   const { data: supportSignals } = await supabase
     .from("task_signals")
-    .select("assignment_id, kind, occurred_at")
-    .in("kind", ["started", "completed", "overwhelmed", "context_switch"])
+    .select("assignment_id, kind, value, occurred_at")
+    .in("kind", ["started", "completed", "overwhelmed", "context_switch", "study_helper_event", "recall_result"])
     .gte("occurred_at", last24hIso)
     .order("occurred_at", { ascending: false });
 
@@ -214,15 +216,43 @@ export default async function DashboardPage({
         return kind === top.kind;
       }).length
     : 0;
-  const supportPlan = top
-    ? buildSupportPlan({
-        assignment: top,
+  const topAssignmentRow = top ? (assignments ?? []).find((assignment) => assignment.id === top.id) : null;
+  const topClass = Array.isArray(topAssignmentRow?.classes)
+    ? topAssignmentRow?.classes[0]
+    : topAssignmentRow?.classes;
+  const topClassMode: AiMode =
+    topClass?.ai_mode === "red" || topClass?.ai_mode === "yellow"
+      ? topClass.ai_mode
+      : "green";
+  const topOverride: AiMode | null =
+    topAssignmentRow?.ai_mode_override === "red" ||
+    topAssignmentRow?.ai_mode_override === "yellow" ||
+    topAssignmentRow?.ai_mode_override === "green"
+      ? topAssignmentRow.ai_mode_override
+      : null;
+  const studentStateModel = top
+    ? buildStudentStateModel({
+        assignment: {
+          ...top,
+          status: top.status as AssignmentStatus,
+          reading_load: top.reading_load ?? 0,
+          writing_load: top.writing_load ?? 0,
+          difficulty: top.difficulty ?? 3,
+          effective_minutes: top.effective_minutes ?? top.estimated_minutes ?? 20,
+        },
+        aiPolicy: effectiveAiMode(topClassMode, topOverride),
         readiness,
         energy,
-        friction: summarizeFrictionSignals(supportSignals ?? [], top.id),
+        signals: supportSignals ?? [],
         milestones: { sameKindCompletions14d },
+        sourceAnchors: sourceAnchorsFromAssignment({
+          title: top.title,
+          description: topAssignmentRow?.description ?? null,
+          rubricText: topAssignmentRow?.rubric_text ?? null,
+        }),
       })
     : null;
+  const supportPlan = studentStateModel?.supportPlan ?? null;
 
   return (
     <div className="space-y-7">
@@ -266,6 +296,10 @@ export default async function DashboardPage({
               : undefined
           }
         />
+      )}
+
+      {studentStateModel && (
+        <StudentStateCard model={studentStateModel} title="Why this support level" />
       )}
 
       {rest.length > 0 && (

@@ -102,6 +102,10 @@ export async function exportUserDataJson(): Promise<string> {
     notes,
     flashcards,
     studyArtifacts,
+    studentStateSnapshots,
+    authorshipLog,
+    competitiveBenchmarks,
+    teenTestObservations,
     aiInteractions,
     masteryConcepts,
     shareLinks,
@@ -112,6 +116,10 @@ export async function exportUserDataJson(): Promise<string> {
     supabase.from("notes").select("*").eq("owner_id", user.id),
     supabase.from("flashcards").select("*").eq("owner_id", user.id),
     supabase.from("study_artifacts").select("*").eq("owner_id", user.id),
+    supabase.from("student_state_snapshots").select("*").eq("owner_id", user.id),
+    supabase.from("authorship_log").select("*").eq("owner_id", user.id),
+    supabase.from("competitive_benchmark_runs").select("*").eq("owner_id", user.id),
+    supabase.from("teen_test_observations").select("*").eq("owner_id", user.id),
     supabase.from("ai_interactions").select("*").eq("owner_id", user.id),
     supabase.from("mastery_concepts").select("*").eq("owner_id", user.id),
     supabase.from("share_links").select("*").eq("owner_id", user.id),
@@ -126,6 +134,10 @@ export async function exportUserDataJson(): Promise<string> {
     notes: notes.data ?? [],
     flashcards: flashcards.data ?? [],
     studyArtifacts: studyArtifacts.data ?? [],
+    studentStateSnapshots: studentStateSnapshots.data ?? [],
+    authorshipLog: authorshipLog.data ?? [],
+    competitiveBenchmarks: competitiveBenchmarks.data ?? [],
+    teenTestObservations: teenTestObservations.data ?? [],
     aiInteractions: aiInteractions.data ?? [],
     masteryConcepts: masteryConcepts.data ?? [],
     shareLinks: shareLinks.data ?? [],
@@ -241,6 +253,9 @@ export async function deleteDataCategory(
     revalidatePath("/assignments");
     revalidatePath("/flashcards");
   }
+  if (category === "student_state_snapshots") revalidatePath("/dashboard");
+  if (category === "authorship_log") revalidatePath("/settings/ai-history");
+  if (category === "competitive_benchmarks" || category === "teen_test_observations") revalidatePath("/proof");
   if (category === "mastery_concepts") revalidatePath("/classes");
   return { ok: true, label: categoryLabel(category) };
 }
@@ -253,6 +268,10 @@ export async function inventoryForUser(ownerId: string) {
     notes,
     flashcards,
     studyArtifacts,
+    studentStateSnapshots,
+    authorshipLog,
+    competitiveBenchmarks,
+    teenTestObservations,
     aiInteractions,
     masteryConcepts,
     shareLinks,
@@ -262,6 +281,10 @@ export async function inventoryForUser(ownerId: string) {
     supabase.from("notes").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("study_artifacts").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("student_state_snapshots").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("authorship_log").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("competitive_benchmark_runs").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("teen_test_observations").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("ai_interactions").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("mastery_concepts").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("share_links").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
@@ -272,6 +295,10 @@ export async function inventoryForUser(ownerId: string) {
     notes: notes.count ?? 0,
     flashcards: flashcards.count ?? 0,
     studyArtifacts: studyArtifacts.count ?? 0,
+    studentStateSnapshots: studentStateSnapshots.count ?? 0,
+    authorshipLog: authorshipLog.count ?? 0,
+    competitiveBenchmarks: competitiveBenchmarks.count ?? 0,
+    teenTestObservations: teenTestObservations.count ?? 0,
     aiInteractions: aiInteractions.count ?? 0,
     masteryConcepts: masteryConcepts.count ?? 0,
     shareLinks: shareLinks.count ?? 0,
@@ -290,6 +317,14 @@ async function deleteCategoryRows(
       return supabase.from("flashcards").delete().eq("owner_id", ownerId);
     case "study_artifacts":
       return supabase.from("study_artifacts").delete().eq("owner_id", ownerId);
+    case "student_state_snapshots":
+      return supabase.from("student_state_snapshots").delete().eq("owner_id", ownerId);
+    case "authorship_log":
+      return supabase.from("authorship_log").delete().eq("owner_id", ownerId);
+    case "competitive_benchmarks":
+      return supabase.from("competitive_benchmark_runs").delete().eq("owner_id", ownerId);
+    case "teen_test_observations":
+      return supabase.from("teen_test_observations").delete().eq("owner_id", ownerId);
     case "ai_interactions":
       return supabase.from("ai_interactions").delete().eq("owner_id", ownerId);
     case "mastery_concepts":

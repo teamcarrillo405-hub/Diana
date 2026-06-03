@@ -12,12 +12,14 @@ import {
   Sparkles,
 } from "lucide-react";
 import { recordStudyHelperEvent } from "./study-helper-actions";
+import { HelpOwnershipMeter } from "@/components/help-ownership-meter";
 import {
   studyHelperModeOption,
   type StudyBarId,
   type StudyHelperContext,
   type StudyHelperMode,
 } from "@/lib/study-helper/modes";
+import { buildHelpOwnershipMeter } from "@/lib/student-state/model";
 
 const MODE_ICONS = {
   guided_steps: ListChecks,
@@ -46,6 +48,14 @@ export function StudyHelperModeCard({
 
   const selected = studyHelperModeOption(selectedMode);
   const activeBar = context.bars.find((bar) => bar.id === selected.bar);
+  const ownershipMeter = buildHelpOwnershipMeter({
+    aiPolicy: context.aiPolicyLabel.includes("no content")
+      ? "red"
+      : context.aiPolicyLabel.includes("scaffolding")
+        ? "yellow"
+        : "green",
+    supportIntensity: context.adaptNote.includes("one move") ? "one_move" : "guided",
+  });
 
   const paramsFor = useMemo(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -123,6 +133,8 @@ export function StudyHelperModeCard({
           );
         })}
       </div>
+
+      <HelpOwnershipMeter meter={ownershipMeter} compact />
 
       <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_0.82fr]">
         <div className="min-w-0 rounded-2xl border border-border bg-background p-4">

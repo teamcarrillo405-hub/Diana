@@ -65,7 +65,7 @@ export default async function WinsPage() {
     <div className="mx-auto max-w-2xl space-y-6 py-6">
       <header className="space-y-2">
         <h1 className="text-2xl font-bold">Wins</h1>
-        <p className="text-sm text-muted">Things you finished. No streaks. No ranking.</p>
+        <p className="text-sm text-muted">Things you finished. Private, neutral progress.</p>
       </header>
 
       <section className="flex gap-4">
