@@ -6,6 +6,7 @@ import { AiTooltip } from "@/components/ai-tooltip";
 import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { requestScienceScaffold } from "./ai-tools-actions";
 import type { ScienceScaffoldMode, ScienceScaffoldResult } from "@/lib/science/scaffold";
+import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 
 const MODES: Array<{ mode: ScienceScaffoldMode; label: string; icon: typeof FlaskConical }> = [
   { mode: "hypothesis", label: "Hypothesis", icon: FlaskConical },
@@ -21,10 +22,12 @@ export function ScienceHelper({
   assignmentId,
   classAiMode,
   initialPrompt,
+  studyContext,
 }: {
   assignmentId: string;
   classAiMode: "red" | "yellow" | "green";
   initialPrompt: string;
+  studyContext?: StudyHelperShellContext;
 }) {
   const [open, setOpen] = useState(false);
   const [prompt, setPrompt] = useState(initialPrompt);
@@ -58,6 +61,7 @@ export function ScienceHelper({
       title={open ? "Hypothesis cards" : "Open science lab"}
       subtitle={open ? "Predict, test, explain, and check the model." : "Turn prompts into lab-ready thinking cards."}
       icon={FlaskConical}
+      studyContext={studyContext}
     >
       {!open ? (
         <button

@@ -14,6 +14,7 @@ import type {
   HistoryScaffoldResult,
   MapAnnotationResult,
 } from "@/lib/history/scaffold";
+import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 
 const MODES: Array<{ mode: HistoryScaffoldMode; label: string; icon: typeof Landmark }> = [
   { mode: "primary_source", label: "Source", icon: FileText },
@@ -28,10 +29,12 @@ export function HistoryHelper({
   assignmentId,
   classAiMode,
   initialPrompt,
+  studyContext,
 }: {
   assignmentId: string;
   classAiMode: "red" | "yellow" | "green";
   initialPrompt: string;
+  studyContext?: StudyHelperShellContext;
 }) {
   const [open, setOpen] = useState(false);
   const [sourceText, setSourceText] = useState(initialPrompt);
@@ -102,6 +105,7 @@ export function HistoryHelper({
       title={open ? "Source analysis cards" : "Open source desk"}
       subtitle={open ? "Source, cause, context, and map work in one place." : "Break sources into usable evidence."}
       icon={Landmark}
+      studyContext={studyContext}
     >
       {!open ? (
         <button

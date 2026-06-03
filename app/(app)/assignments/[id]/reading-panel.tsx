@@ -8,6 +8,7 @@ import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import type { TtsProvider } from "@/lib/supabase/types";
 import { fetchScaffold } from "./reading-panel-actions";
+import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 
 interface ReadingPanelProps {
   text: string;
@@ -19,6 +20,7 @@ interface ReadingPanelProps {
   ttsSpeed: number;
   ttsPitch: number;
   ttsVoice: string;
+  studyContext?: StudyHelperShellContext;
 }
 
 export function ReadingPanel({
@@ -31,6 +33,7 @@ export function ReadingPanel({
   ttsSpeed,
   ttsPitch,
   ttsVoice,
+  studyContext,
 }: ReadingPanelProps) {
   const [scaffoldOpen, setScaffoldOpen] = useState(false);
   const [scaffoldType, setScaffoldType] = useState<"pre" | "mid" | "post" | null>(null);
@@ -57,6 +60,7 @@ export function ReadingPanel({
       eyebrow="Reading room"
       title="Annotation reader"
       subtitle="Read aloud, vocabulary, and check-ins stay together."
+      studyContext={studyContext}
     >
       <div className="reading-view space-y-4 rounded-2xl border border-subject-reading/25 p-4" aria-label="Reading support">
       <TtsHighlightButton

@@ -137,7 +137,7 @@ export function ReviewSession({
         <section className="rounded-xl border border-amber-400/40 bg-amber-50 p-4 text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
           <p className="text-sm font-medium">Try a different path?</p>
           <p className="mt-1 text-sm">
-            Switch to audio, take a short reset, or review one note before the next card.
+            Switch to audio, look at one note line, or say the answer out loud before the next card.
           </p>
           <button
             type="button"

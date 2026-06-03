@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
+import { Brain, ListChecks } from "lucide-react";
 
 export default async function FlashcardsPage() {
   const supabase = await createClient();
@@ -30,6 +31,23 @@ export default async function FlashcardsPage() {
           + New card
         </Link>
       </header>
+
+      <section className="rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
+        <p className="text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+          Remember bar
+        </p>
+        <h2 className="mt-1 text-base font-semibold">Quiz first, cards second</h2>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="flex min-w-0 items-start gap-2 rounded-xl border border-border bg-background p-3">
+            <Brain size={15} className="mt-0.5 shrink-0 text-indigo-700 dark:text-indigo-300" />
+            <p className="text-sm text-muted">Start with the due card so recall stays active.</p>
+          </div>
+          <div className="flex min-w-0 items-start gap-2 rounded-xl border border-border bg-background p-3">
+            <ListChecks size={15} className="mt-0.5 shrink-0 text-indigo-700 dark:text-indigo-300" />
+            <p className="text-sm text-muted">New cards should come from notes, readings, or class terms.</p>
+          </div>
+        </div>
+      </section>
 
       {(due && due.length > 0) ? (
         <section className="space-y-3">

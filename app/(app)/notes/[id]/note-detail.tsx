@@ -2,7 +2,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Sparkles, Tags, Trash2, X } from "lucide-react";
+import { BookOpen, Brain, Plus, Sparkles, Tags, Trash2, X } from "lucide-react";
 import { AccessibleReadingText, type ReadingPrefs } from "@/components/accessible-reading-text";
 import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
@@ -175,6 +175,23 @@ export function NoteDetail({
           </select>
         </label>
       )}
+
+      <section className="rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
+        <p className="text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+          Remember bar
+        </p>
+        <h2 className="mt-1 text-base font-semibold">Turn notes into practice</h2>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="flex min-w-0 items-start gap-2 rounded-xl border border-border bg-background p-3">
+            <Brain size={15} className="mt-0.5 shrink-0 text-indigo-700 dark:text-indigo-300" />
+            <p className="text-sm text-muted">Use a selected line for recall, not rereading.</p>
+          </div>
+          <div className="flex min-w-0 items-start gap-2 rounded-xl border border-border bg-background p-3">
+            <BookOpen size={15} className="mt-0.5 shrink-0 text-indigo-700 dark:text-indigo-300" />
+            <p className="text-sm text-muted">Highlight one term or fact, then save it as a card.</p>
+          </div>
+        </div>
+      </section>
 
       <section className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4">
         <div className="flex items-center justify-between gap-2">

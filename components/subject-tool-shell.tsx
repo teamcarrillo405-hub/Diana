@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
+import { HelpCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { subjectTheme, type SubjectThemeId } from "@/lib/ui/subject-themes";
+import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 
 export function SubjectToolShell({
   theme,
@@ -9,6 +11,7 @@ export function SubjectToolShell({
   subtitle,
   icon,
   actions,
+  studyContext,
   children,
   className = "",
 }: {
@@ -18,6 +21,7 @@ export function SubjectToolShell({
   subtitle?: string;
   icon?: LucideIcon;
   actions?: ReactNode;
+  studyContext?: StudyHelperShellContext;
   children: ReactNode;
   className?: string;
 }) {
@@ -41,6 +45,35 @@ export function SubjectToolShell({
         </div>
         {actions && <div className="shrink-0">{actions}</div>}
       </div>
+      {studyContext && (
+        <div className="grid gap-2 rounded-2xl border border-border bg-background/70 p-3 text-xs sm:grid-cols-3">
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 font-medium text-muted">
+              <Sparkles size={12} />
+              Mode
+            </p>
+            <p className="mt-1 font-semibold">{studyContext.modeLabel}</p>
+          </div>
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 font-medium text-muted">
+              <ShieldCheck size={12} />
+              Policy
+            </p>
+            <p className="mt-1">{studyContext.aiPolicyLabel}</p>
+          </div>
+          <div className="min-w-0">
+            <p className="flex items-center gap-1.5 font-medium text-muted">
+              <HelpCircle size={12} />
+              Stuck path
+            </p>
+            <p className="mt-1">{studyContext.escapeValve}</p>
+          </div>
+          <div className="min-w-0 sm:col-span-3">
+            <p className="font-medium">{studyContext.nextStep}</p>
+            <p className="mt-1 text-muted">{studyContext.trustNote}</p>
+          </div>
+        </div>
+      )}
       <div className={`rounded-2xl border ${subject.borderClass} ${subject.surfaceClass} p-3 sm:p-4`}>
         {children}
       </div>

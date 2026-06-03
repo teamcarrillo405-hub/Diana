@@ -6,10 +6,12 @@ import { requestWritingAid, requestWritingCoauthor } from "./ai-tools-actions";
 import { AiTooltip } from "@/components/ai-tooltip";
 import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { authorshipPercent, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
+import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 
 interface WritingAidProps {
   assignmentId: string;
   classAiMode: "red" | "yellow" | "green";
+  studyContext?: StudyHelperShellContext;
 }
 
 const MODES: Array<{ mode: WritingCoauthorMode; label: string; icon: typeof FileText }> = [
@@ -22,7 +24,7 @@ const MODES: Array<{ mode: WritingCoauthorMode; label: string; icon: typeof File
   { mode: "tone", label: "Tone", icon: MessageSquare },
 ];
 
-export function WritingAid({ assignmentId, classAiMode }: WritingAidProps) {
+export function WritingAid({ assignmentId, classAiMode, studyContext }: WritingAidProps) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [prompt, setPrompt] = useState("");
@@ -83,6 +85,7 @@ export function WritingAid({ assignmentId, classAiMode }: WritingAidProps) {
       title={open ? "Draft studio" : "Open draft studio"}
       subtitle={open ? "Suggestions, chips, and authorship stay visible." : "Plan, revise, and keep the writing yours."}
       icon={Pencil}
+      studyContext={studyContext}
     >
       {!open ? (
         <button

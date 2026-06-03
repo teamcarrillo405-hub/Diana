@@ -6,10 +6,12 @@ import { AiTooltip } from "@/components/ai-tooltip";
 import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { CALC_FORMULAS, PHYSICS_FORMULAS, ALGEBRA_FORMULAS, type Formula } from "@/lib/math/formulas";
 import type { MathScaffoldResult, MathSubject } from "@/lib/math/scaffold";
+import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 
 interface MathHelperProps {
   assignmentId: string;
   classAiMode: "red" | "yellow" | "green";
+  studyContext?: StudyHelperShellContext;
 }
 
 interface ChatTurn {
@@ -17,7 +19,7 @@ interface ChatTurn {
   content: string;
 }
 
-export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
+export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelperProps) {
   const [open, setOpen] = useState(false);
   const [history, setHistory] = useState<ChatTurn[]>([]);
   const [prompt, setPrompt] = useState("");
@@ -51,6 +53,7 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
         title="Formula board"
         subtitle="Static references are available for this class mode."
         icon={Calculator}
+        studyContext={studyContext}
       >
         <div className="flex items-center gap-2">
           <Calculator size={15} className="text-muted" />
@@ -184,6 +187,7 @@ export function MathHelper({ assignmentId, classAiMode }: MathHelperProps) {
       title={open ? "Step board" : "Math step board"}
       subtitle={open ? "Photo, units, graph shape, and the next line." : "Diana hints, never solves."}
       icon={Calculator}
+      studyContext={studyContext}
     >
       {!open ? (
         <button

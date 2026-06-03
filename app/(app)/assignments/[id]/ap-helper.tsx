@@ -11,6 +11,7 @@ import {
   type ApScaffoldResult,
   type ApSubjectId,
 } from "@/lib/ap/command";
+import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 
 const MODES: Array<{ value: ApScaffoldMode; label: string }> = [
   { value: "frq_outline", label: "FRQ outline" },
@@ -22,10 +23,12 @@ export function ApHelper({
   assignmentId,
   classAiMode,
   initialPrompt,
+  studyContext,
 }: {
   assignmentId: string;
   classAiMode: "red" | "yellow" | "green";
   initialPrompt: string;
+  studyContext?: StudyHelperShellContext;
 }) {
   const [subject, setSubject] = useState<ApSubjectId>("us_history");
   const [mode, setMode] = useState<ApScaffoldMode>("frq_outline");
@@ -63,6 +66,7 @@ export function ApHelper({
       title="Exam command center"
       subtitle="Match the prompt to FRQ, MCQ, or a study plan before adding practice."
       icon={GraduationCap}
+      studyContext={studyContext}
     >
       <div className="grid gap-3 md:grid-cols-[1.2fr_0.8fr]">
         <label className="space-y-1 text-sm">

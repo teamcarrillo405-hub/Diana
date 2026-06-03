@@ -25,8 +25,14 @@ import { WritingAid } from "./writing-aid";
 import { CitationTool } from "./citation-tool";
 import { TaskBreakdown } from "./task-breakdown";
 import { TaskSwitchCue } from "./task-switch-cue";
+import { StudyHelperModeCard } from "./study-helper-mode-card";
 import { AiUsageLog } from "@/components/ai-usage-log";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import {
+  buildStudyHelperContext,
+  normalizeStudyHelperMode,
+  shellContextFromStudyHelper,
+} from "@/lib/study-helper/modes";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/parse";
 
@@ -35,10 +41,10 @@ export default async function AssignmentDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ intent?: string; focus?: string }>;
+  searchParams: Promise<{ intent?: string; focus?: string; study?: string }>;
 }) {
   const { id } = await params;
-  const { intent, focus } = await searchParams;
+  const { intent, focus, study } = await searchParams;
   const supabase = await createClient();
   const profile = await loadProfile();
 
@@ -108,6 +114,15 @@ export default async function AssignmentDetailPage({
     /\bap\b|advanced placement|college board/i.test(a.classes?.name ?? "") ||
     a.kind === "test_prep" ||
     /\bfrq\b|\bdbq\b|synthesis essay|multiple choice|\bmcq\b|score band|college board/i.test(assignmentText);
+  const studyHelperContext = buildStudyHelperContext({
+    assignmentKind: a.kind,
+    classAiMode,
+    selectedMode: normalizeStudyHelperMode(study),
+    readingLoad: a.reading_load,
+    writingLoad: a.writing_load,
+    focusNextStep: focus === "next-step",
+  });
+  const shellStudyContext = shellContextFromStudyHelper(studyHelperContext);
 
   return (
     <div className="space-y-8">
@@ -185,6 +200,8 @@ export default async function AssignmentDetailPage({
         </section>
       )}
 
+      <StudyHelperModeCard assignmentId={a.id} context={studyHelperContext} />
+
       {a.rubric_text && (
         <section className="space-y-2 rounded-xl border border-border bg-card p-4">
           <h2 className="text-sm font-medium">Imported rubric</h2>
@@ -213,11 +230,12 @@ export default async function AssignmentDetailPage({
           ttsSpeed={ttsSpeed}
           ttsPitch={ttsPitch}
           ttsVoice={ttsVoice}
+          studyContext={shellStudyContext}
         />
       )}
 
       {(a.kind === "problem_set" || a.kind === "test_prep") && (
-        <MathHelper assignmentId={a.id} classAiMode={classAiMode} />
+        <MathHelper assignmentId={a.id} classAiMode={classAiMode} studyContext={shellStudyContext} />
       )}
 
       {scienceLike && (
@@ -225,6 +243,7 @@ export default async function AssignmentDetailPage({
           assignmentId={a.id}
           classAiMode={classAiMode}
           initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+          studyContext={shellStudyContext}
         />
       )}
 
@@ -233,6 +252,7 @@ export default async function AssignmentDetailPage({
           assignmentId={a.id}
           classAiMode={classAiMode}
           initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+          studyContext={shellStudyContext}
         />
       )}
 
@@ -273,11 +293,12 @@ export default async function AssignmentDetailPage({
           assignmentId={a.id}
           classAiMode={classAiMode}
           initialPrompt={[a.title, a.description ?? ""].filter(Boolean).join("\n\n")}
+          studyContext={shellStudyContext}
         />
       )}
 
       {a.kind === "essay" && (
-        <WritingAid assignmentId={a.id} classAiMode={classAiMode} />
+        <WritingAid assignmentId={a.id} classAiMode={classAiMode} studyContext={shellStudyContext} />
       )}
 
       {/* Citation tool is always available — any assignment may need a source citation */}
