@@ -75,6 +75,23 @@ describe("VoiceTextarea microphone controls", () => {
     await waitFor(() => {
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ audio: true });
       expect(screen.getByText(/Testing USB classroom mic/)).toBeInTheDocument();
+      expect(fakeTrack.stop).not.toHaveBeenCalled();
+    });
+  });
+
+  it("tests the selected microphone without stopping it immediately", async () => {
+    render(<VoiceTextarea provider="openai" showDeviceStatus aria-label="Voice note" />);
+
+    const input = await screen.findByRole("combobox", { name: /input/i });
+    fireEvent.change(input, { target: { value: "usb-mic" } });
+    fireEvent.click(screen.getByRole("button", { name: /check mic/i }));
+
+    await waitFor(() => {
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
+        audio: { deviceId: { exact: "usb-mic" } },
+      });
+      expect(screen.getByText(/Testing USB classroom mic/)).toBeInTheDocument();
+      expect(fakeTrack.stop).not.toHaveBeenCalled();
     });
   });
 });

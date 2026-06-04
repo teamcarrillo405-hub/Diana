@@ -52,6 +52,9 @@ export function VoiceTextarea(
   const chunksRef = useRef<Blob[]>([]);
   const activeStreamRef = useRef<MediaStream | null>(null);
   const meterCleanupRef = useRef<(() => void) | null>(null);
+  const peakInputLevelRef = useRef(0);
+  const recordingStartedAtRef = useRef<number | null>(null);
+  const recordingMicLabelRef = useRef("selected microphone");
 
   useEffect(() => {
     if (provider === "openai") {
@@ -170,6 +173,7 @@ export function VoiceTextarea(
 
     setCheckingMic(true);
     stopInputMeter();
+    peakInputLevelRef.current = 0;
 
     try {
       const audio: MediaTrackConstraints | boolean = selectedDeviceId
@@ -182,7 +186,12 @@ export function VoiceTextarea(
       setStatus(`Testing ${trackLabel}. Speak now and watch the level bar.`);
       startInputMeter(stream);
       await delay(4000);
-      setStatus(`Mic check finished for ${trackLabel}. If the level stayed flat, choose another input or check Windows input settings.`);
+      const peakLevel = peakInputLevelRef.current;
+      if (peakLevel >= MIN_USABLE_INPUT_LEVEL) {
+        setStatus(`Diana heard ${trackLabel}. Press the mic button, speak, then press it again to transcribe.`);
+      } else {
+        setStatus(`Diana opened ${trackLabel}, but did not hear a usable signal. Check the Windows input level, camera mic mute, or choose another input.`);
+      }
       void refreshDevices(false);
     } catch (error) {
       console.error("Selected microphone check failed:", error);
@@ -208,9 +217,12 @@ export function VoiceTextarea(
         const stream = await navigator.mediaDevices.getUserMedia({ audio });
         const mediaRecorder = new MediaRecorder(stream);
         activeStreamRef.current = stream;
+        peakInputLevelRef.current = 0;
+        recordingStartedAtRef.current = Date.now();
         startInputMeter(stream);
         const trackLabel = stream.getAudioTracks()[0]?.label || selectedMicLabel() || "selected microphone";
-        setStatus(`Listening through ${trackLabel}. Speak, then press stop to transcribe.`);
+        recordingMicLabelRef.current = trackLabel;
+        setStatus(`Listening through ${trackLabel}. Speak now; the level bar should move. Press again to transcribe.`);
         setPermissionState("ready");
         void refreshDevices(false);
         chunksRef.current = [];
@@ -226,8 +238,21 @@ export function VoiceTextarea(
           activeStreamRef.current = null;
 
           const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+          const durationMs = recordingStartedAtRef.current ? Date.now() - recordingStartedAtRef.current : 0;
+          recordingStartedAtRef.current = null;
+          const peakLevel = peakInputLevelRef.current;
+          peakInputLevelRef.current = 0;
+
+          if (blob.size < MIN_RECORDED_AUDIO_BYTES || peakLevel < MIN_USABLE_INPUT_LEVEL) {
+            setStatus(
+              `Recording stopped, but Diana did not hear enough from ${recordingMicLabelRef.current}. Run Check mic, raise the Windows input level, or choose another mic.`,
+            );
+            chunksRef.current = [];
+            return;
+          }
+
           setTranscribing(true);
-          setStatus("Transcribing the voice note.");
+          setStatus(`Captured ${formatDuration(durationMs)} of audio from ${recordingMicLabelRef.current}. Transcribing now.`);
           try {
             // Upload to Storage
             const formData = new FormData();
@@ -307,24 +332,34 @@ export function VoiceTextarea(
   }
 
   function startInputMeter(stream: MediaStream) {
-    stopInputMeter();
+    cleanupInputMeter();
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextClass) return;
+    if (!AudioContextClass) {
+      peakInputLevelRef.current = 1;
+      return;
+    }
 
     const audioContext = new AudioContextClass();
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 256;
     const source = audioContext.createMediaStreamSource(stream);
     source.connect(analyser);
-    const data = new Uint8Array(analyser.frequencyBinCount);
+    const data = new Uint8Array(analyser.fftSize);
     let frame = 0;
     let stopped = false;
 
     function tick() {
       if (stopped) return;
-      analyser.getByteFrequencyData(data);
-      const average = data.reduce((sum, value) => sum + value, 0) / data.length;
-      setInputLevel(Math.min(1, average / 90));
+      analyser.getByteTimeDomainData(data);
+      let sumSquares = 0;
+      for (const value of data) {
+        const centered = (value - 128) / 128;
+        sumSquares += centered * centered;
+      }
+      const rms = Math.sqrt(sumSquares / data.length);
+      const level = Math.min(1, rms * 8);
+      peakInputLevelRef.current = Math.max(peakInputLevelRef.current, level);
+      setInputLevel(level);
       frame = window.requestAnimationFrame(tick);
     }
 
@@ -338,9 +373,13 @@ export function VoiceTextarea(
     };
   }
 
-  function stopInputMeter() {
+  function cleanupInputMeter() {
     meterCleanupRef.current?.();
     meterCleanupRef.current = null;
+  }
+
+  function stopInputMeter() {
+    cleanupInputMeter();
     activeStreamRef.current?.getTracks().forEach((track) => track.stop());
     activeStreamRef.current = null;
   }
@@ -441,4 +480,13 @@ export function VoiceTextarea(
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const MIN_USABLE_INPUT_LEVEL = 0.03;
+const MIN_RECORDED_AUDIO_BYTES = 1200;
+
+function formatDuration(ms: number) {
+  if (!Number.isFinite(ms) || ms <= 0) return "a short recording";
+  const seconds = Math.max(1, Math.round(ms / 1000));
+  return `${seconds} second${seconds === 1 ? "" : "s"}`;
 }
