@@ -1,9 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { COMPETITIVE_CAPABILITY_BARS } from "../lib/competitive/capability-matrix";
 import { COMPETITOR_PROFILES } from "../lib/competitive/competitor-profiles";
 import { scoreCompetitiveSystem, scorecardToMarkdown, type CompetitiveScoreEvidence } from "../lib/competitive/scoring";
 import { seedContentReadiness } from "../lib/content/seed-packs";
+import { latestCoveredQaResult } from "../lib/teen-testing/qa-evidence";
 
 const ROOT = process.cwd();
 
@@ -94,22 +95,8 @@ function visualCoverageComplete(): boolean {
 }
 
 function latestQaResult(): { exists: boolean; total: number; overflowCount: number; bannedCount: number; serverErrorCount: number } {
-  const qaRoot = join(ROOT, ".planning", "qa-screenshots");
-  if (!existsSync(qaRoot)) return { exists: false, total: 0, overflowCount: 0, bannedCount: 0, serverErrorCount: 0 };
-  const candidates = readdirSync(qaRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => join(qaRoot, entry.name, "qa-results.json"))
-    .filter((path) => existsSync(path))
-    .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
-  if (candidates.length === 0) return { exists: false, total: 0, overflowCount: 0, bannedCount: 0, serverErrorCount: 0 };
-  const rows = readJsonAbsolute(candidates[0]) as Array<{ hasHorizontalOverflow?: boolean; bannedVisible?: string[]; statusText?: string }>;
-  return {
-    exists: true,
-    total: rows.length,
-    overflowCount: rows.filter((row) => row.hasHorizontalOverflow).length,
-    bannedCount: rows.filter((row) => (row.bannedVisible ?? []).length > 0).length,
-    serverErrorCount: rows.filter((row) => row.statusText === "internal-server-error").length,
-  };
+  const summary = latestCoveredQaResult(ROOT);
+  return summary.coverageComplete ? summary : { ...summary, exists: false };
 }
 
 function fileIncludes(path: string, needle: string): boolean {

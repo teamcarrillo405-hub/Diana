@@ -1,33 +1,12 @@
 import { Gauge, LockKeyhole, MessageCircle, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
+import teenUxScorecardJson from "@/.planning/teen-native-ux-score.json";
 import {
-  scoreTeenNativeUx,
   TEEN_NATIVE_UX_SECTIONS,
-  type TeenNativeUxEvidence,
+  type TeenNativeUxScorecard,
   type TeenNativeUxSectionId,
 } from "@/lib/teen-testing/ux-scorecard";
 
-const DEMO_EVIDENCE: TeenNativeUxEvidence = {
-  landingNextFiveMinutes: true,
-  dashboardRightNowCard: true,
-  assignmentNextStepEntry: true,
-  priorityMobileNav: true,
-  responsiveActionRows: true,
-  responsiveQaClean: true,
-  teenVoicePlan: true,
-  noVisiblePressureCopy: true,
-  studentControlLanguage: true,
-  genericChatComparisonTask: true,
-  timeToFirstActionMetric: true,
-  oneMoveSupport: true,
-  subjectNativeHelpers: true,
-  studyArtifactsLoop: true,
-  sourceAnchoredStudyOutput: true,
-  ownershipMeter: true,
-  authorshipProof: true,
-  finalWorkProtection: true,
-  proofPanelVisible: true,
-  liveTeenValidationPassed: false,
-};
+const teenUxScorecard = teenUxScorecardJson as TeenNativeUxScorecard;
 
 const iconFor: Record<TeenNativeUxSectionId, typeof Sparkles> = {
   first_screen_clarity: Sparkles,
@@ -39,7 +18,7 @@ const iconFor: Record<TeenNativeUxSectionId, typeof Sparkles> = {
 };
 
 export function TeenNativeUxEvidencePanel() {
-  const scorecard = scoreTeenNativeUx(DEMO_EVIDENCE, "proof-preview");
+  const scorecard = teenUxScorecard;
 
   return (
     <section className="space-y-4 rounded-2xl border border-border bg-surface-raised p-4 shadow-sm">
@@ -51,6 +30,9 @@ export function TeenNativeUxEvidencePanel() {
           <h2 className="mt-1 text-base font-semibold">Beat Quizlet/Gemini on the stuck moment</h2>
           <p className="mt-1 max-w-3xl text-sm text-muted">
             Repo proof is complete when every section shows a clear next move, mobile-native flow, student-owned language, and visible help boundaries.
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            Evidence generated: {scorecard.generatedAt}
           </p>
         </div>
         <div className="rounded-2xl border border-brand/20 bg-brand/10 px-4 py-3 text-sm">
