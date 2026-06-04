@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mic, MicOff, RefreshCw, SlidersHorizontal } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { uploadVoiceBlob } from "@/components/voice-textarea-actions";
+import { AudioLines, Mic, MicOff, Radio, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { transcribeVoiceBlob } from "@/components/voice-textarea-actions";
 
 type SpeechRecognitionInstance = {
   lang: string;
@@ -31,21 +30,34 @@ export function VoiceTextarea(
     provider?: "browser" | "openai";
     speechLang?: string;
     showDeviceStatus?: boolean;
+    enableWakePhrase?: boolean;
   },
 ) {
-  const { onTranscript, provider = "browser", speechLang = "en-US", showDeviceStatus = false, ...rest } = props;
+  const {
+    onTranscript,
+    provider = "browser",
+    speechLang = "en-US",
+    showDeviceStatus = false,
+    enableWakePhrase = false,
+    ...rest
+  } = props;
   const [recording, setRecording] = useState(false);
   const [supported, setSupported] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [checkingMic, setCheckingMic] = useState(false);
+  const [wakeListening, setWakeListening] = useState(false);
+  const [wakeSupported, setWakeSupported] = useState(false);
   const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [permissionState, setPermissionState] = useState<"checking" | "ready" | "needs_permission" | "blocked" | "unsupported">("checking");
   const [status, setStatus] = useState("Checking microphone access.");
   const [inputLevel, setInputLevel] = useState(0);
+  const [recordingMicLabel, setRecordingMicLabel] = useState("selected microphone");
 
   // Browser path
   const recogRef = useRef<SpeechRecognitionInstance | null>(null);
+  const wakeRecogRef = useRef<SpeechRecognitionInstance | null>(null);
+  const wakeListeningRef = useRef(false);
 
   // OpenAI path
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -57,6 +69,8 @@ export function VoiceTextarea(
   const recordingMicLabelRef = useRef("selected microphone");
 
   useEffect(() => {
+    setWakeSupported(Boolean(getSpeechRecognitionClass()));
+
     if (provider === "openai") {
       // OpenAI mode: supported if getUserMedia is available
       const ok =
@@ -69,10 +83,7 @@ export function VoiceTextarea(
     }
 
     // Browser mode: supported if SpeechRecognition API is available
-    const SR =
-      (typeof window !== "undefined" &&
-        ((window as unknown as { SpeechRecognition?: new () => SpeechRecognitionInstance }).SpeechRecognition ||
-          (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognitionInstance }).webkitSpeechRecognition));
+    const SR = getSpeechRecognitionClass();
     if (!SR) {
       setSupported(false);
       setPermissionState("unsupported");
@@ -123,7 +134,10 @@ export function VoiceTextarea(
     return () => navigator.mediaDevices.removeEventListener?.("devicechange", handleDeviceChange);
   }, []);
 
-  useEffect(() => () => stopInputMeter(), []);
+  useEffect(() => () => {
+    stopWakePhrase();
+    stopInputMeter();
+  }, []);
 
   async function refreshDevices(requestPermission: boolean) {
     if (!navigator.mediaDevices?.enumerateDevices) {
@@ -188,7 +202,7 @@ export function VoiceTextarea(
       await delay(4000);
       const peakLevel = peakInputLevelRef.current;
       if (peakLevel >= MIN_USABLE_INPUT_LEVEL) {
-        setStatus(`Diana heard ${trackLabel}. Press the mic button, speak, then press it again to transcribe.`);
+        setStatus(`Diana heard ${trackLabel}. Press Start recording, speak, then press Stop and transcribe.`);
       } else {
         setStatus(`Diana opened ${trackLabel}, but did not hear a usable signal. Check the Windows input level, camera mic mute, or choose another input.`);
       }
@@ -205,97 +219,162 @@ export function VoiceTextarea(
 
   async function toggleOpenAI() {
     if (recording) {
-      // Stop recording
-      mediaRecorderRef.current?.stop();
-      setRecording(false);
+      stopOpenAIRecording();
     } else {
-      // Start recording
-      try {
-        const audio: MediaTrackConstraints | boolean = selectedDeviceId
-          ? { deviceId: { exact: selectedDeviceId } }
-          : true;
-        const stream = await navigator.mediaDevices.getUserMedia({ audio });
-        const mediaRecorder = new MediaRecorder(stream);
-        activeStreamRef.current = stream;
-        peakInputLevelRef.current = 0;
-        recordingStartedAtRef.current = Date.now();
-        startInputMeter(stream);
-        const trackLabel = stream.getAudioTracks()[0]?.label || selectedMicLabel() || "selected microphone";
-        recordingMicLabelRef.current = trackLabel;
-        setStatus(`Listening through ${trackLabel}. Speak now; the level bar should move. Press again to transcribe.`);
-        setPermissionState("ready");
-        void refreshDevices(false);
-        chunksRef.current = [];
-
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data.size > 0) chunksRef.current.push(e.data);
-        };
-
-        mediaRecorder.onstop = async () => {
-          // Stop all tracks to release mic
-          stopInputMeter();
-          stream.getTracks().forEach((t) => t.stop());
-          activeStreamRef.current = null;
-
-          const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-          const durationMs = recordingStartedAtRef.current ? Date.now() - recordingStartedAtRef.current : 0;
-          recordingStartedAtRef.current = null;
-          const peakLevel = peakInputLevelRef.current;
-          peakInputLevelRef.current = 0;
-
-          if (blob.size < MIN_RECORDED_AUDIO_BYTES || peakLevel < MIN_USABLE_INPUT_LEVEL) {
-            setStatus(
-              `Recording stopped, but Diana did not hear enough from ${recordingMicLabelRef.current}. Run Check mic, raise the Windows input level, or choose another mic.`,
-            );
-            chunksRef.current = [];
-            return;
-          }
-
-          setTranscribing(true);
-          setStatus(`Captured ${formatDuration(durationMs)} of audio from ${recordingMicLabelRef.current}. Transcribing now.`);
-          try {
-            // Upload to Storage
-            const formData = new FormData();
-            formData.append("audio", new File([blob], "voice.webm", { type: "audio/webm" }));
-            const uploadResult = await uploadVoiceBlob(formData);
-
-            if (!uploadResult.ok) {
-              console.error("Voice upload error:", uploadResult.error);
-              setStatus(uploadResult.error);
-              setTranscribing(false);
-              return;
-            }
-
-            // Call transcribe-voice Edge Function
-            const supabase = createClient();
-            const { data, error } = await supabase.functions.invoke("transcribe-voice", {
-              body: { audioStorageKey: uploadResult.storageKey, bucket: "note-audio" },
-            });
-
-            if (error || !data?.text) {
-              console.error("Transcription error:", error);
-              setStatus("Diana could not transcribe that recording. The typed fallback still works.");
-            } else if (onTranscript) {
-              onTranscript(data.text as string);
-              setStatus("Transcription added to the note.");
-            }
-          } catch (err) {
-            console.error("Whisper transcription failed:", err);
-            setStatus("Transcription could not finish. The recording was stopped safely.");
-          } finally {
-            setTranscribing(false);
-          }
-        };
-
-        mediaRecorder.start();
-        mediaRecorderRef.current = mediaRecorder;
-        setRecording(true);
-      } catch (err) {
-        console.error("getUserMedia failed:", err);
-        setPermissionState("blocked");
-        setStatus("Microphone access did not start. Check Windows input privacy or choose another mic.");
-      }
+      await startOpenAIRecording();
     }
+  }
+
+  async function startOpenAIRecording() {
+    if (recording || transcribing || checkingMic) return;
+    stopWakePhrase();
+
+    try {
+      const audio: MediaTrackConstraints | boolean = selectedDeviceId
+        ? { deviceId: { exact: selectedDeviceId } }
+        : true;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio });
+      const mediaRecorder = new MediaRecorder(stream);
+      activeStreamRef.current = stream;
+      peakInputLevelRef.current = 0;
+      recordingStartedAtRef.current = Date.now();
+      startInputMeter(stream);
+      const trackLabel = stream.getAudioTracks()[0]?.label || selectedMicLabel() || "selected microphone";
+      recordingMicLabelRef.current = trackLabel;
+      setRecordingMicLabel(trackLabel);
+      setStatus(`Recording through ${trackLabel}. Speak now, then press Stop and transcribe.`);
+      setPermissionState("ready");
+      void refreshDevices(false);
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        stopInputMeter();
+        stream.getTracks().forEach((t) => t.stop());
+        activeStreamRef.current = null;
+
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const durationMs = recordingStartedAtRef.current ? Date.now() - recordingStartedAtRef.current : 0;
+        recordingStartedAtRef.current = null;
+        const peakLevel = peakInputLevelRef.current;
+        peakInputLevelRef.current = 0;
+
+        if (blob.size < MIN_RECORDED_AUDIO_BYTES || peakLevel < MIN_USABLE_INPUT_LEVEL) {
+          setStatus(
+            `Recording stopped, but Diana did not hear enough from ${recordingMicLabelRef.current}. Run Check mic, raise the Windows input level, or choose another mic.`,
+          );
+          chunksRef.current = [];
+          return;
+        }
+
+        setTranscribing(true);
+        setStatus(`Captured ${formatDuration(durationMs)} of audio from ${recordingMicLabelRef.current}. Transcribing now.`);
+        try {
+          const formData = new FormData();
+          formData.append("audio", new File([blob], "voice.webm", { type: "audio/webm" }));
+          const result = await transcribeVoiceBlob(formData);
+
+          if (!result.ok) {
+            console.error("Voice transcription unavailable:", result.error);
+            setStatus(result.error);
+          } else if (onTranscript) {
+            onTranscript(result.text);
+            setStatus("Transcription added to the note.");
+          }
+        } catch (err) {
+          console.error("Voice transcription could not finish:", err);
+          setStatus("Transcription could not finish. The recording was stopped safely.");
+        } finally {
+          chunksRef.current = [];
+          setTranscribing(false);
+        }
+      };
+
+      mediaRecorder.start();
+      mediaRecorderRef.current = mediaRecorder;
+      setRecording(true);
+    } catch (err) {
+      console.error("getUserMedia unavailable:", err);
+      setPermissionState("blocked");
+      setStatus("Microphone access did not start. Check Windows input privacy or choose another mic.");
+    }
+  }
+
+  function stopOpenAIRecording() {
+    mediaRecorderRef.current?.stop();
+    setRecording(false);
+    setStatus(`Stopping ${recordingMicLabelRef.current}. Diana will transcribe next.`);
+  }
+
+  async function toggleWakePhrase() {
+    if (wakeListening) {
+      stopWakePhrase("Hey Diana standby stopped.");
+      return;
+    }
+
+    const SR = getSpeechRecognitionClass();
+    if (!SR) {
+      setStatus("Hey Diana standby is not available in this desktop shell yet. Use Start recording.");
+      return;
+    }
+
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setStatus("This app cannot access microphone input here.");
+      return;
+    }
+
+    stopInputMeter();
+    peakInputLevelRef.current = 0;
+
+    try {
+      const audio: MediaTrackConstraints | boolean = selectedDeviceId
+        ? { deviceId: { exact: selectedDeviceId } }
+        : true;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio });
+      activeStreamRef.current = stream;
+      startInputMeter(stream);
+
+      const rec = new SR();
+      rec.lang = speechLang;
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = (event) => {
+        let phrase = "";
+        for (let i = 0; i < event.results.length; i++) {
+          phrase += `${event.results[i][0].transcript} `;
+        }
+        if (containsWakePhrase(phrase)) {
+          stopWakePhrase("Heard Hey Diana. Recording now.");
+          void startOpenAIRecording();
+        }
+      };
+      rec.onerror = () => stopWakePhrase("Hey Diana standby stopped. Use Start recording.");
+      rec.onend = () => {
+        if (wakeListeningRef.current) stopWakePhrase("Hey Diana standby stopped. Use Start recording.");
+      };
+      wakeRecogRef.current = rec;
+      wakeListeningRef.current = true;
+      setWakeListening(true);
+      setPermissionState("ready");
+      setStatus('Hey Diana standby is on. Say "Hey Diana" to start recording.');
+      rec.start();
+    } catch (error) {
+      console.error("Hey Diana standby unavailable:", error);
+      setPermissionState("blocked");
+      setStatus("Hey Diana standby could not start. Check Windows input privacy or use Start recording.");
+    }
+  }
+
+  function stopWakePhrase(nextStatus?: string) {
+    wakeListeningRef.current = false;
+    setWakeListening(false);
+    wakeRecogRef.current?.stop();
+    wakeRecogRef.current = null;
+    stopInputMeter();
+    if (nextStatus) setStatus(nextStatus);
   }
 
   async function toggleBrowser() {
@@ -391,8 +470,18 @@ export function VoiceTextarea(
   const buttonLabel = transcribing
     ? "Transcribing\u2026"
     : recording
-    ? "Stop dictation"
-    : "Start dictation";
+    ? "Stop and transcribe"
+    : "Start recording";
+
+  const voicePhaseLabel = transcribing
+    ? "Transcribing"
+    : recording
+    ? "Recording"
+    : checkingMic
+    ? "Checking mic"
+    : wakeListening
+    ? "Wake standby"
+    : "Ready";
 
   return (
     <div className="space-y-3">
@@ -441,9 +530,65 @@ export function VoiceTextarea(
               style={{ width: `${Math.round(inputLevel * 100)}%` }}
             />
           </div>
+          <div
+            className={`mt-3 rounded-2xl border p-3 ${
+              recording || wakeListening
+                ? "border-brand/40 bg-brand/10"
+                : transcribing
+                ? "border-subject-science/40 bg-subject-science/10"
+                : "border-border bg-surface-raised"
+            }`}
+            aria-live="polite"
+          >
+            <div className="flex items-center gap-2">
+              <span
+                className={`flex size-3 rounded-full ${
+                  recording || wakeListening ? "animate-pulse bg-brand" : transcribing ? "bg-subject-science" : "bg-muted"
+                }`}
+              />
+              <span className="text-sm font-semibold">{voicePhaseLabel}</span>
+            </div>
+            <p className="mt-1 text-xs text-muted">
+              {recording
+                ? `Diana is recording ${recordingMicLabel}.`
+                : wakeListening
+                ? 'Say "Hey Diana" to start a recording.'
+                : transcribing
+                ? "Diana is turning the recording into text."
+                : "Use Start recording for notes, or Check mic to test input."}
+            </p>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={toggle}
+              disabled={transcribing || checkingMic || wakeListening}
+              className={`touch-target inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${
+                recording
+                  ? "border border-brand bg-brand text-white"
+                  : "border border-brand/30 bg-brand/10 text-brand-strong hover:bg-brand/15"
+              }`}
+            >
+              {recording ? <MicOff size={15} /> : <Mic size={15} />}
+              {recording ? "Stop and transcribe" : "Start recording"}
+            </button>
+            {enableWakePhrase && (
+              <button
+                type="button"
+                onClick={() => void toggleWakePhrase()}
+                disabled={recording || transcribing || checkingMic}
+                className="touch-target inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm font-semibold text-fg hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {wakeSupported ? <Radio size={15} /> : <AudioLines size={15} />}
+                {wakeListening ? "Stop Hey Diana" : "Hey Diana standby"}
+              </button>
+            )}
+          </div>
           <p className="mt-2 text-xs text-muted">
             {checkingMic
               ? "Speak while this test is running. The bar should move if Diana can hear that input."
+              : wakeListening
+              ? 'Wake standby is visibly on and waiting for "Hey Diana."'
               : provider === "browser"
               ? "Browser dictation uses the system default microphone. Change the default input in Windows settings if needed."
               : "Recorded transcription uses the selected microphone when access is allowed."}
@@ -458,11 +603,11 @@ export function VoiceTextarea(
 
       <div className="relative">
         <textarea {...rest} className={`${rest.className ?? ""} ${supported ? "pr-12" : ""}`} />
-      {supported && (
+      {supported && !showDeviceStatus && (
         <button
           type="button"
           onClick={toggle}
-          disabled={transcribing || checkingMic}
+          disabled={transcribing || checkingMic || wakeListening}
           aria-label={buttonLabel}
           className={`touch-target absolute right-2 top-2 inline-flex size-9 items-center justify-center rounded-xl border ${
             recording || transcribing
@@ -476,6 +621,19 @@ export function VoiceTextarea(
       </div>
     </div>
   );
+}
+
+function getSpeechRecognitionClass() {
+  if (typeof window === "undefined") return null;
+  return (
+    (window as unknown as { SpeechRecognition?: new () => SpeechRecognitionInstance }).SpeechRecognition ||
+    (window as unknown as { webkitSpeechRecognition?: new () => SpeechRecognitionInstance }).webkitSpeechRecognition ||
+    null
+  );
+}
+
+function containsWakePhrase(value: string) {
+  return /\b(hey|hi|okay|ok)\s+diana\b/i.test(value);
 }
 
 function delay(ms: number) {

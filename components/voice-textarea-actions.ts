@@ -25,3 +25,38 @@ export async function uploadVoiceBlob(
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
 }
+
+export async function transcribeVoiceBlob(
+  formData: FormData,
+): Promise<{ ok: true; text: string; storageKey: string } | { ok: false; error: string; storageKey?: string }> {
+  const uploadResult = await uploadVoiceBlob(formData);
+  if (!uploadResult.ok) return uploadResult;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.functions.invoke("transcribe-voice", {
+    body: { audioStorageKey: uploadResult.storageKey, bucket: "note-audio" },
+  });
+
+  if (error) {
+    console.error("Voice transcription function unavailable:", error);
+    return {
+      ok: false,
+      storageKey: uploadResult.storageKey,
+      error: "Diana recorded the audio, but transcription is not connected right now. Check the transcribe-voice Edge Function deployment and secrets.",
+    };
+  }
+
+  if (!data?.ok || typeof data.text !== "string" || !data.text.trim()) {
+    return {
+      ok: false,
+      storageKey: uploadResult.storageKey,
+      error: "Diana recorded the audio, but no transcript came back. Try again or use the typed fallback.",
+    };
+  }
+
+  return {
+    ok: true,
+    storageKey: uploadResult.storageKey,
+    text: data.text.trim(),
+  };
+}

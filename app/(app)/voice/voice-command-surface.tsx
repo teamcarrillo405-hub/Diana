@@ -30,6 +30,7 @@ export function VoiceCommandSurface() {
             <h1 className="mt-2 text-3xl font-bold leading-tight">Talk it through</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
               Say what feels stuck. Diana turns it into one student-owned academic move and keeps the source as your voice note.
+              Use Start recording, or turn on Hey Diana standby when the desktop shell supports wake phrases.
             </p>
           </div>
           <FutureModeToggle />
@@ -44,12 +45,13 @@ export function VoiceCommandSurface() {
             </span>
             <div>
               <h2 className="text-base font-semibold">Voice capture</h2>
-              <p className="text-sm text-muted">Choose a mic, check the level, then stop to transcribe. Text fallback always works.</p>
+              <p className="text-sm text-muted">Choose a mic, check the level, then use the visible recording controls. Text fallback always works.</p>
             </div>
           </div>
           <VoiceTextarea
             provider="openai"
             showDeviceStatus
+            enableWakePhrase
             value={transcript}
             onChange={(event) => setTranscript(event.target.value)}
             onTranscript={addTranscript}
