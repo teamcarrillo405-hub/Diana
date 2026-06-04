@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell } = require("electron");
+const { app, BrowserWindow, session, shell } = require("electron");
 const path = require("node:path");
 
 const DEFAULT_APP_URL = "http://localhost:3000";
@@ -56,6 +56,27 @@ function createWindow() {
   });
 
   void mainWindow.loadURL(appUrl);
+}
+
+function configureMediaPermissions() {
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details = {}) => {
+    if (permission !== "media") {
+      callback(false);
+      return;
+    }
+
+    const requestingUrl = details.requestingUrl || webContents.getURL();
+    const mediaTypes = details.mediaTypes || (details.mediaType ? [details.mediaType] : []);
+    const audioRequested = mediaTypes.length === 0 || mediaTypes.includes("audio");
+    callback(Boolean(audioRequested && isAllowedDianaUrl(requestingUrl)));
+  });
+
+  session.defaultSession.setPermissionCheckHandler((webContents, permission, requestingOrigin, details = {}) => {
+    if (permission !== "media") return false;
+    const mediaTypes = details.mediaTypes || (details.mediaType ? [details.mediaType] : []);
+    const audioRequested = mediaTypes.length === 0 || mediaTypes.includes("audio");
+    return Boolean(audioRequested && isAllowedDianaUrl(requestingOrigin || webContents.getURL()));
+  });
 }
 
 function renderLaunchError(errorCode, errorDescription, validatedUrl) {
@@ -135,6 +156,7 @@ function escapeHtml(value) {
 }
 
 app.whenReady().then(() => {
+  configureMediaPermissions();
   createWindow();
 
   app.on("activate", () => {

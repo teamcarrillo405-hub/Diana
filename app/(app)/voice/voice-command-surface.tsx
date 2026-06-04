@@ -44,10 +44,12 @@ export function VoiceCommandSurface() {
             </span>
             <div>
               <h2 className="text-base font-semibold">Voice capture</h2>
-              <p className="text-sm text-muted">Browser mic when available, text fallback always available.</p>
+              <p className="text-sm text-muted">Choose a mic, check the level, then stop to transcribe. Text fallback always works.</p>
             </div>
           </div>
           <VoiceTextarea
+            provider="openai"
+            showDeviceStatus
             value={transcript}
             onChange={(event) => setTranscript(event.target.value)}
             onTranscript={addTranscript}
