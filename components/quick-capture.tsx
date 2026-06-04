@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { MessageSquarePlus, X } from "lucide-react";
 import { saveQuickCapture } from "./quick-capture-actions";
+import { VoiceTextarea } from "@/components/voice-textarea";
 
 export function QuickCapture() {
   const [open, setOpen] = useState(false);
@@ -28,6 +29,10 @@ export function QuickCapture() {
     });
   }
 
+  function addTranscript(chunk: string) {
+    setRaw((current) => [current.trim(), chunk.trim()].filter(Boolean).join(" "));
+  }
+
   return (
     <>
       <button
@@ -51,12 +56,13 @@ export function QuickCapture() {
                 <X size={16} />
               </button>
             </div>
-            <textarea
+            <VoiceTextarea
               value={raw}
               onChange={(event) => setRaw(event.target.value)}
+              onTranscript={addTranscript}
               rows={4}
               className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-              placeholder="Dump the thought here, then go back to the task."
+              placeholder="Type it or use the mic. Diana can turn it into a next move."
               autoFocus
             />
             {status && <p className="text-sm text-muted">{status}</p>}

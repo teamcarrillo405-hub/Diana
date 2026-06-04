@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Lexend, Atkinson_Hyperlegible_Next } from "next/font/google";
 import "@fontsource/opendyslexic"; // weight 400 only — Pitfall 7 guard (no all.css)
 import "./globals.css";
+import { FutureModeProvider } from "@/components/future-mode-provider";
 
 // GAP-01: Lexend is referenced in .dyslexia-font CSS but must be explicitly
 // loaded by next/font/google to actually download. The CSS variable is
@@ -54,11 +55,14 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('diana_theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('diana_theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}var m=localStorage.getItem('diana_experience_mode');document.documentElement.dataset.experienceMode=m==='future'?'future':'calm';}catch(e){}})();`,
           }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <FutureModeProvider />
+        {children}
+      </body>
     </html>
   );
 }

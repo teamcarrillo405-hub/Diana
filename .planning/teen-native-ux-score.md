@@ -1,10 +1,18 @@
 # Diana Teen-Native UX Scorecard
 
-Generated: 2026-06-04T06:36:15.858Z
+Generated: 2026-06-04T16:29:24.642Z
 Repo score: 10/10
 Repo-verifiable 10/10: yes
 Market 10/10 claim allowed: no
 Market gate: Market 10/10 stays gated until 4 of 5 teens prefer Diana on stuck tasks and zero students confuse help with final work.
+
+Visual confidence score: 10/10
+
+| Visual Metric | Starting Confidence | Repo Score | Missing | 10/10 Definition |
+|---|---:|---:|---|---|
+| Actual teen would-love-it confidence | 8.2/10 | 10/10 | none | Repo shows a teen-native identity, optional future voice mode, polished auth entry, and clean responsive proof; live love still requires teen validation. |
+| Public landing first impression | 8.7/10 | 10/10 | none | The first viewport sells Diana as a high-school command center with a product preview, voice/future option, and one obvious start path. |
+| Login/signup visual appeal | 7.5/10 | 10/10 | none | Auth pages feel like Diana: command-center framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy. |
 
 | Section | Repo Score | Missing | Diana Target |
 |---|---:|---|---|

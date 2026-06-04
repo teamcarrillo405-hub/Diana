@@ -1,4 +1,4 @@
-import { Gauge, LockKeyhole, MessageCircle, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
+import { Gauge, LockKeyhole, MessageCircle, Mic2, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
 import teenUxScorecardJson from "@/.planning/teen-native-ux-score.json";
 import {
   TEEN_NATIVE_UX_SECTIONS,
@@ -44,6 +44,26 @@ export function TeenNativeUxEvidencePanel() {
       </div>
 
       <div className="grid gap-3 lg:grid-cols-2">
+        {scorecard.visualConfidence.map((metric) => (
+          <article key={metric.id} className="future-card min-w-0 rounded-xl border border-brand/20 bg-brand/5 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand">
+                  <Mic2 size={16} />
+                </span>
+                <div className="min-w-0">
+                  <h3 className="truncate text-sm font-semibold">{metric.label}</h3>
+                  <p className="text-xs text-muted">Started at {metric.baselineScore}/10</p>
+                </div>
+              </div>
+              <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-muted">
+                {metric.score}/10
+              </span>
+            </div>
+            <p className="mt-3 text-sm text-muted">{metric.tenDefinition}</p>
+          </article>
+        ))}
+
         {scorecard.sections.map((section) => {
           const Icon = iconFor[section.id];
           const source = TEEN_NATIVE_UX_SECTIONS.find((item) => item.id === section.id);

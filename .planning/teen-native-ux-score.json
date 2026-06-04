@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-04T06:36:15.858Z",
+  "generatedAt": "2026-06-04T16:29:24.642Z",
   "sections": [
     {
       "id": "first_screen_clarity",
@@ -56,6 +56,39 @@
       "competitorEdge": "Gemini and Khanmigo keep learning help distinct from simply producing answers."
     }
   ],
+  "visualConfidence": [
+    {
+      "id": "actual_teen_love_confidence",
+      "label": "Actual teen would-love-it confidence",
+      "baselineScore": 8.2,
+      "targetScore": 10,
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "tenDefinition": "Repo shows a teen-native identity, optional future voice mode, polished auth entry, and clean responsive proof; live love still requires teen validation."
+    },
+    {
+      "id": "public_landing_first_impression",
+      "label": "Public landing first impression",
+      "baselineScore": 8.7,
+      "targetScore": 10,
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "tenDefinition": "The first viewport sells Diana as a high-school command center with a product preview, voice/future option, and one obvious start path."
+    },
+    {
+      "id": "login_signup_visual_appeal",
+      "label": "Login/signup visual appeal",
+      "baselineScore": 7.5,
+      "targetScore": 10,
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
+      "tenDefinition": "Auth pages feel like Diana: command-center framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy."
+    }
+  ],
+  "visualConfidenceScore": 10,
   "repoScore": 10,
   "repoTen": true,
   "marketTenClaimAllowed": false,

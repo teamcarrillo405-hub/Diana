@@ -2,7 +2,7 @@ import { ArrowRight, BookOpen, CheckCircle2, Clock3, PenLine, Sparkles } from "l
 
 export function ProductPreviewCard() {
   return (
-    <div className="command-gradient w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-brand/20 p-4 shadow-sm sm:p-5">
+    <div className="command-gradient future-card w-full min-w-0 max-w-full overflow-hidden rounded-3xl border border-brand/20 p-4 shadow-sm sm:p-5">
       <div className="min-w-0 max-w-full rounded-2xl border border-white/60 bg-surface-raised/90 p-4 shadow-sm backdrop-blur dark:border-border sm:p-5">
         <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
           <div className="min-w-0 flex-1">

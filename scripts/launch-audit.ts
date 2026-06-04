@@ -17,6 +17,9 @@ const REQUIRED_FILES = [
   "supabase/migrations/0034_launch_hardening_retention.sql",
   "app/(app)/study-groups/page.tsx",
   "app/(app)/export/page.tsx",
+  "electron/main.cjs",
+  "electron/preload.cjs",
+  "scripts/electron-dev.mjs",
   "public/sw.js",
   ...REQUIRED_LAUNCH_DOCS,
 ] as const;

@@ -15,6 +15,7 @@ import {
   Home,
   Images,
   Menu,
+  Mic2,
   Settings as Cog,
   ShieldCheck,
   Sparkles,
@@ -38,6 +39,7 @@ const PRIMARY_MOBILE_ITEMS = [
 
 const SECONDARY_ITEMS = [
   { href: "/portfolio", label: "Portfolio", icon: Images },
+  { href: "/voice", label: "Voice", icon: Mic2 },
   { href: "/wellness", label: "Wellness", icon: HeartPulse },
   { href: "/ap", label: "AP", icon: GraduationCap },
   { href: "/study-groups", label: "Groups", icon: UsersRound },

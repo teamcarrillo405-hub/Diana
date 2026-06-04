@@ -19,11 +19,19 @@ export type TeenNativeUxSection = {
 
 export type TeenNativeUxEvidence = {
   landingNextFiveMinutes: boolean;
+  landingProductIdentity: boolean;
+  landingFutureModeOption: boolean;
   dashboardRightNowCard: boolean;
   assignmentNextStepEntry: boolean;
   priorityMobileNav: boolean;
   responsiveActionRows: boolean;
   responsiveQaClean: boolean;
+  authCommandCenterShell: boolean;
+  authVisualSignals: boolean;
+  authFutureModeToggle: boolean;
+  futureModeProvider: boolean;
+  voiceCommandSurface: boolean;
+  globalVoiceCaptureMic: boolean;
   teenVoicePlan: boolean;
   noVisiblePressureCopy: boolean;
   studentControlLanguage: boolean;
@@ -53,11 +61,39 @@ export type TeenNativeUxSectionScore = {
 export type TeenNativeUxScorecard = {
   generatedAt: string;
   sections: TeenNativeUxSectionScore[];
+  visualConfidence: TeenVisualConfidenceMetricScore[];
+  visualConfidenceScore: number;
   repoScore: number;
   repoTen: boolean;
   marketTenClaimAllowed: boolean;
   marketGate: string;
   nextBacklog: string[];
+};
+
+export type TeenVisualConfidenceMetricId =
+  | "actual_teen_love_confidence"
+  | "public_landing_first_impression"
+  | "login_signup_visual_appeal";
+
+export type TeenVisualConfidenceMetric = {
+  id: TeenVisualConfidenceMetricId;
+  label: string;
+  baselineScore: number;
+  targetScore: number;
+  currentConfidence: string;
+  tenDefinition: string;
+  repoCriteria: Array<keyof TeenNativeUxEvidence>;
+};
+
+export type TeenVisualConfidenceMetricScore = {
+  id: TeenVisualConfidenceMetricId;
+  label: string;
+  baselineScore: number;
+  targetScore: number;
+  score: number;
+  repoComplete: boolean;
+  missing: string[];
+  tenDefinition: string;
 };
 
 export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
@@ -123,18 +159,83 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
   },
 ];
 
+export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
+  {
+    id: "actual_teen_love_confidence",
+    label: "Actual teen would-love-it confidence",
+    baselineScore: 8.2,
+    targetScore: 10,
+    currentConfidence: "8.0-8.3 before this pass: clear and useful, but not yet iconic or voice-forward.",
+    tenDefinition:
+      "Repo shows a teen-native identity, optional future voice mode, polished auth entry, and clean responsive proof; live love still requires teen validation.",
+    repoCriteria: [
+      "landingProductIdentity",
+      "landingFutureModeOption",
+      "authCommandCenterShell",
+      "authVisualSignals",
+      "futureModeProvider",
+      "voiceCommandSurface",
+      "globalVoiceCaptureMic",
+      "responsiveQaClean",
+    ],
+  },
+  {
+    id: "public_landing_first_impression",
+    label: "Public landing first impression",
+    baselineScore: 8.7,
+    targetScore: 10,
+    currentConfidence: "8.7 before this pass: strong clarity, but needed a more memorable product/voice moment.",
+    tenDefinition:
+      "The first viewport sells Diana as a high-school command center with a product preview, voice/future option, and one obvious start path.",
+    repoCriteria: [
+      "landingNextFiveMinutes",
+      "landingProductIdentity",
+      "landingFutureModeOption",
+      "futureModeProvider",
+      "responsiveQaClean",
+    ],
+  },
+  {
+    id: "login_signup_visual_appeal",
+    label: "Login/signup visual appeal",
+    baselineScore: 7.5,
+    targetScore: 10,
+    currentConfidence: "7.5 before this pass: usable and calm, but too generic for a teen-native product entry.",
+    tenDefinition:
+      "Auth pages feel like Diana: command-center framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy.",
+    repoCriteria: [
+      "authCommandCenterShell",
+      "authVisualSignals",
+      "authFutureModeToggle",
+      "futureModeProvider",
+      "responsiveQaClean",
+    ],
+  },
+];
+
 export function scoreTeenNativeUx(
   evidence: TeenNativeUxEvidence,
   generatedAt = new Date().toISOString(),
 ): TeenNativeUxScorecard {
   const sections = TEEN_NATIVE_UX_SECTIONS.map((section) => scoreSection(section, evidence));
-  const repoScore = round(sections.reduce((sum, section) => sum + section.score, 0) / sections.length);
-  const repoTen = sections.every((section) => section.score === 10);
-  const nextBacklog = sections.flatMap((section) => section.missing);
+  const visualConfidence = TEEN_VISUAL_CONFIDENCE_METRICS.map((metric) => scoreVisualMetric(metric, evidence));
+  const sectionScore = sections.reduce((sum, section) => sum + section.score, 0) / sections.length;
+  const visualConfidenceScore = round(
+    visualConfidence.reduce((sum, metric) => sum + metric.score, 0) / visualConfidence.length,
+  );
+  const repoScore = round((sectionScore + visualConfidenceScore) / 2);
+  const repoTen = sections.every((section) => section.score === 10) &&
+    visualConfidence.every((metric) => metric.score === 10);
+  const nextBacklog = [
+    ...sections.flatMap((section) => section.missing),
+    ...visualConfidence.flatMap((metric) => metric.missing),
+  ];
 
   return {
     generatedAt,
     sections,
+    visualConfidence,
+    visualConfidenceScore,
     repoScore,
     repoTen,
     marketTenClaimAllowed: repoTen && evidence.liveTeenValidationPassed,
@@ -155,6 +256,14 @@ export function teenNativeUxScorecardToMarkdown(scorecard: TeenNativeUxScorecard
     `Market 10/10 claim allowed: ${scorecard.marketTenClaimAllowed ? "yes" : "no"}`,
     `Market gate: ${scorecard.marketGate}`,
     "",
+    `Visual confidence score: ${scorecard.visualConfidenceScore}/10`,
+    "",
+    "| Visual Metric | Starting Confidence | Repo Score | Missing | 10/10 Definition |",
+    "|---|---:|---:|---|---|",
+    ...scorecard.visualConfidence.map((metric) =>
+      `| ${metric.label} | ${metric.baselineScore}/10 | ${metric.score}/10 | ${metric.missing.join("; ") || "none"} | ${metric.tenDefinition} |`,
+    ),
+    "",
     "| Section | Repo Score | Missing | Diana Target |",
     "|---|---:|---|---|",
     ...scorecard.sections.map((section) =>
@@ -168,6 +277,28 @@ export function teenNativeUxScorecardToMarkdown(scorecard: TeenNativeUxScorecard
     "",
   ];
   return `${lines.join("\n")}\n`;
+}
+
+function scoreVisualMetric(
+  metric: TeenVisualConfidenceMetric,
+  evidence: TeenNativeUxEvidence,
+): TeenVisualConfidenceMetricScore {
+  const passed = metric.repoCriteria.filter((criterion) => evidence[criterion]).length;
+  const score = round((passed / metric.repoCriteria.length) * 10);
+  const missing = metric.repoCriteria
+    .filter((criterion) => !evidence[criterion])
+    .map((criterion) => missingCopy[criterion] ?? `Add proof for ${String(criterion)}.`);
+
+  return {
+    id: metric.id,
+    label: metric.label,
+    baselineScore: metric.baselineScore,
+    targetScore: metric.targetScore,
+    score,
+    repoComplete: score === 10,
+    missing,
+    tenDefinition: metric.tenDefinition,
+  };
 }
 
 function scoreSection(section: TeenNativeUxSection, evidence: TeenNativeUxEvidence): TeenNativeUxSectionScore {
@@ -190,11 +321,19 @@ function scoreSection(section: TeenNativeUxSection, evidence: TeenNativeUxEviden
 
 const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
   landingNextFiveMinutes: "Make the landing page lead with the next 5 minutes ritual.",
+  landingProductIdentity: "Make the landing page show a memorable Diana product moment above the fold.",
+  landingFutureModeOption: "Give public visitors an optional Future Mode / voice-forward path.",
   dashboardRightNowCard: "Make the dashboard Right now card the first useful surface.",
   assignmentNextStepEntry: "Add a next-step entry point on assignment detail.",
   priorityMobileNav: "Keep mobile navigation to Focus, Assignments, Notes, Study, More.",
   responsiveActionRows: "Use stacked full-width action rows on small screens.",
   responsiveQaClean: "Run clean responsive QA with no horizontal overflow or server errors.",
+  authCommandCenterShell: "Make login and signup feel like Diana's command center, not generic forms.",
+  authVisualSignals: "Show voice, source, privacy, and student-control cues on auth pages.",
+  authFutureModeToggle: "Expose Future Mode from login and signup.",
+  futureModeProvider: "Persist an optional Future Mode visual setting across the app.",
+  voiceCommandSurface: "Replace the voice placeholder with a real voice command surface.",
+  globalVoiceCaptureMic: "Make quick capture support speech input where the browser allows it.",
   teenVoicePlan: "Document teen-native voice and validation rules.",
   noVisiblePressureCopy: "Keep visible copy free of pressure, shame, and streak language.",
   studentControlLanguage: "Show that the student owns privacy, sharing, and final work.",

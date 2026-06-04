@@ -1,0 +1,602 @@
+[
+    {
+        "route":  "/",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-landing.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/login",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-login.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-signup.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-proof.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-dashboard.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-assignments.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-notes.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-flashcards.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-settings-ai-history.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "375x812",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\375x812-teacher-share.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-landing.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/login",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-login.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-signup.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-proof.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-dashboard.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-assignments.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-notes.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-flashcards.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-settings-ai-history.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "390x844",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\390x844-teacher-share.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-landing.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/login",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-login.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-signup.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-proof.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-dashboard.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-assignments.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-notes.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-flashcards.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-settings-ai-history.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "768x1024",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\768x1024-teacher-share.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-landing.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/login",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-login.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-signup.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-proof.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-dashboard.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-assignments.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-notes.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-flashcards.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-settings-ai-history.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "1024x768",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1024x768-teacher-share.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-landing.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/login",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-login.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/signup",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-signup.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/proof",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-proof.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/dashboard",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-dashboard.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/assignments",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-assignments.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/notes",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-notes.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/flashcards",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-flashcards.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/settings/ai-history",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-settings-ai-history.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    },
+    {
+        "route":  "/teacher-share",
+        "viewport":  "1440x1000",
+        "screenshot":  "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\teen-visual-edge-cli-2026-06-04\\1440x1000-teacher-share.png",
+        "hasHorizontalOverflow":  false,
+        "statusText":  "ok",
+        "bannedVisible":  [
+
+                          ],
+        "captureMethod":  "edge-cli-screenshot",
+        "overflowNote":  "No JS layout measurement in Edge CLI fallback; key public/auth mobile screenshots visually inspected."
+    }
+]

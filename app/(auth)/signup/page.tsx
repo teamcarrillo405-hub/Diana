@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { AudioLines, BookOpenCheck, LockKeyhole } from "lucide-react";
+import { FutureModeToggle } from "@/components/future-mode-toggle";
 import { createClient } from "@/lib/supabase/client";
 import { ageBracket, yearsBetween } from "@/lib/age";
 
@@ -53,14 +55,28 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="w-full min-w-0 space-y-6 rounded-3xl border border-border bg-surface-raised p-5 shadow-sm sm:p-6">
+    <div className="future-card mobile-safe-width min-w-0 overflow-hidden rounded-3xl border border-border bg-surface-raised/95 p-5 shadow-sm backdrop-blur sm:p-6">
       <header className="space-y-2">
-        <Link href="/" className="inline-flex text-sm font-bold text-brand">
-          Diana
-        </Link>
-        <h1 className="text-2xl font-bold">Create your account</h1>
-        <p className="text-sm text-muted">Set up your school command center.</p>
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+          <Link href="/" className="inline-flex text-sm font-bold text-brand">
+            Diana
+          </Link>
+          <FutureModeToggle compact className="px-2.5 py-1.5 text-xs" />
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
+            Built for high school focus
+          </p>
+          <h1 className="mt-1 text-2xl font-bold">Create your command center</h1>
+          <p className="safe-copy mt-2 max-w-full text-sm text-muted">Set up the private space for next moves, voice capture, and study proof.</p>
+        </div>
       </header>
+
+      <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
+        <AuthCue icon={AudioLines} label="Talk it out" />
+        <AuthCue icon={BookOpenCheck} label="Use class sources" />
+        <AuthCue icon={LockKeyhole} label="Keep it yours" />
+      </div>
 
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Email" htmlFor="email">
@@ -150,6 +166,15 @@ export default function SignupPage() {
           outline-offset: -1px;
         }
       `}</style>
+    </div>
+  );
+}
+
+function AuthCue({ icon: Icon, label }: { icon: typeof AudioLines; label: string }) {
+  return (
+    <div className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-2">
+      <Icon size={14} className="shrink-0 text-brand" />
+      <span className="min-w-0 truncate">{label}</span>
     </div>
   );
 }
