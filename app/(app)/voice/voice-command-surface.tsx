@@ -30,7 +30,6 @@ export function VoiceCommandSurface() {
             <h1 className="mt-2 text-3xl font-bold leading-tight">Talk it through</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
               Say what feels stuck. Diana turns it into one student-owned academic move and keeps the source as your voice note.
-              Use Start recording, or turn on Hey Diana standby for visible short wake checks.
             </p>
           </div>
           <FutureModeToggle />
@@ -51,7 +50,6 @@ export function VoiceCommandSurface() {
           <VoiceTextarea
             provider="openai"
             showDeviceStatus
-            enableWakePhrase
             value={transcript}
             onChange={(event) => setTranscript(event.target.value)}
             onTranscript={addTranscript}

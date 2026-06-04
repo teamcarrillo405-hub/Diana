@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Mic, MicOff, Radio, RefreshCw, SlidersHorizontal } from "lucide-react";
-import { detectWakePhraseBlob, transcribeVoiceBlob } from "@/components/voice-textarea-actions";
+import { Mic, MicOff, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { transcribeVoiceBlob } from "@/components/voice-textarea-actions";
 
 type SpeechRecognitionInstance = {
   lang: string;
@@ -30,7 +30,6 @@ export function VoiceTextarea(
     provider?: "browser" | "openai";
     speechLang?: string;
     showDeviceStatus?: boolean;
-    enableWakePhrase?: boolean;
   },
 ) {
   const {
@@ -38,14 +37,12 @@ export function VoiceTextarea(
     provider = "browser",
     speechLang = "en-US",
     showDeviceStatus = false,
-    enableWakePhrase = false,
     ...rest
   } = props;
   const [recording, setRecording] = useState(false);
   const [supported, setSupported] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
   const [checkingMic, setCheckingMic] = useState(false);
-  const [wakeListening, setWakeListening] = useState(false);
   const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [permissionState, setPermissionState] = useState<"checking" | "ready" | "needs_permission" | "blocked" | "unsupported">("checking");
@@ -55,10 +52,6 @@ export function VoiceTextarea(
 
   // Browser path
   const recogRef = useRef<SpeechRecognitionInstance | null>(null);
-  const wakeListeningRef = useRef(false);
-  const wakeRecorderRef = useRef<MediaRecorder | null>(null);
-  const wakeChunksRef = useRef<Blob[]>([]);
-  const wakeCheckTimerRef = useRef<number | null>(null);
 
   // OpenAI path
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -68,7 +61,6 @@ export function VoiceTextarea(
   const peakInputLevelRef = useRef(0);
   const recordingStartedAtRef = useRef<number | null>(null);
   const recordingMicLabelRef = useRef("selected microphone");
-  const wakeCheckIssueCountRef = useRef(0);
 
   useEffect(() => {
     if (provider === "openai") {
@@ -135,7 +127,6 @@ export function VoiceTextarea(
   }, []);
 
   useEffect(() => () => {
-    stopWakePhrase();
     stopInputMeter();
   }, []);
 
@@ -226,7 +217,6 @@ export function VoiceTextarea(
 
   async function startOpenAIRecording() {
     if (recording || transcribing || checkingMic) return;
-    stopWakePhrase();
 
     try {
       const audio: MediaTrackConstraints | boolean = selectedDeviceId
@@ -305,146 +295,6 @@ export function VoiceTextarea(
     mediaRecorderRef.current?.stop();
     setRecording(false);
     setStatus(`Stopping ${recordingMicLabelRef.current}. Diana will transcribe next.`);
-  }
-
-  async function toggleWakePhrase() {
-    if (wakeListening) {
-      stopWakePhrase("Hey Diana standby stopped.");
-      return;
-    }
-
-    await startWakePhraseStandby();
-  }
-
-  async function startWakePhraseStandby() {
-    if (recording || transcribing || checkingMic) return;
-
-    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-      setStatus("Hey Diana standby needs recorded audio support here. Use Start recording.");
-      return;
-    }
-
-    stopInputMeter();
-    peakInputLevelRef.current = 0;
-    wakeChunksRef.current = [];
-    wakeCheckIssueCountRef.current = 0;
-
-    try {
-      const audio: MediaTrackConstraints | boolean = selectedDeviceId
-        ? { deviceId: { exact: selectedDeviceId } }
-        : true;
-      const stream = await navigator.mediaDevices.getUserMedia({ audio });
-      activeStreamRef.current = stream;
-      startInputMeter(stream);
-      const trackLabel = stream.getAudioTracks()[0]?.label || selectedMicLabel() || "selected microphone";
-      wakeListeningRef.current = true;
-      setWakeListening(true);
-      setPermissionState("ready");
-      setStatus(`Hey Diana standby is on through ${trackLabel}. Say "Hey Diana", then pause.`);
-      startWakeCheckCycle(stream);
-    } catch (error) {
-      console.error("Hey Diana standby unavailable:", error);
-      setPermissionState("blocked");
-      setStatus("Hey Diana standby could not start. Check Windows input privacy or use Start recording.");
-    }
-  }
-
-  function startWakeCheckCycle(stream: MediaStream) {
-    if (!wakeListeningRef.current) return;
-    if (stream.getTracks().every((track) => track.readyState !== "live")) {
-      stopWakePhrase("Hey Diana standby stopped because the microphone stream ended.");
-      return;
-    }
-
-    wakeChunksRef.current = [];
-    peakInputLevelRef.current = 0;
-
-    const recorder = new MediaRecorder(stream);
-    wakeRecorderRef.current = recorder;
-    recorder.ondataavailable = (event) => {
-      if (event.data.size > 0) wakeChunksRef.current.push(event.data);
-    };
-    recorder.onstop = () => {
-      if (wakeRecorderRef.current === recorder) wakeRecorderRef.current = null;
-      void processWakeCheck(stream);
-    };
-    recorder.start();
-    wakeCheckTimerRef.current = window.setTimeout(() => {
-      if (recorder.state !== "inactive") recorder.stop();
-    }, WAKE_CHECK_MS);
-  }
-
-  async function processWakeCheck(stream: MediaStream) {
-    if (!wakeListeningRef.current) return;
-
-    const blob = new Blob(wakeChunksRef.current, { type: "audio/webm" });
-    const peakLevel = peakInputLevelRef.current;
-    wakeChunksRef.current = [];
-    peakInputLevelRef.current = 0;
-
-    if (blob.size < MIN_WAKE_AUDIO_BYTES || peakLevel < MIN_USABLE_INPUT_LEVEL) {
-      setStatus('Hey Diana standby is on. Say "Hey Diana" clearly, then pause.');
-      scheduleWakeCheck(stream);
-      return;
-    }
-
-    setStatus('Checking that clip for "Hey Diana"...');
-    try {
-      const formData = new FormData();
-      formData.append("audio", new File([blob], "wake.webm", { type: "audio/webm" }));
-      const result = await detectWakePhraseBlob(formData);
-      if (!wakeListeningRef.current) return;
-
-      if (!result.ok) {
-        wakeCheckIssueCountRef.current += 1;
-        if (peakLevel >= WAKE_VOICE_START_LEVEL) {
-          stopWakePhrase("Diana heard your wake cue. Recording now.");
-          await startOpenAIRecording();
-          return;
-        }
-        setStatus('Wake standby could not read that clip. Say "Hey Diana", then pause.');
-        scheduleWakeCheck(stream);
-        return;
-      }
-
-      if (result.heard) {
-        wakeCheckIssueCountRef.current = 0;
-        stopWakePhrase("Heard Hey Diana. Recording now.");
-        await startOpenAIRecording();
-        return;
-      }
-
-      wakeCheckIssueCountRef.current = 0;
-      setStatus(result.text
-        ? `Heard "${shortWakeText(result.text)}"; waiting for "Hey Diana".`
-        : 'Hey Diana standby is on. Say "Hey Diana", then pause.');
-      scheduleWakeCheck(stream);
-    } catch (error) {
-      console.error("Hey Diana wake check unavailable:", error);
-      stopWakePhrase("Hey Diana standby could not check the phrase. Use Start recording.");
-    }
-  }
-
-  function scheduleWakeCheck(stream: MediaStream) {
-    if (!wakeListeningRef.current) return;
-    wakeCheckTimerRef.current = window.setTimeout(() => startWakeCheckCycle(stream), WAKE_RESTART_DELAY_MS);
-  }
-
-  function stopWakePhrase(nextStatus?: string) {
-    wakeListeningRef.current = false;
-    setWakeListening(false);
-    if (wakeCheckTimerRef.current !== null) {
-      window.clearTimeout(wakeCheckTimerRef.current);
-      wakeCheckTimerRef.current = null;
-    }
-    if (wakeRecorderRef.current && wakeRecorderRef.current.state !== "inactive") {
-      wakeRecorderRef.current.stop();
-    }
-    wakeRecorderRef.current = null;
-    wakeChunksRef.current = [];
-    wakeCheckIssueCountRef.current = 0;
-    stopInputMeter();
-    if (nextStatus) setStatus(nextStatus);
   }
 
   async function toggleBrowser() {
@@ -548,8 +398,6 @@ export function VoiceTextarea(
     ? "Recording"
     : checkingMic
     ? "Checking mic"
-    : wakeListening
-    ? "Wake standby"
     : "Ready";
 
   return (
@@ -601,7 +449,7 @@ export function VoiceTextarea(
           </div>
           <div
             className={`mt-3 rounded-2xl border p-3 ${
-              recording || wakeListening
+              recording
                 ? "border-brand/40 bg-brand/10"
                 : transcribing
                 ? "border-subject-science/40 bg-subject-science/10"
@@ -612,7 +460,7 @@ export function VoiceTextarea(
             <div className="flex items-center gap-2">
               <span
                 className={`flex size-3 rounded-full ${
-                  recording || wakeListening ? "animate-pulse bg-brand" : transcribing ? "bg-subject-science" : "bg-muted"
+                  recording ? "animate-pulse bg-brand" : transcribing ? "bg-subject-science" : "bg-muted"
                 }`}
               />
               <span className="text-sm font-semibold">{voicePhaseLabel}</span>
@@ -620,18 +468,16 @@ export function VoiceTextarea(
             <p className="mt-1 text-xs text-muted">
               {recording
                 ? `Diana is recording ${recordingMicLabel}.`
-                : wakeListening
-                ? 'Say "Hey Diana" to start a recording.'
                 : transcribing
                 ? "Diana is turning the recording into text."
                 : "Use Start recording for notes, or Check mic to test input."}
             </p>
           </div>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="mt-3 grid gap-2">
             <button
               type="button"
               onClick={toggle}
-              disabled={transcribing || checkingMic || wakeListening}
+              disabled={transcribing || checkingMic}
               className={`touch-target inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold ${
                 recording
                   ? "border border-brand bg-brand text-white"
@@ -641,23 +487,10 @@ export function VoiceTextarea(
               {recording ? <MicOff size={15} /> : <Mic size={15} />}
               {recording ? "Stop and transcribe" : "Start recording"}
             </button>
-            {enableWakePhrase && (
-              <button
-                type="button"
-                onClick={() => void toggleWakePhrase()}
-                disabled={recording || transcribing || checkingMic}
-                className="touch-target inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm font-semibold text-fg hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                <Radio size={15} />
-                {wakeListening ? "Stop Hey Diana" : "Hey Diana standby"}
-              </button>
-            )}
           </div>
           <p className="mt-2 text-xs text-muted">
             {checkingMic
               ? "Speak while this test is running. The bar should move if Diana can hear that input."
-              : wakeListening
-              ? 'Wake standby is visibly on and checking short audio clips for "Hey Diana."'
               : provider === "browser"
               ? "Browser dictation uses the system default microphone. Change the default input in Windows settings if needed."
               : "Recorded transcription uses the selected microphone when access is allowed."}
@@ -676,7 +509,7 @@ export function VoiceTextarea(
         <button
           type="button"
           onClick={toggle}
-          disabled={transcribing || checkingMic || wakeListening}
+          disabled={transcribing || checkingMic}
           aria-label={buttonLabel}
           className={`touch-target absolute right-2 top-2 inline-flex size-9 items-center justify-center rounded-xl border ${
             recording || transcribing
@@ -701,21 +534,12 @@ function getSpeechRecognitionClass() {
   );
 }
 
-function shortWakeText(value: string) {
-  const trimmed = value.trim();
-  return trimmed.length <= 52 ? trimmed : `${trimmed.slice(0, 49)}...`;
-}
-
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 const MIN_USABLE_INPUT_LEVEL = 0.03;
 const MIN_RECORDED_AUDIO_BYTES = 1200;
-const MIN_WAKE_AUDIO_BYTES = 900;
-const WAKE_VOICE_START_LEVEL = 0.05;
-const WAKE_CHECK_MS = 3600;
-const WAKE_RESTART_DELAY_MS = 300;
 
 function formatDuration(ms: number) {
   if (!Number.isFinite(ms) || ms <= 0) return "a short recording";

@@ -40,27 +40,6 @@ export async function transcribeVoiceBlob(
     : { ok: false, storageKey: uploadResult.storageKey, error: result.error };
 }
 
-export async function detectWakePhraseBlob(
-  formData: FormData,
-): Promise<{ ok: true; heard: boolean; text: string } | { ok: false; error: string }> {
-  const uploadResult = await uploadVoiceBlob(formData);
-  if (!uploadResult.ok) return uploadResult;
-
-  const supabase = await createClient();
-  try {
-    const result = await invokeVoiceTranscription(supabase, uploadResult.storageKey);
-    if (!result.ok) return { ok: false, error: result.error };
-
-    return {
-      ok: true,
-      heard: containsWakePhrase(result.text),
-      text: result.text,
-    };
-  } finally {
-    void supabase.storage.from("note-audio").remove([uploadResult.storageKey]);
-  }
-}
-
 async function invokeVoiceTranscription(
   supabase: Awaited<ReturnType<typeof createClient>>,
   storageKey: string,
@@ -97,8 +76,4 @@ async function invokeVoiceTranscription(
     ok: true,
     text: data.text.trim(),
   };
-}
-
-function containsWakePhrase(value: string) {
-  return /\b(hey|hi|okay|ok)\s+diana\b/i.test(value);
 }
