@@ -37,6 +37,7 @@ export function VoiceTextarea(
   const [recording, setRecording] = useState(false);
   const [supported, setSupported] = useState(false);
   const [transcribing, setTranscribing] = useState(false);
+  const [checkingMic, setCheckingMic] = useState(false);
   const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [permissionState, setPermissionState] = useState<"checking" | "ready" | "needs_permission" | "blocked" | "unsupported">("checking");
@@ -119,6 +120,8 @@ export function VoiceTextarea(
     return () => navigator.mediaDevices.removeEventListener?.("devicechange", handleDeviceChange);
   }, []);
 
+  useEffect(() => () => stopInputMeter(), []);
+
   async function refreshDevices(requestPermission: boolean) {
     if (!navigator.mediaDevices?.enumerateDevices) {
       setPermissionState("unsupported");
@@ -129,7 +132,10 @@ export function VoiceTextarea(
     let permissionStream: MediaStream | null = null;
     try {
       if (requestPermission) {
-        permissionStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const audio: MediaTrackConstraints | boolean = selectedDeviceId
+          ? { deviceId: { exact: selectedDeviceId } }
+          : true;
+        permissionStream = await navigator.mediaDevices.getUserMedia({ audio });
         setPermissionState("ready");
       }
 
@@ -152,6 +158,39 @@ export function VoiceTextarea(
       setStatus("Microphone access was not allowed. Check Windows input privacy and app permission.");
     } finally {
       permissionStream?.getTracks().forEach((track) => track.stop());
+    }
+  }
+
+  async function checkSelectedMic() {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setPermissionState("unsupported");
+      setStatus("This app cannot access microphone input here.");
+      return;
+    }
+
+    setCheckingMic(true);
+    stopInputMeter();
+
+    try {
+      const audio: MediaTrackConstraints | boolean = selectedDeviceId
+        ? { deviceId: { exact: selectedDeviceId } }
+        : true;
+      const stream = await navigator.mediaDevices.getUserMedia({ audio });
+      activeStreamRef.current = stream;
+      const trackLabel = stream.getAudioTracks()[0]?.label || selectedMicLabel() || "system default microphone";
+      setPermissionState("ready");
+      setStatus(`Testing ${trackLabel}. Speak now and watch the level bar.`);
+      startInputMeter(stream);
+      await delay(4000);
+      setStatus(`Mic check finished for ${trackLabel}. If the level stayed flat, choose another input or check Windows input settings.`);
+      void refreshDevices(false);
+    } catch (error) {
+      console.error("Selected microphone check failed:", error);
+      setPermissionState("blocked");
+      setStatus("That microphone did not start. Choose another input or check Windows input privacy.");
+    } finally {
+      stopInputMeter();
+      setCheckingMic(false);
     }
   }
 
@@ -330,11 +369,12 @@ export function VoiceTextarea(
             </div>
             <button
               type="button"
-              onClick={() => void refreshDevices(true)}
+              onClick={() => void checkSelectedMic()}
+              disabled={recording || transcribing || checkingMic}
               className="touch-target inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-raised px-3 py-2 text-xs font-semibold text-fg hover:bg-surface-soft"
             >
-              <RefreshCw size={14} />
-              Check mic
+              <RefreshCw size={14} className={checkingMic ? "animate-spin" : ""} />
+              {checkingMic ? "Testing" : "Check mic"}
             </button>
           </div>
 
@@ -345,7 +385,7 @@ export function VoiceTextarea(
             id="voice-mic-device"
             value={selectedDeviceId}
             onChange={(event) => setSelectedDeviceId(event.target.value)}
-            disabled={recording || transcribing || micDevices.length === 0}
+            disabled={recording || transcribing || checkingMic || micDevices.length === 0}
             className="mt-1 min-h-11 w-full rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm"
           >
             <option value="">System default microphone</option>
@@ -363,7 +403,9 @@ export function VoiceTextarea(
             />
           </div>
           <p className="mt-2 text-xs text-muted">
-            {provider === "browser"
+            {checkingMic
+              ? "Speak while this test is running. The bar should move if Diana can hear that input."
+              : provider === "browser"
               ? "Browser dictation uses the system default microphone. Change the default input in Windows settings if needed."
               : "Recorded transcription uses the selected microphone when access is allowed."}
           </p>
@@ -381,7 +423,7 @@ export function VoiceTextarea(
         <button
           type="button"
           onClick={toggle}
-          disabled={transcribing}
+          disabled={transcribing || checkingMic}
           aria-label={buttonLabel}
           className={`touch-target absolute right-2 top-2 inline-flex size-9 items-center justify-center rounded-xl border ${
             recording || transcribing
@@ -395,4 +437,8 @@ export function VoiceTextarea(
       </div>
     </div>
   );
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

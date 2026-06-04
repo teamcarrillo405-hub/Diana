@@ -74,7 +74,7 @@ describe("VoiceTextarea microphone controls", () => {
 
     await waitFor(() => {
       expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({ audio: true });
-      expect(screen.getByText("Microphone options are ready.")).toBeInTheDocument();
+      expect(screen.getByText(/Testing USB classroom mic/)).toBeInTheDocument();
     });
   });
 });
