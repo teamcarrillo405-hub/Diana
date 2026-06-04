@@ -33,15 +33,46 @@ export async function transcribeVoiceBlob(
   if (!uploadResult.ok) return uploadResult;
 
   const supabase = await createClient();
+  const result = await invokeVoiceTranscription(supabase, uploadResult.storageKey);
+
+  return result.ok
+    ? { ok: true, storageKey: uploadResult.storageKey, text: result.text }
+    : { ok: false, storageKey: uploadResult.storageKey, error: result.error };
+}
+
+export async function detectWakePhraseBlob(
+  formData: FormData,
+): Promise<{ ok: true; heard: boolean; text: string } | { ok: false; error: string }> {
+  const uploadResult = await uploadVoiceBlob(formData);
+  if (!uploadResult.ok) return uploadResult;
+
+  const supabase = await createClient();
+  try {
+    const result = await invokeVoiceTranscription(supabase, uploadResult.storageKey);
+    if (!result.ok) return { ok: false, error: result.error };
+
+    return {
+      ok: true,
+      heard: containsWakePhrase(result.text),
+      text: result.text,
+    };
+  } finally {
+    void supabase.storage.from("note-audio").remove([uploadResult.storageKey]);
+  }
+}
+
+async function invokeVoiceTranscription(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  storageKey: string,
+): Promise<{ ok: true; text: string } | { ok: false; error: string }> {
   const { data, error } = await supabase.functions.invoke("transcribe-voice", {
-    body: { audioStorageKey: uploadResult.storageKey, bucket: "note-audio" },
+    body: { audioStorageKey: storageKey, bucket: "note-audio" },
   });
 
   if (error) {
     console.error("Voice transcription function unavailable:", error);
     return {
       ok: false,
-      storageKey: uploadResult.storageKey,
       error: "Diana recorded the audio, but transcription is not connected right now. Check the transcribe-voice Edge Function deployment and secrets.",
     };
   }
@@ -49,14 +80,16 @@ export async function transcribeVoiceBlob(
   if (!data?.ok || typeof data.text !== "string" || !data.text.trim()) {
     return {
       ok: false,
-      storageKey: uploadResult.storageKey,
       error: "Diana recorded the audio, but no transcript came back. Try again or use the typed fallback.",
     };
   }
 
   return {
     ok: true,
-    storageKey: uploadResult.storageKey,
     text: data.text.trim(),
   };
+}
+
+function containsWakePhrase(value: string) {
+  return /\b(hey|hi|okay|ok)\s+diana\b/i.test(value);
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AudioLines, Mic, MicOff, Radio, RefreshCw, SlidersHorizontal } from "lucide-react";
-import { transcribeVoiceBlob } from "@/components/voice-textarea-actions";
+import { Mic, MicOff, Radio, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { detectWakePhraseBlob, transcribeVoiceBlob } from "@/components/voice-textarea-actions";
 
 type SpeechRecognitionInstance = {
   lang: string;
@@ -46,7 +46,6 @@ export function VoiceTextarea(
   const [transcribing, setTranscribing] = useState(false);
   const [checkingMic, setCheckingMic] = useState(false);
   const [wakeListening, setWakeListening] = useState(false);
-  const [wakeSupported, setWakeSupported] = useState(false);
   const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
   const [permissionState, setPermissionState] = useState<"checking" | "ready" | "needs_permission" | "blocked" | "unsupported">("checking");
@@ -56,8 +55,10 @@ export function VoiceTextarea(
 
   // Browser path
   const recogRef = useRef<SpeechRecognitionInstance | null>(null);
-  const wakeRecogRef = useRef<SpeechRecognitionInstance | null>(null);
   const wakeListeningRef = useRef(false);
+  const wakeRecorderRef = useRef<MediaRecorder | null>(null);
+  const wakeChunksRef = useRef<Blob[]>([]);
+  const wakeCheckTimerRef = useRef<number | null>(null);
 
   // OpenAI path
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -69,8 +70,6 @@ export function VoiceTextarea(
   const recordingMicLabelRef = useRef("selected microphone");
 
   useEffect(() => {
-    setWakeSupported(Boolean(getSpeechRecognitionClass()));
-
     if (provider === "openai") {
       // OpenAI mode: supported if getUserMedia is available
       const ok =
@@ -206,7 +205,6 @@ export function VoiceTextarea(
       } else {
         setStatus(`Diana opened ${trackLabel}, but did not hear a usable signal. Check the Windows input level, camera mic mute, or choose another input.`);
       }
-      void refreshDevices(false);
     } catch (error) {
       console.error("Selected microphone check failed:", error);
       setPermissionState("blocked");
@@ -244,7 +242,6 @@ export function VoiceTextarea(
       setRecordingMicLabel(trackLabel);
       setStatus(`Recording through ${trackLabel}. Speak now, then press Stop and transcribe.`);
       setPermissionState("ready");
-      void refreshDevices(false);
       chunksRef.current = [];
 
       mediaRecorder.ondataavailable = (e) => {
@@ -315,19 +312,20 @@ export function VoiceTextarea(
       return;
     }
 
-    const SR = getSpeechRecognitionClass();
-    if (!SR) {
-      setStatus("Hey Diana standby is not available in this desktop shell yet. Use Start recording.");
-      return;
-    }
+    await startWakePhraseStandby();
+  }
 
-    if (!navigator.mediaDevices?.getUserMedia) {
-      setStatus("This app cannot access microphone input here.");
+  async function startWakePhraseStandby() {
+    if (recording || transcribing || checkingMic) return;
+
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+      setStatus("Hey Diana standby needs recorded audio support here. Use Start recording.");
       return;
     }
 
     stopInputMeter();
     peakInputLevelRef.current = 0;
+    wakeChunksRef.current = [];
 
     try {
       const audio: MediaTrackConstraints | boolean = selectedDeviceId
@@ -336,31 +334,12 @@ export function VoiceTextarea(
       const stream = await navigator.mediaDevices.getUserMedia({ audio });
       activeStreamRef.current = stream;
       startInputMeter(stream);
-
-      const rec = new SR();
-      rec.lang = speechLang;
-      rec.continuous = true;
-      rec.interimResults = true;
-      rec.onresult = (event) => {
-        let phrase = "";
-        for (let i = 0; i < event.results.length; i++) {
-          phrase += `${event.results[i][0].transcript} `;
-        }
-        if (containsWakePhrase(phrase)) {
-          stopWakePhrase("Heard Hey Diana. Recording now.");
-          void startOpenAIRecording();
-        }
-      };
-      rec.onerror = () => stopWakePhrase("Hey Diana standby stopped. Use Start recording.");
-      rec.onend = () => {
-        if (wakeListeningRef.current) stopWakePhrase("Hey Diana standby stopped. Use Start recording.");
-      };
-      wakeRecogRef.current = rec;
+      const trackLabel = stream.getAudioTracks()[0]?.label || selectedMicLabel() || "selected microphone";
       wakeListeningRef.current = true;
       setWakeListening(true);
       setPermissionState("ready");
-      setStatus('Hey Diana standby is on. Say "Hey Diana" to start recording.');
-      rec.start();
+      setStatus(`Hey Diana standby is on through ${trackLabel}. Say "Hey Diana", then pause.`);
+      startWakeCheckCycle(stream);
     } catch (error) {
       console.error("Hey Diana standby unavailable:", error);
       setPermissionState("blocked");
@@ -368,11 +347,90 @@ export function VoiceTextarea(
     }
   }
 
+  function startWakeCheckCycle(stream: MediaStream) {
+    if (!wakeListeningRef.current) return;
+    if (stream.getTracks().every((track) => track.readyState !== "live")) {
+      stopWakePhrase("Hey Diana standby stopped because the microphone stream ended.");
+      return;
+    }
+
+    wakeChunksRef.current = [];
+    peakInputLevelRef.current = 0;
+
+    const recorder = new MediaRecorder(stream);
+    wakeRecorderRef.current = recorder;
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) wakeChunksRef.current.push(event.data);
+    };
+    recorder.onstop = () => {
+      if (wakeRecorderRef.current === recorder) wakeRecorderRef.current = null;
+      void processWakeCheck(stream);
+    };
+    recorder.start();
+    wakeCheckTimerRef.current = window.setTimeout(() => {
+      if (recorder.state !== "inactive") recorder.stop();
+    }, WAKE_CHECK_MS);
+  }
+
+  async function processWakeCheck(stream: MediaStream) {
+    if (!wakeListeningRef.current) return;
+
+    const blob = new Blob(wakeChunksRef.current, { type: "audio/webm" });
+    const peakLevel = peakInputLevelRef.current;
+    wakeChunksRef.current = [];
+    peakInputLevelRef.current = 0;
+
+    if (blob.size < MIN_WAKE_AUDIO_BYTES || peakLevel < MIN_USABLE_INPUT_LEVEL) {
+      setStatus('Hey Diana standby is on. Say "Hey Diana" clearly, then pause.');
+      scheduleWakeCheck(stream);
+      return;
+    }
+
+    setStatus('Checking that clip for "Hey Diana"...');
+    try {
+      const formData = new FormData();
+      formData.append("audio", new File([blob], "wake.webm", { type: "audio/webm" }));
+      const result = await detectWakePhraseBlob(formData);
+      if (!wakeListeningRef.current) return;
+
+      if (!result.ok) {
+        stopWakePhrase("Hey Diana standby needs transcription to be connected. Use Start recording.");
+        return;
+      }
+
+      if (result.heard) {
+        stopWakePhrase("Heard Hey Diana. Recording now.");
+        await startOpenAIRecording();
+        return;
+      }
+
+      setStatus(result.text
+        ? `Heard "${shortWakeText(result.text)}"; waiting for "Hey Diana".`
+        : 'Hey Diana standby is on. Say "Hey Diana", then pause.');
+      scheduleWakeCheck(stream);
+    } catch (error) {
+      console.error("Hey Diana wake check unavailable:", error);
+      stopWakePhrase("Hey Diana standby could not check the phrase. Use Start recording.");
+    }
+  }
+
+  function scheduleWakeCheck(stream: MediaStream) {
+    if (!wakeListeningRef.current) return;
+    wakeCheckTimerRef.current = window.setTimeout(() => startWakeCheckCycle(stream), WAKE_RESTART_DELAY_MS);
+  }
+
   function stopWakePhrase(nextStatus?: string) {
     wakeListeningRef.current = false;
     setWakeListening(false);
-    wakeRecogRef.current?.stop();
-    wakeRecogRef.current = null;
+    if (wakeCheckTimerRef.current !== null) {
+      window.clearTimeout(wakeCheckTimerRef.current);
+      wakeCheckTimerRef.current = null;
+    }
+    if (wakeRecorderRef.current && wakeRecorderRef.current.state !== "inactive") {
+      wakeRecorderRef.current.stop();
+    }
+    wakeRecorderRef.current = null;
+    wakeChunksRef.current = [];
     stopInputMeter();
     if (nextStatus) setStatus(nextStatus);
   }
@@ -390,7 +448,6 @@ export function VoiceTextarea(
         stream.getTracks().forEach((track) => track.stop());
         setPermissionState("ready");
         setStatus("Dictation is listening through the system default microphone.");
-        void refreshDevices(false);
         recogRef.current.start();
       } catch (error) {
         console.error("Browser dictation permission failed:", error);
@@ -579,7 +636,7 @@ export function VoiceTextarea(
                 disabled={recording || transcribing || checkingMic}
                 className="touch-target inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm font-semibold text-fg hover:bg-surface-soft disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {wakeSupported ? <Radio size={15} /> : <AudioLines size={15} />}
+                <Radio size={15} />
                 {wakeListening ? "Stop Hey Diana" : "Hey Diana standby"}
               </button>
             )}
@@ -588,7 +645,7 @@ export function VoiceTextarea(
             {checkingMic
               ? "Speak while this test is running. The bar should move if Diana can hear that input."
               : wakeListening
-              ? 'Wake standby is visibly on and waiting for "Hey Diana."'
+              ? 'Wake standby is visibly on and checking short audio clips for "Hey Diana."'
               : provider === "browser"
               ? "Browser dictation uses the system default microphone. Change the default input in Windows settings if needed."
               : "Recorded transcription uses the selected microphone when access is allowed."}
@@ -632,8 +689,9 @@ function getSpeechRecognitionClass() {
   );
 }
 
-function containsWakePhrase(value: string) {
-  return /\b(hey|hi|okay|ok)\s+diana\b/i.test(value);
+function shortWakeText(value: string) {
+  const trimmed = value.trim();
+  return trimmed.length <= 52 ? trimmed : `${trimmed.slice(0, 49)}...`;
 }
 
 function delay(ms: number) {
@@ -642,6 +700,9 @@ function delay(ms: number) {
 
 const MIN_USABLE_INPUT_LEVEL = 0.03;
 const MIN_RECORDED_AUDIO_BYTES = 1200;
+const MIN_WAKE_AUDIO_BYTES = 900;
+const WAKE_CHECK_MS = 2200;
+const WAKE_RESTART_DELAY_MS = 300;
 
 function formatDuration(ms: number) {
   if (!Number.isFinite(ms) || ms <= 0) return "a short recording";

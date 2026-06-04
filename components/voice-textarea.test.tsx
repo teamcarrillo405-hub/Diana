@@ -5,6 +5,8 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { VoiceTextarea } from "./voice-textarea";
 
 vi.mock("@/components/voice-textarea-actions", () => ({
+  detectWakePhraseBlob: vi.fn(),
+  transcribeVoiceBlob: vi.fn(),
   uploadVoiceBlob: vi.fn(),
 }));
 
@@ -13,6 +15,7 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 
 const fakeTrack = {
+  readyState: "live",
   stop: vi.fn(),
 };
 
@@ -38,8 +41,26 @@ const devices = [
   },
 ] as MediaDeviceInfo[];
 
+class FakeMediaRecorder {
+  state: RecordingState = "inactive";
+  ondataavailable: ((event: BlobEvent) => void) | null = null;
+  onstop: (() => void) | null = null;
+
+  constructor(public stream: MediaStream) {}
+
+  start() {
+    this.state = "recording";
+  }
+
+  stop() {
+    this.state = "inactive";
+    this.onstop?.();
+  }
+}
+
 describe("VoiceTextarea microphone controls", () => {
   beforeEach(() => {
+    vi.stubGlobal("MediaRecorder", FakeMediaRecorder);
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
       value: {
@@ -53,6 +74,7 @@ describe("VoiceTextarea microphone controls", () => {
 
   afterEach(() => {
     cleanup();
+    vi.unstubAllGlobals();
     vi.clearAllMocks();
   });
 
@@ -92,6 +114,22 @@ describe("VoiceTextarea microphone controls", () => {
       });
       expect(screen.getByText(/Testing USB classroom mic/)).toBeInTheDocument();
       expect(fakeTrack.stop).not.toHaveBeenCalled();
+    });
+  });
+
+  it("starts Hey Diana standby with the selected microphone", async () => {
+    render(<VoiceTextarea provider="openai" showDeviceStatus enableWakePhrase aria-label="Voice note" />);
+
+    const input = await screen.findByRole("combobox", { name: /input/i });
+    fireEvent.change(input, { target: { value: "usb-mic" } });
+    fireEvent.click(screen.getByRole("button", { name: /hey diana standby/i }));
+
+    await waitFor(() => {
+      expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledWith({
+        audio: { deviceId: { exact: "usb-mic" } },
+      });
+      expect(screen.getByText(/Hey Diana standby is on through USB classroom mic/)).toBeInTheDocument();
+      expect(screen.getByText("Wake standby")).toBeInTheDocument();
     });
   });
 });
