@@ -68,6 +68,7 @@ export function VoiceTextarea(
   const peakInputLevelRef = useRef(0);
   const recordingStartedAtRef = useRef<number | null>(null);
   const recordingMicLabelRef = useRef("selected microphone");
+  const wakeCheckIssueCountRef = useRef(0);
 
   useEffect(() => {
     if (provider === "openai") {
@@ -326,6 +327,7 @@ export function VoiceTextarea(
     stopInputMeter();
     peakInputLevelRef.current = 0;
     wakeChunksRef.current = [];
+    wakeCheckIssueCountRef.current = 0;
 
     try {
       const audio: MediaTrackConstraints | boolean = selectedDeviceId
@@ -394,16 +396,25 @@ export function VoiceTextarea(
       if (!wakeListeningRef.current) return;
 
       if (!result.ok) {
-        stopWakePhrase("Hey Diana standby needs transcription to be connected. Use Start recording.");
+        wakeCheckIssueCountRef.current += 1;
+        if (peakLevel >= WAKE_VOICE_START_LEVEL) {
+          stopWakePhrase("Diana heard your wake cue. Recording now.");
+          await startOpenAIRecording();
+          return;
+        }
+        setStatus('Wake standby could not read that clip. Say "Hey Diana", then pause.');
+        scheduleWakeCheck(stream);
         return;
       }
 
       if (result.heard) {
+        wakeCheckIssueCountRef.current = 0;
         stopWakePhrase("Heard Hey Diana. Recording now.");
         await startOpenAIRecording();
         return;
       }
 
+      wakeCheckIssueCountRef.current = 0;
       setStatus(result.text
         ? `Heard "${shortWakeText(result.text)}"; waiting for "Hey Diana".`
         : 'Hey Diana standby is on. Say "Hey Diana", then pause.');
@@ -431,6 +442,7 @@ export function VoiceTextarea(
     }
     wakeRecorderRef.current = null;
     wakeChunksRef.current = [];
+    wakeCheckIssueCountRef.current = 0;
     stopInputMeter();
     if (nextStatus) setStatus(nextStatus);
   }
@@ -701,7 +713,8 @@ function delay(ms: number) {
 const MIN_USABLE_INPUT_LEVEL = 0.03;
 const MIN_RECORDED_AUDIO_BYTES = 1200;
 const MIN_WAKE_AUDIO_BYTES = 900;
-const WAKE_CHECK_MS = 2200;
+const WAKE_VOICE_START_LEVEL = 0.05;
+const WAKE_CHECK_MS = 3600;
 const WAKE_RESTART_DELAY_MS = 300;
 
 function formatDuration(ms: number) {

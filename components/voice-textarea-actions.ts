@@ -77,6 +77,15 @@ async function invokeVoiceTranscription(
     };
   }
 
+  if (data?.ok === false) {
+    const message = typeof data.error === "string" ? data.error : "Transcription did not finish.";
+    const detail = typeof data.detail === "string" ? ` ${data.detail}` : "";
+    return {
+      ok: false,
+      error: `${message}${detail}`.trim(),
+    };
+  }
+
   if (!data?.ok || typeof data.text !== "string" || !data.text.trim()) {
     return {
       ok: false,

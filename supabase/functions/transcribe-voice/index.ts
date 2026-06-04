@@ -18,8 +18,12 @@ Deno.serve(async (req: Request) => {
 
   try {
     if (!OPENAI_API_KEY || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-      return new Response(JSON.stringify({ error: "Transcription service is not configured" }), {
-        status: 503,
+      return new Response(JSON.stringify({
+        ok: false,
+        code: "not_configured",
+        error: "Transcription service is not configured.",
+      }), {
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
@@ -42,8 +46,12 @@ Deno.serve(async (req: Request) => {
       .download(audioStorageKey);
 
     if (error || !blob) {
-      return new Response(JSON.stringify({ error: "Audio not found" }), {
-        status: 404,
+      return new Response(JSON.stringify({
+        ok: false,
+        code: "audio_not_found",
+        error: "Audio was not found.",
+      }), {
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
@@ -82,9 +90,15 @@ Deno.serve(async (req: Request) => {
     });
 
     if (!openaiRes.ok) {
-      console.error("openai whisper error:", await openaiRes.text());
-      return new Response(JSON.stringify({ error: "Transcription failed" }), {
-        status: 500,
+      const providerError = await openaiRes.text();
+      console.error("openai whisper error:", providerError);
+      return new Response(JSON.stringify({
+        ok: false,
+        code: "provider_error",
+        error: "Transcription provider could not read that audio.",
+        detail: safeDetail(providerError),
+      }), {
+        status: 200,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
@@ -106,3 +120,9 @@ Deno.serve(async (req: Request) => {
     });
   }
 });
+
+function safeDetail(value: string) {
+  return value
+    .replace(/sk-[A-Za-z0-9_-]+/g, "[redacted]")
+    .slice(0, 240);
+}
