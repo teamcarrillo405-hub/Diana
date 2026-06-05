@@ -49,6 +49,20 @@ const bannedVisibleTerms = [
   "you're behind",
 ] as const;
 
+const authenticatedRoutes = new Set([
+  "/proof",
+  "/dashboard",
+  "/assignments",
+  "/notes",
+  "/flashcards",
+  "/settings/ai-history",
+  "/teacher-share",
+  ...extraRoutes,
+]);
+
+const qaEmail = process.env.QA_USER_EMAIL;
+const qaPassword = process.env.QA_USER_PASSWORD;
+
 type ResultRow = {
   route: string;
   viewport: string;
@@ -56,6 +70,7 @@ type ResultRow = {
   hasHorizontalOverflow: boolean;
   bannedVisible: string[];
   statusText: string;
+  authState: "public" | "authenticated" | "login-redirect";
 };
 
 const rows: ResultRow[] = [];
@@ -65,6 +80,10 @@ for (const viewport of viewports) {
   for (const route of [...requiredRoutes, ...extraRoutes]) {
     test(`${viewport.label} ${route}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      const needsAuth = authenticatedRoutes.has(route);
+      if (needsAuth && qaEmail && qaPassword) {
+        await signInForQa(page);
+      }
       const response = await page.goto(new URL(route, baseUrl).toString(), {
         waitUntil: "domcontentloaded",
         timeout: 15_000,
@@ -82,12 +101,20 @@ for (const viewport of viewports) {
         (response?.status() ?? 200) >= 500 || text.includes("internal server error")
           ? "internal-server-error"
           : "ok";
+      const authState = !needsAuth
+        ? "public"
+        : isLoginRedirect(text)
+          ? "login-redirect"
+          : "authenticated";
       const fileRoute = route === "/" ? "landing" : route.replace(/^\//, "").replace(/\//g, "-");
       const screenshot = join(outDir, `${viewport.label}-${fileRoute}.png`);
 
       await page.screenshot({ path: screenshot, fullPage: true });
-      rows.push({ route, viewport: viewport.label, screenshot, hasHorizontalOverflow, bannedVisible, statusText });
+      rows.push({ route, viewport: viewport.label, screenshot, hasHorizontalOverflow, bannedVisible, statusText, authState });
       expect(statusText, `${viewport.label} ${route} should render without an internal server page`).toBe("ok");
+      if (needsAuth) {
+        expect(authState, `${viewport.label} ${route} should render signed-in app UI; set QA_USER_EMAIL and QA_USER_PASSWORD for authenticated QA`).toBe("authenticated");
+      }
       expect(hasHorizontalOverflow, `${viewport.label} ${route} should not horizontally overflow`).toBe(false);
       expect(bannedVisible, `${viewport.label} ${route} should not show blocked pressure copy`).toEqual([]);
     });
@@ -97,3 +124,21 @@ for (const viewport of viewports) {
 test.afterAll(() => {
   writeFileSync(join(outDir, "qa-results.json"), `${JSON.stringify(rows, null, 2)}\n`);
 });
+
+async function signInForQa(page: import("@playwright/test").Page) {
+  await page.goto(new URL("/login", baseUrl).toString(), {
+    waitUntil: "domcontentloaded",
+    timeout: 15_000,
+  });
+  await page.getByLabel("Email").fill(qaEmail!);
+  await page.getByLabel("Password").fill(qaPassword!);
+  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.waitForLoadState("networkidle", { timeout: 7_000 }).catch(() => undefined);
+}
+
+function isLoginRedirect(text: string): boolean {
+  return text.includes("welcome back") &&
+    text.includes("email") &&
+    text.includes("password") &&
+    text.includes("sign in");
+}

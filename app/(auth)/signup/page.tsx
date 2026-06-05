@@ -78,6 +78,21 @@ export default function SignupPage() {
         <AuthCue icon={LockKeyhole} label="Keep it yours" />
       </div>
 
+      <div className="auth-command-preview rounded-2xl border border-brand/20 bg-brand/10 p-3" data-visual="auth-after-login-preview">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Your setup starts with</p>
+          <span className="rounded-full bg-surface-raised/80 px-2 py-1 text-[11px] font-semibold text-brand-strong dark:text-brand">
+            Student-owned
+          </span>
+        </div>
+        <p className="mt-2 text-sm font-semibold">Classes, notes, and study proof in one private space.</p>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-muted">
+          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Sources</span>
+          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Cards</span>
+          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Voice</span>
+        </div>
+      </div>
+
       <form onSubmit={onSubmit} className="space-y-4">
         <Field label="Email" htmlFor="email">
           <input

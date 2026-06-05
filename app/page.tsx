@@ -9,7 +9,7 @@ export default function LandingPage() {
   return (
     <main className="future-field min-h-dvh w-full overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
       <section className="mobile-safe-width mx-auto grid min-h-[calc(100dvh-3rem)] min-w-0 items-center gap-8 pb-10 pt-6 sm:max-w-6xl md:grid-cols-[0.9fr_1.1fr] md:gap-10">
-        <div className="w-full min-w-0 space-y-7">
+        <div className="w-full min-w-0 space-y-5 sm:space-y-7">
           <header className="min-w-0">
             <div className="flex min-w-0 flex-wrap items-center gap-2">
               <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-3 py-1 text-sm font-medium text-brand-strong dark:text-brand">
@@ -33,6 +33,10 @@ export default function LandingPage() {
             </div>
           </header>
 
+          <div className="landing-mobile-preview md:hidden" data-visual="landing-mobile-preview-above-fold">
+            <ProductPreviewCard compact />
+          </div>
+
           <ResponsiveActionRow>
             <Link
               href="/signup"
@@ -44,7 +48,7 @@ export default function LandingPage() {
               href="/signup?mode=voice"
               className="touch-target inline-flex w-full items-center justify-center rounded-xl border border-border bg-surface-raised px-5 py-3 text-sm font-semibold text-fg transition hover:bg-surface-soft sm:w-auto"
             >
-              Try voice setup
+              Try Diana OS
             </Link>
           </ResponsiveActionRow>
 
@@ -59,7 +63,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="w-full min-w-0 space-y-4">
+        <div className="hidden w-full min-w-0 space-y-4 md:block">
           <ProductPreviewCard />
           <FutureVoicePreview />
         </div>

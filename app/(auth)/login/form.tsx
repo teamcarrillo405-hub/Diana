@@ -52,6 +52,21 @@ export function LoginForm() {
         <AuthCue icon={LockKeyhole} label="Private proof" />
       </div>
 
+      <div className="auth-command-preview rounded-2xl border border-brand/20 bg-brand/10 p-3" data-visual="auth-after-login-preview">
+        <div className="flex min-w-0 items-center justify-between gap-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Opens to</p>
+          <span className="rounded-full bg-surface-raised/80 px-2 py-1 text-[11px] font-semibold text-brand-strong dark:text-brand">
+            Right now
+          </span>
+        </div>
+        <p className="mt-2 text-sm font-semibold">One assignment, one source-linked next move.</p>
+        <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-muted">
+          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Focus</span>
+          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Study</span>
+          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Proof</span>
+        </div>
+      </div>
+
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-1">
           <label htmlFor="email" className="block text-sm font-medium">Email</label>

@@ -25,6 +25,11 @@ export type TeenProxyObservation = {
   interpretedAsDoingWork?: boolean;
   describedAsTeenNative?: boolean;
   fasterThanGenericChat?: boolean;
+  looksMadeForMe?: boolean;
+  loveTheLook?: boolean;
+  wouldOpenAgain?: boolean;
+  wouldChooseOverGenericChat?: boolean;
+  foundNextMoveFast?: boolean;
 };
 
 export type TeenTestObservation = TeenProxyObservation;
@@ -37,6 +42,11 @@ export type TeenProxyScore = {
   takeoverMisreadCount: number;
   teenNativeCount: number;
   fasterThanGenericChatCount: number;
+  looksMadeForMeCount: number;
+  loveTheLookCount: number;
+  wouldOpenAgainCount: number;
+  wouldChooseOverGenericChatCount: number;
+  foundNextMoveFastCount: number;
   passesAggressiveBar: boolean;
   recommendations: string[];
 };
@@ -94,6 +104,11 @@ export function scoreTeenProxySession(observations: TeenProxyObservation[]): Tee
   const takeoverMisreadCount = observations.filter((row) => row.interpretedAsDoingWork).length;
   const teenNativeCount = observations.filter((row) => row.describedAsTeenNative).length;
   const fasterThanGenericChatCount = observations.filter((row) => row.fasterThanGenericChat).length;
+  const looksMadeForMeCount = observations.filter((row) => row.looksMadeForMe).length;
+  const loveTheLookCount = observations.filter((row) => row.loveTheLook).length;
+  const wouldOpenAgainCount = observations.filter((row) => row.wouldOpenAgain).length;
+  const wouldChooseOverGenericChatCount = observations.filter((row) => row.wouldChooseOverGenericChat).length;
+  const foundNextMoveFastCount = observations.filter((row) => row.foundNextMoveFast).length;
   const recommendations: string[] = [];
 
   if (understoodNextStep < 4) recommendations.push("Make the next academic move more visible before secondary tools.");
@@ -102,6 +117,11 @@ export function scoreTeenProxySession(observations: TeenProxyObservation[]): Tee
   if (takeoverMisreadCount > 0) recommendations.push("Tighten final-work protection copy and refusal redirects.");
   if (teenNativeCount < 4) recommendations.push("Run another teen-native visual pass on language, density, and mobile rhythm.");
   if (fasterThanGenericChatCount < 4) recommendations.push("Reduce steps between stuck state and the first useful school move.");
+  if (looksMadeForMeCount < 4) recommendations.push("Tune the product identity until teens say it looks made for students.");
+  if (loveTheLookCount < 4) recommendations.push("Strengthen the visual system, graphics, and page rhythm before claiming visual 10/10.");
+  if (wouldOpenAgainCount < 4) recommendations.push("Make the first session feel useful enough that teens would come back voluntarily.");
+  if (wouldChooseOverGenericChatCount < 4) recommendations.push("Make the Diana path feel faster and more school-specific than generic chat.");
+  if (foundNextMoveFastCount < 4) recommendations.push("Move the next academic action higher on the page and reduce secondary choices.");
 
   return {
     tasksCompleted,
@@ -111,6 +131,11 @@ export function scoreTeenProxySession(observations: TeenProxyObservation[]): Tee
     takeoverMisreadCount,
     teenNativeCount,
     fasterThanGenericChatCount,
+    looksMadeForMeCount,
+    loveTheLookCount,
+    wouldOpenAgainCount,
+    wouldChooseOverGenericChatCount,
+    foundNextMoveFastCount,
     passesAggressiveBar:
       tasksCompleted >= TEEN_TEST_TASKS.length &&
       understoodNextStep >= 4 &&
@@ -118,7 +143,12 @@ export function scoreTeenProxySession(observations: TeenProxyObservation[]): Tee
       authorshipProofFound >= 4 &&
       takeoverMisreadCount === 0 &&
       teenNativeCount >= 4 &&
-      fasterThanGenericChatCount >= 4,
+      fasterThanGenericChatCount >= 4 &&
+      looksMadeForMeCount >= 4 &&
+      loveTheLookCount >= 4 &&
+      wouldOpenAgainCount >= 4 &&
+      wouldChooseOverGenericChatCount >= 4 &&
+      foundNextMoveFastCount >= 4,
     recommendations,
   };
 }

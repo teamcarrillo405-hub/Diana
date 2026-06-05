@@ -24,6 +24,7 @@ import {
   Menu,
   MessageCircle,
   Mic2,
+  Search,
   Settings as Cog,
   ShieldCheck,
   Sparkles,
@@ -213,62 +214,155 @@ export function BottomNav() {
 
 export function SideNav() {
   const path = usePathname();
+  const secondaryActive = DESKTOP_GROUPS.some((group) => group.items.some((item) => isActivePath(path, item.href)));
+  const [drawerOpen, setDrawerOpen] = useState(secondaryActive);
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
+  const visibleGroups = DESKTOP_GROUPS.map((group) => ({
+    ...group,
+    items: normalizedQuery
+      ? group.items.filter((item) => item.label.toLowerCase().includes(normalizedQuery))
+      : group.items,
+  })).filter((group) => group.items.length > 0);
+
   return (
-    <aside className="hidden w-64 shrink-0 border-r border-border bg-surface-raised md:block">
-      <div className="sticky top-0 flex max-h-dvh flex-col">
-      <div className="px-5 py-5">
-        <Link href="/dashboard" className="flex items-center gap-2 text-lg font-bold">
-          <span className="flex size-8 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-            <Sparkles size={17} />
-          </span>
-          Diana
+    <aside className="hidden w-24 shrink-0 border-r border-border bg-surface-raised md:block" data-nav="compact-app-rail">
+      <div className="sticky top-0 flex h-dvh flex-col items-center gap-4 px-2 py-4">
+        <Link href="/dashboard" aria-label="Diana dashboard" className="flex size-12 items-center justify-center rounded-3xl bg-brand/10 text-brand">
+          <Sparkles size={20} />
         </Link>
-      </div>
-      <nav className="flex-1 space-y-4 overflow-y-auto px-3 pb-4">
-        <div>
-          <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted">Core</p>
-          <ul className="mt-2 space-y-1">
+
+        <nav className="flex w-full flex-1 flex-col items-stretch gap-2" aria-label="Primary app navigation">
+          <ul className="space-y-2">
             {DESKTOP_CORE_ITEMS.map((item) => (
-              <DesktopNavLink key={item.href} item={item} active={isActivePath(path, item.href)} />
+              <DesktopRailLink key={item.href} item={item} active={isActivePath(path, item.href)} />
             ))}
           </ul>
-        </div>
+          <button
+            type="button"
+            aria-expanded={drawerOpen}
+            aria-controls="desktop-more-drawer"
+            onClick={() => setDrawerOpen((open) => !open)}
+            className={`touch-target mt-2 flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
+              drawerOpen || secondaryActive ? "bg-brand/10 text-brand-strong dark:text-brand" : "text-muted hover:bg-surface-soft hover:text-fg"
+            }`}
+          >
+            <Menu size={18} />
+            <span className="max-w-full truncate">More</span>
+          </button>
+        </nav>
 
-        {DESKTOP_GROUPS.map((group) => (
-          <DesktopNavGroup
-            key={group.label}
-            group={group}
-            path={path}
-          />
-        ))}
-      </nav>
-      <div className="border-t border-border px-5 py-4">
-        <p className="text-xs font-semibold text-fg">Next move first</p>
-        <p className="mt-1 text-xs leading-5 text-muted">Tools stay grouped so the student sees the school move before the toolbox.</p>
+        <div className="w-full rounded-3xl border border-brand/20 bg-brand/10 px-2 py-3 text-center">
+          <p className="text-[10px] font-semibold uppercase leading-4 tracking-wider text-brand-strong dark:text-brand">
+            Next
+            <br />
+            move
+          </p>
+        </div>
       </div>
-      </div>
+
+      {drawerOpen && (
+        <div
+          id="desktop-more-drawer"
+          className="fixed left-24 top-0 z-30 hidden h-dvh w-80 border-r border-border bg-surface/96 p-4 shadow-2xl backdrop-blur md:block"
+          data-nav="searchable-more-drawer"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">More tools</p>
+              <h2 className="text-lg font-bold">Find what helps</h2>
+            </div>
+            <button
+              type="button"
+              aria-label="Close more navigation"
+              onClick={() => setDrawerOpen(false)}
+              className="touch-target inline-flex items-center justify-center rounded-2xl text-muted hover:bg-surface-soft hover:text-fg"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <label className="mt-4 flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-surface-raised px-3 py-2 text-sm" data-nav="desktop-command-search">
+            <Search size={16} className="shrink-0 text-brand" />
+            <span className="sr-only">Search Diana tools</span>
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search tools"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
+            />
+          </label>
+
+          <nav className="mt-4 max-h-[calc(100dvh-8.5rem)] overflow-y-auto pr-1" aria-label="Secondary app navigation">
+            <div className="space-y-4">
+              {visibleGroups.map((group) => (
+                <DesktopNavGroup
+                  key={group.label}
+                  group={group}
+                  path={path}
+                  onNavigate={() => setDrawerOpen(false)}
+                />
+              ))}
+              {visibleGroups.length === 0 && (
+                <p className="rounded-2xl border border-border bg-surface-raised p-4 text-sm text-muted">
+                  No tool matches that search.
+                </p>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
     </aside>
+  );
+}
+
+function DesktopRailLink({
+  item,
+  active,
+}: {
+  item: AppShellNavItem;
+  active: boolean;
+}) {
+  const Icon = item.icon;
+
+  return (
+    <li>
+      <Link
+        href={item.href}
+        aria-current={active ? "page" : undefined}
+        className={`touch-target flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
+          active
+            ? "bg-brand/10 text-brand-strong dark:text-brand"
+            : "text-muted hover:bg-surface-soft hover:text-fg"
+        }`}
+      >
+        <Icon size={18} />
+        <span className="max-w-full truncate">{item.label}</span>
+      </Link>
+    </li>
   );
 }
 
 function DesktopNavGroup({
   group,
   path,
+  onNavigate,
 }: {
   group: AppShellNavGroup;
   path: string;
+  onNavigate?: () => void;
 }) {
   const hasActiveItem = group.items.some((item) => isActivePath(path, item.href));
 
   return (
-    <details className="group rounded-2xl border border-border bg-background/60 p-1" open={group.defaultOpen || hasActiveItem}>
+    <details className="group rounded-2xl border border-border bg-surface-raised p-1" open={group.defaultOpen || hasActiveItem}>
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-2 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted transition hover:bg-surface-soft">
         <span>{group.label}</span>
         <ChevronDown size={14} className="transition group-open:rotate-180" />
       </summary>
       <ul className="mt-1 space-y-1">
         {group.items.map((item) => (
-          <DesktopNavLink key={item.href} item={item} active={isActivePath(path, item.href)} compact />
+          <DesktopNavLink key={item.href} item={item} active={isActivePath(path, item.href)} compact onNavigate={onNavigate} />
         ))}
       </ul>
     </details>
@@ -279,10 +373,12 @@ function DesktopNavLink({
   item,
   active,
   compact = false,
+  onNavigate,
 }: {
   item: AppShellNavItem;
   active: boolean;
   compact?: boolean;
+  onNavigate?: () => void;
 }) {
   const Icon = item.icon;
 
@@ -290,6 +386,8 @@ function DesktopNavLink({
     <li>
       <Link
         href={item.href}
+        onClick={onNavigate}
+        aria-current={active ? "page" : undefined}
         className={`flex min-w-0 items-center gap-3 rounded-xl px-3 text-sm transition ${
           compact ? "py-2" : "py-2.5"
         } ${

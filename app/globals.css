@@ -415,6 +415,22 @@ body[data-experience-mode="future"] .future-command-surface {
   position: relative;
 }
 
+.cinematic-command-hud {
+  outline: 1px solid rgb(var(--future-glow) / 0.08);
+}
+
+.cinematic-command-hud::before {
+  content: "";
+  position: absolute;
+  inset: 0.75rem;
+  pointer-events: none;
+  border-radius: 1.25rem;
+  border: 1px solid rgb(var(--future-glow) / 0.12);
+  clip-path: polygon(0 0, 30% 0, 30% 1px, 70% 1px, 70% 0, 100% 0, 100% 30%, calc(100% - 1px) 30%, calc(100% - 1px) 70%, 100% 70%, 100% 100%, 70% 100%, 70% calc(100% - 1px), 30% calc(100% - 1px), 30% 100%, 0 100%, 0 70%, 1px 70%, 1px 30%, 0 30%);
+  opacity: 0.9;
+  z-index: 0;
+}
+
 .future-hud-shell::after {
   content: "";
   position: absolute;
@@ -498,6 +514,29 @@ body[data-experience-mode="future"] .future-response-line {
 .future-hud-row:first-child {
   border-top: 0;
   padding-top: 0;
+}
+
+.future-command-stack span {
+  border: 1px solid rgb(var(--future-glow) / 0.22);
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgb(var(--future-line) / 0.12), transparent),
+    rgb(var(--surface-raised) / 0.72);
+  color: rgb(var(--future-glow));
+  padding: 0.45rem 0.4rem;
+  text-align: center;
+}
+
+.future-signal-matrix span {
+  aspect-ratio: 1;
+  border-radius: 0.35rem;
+  border: 1px solid rgb(var(--future-line) / 0.16);
+  background: rgb(var(--future-line) / 0.08);
+}
+
+.future-signal-matrix span.is-lit {
+  background: rgb(var(--future-glow) / 0.68);
+  box-shadow: 0 0 18px rgb(var(--future-glow) / 0.38);
 }
 
 .future-mode-only {

@@ -37,16 +37,23 @@ function collectEvidence(): TeenNativeUxEvidence {
   return {
     landingNextFiveMinutes: fileIncludes("app/page.tsx", "Your next 5") && fileIncludes("components/product-preview-card.tsx", "Right now"),
     landingProductIdentity: fileIncludes("app/page.tsx", "FutureVoicePreview") && fileIncludes("components/future-voice-preview.tsx", "Talk it through"),
-    landingFutureModeOption: fileIncludes("app/page.tsx", "FutureModeToggle") && fileIncludes("app/page.tsx", "Try voice setup"),
+    landingFutureModeOption: fileIncludes("app/page.tsx", "FutureModeToggle") && fileIncludes("app/page.tsx", "Try Diana OS"),
     dashboardRightNowCard: fileIncludes("app/(app)/dashboard/focus-hero-card.tsx", "Right now") && fileIncludes("app/(app)/dashboard/page.tsx", "FocusHeroCard"),
     assignmentNextStepEntry: fileIncludes("app/(app)/assignments/[id]/page.tsx", "focus === \"next-step\"") && fileIncludes("app/(app)/assignments/[id]/page.tsx", "Next-step mode"),
     priorityMobileNav: fileIncludes("components/nav.tsx", "Focus") && fileIncludes("components/nav.tsx", "More") && fileIncludes("components/nav.tsx", "grid-cols-5"),
     responsiveActionRows: fileIncludes("components/responsive-action-row.tsx", "sm:flex-row") && fileIncludes("components/responsive-action-row.tsx", "w-full"),
     responsiveQaClean: qa.exists && qa.total >= 50 && qa.overflowCount === 0 && qa.serverErrorCount === 0,
+    authenticatedResponsiveQaClean: qa.exists && qa.authenticatedCoverageComplete && qa.overflowCount === 0 && qa.serverErrorCount === 0,
+    authenticatedRoutesNoLoginRedirect: qa.exists && qa.loginRedirectCount === 0 && qa.authenticatedRouteCount >= 35,
+    compactDesktopRail: fileIncludes("components/nav.tsx", "data-nav=\"compact-app-rail\"") && fileIncludes("components/nav.tsx", "w-24"),
+    desktopCommandSearch: fileIncludes("components/nav.tsx", "data-nav=\"desktop-command-search\"") && fileIncludes("components/nav.tsx", "Search tools"),
     authCommandCenterShell: fileIncludes("app/(auth)/layout.tsx", "School command center") && fileIncludes("app/(auth)/layout.tsx", "FutureVoicePreview"),
     authVisualSignals: fileIncludes("app/(auth)/login/form.tsx", "Voice notes") && fileIncludes("app/(auth)/signup/page.tsx", "Use class sources"),
     authFutureModeToggle: fileIncludes("app/(auth)/login/form.tsx", "FutureModeToggle") && fileIncludes("app/(auth)/signup/page.tsx", "FutureModeToggle"),
+    authAfterLoginPreview: fileIncludes("app/(auth)/login/form.tsx", "auth-after-login-preview") && fileIncludes("app/(auth)/signup/page.tsx", "auth-after-login-preview"),
     futureModeProvider: fileIncludes("app/layout.tsx", "FutureModeProvider") && fileIncludes("components/future-mode-provider.tsx", "diana_experience_mode") && fileIncludes("app/globals.css", "data-experience-mode=\"future\""),
+    dianaOsCinematicMode: fileIncludes("components/future-voice-preview.tsx", "diana-os-cinematic-command-mode") && fileIncludes("app/globals.css", "cinematic-command-hud") && fileIncludes("components/future-mode-toggle.tsx", "Diana OS"),
+    landingMobilePreviewAboveFold: fileIncludes("app/page.tsx", "landing-mobile-preview-above-fold") && fileIncludes("components/product-preview-card.tsx", "right-now-product-preview"),
     voiceCommandSurface: exists("app/(app)/voice/voice-command-surface.tsx") && fileIncludes("app/(app)/voice/page.tsx", "VoiceCommandSurface") && fileIncludes("app/(app)/voice/voice-command-surface.tsx", "Talk it through"),
     globalVoiceCaptureMic: fileIncludes("components/quick-capture.tsx", "VoiceTextarea") && fileIncludes("components/voice-textarea.tsx", "SpeechRecognition"),
     teenVoicePlan: exists(".planning/TEEN_NATIVE_UX_10_PLAN.md") && fileIncludes("docs/research/teen-testing-protocol.md", "generic chat tool"),
@@ -63,17 +70,29 @@ function collectEvidence(): TeenNativeUxEvidence {
       "app/(app)/assignments/[id]/history-helper.tsx",
       "app/(app)/assignments/[id]/ap-helper.tsx",
     ].every(exists),
+    subjectVisualBoards: fileIncludes("components/visual-breakdown-panel.tsx", "Show another way") && fileIncludes("app/(app)/assignments/[id]/math-helper.tsx", "Step board") && fileIncludes("app/(app)/assignments/[id]/history-helper.tsx", "Source"),
     studyArtifactsLoop: fileIncludes("components/study-artifact-panel.tsx", "editableCards") && fileIncludes("app/(app)/study-artifacts/actions.ts", "recordStudentStateSnapshot") && fileIncludes("app/(app)/flashcards/[id]/actions.ts", "recall_result"),
+    studyArtifactPrimaryActions: fileIncludes("components/study-artifact-panel.tsx", "Make cards") || fileIncludes("components/study-artifact-panel.tsx", "Review loop"),
     sourceAnchoredStudyOutput: fileIncludes("components/study-artifact-panel.tsx", "Source anchors") && fileIncludes("lib/study-helper/artifacts.ts", "sourceAnchorLabels"),
     ownershipMeter: exists("components/help-ownership-meter.tsx") && fileIncludes("components/subject-tool-shell.tsx", "HelpOwnershipMeter"),
     authorshipProof: fileIncludes("lib/study-helper/authorship.ts", "AuthorshipReceipt") && fileIncludes("lib/teen-testing/ux-scorecard.ts", "authorshipProof"),
     finalWorkProtection: fileIncludes("lib/study-helper/guided-learning.ts", "asksForFinalWork") && fileIncludes("app/(app)/assignments/[id]/study-helper-actions.ts", "direct_answer_redirect"),
     proofPanelVisible: exists("components/teen-native-ux-evidence-panel.tsx") && fileIncludes("app/(app)/proof/page.tsx", "TeenNativeUxEvidencePanel"),
+    visualTeenValidationFields: fileIncludes("lib/teen-testing/protocol.ts", "looksMadeForMe") && fileIncludes("lib/teen-testing/protocol.ts", "loveTheLook") && fileIncludes("lib/teen-testing/protocol.ts", "wouldChooseOverGenericChat"),
     liveTeenValidationPassed: false,
   };
 }
 
-function latestQaResult(): { exists: boolean; total: number; overflowCount: number; bannedCount: number; serverErrorCount: number } {
+function latestQaResult(): {
+  exists: boolean;
+  total: number;
+  overflowCount: number;
+  bannedCount: number;
+  serverErrorCount: number;
+  loginRedirectCount: number;
+  authenticatedRouteCount: number;
+  authenticatedCoverageComplete: boolean;
+} {
   const summary = latestCoveredQaResult(ROOT);
   return summary.coverageComplete ? summary : { ...summary, exists: false };
 }

@@ -18,7 +18,10 @@ type FutureVoicePreviewProps = {
 
 export function FutureVoicePreview({ compact = false }: FutureVoicePreviewProps) {
   return (
-    <section className="future-card future-command-surface future-hud-shell w-full min-w-0 overflow-hidden rounded-3xl border border-brand/20 bg-surface-raised/92 p-4 shadow-sm sm:p-5">
+    <section
+      className="future-card future-command-surface future-hud-shell cinematic-command-hud w-full min-w-0 overflow-hidden rounded-3xl border border-brand/20 bg-surface-raised/92 p-4 shadow-sm sm:p-5"
+      data-visual="diana-os-cinematic-command-mode"
+    >
       <div className="future-hud-topline flex min-w-0 flex-wrap items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-wider">
         <span className="inline-flex items-center gap-2">
           <Cpu size={14} />
@@ -38,7 +41,7 @@ export function FutureVoicePreview({ compact = false }: FutureVoicePreviewProps)
             </span>
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
-                Future voice mode
+                Diana OS voice layer
               </p>
               <h2 className="mt-1 text-xl font-bold leading-tight sm:text-2xl">Talk it through. Diana maps the next move.</h2>
               <p className="mt-2 text-sm leading-6 text-muted">
@@ -70,6 +73,12 @@ export function FutureVoicePreview({ compact = false }: FutureVoicePreviewProps)
               "I know what the lab showed, but I need the first sentence of the conclusion."
             </p>
           </div>
+
+          <div className="future-command-stack mt-4 grid min-w-0 grid-cols-3 gap-2 text-[11px] font-semibold uppercase tracking-wider">
+            <span>Capture</span>
+            <span>Anchor</span>
+            <span>Move</span>
+          </div>
         </div>
 
         <div className="future-hud-panel min-w-0">
@@ -81,6 +90,11 @@ export function FutureVoicePreview({ compact = false }: FutureVoicePreviewProps)
             <HudRow icon={Radar} label="Next move" value="ready" />
             <HudRow icon={BookOpenCheck} label="Source vault" value="linked" />
             <HudRow icon={ShieldCheck} label="Final work" value="protected" />
+          </div>
+          <div className="future-signal-matrix mt-4 grid grid-cols-4 gap-1" aria-hidden="true">
+            {Array.from({ length: 16 }).map((_, index) => (
+              <span key={index} className={index % 5 === 0 ? "is-lit" : ""} />
+            ))}
           </div>
         </div>
       </div>

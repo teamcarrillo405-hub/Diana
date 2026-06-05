@@ -34,6 +34,11 @@ describe("teen testing protocol", () => {
       interpretedAsDoingWork: false,
       describedAsTeenNative: true,
       fasterThanGenericChat: true,
+      looksMadeForMe: true,
+      loveTheLook: true,
+      wouldOpenAgain: true,
+      wouldChooseOverGenericChat: true,
+      foundNextMoveFast: true,
     }));
     observations[0].createdStudyArtifact = true;
     observations[1].createdStudyArtifact = true;
@@ -54,6 +59,11 @@ describe("teen testing protocol", () => {
       interpretedAsDoingWork: task.id === "direct_answer_refusal",
       describedAsTeenNative: false,
       fasterThanGenericChat: false,
+      looksMadeForMe: false,
+      loveTheLook: false,
+      wouldOpenAgain: false,
+      wouldChooseOverGenericChat: false,
+      foundNextMoveFast: false,
     }));
 
     const score = scoreTeenProxySession(observations);
@@ -62,6 +72,7 @@ describe("teen testing protocol", () => {
     expect(score.recommendations).toEqual(expect.arrayContaining([
       "Tighten final-work protection copy and refusal redirects.",
       "Reduce steps between stuck state and the first useful school move.",
+      "Strengthen the visual system, graphics, and page rhythm before claiming visual 10/10.",
     ]));
   });
 });

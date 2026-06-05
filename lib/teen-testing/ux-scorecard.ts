@@ -26,10 +26,17 @@ export type TeenNativeUxEvidence = {
   priorityMobileNav: boolean;
   responsiveActionRows: boolean;
   responsiveQaClean: boolean;
+  authenticatedResponsiveQaClean: boolean;
+  authenticatedRoutesNoLoginRedirect: boolean;
+  compactDesktopRail: boolean;
+  desktopCommandSearch: boolean;
   authCommandCenterShell: boolean;
   authVisualSignals: boolean;
   authFutureModeToggle: boolean;
+  authAfterLoginPreview: boolean;
   futureModeProvider: boolean;
+  dianaOsCinematicMode: boolean;
+  landingMobilePreviewAboveFold: boolean;
   voiceCommandSurface: boolean;
   globalVoiceCaptureMic: boolean;
   teenVoicePlan: boolean;
@@ -39,12 +46,15 @@ export type TeenNativeUxEvidence = {
   timeToFirstActionMetric: boolean;
   oneMoveSupport: boolean;
   subjectNativeHelpers: boolean;
+  subjectVisualBoards: boolean;
   studyArtifactsLoop: boolean;
+  studyArtifactPrimaryActions: boolean;
   sourceAnchoredStudyOutput: boolean;
   ownershipMeter: boolean;
   authorshipProof: boolean;
   finalWorkProtection: boolean;
   proofPanelVisible: boolean;
+  visualTeenValidationFields: boolean;
   liveTeenValidationPassed: boolean;
 };
 
@@ -73,7 +83,12 @@ export type TeenNativeUxScorecard = {
 export type TeenVisualConfidenceMetricId =
   | "actual_teen_love_confidence"
   | "public_landing_first_impression"
-  | "login_signup_visual_appeal";
+  | "login_signup_visual_appeal"
+  | "dashboard_focus_appeal"
+  | "app_shell_navigation"
+  | "assignment_helper_visual_learning"
+  | "study_artifacts_polish"
+  | "future_mode_cinematic_quality";
 
 export type TeenVisualConfidenceMetric = {
   id: TeenVisualConfidenceMetricId;
@@ -104,7 +119,7 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     dianaTarget: "The first screen should make the next school move visible before the student has to prompt a chatbot.",
     requiredSurfaces: ["landing preview", "dashboard Right now card", "assignment next-step entry"],
     requiredSignals: ["first_action_visible", "next_move_understood", "started_task"],
-    repoCriteria: ["landingNextFiveMinutes", "dashboardRightNowCard", "assignmentNextStepEntry"],
+    repoCriteria: ["landingNextFiveMinutes", "landingMobilePreviewAboveFold", "dashboardRightNowCard", "assignmentNextStepEntry"],
     liveCriteria: ["4 of 5 students explain the next academic move in their own words."],
   },
   {
@@ -114,7 +129,7 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     dianaTarget: "Mobile should keep Focus, Assignments, Notes, Study, and More reachable with no horizontal overflow.",
     requiredSurfaces: ["priority bottom nav", "stacked action rows", "responsive browser QA"],
     requiredSignals: ["nav_success", "tap_target_clear", "overflow_count"],
-    repoCriteria: ["priorityMobileNav", "responsiveActionRows", "responsiveQaClean"],
+    repoCriteria: ["priorityMobileNav", "responsiveActionRows", "responsiveQaClean", "authenticatedResponsiveQaClean"],
     liveCriteria: ["4 of 5 students start from mobile without hunting through secondary routes."],
   },
   {
@@ -134,7 +149,7 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     dianaTarget: "Diana should sound direct, private, and student-owned without pressure language.",
     requiredSurfaces: ["student-first public copy", "privacy/proof copy", "tone audit"],
     requiredSignals: ["teen_native_rating", "student_control_understood", "pressure_copy_count"],
-    repoCriteria: ["teenVoicePlan", "noVisiblePressureCopy", "studentControlLanguage"],
+    repoCriteria: ["teenVoicePlan", "noVisiblePressureCopy", "studentControlLanguage", "visualTeenValidationFields"],
     liveCriteria: ["4 of 5 students describe the product as built for students, useful, and not judgmental."],
   },
   {
@@ -144,7 +159,7 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     dianaTarget: "Diana should turn the current assignment into source-linked cards, practice, review, and next support.",
     requiredSurfaces: ["subject helpers", "study artifact panel", "FSRS review"],
     requiredSignals: ["artifact_created", "source_anchor_seen", "recall_result"],
-    repoCriteria: ["subjectNativeHelpers", "studyArtifactsLoop", "sourceAnchoredStudyOutput"],
+    repoCriteria: ["subjectNativeHelpers", "subjectVisualBoards", "studyArtifactsLoop", "studyArtifactPrimaryActions", "sourceAnchoredStudyOutput"],
     liveCriteria: ["4 of 5 students create or start a study artifact during the test."],
   },
   {
@@ -170,13 +185,16 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
       "Repo shows a teen-native identity, optional future voice mode, polished auth entry, and clean responsive proof; live love still requires teen validation.",
     repoCriteria: [
       "landingProductIdentity",
+      "landingMobilePreviewAboveFold",
       "landingFutureModeOption",
       "authCommandCenterShell",
       "authVisualSignals",
+      "authAfterLoginPreview",
       "futureModeProvider",
+      "dianaOsCinematicMode",
       "voiceCommandSurface",
       "globalVoiceCaptureMic",
-      "responsiveQaClean",
+      "authenticatedResponsiveQaClean",
     ],
   },
   {
@@ -190,6 +208,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     repoCriteria: [
       "landingNextFiveMinutes",
       "landingProductIdentity",
+      "landingMobilePreviewAboveFold",
       "landingFutureModeOption",
       "futureModeProvider",
       "responsiveQaClean",
@@ -207,8 +226,84 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
       "authCommandCenterShell",
       "authVisualSignals",
       "authFutureModeToggle",
+      "authAfterLoginPreview",
       "futureModeProvider",
       "responsiveQaClean",
+    ],
+  },
+  {
+    id: "dashboard_focus_appeal",
+    label: "Dashboard focus appeal",
+    baselineScore: 8.7,
+    targetScore: 10,
+    currentConfidence: "The dashboard has the right ritual, but 10/10 requires authenticated visual proof and a strong first-screen command surface.",
+    tenDefinition:
+      "Authenticated screenshots show a polished Right now command surface with one primary action above the fold.",
+    repoCriteria: [
+      "dashboardRightNowCard",
+      "authenticatedResponsiveQaClean",
+      "authenticatedRoutesNoLoginRedirect",
+      "oneMoveSupport",
+    ],
+  },
+  {
+    id: "app_shell_navigation",
+    label: "App shell navigation",
+    baselineScore: 8.4,
+    targetScore: 10,
+    currentConfidence: "The left panel was too long; the 10/10 bar is a short rail with searchable secondary tools.",
+    tenDefinition:
+      "Desktop uses a compact rail for the main school moves and a searchable drawer for secondary tools.",
+    repoCriteria: [
+      "compactDesktopRail",
+      "desktopCommandSearch",
+      "priorityMobileNav",
+      "authenticatedResponsiveQaClean",
+    ],
+  },
+  {
+    id: "assignment_helper_visual_learning",
+    label: "Assignment helper visual learning",
+    baselineScore: 8.6,
+    targetScore: 10,
+    currentConfidence: "Subject helpers exist, but 10/10 requires visible boards and authenticated screenshots.",
+    tenDefinition:
+      "Major subject helpers render as distinct visual learning boards, not generic AI panels.",
+    repoCriteria: [
+      "subjectNativeHelpers",
+      "subjectVisualBoards",
+      "sourceAnchoredStudyOutput",
+      "authenticatedResponsiveQaClean",
+    ],
+  },
+  {
+    id: "study_artifacts_polish",
+    label: "Study artifacts polish",
+    baselineScore: 8.4,
+    targetScore: 10,
+    currentConfidence: "The study loop is strong, but 10/10 requires fast artifact actions and source-linked review proof.",
+    tenDefinition:
+      "Cards, guides, tests, review, and mastery actions are visibly reachable from assignment and note context.",
+    repoCriteria: [
+      "studyArtifactsLoop",
+      "studyArtifactPrimaryActions",
+      "sourceAnchoredStudyOutput",
+      "authenticatedResponsiveQaClean",
+    ],
+  },
+  {
+    id: "future_mode_cinematic_quality",
+    label: "Diana OS cinematic quality",
+    baselineScore: 7.4,
+    targetScore: 10,
+    currentConfidence: "Future Mode previously read as a surface effect; 10/10 requires a distinct command-layer visual system.",
+    tenDefinition:
+      "Diana OS visibly changes the interaction layer with HUD structure, voice state, command nodes, and reduced-motion safety.",
+    repoCriteria: [
+      "futureModeProvider",
+      "dianaOsCinematicMode",
+      "voiceCommandSurface",
+      "globalVoiceCaptureMic",
     ],
   },
 ];
@@ -328,10 +423,17 @@ const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
   priorityMobileNav: "Keep mobile navigation to Focus, Assignments, Notes, Study, More.",
   responsiveActionRows: "Use stacked full-width action rows on small screens.",
   responsiveQaClean: "Run clean responsive QA with no horizontal overflow or server errors.",
+  authenticatedResponsiveQaClean: "Run clean authenticated responsive QA for the app shell and core student routes.",
+  authenticatedRoutesNoLoginRedirect: "Prevent authenticated-route screenshots from silently capturing the login page.",
+  compactDesktopRail: "Replace the long desktop sidebar with a compact rail for core school moves.",
+  desktopCommandSearch: "Add searchable secondary navigation for less-common app routes.",
   authCommandCenterShell: "Make login and signup feel like Diana's command center, not generic forms.",
   authVisualSignals: "Show voice, source, privacy, and student-control cues on auth pages.",
   authFutureModeToggle: "Expose Future Mode from login and signup.",
+  authAfterLoginPreview: "Show a small product preview inside login and signup on mobile.",
   futureModeProvider: "Persist an optional Future Mode visual setting across the app.",
+  dianaOsCinematicMode: "Make Diana OS a distinct cinematic command layer, not just shadows.",
+  landingMobilePreviewAboveFold: "Show the product preview inside the first mobile viewport.",
   voiceCommandSurface: "Replace the voice placeholder with a real voice command surface.",
   globalVoiceCaptureMic: "Make quick capture support speech input where the browser allows it.",
   teenVoicePlan: "Document teen-native voice and validation rules.",
@@ -341,12 +443,15 @@ const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
   timeToFirstActionMetric: "Track time to first academic action in benchmarks.",
   oneMoveSupport: "Show one-move support when the student needs fewer choices.",
   subjectNativeHelpers: "Keep subject helpers distinct from a generic AI panel.",
+  subjectVisualBoards: "Render visual boards for subject helper modes.",
   studyArtifactsLoop: "Connect helper output to cards, practice, FSRS, and mastery.",
+  studyArtifactPrimaryActions: "Keep cards, quiz, guide, review, and revise actions visually close to the source work.",
   sourceAnchoredStudyOutput: "Preserve source anchors through every study artifact.",
   ownershipMeter: "Render the help-without-taking-over meter.",
   authorshipProof: "Render authorship receipts and proof surfaces.",
   finalWorkProtection: "Redirect final-work requests into student-owned next steps.",
   proofPanelVisible: "Show the teen UX scorecard on the proof page.",
+  visualTeenValidationFields: "Capture teen visual-love and competitor-preference fields in the test protocol.",
 };
 
 function round(value: number): number {

@@ -122,6 +122,39 @@ export function StudyArtifactPanel({
         </div>
       </div>
 
+      <div className="grid gap-2 text-sm sm:grid-cols-5" data-visual="study-artifact-primary-actions">
+        <button
+          type="button"
+          disabled={pending || !aiAvailable}
+          onClick={() => generate("flashcard_set")}
+          className="touch-target rounded-2xl border border-subject-ap/25 bg-subject-ap/10 px-3 py-2 font-semibold text-indigo-700 transition hover:bg-subject-ap/15 disabled:opacity-60 dark:text-indigo-300"
+        >
+          Make cards
+        </button>
+        <button
+          type="button"
+          disabled={pending || !aiAvailable}
+          onClick={() => generate("practice_test")}
+          className="touch-target rounded-2xl border border-subject-reading/25 bg-subject-reading/10 px-3 py-2 font-semibold text-emerald-700 transition hover:bg-subject-reading/15 disabled:opacity-60 dark:text-emerald-300"
+        >
+          Quiz me
+        </button>
+        <button
+          type="button"
+          disabled={pending || !aiAvailable}
+          onClick={() => generate("study_guide")}
+          className="touch-target rounded-2xl border border-subject-writing/25 bg-subject-writing/10 px-3 py-2 font-semibold text-violet-700 transition hover:bg-subject-writing/15 disabled:opacity-60 dark:text-violet-300"
+        >
+          Study guide
+        </button>
+        <span className="rounded-2xl border border-border bg-background px-3 py-2 text-center font-semibold text-muted">
+          Review loop
+        </span>
+        <span className="rounded-2xl border border-border bg-background px-3 py-2 text-center font-semibold text-muted">
+          Revise source
+        </span>
+      </div>
+
       <div className="grid gap-2 md:grid-cols-3">
         {ARTIFACT_OPTIONS.map((option) => {
           const Icon = option.icon;

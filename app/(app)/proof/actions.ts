@@ -48,6 +48,11 @@ const TeenObservationInput = z.object({
   interpretedAsDoingWork: z.boolean().optional(),
   describedAsTeenNative: z.boolean().optional(),
   fasterThanGenericChat: z.boolean().optional(),
+  looksMadeForMe: z.boolean().optional(),
+  loveTheLook: z.boolean().optional(),
+  wouldOpenAgain: z.boolean().optional(),
+  wouldChooseOverGenericChat: z.boolean().optional(),
+  foundNextMoveFast: z.boolean().optional(),
 });
 
 export async function recordCompetitiveBenchmarkRun(input: {
