@@ -1,12 +1,9 @@
 import { Gauge, LockKeyhole, MessageCircle, Mic2, ShieldCheck, Smartphone, Sparkles } from "lucide-react";
-import teenUxScorecardJson from "@/.planning/teen-native-ux-score.json";
 import {
   TEEN_NATIVE_UX_SECTIONS,
-  type TeenNativeUxScorecard,
   type TeenNativeUxSectionId,
 } from "@/lib/teen-testing/ux-scorecard";
-
-const teenUxScorecard = teenUxScorecardJson as TeenNativeUxScorecard;
+import { TEEN_NATIVE_UX_SCORECARD_SNAPSHOT } from "@/lib/teen-testing/ux-scorecard-snapshot";
 
 const iconFor: Record<TeenNativeUxSectionId, typeof Sparkles> = {
   first_screen_clarity: Sparkles,
@@ -18,7 +15,7 @@ const iconFor: Record<TeenNativeUxSectionId, typeof Sparkles> = {
 };
 
 export function TeenNativeUxEvidencePanel() {
-  const scorecard = teenUxScorecard;
+  const scorecard = TEEN_NATIVE_UX_SCORECARD_SNAPSHOT;
 
   return (
     <section className="space-y-4 rounded-2xl border border-border bg-surface-raised p-4 shadow-sm">
