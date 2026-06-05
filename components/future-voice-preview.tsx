@@ -1,4 +1,16 @@
-import { AudioLines, Bot, CheckCircle2, LockKeyhole, Mic2, ShieldCheck } from "lucide-react";
+import {
+  Activity,
+  AudioLines,
+  BookOpenCheck,
+  Bot,
+  CheckCircle2,
+  Cpu,
+  Gauge,
+  LockKeyhole,
+  Mic2,
+  Radar,
+  ShieldCheck,
+} from "lucide-react";
 
 type FutureVoicePreviewProps = {
   compact?: boolean;
@@ -6,50 +18,85 @@ type FutureVoicePreviewProps = {
 
 export function FutureVoicePreview({ compact = false }: FutureVoicePreviewProps) {
   return (
-    <section className="future-card future-command-surface w-full min-w-0 overflow-hidden rounded-3xl border border-brand/20 bg-surface-raised/92 p-4 shadow-sm sm:p-5">
-      <div className="flex min-w-0 items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
-            Future voice mode
-          </p>
-          <h2 className="mt-1 text-lg font-bold leading-tight sm:text-xl">Talk it through, keep the work yours.</h2>
-        </div>
-        <span className="future-mic flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-          <Mic2 size={20} />
+    <section className="future-card future-command-surface future-hud-shell w-full min-w-0 overflow-hidden rounded-3xl border border-brand/20 bg-surface-raised/92 p-4 shadow-sm sm:p-5">
+      <div className="future-hud-topline flex min-w-0 flex-wrap items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-wider">
+        <span className="inline-flex items-center gap-2">
+          <Cpu size={14} />
+          Diana OS
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <span className="future-status-dot" aria-hidden="true" />
+          Manual mic ready
         </span>
       </div>
 
-      <div className="mt-4 rounded-2xl border border-border/80 bg-surface/70 p-3">
-        <div className="flex items-center gap-2 text-sm font-semibold">
-          <AudioLines size={16} className="text-subject-science" />
-          <span>Listening for the stuck point</span>
+      <div className="mt-4 grid min-w-0 gap-4 lg:grid-cols-[1.02fr_0.78fr]">
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-start gap-3">
+            <span className="future-mic future-core-icon flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+              <Mic2 size={21} />
+            </span>
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
+                Future voice mode
+              </p>
+              <h2 className="mt-1 text-xl font-bold leading-tight sm:text-2xl">Talk it through. Diana maps the next move.</h2>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                A command-style layer for voice capture, source anchors, and proof that the work stays yours.
+              </p>
+            </div>
+          </div>
+
+          <div className="future-audio-strip mt-4 min-w-0">
+            <div className="flex min-w-0 items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2 text-sm font-semibold">
+                <AudioLines size={16} className="shrink-0 text-subject-science" />
+                <span className="min-w-0 truncate">Stuck-point capture</span>
+              </div>
+              <span className="rounded-full border border-subject-history/30 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-subject-history">
+                Student controlled
+              </span>
+            </div>
+            <div className="mt-3 flex h-11 items-center gap-1" aria-hidden="true">
+              {[16, 32, 19, 39, 24, 43, 18, 34, 21, 37, 15, 29].map((height, index) => (
+                <span
+                  key={`${height}-${index}`}
+                  className="future-wave-bar w-full rounded-full bg-brand/75"
+                  style={{ height: `${height}px`, animationDelay: `${index * 48}ms` }}
+                />
+              ))}
+            </div>
+            <p className="mt-3 text-sm text-muted">
+              "I know what the lab showed, but I need the first sentence of the conclusion."
+            </p>
+          </div>
         </div>
-        <div className="mt-3 flex h-10 items-center gap-1" aria-hidden="true">
-          {[18, 28, 15, 34, 22, 38, 18, 30, 14, 26].map((height, index) => (
-            <span
-              key={`${height}-${index}`}
-              className="future-wave-bar w-full rounded-full bg-brand/75"
-              style={{ height: `${height}px`, animationDelay: `${index * 60}ms` }}
-            />
-          ))}
+
+        <div className="future-hud-panel min-w-0">
+          <div className="future-hud-ring mx-auto">
+            <span className="text-2xl font-bold">84%</span>
+            <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-muted">student control</span>
+          </div>
+          <div className="mt-4 space-y-2">
+            <HudRow icon={Radar} label="Next move" value="ready" />
+            <HudRow icon={BookOpenCheck} label="Source vault" value="linked" />
+            <HudRow icon={ShieldCheck} label="Final work" value="protected" />
+          </div>
         </div>
-        <p className="mt-3 text-sm text-muted">
-          "I know what the lab showed, but I do not know how to start the conclusion."
-        </p>
       </div>
 
-      <div className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
-        <PreviewPill icon={Bot} label="Next move ready" />
-        <PreviewPill icon={ShieldCheck} label="Source anchored" />
+      <div className="future-data-rail mt-4 grid gap-2 text-sm sm:grid-cols-3">
+        <PreviewPill icon={Bot} label="One move ready" />
+        <PreviewPill icon={Gauge} label="Support adapts" />
         <PreviewPill icon={LockKeyhole} label="No takeover" />
       </div>
 
       {!compact && (
-        <div className="mt-4 rounded-2xl border border-subject-science/30 bg-subject-science/10 p-3">
+        <div className="future-response-line mt-4">
           <div className="flex min-w-0 items-start gap-2">
             <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-teal-700 dark:text-teal-300" />
             <p className="min-w-0 text-sm">
-              Diana answers with one academic step, a reason, and the option to ask for the next step.
+              Diana answers with one academic step, the source it came from, and a next-step option.
             </p>
           </div>
         </div>
@@ -63,6 +110,18 @@ function PreviewPill({ icon: Icon, label }: { icon: typeof Bot; label: string })
     <div className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-surface-raised/80 px-3 py-2 text-xs text-muted">
       <Icon size={14} className="shrink-0 text-brand" />
       <span className="min-w-0 truncate">{label}</span>
+    </div>
+  );
+}
+
+function HudRow({ icon: Icon, label, value }: { icon: typeof Activity; label: string; value: string }) {
+  return (
+    <div className="future-hud-row flex min-w-0 items-center justify-between gap-3 text-xs">
+      <span className="flex min-w-0 items-center gap-2">
+        <Icon size={14} className="shrink-0 text-subject-science" />
+        <span className="min-w-0 truncate">{label}</span>
+      </span>
+      <span className="shrink-0 font-semibold uppercase tracking-wider text-subject-history">{value}</span>
     </div>
   );
 }

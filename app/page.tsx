@@ -25,6 +25,12 @@ export default function LandingPage() {
             <p className="safe-copy mt-5 max-w-full text-base leading-7 text-muted sm:max-w-xl sm:text-lg">
               Diana turns school chaos into one calm move at a time. It helps you plan, read, write, study, and check your work while keeping the work yours.
             </p>
+            <div className="future-mode-only future-os-strip mt-5">
+              <span>Diana OS</span>
+              <span>Manual mic</span>
+              <span>Source link</span>
+              <span>Proof on</span>
+            </div>
           </header>
 
           <ResponsiveActionRow>
