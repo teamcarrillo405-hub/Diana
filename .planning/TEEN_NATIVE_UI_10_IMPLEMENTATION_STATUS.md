@@ -22,7 +22,7 @@
   - enable Supabase anonymous sign-ins for the QA environment and launch the dev server with `QA_CREATE_USER=true`.
 
 ## Required Finish Command
-Run `npm run qa:responsive` against a live app with the QA credentials set, then rerun:
+Run `npm run qa:auth-preflight` against a live app first. When it passes, run `npm run qa:responsive` with the same QA env, then rerun:
 - `npm run teen-ux-score`
 - `npm run competitive-score`
 - `npm run typecheck`

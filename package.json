@@ -18,6 +18,7 @@
     "launch-audit": "npx tsx scripts/launch-audit.ts",
     "competitive-score": "npx tsx scripts/competitive-score.ts",
     "teen-ux-score": "npx tsx scripts/teen-ux-score.ts",
+    "qa:auth-preflight": "npx tsx scripts/qa-auth-preflight.ts",
     "qa:responsive": "playwright test tests/responsive-qa.spec.ts --reporter=line --workers=1"
   },
   "dependencies": {
