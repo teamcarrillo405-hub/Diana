@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-05T21:39:35.469Z",
+  "generatedAt": "2026-06-05T22:30:15.161Z",
   "sections": [
     {
       "id": "first_screen_clarity",
@@ -13,11 +13,9 @@
     {
       "id": "mobile_thumb_flow",
       "label": "Mobile thumb flow",
-      "score": 7.5,
-      "repoComplete": false,
-      "missing": [
-        "Run clean authenticated responsive QA for the app shell and core student routes."
-      ],
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
       "dianaTarget": "Mobile should keep Focus, Assignments, Notes, Study, and More reachable with no horizontal overflow.",
       "competitorEdge": "Quizlet has a familiar mobile rhythm, and Gemini keeps the core chat action close."
     },
@@ -64,11 +62,9 @@
       "label": "Actual teen would-love-it confidence",
       "baselineScore": 8.2,
       "targetScore": 10,
-      "score": 9.1,
-      "repoComplete": false,
-      "missing": [
-        "Run clean authenticated responsive QA for the app shell and core student routes."
-      ],
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
       "tenDefinition": "Repo shows a teen-native identity, optional future voice mode, polished auth entry, and clean responsive proof; live love still requires teen validation."
     },
     {
@@ -96,12 +92,9 @@
       "label": "Dashboard focus appeal",
       "baselineScore": 8.7,
       "targetScore": 10,
-      "score": 5,
-      "repoComplete": false,
-      "missing": [
-        "Run clean authenticated responsive QA for the app shell and core student routes.",
-        "Prevent authenticated-route screenshots from silently capturing the login page."
-      ],
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
       "tenDefinition": "Authenticated screenshots show a polished Right now command surface with one primary action above the fold."
     },
     {
@@ -109,11 +102,9 @@
       "label": "App shell navigation",
       "baselineScore": 8.4,
       "targetScore": 10,
-      "score": 7.5,
-      "repoComplete": false,
-      "missing": [
-        "Run clean authenticated responsive QA for the app shell and core student routes."
-      ],
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
       "tenDefinition": "Desktop uses a compact rail for the main school moves and a searchable drawer for secondary tools."
     },
     {
@@ -121,11 +112,9 @@
       "label": "Assignment helper visual learning",
       "baselineScore": 8.6,
       "targetScore": 10,
-      "score": 7.5,
-      "repoComplete": false,
-      "missing": [
-        "Run clean authenticated responsive QA for the app shell and core student routes."
-      ],
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
       "tenDefinition": "Major subject helpers render as distinct visual learning boards, not generic AI panels."
     },
     {
@@ -133,11 +122,9 @@
       "label": "Study artifacts polish",
       "baselineScore": 8.4,
       "targetScore": 10,
-      "score": 7.5,
-      "repoComplete": false,
-      "missing": [
-        "Run clean authenticated responsive QA for the app shell and core student routes."
-      ],
+      "score": 10,
+      "repoComplete": true,
+      "missing": [],
       "tenDefinition": "Cards, guides, tests, review, and mastery actions are visibly reachable from assignment and note context."
     },
     {
@@ -151,18 +138,10 @@
       "tenDefinition": "Diana OS visibly changes the interaction layer with HUD structure, voice state, command nodes, and reduced-motion safety."
     }
   ],
-  "visualConfidenceScore": 8.3,
-  "repoScore": 8.9,
-  "repoTen": false,
+  "visualConfidenceScore": 10,
+  "repoScore": 10,
+  "repoTen": true,
   "marketTenClaimAllowed": false,
   "marketGate": "Market 10/10 stays gated until 4 of 5 teens prefer Diana on stuck tasks and zero students confuse help with final work.",
-  "nextBacklog": [
-    "Run clean authenticated responsive QA for the app shell and core student routes.",
-    "Run clean authenticated responsive QA for the app shell and core student routes.",
-    "Run clean authenticated responsive QA for the app shell and core student routes.",
-    "Prevent authenticated-route screenshots from silently capturing the login page.",
-    "Run clean authenticated responsive QA for the app shell and core student routes.",
-    "Run clean authenticated responsive QA for the app shell and core student routes.",
-    "Run clean authenticated responsive QA for the app shell and core student routes."
-  ]
+  "nextBacklog": []
 }

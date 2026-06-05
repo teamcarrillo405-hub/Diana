@@ -5,6 +5,7 @@ import { expect, test } from "@playwright/test";
 const baseUrl = process.env.QA_BASE_URL ?? "http://localhost:3000";
 const runName = process.env.QA_RUN_NAME ?? `local-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 const outDir = join(process.cwd(), ".planning", "qa-screenshots", runName);
+const authStatePath = join(outDir, "auth-storage-state.json");
 
 const viewports = [
   { label: "375x812", width: 375, height: 812 },
@@ -26,6 +27,8 @@ const requiredRoutes = [
   "/settings/ai-history",
   "/teacher-share",
 ] as const;
+
+const publicRoutes = ["/", "/login", "/signup"] as const;
 
 const extraRoutes = [
   "/focus",
@@ -77,53 +80,39 @@ type ResultRow = {
 };
 
 const rows: ResultRow[] = [];
-let generatedQaAccountCreated = false;
 mkdirSync(outDir, { recursive: true });
 
-for (const viewport of viewports) {
-  for (const route of [...requiredRoutes, ...extraRoutes]) {
-    test(`${viewport.label} ${route}`, async ({ page }) => {
-      await page.setViewportSize({ width: viewport.width, height: viewport.height });
-      const needsAuth = authenticatedRoutes.has(route);
-      if (needsAuth) {
-        await ensureSignedInForQa(page);
-      }
-      const response = await page.goto(new URL(route, baseUrl).toString(), {
-        waitUntil: "domcontentloaded",
-        timeout: 15_000,
+test.describe("public responsive QA", () => {
+  for (const viewport of viewports) {
+    for (const route of publicRoutes) {
+      test(`${viewport.label} ${route}`, async ({ page }) => {
+        await captureRoute(page, viewport, route, false);
       });
-      await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
-
-      const text = (await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")).toLowerCase();
-      const hasHorizontalOverflow = await page.evaluate(() => {
-        const doc = document.documentElement;
-        const body = document.body;
-        return Math.max(doc.scrollWidth, body?.scrollWidth ?? 0) > doc.clientWidth + 2;
-      });
-      const bannedVisible = bannedVisibleTerms.filter((term) => text.includes(term));
-      const statusText =
-        (response?.status() ?? 200) >= 500 || text.includes("internal server error")
-          ? "internal-server-error"
-          : "ok";
-      const authState = !needsAuth
-        ? "public"
-        : isLoginRedirect(text)
-          ? "login-redirect"
-          : "authenticated";
-      const fileRoute = route === "/" ? "landing" : route.replace(/^\//, "").replace(/\//g, "-");
-      const screenshot = join(outDir, `${viewport.label}-${fileRoute}.png`);
-
-      await page.screenshot({ path: screenshot, fullPage: true });
-      rows.push({ route, viewport: viewport.label, screenshot, hasHorizontalOverflow, bannedVisible, statusText, authState });
-      expect(statusText, `${viewport.label} ${route} should render without an internal server page`).toBe("ok");
-      if (needsAuth) {
-        expect(authState, `${viewport.label} ${route} should render signed-in app UI; set QA_USER_EMAIL and QA_USER_PASSWORD for authenticated QA`).toBe("authenticated");
-      }
-      expect(hasHorizontalOverflow, `${viewport.label} ${route} should not horizontally overflow`).toBe(false);
-      expect(bannedVisible, `${viewport.label} ${route} should not show blocked pressure copy`).toEqual([]);
-    });
+    }
   }
-}
+});
+
+test.describe("authenticated responsive QA", () => {
+  test.describe.configure({ mode: "serial" });
+  test.use({ storageState: authStatePath });
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+    const page = await context.newPage();
+    await ensureSignedInForQa(page);
+    await expectAuthenticatedForQa(page, "QA storage-state setup");
+    await context.storageState({ path: authStatePath });
+    await context.close();
+  });
+
+  for (const viewport of viewports) {
+    for (const route of [...requiredRoutes, ...extraRoutes].filter((route) => authenticatedRoutes.has(route))) {
+      test(`${viewport.label} ${route}`, async ({ page }) => {
+        await captureRoute(page, viewport, route, true);
+      });
+    }
+  }
+});
 
 test.afterAll(() => {
   writeFileSync(join(outDir, "qa-results.json"), `${JSON.stringify(rows, null, 2)}\n`);
@@ -136,19 +125,59 @@ async function ensureSignedInForQa(page: import("@playwright/test").Page) {
   }
 
   if (createQaUser) {
-    if (generatedQaAccountCreated) {
-      await signInForQa(page, generatedQaEmail, generatedQaPassword);
-      await expectAuthenticatedForQa(page, "generated QA sign-in");
-      return;
-    }
-
     const anonymousSessionCreated = await createAnonymousQaSession(page);
     if (!anonymousSessionCreated) {
       await signUpAndOnboardForQa(page);
     }
-    generatedQaAccountCreated = true;
-    await expectAuthenticatedForQa(page, "generated QA session");
+    return;
   }
+
+  throw new Error(
+    "Authenticated QA requires QA_USER_EMAIL and QA_USER_PASSWORD, " +
+      "or QA_CREATE_USER=true with the dev QA bootstrap enabled.",
+  );
+}
+
+async function captureRoute(
+  page: import("@playwright/test").Page,
+  viewport: (typeof viewports)[number],
+  route: string,
+  needsAuth: boolean,
+) {
+  await page.setViewportSize({ width: viewport.width, height: viewport.height });
+  const response = await page.goto(new URL(route, baseUrl).toString(), {
+    waitUntil: "domcontentloaded",
+    timeout: 15_000,
+  });
+  await page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => undefined);
+
+  const text = (await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")).toLowerCase();
+  const hasHorizontalOverflow = await page.evaluate(() => {
+    const doc = document.documentElement;
+    const body = document.body;
+    return Math.max(doc.scrollWidth, body?.scrollWidth ?? 0) > doc.clientWidth + 2;
+  });
+  const bannedVisible = bannedVisibleTerms.filter((term) => text.includes(term));
+  const statusText =
+    (response?.status() ?? 200) >= 500 || text.includes("internal server error")
+      ? "internal-server-error"
+      : "ok";
+  const authState = !needsAuth
+    ? "public"
+    : isLoginRedirect(text)
+      ? "login-redirect"
+      : "authenticated";
+  const fileRoute = route === "/" ? "landing" : route.replace(/^\//, "").replace(/\//g, "-");
+  const screenshot = join(outDir, `${viewport.label}-${fileRoute}.png`);
+
+  await page.screenshot({ path: screenshot, fullPage: true });
+  rows.push({ route, viewport: viewport.label, screenshot, hasHorizontalOverflow, bannedVisible, statusText, authState });
+  expect(statusText, `${viewport.label} ${route} should render without an internal server page`).toBe("ok");
+  if (needsAuth) {
+    expect(authState, `${viewport.label} ${route} should render signed-in app UI`).toBe("authenticated");
+  }
+  expect(hasHorizontalOverflow, `${viewport.label} ${route} should not horizontally overflow`).toBe(false);
+  expect(bannedVisible, `${viewport.label} ${route} should not show blocked pressure copy`).toEqual([]);
 }
 
 async function signInForQa(page: import("@playwright/test").Page, email: string, password: string) {
