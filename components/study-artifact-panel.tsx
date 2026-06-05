@@ -197,6 +197,28 @@ export function StudyArtifactPanel({
             </div>
           </div>
 
+          <div className="space-y-2 rounded-2xl border border-border bg-surface-soft p-3">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-muted">Study loop</p>
+                <p className="mt-1 text-sm font-semibold">{artifact.reviewLoop.nextReviewAction}</p>
+              </div>
+              <span className="w-fit rounded-full border border-border bg-background px-2 py-1 text-xs text-muted">
+                {artifact.reviewLoop.masterySignal.replace(/_/g, " ")}
+              </span>
+            </div>
+            <div className="grid gap-2 md:grid-cols-3">
+              {artifact.reviewLoop.steps.slice(0, 6).map((step) => (
+                <div key={`${step.stage}-${step.label}`} className="rounded-xl border border-border bg-background p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted">{step.stage.replace(/_/g, " ")}</p>
+                  <p className="mt-1 text-sm font-medium">{step.label}</p>
+                  <p className="mt-1 text-xs text-muted">{step.studentAction}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted">{artifact.reviewLoop.nextSupportUse}</p>
+          </div>
+
           {artifact.visualBreakdown && (
             <div className="space-y-2 rounded-2xl border border-border bg-surface-soft p-3">
               <p className="text-xs font-medium uppercase tracking-wider text-muted">{artifact.visualBreakdown.title}</p>
@@ -212,6 +234,9 @@ export function StudyArtifactPanel({
               </div>
               <p className="rounded-xl border border-border bg-background px-3 py-2 text-sm">
                 {artifact.visualBreakdown.quizPrompt}
+              </p>
+              <p className="rounded-xl border border-border bg-background px-3 py-2 text-xs text-muted">
+                Show another way: {artifact.visualBreakdown.storyboard.layout}
               </p>
             </div>
           )}
@@ -292,8 +317,12 @@ export function StudyArtifactPanel({
             <p className="mt-1">{artifact.authorshipReceipt}</p>
             <p className="mt-1">{artifact.trustNote}</p>
             <p className="mt-2 font-medium text-fg">{artifact.authorshipReceiptDetail.shareSummary}</p>
+            <p className="mt-1">{artifact.authorshipReceiptDetail.teacherSafeSummary}</p>
             <p className="mt-1">
               Student actions: {artifact.authorshipReceiptDetail.studentActions.join(" | ")}
+            </p>
+            <p className="mt-1">
+              Private readiness details excluded: {artifact.authorshipReceiptDetail.sensitiveDataExcluded ? "yes" : "check receipt"}
             </p>
           </div>
         </div>

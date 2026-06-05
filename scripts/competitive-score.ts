@@ -2,6 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { COMPETITIVE_CAPABILITY_BARS } from "../lib/competitive/capability-matrix";
 import { COMPETITOR_PROFILES } from "../lib/competitive/competitor-profiles";
+import { TEN_POINT_COMPETITIVE_TARGETS } from "../lib/competitive/ten-point-targets";
 import { scoreCompetitiveSystem, scorecardToMarkdown, type CompetitiveScoreEvidence } from "../lib/competitive/scoring";
 import { seedContentReadiness } from "../lib/content/seed-packs";
 import { latestCoveredQaResult } from "../lib/teen-testing/qa-evidence";
@@ -47,22 +48,27 @@ function collectEvidence(): CompetitiveScoreEvidence {
     directAnswerRedirect: fileIncludes("lib/study-helper/guided-learning.ts", "asksForFinalWork") && fileIncludes("app/(app)/assignments/[id]/study-helper-actions.ts", "direct_answer_request"),
     knowledgeChecks: fileIncludes("lib/study-helper/guided-learning.ts", "KnowledgeCheck"),
     sourceAnchoredHints: fileIncludes("lib/study-helper/guided-learning.ts", "sourceAnchor") && fileIncludes("lib/ai/system-prompts.ts", "source-anchored hint"),
+    teachingPhaseSequence: fileIncludes("lib/study-helper/guided-learning.ts", "teachingSequence") && fileIncludes("components/learning-turn-card.tsx", "Diagnostic probe"),
     visualBreakdownCoverage: visualCoverageComplete(),
     visualBreakdownPanel: exists("components/visual-breakdown-panel.tsx") && fileIncludes("app/(app)/assignments/[id]/page.tsx", "VisualBreakdownPanel"),
     visualQuizPrompts: fileIncludes("lib/study-helper/visual-breakdown.ts", "quizPrompt"),
     sourceAnchoredVisuals: fileIncludes("lib/study-helper/visual-breakdown.ts", "sourceAnchored") && fileIncludes("components/visual-breakdown-panel.tsx", "Source:"),
+    visualStoryboards: fileIncludes("lib/study-helper/visual-breakdown.ts", "VisualStoryboard") && fileIncludes("components/visual-breakdown-panel.tsx", "Show another way"),
     ownershipMeter: exists("components/help-ownership-meter.tsx") && fileIncludes("components/subject-tool-shell.tsx", "HelpOwnershipMeter"),
     authorshipReceipts: exists("lib/study-helper/authorship.ts") && fileIncludes("lib/study-helper/artifacts.ts", "authorshipReceiptDetail"),
     refusalRedirectsLogged: fileIncludes("app/(app)/assignments/[id]/study-helper-actions.ts", "direct_answer_redirect"),
     proofShareSurfaces: exists("app/(app)/proof/page.tsx") && exists("app/(app)/teacher-share/page.tsx"),
+    trustReceiptPrivacy: fileIncludes("lib/study-helper/authorship.ts", "teacherSafeSummary") && fileIncludes("lib/study-helper/authorship.ts", "sensitiveDataExcluded"),
     editableArtifacts: fileIncludes("components/study-artifact-panel.tsx", "editableCards") && fileIncludes("lib/study-helper/artifacts.ts", "withEditedCards"),
     practiceSettings: fileIncludes("lib/study-helper/artifacts.ts", "PracticeTestSettings") && fileIncludes("components/study-artifact-panel.tsx", "Question types"),
     fsrsReviewLoop: exists("lib/fsrs/fsrs.ts") && fileIncludes("app/(app)/flashcards/[id]/review/review-session.tsx", "source_anchor"),
     artifactSourceAnchors: fileIncludes("lib/study-helper/artifacts.ts", "sourceAnchorLabels") && fileIncludes("app/(app)/study-artifacts/actions.ts", "source_anchor_count"),
+    artifactReviewLoop: fileIncludes("lib/study-helper/artifacts.ts", "ArtifactReviewLoop") && fileIncludes("components/study-artifact-panel.tsx", "Study loop"),
     studentStateRulePath: fileIncludes("lib/student-state/model.ts", "rulePath") && fileIncludes("components/student-state-card.tsx", "Rule path"),
     oneMoveSupport: fileIncludes("lib/support/policy.ts", "one_move") && fileIncludes("lib/student-state/model.ts", "Complete one visible academic move"),
     struggleSignals: fileIncludes("lib/support/policy.ts", "directAnswerRequestsLast24h") && fileIncludes("lib/support/policy.ts", "stillStuckLast24h"),
     readinessTwoQuestionLimit: fileIncludes("lib/support/policy.ts", "BodyState") && fileIncludes("lib/support/policy.ts", "FocusState"),
+    supportDecisionTrace: fileIncludes("lib/support/policy.ts", "decisionTraceFor") && fileIncludes("components/student-state-card.tsx", "ruleConfidence"),
     responsiveQaClean: qa.exists && qa.total >= 50 && qa.overflowCount === 0 && qa.serverErrorCount === 0,
     noVisibleBannedCopy: qa.exists && qa.bannedCount === 0,
     priorityMobileNav: fileIncludes("components/nav.tsx", "Focus") && fileIncludes("components/nav.tsx", "More"),
@@ -76,6 +82,7 @@ function collectEvidence(): CompetitiveScoreEvidence {
     liveTeenTestPassed: false,
     seedContentPacks: content.ready,
     competitorProfiles: COMPETITOR_PROFILES.length === 4 && COMPETITOR_PROFILES.every((profile) => profile.honestLimit.length > 0),
+    tenPointTargets: TEN_POINT_COMPETITIVE_TARGETS.length === 6 && exists("lib/competitive/ten-point-targets.ts") && fileIncludes("app/(app)/proof/page.tsx", "10/10 target plan"),
     marketClaimGate: fileIncludes("lib/competitive/scoring.ts", "marketTenClaimAllowed") && COMPETITIVE_CAPABILITY_BARS.some((bar) => bar.id === "distribution_content_readiness"),
     competitiveScoreCommand: packageJson.scripts?.["competitive-score"] === "npx tsx scripts/competitive-score.ts",
   };

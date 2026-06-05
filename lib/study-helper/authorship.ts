@@ -9,6 +9,10 @@ export type AuthorshipReceipt = {
   studentActions: string[];
   aiContribution: "none" | "organize" | "hint" | "practice" | "draft_suggestion";
   finalWorkProtected: boolean;
+  refusalRedirectLogged: boolean;
+  sensitiveDataExcluded: boolean;
+  teacherSafeSummary: string;
+  studentActionRequired: string;
   shareSummary: string;
 };
 
@@ -33,10 +37,15 @@ export function buildAuthorshipReceipt(input: {
     studentActions,
     aiContribution: input.aiPolicy === "red" ? "none" : input.aiContribution,
     finalWorkProtected: true,
+    refusalRedirectLogged: dianaActions.some((action) => /redirect|answer request/i.test(action)),
+    sensitiveDataExcluded: true,
+    teacherSafeSummary: teacherSafeSummaryFor(sourceAnchors, dianaActions, studentActions),
+    studentActionRequired: studentActions[0] ?? "Keep final assignment work student-made.",
     shareSummary: [
       sourceAnchors.length > 0 ? `${sourceAnchors.length} source anchors` : "Source requested before more help",
       `${dianaActions.length} Diana support actions`,
       `${studentActions.length} student-owned actions`,
+      "readiness private",
     ].join(" | "),
   };
 }
@@ -56,4 +65,15 @@ function defaultDianaActions(artifact?: AuthorshipArtifact | null): string[] {
   if (artifact.quiz.length > 0) actions.push("Created recall questions with hints.");
   if (artifact.cards.length > 0) actions.push("Drafted editable cards.");
   return actions;
+}
+
+function teacherSafeSummaryFor(
+  sourceAnchors: string[],
+  dianaActions: string[],
+  studentActions: string[],
+): string {
+  const sourcePart = sourceAnchors.length > 0
+    ? `${sourceAnchors.length} source-backed study items`
+    : "source-backed support requested";
+  return `${sourcePart}; ${dianaActions.length} Diana support moves; ${studentActions.length} student-owned moves; readiness details withheld.`;
 }

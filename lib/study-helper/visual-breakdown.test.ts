@@ -10,9 +10,14 @@ describe("visual breakdown", () => {
     expect(board.kind).toBe("math_step_board");
     expect(board.sourceAnchored).toBe(true);
     expect(board.blocks.map((block) => block.label)).toEqual(["Known", "Needed", "Rule", "Check"]);
+    expect(board.storyboard.format).toBe("board");
+    expect(board.storyboard.altText).toContain("source anchor");
+    expect(board.storyboard.interactionPrompt).toContain("known value");
   });
 
   it("uses AP mode for test prep", () => {
-    expect(buildVisualBreakdown({ assignmentKind: "test_prep", className: "AP Biology" }).kind).toBe("ap_exam_board");
+    const board = buildVisualBreakdown({ assignmentKind: "test_prep", className: "AP Biology" });
+    expect(board.kind).toBe("ap_exam_board");
+    expect(board.storyboard.format).toBe("compare_table");
   });
 });

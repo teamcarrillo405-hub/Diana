@@ -46,7 +46,9 @@ describe("study artifacts", () => {
     expect(artifact.quiz[0].question).toContain("photosynthesis");
     expect(artifact.cards[0].front).toContain("chlorophyll");
     expect(artifact.practiceSettings.questionCount).toBe(8);
+    expect(artifact.reviewLoop.steps.map((step) => step.stage)).toContain("review");
     expect(artifact.visualBreakdown?.sourceAnchored).toBe(true);
+    expect(artifact.visualBreakdown?.storyboard.altText).toContain("source");
     expect(artifact.authorshipReceiptDetail.finalWorkProtected).toBe(true);
   });
 
@@ -83,6 +85,7 @@ describe("study artifacts", () => {
     expect(artifact.quiz[0].hint).toContain("source");
     expect(artifact.nextSteps[0]).toContain("question");
     expect(artifact.trustNote).toContain("class material");
+    expect(artifact.reviewLoop.nextSupportUse).toContain("recall ratings");
   });
 
   it("prefers concrete assignment and rubric anchors when present", () => {
@@ -117,6 +120,7 @@ describe("study artifacts", () => {
 
     expect(edited.editState.cardsReviewed).toBe(1);
     expect(edited.editState.cardsEdited).toBe(1);
+    expect(edited.reviewLoop.masterySignal).toBe("getting_there");
     expect(edited.authorshipReceiptDetail.studentActions.join(" ")).toContain("Edited card wording");
   });
 });

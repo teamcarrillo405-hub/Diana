@@ -18,6 +18,24 @@ export type ArtifactEditState = {
   readyForReview: boolean;
 };
 
+export type StudyLoopStage = "source" | "helper" | "artifact" | "review" | "mastery" | "next_support";
+
+export type StudyLoopStep = {
+  stage: StudyLoopStage;
+  label: string;
+  sourceAnchor: string;
+  studentAction: string;
+  masterySignal: string;
+};
+
+export type ArtifactReviewLoop = {
+  currentStage: StudyLoopStage;
+  steps: StudyLoopStep[];
+  nextReviewAction: string;
+  masterySignal: "still_learning" | "getting_there" | "secure";
+  nextSupportUse: string;
+};
+
 export type StudyArtifactCard = {
   front: string;
   back: string;
@@ -53,6 +71,7 @@ export type StudyArtifact = {
   authorshipReceipt: string;
   practiceSettings: PracticeTestSettings;
   editState: ArtifactEditState;
+  reviewLoop: ArtifactReviewLoop;
   visualBreakdown: VisualBreakdown | null;
   authorshipReceiptDetail: AuthorshipReceipt;
 };
@@ -92,6 +111,7 @@ export function parseStudyArtifactResponse(
     authorshipReceipt: cleanString(draft.authorshipReceipt, fallbackArtifact.authorshipReceipt, 260),
     practiceSettings: normalizePracticeSettings(draft.practiceSettings, fallbackArtifact.practiceSettings),
     editState: normalizeEditState(draft.editState, fallbackArtifact.editState),
+    reviewLoop: normalizeReviewLoop(draft.reviewLoop, fallbackArtifact.reviewLoop),
     visualBreakdown: normalizeVisualBreakdown(draft.visualBreakdown, fallbackArtifact.visualBreakdown),
     authorshipReceiptDetail: normalizeAuthorshipReceipt(draft.authorshipReceiptDetail, fallbackArtifact.authorshipReceiptDetail),
   };
@@ -158,6 +178,13 @@ export function buildFallbackStudyArtifact(input: {
     authorshipReceipt: "Student source material stayed primary; Diana created practice prompts, not final assignment work.",
     practiceSettings: defaultPracticeTestSettings(input.type),
     editState: defaultArtifactEditState(),
+    reviewLoop: buildArtifactReviewLoop({
+      type: input.type,
+      sourceTitle,
+      sourceAnchors: anchorLabels,
+      cardsCreated: cards.length,
+      quizCreated: quiz.length,
+    }),
     visualBreakdown: buildVisualBreakdown({
       assignmentKind: input.type === "practice_test" ? "test_prep" : "reading",
       title: sourceTitle,
@@ -211,6 +238,14 @@ export function withEditedCards(
       lastEditedAt: nowIso,
       readyForReview: cleanedCards.length > 0,
     },
+    reviewLoop: buildArtifactReviewLoop({
+      type: artifact.type,
+      sourceTitle: artifact.sourceTitle,
+      sourceAnchors: cleanedCards.map((card) => card.sourceAnchor),
+      cardsCreated: cleanedCards.length,
+      quizCreated: artifact.quiz.length,
+      editedCards: editedCount,
+    }),
   };
   return {
     ...next,
@@ -260,6 +295,7 @@ export function completeStudyArtifact(value: unknown): StudyArtifact {
     cards: normalizeCards(raw.cards, fallback.cards),
     practiceSettings: normalizePracticeSettings(raw.practiceSettings, fallback.practiceSettings),
     editState: normalizeEditState(raw.editState, fallback.editState),
+    reviewLoop: normalizeReviewLoop(raw.reviewLoop, fallback.reviewLoop),
     visualBreakdown: normalizeVisualBreakdown(raw.visualBreakdown, fallback.visualBreakdown),
   } satisfies Omit<StudyArtifact, "authorshipReceiptDetail"> & { authorshipReceiptDetail?: AuthorshipReceipt };
 
@@ -294,6 +330,75 @@ export function extractStudyTerms(text: string, fallbackTitle = ""): string[] {
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
     .map((entry) => entry.label)
     .slice(0, 12);
+}
+
+export function buildArtifactReviewLoop(input: {
+  type: StudyArtifactType;
+  sourceTitle: string;
+  sourceAnchors: string[];
+  cardsCreated: number;
+  quizCreated: number;
+  editedCards?: number;
+}): ArtifactReviewLoop {
+  const sourceAnchor = input.sourceAnchors[0] ?? "Source material";
+  const editedCards = input.editedCards ?? 0;
+  const masterySignal: ArtifactReviewLoop["masterySignal"] = editedCards > 0 || input.quizCreated >= 4
+    ? "getting_there"
+    : "still_learning";
+  return {
+    currentStage: input.cardsCreated > 0 || input.quizCreated > 0 ? "artifact" : "source",
+    steps: [
+      {
+        stage: "source",
+        label: "Class source",
+        sourceAnchor,
+        studentAction: `Confirm the source material from ${input.sourceTitle}.`,
+        masterySignal: "Source is attached before practice starts.",
+      },
+      {
+        stage: "helper",
+        label: "Diana helper",
+        sourceAnchor,
+        studentAction: "Choose guided steps, visual breakdown, quiz, or cards.",
+        masterySignal: "Help mode is recorded for future support.",
+      },
+      {
+        stage: "artifact",
+        label: artifactLabel(input.type),
+        sourceAnchor,
+        studentAction: input.type === "flashcard_set"
+          ? "Edit card wording before saving to review."
+          : "Try one source-anchored question before checking the answer.",
+        masterySignal: `${input.cardsCreated + input.quizCreated} practice items are source-linked.`,
+      },
+      {
+        stage: "review",
+        label: "FSRS review",
+        sourceAnchor,
+        studentAction: "Rate recall honestly so Diana can schedule the next review.",
+        masterySignal: "Recall rating feeds the next support level.",
+      },
+      {
+        stage: "mastery",
+        label: "Mastery signal",
+        sourceAnchor,
+        studentAction: "Mark whether the idea is still learning, getting there, or secure.",
+        masterySignal,
+      },
+      {
+        stage: "next_support",
+        label: "Next assignment support",
+        sourceAnchor,
+        studentAction: "Let recall history shape the next helper mode.",
+        masterySignal: "Future support starts with the weakest source-linked idea.",
+      },
+    ],
+    nextReviewAction: input.type === "flashcard_set"
+      ? "Save edited cards, then review the first due card."
+      : "Try the first practice item, then rate recall.",
+    masterySignal,
+    nextSupportUse: "Diana uses recall ratings, edited-card count, and source anchors to choose steady, guided, scaffolded, or one-move support next time.",
+  };
 }
 
 function normalizeGuide(value: unknown, fallback: StudyArtifactGuideSection[]): StudyArtifactGuideSection[] {
@@ -369,6 +474,35 @@ function normalizeEditState(value: unknown, fallback: ArtifactEditState): Artifa
   };
 }
 
+function normalizeReviewLoop(value: unknown, fallback: ArtifactReviewLoop): ArtifactReviewLoop {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const currentStage = isStudyLoopStage(raw.currentStage) ? raw.currentStage : fallback.currentStage;
+  const masterySignal = raw.masterySignal === "still_learning" || raw.masterySignal === "getting_there" || raw.masterySignal === "secure"
+    ? raw.masterySignal
+    : fallback.masterySignal;
+  const steps = Array.isArray(raw.steps)
+    ? raw.steps
+      .map((item) => item as Record<string, unknown>)
+      .map((item) => ({
+        stage: isStudyLoopStage(item.stage) ? item.stage : "artifact",
+        label: cleanString(item.label, "", 80),
+        sourceAnchor: cleanString(item.sourceAnchor, "Source material", 120),
+        studentAction: cleanString(item.studentAction, "Complete the next study action.", 180),
+        masterySignal: cleanString(item.masterySignal, "Review result updates future support.", 180),
+      }))
+      .filter((step) => step.label)
+      .slice(0, 6)
+    : fallback.steps;
+
+  return {
+    currentStage,
+    steps: steps.length > 0 ? steps : fallback.steps,
+    nextReviewAction: cleanString(raw.nextReviewAction, fallback.nextReviewAction, 180),
+    masterySignal,
+    nextSupportUse: cleanString(raw.nextSupportUse, fallback.nextSupportUse, 220),
+  };
+}
+
 function normalizeVisualBreakdown(value: unknown, fallback: VisualBreakdown | null): VisualBreakdown | null {
   if (!value || typeof value !== "object") return fallback;
   const raw = value as Record<string, unknown>;
@@ -390,6 +524,7 @@ function normalizeVisualBreakdown(value: unknown, fallback: VisualBreakdown | nu
     sourceAnchored: blocks.every((block) => block.sourceAnchor.length > 0),
     blocks,
     quizPrompt: cleanString(raw.quizPrompt, fallback?.quizPrompt ?? "What should you remember from the source?", 220),
+    storyboard: normalizeStoryboard(raw.storyboard, fallback?.storyboard, blocks),
   };
 }
 
@@ -403,8 +538,39 @@ function normalizeAuthorshipReceipt(value: unknown, fallback: AuthorshipReceipt)
       ? raw.aiContribution
       : fallback.aiContribution,
     finalWorkProtected: typeof raw.finalWorkProtected === "boolean" ? raw.finalWorkProtected : fallback.finalWorkProtected,
+    refusalRedirectLogged: typeof raw.refusalRedirectLogged === "boolean" ? raw.refusalRedirectLogged : fallback.refusalRedirectLogged,
+    sensitiveDataExcluded: typeof raw.sensitiveDataExcluded === "boolean" ? raw.sensitiveDataExcluded : fallback.sensitiveDataExcluded,
+    teacherSafeSummary: cleanString(raw.teacherSafeSummary, fallback.teacherSafeSummary, 260),
+    studentActionRequired: cleanString(raw.studentActionRequired, fallback.studentActionRequired, 180),
     shareSummary: cleanString(raw.shareSummary, fallback.shareSummary, 240),
   };
+}
+
+function normalizeStoryboard(
+  value: unknown,
+  fallback: VisualBreakdown["storyboard"] | undefined,
+  blocks: VisualBreakdown["blocks"],
+): VisualBreakdown["storyboard"] {
+  const raw = value && typeof value === "object" ? value as Record<string, unknown> : {};
+  const format = raw.format === "board" || raw.format === "timeline" || raw.format === "concept_map" || raw.format === "process_diagram" || raw.format === "compare_table" || raw.format === "card_stack"
+    ? raw.format
+    : fallback?.format ?? "board";
+  return {
+    format,
+    layout: cleanString(raw.layout, fallback?.layout ?? "Source-linked study blocks.", 180),
+    altText: cleanString(raw.altText, fallback?.altText ?? "Source-linked visual study support.", 220),
+    sourceAnchors: normalizeStringList(raw.sourceAnchors, fallback?.sourceAnchors ?? blocks.map((block) => block.sourceAnchor), 6, 120),
+    interactionPrompt: cleanString(raw.interactionPrompt, fallback?.interactionPrompt ?? "Choose one source-linked block and add a student note.", 180),
+  };
+}
+
+function isStudyLoopStage(value: unknown): value is StudyLoopStage {
+  return value === "source" ||
+    value === "helper" ||
+    value === "artifact" ||
+    value === "review" ||
+    value === "mastery" ||
+    value === "next_support";
 }
 
 function normalizeStringList(value: unknown, fallback: string[], maxItems: number, maxLength: number): string[] {

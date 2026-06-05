@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildAuthorshipReceipt } from "./authorship";
-import type { StudyArtifact } from "./artifacts";
+import { buildArtifactReviewLoop, type StudyArtifact } from "./artifacts";
 
 const artifact: StudyArtifact = {
   type: "practice_test",
@@ -26,6 +26,13 @@ const artifact: StudyArtifact = {
     lastEditedAt: null,
     readyForReview: false,
   },
+  reviewLoop: buildArtifactReviewLoop({
+    type: "practice_test",
+    sourceTitle: "Notes",
+    sourceAnchors: ["Note paragraph 2", "Rubric line 1"],
+    cardsCreated: 1,
+    quizCreated: 1,
+  }),
   visualBreakdown: null,
   authorshipReceiptDetail: {
     sourceAnchors: [],
@@ -33,6 +40,10 @@ const artifact: StudyArtifact = {
     studentActions: [],
     aiContribution: "practice",
     finalWorkProtected: true,
+    refusalRedirectLogged: false,
+    sensitiveDataExcluded: true,
+    teacherSafeSummary: "",
+    studentActionRequired: "",
     shareSummary: "",
   },
 };
@@ -43,6 +54,8 @@ describe("authorship receipt", () => {
     expect(receipt.sourceAnchors).toEqual(["Note paragraph 2", "Rubric line 1"]);
     expect(receipt.dianaActions).toContain("Created recall questions with hints.");
     expect(receipt.finalWorkProtected).toBe(true);
+    expect(receipt.sensitiveDataExcluded).toBe(true);
+    expect(receipt.teacherSafeSummary).toContain("readiness details withheld");
   });
 
   it("keeps no-content policy as no AI contribution", () => {

@@ -25,7 +25,11 @@ export function StudentStateCard({
 
       <div className="grid gap-2 sm:grid-cols-3">
         <StateMetric icon={Activity} label="Readiness" value={readinessLabel(model.readiness)} />
-        <StateMetric icon={Route} label="Rule path" value={model.rulePath.slice(0, 3).join(" / ")} />
+        <StateMetric
+          icon={Route}
+          label={`Rule path (${model.supportPlan.ruleConfidence})`}
+          value={model.supportPlan.decisionTrace.slice(0, 3).join(" / ") || model.rulePath.slice(0, 3).join(" / ")}
+        />
         <StateMetric
           icon={Brain}
           label="Recall"

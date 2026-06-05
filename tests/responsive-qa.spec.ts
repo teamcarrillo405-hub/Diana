@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const baseUrl = process.env.QA_BASE_URL ?? "http://localhost:3000";
 const runName = process.env.QA_RUN_NAME ?? `local-${new Date().toISOString().replace(/[:.]/g, "-")}`;
@@ -87,6 +87,9 @@ for (const viewport of viewports) {
 
       await page.screenshot({ path: screenshot, fullPage: true });
       rows.push({ route, viewport: viewport.label, screenshot, hasHorizontalOverflow, bannedVisible, statusText });
+      expect(statusText, `${viewport.label} ${route} should render without an internal server page`).toBe("ok");
+      expect(hasHorizontalOverflow, `${viewport.label} ${route} should not horizontally overflow`).toBe(false);
+      expect(bannedVisible, `${viewport.label} ${route} should not show blocked pressure copy`).toEqual([]);
     });
   }
 }

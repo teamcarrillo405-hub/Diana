@@ -40,22 +40,27 @@ export type CompetitiveScoreEvidence = {
   directAnswerRedirect: boolean;
   knowledgeChecks: boolean;
   sourceAnchoredHints: boolean;
+  teachingPhaseSequence: boolean;
   visualBreakdownCoverage: boolean;
   visualBreakdownPanel: boolean;
   visualQuizPrompts: boolean;
   sourceAnchoredVisuals: boolean;
+  visualStoryboards: boolean;
   ownershipMeter: boolean;
   authorshipReceipts: boolean;
   refusalRedirectsLogged: boolean;
   proofShareSurfaces: boolean;
+  trustReceiptPrivacy: boolean;
   editableArtifacts: boolean;
   practiceSettings: boolean;
   fsrsReviewLoop: boolean;
   artifactSourceAnchors: boolean;
+  artifactReviewLoop: boolean;
   studentStateRulePath: boolean;
   oneMoveSupport: boolean;
   struggleSignals: boolean;
   readinessTwoQuestionLimit: boolean;
+  supportDecisionTrace: boolean;
   responsiveQaClean: boolean;
   noVisibleBannedCopy: boolean;
   priorityMobileNav: boolean;
@@ -69,6 +74,7 @@ export type CompetitiveScoreEvidence = {
   liveTeenTestPassed: boolean;
   seedContentPacks: boolean;
   competitorProfiles: boolean;
+  tenPointTargets: boolean;
   marketClaimGate: boolean;
   competitiveScoreCommand: boolean;
 };
@@ -93,30 +99,35 @@ export function scoreCompetitiveSystem(
       criterion("direct_redirect", "Direct final-work requests redirect to learning support.", evidence.directAnswerRedirect, "Tighten direct-answer detection and redirect tests."),
       criterion("knowledge_checks", "Knowledge checks are part of the learning turn.", evidence.knowledgeChecks, "Add short checks after explanations."),
       criterion("source_hints", "Hints are source-anchored before more help.", evidence.sourceAnchoredHints, "Require source anchors in all hint ladders."),
+      criterion("teaching_phases", "Teaching turns include diagnose, ask, hint, explain, check, and reflect phases.", evidence.teachingPhaseSequence, "Add an inspectable teaching phase sequence."),
     ]),
     bar("guided_visual_learning", "Guided visual / multimodal learning", [
       criterion("subject_coverage", "Visual breakdown kinds cover major subject helpers.", evidence.visualBreakdownCoverage, "Add missing subject-native visual boards."),
       criterion("visual_panel", "Assignment detail renders the visual helper panel.", evidence.visualBreakdownPanel, "Render visual breakdowns inside assignment detail."),
       criterion("visual_quiz", "Visual boards include a quiz or check prompt.", evidence.visualQuizPrompts, "Add a source-linked check prompt to every visual board."),
       criterion("visual_sources", "Visual blocks are source-anchored.", evidence.sourceAnchoredVisuals, "Block source-less visual output."),
+      criterion("storyboards", "Visual boards include media-ready storyboards with alt text and interaction prompts.", evidence.visualStoryboards, "Add source-grounded storyboard specs to visual boards."),
     ]),
     bar("socratic_trust", "Socratic trust and anti-cheat", [
       criterion("ownership_meter", "Help-without-taking-over meter is visible.", evidence.ownershipMeter, "Surface the ownership meter in helper and artifact flows."),
       criterion("authorship_receipts", "Authorship receipts are structured.", evidence.authorshipReceipts, "Store what Diana did, what the student did, and what remains student-owned."),
       criterion("refusal_logged", "Refusal redirects are logged as learning events.", evidence.refusalRedirectsLogged, "Log direct-answer redirects as positive support events."),
       criterion("share_proof", "Proof/share surfaces can show help without sensitive readiness details.", evidence.proofShareSurfaces, "Expose teacher/share proof without readiness details."),
+      criterion("receipt_privacy", "Receipts separate teacher-safe proof from private readiness data.", evidence.trustReceiptPrivacy, "Add teacher-safe proof and private-readiness exclusion fields."),
     ]),
     bar("study_artifacts", "Study artifacts and memory", [
       criterion("editable_artifacts", "Artifacts are editable before saving.", evidence.editableArtifacts, "Add editable card and study guide drafts."),
       criterion("practice_settings", "Practice tests have settings.", evidence.practiceSettings, "Add question count, type, and difficulty settings."),
       criterion("fsrs_loop", "Cards feed FSRS review and recall signals.", evidence.fsrsReviewLoop, "Connect saved cards to FSRS and recall logging."),
       criterion("artifact_sources", "Artifacts preserve source anchors.", evidence.artifactSourceAnchors, "Carry source anchors through cards, quizzes, and review."),
+      criterion("artifact_review_loop", "Artifacts expose source to helper to review to mastery to next-support loop.", evidence.artifactReviewLoop, "Add an artifact review loop that feeds future support."),
     ]),
     bar("student_state_adaptation", "Student-state adaptation", [
       criterion("rule_path", "Support intensity has a visible rule path.", evidence.studentStateRulePath, "Expose the rule path beside support intensity."),
       criterion("one_move", "One-move support exists for overload.", evidence.oneMoveSupport, "Replace break-only recovery with one academic move."),
       criterion("struggle_signals", "Struggle signals include starts, direct-answer requests, stuck actions, and recall.", evidence.struggleSignals, "Add missing friction signals to the state model."),
       criterion("readiness_limit", "Readiness check-in stays within two questions and three choices.", evidence.readinessTwoQuestionLimit, "Keep readiness lightweight and non-medical."),
+      criterion("decision_trace", "Support plans include a decision trace and rule confidence.", evidence.supportDecisionTrace, "Add explicit support decision trace output."),
     ]),
     bar("teen_native_ux", "Teen-native UX", [
       criterion("responsive_qa", "Browser QA has no overflow or server errors.", evidence.responsiveQaClean, "Run responsive browser QA and fix layout issues."),
@@ -136,6 +147,7 @@ export function scoreCompetitiveSystem(
     bar("distribution_content_readiness", "Distribution / content readiness", [
       criterion("seed_content", "Seven Diana-owned seed content packs are source-linked.", evidence.seedContentPacks, "Add source-linked high school and AP content packs."),
       criterion("profiles", "Competitor profiles are centralized and honest.", evidence.competitorProfiles, "Add comparison data for each named competitor."),
+      criterion("ten_targets", "10/10 target plan is encoded for the six honest-score gaps.", evidence.tenPointTargets, "Add a 10/10 target map for the gap areas."),
       criterion("claim_gate", "Market 10/10 claim is gated by live teen proof.", evidence.marketClaimGate, "Prevent score output from claiming market 10/10 without teen proof."),
       criterion("score_command", "Competitive score command exists.", evidence.competitiveScoreCommand, "Add npm run competitive-score."),
     ]),

@@ -28,14 +28,32 @@ export type NextTeachingMove = {
   studentActionRequired: string;
 };
 
+export type TeachingLoopPhase = "diagnose" | "ask" | "hint" | "explain" | "check" | "reflect";
+
+export type TeachingLoopStep = {
+  phase: TeachingLoopPhase;
+  label: string;
+  sourceAnchor: string;
+  studentActionRequired: string;
+};
+
+export type DiagnosticProbe = {
+  question: string;
+  reason: string;
+  sourceAnchor: string;
+};
+
 export type LearningTurn = {
   assignmentKind: AssignmentKind;
   responseQuality: StudentResponseQuality;
+  diagnosticProbe: DiagnosticProbe;
   question: GuidedQuestion;
   hintLadder: HintLadder;
   explanationFrame: string;
   knowledgeCheck: KnowledgeCheck;
   nextTeachingMove: NextTeachingMove;
+  teachingSequence: TeachingLoopStep[];
+  evidenceAnchors: string[];
   authorshipBoundary: string;
 };
 
@@ -47,6 +65,7 @@ export function buildLearningTurn(input: {
   responseQuality?: StudentResponseQuality;
 }): LearningTurn {
   const sourceAnchor = input.sourceAnchors?.[0]?.label ?? defaultAnchor(input.assignmentKind);
+  const evidenceAnchors = input.sourceAnchors?.map((anchor) => anchor.label).filter(Boolean).slice(0, 4) ?? [sourceAnchor];
   const responseQuality = input.responseQuality ?? qualityFromPrompt(input.studentPrompt);
   const directAnswer = asksForFinalWork(input.studentPrompt);
   const nextTeachingMove = directAnswer
@@ -60,6 +79,11 @@ export function buildLearningTurn(input: {
   return {
     assignmentKind: input.assignmentKind,
     responseQuality,
+    diagnosticProbe: {
+      question: diagnosticQuestionFor(input.assignmentKind, responseQuality),
+      reason: diagnosticReasonFor(responseQuality, input.supportIntensity),
+      sourceAnchor,
+    },
     question: {
       prompt: firstQuestionFor(input.assignmentKind),
       sourceAnchor,
@@ -77,6 +101,14 @@ export function buildLearningTurn(input: {
       sourceAnchor,
     },
     nextTeachingMove,
+    teachingSequence: teachingSequenceFor({
+      kind: input.assignmentKind,
+      sourceAnchor,
+      supportIntensity: input.supportIntensity,
+      responseQuality,
+      directAnswer,
+    }),
+    evidenceAnchors,
     authorshipBoundary: "Diana may ask, hint, organize, and quiz. The final answer and final wording stay student-made.",
   };
 }
@@ -113,6 +145,78 @@ function moveFor(
     return { kind: "check", label: "Check understanding", studentActionRequired: "Answer the quick check before opening more help." };
   }
   return { kind: "explain", label: "Explain the next concept", studentActionRequired: actionFor(kind, supportIntensity) };
+}
+
+function diagnosticQuestionFor(kind: AssignmentKind, quality: StudentResponseQuality): string {
+  if (quality === "not_started") return "What part of the prompt can you point to first?";
+  if (quality === "needs_hint") return "Which part felt unclear: the source, the method, or the first step?";
+  if (quality === "ready_for_check") return "What do you want Diana to check before you continue?";
+  if (kind === "essay") return "Which sentence is yours, and which source detail supports it?";
+  if (kind === "problem_set" || kind === "test_prep") return "What did you identify as known, needed, and the first rule?";
+  return "What have you already tried from the source?";
+}
+
+function diagnosticReasonFor(quality: StudentResponseQuality, intensity: SupportIntensity): string {
+  if (intensity === "one_move" || intensity === "recovery") return "Diana is reducing choices before adding explanation.";
+  if (quality === "not_started") return "Diana checks the starting point before giving a hint.";
+  if (quality === "needs_hint") return "Diana needs the stuck point before choosing the next hint.";
+  if (quality === "ready_for_check") return "Diana checks understanding before opening a new explanation.";
+  return "Diana uses the student's attempt to keep help targeted.";
+}
+
+function teachingSequenceFor(input: {
+  kind: AssignmentKind;
+  sourceAnchor: string;
+  supportIntensity: SupportIntensity;
+  responseQuality: StudentResponseQuality;
+  directAnswer: boolean;
+}): TeachingLoopStep[] {
+  const steps: TeachingLoopStep[] = [
+    {
+      phase: "diagnose",
+      label: "Find the stuck point",
+      sourceAnchor: input.sourceAnchor,
+      studentActionRequired: diagnosticQuestionFor(input.kind, input.responseQuality),
+    },
+    {
+      phase: "ask",
+      label: "Ask one targeted question",
+      sourceAnchor: input.sourceAnchor,
+      studentActionRequired: firstQuestionFor(input.kind),
+    },
+  ];
+
+  if (!input.directAnswer) {
+    steps.push({
+      phase: "hint",
+      label: "Open the next hint only after student action",
+      sourceAnchor: input.sourceAnchor,
+      studentActionRequired: actionFor(input.kind, input.supportIntensity),
+    });
+  }
+
+  steps.push(
+    {
+      phase: "explain",
+      label: "Explain the next concept, not the final work",
+      sourceAnchor: input.sourceAnchor,
+      studentActionRequired: explanationFrameFor(input.kind, input.sourceAnchor),
+    },
+    {
+      phase: "check",
+      label: "Run a short knowledge check",
+      sourceAnchor: input.sourceAnchor,
+      studentActionRequired: checkFor(input.kind),
+    },
+    {
+      phase: "reflect",
+      label: "Name the next student-owned move",
+      sourceAnchor: input.sourceAnchor,
+      studentActionRequired: successSignalFor(input.kind),
+    },
+  );
+
+  return steps;
 }
 
 function hintLevelFor(intensity: SupportIntensity): 1 | 2 | 3 {

@@ -12,6 +12,13 @@ describe("guided learning", () => {
     expect(turn.nextTeachingMove.kind).toBe("redirect");
     expect(turn.question.sourceAnchor).toBe("Rubric line 1");
     expect(turn.authorshipBoundary).toContain("student-made");
+    expect(turn.teachingSequence.map((step) => step.phase)).toEqual([
+      "diagnose",
+      "ask",
+      "explain",
+      "check",
+      "reflect",
+    ]);
   });
 
   it("scales hint ladders by support intensity", () => {
@@ -23,5 +30,25 @@ describe("guided learning", () => {
   it("detects answer-machine prompts", () => {
     expect(asksForFinalWork("solve the answer for me")).toBe(true);
     expect(asksForFinalWork("give me a hint")).toBe(false);
+  });
+
+  it("runs a full teaching loop for normal help", () => {
+    const turn = buildLearningTurn({
+      assignmentKind: "reading",
+      studentPrompt: "I am stuck on the first section",
+      supportIntensity: "scaffolded",
+      sourceAnchors: [{ label: "Passage paragraph 2", sourceType: "assignment", detail: "A source paragraph." }],
+    });
+
+    expect(turn.diagnosticProbe.reason).toContain("stuck point");
+    expect(turn.teachingSequence.map((step) => step.phase)).toEqual([
+      "diagnose",
+      "ask",
+      "hint",
+      "explain",
+      "check",
+      "reflect",
+    ]);
+    expect(turn.evidenceAnchors).toEqual(["Passage paragraph 2"]);
   });
 });

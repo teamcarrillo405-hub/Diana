@@ -10,22 +10,27 @@ const PASSING_EVIDENCE: CompetitiveScoreEvidence = {
   directAnswerRedirect: true,
   knowledgeChecks: true,
   sourceAnchoredHints: true,
+  teachingPhaseSequence: true,
   visualBreakdownCoverage: true,
   visualBreakdownPanel: true,
   visualQuizPrompts: true,
   sourceAnchoredVisuals: true,
+  visualStoryboards: true,
   ownershipMeter: true,
   authorshipReceipts: true,
   refusalRedirectsLogged: true,
   proofShareSurfaces: true,
+  trustReceiptPrivacy: true,
   editableArtifacts: true,
   practiceSettings: true,
   fsrsReviewLoop: true,
   artifactSourceAnchors: true,
+  artifactReviewLoop: true,
   studentStateRulePath: true,
   oneMoveSupport: true,
   struggleSignals: true,
   readinessTwoQuestionLimit: true,
+  supportDecisionTrace: true,
   responsiveQaClean: true,
   noVisibleBannedCopy: true,
   priorityMobileNav: true,
@@ -39,6 +44,7 @@ const PASSING_EVIDENCE: CompetitiveScoreEvidence = {
   liveTeenTestPassed: false,
   seedContentPacks: true,
   competitorProfiles: true,
+  tenPointTargets: true,
   marketClaimGate: true,
   competitiveScoreCommand: true,
 };
@@ -55,7 +61,7 @@ describe("competitive scoring", () => {
   it("generates backlog when a repo-verifiable bar is short", () => {
     const scorecard = scoreCompetitiveSystem({ ...PASSING_EVIDENCE, visualQuizPrompts: false });
     expect(scorecard.allRepoVerifiableBarsAtTen).toBe(false);
-    expect(scorecard.bars.find((bar) => bar.id === "guided_visual_learning")?.score).toBe(7.5);
+    expect(scorecard.bars.find((bar) => bar.id === "guided_visual_learning")?.score).toBe(8);
     expect(scorecard.nextBacklog.join(" ")).toContain("source-linked check prompt");
   });
 

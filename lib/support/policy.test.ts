@@ -86,6 +86,8 @@ describe("body-aware support policy", () => {
     expect(plan.struggle).toBe("blocked");
     expect(plan.intensity).toBe("scaffolded");
     expect(plan.nextStep).toContain("write what it is asking for");
+    expect(plan.decisionTrace).toEqual(expect.arrayContaining(["struggle:blocked", "support:scaffolded", "starts:2"]));
+    expect(plan.ruleConfidence).toBe("high");
   });
 
   it("treats repeated helper mode changes without progress as a blocked step", () => {
@@ -126,6 +128,7 @@ describe("body-aware support policy", () => {
     expect(plan.struggle).toBe("overload");
     expect(plan.intensity).toBe("one_move");
     expect(plan.headline).toBe("One-move support");
+    expect(plan.decisionTrace).toContain("still-stuck:2");
   });
 
   it("uses milestone memory only when there is enough evidence", () => {

@@ -18,6 +18,12 @@ export function LearningTurnCard({ turn }: { turn: LearningTurn }) {
         </span>
       </div>
 
+      <div className="rounded-xl border border-border bg-background/70 p-3">
+        <p className="text-xs font-medium uppercase tracking-wider text-muted">Diagnostic probe</p>
+        <p className="mt-2 text-sm font-medium">{turn.diagnosticProbe.question}</p>
+        <p className="mt-1 text-xs text-muted">{turn.diagnosticProbe.reason}</p>
+      </div>
+
       <div className="grid gap-3 lg:grid-cols-3">
         <div className="rounded-xl border border-border bg-background/70 p-3">
           <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
@@ -45,6 +51,16 @@ export function LearningTurnCard({ turn }: { turn: LearningTurn }) {
           <p className="mt-2 text-sm font-medium">{turn.knowledgeCheck.question}</p>
           <p className="mt-2 text-xs text-muted">{turn.knowledgeCheck.successSignal}</p>
         </div>
+      </div>
+
+      <div className="grid gap-2 md:grid-cols-3">
+        {turn.teachingSequence.map((step) => (
+          <div key={`${step.phase}-${step.sourceAnchor}`} className="rounded-xl border border-border bg-background/70 p-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">{step.phase}</p>
+            <p className="mt-1 text-sm font-medium">{step.label}</p>
+            <p className="mt-1 text-xs text-muted">{step.studentActionRequired}</p>
+          </div>
+        ))}
       </div>
     </section>
   );

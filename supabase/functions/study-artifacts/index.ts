@@ -37,12 +37,26 @@ Rules:
     "lastEditedAt": null,
     "readyForReview": boolean
   },
+  "reviewLoop": {
+    "currentStage": "source" | "helper" | "artifact" | "review" | "mastery" | "next_support",
+    "steps": [{"stage": string, "label": string, "sourceAnchor": string, "studentAction": string, "masterySignal": string}],
+    "nextReviewAction": string,
+    "masterySignal": "still_learning" | "getting_there" | "secure",
+    "nextSupportUse": string
+  },
   "visualBreakdown": {
     "kind": string,
     "title": string,
     "sourceAnchored": boolean,
     "blocks": [{"label": string, "prompt": string, "sourceAnchor": string, "studentAction": string}],
-    "quizPrompt": string
+    "quizPrompt": string,
+    "storyboard": {
+      "format": "board" | "timeline" | "concept_map" | "process_diagram" | "compare_table" | "card_stack",
+      "layout": string,
+      "altText": string,
+      "sourceAnchors": string[],
+      "interactionPrompt": string
+    }
   },
   "authorshipReceiptDetail": {
     "sourceAnchors": string[],
@@ -50,6 +64,10 @@ Rules:
     "studentActions": string[],
     "aiContribution": "none" | "organize" | "hint" | "practice" | "draft_suggestion",
     "finalWorkProtected": true,
+    "refusalRedirectLogged": boolean,
+    "sensitiveDataExcluded": true,
+    "teacherSafeSummary": string,
+    "studentActionRequired": string,
     "shareSummary": string
   }
 }

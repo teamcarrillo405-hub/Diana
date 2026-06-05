@@ -1,6 +1,7 @@
 import { Trophy, ShieldCheck, TimerReset } from "lucide-react";
 import { COMPETITIVE_CAPABILITY_BARS } from "@/lib/competitive/capability-matrix";
 import { COMPETITIVE_BENCHMARK_SCENARIOS } from "@/lib/benchmark/competitive";
+import { TEN_POINT_COMPETITIVE_TARGETS } from "@/lib/competitive/ten-point-targets";
 import { TEEN_TEST_TASKS } from "@/lib/teen-testing/protocol";
 import { TeenNativeUxEvidencePanel } from "@/components/teen-native-ux-evidence-panel";
 
@@ -24,6 +25,25 @@ export default function ProofPage() {
       </section>
 
       <TeenNativeUxEvidencePanel />
+
+      <section className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4 shadow-sm">
+        <h2 className="text-base font-semibold">10/10 target plan</h2>
+        <div className="grid gap-3 lg:grid-cols-2">
+          {TEN_POINT_COMPETITIVE_TARGETS.map((target) => (
+            <article key={target.id} className="rounded-xl border border-border bg-background p-3">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                <h3 className="text-sm font-semibold">{target.label}</h3>
+                <span className="w-fit rounded-full border border-border px-2 py-0.5 text-xs text-muted">
+                  before {target.honestScoreBefore}/10
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-muted">{target.tenPointTarget}</p>
+              <p className="mt-2 text-xs text-muted">Built: {target.implementationEvidence.join(" | ")}</p>
+              <p className="mt-1 text-xs text-muted">Live gate: {target.liveEvidenceRequired.join(" | ")}</p>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4 shadow-sm">
         <h2 className="text-base font-semibold">Capability bars</h2>

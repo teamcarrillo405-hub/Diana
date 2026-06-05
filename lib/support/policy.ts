@@ -41,6 +41,8 @@ export type SupportPlan = {
   nextStep: string;
   bodyCue: string | null;
   patternNote: string | null;
+  decisionTrace: string[];
+  ruleConfidence: "medium" | "high";
   chips: string[];
 };
 
@@ -122,6 +124,8 @@ export function buildSupportPlan(input: {
     nextStep,
     bodyCue,
     patternNote,
+    decisionTrace: decisionTraceFor(input, struggle, intensity),
+    ruleConfidence: ruleConfidenceFor(input, struggle),
     chips: chipsFor(input, struggle, intensity),
   };
 }
@@ -257,6 +261,53 @@ function rationaleFor(
   }
   if ((input.assignment.reading_load ?? 0) >= 3) return "Reading load is high, so the first move is concrete.";
   return "This is the lightest support level likely to get the task moving.";
+}
+
+function decisionTraceFor(
+  input: {
+    assignment: SupportAssignment;
+    readiness?: ReadinessCheckIn | null;
+    friction?: FrictionSignals;
+  },
+  struggle: StruggleState,
+  intensity: SupportIntensity,
+): string[] {
+  const friction = input.friction ?? {};
+  const trace = [
+    `assignment:${input.assignment.kind}`,
+    `struggle:${struggle}`,
+    `support:${intensity}`,
+  ];
+  if (input.readiness) trace.push(`body:${input.readiness.body}`, `focus:${input.readiness.focus}`);
+  if ((friction.startsLast24h ?? 0) > 0) trace.push(`starts:${friction.startsLast24h}`);
+  if ((friction.restartsLast24h ?? 0) > 0) trace.push(`restarts:${friction.restartsLast24h}`);
+  if ((friction.helpRequestsLast24h ?? 0) > 0) trace.push(`help:${friction.helpRequestsLast24h}`);
+  if ((friction.modeSwitchesLast24h ?? 0) > 0) trace.push(`mode-switches:${friction.modeSwitchesLast24h}`);
+  if ((friction.directAnswerRequestsLast24h ?? 0) > 0) trace.push(`answer-redirects:${friction.directAnswerRequestsLast24h}`);
+  if ((friction.stillStuckLast24h ?? 0) > 0) trace.push(`still-stuck:${friction.stillStuckLast24h}`);
+  if ((friction.longIdleResumesLast24h ?? 0) > 0) trace.push(`idle-resumes:${friction.longIdleResumesLast24h}`);
+  if ((friction.recallNeedsReviewLast7d ?? 0) > 0) trace.push(`recall-review:${friction.recallNeedsReviewLast7d}`);
+  return trace.slice(0, 10);
+}
+
+function ruleConfidenceFor(
+  input: {
+    readiness?: ReadinessCheckIn | null;
+    friction?: FrictionSignals;
+  },
+  struggle: StruggleState,
+): SupportPlan["ruleConfidence"] {
+  const friction = input.friction ?? {};
+  const signalCount = [
+    input.readiness,
+    (friction.startsLast24h ?? 0) > 0,
+    (friction.helpRequestsLast24h ?? 0) > 0,
+    (friction.modeSwitchesLast24h ?? 0) > 0,
+    (friction.directAnswerRequestsLast24h ?? 0) > 0,
+    (friction.stillStuckLast24h ?? 0) > 0,
+    (friction.recallNeedsReviewLast7d ?? 0) > 0,
+  ].filter(Boolean).length;
+  return signalCount >= 2 || struggle === "blocked" || struggle === "overload" ? "high" : "medium";
 }
 
 function chipsFor(

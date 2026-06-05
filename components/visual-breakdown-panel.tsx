@@ -31,6 +31,22 @@ export function VisualBreakdownPanel({ breakdown }: { breakdown: VisualBreakdown
       <p className="rounded-xl border border-border bg-background/70 px-3 py-2 text-sm">
         {breakdown.quizPrompt}
       </p>
+
+      <div className="grid gap-2 rounded-2xl border border-border bg-background/70 p-3 text-sm md:grid-cols-[1.1fr_1fr]">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted">Show another way</p>
+          <p className="mt-1 font-semibold">{breakdown.storyboard.format.replace(/_/g, " ")}</p>
+          <p className="mt-1 text-xs leading-5 text-muted">{breakdown.storyboard.layout}</p>
+          <p className="mt-2 text-xs text-muted">{breakdown.storyboard.altText}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-surface-soft p-3">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted">Student interaction</p>
+          <p className="mt-1 text-sm font-medium">{breakdown.storyboard.interactionPrompt}</p>
+          <p className="mt-2 text-xs text-muted">
+            Sources: {breakdown.storyboard.sourceAnchors.join(" | ")}
+          </p>
+        </div>
+      </div>
     </section>
   );
 }
