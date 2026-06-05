@@ -22,7 +22,7 @@
   - enable Supabase anonymous sign-ins for the QA environment and launch the dev server with `QA_CREATE_USER=true`.
 
 ## Required Finish Command
-Run `npm run qa:auth-preflight` against a live app first. When it passes, run `npm run qa:responsive` with the same QA env, then rerun:
+Run `npm run qa:visual-gate` against a live app. It runs `qa:auth-preflight`, `qa:responsive`, and `teen-ux-score` in order. When that passes, rerun:
 - `npm run teen-ux-score`
 - `npm run competitive-score`
 - `npm run typecheck`
