@@ -62,6 +62,9 @@ const authenticatedRoutes = new Set([
 
 const qaEmail = process.env.QA_USER_EMAIL;
 const qaPassword = process.env.QA_USER_PASSWORD;
+const createQaUser = process.env.QA_CREATE_USER === "true";
+const generatedQaEmail = `diana-qa-${Date.now()}@example.com`;
+const generatedQaPassword = `DianaQa!${Date.now()}`;
 
 type ResultRow = {
   route: string;
@@ -74,6 +77,7 @@ type ResultRow = {
 };
 
 const rows: ResultRow[] = [];
+let generatedQaAccountCreated = false;
 mkdirSync(outDir, { recursive: true });
 
 for (const viewport of viewports) {
@@ -81,8 +85,8 @@ for (const viewport of viewports) {
     test(`${viewport.label} ${route}`, async ({ page }) => {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
       const needsAuth = authenticatedRoutes.has(route);
-      if (needsAuth && qaEmail && qaPassword) {
-        await signInForQa(page);
+      if (needsAuth) {
+        await ensureSignedInForQa(page);
       }
       const response = await page.goto(new URL(route, baseUrl).toString(), {
         waitUntil: "domcontentloaded",
@@ -125,15 +129,80 @@ test.afterAll(() => {
   writeFileSync(join(outDir, "qa-results.json"), `${JSON.stringify(rows, null, 2)}\n`);
 });
 
-async function signInForQa(page: import("@playwright/test").Page) {
+async function ensureSignedInForQa(page: import("@playwright/test").Page) {
+  if (qaEmail && qaPassword) {
+    await signInForQa(page, qaEmail, qaPassword);
+    return;
+  }
+
+  if (createQaUser) {
+    if (generatedQaAccountCreated) {
+      await signInForQa(page, generatedQaEmail, generatedQaPassword);
+      await expectAuthenticatedForQa(page, "generated QA sign-in");
+      return;
+    }
+
+    const anonymousSessionCreated = await createAnonymousQaSession(page);
+    if (!anonymousSessionCreated) {
+      await signUpAndOnboardForQa(page);
+    }
+    generatedQaAccountCreated = true;
+    await expectAuthenticatedForQa(page, "generated QA session");
+  }
+}
+
+async function signInForQa(page: import("@playwright/test").Page, email: string, password: string) {
   await page.goto(new URL("/login", baseUrl).toString(), {
     waitUntil: "domcontentloaded",
     timeout: 15_000,
   });
-  await page.getByLabel("Email").fill(qaEmail!);
-  await page.getByLabel("Password").fill(qaPassword!);
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
   await page.waitForLoadState("networkidle", { timeout: 7_000 }).catch(() => undefined);
+}
+
+async function createAnonymousQaSession(page: import("@playwright/test").Page) {
+  const response = await page.goto(new URL("/api/qa/anonymous-session", baseUrl).toString(), {
+    waitUntil: "networkidle",
+    timeout: 15_000,
+  }).catch(() => null);
+  return response?.ok() ?? false;
+}
+
+async function signUpAndOnboardForQa(page: import("@playwright/test").Page) {
+  await page.goto(new URL("/signup", baseUrl).toString(), {
+    waitUntil: "domcontentloaded",
+    timeout: 15_000,
+  });
+  await page.getByLabel("Email").fill(generatedQaEmail);
+  await page.getByLabel("Password").fill(generatedQaPassword);
+  await page.getByLabel("Name").fill("Diana QA Student");
+  await page.getByLabel("Date of birth").fill("2009-09-01");
+  await page.getByRole("button", { name: /create account/i }).click();
+  await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+
+  if (page.url().includes("/onboarding")) {
+    await page.getByRole("button", { name: /skip/i }).click();
+    await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+  }
+}
+
+async function expectAuthenticatedForQa(page: import("@playwright/test").Page, source: string) {
+  await page.goto(new URL("/dashboard", baseUrl).toString(), {
+    waitUntil: "domcontentloaded",
+    timeout: 15_000,
+  });
+  await page.waitForLoadState("networkidle", { timeout: 7_000 }).catch(() => undefined);
+  const text = (await page.locator("body").innerText({ timeout: 5_000 }).catch(() => "")).toLowerCase();
+  const url = page.url();
+  if (url.includes("/login") || isLoginRedirect(text)) {
+    throw new Error(
+      `${source} did not create an authenticated Diana session. ` +
+        "Set QA_USER_EMAIL and QA_USER_PASSWORD for an already-onboarded test student, " +
+        "or run the dev server with QA_CREATE_USER=true and Supabase anonymous auth enabled.",
+    );
+  }
 }
 
 function isLoginRedirect(text: string): boolean {

@@ -1,6 +1,6 @@
 # Diana Competitive Scorecard
 
-Generated: 2026-06-05T20:21:46.166Z
+Generated: 2026-06-05T21:11:44.510Z
 Repo score: 10/10
 Repo-verifiable 10/10: yes
 Market 10/10 claim allowed: no

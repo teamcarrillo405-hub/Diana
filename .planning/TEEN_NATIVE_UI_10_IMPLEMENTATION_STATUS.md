@@ -16,6 +16,10 @@
   - `QA_USER_EMAIL`
   - `QA_USER_PASSWORD`
   - an already-onboarded test student account
+- If a preexisting test account is not available, set `QA_CREATE_USER=true` so the responsive QA test signs up a disposable student and completes onboarding through the real UI.
+- Added a dev-only `/api/qa/anonymous-session` bootstrap that can create a real Supabase anonymous QA session when the hosted project enables anonymous sign-ins. Current hosted Supabase responded `Anonymous sign-ins are disabled`, so the remaining path is either:
+  - provide `QA_USER_EMAIL` and `QA_USER_PASSWORD` for an already-onboarded student, or
+  - enable Supabase anonymous sign-ins for the QA environment and launch the dev server with `QA_CREATE_USER=true`.
 
 ## Required Finish Command
 Run `npm run qa:responsive` against a live app with the QA credentials set, then rerun:

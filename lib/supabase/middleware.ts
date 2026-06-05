@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 
 // Default-deny: everything requires auth unless explicitly allowed here.
-const PUBLIC_EXACT = new Set(["/", "/manifest.webmanifest"]);
+const PUBLIC_EXACT = new Set(["/", "/manifest.webmanifest", "/api/qa/anonymous-session"]);
 const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
 
