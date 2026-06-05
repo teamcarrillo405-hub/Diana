@@ -25,25 +25,28 @@ export function NewAssignmentForm({
   classes,
   calibrationMap,
   templates,
+  initialTemplateId = "",
 }: {
   classes: ClassOption[];
   calibrationMap?: Record<string, { mean: number; n: number }>;
   templates: AssignmentTemplate[];
+  initialTemplateId?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const [templateId, setTemplateId] = useState<string>("");
+  const initialTemplate = templates.find((template) => template.id === initialTemplateId);
+  const [templateId, setTemplateId] = useState<string>(initialTemplate?.id ?? "");
   const [title, setTitle] = useState("");
   const [classId, setClassId] = useState(classes[0]?.id ?? "");
-  const [kind, setKind] = useState<AssignmentKind>("other");
+  const [kind, setKind] = useState<AssignmentKind>((initialTemplate?.kind as AssignmentKind | undefined) ?? "other");
   const [dueAt, setDueAt] = useState("");
   const [estimate, setEstimate] = useState("");
   const [difficulty, setDifficulty] = useState<number>(3);
   const [readingLoad, setReadingLoad] = useState<number>(1);
   const [writingLoad, setWritingLoad] = useState<number>(1);
-  const [description, setDescription] = useState("");
+  const [description, setDescription] = useState(initialTemplate ? templateToDescription(initialTemplate) : "");
 
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();

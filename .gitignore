@@ -12,3 +12,5 @@ tsconfig.tsbuildinfo
 .turbo
 coverage/
 .qa/
+test-results/
+vendor/open-source/

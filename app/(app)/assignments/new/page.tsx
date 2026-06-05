@@ -4,9 +4,14 @@ import { NewAssignmentForm } from "./form";
 import type { CalibrationStats } from "@/lib/time-budget/calibration";
 import { parseTemplateRow, type AssignmentTemplate } from "@/lib/templates/templates";
 
-export default async function NewAssignmentPage() {
+export default async function NewAssignmentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ template?: string }>;
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const { template: initialTemplateId } = await searchParams;
 
   const [{ data: classes }, { data: estimates }, { data: templates }] = await Promise.all([
     supabase
@@ -62,7 +67,12 @@ export default async function NewAssignmentPage() {
           ← All tasks
         </Link>
       </header>
-      <NewAssignmentForm classes={classes} calibrationMap={calibrationMap} templates={parsedTemplates} />
+      <NewAssignmentForm
+        classes={classes}
+        calibrationMap={calibrationMap}
+        templates={parsedTemplates}
+        initialTemplateId={initialTemplateId ?? ""}
+      />
     </div>
   );
 }

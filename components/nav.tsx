@@ -4,17 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  Accessibility,
   BarChart3,
+  Bell,
   BookOpen,
   Brain,
   Calendar,
+  CalendarPlus,
   CheckSquare,
+  ClipboardList,
   FileText,
   GraduationCap,
   HeartPulse,
   Home,
   Images,
+  LayoutTemplate,
+  ListChecks,
   Menu,
+  MessageCircle,
   Mic2,
   Settings as Cog,
   ShieldCheck,
@@ -38,6 +45,10 @@ const PRIMARY_MOBILE_ITEMS = [
 ] satisfies AppShellNavItem[];
 
 const SECONDARY_ITEMS = [
+  { href: "/focus", label: "Focus plan", icon: Timer },
+  { href: "/study-buddy", label: "Study buddy", icon: MessageCircle },
+  { href: "/break-down", label: "Break down", icon: ListChecks },
+  { href: "/reminders", label: "Reminders", icon: Bell },
   { href: "/portfolio", label: "Portfolio", icon: Images },
   { href: "/voice", label: "Voice", icon: Mic2 },
   { href: "/wellness", label: "Wellness", icon: HeartPulse },
@@ -45,10 +56,14 @@ const SECONDARY_ITEMS = [
   { href: "/study-groups", label: "Groups", icon: UsersRound },
   { href: "/timer", label: "Timer", icon: Timer },
   { href: "/calendar", label: "Calendar", icon: Calendar },
+  { href: "/imports", label: "Imports", icon: CalendarPlus },
+  { href: "/templates", label: "Templates", icon: LayoutTemplate },
   { href: "/wins", label: "Wins", icon: Sparkles },
+  { href: "/shame-mode", label: "Reset mode", icon: ClipboardList },
   { href: "/proof", label: "Proof", icon: ShieldCheck },
   { href: "/classes", label: "Classes", icon: BookOpen },
   { href: "/insights", label: "Insights", icon: BarChart3 },
+  { href: "/accessibility", label: "Access", icon: Accessibility },
   { href: "/settings", label: "Settings", icon: Cog },
 ] satisfies AppShellNavItem[];
 
@@ -66,7 +81,7 @@ export function BottomNav() {
   return (
     <>
       {moreOpen && (
-        <div className="fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-50 mx-auto max-w-md rounded-2xl border border-border bg-surface-raised p-3 shadow-xl md:hidden">
+        <div className="fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-50 mx-auto max-h-[70dvh] max-w-md overflow-y-auto rounded-2xl border border-border bg-surface-raised p-3 shadow-xl md:hidden">
           <div className="mb-2 flex items-center justify-between gap-3 px-1">
             <p className="text-sm font-semibold">More</p>
             <button

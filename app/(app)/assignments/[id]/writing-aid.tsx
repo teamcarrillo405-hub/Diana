@@ -8,6 +8,7 @@ import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { authorshipPercent, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
 import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 import { buildHelpOwnershipMeter } from "@/lib/student-state/model";
+import type { DianaWritingMechanicsSuggestion } from "@/lib/language-tool/client";
 
 interface WritingAidProps {
   assignmentId: string;
@@ -31,6 +32,7 @@ export function WritingAid({ assignmentId, classAiMode, studyContext }: WritingA
   const [prompt, setPrompt] = useState("");
   const [ruleResult, setRuleResult] = useState<string | null>(null);
   const [coauthorResult, setCoauthorResult] = useState<WritingCoauthorResult | null>(null);
+  const [mechanicsSuggestions, setMechanicsSuggestions] = useState<DianaWritingMechanicsSuggestion[]>([]);
   const [activeMode, setActiveMode] = useState<WritingCoauthorMode>("essay_scaffold");
   const [acceptedAiChars, setAcceptedAiChars] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -70,6 +72,24 @@ export function WritingAid({ assignmentId, classAiMode, studyContext }: WritingA
     } else {
       setErrorMsg(res.error);
     }
+    setLoading(false);
+  }
+
+  async function checkMechanics() {
+    if (!draft.trim()) return;
+    setLoading(true);
+    setErrorMsg(null);
+    setMechanicsSuggestions([]);
+    const response = await fetch("/api/language-tool/check", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: draft, language: "en-US" }),
+    });
+    const result = (await response.json()) as
+      | { ok: true; suggestions: DianaWritingMechanicsSuggestion[] }
+      | { ok: false; error: string };
+    if (result.ok) setMechanicsSuggestions(result.suggestions);
+    else setErrorMsg(result.error);
     setLoading(false);
   }
 
@@ -160,6 +180,14 @@ export function WritingAid({ assignmentId, classAiMode, studyContext }: WritingA
             >
               Explain one rule
             </button>
+            <button
+              type="button"
+              onClick={checkMechanics}
+              disabled={loading || !draft.trim()}
+              className="rounded-md border border-border px-2 py-1 text-xs text-muted hover:bg-border/30 disabled:opacity-50"
+            >
+              Check mechanics
+            </button>
           </div>
 
           {errorMsg && (
@@ -191,6 +219,24 @@ export function WritingAid({ assignmentId, classAiMode, studyContext }: WritingA
                         Add continuation
                       </button>
                     )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {mechanicsSuggestions.length > 0 && (
+            <div className="space-y-3 rounded-xl border border-border bg-card/60 p-4">
+              <p className="text-sm font-medium">Mechanics suggestions</p>
+              <div className="grid gap-2 md:grid-cols-2">
+                {mechanicsSuggestions.map((suggestion) => (
+                  <div key={`${suggestion.sourceAnchor}-${suggestion.message}`} className="space-y-2 rounded-md border border-border bg-background p-3">
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted">{suggestion.sourceAnchor}</p>
+                    <p className="text-sm">{suggestion.message}</p>
+                    {suggestion.replacements.length > 0 && (
+                      <p className="text-xs text-muted">Options: {suggestion.replacements.join(", ")}</p>
+                    )}
+                    <p className="text-xs text-muted">{suggestion.studentAction}</p>
                   </div>
                 ))}
               </div>

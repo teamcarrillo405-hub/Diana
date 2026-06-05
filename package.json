@@ -17,7 +17,8 @@
     "tone-audit": "npx tsx scripts/tone-audit.ts",
     "launch-audit": "npx tsx scripts/launch-audit.ts",
     "competitive-score": "npx tsx scripts/competitive-score.ts",
-    "teen-ux-score": "npx tsx scripts/teen-ux-score.ts"
+    "teen-ux-score": "npx tsx scripts/teen-ux-score.ts",
+    "qa:responsive": "playwright test tests/responsive-qa.spec.ts --reporter=line --workers=1"
   },
   "dependencies": {
     "@fontsource/opendyslexic": "^5.2.5",
@@ -34,6 +35,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^22.10.0",
