@@ -12,9 +12,19 @@ const MODES: Array<{ id: Mode; label: string }> = [
   { id: "quiz", label: "Quiz me" },
 ];
 
-export function StudyBuddyClient() {
-  const [source, setSource] = useState("Rubric: use one quote, explain the evidence, and connect it to the claim.");
-  const [question, setQuestion] = useState("I have evidence but do not know how to start the paragraph.");
+export function StudyBuddyClient({
+  initialSource,
+  initialQuestion,
+}: {
+  initialSource?: string;
+  initialQuestion?: string;
+} = {}) {
+  const [source, setSource] = useState(
+    initialSource?.trim() || "Rubric: use one quote, explain the evidence, and connect it to the claim.",
+  );
+  const [question, setQuestion] = useState(
+    initialQuestion?.trim() || "I have evidence but do not know how to start the paragraph.",
+  );
   const [mode, setMode] = useState<Mode>("guide");
   const response = useMemo(() => buildResponse({ source, question, mode }), [source, question, mode]);
 

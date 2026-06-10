@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { CheckCircle2, Circle, Target } from "lucide-react";
+import { CheckCircle2, Circle, MessageCircle, Target } from "lucide-react";
 import { resolveRubric, rubricSelfCheck } from "@/lib/rubric/rubric";
 
 const STORAGE_PREFIX = "diana:rubric-check:";
@@ -73,13 +74,24 @@ export function RubricPanel({
       </div>
 
       {check.next && (
-        <p className="flex items-start gap-2 rounded-xl border border-brand/20 bg-brand/5 px-3 py-2 text-sm">
-          <Target size={15} className="mt-0.5 shrink-0 text-brand" />
-          <span>
-            <span className="font-medium">Worth a look next:</span> {check.next.title}
-            {check.next.points != null && <span className="text-muted"> ({check.next.points} pts)</span>}
-          </span>
-        </p>
+        <div className="space-y-2 rounded-xl border border-brand/20 bg-brand/5 px-3 py-2">
+          <p className="flex items-start gap-2 text-sm">
+            <Target size={15} className="mt-0.5 shrink-0 text-brand" />
+            <span>
+              <span className="font-medium">Worth a look next:</span> {check.next.title}
+              {check.next.points != null && <span className="text-muted"> ({check.next.points} pts)</span>}
+            </span>
+          </p>
+          <Link
+            href={`/study-buddy?${new URLSearchParams({
+              source: `Rubric criterion: ${check.next.title}${check.next.detail ? ` — ${check.next.detail}` : ""}`,
+              q: "Help me check my work against this criterion without writing it for me.",
+            }).toString()}`}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-strong underline-offset-2 hover:underline dark:text-brand"
+          >
+            <MessageCircle size={13} /> Work on this with the study buddy
+          </Link>
+        </div>
       )}
 
       <ul className="space-y-1.5">

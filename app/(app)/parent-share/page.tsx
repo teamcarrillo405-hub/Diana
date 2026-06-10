@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { SharingSection } from "../settings/sharing-section";
+import { growthStory } from "@/lib/portal/growth";
 
 export default async function ParentPortalPage() {
   const supabase = await createClient();
@@ -47,6 +48,42 @@ export default async function ParentPortalPage() {
     return end > start ? acc + (end - start) : acc;
   }, 0);
 
+  // Four-week growth story — trajectory, not snapshot.
+  const windowDays = 28;
+  const windowStartIso = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+  const [{ data: completed28 }, { data: logs28 }, { count: reviews28 }, { count: submitted28 }] =
+    await Promise.all([
+      supabase
+        .from("task_signals")
+        .select("occurred_at")
+        .eq("owner_id", ownerId)
+        .eq("kind", "completed")
+        .gte("occurred_at", windowStartIso),
+      supabase
+        .from("assignment_time_log")
+        .select("started_at")
+        .eq("owner_id", ownerId)
+        .gte("started_at", windowStartIso),
+      supabase
+        .from("flashcard_reviews")
+        .select("id", { count: "exact", head: true })
+        .gte("reviewed_at", windowStartIso),
+      supabase
+        .from("assignments")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", ownerId)
+        .in("status", ["submitted", "graded"])
+        .gte("updated_at", windowStartIso),
+    ]);
+  const story = growthStory({
+    completedAt: (completed28 ?? []).map((row) => row.occurred_at as string),
+    studyDays: [...new Set((logs28 ?? []).map((row) => String(row.started_at).slice(0, 10)))],
+    flashcardReviews: reviews28 ?? 0,
+    submittedCount: submitted28 ?? 0,
+    windowDays,
+    now,
+  });
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -56,6 +93,16 @@ export default async function ParentPortalPage() {
           Parent links show effort, time, upcoming workload, and student-approved progress notes. They do not show assignment names, grades, private notes, or AI interaction details.
         </p>
       </header>
+
+      <section className="space-y-2 rounded-2xl border border-brand/20 bg-brand/5 p-4">
+        <h2 className="text-sm font-semibold">{story.headline}</h2>
+        <ul className="space-y-1 text-sm text-muted">
+          {story.facts.map((fact) => (
+            <li key={fact}>{fact}</li>
+          ))}
+        </ul>
+        <p className="text-xs text-muted">The last four weeks, from real activity — no streaks, no rankings.</p>
+      </section>
 
       <section className="grid gap-3 md:grid-cols-3">
         <Stat label="Assignments finished this week" value={completedThisWeek ?? 0} />

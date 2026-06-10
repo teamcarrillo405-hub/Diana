@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { parseRubricText } from "@/lib/rubric/rubric";
 
 const AddRubric = z.object({
   classId: z.string().uuid(),
@@ -18,13 +19,18 @@ export async function addRubric(input: z.infer<typeof AddRubric>) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
 
+  // Structured criteria stored alongside the raw text so downstream surfaces
+  // (self-check, checklists) never re-parse. Falls back to manual when the
+  // text yields no criteria.
+  const criteria = parseRubricText(parsed.data.rawText);
   const { error } = await supabase.from("rubrics").insert({
     owner_id: user.id,
     class_id: parsed.data.classId,
     title: parsed.data.title,
     source_kind: "paste",
     raw_text: parsed.data.rawText,
-    parse_status: "manual",
+    parsed: criteria.length > 0 ? { criteria } : null,
+    parse_status: criteria.length > 0 ? "parsed" : "manual",
   });
   if (error) return { error: error.message };
 

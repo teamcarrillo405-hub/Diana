@@ -1,6 +1,11 @@
 import { StudyBuddyClient } from "./study-buddy-client";
 
-export default function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ source?: string; q?: string }>;
+}) {
+  const { source, q } = await searchParams;
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -10,7 +15,7 @@ export default function Page() {
           A quick Socratic helper for when you need a question, hint, or source-based next step.
         </p>
       </header>
-      <StudyBuddyClient />
+      <StudyBuddyClient initialSource={source} initialQuestion={q} />
     </div>
   );
 }

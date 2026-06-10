@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { deriveConceptSeeds, gapBridgeSuggestion } from "@/lib/mastery/concepts";
 import { RubricForm } from "./rubric-form";
+import { openStaxForClassName } from "@/lib/content/openstax";
 import { MasteryPanel, type MasteryConceptView } from "./mastery-panel";
 
 export default async function ClassDetailPage({
@@ -99,6 +100,34 @@ export default async function ClassDetailPage({
         )}
         <RubricForm classId={id} />
       </section>
+
+      {openStaxForClassName(cls.name).length > 0 && (
+        <section className="space-y-2">
+          <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
+            Free textbook for this class
+          </h2>
+          <ul className="space-y-2">
+            {openStaxForClassName(cls.name).map((book) => (
+              <li key={book.url}>
+                <a
+                  href={book.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm hover:bg-surface-soft"
+                >
+                  <span className="min-w-0">
+                    <span className="block font-medium">{book.title}</span>
+                    <span className="text-xs text-muted">
+                      OpenStax — free, peer-reviewed, citable in your work.
+                    </span>
+                  </span>
+                  <span aria-hidden="true" className="shrink-0 text-muted">↗</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="space-y-3">
         <h2 className="text-xs font-medium uppercase tracking-wider text-muted">

@@ -46,6 +46,33 @@ export default async function TeacherPortalPage() {
   }>;
   const analytics = classCompletionAnalytics(classRows.map((row) => row.id), assignmentRows);
 
+  // AI authorship receipts: per-assignment how-AI-was-used summaries from the
+  // existing interaction log. The student opens this page — sharing stays a
+  // student decision; Diana just makes the receipt legible for a teacher.
+  const { data: aiRows } = await supabase
+    .from("ai_interactions")
+    .select("assignment_id, feature")
+    .eq("owner_id", ownerId)
+    .not("assignment_id", "is", null)
+    .limit(500);
+  const receiptMap = new Map<string, Map<string, number>>();
+  for (const row of aiRows ?? []) {
+    const assignmentId = row.assignment_id as string;
+    const features = receiptMap.get(assignmentId) ?? new Map<string, number>();
+    features.set(row.feature as string, (features.get(row.feature as string) ?? 0) + 1);
+    receiptMap.set(assignmentId, features);
+  }
+  const receipts = assignmentRows
+    .filter((row) => receiptMap.has(row.id))
+    .slice(0, 10)
+    .map((row) => ({
+      id: row.id,
+      title: row.title,
+      uses: [...(receiptMap.get(row.id) ?? new Map<string, number>()).entries()]
+        .map(([feature, count]) => `${featureLabel(feature)} ×${count}`)
+        .join(", "),
+    }));
+
   return (
     <div className="space-y-6">
       <header className="space-y-2">
@@ -70,7 +97,54 @@ export default async function TeacherPortalPage() {
         }}
       />
 
+      <section className="space-y-3 rounded-xl border border-border bg-card p-4">
+        <h2 className="text-sm font-semibold">AI authorship receipts</h2>
+        <p className="text-sm text-muted">
+          How AI help was used per assignment — Socratic hints and scaffolds, never written work. The
+          work itself stayed the student&apos;s. Full detail lives in the AI history the student can export.
+        </p>
+        {receipts.length === 0 ? (
+          <p className="text-sm text-muted">No AI help has been used on tracked assignments yet.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {receipts.map((receipt) => (
+              <li key={receipt.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
+                <span className="min-w-0 text-sm font-medium">{receipt.title}</span>
+                <span className="text-xs text-muted">{receipt.uses}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       <IepImport />
     </div>
   );
+}
+
+function featureLabel(feature: string): string {
+  const labels: Record<string, string> = {
+    task_breakdown: "Task breakdown",
+    math_step: "Math hints",
+    math_example: "Worked example",
+    math_scaffold: "Math scaffold",
+    writing_aid: "Writing rule help",
+    writing_cowrite: "Writing structure help",
+    reading_scaffold: "Reading scaffold",
+    citation_gen: "Citation formatting",
+    science_scaffold: "Science scaffold",
+    history_scaffold: "History scaffold",
+    cs_scaffold: "Coding hints",
+    language_scaffold: "Language practice",
+    arts_scaffold: "Arts reflection",
+    health_scaffold: "Health questions",
+    ap_scaffold: "AP practice",
+    vocab_hover: "Vocabulary help",
+    reading_level: "Reading level adapt",
+    note_synthesis: "Note synthesis",
+    note_tags: "Note tags",
+    visual_tool: "Visual learning",
+    weekly_reflection: "Weekly reflection",
+  };
+  return labels[feature] ?? feature.replaceAll("_", " ");
 }

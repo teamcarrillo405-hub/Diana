@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { cookies } from "next/headers";
+import { GradeMoveCard } from "./grade-move-card";
 import { EmptyStateMark } from "@/components/empty-state-mark";
+import { FirstWeekJourneyCard } from "@/components/first-week-journey-card";
+import { firstWeekJourney } from "@/lib/journey/first-week";
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
@@ -156,6 +160,23 @@ export default async function DashboardPage({
   const readiness = readinessFromSignalValue(latestReadinessSignal?.value);
   const energy = search.energy ?? energyFromBody(readiness?.body) ?? sleepAdjustment.energyOverride ?? adaptation.energyOverride ?? "medium";
 
+  // First-week journey existence checks — limit 1, cheap.
+  const [{ data: anyClass }, { data: anyConnection }, { data: anyStartSignal }, { data: anyTimeLog }] =
+    await Promise.all([
+      supabase.from("classes").select("id").limit(1),
+      supabase.from("lms_connections").select("id").limit(1),
+      supabase.from("task_signals").select("id").in("kind", ["started", "completed"]).limit(1),
+      supabase.from("assignment_time_log").select("id").limit(1),
+    ]);
+  const journey = firstWeekJourney({
+    hasClassOrConnection: (anyClass?.length ?? 0) > 0 || (anyConnection?.length ?? 0) > 0,
+    assignmentCount: assignments?.length ?? 0,
+    hasStartedAnything: (anyStartSignal?.length ?? 0) > 0,
+    hasFocusSession: (anyTimeLog?.length ?? 0) > 0,
+    onboardedAt: profile?.onboarded_at ?? null,
+    now,
+  });
+
   const { data: dueCards } = await supabase
     .from("flashcards")
     .select("id")
@@ -276,8 +297,10 @@ export default async function DashboardPage({
         </div>
       </section>
 
+      <FirstWeekJourneyCard journey={journey} />
+
       {!top ? (
-        <EmptyState />
+        !journey.show && <EmptyState />
       ) : (
         <FocusHeroCard
           assignment={top as any}
@@ -298,6 +321,10 @@ export default async function DashboardPage({
           }
         />
       )}
+
+      <Suspense fallback={null}>
+        <GradeMoveCard />
+      </Suspense>
 
       {studentStateModel && (
         <StudentStateCard model={studentStateModel} title="Why this support level" />
