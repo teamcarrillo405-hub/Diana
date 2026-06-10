@@ -7,6 +7,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icons/|sw.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)).*)",
+    // api/email + api/push/send-due are cron endpoints with their own
+    // CRON_SECRET bearer auth — the session middleware must not redirect them.
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icons/|sw.js|api/email/|api/push/send-due|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)).*)",
   ],
 };
