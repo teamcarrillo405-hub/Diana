@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { GradeMoveCard } from "./grade-move-card";
+import { CalendarClock } from "lucide-react";
+import { nextUpcomingTest } from "@/lib/test-prep/plan";
 import { EmptyStateMark } from "@/components/empty-state-mark";
 import { FirstWeekJourneyCard } from "@/components/first-week-journey-card";
 import { firstWeekJourney } from "@/lib/journey/first-week";
@@ -321,6 +323,38 @@ export default async function DashboardPage({
           }
         />
       )}
+
+      {(() => {
+        const upcomingTest = nextUpcomingTest(assignments ?? [], now);
+        if (!upcomingTest?.due_at) return null;
+        const days = Math.max(
+          0,
+          Math.round(
+            (new Date(new Date(upcomingTest.due_at).toDateString()).getTime() -
+              new Date(now.toDateString()).getTime()) /
+              86_400_000,
+          ),
+        );
+        return (
+          <Link
+            href={`/assignments/${(upcomingTest as { id: string }).id}`}
+            className="flex items-start gap-3 rounded-2xl border border-brand/25 bg-brand/5 p-4 transition hover:bg-brand/10"
+          >
+            <CalendarClock size={17} className="mt-0.5 shrink-0 text-brand" />
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold">
+                {upcomingTest.title}
+                <span className="font-normal text-muted">
+                  {" "}· {days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`}
+                </span>
+              </span>
+              <span className="mt-0.5 block text-xs text-muted">
+                A day-by-day prep plan is ready — practice early, light recall the night before.
+              </span>
+            </span>
+          </Link>
+        );
+      })()}
 
       <Suspense fallback={null}>
         <GradeMoveCard />

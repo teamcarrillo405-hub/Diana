@@ -8,6 +8,14 @@ import { KIND_LABEL } from "@/lib/checklists/templates";
 import { StatusButtons } from "./status-buttons";
 import { RubricPanel } from "@/components/rubric-panel";
 import { computeEffectiveness, preferredStudyMode } from "@/lib/adaptation/effectiveness";
+import { TestPrepPanel } from "@/components/test-prep-panel";
+import {
+  buildTestPrepPlan,
+  coverageWindowStart,
+  looksLikeTest,
+  previousTestDueAt,
+  type TestPrepPlan,
+} from "@/lib/test-prep/plan";
 import { Breadcrumb } from "./breadcrumb";
 import { ExternalSubmissionSync } from "./external-submission-sync";
 import { PivotForm } from "./pivot-form";
@@ -210,6 +218,41 @@ export default async function AssignmentDetailPage({
     focusNextStep: focus === "next-step",
     learnedPreference,
   });
+
+  // Test Prep Engine: when this assignment is a quiz/test/final, plan the
+  // days backward from the date using the class's concept mastery map.
+  let testPrepPlan: TestPrepPlan | null = null;
+  let coversSince: string | null = null;
+  if (looksLikeTest(a.title, a.kind) && a.due_at && a.class_id) {
+    const [{ data: classConcepts }, { data: classAssignments }] = await Promise.all([
+      supabase
+        .from("mastery_concepts")
+        .select("id, name, mastery_level")
+        .eq("class_id", a.class_id)
+        .order("mastery_level", { ascending: true })
+        .limit(24),
+      supabase
+        .from("assignments")
+        .select("title, kind, due_at")
+        .eq("class_id", a.class_id)
+        .not("due_at", "is", null)
+        .order("due_at", { ascending: false })
+        .limit(40),
+    ]);
+    testPrepPlan = buildTestPrepPlan({
+      testDueAt: a.due_at,
+      now: new Date(),
+      concepts: (classConcepts ?? []).map((c) => ({
+        id: c.id as string,
+        name: c.name as string,
+        masteryLevel: Number(c.mastery_level),
+      })),
+    });
+    coversSince = coverageWindowStart(
+      previousTestDueAt(classAssignments ?? [], a.due_at),
+      new Date(),
+    );
+  }
   const shellStudyContext = shellContextFromStudyHelper(studyHelperContext);
   const learningTurn = buildLearningTurn({
     assignmentKind: a.kind,
@@ -300,6 +343,10 @@ export default async function AssignmentDetailPage({
         </section>
       )}
 
+      {testPrepPlan && (
+        <TestPrepPanel plan={testPrepPlan} className={a.classes?.name ?? null} coversSince={coversSince} />
+      )}
+
       <StudyHelperModeCard assignmentId={a.id} context={studyHelperContext} />
 
       <StudentStateCard model={studentStateModel} title="Adaptive support state" />
@@ -308,6 +355,7 @@ export default async function AssignmentDetailPage({
 
       <VisualBreakdownPanel breakdown={visualBreakdown} />
 
+      <div id="study-artifacts" />
       <StudyArtifactPanel
         sourceType="assignment"
         sourceId={a.id}
