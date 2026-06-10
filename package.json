@@ -20,7 +20,8 @@
     "teen-ux-score": "npx tsx scripts/teen-ux-score.ts",
     "qa:auth-preflight": "npx tsx scripts/qa-auth-preflight.ts",
     "qa:visual-gate": "node scripts/qa-visual-gate.mjs",
-    "qa:responsive": "playwright test tests/responsive-qa.spec.ts --reporter=line --workers=1"
+    "qa:responsive": "playwright test tests/responsive-qa.spec.ts --reporter=line --workers=1",
+    "test:e2e": "playwright test tests/e2e-flows.spec.ts --reporter=line --workers=1"
   },
   "dependencies": {
     "@fontsource/opendyslexic": "^5.2.5",

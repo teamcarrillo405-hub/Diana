@@ -10,6 +10,7 @@ import { CanvaSection } from "./canva-section";
 import { LmsConnections } from "./lms-connections";
 import { SharingSection } from "./sharing-section";
 import { PwaSettings } from "@/components/pwa-settings";
+import { PushSettings } from "@/components/push-settings";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { labelsForInterests } from "@/lib/student-identity/interests";
@@ -99,6 +100,8 @@ export default async function SettingsPage() {
       <IepImport />
 
       <CanvaSection />
+
+      <PushSettings />
 
       <PwaSettings />
 
