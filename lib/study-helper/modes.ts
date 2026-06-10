@@ -108,6 +108,8 @@ export function buildStudyHelperContext(input: {
   writingLoad?: number | null;
   supportIntensity?: SupportIntensity | null;
   focusNextStep?: boolean;
+  /** Mode that has demonstrably worked for this student (effectiveness loop). */
+  learnedPreference?: StudyHelperMode | null;
 }): StudyHelperContext {
   const recommendedMode = recommendedModeFor(input);
   const selectedMode = input.selectedMode ?? recommendedMode;
@@ -146,8 +148,12 @@ function recommendedModeFor(input: {
   writingLoad?: number | null;
   supportIntensity?: SupportIntensity | null;
   focusNextStep?: boolean;
+  learnedPreference?: StudyHelperMode | null;
 }): StudyHelperMode {
   if (input.focusNextStep || input.supportIntensity === "one_move" || input.supportIntensity === "recovery") return "guided_steps";
+  // Learned preference beats kind heuristics but never the support guards
+  // above — recovery and one-move support stay one move.
+  if (input.learnedPreference) return input.learnedPreference;
   if (input.assignmentKind === "reading") return "retrieval_quiz";
   if (input.assignmentKind === "test_prep") return "retrieval_quiz";
   if (input.assignmentKind === "lab" || input.assignmentKind === "presentation") return "visual_breakdown";
@@ -163,6 +169,7 @@ function reasonFor(
     classAiMode: StudyHelperAiMode;
     supportIntensity?: SupportIntensity | null;
     focusNextStep?: boolean;
+    learnedPreference?: StudyHelperMode | null;
   },
   mode: StudyHelperMode,
 ): string {
@@ -171,6 +178,9 @@ function reasonFor(
   }
   if (input.focusNextStep || input.supportIntensity === "one_move" || input.supportIntensity === "recovery") {
     return "Diana is keeping one academic move visible before adding more options.";
+  }
+  if (input.learnedPreference && mode === input.learnedPreference) {
+    return "This shape has worked for you before, so Diana starts here.";
   }
   if (mode === "visual_breakdown") return "This assignment benefits from seeing the pieces before writing or solving.";
   if (mode === "retrieval_quiz") return "This is stronger as active recall than as rereading.";

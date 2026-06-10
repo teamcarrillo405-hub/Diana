@@ -11,6 +11,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const MATH_PROMPT = `You are a Socratic math tutor for a high-school student.
 The student will share a math problem they are stuck on. Your rules:
@@ -102,10 +103,17 @@ Deno.serve(async (req: Request) => {
       .eq("user_id", ownerId)
       .single();
 
-    const personalization = buildPersonalizationPrompt({
+    let personalization = buildPersonalizationPrompt({
       interests: Array.isArray(profile?.interests) ? profile.interests : [],
       sessionMood: typeof profile?.session_mood === "string" ? profile.session_mood : null,
     });
+
+    // Effectiveness loop: one learned-context line from the student's own
+    // "helped / not really" taps. Null on any failure — never blocks help.
+    const learnedLine = await adaptationLineForOwner(ownerId, supabase);
+    if (learnedLine) {
+      personalization = personalization ? `${personalization}\n${learnedLine}` : learnedLine;
+    }
 
     // 5. Compose system prompt with F17 + F18 + MINOR_SAFETY fragments
     const systemPrompt = composeSystemPrompt(MATH_PROMPT, {

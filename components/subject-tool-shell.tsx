@@ -4,6 +4,7 @@ import { HelpCircle, ShieldCheck, Sparkles } from "lucide-react";
 import { subjectTheme, type SubjectThemeId } from "@/lib/ui/subject-themes";
 import type { StudyHelperShellContext } from "@/lib/study-helper/modes";
 import { HelpOwnershipMeter } from "@/components/help-ownership-meter";
+import { HelpFeedback } from "@/components/help-feedback";
 import { buildHelpOwnershipMeter, type HelpOwnershipMeter as HelpOwnershipMeterValue } from "@/lib/student-state/model";
 
 export function SubjectToolShell({
@@ -92,6 +93,12 @@ export function SubjectToolShell({
       <div className={`rounded-2xl border ${subject.borderClass} ${subject.surfaceClass} p-3 sm:p-4`}>
         {children}
       </div>
+      <HelpFeedback
+        features={[
+          `subject:${theme}`,
+          ...(studyContext ? [`study_mode:${studyContext.selectedMode}`] : []),
+        ]}
+      />
     </section>
   );
 }

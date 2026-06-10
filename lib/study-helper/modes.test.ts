@@ -22,6 +22,35 @@ describe("study helper mode model", () => {
     expect(context.trustNote).toContain("authorship");
   });
 
+  it("lets a learned preference beat the kind heuristic", () => {
+    const context = buildStudyHelperContext({
+      assignmentKind: "reading",
+      classAiMode: "green",
+      learnedPreference: "visual_breakdown",
+    });
+    expect(context.recommendedMode).toBe("visual_breakdown");
+    expect(context.reason).toContain("worked for you before");
+  });
+
+  it("never lets a learned preference override one-move or recovery support", () => {
+    expect(
+      buildStudyHelperContext({
+        assignmentKind: "reading",
+        classAiMode: "green",
+        supportIntensity: "one_move",
+        learnedPreference: "flashcard_builder",
+      }).recommendedMode,
+    ).toBe("guided_steps");
+    expect(
+      buildStudyHelperContext({
+        assignmentKind: "essay",
+        classAiMode: "green",
+        focusNextStep: true,
+        learnedPreference: "retrieval_quiz",
+      }).recommendedMode,
+    ).toBe("guided_steps");
+  });
+
   it("recommends active recall for readings and test prep", () => {
     expect(
       buildStudyHelperContext({ assignmentKind: "reading", classAiMode: "yellow" }).recommendedMode,

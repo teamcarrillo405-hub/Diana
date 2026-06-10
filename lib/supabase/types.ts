@@ -165,6 +165,41 @@ export type Database = {
           },
         ];
       };
+      ai_help_feedback: {
+        Row: {
+          id: string;
+          owner_id: string;
+          feature: string;
+          assignment_id: string | null;
+          helpful: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          feature: string;
+          assignment_id?: string | null;
+          helpful: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          feature?: string;
+          assignment_id?: string | null;
+          helpful?: boolean;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "ai_help_feedback_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       authorship_log: {
         Row: {
           id: string;
