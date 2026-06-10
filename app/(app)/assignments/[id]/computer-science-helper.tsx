@@ -8,7 +8,8 @@ import {
   parseNumberList,
   type AlgorithmMode,
 } from "@/lib/computer-science/algorithms";
-import { runPythonLite, type CodeLanguage, type CodeRunResult } from "@/lib/computer-science/sandbox";
+import { type CodeLanguage, type CodeRunResult } from "@/lib/computer-science/sandbox";
+import { runPython } from "@/lib/computer-science/pyodide-runner";
 import type { CsScaffoldMode, CsScaffoldResult } from "@/lib/computer-science/scaffold";
 import { requestCsScaffold } from "./ai-tools-actions";
 
@@ -65,7 +66,8 @@ export function ComputerScienceHelper({
   async function runCode() {
     setLoading(true);
     if (language === "python") {
-      setRunResult(runPythonLite(code));
+      // Real CPython via Pyodide (CDN, on demand); lite runner as fallback.
+      setRunResult(await runPython(code));
       setLoading(false);
       return;
     }
