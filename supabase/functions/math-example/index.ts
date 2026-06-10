@@ -11,6 +11,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const EXAMPLE_PROMPT = `You are a math tutor helping a high-school student see a worked example.
 
@@ -104,6 +105,7 @@ Deno.serve(async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: false,
       includeMinorSafety: true,
+      personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
     // 6. Build single user message — worked example is one-shot, no history

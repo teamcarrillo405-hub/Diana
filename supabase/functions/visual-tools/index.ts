@@ -9,6 +9,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const TEXT_MODES = new Set(["mind_map", "concept_graph", "timeline", "comparison_table"]);
 const MIME_BY_EXT: Record<string, string> = {
@@ -211,7 +212,7 @@ Deno.serve(async (req: Request) => {
         includeRefuseRedirect: true,
         includeFrustration: false,
         includeMinorSafety: true,
-        personalization,
+        personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",

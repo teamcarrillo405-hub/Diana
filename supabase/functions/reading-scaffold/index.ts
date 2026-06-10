@@ -12,6 +12,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const PROMPTS: Record<"pre" | "mid" | "post", string> = {
   pre: `You are helping a high school student who has dyslexia prepare to read an assignment.
@@ -83,6 +84,7 @@ Deno.serve(async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
+      personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {

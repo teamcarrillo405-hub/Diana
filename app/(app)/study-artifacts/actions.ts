@@ -18,6 +18,7 @@ import {
   type StudyArtifactType,
 } from "@/lib/study-helper/artifacts";
 import type { StudyHelperMode } from "@/lib/study-helper/modes";
+import { coverageWindowStart, looksLikeTest, previousTestDueAt } from "@/lib/test-prep/plan";
 import type { Json } from "@/lib/supabase/types";
 
 const StudyArtifactInput = z.object({
@@ -67,8 +68,33 @@ export async function generateStudyArtifact(
     return { ok: false, error: "AI study artifacts are off for this class. You can still make cards manually from your own highlights." };
   }
 
+  // Test Prep Engine: when the source is a quiz/test/final, scope class
+  // context to the coverage window (since the previous test) so practice
+  // questions reflect the student's curriculum position, not the whole year.
+  let coveredSince: string | null = null;
+  if (source.sourceType === "assignment" && source.classId) {
+    const { data: sourceAssignment } = await supabase
+      .from("assignments")
+      .select("title, kind, due_at")
+      .eq("id", source.sourceId)
+      .maybeSingle();
+    if (sourceAssignment && looksLikeTest(sourceAssignment.title, sourceAssignment.kind) && sourceAssignment.due_at) {
+      const { data: classAssignments } = await supabase
+        .from("assignments")
+        .select("title, kind, due_at")
+        .eq("class_id", source.classId)
+        .not("due_at", "is", null)
+        .order("due_at", { ascending: false })
+        .limit(40);
+      coveredSince = coverageWindowStart(
+        previousTestDueAt(classAssignments ?? [], sourceAssignment.due_at),
+        new Date(),
+      );
+    }
+  }
+
   const classContext = source.classId
-    ? await loadClassContext(supabase, user.id, source.classId, source.sourceType, source.sourceId)
+    ? await loadClassContext(supabase, user.id, source.classId, source.sourceType, source.sourceId, coveredSince)
     : "";
 
   const { data, error } = await supabase.functions.invoke("study-artifacts", {
@@ -400,25 +426,31 @@ async function loadClassContext(
   classId: string,
   sourceType: StudyArtifactSourceType,
   sourceId: string,
+  coveredSince: string | null = null,
 ): Promise<string> {
-  const [notesResult, assignmentsResult] = await Promise.all([
-    supabase
-      .from("notes")
-      .select("id, title, body_text, transcript_text, tags, ai_suggested_tags")
-      .eq("owner_id", ownerId)
-      .eq("class_id", classId)
-      .neq(sourceType === "note" ? "id" : "title", sourceType === "note" ? sourceId : "__none__")
-      .order("updated_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("assignments")
-      .select("id, title, description, kind, rubric_text")
-      .eq("owner_id", ownerId)
-      .eq("class_id", classId)
-      .neq(sourceType === "assignment" ? "id" : "title", sourceType === "assignment" ? sourceId : "__none__")
-      .order("updated_at", { ascending: false })
-      .limit(4),
-  ]);
+  // When a coverage window is set (test prep), include only material from
+  // the student's current curriculum position — and more of it.
+  let notesQuery = supabase
+    .from("notes")
+    .select("id, title, body_text, transcript_text, tags, ai_suggested_tags")
+    .eq("owner_id", ownerId)
+    .eq("class_id", classId)
+    .neq(sourceType === "note" ? "id" : "title", sourceType === "note" ? sourceId : "__none__")
+    .order("updated_at", { ascending: false })
+    .limit(coveredSince ? 8 : 5);
+  if (coveredSince) notesQuery = notesQuery.gte("updated_at", coveredSince);
+
+  let assignmentsQuery = supabase
+    .from("assignments")
+    .select("id, title, description, kind, rubric_text")
+    .eq("owner_id", ownerId)
+    .eq("class_id", classId)
+    .neq(sourceType === "assignment" ? "id" : "title", sourceType === "assignment" ? sourceId : "__none__")
+    .order("updated_at", { ascending: false })
+    .limit(coveredSince ? 6 : 4);
+  if (coveredSince) assignmentsQuery = assignmentsQuery.gte("updated_at", coveredSince);
+
+  const [notesResult, assignmentsResult] = await Promise.all([notesQuery, assignmentsQuery]);
 
   return [
     ...(notesResult.data ?? []).map((note) => [

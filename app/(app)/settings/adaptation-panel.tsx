@@ -1,6 +1,7 @@
 import { Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { adaptationSummary, computeEffectiveness } from "@/lib/adaptation/effectiveness";
+import { loadEffectivenessEvents } from "@/lib/adaptation/load";
 
 /**
  * "How Diana is adapting to you" — the transparency half of the learning
@@ -10,20 +11,8 @@ import { adaptationSummary, computeEffectiveness } from "@/lib/adaptation/effect
  */
 export async function AdaptationPanel() {
   const supabase = await createClient();
-  const { data: rows } = await supabase
-    .from("ai_help_feedback")
-    .select("feature, helpful, created_at")
-    .order("created_at", { ascending: false })
-    .limit(200);
-
   const learned = adaptationSummary(
-    computeEffectiveness(
-      (rows ?? []).map((row) => ({
-        feature: row.feature as string,
-        helpful: Boolean(row.helpful),
-        createdAt: String(row.created_at),
-      })),
-    ),
+    computeEffectiveness(await loadEffectivenessEvents(supabase)),
   );
 
   return (

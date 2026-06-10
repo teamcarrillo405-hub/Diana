@@ -7,6 +7,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const MODES = ["health_question", "movement_goal", "cpr_first_aid", "sleep_recovery"] as const;
 type HealthMode = (typeof MODES)[number];
@@ -75,6 +76,7 @@ Deno.serve(async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
+      personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {

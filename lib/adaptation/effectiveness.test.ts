@@ -88,6 +88,58 @@ describe("adaptationPromptLine", () => {
   });
 });
 
+describe("outcomeEvents", () => {
+  const HELP_AT = "2026-06-08T10:00:00Z";
+  const DONE_SOON = "2026-06-09T10:00:00Z"; // 24h later
+  const DONE_LATE = "2026-06-12T10:00:01Z"; // > 72h later
+
+  it("credits help that preceded completion within the window", async () => {
+    const { outcomeEvents } = await import("./effectiveness");
+    const events = outcomeEvents({
+      interactions: [{ feature: "math_step", assignmentId: "a1", createdAt: HELP_AT }],
+      completions: [{ assignmentId: "a1", occurredAt: DONE_SOON }],
+    });
+    expect(events).toEqual([{ feature: "math_step", helpful: true, createdAt: DONE_SOON }]);
+  });
+
+  it("gives no credit outside the window, after the fact, or without completion", async () => {
+    const { outcomeEvents } = await import("./effectiveness");
+    expect(
+      outcomeEvents({
+        interactions: [{ feature: "math_step", assignmentId: "a1", createdAt: HELP_AT }],
+        completions: [{ assignmentId: "a1", occurredAt: DONE_LATE }],
+      }),
+    ).toEqual([]);
+    expect(
+      outcomeEvents({
+        interactions: [{ feature: "math_step", assignmentId: "a1", createdAt: DONE_SOON }],
+        completions: [{ assignmentId: "a1", occurredAt: HELP_AT }], // completion before help
+      }),
+    ).toEqual([]);
+    expect(
+      outcomeEvents({
+        interactions: [{ feature: "math_step", assignmentId: "a1", createdAt: HELP_AT }],
+        completions: [],
+      }),
+    ).toEqual([]);
+  });
+
+  it("caps at one vote per assignment and feature, and never infers negatives", async () => {
+    const { outcomeEvents } = await import("./effectiveness");
+    const events = outcomeEvents({
+      interactions: [
+        { feature: "math_step", assignmentId: "a1", createdAt: HELP_AT },
+        { feature: "math_step", assignmentId: "a1", createdAt: "2026-06-08T11:00:00Z" },
+        { feature: "writing_aid", assignmentId: "a1", createdAt: HELP_AT },
+        { feature: "math_step", assignmentId: null, createdAt: HELP_AT },
+      ],
+      completions: [{ assignmentId: "a1", occurredAt: DONE_SOON }],
+    });
+    expect(events).toHaveLength(2);
+    expect(events.every((e) => e.helpful)).toBe(true);
+  });
+});
+
 describe("adaptationSummary", () => {
   it("produces student-facing lines only for confident stances", () => {
     const eff = computeEffectiveness([

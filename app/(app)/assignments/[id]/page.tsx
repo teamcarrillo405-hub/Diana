@@ -8,6 +8,7 @@ import { KIND_LABEL } from "@/lib/checklists/templates";
 import { StatusButtons } from "./status-buttons";
 import { RubricPanel } from "@/components/rubric-panel";
 import { computeEffectiveness, preferredStudyMode } from "@/lib/adaptation/effectiveness";
+import { loadEffectivenessEvents } from "@/lib/adaptation/load";
 import { TestPrepPanel } from "@/components/test-prep-panel";
 import {
   buildTestPrepPlan,
@@ -191,21 +192,10 @@ export default async function AssignmentDetailPage({
   });
   const supportPlan = studentStateModel.supportPlan;
 
-  // Effectiveness loop: what kinds of help have worked for this student.
-  // Missing table or empty data simply means no learned opinion.
-  const { data: feedbackRows } = await supabase
-    .from("ai_help_feedback")
-    .select("feature, helpful, created_at")
-    .order("created_at", { ascending: false })
-    .limit(200);
+  // Effectiveness loop: what kinds of help have worked for this student —
+  // explicit taps plus automatic completed-after-help outcomes.
   const learnedPreference = preferredStudyMode(
-    computeEffectiveness(
-      (feedbackRows ?? []).map((row) => ({
-        feature: row.feature as string,
-        helpful: Boolean(row.helpful),
-        createdAt: String(row.created_at),
-      })),
-    ),
+    computeEffectiveness(await loadEffectivenessEvents(supabase)),
   );
 
   const studyHelperContext = buildStudyHelperContext({

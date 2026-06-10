@@ -119,8 +119,73 @@ export function adaptationSummary(effectiveness: HelperEffectiveness[]): string[
   return lines.slice(0, 6);
 }
 
+// ---------------------------------------------------------------------------
+// Automatic outcome signals — learning even when students don't tap.
+// An assignment completed shortly after AI help is treated as one quiet
+// "helpful" vote for each kind of help used on it. Only positive inference:
+// an absent completion proves nothing, so it never counts against a feature.
+// ---------------------------------------------------------------------------
+
+export type HelpInteraction = {
+  feature: string;
+  assignmentId: string | null;
+  createdAt: string;
+};
+
+export type CompletionSignal = {
+  assignmentId: string;
+  occurredAt: string;
+};
+
+/** Help must precede the completion within this window to get credit. */
+const OUTCOME_WINDOW_MS = 72 * 60 * 60 * 1000;
+
+export function outcomeEvents(input: {
+  interactions: HelpInteraction[];
+  completions: CompletionSignal[];
+}): FeedbackEvent[] {
+  const completionsByAssignment = new Map<string, string[]>();
+  for (const completion of input.completions) {
+    const list = completionsByAssignment.get(completion.assignmentId) ?? [];
+    list.push(completion.occurredAt);
+    completionsByAssignment.set(completion.assignmentId, list);
+  }
+
+  const seen = new Set<string>(); // one vote per (assignment, feature)
+  const events: FeedbackEvent[] = [];
+  for (const interaction of input.interactions) {
+    if (!interaction.assignmentId) continue;
+    const key = `${interaction.assignmentId}::${interaction.feature}`;
+    if (seen.has(key)) continue;
+    const completions = completionsByAssignment.get(interaction.assignmentId) ?? [];
+    const helpedAt = new Date(interaction.createdAt).getTime();
+    const match = completions.find((occurredAt) => {
+      const completedAt = new Date(occurredAt).getTime();
+      return completedAt >= helpedAt && completedAt - helpedAt <= OUTCOME_WINDOW_MS;
+    });
+    if (!match) continue;
+    seen.add(key);
+    events.push({ feature: interaction.feature, helpful: true, createdAt: match });
+  }
+  return events;
+}
+
 export function humanFeature(feature: string): string {
   const known: Record<string, string> = {
+    math_step: "Math hints",
+    math_example: "Worked examples",
+    math_scaffold: "The math step board",
+    writing_aid: "Writing rule help",
+    writing_cowrite: "Writing structure help",
+    reading_scaffold: "The reading scaffold",
+    task_breakdown: "Task breakdown",
+    study_artifact: "Study artifacts",
+    science_scaffold: "The science helper",
+    history_scaffold: "The history helper",
+    cs_scaffold: "Coding hints",
+    language_scaffold: "Language practice",
+    ap_scaffold: "AP practice",
+    visual_tool: "Visual learning",
     "subject:math": "The math helper",
     "subject:science": "The science helper",
     "subject:history": "The history helper",

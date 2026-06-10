@@ -7,6 +7,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const MODES = ["frq_outline", "mcq_practice", "study_plan"] as const;
 type ApMode = (typeof MODES)[number];
@@ -77,6 +78,7 @@ Deno.serve(async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
+      personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {

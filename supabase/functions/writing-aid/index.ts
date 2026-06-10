@@ -11,6 +11,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const WRITING_PROMPT = `You are a writing coach for a high-school student
 with dyslexia and/or ADHD. The student will share a sentence or short
@@ -96,6 +97,8 @@ Deno.serve(async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
+
+      personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
     // 6. Build single user message — writing-aid is per-sentence (no history needed)

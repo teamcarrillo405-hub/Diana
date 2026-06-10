@@ -10,6 +10,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const VALID_SUBJECTS = new Set([
   "algebra",
@@ -234,7 +235,7 @@ Deno.serve(async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
-      personalization,
+      personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
     const userMessage = [

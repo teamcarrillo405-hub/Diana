@@ -12,6 +12,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const BREAKDOWN_PROMPT = `You are a task-decomposition assistant for a high-school student with ADHD.
 The student gives you an assignment. You split it into atomic steps, each completable in 5 minutes or less.
@@ -103,6 +104,7 @@ Deno.serve(async (req: Request) => {
       includeRefuseRedirect: false,
       includeFrustration: false,
       includeMinorSafety: true,
+      personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
     // 6. Build single user message (no history — breakdown is one-shot)
