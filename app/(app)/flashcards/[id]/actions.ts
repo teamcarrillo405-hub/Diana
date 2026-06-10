@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { schedule, type FsrsCard } from "@/lib/fsrs/fsrs";
+import { adjustDueDate, intervalMultiplier, MIN_SAMPLES_FOR_CALIBRATION } from "@/lib/fsrs/personalize";
 import { masteryLevelFromCorrectReviews } from "@/lib/mastery/concepts";
 import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 import type { FsrsState } from "@/lib/notes/types";
@@ -48,7 +49,26 @@ export async function rateCard(
   };
 
   // 2. Apply FSRS scheduling
-  const result = schedule(card, parsed.data.rating, new Date());
+  const now = new Date();
+  const result = schedule(card, parsed.data.rating, now);
+
+  // 2b. Per-student calibration: with 50+ reviews of history, nudge the
+  // interval by the clamped observed-vs-predicted multiplier. Learning
+  // steps (sub-day) are never touched; absence of history means 1.0.
+  const { data: historyRows } = await supabase
+    .from("flashcard_reviews")
+    .select("rating, elapsed_days, stability")
+    .eq("owner_id", user.id)
+    .order("reviewed_at", { ascending: false })
+    .limit(Math.max(200, MIN_SAMPLES_FOR_CALIBRATION));
+  const multiplier = intervalMultiplier(
+    (historyRows ?? []).map((r) => ({
+      rating: Number(r.rating),
+      elapsed_days: Number(r.elapsed_days),
+      stability: Number(r.stability),
+    })),
+  );
+  result.card.dueAt = adjustDueDate(now, result.card.dueAt, multiplier);
 
   // 3. Persist updated card state
   const { error: updateError } = await supabase
