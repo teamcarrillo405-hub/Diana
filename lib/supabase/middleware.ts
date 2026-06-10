@@ -4,7 +4,7 @@ import type { Database } from "@/lib/supabase/types";
 
 // Default-deny: everything requires auth unless explicitly allowed here.
 const PUBLIC_EXACT = new Set(["/", "/manifest.webmanifest", "/api/qa/anonymous-session"]);
-const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
 
 function isPublic(path: string): boolean {

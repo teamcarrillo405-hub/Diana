@@ -65,8 +65,8 @@ def body_mat(name, color, edge_color, edge_strength=6.0):
     mix = nt.nodes.new("ShaderNodeMixShader")
     base = nt.nodes.new("ShaderNodeBsdfPrincipled")
     base.inputs["Base Color"].default_value = color
-    base.inputs["Roughness"].default_value = 0.35
-    base.inputs["Metallic"].default_value = 0.6
+    base.inputs["Roughness"].default_value = 0.55
+    base.inputs["Metallic"].default_value = 0.15
     em = nt.nodes.new("ShaderNodeEmission")
     em.inputs["Color"].default_value = edge_color
     em.inputs["Strength"].default_value = edge_strength
@@ -102,11 +102,22 @@ def key_at(obj, frame, location=None, rotation=None):
 
 
 def smooth_keys(obj):
-    if obj.animation_data and obj.animation_data.action:
-        for fc in obj.animation_data.action.fcurves:
-            for kp in fc.keyframe_points:
-                kp.interpolation = "BEZIER"
-                kp.easing = "EASE_IN_OUT"
+    # Blender 5.x moved Action.fcurves into slotted actions; default
+    # interpolation is already Bezier, so failing quietly costs little.
+    ad = obj.animation_data
+    if not ad or not ad.action:
+        return
+    fcurves = getattr(ad.action, "fcurves", None)
+    if fcurves is None:
+        try:
+            channelbag = ad.action.layers[0].strips[0].channelbag(ad.action_slot)
+            fcurves = channelbag.fcurves
+        except Exception:
+            return
+    for fc in fcurves:
+        for kp in fc.keyframe_points:
+            kp.interpolation = "BEZIER"
+            kp.easing = "EASE_IN_OUT"
 
 
 def build():
@@ -123,12 +134,12 @@ def build():
     bg.inputs[0].default_value = (0.004, 0.006, 0.016, 1.0)
     bg.inputs[1].default_value = 1.0
 
-    m_body = body_mat("body", DARK, VIOLET, 3.5)
-    m_panel = body_mat("panel", PANEL, VIOLET_LIGHT, 2.0)
-    m_screen = emission_mat("screen", (0.07, 0.05, 0.18, 1.0), 2.2)
-    m_violet = emission_mat("violet", VIOLET_LIGHT, 5.0)
-    m_teal = emission_mat("teal", TEAL, 5.0)
-    m_grid = emission_mat("gridline", (0.30, 0.16, 0.55, 1.0), 0.8)
+    m_body = body_mat("body", DARK, VIOLET, 1.6)
+    m_panel = body_mat("panel", PANEL, VIOLET_LIGHT, 1.0)
+    m_screen = emission_mat("screen", (0.10, 0.07, 0.24, 1.0), 1.4)
+    m_violet = emission_mat("violet", VIOLET_LIGHT, 2.4)
+    m_teal = emission_mat("teal", TEAL, 2.4)
+    m_grid = emission_mat("gridline", (0.30, 0.16, 0.55, 1.0), 0.6)
 
     # floor grid — thin glowing lines on the dark plane
     for i in range(-8, 9):
@@ -139,7 +150,7 @@ def build():
     base = cube("base", (3.0, 2.0, 0.12), (0, 0, 0), m_body, 0.05)
 
     # ------- lid + screen (pivot at the hinge)
-    bpy.ops.object.empty_add(location=(0, 1.0, 0.06))
+    bpy.ops.object.empty_add(location=(0, 1.0, 0.18))  # lid sits ABOVE the key deck when closed
     hinge = bpy.context.active_object
     hinge.name = "hinge"
     lid = cube("lid", (3.0, 2.0, 0.08), (0, -1.0, 0.0), m_body, 0.05)
@@ -157,9 +168,14 @@ def build():
     # ------- chassis top plate (lifts away to reveal internals)
     plate = cube("plate", (2.9, 1.9, 0.03), (0, 0, 0.09), m_panel, 0.03)
     key_at(plate, F_CHASSIS[0], location=(0, 0, 0.09))
-    key_at(plate, F_CHASSIS[1], location=(0, -0.6, 2.4))
-    key_at(plate, F_REASM[0], location=(0, -0.6, 2.4))
+    key_at(plate, F_CHASSIS[1], location=(0, 6.0, 3.0))  # exits up and BEHIND, never crossing the lens
+    key_at(plate, F_REASM[0], location=(0, 6.0, 3.0))
     key_at(plate, F_REASM[1], location=(0, 0, 0.09))
+    # vanish while parked so it never peeks over the lid
+    for f, s in ((F_CHASSIS[0], 1.0), (F_CHASSIS[1], 0.001), (F_REASM[0], 0.001), (F_REASM[1], 1.0)):
+        bpy.context.scene.frame_set(f)
+        plate.scale = (2.9 * s, 1.9 * s, 0.03 * s)
+        plate.keyframe_insert("scale")
     smooth_keys(plate)
 
     # ------- CPU (violet, rises center) + traces
@@ -234,8 +250,8 @@ def build():
     # key light (soft violet) + rim (teal)
     bpy.ops.object.light_add(type="AREA", location=(3, -4, 6))
     keyl = bpy.context.active_object
-    keyl.data.energy = 400
-    keyl.data.color = (0.7, 0.55, 1.0)
+    keyl.data.energy = 140
+    keyl.data.color = (0.92, 0.9, 1.0)
     keyl.data.size = 6
     bpy.ops.object.light_add(type="AREA", location=(-4, 3, 4))
     rim = bpy.context.active_object
@@ -254,6 +270,8 @@ def render():
     if hasattr(scn.eevee, "use_bloom"):
         scn.eevee.use_bloom = True
         scn.eevee.bloom_intensity = 0.08
+    # AgX (5.x default) desaturates strong emission to white; Standard keeps the neon
+    scn.view_settings.view_transform = "Standard"
     scn.render.resolution_x = RES_X
     scn.render.resolution_y = RES_Y
     scn.render.film_transparent = False

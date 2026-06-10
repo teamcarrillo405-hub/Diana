@@ -66,7 +66,11 @@ export function ScrollFilm({
     const idle = () => {
       if (!alive || next >= FRAME_COUNT) return;
       for (let n = 0; n < 6 && next < FRAME_COUNT; n += 1, next += 1) load(next);
-      (window.requestIdleCallback ?? window.setTimeout)(idle, 60 as never);
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(idle);
+      } else {
+        window.setTimeout(idle, 60);
+      }
     };
     idle();
     return () => {
