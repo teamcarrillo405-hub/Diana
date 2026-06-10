@@ -14,3 +14,6 @@ coverage/
 .qa/
 test-results/
 vendor/open-source/
+
+# Playwright session tokens must never land in the repo
+**/auth-storage-state.json
