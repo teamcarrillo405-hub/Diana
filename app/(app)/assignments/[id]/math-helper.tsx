@@ -3,6 +3,7 @@ import { useState } from "react";
 import { BookOpen, Calculator, Camera, FlaskConical, PenLine, Ruler } from "lucide-react";
 import { requestMathStep, requestMathExample, requestMathScaffold, uploadMathPhoto } from "./ai-tools-actions";
 import { streamMathStep } from "@/lib/ai/stream-client";
+import { MathGridWorkspace } from "@/components/math-grid-workspace";
 import { AiTooltip } from "@/components/ai-tooltip";
 import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { CALC_FORMULAS, PHYSICS_FORMULAS, ALGEBRA_FORMULAS, type Formula } from "@/lib/math/formulas";
@@ -491,6 +492,8 @@ export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelp
           </div>
         </>
       )}
+
+      <MathGridWorkspace />
     </SubjectToolShell>
   );
 }
