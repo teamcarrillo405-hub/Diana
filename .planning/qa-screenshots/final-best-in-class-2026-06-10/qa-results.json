@@ -1,0 +1,1152 @@
+[
+  {
+    "route": "/",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-landing.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-login.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-signup.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-landing.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-login.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-signup.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-landing.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-login.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-signup.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-landing.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-login.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-signup.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-landing.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-login.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-signup.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/proof",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-proof.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-dashboard.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-assignments.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-notes.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-flashcards.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-settings-ai-history.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/teacher-share",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-teacher-share.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/focus",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-focus.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-study-buddy.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-break-down.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/reminders",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-reminders.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/imports",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-imports.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/templates",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-templates.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/accessibility",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-accessibility.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/recap",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-recap.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/shame-mode",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\375x812-shame-mode.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-proof.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-dashboard.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-assignments.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-notes.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-flashcards.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-settings-ai-history.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/teacher-share",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-teacher-share.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/focus",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-focus.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-study-buddy.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-break-down.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/reminders",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-reminders.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/imports",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-imports.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/templates",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-templates.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/accessibility",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-accessibility.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/recap",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-recap.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/shame-mode",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\390x844-shame-mode.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-proof.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-dashboard.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-assignments.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-notes.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-flashcards.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-settings-ai-history.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/teacher-share",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-teacher-share.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/focus",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-focus.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-study-buddy.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-break-down.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/reminders",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-reminders.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/imports",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-imports.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/templates",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-templates.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/accessibility",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-accessibility.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/recap",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-recap.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/shame-mode",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\768x1024-shame-mode.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-proof.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-dashboard.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-assignments.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-notes.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-flashcards.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-settings-ai-history.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/teacher-share",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-teacher-share.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/focus",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-focus.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-study-buddy.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-break-down.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/reminders",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-reminders.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/imports",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-imports.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/templates",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-templates.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/accessibility",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-accessibility.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/recap",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-recap.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/shame-mode",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1024x768-shame-mode.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-proof.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-dashboard.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-assignments.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-notes.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-flashcards.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-settings-ai-history.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/teacher-share",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-teacher-share.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/focus",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-focus.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-study-buddy.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-break-down.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/reminders",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-reminders.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/imports",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-imports.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/templates",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-templates.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/accessibility",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-accessibility.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/recap",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-recap.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/shame-mode",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\1440x1000-shame-mode.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-landing.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-login.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-signup.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/proof",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-proof.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-dashboard.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-assignments.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-notes.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-flashcards.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-settings-ai-history.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/teacher-share",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-390x844-teacher-share.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-landing.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-login.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-signup.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/proof",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-proof.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-dashboard.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-assignments.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-notes.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-flashcards.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-settings-ai-history.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/teacher-share",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\final-best-in-class-2026-06-10\\dark-1440x1000-teacher-share.png",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  }
+]

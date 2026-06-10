@@ -10,9 +10,9 @@ This is the **slice 1** build: foundations + the three load-bearing features.
 | ------- | ------------ |
 | **F1 Classes & rubrics** | Add a class, paste a rubric. (AI parsing comes in slice 2 — for now the rubric is stored as text.) |
 | **F2 Submission helper** | A state machine (todo → drafting → checking → submitting → submitted) plus a pre-submit checklist that you can't bypass. |
-| **F3 Next 5 minutes** | The dashboard surfaces one task at a time, ranked by deadline + momentum + your current energy level. Rule-based, no AI yet. |
+| **F3 Next 5 minutes** | The dashboard surfaces one task at a time, ranked by due date + momentum + your current energy level. |
 
-The other 17 features (F4–F20) have route stubs that explain what's coming in which slice. See `lib/features.ts`.
+This README's feature table reflects the original slice-1 scope. The system has since grown far past it — 39 migrations, 24 AI Edge Functions, subject helpers for every high-school discipline, a test-prep engine, grade insights, a self-improving help-effectiveness loop, and a full accessibility layer. Current state lives in `.planning/STATE.md` and `.planning/BEST_IN_CLASS_PLAN.md`; CI runs typecheck, 600+ tests, the calm-tone audit, and a production build on every push.
 
 ## Stack
 
