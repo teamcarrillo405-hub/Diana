@@ -40,7 +40,8 @@ jobs:
           retention-days: 14
 
   ios:
-    runs-on: macos-14
+    # macos-15: Xcode 16 by default — Capacitor 7's Swift template needs it
+    runs-on: macos-15
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
