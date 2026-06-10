@@ -725,6 +725,37 @@ body[data-experience-mode="future"] .future-response-line {
   box-shadow: 0 0 18px rgb(var(--future-glow) / 0.38);
 }
 
+/* ------------------------------------------------------------------
+   Landing page — cinematic dark hero and wash, theme-independent.
+   Apple's move (glowing object on near-black) on Diana's own field.
+   ------------------------------------------------------------------ */
+.landing-hero {
+  background-color: rgb(3 7 18);
+  background-image:
+    linear-gradient(90deg, rgb(124 58 237 / 0.10) 1px, transparent 1px),
+    linear-gradient(180deg, rgb(124 58 237 / 0.07) 1px, transparent 1px),
+    radial-gradient(ellipse 80% 55% at 50% -12%, rgb(124 58 237 / 0.28), transparent),
+    radial-gradient(ellipse 45% 35% at 82% 18%, rgb(45 212 191 / 0.12), transparent);
+  background-size: 56px 56px, 56px 56px, auto, auto;
+}
+.landing-wash {
+  background-color: rgb(3 7 18);
+  background-image:
+    linear-gradient(120deg, rgb(124 58 237 / 0.22), rgb(45 212 191 / 0.10) 60%, transparent),
+    radial-gradient(ellipse 70% 80% at 20% 100%, rgb(124 58 237 / 0.18), transparent);
+}
+.landing-product-frame {
+  border-radius: 1.5rem;
+  box-shadow:
+    0 0 0 1px rgb(167 139 250 / 0.22),
+    0 30px 90px rgb(0 0 0 / 0.5),
+    0 0 80px rgb(124 58 237 / 0.22);
+}
+.landing-header-glass {
+  backdrop-filter: blur(14px);
+  background: rgb(3 7 18 / 0.6);
+}
+
 .future-mode-only {
   display: none;
 }
