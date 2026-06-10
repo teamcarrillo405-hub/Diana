@@ -277,7 +277,7 @@ export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelp
             </label>
 
             {scaffoldError && (
-              <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+              <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
                 {scaffoldError}
               </p>
             )}
@@ -314,7 +314,7 @@ export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelp
                       </div>
                       <p className="text-sm">{step.prompt}</p>
                       {step.unitHint && (
-                        <p className="rounded border border-amber-500/30 bg-amber-50 px-2 py-1 text-xs text-amber-900">
+                        <p className="rounded border border-amber-500/30 bg-amber-50 px-2 py-1 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
                           {step.unitHint}
                         </p>
                       )}
@@ -368,7 +368,7 @@ export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelp
           </div>
 
           {errorMsg && (
-            <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+            <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
               {errorMsg}
             </p>
           )}
@@ -417,7 +417,7 @@ export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelp
               </button>
             </div>
             {exampleError && (
-              <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900">
+              <p className="rounded border border-amber-500/40 bg-amber-50 px-2 py-1.5 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
                 {exampleError}
               </p>
             )}

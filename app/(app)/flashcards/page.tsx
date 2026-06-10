@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { Brain, ListChecks } from "lucide-react";
+import { EmptyStateMark } from "@/components/empty-state-mark";
 
 export default async function FlashcardsPage() {
   const supabase = await createClient();
@@ -96,6 +97,7 @@ export default async function FlashcardsPage() {
 
       {(!all || all.length === 0) && (
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+          <EmptyStateMark />
           <p className="text-lg font-medium">No cards yet.</p>
           <p className="mt-1 text-sm text-muted">
             Make a card from a note, or add one manually.

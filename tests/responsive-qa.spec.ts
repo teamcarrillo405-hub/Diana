@@ -72,6 +72,7 @@ const generatedQaPassword = `DianaQa!${Date.now()}`;
 type ResultRow = {
   route: string;
   viewport: string;
+  theme: "light" | "dark";
   screenshot: string;
   hasHorizontalOverflow: boolean;
   bannedVisible: string[];
@@ -114,6 +115,33 @@ test.describe("authenticated responsive QA", () => {
   }
 });
 
+// Dark mode pass — the explicit .dark toggle, captured on key routes at one
+// mobile + one desktop viewport so dark regressions fail the gate.
+const darkViewports = [viewports[1], viewports[4]] as const; // 390x844, 1440x1000
+
+test.describe("dark mode responsive QA", () => {
+  test.describe.configure({ mode: "serial" });
+  test.use({ storageState: authStatePath });
+
+  test.beforeAll(async ({ browser }) => {
+    const context = await browser.newContext({ storageState: { cookies: [], origins: [] } });
+    const page = await context.newPage();
+    await ensureSignedInForQa(page);
+    await expectAuthenticatedForQa(page, "QA dark-mode storage-state setup");
+    await context.storageState({ path: authStatePath });
+    await context.close();
+  });
+
+  for (const viewport of darkViewports) {
+    for (const route of requiredRoutes) {
+      test(`dark ${viewport.label} ${route}`, async ({ page }) => {
+        await page.addInitScript(() => localStorage.setItem("diana_theme", "dark"));
+        await captureRoute(page, viewport, route, authenticatedRoutes.has(route), "dark");
+      });
+    }
+  }
+});
+
 test.afterAll(() => {
   writeFileSync(join(outDir, "qa-results.json"), `${JSON.stringify(rows, null, 2)}\n`);
 });
@@ -143,6 +171,7 @@ async function captureRoute(
   viewport: (typeof viewports)[number],
   route: string,
   needsAuth: boolean,
+  theme: "light" | "dark" = "light",
 ) {
   await page.setViewportSize({ width: viewport.width, height: viewport.height });
   const response = await page.goto(new URL(route, baseUrl).toString(), {
@@ -168,10 +197,11 @@ async function captureRoute(
       ? "login-redirect"
       : "authenticated";
   const fileRoute = route === "/" ? "landing" : route.replace(/^\//, "").replace(/\//g, "-");
-  const screenshot = join(outDir, `${viewport.label}-${fileRoute}.png`);
+  const filePrefix = theme === "dark" ? "dark-" : "";
+  const screenshot = join(outDir, `${filePrefix}${viewport.label}-${fileRoute}.png`);
 
   await page.screenshot({ path: screenshot, fullPage: true });
-  rows.push({ route, viewport: viewport.label, screenshot, hasHorizontalOverflow, bannedVisible, statusText, authState });
+  rows.push({ route, viewport: viewport.label, theme, screenshot, hasHorizontalOverflow, bannedVisible, statusText, authState });
   expect(statusText, `${viewport.label} ${route} should render without an internal server page`).toBe("ok");
   if (needsAuth) {
     expect(authState, `${viewport.label} ${route} should render signed-in app UI`).toBe("authenticated");

@@ -5,6 +5,7 @@ import { loadProfile } from "@/lib/profile";
 import { rankAssignments, type Assignment } from "@/lib/scoring/next-five-minutes";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { formatDueAt } from "@/lib/format";
+import { EmptyStateMark } from "@/components/empty-state-mark";
 
 export default async function FocusPage() {
   const supabase = await createClient();
@@ -53,6 +54,7 @@ export default async function FocusPage() {
 
       {!top ? (
         <section className="rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
+          <EmptyStateMark />
           <p className="text-base font-semibold">No open assignments are in the queue.</p>
           <p className="mt-2 text-sm text-muted">Add one task or import due dates to start a focus plan.</p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">

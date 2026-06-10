@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -32,6 +32,7 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
+import { ThemeQuickToggle } from "@/components/theme-picker";
 
 export type AppShellNavItem = {
   href: string;
@@ -75,8 +76,13 @@ const SECONDARY_ITEMS = [
   { href: "/settings", label: "Settings", icon: Cog },
 ] satisfies AppShellNavItem[];
 
+// Rail labels must fit the w-24 compact rail without truncating — keep them
+// to one short word ("Assignments" becomes "Tasks" here only).
 const DESKTOP_CORE_ITEMS = [
-  ...PRIMARY_MOBILE_ITEMS,
+  { href: "/dashboard", label: "Focus", icon: Home },
+  { href: "/assignments", label: "Tasks", icon: CheckSquare },
+  { href: "/notes", label: "Notes", icon: FileText },
+  { href: "/flashcards", label: "Study", icon: Brain },
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/voice", label: "Voice", icon: Mic2 },
 ] satisfies AppShellNavItem[];
@@ -132,20 +138,27 @@ export function BottomNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const secondaryActive = SECONDARY_ITEMS.some((item) => isActivePath(path, item.href));
 
+  useEffect(() => {
+    setMoreOpen(false);
+  }, [path]);
+
   return (
     <>
       {moreOpen && (
         <div className="fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-50 mx-auto max-h-[70dvh] max-w-md overflow-y-auto rounded-2xl border border-border bg-surface-raised p-3 shadow-xl md:hidden">
           <div className="mb-2 flex items-center justify-between gap-3 px-1">
             <p className="text-sm font-semibold">More</p>
-            <button
-              type="button"
-              aria-label="Close more menu"
-              onClick={() => setMoreOpen(false)}
-              className="touch-target inline-flex items-center justify-center rounded-xl text-muted hover:bg-surface-soft hover:text-fg"
-            >
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-1">
+              <ThemeQuickToggle />
+              <button
+                type="button"
+                aria-label="Close more menu"
+                onClick={() => setMoreOpen(false)}
+                className="touch-target inline-flex items-center justify-center rounded-xl text-muted hover:bg-surface-soft hover:text-fg"
+              >
+                <X size={18} />
+              </button>
+            </div>
           </div>
           <ul className="grid grid-cols-2 gap-2">
             {SECONDARY_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -215,8 +228,14 @@ export function BottomNav() {
 export function SideNav() {
   const path = usePathname();
   const secondaryActive = DESKTOP_GROUPS.some((group) => group.items.some((item) => isActivePath(path, item.href)));
-  const [drawerOpen, setDrawerOpen] = useState(secondaryActive);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  // The drawer is an overlay: never resting-open on page load, and any route
+  // change dismisses it so it cannot cover the destination page's content.
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [path]);
   const normalizedQuery = query.trim().toLowerCase();
   const visibleGroups = DESKTOP_GROUPS.map((group) => ({
     ...group,
@@ -251,6 +270,8 @@ export function SideNav() {
             <span className="max-w-full truncate">More</span>
           </button>
         </nav>
+
+        <ThemeQuickToggle className="w-full" />
 
         <div className="w-full rounded-3xl border border-brand/20 bg-brand/10 px-2 py-3 text-center">
           <p className="text-[10px] font-semibold uppercase leading-4 tracking-wider text-brand-strong dark:text-brand">

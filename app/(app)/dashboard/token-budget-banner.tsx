@@ -21,10 +21,10 @@ export function TokenBudgetBanner({ profile }: TokenBudgetBannerProps) {
   return (
     <div
       role="status"
-      className="rounded-xl border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+      className="rounded-xl border border-amber-500/40 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
     >
       <p className="font-medium">{message}</p>
-      <p className="mt-1 text-xs text-amber-900/80">
+      <p className="mt-1 text-xs text-amber-900/80 dark:text-amber-100/80">
         {atLimit
           ? "You can still use Diana — note-taking, flashcards, and the dashboard work as usual."
           : `Used ${used.toLocaleString()} of ${budget.toLocaleString()} tokens today.`}

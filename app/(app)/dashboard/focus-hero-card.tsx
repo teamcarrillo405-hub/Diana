@@ -47,7 +47,7 @@ export function FocusHeroCard({
         : "Steady focus";
 
   return (
-    <section className="focus-surface animate-slide-up overflow-hidden rounded-3xl border border-brand/25 p-4 shadow-sm sm:p-6">
+    <section className="focus-surface hero-glow animate-slide-up overflow-hidden rounded-3xl border border-brand/25 p-4 shadow-sm sm:p-6">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1 space-y-4">
           <div className="flex flex-wrap items-center gap-2">
@@ -132,7 +132,7 @@ export function FocusHeroCard({
         <div className="w-full shrink-0 space-y-3 lg:w-64">
           <Link
             href={`/assignments/${assignment.id}`}
-            className="touch-target inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-strong"
+            className="press-scale touch-target inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-strong"
           >
             Start focus
             <ArrowRight size={17} />

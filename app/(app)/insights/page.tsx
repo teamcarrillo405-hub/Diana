@@ -188,13 +188,13 @@ export default async function InsightsPage() {
           ) : (
             <div className="space-y-3">
               {(errorEvents.data ?? []).map((row) => (
-                <div key={row.id} className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950">
+                <div key={row.id} className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
                   <div className="flex items-center gap-2 font-semibold">
                     <AlertTriangle size={15} />
                     {row.severity}
                   </div>
                   <p className="mt-1 break-words">{row.message}</p>
-                  <p className="mt-1 text-xs text-amber-800">
+                  <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
                     {(row.route ?? "unknown route")} - {(row.diagnosis_tags ?? []).join(", ") || "not_disclosed"}
                   </p>
                 </div>
@@ -211,7 +211,7 @@ export default async function InsightsPage() {
               {vitalRows.slice(0, 8).map((row, index) => (
                 <div key={`${row.metricName}-${index}`} className="flex items-center justify-between gap-3 text-sm">
                   <span className="font-medium">{row.metricName}</span>
-                  <span className={row.status === "ok" ? "text-muted" : "text-amber-700"}>
+                  <span className={row.status === "ok" ? "text-muted" : "text-amber-700 dark:text-amber-300"}>
                     {row.value.toFixed(row.metricName === "CLS" ? 3 : 0)} / {row.budget}
                   </span>
                 </div>

@@ -24,7 +24,7 @@ export function TimeBudget({ totalMinutes, items }: TimeBudgetProps) {
         aria-expanded={open}
       >
         <span className="text-sm font-medium">What&apos;s left tonight?</span>
-        <span className={`text-sm font-semibold ${heavy ? "text-amber-600" : "text-accent"}`}>
+        <span className={`text-sm font-semibold ${heavy ? "text-amber-600 dark:text-amber-400" : "text-accent"}`}>
           {items.length === 0 ? "—" : label}
         </span>
       </button>

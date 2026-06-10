@@ -185,7 +185,7 @@ export function ComputerScienceHelper({
                 {runResult.output.length > 0 ? runResult.output.join("\n") : "(no output)"}
               </pre>
               {runResult.error && (
-                <p className="mt-2 rounded border border-amber-500/40 bg-amber-50 px-2 py-1 text-xs text-amber-900">
+                <p className="mt-2 rounded border border-amber-500/40 bg-amber-50 px-2 py-1 text-xs text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
                   {runResult.error}
                 </p>
               )}

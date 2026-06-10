@@ -28,7 +28,7 @@ export function OverwhelmedButton() {
   }
 
   return (
-    <div className="fixed bottom-20 left-4 z-50 md:bottom-6 md:left-auto md:right-6">
+    <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-4 z-50 md:bottom-6 md:left-auto md:right-6">
       {open && (
         <div className="mb-2 w-72 rounded-xl border border-border bg-card p-4 shadow-lg">
           <p className="text-sm font-medium">Smallest next step</p>

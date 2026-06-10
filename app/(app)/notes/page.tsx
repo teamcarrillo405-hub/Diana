@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { snippetForQuery } from "@/lib/notes/related";
 import { NoteSynthesisPanel } from "./note-synthesis-panel";
+import { EmptyStateMark } from "@/components/empty-state-mark";
 
 export default async function NotesPage({
   searchParams,
@@ -77,6 +78,7 @@ export default async function NotesPage({
 
       {(!notes || notes.length === 0) ? (
         <div className="rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
+          <EmptyStateMark />
           <p className="text-lg font-medium">{search || tagFilter ? "No matching notes." : "No notes yet."}</p>
           <p className="mt-1 text-sm text-muted">
             {search || tagFilter

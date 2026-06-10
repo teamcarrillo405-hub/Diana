@@ -175,7 +175,7 @@ export function ReviewSession({
         )}
 
         {flipped && (
-          <>
+          <div className="animate-card-reveal">
             <hr className="my-4 border-border" />
             <div className="flex items-center justify-between gap-2">
               <p className="text-xs font-medium uppercase tracking-wider text-muted">
@@ -191,7 +191,7 @@ export function ReviewSession({
               />
             </div>
             <p className="mt-2 whitespace-pre-wrap text-base">{card.back}</p>
-          </>
+          </div>
         )}
       </div>
 
@@ -199,7 +199,7 @@ export function ReviewSession({
         <button
           type="button"
           onClick={() => setFlipped(true)}
-          className="w-full rounded-lg bg-accent px-4 py-3 text-sm font-medium text-white"
+          className="press-scale w-full rounded-lg bg-accent px-4 py-3 text-sm font-medium text-white"
         >
           Show answer
         </button>

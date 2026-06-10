@@ -130,7 +130,7 @@ export function AudioUploadTab({
       </label>
 
       {warning && (
-        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
           {warning}
         </p>
       )}
@@ -150,12 +150,12 @@ export function AudioUploadTab({
         <p className="text-sm text-muted">All set. Edit anything below, then tap Done.</p>
       )}
       {status.kind === "tooShort" && (
-        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
           The recording didn&apos;t pick up enough speech. You can type or paste notes below instead.
         </p>
       )}
       {status.kind === "error" && (
-        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
           {status.message}
         </p>
       )}

@@ -55,7 +55,7 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('diana_theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}var m=localStorage.getItem('diana_experience_mode');document.documentElement.dataset.experienceMode=m==='future'?'future':'calm';}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('diana_theme');var c=document.documentElement.classList;if(t==='dark'){c.add('dark');}else if(t==='light'){c.add('light');}var m=localStorage.getItem('diana_experience_mode');document.documentElement.dataset.experienceMode=m==='future'?'future':'calm';}catch(e){}})();`,
           }}
         />
       </head>

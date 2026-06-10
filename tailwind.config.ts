@@ -1,7 +1,13 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: 'class',
+  // dark: variants must match the CSS token logic in globals.css —
+  // explicit .dark class wins, otherwise OS dark applies unless the
+  // student explicitly chose light (.light class).
+  darkMode: ['variant', [
+    '&:where(.dark, .dark *)',
+    '@media (prefers-color-scheme: dark) { &:where(:not(.light, .light *)) }',
+  ]],
   content: [
     "./app/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { EmptyStateMark } from "@/components/empty-state-mark";
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
@@ -392,6 +393,7 @@ export default async function DashboardPage({
 function EmptyState() {
   return (
     <div className="rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
+      <EmptyStateMark />
       <p className="text-lg font-medium">Nothing on deck.</p>
       <p className="mt-1 text-sm text-muted">
         Add an assignment to get started. Or add a class first so it has somewhere to live.
