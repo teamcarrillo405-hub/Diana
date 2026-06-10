@@ -53,13 +53,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Sync Capacitor (runs pod install)
+      - name: Sync Capacitor (SPM resolves packages)
         run: npx cap sync ios
 
       - name: Build for simulator (unsigned)
         run: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App \
+          xcodebuild -project App.xcodeproj -scheme App \
             -configuration Debug -sdk iphonesimulator \
             -derivedDataPath build CODE_SIGNING_ALLOWED=NO build
 
