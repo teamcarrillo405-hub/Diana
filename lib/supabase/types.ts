@@ -165,6 +165,36 @@ export type Database = {
           },
         ];
       };
+      canva_connections: {
+        Row: {
+          owner_id: string;
+          access_token: string;
+          refresh_token: string;
+          expires_at: string;
+          scope: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          owner_id: string;
+          access_token: string;
+          refresh_token: string;
+          expires_at: string;
+          scope?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          owner_id?: string;
+          access_token?: string;
+          refresh_token?: string;
+          expires_at?: string;
+          scope?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       ai_help_feedback: {
         Row: {
           id: string;

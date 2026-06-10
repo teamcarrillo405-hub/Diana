@@ -6,6 +6,7 @@ import { AccentPicker } from "@/components/accent-picker";
 import { ThemePicker } from "@/components/theme-picker";
 import { IepImport } from "./iep-import";
 import { AdaptationPanel } from "./adaptation-panel";
+import { CanvaSection } from "./canva-section";
 import { LmsConnections } from "./lms-connections";
 import { SharingSection } from "./sharing-section";
 import { PwaSettings } from "@/components/pwa-settings";
@@ -96,6 +97,8 @@ export default async function SettingsPage() {
       <AccessibilityPrefs initial={profile} />
 
       <IepImport />
+
+      <CanvaSection />
 
       <PwaSettings />
 

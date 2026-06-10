@@ -17,6 +17,9 @@ import {
   previousTestDueAt,
   type TestPrepPlan,
 } from "@/lib/test-prep/plan";
+import { CanvaPanel } from "@/components/canva-panel";
+import { canvaEnv, looksLikeVisualProject } from "@/lib/integrations/canva";
+import { isCanvaConnected } from "@/lib/integrations/canva-server";
 import { Breadcrumb } from "./breadcrumb";
 import { ExternalSubmissionSync } from "./external-submission-sync";
 import { PivotForm } from "./pivot-form";
@@ -335,6 +338,10 @@ export default async function AssignmentDetailPage({
 
       {testPrepPlan && (
         <TestPrepPanel plan={testPrepPlan} className={a.classes?.name ?? null} coversSince={coversSince} />
+      )}
+
+      {canvaEnv() !== null && looksLikeVisualProject(a.title, a.kind) && (
+        <CanvaPanel assignmentId={a.id} connected={await isCanvaConnected(supabase)} />
       )}
 
       <StudyHelperModeCard assignmentId={a.id} context={studyHelperContext} />

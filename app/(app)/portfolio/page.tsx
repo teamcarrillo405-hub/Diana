@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PortfolioClient } from "./portfolio-client";
+import { canvaEnv, listCanvaDesigns, type CanvaDesign } from "@/lib/integrations/canva";
+import { getValidCanvaToken } from "@/lib/integrations/canva-server";
 
 export default async function PortfolioPage() {
   const supabase = await createClient();
@@ -44,12 +46,53 @@ export default async function PortfolioPage() {
     };
   }));
 
+  // Recent Canva designs — shown read-only when the student linked Canva.
+  // Failure or no connection just hides the strip.
+  let canvaDesigns: CanvaDesign[] = [];
+  if (canvaEnv()) {
+    try {
+      const token = await getValidCanvaToken(supabase);
+      if (token) canvaDesigns = await listCanvaDesigns(token, 8);
+    } catch {
+      canvaDesigns = [];
+    }
+  }
+
   return (
     <div className="space-y-6">
       <header className="space-y-1">
         <h1 className="text-2xl font-bold">Portfolio</h1>
         <p className="text-sm text-muted">Collect creative work with process notes.</p>
       </header>
+
+      {canvaDesigns.length > 0 && (
+        <section className="space-y-2">
+          <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
+            Your recent Canva designs
+          </h2>
+          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {canvaDesigns.map((design) => (
+              <li key={design.id}>
+                <a
+                  href={design.editUrl ?? design.viewUrl ?? "#"}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block overflow-hidden rounded-2xl border border-border bg-card transition hover:bg-surface-soft"
+                >
+                  {design.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- external Canva CDN thumbnail
+                    <img src={design.thumbnailUrl} alt="" className="h-28 w-full object-cover" />
+                  ) : (
+                    <div className="flex h-28 w-full items-center justify-center bg-brand/5 text-2xl text-brand">✦</div>
+                  )}
+                  <p className="truncate px-3 py-2 text-sm font-medium">{design.title}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <PortfolioClient portfolios={portfolios} />
     </div>
   );
