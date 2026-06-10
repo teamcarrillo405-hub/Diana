@@ -6,6 +6,7 @@ import { formatDueAt } from "@/lib/format";
 import { STATUS_LABEL, STATUS_HINT, nextStatesFor } from "@/lib/state-machine/assignment";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { StatusButtons } from "./status-buttons";
+import { RubricPanel } from "@/components/rubric-panel";
 import { Breadcrumb } from "./breadcrumb";
 import { ExternalSubmissionSync } from "./external-submission-sync";
 import { PivotForm } from "./pivot-form";
@@ -71,6 +72,27 @@ export default async function AssignmentDetailPage({
     .select("feature, model, tokens_used, created_at")
     .eq("assignment_id", id)
     .order("created_at", { ascending: false });
+
+  // Governing rubric resolution: linked rubric doc, else newest class rubric.
+  // resolveRubric gives the assignment's own rubric_text precedence.
+  let classRubricText: string | null = null;
+  if (a.rubric_id) {
+    const { data: linkedRubric } = await supabase
+      .from("rubrics")
+      .select("raw_text")
+      .eq("id", a.rubric_id)
+      .maybeSingle();
+    classRubricText = linkedRubric?.raw_text ?? null;
+  }
+  if (!classRubricText && a.class_id) {
+    const { data: classRubrics } = await supabase
+      .from("rubrics")
+      .select("raw_text")
+      .eq("class_id", a.class_id)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    classRubricText = classRubrics?.[0]?.raw_text ?? null;
+  }
 
   const { data: stepsRow } = await supabase
     .from("assignment_steps")
@@ -273,12 +295,11 @@ export default async function AssignmentDetailPage({
         studyMode={studyHelperContext.selectedMode}
       />
 
-      {a.rubric_text && (
-        <section className="space-y-2 rounded-xl border border-border bg-card p-4">
-          <h2 className="text-sm font-medium">Imported rubric</h2>
-          <p className="whitespace-pre-wrap text-sm text-muted">{a.rubric_text}</p>
-        </section>
-      )}
+      <RubricPanel
+        assignmentId={a.id}
+        classRubricText={classRubricText}
+        assignmentRubricText={a.rubric_text ?? null}
+      />
 
       <TaskBreakdown
         assignmentId={a.id}

@@ -57,6 +57,7 @@ const SECONDARY_ITEMS = [
   { href: "/focus", label: "Focus plan", icon: Timer },
   { href: "/study-buddy", label: "Study buddy", icon: MessageCircle },
   { href: "/break-down", label: "Break down", icon: ListChecks },
+  { href: "/grades", label: "Grades", icon: BarChart3 },
   { href: "/reminders", label: "Reminders", icon: Bell },
   { href: "/portfolio", label: "Portfolio", icon: Images },
   { href: "/voice", label: "Voice", icon: Mic2 },
@@ -110,6 +111,7 @@ const DESKTOP_GROUPS = [
   {
     label: "Life and progress",
     items: [
+      { href: "/grades", label: "Grades", icon: BarChart3 },
       { href: "/reminders", label: "Reminders", icon: Bell },
       { href: "/wellness", label: "Wellness", icon: HeartPulse },
       { href: "/wins", label: "Wins", icon: Sparkles },

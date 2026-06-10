@@ -1,5 +1,50 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchCanvasAssignments } from "./canvas";
+import { fetchCanvasAssignments, normalizeCanvasSubmission } from "./canvas";
+
+describe("normalizeCanvasSubmission", () => {
+  const course = { id: 42, name: "Biology" };
+
+  it("maps a graded submission to a GradeRecord", () => {
+    const record = normalizeCanvasSubmission(course, {
+      assignment_id: 7,
+      score: 18,
+      graded_at: "2026-06-01T00:00:00Z",
+      workflow_state: "graded",
+      missing: false,
+      late: true,
+      excused: false,
+      assignment: { id: 7, name: "Cell lab", points_possible: 20, due_at: "2026-05-30T00:00:00Z" },
+    });
+    expect(record).toMatchObject({
+      externalAssignmentId: "7",
+      courseId: "42",
+      courseName: "Biology",
+      title: "Cell lab",
+      score: 18,
+      pointsPossible: 20,
+      submitted: true,
+      notTurnedIn: false,
+      late: true,
+      excused: false,
+    });
+  });
+
+  it("flags unsubmitted + missing work", () => {
+    const record = normalizeCanvasSubmission(course, {
+      assignment_id: 8,
+      score: null,
+      graded_at: null,
+      workflow_state: "unsubmitted",
+      missing: true,
+      assignment: { id: 8, name: "Essay", points_possible: 50 },
+    });
+    expect(record).toMatchObject({ submitted: false, notTurnedIn: true, score: null, pointsPossible: 50 });
+  });
+
+  it("returns null when the assignment payload is absent", () => {
+    expect(normalizeCanvasSubmission(course, { assignment_id: 9, score: 1, graded_at: null })).toBeNull();
+  });
+});
 
 function mockResponse(body: unknown, linkHeader: string | null = null) {
   return {

@@ -39,11 +39,16 @@ const YEARS = [
 
 const CLASS_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
 
+// One question per screen. A long form is exactly the wall this product
+// exists to remove — each step is one decision, with a visible "almost done."
+const STEPS = ["welcome", "brain", "accommodations", "school", "interests", "literacy"] as const;
+type Step = (typeof STEPS)[number];
+
 export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [step, setStep] = useState<"form" | "literacy">("form");
+  const [step, setStep] = useState<Step>("welcome");
 
   const [diagnoses, setDiagnoses] = useState<string[]>(initial.diagnoses ?? []);
   const [accommodations, setAccommodations] = useState<string[]>(initial.accommodations ?? []);
@@ -52,14 +57,35 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
   const [classCount, setClassCount] = useState<number | null>(initial.class_count_hint ?? null);
   const [interests, setInterests] = useState<string[]>(normalizeInterestIds(initial.interests));
 
+  const stepIndex = STEPS.indexOf(step);
+  const questionSteps = STEPS.length - 1; // welcome isn't a question
+
   function toggle(list: string[], setter: (xs: string[]) => void, value: string) {
     setter(list.includes(value) ? list.filter((x) => x !== value) : [...list, value]);
+  }
+
+  function toggleInterest(value: string) {
+    setInterests((current) => {
+      if (current.includes(value)) return current.filter((id) => id !== value);
+      if (current.length >= 5) return current;
+      return [...current, value];
+    });
+  }
+
+  function next() {
+    setError(null);
+    setStep(STEPS[Math.min(stepIndex + 1, STEPS.length - 1)]);
+  }
+
+  function back() {
+    setError(null);
+    setStep(STEPS[Math.max(stepIndex - 1, 0)]);
   }
 
   function commit() {
     startTransition(async () => {
       const result = await saveOnboarding({
-        diagnoses: diagnoses as Diagnosis[],
+        diagnoses: (diagnoses.length > 0 ? diagnoses : ["none"]) as Diagnosis[],
         accommodations: accommodations as Accommodation[],
         school_year: year,
         extra_time_pct: extraTime,
@@ -73,7 +99,6 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
       });
       if (result?.error) {
         setError(result.error);
-        setStep("form");
         return;
       }
       router.push("/onboarding/done");
@@ -81,207 +106,253 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
     });
   }
 
-  function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setStep("literacy");
-  }
-
-  function toggleInterest(value: string) {
-    setInterests((current) => {
-      if (current.includes(value)) return current.filter((id) => id !== value);
-      if (current.length >= 5) return current;
-      return [...current, value];
-    });
-  }
-
-  if (step === "literacy") {
-    return (
-      <div className="space-y-6 rounded-xl border border-border bg-card p-6">
-        <h2 className="text-lg font-semibold">A quick word about the AI</h2>
-        <p className="text-sm text-foreground">
-          Diana uses Claude to help — not to do your work.
-        </p>
-        <ul className="space-y-2 text-sm text-muted">
-          <li>• It never writes your essay or solves your problem.</li>
-          <li>• It asks questions to help you think it through.</li>
-          <li>• Every time it helps, you&apos;ll see a small (i) so you know.</li>
-        </ul>
-        {error && (
-          <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
-            {error}
-          </div>
-        )}
-        <div className="flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => setStep("form")}
-            className="text-sm text-muted hover:underline"
-          >
-            Back
-          </button>
-          <button
-            type="button"
-            onClick={commit}
-            disabled={pending}
-            className="rounded-lg bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
-          >
-            {pending ? "Saving…" : "Got it"}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
-      <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
-        <legend className="px-1 text-sm font-semibold">
-          1. How does your brain tend to work?
-        </legend>
-        <p className="text-xs text-muted">
-          Pick anything that sounds like you. Diana uses this to adjust the UI and suggestions — for example, &quot;Reading takes more effort&quot; turns on a dyslexia-friendly font and read-aloud buttons.
-        </p>
-        <div className="grid grid-cols-2 gap-2 pt-2">
-          {DIAGNOSES.map((d) => (
-            <Chip
-              key={d.value}
-              label={d.label}
-              active={diagnoses.includes(d.value)}
-              onClick={() => toggle(diagnoses, setDiagnoses, d.value)}
-            />
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
-        <legend className="px-1 text-sm font-semibold">
-          2. Accommodations you have (IEP / 504 / informal)
-        </legend>
-        <p className="text-xs text-muted">
-          Diana uses these to adjust time estimates and the submission checklist.
-          None of this is shared with your school.
-        </p>
-        <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
-          {ACCOMMODATIONS.map((a) => (
-            <Chip
-              key={a.value}
-              label={a.label}
-              active={accommodations.includes(a.value)}
-              onClick={() => toggle(accommodations, setAccommodations, a.value)}
-            />
-          ))}
-        </div>
-        {accommodations.includes("extended_time") && (
-          <div className="pt-3">
-            <label className="block text-sm font-medium">
-              Extra time: {extraTime}%
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              step={10}
-              value={extraTime}
-              onChange={(e) => setExtraTime(Number(e.target.value))}
-              className="w-full"
-            />
-            <p className="text-xs text-muted">
-              Common values: 25%, 50%, 100% (time-and-a-half, double time).
-            </p>
+    <div className="space-y-6">
+      {step !== "welcome" && (
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs text-muted">
+            <span>
+              Step {stepIndex} of {questionSteps}
+            </span>
+            <span>{stepLabel(step)}</span>
           </div>
-        )}
-      </fieldset>
-
-      <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
-        <legend className="px-1 text-sm font-semibold">3. What year are you in?</legend>
-        <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-5">
-          {YEARS.map((y) => (
-            <Chip
-              key={y.value}
-              label={y.label}
-              active={year === y.value}
-              onClick={() => setYear(y.value)}
+          <div className="h-1.5 overflow-hidden rounded-full bg-surface-soft">
+            <div
+              className="h-full rounded-full bg-brand transition-all"
+              style={{ width: `${Math.round((stepIndex / questionSteps) * 100)}%` }}
             />
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
-        <legend className="px-1 text-sm font-semibold">
-          4. How many classes do you have?
-        </legend>
-        <p className="text-xs text-muted">
-          Helps Diana know how heavy your day looks. Skip if it varies.
-        </p>
-        <div className="grid grid-cols-4 gap-2 pt-2 sm:grid-cols-8">
-          {CLASS_COUNTS.map((n) => (
-            <Chip
-              key={n}
-              label={String(n)}
-              active={classCount === n}
-              onClick={() => setClassCount(n)}
-            />
-          ))}
-        </div>
-      </fieldset>
-
-      <fieldset className="space-y-3 rounded-xl border border-border bg-card p-5">
-        <legend className="px-1 text-sm font-semibold">
-          5. Pick up to five interests
-        </legend>
-        <p className="text-xs text-muted">
-          Diana can use these for examples when an analogy would help.
-        </p>
-        <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-3">
-          {INTEREST_OPTIONS.map((interest) => (
-            <Chip
-              key={interest.id}
-              label={interest.label}
-              active={interests.includes(interest.id)}
-              onClick={() => toggleInterest(interest.id)}
-            />
-          ))}
-        </div>
-        <p className="text-xs text-muted">{interests.length}/5 selected</p>
-      </fieldset>
-
-      {error && (
-        <div className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
+          </div>
         </div>
       )}
 
+      {step === "welcome" && (
+        <div className="space-y-5 rounded-2xl border border-border bg-card p-6 text-center">
+          <p aria-hidden="true" className="text-4xl text-brand">✦</p>
+          <h2 className="text-xl font-bold">Diana sets up around you.</h2>
+          <p className="mx-auto max-w-sm text-sm text-muted">
+            Five quick questions — about a minute. One question at a time, and every answer changes
+            how Diana works for you. You can adjust everything later in Settings.
+          </p>
+          <div className="flex flex-col items-center gap-3">
+            <button
+              type="button"
+              onClick={next}
+              className="press-scale touch-target rounded-2xl bg-brand px-6 py-3 text-sm font-semibold text-white hover:bg-brand-strong"
+            >
+              Start setup
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                startTransition(async () => {
+                  await saveOnboarding({
+                    diagnoses: ["none"],
+                    accommodations: [],
+                    school_year: null,
+                    extra_time_pct: 0,
+                    class_count_hint: null,
+                    interests,
+                  });
+                  router.push("/dashboard");
+                  router.refresh();
+                });
+              }}
+              className="text-xs text-muted hover:underline"
+            >
+              Skip setup for now
+            </button>
+          </div>
+        </div>
+      )}
+
+      {step === "brain" && (
+        <StepCard
+          title="How does your brain tend to work?"
+          hint='Pick anything that sounds like you. "Reading takes more effort" turns on a dyslexia-friendly font and read-aloud buttons right away.'
+        >
+          <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
+            {DIAGNOSES.map((d) => (
+              <Chip
+                key={d.value}
+                label={d.label}
+                active={diagnoses.includes(d.value)}
+                onClick={() => toggle(diagnoses, setDiagnoses, d.value)}
+              />
+            ))}
+          </div>
+          <StepNav
+            onBack={back}
+            onNext={next}
+            nextDisabled={diagnoses.length === 0}
+            nextHint={diagnoses.length === 0 ? 'Pick at least one — "None of these" counts.' : null}
+          />
+        </StepCard>
+      )}
+
+      {step === "accommodations" && (
+        <StepCard
+          title="Accommodations you have"
+          hint="IEP, 504, or informal. Diana uses these to adjust time estimates and checklists. None of this is shared with your school. Skip ahead if none apply."
+        >
+          <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
+            {ACCOMMODATIONS.map((a) => (
+              <Chip
+                key={a.value}
+                label={a.label}
+                active={accommodations.includes(a.value)}
+                onClick={() => toggle(accommodations, setAccommodations, a.value)}
+              />
+            ))}
+          </div>
+          {accommodations.includes("extended_time") && (
+            <div className="pt-3">
+              <label className="block text-sm font-medium">Extra time: {extraTime}%</label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={10}
+                value={extraTime}
+                onChange={(e) => setExtraTime(Number(e.target.value))}
+                className="w-full"
+              />
+              <p className="text-xs text-muted">
+                Common values: 25%, 50%, 100% (time-and-a-half, double time).
+              </p>
+            </div>
+          )}
+          <StepNav onBack={back} onNext={next} />
+        </StepCard>
+      )}
+
+      {step === "school" && (
+        <StepCard title="Where are you in school?" hint="Helps Diana pace plans and pick the right scaffolds.">
+          <p className="pt-1 text-xs font-medium uppercase tracking-wider text-muted">Year</p>
+          <div className="grid grid-cols-2 gap-2 pt-1 sm:grid-cols-5">
+            {YEARS.map((y) => (
+              <Chip key={y.value} label={y.label} active={year === y.value} onClick={() => setYear(y.value)} />
+            ))}
+          </div>
+          <p className="pt-3 text-xs font-medium uppercase tracking-wider text-muted">
+            Classes this term (skip if it varies)
+          </p>
+          <div className="grid grid-cols-4 gap-2 pt-1 sm:grid-cols-8">
+            {CLASS_COUNTS.map((n) => (
+              <Chip key={n} label={String(n)} active={classCount === n} onClick={() => setClassCount(n)} />
+            ))}
+          </div>
+          <StepNav
+            onBack={back}
+            onNext={next}
+            nextDisabled={year === null}
+            nextHint={year === null ? "Pick your year so plans fit your workload." : null}
+          />
+        </StepCard>
+      )}
+
+      {step === "interests" && (
+        <StepCard
+          title="Pick up to five interests"
+          hint="When an analogy would help, Diana uses these — basketball for momentum, music for fractions."
+        >
+          <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-3">
+            {INTEREST_OPTIONS.map((interest) => (
+              <Chip
+                key={interest.id}
+                label={interest.label}
+                active={interests.includes(interest.id)}
+                onClick={() => toggleInterest(interest.id)}
+              />
+            ))}
+          </div>
+          <p className="text-xs text-muted">{interests.length}/5 selected</p>
+          <StepNav onBack={back} onNext={next} />
+        </StepCard>
+      )}
+
+      {step === "literacy" && (
+        <StepCard title="A quick word about the AI" hint="">
+          <p className="text-sm text-foreground">Diana uses Claude to help — not to do your work.</p>
+          <ul className="space-y-2 pt-1 text-sm text-muted">
+            <li>• It never writes your essay or solves your problem.</li>
+            <li>• It asks questions to help you think it through.</li>
+            <li>• Every time it helps, you&apos;ll see a small (i) so you know.</li>
+          </ul>
+          {error && (
+            <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm">
+              {error}
+            </div>
+          )}
+          <div className="flex items-center justify-between pt-2">
+            <button type="button" onClick={back} className="text-sm text-muted hover:underline">
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={commit}
+              disabled={pending}
+              className="press-scale touch-target rounded-2xl bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong disabled:opacity-50"
+            >
+              {pending ? "Saving…" : "Got it — finish setup"}
+            </button>
+          </div>
+        </StepCard>
+      )}
+    </div>
+  );
+}
+
+function stepLabel(step: Step): string {
+  return (
+    {
+      welcome: "",
+      brain: "Your brain",
+      accommodations: "Accommodations",
+      school: "School",
+      interests: "Interests",
+      literacy: "The AI",
+    } as Record<Step, string>
+  )[step];
+}
+
+function StepCard({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
+  return (
+    <div className="animate-slide-up space-y-3 rounded-2xl border border-border bg-card p-5">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      {hint && <p className="text-xs text-muted">{hint}</p>}
+      {children}
+    </div>
+  );
+}
+
+function StepNav({
+  onBack,
+  onNext,
+  nextDisabled = false,
+  nextHint = null,
+}: {
+  onBack: () => void;
+  onNext: () => void;
+  nextDisabled?: boolean;
+  nextHint?: string | null;
+}) {
+  return (
+    <div className="space-y-2 pt-3">
+      {nextHint && <p className="text-xs text-muted">{nextHint}</p>}
       <div className="flex items-center justify-between">
+        <button type="button" onClick={onBack} className="text-sm text-muted hover:underline">
+          Back
+        </button>
         <button
           type="button"
-          onClick={() => {
-            startTransition(async () => {
-              await saveOnboarding({
-                diagnoses: ["none"],
-                accommodations: [],
-                school_year: null,
-                extra_time_pct: 0,
-                class_count_hint: null,
-                interests,
-              });
-              router.push("/dashboard");
-              router.refresh();
-            });
-          }}
-          className="text-sm text-muted hover:underline"
+          onClick={onNext}
+          disabled={nextDisabled}
+          className="press-scale touch-target rounded-2xl bg-brand px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-strong disabled:opacity-50"
         >
-          Skip for now
-        </button>
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-lg bg-accent px-5 py-2.5 font-medium text-white disabled:opacity-50"
-        >
-          {pending ? "Saving…" : "Save and continue"}
+          Next
         </button>
       </div>
-    </form>
+    </div>
   );
 }
 
@@ -298,6 +369,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`rounded-lg border px-3 py-2 text-left text-sm transition ${
         active
           ? "border-accent bg-accent/10 text-accent"
