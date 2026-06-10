@@ -62,47 +62,97 @@ export default async function DashboardPage({
   const cookieStore = await cookies();
   const lastShownClassId = cookieStore.get("diana_last_class")?.value ?? null;
 
-  const { data: assignments } = await supabase
-    .from("assignments")
-    .select("id, title, description, rubric_text, due_at, created_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, ai_mode_override, classes(name, color, ai_mode)")
-    .neq("status", "submitted")
-    .neq("status", "graded")
-    .neq("status", "abandoned")
-    .order("due_at", { ascending: true, nullsFirst: false });
-
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
   const fourHoursAgoIso = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
-  const { data: signals } = await supabase
-    .from("task_signals")
-    .select("assignment_id, occurred_at")
-    .in("kind", ["started", "completed"])
-    .gte("occurred_at", fourHoursAgoIso)
-    .order("occurred_at", { ascending: false });
+  const last24hIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const twoWeeksAgoIso = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
+  // One parallel batch — every query here is independent (P1 perf work).
+  const [
+    { data: assignments },
+    { data: signals },
+    { data: latestReadinessSignal },
+    { data: doneToday },
+    { data: timeLogs },
+    { data: overwhelmedToday },
+    { data: supportSignals },
+    { data: completionMilestones },
+    { data: latestSleep },
+    { data: anyClass },
+    { data: anyConnection },
+    { data: anyStartSignal },
+    { data: anyTimeLog },
+    { data: dueCards },
+  ] = await Promise.all([
+    supabase
+      .from("assignments")
+      .select("id, title, description, rubric_text, due_at, created_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, ai_mode_override, classes(name, color, ai_mode)")
+      .neq("status", "submitted")
+      .neq("status", "graded")
+      .neq("status", "abandoned")
+      .order("due_at", { ascending: true, nullsFirst: false }),
+    supabase
+      .from("task_signals")
+      .select("assignment_id, occurred_at")
+      .in("kind", ["started", "completed"])
+      .gte("occurred_at", fourHoursAgoIso)
+      .order("occurred_at", { ascending: false }),
+    supabase
+      .from("task_signals")
+      .select("value, occurred_at")
+      .eq("kind", "mood_checkin")
+      .gte("occurred_at", todayStart.toISOString())
+      .order("occurred_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("task_signals")
+      .select("id")
+      .eq("kind", "completed")
+      .gte("occurred_at", todayStart.toISOString()),
+    supabase
+      .from("assignment_time_log")
+      .select("started_at, ended_at, elapsed_minutes")
+      .gte("started_at", todayStart.toISOString()),
+    supabase
+      .from("task_signals")
+      .select("id")
+      .eq("kind", "overwhelmed")
+      .gte("occurred_at", todayStart.toISOString()),
+    supabase
+      .from("task_signals")
+      .select("assignment_id, kind, value, occurred_at")
+      .in("kind", ["started", "completed", "overwhelmed", "context_switch", "study_helper_event", "recall_result"])
+      .gte("occurred_at", last24hIso)
+      .order("occurred_at", { ascending: false }),
+    supabase
+      .from("task_signals")
+      .select("assignment_id, assignments(kind)")
+      .eq("kind", "completed")
+      .gte("occurred_at", twoWeeksAgoIso)
+      .not("assignment_id", "is", null)
+      .limit(100),
+    supabase
+      .from("sleep_logs")
+      .select("sleep_date, sleep_quality, sleep_hours")
+      .order("sleep_date", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase.from("classes").select("id").limit(1),
+    supabase.from("lms_connections").select("id").limit(1),
+    supabase.from("task_signals").select("id").in("kind", ["started", "completed"]).limit(1),
+    supabase.from("assignment_time_log").select("id").limit(1),
+    supabase
+      .from("flashcards")
+      .select("id")
+      .lte("due_at", new Date().toISOString())
+      .order("due_at", { ascending: true }),
+  ]);
 
   const recentSignals = (signals ?? [])
     .filter((signal): signal is { assignment_id: string; occurred_at: string } => signal.assignment_id !== null);
-
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const { data: latestReadinessSignal } = await supabase
-    .from("task_signals")
-    .select("value, occurred_at")
-    .eq("kind", "mood_checkin")
-    .gte("occurred_at", todayStart.toISOString())
-    .order("occurred_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  const { data: doneToday } = await supabase
-    .from("task_signals")
-    .select("id")
-    .eq("kind", "completed")
-    .gte("occurred_at", todayStart.toISOString());
   const doneTodayCount = doneToday?.length ?? 0;
-
-  const { data: timeLogs } = await supabase
-    .from("assignment_time_log")
-    .select("started_at, ended_at, elapsed_minutes")
-    .gte("started_at", todayStart.toISOString());
   const minutesToday = (timeLogs ?? []).reduce((sum, log) => {
     if (typeof log.elapsed_minutes === "number") return sum + log.elapsed_minutes;
     if (log.ended_at) {
@@ -114,28 +164,6 @@ export default async function DashboardPage({
     if (log.ended_at) return sum;
     return sum + Math.max(0, Math.round((now.getTime() - new Date(log.started_at).getTime()) / 60000));
   }, 0);
-  const { data: overwhelmedToday } = await supabase
-    .from("task_signals")
-    .select("id")
-    .eq("kind", "overwhelmed")
-    .gte("occurred_at", todayStart.toISOString());
-
-  const last24hIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-  const { data: supportSignals } = await supabase
-    .from("task_signals")
-    .select("assignment_id, kind, value, occurred_at")
-    .in("kind", ["started", "completed", "overwhelmed", "context_switch", "study_helper_event", "recall_result"])
-    .gte("occurred_at", last24hIso)
-    .order("occurred_at", { ascending: false });
-
-  const twoWeeksAgoIso = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
-  const { data: completionMilestones } = await supabase
-    .from("task_signals")
-    .select("assignment_id, assignments(kind)")
-    .eq("kind", "completed")
-    .gte("occurred_at", twoWeeksAgoIso)
-    .not("assignment_id", "is", null)
-    .limit(100);
 
   const burnout = burnoutSignal({
     minutesToday,
@@ -143,12 +171,6 @@ export default async function DashboardPage({
     overwhelmedSignals: overwhelmedToday?.length ?? 0,
     mood: adaptation.mood,
   });
-  const { data: latestSleep } = await supabase
-    .from("sleep_logs")
-    .select("sleep_date, sleep_quality, sleep_hours")
-    .order("sleep_date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
   const sleepAdjustment = sleepRecoveryAdjustment(
     latestSleep
       ? {
@@ -162,14 +184,6 @@ export default async function DashboardPage({
   const readiness = readinessFromSignalValue(latestReadinessSignal?.value);
   const energy = search.energy ?? energyFromBody(readiness?.body) ?? sleepAdjustment.energyOverride ?? adaptation.energyOverride ?? "medium";
 
-  // First-week journey existence checks — limit 1, cheap.
-  const [{ data: anyClass }, { data: anyConnection }, { data: anyStartSignal }, { data: anyTimeLog }] =
-    await Promise.all([
-      supabase.from("classes").select("id").limit(1),
-      supabase.from("lms_connections").select("id").limit(1),
-      supabase.from("task_signals").select("id").in("kind", ["started", "completed"]).limit(1),
-      supabase.from("assignment_time_log").select("id").limit(1),
-    ]);
   const journey = firstWeekJourney({
     hasClassOrConnection: (anyClass?.length ?? 0) > 0 || (anyConnection?.length ?? 0) > 0,
     assignmentCount: assignments?.length ?? 0,
@@ -179,11 +193,6 @@ export default async function DashboardPage({
     now,
   });
 
-  const { data: dueCards } = await supabase
-    .from("flashcards")
-    .select("id")
-    .lte("due_at", new Date().toISOString())
-    .order("due_at", { ascending: true });
   const dueCount = dueCards?.length ?? 0;
   const firstDueId = dueCards?.[0]?.id ?? null;
 
@@ -198,8 +207,10 @@ export default async function DashboardPage({
     },
     lastShownClassId,
   );
-  const eveningIntentions = await getEventIntentions();
-  const reminderItems = await getReminderItems();
+  const [eveningIntentions, reminderItems] = await Promise.all([
+    getEventIntentions(),
+    getReminderItems(),
+  ]);
 
   const top = ranked[0];
   if (top?.class_id) {

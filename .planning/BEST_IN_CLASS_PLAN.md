@@ -63,6 +63,30 @@ Replace 500ms polling with Supabase Realtime channel subscription
 - launch-audit: add CI badge/links; verify all docs current.
 - Full gates + dark/light QA run + commit + push.
 
+### P9 — Subject methodology sweep + math/science alignment workspace
+Owner-added. Two parts:
+
+**A. Methodology sweep, every high-school subject.** Audit each subject
+helper (math, science, history, English/writing, CS, language, arts,
+health/PE, AP) against: (1) does its scaffold match the discipline's
+evidence-based method (e.g., science = claim-evidence-reasoning, history =
+sourcing/corroboration, math = worked-example + self-explanation)? (2) does
+it support memory (links into FSRS/concepts)? (3) does it support
+organization (steps, checklists)? Fix the weakest gaps found.
+
+**B. Alignment workspace for math/science (dysgraphia-first).** Misaligned
+columns are a top cause of wrong answers for dysgraphic students. Build a
+**digit-grid workspace** (graph-paper cells, one digit per cell, auto-column
+alignment) for long division / multi-digit multiplication / stacked
+addition-subtraction and science unit work: the grid makes misalignment
+impossible rather than detecting it after the fact. Includes: carry/borrow
+row, place-value column guides, step history the student can scroll
+(memory support), TTS of current step. Photo-scan path: the existing math
+photo scan adds an alignment check ("your tens column drifted — here's the
+aligned layout"). Live pen-stroke capture with automatic ink realignment is
+documented as a stretch item (needs handwriting recognition; revisit with
+native app work).
+
 ## Done definition
 Every phase committed, 600+ tests green, qa:responsive clean both themes,
 CI green on GitHub, README current. Store build + designer pass + teen
