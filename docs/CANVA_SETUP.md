@@ -16,7 +16,10 @@ student's; Diana removes the blank canvas.
 2. Create a new **integration** ("Connect API"). Note the **Client ID** and
    generate a **Client secret**.
 3. Add the redirect URL for every environment you run:
-   - local: `http://localhost:3000/api/canva/callback`
+   - local: `http://127.0.0.1:3000/api/canva/callback`
+     (Canva requires the IP form — it rejects `localhost`. When testing the
+     connect flow locally, browse the app at `http://127.0.0.1:3000` too, so
+     the OAuth state cookie survives the round-trip back from Canva.)
    - production: `https://<your-domain>/api/canva/callback`
 4. Request these scopes for the integration:
    - `design:meta:read` (list the student's designs)
