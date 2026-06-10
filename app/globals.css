@@ -5,7 +5,7 @@
 :root {
   --bg: 248 250 252;       /* slate-50 */
   --fg: 15 23 42;          /* slate-900 */
-  --muted: 100 116 139;    /* slate-500 */
+  --muted: 71 85 105;      /* slate-600 - slate-500 fell under 4.5:1 on tinted surfaces (axe) */
   --accent: 124 58 237;    /* violet-600 */
   --danger: 180 83 9;      /* amber-700 */
   --ok: 22 163 74;         /* green-600 */
@@ -177,6 +177,23 @@ img, svg, video, canvas, input, textarea, select {
 /* PWA: when running standalone, hide any browser-only chrome we might add. */
 @media (display-mode: standalone) {
   .browser-only { display: none !important; }
+}
+
+/* Filled brand/accent controls in dark mode: the fill is a pastel
+   (violet-400), so the label must be dark to meet AA — white on violet-400
+   is 2.7:1 (axe). Inherits to icons via currentColor. Translucent fills
+   (bg-brand/10) are separate class names and unaffected. */
+:root.dark .bg-brand,
+:root.dark .bg-accent,
+:root.dark .bg-brand-strong {
+  color: rgb(2 6 23);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) .bg-brand,
+  :root:not(.light) .bg-accent,
+  :root:not(.light) .bg-brand-strong {
+    color: rgb(2 6 23);
+  }
 }
 
 /* Larger tap targets, calmer focus rings — ADHD-leaning UI. */

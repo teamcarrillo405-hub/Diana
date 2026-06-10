@@ -50,7 +50,7 @@ export default async function AiHistoryPage() {
                       {r.assignment_id ? (
                         <Link
                           href={`/assignments/${r.assignment_id}`}
-                          className="text-accent underline-offset-2 hover:underline"
+                          className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent"
                         >
                           {r.assignment_title ?? "Assignment"}
                         </Link>

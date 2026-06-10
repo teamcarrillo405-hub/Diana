@@ -87,7 +87,7 @@ export function RubricPanel({
               source: `Rubric criterion: ${check.next.title}${check.next.detail ? ` — ${check.next.detail}` : ""}`,
               q: "Help me check my work against this criterion without writing it for me.",
             }).toString()}`}
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-strong underline-offset-2 hover:underline dark:text-brand"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-strong underline underline-offset-2 decoration-brand/50 hover:decoration-brand dark:text-brand"
           >
             <MessageCircle size={13} /> Work on this with the study buddy
           </Link>

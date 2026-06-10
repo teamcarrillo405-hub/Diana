@@ -77,7 +77,7 @@ export default async function SettingsPage() {
           }
         />
         <p className="pt-2 text-xs text-muted">
-          <Link href="/onboarding" className="text-accent underline-offset-2 hover:underline">
+          <Link href="/onboarding" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
             Re-run onboarding
           </Link>{" "}
           to update.
@@ -110,7 +110,7 @@ export default async function SettingsPage() {
         <p className="text-sm text-muted">
           Export your data, tune AI style by class, manage notifications, and review privacy controls.
         </p>
-        <Link href="/export" className="text-sm text-accent underline-offset-2 hover:underline">
+        <Link href="/export" className="text-sm text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
           Open data and privacy
         </Link>
       </section>
@@ -134,7 +134,7 @@ export default async function SettingsPage() {
         </p>
         <p className="text-xs text-muted">
           The features list at{" "}
-          <Link href="/" className="text-accent underline-offset-2 hover:underline">
+          <Link href="/" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
             /
           </Link>{" "}
           shows what's available in this slice and what's coming.
@@ -146,7 +146,7 @@ export default async function SettingsPage() {
         <p className="text-sm text-muted">
           See every time Diana used AI for you. Download it any time.
         </p>
-        <Link href="/settings/ai-history" className="text-sm text-accent underline-offset-2 hover:underline">
+        <Link href="/settings/ai-history" className="text-sm text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
           Open AI history →
         </Link>
       </section>

@@ -53,7 +53,7 @@ export function CanvaPanel({
       {!connected && (
         <p className="text-sm text-muted">
           Connect Canva in{" "}
-          <a href="/settings" className="text-accent underline-offset-2 hover:underline">
+          <a href="/settings" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
             Settings
           </a>{" "}
           and this becomes one tap.

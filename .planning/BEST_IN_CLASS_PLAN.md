@@ -30,10 +30,11 @@ Add `cache_control: {type: "ephemeral"}` to the system prompt block in all
 System prompts are stable per student-day → big latency + cost win.
 Mechanical codemod like the adaptation one; redeploy all.
 
-### P3 — Streaming everywhere conversational
-Reuse lib/ai/stream-client pattern for writing-cowrite chat and study
-scaffolds with chat shape (check each surface; only convert true
-conversational UIs).
+### P3 — Streaming everywhere conversational ✅ (resolved by analysis)
+Audited every AI surface: the math Socratic chat is the only multi-turn
+conversation, and it streams. All other helpers return structured JSON that
+is parsed before render — streaming raw JSON chunks would break their
+parsers for zero UX gain. Prompt caching (P2) is the latency win for those.
 
 ### P4 — Accessibility audit gate
 Add @axe-core/playwright to e2e-flows: assert zero serious/critical

@@ -61,7 +61,7 @@ export default async function GradesPage() {
         <Header />
         <div className="rounded-2xl border border-border bg-card p-6 text-sm text-muted">
           Canvas didn&apos;t answer just now. Your grades are safe — try again in a bit, or check the
-          connection in <Link href="/imports" className="text-accent underline-offset-2 hover:underline">Imports</Link>.
+          connection in <Link href="/imports" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">Imports</Link>.
         </div>
       </div>
     );

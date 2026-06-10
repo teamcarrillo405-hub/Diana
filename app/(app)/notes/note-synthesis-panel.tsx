@@ -72,7 +72,7 @@ export function NoteSynthesisPanel() {
               <ul className="space-y-1 text-sm">
                 {result.citations.map((citation) => (
                   <li key={`${citation.label}-${citation.noteId}`}>
-                    <Link href={`/notes/${citation.noteId}`} className="text-accent underline-offset-2 hover:underline">
+                    <Link href={`/notes/${citation.noteId}`} className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
                       {citation.label ? `[${citation.label}] ` : ""}
                       {citation.title}
                     </Link>

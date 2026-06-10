@@ -12,7 +12,7 @@ export default function OfflinePage() {
           </p>
         </header>
         <div className="rounded-lg border border-border bg-card p-4 text-sm">
-          <Link href="/dashboard" className="text-accent underline-offset-2 hover:underline">
+          <Link href="/dashboard" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
             Back to Focus
           </Link>
         </div>
