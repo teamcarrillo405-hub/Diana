@@ -144,7 +144,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: "claude-haiku-4-5",
         max_tokens: 400,
-        system: systemPrompt,
+        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
         messages,
         ...(wantsStream ? { stream: true } : {}),
       }),

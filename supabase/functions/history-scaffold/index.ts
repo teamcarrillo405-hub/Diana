@@ -225,7 +225,7 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           model,
           max_tokens: 1300,
-          system: systemPrompt,
+          system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
           messages: [{
             role: "user",
             content: `Mode: ${mode}\nSource or prompt:\n${sourceText}\n\nClass context:\n${classContext}`,

@@ -86,7 +86,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: "claude-haiku-4-5",
         max_tokens: 700,
-        system,
+        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
         messages: [{
           role: "user",
           content: [`Mode: ${mode}`, `Student context: ${prompt.slice(0, 5000)}`].join("\n"),

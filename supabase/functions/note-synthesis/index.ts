@@ -132,7 +132,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: 1000,
-        system,
+        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
         messages: [{
           role: "user",
           content: `Query: ${query}\n\nSource notes:\n${excerpts}`,

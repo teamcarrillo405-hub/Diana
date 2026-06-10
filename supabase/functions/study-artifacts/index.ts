@@ -160,7 +160,7 @@ Deno.serve(async (req: Request) => {
       body: JSON.stringify({
         model: "claude-sonnet-4-6",
         max_tokens: artifactType === "practice_test" ? 1600 : 1300,
-        system,
+        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
         messages: [{
           role: "user",
           content: [
