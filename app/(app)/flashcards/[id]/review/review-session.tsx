@@ -2,6 +2,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { TtsButton } from "@/components/tts-button";
+import { hapticTap } from "@/lib/native/haptics";
 import { shouldOfferDifferentApproach } from "@/lib/emotional/session";
 import type { TtsProvider } from "@/lib/supabase/types";
 import {
@@ -198,7 +199,10 @@ export function ReviewSession({
       {!flipped ? (
         <button
           type="button"
-          onClick={() => setFlipped(true)}
+          onClick={() => {
+            void hapticTap();
+            setFlipped(true);
+          }}
           className="press-scale w-full rounded-lg bg-accent px-4 py-3 text-sm font-medium text-white"
         >
           Show answer
