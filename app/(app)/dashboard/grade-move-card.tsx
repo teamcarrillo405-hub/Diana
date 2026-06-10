@@ -34,7 +34,7 @@ export async function GradeMoveCard() {
     return (
       <Link
         href="/grades"
-        className="flex items-start gap-3 rounded-2xl border border-brand/25 bg-brand/5 p-4 transition hover:bg-brand/10"
+        className="card-lift flex items-start gap-3 rounded-2xl border border-brand/25 bg-brand/5 p-4 hover:bg-brand/10"
       >
         <Target size={17} className="mt-0.5 shrink-0 text-brand" />
         <span className="min-w-0">

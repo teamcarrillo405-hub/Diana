@@ -386,6 +386,11 @@ export default async function DashboardPage({
                 <Link
                   href={`/assignments/${assignment.id}`}
                   className="flex min-w-0 items-center justify-between gap-3 px-4 py-3 hover:bg-surface-soft"
+                  style={
+                    (assignment as any).classes?.color
+                      ? { boxShadow: `inset 3px 0 0 ${(assignment as any).classes.color}` }
+                      : undefined
+                  }
                 >
                   <div className="flex min-w-0 items-center gap-2">
                     {(assignment as any).classes?.color && (

@@ -33,7 +33,7 @@ export function TestPrepPanel({
         : `${plan.daysUntil} days out`;
 
   return (
-    <section className="hero-glow space-y-4 rounded-2xl border border-brand/25 bg-surface-raised p-4 sm:p-5">
+    <section className="hero-glow card-lift animate-slide-up space-y-4 rounded-2xl border border-brand/25 bg-surface-raised p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="flex items-center gap-2 text-sm font-semibold">
           <CalendarClock size={15} className="text-brand" />

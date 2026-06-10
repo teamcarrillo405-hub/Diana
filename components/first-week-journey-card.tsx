@@ -11,7 +11,7 @@ export function FirstWeekJourneyCard({ journey }: { journey: FirstWeekJourney })
   if (!journey.show) return null;
 
   return (
-    <section className="hero-glow space-y-3 rounded-3xl border border-brand/25 bg-surface-raised p-4 sm:p-5">
+    <section className="hero-glow animate-slide-up space-y-3 rounded-3xl border border-brand/25 bg-surface-raised p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold">Getting rolling</h2>
         <span className="text-xs text-muted">

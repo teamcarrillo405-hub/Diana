@@ -386,6 +386,21 @@ button, [role="button"], a {
   animation: card-reveal 260ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
 }
 
+/* Hover lift for interactive cards — quiet depth, not bounce. */
+.card-lift {
+  transition: transform 160ms ease-out, box-shadow 160ms ease-out;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.08);
+}
+:root.dark .card-lift:hover {
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.45);
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-lift, .card-lift:hover { transition: none; transform: none; }
+}
+
 /* Tactile press feedback for primary action buttons. */
 .press-scale {
   transition: transform 120ms ease-out;
