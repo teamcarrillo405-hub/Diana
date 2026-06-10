@@ -29,7 +29,7 @@ Deno.serve(async (req: Request) => {
     return new Response(null, {
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "authorization, content-type",
+        "Access-Control-Allow-Headers": "authorization, content-type, apikey",
       },
     });
   }
@@ -42,9 +42,11 @@ Deno.serve(async (req: Request) => {
       history?: unknown;
       prompt?: unknown;
       aiMode?: unknown;
+      stream?: unknown;
     };
 
     const { ownerId, assignmentId, history, prompt, aiMode } = body;
+    const wantsStream = body.stream === true;
 
     if (typeof ownerId !== "string" || !ownerId) {
       return new Response(JSON.stringify({ error: "ownerId required" }), {
@@ -144,8 +146,89 @@ Deno.serve(async (req: Request) => {
         max_tokens: 400,
         system: systemPrompt,
         messages,
+        ...(wantsStream ? { stream: true } : {}),
       }),
     });
+
+    // 7b. Streaming path: forward simplified SSE text deltas to the client
+    //     while accumulating tokens for the same fire-and-forget logging.
+    if (wantsStream && res.ok && res.body) {
+      const upstream = res.body.getReader();
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let inputTokens = 0;
+      let outputTokens = 0;
+
+      const streamBody = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          try {
+            while (true) {
+              const { done, value } = await upstream.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() ?? "";
+              for (const line of lines) {
+                if (!line.startsWith("data:")) continue;
+                const payload = line.slice(5).trim();
+                if (!payload) continue;
+                try {
+                  const event = JSON.parse(payload) as {
+                    type?: string;
+                    delta?: { type?: string; text?: string };
+                    message?: { usage?: { input_tokens?: number } };
+                    usage?: { output_tokens?: number };
+                  };
+                  if (event.type === "content_block_delta" && event.delta?.text) {
+                    controller.enqueue(
+                      encoder.encode(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`),
+                    );
+                  }
+                  if (event.type === "message_start" && event.message?.usage?.input_tokens) {
+                    inputTokens = event.message.usage.input_tokens;
+                  }
+                  if (event.type === "message_delta" && event.usage?.output_tokens) {
+                    outputTokens = event.usage.output_tokens;
+                  }
+                } catch {
+                  // skip malformed upstream lines
+                }
+              }
+            }
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true })}\n\n`));
+          } finally {
+            controller.close();
+            const totalTokens = inputTokens + outputTokens;
+            Promise.resolve()
+              .then(async () => {
+                await logInteraction(
+                  {
+                    ownerId,
+                    assignmentId: (assignmentId as string | null | undefined) ?? null,
+                    feature: "math_step",
+                    model: "claude-haiku-4-5",
+                    promptSummary: (prompt as string).slice(0, 200),
+                    tokensUsed: totalTokens,
+                  },
+                  supabase,
+                );
+                await incrementTokens(ownerId, totalTokens, supabase);
+              })
+              .catch((e) => console.warn("post-stream side effects failed", e));
+          }
+        },
+      });
+
+      return new Response(streamBody, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+    }
 
     if (!res.ok) {
       const errText = await res.text();

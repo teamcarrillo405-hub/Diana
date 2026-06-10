@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { BookOpen, Calculator, Camera, FlaskConical, PenLine, Ruler } from "lucide-react";
 import { requestMathStep, requestMathExample, requestMathScaffold, uploadMathPhoto } from "./ai-tools-actions";
+import { streamMathStep } from "@/lib/ai/stream-client";
 import { AiTooltip } from "@/components/ai-tooltip";
 import { SubjectToolShell } from "@/components/subject-tool-shell";
 import { CALC_FORMULAS, PHYSICS_FORMULAS, ALGEBRA_FORMULAS, type Formula } from "@/lib/math/formulas";
@@ -105,6 +106,31 @@ export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelp
     setErrorMsg(null);
     const userTurn: ChatTurn = { role: "user", content: prompt };
     const nextHistory = [...history, userTurn];
+
+    // Streaming first — the answer appears as it's written. Buffered server
+    // action remains the fallback so the chat never breaks.
+    setHistory([...nextHistory, { role: "assistant", content: "" }]);
+    const streamed = await streamMathStep({
+      assignmentId,
+      aiMode: classAiMode,
+      prompt,
+      history,
+      onText: (chunk) => {
+        setHistory((current) => {
+          const copy = [...current];
+          const last = copy[copy.length - 1];
+          copy[copy.length - 1] = { role: "assistant", content: last.content + chunk };
+          return copy;
+        });
+      },
+    }).catch(() => ({ ok: false as const, error: "stream-unavailable" }));
+
+    if (streamed.ok && streamed.content) {
+      setPrompt("");
+      setLoading(false);
+      return;
+    }
+
     const res = await requestMathStep({
       assignmentId,
       aiMode: classAiMode,
@@ -112,6 +138,7 @@ export function MathHelper({ assignmentId, classAiMode, studyContext }: MathHelp
       history,
     });
     if ("error" in res) {
+      setHistory(history); // drop the user turn + placeholder; the prompt stays editable
       setErrorMsg(res.error);
     } else {
       setHistory([...nextHistory, { role: "assistant", content: res.content }]);

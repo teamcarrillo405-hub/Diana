@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { SharingSection } from "../settings/sharing-section";
 import { growthStory } from "@/lib/portal/growth";
+import { ParentDigestForm } from "./parent-digest-form";
+import { loadProfile } from "@/lib/profile";
 
 export default async function ParentPortalPage() {
   const supabase = await createClient();
@@ -109,6 +111,19 @@ export default async function ParentPortalPage() {
         <Stat label="Upcoming in the next 7 days" value={upcomingNext7Days ?? 0} />
         <Stat label="Minutes spent studying this week" value={Math.round(totalMs / 60000)} />
       </section>
+
+      {await (async () => {
+        const profile = await loadProfile();
+        const prefs = (profile?.notification_preferences ?? {}) as {
+          parentDigest?: { email?: string; enabled?: boolean };
+        };
+        return (
+          <ParentDigestForm
+            initialEmail={prefs.parentDigest?.email ?? ""}
+            initialEnabled={Boolean(prefs.parentDigest?.enabled)}
+          />
+        );
+      })()}
 
       <section className="space-y-3 rounded-xl border border-border bg-card p-4">
         <h2 className="text-sm font-semibold">Parent-visible progress notes</h2>
