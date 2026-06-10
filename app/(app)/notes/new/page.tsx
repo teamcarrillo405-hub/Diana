@@ -54,7 +54,7 @@ export default async function NewNotePage({
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">New note</h1>
+        <h1 className="text-display">New note</h1>
         <p className="text-sm text-muted">
           Talk or type — Diana saves every 30 seconds.
         </p>

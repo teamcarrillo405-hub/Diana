@@ -386,6 +386,63 @@ button, [role="button"], a {
   animation: card-reveal 260ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
 }
 
+/* ------------------------------------------------------------------
+   Quiet Command motion verbs (see lib/ui/design-system.ts).
+   Settle = content entering. Respond = press feedback (press-scale /
+   card-lift below). Breathe = ambient. Carry = route transitions
+   (template.tsx applies Settle per navigation; shared-element Carry
+   arrives with the native build). Nothing bounces, nothing moves >12px.
+   ------------------------------------------------------------------ */
+@keyframes qc-settle {
+  from { transform: translateY(8px); opacity: 0; }
+  60%  { opacity: 1; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+.motion-settle {
+  animation: qc-settle 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes qc-breathe {
+  0%, 100% { opacity: 0.94; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.02); }
+}
+.motion-breathe {
+  animation: qc-breathe 2400ms ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-settle { animation: qc-fade 180ms ease-out both; }
+  .motion-breathe { animation: none; }
+}
+@keyframes qc-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Signature moment: the grid solve — when the last cell fills, the columns
+   acknowledge once. A single quiet pulse, never a fanfare. */
+@keyframes qc-align-glow {
+  0%   { box-shadow: 0 0 0 0 rgb(var(--subject-math) / 0); }
+  35%  { box-shadow: 0 0 0 3px rgb(var(--subject-math) / 0.35), 0 0 24px rgb(var(--subject-math) / 0.25); }
+  100% { box-shadow: 0 0 0 0 rgb(var(--subject-math) / 0); }
+}
+.grid-aligned-glow {
+  animation: qc-align-glow 900ms ease-out 1;
+}
+
+/* Signature moment: Diana OS reveal — the command field powers on. */
+html[data-experience-mode="future"] .future-field {
+  animation: qc-field-power-on 700ms ease-out 1;
+}
+@keyframes qc-field-power-on {
+  from { filter: brightness(0.6) saturate(0.6); }
+  to   { filter: brightness(1) saturate(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grid-aligned-glow,
+  html[data-experience-mode="future"] .future-field {
+    animation: none;
+  }
+}
+
 /* Hover lift for interactive cards — quiet depth, not bounce. */
 .card-lift {
   transition: transform 160ms ease-out, box-shadow 160ms ease-out;

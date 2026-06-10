@@ -46,7 +46,7 @@ export default async function FocusPage() {
     <div className="space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Focus</p>
-        <h1 className="text-2xl font-bold">One school move at a time</h1>
+        <h1 className="text-display">One school move at a time</h1>
         <p className="max-w-2xl text-sm leading-6 text-muted">
           Diana uses due dates, workload, reading load, and recent starts to keep the next action visible.
         </p>

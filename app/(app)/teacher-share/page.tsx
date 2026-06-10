@@ -77,7 +77,7 @@ export default async function TeacherPortalPage() {
     <div className="space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wider text-muted">Teacher portal</p>
-        <h1 className="text-2xl font-bold">Assignments, roster, and accommodations</h1>
+        <h1 className="text-display">Assignments, roster, and accommodations</h1>
         <p className="text-sm text-muted">
           Student-controlled tools for teacher-created work, class contacts, AI policy, progress notes, and IEP / 504 setup.
         </p>

@@ -297,7 +297,7 @@ export function StudyGroupsClient({
     <div className="space-y-6">
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted">Study groups</p>
-        <h1 className="text-2xl font-bold">Shared focus room</h1>
+        <h1 className="text-display">Shared focus room</h1>
         <p className="text-sm text-muted">Invite-only rooms for shared work, notes, decks, and project tasks.</p>
       </header>
 

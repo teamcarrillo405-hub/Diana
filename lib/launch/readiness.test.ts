@@ -18,7 +18,8 @@ describe("launch readiness", () => {
 
   it("locks the v2 performance budgets", () => {
     expect(performanceBudgetsPass(PERFORMANCE_BUDGETS)).toBe(true);
-    expect(performanceBudgetsPass({ lcpMs: 2600, fidMs: 90, cls: 0.05 })).toBe(false);
+    expect(performanceBudgetsPass({ lcpMs: 2600, fidMs: 90, cls: 0.05, inpMs: 200 })).toBe(false);
+    expect(performanceBudgetsPass({ lcpMs: 2400, fidMs: 90, cls: 0.05, inpMs: 250 })).toBe(false);
   });
 
   it("checks launch documentation presence", () => {

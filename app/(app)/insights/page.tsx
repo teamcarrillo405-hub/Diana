@@ -104,7 +104,7 @@ export default async function InsightsPage() {
     <div className="space-y-6">
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted">Platform intelligence</p>
-        <h1 className="text-2xl font-bold">Insights</h1>
+        <h1 className="text-display">Insights</h1>
         <p className="text-sm text-muted">
           Usage, AI token spend, rollout controls, and app health in one place.
         </p>

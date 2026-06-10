@@ -128,7 +128,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
       {step === "welcome" && (
         <div className="space-y-5 rounded-2xl border border-border bg-card p-6 text-center">
           <p aria-hidden="true" className="text-4xl text-brand">✦</p>
-          <h2 className="text-xl font-bold">Diana sets up around you.</h2>
+          <h2 className="text-title">Diana sets up around you.</h2>
           <p className="mx-auto max-w-sm text-sm text-muted">
             Five quick questions — about a minute. One question at a time, and every answer changes
             how Diana works for you. You can adjust everything later in Settings.

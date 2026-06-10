@@ -64,7 +64,7 @@ export default async function WinsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6 py-6">
       <header className="space-y-2">
-        <h1 className="text-2xl font-bold">Wins</h1>
+        <h1 className="text-display">Wins</h1>
         <p className="text-sm text-muted">Things you finished. Private, neutral progress.</p>
       </header>
 

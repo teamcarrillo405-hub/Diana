@@ -44,7 +44,7 @@ export default async function NewAssignmentPage({
   if (!classes || classes.length === 0) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Add an assignment</h1>
+        <h1 className="text-display">Add an assignment</h1>
         <p className="rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
           You need a class first.{" "}
           <Link href="/classes" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
@@ -59,7 +59,7 @@ export default async function NewAssignmentPage({
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-2xl font-bold">Add an assignment</h1>
+        <h1 className="text-display">Add an assignment</h1>
         <Link
           href="/assignments"
           className="text-xs text-muted hover:underline"

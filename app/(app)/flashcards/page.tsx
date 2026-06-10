@@ -24,7 +24,7 @@ export default async function FlashcardsPage() {
   return (
     <div className="space-y-6">
       <header className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-bold">Study</h1>
+        <h1 className="text-display">Study</h1>
         <Link
           href="/flashcards/new"
           className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white"

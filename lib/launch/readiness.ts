@@ -7,12 +7,15 @@ export type PerformanceBudgets = {
   lcpMs: number;
   fidMs: number;
   cls: number;
+  /** Interaction to Next Paint — smooth is part of the design language. */
+  inpMs: number;
 };
 
 export const PERFORMANCE_BUDGETS: PerformanceBudgets = {
   lcpMs: 2500,
   fidMs: 100,
   cls: 0.1,
+  inpMs: 200,
 };
 
 export const REQUIRED_LAUNCH_DOCS = [
@@ -50,7 +53,7 @@ export function criticalPathCoveragePercent(
 }
 
 export function performanceBudgetsPass(budgets: PerformanceBudgets): boolean {
-  return budgets.lcpMs <= 2500 && budgets.fidMs <= 100 && budgets.cls <= 0.1;
+  return budgets.lcpMs <= 2500 && budgets.fidMs <= 100 && budgets.cls <= 0.1 && budgets.inpMs <= 200;
 }
 
 export function launchDocsPresent(

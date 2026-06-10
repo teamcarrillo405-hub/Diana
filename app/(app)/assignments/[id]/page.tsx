@@ -270,7 +270,7 @@ export default async function AssignmentDetailPage({
           ← {a.classes?.name ?? "Tasks"}
         </Link>
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-2xl font-bold">{a.title}</h1>
+          <h1 className="text-display">{a.title}</h1>
           {ttsOn && (
             <TtsButton
               text={readAloudText}

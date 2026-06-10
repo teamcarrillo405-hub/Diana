@@ -11,7 +11,7 @@ export default async function OnboardingPage() {
     <main className="mx-auto max-w-xl px-4 py-10">
       <header className="space-y-2">
         <p className="text-xs uppercase tracking-wider text-muted">Welcome</p>
-        <h1 className="text-2xl font-bold">Let&apos;s set Diana up for you.</h1>
+        <h1 className="text-display">Let&apos;s set Diana up for you.</h1>
         <p className="text-sm text-muted">
           Three quick questions. Everything is private to you. You can change any answer later in Settings.
           Nothing here is shared with teachers or parents unless you explicitly turn that on later.

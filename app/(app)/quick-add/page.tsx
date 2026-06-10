@@ -16,7 +16,7 @@ export default async function QuickAddPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">Quick add</h1>
+        <h1 className="text-display">Quick add</h1>
         <p className="text-sm text-muted">What do you need to remember?</p>
       </header>
       <CaptureForm ttsProvider={ttsProvider} />

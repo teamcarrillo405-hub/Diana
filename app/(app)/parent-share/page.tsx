@@ -90,7 +90,7 @@ export default async function ParentPortalPage() {
     <div className="space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wider text-muted">Parent portal</p>
-        <h1 className="text-2xl font-bold">Read-only weekly summary</h1>
+        <h1 className="text-display">Read-only weekly summary</h1>
         <p className="text-sm text-muted">
           Parent links show effort, time, upcoming workload, and student-approved progress notes. They do not show assignment names, grades, private notes, or AI interaction details.
         </p>

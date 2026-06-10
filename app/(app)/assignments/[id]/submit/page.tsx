@@ -35,7 +35,7 @@ export default async function SubmitPage({
         >
           ← {a.title}
         </Link>
-        <h1 className="text-2xl font-bold">Before you click submit</h1>
+        <h1 className="text-display">Before you click submit</h1>
         <p className="text-sm text-muted">
           Tick each box as you check it. Required boxes have to be checked.
         </p>

@@ -83,7 +83,7 @@ export function FutureVoicePreview({ compact = false }: FutureVoicePreviewProps)
 
         <div className="future-hud-panel min-w-0">
           <div className="future-hud-ring mx-auto">
-            <span className="text-2xl font-bold">84%</span>
+            <span className="text-display">84%</span>
             <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-muted">student control</span>
           </div>
           <div className="mt-4 space-y-2">

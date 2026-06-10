@@ -28,7 +28,7 @@ export default async function ExportPage() {
         <Link href="/settings" className="text-xs text-muted hover:underline">
           Back to Settings
         </Link>
-        <h1 className="text-2xl font-bold">Data and privacy</h1>
+        <h1 className="text-display">Data and privacy</h1>
         <p className="text-sm text-muted">
           Export your data, tune privacy preferences, and manage account-level choices.
         </p>

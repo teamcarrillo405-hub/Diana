@@ -90,7 +90,7 @@ export function WellnessClient({
   return (
     <div className="space-y-8">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">Wellness</h1>
+        <h1 className="text-display">Wellness</h1>
         <p className="text-muted">Movement, goals, sleep, and health class study support.</p>
       </header>
 

@@ -37,7 +37,7 @@ export default async function ClassAiSettingsPage({
         >
           ← Back to {cls.name}
         </Link>
-        <h1 className="text-2xl font-bold">AI mode for {cls.name}</h1>
+        <h1 className="text-display">AI mode for {cls.name}</h1>
         <p className="text-sm text-muted">
           Choose how Diana uses AI when you work on assignments in this class.
         </p>

@@ -61,7 +61,7 @@ export default async function PortfolioPage() {
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">Portfolio</h1>
+        <h1 className="text-display">Portfolio</h1>
         <p className="text-sm text-muted">Collect creative work with process notes.</p>
       </header>
 

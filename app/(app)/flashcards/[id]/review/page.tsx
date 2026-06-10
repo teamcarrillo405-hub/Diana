@@ -28,7 +28,7 @@ export default async function ReviewPage({
   if (startIdx === -1 && fullQueue.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Review</h1>
+        <h1 className="text-display">Review</h1>
         <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
           <Link

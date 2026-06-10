@@ -26,7 +26,7 @@ export default async function Page() {
     <div className="space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Imports</p>
-        <h1 className="text-2xl font-bold">Bring schoolwork into Diana</h1>
+        <h1 className="text-display">Bring schoolwork into Diana</h1>
         <p className="max-w-2xl text-sm leading-6 text-muted">
           Connect class calendars once, then let Diana turn due dates into next moves, reminders, and study loops.
         </p>

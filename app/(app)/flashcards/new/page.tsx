@@ -9,7 +9,7 @@ export default async function NewCardPage({
   return (
     <div className="space-y-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">New card</h1>
+        <h1 className="text-display">New card</h1>
         <p className="text-sm text-muted">
           Front is the prompt. Back is the answer.
         </p>

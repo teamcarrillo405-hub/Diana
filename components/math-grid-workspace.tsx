@@ -134,7 +134,9 @@ export function MathGridWorkspace() {
       {grid && (
         <div className="overflow-x-auto">
           <div
-            className="inline-grid gap-px rounded-xl border border-border bg-border p-px"
+            className={`inline-grid gap-px rounded-xl border border-border bg-border p-px ${
+              editableKeys.length > 0 && editableKeys.every((k) => values[k]) ? "grid-aligned-glow" : ""
+            }`}
             style={{ gridTemplateColumns: `repeat(${grid.cols}, 2.4rem)` }}
             role="group"
             aria-label="Math grid workspace"

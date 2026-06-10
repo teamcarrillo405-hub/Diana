@@ -110,7 +110,7 @@ export default async function GradesPage() {
               <div className="flex items-start justify-between gap-2">
                 <p className="min-w-0 truncate text-sm font-semibold">{course.courseName}</p>
                 {course.currentScorePct != null && (
-                  <span className="shrink-0 rounded-full bg-brand/10 px-2.5 py-0.5 text-sm font-semibold text-brand-strong dark:text-brand">
+                  <span className="shrink-0 rounded-full bg-brand/10 px-2.5 py-0.5 text-sm font-semibold tabular-nums text-brand-strong dark:text-brand">
                     {Math.round(course.currentScorePct)}%
                   </span>
                 )}
@@ -144,7 +144,7 @@ function Header() {
       <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
         <BarChart3 size={14} /> Grades
       </p>
-      <h1 className="text-2xl font-bold">What your scores say to do next.</h1>
+      <h1 className="text-display">What your scores say to do next.</h1>
       <p className="text-sm text-muted">
         Not a scoreboard — Diana reads your Canvas grades and finds the one move that helps most.
       </p>

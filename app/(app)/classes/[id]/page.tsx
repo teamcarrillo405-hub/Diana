@@ -48,7 +48,7 @@ export default async function ClassDetailPage({
       <header className="space-y-2">
         <div className="flex items-center gap-3">
           <span className={`size-3 rounded-full bg-${cls.color}-500`} />
-          <h1 className="text-2xl font-bold">{cls.name}</h1>
+          <h1 className="text-display">{cls.name}</h1>
         </div>
         {cls.teacher && <p className="text-muted">{cls.teacher}</p>}
         <div className="flex items-center gap-1">

@@ -47,6 +47,27 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-lexend)", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"],
       },
+      // Quiet Command optical type scale — 1.2 ratio, six semantic sizes.
+      // Display sizes tighten tracking; captions never carry long copy.
+      fontSize: {
+        caption: ["0.8125rem", { lineHeight: "1.5" }],
+        body: ["1rem", { lineHeight: "1.55" }],
+        emphasis: ["1.1875rem", { lineHeight: "1.45" }],
+        title: ["1.4375rem", { lineHeight: "1.3", letterSpacing: "-0.005em", fontWeight: "600" }],
+        display: ["1.75rem", { lineHeight: "1.2", letterSpacing: "-0.01em", fontWeight: "700" }],
+        hero: ["2.125rem", { lineHeight: "1.15", letterSpacing: "-0.015em", fontWeight: "700" }],
+      },
+      // Three named gaps — the whole app breathes on this rhythm.
+      spacing: {
+        tight: "0.5rem",
+        group: "1rem",
+        section: "1.75rem",
+      },
+      borderRadius: {
+        control: "0.75rem",
+        card: "1rem",
+        panel: "1.5rem",
+      },
     },
   },
   plugins: [],

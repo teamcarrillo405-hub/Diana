@@ -75,7 +75,7 @@ export function ApClient({
   return (
     <div className="space-y-8">
       <header className="space-y-1">
-        <h1 className="text-2xl font-bold">AP command center</h1>
+        <h1 className="text-display">AP command center</h1>
         <p className="text-muted">Exam plans, FRQ format, MCQ explanations, and score bands.</p>
       </header>
 

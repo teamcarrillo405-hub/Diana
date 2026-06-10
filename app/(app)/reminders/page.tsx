@@ -19,7 +19,7 @@ export default async function Page() {
     <div className="space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Reminders</p>
-        <h1 className="text-2xl font-bold">Quiet nudges for real due dates</h1>
+        <h1 className="text-display">Quiet nudges for real due dates</h1>
         <p className="max-w-2xl text-sm leading-6 text-muted">
           Reminders stay calm: no streak pressure, no red states, and quiet hours are respected unless an open item needs attention.
         </p>

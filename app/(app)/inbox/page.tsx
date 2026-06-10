@@ -34,7 +34,7 @@ export default async function InboxPage() {
     <div className="space-y-6">
       <header className="flex items-baseline justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Inbox</h1>
+          <h1 className="text-display">Inbox</h1>
           <p className="text-sm text-muted">Items waiting for your review</p>
         </div>
         <Link

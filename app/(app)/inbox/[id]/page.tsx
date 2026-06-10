@@ -55,7 +55,7 @@ export default async function InboxItemPage({
           <Link href="/inbox" className="text-xs text-muted hover:underline">
             ← Inbox
           </Link>
-          <h1 className="text-2xl font-bold">Converted</h1>
+          <h1 className="text-display">Converted</h1>
         </header>
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-sm text-muted">This capture became an assignment.</p>
@@ -78,7 +78,7 @@ export default async function InboxItemPage({
           <Link href="/inbox" className="text-xs text-muted hover:underline">
             ← Inbox
           </Link>
-          <h1 className="text-2xl font-bold">Dismissed</h1>
+          <h1 className="text-display">Dismissed</h1>
         </header>
         <p className="text-sm text-muted">This item was dismissed.</p>
       </div>
@@ -91,7 +91,7 @@ export default async function InboxItemPage({
         <Link href="/inbox" className="text-xs text-muted hover:underline">
           ← Inbox
         </Link>
-        <h1 className="text-2xl font-bold">Review capture</h1>
+        <h1 className="text-display">Review capture</h1>
         <p className="text-xs text-muted">
           {new Date(item.created_at).toLocaleDateString(undefined, {
             weekday: "long",

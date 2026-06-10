@@ -12,7 +12,7 @@ export default function ProofPage() {
         <p className="text-xs font-medium uppercase tracking-wider text-brand-strong dark:text-brand">
           Competitive proof
         </p>
-        <h1 className="text-2xl font-bold">10/10 evidence board</h1>
+        <h1 className="text-display">10/10 evidence board</h1>
         <p className="max-w-3xl text-sm text-muted">
           Diana can claim proof-ready only when product bars, benchmark scenarios, and teen testing all pass without final-work confusion.
         </p>

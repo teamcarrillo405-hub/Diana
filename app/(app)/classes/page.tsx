@@ -13,7 +13,7 @@ export default async function ClassesPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-bold">Classes</h1>
+        <h1 className="text-display">Classes</h1>
         <p className="text-muted">One row per course this term.</p>
       </header>
 

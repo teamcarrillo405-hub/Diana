@@ -295,7 +295,7 @@ export default async function DashboardPage({
         <p className="text-xs font-medium uppercase tracking-wider text-brand-strong dark:text-brand">
           Command center
         </p>
-        <h1 className="text-3xl font-bold leading-tight">
+        <h1 className="text-hero">
           Hi {profile?.display_name || "there"}.
         </h1>
         <p className="max-w-2xl text-muted">

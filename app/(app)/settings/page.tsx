@@ -25,7 +25,7 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-8">
       <header>
-        <h1 className="text-2xl font-bold">Settings</h1>
+        <h1 className="text-display">Settings</h1>
       </header>
 
       <section className="space-y-2 rounded-xl border border-border bg-card p-4">

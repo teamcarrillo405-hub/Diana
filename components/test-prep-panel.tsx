@@ -39,7 +39,7 @@ export function TestPrepPanel({
           <CalendarClock size={15} className="text-brand" />
           Test prep plan{classNameLabel ? ` · ${classNameLabel}` : ""}
         </h2>
-        <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand-strong dark:text-brand">
+        <span className="rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold tabular-nums text-brand-strong dark:text-brand">
           {countdown}
         </span>
       </div>

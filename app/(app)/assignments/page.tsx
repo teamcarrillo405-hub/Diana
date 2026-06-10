@@ -24,7 +24,7 @@ export default async function AssignmentsPage() {
   return (
     <div className="space-y-8">
       <header className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-bold">Tasks</h1>
+        <h1 className="text-display">Tasks</h1>
         <Link
           href="/assignments/new"
           className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white"

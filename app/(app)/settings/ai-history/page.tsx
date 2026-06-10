@@ -11,7 +11,7 @@ export default async function AiHistoryPage() {
         <Link href="/settings" className="text-xs text-muted hover:underline">
           ← Settings
         </Link>
-        <h1 className="text-2xl font-bold">Your AI history</h1>
+        <h1 className="text-display">Your AI history</h1>
         <p className="text-sm text-muted">
           This is a log of every time Diana used AI to help you. You can show it
           to a teacher or parent any time.
