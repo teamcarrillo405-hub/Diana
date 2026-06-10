@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { createClient as createBrowserClient } from "@/lib/supabase/client";
 import { Brain, FileText, ListTodo, MessageSquare, Plus, Timer, Users } from "lucide-react";
 import {
   COLLAB_NOTE_REFRESH_MS,
@@ -130,11 +131,34 @@ export function StudyGroupsClient({
     setNoteVersion(workspace.note.version);
   }, [noteDirty, workspace?.note]);
 
+  // Realtime: group note edits arrive as change events. If the channel
+  // can't connect, fall back to slow polling — never the old 500ms storm.
   useEffect(() => {
-    if (!workspace?.note) return;
-    const id = window.setInterval(() => router.refresh(), COLLAB_NOTE_REFRESH_MS);
-    return () => window.clearInterval(id);
-  }, [router, workspace?.note]);
+    const noteId = workspace?.note?.id;
+    if (!noteId) return;
+
+    const supabase = createBrowserClient();
+    let fallback: number | null = null;
+    const channel = supabase
+      .channel(`collab-note-${noteId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "collaborative_notes", filter: `id=eq.${noteId}` },
+        () => router.refresh(),
+      )
+      .subscribe((status) => {
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+          if (fallback === null) {
+            fallback = window.setInterval(() => router.refresh(), COLLAB_NOTE_REFRESH_MS * 10);
+          }
+        }
+      });
+
+    return () => {
+      if (fallback !== null) window.clearInterval(fallback);
+      void supabase.removeChannel(channel);
+    };
+  }, [router, workspace?.note?.id]);
 
   const selectedGroup = useMemo(
     () => groups.find((group) => group.id === selectedGroupId) ?? null,
