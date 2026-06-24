@@ -1,17 +1,17 @@
 {
-  "generatedAt": "2026-06-05T22:30:15.215Z",
+  "generatedAt": "2026-06-24T08:43:09.379Z",
   "bars": [
     {
       "id": "start_the_work",
       "label": "Start the work",
-      "score": 10,
+      "score": 7.5,
       "repoVerifiable": true,
       "criteria": [
         {
           "id": "landing_hero",
           "label": "Public page leads with the next 5 minutes ritual.",
-          "passed": true,
-          "evidence": "present",
+          "passed": false,
+          "evidence": "missing",
           "backlog": "Keep the landing page centered on the next school move.",
           "repoVerifiable": true
         },
@@ -40,7 +40,9 @@
           "repoVerifiable": true
         }
       ],
-      "nextBacklog": []
+      "nextBacklog": [
+        "Keep the landing page centered on the next school move."
+      ]
     },
     {
       "id": "step_by_step_learning",
@@ -290,22 +292,22 @@
     {
       "id": "teen_native_ux",
       "label": "Teen-native UX",
-      "score": 10,
+      "score": 7.1,
       "repoVerifiable": true,
       "criteria": [
         {
           "id": "responsive_qa",
           "label": "Browser QA has no overflow or server errors.",
-          "passed": true,
-          "evidence": "present",
+          "passed": false,
+          "evidence": "missing",
           "backlog": "Run responsive browser QA and fix layout issues.",
           "repoVerifiable": true
         },
         {
           "id": "copy_clean",
           "label": "Visible QA has no banned copy or pressure language.",
-          "passed": true,
-          "evidence": "present",
+          "passed": false,
+          "evidence": "missing",
           "backlog": "Remove visible shame, red-error, and streak language.",
           "repoVerifiable": true
         },
@@ -350,7 +352,10 @@
           "repoVerifiable": true
         }
       ],
-      "nextBacklog": []
+      "nextBacklog": [
+        "Run responsive browser QA and fix layout issues.",
+        "Remove visible shame, red-error, and streak language."
+      ]
     },
     {
       "id": "proof_and_outcomes",
@@ -443,12 +448,16 @@
       "nextBacklog": []
     }
   ],
-  "overallRepoScore": 10,
-  "allRepoVerifiableBarsAtTen": true,
+  "overallRepoScore": 9.4,
+  "allRepoVerifiableBarsAtTen": false,
   "marketTenClaimAllowed": false,
   "marketGate": {
     "liveTeenTestPassed": false,
     "reason": "Market 10/10 is gated until real teen testing passes the 4/5 preference bar with zero final-work confusion."
   },
-  "nextBacklog": []
+  "nextBacklog": [
+    "Keep the landing page centered on the next school move.",
+    "Run responsive browser QA and fix layout issues.",
+    "Remove visible shame, red-error, and streak language."
+  ]
 }
