@@ -11,6 +11,7 @@ import {
   Brain,
   Calendar,
   CalendarPlus,
+  Camera,
   CheckSquare,
   ChevronDown,
   ClipboardList,
@@ -47,10 +48,11 @@ type AppShellNavGroup = {
 };
 
 const PRIMARY_MOBILE_ITEMS = [
-  { href: "/dashboard", label: "Focus", icon: Home },
-  { href: "/assignments", label: "Assignments", icon: CheckSquare },
-  { href: "/notes", label: "Notes", icon: FileText },
-  { href: "/flashcards", label: "Study", icon: Brain },
+  { href: "/dashboard", label: "Today", icon: Home },
+  { href: "/quick-add", label: "Capture", icon: Camera },
+  { href: "/assignments", label: "Work", icon: CheckSquare },
+  { href: "/notes", label: "Think", icon: Brain },
+  { href: "/proof", label: "Proof", icon: ShieldCheck },
 ] satisfies AppShellNavItem[];
 
 const SECONDARY_ITEMS = [
@@ -61,8 +63,10 @@ const SECONDARY_ITEMS = [
   { href: "/reminders", label: "Reminders", icon: Bell },
   { href: "/portfolio", label: "Portfolio", icon: Images },
   { href: "/voice", label: "Voice", icon: Mic2 },
+  { href: "/me", label: "My brain", icon: Sparkles },
   { href: "/wellness", label: "Wellness", icon: HeartPulse },
-  { href: "/ap", label: "AP", icon: GraduationCap },
+  { href: "/future-path", label: "Future Path", icon: GraduationCap },
+  { href: "/ap", label: "AP plan", icon: GraduationCap },
   { href: "/study-groups", label: "Groups", icon: UsersRound },
   { href: "/timer", label: "Timer", icon: Timer },
   { href: "/calendar", label: "Calendar", icon: Calendar },
@@ -80,42 +84,44 @@ const SECONDARY_ITEMS = [
 // Rail labels must fit the w-24 compact rail without truncating — keep them
 // to one short word ("Assignments" becomes "Tasks" here only).
 const DESKTOP_CORE_ITEMS = [
-  { href: "/dashboard", label: "Focus", icon: Home },
-  { href: "/assignments", label: "Tasks", icon: CheckSquare },
-  { href: "/notes", label: "Notes", icon: FileText },
-  { href: "/flashcards", label: "Study", icon: Brain },
-  { href: "/calendar", label: "Calendar", icon: Calendar },
-  { href: "/voice", label: "Voice", icon: Mic2 },
+  { href: "/dashboard", label: "Today", icon: Home },
+  { href: "/assignments", label: "Work", icon: CheckSquare },
+  { href: "/notes", label: "Think", icon: Brain },
+  { href: "/proof", label: "Proof", icon: ShieldCheck },
+  { href: "/future-path", label: "Future", icon: GraduationCap },
 ] satisfies AppShellNavItem[];
 
 const DESKTOP_GROUPS = [
   {
-    label: "Study tools",
+    label: "Schoolwork",
     defaultOpen: true,
     items: [
       { href: "/focus", label: "Focus plan", icon: Timer },
-      { href: "/study-buddy", label: "Study buddy", icon: MessageCircle },
       { href: "/break-down", label: "Break down", icon: ListChecks },
-      { href: "/ap", label: "AP", icon: GraduationCap },
-      { href: "/timer", label: "Timer", icon: Timer },
       { href: "/templates", label: "Templates", icon: LayoutTemplate },
-    ],
-  },
-  {
-    label: "Capture",
-    items: [
-      { href: "/imports", label: "Imports", icon: CalendarPlus },
+      { href: "/calendar", label: "Calendar", icon: Calendar },
+      { href: "/grades", label: "Grades", icon: BarChart3 },
       { href: "/classes", label: "Classes", icon: BookOpen },
     ],
   },
   {
-    label: "Life and progress",
+    label: "Think",
     items: [
-      { href: "/grades", label: "Grades", icon: BarChart3 },
+      { href: "/voice", label: "Talk it through", icon: Mic2 },
+      { href: "/study-buddy", label: "Study buddy", icon: MessageCircle },
+      { href: "/flashcards", label: "Flashcards", icon: Brain },
+      { href: "/timer", label: "Timer", icon: Timer },
+      { href: "/imports", label: "Imports", icon: CalendarPlus },
+    ],
+  },
+  {
+    label: "Proof and me",
+    items: [
       { href: "/reminders", label: "Reminders", icon: Bell },
       { href: "/wellness", label: "Wellness", icon: HeartPulse },
       { href: "/wins", label: "Wins", icon: Sparkles },
       { href: "/portfolio", label: "Portfolio", icon: Images },
+      { href: "/me", label: "My brain", icon: Sparkles },
       { href: "/study-groups", label: "Groups", icon: UsersRound },
       { href: "/insights", label: "Insights", icon: BarChart3 },
     ],
@@ -123,7 +129,6 @@ const DESKTOP_GROUPS = [
   {
     label: "System",
     items: [
-      { href: "/proof", label: "Proof", icon: ShieldCheck },
       { href: "/accessibility", label: "Access", icon: Accessibility },
       { href: "/settings", label: "Settings", icon: Cog },
       { href: "/shame-mode", label: "Reset mode", icon: ClipboardList },
@@ -137,93 +142,31 @@ function isActivePath(path: string, href: string) {
 
 export function BottomNav() {
   const path = usePathname();
-  const [moreOpen, setMoreOpen] = useState(false);
-  const secondaryActive = SECONDARY_ITEMS.some((item) => isActivePath(path, item.href));
-
-  useEffect(() => {
-    setMoreOpen(false);
-  }, [path]);
 
   return (
-    <>
-      {moreOpen && (
-        <div className="fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-50 mx-auto max-h-[70dvh] max-w-md overflow-y-auto rounded-2xl border border-border bg-surface-raised p-3 shadow-xl md:hidden">
-          <div className="mb-2 flex items-center justify-between gap-3 px-1">
-            <p className="text-sm font-semibold">More</p>
-            <div className="flex items-center gap-1">
-              <ThemeQuickToggle />
-              <button
-                type="button"
-                aria-label="Close more menu"
-                onClick={() => setMoreOpen(false)}
-                className="touch-target inline-flex items-center justify-center rounded-xl text-muted hover:bg-surface-soft hover:text-fg"
+    <nav
+      className="nexus-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface-raised/95 backdrop-blur md:hidden"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <ul className="mx-auto grid max-w-2xl grid-cols-5 items-stretch">
+        {PRIMARY_MOBILE_ITEMS.map(({ href, label, icon: Icon }) => {
+          const active = isActivePath(path, href);
+          return (
+            <li key={href} className="min-w-0">
+              <Link
+                href={href}
+                className={`touch-target flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] font-semibold ${
+                  active ? "is-active text-brand-strong dark:text-brand" : "text-muted"
+                }`}
               >
-                <X size={18} />
-              </button>
-            </div>
-          </div>
-          <ul className="grid grid-cols-2 gap-2">
-            {SECONDARY_ITEMS.map(({ href, label, icon: Icon }) => {
-              const active = isActivePath(path, href);
-              return (
-                <li key={href}>
-                  <Link
-                    href={href}
-                    onClick={() => setMoreOpen(false)}
-                    className={`touch-target flex min-w-0 items-center gap-2 rounded-xl border px-3 py-2 text-sm ${
-                      active
-                        ? "border-brand/30 bg-brand/10 text-brand-strong dark:text-brand"
-                        : "border-border bg-surface text-muted hover:bg-surface-soft"
-                    }`}
-                  >
-                    <Icon size={17} className="shrink-0" />
-                    <span className="min-w-0 truncate">{label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-
-      <nav
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface-raised/95 backdrop-blur md:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-      >
-        <ul className="mx-auto grid max-w-2xl grid-cols-5 items-stretch">
-          {PRIMARY_MOBILE_ITEMS.map(({ href, label, icon: Icon }) => {
-            const active = isActivePath(path, href);
-            return (
-              <li key={href} className="min-w-0">
-                <Link
-                  href={href}
-                  className={`touch-target flex min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] font-medium ${
-                    active ? "text-brand-strong dark:text-brand" : "text-muted"
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span className="max-w-full truncate">{label}</span>
-                </Link>
-              </li>
-            );
-          })}
-          <li className="min-w-0">
-            <button
-              type="button"
-              aria-expanded={moreOpen}
-              aria-label="Open more navigation"
-              onClick={() => setMoreOpen((open) => !open)}
-              className={`touch-target flex w-full min-w-0 flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] font-medium ${
-                moreOpen || secondaryActive ? "text-brand-strong dark:text-brand" : "text-muted"
-              }`}
-            >
-              <Menu size={20} />
-              <span className="max-w-full truncate">More</span>
-            </button>
-          </li>
-        </ul>
-      </nav>
-    </>
+                <Icon size={20} />
+                <span className="max-w-full truncate">{label}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }
 
@@ -247,9 +190,9 @@ export function SideNav() {
   })).filter((group) => group.items.length > 0);
 
   return (
-    <aside className="hidden w-24 shrink-0 border-r border-border bg-surface-raised md:block" data-nav="compact-app-rail">
+    <aside className="nexus-side-nav hidden w-24 shrink-0 border-r border-border bg-surface-raised md:block" data-nav="compact-app-rail">
       <div className="sticky top-0 flex h-dvh flex-col items-center gap-4 px-2 py-4">
-        <Link href="/dashboard" aria-label="Diana dashboard" className="flex size-12 items-center justify-center rounded-3xl bg-brand/10 text-brand">
+        <Link href="/dashboard" aria-label="Diana dashboard" className="nexus-logo-mark flex size-12 items-center justify-center rounded-3xl bg-brand/10 text-brand">
           <Sparkles size={20} />
         </Link>
 
@@ -264,8 +207,8 @@ export function SideNav() {
             aria-expanded={drawerOpen}
             aria-controls="desktop-more-drawer"
             onClick={() => setDrawerOpen((open) => !open)}
-            className={`touch-target mt-2 flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
-              drawerOpen || secondaryActive ? "bg-brand/10 text-brand-strong dark:text-brand" : "text-muted hover:bg-surface-soft hover:text-fg"
+            className={`touch-target nexus-rail-link mt-2 flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
+              drawerOpen || secondaryActive ? "is-active bg-brand/10 text-brand-strong dark:text-brand" : "text-muted hover:bg-surface-soft hover:text-fg"
             }`}
           >
             <Menu size={18} />
@@ -275,7 +218,7 @@ export function SideNav() {
 
         <ThemeQuickToggle className="w-full" />
 
-        <div className="w-full rounded-3xl border border-brand/20 bg-brand/10 px-2 py-3 text-center">
+        <div className="nexus-rail-chip w-full rounded-3xl border border-brand/20 bg-brand/10 px-2 py-3 text-center">
           <p className="text-[10px] font-semibold uppercase leading-4 tracking-wider text-brand-strong dark:text-brand">
             Next
             <br />
@@ -287,12 +230,12 @@ export function SideNav() {
       {drawerOpen && (
         <div
           id="desktop-more-drawer"
-          className="fixed left-24 top-0 z-30 hidden h-dvh w-80 border-r border-border bg-surface/96 p-4 shadow-2xl backdrop-blur md:block"
+          className="nexus-more-drawer fixed left-24 top-0 z-30 hidden h-dvh w-80 border-r border-border bg-surface/96 p-4 shadow-2xl backdrop-blur md:block"
           data-nav="searchable-more-drawer"
         >
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">More tools</p>
+              <p className="nexus-kicker text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">More places</p>
               <h2 className="text-lg font-bold">Find what helps</h2>
             </div>
             <button
@@ -305,13 +248,13 @@ export function SideNav() {
             </button>
           </div>
 
-          <label className="mt-4 flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-surface-raised px-3 py-2 text-sm" data-nav="desktop-command-search">
+          <label className="nexus-route-search mt-4 flex min-w-0 items-center gap-2 rounded-2xl border border-border bg-surface-raised px-3 py-2 text-sm" data-nav="desktop-route-search">
             <Search size={16} className="shrink-0 text-brand" />
-            <span className="sr-only">Search Diana tools</span>
+            <span className="sr-only">Search Diana places</span>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search tools"
+              placeholder="Search places"
               className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted"
             />
           </label>
@@ -328,7 +271,7 @@ export function SideNav() {
               ))}
               {visibleGroups.length === 0 && (
                 <p className="rounded-2xl border border-border bg-surface-raised p-4 text-sm text-muted">
-                  No tool matches that search.
+                  No place matches that search.
                 </p>
               )}
             </div>
@@ -353,9 +296,9 @@ function DesktopRailLink({
       <Link
         href={item.href}
         aria-current={active ? "page" : undefined}
-        className={`touch-target flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
+        className={`touch-target nexus-rail-link flex min-w-0 flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold transition ${
           active
-            ? "bg-brand/10 text-brand-strong dark:text-brand"
+            ? "is-active bg-brand/10 text-brand-strong dark:text-brand"
             : "text-muted hover:bg-surface-soft hover:text-fg"
         }`}
       >
@@ -378,7 +321,7 @@ function DesktopNavGroup({
   const hasActiveItem = group.items.some((item) => isActivePath(path, item.href));
 
   return (
-    <details className="group rounded-2xl border border-border bg-surface-raised p-1" open={group.defaultOpen || hasActiveItem}>
+    <details className="group nexus-nav-group rounded-2xl border border-border bg-surface-raised p-1" open={group.defaultOpen || hasActiveItem}>
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 rounded-xl px-2 py-2 text-[11px] font-semibold uppercase tracking-wider text-muted transition hover:bg-surface-soft">
         <span>{group.label}</span>
         <ChevronDown size={14} className="transition group-open:rotate-180" />
@@ -411,11 +354,11 @@ function DesktopNavLink({
         href={item.href}
         onClick={onNavigate}
         aria-current={active ? "page" : undefined}
-        className={`flex min-w-0 items-center gap-3 rounded-xl px-3 text-sm transition ${
+        className={`nexus-drawer-link flex min-w-0 items-center gap-3 rounded-xl px-3 text-sm transition ${
           compact ? "py-2" : "py-2.5"
         } ${
           active
-            ? "bg-brand/10 text-brand-strong dark:text-brand"
+            ? "is-active bg-brand/10 text-brand-strong dark:text-brand"
             : "text-fg/80 hover:bg-surface-soft"
         }`}
       >

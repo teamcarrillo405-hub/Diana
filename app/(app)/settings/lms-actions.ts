@@ -89,6 +89,38 @@ export async function connectClever(formData: FormData) {
   return { ok: true, message: "Clever marker saved" };
 }
 
+export async function connectGitLab(formData: FormData) {
+  const project = String(formData.get("project") ?? "").trim();
+  const token = String(formData.get("token") ?? "").trim();
+  const labels = String(formData.get("labels") ?? "").trim();
+  const baseUrl = String(formData.get("base_url") ?? "").trim();
+  if (!project || !token) return { ok: false, message: "GitLab project and token are needed" };
+  if (!/^\d+$/.test(project) && !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_./-]+$/.test(project)) {
+    return { ok: false, message: "Use a GitLab path like group/project-name, or paste the numeric project ID" };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, message: "Sign in to continue" };
+
+  const { error } = await supabase
+    .from("lms_connections")
+    .insert({
+      owner_id: user.id,
+      provider: "gitlab",
+      config: {
+        project,
+        token,
+        labels: labels || null,
+        base_url: baseUrl || "https://gitlab.com",
+      },
+    });
+  if (error) return { ok: false, message: "Could not save the GitLab connection" };
+
+  revalidatePath("/settings");
+  return { ok: true, message: "GitLab connected" };
+}
+
 export async function importIepText(formData: FormData) {
   const text = String(formData.get("text") ?? "").trim();
   const sourceName = String(formData.get("source_name") ?? "").trim() || null;

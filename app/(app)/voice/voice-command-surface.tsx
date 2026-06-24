@@ -25,7 +25,7 @@ export function VoiceCommandSurface() {
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
-              Future voice mode
+              Voice-first thinking
             </p>
             <h1 className="mt-2 text-3xl font-bold leading-tight">Talk it through</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
@@ -62,7 +62,7 @@ export function VoiceCommandSurface() {
         <aside className="future-card rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
           <div className="flex items-center gap-2">
             <AudioLines size={17} className="text-subject-science" />
-            <h2 className="text-base font-semibold">Diana response mode</h2>
+            <h2 className="text-base font-semibold">What Diana can do next</h2>
           </div>
 
           <div className="mt-4 space-y-3">

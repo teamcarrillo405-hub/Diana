@@ -55,6 +55,7 @@ export async function createNote(
 
 export type NoteSynthesisResult = {
   summary: string;
+  audioOverviewScript: string;
   citations: Array<{ label: string; noteId: string; title: string; reason: string }>;
 };
 
@@ -84,6 +85,9 @@ export async function synthesizeNotes(
     ok: true,
     result: {
       summary: String(data.summary),
+      audioOverviewScript: typeof data.audioOverviewScript === "string"
+        ? data.audioOverviewScript
+        : String(data.summary),
       citations: Array.isArray(data.citations)
         ? data.citations.filter((item: unknown): item is NoteSynthesisResult["citations"][number] => {
             const c = item as Record<string, unknown>;

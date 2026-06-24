@@ -11,7 +11,7 @@ export function ClassForm() {
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState("");
   const [teacher, setTeacher] = useState("");
-  const [color, setColor] = useState<typeof COLORS[number]>("indigo");
+  const [color, setColor] = useState<(typeof COLORS)[number]>("indigo");
   const [error, setError] = useState<string | null>(null);
 
   function onSubmit(e: React.FormEvent) {
@@ -28,31 +28,37 @@ export function ClassForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3 rounded-xl border border-border bg-card p-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <input
-          placeholder="Class name (e.g. AP Biology)"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="rounded-md border border-border bg-transparent px-3 py-2"
-        />
-        <input
-          placeholder="Teacher (optional)"
-          value={teacher}
-          onChange={(e) => setTeacher(e.target.value)}
-          className="rounded-md border border-border bg-transparent px-3 py-2"
-        />
+        <label className="grid gap-2 text-sm font-semibold">
+          <span>Class name</span>
+          <input
+            placeholder="English 9"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="nexus-input"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold">
+          <span>Teacher</span>
+          <input
+            placeholder="Optional"
+            value={teacher}
+            onChange={(e) => setTeacher(e.target.value)}
+            className="nexus-input"
+          />
+        </label>
       </div>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-muted">Color:</span>
+        <span className="text-xs font-black uppercase tracking-[0.18em] text-muted">Lane color</span>
         {COLORS.map((c) => (
           <button
             key={c}
             type="button"
             aria-label={c}
             onClick={() => setColor(c)}
-            className={`size-6 rounded-full bg-${c}-500 transition ${
-              color === c ? "ring-2 ring-fg ring-offset-2 ring-offset-card" : ""
+            className={`size-7 bg-${c}-500 transition ${
+              color === c ? "ring-2 ring-fg ring-offset-2 ring-offset-surface" : ""
             }`}
           />
         ))}
@@ -62,9 +68,9 @@ export function ClassForm() {
         <button
           type="submit"
           disabled={pending}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="nexus-button nexus-button-primary px-4 py-2 text-sm disabled:opacity-50"
         >
-          {pending ? "Adding…" : "Add class"}
+          {pending ? "Adding..." : "Add class"}
         </button>
       </div>
     </form>

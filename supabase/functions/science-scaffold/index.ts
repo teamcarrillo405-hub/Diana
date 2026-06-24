@@ -10,6 +10,7 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = new Set(["hypothesis", "lab_report", "method", "formula", "chemistry_balance", "diagram", "frq"]);
 
@@ -104,33 +105,14 @@ Deno.serve(async (req: Request) => {
       personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 1000,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: `Mode: ${mode}\nScience prompt or draft:\n${prompt}\n\nClass context:\n${classContext}`,
-        }],
-      }),
+    const ai = await callStudentTextModel({
+      system: systemPrompt,
+      user: `Mode: ${mode}\nScience prompt or draft:\n${prompt}\n\nClass context:\n${classContext}`,
+      maxTokens: 700,
+      json: true,
     });
-    if (!res.ok) {
-      console.error("science-scaffold Anthropic error:", await res.text());
-      return jsonResponse({ error: "AI request failed" }, 502);
-    }
-    const data = await res.json() as {
-      content?: Array<{ type: string; text: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
-    };
-    const content = data.content?.[0]?.text ?? "";
-    const tokens = Number(data.usage?.input_tokens ?? 0) + Number(data.usage?.output_tokens ?? 0);
+    const content = ai.content;
+    const tokens = ai.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -138,7 +120,7 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId,
           feature: "science_scaffold",
-          model: "claude-haiku-4-5",
+          model: ai.model,
           promptSummary: `${mode}:${prompt.slice(0, 180)}`,
           tokensUsed: tokens,
         }, supabase);

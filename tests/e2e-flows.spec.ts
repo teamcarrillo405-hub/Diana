@@ -49,14 +49,14 @@ test("new student completes the step-by-step onboarding wizard", async ({ page }
 
   // Done page: theme + accent personalization, then into the app.
   await page.waitForURL(/onboarding\/done/, { timeout: 30_000 });
-  await expect(page.getByText("Diana is ready for you.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your deck is ready." })).toBeVisible();
   await expect(page.getByRole("group", { name: "Theme" })).toBeVisible();
-  await page.getByRole("link", { name: /let'?s go/i }).click();
+  await page.getByRole("link", { name: /open today/i }).click();
 
-  // Dashboard: the first-week journey replaces the empty state.
+  // Dashboard: the Nexus Today surface replaces the empty state.
   await page.waitForURL(/dashboard/, { timeout: 30_000 });
-  await expect(page.getByText("Getting rolling")).toBeVisible();
-  await expect(page.getByText("Give your work a home")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Hi Diana. This move fits right now." })).toBeVisible();
+  await expect(page.getByText("Get your work a home.").first()).toBeVisible();
 
   // The dyslexia choice took effect as a smart default (body class).
   const bodyClass = await page.evaluate(
@@ -75,8 +75,11 @@ test("settings shows the adaptive and integration surfaces", async ({ page }) =>
   await page.goto(`${baseUrl}/settings`, { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
 
-  await expect(page.getByText("How Diana is adapting to you")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
   await expect(page.getByRole("group", { name: "Theme" })).toBeVisible();
+  await page.getByText("How Diana adapts").click();
+  await expect(page.getByText("How Diana is adapting to you")).toBeVisible();
+  await page.getByText("School connections", { exact: true }).click();
   await expect(page.getByRole("heading", { name: "Canva" })).toBeVisible();
 
   // Theme toggle actually pins the class.

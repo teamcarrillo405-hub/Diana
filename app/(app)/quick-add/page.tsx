@@ -14,7 +14,7 @@ export default async function QuickAddPage() {
   const ttsProvider = profile?.tts_provider === "openai" ? "openai" : "browser";
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-1">
         <h1 className="text-display">Quick add</h1>
         <p className="text-sm text-muted">What do you need to remember?</p>

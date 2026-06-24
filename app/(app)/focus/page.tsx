@@ -43,9 +43,9 @@ export default async function FocusPage() {
   const rest = ranked.slice(1, 5);
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Focus</p>
+        <p className="nexus-kicker text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Focus</p>
         <h1 className="text-display">One school move at a time</h1>
         <p className="max-w-2xl text-sm leading-6 text-muted">
           Diana uses due dates, workload, reading load, and recent starts to keep the next action visible.
@@ -53,22 +53,22 @@ export default async function FocusPage() {
       </header>
 
       {!top ? (
-        <section className="rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
+        <section className="nexus-panel rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
           <EmptyStateMark />
           <p className="text-base font-semibold">No open assignments are in the queue.</p>
           <p className="mt-2 text-sm text-muted">Add one task or import due dates to start a focus plan.</p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
-            <Link href="/assignments/new" className="touch-target rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white">
+            <Link href="/assignments/new" className="nexus-button nexus-button-primary touch-target rounded-2xl px-4 py-3 text-sm font-semibold">
               Add assignment
             </Link>
-            <Link href="/imports" className="touch-target rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold">
+            <Link href="/imports" className="nexus-button nexus-button-secondary touch-target rounded-2xl border border-border bg-surface px-4 py-3 text-sm font-semibold">
               Connect imports
             </Link>
           </div>
         </section>
       ) : (
         <>
-          <section className="focus-surface rounded-3xl border border-brand/25 p-5 shadow-sm">
+          <section className="nexus-panel focus-surface rounded-3xl border border-brand/25 p-5 shadow-sm">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -102,14 +102,14 @@ export default async function FocusPage() {
               <div className="w-full shrink-0 space-y-2 lg:w-64">
                 <Link
                   href={`/assignments/${top.id}`}
-                  className="touch-target inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white"
+                  className="nexus-button nexus-button-primary touch-target inline-flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold"
                 >
                   Open assignment
                   <ArrowRight size={17} />
                 </Link>
                 <Link
                   href={`/timer?mode=${profile?.session_mood === "rough" ? "rough" : "steady"}`}
-                  className="touch-target inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-surface-raised px-4 py-3 text-sm font-semibold"
+                  className="nexus-button nexus-button-secondary touch-target inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-surface-raised px-4 py-3 text-sm font-semibold"
                 >
                   <Timer size={17} />
                   Start timer
@@ -118,7 +118,7 @@ export default async function FocusPage() {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
+          <section className="nexus-panel rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
             <div className="flex items-center gap-2">
               <ListChecks size={17} className="text-brand" />
               <h2 className="text-base font-semibold">Next in the queue</h2>

@@ -30,35 +30,27 @@ export function RubricForm({ classId }: { classId: string }) {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="space-y-3 rounded-xl border border-border bg-card p-4"
-    >
+    <form onSubmit={onSubmit} className="class-rubric-form">
       <input
         placeholder="Rubric title (e.g. Lab report rubric)"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full rounded-md border border-border bg-transparent px-3 py-2"
+        className="nexus-input"
       />
       <textarea
-        placeholder="Paste the rubric or grading criteria…"
+        placeholder="Paste the rubric or grading criteria..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={6}
-        className="w-full rounded-md border border-border bg-transparent px-3 py-2 font-mono text-sm"
+        className="nexus-input font-mono text-sm"
       />
-      <p className="text-xs text-muted">
-        For now we save the rubric as text. When the AI features are turned on, Diana will
-        parse it into a structured checklist you can use at submission time.
+      <p>
+        Save teacher expectations here so Diana can turn them into checkable moves at submission time.
       </p>
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {pending ? "Saving…" : "Save rubric"}
+        <button type="submit" disabled={pending} className="nexus-button nexus-button-primary disabled:opacity-50">
+          {pending ? "Saving..." : "Save rubric"}
         </button>
       </div>
     </form>

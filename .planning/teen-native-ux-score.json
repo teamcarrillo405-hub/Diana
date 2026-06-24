@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-10T20:34:13.131Z",
+  "generatedAt": "2026-06-24T01:37:50.234Z",
   "sections": [
     {
       "id": "first_screen_clarity",
@@ -16,7 +16,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "dianaTarget": "Mobile should keep Focus, Assignments, Notes, Study, and More reachable with no horizontal overflow.",
+      "dianaTarget": "Mobile should keep Today, Work, Think, Proof, and Future reachable with no horizontal overflow.",
       "competitorEdge": "Quizlet has a familiar mobile rhythm, and Gemini keeps the core chat action close."
     },
     {
@@ -65,7 +65,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "tenDefinition": "Repo shows a teen-native identity, optional future voice mode, polished auth entry, and clean responsive proof; live love still requires teen validation."
+      "tenDefinition": "Repo shows a teen-native identity, Future Path, polished auth entry, and clean responsive proof; live love still requires teen validation."
     },
     {
       "id": "public_landing_first_impression",
@@ -75,7 +75,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "tenDefinition": "The first viewport sells Diana as a high-school command center with a product preview, voice/future option, and one obvious start path."
+      "tenDefinition": "The first viewport sells Diana as a student-owned next-move, proof, and Future Path product with one obvious start path."
     },
     {
       "id": "login_signup_visual_appeal",
@@ -85,7 +85,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "tenDefinition": "Auth pages feel like Diana: command-center framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy."
+      "tenDefinition": "Auth pages feel like Diana: student-owned framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy."
     },
     {
       "id": "dashboard_focus_appeal",
@@ -95,7 +95,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "tenDefinition": "Authenticated screenshots show a polished Right now command surface with one primary action above the fold."
+      "tenDefinition": "Authenticated screenshots show a polished Today surface with one primary action above the fold."
     },
     {
       "id": "app_shell_navigation",
@@ -135,7 +135,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "tenDefinition": "Diana OS visibly changes the interaction layer with HUD structure, voice state, command nodes, and reduced-motion safety."
+      "tenDefinition": "Diana OS visibly changes the interaction layer with restrained depth, voice state, proof cues, and reduced-motion safety."
     }
   ],
   "visualConfidenceScore": 10,

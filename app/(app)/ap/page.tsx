@@ -22,10 +22,12 @@ export default async function ApPage() {
   ]);
 
   return (
-    <ApClient
-      defaultExamDate={nextMayExamDate()}
-      plans={plans ?? []}
-      attempts={attempts ?? []}
-    />
+    <div className="diana-page">
+      <ApClient
+        defaultExamDate={nextMayExamDate()}
+        plans={plans ?? []}
+        attempts={attempts ?? []}
+      />
+    </div>
   );
 }

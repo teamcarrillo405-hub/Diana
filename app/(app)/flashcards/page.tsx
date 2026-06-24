@@ -22,19 +22,19 @@ export default async function FlashcardsPage() {
   const upcoming = (all ?? []).filter((c) => c.due_at > nowIso);
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="flex items-baseline justify-between">
         <h1 className="text-display">Study</h1>
         <Link
           href="/flashcards/new"
-          className="rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white"
+          className="nexus-button nexus-button-primary rounded-md px-3 py-1.5 text-sm font-medium"
         >
           + New card
         </Link>
       </header>
 
-      <section className="rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
-        <p className="text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+      <section className="nexus-panel rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
+        <p className="nexus-kicker text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
           Remember bar
         </p>
         <h2 className="mt-1 text-base font-semibold">Quiz first, cards second</h2>
@@ -55,7 +55,7 @@ export default async function FlashcardsPage() {
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Due today
           </h2>
-          <div className="rounded-2xl border border-accent bg-accent/5 p-5">
+          <div className="nexus-panel rounded-2xl border border-accent bg-accent/5 p-5">
             <p className="text-sm">
               {due.length === 1
                 ? "1 card to review today."
@@ -63,7 +63,7 @@ export default async function FlashcardsPage() {
             </p>
             <Link
               href={`/flashcards/${due[0].id}/review`}
-              className="mt-3 inline-block rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+              className="nexus-button nexus-button-primary mt-3 inline-block rounded-md px-4 py-2 text-sm font-medium"
             >
               Start review
             </Link>
@@ -71,7 +71,7 @@ export default async function FlashcardsPage() {
         </section>
       ) : (
         (all && all.length > 0) && (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-center">
+          <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
           </div>
         )
@@ -82,7 +82,7 @@ export default async function FlashcardsPage() {
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Coming up
           </h2>
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+          <ul className="nexus-panel divide-y divide-border rounded-xl border border-border bg-card p-0">
             {upcoming.slice(0, 25).map((c) => (
               <li key={c.id} className="px-4 py-3">
                 <p className="truncate text-sm">{c.front}</p>
@@ -96,7 +96,7 @@ export default async function FlashcardsPage() {
       )}
 
       {(!all || all.length === 0) && (
-        <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+        <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <EmptyStateMark />
           <p className="text-lg font-medium">No cards yet.</p>
           <p className="mt-1 text-sm text-muted">
@@ -105,7 +105,7 @@ export default async function FlashcardsPage() {
           <div className="mt-4">
             <Link
               href="/flashcards/new"
-              className="rounded-md bg-accent px-3 py-2 text-sm text-white"
+              className="nexus-button nexus-button-primary rounded-md px-3 py-2 text-sm"
             >
               Add a card
             </Link>

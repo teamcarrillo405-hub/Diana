@@ -14,7 +14,7 @@ export function ThemePicker() {
     <div
       role="group"
       aria-label="Theme"
-      className="inline-flex items-center gap-1 rounded-2xl border border-border bg-surface-soft p-1"
+      className="nexus-control-group inline-flex items-center gap-1 rounded-2xl border border-border bg-surface-soft p-1"
     >
       {OPTIONS.map(({ value, label, icon: Icon }) => {
         const active = theme === value;
@@ -50,7 +50,7 @@ export function ThemeQuickToggle({ className = '' }: { className?: string }) {
       onClick={() => setTheme(next)}
       aria-label={`Theme: ${label}. Switch theme.`}
       title={label}
-      className={`touch-target inline-flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold text-muted transition hover:bg-surface-soft hover:text-fg ${className}`}
+      className={`nexus-rail-link touch-target inline-flex flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2 text-[11px] font-semibold text-muted transition hover:bg-surface-soft hover:text-fg ${className}`}
     >
       <Icon size={18} />
       <span>Theme</span>

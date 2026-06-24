@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { BarChart3, ClipboardCheck, FileText, ShieldCheck, Users } from "lucide-react";
 import type { AssignmentKind } from "@/lib/supabase/types";
@@ -159,7 +160,20 @@ export function TeacherPortalClient({
   }
 
   if (classes.length === 0) {
-    return <p className="rounded-xl border border-border bg-card p-4 text-sm text-muted">Create a class first, then return here.</p>;
+    return (
+      <section className="nexus-panel nexus-panel-dense grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="space-y-2">
+          <span className="nexus-kicker">Setup first</span>
+          <h2 className="text-2xl font-semibold">Create one class before opening teacher tools.</h2>
+          <p className="max-w-2xl text-sm text-muted">
+            Teacher assignments, roster, AI policy, and accommodation confirmations need a class anchor first.
+          </p>
+        </div>
+        <Link href="/classes" className="nexus-button nexus-button-primary w-fit">
+          Open classes
+        </Link>
+      </section>
+    );
   }
 
   return (

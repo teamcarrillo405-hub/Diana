@@ -62,6 +62,8 @@ export function ApClient({
     () => apMilestonePlan(activeSubject, activeExamDate),
     [activeSubject, activeExamDate],
   );
+  const daysToExam = daysUntilExam(activeExamDate);
+  const formatLabel = activeMeta.format.replace(/_/g, " ");
   const localScore = correctCount && totalCount ? scoreBand(Number(correctCount), Number(totalCount)).message : null;
 
   function run(action: () => Promise<{ ok: true; message?: string } | { ok: false; error: string }>, success: string) {
@@ -73,21 +75,41 @@ export function ApClient({
   }
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-display">AP command center</h1>
-        <p className="text-muted">Exam plans, FRQ format, MCQ explanations, and score bands.</p>
+    <div className="ap-command-page">
+      <header className="ap-command-hero nexus-panel nexus-panel-hero">
+        <div className="ap-command-hero-copy">
+          <p className="nexus-kicker">AP command</p>
+          <h1>One exam. One next review.</h1>
+          <p>Keep the page light: save the target, read the next milestones, log one practice result.</p>
+        </div>
+        <div className="ap-hero-metrics" aria-label="Current AP plan status">
+          <div>
+            <span>Exam clock</span>
+            <strong>{daysToExam}</strong>
+            <small>days</small>
+          </div>
+          <div>
+            <span>Subject</span>
+            <strong>{activeMeta.label}</strong>
+            <small>{formatLabel}</small>
+          </div>
+          <div>
+            <span>Goal</span>
+            <strong>{selectedPlan?.goal_band ?? goalBand}</strong>
+            <small>{plans.length} saved plans</small>
+          </div>
+        </div>
       </header>
 
       {status && (
-        <div className="rounded-md border border-border bg-card px-3 py-2 text-sm text-muted" role="status">
+        <div className="ap-status" role="status">
           {status}
         </div>
       )}
 
-      <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+      <section className="ap-command-grid">
         <form
-          className="space-y-4 rounded-xl border border-border bg-card p-5"
+          className="ap-panel ap-plan-console"
           onSubmit={(event) => {
             event.preventDefault();
             run(
@@ -96,63 +118,80 @@ export function ApClient({
             );
           }}
         >
-          <div>
-            <h2 className="text-lg font-semibold">Exam plan</h2>
-            <p className="text-sm text-muted">Pick the subject and exam date. Diana turns it into calm milestones.</p>
+          <div className="ap-panel-head">
+            <div>
+              <p>01 Input</p>
+              <h2>Set the target.</h2>
+              <span>Subject, date, and band only.</span>
+            </div>
           </div>
-          <label className="space-y-1 text-sm">
-            <span className="font-medium">Subject</span>
-            <select value={subject} onChange={(e) => setSubject(e.target.value as ApSubjectId)} className="w-full rounded-md border border-border bg-background px-3 py-2">
-              {AP_SUBJECTS.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
+          <label className="ap-field">
+            <span>Subject</span>
+            <select value={subject} onChange={(e) => setSubject(e.target.value as ApSubjectId)}>
+              {AP_SUBJECTS.map((item) => (
+                <option key={item.id} value={item.id}>{item.label}</option>
+              ))}
             </select>
           </label>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Exam date</span>
-              <input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2" />
+          <div className="ap-field-grid">
+            <label className="ap-field">
+              <span>Exam date</span>
+              <input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
             </label>
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Goal band</span>
-              <input value={goalBand} onChange={(e) => setGoalBand(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2" />
+            <label className="ap-field">
+              <span>Goal band</span>
+              <input value={goalBand} onChange={(e) => setGoalBand(e.target.value)} />
             </label>
           </div>
-          <textarea value={currentFocus} onChange={(e) => setCurrentFocus(e.target.value)} rows={3} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="Current focus, unit, or skill." />
-          <button disabled={pending} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Save AP plan</button>
+          <label className="ap-field">
+            <span>Current focus</span>
+            <textarea value={currentFocus} onChange={(e) => setCurrentFocus(e.target.value)} rows={3} placeholder="Unit, skill, or format." />
+          </label>
+          <button disabled={pending} className="nexus-button nexus-button-primary">Save AP plan</button>
         </form>
 
-        <section className="space-y-4 rounded-xl border border-border bg-card p-5">
-          <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <section className="ap-panel ap-milestone-console">
+          <div className="ap-panel-head">
             <div>
-              <h2 className="text-lg font-semibold">{activeMeta.label}</h2>
-              <p className="text-sm text-muted">{daysUntilExam(activeExamDate)} days to the saved exam date.</p>
+              <p>02 Output</p>
+              <h2>{activeMeta.label}</h2>
+              <span>{daysToExam} days to the saved exam date.</span>
             </div>
-            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">{activeMeta.format.replace(/_/g, " ")}</span>
+            <small>{formatLabel}</small>
           </div>
-          <ol className="space-y-2 text-sm">
-            {localMilestones.map((item) => <li key={item} className="rounded-md border border-border bg-background p-3">{item}</li>)}
+          <ol className="ap-milestone-list">
+            {localMilestones.map((item, index) => (
+              <li key={item}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <p>{item}</p>
+              </li>
+            ))}
           </ol>
         </section>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
-          <div>
-            <h2 className="text-lg font-semibold">FRQ format</h2>
-            <p className="text-sm text-muted">Structured outline for the selected AP subject.</p>
+      <section className="ap-secondary-grid">
+        <div className="ap-panel ap-frq-panel">
+          <div className="ap-panel-head">
+            <div>
+              <p>03 Format</p>
+              <h2>FRQ shape.</h2>
+              <span>Use this as the short outline before writing.</span>
+            </div>
           </div>
-          <div className="grid gap-2 md:grid-cols-2">
+          <div className="ap-frq-grid">
             {localOutline.outline.map((step) => (
-              <article key={step.label} className="rounded-md border border-border bg-background p-3 text-sm">
-                <h3 className="font-medium">{step.label}</h3>
-                <p className="mt-1 text-muted">{step.prompt}</p>
-                <p className="mt-2 text-xs text-accent">{step.evidence}</p>
+              <article key={step.label}>
+                <h3>{step.label}</h3>
+                <p>{step.prompt}</p>
+                <small>{step.evidence}</small>
               </article>
             ))}
           </div>
         </div>
 
         <form
-          className="space-y-4 rounded-xl border border-border bg-card p-5"
+          className="ap-panel ap-practice-console"
           onSubmit={(event) => {
             event.preventDefault();
             run(
@@ -168,33 +207,50 @@ export function ApClient({
             );
           }}
         >
-          <div>
-            <h2 className="text-lg font-semibold">Practice result</h2>
-            <p className="text-sm text-muted">Add MCQ counts for a score-band estimate.</p>
+          <div className="ap-panel-head">
+            <div>
+              <p>04 Practice</p>
+              <h2>Log one result.</h2>
+              <span>Counts, format, and the next review focus.</span>
+            </div>
           </div>
-          <label className="space-y-1 text-sm">
-            <span className="font-medium">Plan</span>
-            <select value={planId ?? ""} onChange={(e) => setPlanId(e.target.value || null)} className="w-full rounded-md border border-border bg-background px-3 py-2">
+          <label className="ap-field">
+            <span>Plan</span>
+            <select value={planId ?? ""} onChange={(e) => setPlanId(e.target.value || null)}>
               <option value="">Use selected subject</option>
-              {plans.map((plan) => <option key={plan.id} value={plan.id}>{apSubjectById(plan.subject).label} - {plan.exam_date}</option>)}
+              {plans.map((plan) => (
+                <option key={plan.id} value={plan.id}>{apSubjectById(plan.subject).label} - {plan.exam_date}</option>
+              ))}
             </select>
           </label>
-          <select value={practiceType} onChange={(e) => setPracticeType(e.target.value as "mcq" | "frq" | "mixed")} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
-            <option value="mcq">MCQ</option>
-            <option value="frq">FRQ</option>
-            <option value="mixed">Mixed</option>
-          </select>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <input type="number" min={0} value={correctCount} onChange={(e) => setCorrectCount(e.target.value)} className="rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="Best-fit count" />
-            <input type="number" min={1} value={totalCount} onChange={(e) => setTotalCount(e.target.value)} className="rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="Total questions" />
+          <label className="ap-field">
+            <span>Practice type</span>
+            <select value={practiceType} onChange={(e) => setPracticeType(e.target.value as "mcq" | "frq" | "mixed")}>
+              <option value="mcq">MCQ</option>
+              <option value="frq">FRQ</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </label>
+          <div className="ap-field-grid">
+            <label className="ap-field">
+              <span>Best-fit count</span>
+              <input type="number" min={0} value={correctCount} onChange={(e) => setCorrectCount(e.target.value)} />
+            </label>
+            <label className="ap-field">
+              <span>Total questions</span>
+              <input type="number" min={1} value={totalCount} onChange={(e) => setTotalCount(e.target.value)} />
+            </label>
           </div>
-          {localScore && <p className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted">{localScore}</p>}
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="What should the next review focus on?" />
-          <button disabled={pending} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Save practice</button>
+          {localScore && <p className="ap-score-note">{localScore}</p>}
+          <label className="ap-field">
+            <span>Next review focus</span>
+            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+          </label>
+          <button disabled={pending} className="nexus-button nexus-button-primary">Save practice</button>
         </form>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="ap-history-grid">
         <RecentPlans plans={plans} onSelect={setPlanId} />
         <RecentAttempts attempts={attempts} />
       </section>
@@ -204,19 +260,19 @@ export function ApClient({
 
 function RecentPlans({ plans, onSelect }: { plans: PlanRow[]; onSelect: (id: string) => void }) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Saved plans</h2>
+    <section className="ap-history-panel">
+      <h2>Saved plans</h2>
       {plans.length === 0 ? (
-        <p className="rounded-md border border-border bg-card p-3 text-sm text-muted">No AP plans saved yet.</p>
+        <p className="ap-empty-row">No AP plans saved yet.</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="ap-history-list">
           {plans.map((plan) => (
-            <li key={plan.id} className="rounded-md border border-border bg-card p-3 text-sm">
-              <button type="button" onClick={() => onSelect(plan.id)} className="text-left font-medium text-accent">
+            <li key={plan.id}>
+              <button type="button" onClick={() => onSelect(plan.id)}>
                 {apSubjectById(plan.subject).label}
               </button>
-              <p className="text-muted">{plan.exam_date}{plan.goal_band ? ` - goal ${plan.goal_band}` : ""}</p>
-              {plan.current_focus && <p className="mt-1 text-muted">{plan.current_focus}</p>}
+              <p>{plan.exam_date}{plan.goal_band ? ` - goal ${plan.goal_band}` : ""}</p>
+              {plan.current_focus && <small>{plan.current_focus}</small>}
             </li>
           ))}
         </ul>
@@ -227,22 +283,22 @@ function RecentPlans({ plans, onSelect }: { plans: PlanRow[]; onSelect: (id: str
 
 function RecentAttempts({ attempts }: { attempts: AttemptRow[] }) {
   return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Recent practice</h2>
+    <section className="ap-history-panel">
+      <h2>Recent practice</h2>
       {attempts.length === 0 ? (
-        <p className="rounded-md border border-border bg-card p-3 text-sm text-muted">No practice saved yet.</p>
+        <p className="ap-empty-row">No practice saved yet.</p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="ap-history-list">
           {attempts.map((attempt) => (
-            <li key={attempt.id} className="rounded-md border border-border bg-card p-3 text-sm">
-              <p className="font-medium">{apSubjectById(attempt.subject).label} - {attempt.practice_type.toUpperCase()}</p>
-              <p className="text-muted">
+            <li key={attempt.id}>
+              <strong>{apSubjectById(attempt.subject).label} - {attempt.practice_type.toUpperCase()}</strong>
+              <p>
                 {attempt.correct_count != null && attempt.total_count != null
                   ? `${attempt.correct_count}/${attempt.total_count}`
                   : "Practice noted"}
                 {attempt.score_band ? ` - ${attempt.score_band} range` : ""}
               </p>
-              {attempt.notes && <p className="mt-1 text-muted">{attempt.notes}</p>}
+              {attempt.notes && <small>{attempt.notes}</small>}
             </li>
           ))}
         </ul>

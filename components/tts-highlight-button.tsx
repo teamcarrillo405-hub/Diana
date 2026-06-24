@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PauseCircle, PlayCircle, Square, Volume2 } from "lucide-react";
 import { useTtsHighlight } from "@/lib/tts/use-tts-highlight";
 import type { TtsProvider } from "@/lib/supabase/types";
@@ -21,6 +21,11 @@ export function TtsHighlightButton({
   const browserTts = useTtsHighlight(text, { initialRate: speed, pitch });
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [remoteState, setRemoteState] = useState<"idle" | "playing" | "paused">("idle");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (provider !== "browser") {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -102,6 +107,7 @@ export function TtsHighlightButton({
   }
 
   const { state, highlightedWordIdx, words, rate, setRate, speak, stop, pause, resume, supported } = browserTts;
+  if (!mounted) return null;
   if (!supported) return null;
 
   return (

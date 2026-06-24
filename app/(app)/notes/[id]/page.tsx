@@ -5,6 +5,12 @@ import { loadProfile } from "@/lib/profile";
 import { findRelatedNotes, type RelatedNoteCandidate } from "@/lib/notes/related";
 import { NoteDetail } from "./note-detail";
 import type { OutlineNode } from "@/lib/notes/types";
+import {
+  NexusArcadeScene,
+  NexusKicker,
+  NexusPageShell,
+  NexusPanel,
+} from "@/components/nexus/nexus-ui";
 
 export default async function NoteDetailPage({
   params,
@@ -30,7 +36,7 @@ export default async function NoteDetailPage({
   ]);
   if (!n) notFound();
 
-  const outline = (n.outline_json as OutlineNode[] | null) ?? null;
+  const outline = Array.isArray(n.outline_json) ? (n.outline_json as unknown as OutlineNode[]) : null;
   const currentForRelated: RelatedNoteCandidate = {
     id: n.id,
     title: n.title,
@@ -53,16 +59,18 @@ export default async function NoteDetailPage({
   };
 
   return (
-    <div className="space-y-6">
-      <header className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm sm:p-5">
-        <Link href="/notes" className="text-xs font-medium text-muted hover:underline">
-          &larr; Notes
-        </Link>
-        <p className="mt-3 text-xs font-medium uppercase tracking-wider text-violet-700 dark:text-violet-300">
-          Note detail
-        </p>
-        <h1 className="mt-1 text-3xl font-bold leading-tight">{n.title}</h1>
-      </header>
+    <NexusPageShell className="notes-detail-page space-y-8">
+      <NexusPanel className="notes-detail-hero" tone="purple">
+        <div className="notes-detail-hero-copy">
+          <Link href="/notes" className="class-back-link">
+            &larr; Notes
+          </Link>
+          <NexusKicker tone="purple">Note detail</NexusKicker>
+          <h1>{n.title}</h1>
+          <p>Turn this capture into class proof, recall, cards, or a study guide without losing the original note.</p>
+        </div>
+        <NexusArcadeScene />
+      </NexusPanel>
 
       <NoteDetail
         id={n.id}
@@ -85,7 +93,7 @@ export default async function NoteDetailPage({
         classAiMode={classAiMode}
         classes={classes ?? []}
       />
-    </div>
+    </NexusPageShell>
   );
 }
 

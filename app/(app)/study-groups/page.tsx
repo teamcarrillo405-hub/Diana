@@ -89,11 +89,13 @@ export default async function StudyGroupsPage({
   }
 
   return (
-    <StudyGroupsClient
-      groups={groupRows}
-      selectedGroupId={selectedGroup?.id ?? null}
-      workspace={workspace}
-    />
+    <div className="diana-page">
+      <StudyGroupsClient
+        groups={groupRows}
+        selectedGroupId={selectedGroup?.id ?? null}
+        workspace={workspace}
+      />
+    </div>
   );
 }
 

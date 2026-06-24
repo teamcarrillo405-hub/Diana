@@ -1,35 +1,40 @@
 import Link from "next/link";
-import { ThemePicker } from "@/components/theme-picker";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ArrowRight } from "lucide-react";
 import { AccentPicker } from "@/components/accent-picker";
+import { NexusArcadeScene } from "@/components/nexus/nexus-ui";
+import { ThemePicker } from "@/components/theme-picker";
 
 export default function OnboardingDonePage() {
   return (
-    // ThemeProvider must wrap ThemePicker here — onboarding renders outside
-    // the (app) layout, and without the provider the picker is a no-op.
-    <ThemeProvider>
-      <main className="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-6 px-6 text-center">
-        <div className="space-y-3">
-          <p aria-hidden="true" className="text-5xl text-brand">✦</p>
-          <h1 className="text-3xl font-bold">Diana is ready for you.</h1>
-          <p className="text-muted">
-            Make it yours — pick how Diana looks. You can adjust anything in Settings later.
-          </p>
-        </div>
-        <div className="w-full space-y-4 rounded-2xl border border-border bg-card p-4 text-left">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-sm font-medium">Theme</span>
-            <ThemePicker />
+    <main id="main-content" className="signal-page">
+      <section className="signal-stage signal-stage-dark">
+        <div className="signal-shell grid min-h-dvh items-center gap-8 py-10 lg:grid-cols-[1fr_0.85fr]">
+          <div className="space-y-6">
+            <p className="signal-eyebrow">Diana is set</p>
+            <h1 className="max-w-[12ch] text-[clamp(2.8rem,6vw,5.8rem)] font-black leading-[0.96] tracking-normal text-white">
+              Your deck is ready.
+            </h1>
+            <p className="max-w-xl text-lg leading-8 text-slate-300">
+              Save the feel now. Diana will open to one next move, with sources and authorship proof attached.
+            </p>
+            <div className="nexus-panel grid max-w-2xl gap-4 p-4 text-left">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <span className="text-sm font-black text-white">Theme</span>
+                <ThemePicker />
+              </div>
+              <AccentPicker />
+            </div>
+            <Link href="/dashboard" className="signal-pill-primary">
+              Open Today
+              <ArrowRight size={17} />
+            </Link>
           </div>
-          <AccentPicker />
+
+          <div className="nexus-auth-preview">
+            <NexusArcadeScene className="min-h-[28rem]" />
+          </div>
         </div>
-        <Link
-          href="/dashboard"
-          className="touch-target rounded-2xl bg-brand px-6 py-3 font-medium text-white hover:bg-brand-strong"
-        >
-          Let&apos;s go
-        </Link>
-      </main>
-    </ThemeProvider>
+      </section>
+    </main>
   );
 }

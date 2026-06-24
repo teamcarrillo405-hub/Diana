@@ -17,7 +17,7 @@ export default async function WinsPage() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-2xl py-8">
+      <div className="diana-page max-w-2xl py-8">
         <p className="text-sm text-muted">Sign in to see your wins.</p>
       </div>
     );
@@ -62,20 +62,21 @@ export default async function WinsPage() {
   const milestone = quietMilestone(week);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 py-6">
+    <div className="diana-page max-w-2xl space-y-6 py-6">
       <header className="space-y-2">
+        <p className="nexus-kicker">Proof signals</p>
         <h1 className="text-display">Wins</h1>
         <p className="text-sm text-muted">Things you finished. Private, neutral progress.</p>
       </header>
 
       <section className="flex gap-4">
-        <div className="flex-1 rounded-xl border border-border bg-card p-4">
+        <div className="nexus-metric flex-1 rounded-xl border border-border bg-card p-4">
           <p className="text-xs uppercase tracking-wider text-muted">Today</p>
           <p className="mt-1 text-2xl font-bold text-ok">
             {today === 1 ? "1 thing done." : `${today} things done.`}
           </p>
         </div>
-        <div className="flex-1 rounded-xl border border-border bg-card p-4">
+        <div className="nexus-metric flex-1 rounded-xl border border-border bg-card p-4">
           <p className="text-xs uppercase tracking-wider text-muted">This week</p>
           <p className="mt-1 text-2xl font-bold text-ok">
             {week === 1 ? "1 thing done." : `${week} things done.`}
@@ -84,14 +85,14 @@ export default async function WinsPage() {
       </section>
 
       {milestone && (
-        <section className="rounded-xl border border-border bg-card p-4">
+        <section className="nexus-panel rounded-xl border border-border bg-card p-4">
           <p className="text-xs uppercase tracking-wider text-muted">Quiet milestone</p>
           <p className="mt-1 text-sm font-medium">{milestone}</p>
         </section>
       )}
 
       {groups.length === 0 ? (
-        <section className="rounded-xl border border-dashed border-border bg-card p-8 text-center">
+        <section className="nexus-panel rounded-xl border border-dashed border-border bg-card p-8 text-center">
           <p className="text-sm font-medium">Nothing here yet.</p>
           <p className="mt-1 text-sm text-muted">
             When you submit something, it lands here.

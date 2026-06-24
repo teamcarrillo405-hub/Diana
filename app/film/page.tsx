@@ -1,9 +1,9 @@
 export default function FilmPage() {
   return (
-    <main className="min-h-dvh bg-[#030712] text-white">
+    <main id="main-content" className="app-field min-h-dvh text-white">
       <section className="flex min-h-dvh items-center px-4 py-16 sm:px-8">
-        <div className="mx-auto max-w-4xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-teal-200">Motion direction reset</p>
+        <div className="nexus-panel mx-auto max-w-4xl p-6 sm:p-10">
+          <p className="nexus-kicker text-sm font-semibold uppercase tracking-[0.22em] text-teal-200">Motion direction reset</p>
           <h1 className="mt-4 text-balance text-4xl font-bold leading-tight tracking-tight sm:text-6xl">
             The previous concept has been removed.
           </h1>

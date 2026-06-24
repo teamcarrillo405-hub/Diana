@@ -1,8 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Lexend, Atkinson_Hyperlegible_Next } from "next/font/google";
-import "@fontsource/opendyslexic"; // weight 400 only — Pitfall 7 guard (no all.css)
+import { Lexend, Space_Grotesk, Space_Mono, VT323 } from "next/font/google";
+import "@fontsource/atkinson-hyperlegible-next/400.css";
+import "@fontsource/atkinson-hyperlegible-next/700.css";
+import "@fontsource/opendyslexic"; // weight 400 only; Pitfall 7 guard (no all.css)
 import "./globals.css";
+import { AccentProvider } from "@/components/accent-provider";
 import { FutureModeProvider } from "@/components/future-mode-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 // GAP-01: Lexend is referenced in .dyslexia-font CSS but must be explicitly
 // loaded by next/font/google to actually download. The CSS variable is
@@ -14,18 +18,30 @@ const lexend = Lexend({
   variable: "--font-lexend",
 });
 
-// F19: Atkinson Hyperlegible Next (2025 update — 7 weights, 150+ languages)
-// Pitfall 6: variable MUST be on <html> className or --font-atkinson is undefined
-const atkinson = Atkinson_Hyperlegible_Next({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-atkinson",
+  variable: "--font-nexus-display",
+  weight: ["400", "500", "600", "700"],
+});
+
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-nexus-mono",
   weight: ["400", "700"],
+});
+
+const vt323 = VT323({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-nexus-arcade",
+  weight: "400",
 });
 
 export const metadata: Metadata = {
   title: "Diana",
-  description: "Quiet, structured help with school for ADHD students.",
+  description: "Student-owned school support for next moves, original thinking, and future planning.",
   applicationName: "Diana",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -38,10 +54,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+    { media: "(prefers-color-scheme: light)", color: "#02030A" },
+    { media: "(prefers-color-scheme: dark)", color: "#02030A" },
   ],
 };
 
@@ -51,7 +66,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${lexend.variable} ${atkinson.variable}`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${lexend.variable} ${spaceGrotesk.variable} ${spaceMono.variable} ${vt323.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -59,9 +78,15 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body>
-        <FutureModeProvider />
-        {children}
+      <body className="nexus-app">
+        <a href="#main-content" className="skip-link">
+          Skip to main
+        </a>
+        <ThemeProvider>
+          <FutureModeProvider />
+          <AccentProvider />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

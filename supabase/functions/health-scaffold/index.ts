@@ -8,6 +8,7 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = ["health_question", "movement_goal", "cpr_first_aid", "sleep_recovery"] as const;
 type HealthMode = (typeof MODES)[number];
@@ -79,39 +80,18 @@ Deno.serve(async (req: Request) => {
       personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 800,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: [
-            `Mode: ${mode}`,
-            classContext ? `Class context:\n${classContext.slice(0, 2500)}` : "",
-            `Student context:\n${prompt.slice(0, 5000)}`,
-          ].filter(Boolean).join("\n\n"),
-        }],
-      }),
+    const ai = await callStudentTextModel({
+      system,
+      user: [
+        `Mode: ${mode}`,
+        classContext ? `Class context:\n${classContext.slice(0, 2500)}` : "",
+        `Student context:\n${prompt.slice(0, 5000)}`,
+      ].filter(Boolean).join("\n\n"),
+      maxTokens: 550,
+      json: true,
     });
-
-    if (!res.ok) {
-      console.error("health-scaffold anthropic error:", await res.text());
-      return json({ error: "AI request failed" }, 502);
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const raw = data.content?.[0]?.text ?? "{}";
-    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const raw = ai.content;
+    const tokens = ai.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -119,7 +99,7 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId,
           feature: "health_scaffold",
-          model: "claude-haiku-4-5",
+          model: ai.model,
           promptSummary: `${mode}: ${prompt}`.slice(0, 200),
           tokensUsed: tokens,
         }, supabase);

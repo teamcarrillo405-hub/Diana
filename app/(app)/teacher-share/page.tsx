@@ -7,7 +7,9 @@ import { TeacherPortalClient } from "./teacher-portal-client";
 export default async function TeacherPortalPage() {
   const supabase = await createClient();
   const profile = await loadProfile();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const ownerId = user?.id ?? "";
   const [{ data: classes }, { data: assignments }, { data: roster }, { data: notes }] = await Promise.all([
@@ -46,9 +48,6 @@ export default async function TeacherPortalPage() {
   }>;
   const analytics = classCompletionAnalytics(classRows.map((row) => row.id), assignmentRows);
 
-  // AI authorship receipts: per-assignment how-AI-was-used summaries from the
-  // existing interaction log. The student opens this page — sharing stays a
-  // student decision; Diana just makes the receipt legible for a teacher.
   const { data: aiRows } = await supabase
     .from("ai_interactions")
     .select("assignment_id, feature")
@@ -69,12 +68,12 @@ export default async function TeacherPortalPage() {
       id: row.id,
       title: row.title,
       uses: [...(receiptMap.get(row.id) ?? new Map<string, number>()).entries()]
-        .map(([feature, count]) => `${featureLabel(feature)} ×${count}`)
+        .map(([feature, count]) => `${featureLabel(feature)} x${count}`)
         .join(", "),
     }));
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wider text-muted">Teacher portal</p>
         <h1 className="text-display">Assignments, roster, and accommodations</h1>
@@ -97,27 +96,47 @@ export default async function TeacherPortalPage() {
         }}
       />
 
-      <section className="space-y-3 rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">AI authorship receipts</h2>
-        <p className="text-sm text-muted">
-          How AI help was used per assignment — Socratic hints and scaffolds, never written work. The
-          work itself stayed the student&apos;s. Full detail lives in the AI history the student can export.
-        </p>
-        {receipts.length === 0 ? (
-          <p className="text-sm text-muted">No AI help has been used on tracked assignments yet.</p>
-        ) : (
-          <ul className="divide-y divide-border">
-            {receipts.map((receipt) => (
-              <li key={receipt.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
-                <span className="min-w-0 text-sm font-medium">{receipt.title}</span>
-                <span className="text-xs text-muted">{receipt.uses}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <details className="nexus-settings-disclosure">
+        <summary>
+          <span>
+            <small>Receipts</small>
+            <strong>AI authorship detail</strong>
+          </span>
+        </summary>
+        <div className="nexus-settings-disclosure-body">
+          <section className="nexus-panel nexus-panel-dense space-y-3">
+            <h2 className="text-sm font-semibold">AI authorship receipts</h2>
+            <p className="text-sm text-muted">
+              How AI help was used per assignment: Socratic hints and scaffolds, never written work. The
+              work itself stayed the student&apos;s. Full detail lives in the AI history the student can export.
+            </p>
+            {receipts.length === 0 ? (
+              <p className="text-sm text-muted">No AI help has been used on tracked assignments yet.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {receipts.map((receipt) => (
+                  <li key={receipt.id} className="flex flex-wrap items-baseline justify-between gap-2 py-2">
+                    <span className="min-w-0 text-sm font-medium">{receipt.title}</span>
+                    <span className="text-xs text-muted">{receipt.uses}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </div>
+      </details>
 
-      <IepImport />
+      <details className="nexus-settings-disclosure">
+        <summary>
+          <span>
+            <small>Documents</small>
+            <strong>IEP / 504 import</strong>
+          </span>
+        </summary>
+        <div className="nexus-settings-disclosure-body">
+          <IepImport />
+        </div>
+      </details>
     </div>
   );
 }

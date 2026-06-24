@@ -159,15 +159,15 @@ export function NoteDetail({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="notes-detail-workspace">
       {/* Class picker — always visible if student has classes */}
       {classes.length > 0 && (
-        <label className="block">
-          <span className="block text-xs font-medium uppercase tracking-wider text-muted mb-1">Class</span>
+        <label className="notes-detail-class-picker">
+          <span>Class</span>
           <select
             value={classId ?? ""}
             onChange={(e) => handleClassChange(e.target.value || null)}
-            className="touch-target w-full rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand/50"
+            className="notes-editor-input"
           >
             <option value="">No class</option>
             {classes.map((c) => (
@@ -177,18 +177,18 @@ export function NoteDetail({
         </label>
       )}
 
-      <section className="rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
-        <p className="text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+      <section className="notes-remember-panel">
+        <p>
           Remember bar
         </p>
-        <h2 className="mt-1 text-base font-semibold">Turn notes into practice</h2>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          <div className="flex min-w-0 items-start gap-2 rounded-xl border border-border bg-background p-3">
-            <Brain size={15} className="mt-0.5 shrink-0 text-indigo-700 dark:text-indigo-300" />
+        <h2>Turn notes into practice</h2>
+        <div>
+          <div>
+            <Brain size={15} />
             <p className="text-sm text-muted">Use a selected line for recall, not rereading.</p>
           </div>
-          <div className="flex min-w-0 items-start gap-2 rounded-xl border border-border bg-background p-3">
-            <BookOpen size={15} className="mt-0.5 shrink-0 text-indigo-700 dark:text-indigo-300" />
+          <div>
+            <BookOpen size={15} />
             <p className="text-sm text-muted">Highlight one term or fact, then save it as a card.</p>
           </div>
         </div>
@@ -201,28 +201,28 @@ export function NoteDetail({
         studyMode="retrieval_quiz"
       />
 
-      <section className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4">
-        <div className="flex items-center justify-between gap-2">
-          <h2 className="inline-flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
+      <section className="notes-tags-panel">
+        <div className="notes-tags-head">
+          <h2>
             <Tags size={13} />
             Tags
           </h2>
           <button
             type="button"
             onClick={requestSuggestedTags}
-            className="touch-target inline-flex items-center gap-1.5 rounded-xl border border-border px-3 py-1 text-xs text-muted hover:bg-surface-soft"
+            className="notes-support-button"
           >
             <Sparkles size={13} />
             Suggest
           </button>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="notes-tag-list">
           {tagsState.map((tag) => (
             <button
               key={tag}
               type="button"
               onClick={() => removeTag(tag)}
-              className="inline-flex items-center gap-1 rounded-full bg-subject-writing/10 px-2 py-0.5 text-xs text-violet-700 dark:text-violet-300"
+              className="notes-tag-chip"
               aria-label={`Remove ${tag}`}
             >
               {tag}
@@ -232,13 +232,13 @@ export function NoteDetail({
           {tagsState.length === 0 && <span className="text-xs text-muted">No tags yet.</span>}
         </div>
         {suggestedTags.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="notes-tag-list">
             {suggestedTags.map((tag) => (
               <button
                 key={tag}
                 type="button"
                 onClick={() => addTag(tag)}
-                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 text-xs text-muted hover:bg-surface-soft"
+                className="notes-tag-chip notes-tag-chip-suggested"
               >
                 <Plus size={11} />
                 {tag}
@@ -246,7 +246,7 @@ export function NoteDetail({
             ))}
           </div>
         )}
-        <div className="flex gap-2">
+        <div className="notes-tag-add">
           <input
             value={tagInput}
             onChange={(event) => setTagInput(event.target.value)}
@@ -256,13 +256,13 @@ export function NoteDetail({
                 addTag(tagInput);
               }
             }}
-            className="touch-target min-w-0 flex-1 rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            className="notes-editor-input"
             placeholder="Add tag"
           />
           <button
             type="button"
             onClick={() => addTag(tagInput)}
-            className="touch-target rounded-xl border border-border px-3 py-2 text-sm hover:bg-surface-soft"
+            className="notes-support-button"
           >
             Add
           </button>
@@ -271,13 +271,13 @@ export function NoteDetail({
       </section>
 
       {/* Body — what the student wrote/dictated */}
-      <section className="space-y-2">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
+      <section className="notes-reading-section">
+        <h2>
           Your notes
         </h2>
         <VocabHoverProvider ownerId={ownerId} aiMode={classAiMode} sourceType="note" sourceId={id}>
           <div
-            className="reading-view whitespace-pre-wrap rounded-2xl border border-subject-reading/25 p-4"
+            className="reading-view notes-reading-surface whitespace-pre-wrap"
             onMouseUp={captureSelection}
             onKeyUp={captureSelection}
           >
@@ -310,7 +310,7 @@ export function NoteDetail({
 
       {/* Transcript — AI-cleaned version, if generated */}
       {source === "lecture" && actionItems.length > 0 && (
-        <section className="space-y-2">
+        <section className="notes-transcript-action">
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Action items sent to inbox
           </h2>
@@ -361,7 +361,7 @@ export function NoteDetail({
             type="button"
             onClick={handleTranscribe}
             disabled={transcribing || !bodyText.trim()}
-            className="touch-target inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-raised px-3 py-2 text-sm hover:bg-surface-soft disabled:opacity-50"
+            className="notes-support-button"
           >
             <Sparkles size={14} />
             {transcribing ? "Thinking..." : "Generate transcript + outline"}
@@ -371,8 +371,8 @@ export function NoteDetail({
 
       {/* Outline — AI structure, if generated */}
       {outline && outline.length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
+        <section className="notes-related-panel">
+          <h2>
             Outline
           </h2>
           <div className="space-y-3 rounded-2xl border border-border bg-surface-raised p-4">
@@ -400,7 +400,7 @@ export function NoteDetail({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Related notes
           </h2>
-          <ul className="space-y-2 rounded-2xl border border-border bg-surface-raised p-4">
+          <ul>
             {relatedNotes.map((note) => (
               <li key={note.id}>
                 <Link href={`/notes/${note.id}`} className="text-sm font-medium text-accent underline-offset-2 hover:underline">
@@ -414,7 +414,7 @@ export function NoteDetail({
       )}
 
       {/* Delete — single confirmation, calm copy */}
-      <section className="border-t border-border pt-4">
+      <section className="notes-delete-panel">
         {!askingDelete ? (
           <button
             type="button"

@@ -101,7 +101,7 @@ export default async function InsightsPage() {
   const activeExperiments = (experiments.data ?? []).filter((experiment) => experiment.enabled).length;
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted">Platform intelligence</p>
         <h1 className="text-display">Insights</h1>
@@ -268,7 +268,7 @@ function Panel({
 
 function BarRow({ label, value, percent }: { label: string; value: string; percent: number }) {
   return (
-    <div className="space-y-1">
+    <div className="diana-page space-y-1">
       <div className="flex items-center justify-between gap-3 text-sm">
         <span className="truncate font-medium">{label}</span>
         <span className="shrink-0 text-xs text-muted">{value}</span>

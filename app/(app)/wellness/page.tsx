@@ -32,11 +32,13 @@ export default async function WellnessPage() {
   ]);
 
   return (
-    <WellnessClient
-      today={today}
-      activityLogs={activityLogs ?? []}
-      goals={goals ?? []}
-      sleepLogs={sleepLogs ?? []}
-    />
+    <div className="diana-page">
+      <WellnessClient
+        today={today}
+        activityLogs={activityLogs ?? []}
+        goals={goals ?? []}
+        sleepLogs={sleepLogs ?? []}
+      />
+    </div>
   );
 }

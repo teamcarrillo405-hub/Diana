@@ -21,29 +21,39 @@ export function BreakDownClient() {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm sm:p-5">
-        <div className="flex items-center gap-2">
-          <span className="flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-            <ClipboardList size={18} />
-          </span>
-          <div>
-            <h2 className="text-base font-semibold">Paste the assignment</h2>
-            <p className="text-sm text-muted">Diana turns it into visible five-minute moves.</p>
+      <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+        <div className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm sm:p-5">
+          <div className="flex items-center gap-2">
+            <span className="flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+              <ClipboardList size={18} />
+            </span>
+            <div>
+              <h2 className="text-base font-semibold">Paste the assignment</h2>
+              <p className="text-sm text-muted">Diana turns it into visible five-minute moves.</p>
+            </div>
+          </div>
+          <textarea
+            value={raw}
+            onChange={(event) => setRaw(event.target.value)}
+            rows={5}
+            className="mt-4 w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
+            placeholder="Paste the prompt, rubric, or what you remember."
+          />
+        </div>
+
+        <div className="nexus-panel nexus-panel-dense flex min-h-full flex-col justify-between gap-6">
+          <div className="space-y-3">
+            <p className="nexus-kicker">Next move</p>
+            <h2 className="max-w-2xl text-3xl font-semibold leading-tight">
+              {nextStep?.action ?? "Add a prompt to start."}
+            </h2>
+            <p className="text-sm text-muted">One academic action first. More choices stay below.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs text-muted">
+            <span className="nexus-chip rounded-full border px-3 py-1">{doneCount} of {steps.length} marked</span>
+            <span className="nexus-chip rounded-full border px-3 py-1">{nextStep?.minutes ?? 2} min</span>
           </div>
         </div>
-        <textarea
-          value={raw}
-          onChange={(event) => setRaw(event.target.value)}
-          rows={5}
-          className="mt-4 w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
-          placeholder="Paste the prompt, rubric, or what you remember."
-        />
-      </section>
-
-      <section className="rounded-3xl border border-brand/20 bg-brand/10 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Next move</p>
-        <p className="mt-2 text-lg font-semibold">{nextStep?.action ?? "Add a prompt to start."}</p>
-        <p className="mt-1 text-sm text-muted">One academic action first. More choices stay below.</p>
       </section>
 
       <section className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
@@ -53,9 +63,9 @@ export function BreakDownClient() {
             {doneCount} of {steps.length} marked
           </span>
         </div>
-        <ol className="mt-4 space-y-2">
+        <ol className="mt-4 grid gap-2 md:grid-cols-2">
           {steps.map((step, index) => (
-            <li key={step.id} className="flex gap-3 rounded-2xl border border-border bg-surface p-3">
+            <li key={step.id} className="flex min-h-24 gap-3 rounded-2xl border border-border bg-surface p-3">
               <button
                 type="button"
                 aria-label={`Mark step ${index + 1}`}

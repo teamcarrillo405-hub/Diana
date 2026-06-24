@@ -12,7 +12,9 @@ export type Assignment = Pick<
   | "kind"
   | "reading_load"
   | "writing_load"
->;
+> & {
+  classes?: { name?: string | null } | Array<{ name?: string | null }> | null;
+};
 
 export type EnergyLevel = "low" | "medium" | "high";
 
@@ -44,6 +46,13 @@ export type RecentSignal = {
  * assignments — urgency wins (Pitfall 6).
  */
 const INTERLEAVE_PENALTY = 15;
+const CORE_ACADEMIC_BONUS = 24;
+const WELLNESS_SUPPORT_LANE_PENALTY = 18;
+
+const CORE_CLASS_PATTERN =
+  /\b(english|ela|literature|writing|algebra|geometry|math|biology|chemistry|physics|science|history|world|government|civics|economics|spanish|french|latin|language)\b/i;
+const WELLNESS_CLASS_PATTERN =
+  /\b(health|wellness|physical education|\bpe\b|\bp\.e\.\b|fitness)\b/i;
 
 /**
  * Rule-based "what should I do in the next 5 minutes?" scorer.
@@ -52,6 +61,8 @@ const INTERLEAVE_PENALTY = 15;
  *   - closer deadline → higher score
  *   - already-started → momentum bump
  *   - high energy promotes harder/longer tasks; low energy promotes quick wins
+ *   - core academic work gets priority over wellness/support tasks unless the
+ *     support task is urgent or high-consequence
  *   - if dyslexia is in the profile, reading-heavy tasks are de-promoted at
  *     low energy and inflated in time estimate
  *   - if extra_time_pct > 0, the displayed effective minutes reflect it
@@ -102,9 +113,13 @@ function score(
   const hasDyslexia = profile.diagnoses.includes("dyslexia");
   const readingHeavy = (a.reading_load ?? 0) >= 3;
   const writingHeavy = (a.writing_load ?? 0) >= 3;
+  const className = assignmentClassName(a);
+  const coreAcademic = isCoreAcademicClassName(className);
+  const wellnessSupport = isWellnessSupportClassName(className);
+  let hoursUntilDue: number | null = null;
 
   if (a.due_at) {
-    const hoursUntilDue = (new Date(a.due_at).getTime() - now.getTime()) / 36e5;
+    hoursUntilDue = (new Date(a.due_at).getTime() - now.getTime()) / 36e5;
     if (hoursUntilDue < 0) {
       s += 80;
       reasons.push("due now");
@@ -118,6 +133,19 @@ function score(
       s += 10;
       reasons.push(`due in ${Math.ceil(hoursUntilDue / 24)} days`);
     }
+  }
+
+  const highConsequence =
+    hoursUntilDue != null && hoursUntilDue < 24 ||
+    a.kind === "test_prep" ||
+    (a.difficulty ?? 3) >= 4;
+
+  if (coreAcademic) {
+    s += CORE_ACADEMIC_BONUS;
+    reasons.push("core class priority");
+  } else if (wellnessSupport && !highConsequence) {
+    s = Math.max(0, s - WELLNESS_SUPPORT_LANE_PENALTY);
+    reasons.push("body support lane");
   }
 
   const lastSignal = signals.find((sig) => sig.assignment_id === a.id);
@@ -166,6 +194,27 @@ function score(
   const effective_minutes = adjustForUser(a, profile);
 
   return { ...a, score: s, reasons, effective_minutes };
+}
+
+export function assignmentClassName(a: Pick<Assignment, "classes">): string {
+  const joined = Array.isArray(a.classes) ? a.classes[0] : a.classes;
+  return joined?.name?.trim() ?? "";
+}
+
+export function isCoreAcademicAssignment(a: Pick<Assignment, "classes">): boolean {
+  return isCoreAcademicClassName(assignmentClassName(a));
+}
+
+export function isWellnessSupportAssignment(a: Pick<Assignment, "classes">): boolean {
+  return isWellnessSupportClassName(assignmentClassName(a));
+}
+
+function isCoreAcademicClassName(className: string) {
+  return CORE_CLASS_PATTERN.test(className);
+}
+
+function isWellnessSupportClassName(className: string) {
+  return WELLNESS_CLASS_PATTERN.test(className);
 }
 
 /**

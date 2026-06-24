@@ -20,12 +20,14 @@
     "teen-ux-score": "npx tsx scripts/teen-ux-score.ts",
     "qa:auth-preflight": "npx tsx scripts/qa-auth-preflight.ts",
     "qa:visual-gate": "node scripts/qa-visual-gate.mjs",
+    "qa:screenshot-worthy": "node scripts/screenshot-worthy-qa.mjs",
     "qa:responsive": "playwright test tests/responsive-qa.spec.ts --reporter=line --workers=1",
     "test:e2e": "playwright test tests/e2e-flows.spec.ts --reporter=line --workers=1"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.0",
     "@capacitor/haptics": "^8.0.2",
+    "@fontsource/atkinson-hyperlegible-next": "^5.2.7",
     "@fontsource/opendyslexic": "^5.2.5",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
@@ -37,6 +39,7 @@
     "node-ical": "^0.26.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "three": "^0.184.0",
     "web-push": "^3.6.7",
     "zod": "^3.23.8"
   },
@@ -51,6 +54,7 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.184.1",
     "@types/web-push": "^3.6.4",
     "@vitejs/plugin-react": "^4.7.0",
     "autoprefixer": "^10.4.20",

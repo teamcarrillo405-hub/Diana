@@ -9,9 +9,10 @@ export function TeacherSnapshotView({ snapshot }: { snapshot: TeacherSnapshot })
   });
 
   return (
-    <main className="mx-auto max-w-xl space-y-6 p-6 sm:p-8">
+    <main id="main-content" className="app-field min-h-dvh">
+      <div className="diana-page max-w-xl space-y-6 p-6 sm:p-8">
       <header className="space-y-1">
-        <p className="text-xs uppercase tracking-wider text-muted">Accommodation snapshot</p>
+        <p className="nexus-kicker text-xs uppercase tracking-wider text-muted">Accommodation snapshot</p>
         <h1 className="text-xl font-semibold">How this student is set up to work</h1>
       </header>
 
@@ -63,6 +64,7 @@ export function TeacherSnapshotView({ snapshot }: { snapshot: TeacherSnapshot })
       <footer className="text-xs text-muted">
         This link works until {expiresLabel}.
       </footer>
+      </div>
     </main>
   );
 }

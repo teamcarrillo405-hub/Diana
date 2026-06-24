@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { fetchCanvasAssignments } from "@/lib/lms/canvas";
+import { fetchGitLabAssignments } from "@/lib/lms/gitlab";
 import { fetchIcsAssignments } from "@/lib/lms/ics";
 import { syncLmsAssignments } from "@/lib/lms/sync";
 import type { LmsProvider, NormalizedAssignment, SyncResult } from "@/lib/lms/types";
@@ -110,7 +111,7 @@ export async function POST() {
   const { data: rows, error } = await supabase
     .from("lms_connections")
     .select("id, provider, config")
-    .in("provider", ["canvas", "google_classroom", "ics"]);
+    .in("provider", ["canvas", "google_classroom", "ics", "gitlab"]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   const connections = (rows ?? []) as Connection[];
@@ -130,6 +131,13 @@ export async function POST() {
       } else if (connection.provider === "google_classroom") {
         if (!session?.provider_token) throw new Error("Google Classroom session needs to be refreshed");
         fetched = await fetchClassroomAssignments(session.provider_token, user.id, supabase);
+      } else if (connection.provider === "gitlab") {
+        fetched = await fetchGitLabAssignments(connection.config as {
+          project: string;
+          token: string;
+          base_url?: string;
+          labels?: string;
+        });
       } else {
         continue;
       }

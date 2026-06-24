@@ -3,12 +3,11 @@
 import { useState, useEffect } from "react";
 
 const ACCENTS = [
-  { key: "indigo",  label: "Indigo",  hex: "#6366f1" },
-  { key: "violet",  label: "Violet",  hex: "#8b5cf6" },
-  { key: "emerald", label: "Emerald", hex: "#10b981" },
-  { key: "rose",    label: "Rose",    hex: "#f43f5e" },
-  { key: "amber",   label: "Amber",   hex: "#f59e0b" },
-  { key: "sky",     label: "Sky",     hex: "#0ea5e9" },
+  { key: "sky",     label: "Nexus cyan",   hex: "#35DDF2" },
+  { key: "rose",    label: "Nexus pink",   hex: "#F45BA8" },
+  { key: "amber",   label: "Nexus gold",   hex: "#E8B85D" },
+  { key: "indigo",  label: "Nexus blue",   hex: "#5E8CFF" },
+  { key: "violet",  label: "Nexus purple", hex: "#A477FF" },
 ] as const;
 
 type AccentKey = typeof ACCENTS[number]["key"];
@@ -18,7 +17,10 @@ export function AccentPicker() {
 
   useEffect(() => {
     const stored = localStorage.getItem("diana_accent") as AccentKey | null;
-    if (stored) setCurrent(stored);
+    if (stored && ACCENTS.some((accent) => accent.key === stored)) {
+      setCurrent(stored);
+      document.body.dataset.accent = stored;
+    }
   }, []);
 
   function pick(key: AccentKey) {
@@ -29,7 +31,7 @@ export function AccentPicker() {
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium">Color</p>
+      <p className="nexus-kicker text-sm font-medium">Color</p>
       <div className="flex gap-3 flex-wrap">
         {ACCENTS.map(({ key, label, hex }) => (
           <button

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { Search, Sparkles } from "lucide-react";
 import { SubjectToolShell } from "@/components/subject-tool-shell";
+import { TtsButton } from "@/components/tts-button";
 import { synthesizeNotes, type NoteSynthesisResult } from "./actions";
 
 export function NoteSynthesisPanel() {
@@ -65,7 +66,19 @@ export function NoteSynthesisPanel() {
 
       {result && (
         <div className="space-y-3 rounded-xl border border-border bg-surface-raised p-4">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">{result.summary}</p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed">{result.summary}</p>
+            {result.audioOverviewScript && (
+              <TtsButton
+                text={result.audioOverviewScript}
+                label="Audio overview"
+                provider="elevenlabs"
+                voice="EXAVITQu4vr4xnSDxMaL"
+                speed={0.95}
+                className="shrink-0 rounded-xl px-3 py-2"
+              />
+            )}
+          </div>
           {result.citations.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs font-medium uppercase tracking-wider text-muted">Source notes</p>

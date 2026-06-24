@@ -49,8 +49,8 @@ export default async function SharePage({
 
 function NotActive() {
   return (
-    <main className="mx-auto max-w-md p-8">
-      <div className="rounded-xl border border-border bg-card p-6 text-center">
+    <main id="main-content" className="app-field grid min-h-dvh place-items-center p-8">
+      <div className="nexus-panel max-w-md p-6 text-center">
         <h1 className="text-lg font-semibold">This link is no longer active</h1>
         <p className="mt-2 text-sm text-muted">
           The student who shared this with you may have revoked it, or it may have

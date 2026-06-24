@@ -14,9 +14,10 @@ export function ParentSummaryView({ summary }: { summary: ParentSummary }) {
   });
 
   return (
-    <main className="mx-auto max-w-xl space-y-6 p-6 sm:p-8">
+    <main id="main-content" className="app-field min-h-dvh">
+      <div className="diana-page max-w-xl space-y-6 p-6 sm:p-8">
       <header className="space-y-1">
-        <p className="text-xs uppercase tracking-wider text-muted">Weekly summary</p>
+        <p className="nexus-kicker text-xs uppercase tracking-wider text-muted">Weekly summary</p>
         <h1 className="text-xl font-semibold">This week so far</h1>
         <p className="text-xs text-muted">Since {weekStartLabel}</p>
       </header>
@@ -75,13 +76,14 @@ export function ParentSummaryView({ summary }: { summary: ParentSummary }) {
       <footer className="text-xs text-muted">
         This link works until {expiresLabel}.
       </footer>
+      </div>
     </main>
   );
 }
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="nexus-metric rounded-xl border border-border bg-card p-4">
       <p className="text-3xl font-semibold tabular-nums">{value}</p>
       <p className="mt-1 text-xs text-muted">{label}</p>
     </div>

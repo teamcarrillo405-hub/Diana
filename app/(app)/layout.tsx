@@ -2,11 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile, profileBodyClass } from "@/lib/profile";
 import { BottomNav, SideNav } from "@/components/nav";
-import { Fab } from "@/components/fab";
 import { OverwhelmedButton } from "@/components/overwhelmed-button";
 import { QuickCapture } from "@/components/quick-capture";
-import { AccentProvider } from "@/components/accent-provider";
-import { ThemeProvider } from "@/components/theme-provider";
 import { PlatformAnalyticsTracker } from "@/components/platform-analytics-tracker";
 import { PwaRuntime } from "@/components/pwa-runtime";
 import { SessionHandoffTracker } from "@/components/session-handoff-tracker";
@@ -20,28 +17,29 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (profile && !profile.onboarded_at) redirect("/onboarding");
 
   return (
-    <ThemeProvider>
-      <div className={`flex min-h-dvh ${profileBodyClass(profile)}`}>
-        <SideNav />
-        <div className="flex min-w-0 flex-1 flex-col">
-          {/* Mobile bottom padding clears the bottom nav plus the floating
-              quick-capture / overwhelmed pills so they never cover the last
-              content rows. */}
-          <main className="app-field flex-1 pb-44 md:pb-6">
-            <div className="mx-auto w-full max-w-2xl min-w-0 px-4 py-6 md:max-w-5xl md:px-8">
-              {children}
+    <div className={`nexus-app-shell flex min-h-dvh ${profileBodyClass(profile)}`}>
+      <SideNav />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <main id="main-content" className="app-field nexus-authenticated-field flex-1 pb-24 md:pb-6">
+          <div className="app-command-frame min-w-0">
+            {children}
+            <div className="nexus-mobile-command mt-8 border border-border bg-surface-raised/92 p-3 backdrop-blur md:hidden">
+              <div className="grid grid-cols-2 gap-2">
+                <QuickCapture placement="inline" />
+                <OverwhelmedButton placement="inline" />
+              </div>
             </div>
-          </main>
-          <BottomNav />
-          <Fab />
+          </div>
+        </main>
+        <BottomNav />
+        <div className="hidden md:block">
           <QuickCapture />
           <OverwhelmedButton />
-          <AccentProvider />
-          <PlatformAnalyticsTracker />
-          <SessionHandoffTracker />
-          <PwaRuntime />
         </div>
+        <PlatformAnalyticsTracker />
+        <SessionHandoffTracker />
+        <PwaRuntime />
       </div>
-    </ThemeProvider>
+    </div>
   );
 }

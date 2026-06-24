@@ -50,7 +50,7 @@ export default async function InboxItemPage({
   // Already converted — show link to the assignment
   if (item.status === "converted" && item.assignment_id) {
     return (
-      <div className="space-y-6">
+    <div className="diana-page space-y-6">
         <header className="space-y-1">
           <Link href="/inbox" className="text-xs text-muted hover:underline">
             ← Inbox
@@ -73,7 +73,7 @@ export default async function InboxItemPage({
   // Dismissed
   if (item.status === "dismissed") {
     return (
-      <div className="space-y-6">
+    <div className="diana-page space-y-6">
         <header className="space-y-1">
           <Link href="/inbox" className="text-xs text-muted hover:underline">
             ← Inbox
@@ -86,7 +86,7 @@ export default async function InboxItemPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link href="/inbox" className="text-xs text-muted hover:underline">
           ← Inbox

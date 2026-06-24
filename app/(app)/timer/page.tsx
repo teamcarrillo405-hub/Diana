@@ -18,8 +18,9 @@ export default async function TimerPage({
       : null;
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-1">
+        <p className="nexus-kicker">Timer deck</p>
         <h1 className="text-display">Your session</h1>
         <p className="text-sm text-muted">
           {roughMode ? "A smaller block is ready." : "Pick a block and a reward. Start when you&apos;re ready."}
@@ -32,7 +33,7 @@ export default async function TimerPage({
       />
       <Link
         href="/body-double"
-        className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:bg-border/30"
+        className="nexus-panel flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:bg-border/30"
       >
         <Users size={20} className="shrink-0 text-muted" />
         <div>
