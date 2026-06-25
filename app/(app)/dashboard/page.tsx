@@ -2,6 +2,9 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { GradeMoveCard } from "./grade-move-card";
+import { LobbyHero } from "./lobby-hero";
+import { ClassesGrid, type ClassCardData } from "./classes-grid";
+import type { QuestItem } from "./quest-carousel";
 import { CalendarClock } from "lucide-react";
 import { nextUpcomingTest } from "@/lib/test-prep/plan";
 import { firstWeekJourney } from "@/lib/journey/first-week";
@@ -260,6 +263,34 @@ function fallbackStarterStep(assignment: { kind: string; reading_load?: number |
   return "Open the task and choose the first visible part.";
 }
 
+const ACCENT_CYCLE = ["#29d0ff", "#a855f7", "#f59e0b", "#36e07a", "#f472b6"];
+
+function classTheme(cls: { id: string; name: string; color?: string | null }) {
+  const n = cls.name || "";
+  if (/math|algebra|geometry|calculus|pre.?calc|stats|trig/i.test(n))
+    return { symbol: "M", bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" };
+  if (/english|writing|lit|language|essay|grammar|composition/i.test(n))
+    return { symbol: "E", bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" };
+  if (/science|bio|chem|physics|earth|environ/i.test(n))
+    return { symbol: "S", bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" };
+  if (/hist|social|world|gov|econ|geo|civics/i.test(n))
+    return { symbol: "H", bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" };
+  if (/art|music|drama|theater|dance|creative|photo/i.test(n))
+    return { symbol: "A", bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" };
+  if (/pe|physical|health|sport|fitness|gym/i.test(n))
+    return { symbol: "P", bannerBg: "linear-gradient(135deg,#1a2a00,#3a5c00)", accent: "#84cc16" };
+  if (/spanish|french|german|latin|chinese|japanese|korean|lang/i.test(n))
+    return { symbol: "L", bannerBg: "linear-gradient(135deg,#1a1000,#3a2600)", accent: "#ffd24a" };
+  const FALLBACK = [
+    { bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" },
+    { bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" },
+    { bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" },
+    { bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" },
+    { bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" },
+  ];
+  return { symbol: (n[0] ?? "C").toUpperCase(), ...FALLBACK[cls.id.charCodeAt(0) % FALLBACK.length] };
+}
+
 function statusLabelForInventory(status: string) {
   if (status === "todo") return "ready";
   if (status === "drafting" || status === "checking") return "in progress";
@@ -311,6 +342,10 @@ export default async function DashboardPage({
   const fourHoursAgoIso = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
   const last24hIso = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
   const twoWeeksAgoIso = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString();
+  const weekStart = new Date(now);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  weekStart.setHours(0, 0, 0, 0);
+  const weekStartIso = weekStart.toISOString();
 
   // One parallel batch — every query here is independent (P1 perf work).
   const [
@@ -330,6 +365,8 @@ export default async function DashboardPage({
     { data: anyStartSignal },
     { data: anyTimeLog },
     { data: dueCards },
+    { data: weeklyClasses },
+    { data: weekDoneSignals },
   ] = await Promise.all([
     supabase
       .from("assignments")
@@ -403,6 +440,18 @@ export default async function DashboardPage({
       .select("id")
       .lte("due_at", new Date().toISOString())
       .order("due_at", { ascending: true }),
+    supabase
+      .from("classes")
+      .select("id, name, color")
+      .is("archived_at", null)
+      .order("created_at", { ascending: true })
+      .limit(12),
+    supabase
+      .from("task_signals")
+      .select("assignment_id")
+      .eq("kind", "completed")
+      .gte("occurred_at", weekStartIso)
+      .not("assignment_id", "is", null),
   ]);
 
   const recentSignals = (signals ?? [])
@@ -581,6 +630,57 @@ export default async function DashboardPage({
         : "add source later";
   const subjectSignals = buildSubjectSignals(assignments ?? [], ranked, now);
   const subjectCount = countActiveSubjects(assignments ?? []);
+
+  // ── Lobby data ──────────────────────────────────────────────────────────────
+  const weekNumber = profile?.onboarded_at
+    ? Math.max(1, Math.ceil((now.getTime() - new Date(profile.onboarded_at).getTime()) / (7 * 86400000)))
+    : 1;
+  const weekDone = new Set((weekDoneSignals ?? []).map((s) => s.assignment_id)).size;
+  const weekTotal = (assignments ?? []).filter((a) => {
+    if (!a.due_at) return false;
+    const t = new Date(a.due_at).getTime();
+    return t >= weekStart.getTime() && t < weekStart.getTime() + 7 * 86400000;
+  }).length;
+
+  const questItems: QuestItem[] = ranked.slice(0, 5).map((a, i) => {
+    const aRow = (assignments ?? []).find((x) => x.id === a.id);
+    const subject = aRow ? subjectLabelForAssignment(aRow) : KIND_LABEL[a.kind as keyof typeof KIND_LABEL] || "Work";
+    return {
+      n: i + 1,
+      subject,
+      title: a.title,
+      due: a.due_at ? formatDueAt(a.due_at) : "no due date",
+      accent: ACCENT_CYCLE[i % ACCENT_CYCLE.length],
+      href: `/assignments/${a.id}?focus=next-step`,
+    };
+  });
+
+  const classCardDataList: ClassCardData[] = (weeklyClasses ?? []).map((cls) => {
+    const asgts = (assignments ?? []).filter((a) => a.class_id === cls.id);
+    const overdueAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
+    const inProgressAsgts = asgts.filter((a) => ["drafting", "checking"].includes(a.status));
+    const doneAsgts = asgts.filter((a) => a.status === "exporting");
+    const topRanked = ranked.find((a) => a.class_id === cls.id);
+    const nextDue = [...asgts]
+      .filter((a) => a.due_at)
+      .sort((a, b) => new Date(a.due_at!).getTime() - new Date(b.due_at!).getTime())[0];
+    const theme = classTheme(cls);
+    return {
+      id: cls.id,
+      name: cls.name,
+      symbol: theme.symbol,
+      bannerBg: theme.bannerBg,
+      accent: theme.accent,
+      active: inProgressAsgts.length > 0 || topRanked?.class_id === cls.id,
+      overdue: overdueAsgts.length > 0,
+      allDone: asgts.length > 0 && asgts.length === doneAsgts.length,
+      pct: asgts.length > 0 ? Math.round((doneAsgts.length / asgts.length) * 100) : 0,
+      period: "",
+      activeAssignment: topRanked?.title ?? inProgressAsgts[0]?.title ?? "",
+      dueBadge: nextDue?.due_at ? formatDueAt(nextDue.due_at) : asgts.length === 0 ? "no tasks" : "no due date",
+      href: `/assignments?class=${cls.id}`,
+    };
+  });
   const bodySupport = ranked.find((assignment) => assignment.id !== top?.id && isWellnessSupportAssignment(assignment))
     ?? ranked.find((assignment) => isWellnessSupportAssignment(assignment))
     ?? null;
@@ -589,9 +689,29 @@ export default async function DashboardPage({
   const bodySupportHref = bodySupport ? `/assignments/${bodySupport.id}?focus=next-step` : "/wellness";
 
   return (
-    <div className="diana-page student-portal-page student-today-page" data-nexus-mode={nexusMode}>
+    <div className="student-portal-page">
       <LastShownClassCookie classId={top?.class_id ?? null} />
 
+      {/* Full-bleed Grayson Lobby — breaks out of app-command-frame padding */}
+      <div
+        style={{
+          marginTop: "calc(-1 * clamp(0.85rem, 1.8vw, 1.75rem))",
+          marginInline: "calc(-1 * clamp(0.85rem, 1.8vw, 1.75rem))",
+        }}
+      >
+        <LobbyHero
+          studentName={profile?.display_name || "Player"}
+          weekNumber={weekNumber}
+          weekDone={weekDone}
+          weekTotal={weekTotal}
+          quests={questItems}
+          gameDay={null}
+          focusHref={taskHref}
+        />
+        <ClassesGrid classes={classCardDataList} />
+      </div>
+
+      <div className="diana-page student-today-page" data-nexus-mode={nexusMode}>
       <StudentTodayCommandCenter
         studentName={profile?.display_name || "there"}
         taskTitle={taskTitle}
@@ -701,6 +821,7 @@ export default async function DashboardPage({
         dueCount={dueCount}
         firstCardId={firstDueId}
       />
+      </div>
     </div>
   );
 }

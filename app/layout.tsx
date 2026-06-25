@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Lexend, Space_Grotesk, Space_Mono, VT323 } from "next/font/google";
+import { Barlow_Semi_Condensed, Lexend, Saira_Condensed, Space_Grotesk, Space_Mono, VT323 } from "next/font/google";
 import "@fontsource/atkinson-hyperlegible-next/400.css";
 import "@fontsource/atkinson-hyperlegible-next/700.css";
 import "@fontsource/opendyslexic"; // weight 400 only; Pitfall 7 guard (no all.css)
@@ -39,6 +39,21 @@ const vt323 = VT323({
   weight: "400",
 });
 
+const sairaCondensed = Saira_Condensed({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-saira-condensed",
+  weight: ["600", "700", "800"],
+  style: "normal",
+});
+
+const barlowSemiCondensed = Barlow_Semi_Condensed({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-barlow",
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "Diana",
   description: "Student-owned school support for next moves, original thinking, and future planning.",
@@ -68,7 +83,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${lexend.variable} ${spaceGrotesk.variable} ${spaceMono.variable} ${vt323.variable}`}
+      className={`${lexend.variable} ${spaceGrotesk.variable} ${spaceMono.variable} ${vt323.variable} ${sairaCondensed.variable} ${barlowSemiCondensed.variable}`}
       suppressHydrationWarning
     >
       <head>
