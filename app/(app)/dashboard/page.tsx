@@ -705,7 +705,7 @@ export default async function DashboardPage({
           weekDone={weekDone}
           weekTotal={weekTotal}
           quests={questItems}
-          gameDay={null}
+          gameDay={{ title: "HOME 🏈", time: "FRI 7:00 PM", opponent: "vs Eagles" }}
           focusHref={taskHref}
         />
         <ClassesGrid classes={classCardDataList} />

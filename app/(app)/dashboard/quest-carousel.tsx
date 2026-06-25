@@ -44,7 +44,7 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
         position: "absolute",
         left: 34,
         bottom: 36,
-        width: "min(460px, calc(100vw - 68px))",
+        width: 460,
         zIndex: 8,
       }}
     >
@@ -111,12 +111,13 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
       </div>
 
       {/* Card viewport */}
-      <div style={{ overflow: "hidden", borderRadius: 12 }}>
+      <div style={{ overflow: "hidden", width: 460, borderRadius: 12 }}>
         <div
           style={{
             display: "flex",
+            gap: 0,
             transition: "transform .5s cubic-bezier(.22,.61,.36,1)",
-            transform: `translateX(calc(${-qi} * min(460px, calc(100vw - 68px))))`,
+            transform: `translateX(${-qi * 460}px)`,
           }}
         >
           {quests.map((q, i) => (
@@ -124,8 +125,8 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
               key={i}
               href={q.href}
               style={{
-                flex: "0 0 min(460px, calc(100vw - 68px))",
-                minWidth: 0,
+                flex: "0 0 460px",
+                width: 460,
                 height: 130,
                 padding: "16px 22px",
                 background: "linear-gradient(135deg,rgba(18,26,52,.96),rgba(10,16,36,.96))",
@@ -189,12 +190,8 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
                 style={{
                   fontFamily: "var(--font-saira-condensed), 'Saira Condensed', sans-serif",
                   fontWeight: 700,
-                  fontSize: 22,
-                  lineHeight: 1.1,
-                  overflow: "hidden",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
+                  fontSize: 24,
+                  lineHeight: 1.05,
                 }}
               >
                 {q.title}

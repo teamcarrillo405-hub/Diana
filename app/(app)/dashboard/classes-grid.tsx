@@ -35,8 +35,8 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
     >
       <style>{`
         @keyframes gl-overdue {
-          0%,100% { box-shadow: 0 0 0 1.5px rgba(245,158,11,.8), 0 12px 36px rgba(0,0,0,.5); }
-          55%      { box-shadow: 0 0 0 4px rgba(245,158,11,.15), 0 12px 36px rgba(0,0,0,.5); }
+          0%,100% { box-shadow: 0 0 0 1.5px rgba(255,55,55,.8), 0 12px 36px rgba(0,0,0,.5); }
+          55%      { box-shadow: 0 0 0 4px rgba(255,55,55,.15), 0 12px 36px rgba(0,0,0,.5); }
         }
         .gl-class-card:hover {
           transform: translateY(-5px);
@@ -67,18 +67,18 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
                 gap: 6,
                 padding: "5px 11px",
                 borderRadius: 6,
-                background: "rgba(245,158,11,.14)",
-                border: "1px solid rgba(245,158,11,.28)",
+                background: "rgba(255,55,55,.14)",
+                border: "1px solid rgba(255,55,55,.28)",
               }}
             >
               <div
-                style={{ width: 6, height: 6, borderRadius: "50%", background: "#f59e0b" }}
+                style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff5555" }}
               />
               <span
                 style={{
                   fontWeight: 700,
                   fontSize: 12,
-                  color: "#fbbf24",
+                  color: "#ff7070",
                   letterSpacing: ".06em",
                   textTransform: "uppercase",
                 }}
@@ -112,9 +112,9 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
   const badgeBg = done
     ? "rgba(54,224,122,.2)"
     : cls.overdue
-      ? "rgba(245,158,11,.2)"
+      ? "rgba(255,55,55,.2)"
       : "rgba(8,12,26,.7)";
-  const badgeFg = done ? "#36e07a" : cls.overdue ? "#fbbf24" : "#aab8e0";
+  const badgeFg = done ? "#36e07a" : cls.overdue ? "#ff7070" : "#aab8e0";
   const ctaBg = cls.active
     ? "linear-gradient(180deg,#36e07a,#16a34a)"
     : done

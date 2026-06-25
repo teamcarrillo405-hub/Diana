@@ -80,8 +80,8 @@ export function LobbyAudioNote() {
           display: "flex",
           alignItems: "center",
           gap: 7,
-          border: `1.5px solid ${recording ? "rgba(245,158,11,.5)" : "rgba(120,150,220,.32)"}`,
-          background: recording ? "rgba(245,158,11,.18)" : "rgba(120,150,220,.14)",
+          border: "1.5px solid rgba(120,150,220,.32)",
+          background: recording ? "rgba(255,55,55,.22)" : "rgba(120,150,220,.14)",
           animation: recording ? "gl-mic-pulse 1.5s ease-in-out infinite" : "none",
           transition: "background .2s",
         }}
@@ -91,7 +91,7 @@ export function LobbyAudioNote() {
           height="16"
           viewBox="0 0 24 24"
           fill="none"
-          stroke={recording ? "#f59e0b" : "#cdd6f2"}
+          stroke={recording ? "#ff4444" : "#cdd6f2"}
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -108,7 +108,7 @@ export function LobbyAudioNote() {
             fontSize: 15,
             letterSpacing: ".06em",
             textTransform: "uppercase",
-            color: recording ? "#f59e0b" : "#cdd6f2",
+            color: recording ? "#ff4444" : "#cdd6f2",
           }}
         >
           Note
@@ -147,8 +147,8 @@ export function LobbyAudioNote() {
                 width: 84,
                 height: 84,
                 borderRadius: "50%",
-                background: "rgba(245,158,11,.14)",
-                border: "2px solid rgba(245,158,11,.55)",
+                background: "rgba(255,55,55,.14)",
+                border: "2px solid rgba(255,55,55,.55)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -160,7 +160,7 @@ export function LobbyAudioNote() {
                 height="34"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#f59e0b"
+                stroke="#ff4444"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"

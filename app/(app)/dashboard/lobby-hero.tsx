@@ -51,8 +51,8 @@ export function LobbyHero({
         }
         @keyframes gl-spin { to { transform: rotate(360deg) } }
         @keyframes gl-mic-pulse {
-          0%,100% { box-shadow: 0 0 0 0 rgba(245,158,11,.55) }
-          65%      { box-shadow: 0 0 0 16px rgba(245,158,11,0) }
+          0%,100% { box-shadow: 0 0 0 0 rgba(255,55,55,.55) }
+          65%      { box-shadow: 0 0 0 16px rgba(255,55,55,0) }
         }
         .gl-tab:hover { color: #fff !important; }
         .gl-lobby-cta:hover { filter: brightness(1.1); }
