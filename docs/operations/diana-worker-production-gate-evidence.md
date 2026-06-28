@@ -136,12 +136,21 @@ Target origin: `http://localhost:3000`
 
 Target origin: `https://diana-umber.vercel.app`
 
-- Vercel production deployment `dpl_6Vn3yTQMzHSKyxei1VvZztvjXr4V` is `Ready`
+- Vercel production deployment `dpl_48nvTTmngeXCiy9eAiVxrNakyQuj` is `Ready`
   and aliased to `https://diana-umber.vercel.app`.
   - It was deployed from clean worktree
-    `C:\Users\glcar\Diana-clean-deploy-08d6add` at commit
-    `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`, avoiding unrelated local
+    `C:\Users\glcar\Diana-clean-deploy-004150e` at commit
+    `004150e789c5de32c2649c5cbc871d0c8057be49`, avoiding unrelated local
     dashboard/design WIP in `C:\Users\glcar\Diana`.
+  - During this refresh, Vercel production `WORKER_API_TOKEN` was found present
+    but empty/unusable for authorized worker preflight. It was rotated to a
+    non-empty sensitive value and the final deployment also received the same
+    token as an explicit deployment env.
+  - Vercel does not return sensitive env values through `vercel env pull`, so a
+    hosted worker rollout must set GitHub `DIANA_WORKER_API_TOKEN` from the
+    same secret source during the worker-token rotation. If that value is not
+    available to the operator, rotate both Vercel `WORKER_API_TOKEN` and GitHub
+    `DIANA_WORKER_API_TOKEN` together before deploying hosted workers.
 - `npm run worker:production-preflight`
   - Diana app reachable
   - unauthenticated Diana voice status returns JSON `401`
@@ -150,7 +159,7 @@ Target origin: `https://diana-umber.vercel.app`
   - authorized worker claim and complete requests reach validation
   - authorized worker metrics and prometheus metrics return `200`
   - authorized worker version returns app SHA
-    `3eb8303209c8bb48cb4fad0eb322931c7f7e052a` from `DIANA_APP_BUILD_SHA`,
+    `004150e789c5de32c2649c5cbc871d0c8057be49` from `DIANA_APP_BUILD_SHA`,
     and preflight passed with `DIANA_EXPECTED_APP_SHA` set to the same value
   - `worker_jobs` and `worker_rate_limits` schema is reachable
   - `claim_worker_job` and `reserve_worker_rate_limit` RPCs are callable
@@ -179,7 +188,7 @@ Target origin: `https://diana-umber.vercel.app`
 
 - GitHub workflow badges report `CI - passing` and `Worker image - passing`
   for branch `codex/diana-v2-clean-history` after commit
-  `e2e08e9b10c4ee11c9e33bc15053cf8d2a3b0ed2`.
+  `004150e789c5de32c2649c5cbc871d0c8057be49`.
   - The GitHub REST API was rate-limited for unauthenticated artifact lookup
     during this evidence refresh, so the exact latest artifact id was not
     retrieved in this snapshot.
@@ -187,7 +196,7 @@ Target origin: `https://diana-umber.vercel.app`
     `Worker image` artifact for this branch. Do not reuse the Diana app SHA as
     the worker image SHA.
   - The production Diana app deployment SHA remains:
-    `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+    `004150e789c5de32c2649c5cbc871d0c8057be49`
 - GitHub `Worker image` run `28338120109` passed for commit
   `c2593a8b26130537476e08037c2ef9e9a870e51e`.
 - Artifact `diana-worker-image-28338120109-1` was uploaded.
@@ -342,7 +351,7 @@ this boundary.
    - Dispatch inputs for the current production target:
      - `target_origin`: `https://diana-umber.vercel.app`
      - `image_sha`: latest successful `Worker image` SHA for the branch
-     - `expected_app_sha`: `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+     - `expected_app_sha`: `004150e789c5de32c2649c5cbc871d0c8057be49`
      - `replicas`: `2` or higher
      - `openjarvis_base_url`: the private in-cluster OpenJarvis-compatible
        service URL
@@ -371,7 +380,7 @@ this boundary.
    - Dispatch `Worker production gate` against staging first, then production.
    - Production inputs:
      - `target_origin`: `https://diana-umber.vercel.app`
-     - `expected_app_sha`: `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+     - `expected_app_sha`: `004150e789c5de32c2649c5cbc871d0c8057be49`
      - `expected_worker_image_sha`: the same SHA used for the deployed worker
        image
      - `seeded_checks`: `true`
