@@ -5,6 +5,7 @@ type DeployEvidence = {
   workflow?: unknown;
   targetOrigin?: unknown;
   image?: unknown;
+  expectedAppSha?: unknown;
   namespace?: unknown;
   replicas?: unknown;
   imagePullSecretName?: unknown;
@@ -98,6 +99,7 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
     "artifact summary and outcome metadata match",
     metadataValue(summary.targetOrigin) === metadataValue(outcome.targetOrigin) &&
       metadataValue(summary.image) === metadataValue(outcome.image) &&
+      metadataValue(summary.expectedAppSha) === metadataValue(outcome.expectedAppSha) &&
       metadataValue(summary.namespace) === metadataValue(outcome.namespace) &&
       metadataValue(summary.replicas) === metadataValue(outcome.replicas) &&
       metadataValue(summary.imagePullSecretName) === metadataValue(outcome.imagePullSecretName) &&
@@ -117,6 +119,7 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
   ));
 
   const steps = outcome.steps ?? {};
+  const expectedAppSha = metadataValue(outcome.expectedAppSha);
   const runCanary = outcome.runCanary === "true";
   const requiredSteps: string[] = [
     ...baseRequiredSteps,
@@ -167,6 +170,15 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
         `${logName} records ok true`,
         logText.includes("\"ok\": true") || logText.includes("\"ok\":true"),
         "command output should include ok true JSON",
+      ));
+    }
+    if (step === "productionPreflight" && expectedAppSha) {
+      checks.push(check(
+        `${logName} records expected app sha`,
+        logText.includes("Worker version authorized") &&
+          logText.includes(expectedAppSha) &&
+          logText.includes("expected"),
+        "production-preflight.log must prove the expected Diana app SHA",
       ));
     }
     if (step === "deployedCanary") {

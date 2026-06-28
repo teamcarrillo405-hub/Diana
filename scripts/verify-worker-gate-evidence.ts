@@ -4,6 +4,7 @@ import { join } from "node:path";
 type GateMetadata = {
   workflow?: unknown;
   targetOrigin?: unknown;
+  expectedAppSha?: unknown;
   loadCount?: unknown;
   seededChecks?: unknown;
   dianaStatusSmoke?: unknown;
@@ -90,6 +91,7 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
   checks.push(check(
     "artifact summary and outcome metadata match",
     metadataValue(summary.targetOrigin) === metadataValue(outcome.targetOrigin) &&
+      metadataValue(summary.expectedAppSha) === metadataValue(outcome.expectedAppSha) &&
       metadataValue(summary.loadCount) === metadataValue(outcome.loadCount) &&
       metadataValue(summary.seededChecks) === metadataValue(outcome.seededChecks) &&
       metadataValue(summary.dianaStatusSmoke) === metadataValue(outcome.dianaStatusSmoke) &&
@@ -108,6 +110,7 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
   ));
 
   const steps = outcome.steps ?? {};
+  const expectedAppSha = metadataValue(outcome.expectedAppSha);
   const seededChecks = outcome.seededChecks === "true";
   const dianaStatusSmoke = outcome.dianaStatusSmoke === "true";
   const requiredSteps: string[] = [
@@ -163,6 +166,15 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
       logText.includes("\"ok\": true") || logText.includes("\"ok\":true"),
       "command output should include ok true JSON",
     ));
+    if (step === "productionPreflight" && expectedAppSha) {
+      checks.push(check(
+        `${logName} records expected app sha`,
+        logText.includes("Worker version authorized") &&
+          logText.includes(expectedAppSha) &&
+          logText.includes("expected"),
+        "production-preflight.log must prove the expected Diana app SHA",
+      ));
+    }
   }
 
   return checks;
