@@ -169,6 +169,13 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
         "command output should include ok true JSON",
       ));
     }
+    if (step === "deployedCanary") {
+      checks.push(check(
+        `${logName} records worker image sha`,
+        logText.includes("\"imageSha\"") || logText.includes("\"imageSha\":"),
+        "deployed-canary.log must include the worker image SHA that consumed the job",
+      ));
+    }
     if (step === "applyWorkerWorkload") {
       checks.push(check(
         `${logName} records rollout completion`,

@@ -357,7 +357,7 @@ async function completeThroughWorkerApi({
 
 function assertStudentSafeStatusBody(body: unknown, label: string) {
   const text = JSON.stringify(body);
-  for (const forbidden of ["provider", "model", "workerId", "openjarvis", "ollama", "gstack", "paperclip"]) {
+  for (const forbidden of ["provider", "model", "workerId", "imageSha", "openjarvis", "ollama", "gstack", "paperclip"]) {
     if (text.toLowerCase().includes(forbidden.toLowerCase())) {
       throw new Error(`${label} exposed backend detail: ${forbidden}`);
     }

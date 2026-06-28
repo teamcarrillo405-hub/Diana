@@ -39,6 +39,7 @@ async function main() {
   const runId = `e2e-smoke-${Date.now().toString(36)}`;
   const traceId = `dw-${runId}`;
   const workerId = `${runId}-compiled-worker`;
+  const imageSha = `${runId}-image-sha`;
   const queueName = argValue("queue") ?? process.env.DIANA_WORKER_SMOKE_QUEUE ?? `${VOICE_CANDIDATE_SMOKE_QUEUE}-${runId}`;
   const model = argValue("model") ?? "worker-e2e-fake-model";
   const sidecar = createFakeOpenJarvisServer(model);
@@ -66,6 +67,7 @@ async function main() {
       baseUrl,
       token,
       workerId,
+      imageSha,
       queueName,
       sidecarBaseUrl: sidecar.baseUrl,
       model,
@@ -100,7 +102,12 @@ async function main() {
     if (data.status !== "succeeded") {
       throw new Error(`Worker e2e smoke expected succeeded status, got ${data.status}.`);
     }
-    if (result.provider !== "openjarvis" || result.model !== model || result.workerId !== workerId) {
+    if (
+      result.provider !== "openjarvis" ||
+      result.model !== model ||
+      result.workerId !== workerId ||
+      result.imageSha !== imageSha
+    ) {
       throw new Error("Worker e2e smoke result payload did not record the compiled OpenJarvis worker.");
     }
     if (data.locked_until !== null || data.locked_by !== null) {
@@ -119,6 +126,7 @@ async function main() {
       result: {
         provider: result.provider,
         model: result.model,
+        imageSha: result.imageSha,
         responseChars: result.responseChars,
       },
     }));
@@ -207,10 +215,12 @@ async function runCompiledWorkerOnce({
   queueName,
   sidecarBaseUrl,
   model,
+  imageSha,
 }: {
   baseUrl: string;
   token: string;
   workerId: string;
+  imageSha: string;
   queueName: string;
   sidecarBaseUrl: string;
   model: string;
@@ -227,6 +237,7 @@ async function runCompiledWorkerOnce({
     env: {
       ...process.env,
       WORKER_API_TOKEN: token,
+      DIANA_WORKER_IMAGE_SHA: imageSha,
       OPENJARVIS_BASE_URL: sidecarBaseUrl,
       OPENJARVIS_MODEL: model,
     },

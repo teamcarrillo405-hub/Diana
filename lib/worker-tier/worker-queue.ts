@@ -19,6 +19,7 @@ export type WorkerJobResultPayload = {
   provider?: string;
   model?: string;
   workerId?: string;
+  imageSha?: string;
   durationMs?: number;
   status: Extract<WorkerJobStatus, "succeeded" | "error" | "rate_limited">;
 };

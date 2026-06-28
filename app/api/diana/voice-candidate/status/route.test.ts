@@ -139,6 +139,7 @@ describe("Diana voice candidate status route", () => {
         provider: "openjarvis",
         model: "llama3.2:3b",
         workerId: "worker-a",
+        imageSha: "image-sha-a",
         durationMs: 1234,
       },
         error_summary: null,
@@ -163,6 +164,7 @@ describe("Diana voice candidate status route", () => {
     expect(JSON.stringify(json)).not.toContain("openjarvis");
     expect(JSON.stringify(json)).not.toContain("llama3.2");
     expect(JSON.stringify(json)).not.toContain("worker-a");
+    expect(JSON.stringify(json)).not.toContain("image-sha-a");
     expect(receiptContains).toHaveBeenCalledWith("payload", { workerJob: { traceId: "dw-done" } });
     expect(insert).toHaveBeenCalledWith(expect.objectContaining({
       owner_id: "student-1",

@@ -126,8 +126,8 @@ const checks: Check[] = [
   ),
   check(
     "Worker pod has OpenJarvis target",
-    includesAll(deployment, ["OPENJARVIS_BASE_URL", "OPENJARVIS_MODEL"]),
-    "deploy/worker/kubernetes.yaml must configure the sidecar URL and model.",
+    includesAll(deployment, ["OPENJARVIS_BASE_URL", "OPENJARVIS_MODEL", "DIANA_WORKER_IMAGE_SHA"]),
+    "deploy/worker/kubernetes.yaml must configure the sidecar URL, model, and image SHA.",
   ),
   check(
     "Worker pod runs compiled entrypoint directly",
@@ -259,8 +259,9 @@ const checks: Check[] = [
       "runWithWorkerTimeout",
       "AbortController",
       "Worker execution timed out.",
+      "imageSha: config.imageSha",
     ]),
-    "Worker runtime must honor claimed job budget timeout constraints and abort sidecar work.",
+    "Worker runtime must honor claimed job budget timeout constraints, abort sidecar work, and record image provenance.",
   ),
   check(
     "Voice worker rollout is tenant scoped",
@@ -360,7 +361,13 @@ const checks: Check[] = [
   ),
   check(
     "Worker env excludes canary-only secrets",
-    includesAll(workerEnv, ["WORKER_API_TOKEN", "DIANA_WORKER_BASE_URL", "OPENJARVIS_BASE_URL", "OPENJARVIS_MODEL"]) &&
+    includesAll(workerEnv, [
+      "WORKER_API_TOKEN",
+      "DIANA_WORKER_BASE_URL",
+      "OPENJARVIS_BASE_URL",
+      "OPENJARVIS_MODEL",
+      "DIANA_WORKER_IMAGE_SHA",
+    ]) &&
       excludesAll(workerEnv, ["SUPABASE_SERVICE_ROLE_KEY", "NEXT_PUBLIC_SUPABASE_URL"]),
     ".env.worker.example must contain only long-running worker settings.",
   ),
@@ -371,6 +378,7 @@ const checks: Check[] = [
       "SUPABASE_SERVICE_ROLE_KEY",
       "WORKER_API_TOKEN",
       "DIANA_WORKER_BASE_URL",
+      "DIANA_WORKER_EXPECTED_IMAGE_SHA",
     ]),
     ".env.worker-canary.example must contain preflight/canary/load-smoke settings.",
   ),
@@ -580,6 +588,7 @@ const checks: Check[] = [
       "worker-kubernetes-deploy-evidence/deployed-canary.log",
       "Verify deployment evidence package",
       "npm run worker:kubernetes-deploy-evidence-check -- --dir=worker-kubernetes-deploy-evidence",
+      "--from-literal=DIANA_WORKER_IMAGE_SHA=\"${{ inputs.image_sha }}\"",
       "kubectl -n \"$NAMESPACE\" create secret docker-registry \"$IMAGE_PULL_SECRET_NAME\"",
       "--docker-server=ghcr.io",
       "--docker-username=\"$GHCR_PULL_USERNAME\"",
@@ -593,7 +602,7 @@ const checks: Check[] = [
       "kubectl -n \"$NAMESPACE\" scale deployment/diana-worker --replicas=\"$REPLICAS\"",
       "kubectl -n \"$NAMESPACE\" rollout status deployment/diana-worker --timeout=180s",
       "npm run worker:production-preflight",
-      "npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000",
+      "npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000 --expected-image-sha=${{ inputs.image_sha }}",
       "actions/upload-artifact@v4",
       "diana-worker-kubernetes-deploy-${{ github.run_id }}-${{ github.run_attempt }}",
       "worker-kubernetes-deploy-evidence",
@@ -618,6 +627,7 @@ const checks: Check[] = [
       "deployed-canary.log",
       "successfully rolled out",
       "diana-worker",
+      "imageSha",
       "\\\"ok\\\": true",
     ]),
     "Kubernetes deploy evidence verifier must validate deploy metadata, rollout logs, worker pod status, and canary success mode.",

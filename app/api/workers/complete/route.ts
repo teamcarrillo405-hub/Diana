@@ -39,6 +39,7 @@ export async function POST(request: Request) {
           provider: typeof result.provider === "string" ? result.provider : undefined,
           model: typeof result.model === "string" ? result.model : undefined,
           workerId: typeof result.workerId === "string" ? result.workerId : undefined,
+          imageSha: typeof result.imageSha === "string" ? result.imageSha : undefined,
           durationMs: typeof result.durationMs === "number" ? result.durationMs : undefined,
         },
       });

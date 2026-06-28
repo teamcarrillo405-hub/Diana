@@ -52,6 +52,7 @@ describe("worker complete route", () => {
         provider: "openjarvis",
         model: "llama3.2:3b",
         workerId: "worker-a",
+        imageSha: "image-sha-a",
         durationMs: 1234,
       },
     }));
@@ -67,6 +68,7 @@ describe("worker complete route", () => {
         provider: "openjarvis",
         model: "llama3.2:3b",
         workerId: "worker-a",
+        imageSha: "image-sha-a",
         durationMs: 1234,
       },
     });

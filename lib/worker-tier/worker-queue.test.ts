@@ -144,12 +144,22 @@ describe("worker queue runtime", () => {
     await completeWorkerJob({
       traceId: "dw-done",
       tenantId: "personal:student-1",
-      result: { status: "succeeded", response: "x".repeat(1300), responseChars: 1300 },
+      result: {
+        status: "succeeded",
+        response: "x".repeat(1300),
+        responseChars: 1300,
+        imageSha: "image-sha-a",
+      },
       client: client as never,
     });
     expect(update).toHaveBeenCalledWith(expect.objectContaining({
       status: "succeeded",
-      result_payload: { status: "succeeded", response: "x".repeat(1200), responseChars: 1300 },
+      result_payload: {
+        status: "succeeded",
+        response: "x".repeat(1200),
+        responseChars: 1300,
+        imageSha: "image-sha-a",
+      },
       locked_by: null,
     }));
     expect(eq).toHaveBeenCalledWith("trace_id", "dw-done");

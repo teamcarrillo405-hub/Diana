@@ -13,6 +13,7 @@ metadata:
 data:
   DIANA_WORKER_BASE_URL: https://your-diana-app.example
   DIANA_WORKER_QUEUE: student-ai-candidate
+  DIANA_WORKER_IMAGE_SHA: replace-with-sha
   OPENJARVIS_BASE_URL: http://openjarvis:8000
   OPENJARVIS_MODEL: llama3.2:3b
 ---

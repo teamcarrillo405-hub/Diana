@@ -154,6 +154,7 @@ jobs:
           kubectl -n "$NAMESPACE" create configmap diana-worker-config \
             --from-literal=DIANA_WORKER_BASE_URL="${{ inputs.target_origin }}" \
             --from-literal=DIANA_WORKER_QUEUE=student-ai-candidate \
+            --from-literal=DIANA_WORKER_IMAGE_SHA="${{ inputs.image_sha }}" \
             --from-literal=OPENJARVIS_BASE_URL="${{ inputs.openjarvis_base_url }}" \
             --from-literal=OPENJARVIS_MODEL="${{ inputs.openjarvis_model }}" \
             --dry-run=client -o yaml | \
@@ -197,7 +198,7 @@ jobs:
         if: inputs.run_canary == 'true'
         run: |
           set -o pipefail
-          npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000 | \
+          npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000 --expected-image-sha=${{ inputs.image_sha }} | \
             tee worker-kubernetes-deploy-evidence/deployed-canary.log
 
       - name: Write deployment outcome

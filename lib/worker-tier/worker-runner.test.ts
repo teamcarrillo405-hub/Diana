@@ -5,6 +5,7 @@ const config: DianaWorkerConfig = {
   baseUrl: "http://diana.test",
   token: "worker-secret",
   workerId: "worker-a",
+  imageSha: "image-sha-a",
   queueName: "student-ai-candidate",
   leaseSeconds: 45,
 };
@@ -86,6 +87,7 @@ describe("Diana worker runner", () => {
         provider: "openjarvis",
         model: "llama3.2:3b",
         workerId: "worker-a",
+        imageSha: "image-sha-a",
         durationMs: expect.any(Number),
       },
     });

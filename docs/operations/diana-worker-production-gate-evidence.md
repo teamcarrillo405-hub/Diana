@@ -291,6 +291,12 @@ The deploy workflow now rejects the placeholder `image_sha` input, so a manual
 dispatch cannot accidentally roll out an older default image. Operators must
 copy the intended SHA from a successful `Worker image` run.
 
+The hosted worker config now includes `DIANA_WORKER_IMAGE_SHA`, and the
+Kubernetes deploy workflow runs the deployed-worker canary with
+`--expected-image-sha`. The worker records `imageSha` in backend-only job result
+payloads, which lets deploy evidence prove the job was consumed by the intended
+image without exposing backend details to the student browser.
+
 The production-origin e2e smoke exposed a distributed clock-skew bug. Queued
 jobs were inserting `available_at` from the client/runtime clock, so a fast
 remote claim could see the job as not yet available against the database clock
@@ -331,7 +337,8 @@ this boundary.
   against the downloaded artifact before treating the run as production proof.
 - Confirm `worker:deployed-canary` passes against staging and production after
   workers are deployed. This seeds one production-queue job and waits for a
-  deployed worker replica to complete it.
+  deployed worker replica to complete it. For hosted deploy artifacts, require
+  the canary output to include the expected worker image SHA.
 - Roll one internal tenant or cohort to `DIANA_VOICE_QUEUE_MODE=managed_queue`,
   observe one school-day traffic window, then expand by cohort.
 

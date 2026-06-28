@@ -38,6 +38,7 @@ async function main() {
 
   const ownerId = argValue("owner-id") ?? process.env.DIANA_WORKER_CANARY_OWNER_ID ?? await firstUserId(admin);
   const queueName = argValue("queue") ?? process.env.DIANA_WORKER_QUEUE ?? VOICE_CANDIDATE_QUEUE;
+  const expectedImageSha = argValue("expected-image-sha") ?? process.env.DIANA_WORKER_EXPECTED_IMAGE_SHA;
   const timeoutMs = Math.max(5_000, numberArg("timeout-ms", 120_000));
   const pollMs = Math.max(500, numberArg("poll-ms", 2_000));
   const runId = `deployed-canary-${Date.now().toString(36)}`;
@@ -82,6 +83,11 @@ async function main() {
     if (typeof result.workerId !== "string" || !result.workerId.trim()) {
       throw new Error("Deployed worker canary did not record a worker id in result_payload.");
     }
+    if (expectedImageSha && result.imageSha !== expectedImageSha) {
+      throw new Error(
+        `Deployed worker canary expected image ${expectedImageSha}, got ${String(result.imageSha ?? "missing")}.`,
+      );
+    }
 
     console.log(JSON.stringify({
       ok: true,
@@ -97,6 +103,7 @@ async function main() {
         provider: result.provider,
         model: result.model,
         workerId: result.workerId,
+        imageSha: result.imageSha,
         durationMs: result.durationMs,
         responseChars: result.responseChars,
       },

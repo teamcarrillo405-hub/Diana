@@ -40,6 +40,7 @@ async function main() {
     baseUrl: argValue("base-url") ?? process.env.DIANA_WORKER_BASE_URL ?? "http://127.0.0.1:3000",
     token,
     workerId: argValue("worker-id") ?? process.env.DIANA_WORKER_ID ?? `${hostname()}-${process.pid}`,
+    imageSha: argValue("image-sha") ?? process.env.DIANA_WORKER_IMAGE_SHA,
     queueName: argValue("queue") ?? process.env.DIANA_WORKER_QUEUE ?? "student-ai-candidate",
     leaseSeconds: Math.max(1, Math.min(300, numberArg("lease-seconds", 60))),
   };
@@ -52,6 +53,7 @@ async function main() {
     const sidecar = resolveDianaVoiceSidecarConfig();
     console.log(JSON.stringify({
       workerId: config.workerId,
+      imageSha: config.imageSha,
       queueName: config.queueName,
       baseUrl: config.baseUrl,
       leaseSeconds: config.leaseSeconds,
@@ -75,6 +77,7 @@ async function main() {
     cycles += 1;
     console.log(JSON.stringify({
       workerId: config.workerId,
+      imageSha: config.imageSha,
       queueName: config.queueName,
       cycle: cycles,
       result,
@@ -88,6 +91,7 @@ async function main() {
 
   console.log(JSON.stringify({
     workerId: config.workerId,
+    imageSha: config.imageSha,
     queueName: config.queueName,
     status: "stopped",
     cycles,
@@ -110,6 +114,7 @@ async function healthCheck(config: DianaWorkerConfig) {
   }
   console.log(JSON.stringify({
     workerId: config.workerId,
+    imageSha: config.imageSha,
     queueName: config.queueName,
     status: "healthy",
     at: new Date().toISOString(),

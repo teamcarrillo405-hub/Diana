@@ -80,6 +80,7 @@ WORKER_API_TOKEN=<same strong shared worker token>
 DIANA_WORKER_BASE_URL=https://<diana-production-origin>
 DIANA_WORKER_QUEUE=student-ai-candidate
 DIANA_WORKER_ID=<unique replica id>
+DIANA_WORKER_IMAGE_SHA=<deployed-worker-image-sha>
 OPENJARVIS_BASE_URL=http://<openjarvis-service>:8000
 OPENJARVIS_MODEL=<approved model>
 ```
@@ -136,7 +137,10 @@ npm run worker:kubernetes-deploy-evidence-check -- --dir=<path-to-downloaded-dep
 
 The workflow intentionally does not default to a real image SHA. Set
 `image_sha` to the SHA from the latest successful `Worker image` run you intend
-to deploy.
+to deploy. The workflow also writes that value to `DIANA_WORKER_IMAGE_SHA` on
+the worker config and runs the deployed-worker canary with
+`--expected-image-sha`, so the rollout evidence proves the consuming worker was
+running the intended image.
 
 ## Deploy
 
@@ -298,7 +302,9 @@ Confirm:
   do not consume real student queue items or stale smoke jobs from another run.
 - Deployed-worker canary seeds one `student-ai-candidate` job and waits for a
   deployed worker replica to complete it. This is the proof that workers are
-  actually running, not just that the worker API is reachable.
+  actually running, not just that the worker API is reachable. When the
+  expected image SHA is supplied, the canary also verifies the completing worker
+  recorded the intended `DIANA_WORKER_IMAGE_SHA`.
 - Diana status smoke signs in as the QA student, submits a queued Diana request,
   verifies queued and completed status polling through Diana, and confirms the
   browser-visible response does not expose backend provider, model, worker id,

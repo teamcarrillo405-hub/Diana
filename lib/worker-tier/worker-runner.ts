@@ -9,6 +9,7 @@ export type DianaWorkerConfig = {
   baseUrl: string;
   token: string;
   workerId: string;
+  imageSha?: string;
   queueName: string;
   leaseSeconds: number;
 };
@@ -70,6 +71,7 @@ export async function runOneDianaWorkerCycle({
         provider: result.trace.provider,
         model: result.trace.model,
         workerId: config.workerId,
+        imageSha: config.imageSha,
         durationMs: Date.now() - startedAt,
       },
     });
@@ -161,6 +163,7 @@ async function completeWorkerJobViaApi({
     provider: DianaVoiceCandidateResult["trace"]["provider"];
     model: string;
     workerId: string;
+    imageSha?: string;
     durationMs: number;
   };
   errorSummary?: string;
