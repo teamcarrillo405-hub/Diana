@@ -220,6 +220,13 @@ The `Worker image` workflow also uploads a
 record so the deployed worker image tag can be matched back to the commit,
 workflow run, local Docker image id, and step outcomes that passed the worker
 image gate.
+
+For a final rollout record, prefer a worker image artifact and production-gate
+artifact from the same commit. If an app-only commit follows the image build,
+record that diff explicitly before rollout; otherwise rebuild the worker image
+from the new head so the evidence package has one SHA across app, worker image,
+and production gate.
+
 After downloading the image artifact, verify it locally:
 
 ```bash
