@@ -131,7 +131,7 @@ Target origin: `http://localhost:3000`
 
 Target origin: `https://diana-umber.vercel.app`
 
-- Vercel production deployment `dpl_3w1pdNRB16S1aAprwFugGCKzG9Cw` is `Ready`
+- Vercel production deployment `dpl_Hr2SjPfpYsHrzAESZeBPJ3BPUEQ3` is `Ready`
   and aliased to `https://diana-umber.vercel.app`.
 - `npm run worker:production-preflight`
   - Diana app reachable
