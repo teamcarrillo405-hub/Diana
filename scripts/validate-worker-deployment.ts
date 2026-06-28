@@ -66,6 +66,7 @@ function hasContainerProbe(container: unknown, probeName: "readinessProbe" | "li
 const dockerfile = read("Dockerfile.worker");
 const workflow = read(".github/workflows/worker-image.yml");
 const productionGateWorkflow = read(".github/workflows/worker-production-gate.yml");
+const kubernetesDeployWorkflow = read(".github/workflows/worker-kubernetes-deploy.yml");
 const deployment = read("deploy/worker/kubernetes.yaml");
 const prometheus = read("deploy/worker/prometheus-example.yaml");
 const keda = read("deploy/worker/keda-scaledobject.yaml");
@@ -549,6 +550,23 @@ const checks: Check[] = [
       "retention-days: 30",
     ]),
     "Production gate workflow must upload a durable evidence artifact with summary, outcomes, and command logs.",
+  ),
+  check(
+    "Kubernetes deploy workflow applies hosted worker replicas",
+    includesAll(kubernetesDeployWorkflow, [
+      "KUBE_CONFIG_B64",
+      "DIANA_WORKER_API_TOKEN",
+      "replicas must be at least 2",
+      "ghcr.io/teamcarrillo405-hub/diana/diana-worker:${{ inputs.image_sha }}",
+      "kubectl -n \"$NAMESPACE\" create secret generic diana-worker-secrets",
+      "kubectl -n \"$NAMESPACE\" create configmap diana-worker-config",
+      "kubectl -n \"$NAMESPACE\" apply -f /tmp/diana-worker-workload.yaml",
+      "kubectl -n \"$NAMESPACE\" scale deployment/diana-worker --replicas=\"$REPLICAS\"",
+      "kubectl -n \"$NAMESPACE\" rollout status deployment/diana-worker --timeout=180s",
+      "npm run worker:production-preflight",
+      "npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000",
+    ]),
+    "Kubernetes deploy workflow must deploy at least two hosted workers and verify they consume production queue work.",
   ),
   check(
     "Production gate evidence verifier exists",

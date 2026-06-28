@@ -1,0 +1,126 @@
+name: Worker kubernetes deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_origin:
+        description: Diana production or staging origin
+        required: true
+        default: https://diana-umber.vercel.app
+      image_sha:
+        description: Worker image SHA tag to deploy
+        required: true
+        default: a61e0b5290a73495414421cc63a2e6941a68c3be
+      namespace:
+        description: Kubernetes namespace
+        required: true
+        default: diana
+      replicas:
+        description: Worker replicas, minimum 2
+        required: true
+        default: "2"
+      openjarvis_base_url:
+        description: In-cluster OpenJarvis-compatible base URL
+        required: true
+        default: http://openjarvis:8000
+      openjarvis_model:
+        description: OpenJarvis/Ollama model
+        required: true
+        default: llama3.2:3b
+      run_canary:
+        description: Run production preflight and deployed-worker canary after rollout
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DIANA_WORKER_BASE_URL: ${{ inputs.target_origin }}
+      WORKER_API_TOKEN: ${{ secrets.DIANA_WORKER_API_TOKEN }}
+      KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_B64 }}
+      NAMESPACE: ${{ inputs.namespace }}
+      IMAGE: ghcr.io/teamcarrillo405-hub/diana/diana-worker:${{ inputs.image_sha }}
+      REPLICAS: ${{ inputs.replicas }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        if: inputs.run_canary == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        if: inputs.run_canary == 'true'
+        run: npm ci
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Check deployment secrets and inputs
+        run: |
+          test -n "$KUBE_CONFIG_B64"
+          test -n "$WORKER_API_TOKEN"
+          case "$REPLICAS" in
+            ''|*[!0-9]*) echo "replicas must be numeric" >&2; exit 1 ;;
+          esac
+          if [ "$REPLICAS" -lt 2 ]; then
+            echo "replicas must be at least 2" >&2
+            exit 1
+          fi
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p "$HOME/.kube"
+          echo "$KUBE_CONFIG_B64" | base64 -d > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+          kubectl version --client=true
+
+      - name: Ensure namespace
+        run: kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply worker secrets and config
+        run: |
+          kubectl -n "$NAMESPACE" create secret generic diana-worker-secrets \
+            --from-literal=WORKER_API_TOKEN="$WORKER_API_TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl -n "$NAMESPACE" create configmap diana-worker-config \
+            --from-literal=DIANA_WORKER_BASE_URL="${{ inputs.target_origin }}" \
+            --from-literal=DIANA_WORKER_QUEUE=student-ai-candidate \
+            --from-literal=OPENJARVIS_BASE_URL="${{ inputs.openjarvis_base_url }}" \
+            --from-literal=OPENJARVIS_MODEL="${{ inputs.openjarvis_model }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Apply worker workload
+        run: |
+          awk 'BEGIN { doc=0 } /^---$/ { doc += 1; next } doc >= 2 { print }' \
+            deploy/worker/kubernetes.yaml > /tmp/diana-worker-workload.yaml
+          sed -i "s#ghcr.io/teamcarrillo405-hub/diana/diana-worker:replace-with-sha#$IMAGE#g" \
+            /tmp/diana-worker-workload.yaml
+          kubectl -n "$NAMESPACE" apply -f /tmp/diana-worker-workload.yaml
+          kubectl -n "$NAMESPACE" scale deployment/diana-worker --replicas="$REPLICAS"
+          kubectl -n "$NAMESPACE" rollout status deployment/diana-worker --timeout=180s
+
+      - name: Worker deployment status
+        run: |
+          kubectl -n "$NAMESPACE" get deployment diana-worker -o wide
+          kubectl -n "$NAMESPACE" get pods -l app.kubernetes.io/name=diana-worker -o wide
+
+      - name: Production preflight
+        if: inputs.run_canary == 'true'
+        run: npm run worker:production-preflight
+
+      - name: Deployed worker canary
+        if: inputs.run_canary == 'true'
+        run: npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000
