@@ -91,6 +91,8 @@ jobs:
   build-worker-image:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      PUSH_WORKER_IMAGE: ${{ (github.event_name == 'workflow_dispatch' && inputs.push_image == 'true') || (github.event_name == 'push' && github.ref == 'refs/heads/codex/diana-v2-clean-history') }}
     steps:
       - uses: actions/checkout@v4
 
@@ -138,7 +140,7 @@ jobs:
             "localImage": "$IMAGE_LOCAL",
             "remoteImage": "$IMAGE_REMOTE",
             "imageId": "$IMAGE_ID",
-            "pushRequested": "${{ github.event_name == 'workflow_dispatch' && inputs.push_image == 'true' }}"
+            "pushRequested": "${{ env.PUSH_WORKER_IMAGE }}"
           }
           EOF
 
@@ -154,12 +156,12 @@ jobs:
 
       - name: Login to GitHub Container Registry
         id: login_registry
-        if: github.event_name == 'workflow_dispatch' && inputs.push_image == 'true'
+        if: env.PUSH_WORKER_IMAGE == 'true'
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
 
       - name: Push worker image
         id: push_image
-        if: github.event_name == 'workflow_dispatch' && inputs.push_image == 'true'
+        if: env.PUSH_WORKER_IMAGE == 'true'
         run: |
           IMAGE_REPOSITORY="$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
           IMAGE="ghcr.io/${IMAGE_REPOSITORY}/diana-worker:${{ github.sha }}"
@@ -177,7 +179,7 @@ jobs:
             "sha": "${{ github.sha }}",
             "runId": "${{ github.run_id }}",
             "runAttempt": "${{ github.run_attempt }}",
-            "pushRequested": "${{ github.event_name == 'workflow_dispatch' && inputs.push_image == 'true' }}",
+            "pushRequested": "${{ env.PUSH_WORKER_IMAGE }}",
             "steps": {
               "setupNode": "${{ steps.setup_node.outcome }}",
               "installDependencies": "${{ steps.install_dependencies.outcome }}",
@@ -197,7 +199,7 @@ jobs:
         id: verify_image_evidence
         if: always()
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.push_image }}" = "true" ]; then
+          if [ "${{ env.PUSH_WORKER_IMAGE }}" = "true" ]; then
             npm run worker:image-evidence-check -- --dir=worker-image-evidence --require-pushed
           else
             npm run worker:image-evidence-check -- --dir=worker-image-evidence
