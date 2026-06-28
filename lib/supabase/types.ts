@@ -10,6 +10,126 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      worker_jobs: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          owner_id: string;
+          feature: "diana.voice_candidate";
+          queue_name: string;
+          queue_mode: "inline" | "managed_queue";
+          status: "queued" | "running" | "succeeded" | "error" | "rate_limited";
+          trace_id: string;
+          idempotency_key: string;
+          input_summary: Json;
+          payload: Json;
+          constraints: Json;
+          observability: Json;
+          result_payload: Json;
+          error_summary: string | null;
+          attempts: number;
+          max_attempts: number;
+          priority: number;
+          available_at: string;
+          locked_at: string | null;
+          locked_until: string | null;
+          locked_by: string | null;
+          created_at: string;
+          started_at: string | null;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          owner_id: string;
+          feature: "diana.voice_candidate";
+          queue_name: string;
+          queue_mode: "inline" | "managed_queue";
+          status?: "queued" | "running" | "succeeded" | "error" | "rate_limited";
+          trace_id: string;
+          idempotency_key: string;
+          input_summary?: Json;
+          payload?: Json;
+          constraints?: Json;
+          observability?: Json;
+          result_payload?: Json;
+          error_summary?: string | null;
+          attempts?: number;
+          max_attempts?: number;
+          priority?: number;
+          available_at?: string;
+          locked_at?: string | null;
+          locked_until?: string | null;
+          locked_by?: string | null;
+          created_at?: string;
+          started_at?: string | null;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          owner_id?: string;
+          feature?: "diana.voice_candidate";
+          queue_name?: string;
+          queue_mode?: "inline" | "managed_queue";
+          status?: "queued" | "running" | "succeeded" | "error" | "rate_limited";
+          trace_id?: string;
+          idempotency_key?: string;
+          input_summary?: Json;
+          payload?: Json;
+          constraints?: Json;
+          observability?: Json;
+          result_payload?: Json;
+          error_summary?: string | null;
+          attempts?: number;
+          max_attempts?: number;
+          priority?: number;
+          available_at?: string;
+          locked_at?: string | null;
+          locked_until?: string | null;
+          locked_by?: string | null;
+          created_at?: string;
+          started_at?: string | null;
+          completed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      worker_rate_limits: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          owner_id: string;
+          feature: "diana.voice_candidate";
+          scope: "student" | "tenant" | "feature";
+          window_start: string;
+          count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          tenant_id: string;
+          owner_id: string;
+          feature: "diana.voice_candidate";
+          scope: "student" | "tenant" | "feature";
+          window_start: string;
+          count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          tenant_id?: string;
+          owner_id?: string;
+          feature?: "diana.voice_candidate";
+          scope?: "student" | "tenant" | "feature";
+          window_start?: string;
+          count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       study_artifacts: {
         Row: {
           id: string;
@@ -2740,6 +2860,30 @@ export type Database = {
       install_shared_deck_for_members: {
         Args: { p_deck_id: string };
         Returns: number;
+      };
+      claim_worker_job: {
+        Args: {
+          requested_queue_name: string;
+          worker_id: string;
+          lease_seconds?: number;
+        };
+        Returns: Database["public"]["Tables"]["worker_jobs"]["Row"];
+      };
+      reserve_worker_rate_limit: {
+        Args: {
+          requested_tenant_id: string;
+          requested_owner_id: string;
+          requested_feature: string;
+          requested_scope: string;
+          window_seconds: number;
+          max_count: number;
+        };
+        Returns: {
+          allowed: boolean;
+          count: number;
+          remaining: number;
+          reset_at: string;
+        }[];
       };
       is_study_group_member: {
         Args: { p_group_id: string };

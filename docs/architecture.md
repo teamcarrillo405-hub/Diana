@@ -4,6 +4,10 @@ How Diana is built and why. References `docs/research/findings.md` and `docs/spe
 
 This is a working architecture doc, not a manifesto. Decisions are made; rationale is short.
 
+Related boundary doc: `docs/architecture/command-center-integration.md` covers
+how Paperclip, OpenJarvis, and gstack connect around Diana without entering the
+core student runtime.
+
 ---
 
 ## Stack overview

@@ -1,6 +1,7 @@
 node_modules/
 .next/
 out/
+dist/
 .env
 .env.local
 .env*.local
@@ -18,3 +19,4 @@ external/
 
 # Playwright session tokens must never land in the repo
 **/auth-storage-state.json
+.gstack/

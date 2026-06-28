@@ -3,7 +3,19 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 
 // Default-deny: everything requires auth unless explicitly allowed here.
-const PUBLIC_EXACT = new Set(["/", "/manifest.webmanifest", "/api/qa/anonymous-session"]);
+const PUBLIC_EXACT = new Set([
+  "/",
+  "/manifest.webmanifest",
+  "/api/qa/anonymous-session",
+  // Handles its own feature flag, session check, and JSON response.
+  "/api/diana/voice-candidate",
+  "/api/diana/voice-candidate/status",
+  // Backend worker endpoints use WORKER_API_TOKEN bearer auth, not Supabase sessions.
+  "/api/workers/claim",
+  "/api/workers/complete",
+  "/api/workers/metrics",
+  "/api/workers/metrics/prometheus",
+]);
 const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
 

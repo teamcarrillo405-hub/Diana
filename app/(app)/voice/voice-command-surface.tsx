@@ -11,12 +11,128 @@ type VoicePlan = {
   reason: string;
 };
 
-export function VoiceCommandSurface() {
+type VoiceCandidate = {
+  response: string;
+  trace: {
+    traceId?: string;
+    queueMode?: string;
+    readOnly: boolean;
+    policyMode: string;
+  };
+};
+
+type VoiceCandidateStatusResponse = {
+  ok?: boolean;
+  status?: "queued" | "running" | "succeeded" | "error" | "rate_limited";
+  error?: string;
+  response?: string;
+  trace?: VoiceCandidate["trace"];
+};
+
+const QUEUED_POLL_ATTEMPTS = 10;
+const QUEUED_POLL_DELAY_MS = 1500;
+
+export function VoiceCommandSurface({ sidecarEnabled = false }: { sidecarEnabled?: boolean }) {
   const [transcript, setTranscript] = useState("");
+  const [inputSource, setInputSource] = useState<"typed" | "voice">("typed");
+  const [candidate, setCandidate] = useState<VoiceCandidate | null>(null);
+  const [candidateStatus, setCandidateStatus] = useState<"idle" | "asking" | "ready" | "queued" | "blocked">("idle");
+  const [candidateMessage, setCandidateMessage] = useState("");
   const plan = useMemo(() => buildVoicePlan(transcript), [transcript]);
 
   function addTranscript(chunk: string) {
     setTranscript((current) => [current.trim(), chunk.trim()].filter(Boolean).join(" "));
+    setInputSource("voice");
+    setCandidate(null);
+    setCandidateStatus("idle");
+    setCandidateMessage("");
+  }
+
+  function updateTranscript(value: string) {
+    setTranscript(value);
+    setInputSource("typed");
+    setCandidate(null);
+    setCandidateStatus("idle");
+    setCandidateMessage("");
+  }
+
+  async function askForCandidate() {
+    const text = transcript.trim();
+    if (!text || candidateStatus === "asking") return;
+    setCandidateStatus("asking");
+    setCandidateMessage("");
+    setCandidate(null);
+
+    try {
+      const response = await fetch("/api/diana/voice-candidate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ transcript: text, source: inputSource }),
+      });
+      const data = await response.json().catch(() => null) as {
+        ok?: boolean;
+        queued?: boolean;
+        error?: string;
+        response?: string;
+        trace?: VoiceCandidate["trace"];
+      } | null;
+
+      if (response.status === 202 && data?.ok && data.queued && data.trace?.traceId) {
+        setCandidateStatus("queued");
+        setCandidateMessage("Diana is preparing that request.");
+        await pollQueuedCandidate(data.trace.traceId);
+        return;
+      }
+
+      if (!response.ok || !data?.ok || !data.response || !data.trace) {
+        setCandidateStatus("blocked");
+        setCandidateMessage(data?.error ?? "Diana could not get a candidate right now.");
+        return;
+      }
+
+      setCandidate({
+        response: data.response,
+        trace: data.trace,
+      });
+      setCandidateStatus("ready");
+    } catch {
+      setCandidateStatus("blocked");
+      setCandidateMessage("Diana could not get a candidate right now.");
+    }
+  }
+
+  async function pollQueuedCandidate(traceId: string) {
+    for (let attempt = 0; attempt < QUEUED_POLL_ATTEMPTS; attempt += 1) {
+      if (attempt > 0) {
+        await delay(QUEUED_POLL_DELAY_MS);
+      }
+
+      const response = await fetch(`/api/diana/voice-candidate/status?traceId=${encodeURIComponent(traceId)}`);
+      const data = await response.json().catch(() => null) as VoiceCandidateStatusResponse | null;
+
+      if (response.ok && data?.ok && data.status === "succeeded" && data.response && data.trace) {
+        setCandidate({
+          response: data.response,
+          trace: data.trace,
+        });
+        setCandidateStatus("ready");
+        setCandidateMessage("");
+        return;
+      }
+
+      if (response.ok && data?.ok && (data.status === "queued" || data.status === "running")) {
+        setCandidateStatus("queued");
+        setCandidateMessage("Diana is preparing that request.");
+        continue;
+      }
+
+      setCandidateStatus("blocked");
+      setCandidateMessage(data?.error ?? "Diana could not get a candidate right now.");
+      return;
+    }
+
+    setCandidateStatus("queued");
+    setCandidateMessage("Diana is still preparing that request.");
   }
 
   return (
@@ -51,7 +167,7 @@ export function VoiceCommandSurface() {
             provider="openai"
             showDeviceStatus
             value={transcript}
-            onChange={(event) => setTranscript(event.target.value)}
+            onChange={(event) => updateTranscript(event.target.value)}
             onTranscript={addTranscript}
             rows={8}
             className="w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
@@ -76,10 +192,54 @@ export function VoiceCommandSurface() {
             <p className="mt-2 text-sm font-semibold">{plan.nextMove}</p>
             <p className="mt-2 text-sm text-muted">{plan.reason}</p>
           </div>
+
+          {sidecarEnabled && (
+            <div className="mt-4 rounded-2xl border border-brand/25 bg-brand/10 p-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted">Diana candidate</p>
+                  <p className="mt-2 text-sm text-muted">Ask for one read-only next move from your words.</p>
+                </div>
+                <button
+                  type="button"
+                  disabled={!transcript.trim() || candidateStatus === "asking" || candidateStatus === "queued"}
+                  onClick={() => void askForCandidate()}
+                  className="touch-target inline-flex items-center justify-center rounded-xl border border-brand/30 bg-surface-raised px-3 py-2 text-xs font-semibold text-brand-strong hover:bg-brand/10 disabled:opacity-50"
+                >
+                  {candidateStatus === "asking" ? "Asking" : candidateStatus === "queued" ? "Preparing" : "Ask Diana"}
+                </button>
+              </div>
+
+              {candidate && (
+                <div className="mt-3 rounded-xl border border-border bg-surface-raised p-3">
+                  <p className="text-sm font-semibold">{candidate.response}</p>
+                  <p className="mt-2 text-xs text-muted">
+                    Read-only candidate. Diana keeps the receipt before showing it.
+                  </p>
+                </div>
+              )}
+
+              {candidateStatus === "blocked" && candidateMessage && (
+                <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-50 p-2 text-xs text-amber-950 dark:bg-amber-400/10 dark:text-amber-100">
+                  {candidateMessage}
+                </p>
+              )}
+
+              {candidateStatus === "queued" && candidateMessage && (
+                <p className="mt-3 rounded-xl border border-brand/25 bg-brand/10 p-2 text-xs font-medium text-brand-strong dark:text-brand">
+                  {candidateMessage}
+                </p>
+              )}
+            </div>
+          )}
         </aside>
       </section>
     </div>
   );
+}
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function VoiceProof({
