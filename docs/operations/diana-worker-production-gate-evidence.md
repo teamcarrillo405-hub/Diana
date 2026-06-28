@@ -136,8 +136,12 @@ Target origin: `http://localhost:3000`
 
 Target origin: `https://diana-umber.vercel.app`
 
-- Vercel production deployment `dpl_Hr2SjPfpYsHrzAESZeBPJ3BPUEQ3` is `Ready`
+- Vercel production deployment `dpl_4VnTEFiNtJ5tTPtm99RXDEYdj6iR` is `Ready`
   and aliased to `https://diana-umber.vercel.app`.
+  - It was deployed from clean worktree
+    `C:\Users\glcar\Diana-clean-deploy-08d6add` at commit
+    `08d6add898e645e50637a4e70ffaa2d7c0a3ce15`, avoiding unrelated local
+    dashboard/design WIP in `C:\Users\glcar\Diana`.
 - `npm run worker:production-preflight`
   - Diana app reachable
   - unauthenticated Diana voice status returns JSON `401`
@@ -151,26 +155,31 @@ Target origin: `https://diana-umber.vercel.app`
   - missing tenant completion rejected with `400`
   - cross-tenant completion rejected with `404`
   - canary cleanup returned `200`
+  - latest seeded trace: `dw-tenant-canary-mqycr9wa`
 - `npm run worker:load-smoke -- --count=5`
   - 5 per-run production-origin smoke jobs completed
   - metrics reported `queued: 0`, `running: 0`, `error: 0`, `retries: 0`
+  - latest smoke queue:
+    `student-ai-candidate-smoke-load-smoke-mqycs3pj`
 - `npm run worker:e2e-smoke`
   - compiled local worker consumed one production-origin smoke job
   - fake OpenJarvis-compatible sidecar received one chat request
   - job completed as `succeeded`
-  - result recorded provider `openjarvis` and model `worker-e2e-fake-model`
-- `npm run worker:deployed-canary -- --timeout-ms=15000 --poll-ms=1000`
+  - result recorded provider `openjarvis`, model `worker-e2e-fake-model`, and
+    backend-only `imageSha` `e2e-smoke-mqycrah3-image-sha`
+  - latest trace: `dw-e2e-smoke-mqycrah3`
+- `npm run worker:deployed-canary -- --timeout-ms=20000 --poll-ms=1000 --expected-image-sha=08d6add898e645e50637a4e70ffaa2d7c0a3ce15`
   - timed out with the seeded job still `queued`
   - this confirms the app-side gate is live, but no deployed worker replica has
     consumed production queue work yet
 
 ## Worker Image Evidence
 
-- GitHub `Worker image` run `28336619517` passed for commit
-  `a61e0b5290a73495414421cc63a2e6941a68c3be`.
-- Artifact `diana-worker-image-28336619517-1` was uploaded.
+- GitHub `Worker image` run `28337806673` passed for commit
+  `08d6add898e645e50637a4e70ffaa2d7c0a3ce15`.
+- Artifact `diana-worker-image-28337806673-1` was uploaded.
 - The workflow is configured to push this branch's worker image to:
-  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:a61e0b5290a73495414421cc63a2e6941a68c3be`
+  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:08d6add898e645e50637a4e70ffaa2d7c0a3ce15`
 - Because this branch sets `PUSH_WORKER_IMAGE=true`, the workflow's own
   `npm run worker:image-evidence-check -- --require-pushed` step had to pass
   before the successful run concluded.
@@ -307,8 +316,8 @@ this boundary.
 ## Remaining Production Gate
 
 - Deploy at least two hosted worker replicas using the pushed image from the
-  latest successful `Worker image` run. Current verified example:
-  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:a61e0b5290a73495414421cc63a2e6941a68c3be`
+  latest successful `Worker image` run:
+  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:08d6add898e645e50637a4e70ffaa2d7c0a3ce15`
 - Apply `deploy/worker/kubernetes.yaml` in the target cluster.
 - Configure the target cluster image pull secret through the
   `Worker kubernetes deploy` workflow with `GHCR_PULL_USERNAME` and
