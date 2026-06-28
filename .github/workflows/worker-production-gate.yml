@@ -12,6 +12,11 @@ on:
         required: false
         default: ""
         type: string
+      expected_worker_image_sha:
+        description: Expected hosted worker image SHA for deployed-worker canary proof
+        required: false
+        default: ""
+        type: string
       load_count:
         description: Managed-queue load-smoke job count
         required: true
@@ -52,6 +57,7 @@ jobs:
     env:
       DIANA_WORKER_BASE_URL: ${{ inputs.target_origin }}
       DIANA_EXPECTED_APP_SHA: ${{ inputs.expected_app_sha }}
+      DIANA_WORKER_EXPECTED_IMAGE_SHA: ${{ inputs.expected_worker_image_sha }}
       WORKER_API_TOKEN: ${{ secrets.DIANA_WORKER_API_TOKEN }}
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.DIANA_SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.DIANA_SUPABASE_SERVICE_ROLE_KEY }}
@@ -74,6 +80,7 @@ jobs:
             "workflow": "Worker production gate",
             "targetOrigin": "${{ inputs.target_origin }}",
             "expectedAppSha": "${{ inputs.expected_app_sha }}",
+            "expectedWorkerImageSha": "${{ inputs.expected_worker_image_sha }}",
             "loadCount": "${{ inputs.load_count }}",
             "seededChecks": "${{ inputs.seeded_checks }}",
             "dianaStatusSmoke": "${{ inputs.diana_status_smoke }}",
@@ -91,6 +98,10 @@ jobs:
         id: required_secrets
         run: |
           test -n "$WORKER_API_TOKEN"
+          if [ -n "$DIANA_WORKER_EXPECTED_IMAGE_SHA" ] && [ "${{ inputs.seeded_checks }}" != "true" ]; then
+            echo "expected_worker_image_sha requires seeded_checks=true so deployed-worker canary can prove it" >&2
+            exit 1
+          fi
           if [ "${{ inputs.seeded_checks }}" = "true" ]; then
             test -n "$NEXT_PUBLIC_SUPABASE_URL"
             test -n "$SUPABASE_SERVICE_ROLE_KEY"
@@ -161,6 +172,7 @@ jobs:
             "workflow": "Worker production gate",
             "targetOrigin": "${{ inputs.target_origin }}",
             "expectedAppSha": "${{ inputs.expected_app_sha }}",
+            "expectedWorkerImageSha": "${{ inputs.expected_worker_image_sha }}",
             "loadCount": "${{ inputs.load_count }}",
             "seededChecks": "${{ inputs.seeded_checks }}",
             "dianaStatusSmoke": "${{ inputs.diana_status_smoke }}",

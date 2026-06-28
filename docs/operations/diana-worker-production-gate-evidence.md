@@ -183,9 +183,9 @@ Target origin: `https://diana-umber.vercel.app`
   - The GitHub REST API was rate-limited for unauthenticated artifact lookup
     during this evidence refresh, so the exact latest artifact id was not
     retrieved in this snapshot.
-  - The latest candidate worker image tag for hosted deployment is expected to
-    be:
-    `ghcr.io/teamcarrillo405-hub/diana/diana-worker:e2e08e9b10c4ee11c9e33bc15053cf8d2a3b0ed2`
+  - The hosted deployment image tag must be copied from the latest successful
+    `Worker image` artifact for this branch. Do not reuse the Diana app SHA as
+    the worker image SHA.
   - The production Diana app deployment SHA remains:
     `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
 - GitHub `Worker image` run `28338120109` passed for commit
@@ -319,6 +319,12 @@ Kubernetes deploy workflow runs the deployed-worker canary with
 payloads, which lets deploy evidence prove the job was consumed by the intended
 image without exposing backend details to the student browser.
 
+The full production-gate workflow now also accepts
+`expected_worker_image_sha`, passes it to the deployed-worker canary through
+`DIANA_WORKER_EXPECTED_IMAGE_SHA`, records it in the evidence artifact, and
+requires strict artifact verification to prove the expected worker image SHA
+when that input is supplied.
+
 The production-origin e2e smoke exposed a distributed clock-skew bug. Queued
 jobs were inserting `available_at` from the client/runtime clock, so a fast
 remote claim could see the job as not yet available against the database clock
@@ -335,7 +341,7 @@ this boundary.
      `GHCR_PULL_TOKEN`.
    - Dispatch inputs for the current production target:
      - `target_origin`: `https://diana-umber.vercel.app`
-     - `image_sha`: `e2e08e9b10c4ee11c9e33bc15053cf8d2a3b0ed2`
+     - `image_sha`: latest successful `Worker image` SHA for the branch
      - `expected_app_sha`: `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
      - `replicas`: `2` or higher
      - `openjarvis_base_url`: the private in-cluster OpenJarvis-compatible
@@ -366,6 +372,8 @@ this boundary.
    - Production inputs:
      - `target_origin`: `https://diana-umber.vercel.app`
      - `expected_app_sha`: `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+     - `expected_worker_image_sha`: the same SHA used for the deployed worker
+       image
      - `seeded_checks`: `true`
      - `diana_status_smoke`: `true`
      - `load_count`: start with `10`, then repeat with `25` or `100`

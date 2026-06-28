@@ -5,6 +5,7 @@ type GateMetadata = {
   workflow?: unknown;
   targetOrigin?: unknown;
   expectedAppSha?: unknown;
+  expectedWorkerImageSha?: unknown;
   loadCount?: unknown;
   seededChecks?: unknown;
   dianaStatusSmoke?: unknown;
@@ -92,6 +93,7 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
     "artifact summary and outcome metadata match",
     metadataValue(summary.targetOrigin) === metadataValue(outcome.targetOrigin) &&
       metadataValue(summary.expectedAppSha) === metadataValue(outcome.expectedAppSha) &&
+      metadataValue(summary.expectedWorkerImageSha) === metadataValue(outcome.expectedWorkerImageSha) &&
       metadataValue(summary.loadCount) === metadataValue(outcome.loadCount) &&
       metadataValue(summary.seededChecks) === metadataValue(outcome.seededChecks) &&
       metadataValue(summary.dianaStatusSmoke) === metadataValue(outcome.dianaStatusSmoke) &&
@@ -105,12 +107,14 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
     isHttpUrl(outcome.targetOrigin) &&
       ["true", "false"].includes(metadataValue(outcome.seededChecks)) &&
       ["true", "false"].includes(metadataValue(outcome.dianaStatusSmoke)) &&
-      /^\d+$/.test(metadataValue(outcome.loadCount)),
-    "targetOrigin must be an http(s) URL; booleans and loadCount must match workflow inputs",
+      /^\d+$/.test(metadataValue(outcome.loadCount)) &&
+      (!metadataValue(outcome.expectedWorkerImageSha) || outcome.seededChecks === "true"),
+    "targetOrigin must be an http(s) URL; booleans and loadCount must match workflow inputs; expectedWorkerImageSha requires seededChecks",
   ));
 
   const steps = outcome.steps ?? {};
   const expectedAppSha = metadataValue(outcome.expectedAppSha);
+  const expectedWorkerImageSha = metadataValue(outcome.expectedWorkerImageSha);
   const seededChecks = outcome.seededChecks === "true";
   const dianaStatusSmoke = outcome.dianaStatusSmoke === "true";
   const requiredSteps: string[] = [
@@ -133,6 +137,13 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
   }
 
   if (requireSuccess) {
+    if (expectedWorkerImageSha) {
+      checks.push(check(
+        "expected worker image sha is proven by deployed canary",
+        seededChecks && steps.deployedCanary === "success",
+        "expectedWorkerImageSha requires a successful deployed-worker canary",
+      ));
+    }
     for (const step of requiredSteps) {
       checks.push(check(
         `${step} completed successfully`,
@@ -173,6 +184,14 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
           logText.includes(expectedAppSha) &&
           logText.includes("expected"),
         "production-preflight.log must prove the expected Diana app SHA",
+      ));
+    }
+    if (step === "deployedCanary" && expectedWorkerImageSha) {
+      checks.push(check(
+        `${logName} records expected worker image sha`,
+        (logText.includes("\"imageSha\"") || logText.includes("\"imageSha\":")) &&
+          logText.includes(expectedWorkerImageSha),
+        "deployed-canary.log must prove the expected worker image SHA",
       ));
     }
   }
