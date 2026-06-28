@@ -283,6 +283,10 @@ The hosted Kubernetes deploy workflow now uploads
 origin, namespace, replica count, kubectl rollout/status logs, production
 preflight output, and deployed-worker canary output.
 
+The deploy workflow now rejects the placeholder `image_sha` input, so a manual
+dispatch cannot accidentally roll out an older default image. Operators must
+copy the intended SHA from a successful `Worker image` run.
+
 The production-origin e2e smoke exposed a distributed clock-skew bug. Queued
 jobs were inserting `available_at` from the client/runtime clock, so a fast
 remote claim could see the job as not yet available against the database clock

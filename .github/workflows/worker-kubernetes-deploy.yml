@@ -10,7 +10,7 @@ on:
       image_sha:
         description: Worker image SHA tag to deploy
         required: true
-        default: a61e0b5290a73495414421cc63a2e6941a68c3be
+        default: replace-with-worker-image-sha
       namespace:
         description: Kubernetes namespace
         required: true
@@ -104,6 +104,10 @@ jobs:
           test -n "$GHCR_PULL_USERNAME"
           test -n "$GHCR_PULL_TOKEN"
           test -n "$IMAGE_PULL_SECRET_NAME"
+          if [ "${{ inputs.image_sha }}" = "replace-with-worker-image-sha" ]; then
+            echo "image_sha must be set to a real Worker image SHA tag" >&2
+            exit 1
+          fi
           case "$REPLICAS" in
             ''|*[!0-9]*) echo "replicas must be numeric" >&2; exit 1 ;;
           esac

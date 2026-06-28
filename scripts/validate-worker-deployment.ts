@@ -565,6 +565,8 @@ const checks: Check[] = [
       "GHCR_PULL_USERNAME",
       "GHCR_PULL_TOKEN",
       "image_pull_secret_name",
+      "replace-with-worker-image-sha",
+      "image_sha must be set to a real Worker image SHA tag",
       "worker-kubernetes-deploy-evidence/summary.json",
       "worker-kubernetes-deploy-evidence/outcome.json",
       "worker-kubernetes-deploy-evidence/rollout-status.log",

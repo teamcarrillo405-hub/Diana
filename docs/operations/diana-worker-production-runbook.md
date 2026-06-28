@@ -128,6 +128,10 @@ origin, image tag, namespace, replica count, kubectl rollout/status logs,
 production preflight output, and deployed-worker canary output. Keep this with
 the worker image and production-gate artifacts.
 
+The workflow intentionally does not default to a real image SHA. Set
+`image_sha` to the SHA from the latest successful `Worker image` run you intend
+to deploy.
+
 ## Deploy
 
 1. Build the worker image from `Dockerfile.worker`.
