@@ -25,7 +25,6 @@ on:
       - .github/workflows/worker-production-gate.yml
       - .github/workflows/worker-kubernetes-deploy.yml
       - docs/operations/diana-worker-production-runbook.md
-      - docs/operations/diana-worker-production-gate-evidence.md
       - scripts/run-diana-worker.ts
       - scripts/build-worker.mjs
       - scripts/smoke-worker-runtime.mjs
@@ -62,7 +61,6 @@ on:
       - .github/workflows/worker-production-gate.yml
       - .github/workflows/worker-kubernetes-deploy.yml
       - docs/operations/diana-worker-production-runbook.md
-      - docs/operations/diana-worker-production-gate-evidence.md
       - scripts/run-diana-worker.ts
       - scripts/build-worker.mjs
       - scripts/smoke-worker-runtime.mjs

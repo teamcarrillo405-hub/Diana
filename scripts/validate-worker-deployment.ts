@@ -407,7 +407,6 @@ const checks: Check[] = [
       ".github/workflows/worker-image.yml",
       ".github/workflows/worker-production-gate.yml",
       ".github/workflows/worker-kubernetes-deploy.yml",
-      "docs/operations/diana-worker-production-gate-evidence.md",
       "scripts/validate-worker-deployment.ts",
       "scripts/verify-worker-gate-evidence.ts",
       "scripts/verify-worker-kubernetes-deploy-evidence.ts",
@@ -416,6 +415,11 @@ const checks: Check[] = [
       "scripts/run-diana-status-polling-smoke.ts",
     ]),
     "Worker image workflow must run when worker deployment inputs change.",
+  ),
+  check(
+    "Worker image workflow ignores mutable evidence snapshots",
+    excludesAll(workflow, ["docs/operations/diana-worker-production-gate-evidence.md"]),
+    "Evidence snapshot edits must not create a new worker image SHA and make the snapshot stale.",
   ),
   check(
     "Worker image workflow smokes command path with sidecar config",
