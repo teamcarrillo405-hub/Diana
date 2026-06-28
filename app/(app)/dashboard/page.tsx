@@ -657,7 +657,7 @@ export default async function DashboardPage({
 
   const classCardDataList: ClassCardData[] = (weeklyClasses ?? []).map((cls) => {
     const asgts = (assignments ?? []).filter((a) => a.class_id === cls.id);
-    const overdueAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
+    const needsAttentionAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
     const inProgressAsgts = asgts.filter((a) => ["drafting", "checking"].includes(a.status));
     const doneAsgts = asgts.filter((a) => a.status === "exporting");
     const topRanked = ranked.find((a) => a.class_id === cls.id);
@@ -672,7 +672,7 @@ export default async function DashboardPage({
       bannerBg: theme.bannerBg,
       accent: theme.accent,
       active: inProgressAsgts.length > 0 || topRanked?.class_id === cls.id,
-      overdue: overdueAsgts.length > 0,
+      needsAttention: needsAttentionAsgts.length > 0,
       allDone: asgts.length > 0 && asgts.length === doneAsgts.length,
       pct: asgts.length > 0 ? Math.round((doneAsgts.length / asgts.length) * 100) : 0,
       period: "",

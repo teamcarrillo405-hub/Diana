@@ -7,7 +7,7 @@ export type ClassCardData = {
   bannerBg: string;
   accent: string;
   active: boolean;
-  overdue: boolean;
+  needsAttention: boolean;
   allDone: boolean;
   pct: number;
   period: string;
@@ -21,7 +21,7 @@ const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
   if (classes.length === 0) return null;
 
-  const overdueCount = classes.filter((c) => c.overdue).length;
+  const needsAttentionCount = classes.filter((c) => c.needsAttention).length;
 
   return (
     <div
@@ -34,9 +34,9 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
       }}
     >
       <style>{`
-        @keyframes gl-overdue {
-          0%,100% { box-shadow: 0 0 0 1.5px rgba(255,55,55,.8), 0 12px 36px rgba(0,0,0,.5); }
-          55%      { box-shadow: 0 0 0 4px rgba(255,55,55,.15), 0 12px 36px rgba(0,0,0,.5); }
+        @keyframes gl-needs-attention {
+          0%,100% { box-shadow: 0 0 0 1.5px rgba(245,158,11,.75), 0 12px 36px rgba(0,0,0,.5); }
+          55%      { box-shadow: 0 0 0 4px rgba(245,158,11,.15), 0 12px 36px rgba(0,0,0,.5); }
         }
         .gl-class-card:hover {
           transform: translateY(-5px);
@@ -59,7 +59,7 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
           >
             My Classes
           </div>
-          {overdueCount > 0 && (
+          {needsAttentionCount > 0 && (
             <div
               style={{
                 display: "flex",
@@ -78,12 +78,12 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
                 style={{
                   fontWeight: 700,
                   fontSize: 12,
-                  color: "#ff7070",
+                  color: "#f59e0b",
                   letterSpacing: ".06em",
                   textTransform: "uppercase",
                 }}
               >
-                {overdueCount} overdue
+                {needsAttentionCount} need attention
               </span>
             </div>
           )}
@@ -111,10 +111,10 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
 
   const badgeBg = done
     ? "rgba(54,224,122,.2)"
-    : cls.overdue
-      ? "rgba(255,55,55,.2)"
+    : cls.needsAttention
+      ? "rgba(245,158,11,.18)"
       : "rgba(8,12,26,.7)";
-  const badgeFg = done ? "#36e07a" : cls.overdue ? "#ff7070" : "#aab8e0";
+  const badgeFg = done ? "#36e07a" : cls.needsAttention ? "#f59e0b" : "#aab8e0";
   const ctaBg = cls.active
     ? "linear-gradient(180deg,#36e07a,#16a34a)"
     : done
@@ -132,7 +132,7 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
         borderRadius: 16,
         overflow: "hidden",
         border: "1px solid rgba(120,150,220,.16)",
-        animation: cls.overdue ? "gl-overdue 2s ease-in-out infinite" : "none",
+        animation: cls.needsAttention ? "gl-needs-attention 2s ease-in-out infinite" : "none",
         transition: "transform .2s, box-shadow .2s",
         textDecoration: "none",
         color: "#fff",
