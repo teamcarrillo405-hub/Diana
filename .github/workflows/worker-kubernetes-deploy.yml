@@ -233,6 +233,10 @@ jobs:
           }
           EOF
 
+      - name: Verify deployment evidence package
+        if: always()
+        run: npm run worker:kubernetes-deploy-evidence-check -- --dir=worker-kubernetes-deploy-evidence
+
       - name: Upload deployment evidence
         if: always()
         uses: actions/upload-artifact@v4

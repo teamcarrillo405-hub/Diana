@@ -1,18 +1,20 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-type GateMetadata = {
+type DeployEvidence = {
   workflow?: unknown;
   targetOrigin?: unknown;
-  loadCount?: unknown;
-  seededChecks?: unknown;
-  dianaStatusSmoke?: unknown;
+  image?: unknown;
+  namespace?: unknown;
+  replicas?: unknown;
+  imagePullSecretName?: unknown;
+  runCanary?: unknown;
   sha?: unknown;
   runId?: unknown;
   runAttempt?: unknown;
 };
 
-type GateOutcome = GateMetadata & {
+type DeployOutcome = DeployEvidence & {
   steps?: Record<string, unknown>;
 };
 
@@ -24,30 +26,31 @@ type Check = {
 
 const allowedOutcomes = new Set(["success", "skipped", "failure", "cancelled"]);
 const baseRequiredSteps = [
+  "setupKubectl",
+  "checkInputs",
+  "configureKubeconfig",
+  "ensureNamespace",
+  "applyImagePullSecret",
+  "applyWorkerSecretsAndConfig",
+  "applyWorkerWorkload",
+  "workerDeploymentStatus",
+] as const;
+const canarySteps = [
+  "setupNode",
   "installDependencies",
-  "requiredSecrets",
-  "deploymentCheck",
   "productionPreflight",
-] as const;
-const seededSteps = [
-  "tenantCanary",
-  "e2eSmoke",
   "deployedCanary",
-  "loadSmoke",
-] as const;
-const statusSmokeSteps = [
-  "installChromium",
-  "dianaStatusSmoke",
 ] as const;
 
 const logByStep: Record<string, string> = {
-  deploymentCheck: "deployment-check.log",
+  configureKubeconfig: "kubectl-version.log",
+  ensureNamespace: "namespace.log",
+  applyImagePullSecret: "image-pull-secret.log",
+  applyWorkerSecretsAndConfig: "worker-secret.log",
+  applyWorkerWorkload: "rollout-status.log",
+  workerDeploymentStatus: "pod-status.log",
   productionPreflight: "production-preflight.log",
-  tenantCanary: "tenant-canary.log",
-  e2eSmoke: "e2e-smoke.log",
   deployedCanary: "deployed-canary.log",
-  dianaStatusSmoke: "diana-status-smoke.log",
-  loadSmoke: "load-smoke.log",
 };
 
 function argValue(name: string): string | null {
@@ -57,7 +60,7 @@ function argValue(name: string): string | null {
 }
 
 function main() {
-  const dir = argValue("dir") ?? "worker-gate-evidence";
+  const dir = argValue("dir") ?? "worker-kubernetes-deploy-evidence";
   const requireSuccess = process.argv.includes("--require-success");
   const checks = verifyEvidence({ dir, requireSuccess });
   const ok = checks.every((check) => check.ok);
@@ -67,60 +70,61 @@ function main() {
 
 function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: boolean }): Check[] {
   const checks: Check[] = [];
-  const summary = readJson<GateMetadata>(join(dir, "summary.json"));
-  const outcome = readJson<GateOutcome>(join(dir, "outcome.json"));
+  const summary = readJson<DeployEvidence>(join(dir, "summary.json"));
+  const outcome = readJson<DeployOutcome>(join(dir, "outcome.json"));
 
-  checks.push(check("summary.json is readable", Boolean(summary), "required artifact metadata"));
-  checks.push(check("outcome.json is readable", Boolean(outcome), "required step outcome metadata"));
+  checks.push(check("summary.json is readable", Boolean(summary), "required deploy metadata"));
+  checks.push(check("outcome.json is readable", Boolean(outcome), "required deploy step outcomes"));
   if (!summary || !outcome) return checks;
 
   checks.push(check(
-    "artifact metadata identifies worker production gate",
-    summary.workflow === "Worker production gate" && outcome.workflow === "Worker production gate",
-    "workflow must match Worker production gate",
+    "artifact metadata identifies worker kubernetes deploy",
+    summary.workflow === "Worker kubernetes deploy" && outcome.workflow === "Worker kubernetes deploy",
+    "workflow must match Worker kubernetes deploy",
   ));
   checks.push(check(
-    "artifact metadata includes target and run ids",
-    isNonEmptyString(outcome.targetOrigin) &&
+    "artifact metadata includes target, image, and run ids",
+    isHttpUrl(outcome.targetOrigin) &&
+      isNonEmptyString(outcome.image) &&
+      isNonEmptyString(outcome.namespace) &&
+      isNonEmptyString(outcome.replicas) &&
+      isNonEmptyString(outcome.imagePullSecretName) &&
       isNonEmptyString(outcome.sha) &&
       isNonEmptyString(outcome.runId) &&
       isNonEmptyString(outcome.runAttempt),
-    "targetOrigin, sha, runId, and runAttempt are required",
+    "targetOrigin, image, namespace, replicas, imagePullSecretName, sha, runId, and runAttempt are required",
   ));
   checks.push(check(
     "artifact summary and outcome metadata match",
     metadataValue(summary.targetOrigin) === metadataValue(outcome.targetOrigin) &&
-      metadataValue(summary.loadCount) === metadataValue(outcome.loadCount) &&
-      metadataValue(summary.seededChecks) === metadataValue(outcome.seededChecks) &&
-      metadataValue(summary.dianaStatusSmoke) === metadataValue(outcome.dianaStatusSmoke) &&
+      metadataValue(summary.image) === metadataValue(outcome.image) &&
+      metadataValue(summary.namespace) === metadataValue(outcome.namespace) &&
+      metadataValue(summary.replicas) === metadataValue(outcome.replicas) &&
+      metadataValue(summary.imagePullSecretName) === metadataValue(outcome.imagePullSecretName) &&
+      metadataValue(summary.runCanary) === metadataValue(outcome.runCanary) &&
       metadataValue(summary.sha) === metadataValue(outcome.sha) &&
       metadataValue(summary.runId) === metadataValue(outcome.runId) &&
       metadataValue(summary.runAttempt) === metadataValue(outcome.runAttempt),
-    "summary.json and outcome.json must describe the same target, inputs, commit, and run",
+    "summary.json and outcome.json must describe the same deploy target, image, inputs, commit, and run",
   ));
   checks.push(check(
-    "artifact metadata uses expected input values",
-    isHttpUrl(outcome.targetOrigin) &&
-      ["true", "false"].includes(metadataValue(outcome.seededChecks)) &&
-      ["true", "false"].includes(metadataValue(outcome.dianaStatusSmoke)) &&
-      /^\d+$/.test(metadataValue(outcome.loadCount)),
-    "targetOrigin must be an http(s) URL; booleans and loadCount must match workflow inputs",
+    "artifact metadata uses safe deploy input values",
+    metadataValue(outcome.image).startsWith("ghcr.io/teamcarrillo405-hub/diana/diana-worker:") &&
+      !metadataValue(outcome.image).includes("replace-with-worker-image-sha") &&
+      Number(metadataValue(outcome.replicas)) >= 2 &&
+      ["true", "false"].includes(metadataValue(outcome.runCanary)),
+    "image must be a real Diana GHCR tag, replicas must be at least 2, runCanary must be true or false",
   ));
 
   const steps = outcome.steps ?? {};
-  const seededChecks = outcome.seededChecks === "true";
-  const dianaStatusSmoke = outcome.dianaStatusSmoke === "true";
+  const runCanary = outcome.runCanary === "true";
   const requiredSteps: string[] = [
     ...baseRequiredSteps,
-    ...(seededChecks ? seededSteps : []),
-    ...(seededChecks && dianaStatusSmoke ? statusSmokeSteps : []),
+    ...(runCanary ? canarySteps : []),
   ];
-  const optionalSteps: string[] = [
-    ...(!seededChecks ? seededSteps : []),
-    ...(!seededChecks || !dianaStatusSmoke ? statusSmokeSteps : []),
-  ];
+  const optionalSteps: string[] = runCanary ? [] : [...canarySteps];
 
-  for (const step of [...baseRequiredSteps, ...seededSteps, ...statusSmokeSteps]) {
+  for (const step of [...baseRequiredSteps, ...canarySteps]) {
     const outcomeValue = steps[step];
     checks.push(check(
       `${step} outcome is present`,
@@ -139,7 +143,7 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
     }
     for (const step of optionalSteps) {
       checks.push(check(
-        `${step} is skipped when disabled`,
+        `${step} is skipped when canary is disabled`,
         steps[step] === "skipped" || steps[step] === "success",
         `outcome=${String(steps[step])}`,
       ));
@@ -158,11 +162,27 @@ function verifyEvidence({ dir, requireSuccess }: { dir: string; requireSuccess: 
       existsSync(logPath) && statSync(logPath).size > 0,
       logPath,
     ));
-    checks.push(check(
-      `${logName} records ok true`,
-      logText.includes("\"ok\": true") || logText.includes("\"ok\":true"),
-      "command output should include ok true JSON",
-    ));
+    if (step === "productionPreflight" || step === "deployedCanary") {
+      checks.push(check(
+        `${logName} records ok true`,
+        logText.includes("\"ok\": true") || logText.includes("\"ok\":true"),
+        "command output should include ok true JSON",
+      ));
+    }
+    if (step === "applyWorkerWorkload") {
+      checks.push(check(
+        `${logName} records rollout completion`,
+        logText.includes("successfully rolled out"),
+        "rollout-status.log must record a completed rollout",
+      ));
+    }
+    if (step === "workerDeploymentStatus") {
+      checks.push(check(
+        `${logName} records worker pods`,
+        logText.includes("diana-worker"),
+        "pod-status.log must include diana-worker pods",
+      ));
+    }
   }
 
   return checks;

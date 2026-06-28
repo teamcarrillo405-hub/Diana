@@ -152,7 +152,7 @@ function verifyEvidence({ dir, requirePushed }: { dir: string; requirePushed: bo
 function readJson<T>(path: string): T | null {
   if (!existsSync(path)) return null;
   try {
-    return JSON.parse(readFileSync(path, "utf8")) as T;
+    return JSON.parse(readFileSync(path, "utf8").replace(/^\uFEFF/, "")) as T;
   } catch {
     return null;
   }

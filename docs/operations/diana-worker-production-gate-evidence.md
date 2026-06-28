@@ -283,6 +283,10 @@ The hosted Kubernetes deploy workflow now uploads
 origin, namespace, replica count, kubectl rollout/status logs, production
 preflight output, and deployed-worker canary output.
 
+`npm run worker:kubernetes-deploy-evidence-check` now verifies that deploy
+artifact shape and, with `--require-success`, requires successful rollout,
+worker pod status, production preflight, and deployed-worker canary evidence.
+
 The deploy workflow now rejects the placeholder `image_sha` input, so a manual
 dispatch cannot accidentally roll out an older default image. Operators must
 copy the intended SHA from a successful `Worker image` run.
@@ -317,6 +321,9 @@ this boundary.
   staging and production run as the rollout evidence package.
 - Preserve the uploaded `diana-worker-kubernetes-deploy-...` artifact from each
   hosted worker deployment.
+- Run `npm run worker:kubernetes-deploy-evidence-check -- --dir=<artifact> --require-success`
+  against the downloaded hosted-deploy artifact before treating the worker
+  rollout as proven.
 - Inspect `outcome.json` in that artifact before rollout expansion; required
   checks should be `success`, while intentionally disabled optional checks may
   be `skipped`.

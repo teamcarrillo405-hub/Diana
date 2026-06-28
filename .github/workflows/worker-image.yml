@@ -37,6 +37,7 @@ on:
       - scripts/worker-production-preflight.ts
       - scripts/validate-worker-deployment.ts
       - scripts/verify-worker-gate-evidence.ts
+      - scripts/verify-worker-kubernetes-deploy-evidence.ts
       - scripts/verify-worker-image-evidence.ts
   pull_request:
     paths:
@@ -73,6 +74,7 @@ on:
       - scripts/worker-production-preflight.ts
       - scripts/validate-worker-deployment.ts
       - scripts/verify-worker-gate-evidence.ts
+      - scripts/verify-worker-kubernetes-deploy-evidence.ts
       - scripts/verify-worker-image-evidence.ts
   workflow_dispatch:
     inputs:

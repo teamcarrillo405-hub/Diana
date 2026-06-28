@@ -88,6 +88,7 @@ const dianaStatusSmoke = read("scripts/run-diana-status-polling-smoke.ts");
 const productionPreflight = read("scripts/worker-production-preflight.ts");
 const evidenceVerifier = read("scripts/verify-worker-gate-evidence.ts");
 const imageEvidenceVerifier = read("scripts/verify-worker-image-evidence.ts");
+const kubernetesDeployEvidenceVerifier = read("scripts/verify-worker-kubernetes-deploy-evidence.ts");
 const parsedDeployment = parseKubernetesManifests(deployment);
 const parsedPrometheus = parseKubernetesManifests(prometheus);
 const parsedKeda = parseKubernetesManifests(keda);
@@ -401,6 +402,7 @@ const checks: Check[] = [
       "docs/operations/diana-worker-production-gate-evidence.md",
       "scripts/validate-worker-deployment.ts",
       "scripts/verify-worker-gate-evidence.ts",
+      "scripts/verify-worker-kubernetes-deploy-evidence.ts",
       "scripts/verify-worker-image-evidence.ts",
       "scripts/run-worker-deployed-canary.ts",
       "scripts/run-diana-status-polling-smoke.ts",
@@ -470,6 +472,8 @@ const checks: Check[] = [
       "scripts/run-diana-status-polling-smoke.ts",
       "worker:gate-evidence-check",
       "scripts/verify-worker-gate-evidence.ts",
+      "worker:kubernetes-deploy-evidence-check",
+      "scripts/verify-worker-kubernetes-deploy-evidence.ts",
       "worker:image-evidence-check",
       "scripts/verify-worker-image-evidence.ts",
     ]),
@@ -574,6 +578,8 @@ const checks: Check[] = [
       "worker-kubernetes-deploy-evidence/pod-status.log",
       "worker-kubernetes-deploy-evidence/production-preflight.log",
       "worker-kubernetes-deploy-evidence/deployed-canary.log",
+      "Verify deployment evidence package",
+      "npm run worker:kubernetes-deploy-evidence-check -- --dir=worker-kubernetes-deploy-evidence",
       "kubectl -n \"$NAMESPACE\" create secret docker-registry \"$IMAGE_PULL_SECRET_NAME\"",
       "--docker-server=ghcr.io",
       "--docker-username=\"$GHCR_PULL_USERNAME\"",
@@ -596,6 +602,25 @@ const checks: Check[] = [
       "steps.deployed_canary.outcome",
     ]),
     "Kubernetes deploy workflow must deploy at least two hosted workers, verify consumption, and upload deployment evidence.",
+  ),
+  check(
+    "Kubernetes deploy evidence verifier exists",
+    includesAll(kubernetesDeployEvidenceVerifier, [
+      "summary.json",
+      "outcome.json",
+      "Worker kubernetes deploy",
+      "--require-success",
+      "artifact summary and outcome metadata match",
+      "artifact metadata uses safe deploy input values",
+      "rollout-status.log",
+      "pod-status.log",
+      "production-preflight.log",
+      "deployed-canary.log",
+      "successfully rolled out",
+      "diana-worker",
+      "\\\"ok\\\": true",
+    ]),
+    "Kubernetes deploy evidence verifier must validate deploy metadata, rollout logs, worker pod status, and canary success mode.",
   ),
   check(
     "Production gate evidence verifier exists",

@@ -34,6 +34,7 @@
     "worker:production-preflight": "npx tsx scripts/worker-production-preflight.ts",
     "worker:deployment-check": "npx tsx scripts/validate-worker-deployment.ts",
     "worker:gate-evidence-check": "npx tsx scripts/verify-worker-gate-evidence.ts",
+    "worker:kubernetes-deploy-evidence-check": "npx tsx scripts/verify-worker-kubernetes-deploy-evidence.ts",
     "worker:image-evidence-check": "npx tsx scripts/verify-worker-image-evidence.ts",
     "gstack:browse": "npx tsx scripts/run-gstack-browse.ts",
     "launch-audit": "npx tsx scripts/launch-audit.ts",
