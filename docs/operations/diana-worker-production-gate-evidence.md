@@ -127,6 +127,38 @@ Target origin: `http://localhost:3000`
   - per-run smoke queue metrics reported `queued: 0`, `running: 0`, `error: 0`,
     `retries: 0`
 
+## Live Production App-Side Gates Passed
+
+Target origin: `https://diana-umber.vercel.app`
+
+- Vercel production deployment `dpl_3w1pdNRB16S1aAprwFugGCKzG9Cw` is `Ready`
+  and aliased to `https://diana-umber.vercel.app`.
+- `npm run worker:production-preflight`
+  - Diana app reachable
+  - unauthenticated Diana voice status returns JSON `401`
+  - worker claim, complete, metrics, and prometheus endpoints reject missing
+    bearer auth with JSON `401`
+  - authorized worker claim and complete requests reach validation
+  - authorized worker metrics and prometheus metrics return `200`
+  - `worker_jobs` and `worker_rate_limits` schema is reachable
+  - `claim_worker_job` and `reserve_worker_rate_limit` RPCs are callable
+- `npm run worker:tenant-canary -- --seed`
+  - missing tenant completion rejected with `400`
+  - cross-tenant completion rejected with `404`
+  - canary cleanup returned `200`
+- `npm run worker:load-smoke -- --count=5`
+  - 5 per-run production-origin smoke jobs completed
+  - metrics reported `queued: 0`, `running: 0`, `error: 0`, `retries: 0`
+- `npm run worker:e2e-smoke`
+  - compiled local worker consumed one production-origin smoke job
+  - fake OpenJarvis-compatible sidecar received one chat request
+  - job completed as `succeeded`
+  - result recorded provider `openjarvis` and model `worker-e2e-fake-model`
+- `npm run worker:deployed-canary -- --timeout-ms=15000 --poll-ms=1000`
+  - timed out with the seeded job still `queued`
+  - this confirms the app-side gate is live, but no deployed worker replica has
+    consumed production queue work yet
+
 ## Bugs Fixed During Verification
 
 The tenant canary previously claimed from the shared `student-ai-candidate`
@@ -206,6 +238,13 @@ also writes `pushed-image.txt` with the GHCR image tag.
 `npm run worker:image-evidence-check` verifies the artifact shape and required
 build/test/smoke outcomes, and `--require-pushed` additionally requires
 `pushed-image.txt` to match the recorded GHCR image tag.
+
+The production-origin e2e smoke exposed a distributed clock-skew bug. Queued
+jobs were inserting `available_at` from the client/runtime clock, so a fast
+remote claim could see the job as not yet available against the database clock
+and return `idle`. Immediate queued jobs now omit `available_at` and let the
+database default set it. `worker-queue.test.ts` includes a regression check for
+this boundary.
 
 ## Remaining Production Gate
 

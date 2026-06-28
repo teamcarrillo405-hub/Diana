@@ -65,7 +65,6 @@ export function createWorkerJobInsert(
     constraints: job.constraints as unknown as Json,
     observability: job.observability as unknown as Json,
     attempts: status === "running" ? 1 : 0,
-    available_at: now,
     started_at: status === "running" ? now : null,
     locked_at: status === "running" ? now : null,
     locked_until: status === "running"

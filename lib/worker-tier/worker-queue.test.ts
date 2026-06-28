@@ -61,6 +61,19 @@ describe("worker queue runtime", () => {
     }));
   });
 
+  it("lets the database clock set available_at for immediate queued jobs", () => {
+    const job = createVoiceCandidateWorkerJob({
+      input,
+      studentId: "student-1",
+      traceId: "dw-db-clock",
+      now: new Date("2026-06-28T04:00:00.000Z"),
+    });
+
+    const insert = createWorkerJobInsert(job, "queued");
+
+    expect(insert).not.toHaveProperty("available_at");
+  });
+
   it("claims one worker job with a lease", async () => {
     const rpc = vi.fn().mockResolvedValue({ data: { id: "row-1", trace_id: "dw-1" }, error: null });
     const client = { rpc };

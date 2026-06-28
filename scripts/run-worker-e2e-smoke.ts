@@ -74,7 +74,9 @@ async function main() {
       throw new Error(`Compiled worker exited ${worker.status}: ${worker.stderr || worker.stdout}`);
     }
     if (!sidecar.observedRequest) {
-      throw new Error("Fake OpenJarvis sidecar did not receive a chat request.");
+      throw new Error(
+        `Fake OpenJarvis sidecar did not receive a chat request. Worker stdout: ${worker.stdout || "<empty>"}; stderr: ${worker.stderr || "<empty>"}`,
+      );
     }
     if (sidecar.observedRequest.model !== model) {
       throw new Error("Compiled worker sent an unexpected OpenJarvis model.");
