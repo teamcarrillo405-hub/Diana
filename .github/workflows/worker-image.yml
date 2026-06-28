@@ -23,6 +23,7 @@ on:
       - supabase/migrations/0044_worker_claim_lease_recovery.sql
       - .github/workflows/worker-image.yml
       - .github/workflows/worker-production-gate.yml
+      - .github/workflows/worker-kubernetes-deploy.yml
       - docs/operations/diana-worker-production-runbook.md
       - docs/operations/diana-worker-production-gate-evidence.md
       - scripts/run-diana-worker.ts
@@ -58,6 +59,7 @@ on:
       - supabase/migrations/0044_worker_claim_lease_recovery.sql
       - .github/workflows/worker-image.yml
       - .github/workflows/worker-production-gate.yml
+      - .github/workflows/worker-kubernetes-deploy.yml
       - docs/operations/diana-worker-production-runbook.md
       - docs/operations/diana-worker-production-gate-evidence.md
       - scripts/run-diana-worker.ts

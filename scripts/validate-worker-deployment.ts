@@ -150,6 +150,11 @@ const checks: Check[] = [
     "Worker pods must not mount a Kubernetes service account token by default.",
   ),
   check(
+    "Worker pod declares GHCR image pull secret",
+    getPath(deploymentManifest, ["spec", "template", "spec", "imagePullSecrets", 0, "name"]) === "ghcr-pull-secret",
+    "Worker pods must declare an imagePullSecret so private GHCR packages can be pulled by hosted clusters.",
+  ),
+  check(
     "Worker pod uses restricted security context",
     getPath(deploymentManifest, ["spec", "template", "spec", "securityContext", "runAsNonRoot"]) === true &&
       getPath(deploymentManifest, ["spec", "template", "spec", "securityContext", "runAsUser"]) === 10001 &&
@@ -392,6 +397,7 @@ const checks: Check[] = [
       "supabase/migrations/0044_worker_claim_lease_recovery.sql",
       ".github/workflows/worker-image.yml",
       ".github/workflows/worker-production-gate.yml",
+      ".github/workflows/worker-kubernetes-deploy.yml",
       "docs/operations/diana-worker-production-gate-evidence.md",
       "scripts/validate-worker-deployment.ts",
       "scripts/verify-worker-gate-evidence.ts",
@@ -556,6 +562,14 @@ const checks: Check[] = [
     includesAll(kubernetesDeployWorkflow, [
       "KUBE_CONFIG_B64",
       "DIANA_WORKER_API_TOKEN",
+      "GHCR_PULL_USERNAME",
+      "GHCR_PULL_TOKEN",
+      "image_pull_secret_name",
+      "kubectl -n \"$NAMESPACE\" create secret docker-registry \"$IMAGE_PULL_SECRET_NAME\"",
+      "--docker-server=ghcr.io",
+      "--docker-username=\"$GHCR_PULL_USERNAME\"",
+      "--docker-password=\"$GHCR_PULL_TOKEN\"",
+      "sed -i \"s#name: ghcr-pull-secret#name: $IMAGE_PULL_SECRET_NAME#g\"",
       "replicas must be at least 2",
       "ghcr.io/teamcarrillo405-hub/diana/diana-worker:${{ inputs.image_sha }}",
       "kubectl -n \"$NAMESPACE\" create secret generic diana-worker-secrets",

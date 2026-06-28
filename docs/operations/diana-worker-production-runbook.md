@@ -30,6 +30,10 @@ Production is ready for managed queue rollout only when all of these are true:
   Diana rather than a login-page redirect.
 - At least two worker replicas run from the same image with unique
   `DIANA_WORKER_ID` values.
+- Hosted clusters can pull the worker image from GHCR through an explicit image
+  pull secret. The GitHub deploy workflow requires `GHCR_PULL_USERNAME` and
+  `GHCR_PULL_TOKEN` and creates the configured pull secret before applying the
+  worker deployment.
 - Expired or malformed worker leases are reclaimable through
   `claim_worker_job`, and jobs that hit `max_attempts` move to `error` instead
   of remaining stuck in `running`.
@@ -104,11 +108,27 @@ The smoke signs in through Diana's normal login page, submits a Diana candidate
 request, verifies the queued status response, completes the job through the
 worker API, and verifies the completed status response stays student-safe.
 
+For the hosted Kubernetes deploy workflow, configure repository secrets:
+
+```text
+KUBE_CONFIG_B64
+DIANA_WORKER_API_TOKEN
+GHCR_PULL_USERNAME
+GHCR_PULL_TOKEN
+```
+
+`GHCR_PULL_TOKEN` should be a token with package read access to the Diana worker
+image. The workflow creates a Docker registry secret named `ghcr-pull-secret`
+by default and rewrites the worker pod `imagePullSecrets` entry when a different
+secret name is supplied.
+
 ## Deploy
 
 1. Build the worker image from `Dockerfile.worker`.
 2. Deploy at least two worker replicas. Use `deploy/worker/kubernetes.yaml` as
    the Kubernetes shape.
+   - Keep `imagePullSecrets` configured so hosted clusters can pull private
+     GHCR packages.
    - Keep `PodDisruptionBudget` enabled so voluntary disruptions leave at least
      one worker running.
    - Keep `NetworkPolicy` enabled. If Diana is served only through an external

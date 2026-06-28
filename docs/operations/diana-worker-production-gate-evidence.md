@@ -40,6 +40,9 @@ production-gate run, and cohort rollout.
     and has a strict `--require-pushed` mode when a GHCR push is requested
   - verifies this production-gate branch auto-publishes the GHCR worker image
     and requires pushed-image evidence
+  - verifies worker pods declare a GHCR image pull secret and the hosted
+    Kubernetes deploy workflow creates it from repository secrets before
+    applying the workload
   - verifies the production-gate workflow includes a deployed-worker canary for
     actual worker-replica job consumption
   - verifies the production-gate workflow can run authenticated Diana status
@@ -269,6 +272,12 @@ build/test/smoke outcomes, and `--require-pushed` additionally requires
 The production-gate branch now auto-publishes its GHCR image on push so worker
 deployment is no longer blocked on a manual image-dispatch step.
 
+The hosted Kubernetes deploy path now handles private GHCR pulls explicitly.
+Worker pods declare `imagePullSecrets: ghcr-pull-secret`, and the GitHub deploy
+workflow requires `GHCR_PULL_USERNAME` plus `GHCR_PULL_TOKEN`, creates the
+Docker registry secret in the target namespace, and rewrites the pull-secret
+name when a different input is used.
+
 The production-origin e2e smoke exposed a distributed clock-skew bug. Queued
 jobs were inserting `available_at` from the client/runtime clock, so a fast
 remote claim could see the job as not yet available against the database clock
@@ -282,6 +291,9 @@ this boundary.
   latest successful `Worker image` run. Current verified example:
   `ghcr.io/teamcarrillo405-hub/diana/diana-worker:a61e0b5290a73495414421cc63a2e6941a68c3be`
 - Apply `deploy/worker/kubernetes.yaml` in the target cluster.
+- Configure the target cluster image pull secret through the
+  `Worker kubernetes deploy` workflow with `GHCR_PULL_USERNAME` and
+  `GHCR_PULL_TOKEN`.
 - Configure production secrets and confirm workers do not receive Supabase
   service-role credentials.
 - Configure production monitoring to scrape
