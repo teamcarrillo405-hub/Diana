@@ -278,6 +278,11 @@ workflow requires `GHCR_PULL_USERNAME` plus `GHCR_PULL_TOKEN`, creates the
 Docker registry secret in the target namespace, and rewrites the pull-secret
 name when a different input is used.
 
+The hosted Kubernetes deploy workflow now uploads
+`diana-worker-kubernetes-deploy-...` evidence with the selected image, target
+origin, namespace, replica count, kubectl rollout/status logs, production
+preflight output, and deployed-worker canary output.
+
 The production-origin e2e smoke exposed a distributed clock-skew bug. Queued
 jobs were inserting `available_at` from the client/runtime clock, so a fast
 remote claim could see the job as not yet available against the database clock
@@ -306,6 +311,8 @@ this boundary.
   production.
 - Preserve the uploaded `diana-worker-production-gate-...` artifact from each
   staging and production run as the rollout evidence package.
+- Preserve the uploaded `diana-worker-kubernetes-deploy-...` artifact from each
+  hosted worker deployment.
 - Inspect `outcome.json` in that artifact before rollout expansion; required
   checks should be `success`, while intentionally disabled optional checks may
   be `skipped`.

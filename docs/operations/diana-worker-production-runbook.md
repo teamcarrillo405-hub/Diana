@@ -122,6 +122,12 @@ image. The workflow creates a Docker registry secret named `ghcr-pull-secret`
 by default and rewrites the worker pod `imagePullSecrets` entry when a different
 secret name is supplied.
 
+The deploy workflow uploads a
+`diana-worker-kubernetes-deploy-<run-id>-<attempt>` artifact with the target
+origin, image tag, namespace, replica count, kubectl rollout/status logs,
+production preflight output, and deployed-worker canary output. Keep this with
+the worker image and production-gate artifacts.
+
 ## Deploy
 
 1. Build the worker image from `Dockerfile.worker`.
