@@ -136,19 +136,22 @@ Target origin: `http://localhost:3000`
 
 Target origin: `https://diana-umber.vercel.app`
 
-- Vercel production deployment `dpl_9AZmTQ7ZkqjArobfJwm9A6YEE8gm` is `Ready`
+- Vercel production deployment `dpl_6Vn3yTQMzHSKyxei1VvZztvjXr4V` is `Ready`
   and aliased to `https://diana-umber.vercel.app`.
   - It was deployed from clean worktree
     `C:\Users\glcar\Diana-clean-deploy-08d6add` at commit
-    `c2593a8b26130537476e08037c2ef9e9a870e51e`, avoiding unrelated local
+    `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`, avoiding unrelated local
     dashboard/design WIP in `C:\Users\glcar\Diana`.
 - `npm run worker:production-preflight`
   - Diana app reachable
   - unauthenticated Diana voice status returns JSON `401`
-  - worker claim, complete, metrics, and prometheus endpoints reject missing
-    bearer auth with JSON `401`
+  - worker claim, complete, metrics, prometheus, and version endpoints reject
+    missing bearer auth with JSON `401`
   - authorized worker claim and complete requests reach validation
   - authorized worker metrics and prometheus metrics return `200`
+  - authorized worker version returns app SHA
+    `3eb8303209c8bb48cb4fad0eb322931c7f7e052a` from `DIANA_APP_BUILD_SHA`,
+    and preflight passed with `DIANA_EXPECTED_APP_SHA` set to the same value
   - `worker_jobs` and `worker_rate_limits` schema is reachable
   - `claim_worker_job` and `reserve_worker_rate_limit` RPCs are callable
 - `npm run worker:tenant-canary -- --seed`
@@ -159,21 +162,29 @@ Target origin: `https://diana-umber.vercel.app`
   - 5 per-run production-origin smoke jobs completed
   - metrics reported `queued: 0`, `running: 0`, `error: 0`, `retries: 0`
   - latest smoke queue:
-    `student-ai-candidate-smoke-load-smoke-mqyd764o`
+    `student-ai-candidate-smoke-load-smoke-mqydjrjp`
 - `npm run worker:e2e-smoke`
   - compiled local worker consumed one production-origin smoke job
   - fake OpenJarvis-compatible sidecar received one chat request
   - job completed as `succeeded`
   - result recorded provider `openjarvis`, model `worker-e2e-fake-model`, and
-    backend-only `imageSha` `e2e-smoke-mqyd6jus-image-sha`
-  - latest trace: `dw-e2e-smoke-mqyd6jus`
-- `npm run worker:deployed-canary -- --timeout-ms=20000 --poll-ms=1000 --expected-image-sha=c2593a8b26130537476e08037c2ef9e9a870e51e`
+    backend-only `imageSha` `e2e-smoke-mqydjro7-image-sha`
+  - latest trace: `dw-e2e-smoke-mqydjro7`
+- `npm run worker:deployed-canary -- --timeout-ms=20000 --poll-ms=1000 --expected-image-sha=3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
   - timed out with the seeded job still `queued`
   - this confirms the app-side gate is live, but no deployed worker replica has
     consumed production queue work yet
 
 ## Worker Image Evidence
 
+- GitHub workflow badges report `CI - passing` and `Worker image - passing`
+  for branch `codex/diana-v2-clean-history` after commit
+  `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`.
+  - The GitHub REST API was rate-limited for unauthenticated artifact lookup
+    during this evidence refresh, so the exact latest artifact id was not
+    retrieved in this snapshot.
+  - The latest candidate worker image tag for hosted deployment is:
+    `ghcr.io/teamcarrillo405-hub/diana/diana-worker:3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
 - GitHub `Worker image` run `28338120109` passed for commit
   `c2593a8b26130537476e08037c2ef9e9a870e51e`.
 - Artifact `diana-worker-image-28338120109-1` was uploaded.
@@ -316,7 +327,7 @@ this boundary.
 
 - Deploy at least two hosted worker replicas using the pushed image from the
   latest successful `Worker image` run:
-  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:c2593a8b26130537476e08037c2ef9e9a870e51e`
+  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
 - Apply `deploy/worker/kubernetes.yaml` in the target cluster.
 - Configure the target cluster image pull secret through the
   `Worker kubernetes deploy` workflow with `GHCR_PULL_USERNAME` and
