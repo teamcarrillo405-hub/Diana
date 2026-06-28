@@ -81,6 +81,7 @@ const workerTier = read("lib/worker-tier/production-worker-tier.ts");
 const workerRunner = read("lib/worker-tier/worker-runner.ts");
 const voiceCandidateRoute = read("app/api/diana/voice-candidate/route.ts");
 const voiceCandidateStatusRoute = read("app/api/diana/voice-candidate/status/route.ts");
+const workerVersionRoute = read("app/api/workers/version/route.ts");
 const voiceCommandSurface = read("app/(app)/voice/voice-command-surface.tsx");
 const supabaseMiddleware = read("lib/supabase/middleware.ts");
 const loadSmoke = read("scripts/run-worker-load-smoke.ts");
@@ -300,6 +301,19 @@ const checks: Check[] = [
     "Managed-queue voice results must be owner-scoped, return JSON auth errors, and avoid backend provider details.",
   ),
   check(
+    "Worker version route proves app deployment SHA",
+    includesAll(workerVersionRoute, [
+      "hasValidWorkerBearer",
+      "DIANA_APP_BUILD_SHA",
+      "VERCEL_GIT_COMMIT_SHA",
+      "NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA",
+      "Worker authorization required.",
+      "app:",
+      "sha:",
+    ]) && includesAll(supabaseMiddleware, ["/api/workers/version"]),
+    "Backend-only worker version endpoint must expose app SHA to worker preflight without requiring student auth.",
+  ),
+  check(
     "Diana status smoke supports production auth",
     includesAll(dianaStatusSmoke, [
       "QA_USER_EMAIL",
@@ -379,6 +393,7 @@ const checks: Check[] = [
       "WORKER_API_TOKEN",
       "DIANA_WORKER_BASE_URL",
       "DIANA_WORKER_EXPECTED_IMAGE_SHA",
+      "DIANA_EXPECTED_APP_SHA",
     ]),
     ".env.worker-canary.example must contain preflight/canary/load-smoke settings.",
   ),
@@ -476,6 +491,7 @@ const checks: Check[] = [
       "lib/supabase/middleware.test.ts",
       "app/api/diana/voice-candidate/status/route.test.ts",
       "app/api/workers/metrics/prometheus/route.test.ts",
+      "app/api/workers/version/route.test.ts",
       "worker:e2e-smoke",
       "scripts/run-worker-e2e-smoke.ts",
       "worker:deployed-canary",
@@ -507,7 +523,9 @@ const checks: Check[] = [
     includesAll(productionGateWorkflow, [
       "workflow_dispatch",
       "target_origin",
+      "expected_app_sha",
       "DIANA_WORKER_BASE_URL",
+      "DIANA_EXPECTED_APP_SHA",
       "npm run worker:production-preflight",
       "worker-gate-evidence/production-preflight.log",
     ]) &&
@@ -515,8 +533,11 @@ const checks: Check[] = [
         "Diana voice status requires student auth",
         "/api/diana/voice-candidate/status",
         "traceId",
+        "DIANA_EXPECTED_APP_SHA",
+        "/api/workers/version",
+        "Worker version authorized",
       ]),
-    "Production gate workflow must be manually runnable against a target Diana origin and verify Diana status auth.",
+    "Production gate workflow must be manually runnable against a target Diana origin and verify Diana status auth plus optional app SHA.",
   ),
   check(
     "Production gate workflow runs seeded isolation and load checks",
@@ -577,6 +598,8 @@ const checks: Check[] = [
     "Kubernetes deploy workflow applies hosted worker replicas",
     includesAll(kubernetesDeployWorkflow, [
       "KUBE_CONFIG_B64",
+      "expected_app_sha",
+      "DIANA_EXPECTED_APP_SHA",
       "DIANA_WORKER_API_TOKEN",
       "GHCR_PULL_USERNAME",
       "GHCR_PULL_TOKEN",

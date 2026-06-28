@@ -28,6 +28,9 @@ Production is ready for managed queue rollout only when all of these are true:
 - `npm run worker:production-preflight` passes against the target Diana origin.
   It must verify that unauthenticated status polling returns JSON `401` from
   Diana rather than a login-page redirect.
+- When an expected app SHA is supplied, `worker:production-preflight` verifies
+  the backend-only worker version endpoint reports that exact Diana deployment
+  SHA before worker rollout continues.
 - At least two worker replicas run from the same image with unique
   `DIANA_WORKER_ID` values.
 - Hosted clusters can pull the worker image from GHCR through an explicit image
@@ -93,6 +96,7 @@ seeding:
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<service role key>
+DIANA_EXPECTED_APP_SHA=<expected-diana-app-deployment-sha>
 ```
 
 For the authenticated Diana status smoke in staging or production, configure an
@@ -141,6 +145,11 @@ to deploy. The workflow also writes that value to `DIANA_WORKER_IMAGE_SHA` on
 the worker config and runs the deployed-worker canary with
 `--expected-image-sha`, so the rollout evidence proves the consuming worker was
 running the intended image.
+
+Set `expected_app_sha` when dispatching the hosted deploy workflow to make
+production preflight prove the Diana app deployment SHA through
+`/api/workers/version`. For Vercel CLI deploys, pass the same value as runtime
+environment variable `DIANA_APP_BUILD_SHA`.
 
 ## Deploy
 
@@ -202,6 +211,8 @@ Run these before changing any tenant to managed queue mode:
 ```bash
 npm run worker:deployment-check
 NEXT_PUBLIC_SUPABASE_URL=<supabase-url> SUPABASE_SERVICE_ROLE_KEY=<service-role-key> \
+WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> npm run worker:production-preflight
+DIANA_EXPECTED_APP_SHA=<expected-app-sha> \
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> npm run worker:production-preflight
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> npm run worker:tenant-canary -- --seed
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> npm run worker:e2e-smoke

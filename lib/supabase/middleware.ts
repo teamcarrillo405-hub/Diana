@@ -15,6 +15,7 @@ const PUBLIC_EXACT = new Set([
   "/api/workers/complete",
   "/api/workers/metrics",
   "/api/workers/metrics/prometheus",
+  "/api/workers/version",
 ]);
 const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];

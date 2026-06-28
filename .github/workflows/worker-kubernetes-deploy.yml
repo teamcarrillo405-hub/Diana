@@ -11,6 +11,10 @@ on:
         description: Worker image SHA tag to deploy
         required: true
         default: replace-with-worker-image-sha
+      expected_app_sha:
+        description: Expected Diana app deployment SHA for production preflight
+        required: false
+        default: ""
       namespace:
         description: Kubernetes namespace
         required: true
@@ -50,6 +54,7 @@ jobs:
     timeout-minutes: 25
     env:
       DIANA_WORKER_BASE_URL: ${{ inputs.target_origin }}
+      DIANA_EXPECTED_APP_SHA: ${{ inputs.expected_app_sha }}
       WORKER_API_TOKEN: ${{ secrets.DIANA_WORKER_API_TOKEN }}
       KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_B64 }}
       GHCR_PULL_USERNAME: ${{ secrets.GHCR_PULL_USERNAME }}
@@ -69,6 +74,7 @@ jobs:
             "workflow": "Worker kubernetes deploy",
             "targetOrigin": "${{ inputs.target_origin }}",
             "image": "$IMAGE",
+            "expectedAppSha": "${{ inputs.expected_app_sha }}",
             "namespace": "$NAMESPACE",
             "replicas": "$REPLICAS",
             "imagePullSecretName": "$IMAGE_PULL_SECRET_NAME",
@@ -210,6 +216,7 @@ jobs:
             "workflow": "Worker kubernetes deploy",
             "targetOrigin": "${{ inputs.target_origin }}",
             "image": "$IMAGE",
+            "expectedAppSha": "${{ inputs.expected_app_sha }}",
             "namespace": "$NAMESPACE",
             "replicas": "$REPLICAS",
             "imagePullSecretName": "$IMAGE_PULL_SECRET_NAME",

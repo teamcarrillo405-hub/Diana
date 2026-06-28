@@ -13,6 +13,7 @@ function argValue(name: string): string | null {
 
 async function main() {
   const baseUrl = argValue("base-url") ?? process.env.DIANA_WORKER_BASE_URL;
+  const expectedAppSha = argValue("expected-app-sha") ?? process.env.DIANA_EXPECTED_APP_SHA;
   const token = process.env.WORKER_API_TOKEN;
   const checks: Check[] = [];
 
@@ -34,6 +35,7 @@ async function main() {
     checks.push(await checkWorkerPostRequiresAuth(baseUrl, "/api/workers/complete", "Worker complete requires bearer auth"));
     checks.push(await checkMetricsRequiresAuth(baseUrl));
     checks.push(await checkPrometheusMetricsRequiresAuth(baseUrl));
+    checks.push(await checkWorkerVersionRequiresAuth(baseUrl));
   }
 
   if (baseUrl && token) {
@@ -41,6 +43,7 @@ async function main() {
     checks.push(await checkWorkerCompleteAuthorizedValidation(baseUrl, token));
     checks.push(await checkMetricsAuthorized(baseUrl, token));
     checks.push(await checkPrometheusMetricsAuthorized(baseUrl, token));
+    checks.push(await checkWorkerVersionAuthorized(baseUrl, token, expectedAppSha));
   }
 
   checks.push(...await checkWorkerDatabaseReadiness());
@@ -231,6 +234,54 @@ async function checkPrometheusMetricsAuthorized(baseUrl: string, token: string) 
   } catch (error) {
     return {
       name: "Worker prometheus metrics authorized",
+      ok: false,
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+async function checkWorkerVersionRequiresAuth(baseUrl: string) {
+  try {
+    const response = await fetch(new URL("/api/workers/version", baseUrl));
+    return {
+      name: "Worker version requires bearer auth",
+      ok: response.status === 401,
+      detail: `status ${response.status}`,
+    };
+  } catch (error) {
+    return {
+      name: "Worker version requires bearer auth",
+      ok: false,
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
+async function checkWorkerVersionAuthorized(baseUrl: string, token: string, expectedAppSha: string | undefined | null) {
+  try {
+    const response = await fetch(new URL("/api/workers/version", baseUrl), {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+    const json = await response.json().catch(() => null) as {
+      ok?: boolean;
+      app?: { sha?: unknown; source?: unknown };
+    } | null;
+    const actualSha = typeof json?.app?.sha === "string" ? json.app.sha : "";
+    const source = typeof json?.app?.source === "string" ? json.app.source : "unknown";
+    const expected = expectedAppSha?.trim();
+    const matchesExpected = !expected || actualSha === expected;
+    return {
+      name: "Worker version authorized",
+      ok: response.status === 200 && json?.ok === true && Boolean(actualSha) && matchesExpected,
+      detail: expected
+        ? `status ${response.status}; appSha ${actualSha || "missing"}; expected ${expected}; source ${source}`
+        : `status ${response.status}; appSha ${actualSha || "missing"}; source ${source}`,
+    };
+  } catch (error) {
+    return {
+      name: "Worker version authorized",
       ok: false,
       detail: error instanceof Error ? error.message : String(error),
     };

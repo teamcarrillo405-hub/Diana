@@ -29,6 +29,13 @@ describe("Supabase middleware", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
+  it("lets backend worker version route enforce bearer auth itself", async () => {
+    const response = await updateSession(requestFor("/api/workers/version"));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
   it("redirects unauthenticated private API routes to login", async () => {
     const response = await updateSession(requestFor("/api/private-preflight"));
 

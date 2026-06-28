@@ -23,7 +23,7 @@
     "command-center:audit": "npx tsx scripts/command-center-audit.ts",
     "worker:build": "node scripts/build-worker.mjs",
     "worker:runtime-smoke": "npm run worker:build && node scripts/smoke-worker-runtime.mjs",
-    "worker:test": "vitest run lib/worker-tier/production-worker-tier.test.ts lib/worker-tier/worker-api-auth.test.ts lib/worker-tier/worker-queue.test.ts lib/worker-tier/worker-runner.test.ts lib/worker-tier/worker-metrics.test.ts lib/supabase/middleware.test.ts app/api/workers/claim/route.test.ts app/api/workers/complete/route.test.ts app/api/workers/metrics/route.test.ts app/api/workers/metrics/prometheus/route.test.ts app/api/diana/voice-candidate/route.test.ts app/api/diana/voice-candidate/status/route.test.ts lib/integrations/diana-voice-sidecar.test.ts lib/integrations/openjarvis-sidecar.test.ts",
+    "worker:test": "vitest run lib/worker-tier/production-worker-tier.test.ts lib/worker-tier/worker-api-auth.test.ts lib/worker-tier/worker-queue.test.ts lib/worker-tier/worker-runner.test.ts lib/worker-tier/worker-metrics.test.ts lib/supabase/middleware.test.ts app/api/workers/claim/route.test.ts app/api/workers/complete/route.test.ts app/api/workers/metrics/route.test.ts app/api/workers/metrics/prometheus/route.test.ts app/api/workers/version/route.test.ts app/api/diana/voice-candidate/route.test.ts app/api/diana/voice-candidate/status/route.test.ts lib/integrations/diana-voice-sidecar.test.ts lib/integrations/openjarvis-sidecar.test.ts",
     "worker:e2e-smoke": "npm run worker:build && npx tsx scripts/run-worker-e2e-smoke.ts",
     "worker:diana": "npx tsx scripts/run-diana-worker.ts",
     "worker:diana:compiled": "node dist/worker/run-diana-worker.cjs",
