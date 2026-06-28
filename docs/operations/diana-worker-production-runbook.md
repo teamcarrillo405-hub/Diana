@@ -237,6 +237,8 @@ DIANA_QA_USER_PASSWORD
 Then dispatch the workflow with:
 
 - `target_origin`: the staging or production Diana origin
+- `expected_app_sha`: the Diana app deployment SHA expected from
+  `/api/workers/version`
 - `load_count`: `10`, `25`, or `100`
 - `seeded_checks`: `true` for tenant canary and managed-queue load smoke
 - `diana_status_smoke`: `true` to run the authenticated Diana status smoke
@@ -274,9 +276,11 @@ image gate.
 
 For a final rollout record, prefer a worker image artifact and production-gate
 artifact from the same commit. If an app-only commit follows the image build,
-record that diff explicitly before rollout; otherwise rebuild the worker image
-from the new head so the evidence package has one SHA across app, worker image,
-and production gate.
+record that split explicitly: the deploy workflow's `image_sha` should match
+the worker image artifact, and `expected_app_sha` should match the live Diana
+app deployment returned by `/api/workers/version`. Otherwise rebuild the worker
+image from the new head so the evidence package has one SHA across app, worker
+image, and production gate.
 
 After downloading the image artifact, verify it locally:
 

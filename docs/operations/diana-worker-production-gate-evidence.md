@@ -170,7 +170,7 @@ Target origin: `https://diana-umber.vercel.app`
   - result recorded provider `openjarvis`, model `worker-e2e-fake-model`, and
     backend-only `imageSha` `e2e-smoke-mqydjro7-image-sha`
   - latest trace: `dw-e2e-smoke-mqydjro7`
-- `npm run worker:deployed-canary -- --timeout-ms=20000 --poll-ms=1000 --expected-image-sha=3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+- `npm run worker:deployed-canary -- --timeout-ms=20000 --poll-ms=1000`
   - timed out with the seeded job still `queued`
   - this confirms the app-side gate is live, but no deployed worker replica has
     consumed production queue work yet
@@ -179,12 +179,15 @@ Target origin: `https://diana-umber.vercel.app`
 
 - GitHub workflow badges report `CI - passing` and `Worker image - passing`
   for branch `codex/diana-v2-clean-history` after commit
-  `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`.
+  `e2e08e9b10c4ee11c9e33bc15053cf8d2a3b0ed2`.
   - The GitHub REST API was rate-limited for unauthenticated artifact lookup
     during this evidence refresh, so the exact latest artifact id was not
     retrieved in this snapshot.
-  - The latest candidate worker image tag for hosted deployment is:
-    `ghcr.io/teamcarrillo405-hub/diana/diana-worker:3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+  - The latest candidate worker image tag for hosted deployment is expected to
+    be:
+    `ghcr.io/teamcarrillo405-hub/diana/diana-worker:e2e08e9b10c4ee11c9e33bc15053cf8d2a3b0ed2`
+  - The production Diana app deployment SHA remains:
+    `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
 - GitHub `Worker image` run `28338120109` passed for commit
   `c2593a8b26130537476e08037c2ef9e9a870e51e`.
 - Artifact `diana-worker-image-28338120109-1` was uploaded.
@@ -323,43 +326,59 @@ and return `idle`. Immediate queued jobs now omit `available_at` and let the
 database default set it. `worker-queue.test.ts` includes a regression check for
 this boundary.
 
-## Remaining Production Gate
+## Remaining Production Gate Plan
 
-- Deploy at least two hosted worker replicas using the pushed image from the
-  latest successful `Worker image` run:
-  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
-- Apply `deploy/worker/kubernetes.yaml` in the target cluster.
-- Configure the target cluster image pull secret through the
-  `Worker kubernetes deploy` workflow with `GHCR_PULL_USERNAME` and
-  `GHCR_PULL_TOKEN`.
-- Configure production secrets and confirm workers do not receive Supabase
-  service-role credentials.
-- Configure production monitoring to scrape
-  `/api/workers/metrics/prometheus`.
-- Configure an already-onboarded QA student and include that student's tenant in
-  the managed-queue cohort before running authenticated Diana status smoke.
-- Enable queue-depth scaling with the KEDA/Prometheus path once scrape data is
-  available.
-- Run the GitHub `Worker production gate` workflow against staging and
-  production.
-- Preserve the uploaded `diana-worker-production-gate-...` artifact from each
-  staging and production run as the rollout evidence package.
-- Preserve the uploaded `diana-worker-kubernetes-deploy-...` artifact from each
-  hosted worker deployment.
-- Run `npm run worker:kubernetes-deploy-evidence-check -- --dir=<artifact> --require-success`
-  against the downloaded hosted-deploy artifact before treating the worker
-  rollout as proven.
-- Inspect `outcome.json` in that artifact before rollout expansion; required
-  checks should be `success`, while intentionally disabled optional checks may
-  be `skipped`.
-- Run `npm run worker:gate-evidence-check -- --dir=<artifact> --require-success`
-  against the downloaded artifact before treating the run as production proof.
-- Confirm `worker:deployed-canary` passes against staging and production after
-  workers are deployed. This seeds one production-queue job and waits for a
-  deployed worker replica to complete it. For hosted deploy artifacts, require
-  the canary output to include the expected worker image SHA.
-- Roll one internal tenant or cohort to `DIANA_VOICE_QUEUE_MODE=managed_queue`,
-  observe one school-day traffic window, then expand by cohort.
+1. Deploy hosted worker replicas.
+   - Use the `Worker kubernetes deploy` workflow.
+   - Required repository secrets: `KUBE_CONFIG_B64`,
+     `DIANA_WORKER_API_TOKEN`, `GHCR_PULL_USERNAME`, and
+     `GHCR_PULL_TOKEN`.
+   - Dispatch inputs for the current production target:
+     - `target_origin`: `https://diana-umber.vercel.app`
+     - `image_sha`: `e2e08e9b10c4ee11c9e33bc15053cf8d2a3b0ed2`
+     - `expected_app_sha`: `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+     - `replicas`: `2` or higher
+     - `openjarvis_base_url`: the private in-cluster OpenJarvis-compatible
+       service URL
+     - `openjarvis_model`: the approved local model, currently `llama3.2:3b`
+   - The workflow applies `deploy/worker/kubernetes.yaml`, creates the GHCR
+     image pull secret, writes `DIANA_WORKER_IMAGE_SHA`, runs production
+     preflight, and runs the deployed-worker canary with
+     `--expected-image-sha`.
+
+2. Prove hosted worker consumption.
+   - Preserve the uploaded `diana-worker-kubernetes-deploy-...` artifact.
+   - Download it and run
+     `npm run worker:kubernetes-deploy-evidence-check -- --dir=<artifact> --require-success`.
+   - The artifact must show successful rollout status, pod status,
+     production preflight with the expected app SHA, and a deployed-worker
+     canary completed by the expected worker image SHA.
+
+3. Turn on monitoring and autoscaling evidence.
+   - Configure production monitoring to scrape
+     `/api/workers/metrics/prometheus`.
+   - Enable the Prometheus/KEDA queue-depth path once scrape data is visible.
+   - Confirm queue depth, running leases, retry count, tenant errors, claim
+     latency, and completion latency are observable before student rollout.
+
+4. Run the full GitHub production gate.
+   - Dispatch `Worker production gate` against staging first, then production.
+   - Production inputs:
+     - `target_origin`: `https://diana-umber.vercel.app`
+     - `expected_app_sha`: `3eb8303209c8bb48cb4fad0eb322931c7f7e052a`
+     - `seeded_checks`: `true`
+     - `diana_status_smoke`: `true`
+     - `load_count`: start with `10`, then repeat with `25` or `100`
+   - Preserve the uploaded `diana-worker-production-gate-...` artifact and run
+     `npm run worker:gate-evidence-check -- --dir=<artifact> --require-success`.
+
+5. Roll out by tenant, not globally.
+   - Configure an already-onboarded QA student and include that tenant in
+     `DIANA_VOICE_MANAGED_QUEUE_TENANTS`.
+   - Keep global `DIANA_VOICE_QUEUE_MODE=inline` until the first cohort passes.
+   - Observe one school-day traffic window.
+   - Expand by cohort while keeping `DIANA_VOICE_INLINE_QUEUE_TENANTS` ready as
+     the rollback override.
 
 ## Local Tooling Blockers
 
