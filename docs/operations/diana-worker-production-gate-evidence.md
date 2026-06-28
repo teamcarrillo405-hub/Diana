@@ -4,8 +4,8 @@ Date: 2026-06-28
 
 This captures the current local evidence for the Diana worker production gate.
 It does not claim that production deployment is complete. The remaining gate is
-external: image build/push, cluster deployment, monitoring scrape, GitHub
-Actions production-gate run, and cohort rollout.
+external: hosted worker replica deployment, monitoring scrape, GitHub Actions
+production-gate run, and cohort rollout.
 
 ## Local Gates Passed
 
@@ -38,6 +38,8 @@ Actions production-gate run, and cohort rollout.
     artifact with the commit, image tag, and Docker image id
   - verifies the worker image workflow self-checks the image evidence artifact
     and has a strict `--require-pushed` mode when a GHCR push is requested
+  - verifies this production-gate branch auto-publishes the GHCR worker image
+    and requires pushed-image evidence
   - verifies the production-gate workflow includes a deployed-worker canary for
     actual worker-replica job consumption
   - verifies the production-gate workflow can run authenticated Diana status
@@ -159,6 +161,32 @@ Target origin: `https://diana-umber.vercel.app`
   - this confirms the app-side gate is live, but no deployed worker replica has
     consumed production queue work yet
 
+## Worker Image Evidence
+
+- GitHub `Worker image` run `28336619517` passed for commit
+  `a61e0b5290a73495414421cc63a2e6941a68c3be`.
+- Artifact `diana-worker-image-28336619517-1` was uploaded.
+- The workflow is configured to push this branch's worker image to:
+  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:a61e0b5290a73495414421cc63a2e6941a68c3be`
+- Because this branch sets `PUSH_WORKER_IMAGE=true`, the workflow's own
+  `npm run worker:image-evidence-check -- --require-pushed` step had to pass
+  before the successful run concluded.
+
+## Temporary Replica Smoke Passed
+
+This is not final production proof because the replicas were temporary local
+processes, not hosted production workers. It does prove the production app,
+production queue, worker token, OpenJarvis sidecar, and two concurrent worker
+processes can complete a production-queue canary.
+
+- Started two temporary compiled worker processes against
+  `https://diana-umber.vercel.app` and queue `student-ai-candidate`.
+- Ran `npm run worker:deployed-canary -- --timeout-ms=60000 --poll-ms=1000`.
+- Canary trace `dw-deployed-canary-mqyb4rfq` completed as `succeeded`.
+- The winning worker was `local-temp-replica-2-143454`.
+- Result recorded provider `openjarvis`, model `llama3.2:3b`, and
+  `responseChars: 113`.
+
 ## Bugs Fixed During Verification
 
 The tenant canary previously claimed from the shared `student-ai-candidate`
@@ -238,6 +266,8 @@ also writes `pushed-image.txt` with the GHCR image tag.
 `npm run worker:image-evidence-check` verifies the artifact shape and required
 build/test/smoke outcomes, and `--require-pushed` additionally requires
 `pushed-image.txt` to match the recorded GHCR image tag.
+The production-gate branch now auto-publishes its GHCR image on push so worker
+deployment is no longer blocked on a manual image-dispatch step.
 
 The production-origin e2e smoke exposed a distributed clock-skew bug. Queued
 jobs were inserting `available_at` from the client/runtime clock, so a fast
@@ -248,8 +278,9 @@ this boundary.
 
 ## Remaining Production Gate
 
-- Build `Dockerfile.worker` with Docker or an equivalent container builder.
-- Push the immutable worker image tag to the target registry.
+- Deploy at least two hosted worker replicas using the pushed image from the
+  latest successful `Worker image` run. Current verified example:
+  `ghcr.io/teamcarrillo405-hub/diana/diana-worker:a61e0b5290a73495414421cc63a2e6941a68c3be`
 - Apply `deploy/worker/kubernetes.yaml` in the target cluster.
 - Configure production secrets and confirm workers do not receive Supabase
   service-role credentials.
