@@ -11,6 +11,7 @@ import { firstWeekJourney } from "@/lib/journey/first-week";
 import { createClient } from "@/lib/supabase/server";
 import { isWellnessSupportAssignment, rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
+import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { computeNightBudget } from "@/lib/time-budget/compute";
@@ -328,6 +329,9 @@ export default async function DashboardPage({
   const profile = await loadProfile();
   const search = await searchParams;
   const now = new Date();
+  const learnerProfile = profile
+    ? await getLearnerProfile({ supabase, ownerId: profile.user_id })
+    : null;
   const roughActive =
     profile?.rough_mode_until ? new Date(profile.rough_mode_until).getTime() > now.getTime() : false;
   const adaptation = sessionAdaptationForMood(roughActive ? "rough" : profile?.session_mood);
@@ -529,9 +533,10 @@ export default async function DashboardPage({
     {
       diagnoses: profile?.diagnoses ?? [],
       extra_time_pct: profile?.extra_time_pct ?? 0,
-    },
-    lastShownClassId,
-  );
+      },
+      lastShownClassId,
+      learnerProfile,
+    );
   const top = ranked[0];
   const topStepsPromise = top
     ? supabase

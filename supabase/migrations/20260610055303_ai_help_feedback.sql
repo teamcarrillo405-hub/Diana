@@ -26,4 +26,4 @@ create policy "ai_help_feedback_owner_all"
   on public.ai_help_feedback
   for all
   using (auth.uid() = owner_id)
-  with check (auth.uid() = owner_id);
+  with check (auth.uid() = owner_id);;

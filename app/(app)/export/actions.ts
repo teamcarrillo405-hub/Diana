@@ -108,6 +108,8 @@ export async function exportUserDataJson(): Promise<string> {
     teenTestObservations,
     aiInteractions,
     masteryConcepts,
+    learnerProfileSnapshots,
+    learningEvents,
     shareLinks,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("user_id", user.id).single(),
@@ -122,6 +124,8 @@ export async function exportUserDataJson(): Promise<string> {
     supabase.from("teen_test_observations").select("*").eq("owner_id", user.id),
     supabase.from("ai_interactions").select("*").eq("owner_id", user.id),
     supabase.from("mastery_concepts").select("*").eq("owner_id", user.id),
+    supabase.from("learner_profile_snapshots").select("*").eq("owner_id", user.id),
+    supabase.from("learning_events").select("*").eq("owner_id", user.id),
     supabase.from("share_links").select("*").eq("owner_id", user.id),
   ]);
 
@@ -140,6 +144,8 @@ export async function exportUserDataJson(): Promise<string> {
     teenTestObservations: teenTestObservations.data ?? [],
     aiInteractions: aiInteractions.data ?? [],
     masteryConcepts: masteryConcepts.data ?? [],
+    learnerProfileSnapshots: learnerProfileSnapshots.data ?? [],
+    learningEvents: learningEvents.data ?? [],
     shareLinks: shareLinks.data ?? [],
   }, null, 2);
 }
@@ -274,6 +280,8 @@ export async function inventoryForUser(ownerId: string) {
     teenTestObservations,
     aiInteractions,
     masteryConcepts,
+    learnerProfileSnapshots,
+    learningEvents,
     shareLinks,
   ] = await Promise.all([
     supabase.from("classes").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
@@ -287,6 +295,8 @@ export async function inventoryForUser(ownerId: string) {
     supabase.from("teen_test_observations").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("ai_interactions").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("mastery_concepts").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("learner_profile_snapshots").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("learning_events").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("share_links").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
   ]);
   return buildDataInventory({
@@ -301,6 +311,8 @@ export async function inventoryForUser(ownerId: string) {
     teenTestObservations: teenTestObservations.count ?? 0,
     aiInteractions: aiInteractions.count ?? 0,
     masteryConcepts: masteryConcepts.count ?? 0,
+    learnerProfileSnapshots: learnerProfileSnapshots.count ?? 0,
+    learningEvents: learningEvents.count ?? 0,
     shareLinks: shareLinks.count ?? 0,
   });
 }
@@ -329,6 +341,10 @@ async function deleteCategoryRows(
       return supabase.from("ai_interactions").delete().eq("owner_id", ownerId);
     case "mastery_concepts":
       return supabase.from("mastery_concepts").delete().eq("owner_id", ownerId);
+    case "learner_profile_snapshots":
+      return supabase.from("learner_profile_snapshots").delete().eq("owner_id", ownerId);
+    case "learning_events":
+      return supabase.from("learning_events").delete().eq("owner_id", ownerId);
     case "share_links":
       return supabase.from("share_links").delete().eq("owner_id", ownerId);
     case "session_handoff":

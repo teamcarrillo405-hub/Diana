@@ -7,8 +7,8 @@ import { STATUS_LABEL, STATUS_HINT, nextStatesFor } from "@/lib/state-machine/as
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { StatusButtons } from "./status-buttons";
 import { RubricPanel } from "@/components/rubric-panel";
-import { computeEffectiveness, preferredStudyMode } from "@/lib/adaptation/effectiveness";
-import { loadEffectivenessEvents } from "@/lib/adaptation/load";
+import { explainLearnerProfileChoice } from "@/lib/learning-loop/profile";
+import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { TestPrepPanel } from "@/components/test-prep-panel";
 import {
   buildTestPrepPlan,
@@ -197,9 +197,10 @@ export default async function AssignmentDetailPage({
 
   // Effectiveness loop: what kinds of help have worked for this student —
   // explicit taps plus automatic completed-after-help outcomes.
-  const learnedPreference = preferredStudyMode(
-    computeEffectiveness(await loadEffectivenessEvents(supabase)),
-  );
+  const learnerProfile = ownerId
+    ? await getLearnerProfile({ supabase, ownerId })
+    : null;
+  const learnedPreference = learnerProfile?.preferences.preferredStudyMode ?? null;
 
   const studyHelperContext = buildStudyHelperContext({
     assignmentKind: a.kind,
@@ -210,6 +211,13 @@ export default async function AssignmentDetailPage({
     supportIntensity: supportPlan.intensity,
     focusNextStep: focus === "next-step",
     learnedPreference,
+    learningLoopNote: learnerProfile
+      ? explainLearnerProfileChoice(learnerProfile, {
+          surface: "assignment",
+          recommendedMode: learnedPreference,
+          supportIntensity: supportPlan.intensity,
+        })
+      : null,
   });
 
   // Test Prep Engine: when this assignment is a quiz/test/final, plan the

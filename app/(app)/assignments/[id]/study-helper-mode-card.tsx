@@ -144,6 +144,9 @@ export function StudyHelperModeCard({
           </div>
           <p className="mt-2 text-sm font-medium">{context.nextStep}</p>
           <p className="mt-2 text-xs text-muted">{context.trustNote}</p>
+          {context.learningLoopNote ? (
+            <p className="mt-2 text-xs text-muted">{context.learningLoopNote}</p>
+          ) : null}
           <button
             type="button"
             onClick={openStuckPath}

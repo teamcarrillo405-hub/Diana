@@ -16,6 +16,7 @@ export type DianaVoiceCandidateInput = {
   transcript: string;
   source: DianaVoiceCandidateSource;
   assignmentId?: string | null;
+  learnedContext?: string | null;
 };
 
 export type DianaVoiceCandidateTrace = {
@@ -69,7 +70,15 @@ export function normalizeDianaVoiceCandidateInput(raw: unknown): DianaVoiceCandi
   const assignmentId = typeof data.assignmentId === "string" && data.assignmentId.trim()
     ? data.assignmentId.trim()
     : null;
-  return { transcript, source, assignmentId };
+  const learnedContext = typeof data.learnedContext === "string" && data.learnedContext.trim()
+    ? data.learnedContext.trim().slice(0, 400)
+    : null;
+  return {
+    transcript,
+    source,
+    assignmentId,
+    ...(learnedContext ? { learnedContext } : {}),
+  };
 }
 
 export function buildDianaVoiceSidecarMessages(input: DianaVoiceCandidateInput): LocalAiSidecarMessage[] {
@@ -86,9 +95,10 @@ export function buildDianaVoiceSidecarMessages(input: DianaVoiceCandidateInput):
       role: "user",
       content: [
         `Input source: ${input.source}`,
+        input.learnedContext ? `Diana-approved learned context: ${input.learnedContext}` : "",
         "Student text or transcript:",
         input.transcript,
-      ].join("\n"),
+      ].filter(Boolean).join("\n"),
     },
   ];
 }

@@ -1,7 +1,3 @@
--- 0038: push_subscriptions — Web Push (VAPID) endpoints per student device.
--- Vendor-free push: standard Web Push to the browser's own push service.
--- Student-owned rows; unsubscribing or a 410 from the push service deletes.
-
 create table public.push_subscriptions (
   id uuid primary key default gen_random_uuid(),
   owner_id uuid not null references auth.users(id) on delete cascade,
@@ -19,4 +15,4 @@ create policy "push_subscriptions_owner_all"
   on public.push_subscriptions
   for all
   using (auth.uid() = owner_id)
-  with check (auth.uid() = owner_id);
+  with check (auth.uid() = owner_id);;

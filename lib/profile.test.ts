@@ -29,6 +29,8 @@ const BASE: ProfilePrefs = {
   reading_word_spacing: "normal",
   font_size: "normal",
   line_spacing: "normal",
+  learning_loop_paused: false,
+  learning_loop_reset_at: null,
   dyslexia_font: false,
   reduced_motion: false,
   high_contrast: false,

@@ -1,8 +1,3 @@
--- 0036: canva_connections — OAuth tokens for the Canva (design tool) Connect
--- integration. One row per student; tokens are theirs alone (owner RLS).
--- Canva is a creation surface (posters, slide decks), not an LMS — kept
--- separate from lms_connections on purpose.
-
 create table public.canva_connections (
   owner_id uuid primary key references auth.users(id) on delete cascade,
   access_token text not null,
@@ -19,4 +14,4 @@ create policy "canva_connections_owner_all"
   on public.canva_connections
   for all
   using (auth.uid() = owner_id)
-  with check (auth.uid() = owner_id);
+  with check (auth.uid() = owner_id);;

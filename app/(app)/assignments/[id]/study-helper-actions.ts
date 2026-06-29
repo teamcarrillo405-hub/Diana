@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { recordLearningEvent } from "@/lib/learning-loop/server";
 import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 
 const StudyHelperEventInput = z.object({
@@ -35,6 +36,20 @@ export async function recordStudyHelperEvent(input: z.input<typeof StudyHelperEv
   });
 
   if (error) return { ok: false as const };
+  await recordLearningEvent({
+    supabase,
+    ownerId: user.id,
+    eventName: "study_helper_event",
+    assignmentId: parsed.data.assignmentId,
+    feature: `study_mode:${parsed.data.mode}`,
+    sourceTable: "task_signals",
+    payload: {
+      event: parsed.data.event,
+      mode: parsed.data.mode,
+      bar: parsed.data.bar,
+      source: parsed.data.source,
+    },
+  }).catch(() => undefined);
   await recordStudentStateSnapshot({
     supabase,
     ownerId: user.id,

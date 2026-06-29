@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { STUDENT_RUNTIME_READ_TOOLS } from "@/lib/integrations/command-center-contract";
+import { recordLearningEvent } from "@/lib/learning-loop/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 
@@ -78,6 +79,27 @@ export async function GET(request: Request) {
         { status: 500 },
       );
     }
+    const hasLearningEvent = await learningEventExists({
+      supabase,
+      ownerId: user.id,
+      traceId: data.trace_id,
+    });
+    if (!hasLearningEvent) {
+      await recordLearningEvent({
+        supabase,
+        ownerId: user.id,
+        eventName: "voice_candidate_completed",
+        assignmentId: assignmentIdFromJob(data.payload),
+        feature: "diana.voice_candidate",
+        sourceTable: "worker_jobs",
+        sourceId: data.trace_id,
+        payload: {
+          source: sourceFromJob(data.payload),
+          queued: true,
+          responseChars: response.length,
+        } as unknown as Json,
+      }).catch(() => undefined);
+    }
     return NextResponse.json({
       ok: true,
       status,
@@ -92,6 +114,39 @@ export async function GET(request: Request) {
     error: "Diana could not get a candidate right now.",
     trace: publicTrace(data.trace_id, data.queue_mode),
   });
+}
+
+function assignmentIdFromJob(payload: Json): string | null {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
+  const input = (payload as WorkerPayload).input;
+  return typeof input?.assignmentId === "string" ? input.assignmentId : null;
+}
+
+function sourceFromJob(payload: Json): "voice" | "typed" {
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return "typed";
+  const input = (payload as WorkerPayload).input;
+  return input?.source === "voice" ? "voice" : "typed";
+}
+
+async function learningEventExists({
+  supabase,
+  ownerId,
+  traceId,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  ownerId: string;
+  traceId: string;
+}): Promise<boolean> {
+  const { data, error } = await supabase
+    .from("learning_events")
+    .select("id")
+    .eq("owner_id", ownerId)
+    .eq("event_name", "voice_candidate_completed")
+    .eq("source_table", "worker_jobs")
+    .eq("source_id", traceId)
+    .maybeSingle();
+  if (error) return true;
+  return Boolean(data);
 }
 
 function publicTrace(traceId: string, queueMode: string) {

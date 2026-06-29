@@ -37,6 +37,7 @@ export type StudyHelperContext = {
   aiPolicyLabel: string;
   trustNote: string;
   adaptNote: string;
+  learningLoopNote: string | null;
   modeOptions: StudyHelperModeOption[];
   bars: StudyBarSummary[];
 };
@@ -110,6 +111,7 @@ export function buildStudyHelperContext(input: {
   focusNextStep?: boolean;
   /** Mode that has demonstrably worked for this student (effectiveness loop). */
   learnedPreference?: StudyHelperMode | null;
+  learningLoopNote?: string | null;
 }): StudyHelperContext {
   const recommendedMode = recommendedModeFor(input);
   const selectedMode = input.selectedMode ?? recommendedMode;
@@ -124,6 +126,7 @@ export function buildStudyHelperContext(input: {
     aiPolicyLabel: aiPolicyLabel(input.classAiMode),
     trustNote: trustNoteFor(input.classAiMode),
     adaptNote: adaptNoteFor(input.supportIntensity, input.focusNextStep),
+    learningLoopNote: input.learningLoopNote ?? null,
     modeOptions: STUDY_HELPER_MODES,
     bars: barsFor(input, selected),
   };

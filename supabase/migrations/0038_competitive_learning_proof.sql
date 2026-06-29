@@ -49,6 +49,7 @@ create table if not exists public.authorship_log (
 
 alter table public.authorship_log enable row level security;
 
+drop policy if exists "authorship_log owner full access" on public.authorship_log;
 create policy "authorship_log owner full access"
   on public.authorship_log
   for all
@@ -76,6 +77,7 @@ create table if not exists public.competitive_benchmark_runs (
 
 alter table public.competitive_benchmark_runs enable row level security;
 
+drop policy if exists "competitive_benchmark_runs owner full access" on public.competitive_benchmark_runs;
 create policy "competitive_benchmark_runs owner full access"
   on public.competitive_benchmark_runs
   for all
@@ -98,6 +100,7 @@ create table if not exists public.teen_test_observations (
 
 alter table public.teen_test_observations enable row level security;
 
+drop policy if exists "teen_test_observations owner full access" on public.teen_test_observations;
 create policy "teen_test_observations owner full access"
   on public.teen_test_observations
   for all
