@@ -23,7 +23,10 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
   }
 
   useEffect(() => {
-    if (quests.length > 1) startTimer();
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (quests.length > 1 && !reduce) startTimer();
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
@@ -41,11 +44,9 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
   return (
     <div
       style={{
-        position: "absolute",
-        left: 34,
-        bottom: 36,
-        width: 460,
-        zIndex: 8,
+        position: "relative",
+        width: "100%",
+        maxWidth: 560,
       }}
     >
       {/* Header */}
@@ -111,13 +112,13 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
       </div>
 
       {/* Card viewport */}
-      <div style={{ overflow: "hidden", width: 460, borderRadius: 12 }}>
+      <div style={{ overflow: "hidden", width: "100%", borderRadius: 12 }}>
         <div
           style={{
             display: "flex",
             gap: 0,
             transition: "transform .5s cubic-bezier(.22,.61,.36,1)",
-            transform: `translateX(${-qi * 460}px)`,
+            transform: `translateX(${-qi * 100}%)`,
           }}
         >
           {quests.map((q, i) => (
@@ -125,8 +126,8 @@ export function QuestCarousel({ quests }: { quests: QuestItem[] }) {
               key={i}
               href={q.href}
               style={{
-                flex: "0 0 460px",
-                width: 460,
+                flex: "0 0 100%",
+                width: "100%",
                 height: 130,
                 padding: "16px 22px",
                 background: "linear-gradient(135deg,rgba(18,26,52,.96),rgba(10,16,36,.96))",
