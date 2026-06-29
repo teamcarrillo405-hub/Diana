@@ -1,10 +1,26 @@
 /*
  * DIANA DESIGN TOKENS
- * Source: Student Lobby.dc.html (formerly Grayson Lobby.dc.html)
- * Restored for the design/dashboard-tabs branch (was missing at repo root).
+ * Source: Student Lobby.dc.html (formerly Grayson Lobby.dc.html) (extracted 2026-06-27)
+ * Do not hand-edit values — update the source design and re-extract.
  *
- * Defines the --color-* base palette + --gl-* handoff aliases plus the
- * spacing/type/radius/shadow/blur/layout scales the dashboard tabs use.
+ * Sections:
+ *   1.  Backgrounds
+ *   2.  Brand — Cyan
+ *   3.  Brand — Green
+ *   4.  Brand — Gold
+ *   5.  Brand — Red / Overdue / Recording
+ *   6.  Brand — Purple / Overwhelmed
+ *   7.  Text
+ *   8.  Subject accent colors
+ *   9.  Subject banner gradients        (comments — context-specific)
+ *   10. Typography
+ *   11. Spacing scale
+ *   12. Border radius scale
+ *   13. Box shadows                     (comments — context-specific)
+ *   14. Backdrop blur
+ *   15. Transitions
+ *   16. Layout dimensions
+ *   17. Keyframe animations             (comments — defined in globals.css)
  */
 
 :root {
@@ -13,119 +29,163 @@
      1. BACKGROUNDS
      ============================================================ */
 
-  --color-bg-base:            #04060f;
-  --color-bg-hero:            #0a1024;
-  --color-bg-nav:             rgba(2,5,14,.72);
-  --color-bg-card:            rgba(4,8,20,.72);
-  --color-bg-focus-card-from: rgba(8,12,26,.96);
-  --color-bg-focus-card-to:   rgba(12,18,42,.96);
-  --color-bg-audio-from:      rgba(18,24,50,.98);
-  --color-bg-audio-to:        rgba(10,14,32,.98);
-  --color-bg-audio-scrim:     rgba(4,6,15,.88);
-  --color-bg-settings:        rgba(4,8,20,.96);
-  --color-bg-settings-scrim:  rgba(0,0,0,.7);
+  --color-bg-base:            #04060f;   /* page body, classes section */
+  --color-bg-hero:            #0a1024;   /* hero zone container */
+  --color-bg-nav:             rgba(2,5,14,.72);    /* top navigation bar */
+  --color-bg-card:            rgba(4,8,20,.72);    /* class cards */
+  --color-bg-focus-card-from: rgba(8,12,26,.96);   /* check-in / focus card gradient start */
+  --color-bg-focus-card-to:   rgba(12,18,42,.96);  /* check-in / focus card gradient end */
+  --color-bg-audio-from:      rgba(18,24,50,.98);  /* audio overlay modal gradient start */
+  --color-bg-audio-to:        rgba(10,14,32,.98);  /* audio overlay modal gradient end */
+  --color-bg-audio-scrim:     rgba(4,6,15,.88);    /* audio backdrop overlay */
+  --color-bg-settings:        rgba(4,8,20,.96);    /* settings modal panel */
+  --color-bg-settings-scrim:  rgba(0,0,0,.7);      /* settings backdrop overlay */
+
+  /*
+   * GRADIENT — top fade connector (hero → classes zone):
+   *   background: linear-gradient(180deg, rgba(4,8,20,.95), transparent)
+   *   position: absolute top, height 60px, pointer-events none, z-index 1
+   *
+   * GRADIENT — focus card:
+   *   background: linear-gradient(135deg, var(--color-bg-focus-card-from), var(--color-bg-focus-card-to))
+   *
+   * GRADIENT — audio modal:
+   *   background: linear-gradient(180deg, var(--color-bg-audio-from), var(--color-bg-audio-to))
+   */
+
 
   /* ============================================================
      2. BRAND — CYAN (primary accent)
      ============================================================ */
 
-  --color-cyan:               #29d0ff;
-  --color-cyan-65:            rgba(41,208,255,.65);
-  --color-cyan-55:            rgba(41,208,255,.55);
-  --color-cyan-45:            rgba(41,208,255,.45);
-  --color-cyan-38:            rgba(41,208,255,.38);
-  --color-cyan-35:            rgba(41,208,255,.35);
-  --color-cyan-28:            rgba(41,208,255,.28);
-  --color-cyan-25:            rgba(41,208,255,.25);
-  --color-cyan-22:            rgba(41,208,255,.22);
-  --color-cyan-20:            rgba(41,208,255,.20);
-  --color-cyan-18:            rgba(41,208,255,.18);
-  --color-cyan-15:            rgba(41,208,255,.15);
-  --color-cyan-14:            rgba(41,208,255,.14);
-  --color-cyan-10:            rgba(41,208,255,.10);
-  --color-cyan-08:            rgba(41,208,255,.08);
-  --color-cyan-06:            rgba(41,208,255,.06);
+  --color-cyan:               #29d0ff;             /* active states, CTAs, progress fill, NOW badge */
+  --color-cyan-65:            rgba(41,208,255,.65); /* hero name text-shadow */
+  --color-cyan-55:            rgba(41,208,255,.55); /* WEEKLY XP label, active card ring inner */
+  --color-cyan-45:            rgba(41,208,255,.45); /* hero CTA box-shadow */
+  --color-cyan-38:            rgba(41,208,255,.38); /* player photo border */
+  --color-cyan-35:            rgba(41,208,255,.35); /* settings upload border / dropzone */
+  --color-cyan-28:            rgba(41,208,255,.28); /* Capture button border, Locked In border */
+  --color-cyan-25:            rgba(41,208,255,.25); /* focus card border (normal energy) */
+  --color-cyan-22:            rgba(41,208,255,.22); /* standard element borders, week XP panel */
+  --color-cyan-20:            rgba(41,208,255,.20); /* week XP panel border */
+  --color-cyan-18:            rgba(41,208,255,.18); /* top nav bottom border */
+  --color-cyan-15:            rgba(41,208,255,.15); /* Locked In button glow */
+  --color-cyan-14:            rgba(41,208,255,.14); /* Capture button bg */
+  --color-cyan-10:            rgba(41,208,255,.10); /* Flashcard/Quiz tool bg, Locked In bg */
+  --color-cyan-08:            rgba(41,208,255,.08); /* class CTA default bg, add photo bg */
+  --color-cyan-06:            rgba(41,208,255,.06); /* turned-in CTA bg */
+
 
   /* ============================================================
      3. BRAND — GREEN (success / turned-in)
      ============================================================ */
 
-  --color-green:              #36e07a;
-  --color-green-dark:         #16a34a;
-  --color-green-22:           rgba(54,224,122,.22);
-  --color-green-20:           rgba(54,224,122,.20);
-  --color-green-30:           rgba(54,224,122,.30);
-  --color-green-12:           rgba(54,224,122,.12);
+  --color-green:              #36e07a;             /* success, turned-in, save-note, clear workload */
+  --color-green-dark:         #16a34a;             /* green button gradient end */
+  --color-green-22:           rgba(54,224,122,.22); /* turned-in status chip bg */
+  --color-green-20:           rgba(54,224,122,.20); /* done urgency badge bg */
+  --color-green-30:           rgba(54,224,122,.30); /* done focus card border */
+  --color-green-12:           rgba(54,224,122,.12); /* Review CTA bg */
+
+  /*
+   * GRADIENT — green button (Save Note, Start Next Mission):
+   *   background: linear-gradient(180deg, var(--color-green), var(--color-green-dark))
+   *   box-shadow: 0 8px 24px rgba(34,180,90,.35)
+   *   transform: skewX(-8deg)  [inner label: skewX(8deg)]
+   */
+
 
   /* ============================================================
      4. BRAND — GOLD (warning / not-turned-in / turn-in CTA)
      ============================================================ */
 
-  --color-gold:               #ffd24a;
-  --color-gold-dark:          #f5a623;
-  --color-gold-85:            rgba(255,210,74,.85);
-  --color-gold-45:            rgba(255,210,74,.45);
-  --color-gold-40:            rgba(255,210,74,.40);
-  --color-gold-38:            rgba(255,210,74,.38);
-  --color-gold-32:            rgba(255,210,74,.32);
-  --color-gold-30:            rgba(255,210,74,.30);
-  --color-gold-28:            rgba(255,210,74,.28);
-  --color-gold-24:            rgba(255,210,74,.24);
-  --color-gold-16:            rgba(255,210,74,.16);
-  --color-gold-14:            rgba(255,210,74,.14);
-  --color-gold-12:            rgba(255,210,74,.12);
-  --color-gold-10:            rgba(255,210,74,.10);
+  --color-gold:               #ffd24a;             /* not-turned-in state, test strip, turn-in CTA */
+  --color-gold-dark:          #f5a623;             /* gold button gradient end */
+  --color-gold-85:            rgba(255,210,74,.85); /* turn-in animation border peak */
+  --color-gold-45:            rgba(255,210,74,.45); /* turn-in CTA box-shadow */
+  --color-gold-40:            rgba(255,210,74,.40); /* focus card turn-in shadow */
+  --color-gold-38:            rgba(255,210,74,.38); /* finished card border */
+  --color-gold-32:            rgba(255,210,74,.32); /* finished count badge border */
+  --color-gold-30:            rgba(255,210,74,.30); /* settings bgChanged banner / finished focus border */
+  --color-gold-28:            rgba(255,210,74,.28); /* test strip border (non-urgent) */
+  --color-gold-24:            rgba(255,210,74,.24); /* finished status chip bg */
+  --color-gold-16:            rgba(255,210,74,.16); /* turn-in animation glow expansion */
+  --color-gold-14:            rgba(255,210,74,.14); /* finished count badge bg */
+  --color-gold-12:            rgba(255,210,74,.12); /* submission status strip bg, test strip bg */
+  --color-gold-10:            rgba(255,210,74,.10); /* settings bgChanged notice bg */
+
+  /*
+   * GRADIENT — turn-in / finished CTA:
+   *   background: linear-gradient(180deg, var(--color-gold), var(--color-gold-dark))
+   */
+
 
   /* ============================================================
      5. BRAND — RED (overdue / recording)
      ============================================================ */
 
-  --color-red:                #ff5555;
-  --color-red-text:           #ff7070;
-  --color-red-icon:           #ff4444;
-  --color-red-soft:           #ff8070;
-  --color-red-80:             rgba(255,55,55,.80);
-  --color-red-55:             rgba(255,55,55,.55);
-  --color-red-40:             rgba(255,55,55,.40);
-  --color-red-28:             rgba(255,55,55,.28);
-  --color-red-20:             rgba(255,55,55,.20);
-  --color-red-15:             rgba(255,55,55,.15);
-  --color-red-14:             rgba(255,55,55,.14);
-  --color-red-mic-idle:       rgba(220,38,38,1);    /* also used as --gl-red-record */
-  --color-red-mic-active:     rgba(180,20,20,1);
+  --color-red:                #ff5555;             /* overdue dot */
+  --color-red-text:           #ff7070;             /* overdue text, urgent test date */
+  --color-red-icon:           #ff4444;             /* recording microphone icon */
+  --color-red-soft:           #ff8070;             /* urgent test row label */
+  --color-red-80:             rgba(255,55,55,.80);  /* overdue animation border peak */
+  --color-red-55:             rgba(255,55,55,.55);  /* mic pulse start glow */
+  --color-red-40:             rgba(255,55,55,.40);  /* overdue card border */
+  --color-red-28:             rgba(255,55,55,.28);  /* overdue badge border, urgent test border */
+  --color-red-20:             rgba(255,55,55,.20);  /* overdue urgency badge bg */
+  --color-red-15:             rgba(255,55,55,.15);  /* overdue due-date badge bg */
+  --color-red-14:             rgba(255,55,55,.14);  /* recording mic circle bg, overdue badge bg */
+  --color-red-mic-idle:       rgba(220,38,38,1);    /* mic button bg (not recording) — also used as --gl-red-record */
+  --color-red-mic-active:     rgba(180,20,20,1);    /* mic button bg (recording) */
+
+  /*
+   * GRADIENT — overdue / urgent start CTA:
+   *   background: linear-gradient(180deg, #ff6a5a, #e0392b)
+   *   box-shadow: 0 6px 20px rgba(224,57,43,.40)
+   */
+
 
   /* ============================================================
-     6. BRAND — PURPLE (overwhelmed / focus-mode / THINK)
+     6. BRAND — PURPLE (overwhelmed / focus-mode)
      ============================================================ */
 
-  --color-purple:             #7e5cff;
-  --color-purple-dark:        #5a3ecc;
-  --color-purple-light:       #b09cff;
-  --color-purple-40:          rgba(126,92,255,.40);
-  --color-purple-35:          rgba(126,92,255,.35);
-  --color-purple-30:          rgba(126,92,255,.30);
-  --color-purple-14:          rgba(126,92,255,.14);
+  --color-purple:             #7e5cff;             /* overwhelmed CTA, Athletics subject accent */
+  --color-purple-dark:        #5a3ecc;             /* overwhelmed CTA gradient end */
+  --color-purple-light:       #b09cff;             /* overwhelmed label, Focus-mode badge text */
+  --color-purple-40:          rgba(126,92,255,.40); /* overwhelmed CTA box-shadow */
+  --color-purple-35:          rgba(126,92,255,.35); /* overwhelmed focus card border */
+  --color-purple-30:          rgba(126,92,255,.30); /* low-mode badge border */
+  --color-purple-14:          rgba(126,92,255,.14); /* low-mode badge bg */
+
+  /*
+   * GRADIENT — overwhelmed CTA:
+   *   background: linear-gradient(180deg, var(--color-purple), var(--color-purple-dark))
+   *   box-shadow: 0 6px 18px rgba(126,92,255,.40)
+   */
+
 
   /* ============================================================
      7. TEXT
      ============================================================ */
 
-  --color-text-primary:       #ffffff;
-  --color-text-near-white:    #eef2ff;
-  --color-text-secondary:     #cdd6f2;
-  --color-text-hero-sub:      #c0d0f0;
-  --color-text-muted:         #aab8e0;
-  --color-text-subdued:       #9fb0dd;
-  --color-text-nav-inactive:  #8b96bd;
-  --color-text-dim:           #7d88ad;
-  --color-text-overlay-70:    rgba(200,218,255,.70);
-  --color-text-overlay-60:    rgba(200,218,255,.60);
-  --color-text-overlay-50:    rgba(200,218,255,.50);
+  --color-text-primary:       #ffffff;             /* primary text */
+  --color-text-near-white:    #eef2ff;             /* hero subtitle */
+  --color-text-secondary:     #cdd6f2;             /* standard secondary text */
+  --color-text-hero-sub:      #c0d0f0;             /* hero finish-by / detail line */
+  --color-text-muted:         #aab8e0;             /* nav icons, muted label text */
+  --color-text-subdued:       #9fb0dd;             /* subdued section labels */
+  --color-text-nav-inactive:  #8b96bd;             /* inactive nav tab text */
+  --color-text-dim:           #7d88ad;             /* dimmed meta text */
+  --color-text-overlay-70:    rgba(200,218,255,.70); /* check-in sub-label */
+  --color-text-overlay-60:    rgba(200,218,255,.60); /* time labels, cancel button */
+  --color-text-overlay-50:    rgba(200,218,255,.50); /* hint text */
 
-  --color-text-on-cyan:       #04080f;
-  --color-text-on-now:        #06243a;
-  --color-text-on-green:      #06210f;
-  --color-text-on-gold:       #3a2a00;
+  /* On-color text (text placed on brand-colored buttons) */
+  --color-text-on-cyan:       #04080f;             /* text on #29d0ff cyan bg */
+  --color-text-on-now:        #06243a;             /* NOW badge text on cyan */
+  --color-text-on-green:      #06210f;             /* text on green CTA */
+  --color-text-on-gold:       #3a2a00;             /* text on gold turn-in CTA */
+
 
   /* ============================================================
      8. SUBJECT ACCENT COLORS
@@ -138,103 +198,123 @@
   --color-subject-athletics:  #7e5cff;
   --color-subject-art:        #f25fb0;
 
+  /*
+   * SUBJECT BANNER GRADIENTS (background for class card banner area):
+   *
+   *   Math:       linear-gradient(135deg, #1a1020, #2e1408)
+   *   English:    linear-gradient(135deg, #071828, #0a2038)
+   *   Science:    linear-gradient(135deg, #071a12, #0a2a1c)
+   *   History:    linear-gradient(135deg, #1a1200, #2e2000)
+   *   Athletics:  linear-gradient(135deg, #100818, #1c1030)
+   *   Art:        linear-gradient(135deg, #1a0818, #2e0e28)
+   */
+
+
   /* ============================================================
      9. TYPOGRAPHY
      ============================================================ */
 
+  /* Font families */
   --font-display:             'Saira Condensed', sans-serif;
   --font-body:                'Barlow Semi Condensed', sans-serif;
-  --font-mono:                monospace;
+  --font-mono:                monospace; /* API key inputs only */
 
-  --text-72:  72px;
-  --text-40:  40px;
-  --text-36:  36px;
-  --text-32:  32px;
-  --text-28:  28px;
-  --text-26:  26px;
-  --text-22:  22px;
-  --text-18:  18px;
-  --text-17:  17px;
-  --text-16:  16px;
-  --text-15:  15px;
-  --text-14:  14px;
-  --text-13:  13px;
-  --text-12:  12px;
-  --text-11:  11px;
-  --text-10:  10px;
-  --text-9:   9px;
+  /* Font sizes */
+  --text-72:  72px;   /* hero name (G-MONEY) */
+  --text-40:  40px;   /* class card title */
+  --text-36:  36px;   /* hero CTA button label */
+  --text-32:  32px;   /* energy confirmed label */
+  --text-28:  28px;   /* MY CLASSES section header */
+  --text-26:  26px;   /* check-in question / settings header */
+  --text-22:  22px;   /* class detail / audio overlay title */
+  --text-18:  18px;   /* nav tabs / class card CTA */
+  --text-17:  17px;   /* RECORD button label */
+  --text-16:  16px;   /* Capture button / energy picker */
+  --text-15:  15px;   /* hero subtitle / audio modal body */
+  --text-14:  14px;   /* standard text, nav kicker, due dates */
+  --text-13:  13px;   /* small labels, status text */
+  --text-12:  12px;   /* badge / chip meta text */
+  --text-11:  11px;   /* uppercase micro labels */
+  --text-10:  10px;   /* section kicker labels */
+  --text-9:   9px;    /* WEEK label inside badge */
 
-  --weight-800: 800;
-  --weight-700: 700;
-  --weight-600: 600;
-  --weight-500: 500;
-  --weight-400: 400;
+  /* Font weights */
+  --weight-800: 800;  /* all bold display (Saira Condensed) */
+  --weight-700: 700;  /* semi-bold headings / labels */
+  --weight-600: 600;  /* body emphasis (Barlow) */
+  --weight-500: 500;  /* body regular */
+  --weight-400: 400;  /* body regular */
 
-  --tracking-30:  .30em;
-  --tracking-28:  .28em;
-  --tracking-20:  .20em;
-  --tracking-18:  .18em;
-  --tracking-14:  .14em;
-  --tracking-12:  .12em;
-  --tracking-10:  .10em;
-  --tracking-08:  .08em;
-  --tracking-06:  .06em;
-  --tracking-05:  .05em;
-  --tracking-04:  .04em;
-  --tracking-03:  .03em;
-  --tracking-01:  .01em;
+  /* Letter spacing */
+  --tracking-30:  .30em;  /* "YOUR LOBBY" kicker */
+  --tracking-20:  .20em;  /* "YOUR NEXT MOVE" / section kickers */
+  --tracking-18:  .18em;  /* "WEEK 4" label */
+  --tracking-14:  .14em;  /* WEEKLY XP label */
+  --tracking-12:  .12em;  /* class status label */
+  --tracking-10:  .10em;  /* upload label */
+  --tracking-08:  .08em;  /* background name / settings section */
+  --tracking-06:  .06em;  /* nav tabs / overdue badge */
+  --tracking-05:  .05em;  /* hero CTA / class CTA */
+  --tracking-04:  .04em;  /* energy picker / flashcard tools */
+  --tracking-03:  .03em;  /* game day label */
+  --tracking-01:  .01em;  /* hero name */
 
-  --leading-hero:   .88;
-  --leading-tight:  .90;
-  --leading-normal: 1.5;
-  --leading-card:   1.1;
+  /* Line heights (used with display type) */
+  --leading-hero:   .88;  /* hero name (72px G-MONEY) */
+  --leading-tight:  .90;  /* class card title */
+  --leading-normal: 1.5;  /* body copy */
+  --leading-card:   1.1;  /* overwhelmed one-move label */
+
 
   /* ============================================================
      10. SPACING SCALE
      ============================================================ */
 
-  --space-1:   4px;
-  --space-2:   5px;
-  --space-3:   6px;
-  --space-4:   8px;
-  --space-5:   9px;
-  --space-6:   10px;
-  --space-7:   11px;
-  --space-8:   12px;
-  --space-9:   13px;
-  --space-10:  14px;
-  --space-11:  16px;
-  --space-12:  18px;
-  --space-13:  20px;
-  --space-14:  22px;
-  --space-15:  24px;
-  --space-16:  28px;
-  --space-17:  34px;
-  --space-18:  36px;
-  --space-19:  40px;
-  --space-20:  44px;
-  --space-21:  48px;
-  --space-22: 120px;
-  --space-modal: 32px;
+  --space-1:   4px;   /* tight gaps, XP dot spacing */
+  --space-2:   5px;   /* chip padding vertical, small gaps */
+  --space-3:   6px;   /* badge gap, small row gap */
+  --space-4:   8px;   /* standard element gap, button padding */
+  --space-5:   9px;   /* card assignment row padding */
+  --space-6:   10px;  /* standard gap */
+  --space-7:   11px;  /* badge padding horizontal */
+  --space-8:   12px;  /* medium gap / save-note button padding */
+  --space-9:   13px;  /* CTA padding vertical */
+  --space-10:  14px;  /* label to content gap */
+  --space-11:  16px;  /* nav gap, week XP padding */
+  --space-12:  18px;  /* card body inner padding */
+  --space-13:  20px;  /* grid gap, card horizontal padding */
+  --space-14:  22px;  /* nav horizontal padding, audio padding */
+  --space-15:  24px;  /* classes top padding, header margin-bottom */
+  --space-16:  28px;  /* settings section margin */
+  --space-17:  34px;  /* hero + classes left/right content padding */
+  --space-18:  36px;  /* audio modal padding */
+  --space-19:  40px;  /* hero CTA horizontal padding, audio modal padding */
+  --space-20:  44px;  /* week XP bottom offset */
+  --space-21:  48px;  /* classes section bottom padding */
+  --space-22: 120px;  /* hero title bottom offset */
+
 
   /* ============================================================
      11. BORDER RADIUS SCALE
      ============================================================ */
 
-  --radius-xs:     2px;
-  --radius-sm:     4px;
-  --radius-badge:  6px;
-  --radius-button: 8px;
-  --radius-cta:    9px;
-  --radius-option: 10px;
-  --radius-hero:   12px;
-  --radius-card:   14px;
-  --radius-modal:  20px;
-  --radius-dialog: 22px;
-  --radius-circle: 50%;
+  --radius-xs:     2px;   /* corner accent HUD marks, active tab underline */
+  --radius-sm:     4px;   /* small tags, NOW badge */
+  --radius-badge:  6px;   /* overdue / finished chips */
+  --radius-button: 8px;   /* nav icon buttons, energy picker, settings buttons */
+  --radius-cta:    9px;   /* class card CTA button */
+  --radius-option: 10px;  /* energy picker options in check-in */
+  --radius-hero:   12px;  /* hero CTA, audio transcript box, check-in top tab */
+  --radius-card:   14px;  /* class cards, week XP panel, focus card */
+  --radius-modal:  20px;  /* settings modal */
+  --radius-dialog: 22px;  /* audio overlay modal */
+  --radius-circle: 50%;   /* circular photo, recording orb */
+
 
   /* ============================================================
      12. BOX SHADOWS
+     (named tokens for reusable shadows;
+      context-specific shadows in comments below)
      ============================================================ */
 
   --shadow-hero-cta:         0 0 32px rgba(41,208,255,.45), 0 8px 28px rgba(0,0,0,.40);
@@ -249,74 +329,112 @@
   --shadow-modal-audio:      0 32px 80px rgba(0,0,0,.60);
   --shadow-modal-settings:   0 32px 80px rgba(0,0,0,.70), 0 0 40px rgba(41,208,255,.08);
 
+  /*
+   * ANIMATED SHADOWS (defined as @keyframes in globals.css):
+   *
+   *   gl-overdue  — pulsing red border on overdue cards:
+   *     0%,100%: box-shadow: 0 0 0 1.5px rgba(255,55,55,.8),  0 12px 36px rgba(0,0,0,.5)
+   *     55%:     box-shadow: 0 0 0 4px  rgba(255,55,55,.15), 0 12px 36px rgba(0,0,0,.5)
+   *
+   *   gl-turnin   — pulsing gold border on not-turned-in cards:
+   *     0%,100%: box-shadow: 0 0 0 1.5px rgba(255,210,74,.85), 0 12px 36px rgba(0,0,0,.5)
+   *     55%:     box-shadow: 0 0 0 5px   rgba(255,210,74,.16), 0 12px 36px rgba(0,0,0,.5)
+   *
+   *   gl-claim    — expanding gold glow on turn-in CTA:
+   *     0%,100%: box-shadow: 0 0 0 0  rgba(255,210,74,.85), 0 6px 22px rgba(255,210,74,.5)
+   *     65%:     box-shadow: 0 0 0 14px rgba(255,210,74,0),  0 6px 22px rgba(255,210,74,.5)
+   *
+   *   gl-mic-pulse — expanding red ring on recording mic button:
+   *     0%,100%: box-shadow: 0 0 0 0  rgba(255,55,55,.55)
+   *     65%:     box-shadow: 0 0 0 16px rgba(255,55,55,0)
+   */
+
+
   /* ============================================================
      13. BACKDROP BLUR
      ============================================================ */
 
-  --blur-nav:    blur(20px);
-  --blur-audio:  blur(14px);
-  --blur-card:   blur(10px);
-  --blur-modal:  blur(8px);
+  --blur-nav:    blur(20px);  /* top navigation bar */
+  --blur-audio:  blur(14px);  /* audio recording overlay */
+  --blur-card:   blur(10px);  /* class cards */
+  --blur-modal:  blur(8px);   /* settings modal overlay */
+
 
   /* ============================================================
      14. TRANSITIONS
      ============================================================ */
 
-  --transition-bg-opacity: opacity .5s;
-  --transition-bg-tint:    background .5s;
-  --transition-item:       all .2s;
-  --transition-card:       transform .2s;
-  --transition-cta:        transform .12s;
+  --transition-bg-opacity: opacity .5s;          /* background image cross-fade */
+  --transition-bg-tint:    background .5s;        /* background tint cross-fade */
+  --transition-item:       all .2s;               /* settings bg picker items */
+  --transition-card:       transform .2s;         /* class card hover lift */
+  --transition-cta:        transform .12s;        /* CTA button press */
+
 
   /* ============================================================
      15. LAYOUT DIMENSIONS
      ============================================================ */
 
-  --layout-max-width:       1440px;
-  --layout-hero-bg-height:  718px;
-  --layout-hero-height:     660px;
-  --layout-nav-height:      58px;
-  --layout-xp-panel-width:  380px;
-  --layout-checkin-width:   320px;
-  --layout-audio-width:     500px;
-  --layout-settings-width:  520px;
-  --layout-grid-cols:       3;
+  --layout-max-width:       1440px;  /* max-width for hero and classes content */
+  --layout-hero-bg-height:  718px;   /* background image / hero outer height */
+  --layout-hero-height:     660px;   /* hero content container height */
+  --layout-nav-height:      58px;    /* top navigation bar height */
+  --layout-xp-panel-width:  380px;   /* week XP panel width */
+  --layout-checkin-width:   320px;   /* check-in widget width */
+  --layout-audio-width:     500px;   /* audio overlay modal width */
+  --layout-settings-width:  520px;   /* settings modal width */
+  --layout-grid-cols:       3;       /* classes grid columns: repeat(3,1fr) */
+
 
   /* ============================================================
      TOKENS ADDED FROM HANDOFF
      ============================================================ */
 
-  --color-cyan-90:            rgba(41,208,255,.90);
-  --color-cyan-85:            rgba(41,208,255,.85);
-  --color-cyan-70:            rgba(41,208,255,.70);
-  --color-cyan-40:            rgba(41,208,255,.40);
+  /* Cyan — additional opacities used by HUD panels and hero labels */
+  --color-cyan-90:            rgba(41,208,255,.90); /* --gl-cyan-text: detail/assignment text color */
+  --color-cyan-85:            rgba(41,208,255,.85); /* --gl-cyan-hud: HUD corner accent brackets */
+  --color-cyan-70:            rgba(41,208,255,.70); /* --gl-cyan-label: YOUR LOBBY kicker label */
+  --color-cyan-40:            rgba(41,208,255,.40); /* --gl-cyan-40: avatar photo border */
 
-  --color-red-bg-record:      rgba(220,38,38,.15);
-  --color-red-70:             rgba(255,55,55,.70);
+  /* Red — record button variant and additional opacity */
+  --color-red-bg-record:      rgba(220,38,38,.15);  /* --gl-red-bg: record button bg tint (DC2626 base) */
+  --color-red-70:             rgba(255,55,55,.70);  /* --gl-red-border: overdue card border */
 
-  --color-gold-75:            rgba(255,210,74,.75);
+  /* Gold — additional opacity */
+  --color-gold-75:            rgba(255,210,74,.75); /* --gl-gold-border: finished/turn-in card border */
 
-  --color-bg-input:           rgba(10,16,36,.80);
-  --color-bg-btn-neutral:     rgba(120,150,220,.12);
-  --color-bg-energy-btn:      rgba(10,14,32,.60);
+  /* Backgrounds — input fields and energy panel buttons */
+  --color-bg-input:           rgba(10,16,36,.80);   /* --gl-bg-input: text inputs, API key field */
+  --color-bg-btn-neutral:     rgba(120,150,220,.12);/* --gl-bg-btn-neutral: inactive nav/neutral button bg */
+  --color-bg-energy-btn:      rgba(10,14,32,.60);   /* --gl-bg-energy-btn: energy picker button bg */
 
-  --color-border-neutral:     rgba(120,150,220,.18);
-  --color-border-neutral-sm:  rgba(120,150,220,.14);
+  /* Borders — neutral slate (non-accent borders) */
+  --color-border-neutral:     rgba(120,150,220,.18);/* --gl-border-neutral: energy picker button borders */
+  --color-border-neutral-sm:  rgba(120,150,220,.14);/* --gl-border-neutral-sm: subtle neutral dividers */
 
-  --color-text-overlay-85:    rgba(200,218,255,.85);
-  --color-text-overlay-75:    rgba(200,218,255,.75);
-  --color-text-card-body:     #e8f0ff;
+  /* Text — additional overlay opacities */
+  --color-text-overlay-85:    rgba(200,218,255,.85);/* --gl-text-bright: assignment detail line */
+  --color-text-overlay-75:    rgba(200,218,255,.75);/* --gl-text-muted: est. time / subtitle text */
+  --color-text-card-body:     #e8f0ff;              /* --gl-text-card-body: card assignment + due text */
 
-  --color-tint-stadium:       rgba(0,0,0,.68);
-  --color-tint-music:         rgba(0,0,0,.70);
-  --color-tint-science:       rgba(0,0,0,.42);
-  --color-tint-default:       rgba(0,0,0,.45);
+  /* Background tints — per hero background image */
+  --color-tint-stadium:       rgba(0,0,0,.68);      /* --gl-tint-stadium */
+  --color-tint-music:         rgba(0,0,0,.70);      /* --gl-tint-music */
+  --color-tint-science:       rgba(0,0,0,.42);      /* --gl-tint-science */
+  --color-tint-default:       rgba(0,0,0,.45);      /* --gl-tint-default */
+
+  /* Letter spacing — handoff kicker value */
+  --tracking-28:              .28em;  /* --gl-tracking-wide: YOUR LOBBY / kicker labels */
+
+  /* Spacing — modal padding */
+  --space-modal:              32px;   /* --gl-modal-pad: settings modal inner padding */
+
 
   /* ============================================================
      --gl-* ALIASES FOR HANDOFF
-     Every --color-* above is mirrored as a --gl-* alias pointing
-     to the same value so handoff docs / components that reference
-     --gl-* resolve identically.
+     Every --color-* above is mirrored as a --gl-* alias pointing to
+     the same value, so handoff docs (Dashboard Plan.md) and any
+     component that references --gl-* resolve identically.
      ============================================================ */
 
   --gl-bg-base: var(--color-bg-base);
@@ -379,8 +497,6 @@
   --gl-red-14: var(--color-red-14);
   --gl-red-mic-idle: var(--color-red-mic-idle);
   --gl-red-mic-active: var(--color-red-mic-active);
-  --gl-red-bg-record: var(--color-red-bg-record);
-  --gl-red-70: var(--color-red-70);
   --gl-purple: var(--color-purple);
   --gl-purple-dark: var(--color-purple-dark);
   --gl-purple-light: var(--color-purple-light);
@@ -399,9 +515,6 @@
   --gl-text-overlay-70: var(--color-text-overlay-70);
   --gl-text-overlay-60: var(--color-text-overlay-60);
   --gl-text-overlay-50: var(--color-text-overlay-50);
-  --gl-text-overlay-75: var(--color-text-overlay-75);
-  --gl-text-overlay-85: var(--color-text-overlay-85);
-  --gl-text-card-body: var(--color-text-card-body);
   --gl-text-on-cyan: var(--color-text-on-cyan);
   --gl-text-on-now: var(--color-text-on-now);
   --gl-text-on-green: var(--color-text-on-green);
@@ -416,19 +529,65 @@
   --gl-cyan-85: var(--color-cyan-85);
   --gl-cyan-70: var(--color-cyan-70);
   --gl-cyan-40: var(--color-cyan-40);
+  --gl-red-bg-record: var(--color-red-bg-record);
+  --gl-red-70: var(--color-red-70);
   --gl-gold-75: var(--color-gold-75);
   --gl-bg-input: var(--color-bg-input);
   --gl-bg-btn-neutral: var(--color-bg-btn-neutral);
   --gl-bg-energy-btn: var(--color-bg-energy-btn);
   --gl-border-neutral: var(--color-border-neutral);
   --gl-border-neutral-sm: var(--color-border-neutral-sm);
+  --gl-text-overlay-85: var(--color-text-overlay-85);
+  --gl-text-overlay-75: var(--color-text-overlay-75);
+  --gl-text-card-body: var(--color-text-card-body);
   --gl-tint-stadium: var(--color-tint-stadium);
   --gl-tint-music: var(--color-tint-music);
   --gl-tint-science: var(--color-tint-science);
   --gl-tint-default: var(--color-tint-default);
 
-  /* Semantic alias — plan calls token/burnout warnings "amber"; on-brand
-     value is gold. Keep warnings off red. */
+  /* Semantic alias — the plan calls the token/burnout warning color
+     "amber"; the on-brand value is gold. Keep warnings off red. */
   --gl-amber: var(--color-gold);
 
 }
+
+
+/*
+ * ============================================================
+ * KEYFRAME ANIMATIONS
+ * (defined in app/globals.css — listed here for reference only)
+ * ============================================================
+ *
+ *   gl-pulse
+ *     Character / orb float:
+ *     0%,100% { opacity:.55; transform:translateX(-50%) scale(1) }
+ *     50%      { opacity:.95; transform:translateX(-50%) scale(1.06) }
+ *
+ *   gl-spin
+ *     Continuous 360° rotation (week badge ring):
+ *     to { transform: rotate(360deg) }
+ *
+ *   gl-mic-pulse
+ *     Red ring expand + fade on recording mic (see shadow reference above):
+ *     0%,100% { box-shadow: 0 0 0 0   rgba(255,55,55,.55) }
+ *     65%      { box-shadow: 0 0 0 16px rgba(255,55,55,0)  }
+ *
+ *   gl-overdue
+ *     Pulsing red border on overdue class cards (see shadow reference above)
+ *
+ *   gl-turnin
+ *     Pulsing gold border on not-turned-in class cards (see shadow reference above)
+ *
+ *   gl-claim
+ *     Expanding gold glow on turn-in CTA (see shadow reference above)
+ *
+ *   hud-blink
+ *     Opacity blink for HUD elements:
+ *     0%,100% { opacity:.7 }
+ *     50%      { opacity:1  }
+ *
+ *   hud-scan
+ *     Vertical scan line sweep:
+ *     0%   { transform: translateY(-100%) }
+ *     100% { transform: translateY(660px) }
+ */
