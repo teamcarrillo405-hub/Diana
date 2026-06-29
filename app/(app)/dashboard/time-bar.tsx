@@ -30,7 +30,16 @@ export function TimeBar({
       ? "Still possible — start with 5 minutes?"
       : "Still open — want to take a next step?";
     return (
-      <div className="rounded-md border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700 dark:text-amber-300">
+      <div
+        style={{
+          borderRadius: "var(--radius-button)",
+          border: "1px solid var(--gl-red-28)",
+          background: "var(--gl-red-14)",
+          padding: "var(--space-6)",
+          fontSize: "var(--text-12)",
+          color: "var(--gl-red-text)",
+        }}
+      >
         <p>{message}</p>
         {inProgress && assignmentId && (
           <PastDueMicroTaskButton assignmentId={assignmentId} />
@@ -40,7 +49,7 @@ export function TimeBar({
   }
 
   let pct = 0;
-  let tint = "bg-emerald-500";
+  let tint = "var(--gl-green)";
   let label = formatDueAt(dueAt);
 
   if (createdAt) {
@@ -55,20 +64,20 @@ export function TimeBar({
     pct = Math.max(8, Math.min(100, (diffHours / 168) * 100));
   }
 
-  if (pct > 50) tint = "bg-emerald-500";
-  else if (pct >= 25) tint = "bg-sky-500";
-  else tint = "bg-amber-500";
+  if (pct > 50) tint = "var(--gl-green)";
+  else if (pct >= 25) tint = "var(--gl-cyan)";
+  else tint = "var(--gl-gold)";
 
   if (diffHours < 24) {
     label = `${Math.round(diffHours)} hours left · ${formatDueAt(dueAt)}`;
   }
 
   return (
-    <div className="space-y-1">
-      <div className="h-2 w-full overflow-hidden rounded-full bg-border/50">
-        <div className={`h-full ${tint}`} style={{ width: `${pct}%` }} />
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-1)" }}>
+      <div style={{ height: 8, width: "100%", overflow: "hidden", borderRadius: 999, background: "var(--gl-border-neutral)" }}>
+        <div style={{ height: "100%", width: `${pct}%`, background: tint, boxShadow: tint === "var(--gl-cyan)" ? "0 0 12px var(--gl-cyan-45)" : undefined }} />
       </div>
-      <p className="text-xs text-muted">{label}</p>
+      <p style={{ fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{label}</p>
     </div>
   );
 }

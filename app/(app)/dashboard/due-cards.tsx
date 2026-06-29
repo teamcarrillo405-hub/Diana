@@ -11,30 +11,49 @@ export function DueCards({
   if (count <= 0 || !firstCardId) return null;
 
   return (
-    <section className="space-y-2">
-      <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
+    <section style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+      <h2
+        style={{
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-11)",
+          fontWeight: "var(--weight-700)",
+          letterSpacing: "var(--tracking-20)",
+          textTransform: "uppercase",
+          color: "var(--gl-text-muted)",
+        }}
+      >
         Study
       </h2>
       <Link
         href={`/flashcards/${firstCardId}/review`}
-        className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-5 hover:bg-border/30"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--space-6)",
+          borderRadius: "var(--radius-card)",
+          border: "1px solid var(--gl-cyan-22)",
+          background: "var(--gl-cyan-08)",
+          padding: "var(--space-13)",
+          textDecoration: "none",
+        }}
       >
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-accent/10 p-2 text-accent">
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-6)" }}>
+          <div style={{ borderRadius: "var(--radius-circle)", background: "var(--gl-cyan-14)", padding: "var(--space-4)", color: "var(--gl-cyan)", display: "flex" }}>
             <Brain size={18} />
           </div>
           <div>
-            <p className="text-sm font-medium">
+            <p style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-600)", color: "var(--gl-text-primary)" }}>
               {count === 1
                 ? "1 card to review today."
                 : `${count} cards to review today.`}
             </p>
-            <p className="mt-0.5 text-xs text-muted">
+            <p style={{ marginTop: "2px", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>
               Whenever you have 5 minutes — no rush.
             </p>
           </div>
         </div>
-        <span className="text-xs text-muted">Start →</span>
+        <span style={{ fontSize: "var(--text-12)", color: "var(--gl-cyan)" }}>Start →</span>
       </Link>
     </section>
   );

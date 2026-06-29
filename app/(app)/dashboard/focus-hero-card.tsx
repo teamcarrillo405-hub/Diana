@@ -21,6 +21,33 @@ type TtsConfig = {
   voice: string;
 };
 
+// HUD corner-bracket set — 4 absolute corners, 16px, 2px cyan (lobby motif).
+function HudCorners() {
+  const base = { position: "absolute" as const, width: 16, height: 16 };
+  return (
+    <>
+      <span aria-hidden="true" style={{ ...base, top: -1, left: -1, borderTop: "2px solid var(--gl-cyan-85)", borderLeft: "2px solid var(--gl-cyan-85)", borderRadius: "var(--radius-xs) 0 0 0" }} />
+      <span aria-hidden="true" style={{ ...base, top: -1, right: -1, borderTop: "2px solid var(--gl-cyan-85)", borderRight: "2px solid var(--gl-cyan-85)", borderRadius: "0 var(--radius-xs) 0 0" }} />
+      <span aria-hidden="true" style={{ ...base, bottom: -1, left: -1, borderBottom: "2px solid var(--gl-cyan-85)", borderLeft: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 0 var(--radius-xs)" }} />
+      <span aria-hidden="true" style={{ ...base, bottom: -1, right: -1, borderBottom: "2px solid var(--gl-cyan-85)", borderRight: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 var(--radius-xs) 0" }} />
+    </>
+  );
+}
+
+const chipStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "var(--space-3)",
+  borderRadius: 999,
+  border: "1px solid var(--gl-border-neutral)",
+  background: "var(--gl-bg-card)",
+  padding: "var(--space-2) var(--space-6)",
+  fontFamily: "var(--font-body)",
+  fontSize: "var(--text-12)",
+  fontWeight: "var(--weight-600)",
+  color: "var(--gl-text-muted)",
+};
+
 export function FocusHeroCard({
   assignment,
   createdAt,
@@ -36,7 +63,7 @@ export function FocusHeroCard({
   supportPlan?: SupportPlan | null;
   tts?: TtsConfig;
 }) {
-  const classColor = assignment.classes?.color ?? "rgb(var(--brand))";
+  const classColor = assignment.classes?.color ?? "var(--gl-cyan)";
   const className = assignment.classes?.name ?? "School";
   const adaptationCue = roughMode
     ? "Rough-mode pacing"
@@ -47,29 +74,55 @@ export function FocusHeroCard({
         : "Steady focus";
 
   return (
-    <section className="focus-surface hero-glow animate-slide-up overflow-hidden rounded-3xl border border-brand/25 p-4 shadow-sm sm:p-6">
-      <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0 flex-1 space-y-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-surface-raised/80 px-3 py-1 text-xs font-medium text-brand-strong dark:text-brand">
+    <section
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        borderRadius: 18,
+        border: "1px solid var(--gl-cyan-25)",
+        background: "linear-gradient(135deg, var(--gl-bg-focus-card-from), var(--gl-bg-focus-card-to))",
+        padding: "var(--space-13)",
+      }}
+    >
+      <HudCorners />
+      <style>{`
+.fhc-row{display:flex;flex-direction:column;gap:var(--space-13);}
+@media(min-width:1024px){.fhc-row{flex-direction:row;align-items:flex-start;justify-content:space-between;}}
+.fhc-rail{width:100%;}
+@media(min-width:1024px){.fhc-rail{width:16rem;}}
+`}</style>
+      <div className="fhc-row">
+        <div style={{ minWidth: 0, flex: 1, display: "flex", flexDirection: "column", gap: "var(--space-10)" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-4)" }}>
+            <span style={{ ...chipStyle, borderColor: "var(--gl-cyan-22)", color: "var(--gl-cyan)" }}>
               <Sparkles size={13} />
               Right now
             </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-raised/80 px-3 py-1 text-xs text-muted">
-              <span className="size-2 rounded-full" style={{ background: classColor }} />
+            <span style={chipStyle}>
+              <span style={{ width: 8, height: 8, borderRadius: "var(--radius-circle)", background: classColor }} />
               {className}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-raised/80 px-3 py-1 text-xs text-muted">
+            <span style={chipStyle}>
               <Gauge size={13} />
               {adaptationCue}
             </span>
           </div>
 
-          <div className="min-w-0">
-            <h2 className="text-2xl font-bold leading-tight sm:text-3xl">
+          <div style={{ minWidth: 0 }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: "var(--weight-800)",
+                fontStyle: "italic",
+                fontSize: "var(--text-40)",
+                lineHeight: "var(--leading-tight)",
+                textTransform: "uppercase",
+                color: "var(--gl-text-primary)",
+              }}
+            >
               {assignment.title}
             </h2>
-            <p className="mt-2 text-sm text-muted">
+            <p style={{ marginTop: "var(--space-3)", fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>
               {KIND_LABEL[assignment.kind]}
               {assignment.effective_minutes != null && ` | ~${assignment.effective_minutes} min for you`}
               {assignment.due_at && ` | ${formatDueAt(assignment.due_at)}`}
@@ -86,15 +139,31 @@ export function FocusHeroCard({
           )}
 
           {assignment.reasons.length > 0 && (
-            <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--text-11)",
+                  fontWeight: "var(--weight-700)",
+                  letterSpacing: "var(--tracking-20)",
+                  textTransform: "uppercase",
+                  color: "var(--gl-text-muted)",
+                }}
+              >
                 Why this one
               </p>
-              <ul className="flex flex-wrap gap-2">
+              <ul style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4)", listStyle: "none", padding: 0, margin: 0 }}>
                 {assignment.reasons.map((reason) => (
                   <li
                     key={reason}
-                    className="rounded-full border border-brand/20 bg-surface-raised/80 px-3 py-1 text-xs text-brand-strong dark:text-brand"
+                    style={{
+                      borderRadius: 999,
+                      border: "1px solid var(--gl-cyan-22)",
+                      background: "var(--gl-cyan-08)",
+                      padding: "var(--space-2) var(--space-8)",
+                      fontSize: "var(--text-12)",
+                      color: "var(--gl-cyan)",
+                    }}
                   >
                     {reason}
                   </li>
@@ -104,35 +173,62 @@ export function FocusHeroCard({
           )}
 
           {supportPlan && (
-            <div className="rounded-2xl border border-brand/20 bg-surface-raised/85 p-4">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="text-xs font-medium uppercase tracking-wider text-brand-strong dark:text-brand">
+            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-cyan-22)", background: "var(--gl-bg-card)", padding: "var(--space-10)" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-4)" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--text-11)",
+                    fontWeight: "var(--weight-700)",
+                    letterSpacing: "var(--tracking-20)",
+                    textTransform: "uppercase",
+                    color: "var(--gl-cyan)",
+                  }}
+                >
                   {supportPlan.headline}
                 </p>
                 {supportPlan.chips.map((chip) => (
-                  <span key={chip} className="rounded-full bg-brand/10 px-2 py-0.5 text-[11px] text-brand-strong dark:text-brand">
+                  <span key={chip} style={{ borderRadius: 999, background: "var(--gl-cyan-10)", padding: "2px var(--space-4)", fontSize: "var(--text-11)", color: "var(--gl-cyan)" }}>
                     {chip}
                   </span>
                 ))}
               </div>
-              <p className="mt-2 text-sm text-muted">{supportPlan.rationale}</p>
-              <p className="mt-3 text-sm font-medium">
-                Next logical step: <span className="font-normal">{supportPlan.nextStep}</span>
+              <p style={{ marginTop: "var(--space-3)", fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>{supportPlan.rationale}</p>
+              <p style={{ marginTop: "var(--space-6)", fontSize: "var(--text-14)", fontWeight: "var(--weight-600)", color: "var(--gl-text-secondary)" }}>
+                Next logical step: <span style={{ fontWeight: "var(--weight-400)" }}>{supportPlan.nextStep}</span>
               </p>
               {supportPlan.bodyCue && (
-                <p className="mt-2 text-xs text-muted">{supportPlan.bodyCue}</p>
+                <p style={{ marginTop: "var(--space-3)", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{supportPlan.bodyCue}</p>
               )}
               {supportPlan.patternNote && (
-                <p className="mt-2 text-xs text-muted">{supportPlan.patternNote}</p>
+                <p style={{ marginTop: "var(--space-3)", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{supportPlan.patternNote}</p>
               )}
             </div>
           )}
         </div>
 
-        <div className="w-full shrink-0 space-y-3 lg:w-64">
+        <div className="fhc-rail" style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
           <Link
             href={`/assignments/${assignment.id}`}
-            className="press-scale touch-target inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-strong"
+            style={{
+              display: "inline-flex",
+              width: "100%",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "var(--space-4)",
+              borderRadius: "var(--radius-hero)",
+              background: "var(--gl-cyan)",
+              padding: "var(--space-9) var(--space-10)",
+              fontFamily: "var(--font-display)",
+              fontWeight: "var(--weight-800)",
+              fontStyle: "italic",
+              fontSize: "var(--text-18)",
+              letterSpacing: "var(--tracking-05)",
+              textTransform: "uppercase",
+              color: "var(--gl-text-on-cyan)",
+              textDecoration: "none",
+              boxShadow: "var(--shadow-active-card)",
+            }}
           >
             Start focus
             <ArrowRight size={17} />
@@ -140,7 +236,21 @@ export function FocusHeroCard({
           {supportPlan && (
             <Link
               href={`/assignments/${assignment.id}?focus=next-step`}
-              className="touch-target inline-flex w-full items-center justify-center rounded-2xl border border-border bg-surface-raised px-4 py-3 text-sm font-semibold text-fg transition hover:bg-surface-soft"
+              style={{
+                display: "inline-flex",
+                width: "100%",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "var(--radius-hero)",
+                border: "1px solid var(--gl-border-neutral)",
+                background: "var(--gl-bg-card)",
+                padding: "var(--space-9) var(--space-10)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--text-14)",
+                fontWeight: "var(--weight-600)",
+                color: "var(--gl-text-secondary)",
+                textDecoration: "none",
+              }}
             >
               Ask for next step
             </Link>
@@ -154,7 +264,7 @@ export function FocusHeroCard({
               voice={tts.voice}
             />
           )}
-          <div className="grid grid-cols-3 gap-2 text-center text-[11px] text-muted">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-4)", textAlign: "center" }}>
             <ProgressCue label="Started" icon={Clock3} />
             <ProgressCue label="Step done" icon={CheckCircle2} />
             <ProgressCue label="Submit ready" icon={CheckCircle2} />
@@ -173,9 +283,9 @@ function ProgressCue({
   icon: typeof Clock3;
 }) {
   return (
-    <div className="min-w-0 rounded-2xl border border-border bg-surface-raised/80 px-2 py-2">
-      <Icon size={14} className="mx-auto mb-1 text-brand" />
-      <span className="block truncate">{label}</span>
+    <div style={{ minWidth: 0, borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-4)" }}>
+      <Icon size={14} style={{ margin: "0 auto var(--space-1)", color: "var(--gl-cyan)" }} />
+      <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--text-11)", color: "var(--gl-text-muted)" }}>{label}</span>
     </div>
   );
 }
