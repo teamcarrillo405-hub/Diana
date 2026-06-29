@@ -118,6 +118,8 @@ For the hosted Kubernetes deploy workflow, configure repository secrets:
 ```text
 KUBE_CONFIG_B64
 DIANA_WORKER_API_TOKEN
+DIANA_SUPABASE_URL
+DIANA_SUPABASE_SERVICE_ROLE_KEY
 GHCR_PULL_USERNAME
 GHCR_PULL_TOKEN
 ```
@@ -132,6 +134,12 @@ The deploy workflow uploads a
 origin, image tag, namespace, replica count, kubectl rollout/status logs,
 production preflight output, and deployed-worker canary output. Keep this with
 the worker image and production-gate artifacts.
+
+When `run_canary=true`, the deploy workflow also requires
+`DIANA_SUPABASE_URL` and `DIANA_SUPABASE_SERVICE_ROLE_KEY` so the
+deployed-worker canary can seed and read one production queue job. Do not put
+the service-role key on long-running worker replicas; it is used only inside
+the short-lived GitHub Actions canary process.
 
 After downloading the deploy artifact, verify it locally:
 
