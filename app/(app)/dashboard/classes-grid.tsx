@@ -89,14 +89,13 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
           )}
         </div>
 
-        {/* 3-column grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: 20,
-          }}
-        >
+        {/* Responsive class grid: 3 → 2 → 1 columns */}
+        <style>{`
+          .gl-classes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+          @media (max-width: 1024px) { .gl-classes-grid { grid-template-columns: repeat(2, 1fr); } }
+          @media (max-width: 640px) { .gl-classes-grid { grid-template-columns: 1fr; } }
+        `}</style>
+        <div className="gl-classes-grid">
           {classes.map((cls) => (
             <ClassCard key={cls.id} cls={cls} />
           ))}
