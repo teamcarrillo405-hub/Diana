@@ -38,7 +38,8 @@ production-gate run, and cohort rollout.
     artifact with the commit, image tag, and Docker image id
   - verifies the worker image workflow self-checks the image evidence artifact
     and has a strict `--require-pushed` mode when a GHCR push is requested
-  - verifies this production-gate branch auto-publishes the GHCR worker image
+  - verifies `main` and the production-gate branch auto-publish the GHCR worker
+    image
     and requires pushed-image evidence
   - verifies worker pods declare a GHCR image pull secret and the hosted
     Kubernetes deploy workflow creates it from repository secrets before
@@ -300,8 +301,9 @@ also writes `pushed-image.txt` with the GHCR image tag.
 `npm run worker:image-evidence-check` verifies the artifact shape and required
 build/test/smoke outcomes, and `--require-pushed` additionally requires
 `pushed-image.txt` to match the recorded GHCR image tag.
-The production-gate branch now auto-publishes its GHCR image on push so worker
-deployment is no longer blocked on a manual image-dispatch step.
+`main` and the production-gate branch now auto-publish their GHCR worker images
+on push so worker deployment is no longer blocked on a manual image-dispatch
+step.
 
 The hosted Kubernetes deploy path now handles private GHCR pulls explicitly.
 Worker pods declare `imagePullSecrets: ghcr-pull-secret`, and the GitHub deploy

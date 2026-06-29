@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      PUSH_WORKER_IMAGE: ${{ (github.event_name == 'workflow_dispatch' && inputs.push_image == 'true') || (github.event_name == 'push' && github.ref == 'refs/heads/codex/diana-v2-clean-history') }}
+      PUSH_WORKER_IMAGE: ${{ (github.event_name == 'workflow_dispatch' && inputs.push_image == 'true') || (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/codex/diana-v2-clean-history')) }}
     steps:
       - uses: actions/checkout@v4
 

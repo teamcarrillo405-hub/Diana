@@ -455,6 +455,7 @@ const checks: Check[] = [
       "imageId",
       "pushRequested",
       "PUSH_WORKER_IMAGE",
+      "refs/heads/main",
       "refs/heads/codex/diana-v2-clean-history",
       "pushed-image.txt",
       "Verify worker image evidence",
