@@ -143,6 +143,9 @@ function isActivePath(path: string, href: string) {
 export function BottomNav() {
   const path = usePathname();
 
+  // Dashboard routes are full-bleed (own top nav) — hide the bottom nav there.
+  if (path.startsWith("/dashboard")) return null;
+
   return (
     <nav
       className="nexus-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-border bg-surface-raised/95 backdrop-blur md:hidden"
@@ -188,6 +191,9 @@ export function SideNav() {
       ? group.items.filter((item) => item.label.toLowerCase().includes(normalizedQuery))
       : group.items,
   })).filter((group) => group.items.length > 0);
+
+  // Dashboard routes are full-bleed (own top nav) — hide the sidebar there.
+  if (path.startsWith("/dashboard")) return null;
 
   return (
     <aside className="nexus-side-nav hidden w-24 shrink-0 border-r border-border bg-surface-raised md:block" data-nav="compact-app-rail">
