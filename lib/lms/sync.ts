@@ -10,6 +10,7 @@ const SHADOW_CLASS_TITLE: Record<LmsProvider, string> = {
   google_classroom: "Google Classroom (imported)",
   ics: "Calendar (imported)",
   clever: "Clever (imported)",
+  gitlab: "GitLab (imported)",
 };
 
 async function ensureShadowClass(
@@ -22,14 +23,14 @@ async function ensureShadowClass(
     .from("classes")
     .select("id")
     .eq("owner_id", ownerId)
-    .eq("title", title)
+    .eq("name", title)
     .is("archived_at", null)
     .maybeSingle();
   if (existing?.id) return existing.id as string;
 
   const { data: created, error } = await supabase
     .from("classes")
-    .insert({ owner_id: ownerId, title })
+    .insert({ owner_id: ownerId, name: title, color: provider === "gitlab" ? "violet" : "slate" })
     .select("id")
     .single();
   if (error) throw new Error(`could not create shadow class: ${error.message}`);

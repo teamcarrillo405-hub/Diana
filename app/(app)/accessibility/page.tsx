@@ -5,7 +5,7 @@ export default async function Page() {
   const profile = await loadProfile();
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Accessibility</p>
         <h1 className="text-display">Make reading feel easier to enter</h1>

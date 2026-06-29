@@ -1,0 +1,217 @@
+name: Worker image
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - Dockerfile.worker
+      - .dockerignore
+      - .env.worker.example
+      - .env.worker-canary.example
+      - package.json
+      - package-lock.json
+      - app/api/diana/**
+      - app/api/workers/**
+      - lib/supabase/middleware.ts
+      - lib/worker-tier/**
+      - lib/integrations/diana-voice-sidecar.ts
+      - lib/integrations/openjarvis-sidecar.ts
+      - deploy/worker/**
+      - supabase/migrations/0041_production_worker_tier.sql
+      - supabase/migrations/0042_worker_queue_runtime.sql
+      - supabase/migrations/0043_worker_rate_limit_runtime.sql
+      - supabase/migrations/0044_worker_claim_lease_recovery.sql
+      - .github/workflows/worker-image.yml
+      - .github/workflows/worker-production-gate.yml
+      - .github/workflows/worker-kubernetes-deploy.yml
+      - docs/operations/diana-worker-production-runbook.md
+      - scripts/run-diana-worker.ts
+      - scripts/build-worker.mjs
+      - scripts/smoke-worker-runtime.mjs
+      - scripts/run-worker-tenant-canary.ts
+      - scripts/run-worker-e2e-smoke.ts
+      - scripts/run-worker-deployed-canary.ts
+      - scripts/run-worker-load-smoke.ts
+      - scripts/run-diana-status-polling-smoke.ts
+      - scripts/worker-production-preflight.ts
+      - scripts/validate-worker-deployment.ts
+      - scripts/verify-worker-gate-evidence.ts
+      - scripts/verify-worker-kubernetes-deploy-evidence.ts
+      - scripts/verify-worker-image-evidence.ts
+  pull_request:
+    paths:
+      - Dockerfile.worker
+      - .dockerignore
+      - .env.worker.example
+      - .env.worker-canary.example
+      - package.json
+      - package-lock.json
+      - app/api/diana/**
+      - app/api/workers/**
+      - lib/supabase/middleware.ts
+      - lib/worker-tier/**
+      - lib/integrations/diana-voice-sidecar.ts
+      - lib/integrations/openjarvis-sidecar.ts
+      - deploy/worker/**
+      - supabase/migrations/0041_production_worker_tier.sql
+      - supabase/migrations/0042_worker_queue_runtime.sql
+      - supabase/migrations/0043_worker_rate_limit_runtime.sql
+      - supabase/migrations/0044_worker_claim_lease_recovery.sql
+      - .github/workflows/worker-image.yml
+      - .github/workflows/worker-production-gate.yml
+      - .github/workflows/worker-kubernetes-deploy.yml
+      - docs/operations/diana-worker-production-runbook.md
+      - scripts/run-diana-worker.ts
+      - scripts/build-worker.mjs
+      - scripts/smoke-worker-runtime.mjs
+      - scripts/run-worker-tenant-canary.ts
+      - scripts/run-worker-e2e-smoke.ts
+      - scripts/run-worker-deployed-canary.ts
+      - scripts/run-worker-load-smoke.ts
+      - scripts/run-diana-status-polling-smoke.ts
+      - scripts/worker-production-preflight.ts
+      - scripts/validate-worker-deployment.ts
+      - scripts/verify-worker-gate-evidence.ts
+      - scripts/verify-worker-kubernetes-deploy-evidence.ts
+      - scripts/verify-worker-image-evidence.ts
+  workflow_dispatch:
+    inputs:
+      push_image:
+        description: Push image to GitHub Container Registry
+        required: true
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-worker-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PUSH_WORKER_IMAGE: ${{ (github.event_name == 'workflow_dispatch' && inputs.push_image == 'true') || (github.event_name == 'push' && github.ref == 'refs/heads/codex/diana-v2-clean-history') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        id: setup_node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        id: install_dependencies
+        run: npm ci
+
+      - name: Validate worker deployment files
+        id: deployment_check
+        run: npm run worker:deployment-check
+
+      - name: Worker API tests
+        id: worker_tests
+        run: npm run worker:test
+
+      - name: Smoke compiled worker runtime
+        id: runtime_smoke
+        run: npm run worker:runtime-smoke
+
+      - name: Build worker image
+        id: build_image
+        run: docker build -f Dockerfile.worker -t diana-worker:${{ github.sha }} .
+
+      - name: Record worker image build evidence
+        id: record_image_evidence
+        run: |
+          mkdir -p worker-image-evidence
+          IMAGE_REPOSITORY="$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
+          IMAGE_LOCAL="diana-worker:${{ github.sha }}"
+          IMAGE_REMOTE="ghcr.io/${IMAGE_REPOSITORY}/diana-worker:${{ github.sha }}"
+          IMAGE_ID="$(docker image inspect "$IMAGE_LOCAL" --format '{{.Id}}')"
+          cat > worker-image-evidence/summary.json <<EOF
+          {
+            "workflow": "Worker image",
+            "sha": "${{ github.sha }}",
+            "runId": "${{ github.run_id }}",
+            "runAttempt": "${{ github.run_attempt }}",
+            "localImage": "$IMAGE_LOCAL",
+            "remoteImage": "$IMAGE_REMOTE",
+            "imageId": "$IMAGE_ID",
+            "pushRequested": "${{ env.PUSH_WORKER_IMAGE }}"
+          }
+          EOF
+
+      - name: Smoke worker command path
+        id: command_smoke
+        run: |
+          docker run --rm \
+            -e WORKER_API_TOKEN=ci-worker-token \
+            -e DIANA_WORKER_BASE_URL=http://127.0.0.1:3000 \
+            -e OPENJARVIS_BASE_URL=http://openjarvis:8000 \
+            diana-worker:${{ github.sha }} \
+            node dist/worker/run-diana-worker.cjs --check-config
+
+      - name: Login to GitHub Container Registry
+        id: login_registry
+        if: env.PUSH_WORKER_IMAGE == 'true'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push worker image
+        id: push_image
+        if: env.PUSH_WORKER_IMAGE == 'true'
+        run: |
+          IMAGE_REPOSITORY="$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
+          IMAGE="ghcr.io/${IMAGE_REPOSITORY}/diana-worker:${{ github.sha }}"
+          docker tag diana-worker:${{ github.sha }} "$IMAGE"
+          docker push "$IMAGE"
+          echo "$IMAGE" > worker-image-evidence/pushed-image.txt
+
+      - name: Write worker image outcome
+        if: always()
+        run: |
+          mkdir -p worker-image-evidence
+          cat > worker-image-evidence/outcome.json <<EOF
+          {
+            "workflow": "Worker image",
+            "sha": "${{ github.sha }}",
+            "runId": "${{ github.run_id }}",
+            "runAttempt": "${{ github.run_attempt }}",
+            "pushRequested": "${{ env.PUSH_WORKER_IMAGE }}",
+            "steps": {
+              "setupNode": "${{ steps.setup_node.outcome }}",
+              "installDependencies": "${{ steps.install_dependencies.outcome }}",
+              "deploymentCheck": "${{ steps.deployment_check.outcome }}",
+              "workerTests": "${{ steps.worker_tests.outcome }}",
+              "runtimeSmoke": "${{ steps.runtime_smoke.outcome }}",
+              "buildImage": "${{ steps.build_image.outcome }}",
+              "recordImageEvidence": "${{ steps.record_image_evidence.outcome }}",
+              "commandSmoke": "${{ steps.command_smoke.outcome }}",
+              "loginRegistry": "${{ steps.login_registry.outcome }}",
+              "pushImage": "${{ steps.push_image.outcome }}"
+            }
+          }
+          EOF
+
+      - name: Verify worker image evidence
+        id: verify_image_evidence
+        if: always()
+        run: |
+          if [ "${{ env.PUSH_WORKER_IMAGE }}" = "true" ]; then
+            npm run worker:image-evidence-check -- --dir=worker-image-evidence --require-pushed
+          else
+            npm run worker:image-evidence-check -- --dir=worker-image-evidence
+          fi
+
+      - name: Upload worker image evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diana-worker-image-${{ github.run_id }}-${{ github.run_attempt }}
+          path: worker-image-evidence
+          if-no-files-found: warn
+          retention-days: 30

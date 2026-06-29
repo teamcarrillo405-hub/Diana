@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { usePathname } from "next/navigation";
 import { MessageSquarePlus, X } from "lucide-react";
 import { saveQuickCapture } from "./quick-capture-actions";
 import { VoiceTextarea } from "@/components/voice-textarea";
 
-export function QuickCapture() {
+export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "inline" }) {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [raw, setRaw] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   function save() {
     const text = raw.trim();
@@ -33,26 +36,54 @@ export function QuickCapture() {
     setRaw((current) => [current.trim(), chunk.trim()].filter(Boolean).join(" "));
   }
 
+  function close() {
+    setOpen(false);
+    requestAnimationFrame(() => triggerRef.current?.focus());
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") close();
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  if (placement === "fixed" && pathname === "/dashboard") {
+    return null;
+  }
+
   return (
     <>
       <button
         type="button"
+        ref={triggerRef}
         onClick={() => {
           setOpen(true);
           setStatus(null);
         }}
-        className="fixed bottom-[calc(8.5rem+env(safe-area-inset-bottom))] left-4 z-40 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm shadow-lg hover:bg-border/30 md:bottom-6"
+        className={
+          placement === "inline"
+            ? "nexus-button nexus-button-secondary inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold"
+            : "nexus-button nexus-button-secondary fixed bottom-6 left-6 z-40 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+        }
       >
         <MessageSquarePlus size={16} />
-        Quick capture
+        Capture
       </button>
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-background/70 p-4 backdrop-blur-sm md:items-center">
-          <div className="w-full max-w-md space-y-3 rounded-2xl border border-border bg-card p-4 shadow-lg">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quick-capture-title"
+            className="nexus-panel w-full max-w-md space-y-3 rounded-2xl border border-border bg-card p-4 shadow-lg"
+          >
             <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-medium">Quick capture</h2>
-              <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-border p-1">
+              <h2 id="quick-capture-title" className="text-sm font-medium">Quick capture</h2>
+              <button type="button" onClick={close} className="touch-target inline-flex items-center justify-center rounded-xl border border-border">
                 <X size={16} />
               </button>
             </div>
@@ -61,16 +92,16 @@ export function QuickCapture() {
               onChange={(event) => setRaw(event.target.value)}
               onTranscript={addTranscript}
               rows={4}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+              className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
               placeholder="Type it or use the mic. Diana can turn it into a next move."
               autoFocus
             />
             {status && <p className="text-sm text-muted">{status}</p>}
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-border px-3 py-2 text-sm">
+              <button type="button" onClick={close} className="touch-target rounded-xl border border-border px-3 py-2 text-sm">
                 Close
               </button>
-              <button type="button" onClick={save} disabled={pending} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50">
+              <button type="button" onClick={save} disabled={pending} className="nexus-button nexus-button-primary press-scale touch-target rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50">
                 Capture
               </button>
             </div>

@@ -1,0 +1,120 @@
+import Link from "next/link";
+import { Accessibility, Brain, Clock3, GraduationCap, Mic2, ShieldCheck } from "lucide-react";
+import { loadProfile } from "@/lib/profile";
+
+export default async function MePage() {
+  const profile = await loadProfile();
+  const accommodations = (profile?.accommodations ?? []) as string[];
+  const diagnoses = (profile?.diagnoses ?? []) as string[];
+  const interests = (profile?.interests ?? []) as string[];
+
+  const patterns = [
+    diagnoses.includes("dysgraphia") || accommodations.includes("scribe")
+      ? "I think better when I can talk first."
+      : "I can use voice capture when writing feels blocked.",
+    diagnoses.includes("dyslexia") || accommodations.includes("reader")
+      ? "Audio, spacing, and visible sources make reading easier."
+      : "I can turn on reading support whenever a text feels heavy.",
+    accommodations.includes("extended_time")
+      ? "Planning early helps my extra time actually help."
+      : "Short starts help me learn what support I need.",
+    "One next move is easier than seeing the whole pile at once.",
+  ];
+
+  return (
+    <div className="diana-page space-y-8">
+      <section className="grid gap-6 py-2 lg:grid-cols-[0.8fr_1.2fr]">
+        <header className="space-y-5">
+          <p className="diana-kicker">
+            <Brain size={15} />
+            My Brain
+          </p>
+          <h1 className="diana-app-title max-w-xl">Understand how school works for you.</h1>
+          <p className="diana-copy">
+            This is the student-controlled learning profile: strengths, support settings, accommodations,
+            and the scripts that make asking for help less awkward.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/accessibility" className="diana-button diana-button-primary">
+              Adjust reading support
+              <Accessibility size={17} />
+            </Link>
+            <Link href="/future-path" className="diana-button diana-button-secondary">
+              Connect to Future Path
+            </Link>
+          </div>
+        </header>
+
+        <div className="diana-zone p-5">
+          <p className="text-sm font-black text-brand-strong dark:text-brand">What Diana should remember</p>
+          <div className="mt-5 grid gap-3">
+            {patterns.map((pattern) => (
+              <div key={pattern} className="rounded-2xl border border-border bg-surface/70 p-4 text-sm leading-6">
+                {pattern}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-4">
+        <MeCard icon={Mic2} title="Voice first" body="Brain dump, dictate, or talk through the stuck part before writing." />
+        <MeCard icon={Clock3} title="Short starts" body="Use five-minute moves and focus timers when initiation is the hard part." />
+        <MeCard icon={ShieldCheck} title="Self-advocacy" body="Turn support needs into teacher, family, or counselor-safe language." />
+        <MeCard icon={GraduationCap} title="Future-ready" body="Strengths and proof points can support essays, scholarships, and college disability offices." />
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-2">
+        <div className="diana-zone p-5">
+          <h2 className="text-xl font-black">Support plan</h2>
+          <dl className="mt-5 grid gap-4 text-sm">
+            <ProfileLine label="School year" value={profile?.school_year ? `${profile.school_year}th grade` : "Not set yet"} />
+            <ProfileLine label="Accommodations" value={accommodations.length ? accommodations.map(formatId).join(", ") : "No accommodations listed yet"} />
+            <ProfileLine label="Extra time" value={`${profile?.extra_time_pct ?? 0}%`} />
+            <ProfileLine label="Reading font" value={profile?.reading_font ? formatId(profile.reading_font) : "Default"} />
+          </dl>
+        </div>
+
+        <div className="diana-zone p-5">
+          <h2 className="text-xl font-black">Interests for examples</h2>
+          {interests.length === 0 ? (
+            <p className="mt-4 text-sm leading-6 text-muted">
+              Add interests during onboarding or settings so Diana can make examples feel more familiar.
+            </p>
+          ) : (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {interests.map((interest) => (
+                <span key={interest} className="rounded-full border border-border bg-surface px-3 py-2 text-sm font-semibold">
+                  {formatId(interest)}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function MeCard({ icon: Icon, title, body }: { icon: typeof Brain; title: string; body: string }) {
+  return (
+    <article className="diana-zone p-5">
+      <Icon size={20} className="text-brand" />
+      <h2 className="mt-6 text-lg font-black">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-muted">{body}</p>
+    </article>
+  );
+}
+
+function ProfileLine({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid gap-1 rounded-2xl border border-border bg-surface/70 p-4">
+      <dt className="text-xs font-black uppercase tracking-[0.14em] text-muted">{label}</dt>
+      <dd className="text-sm font-semibold">{value}</dd>
+    </div>
+  );
+}
+
+function formatId(value: string) {
+  return value.replace(/_/g, " ");
+}

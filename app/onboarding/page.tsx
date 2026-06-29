@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { loadProfile } from "@/lib/profile";
 import { OnboardingForm } from "./form";
+import { SchoolMixRibbon } from "@/components/signal/school-mix-ribbon";
+import { SignalStage } from "@/components/signal/signal-stage";
+import { NexusArcadeScene } from "@/components/nexus/nexus-ui";
 
 export default async function OnboardingPage() {
   const profile = await loadProfile();
@@ -8,18 +11,28 @@ export default async function OnboardingPage() {
   if (profile.onboarded_at) redirect("/dashboard");
 
   return (
-    <main className="mx-auto max-w-xl px-4 py-10">
-      <header className="space-y-2">
-        <p className="text-xs uppercase tracking-wider text-muted">Welcome</p>
-        <h1 className="text-display">Let&apos;s set Diana up for you.</h1>
-        <p className="text-sm text-muted">
-          Three quick questions. Everything is private to you. You can change any answer later in Settings.
-          Nothing here is shared with teachers or parents unless you explicitly turn that on later.
-        </p>
-      </header>
-      <div className="mt-8">
-        <OnboardingForm initial={profile} />
-      </div>
+    <main id="main-content" className="signal-page">
+      <SignalStage>
+        <div className="signal-shell grid min-h-dvh items-center gap-8 py-8 lg:grid-cols-[0.82fr_1.18fr]">
+          <aside className="space-y-6 pt-16 lg:pt-0">
+            <p className="signal-eyebrow">Set your Diana</p>
+            <h1 className="max-w-[11ch] text-[clamp(2.8rem,6vw,5.8rem)] font-black leading-[0.96] tracking-normal text-white">
+              Tune your command deck.
+            </h1>
+            <p className="max-w-xl text-lg leading-8 text-slate-300">
+              Choose the look, reading comfort, and learning patterns Diana should respect from the first screen.
+            </p>
+            <SchoolMixRibbon />
+            <div className="nexus-auth-preview hidden lg:block">
+              <NexusArcadeScene className="min-h-[24rem]" />
+            </div>
+          </aside>
+
+          <section className="onboarding-signal-dock">
+            <OnboardingForm initial={profile} />
+          </section>
+        </div>
+      </SignalStage>
     </main>
   );
 }

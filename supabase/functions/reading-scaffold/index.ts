@@ -13,6 +13,7 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const PROMPTS: Record<"pre" | "mid" | "post", string> = {
   pre: `You are helping a high school student who has dyslexia prepare to read an assignment.
@@ -87,32 +88,14 @@ Deno.serve(async (req: Request) => {
       personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 512,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: `Reading text:\n\n${truncatedText}` }],
-      }),
+    const ai = await callStudentTextModel({
+      system,
+      user: `Reading text:\n\n${truncatedText}`,
+      maxTokens: 512,
+      quality: "quality",
     });
-
-    if (!res.ok) {
-      console.error("reading-scaffold anthropic error:", await res.text());
-      return json({ error: "AI request failed" }, 502);
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const content = data.content?.[0]?.text ?? "";
-    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const content = ai.content;
+    const tokens = ai.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -120,7 +103,7 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId,
           feature: "reading_scaffold",
-          model: "claude-sonnet-4-6",
+          model: ai.model,
           promptSummary: `${type}: ${text.slice(0, 180)}`,
           tokensUsed: tokens,
         }, supabase);

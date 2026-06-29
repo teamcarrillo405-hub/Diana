@@ -6,6 +6,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const SYNTHESIS_PROMPT = `You synthesize a student's own class notes.
@@ -14,13 +15,26 @@ Rules:
 - Cite source notes inline with bracket labels like [N1] and [N2].
 - If the notes do not contain enough information, say what the notes do show and what is missing.
 - Keep the summary concise: 2 to 5 short paragraphs.
+- Add an audioOverviewScript that sounds like a calm 60 to 90 second study briefing for a teenager.
 - Output ONLY valid JSON with shape:
-{"summary":"...","citations":[{"label":"N1","noteId":"...","title":"...","reason":"..."}]}`;
+{"summary":"...","audioOverviewScript":"...","citations":[{"label":"N1","noteId":"...","title":"...","reason":"..."}]}`;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
+
+type NoteExcerpt = {
+  id: string;
+  title: string | null;
+  body_text: string | null;
+  transcript_text: string | null;
+  outline_json: unknown;
+  tags: string[] | null;
+  ai_suggested_tags: string[] | null;
+};
+
+const GENERIC_FALLBACK_SUMMARY = "I found source notes for this question. Start with the cited notes below, then ask a narrower question if you want a tighter answer.";
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -29,14 +43,26 @@ function json(body: unknown, status = 200) {
   });
 }
 
-function parseJsonObject(raw: string): { summary: string; citations: Array<{ label: string; noteId: string; title: string; reason: string }> } {
+function parseJsonObject(raw: string): {
+  summary: string;
+  audioOverviewScript: string;
+  citations: Array<{ label: string; noteId: string; title: string; reason: string }>;
+} {
   try {
     const parsed = JSON.parse(raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim()) as {
       summary?: unknown;
+      audioOverviewScript?: unknown;
       citations?: unknown;
     };
+    const summary = typeof parsed.summary === "string"
+      ? parsed.summary
+      : GENERIC_FALLBACK_SUMMARY;
+    const audioOverviewScript = typeof parsed.audioOverviewScript === "string" && parsed.audioOverviewScript.trim().length > 0
+      ? parsed.audioOverviewScript.slice(0, 1800)
+      : `Quick study overview. ${summary}`.slice(0, 1800);
     return {
-      summary: typeof parsed.summary === "string" ? parsed.summary : raw,
+      summary,
+      audioOverviewScript,
       citations: Array.isArray(parsed.citations)
         ? parsed.citations
             .map((item) => item as Record<string, unknown>)
@@ -51,8 +77,70 @@ function parseJsonObject(raw: string): { summary: string; citations: Array<{ lab
         : [],
     };
   } catch {
-    return { summary: raw, citations: [] };
+    return {
+      summary: GENERIC_FALLBACK_SUMMARY,
+      audioOverviewScript: `Quick study overview. ${GENERIC_FALLBACK_SUMMARY}`,
+      citations: [],
+    };
   }
+}
+
+function needsSourceFallback(summary: string): boolean {
+  return summary === GENERIC_FALLBACK_SUMMARY || summary.includes("Next move scaffold");
+}
+
+function buildSourceNotebookFallback(query: string, notes: NoteExcerpt[]): { summary: string; audioOverviewScript: string } {
+  const source = notes[0];
+  const title = source?.title ?? "your notes";
+  const text = source ? notePlainText(source) : "";
+  const sentences = text
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter((sentence) => sentence.length > 25)
+    .slice(0, 5);
+  const tags = source ? [...(source.tags ?? []), ...(source.ai_suggested_tags ?? [])].slice(0, 5) : [];
+  const focus = tags.length > 0 ? tags.join(", ") : "the main class ideas";
+  const details = sentences.length > 0
+    ? sentences
+    : ["Use the source note to name the main terms, compare the key ideas, and choose one example from class."];
+  const summary = [
+    `Your notebook answer for "${query}" should start from [N1] ${title}.`,
+    `The main focus is ${focus}. ${details.slice(0, 3).join(" ")}`,
+    "For studying, turn this into three checks: define the key terms, compare the ideas side by side, and explain one class example in your own words.",
+  ].join("\n\n");
+  const audioOverviewScript = [
+    `Here is the quick audio overview for ${title}.`,
+    `The big idea is ${focus}.`,
+    details.slice(0, 4).join(" "),
+    "Before the quiz, listen for three things: what each term means, how the ideas compare, and one example you can explain without looking.",
+    "A strong next move is to make two flashcards and one compare-and-contrast note from this source.",
+  ].join(" ").slice(0, 1800);
+  return { summary, audioOverviewScript };
+}
+
+function notePlainText(note: NoteExcerpt): string {
+  const outline = Array.isArray(note.outline_json)
+    ? note.outline_json.map((node) => {
+        const n = node as { heading?: string; bullets?: string[] };
+        return [n.heading, ...(Array.isArray(n.bullets) ? n.bullets : [])].filter(Boolean).join(". ");
+      }).join(". ")
+    : "";
+  return [note.transcript_text, note.body_text, outline]
+    .filter((part) => typeof part === "string" && part.trim().length > 0)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function fallbackCitations(
+  notes: Array<{ id: string; title: string | null }>,
+): Array<{ label: string; noteId: string; title: string; reason: string }> {
+  return notes.slice(0, 3).map((note, index) => ({
+    label: `N${index + 1}`,
+    noteId: note.id,
+    title: note.title ?? `Note ${index + 1}`,
+    reason: "Used as one of the source notes for this answer.",
+  }));
 }
 
 Deno.serve(async (req: Request) => {
@@ -122,38 +210,25 @@ Deno.serve(async (req: Request) => {
       includeMinorSafety: true,
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: `Query: ${query}\n\nSource notes:\n${excerpts}`,
-        }],
-      }),
+    const ai = await callStudentTextModel({
+      system,
+      user: `Query: ${query}\n\nSource notes:\n${excerpts}`,
+      maxTokens: 700,
+      quality: "quality",
+      json: true,
     });
-
-    if (!res.ok) {
-      console.error("note-synthesis anthropic error:", await res.text());
-      return json({ error: "AI request failed" }, 502);
+    let parsed = parseJsonObject(ai.content);
+    if (needsSourceFallback(parsed.summary)) {
+      const sourceFallback = buildSourceNotebookFallback(query, notes as NoteExcerpt[]);
+      parsed = {
+        ...parsed,
+        summary: sourceFallback.summary,
+        audioOverviewScript: sourceFallback.audioOverviewScript,
+      };
     }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const raw = data.content?.[0]?.text ?? "";
-    const parsed = parseJsonObject(raw);
     const validIds = new Set(notes.map((note) => note.id));
     const citations = parsed.citations.filter((citation) => validIds.has(citation.noteId));
-    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const sourceCitations = citations.length > 0 ? citations : fallbackCitations(notes);
 
     Promise.resolve()
       .then(async () => {
@@ -161,15 +236,19 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId: null,
           feature: "note_synthesis",
-          model: "claude-sonnet-4-6",
+          model: ai.model,
           promptSummary: query.slice(0, 200),
-          tokensUsed: tokens,
+          tokensUsed: ai.tokens,
         }, supabase);
-        await incrementTokens(ownerId, tokens, supabase);
+        await incrementTokens(ownerId, ai.tokens, supabase);
       })
       .catch((e) => console.warn("note-synthesis side effects failed", e));
 
-    return json({ summary: parsed.summary, citations });
+    return json({
+      summary: parsed.summary,
+      audioOverviewScript: parsed.audioOverviewScript,
+      citations: sourceCitations,
+    });
   } catch (err) {
     console.error("note-synthesis error:", err);
     return json({ error: "Internal error" }, 500);

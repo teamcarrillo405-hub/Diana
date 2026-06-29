@@ -27,11 +27,11 @@ export default async function SubmitPage({
     .order("position", { ascending: true });
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link
           href={`/assignments/${id}`}
-          className="text-xs text-muted hover:underline"
+          className="nexus-kicker text-xs text-muted hover:underline"
         >
           ← {a.title}
         </Link>

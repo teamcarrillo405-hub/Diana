@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { ArrowLeft, BookOpenCheck, LockKeyhole, PencilRuler, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { NexusKicker, NexusPageShell, NexusPanel } from "@/components/nexus/nexus-ui";
 import { saveClassAiMode } from "./actions";
 
 export default async function ClassAiSettingsPage({
@@ -29,80 +31,76 @@ export default async function ClassAiSettingsPage({
   }
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2">
-        <Link
-          href={`/classes/${id}`}
-          className="text-xs text-muted hover:underline"
-        >
-          ← Back to {cls.name}
+    <NexusPageShell className="class-settings-page space-y-8">
+      <section className="class-settings-hero">
+        <Link href={`/classes/${id}`} className="class-back-link">
+          <ArrowLeft size={15} />
+          Back to {cls.name}
         </Link>
-        <h1 className="text-display">AI mode for {cls.name}</h1>
-        <p className="text-sm text-muted">
-          Choose how Diana uses AI when you work on assignments in this class.
+        <NexusKicker tone="gold">
+          <ShieldCheck size={14} />
+          Class AI rules
+        </NexusKicker>
+        <h1>AI mode for {cls.name}</h1>
+        <p>
+          Pick how Diana can help in this subject. This setting applies before any assignment-level override.
         </p>
-      </header>
+      </section>
 
-      <form action={action} className="space-y-4">
+      <form action={action} className="class-settings-form">
         <input type="hidden" name="classId" value={id} />
 
-        <div className="divide-y divide-border rounded-xl border border-border bg-card">
-          <label className="flex cursor-pointer items-start gap-4 px-4 py-4 hover:bg-border/30">
+        <NexusPanel className="class-ai-mode-panel" tone="gold">
+          <label className="class-ai-mode-option" data-mode="green">
             <input
               type="radio"
               name="aiMode"
               value="green"
               defaultChecked={currentMode === "green"}
-              className="mt-1 accent-green-600"
             />
-            <div>
-              <p className="font-medium">Green — allow all AI</p>
-              <p className="text-sm text-muted">
-                AI features are available for this class.
-              </p>
-            </div>
+            <span className="class-ai-mode-icon"><BookOpenCheck size={18} /></span>
+            <span className="class-ai-mode-copy">
+              <strong>Full help</strong>
+              <span>Study help, planning, citation support, and guided scaffolds are available for this class.</span>
+            </span>
+            <span className="class-ai-mode-status">Green</span>
           </label>
 
-          <label className="flex cursor-pointer items-start gap-4 px-4 py-4 hover:bg-border/30">
+          <label className="class-ai-mode-option" data-mode="yellow">
             <input
               type="radio"
               name="aiMode"
               value="yellow"
               defaultChecked={currentMode === "yellow"}
-              className="mt-1 accent-yellow-500"
             />
-            <div>
-              <p className="font-medium">Yellow — citations only</p>
-              <p className="text-sm text-muted">
-                Only citation help is available for this class.
-              </p>
-            </div>
+            <span className="class-ai-mode-icon"><PencilRuler size={18} /></span>
+            <span className="class-ai-mode-copy">
+              <strong>Citations only</strong>
+              <span>Diana can help with sources and citations, but not content-generating support.</span>
+            </span>
+            <span className="class-ai-mode-status">Yellow</span>
           </label>
 
-          <label className="flex cursor-pointer items-start gap-4 px-4 py-4 hover:bg-border/30">
+          <label className="class-ai-mode-option" data-mode="red">
             <input
               type="radio"
               name="aiMode"
               value="red"
               defaultChecked={currentMode === "red"}
-              className="mt-1"
             />
-            <div>
-              <p className="font-medium">Red — no AI</p>
-              <p className="text-sm text-muted">
-                AI features are off for this class. The &ldquo;Help me with this reading&rdquo; button stays hidden.
-              </p>
-            </div>
+            <span className="class-ai-mode-icon"><LockKeyhole size={18} /></span>
+            <span className="class-ai-mode-copy">
+              <strong>AI off</strong>
+              <span>AI help stays unavailable for this class. Diana still keeps assignments, sources, and rules organized.</span>
+            </span>
+            <span className="class-ai-mode-status">Off</span>
           </label>
-        </div>
+        </NexusPanel>
 
-        <button
-          type="submit"
-          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-white hover:opacity-90"
-        >
-          Save
+        <button type="submit" className="nexus-button nexus-button-primary class-settings-save">
+          Save class rule
         </button>
       </form>
-    </div>
+    </NexusPageShell>
   );
 }

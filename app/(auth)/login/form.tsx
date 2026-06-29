@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { AudioLines, BookOpenCheck, LockKeyhole } from "lucide-react";
-import { FutureModeToggle } from "@/components/future-mode-toggle";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
@@ -29,47 +28,16 @@ export function LoginForm() {
   }
 
   return (
-    <div className="future-card mobile-safe-width min-w-0 overflow-hidden rounded-3xl border border-border bg-surface-raised/95 p-5 shadow-sm backdrop-blur sm:p-6">
-      <header className="space-y-2">
-        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
-          <Link href="/" className="inline-flex text-sm font-bold text-brand">
-            Diana
-          </Link>
-          <FutureModeToggle compact className="px-2.5 py-1.5 text-xs" />
-        </div>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
-            Focus command center
-          </p>
-          <h1 className="mt-1 text-2xl font-bold">Welcome back</h1>
-          <p className="safe-copy mt-2 max-w-full text-sm text-muted">Open the place that remembers your next school move.</p>
-        </div>
+    <div className="auth-command-card future-card mobile-safe-width min-w-0">
+      <header className="auth-card-header">
+        <p className="nexus-kicker">Private next moves</p>
+        <h2>Welcome back</h2>
+        <p>Open Diana at the next school move already waiting for you.</p>
       </header>
 
-      <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
-        <AuthCue icon={AudioLines} label="Voice notes" />
-        <AuthCue icon={BookOpenCheck} label="Source anchors" />
-        <AuthCue icon={LockKeyhole} label="Private proof" />
-      </div>
-
-      <div className="auth-command-preview rounded-2xl border border-brand/20 bg-brand/10 p-3" data-visual="auth-after-login-preview">
-        <div className="flex min-w-0 items-center justify-between gap-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Opens to</p>
-          <span className="rounded-full bg-surface-raised/80 px-2 py-1 text-[11px] font-semibold text-brand-strong dark:text-brand">
-            Right now
-          </span>
-        </div>
-        <p className="mt-2 text-sm font-semibold">One assignment, one source-linked next move.</p>
-        <div className="mt-3 grid grid-cols-3 gap-2 text-[11px] text-muted">
-          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Focus</span>
-          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Study</span>
-          <span className="rounded-full border border-border bg-surface-raised px-2 py-1 text-center">Proof</span>
-        </div>
-      </div>
-
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="space-y-1">
-          <label htmlFor="email" className="block text-sm font-medium">Email</label>
+      <form onSubmit={onSubmit} className="auth-primary-form">
+        <div className="auth-field">
+          <label htmlFor="email">Email</label>
           <input
             id="email"
             type="email"
@@ -80,8 +48,8 @@ export function LoginForm() {
             className="input"
           />
         </div>
-        <div className="space-y-1">
-          <label htmlFor="password" className="block text-sm font-medium">Password</label>
+        <div className="auth-field">
+          <label htmlFor="password">Password</label>
           <input
             id="password"
             type="password"
@@ -94,7 +62,7 @@ export function LoginForm() {
         </div>
 
         {error && (
-          <div className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
+          <div className="auth-error" role="status">
             {error}
           </div>
         )}
@@ -102,39 +70,39 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={pending}
-          className="touch-target w-full rounded-xl bg-brand px-4 py-3 font-medium text-white transition hover:bg-brand-strong disabled:opacity-50"
+          className="nexus-button nexus-button-primary touch-target w-full px-4 py-3 font-medium transition disabled:opacity-50"
         >
           {pending ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
-      <p className="text-sm text-muted">
+      <p className="auth-link-row">
         New here?{" "}
         <Link href="/signup" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
           Create an account
         </Link>
       </p>
 
-      <style jsx>{`
-        :global(.input) {
-          width: 100%;
-          box-sizing: border-box;
-          border: 1px solid rgb(var(--border));
-          background: rgb(var(--surface-raised));
-          color: rgb(var(--fg));
-          border-radius: 0.75rem;
-          min-height: 44px;
-          padding: 0.7rem 0.8rem;
-          font-size: 1rem;
-        }
-      `}</style>
+      <div className="auth-cue-strip">
+        <AuthCue icon={AudioLines} label="Voice notes" />
+        <AuthCue icon={BookOpenCheck} label="Source anchors" />
+        <AuthCue icon={LockKeyhole} label="Private proof" />
+      </div>
+
+      <div className="auth-preview-tile" data-visual="auth-after-login-preview">
+        <div>
+          <span>Opens to</span>
+          <strong>One source-linked next move.</strong>
+        </div>
+        <small>Think / Work / Proof</small>
+      </div>
     </div>
   );
 }
 
 function AuthCue({ icon: Icon, label }: { icon: typeof AudioLines; label: string }) {
   return (
-    <div className="flex min-w-0 items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-2">
+    <div className="auth-cue">
       <Icon size={14} className="shrink-0 text-brand" />
       <span className="min-w-0 truncate">{label}</span>
     </div>

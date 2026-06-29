@@ -20,6 +20,8 @@ const requiredRoutes = [
   "/login",
   "/signup",
   "/proof",
+  "/future-path",
+  "/me",
   "/dashboard",
   "/assignments",
   "/notes",
@@ -50,10 +52,17 @@ const bannedVisibleTerms = [
   "wrong",
   "incorrect",
   "you're behind",
+  "command center",
+  "school command",
+  "command-style",
+  "open diana os",
+  "build my signal",
 ] as const;
 
 const authenticatedRoutes = new Set([
   "/proof",
+  "/future-path",
+  "/me",
   "/dashboard",
   "/assignments",
   "/notes",

@@ -104,9 +104,10 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <main className="diana-page space-y-6 py-6">
       <header className="mb-6 flex items-center justify-between">
         <div>
+          <p className="nexus-kicker">Calendar deck</p>
           <h1 className="text-2xl font-bold text-fg">Calendar</h1>
           <p className="text-sm text-muted">
             Week of {format(weekStart, "MMM d")} –{" "}
@@ -116,19 +117,19 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
         <div className="flex items-center gap-2">
           <Link
             href={`/calendar?week=${prevAnchor}`}
-            className="rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
+            className="nexus-button nexus-button-secondary rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
           >
             Prev
           </Link>
           <Link
             href={`/calendar?week=${todayAnchor}`}
-            className="rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
+            className="nexus-button nexus-button-secondary rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
           >
             This week
           </Link>
           <Link
             href={`/calendar?week=${nextAnchor}`}
-            className="rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
+            className="nexus-button nexus-button-secondary rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
           >
             Next
           </Link>
@@ -154,7 +155,7 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
           return (
             <section
               key={key}
-              className="flex flex-col rounded-lg border border-border bg-card"
+              className="nexus-panel flex flex-col rounded-lg border border-border bg-card"
             >
               <header className="border-b border-border px-3 py-2">
                 <div className="text-xs uppercase tracking-wide text-muted">

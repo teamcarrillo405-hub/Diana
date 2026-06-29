@@ -45,7 +45,7 @@ export function FutureVoicePreview({ compact = false }: FutureVoicePreviewProps)
               </p>
               <h2 className="mt-1 text-xl font-bold leading-tight sm:text-2xl">Talk it through. Diana maps the next move.</h2>
               <p className="mt-2 text-sm leading-6 text-muted">
-                A command-style layer for voice capture, source anchors, and proof that the work stays yours.
+                A voice-first layer for capture, source anchors, and proof that the work stays yours.
               </p>
             </div>
           </div>

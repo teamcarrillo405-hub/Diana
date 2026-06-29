@@ -1,7 +1,7 @@
 // F15 — Shared types for LMS Calendar Import.
 // All three providers normalize through NormalizedAssignment before upsert.
 
-export type LmsProvider = "canvas" | "google_classroom" | "ics" | "clever";
+export type LmsProvider = "canvas" | "google_classroom" | "ics" | "clever" | "gitlab";
 
 export type LmsConnection = {
   id: string;

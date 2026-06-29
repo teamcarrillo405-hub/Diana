@@ -19,7 +19,19 @@ export async function GET() {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ onboarded_at: null })
+    .update({
+      onboarded_at: null,
+      diagnoses: [],
+      accommodations: [],
+      school_year: null,
+      extra_time_pct: 0,
+      class_count_hint: null,
+      interests: [],
+      dyslexia_font: false,
+      tts_enabled: false,
+      line_spacing: "normal",
+      font_size: "normal",
+    })
     .eq("user_id", user.id);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 

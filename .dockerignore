@@ -1,0 +1,15 @@
+.git
+.next
+dist
+node_modules
+coverage
+output
+archive
+*.zip
+*.log
+_dev-*.txt
+CACHE
+.env*
+!.env.example
+!.env.worker.example
+!.env.worker-canary.example

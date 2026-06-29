@@ -23,7 +23,7 @@ export default async function Page() {
   const connections = (data ?? []) as Connection[];
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Imports</p>
         <h1 className="text-display">Bring schoolwork into Diana</h1>

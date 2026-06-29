@@ -6,7 +6,7 @@ export default async function AiHistoryPage() {
   const rows = await getAiHistory(100);
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link href="/settings" className="text-xs text-muted hover:underline">
           ← Settings

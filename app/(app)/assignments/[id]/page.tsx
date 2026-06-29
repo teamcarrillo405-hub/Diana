@@ -261,11 +261,11 @@ export default async function AssignmentDetailPage({
   });
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2">
+    <div className="diana-page space-y-8">
+      <header className="nexus-panel space-y-3 p-5 sm:p-6">
         <Link
           href={a.classes ? `/classes/${a.classes.id}` : "/assignments"}
-          className="text-xs text-muted hover:underline"
+          className="nexus-kicker text-xs text-muted hover:underline"
         >
           ← {a.classes?.name ?? "Tasks"}
         </Link>
@@ -461,7 +461,7 @@ export default async function AssignmentDetailPage({
       {/* Citation tool is always available — any assignment may need a source citation */}
       <CitationTool assignmentId={a.id} classAiMode={classAiMode} />
 
-      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+      <section className="nexus-panel space-y-3 rounded-2xl border border-border bg-card p-5">
         <div className="flex items-baseline justify-between">
           <p className="text-xs font-medium uppercase tracking-wider text-muted">
             Where are you?
@@ -492,7 +492,7 @@ export default async function AssignmentDetailPage({
       )}
 
       {status === "exporting" && (
-        <div className="rounded-xl border border-accent bg-accent/5 p-4">
+        <div className="nexus-panel rounded-xl border border-accent bg-accent/5 p-4">
           <p className="font-medium">Run through your submission checklist first.</p>
           <p className="mt-1 text-sm text-muted">
             Diana will hold you here until you tick the required boxes.

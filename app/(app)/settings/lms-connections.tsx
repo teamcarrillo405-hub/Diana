@@ -3,11 +3,11 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { connectCanvas, connectIcs, connectClassroom, connectClever, disconnectLms } from "./lms-actions";
+import { connectCanvas, connectIcs, connectClassroom, connectClever, connectGitLab, disconnectLms } from "./lms-actions";
 
 type Connection = {
   id: string;
-  provider: "canvas" | "ics" | "google_classroom" | "clever";
+  provider: "canvas" | "ics" | "google_classroom" | "clever" | "gitlab";
   config: Record<string, unknown>;
   last_synced_at: string | null;
 };
@@ -20,6 +20,7 @@ const PROVIDER_LABEL = {
   ics: "Calendar URL",
   google_classroom: "Google Classroom",
   clever: "Clever",
+  gitlab: "GitLab",
 } as const;
 
 const SYNC_ENDPOINT = {
@@ -27,6 +28,7 @@ const SYNC_ENDPOINT = {
   ics: "/api/lms/ics-sync",
   google_classroom: "/api/lms/classroom-sync",
   clever: null,
+  gitlab: "/api/lms/gitlab-sync",
 } as const;
 
 function formatSyncedAt(iso: string | null): string {
@@ -90,7 +92,7 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
     <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
       <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Connected calendars</h2>
       <p className="text-sm text-muted">
-        Pull due dates from Canvas, a calendar URL, or Google Classroom. Diana also checks connected sources in the background when Settings opens.
+        Pull due dates from Canvas, a calendar URL, Google Classroom, or GitLab issues. Diana also checks connected sources in the background when Settings opens.
       </p>
       <Link href="/api/calendar.ics" className="inline-flex w-fit rounded-md border border-border bg-background px-3 py-2 text-sm hover:bg-border/30">
         Export Diana due dates
@@ -210,6 +212,26 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
           <input name="district" placeholder="District or school name" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
           <input name="note" placeholder="IT contact or setup note" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
           <button type="submit" className="rounded-md border border-border bg-card px-3 py-1 text-sm">Save Clever marker</button>
+        </form>
+      </details>
+
+      <details className="rounded-lg border border-border bg-background p-3">
+        <summary className="cursor-pointer text-sm font-medium">Connect GitLab for coding class</summary>
+        <form
+          action={async (fd) => {
+            const r = await connectGitLab(fd);
+            setBanner(r.ok ? { tone: "ok", message: r.message } : { tone: "warn", message: r.message });
+          }}
+          className="mt-3 space-y-2"
+        >
+          <input name="project" placeholder="group/project-path" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <input name="token" type="password" placeholder="GitLab personal access token" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <input name="labels" placeholder="Optional label filter, like assignment" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <input name="base_url" placeholder="https://gitlab.com" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <p className="text-xs text-muted">
+            Read-only import: Diana pulls open issues with due dates into assignments. Use a token with API read access for the class project.
+          </p>
+          <button type="submit" className="rounded-md border border-border bg-card px-3 py-1 text-sm">Connect GitLab</button>
         </form>
       </details>
     </section>

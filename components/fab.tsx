@@ -6,7 +6,7 @@ export function Fab() {
     <Link
       href="/assignments/new"
       aria-label="Add assignment"
-      className="md:hidden fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-lg hover:opacity-90 active:scale-95 transition-transform"
+      className="press-scale fixed bottom-6 right-28 z-40 hidden h-12 w-12 items-center justify-center rounded-full bg-accent text-white shadow-lg transition hover:opacity-90 md:flex"
     >
       <Plus size={24} />
     </Link>

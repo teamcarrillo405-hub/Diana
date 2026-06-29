@@ -12,6 +12,7 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const WRITING_PROMPT = `You are a writing coach for a high-school student
 with dyslexia and/or ADHD. The student will share a sentence or short
@@ -106,39 +107,14 @@ Deno.serve(async (req: Request) => {
       { role: "user" as const, content: prompt as string },
     ];
 
-    // 7. Call Anthropic Sonnet 4.6 (writing nuance requires Sonnet — Haiku
-    //    misclassifies style vs grammar issues; F10 spec explicitly requires Sonnet)
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 500,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages,
-      }),
+    const ai = await callStudentTextModel({
+      system: systemPrompt,
+      user: messages[0].content,
+      maxTokens: 500,
+      quality: "quality",
     });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("Anthropic error:", errText);
-      return new Response(JSON.stringify({ error: "AI request failed" }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const content = data.content?.[0]?.text ?? "";
-    const tokens =
-      (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const content = ai.content;
+    const tokens = ai.tokens;
 
     // 8. Fire-and-forget: log to ai_interactions + increment token counter.
     //    Must NOT block the response (AI-SAFETY-01 constraint).
@@ -149,7 +125,7 @@ Deno.serve(async (req: Request) => {
             ownerId,
             assignmentId: (assignmentId as string | null | undefined) ?? null,
             feature: "writing_aid",
-            model: "claude-sonnet-4-6",
+            model: ai.model,
             promptSummary: (prompt as string).slice(0, 200),
             tokensUsed: tokens,
           },

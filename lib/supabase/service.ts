@@ -4,7 +4,8 @@ import type { Database } from "@/lib/supabase/types";
 /**
  * Service-role Supabase client. Bypasses RLS.
  * NEVER import this from a Client Component. NEVER expose to the browser.
- * Used ONLY by the public /share/[token] Server Component for token lookup.
+ * Use only from server-only routes/components that need admin-level lookup or
+ * dev QA bootstrap.
  */
 export function createServiceClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

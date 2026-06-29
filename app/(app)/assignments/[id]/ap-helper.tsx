@@ -62,8 +62,8 @@ export function ApHelper({
   return (
     <SubjectToolShell
       theme="ap"
-      eyebrow="AP command"
-      title="Exam command center"
+      eyebrow="AP practice"
+      title="Exam practice plan"
       subtitle="Match the prompt to FRQ, MCQ, or a study plan before adding practice."
       icon={GraduationCap}
       studyContext={studyContext}

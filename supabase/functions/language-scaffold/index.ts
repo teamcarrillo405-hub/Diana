@@ -10,6 +10,7 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = new Set(["vocabulary", "conjugation", "reading", "speaking", "writing", "culture"]);
 
@@ -126,20 +127,9 @@ Deno.serve(async (req: Request) => {
       personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 1200,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: `Mode: ${mode}
+    const ai = await callStudentTextModel({
+      system: systemPrompt,
+      user: `Mode: ${mode}
 Target language: ${targetLanguage}
 Student text or vocabulary:
 ${sourceText}
@@ -149,19 +139,12 @@ ${spokenText}
 
 Class context:
 ${classContext}`,
-        }],
-      }),
+      maxTokens: 650,
+      quality: "quality",
+      json: true,
     });
-    if (!res.ok) {
-      console.error("language-scaffold Anthropic error:", await res.text());
-      return jsonResponse({ error: "AI request failed" }, 502);
-    }
-    const data = await res.json() as {
-      content?: Array<{ type: string; text: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
-    };
-    const content = data.content?.[0]?.text ?? "";
-    const tokens = Number(data.usage?.input_tokens ?? 0) + Number(data.usage?.output_tokens ?? 0);
+    const content = ai.content;
+    const tokens = ai.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -169,7 +152,7 @@ ${classContext}`,
           ownerId,
           assignmentId,
           feature: "language_scaffold",
-          model: "claude-haiku-4-5",
+          model: ai.model,
           promptSummary: `${mode}:${targetLanguage}:${(sourceText || spokenText).slice(0, 140)}`,
           tokensUsed: tokens,
         }, supabase);

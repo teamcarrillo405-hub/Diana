@@ -5,7 +5,7 @@ const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY") ?? "";
 const ELEVENLABS_API_KEY = Deno.env.get("ELEVENLABS_API_KEY") ?? "";
 
 const OPENAI_VOICES = new Set(["alloy", "echo", "fable", "onyx", "nova", "shimmer"]);
-const ELEVENLABS_DEFAULT_VOICE = "JBFqnCBsd6RMkjVDRZzb";
+const ELEVENLABS_DEFAULT_VOICE = "EXAVITQu4vr4xnSDxMaL";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

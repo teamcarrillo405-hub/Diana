@@ -23,7 +23,7 @@ export default async function ExportPage() {
   const inventory = await inventoryForUser(user.id);
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link href="/settings" className="text-xs text-muted hover:underline">
           Back to Settings

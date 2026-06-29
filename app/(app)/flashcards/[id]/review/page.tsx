@@ -27,9 +27,9 @@ export default async function ReviewPage({
   // If the card isn't due (or doesn't exist), fall back to first due card or 404.
   if (startIdx === -1 && fullQueue.length === 0) {
     return (
-      <div className="space-y-6">
+      <div className="diana-page space-y-6">
         <h1 className="text-display">Review</h1>
-        <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+        <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
           <Link
             href="/flashcards"
@@ -50,8 +50,8 @@ export default async function ReviewPage({
   if (ordered.length === 0) notFound();
 
   return (
-    <div className="space-y-4">
-      <Link href="/flashcards" className="text-xs text-muted hover:underline">
+    <div className="diana-page space-y-4">
+      <Link href="/flashcards" className="nexus-kicker text-xs text-muted hover:underline">
         ← Study
       </Link>
       <ReviewSession

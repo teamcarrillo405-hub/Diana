@@ -120,15 +120,15 @@ export function NoteEditor({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="notes-editor-shell">
       {/* Class dropdown — visible on all tabs; pre-selected by AudioUploadTab via scoreClassMatch */}
       {classCandidates.length > 0 && (
-        <label className="block">
-          <span className="block text-sm font-medium text-foreground mb-1">Class</span>
+        <label className="notes-editor-field">
+          <span>Class</span>
           <select
             value={classId ?? ""}
             onChange={(e) => setClassId(e.target.value || null)}
-            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="notes-editor-input"
           >
             <option value="">No class</option>
             {classCandidates.map((c) => (
@@ -138,24 +138,25 @@ export function NoteEditor({
         </label>
       )}
 
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        className="w-full rounded-lg border border-border bg-card px-3 py-2 text-base font-medium focus:outline-none focus:ring-2 focus:ring-accent/50"
-        placeholder="Note title"
-      />
+      <label className="notes-editor-field notes-editor-title-field">
+        <span>Capture title</span>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="notes-editor-input notes-editor-title"
+          placeholder="Note title"
+        />
+      </label>
 
       {/* Tab switcher — Text / Voice (browser Web Speech API) / Audio / Photo/PDF */}
-      <div className="flex gap-1 rounded-lg border border-border bg-card p-1">
+      <div className="notes-tab-control">
         {(["text", "voice", "lecture", "audio", "photo-pdf"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
-            className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              tab === t ? "bg-accent text-white" : "text-muted hover:bg-border/30"
-            }`}
+            className={tab === t ? "is-active" : undefined}
           >
             {t === "text"      ? "Text"
               : t === "voice"  ? "Voice"
@@ -171,7 +172,7 @@ export function NoteEditor({
           value={body}
           onChange={(e) => setBody(e.target.value)}
           rows={12}
-          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+          className="notes-editor-textarea"
           placeholder="Type what you're hearing in class."
           autoFocus
         />
@@ -184,13 +185,13 @@ export function NoteEditor({
             setBody((prev) => (prev ? prev + " " + chunk : chunk))
           }
           rows={12}
-          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+          className="notes-editor-textarea"
           placeholder="Tap the mic to dictate, or type here."
           provider={ttsProvider}
         />
       )}
       {tab === "lecture" && (
-        <div className="space-y-2">
+        <div className="notes-editor-tab-panel">
           <VoiceTextarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
@@ -198,11 +199,11 @@ export function NoteEditor({
               setBody((prev) => (prev ? prev + " " + chunk : chunk))
             }
             rows={14}
-            className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+            className="notes-editor-textarea"
             placeholder="Start the mic, then let lecture notes land here."
             provider={ttsProvider}
           />
-          <p className="text-xs text-muted">
+          <p className="notes-editor-help">
             Lecture notes are marked for action-item extraction when you generate an outline.
           </p>
         </div>
@@ -224,8 +225,8 @@ export function NoteEditor({
         />
       )}
 
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted">
+      <div className="notes-editor-footer">
+        <p>
           {status === "pending" && "Will save in a few seconds\u2026"}
           {status === "saving"  && "Saving\u2026"}
           {status === "saved"   && "Saved."}
@@ -234,7 +235,7 @@ export function NoteEditor({
         <button
           type="button"
           onClick={handleDone}
-          className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white"
+          className="notes-editor-done"
         >
           Done
         </button>

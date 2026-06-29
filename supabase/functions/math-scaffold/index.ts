@@ -11,6 +11,7 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const VALID_SUBJECTS = new Set([
   "algebra",
@@ -245,33 +246,14 @@ Deno.serve(async (req: Request) => {
       problemText,
     ].filter(Boolean).join("\n");
 
-    const claudeRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 900,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: userMessage }],
-      }),
+    const ai = await callStudentTextModel({
+      system: systemPrompt,
+      user: userMessage,
+      maxTokens: 650,
+      json: true,
     });
-
-    if (!claudeRes.ok) {
-      console.error("math-scaffold Anthropic error:", await claudeRes.text());
-      return jsonResponse({ error: "AI request failed" }, 502);
-    }
-
-    const claudeData = await claudeRes.json() as {
-      content?: Array<{ type: string; text: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
-    };
-    const content = claudeData.content?.[0]?.text ?? "";
-    const claudeTokens = Number(claudeData.usage?.input_tokens ?? 0) + Number(claudeData.usage?.output_tokens ?? 0);
-    const tokens = photoTokens + claudeTokens;
+    const content = ai.content;
+    const tokens = photoTokens + ai.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -280,7 +262,7 @@ Deno.serve(async (req: Request) => {
             ownerId,
             assignmentId,
             feature: "math_scaffold",
-            model: storageKey ? "gpt-4o + claude-haiku-4-5" : "claude-haiku-4-5",
+            model: storageKey ? `gpt-4o + ${ai.model}` : ai.model,
             promptSummary: problemText.slice(0, 200),
             tokensUsed: tokens,
           },

@@ -1,213 +1,186 @@
 import Link from "next/link";
-import { BookOpenCheck, CalendarCheck2, LockKeyhole, Mic2, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  BookOpenCheck,
+  Brain,
+  CheckCircle2,
+  GraduationCap,
+  LockKeyhole,
+  Mic2,
+  ShieldCheck,
+  Sparkles,
+} from "lucide-react";
 import { FutureModeToggle } from "@/components/future-mode-toggle";
-import { FutureVoicePreview } from "@/components/future-voice-preview";
-import { ProductPreviewCard } from "@/components/product-preview-card";
-import { SparkConstellation } from "@/components/spark/spark-constellation";
+import { NexusArcadeScene, NexusMetric } from "@/components/nexus/nexus-ui";
 
-/**
- * Landing — paced like a product film, not a widget collage.
- * Dark cinematic hero (one visual), one story per section, Wrapped-style
- * calm stats, manifesto, frame top and bottom. Quiet Command throughout.
- */
 export default function LandingPage() {
   return (
-    <main className="min-h-dvh w-full overflow-x-hidden bg-surface">
-      {/* Frame: frosted sticky header */}
-      <header className="landing-header-glass sticky top-0 z-50 border-b border-white/10">
-        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/" className="inline-flex items-center gap-2 text-base font-bold text-slate-100">
-            <span className="text-violet-400">✦</span> Diana
+    <main id="main-content" className="nexus-landing min-h-dvh">
+      <header className="nexus-public-header fixed inset-x-0 top-0 z-40 border-b border-white/10 text-white backdrop-blur-2xl">
+        <div className="diana-page flex h-16 items-center justify-between gap-4">
+          <Link href="/" className="inline-flex items-center gap-2 font-black">
+            <span className="nexus-logo-mark grid size-8 place-items-center text-sm">D</span>
+            <span className="font-mono text-xs uppercase tracking-[0.22em] text-nexus-cyan">Diana</span>
           </Link>
-          <div className="flex items-center gap-2 sm:gap-3">
-            <FutureModeToggle compact />
-            <Link href="/login" className="hidden text-sm font-medium text-slate-300 hover:text-white sm:block">
+          <div className="flex items-center gap-2">
+            <FutureModeToggle compact className="hidden bg-white/[0.08] text-white sm:inline-flex" />
+            <Link href="/login" className="hidden text-sm font-bold text-slate-300 hover:text-white sm:inline">
               Sign in
             </Link>
-            <Link
-              href="/signup"
-              className="press-scale touch-target inline-flex items-center rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-slate-200"
-            >
-              Get started
+            <Link href="/signup" className="nexus-button nexus-button-primary min-h-10 px-4 py-2 text-sm">
+              Start
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Act 1 — the hero. One headline, one promise, one product. */}
-      <section className="landing-hero relative -mt-14 overflow-hidden pt-14">
-        <SparkConstellation
-          seed="diana-hero"
-          stars={18}
-          className="pointer-events-none absolute right-[-6%] top-[-8%] h-[34rem] w-[34rem] text-violet-400/40"
-        />
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 pb-20 pt-16 text-center sm:px-6 sm:pb-28 sm:pt-24">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-medium text-violet-200">
-            <span className="size-2 rounded-full bg-violet-400" />
-            Built for high school focus
-          </p>
-
-          <h1 className="mt-8 text-balance text-[2.6rem] font-bold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
-            <span className="block">Your next 5 minutes,</span>
-            <span className="block bg-gradient-to-r from-violet-300 via-violet-400 to-teal-300 bg-clip-text text-transparent">
-              made clear.
-            </span>
-          </h1>
-
-          <p className="safe-copy mt-6 max-w-xl text-lg leading-8 text-slate-400">
-            Diana turns school chaos into one calm move at a time — plan, read, write, and study,
-            while the work stays completely yours.
-          </p>
-
-          <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row">
-            <Link
-              href="/signup"
-              className="press-scale touch-target inline-flex w-full items-center justify-center rounded-full bg-white px-8 py-3.5 text-base font-semibold text-slate-950 hover:bg-slate-200 sm:w-auto"
-            >
-              Get started — it&apos;s free
-            </Link>
-            <Link
-              href="/signup?mode=voice"
-              className="press-scale touch-target inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-8 py-3.5 text-base font-semibold text-white hover:bg-white/10 sm:w-auto"
-            >
-              <Sparkles size={16} className="text-teal-300" /> Try Diana OS
-            </Link>
+      <section className="nexus-hero relative overflow-hidden text-white">
+        <div className="diana-page relative grid min-h-[100dvh] items-center gap-10 pb-14 pt-24 lg:grid-cols-[0.82fr_1.18fr]">
+          <div className="space-y-7">
+            <p className="nexus-kicker">
+              <Sparkles size={15} />
+              Student command arcade
+            </p>
+            <div className="space-y-5">
+              <h1 className="diana-title">
+                Diana
+                <span className="block text-nexus-cyan">Nexus</span>
+              </h1>
+              <p className="max-w-2xl text-lg leading-8 text-slate-300">
+                A private learning companion that helps teenagers understand their brain, finish schoolwork,
+                protect original thinking, and build a future path.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/signup" className="nexus-button nexus-button-primary">
+                Start with my next move
+                <ArrowRight size={17} />
+              </Link>
+              <Link href="/login" className="nexus-button nexus-button-secondary">
+                Open Diana
+              </Link>
+            </div>
+            <div className="grid max-w-2xl gap-2 text-sm text-slate-300 sm:grid-cols-3">
+              <HeroCue icon={Mic2} label="Talk first" />
+              <HeroCue icon={ShieldCheck} label="Keep the work yours" />
+              <HeroCue icon={GraduationCap} label="Build the path" />
+            </div>
           </div>
 
-          <div className="future-mode-only future-os-strip mt-8 w-full max-w-lg">
-            <span>Diana OS</span>
-            <span>Manual mic</span>
-            <span>Source link</span>
-            <span>Proof on</span>
-          </div>
-
-          {/* The one product visual — glowing, alone, Apple-style. */}
-          <div
-            className="landing-product-frame mt-14 w-full max-w-2xl sm:mt-20"
-            data-visual="landing-mobile-preview-above-fold"
-          >
-            <ProductPreviewCard />
+          <div className="nexus-hero-core">
+            <NexusArcadeScene />
+            <div className="nexus-hero-stats grid gap-3 sm:grid-cols-3">
+              <NexusMetric label="Start" value="05" detail="minutes" tone="cyan" />
+              <NexusMetric label="Sources" value="ON" detail="visible" tone="gold" />
+              <NexusMetric label="Proof" value="YRS" detail="student-owned" tone="pink" />
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Act 2 — one calm move (the voice layer, large and alone). */}
-      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-semibold uppercase tracking-widest text-brand-strong dark:text-brand">
-            Talk it through
-          </p>
-          <h2 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
-            Stuck is a place Diana knows the way out of.
-          </h2>
-          <p className="mt-4 text-lg leading-8 text-muted">
-            Say what&apos;s blocking you — out loud if you want. Diana maps the next move from your
-            own class material, and never writes the work for you.
+      <section className="diana-page grid gap-8 py-16 lg:grid-cols-[0.86fr_1.14fr] lg:py-24">
+        <div className="space-y-5">
+          <p className="nexus-kicker">The daily product</p>
+          <h2 className="diana-app-title max-w-xl">One move now. A clearer story over time.</h2>
+          <p className="diana-copy">
+            Diana is not another blank chat box. It starts from the student&apos;s words, class sources,
+            and energy level, then turns the next five minutes into a visible action.
           </p>
         </div>
-        <div className="mx-auto mt-12 max-w-3xl">
-          <FutureVoicePreview />
-        </div>
-      </section>
-
-      {/* Act 3 — three pillars with room to breathe. */}
-      <section className="border-y border-border bg-surface-soft/60">
-        <div className="mx-auto grid max-w-6xl gap-12 px-4 py-20 sm:px-6 sm:py-24 md:grid-cols-3">
-          <Pillar
-            icon={CalendarCheck2}
-            title="Plan without the panic"
-            body="Canvas imports, test-prep plans built backward from the date, and a dashboard that shows one move — never the whole mountain."
+        <div className="grid gap-4 md:grid-cols-[1fr_0.72fr]">
+          <FeaturePanel
+            icon={Brain}
+            title="Understand myself"
+            body="Patterns, strengths, accommodations, and brain-day settings become part of the product, not hidden profile fields."
           />
-          <Pillar
+          <FeaturePanel
             icon={BookOpenCheck}
-            title="Learn it your way"
-            body="Read-aloud, dyslexia-friendly type, grid paper that keeps math lined up, and helpers that ask questions instead of giving answers."
+            title="Finish schoolwork"
+            body="Diana shows one next move, the source behind it, and the smallest action that starts momentum."
           />
-          <Pillar
+          <FeaturePanel
             icon={LockKeyhole}
-            title="Prove it's yours"
-            body="Every AI assist is logged and visible. Receipts you can show a teacher. The thinking — and the credit — stay with you."
+            title="Protect original thinking"
+            body="Brain dumps, outlines, checks, and receipts show what came from the student and what Diana organized."
+          />
+          <FeaturePanel
+            icon={GraduationCap}
+            title="Prepare for college"
+            body="Future Path connects grades, activities, proof points, essays, scholarships, and support plans."
           />
         </div>
       </section>
 
-      {/* Act 4 — Wrapped-style numbers, calm edition. */}
-      <section className="landing-wash">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-20 text-center sm:grid-cols-2 sm:px-6 sm:py-24 lg:grid-cols-4">
-          <Stat big="1" label="move at a time — never a wall of tasks" />
-          <Stat big="5 min" label="steps, sized for real attention spans" />
-          <Stat big="(i)" label="on every AI assist — nothing hidden" />
-          <Stat big="100%" label="your work, with the proof to show it" />
+      <section className="nexus-process-band text-white">
+        <div className="diana-page grid gap-10 py-16 lg:grid-cols-[0.72fr_1.28fr] lg:py-24">
+          <div className="space-y-5">
+            <p className="nexus-kicker">Student voice first</p>
+            <h2 className="diana-app-title max-w-lg">Diana helps you find your own words.</h2>
+            <p className="max-w-xl text-base leading-8 text-slate-300">
+              The writing flow starts with rough thoughts, voice notes, evidence, or photos. Diana can
+              organize and check the work, but the student owns the idea.
+            </p>
+          </div>
+          <div className="grid gap-3">
+            {[
+              ["Think", "Say what you noticed. Capture the rough idea first."],
+              ["Outline", "Turn your own thoughts into a structure."],
+              ["Draft", "Write in your voice. Diana asks questions and checks clarity."],
+              ["Proof", "Keep a receipt of student work, Diana help, and final choices."],
+            ].map(([label, body], index) => (
+              <div key={label} className="nexus-process-card grid gap-4 p-4 sm:grid-cols-[4rem_1fr]">
+                <span className="nexus-process-number">{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3 className="text-lg font-black">{label}</h3>
+                  <p className="mt-1 text-sm leading-6 text-slate-300">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Act 5 — the manifesto + final ask. */}
-      <section className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6 sm:py-28">
-        <p className="text-balance text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
-          No red ink. No streaks to lose. No guilt mechanics.
-          <span className="text-muted"> Just the next five minutes, made doable — for brains that
-          school wasn&apos;t built for.</span>
-        </p>
-        <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Link
-            href="/signup"
-            className="press-scale touch-target inline-flex w-full items-center justify-center rounded-full bg-brand px-8 py-3.5 text-base font-semibold text-white hover:bg-brand-strong sm:w-auto"
-          >
-            Start with your next 5 minutes
+      <footer>
+        <div className="diana-page flex flex-col gap-5 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-mono text-xs font-black uppercase tracking-[0.22em] text-nexus-cyan">Diana</p>
+          <p>Voice-first, dyslexia-aware, student-owned school support.</p>
+          <Link href="/signup" className="inline-flex items-center gap-2 font-black text-nexus-gold">
+            Start with one move
+            <ArrowRight size={16} />
           </Link>
-          <Link
-            href="/login"
-            className="touch-target inline-flex w-full items-center justify-center rounded-full px-6 py-3.5 text-base font-medium text-muted hover:text-fg sm:w-auto"
-          >
-            Sign in
-          </Link>
-        </div>
-      </section>
-
-      {/* Frame: footer */}
-      <footer className="border-t border-border bg-surface-soft/60">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-10 text-sm text-muted sm:flex-row sm:px-6">
-          <p className="inline-flex items-center gap-2 font-semibold text-fg">
-            <span aria-hidden="true" className="text-brand">✦</span> Diana
-            <span className="font-normal text-muted">— calm help with school</span>
-          </p>
-          <p className="flex items-center gap-2">
-            <Mic2 size={14} className="text-brand" /> Voice-first · Dyslexia-friendly · Student-owned
-          </p>
-          <p className="max-w-xs text-center text-xs sm:text-right">
-            Signup requires a date of birth. Users under 13 cannot use AI features.
-          </p>
         </div>
       </footer>
     </main>
   );
 }
 
-function Pillar({
+function HeroCue({ icon: Icon, label }: { icon: typeof Mic2; label: string }) {
+  return (
+    <span className="nexus-hero-cue inline-flex min-h-10 items-center gap-2 px-3 py-2">
+      <Icon size={15} className="shrink-0 text-nexus-cyan" />
+      {label}
+    </span>
+  );
+}
+
+function FeaturePanel({
   icon: Icon,
   title,
   body,
 }: {
-  icon: typeof BookOpenCheck;
+  icon: typeof Brain;
   title: string;
   body: string;
 }) {
   return (
-    <div className="min-w-0 text-center md:text-left">
-      <span className="inline-flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-        <Icon size={22} />
-      </span>
-      <h3 className="mt-5 text-emphasis font-semibold">{title}</h3>
-      <p className="mt-3 leading-7 text-muted">{body}</p>
-    </div>
-  );
-}
-
-function Stat({ big, label }: { big: string; label: string }) {
-  return (
-    <div className="min-w-0">
-      <p className="text-5xl font-bold tracking-tight text-white sm:text-6xl">{big}</p>
-      <p className="mx-auto mt-3 max-w-[16rem] text-sm leading-6 text-slate-300">{label}</p>
-    </div>
+    <article className="diana-zone p-5">
+      <Icon size={22} className="text-nexus-cyan" />
+      <h3 className="mt-6 text-2xl font-black">{title}</h3>
+      <p className="mt-3 text-sm leading-6 text-muted">{body}</p>
+      <div className="mt-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.18em] text-nexus-gold">
+        <CheckCircle2 size={14} />
+        Ready
+      </div>
+    </article>
   );
 }

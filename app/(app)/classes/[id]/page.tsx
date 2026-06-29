@@ -1,10 +1,64 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowRight,
+  BookOpenCheck,
+  ClipboardCheck,
+  ExternalLink,
+  GraduationCap,
+  ShieldCheck,
+  SlidersHorizontal,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { deriveConceptSeeds, gapBridgeSuggestion } from "@/lib/mastery/concepts";
+import { deriveConceptSeeds, gapBridgeSuggestion, isWeakConceptName } from "@/lib/mastery/concepts";
+import { formatDueAt } from "@/lib/format";
 import { RubricForm } from "./rubric-form";
 import { openStaxForClassName } from "@/lib/content/openstax";
 import { MasteryPanel, type MasteryConceptView } from "./mastery-panel";
+import {
+  NexusEmptyState,
+  NexusKicker,
+  NexusMetric,
+  NexusPageShell,
+  NexusPanel,
+} from "@/components/nexus/nexus-ui";
+
+type ClassAssignment = {
+  id: string;
+  title: string;
+  status: string;
+  due_at: string | null;
+};
+
+type ClassRubric = {
+  id: string;
+  title: string;
+  parse_status: string | null;
+  created_at: string;
+};
+
+function dueMs(value: string | null) {
+  return value ? new Date(value).getTime() : Number.MAX_SAFE_INTEGER;
+}
+
+function rubricStatus(status: string | null) {
+  if (status === "parsed") return "parsed rulebrick";
+  if (status === "manual") return "rules saved";
+  if (status === "manual" || status === "parse_issue") return "saved as text";
+  return "processing";
+}
+
+function assignmentStatusLabel(status: string) {
+  if (status === "todo") return "Ready";
+  if (status === "planned") return "Planned";
+  if (status === "in_progress") return "In motion";
+  if (status === "done") return "Done";
+  if (status === "submitted") return "Submitted";
+  if (status === "graded") return "Graded";
+  return status.replaceAll("_", " ");
+}
 
 export default async function ClassDetailPage({
   params,
@@ -34,7 +88,11 @@ export default async function ClassDetailPage({
       .eq("class_id", id)
       .order("due_at", { ascending: true, nullsFirst: false }),
   ]);
-  const concepts = user ? await ensureClassConcepts(supabase, user.id, id) : [];
+  const classRubrics = (rubrics ?? []) as ClassRubric[];
+  const classAssignments = (assignments ?? []) as ClassAssignment[];
+  const openAssignments = classAssignments.filter((a) => !["submitted", "graded", "abandoned"].includes(a.status));
+  const nextAssignment = openAssignments.slice().sort((a, b) => dueMs(a.due_at) - dueMs(b.due_at))[0] ?? null;
+  const concepts = user ? await ensureClassConcepts(supabase, user.id, id, cls.name, cls.teacher) : [];
   const reviewNext = concepts
     .slice()
     .sort((a, b) => Number(a.mastery_level) - Number(b.mastery_level) || a.name.localeCompare(b.name))[0] ?? null;
@@ -42,24 +100,86 @@ export default async function ClassDetailPage({
     .slice()
     .sort((a, b) => Number(b.mastery_level) - Number(a.mastery_level))[0] ?? null;
   const bridge = reviewNext ? gapBridgeSuggestion(strongest?.name ?? null, reviewNext.name) : "";
+  const books = openStaxForClassName(cls.name);
+  const toneStyle = cls.color ? ({ "--class-color": cls.color } as CSSProperties) : undefined;
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-2">
-        <div className="flex items-center gap-3">
-          <span className={`size-3 rounded-full bg-${cls.color}-500`} />
-          <h1 className="text-display">{cls.name}</h1>
-        </div>
-        {cls.teacher && <p className="text-muted">{cls.teacher}</p>}
-        <div className="flex items-center gap-1">
-          <Link href="/classes" className="inline-block text-xs text-muted hover:underline">
-            ← All classes
+    <NexusPageShell className="class-detail-page space-y-8" style={toneStyle}>
+      <section className="class-detail-hero">
+        <div className="class-detail-hero-copy">
+          <Link href="/classes" className="class-back-link">
+            <ArrowLeft size={15} />
+            All classes
           </Link>
-          <Link href={`/classes/${id}/settings`} className="ml-3 text-xs text-muted hover:underline">
-            AI mode: {cls.ai_mode ?? "green"}
-          </Link>
+          <NexusKicker tone="blue">Class lane</NexusKicker>
+          <h1>{cls.name}</h1>
+          <p>{cls.teacher ? `${cls.teacher} / ` : ""}Teacher rules, mastery gaps, homework, and sources stay attached to this subject.</p>
+          <div className="class-detail-actions">
+            <Link href={`/classes/${id}/settings`} className="nexus-button nexus-button-secondary">
+              AI mode: {cls.ai_mode ?? "green"}
+            </Link>
+            {nextAssignment ? (
+              <Link href={`/assignments/${nextAssignment.id}`} className="nexus-button nexus-button-primary">
+                Open next work
+                <ArrowRight size={17} />
+              </Link>
+            ) : null}
+          </div>
         </div>
-      </header>
+
+        <div className="class-detail-command">
+          <NexusMetric label="Open work" value={openAssignments.length} detail="in this lane" tone="cyan" />
+          <NexusMetric label="Rulebricks" value={classRubrics.length} detail="teacher rules" tone="gold" />
+          <NexusMetric label="Concepts" value={concepts.length} detail="mastery map" tone="pink" />
+          <NexusMetric label="Sources" value={books.length} detail="free texts" tone="blue" />
+        </div>
+      </section>
+
+      <div className="class-detail-grid">
+        <NexusPanel className="class-next-panel" tone="cyan">
+          <NexusKicker>
+            <SlidersHorizontal size={14} />
+            Next in this lane
+          </NexusKicker>
+          {nextAssignment ? (
+            <div className="class-next-copy">
+              <h2>{nextAssignment.title}</h2>
+              <p>{nextAssignment.due_at ? formatDueAt(nextAssignment.due_at) : "No due date"} / {nextAssignment.status}</p>
+              <Link href={`/assignments/${nextAssignment.id}`} className="nexus-button nexus-button-primary">
+                Open assignment
+                <ArrowRight size={17} />
+              </Link>
+            </div>
+          ) : (
+            <NexusEmptyState eyebrow="Clear lane" title="No open schoolwork.">
+              <p>When a teacher adds something, it will show up here with this class context.</p>
+            </NexusEmptyState>
+          )}
+        </NexusPanel>
+
+        <NexusPanel className="class-rulebrick-panel" tone="gold">
+          <NexusKicker>
+            <ClipboardCheck size={14} />
+            Rulebricks
+          </NexusKicker>
+          {classRubrics.length === 0 ? (
+            <p className="class-muted-copy">Paste the teacher rubric below so Diana can turn expectations into checkable moves.</p>
+          ) : (
+            <div className="class-rubric-list">
+              {classRubrics.map((rubric) => (
+                <div key={rubric.id} className="class-rubric-row">
+                  <strong>{rubric.title}</strong>
+                  <span>{rubricStatus(rubric.parse_status)}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <details className="class-rubric-disclosure" open={classRubrics.length === 0}>
+            <summary>{classRubrics.length === 0 ? "Add teacher rules" : "Add or update teacher rules"}</summary>
+            <RubricForm classId={id} />
+          </details>
+        </NexusPanel>
+      </div>
 
       {concepts.length > 0 && (
         <MasteryPanel
@@ -70,88 +190,68 @@ export default async function ClassDetailPage({
         />
       )}
 
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-            Rubrics
-          </h2>
-        </div>
-        {(!rubrics || rubrics.length === 0) ? (
-          <p className="rounded-lg border border-dashed border-border bg-card px-4 py-4 text-sm text-muted">
-            No rubric on file. Paste one below — Diana will use it when you submit.
-          </p>
-        ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-            {rubrics.map((r) => (
-              <li key={r.id} className="px-4 py-3">
-                <p className="font-medium">{r.title}</p>
-                <p className="text-xs text-muted">
-                  {r.parse_status === "parsed"
-                    ? "Parsed"
-                    : r.parse_status === "manual"
-                    ? "Stored as text"
-                    : r.parse_status === "failed"
-                    ? "Couldn’t parse — using as text"
-                    : "Parsing…"}
-                </p>
-              </li>
+      {books.length > 0 && (
+        <section className="class-resource-section">
+          <div className="class-section-head">
+            <div>
+              <NexusKicker tone="purple">
+                <BookOpenCheck size={14} />
+                Free source lane
+              </NexusKicker>
+              <h2>Use real sources when this class needs proof.</h2>
+            </div>
+            <p>OpenStax stays attached here for study, citations, and source-backed notes.</p>
+          </div>
+          <div className="class-resource-grid">
+            {books.map((book) => (
+              <a key={book.url} href={book.url} target="_blank" rel="noreferrer" className="class-resource-card">
+                <span>OpenStax</span>
+                <strong>{book.title}</strong>
+                <em>Citable source</em>
+                <ExternalLink size={15} />
+              </a>
             ))}
-          </ul>
-        )}
-        <RubricForm classId={id} />
-      </section>
-
-      {openStaxForClassName(cls.name).length > 0 && (
-        <section className="space-y-2">
-          <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-            Free textbook for this class
-          </h2>
-          <ul className="space-y-2">
-            {openStaxForClassName(cls.name).map((book) => (
-              <li key={book.url}>
-                <a
-                  href={book.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-4 py-3 text-sm hover:bg-surface-soft"
-                >
-                  <span className="min-w-0">
-                    <span className="block font-medium">{book.title}</span>
-                    <span className="text-xs text-muted">
-                      OpenStax — free, peer-reviewed, citable in your work.
-                    </span>
-                  </span>
-                  <span aria-hidden="true" className="shrink-0 text-muted">↗</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+          </div>
         </section>
       )}
 
-      <section className="space-y-3">
-        <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-          Assignments in this class
-        </h2>
-        {(!assignments || assignments.length === 0) ? (
-          <p className="text-sm text-muted">None yet.</p>
+      <section className="class-assignment-section">
+        <div className="class-section-head">
+          <div>
+            <NexusKicker>
+              <GraduationCap size={14} />
+              Assignments in this class
+            </NexusKicker>
+            <h2>Everything connected to {cls.name}.</h2>
+          </div>
+          <p>{classAssignments.length} saved item{classAssignments.length === 1 ? "" : "s"} connected to {cls.name}.</p>
+        </div>
+        {classAssignments.length === 0 ? (
+          <NexusEmptyState eyebrow="No work yet" title="This lane is ready.">
+            <p>Assignments will appear here when they are added or imported.</p>
+          </NexusEmptyState>
         ) : (
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-            {assignments.map((a) => (
-              <li key={a.id}>
-                <Link
-                  href={`/assignments/${a.id}`}
-                  className="flex items-center justify-between px-4 py-3 hover:bg-border/30"
-                >
-                  <span className="truncate">{a.title}</span>
-                  <span className="text-xs text-muted">{a.status}</span>
-                </Link>
-              </li>
+          <div className="class-detail-assignment-list">
+            {classAssignments.map((assignment) => (
+              <Link key={assignment.id} href={`/assignments/${assignment.id}`} className="class-detail-assignment-row">
+                <span className="class-assignment-title">
+                  <ShieldCheck size={14} />
+                  <span>{assignment.title}</span>
+                </span>
+                <span className="class-assignment-meta">
+                  <small>{assignmentStatusLabel(assignment.status)}</small>
+                  <em>{assignment.due_at ? formatDueAt(assignment.due_at) : "No due date"}</em>
+                </span>
+                <span className="class-assignment-open" aria-hidden="true">
+                  Open work
+                  <ArrowRight size={13} />
+                </span>
+              </Link>
             ))}
-          </ul>
+          </div>
         )}
       </section>
-    </div>
+    </NexusPageShell>
   );
 }
 
@@ -159,6 +259,8 @@ async function ensureClassConcepts(
   supabase: Awaited<ReturnType<typeof createClient>>,
   ownerId: string,
   classId: string,
+  className: string,
+  teacherName: string | null,
 ): Promise<MasteryConceptView[]> {
   const { data: existing } = await supabase
     .from("mastery_concepts")
@@ -166,8 +268,6 @@ async function ensureClassConcepts(
     .eq("owner_id", ownerId)
     .eq("class_id", classId)
     .order("mastery_level", { ascending: true });
-
-  if ((existing ?? []).length >= 5) return (existing ?? []) as MasteryConceptView[];
 
   const [{ data: notes }, { data: assignments }, { data: rubrics }] = await Promise.all([
     supabase
@@ -191,6 +291,7 @@ async function ensureClassConcepts(
   ]);
 
   const parts = [
+    className,
     ...(notes ?? []).flatMap((note) => [
       note.title,
       note.body_text,
@@ -209,9 +310,43 @@ async function ensureClassConcepts(
     ]),
   ];
 
-  const existingNames = new Set((existing ?? []).map((concept) => concept.name));
-  const missing = deriveConceptSeeds(parts)
-    .filter((name) => !existingNames.has(name))
+  const existingNames = new Set((existing ?? []).map((concept) => concept.name.toLowerCase().trim()));
+  const candidateSeeds = deriveConceptSeeds(parts, 5, { className, teacherName });
+  const existingRows = (existing ?? []) as MasteryConceptView[];
+  const seenStrong = new Set<string>();
+  const weakSeededRows = existingRows
+    .filter((concept) => {
+      const normalizedName = concept.name.toLowerCase().trim();
+      const weak = isWeakConceptName(concept.name, { className, teacherName });
+      const duplicate = seenStrong.has(normalizedName);
+      if (!weak && !duplicate) seenStrong.add(normalizedName);
+      return weak || duplicate;
+    })
+    .slice(0, 5);
+
+  if (weakSeededRows.length > 0) {
+    const replacementNames = candidateSeeds.filter((name) => !existingNames.has(name.toLowerCase().trim())).slice(0, weakSeededRows.length);
+    await Promise.all(
+      weakSeededRows.map((concept, index) => {
+        const name = replacementNames[index];
+        if (!name) return Promise.resolve(null);
+        existingNames.delete(concept.name.toLowerCase().trim());
+        existingNames.add(name.toLowerCase().trim());
+        return supabase
+          .from("mastery_concepts")
+          .update({
+            name,
+            source: "seeded",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", concept.id)
+          .eq("owner_id", ownerId);
+      }),
+    );
+  }
+
+  const missing = candidateSeeds
+    .filter((name) => !existingNames.has(name.toLowerCase().trim()))
     .slice(0, Math.max(0, 5 - (existing ?? []).length));
 
   if (missing.length > 0) {

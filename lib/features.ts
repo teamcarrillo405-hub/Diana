@@ -28,4 +28,12 @@ export const FEATURES: FeatureMeta[] = [
   { slug: "F18", path: "/quick-add", title: "Quick capture", summary: "Throw an idea at Diana from anywhere; she will route it.", slice: 5, status: "live" },
   { slug: "F19", path: "/export", title: "Take your data", summary: "One-click JSON export and account deletion.", slice: 6, status: "live" },
   { slug: "F20", path: "/accessibility", title: "Accessibility profile", summary: "Font size, contrast, motion, dyslexia-friendly typeface, and reading ruler.", slice: 6, status: "live" },
+  { slug: "F21", path: "/future-path", title: "Future Path", summary: "Grade-based college and career map connected to daily schoolwork and proof.", slice: 7, status: "live" },
+  { slug: "F22", path: "/me", title: "Strengths profile", summary: "Student-controlled learning patterns, supports, interests, and accommodations.", slice: 7, status: "live" },
+  { slug: "F23", path: "/proof", title: "Proof Folder", summary: "Authorship receipts, source-backed work, wins, and portfolio evidence.", slice: 7, status: "live" },
+  { slug: "F24", path: "/future-path", title: "Essay Builder", summary: "College essay support that starts from student thoughts before structure or checks.", slice: 7, status: "stub" },
+  { slug: "F25", path: "/future-path", title: "Scholarship tracker", summary: "Deadlines, requirements, essays, recommendations, and status.", slice: 7, status: "stub" },
+  { slug: "F26", path: "/me", title: "Accommodation coach", summary: "Student-friendly scripts for teachers, counselors, and college disability offices.", slice: 7, status: "stub" },
+  { slug: "F27", path: "/future-path", title: "College fit finder", summary: "Compare colleges by cost, support, location, programs, class size, and resources.", slice: 7, status: "stub" },
+  { slug: "F28", path: "/proof", title: "Parent and counselor view", summary: "Student-controlled snapshots for parents, counselors, IEP teams, and mentors.", slice: 7, status: "stub" },
 ];

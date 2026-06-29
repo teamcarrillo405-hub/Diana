@@ -1,9 +1,19 @@
 import Link from "next/link";
 import { format } from "date-fns";
+import { ArrowRight, FileText, NotebookPen, Search, Sparkles, Tags } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { snippetForQuery } from "@/lib/notes/related";
 import { NoteSynthesisPanel } from "./note-synthesis-panel";
-import { EmptyStateMark } from "@/components/empty-state-mark";
+import {
+  NexusArcadeScene,
+  NexusEmptyState,
+  NexusKicker,
+  NexusList,
+  NexusMetric,
+  NexusPageHeader,
+  NexusPageShell,
+  NexusPanel,
+} from "@/components/nexus/nexus-ui";
 
 export default async function NotesPage({
   searchParams,
@@ -30,108 +40,170 @@ export default async function NotesPage({
   }
 
   const { data: notes } = await query;
+  const noteRows = notes ?? [];
+  const totalTags = new Set(noteRows.flatMap((note) => [...(note.tags ?? []), ...(note.ai_suggested_tags ?? [])])).size;
+  const classLinked = noteRows.filter((note) => note.class_id).length;
+  const latest = noteRows[0] ?? null;
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-violet-700 dark:text-violet-300">
-            Notes studio
-          </p>
-          <h1 className="mt-1 text-3xl font-bold leading-tight">Notes</h1>
-          <p className="mt-1 text-sm text-muted">Capture class thinking, then turn useful pieces into study tools.</p>
-        </div>
-        <Link
-          href="/notes/new"
-          className="touch-target inline-flex w-full items-center justify-center rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-strong sm:w-auto"
-        >
-          New note
-        </Link>
-      </header>
+    <NexusPageShell className="notes-studio-page space-y-8">
+      <NexusPageHeader
+        eyebrow="Think studio"
+        title={<>Capture thoughts before they disappear.</>}
+        description="Class notes, voice, and useful fragments become study tools when Grayson is ready."
+        actions={
+          <Link href="/notes/new" className="nexus-button nexus-button-primary">
+            New note
+          </Link>
+        }
+        visual={<NexusArcadeScene />}
+        tone="purple"
+      />
 
       <NoteSynthesisPanel />
 
-      <form action="/notes" className="flex flex-col gap-2 rounded-2xl border border-border bg-surface-raised p-4 sm:flex-row">
+      <div className="notes-command-grid">
+        <NexusPanel className="notes-metrics-panel" tone="purple">
+          <NexusMetric label="Notes" value={noteRows.length} detail="captured" tone="cyan" />
+          <NexusMetric label="Class-linked" value={classLinked} detail="attached" tone="gold" />
+          <NexusMetric label="Tags" value={totalTags} detail="study handles" tone="pink" />
+        </NexusPanel>
+
+        {latest ? (
+          <NexusPanel className="notes-focus-panel" tone="cyan">
+            <NexusKicker>
+              <NotebookPen size={14} />
+              Latest capture
+            </NexusKicker>
+            <h2>{latest.title}</h2>
+            <p>
+              {latest.transcript_text || latest.body_text
+                ? (latest.transcript_text || latest.body_text || "").slice(0, 160)
+                : "Ready to become outline, cards, or class proof."}
+            </p>
+            <Link href={`/notes/${latest.id}`} className="notes-focus-action">
+              Open note
+              <ArrowRight size={15} />
+            </Link>
+          </NexusPanel>
+        ) : null}
+      </div>
+
+      <form action="/notes" className="notes-search-panel">
         <label className="min-w-0 flex-1">
           <span className="sr-only">Search notes</span>
           <input
             type="search"
             name="q"
             defaultValue={search}
-            className="touch-target w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
+            className="notes-search-input"
             placeholder="Search notes"
           />
         </label>
         {tagFilter && <input type="hidden" name="tag" value={tagFilter} />}
         <button
           type="submit"
-          className="touch-target rounded-xl border border-border bg-surface px-3 py-2 text-sm hover:bg-surface-soft"
+          className="notes-search-button"
         >
+          <Search size={14} />
           Search
         </button>
         {(search || tagFilter) && (
-          <Link href="/notes" className="touch-target inline-flex items-center justify-center rounded-xl border border-border bg-surface px-3 py-2 text-center text-sm hover:bg-surface-soft">
+          <Link href="/notes" className="notes-search-button notes-search-clear">
             Clear
           </Link>
         )}
       </form>
 
-      {(!notes || notes.length === 0) ? (
-        <div className="rounded-3xl border border-dashed border-border bg-surface-raised p-8 text-center">
-          <EmptyStateMark />
-          <p className="text-lg font-medium">{search || tagFilter ? "No matching notes." : "No notes yet."}</p>
-          <p className="mt-1 text-sm text-muted">
+      {(noteRows.length === 0) ? (
+        <NexusEmptyState
+          eyebrow={search || tagFilter ? "No match" : "No notes yet"}
+          title={search || tagFilter ? "Try a wider search." : "Start the first capture."}
+          action={
+            <Link href="/notes/new" className="nexus-button nexus-button-primary">
+              Start a note
+            </Link>
+          }
+        >
+          <p>
             {search || tagFilter
               ? "Try a broader search or clear the filter."
               : "Capture a class - voice or text. Diana saves every 30 seconds."}
           </p>
-          <div className="mt-4">
-            <Link
-              href="/notes/new"
-              className="touch-target inline-flex items-center justify-center rounded-xl bg-brand px-3 py-2 text-sm text-white hover:bg-brand-strong"
-            >
-              Start a note
-            </Link>
-          </div>
-        </div>
+        </NexusEmptyState>
       ) : (
-        <ul className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-surface-raised">
-          {notes.map((n) => (
+        <section className="notes-list-section">
+          <div className="notes-section-head">
+            <div>
+              <NexusKicker>
+                <FileText size={14} />
+                Captures
+              </NexusKicker>
+              <h2>Notes ready for study.</h2>
+            </div>
+            <p>Open a note to turn highlighted text into cards, outlines, sources, or class proof.</p>
+          </div>
+          <NexusList className="notes-list">
+          <ul>
+          {noteRows.map((n) => (
             <li key={n.id}>
               <Link
                 href={`/notes/${n.id}`}
-                className="block min-w-0 px-4 py-3 hover:bg-surface-soft"
+                className="notes-row"
               >
-                <div className="flex items-baseline gap-2">
-                  <p className="truncate font-medium">{n.title}</p>
-                  {(n as { classes?: { name: string } | null }).classes?.name && (
-                    <span className="shrink-0 text-xs text-muted">
-                      - {(n as { classes?: { name: string } | null }).classes!.name}
-                    </span>
-                  )}
+                <div className="notes-row-main">
+                  <span className="notes-row-icon">
+                    <FileText size={15} />
+                  </span>
+                  <div>
+                    <p>{n.title}</p>
+                    <small>
+                      {format(new Date(n.updated_at), "EEE MMM d, h:mm a")}
+                      {(n as { classes?: { name: string } | null }).classes?.name ? (
+                        <> / {(n as { classes?: { name: string } | null }).classes!.name}</>
+                      ) : null}
+                    </small>
+                  </div>
                 </div>
-                <p className="mt-0.5 line-clamp-2 text-xs text-muted">
+                <p className="notes-row-snippet">
                   {search
                     ? snippetForQuery(n.transcript_text || n.body_text || n.title, search)
                     : n.transcript_text || n.body_text || "Empty note"}
                 </p>
-                {((n.tags ?? []).length > 0 || (n.ai_suggested_tags ?? []).length > 0) && (
-                  <div className="mt-2 flex flex-wrap gap-1.5">
+                <div className="notes-row-meta">
+                  {(n as { classes?: { name: string } | null }).classes?.name && (
+                    <span>
+                      <NotebookPen size={12} />
+                      {(n as { classes?: { name: string } | null }).classes!.name}
+                    </span>
+                  )}
+                  {((n.tags ?? []).length > 0 || (n.ai_suggested_tags ?? []).length > 0) ? (
+                    <>
                     {[...(n.tags ?? []), ...(n.ai_suggested_tags ?? [])].slice(0, 6).map((noteTag) => (
-                      <span key={noteTag} className="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">
+                      <span key={noteTag}>
+                        <Tags size={12} />
                         {noteTag}
                       </span>
                     ))}
-                  </div>
-                )}
-                <p className="mt-1 text-xs text-muted">
-                  {format(new Date(n.updated_at), "EEE MMM d, h:mm a")}
-                </p>
+                    </>
+                  ) : (
+                    <span>
+                      <Sparkles size={12} />
+                      ready
+                    </span>
+                  )}
+                </div>
+                <span className="notes-row-open" aria-hidden="true">
+                  Open
+                  <ArrowRight size={13} />
+                </span>
               </Link>
             </li>
           ))}
-        </ul>
+          </ul>
+          </NexusList>
+        </section>
       )}
-    </div>
+    </NexusPageShell>
   );
 }

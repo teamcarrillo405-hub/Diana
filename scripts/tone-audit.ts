@@ -13,6 +13,7 @@ const SCAN_EXTENSIONS = [".tsx", ".ts", ".md"];
 const SKIP_DIRS = new Set([
   "node_modules",
   "vendor",
+  "external",
   ".next",
   "dist",
   ".planning",

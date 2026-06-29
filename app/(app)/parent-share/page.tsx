@@ -87,7 +87,7 @@ export default async function ParentPortalPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-medium uppercase tracking-wider text-muted">Parent portal</p>
         <h1 className="text-display">Read-only weekly summary</h1>

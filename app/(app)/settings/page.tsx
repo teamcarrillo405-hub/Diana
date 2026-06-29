@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { loadProfile } from "@/lib/profile";
 import { SignOutButton } from "./sign-out";
 import { AccessibilityPrefs } from "./accessibility-prefs";
@@ -20,142 +21,141 @@ export default async function SettingsPage() {
   if (!profile) redirect("/login");
 
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: lmsConnections } = await supabase
+    .from("lms_connections")
+    .select("id, provider, config, last_synced_at")
+    .order("created_at", { ascending: false });
 
   return (
-    <div className="space-y-8">
-      <header>
+    <div className="diana-page nexus-settings-page space-y-8">
+      <header className="nexus-settings-hero">
+        <span className="nexus-kicker">System preferences</span>
         <h1 className="text-display">Settings</h1>
+        <p className="max-w-3xl text-muted">
+          Keep profile, reading support, school connections, and privacy controls in one calm place.
+        </p>
       </header>
 
-      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
-        <Row label="Signed in as" value={user?.email ?? ""} />
-        <Row label="Name" value={profile.display_name || "—"} />
-        <Row
-          label="Age group"
-          value={
-            profile.age_bracket === "13_to_17"
-              ? "13–17"
-              : profile.age_bracket === "adult"
-              ? "18+"
-              : profile.age_bracket === "under_13"
-              ? "under 13"
-              : "—"
-          }
-        />
-        <Row label="School year" value={profile.school_year ? String(profile.school_year) : "—"} />
-        <Row label="Timezone" value={profile.timezone} />
-      </section>
-
-      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Your profile</h2>
-        <Row
-          label="Diagnoses on file"
-          value={
-            profile.diagnoses?.length
-              ? profile.diagnoses.map(formatDiagnosis).join(", ")
-              : "none specified"
-          }
-        />
-        <Row
-          label="Accommodations"
-          value={
-            profile.accommodations?.length
-              ? profile.accommodations.map(formatAccommodation).join(", ")
-              : "none specified"
-          }
-        />
-        {profile.extra_time_pct > 0 && (
-          <Row label="Extra time" value={`+${profile.extra_time_pct}%`} />
-        )}
-        <Row
-          label="Interests"
-          value={
-            labelsForInterests(profile.interests).length
-              ? labelsForInterests(profile.interests).join(", ")
-              : "none specified"
-          }
-        />
-        <p className="pt-2 text-xs text-muted">
-          <Link href="/onboarding" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
+      <section className="nexus-settings-grid">
+        <section className="nexus-panel nexus-panel-dense space-y-3">
+          <span className="nexus-kicker">Student identity</span>
+          <h2 className="text-xl font-semibold">Profile basics</h2>
+          <div className="space-y-1">
+            <Row label="Signed in as" value={user?.email ?? ""} />
+            <Row label="Name" value={profile.display_name || "-"} />
+            <Row label="Age group" value={formatAgeBracket(profile.age_bracket)} />
+            <Row label="School year" value={profile.school_year ? String(profile.school_year) : "-"} />
+            <Row label="Timezone" value={profile.timezone} />
+          </div>
+          <Link href="/onboarding" className="nexus-button nexus-button-ghost w-fit px-3 py-2 text-xs">
             Re-run onboarding
-          </Link>{" "}
-          to update.
-        </p>
+          </Link>
+        </section>
+
+        <section className="nexus-panel nexus-panel-dense space-y-3">
+          <span className="nexus-kicker">Learning support</span>
+          <h2 className="text-xl font-semibold">What Diana remembers</h2>
+          <div className="space-y-1">
+            <Row
+              label="Diagnoses"
+              value={profile.diagnoses?.length ? profile.diagnoses.map(formatDiagnosis).join(", ") : "none specified"}
+            />
+            <Row
+              label="Accommodations"
+              value={
+                profile.accommodations?.length
+                  ? profile.accommodations.map(formatAccommodation).join(", ")
+                  : "none specified"
+              }
+            />
+            <Row label="Extra time" value={profile.extra_time_pct > 0 ? `+${profile.extra_time_pct}%` : "none specified"} />
+            <Row
+              label="Interests"
+              value={
+                labelsForInterests(profile.interests).length
+                  ? labelsForInterests(profile.interests).join(", ")
+                  : "none specified"
+              }
+            />
+          </div>
+        </section>
+
+        <section className="nexus-panel nexus-panel-dense space-y-4">
+          <span className="nexus-kicker">Appearance</span>
+          <div className="flex items-center justify-between gap-4">
+            <h2 className="text-xl font-semibold">Look and feel</h2>
+            <ThemePicker />
+          </div>
+          <AccentPicker />
+        </section>
       </section>
 
-      <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Appearance</h2>
-        <div className="flex items-center justify-between">
-          <span className="text-sm">Theme</span>
-          <ThemePicker />
-        </div>
-        <AccentPicker />
-      </section>
+      <section className="nexus-settings-stack">
+        <SettingsDisclosure title="Reading controls" eyebrow="Accessibility">
+          <AccessibilityPrefs initial={profile} />
+        </SettingsDisclosure>
 
-      <AdaptationPanel />
+        <SettingsDisclosure title="How Diana adapts" eyebrow="Learning model">
+          <AdaptationPanel />
+        </SettingsDisclosure>
 
-      <AccessibilityPrefs initial={profile} />
+        <SettingsDisclosure title="School connections" eyebrow="Imports and LMS">
+          <div className="space-y-4">
+            <IepImport />
+            <CanvaSection />
+            <LmsConnections initial={(lmsConnections ?? []) as never} />
+          </div>
+        </SettingsDisclosure>
 
-      <IepImport />
+        <SettingsDisclosure title="Notifications and offline" eyebrow="Device tools">
+          <div className="space-y-4">
+            <PushSettings />
+            <PwaSettings />
+          </div>
+        </SettingsDisclosure>
 
-      <CanvaSection />
+        <SettingsDisclosure title="Data, AI, and sharing" eyebrow="Privacy">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <section className="nexus-panel nexus-panel-dense space-y-2">
+              <h2 className="text-sm font-semibold">Data and privacy</h2>
+              <p className="text-sm text-muted">
+                Export your data, tune AI style by class, manage notifications, and review privacy controls.
+              </p>
+              <Link href="/export" className="text-sm text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
+                Open data and privacy
+              </Link>
+            </section>
 
-      <PushSettings />
+            <section className="nexus-panel nexus-panel-dense space-y-3">
+              <h2 className="text-sm font-semibold">AI features</h2>
+              <p className="text-sm text-muted">
+                {profile.age_bracket === "under_13"
+                  ? "AI features aren't available for under-13 accounts."
+                  : profile.consent_ai
+                    ? "AI features are on for this account."
+                    : "AI features stay off until consent is enabled."}
+              </p>
+              <Link
+                href="/settings/ai-history"
+                className="text-sm text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent"
+              >
+                Open AI history
+              </Link>
+            </section>
+          </div>
+          <SharingSection />
+        </SettingsDisclosure>
 
-      <PwaSettings />
-
-      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Data and privacy</h2>
-        <p className="text-sm text-muted">
-          Export your data, tune AI style by class, manage notifications, and review privacy controls.
-        </p>
-        <Link href="/export" className="text-sm text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
-          Open data and privacy
-        </Link>
-      </section>
-
-      {await (async () => {
-        const { data } = await supabase
-          .from("lms_connections")
-          .select("id, provider, config, last_synced_at")
-          .order("created_at", { ascending: false });
-        return <LmsConnections initial={(data ?? []) as never} />;
-      })()}
-
-      <section className="space-y-3 rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">AI features</h2>
-        <p className="text-sm text-muted">
-          {profile.age_bracket === "under_13"
-            ? "AI features aren't available for under-13 accounts."
-            : profile.consent_ai
-            ? "You've consented to AI features."
-            : "You haven't consented to AI features yet. They stay off until you do."}
-        </p>
-        <p className="text-xs text-muted">
-          The features list at{" "}
-          <Link href="/" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
-            /
-          </Link>{" "}
-          shows what's available in this slice and what's coming.
-        </p>
-      </section>
-
-      <section className="space-y-2 rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">AI history</h2>
-        <p className="text-sm text-muted">
-          See every time Diana used AI for you. Download it any time.
-        </p>
-        <Link href="/settings/ai-history" className="text-sm text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
-          Open AI history →
-        </Link>
-      </section>
-
-      <SharingSection />
-
-      <section className="space-y-3 rounded-xl border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Account</h2>
-        <SignOutButton />
+        <section className="nexus-panel nexus-panel-dense flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span className="nexus-kicker">Account</span>
+            <h2 className="mt-3 text-xl font-semibold">Session controls</h2>
+          </div>
+          <SignOutButton />
+        </section>
       </section>
     </div>
   );
@@ -163,11 +163,42 @@ export default async function SettingsPage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-1 text-sm">
+    <div className="nexus-settings-row">
       <span className="text-muted">{label}</span>
       <span className="text-right">{value}</span>
     </div>
   );
+}
+
+function SettingsDisclosure({
+  title,
+  eyebrow,
+  children,
+  defaultOpen = false,
+}: {
+  title: string;
+  eyebrow: string;
+  children: ReactNode;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <details className="nexus-settings-disclosure" open={defaultOpen}>
+      <summary>
+        <span>
+          <small>{eyebrow}</small>
+          <strong>{title}</strong>
+        </span>
+      </summary>
+      <div className="nexus-settings-disclosure-body">{children}</div>
+    </details>
+  );
+}
+
+function formatAgeBracket(value: string | null): string {
+  if (value === "13_to_17") return "13-17";
+  if (value === "adult") return "18+";
+  if (value === "under_13") return "under 13";
+  return "-";
 }
 
 function formatDiagnosis(d: string): string {

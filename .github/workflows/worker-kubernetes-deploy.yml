@@ -1,0 +1,255 @@
+name: Worker kubernetes deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_origin:
+        description: Diana production or staging origin
+        required: true
+        default: https://diana-umber.vercel.app
+      image_sha:
+        description: Worker image SHA tag to deploy
+        required: true
+        default: replace-with-worker-image-sha
+      expected_app_sha:
+        description: Expected Diana app deployment SHA for production preflight
+        required: false
+        default: ""
+      namespace:
+        description: Kubernetes namespace
+        required: true
+        default: diana
+      replicas:
+        description: Worker replicas, minimum 2
+        required: true
+        default: "2"
+      openjarvis_base_url:
+        description: In-cluster OpenJarvis-compatible base URL
+        required: true
+        default: http://openjarvis:8000
+      openjarvis_model:
+        description: OpenJarvis/Ollama model
+        required: true
+        default: llama3.2:3b
+      image_pull_secret_name:
+        description: Kubernetes image pull secret for GHCR
+        required: true
+        default: ghcr-pull-secret
+      run_canary:
+        description: Run production preflight and deployed-worker canary after rollout
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy-worker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      DIANA_WORKER_BASE_URL: ${{ inputs.target_origin }}
+      DIANA_EXPECTED_APP_SHA: ${{ inputs.expected_app_sha }}
+      WORKER_API_TOKEN: ${{ secrets.DIANA_WORKER_API_TOKEN }}
+      KUBE_CONFIG_B64: ${{ secrets.KUBE_CONFIG_B64 }}
+      GHCR_PULL_USERNAME: ${{ secrets.GHCR_PULL_USERNAME }}
+      GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+      NAMESPACE: ${{ inputs.namespace }}
+      IMAGE: ghcr.io/teamcarrillo405-hub/diana/diana-worker:${{ inputs.image_sha }}
+      IMAGE_PULL_SECRET_NAME: ${{ inputs.image_pull_secret_name }}
+      REPLICAS: ${{ inputs.replicas }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare deployment evidence
+        run: |
+          mkdir -p worker-kubernetes-deploy-evidence
+          cat > worker-kubernetes-deploy-evidence/summary.json <<EOF
+          {
+            "workflow": "Worker kubernetes deploy",
+            "targetOrigin": "${{ inputs.target_origin }}",
+            "image": "$IMAGE",
+            "expectedAppSha": "${{ inputs.expected_app_sha }}",
+            "namespace": "$NAMESPACE",
+            "replicas": "$REPLICAS",
+            "imagePullSecretName": "$IMAGE_PULL_SECRET_NAME",
+            "runCanary": "${{ inputs.run_canary }}",
+            "sha": "${{ github.sha }}",
+            "runId": "${{ github.run_id }}",
+            "runAttempt": "${{ github.run_attempt }}"
+          }
+          EOF
+
+      - name: Setup Node
+        id: setup_node
+        if: inputs.run_canary == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        id: install_dependencies
+        if: inputs.run_canary == 'true'
+        run: npm ci
+
+      - name: Setup kubectl
+        id: setup_kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Check deployment secrets and inputs
+        id: check_inputs
+        run: |
+          test -n "$KUBE_CONFIG_B64"
+          test -n "$WORKER_API_TOKEN"
+          test -n "$GHCR_PULL_USERNAME"
+          test -n "$GHCR_PULL_TOKEN"
+          test -n "$IMAGE_PULL_SECRET_NAME"
+          if [ "${{ inputs.image_sha }}" = "replace-with-worker-image-sha" ]; then
+            echo "image_sha must be set to a real Worker image SHA tag" >&2
+            exit 1
+          fi
+          case "$REPLICAS" in
+            ''|*[!0-9]*) echo "replicas must be numeric" >&2; exit 1 ;;
+          esac
+          if [ "$REPLICAS" -lt 2 ]; then
+            echo "replicas must be at least 2" >&2
+            exit 1
+          fi
+
+      - name: Configure kubeconfig
+        id: configure_kubeconfig
+        run: |
+          set -o pipefail
+          mkdir -p "$HOME/.kube"
+          echo "$KUBE_CONFIG_B64" | base64 -d > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+          kubectl version --client=true | tee worker-kubernetes-deploy-evidence/kubectl-version.log
+
+      - name: Ensure namespace
+        id: ensure_namespace
+        run: |
+          set -o pipefail
+          kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | \
+            kubectl apply -f - | tee worker-kubernetes-deploy-evidence/namespace.log
+
+      - name: Apply image pull secret
+        id: apply_image_pull_secret
+        run: |
+          set -o pipefail
+          kubectl -n "$NAMESPACE" create secret docker-registry "$IMAGE_PULL_SECRET_NAME" \
+            --docker-server=ghcr.io \
+            --docker-username="$GHCR_PULL_USERNAME" \
+            --docker-password="$GHCR_PULL_TOKEN" \
+            --dry-run=client -o yaml | \
+            kubectl apply -f - | tee worker-kubernetes-deploy-evidence/image-pull-secret.log
+
+      - name: Apply worker secrets and config
+        id: apply_worker_secrets_and_config
+        run: |
+          set -o pipefail
+          kubectl -n "$NAMESPACE" create secret generic diana-worker-secrets \
+            --from-literal=WORKER_API_TOKEN="$WORKER_API_TOKEN" \
+            --dry-run=client -o yaml | \
+            kubectl apply -f - | tee worker-kubernetes-deploy-evidence/worker-secret.log
+          kubectl -n "$NAMESPACE" create configmap diana-worker-config \
+            --from-literal=DIANA_WORKER_BASE_URL="${{ inputs.target_origin }}" \
+            --from-literal=DIANA_WORKER_QUEUE=student-ai-candidate \
+            --from-literal=DIANA_WORKER_IMAGE_SHA="${{ inputs.image_sha }}" \
+            --from-literal=OPENJARVIS_BASE_URL="${{ inputs.openjarvis_base_url }}" \
+            --from-literal=OPENJARVIS_MODEL="${{ inputs.openjarvis_model }}" \
+            --dry-run=client -o yaml | \
+            kubectl apply -f - | tee worker-kubernetes-deploy-evidence/worker-config.log
+
+      - name: Apply worker workload
+        id: apply_worker_workload
+        run: |
+          set -o pipefail
+          awk 'BEGIN { doc=0 } /^---$/ { doc += 1; next } doc >= 2 { print }' \
+            deploy/worker/kubernetes.yaml > /tmp/diana-worker-workload.yaml
+          sed -i "s#ghcr.io/teamcarrillo405-hub/diana/diana-worker:replace-with-sha#$IMAGE#g" \
+            /tmp/diana-worker-workload.yaml
+          sed -i "s#name: ghcr-pull-secret#name: $IMAGE_PULL_SECRET_NAME#g" \
+            /tmp/diana-worker-workload.yaml
+          kubectl -n "$NAMESPACE" apply -f /tmp/diana-worker-workload.yaml | \
+            tee worker-kubernetes-deploy-evidence/workload-apply.log
+          kubectl -n "$NAMESPACE" scale deployment/diana-worker --replicas="$REPLICAS" | \
+            tee worker-kubernetes-deploy-evidence/workload-scale.log
+          kubectl -n "$NAMESPACE" rollout status deployment/diana-worker --timeout=180s | \
+            tee worker-kubernetes-deploy-evidence/rollout-status.log
+
+      - name: Worker deployment status
+        id: worker_deployment_status
+        run: |
+          set -o pipefail
+          kubectl -n "$NAMESPACE" get deployment diana-worker -o wide | \
+            tee worker-kubernetes-deploy-evidence/deployment-status.log
+          kubectl -n "$NAMESPACE" get pods -l app.kubernetes.io/name=diana-worker -o wide | \
+            tee worker-kubernetes-deploy-evidence/pod-status.log
+
+      - name: Production preflight
+        id: production_preflight
+        if: inputs.run_canary == 'true'
+        run: |
+          set -o pipefail
+          npm run worker:production-preflight | tee worker-kubernetes-deploy-evidence/production-preflight.log
+
+      - name: Deployed worker canary
+        id: deployed_canary
+        if: inputs.run_canary == 'true'
+        run: |
+          set -o pipefail
+          npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000 --expected-image-sha=${{ inputs.image_sha }} | \
+            tee worker-kubernetes-deploy-evidence/deployed-canary.log
+
+      - name: Write deployment outcome
+        if: always()
+        run: |
+          mkdir -p worker-kubernetes-deploy-evidence
+          cat > worker-kubernetes-deploy-evidence/outcome.json <<EOF
+          {
+            "workflow": "Worker kubernetes deploy",
+            "targetOrigin": "${{ inputs.target_origin }}",
+            "image": "$IMAGE",
+            "expectedAppSha": "${{ inputs.expected_app_sha }}",
+            "namespace": "$NAMESPACE",
+            "replicas": "$REPLICAS",
+            "imagePullSecretName": "$IMAGE_PULL_SECRET_NAME",
+            "runCanary": "${{ inputs.run_canary }}",
+            "sha": "${{ github.sha }}",
+            "runId": "${{ github.run_id }}",
+            "runAttempt": "${{ github.run_attempt }}",
+            "steps": {
+              "setupNode": "${{ steps.setup_node.outcome }}",
+              "installDependencies": "${{ steps.install_dependencies.outcome }}",
+              "setupKubectl": "${{ steps.setup_kubectl.outcome }}",
+              "checkInputs": "${{ steps.check_inputs.outcome }}",
+              "configureKubeconfig": "${{ steps.configure_kubeconfig.outcome }}",
+              "ensureNamespace": "${{ steps.ensure_namespace.outcome }}",
+              "applyImagePullSecret": "${{ steps.apply_image_pull_secret.outcome }}",
+              "applyWorkerSecretsAndConfig": "${{ steps.apply_worker_secrets_and_config.outcome }}",
+              "applyWorkerWorkload": "${{ steps.apply_worker_workload.outcome }}",
+              "workerDeploymentStatus": "${{ steps.worker_deployment_status.outcome }}",
+              "productionPreflight": "${{ steps.production_preflight.outcome }}",
+              "deployedCanary": "${{ steps.deployed_canary.outcome }}"
+            }
+          }
+          EOF
+
+      - name: Verify deployment evidence package
+        if: always()
+        run: npm run worker:kubernetes-deploy-evidence-check -- --dir=worker-kubernetes-deploy-evidence
+
+      - name: Upload deployment evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diana-worker-kubernetes-deploy-${{ github.run_id }}-${{ github.run_attempt }}
+          path: worker-kubernetes-deploy-evidence
+          if-no-files-found: warn
+          retention-days: 30

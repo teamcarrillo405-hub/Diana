@@ -1,0 +1,208 @@
+name: Worker production gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_origin:
+        description: Diana origin to verify, for example https://app.example.com
+        required: true
+        type: string
+      expected_app_sha:
+        description: Expected Diana app deployment SHA for backend version proof
+        required: false
+        default: ""
+        type: string
+      expected_worker_image_sha:
+        description: Expected hosted worker image SHA for deployed-worker canary proof
+        required: false
+        default: ""
+        type: string
+      load_count:
+        description: Managed-queue load-smoke job count
+        required: true
+        default: "25"
+        type: choice
+        options:
+          - "10"
+          - "25"
+          - "100"
+      seeded_checks:
+        description: Run tenant canary and load smoke with Supabase service credentials
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      diana_status_smoke:
+        description: Run authenticated Diana queued-status smoke with QA credentials
+        required: true
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: worker-production-gate-${{ inputs.target_origin }}
+  cancel-in-progress: false
+
+jobs:
+  production-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DIANA_WORKER_BASE_URL: ${{ inputs.target_origin }}
+      DIANA_EXPECTED_APP_SHA: ${{ inputs.expected_app_sha }}
+      DIANA_WORKER_EXPECTED_IMAGE_SHA: ${{ inputs.expected_worker_image_sha }}
+      WORKER_API_TOKEN: ${{ secrets.DIANA_WORKER_API_TOKEN }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.DIANA_SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.DIANA_SUPABASE_SERVICE_ROLE_KEY }}
+      QA_USER_EMAIL: ${{ secrets.DIANA_QA_USER_EMAIL }}
+      QA_USER_PASSWORD: ${{ secrets.DIANA_QA_USER_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Prepare evidence directory
+        run: |
+          mkdir -p worker-gate-evidence
+          cat > worker-gate-evidence/summary.json <<EOF
+          {
+            "workflow": "Worker production gate",
+            "targetOrigin": "${{ inputs.target_origin }}",
+            "expectedAppSha": "${{ inputs.expected_app_sha }}",
+            "expectedWorkerImageSha": "${{ inputs.expected_worker_image_sha }}",
+            "loadCount": "${{ inputs.load_count }}",
+            "seededChecks": "${{ inputs.seeded_checks }}",
+            "dianaStatusSmoke": "${{ inputs.diana_status_smoke }}",
+            "sha": "${{ github.sha }}",
+            "runId": "${{ github.run_id }}",
+            "runAttempt": "${{ github.run_attempt }}"
+          }
+          EOF
+
+      - name: Install dependencies
+        id: install_dependencies
+        run: npm ci
+
+      - name: Check required secrets
+        id: required_secrets
+        run: |
+          test -n "$WORKER_API_TOKEN"
+          if [ -n "$DIANA_WORKER_EXPECTED_IMAGE_SHA" ] && [ "${{ inputs.seeded_checks }}" != "true" ]; then
+            echo "expected_worker_image_sha requires seeded_checks=true so deployed-worker canary can prove it" >&2
+            exit 1
+          fi
+          if [ "${{ inputs.seeded_checks }}" = "true" ]; then
+            test -n "$NEXT_PUBLIC_SUPABASE_URL"
+            test -n "$SUPABASE_SERVICE_ROLE_KEY"
+          fi
+          if [ "${{ inputs.seeded_checks }}" = "true" ] && [ "${{ inputs.diana_status_smoke }}" = "true" ]; then
+            test -n "$QA_USER_EMAIL"
+            test -n "$QA_USER_PASSWORD"
+          fi
+
+      - name: Validate worker deployment files
+        id: deployment_check
+        run: |
+          set -o pipefail
+          npm run worker:deployment-check | tee worker-gate-evidence/deployment-check.log
+
+      - name: Production preflight
+        id: production_preflight
+        run: |
+          set -o pipefail
+          npm run worker:production-preflight | tee worker-gate-evidence/production-preflight.log
+
+      - name: Tenant isolation canary
+        id: tenant_canary
+        if: inputs.seeded_checks == 'true'
+        run: |
+          set -o pipefail
+          npm run worker:tenant-canary -- --seed | tee worker-gate-evidence/tenant-canary.log
+
+      - name: Compiled worker e2e smoke
+        id: e2e_smoke
+        if: inputs.seeded_checks == 'true'
+        run: |
+          set -o pipefail
+          npm run worker:e2e-smoke | tee worker-gate-evidence/e2e-smoke.log
+
+      - name: Deployed worker replica canary
+        id: deployed_canary
+        if: inputs.seeded_checks == 'true'
+        run: |
+          set -o pipefail
+          npm run worker:deployed-canary -- --timeout-ms=120000 | tee worker-gate-evidence/deployed-canary.log
+
+      - name: Install Playwright Chromium
+        id: install_chromium
+        if: inputs.seeded_checks == 'true' && inputs.diana_status_smoke == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Diana authenticated status smoke
+        id: diana_status_smoke
+        if: inputs.seeded_checks == 'true' && inputs.diana_status_smoke == 'true'
+        run: |
+          set -o pipefail
+          npm run worker:diana-status-smoke -- --auth=browser --complete-with=worker-api --timeout-ms=120000 | tee worker-gate-evidence/diana-status-smoke.log
+
+      - name: Managed queue load smoke
+        id: load_smoke
+        if: inputs.seeded_checks == 'true'
+        run: |
+          set -o pipefail
+          npm run worker:load-smoke -- --count=${{ inputs.load_count }} | tee worker-gate-evidence/load-smoke.log
+
+      - name: Write production gate outcome
+        if: always()
+        run: |
+          mkdir -p worker-gate-evidence
+          cat > worker-gate-evidence/outcome.json <<EOF
+          {
+            "workflow": "Worker production gate",
+            "targetOrigin": "${{ inputs.target_origin }}",
+            "expectedAppSha": "${{ inputs.expected_app_sha }}",
+            "expectedWorkerImageSha": "${{ inputs.expected_worker_image_sha }}",
+            "loadCount": "${{ inputs.load_count }}",
+            "seededChecks": "${{ inputs.seeded_checks }}",
+            "dianaStatusSmoke": "${{ inputs.diana_status_smoke }}",
+            "sha": "${{ github.sha }}",
+            "runId": "${{ github.run_id }}",
+            "runAttempt": "${{ github.run_attempt }}",
+            "steps": {
+              "installDependencies": "${{ steps.install_dependencies.outcome }}",
+              "requiredSecrets": "${{ steps.required_secrets.outcome }}",
+              "deploymentCheck": "${{ steps.deployment_check.outcome }}",
+              "productionPreflight": "${{ steps.production_preflight.outcome }}",
+              "tenantCanary": "${{ steps.tenant_canary.outcome }}",
+              "e2eSmoke": "${{ steps.e2e_smoke.outcome }}",
+              "deployedCanary": "${{ steps.deployed_canary.outcome }}",
+              "installChromium": "${{ steps.install_chromium.outcome }}",
+              "dianaStatusSmoke": "${{ steps.diana_status_smoke.outcome }}",
+              "loadSmoke": "${{ steps.load_smoke.outcome }}"
+            }
+          }
+          EOF
+
+      - name: Verify evidence package shape
+        if: always()
+        run: npm run worker:gate-evidence-check -- --dir=worker-gate-evidence
+
+      - name: Upload production gate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: diana-worker-production-gate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: worker-gate-evidence
+          if-no-files-found: warn
+          retention-days: 30

@@ -43,9 +43,9 @@ export default async function NewAssignmentPage({
 
   if (!classes || classes.length === 0) {
     return (
-      <div className="space-y-4">
+      <div className="diana-page space-y-4">
         <h1 className="text-display">Add an assignment</h1>
-        <p className="rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
+        <p className="nexus-panel rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
           You need a class first.{" "}
           <Link href="/classes" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
             Set one up
@@ -57,8 +57,9 @@ export default async function NewAssignmentPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header>
+        <p className="nexus-kicker">Schoolwork</p>
         <h1 className="text-display">Add an assignment</h1>
         <Link
           href="/assignments"

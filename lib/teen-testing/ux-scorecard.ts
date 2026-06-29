@@ -126,8 +126,8 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     id: "mobile_thumb_flow",
     label: "Mobile thumb flow",
     competitorEdge: "Quizlet has a familiar mobile rhythm, and Gemini keeps the core chat action close.",
-    dianaTarget: "Mobile should keep Focus, Assignments, Notes, Study, and More reachable with no horizontal overflow.",
-    requiredSurfaces: ["priority bottom nav", "stacked action rows", "responsive browser QA"],
+    dianaTarget: "Mobile should keep Today, Work, Think, Proof, and Future reachable with no horizontal overflow.",
+    requiredSurfaces: ["five-lane bottom nav", "stacked action rows", "responsive browser QA"],
     requiredSignals: ["nav_success", "tap_target_clear", "overflow_count"],
     repoCriteria: ["priorityMobileNav", "responsiveActionRows", "responsiveQaClean", "authenticatedResponsiveQaClean"],
     liveCriteria: ["4 of 5 students start from mobile without hunting through secondary routes."],
@@ -182,7 +182,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     targetScore: 10,
     currentConfidence: "8.0-8.3 before this pass: clear and useful, but not yet iconic or voice-forward.",
     tenDefinition:
-      "Repo shows a teen-native identity, optional future voice mode, polished auth entry, and clean responsive proof; live love still requires teen validation.",
+      "Repo shows a teen-native identity, Future Path, polished auth entry, and clean responsive proof; live love still requires teen validation.",
     repoCriteria: [
       "landingProductIdentity",
       "landingMobilePreviewAboveFold",
@@ -204,7 +204,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     targetScore: 10,
     currentConfidence: "8.7 before this pass: strong clarity, but needed a more memorable product/voice moment.",
     tenDefinition:
-      "The first viewport sells Diana as a high-school command center with a product preview, voice/future option, and one obvious start path.",
+      "The first viewport sells Diana as a student-owned next-move, proof, and Future Path product with one obvious start path.",
     repoCriteria: [
       "landingNextFiveMinutes",
       "landingProductIdentity",
@@ -221,7 +221,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     targetScore: 10,
     currentConfidence: "7.5 before this pass: usable and calm, but too generic for a teen-native product entry.",
     tenDefinition:
-      "Auth pages feel like Diana: command-center framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy.",
+      "Auth pages feel like Diana: student-owned framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy.",
     repoCriteria: [
       "authCommandCenterShell",
       "authVisualSignals",
@@ -236,9 +236,9 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     label: "Dashboard focus appeal",
     baselineScore: 8.7,
     targetScore: 10,
-    currentConfidence: "The dashboard has the right ritual, but 10/10 requires authenticated visual proof and a strong first-screen command surface.",
+    currentConfidence: "The dashboard has the right ritual, but 10/10 requires authenticated visual proof and a strong first-screen Today surface.",
     tenDefinition:
-      "Authenticated screenshots show a polished Right now command surface with one primary action above the fold.",
+      "Authenticated screenshots show a polished Today surface with one primary action above the fold.",
     repoCriteria: [
       "dashboardRightNowCard",
       "authenticatedResponsiveQaClean",
@@ -296,9 +296,9 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     label: "Diana OS cinematic quality",
     baselineScore: 7.4,
     targetScore: 10,
-    currentConfidence: "Future Mode previously read as a surface effect; 10/10 requires a distinct command-layer visual system.",
+    currentConfidence: "Future Mode previously read as a surface effect; 10/10 requires a distinct visual system tied to voice, focus, proof, and Future Path.",
     tenDefinition:
-      "Diana OS visibly changes the interaction layer with HUD structure, voice state, command nodes, and reduced-motion safety.",
+      "Diana OS visibly changes the interaction layer with restrained depth, voice state, proof cues, and reduced-motion safety.",
     repoCriteria: [
       "futureModeProvider",
       "dianaOsCinematicMode",
@@ -420,19 +420,19 @@ const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
   landingFutureModeOption: "Give public visitors an optional Future Mode / voice-forward path.",
   dashboardRightNowCard: "Make the dashboard Right now card the first useful surface.",
   assignmentNextStepEntry: "Add a next-step entry point on assignment detail.",
-  priorityMobileNav: "Keep mobile navigation to Focus, Assignments, Notes, Study, More.",
+  priorityMobileNav: "Keep mobile navigation to Today, Work, Think, Proof, Future.",
   responsiveActionRows: "Use stacked full-width action rows on small screens.",
   responsiveQaClean: "Run clean responsive QA with no horizontal overflow or server errors.",
   authenticatedResponsiveQaClean: "Run clean authenticated responsive QA for the app shell and core student routes.",
   authenticatedRoutesNoLoginRedirect: "Prevent authenticated-route screenshots from silently capturing the login page.",
   compactDesktopRail: "Replace the long desktop sidebar with a compact rail for core school moves.",
   desktopCommandSearch: "Add searchable secondary navigation for less-common app routes.",
-  authCommandCenterShell: "Make login and signup feel like Diana's command center, not generic forms.",
+  authCommandCenterShell: "Make login and signup feel like Diana's private student space, not generic forms.",
   authVisualSignals: "Show voice, source, privacy, and student-control cues on auth pages.",
   authFutureModeToggle: "Expose Future Mode from login and signup.",
   authAfterLoginPreview: "Show a small product preview inside login and signup on mobile.",
   futureModeProvider: "Persist an optional Future Mode visual setting across the app.",
-  dianaOsCinematicMode: "Make Diana OS a distinct cinematic command layer, not just shadows.",
+  dianaOsCinematicMode: "Make Diana OS a distinct visual layer, not just shadows.",
   landingMobilePreviewAboveFold: "Show the product preview inside the first mobile viewport.",
   voiceCommandSurface: "Replace the voice placeholder with a real voice command surface.",
   globalVoiceCaptureMic: "Make quick capture support speech input where the browser allows it.",

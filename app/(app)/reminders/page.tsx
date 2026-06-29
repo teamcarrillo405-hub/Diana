@@ -16,7 +16,7 @@ export default async function Page() {
     .limit(8);
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Reminders</p>
         <h1 className="text-display">Quiet nudges for real due dates</h1>

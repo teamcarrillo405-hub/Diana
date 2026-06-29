@@ -8,6 +8,7 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = ["art_reflection", "music_theory", "drama_speech", "art_history", "storyboard"] as const;
 type ArtsMode = (typeof MODES)[number];
@@ -76,35 +77,14 @@ Deno.serve(async (req: Request) => {
       personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 700,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: [`Mode: ${mode}`, `Student context: ${prompt.slice(0, 5000)}`].join("\n"),
-        }],
-      }),
+    const ai = await callStudentTextModel({
+      system,
+      user: [`Mode: ${mode}`, `Student context: ${prompt.slice(0, 5000)}`].join("\n"),
+      maxTokens: 500,
+      json: true,
     });
-
-    if (!res.ok) {
-      console.error("arts-scaffold anthropic error:", await res.text());
-      return json({ error: "AI request failed" }, 502);
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const raw = data.content?.[0]?.text ?? "{}";
-    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const raw = ai.content;
+    const tokens = ai.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -112,7 +92,7 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId,
           feature: "arts_scaffold",
-          model: "claude-haiku-4-5",
+          model: ai.model,
           promptSummary: `${mode}: ${prompt}`.slice(0, 200),
           tokensUsed: tokens,
         }, supabase);

@@ -55,9 +55,9 @@ const OPENAI_VOICES = [
 ] as const;
 
 const ELEVENLABS_VOICES = [
-  { value: "JBFqnCBsd6RMkjVDRZzb", label: "Calm" },
-  { value: "21m00Tcm4TlvDq8ikWAM", label: "Rachel" },
   { value: "EXAVITQu4vr4xnSDxMaL", label: "Bella" },
+  { value: "21m00Tcm4TlvDq8ikWAM", label: "Rachel" },
+  { value: "JBFqnCBsd6RMkjVDRZzb", label: "Calm" },
 ] as const;
 
 type ReadingFont = "system" | "lexend" | "atkinson" | "opendyslexic";

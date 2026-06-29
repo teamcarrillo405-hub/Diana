@@ -1,35 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { Battery, Leaf, Zap } from "lucide-react";
+import type { DianaOrbState } from "@/components/signal/clarity-orb";
+import { Battery, Cloud, Leaf, Sparkles, Zap } from "lucide-react";
 
 const LEVELS = [
-  { value: "low", label: "Low", icon: Leaf },
-  { value: "medium", label: "OK", icon: Battery },
-  { value: "high", label: "On it", icon: Zap },
+  { energy: "low", label: "Low", brain: "low", note: "start small", icon: Leaf },
+  { energy: "medium", label: "Okay", brain: "okay", note: "steady", icon: Battery },
+  { energy: "high", label: "On it", brain: "on-it", note: "more motion", icon: Zap },
+  { energy: "low", label: "Overwhelmed", brain: "overwhelmed", note: "one breath", icon: Cloud },
+  { energy: "high", label: "Creative", brain: "creative", note: "ideas moving", icon: Sparkles },
 ] as const;
 
-export function EnergyPicker({ current }: { current: "low" | "medium" | "high" }) {
+export function EnergyPicker({ currentBrain }: { currentBrain: DianaOrbState }) {
   return (
-    <div className="space-y-2 rounded-2xl border border-border bg-surface-raised p-3">
-      <p className="text-xs font-medium uppercase tracking-wider text-muted">
-        Energy mode
+    <div className="brain-state-panel">
+      <p className="brain-state-title">
+        Brain state
       </p>
-      <div className="grid grid-cols-3 gap-2">
-        {LEVELS.map(({ value, label, icon: Icon }) => {
-          const active = value === current;
+      <div className="brain-state-grid">
+        {LEVELS.map(({ energy, label, brain, note, icon: Icon }) => {
+          const active = brain === currentBrain;
           return (
             <Link
-              key={value}
-              href={`/dashboard?energy=${value}`}
-              className={`touch-target flex min-w-0 items-center justify-center gap-2 rounded-xl border px-3 py-2 text-sm transition ${
-                active
-                  ? "border-brand/30 bg-brand/10 text-brand-strong dark:text-brand"
-                  : "border-border bg-surface hover:bg-surface-soft"
-              }`}
+              key={brain}
+              href={`/dashboard?energy=${energy}&brain=${brain}`}
+              className={`brain-state-button touch-target ${active ? "is-active" : ""}`}
+              data-brain-state={brain}
+              aria-current={active ? "true" : undefined}
             >
-              <Icon size={15} className="shrink-0" />
-              <span className="min-w-0 truncate">{label}</span>
+              <span className="brain-state-swatch">
+                <Icon size={15} />
+              </span>
+              <span className="brain-state-copy">
+                <span>{label}</span>
+                <small>{note}</small>
+              </span>
             </Link>
           );
         })}

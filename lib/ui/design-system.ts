@@ -1,26 +1,38 @@
-// Quiet Command — the design language as importable truth.
-// Spec: .planning/DESIGN_MASTERPLAN.md. Tailwind theme mirrors these values;
-// this module exists so logic (and tests) can reference the system instead
-// of magic numbers, and so a designer can retune the language in one place.
+// Nexus Diana Arcade -- the design language as importable truth.
+// Derived from the supplied Nexus Arcade design source and adapted for
+// Diana's calm invariant.
 
-/** Optical type scale, 1.2 ratio. Tailwind classes: text-caption … text-hero. */
+/** Optical type scale, tuned for dense arcade dashboards and calm reading. */
 export const TYPE_SCALE = {
-  caption: "0.8125rem",
+  caption: "0.75rem",
   body: "1rem",
-  emphasis: "1.1875rem",
-  title: "1.4375rem",
-  display: "1.75rem",
-  hero: "2.125rem",
+  emphasis: "1.125rem",
+  title: "1.375rem",
+  display: "2rem",
+  hero: "clamp(3rem, 7vw, 6.5rem)",
 } as const;
 
-/** The three named gaps. Tailwind: gap-tight / gap-group / gap-section etc. */
-export const GAPS = { tight: 8, group: 16, section: 28 } as const;
+/** Eight-pixel arcade grid. Tailwind: gap-tight / gap-group / gap-section. */
+export const GAPS = { tight: 8, group: 16, section: 32 } as const;
 
-/** Radius set. Tailwind: rounded-control / rounded-card / rounded-panel. */
-export const RADII = { control: 12, card: 16, panel: 24, pill: 9999 } as const;
+/** Sharp Nexus geometry; circles are reserved for orbit/status cores. */
+export const RADII = { control: 2, card: 2, panel: 2, pill: 2, orbit: 9999 } as const;
+
+export const NEXUS_COLORS = {
+  background: "#02030A",
+  surface: "#100A24",
+  surface2: "#171032",
+  text: "#F8F3FF",
+  muted: "#A9A1B8",
+  cyan: "#35DDF2",
+  pink: "#F45BA8",
+  gold: "#E8B85D",
+  blue: "#5E8CFF",
+  purple: "#A477FF",
+} as const;
 
 /**
- * Motion verbs — the only four ways anything moves.
+ * Motion verbs -- the only four ways anything moves.
  * Settle: content entering. Respond: press/toggle feedback.
  * Carry: screen-to-screen continuity. Breathe: ambient, never on text.
  * Rules: nothing bounces, nothing travels >12px, everything interruptible,
@@ -33,5 +45,24 @@ export const MOTION = {
   breathe: { minDurationMs: 2000, maxDeltaPct: 6 },
 } as const;
 
-/** One saturated hue per viewport besides brand — review heuristic. */
+/** One saturated hue per viewport besides brand -- review heuristic. */
 export const SATURATION_RULE = "max one subject color per viewport beyond brand";
+
+/** Diana Nexus primitives. Tailwind/CSS class names mirror these. */
+export const SIGNAL_SURFACES = {
+  stage: "signal-stage",
+  field: "signal-stage-dark",
+  device: "diana-device",
+  poster: "student-signal-poster",
+  rightNow: "right-now-signal",
+  commandDock: "mobile-command-dock-base",
+  nexusShell: "nexus-page-shell",
+  nexusPanel: "nexus-panel",
+} as const;
+
+/** Screenshot-worthy acceptance heuristic for primary surfaces. */
+export const SCREENSHOT_WORTHY = {
+  desktopPrimaryWidthRatio: 0.52,
+  mobilePrimaryWidthRatio: 0.82,
+  requiredRoutes: ["/", "/login", "/signup", "/onboarding", "/dashboard"] as const,
+} as const;

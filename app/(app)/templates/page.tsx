@@ -14,7 +14,7 @@ export default async function Page() {
   const templates = (data ?? []).map(parseTemplateRow);
 
   return (
-    <div className="space-y-6">
+    <div className="diana-page space-y-6">
       <header className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">Templates</p>
         <h1 className="text-display">Start with a structure, then make it yours</h1>

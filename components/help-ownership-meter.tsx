@@ -17,7 +17,14 @@ export function HelpOwnershipMeter({
         </p>
         <p className="font-semibold">{meter.studentSharePercent}% student</p>
       </div>
-      <div className="mt-2 h-2 overflow-hidden rounded-full bg-border" aria-label="Student ownership meter">
+      <div
+        className="mt-2 h-2 overflow-hidden rounded-full bg-border"
+        role="progressbar"
+        aria-label="Student ownership meter"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={meter.studentSharePercent}
+      >
         <div className="h-full rounded-full bg-brand" style={{ width: `${meter.studentSharePercent}%` }} />
       </div>
       <div className={`mt-2 grid gap-2 ${compact ? "" : "sm:grid-cols-3"}`}>

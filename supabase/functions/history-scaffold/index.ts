@@ -10,6 +10,7 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TEXT_MODES = new Set(["primary_source", "cause_effect", "happ", "dbq", "compare", "current_events"]);
 const MIME_BY_EXT: Record<string, string> = {
@@ -215,33 +216,16 @@ Deno.serve(async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          model,
-          max_tokens: 1300,
-          system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-          messages: [{
-            role: "user",
-            content: `Mode: ${mode}\nSource or prompt:\n${sourceText}\n\nClass context:\n${classContext}`,
-          }],
-        }),
+      const ai = await callStudentTextModel({
+        system: systemPrompt,
+        user: `Mode: ${mode}\nSource or prompt:\n${sourceText}\n\nClass context:\n${classContext}`,
+        maxTokens: 650,
+        quality: "quality",
+        json: true,
       });
-      if (!res.ok) {
-        console.error("history-scaffold Anthropic error:", await res.text());
-        return jsonResponse({ error: "AI request failed" }, 502);
-      }
-      const data = await res.json() as {
-        content?: Array<{ type: string; text: string }>;
-        usage?: { input_tokens?: number; output_tokens?: number };
-      };
-      content = data.content?.[0]?.text ?? "";
-      tokens = Number(data.usage?.input_tokens ?? 0) + Number(data.usage?.output_tokens ?? 0);
+      content = ai.content;
+      tokens = ai.tokens;
+      model = ai.model;
     }
 
     Promise.resolve()
