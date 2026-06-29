@@ -178,7 +178,7 @@ export function LobbyHero({
         >
           {[
             { label: "Today", href: "/dashboard", active: true },
-            { label: "Work", href: "/assignments", active: false },
+            { label: "Work", href: "/dashboard/work", active: false },
             { label: "Think", href: "/study-buddy", active: false },
             { label: "Proof", href: "/proof", active: false },
             { label: "Future", href: "/future-path", active: false },
