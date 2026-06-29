@@ -127,15 +127,12 @@ export function LobbyHero({
         {/* HERO ELEMENTS */}
         <div style={{ position: "relative", zIndex: 2, maxWidth: 1440, margin: "0 auto", height: 660 }}>
 
-          {/* Player photo center — default (no photo) dropzone */}
-          <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-56%)", zIndex: 6 }}>
-            <div style={{ position: "relative", width: 343, height: 501 }}>
-              <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, border: "2px dashed rgba(41,208,255,.35)", borderRadius: 8, background: "rgba(4,8,20,.4)" }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(41,208,255,.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>
-                <div style={{ fontFamily: SF, fontWeight: 700, fontSize: 11, letterSpacing: ".1em", color: "rgba(41,208,255,.65)", textAlign: "center" }}>UPLOAD IN SETTINGS</div>
-              </div>
-            </div>
-          </div>
+          {/*
+            Player photo cutout — right side, blended into the background.
+            Empty/transparent by default (student photo is uploaded at runtime);
+            no visible dashed box. Drop /public/hero-char.webp to populate it.
+          */}
+          <div aria-hidden="true" style={{ position: "absolute", right: 0, bottom: 0, width: 360, height: 540, zIndex: 4, pointerEvents: "none" }} />
 
           {/* ENERGY CHECK (top-right) */}
           <div style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8 }}>
@@ -164,7 +161,7 @@ export function LobbyHero({
               <Link
                 href={focusHref}
                 className="gl-lobby-cta"
-                style={{ background: "#29d0ff", padding: "22px 40px", borderRadius: 12, boxShadow: "0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6)", display: "inline-flex", alignItems: "center", gap: 12, textDecoration: "none", transition: "transform .12s,box-shadow .2s" }}
+                style={{ background: "#29d0ff", padding: "22px 40px", borderRadius: 12, boxShadow: "0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6)", display: "inline-flex", width: "fit-content", alignSelf: "flex-start", alignItems: "center", gap: 12, textDecoration: "none", transition: "transform .12s,box-shadow .2s" }}
               >
                 <span style={{ fontFamily: SF, fontWeight: 800, fontSize: 36, letterSpacing: ".04em", textTransform: "uppercase", color: "#04080f" }}>▶ Start Next Mission</span>
               </Link>
