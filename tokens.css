@@ -1,0 +1,434 @@
+/*
+ * DIANA DESIGN TOKENS
+ * Source: Student Lobby.dc.html (formerly Grayson Lobby.dc.html)
+ * Restored for the design/dashboard-tabs branch (was missing at repo root).
+ *
+ * Defines the --color-* base palette + --gl-* handoff aliases plus the
+ * spacing/type/radius/shadow/blur/layout scales the dashboard tabs use.
+ */
+
+:root {
+
+  /* ============================================================
+     1. BACKGROUNDS
+     ============================================================ */
+
+  --color-bg-base:            #04060f;
+  --color-bg-hero:            #0a1024;
+  --color-bg-nav:             rgba(2,5,14,.72);
+  --color-bg-card:            rgba(4,8,20,.72);
+  --color-bg-focus-card-from: rgba(8,12,26,.96);
+  --color-bg-focus-card-to:   rgba(12,18,42,.96);
+  --color-bg-audio-from:      rgba(18,24,50,.98);
+  --color-bg-audio-to:        rgba(10,14,32,.98);
+  --color-bg-audio-scrim:     rgba(4,6,15,.88);
+  --color-bg-settings:        rgba(4,8,20,.96);
+  --color-bg-settings-scrim:  rgba(0,0,0,.7);
+
+  /* ============================================================
+     2. BRAND — CYAN (primary accent)
+     ============================================================ */
+
+  --color-cyan:               #29d0ff;
+  --color-cyan-65:            rgba(41,208,255,.65);
+  --color-cyan-55:            rgba(41,208,255,.55);
+  --color-cyan-45:            rgba(41,208,255,.45);
+  --color-cyan-38:            rgba(41,208,255,.38);
+  --color-cyan-35:            rgba(41,208,255,.35);
+  --color-cyan-28:            rgba(41,208,255,.28);
+  --color-cyan-25:            rgba(41,208,255,.25);
+  --color-cyan-22:            rgba(41,208,255,.22);
+  --color-cyan-20:            rgba(41,208,255,.20);
+  --color-cyan-18:            rgba(41,208,255,.18);
+  --color-cyan-15:            rgba(41,208,255,.15);
+  --color-cyan-14:            rgba(41,208,255,.14);
+  --color-cyan-10:            rgba(41,208,255,.10);
+  --color-cyan-08:            rgba(41,208,255,.08);
+  --color-cyan-06:            rgba(41,208,255,.06);
+
+  /* ============================================================
+     3. BRAND — GREEN (success / turned-in)
+     ============================================================ */
+
+  --color-green:              #36e07a;
+  --color-green-dark:         #16a34a;
+  --color-green-22:           rgba(54,224,122,.22);
+  --color-green-20:           rgba(54,224,122,.20);
+  --color-green-30:           rgba(54,224,122,.30);
+  --color-green-12:           rgba(54,224,122,.12);
+
+  /* ============================================================
+     4. BRAND — GOLD (warning / not-turned-in / turn-in CTA)
+     ============================================================ */
+
+  --color-gold:               #ffd24a;
+  --color-gold-dark:          #f5a623;
+  --color-gold-85:            rgba(255,210,74,.85);
+  --color-gold-45:            rgba(255,210,74,.45);
+  --color-gold-40:            rgba(255,210,74,.40);
+  --color-gold-38:            rgba(255,210,74,.38);
+  --color-gold-32:            rgba(255,210,74,.32);
+  --color-gold-30:            rgba(255,210,74,.30);
+  --color-gold-28:            rgba(255,210,74,.28);
+  --color-gold-24:            rgba(255,210,74,.24);
+  --color-gold-16:            rgba(255,210,74,.16);
+  --color-gold-14:            rgba(255,210,74,.14);
+  --color-gold-12:            rgba(255,210,74,.12);
+  --color-gold-10:            rgba(255,210,74,.10);
+
+  /* ============================================================
+     5. BRAND — RED (overdue / recording)
+     ============================================================ */
+
+  --color-red:                #ff5555;
+  --color-red-text:           #ff7070;
+  --color-red-icon:           #ff4444;
+  --color-red-soft:           #ff8070;
+  --color-red-80:             rgba(255,55,55,.80);
+  --color-red-55:             rgba(255,55,55,.55);
+  --color-red-40:             rgba(255,55,55,.40);
+  --color-red-28:             rgba(255,55,55,.28);
+  --color-red-20:             rgba(255,55,55,.20);
+  --color-red-15:             rgba(255,55,55,.15);
+  --color-red-14:             rgba(255,55,55,.14);
+  --color-red-mic-idle:       rgba(220,38,38,1);    /* also used as --gl-red-record */
+  --color-red-mic-active:     rgba(180,20,20,1);
+
+  /* ============================================================
+     6. BRAND — PURPLE (overwhelmed / focus-mode / THINK)
+     ============================================================ */
+
+  --color-purple:             #7e5cff;
+  --color-purple-dark:        #5a3ecc;
+  --color-purple-light:       #b09cff;
+  --color-purple-40:          rgba(126,92,255,.40);
+  --color-purple-35:          rgba(126,92,255,.35);
+  --color-purple-30:          rgba(126,92,255,.30);
+  --color-purple-14:          rgba(126,92,255,.14);
+
+  /* ============================================================
+     7. TEXT
+     ============================================================ */
+
+  --color-text-primary:       #ffffff;
+  --color-text-near-white:    #eef2ff;
+  --color-text-secondary:     #cdd6f2;
+  --color-text-hero-sub:      #c0d0f0;
+  --color-text-muted:         #aab8e0;
+  --color-text-subdued:       #9fb0dd;
+  --color-text-nav-inactive:  #8b96bd;
+  --color-text-dim:           #7d88ad;
+  --color-text-overlay-70:    rgba(200,218,255,.70);
+  --color-text-overlay-60:    rgba(200,218,255,.60);
+  --color-text-overlay-50:    rgba(200,218,255,.50);
+
+  --color-text-on-cyan:       #04080f;
+  --color-text-on-now:        #06243a;
+  --color-text-on-green:      #06210f;
+  --color-text-on-gold:       #3a2a00;
+
+  /* ============================================================
+     8. SUBJECT ACCENT COLORS
+     ============================================================ */
+
+  --color-subject-math:       #ff6a3d;
+  --color-subject-english:    #29d0ff;
+  --color-subject-science:    #36e07a;
+  --color-subject-history:    #ffd24a;
+  --color-subject-athletics:  #7e5cff;
+  --color-subject-art:        #f25fb0;
+
+  /* ============================================================
+     9. TYPOGRAPHY
+     ============================================================ */
+
+  --font-display:             'Saira Condensed', sans-serif;
+  --font-body:                'Barlow Semi Condensed', sans-serif;
+  --font-mono:                monospace;
+
+  --text-72:  72px;
+  --text-40:  40px;
+  --text-36:  36px;
+  --text-32:  32px;
+  --text-28:  28px;
+  --text-26:  26px;
+  --text-22:  22px;
+  --text-18:  18px;
+  --text-17:  17px;
+  --text-16:  16px;
+  --text-15:  15px;
+  --text-14:  14px;
+  --text-13:  13px;
+  --text-12:  12px;
+  --text-11:  11px;
+  --text-10:  10px;
+  --text-9:   9px;
+
+  --weight-800: 800;
+  --weight-700: 700;
+  --weight-600: 600;
+  --weight-500: 500;
+  --weight-400: 400;
+
+  --tracking-30:  .30em;
+  --tracking-28:  .28em;
+  --tracking-20:  .20em;
+  --tracking-18:  .18em;
+  --tracking-14:  .14em;
+  --tracking-12:  .12em;
+  --tracking-10:  .10em;
+  --tracking-08:  .08em;
+  --tracking-06:  .06em;
+  --tracking-05:  .05em;
+  --tracking-04:  .04em;
+  --tracking-03:  .03em;
+  --tracking-01:  .01em;
+
+  --leading-hero:   .88;
+  --leading-tight:  .90;
+  --leading-normal: 1.5;
+  --leading-card:   1.1;
+
+  /* ============================================================
+     10. SPACING SCALE
+     ============================================================ */
+
+  --space-1:   4px;
+  --space-2:   5px;
+  --space-3:   6px;
+  --space-4:   8px;
+  --space-5:   9px;
+  --space-6:   10px;
+  --space-7:   11px;
+  --space-8:   12px;
+  --space-9:   13px;
+  --space-10:  14px;
+  --space-11:  16px;
+  --space-12:  18px;
+  --space-13:  20px;
+  --space-14:  22px;
+  --space-15:  24px;
+  --space-16:  28px;
+  --space-17:  34px;
+  --space-18:  36px;
+  --space-19:  40px;
+  --space-20:  44px;
+  --space-21:  48px;
+  --space-22: 120px;
+  --space-modal: 32px;
+
+  /* ============================================================
+     11. BORDER RADIUS SCALE
+     ============================================================ */
+
+  --radius-xs:     2px;
+  --radius-sm:     4px;
+  --radius-badge:  6px;
+  --radius-button: 8px;
+  --radius-cta:    9px;
+  --radius-option: 10px;
+  --radius-hero:   12px;
+  --radius-card:   14px;
+  --radius-modal:  20px;
+  --radius-dialog: 22px;
+  --radius-circle: 50%;
+
+  /* ============================================================
+     12. BOX SHADOWS
+     ============================================================ */
+
+  --shadow-hero-cta:         0 0 32px rgba(41,208,255,.45), 0 8px 28px rgba(0,0,0,.40);
+  --shadow-hero-cta-hover:   0 0 50px rgba(41,208,255,.65), 0 12px 32px rgba(0,0,0,.6);
+  --shadow-active-card:      0 0 24px rgba(41,208,255,.45), 0 6px 20px rgba(0,0,0,.4);
+  --shadow-active-card-ring: 0 0 0 1.5px rgba(41,208,255,.55), 0 0 36px rgba(41,208,255,.34);
+  --shadow-cta-turnin:       0 6px 20px rgba(255,210,74,.40);
+  --shadow-cta-overdue:      0 6px 20px rgba(224,57,43,.40);
+  --shadow-cta-green:        0 6px 20px rgba(34,180,90,.35);
+  --shadow-cta-overwhelmed:  0 6px 18px rgba(126,92,255,.40);
+  --shadow-save-note:        0 8px 24px rgba(34,180,90,.35);
+  --shadow-modal-audio:      0 32px 80px rgba(0,0,0,.60);
+  --shadow-modal-settings:   0 32px 80px rgba(0,0,0,.70), 0 0 40px rgba(41,208,255,.08);
+
+  /* ============================================================
+     13. BACKDROP BLUR
+     ============================================================ */
+
+  --blur-nav:    blur(20px);
+  --blur-audio:  blur(14px);
+  --blur-card:   blur(10px);
+  --blur-modal:  blur(8px);
+
+  /* ============================================================
+     14. TRANSITIONS
+     ============================================================ */
+
+  --transition-bg-opacity: opacity .5s;
+  --transition-bg-tint:    background .5s;
+  --transition-item:       all .2s;
+  --transition-card:       transform .2s;
+  --transition-cta:        transform .12s;
+
+  /* ============================================================
+     15. LAYOUT DIMENSIONS
+     ============================================================ */
+
+  --layout-max-width:       1440px;
+  --layout-hero-bg-height:  718px;
+  --layout-hero-height:     660px;
+  --layout-nav-height:      58px;
+  --layout-xp-panel-width:  380px;
+  --layout-checkin-width:   320px;
+  --layout-audio-width:     500px;
+  --layout-settings-width:  520px;
+  --layout-grid-cols:       3;
+
+  /* ============================================================
+     TOKENS ADDED FROM HANDOFF
+     ============================================================ */
+
+  --color-cyan-90:            rgba(41,208,255,.90);
+  --color-cyan-85:            rgba(41,208,255,.85);
+  --color-cyan-70:            rgba(41,208,255,.70);
+  --color-cyan-40:            rgba(41,208,255,.40);
+
+  --color-red-bg-record:      rgba(220,38,38,.15);
+  --color-red-70:             rgba(255,55,55,.70);
+
+  --color-gold-75:            rgba(255,210,74,.75);
+
+  --color-bg-input:           rgba(10,16,36,.80);
+  --color-bg-btn-neutral:     rgba(120,150,220,.12);
+  --color-bg-energy-btn:      rgba(10,14,32,.60);
+
+  --color-border-neutral:     rgba(120,150,220,.18);
+  --color-border-neutral-sm:  rgba(120,150,220,.14);
+
+  --color-text-overlay-85:    rgba(200,218,255,.85);
+  --color-text-overlay-75:    rgba(200,218,255,.75);
+  --color-text-card-body:     #e8f0ff;
+
+  --color-tint-stadium:       rgba(0,0,0,.68);
+  --color-tint-music:         rgba(0,0,0,.70);
+  --color-tint-science:       rgba(0,0,0,.42);
+  --color-tint-default:       rgba(0,0,0,.45);
+
+  /* ============================================================
+     --gl-* ALIASES FOR HANDOFF
+     Every --color-* above is mirrored as a --gl-* alias pointing
+     to the same value so handoff docs / components that reference
+     --gl-* resolve identically.
+     ============================================================ */
+
+  --gl-bg-base: var(--color-bg-base);
+  --gl-bg-hero: var(--color-bg-hero);
+  --gl-bg-nav: var(--color-bg-nav);
+  --gl-bg-card: var(--color-bg-card);
+  --gl-bg-focus-card-from: var(--color-bg-focus-card-from);
+  --gl-bg-focus-card-to: var(--color-bg-focus-card-to);
+  --gl-bg-audio-from: var(--color-bg-audio-from);
+  --gl-bg-audio-to: var(--color-bg-audio-to);
+  --gl-bg-audio-scrim: var(--color-bg-audio-scrim);
+  --gl-bg-settings: var(--color-bg-settings);
+  --gl-bg-settings-scrim: var(--color-bg-settings-scrim);
+  --gl-cyan: var(--color-cyan);
+  --gl-cyan-65: var(--color-cyan-65);
+  --gl-cyan-55: var(--color-cyan-55);
+  --gl-cyan-45: var(--color-cyan-45);
+  --gl-cyan-38: var(--color-cyan-38);
+  --gl-cyan-35: var(--color-cyan-35);
+  --gl-cyan-28: var(--color-cyan-28);
+  --gl-cyan-25: var(--color-cyan-25);
+  --gl-cyan-22: var(--color-cyan-22);
+  --gl-cyan-20: var(--color-cyan-20);
+  --gl-cyan-18: var(--color-cyan-18);
+  --gl-cyan-15: var(--color-cyan-15);
+  --gl-cyan-14: var(--color-cyan-14);
+  --gl-cyan-10: var(--color-cyan-10);
+  --gl-cyan-08: var(--color-cyan-08);
+  --gl-cyan-06: var(--color-cyan-06);
+  --gl-green: var(--color-green);
+  --gl-green-dark: var(--color-green-dark);
+  --gl-green-22: var(--color-green-22);
+  --gl-green-20: var(--color-green-20);
+  --gl-green-30: var(--color-green-30);
+  --gl-green-12: var(--color-green-12);
+  --gl-gold: var(--color-gold);
+  --gl-gold-dark: var(--color-gold-dark);
+  --gl-gold-85: var(--color-gold-85);
+  --gl-gold-45: var(--color-gold-45);
+  --gl-gold-40: var(--color-gold-40);
+  --gl-gold-38: var(--color-gold-38);
+  --gl-gold-32: var(--color-gold-32);
+  --gl-gold-30: var(--color-gold-30);
+  --gl-gold-28: var(--color-gold-28);
+  --gl-gold-24: var(--color-gold-24);
+  --gl-gold-16: var(--color-gold-16);
+  --gl-gold-14: var(--color-gold-14);
+  --gl-gold-12: var(--color-gold-12);
+  --gl-gold-10: var(--color-gold-10);
+  --gl-red: var(--color-red);
+  --gl-red-text: var(--color-red-text);
+  --gl-red-icon: var(--color-red-icon);
+  --gl-red-soft: var(--color-red-soft);
+  --gl-red-80: var(--color-red-80);
+  --gl-red-55: var(--color-red-55);
+  --gl-red-40: var(--color-red-40);
+  --gl-red-28: var(--color-red-28);
+  --gl-red-20: var(--color-red-20);
+  --gl-red-15: var(--color-red-15);
+  --gl-red-14: var(--color-red-14);
+  --gl-red-mic-idle: var(--color-red-mic-idle);
+  --gl-red-mic-active: var(--color-red-mic-active);
+  --gl-red-bg-record: var(--color-red-bg-record);
+  --gl-red-70: var(--color-red-70);
+  --gl-purple: var(--color-purple);
+  --gl-purple-dark: var(--color-purple-dark);
+  --gl-purple-light: var(--color-purple-light);
+  --gl-purple-40: var(--color-purple-40);
+  --gl-purple-35: var(--color-purple-35);
+  --gl-purple-30: var(--color-purple-30);
+  --gl-purple-14: var(--color-purple-14);
+  --gl-text-primary: var(--color-text-primary);
+  --gl-text-near-white: var(--color-text-near-white);
+  --gl-text-secondary: var(--color-text-secondary);
+  --gl-text-hero-sub: var(--color-text-hero-sub);
+  --gl-text-muted: var(--color-text-muted);
+  --gl-text-subdued: var(--color-text-subdued);
+  --gl-text-nav-inactive: var(--color-text-nav-inactive);
+  --gl-text-dim: var(--color-text-dim);
+  --gl-text-overlay-70: var(--color-text-overlay-70);
+  --gl-text-overlay-60: var(--color-text-overlay-60);
+  --gl-text-overlay-50: var(--color-text-overlay-50);
+  --gl-text-overlay-75: var(--color-text-overlay-75);
+  --gl-text-overlay-85: var(--color-text-overlay-85);
+  --gl-text-card-body: var(--color-text-card-body);
+  --gl-text-on-cyan: var(--color-text-on-cyan);
+  --gl-text-on-now: var(--color-text-on-now);
+  --gl-text-on-green: var(--color-text-on-green);
+  --gl-text-on-gold: var(--color-text-on-gold);
+  --gl-subject-math: var(--color-subject-math);
+  --gl-subject-english: var(--color-subject-english);
+  --gl-subject-science: var(--color-subject-science);
+  --gl-subject-history: var(--color-subject-history);
+  --gl-subject-athletics: var(--color-subject-athletics);
+  --gl-subject-art: var(--color-subject-art);
+  --gl-cyan-90: var(--color-cyan-90);
+  --gl-cyan-85: var(--color-cyan-85);
+  --gl-cyan-70: var(--color-cyan-70);
+  --gl-cyan-40: var(--color-cyan-40);
+  --gl-gold-75: var(--color-gold-75);
+  --gl-bg-input: var(--color-bg-input);
+  --gl-bg-btn-neutral: var(--color-bg-btn-neutral);
+  --gl-bg-energy-btn: var(--color-bg-energy-btn);
+  --gl-border-neutral: var(--color-border-neutral);
+  --gl-border-neutral-sm: var(--color-border-neutral-sm);
+  --gl-tint-stadium: var(--color-tint-stadium);
+  --gl-tint-music: var(--color-tint-music);
+  --gl-tint-science: var(--color-tint-science);
+  --gl-tint-default: var(--color-tint-default);
+
+  /* Semantic alias — plan calls token/burnout warnings "amber"; on-brand
+     value is gold. Keep warnings off red. */
+  --gl-amber: var(--color-gold);
+
+}

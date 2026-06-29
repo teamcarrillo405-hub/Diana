@@ -4,6 +4,7 @@ import "@fontsource/atkinson-hyperlegible-next/400.css";
 import "@fontsource/atkinson-hyperlegible-next/700.css";
 import "@fontsource/opendyslexic"; // weight 400 only; Pitfall 7 guard (no all.css)
 import "./globals.css";
+import "../tokens.css";
 import { AccentProvider } from "@/components/accent-provider";
 import { FutureModeProvider } from "@/components/future-mode-provider";
 import { ThemeProvider } from "@/components/theme-provider";
