@@ -98,11 +98,7 @@ export function LobbyHero({
           height: 718,
           zIndex: 1,
           pointerEvents: "none",
-          background:
-            "radial-gradient(900px 560px at 50% 100%,rgba(41,208,255,.28),transparent 62%)," +
-            "radial-gradient(720px 400px at 16% 6%,rgba(126,92,255,.22),transparent 60%)," +
-            "radial-gradient(720px 400px at 86% 8%,rgba(255,120,60,.16),transparent 60%)," +
-            "linear-gradient(180deg,rgba(10,16,36,.78) 0%,rgba(13,24,56,.62) 48%,rgba(11,42,51,.65) 76%,rgba(10,58,38,.72) 100%)",
+          background: "var(--color-tint-stadium)",
         }}
       />
 
@@ -270,6 +266,24 @@ export function LobbyHero({
           height: 660,
         }}
       >
+        {/* Hero character cutout (right side) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/hero-char.webp"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            bottom: 0,
+            right: 48,
+            height: "90%",
+            objectFit: "contain",
+            zIndex: 4,
+            mixBlendMode: "multiply",
+            pointerEvents: "none",
+          }}
+        />
+
         {/* Stadium light flares */}
         <div
           aria-hidden="true"
@@ -502,10 +516,10 @@ export function LobbyHero({
               className="gl-lobby-cta"
               style={{
                 transform: "skewX(-10deg)",
-                background: "linear-gradient(180deg,#36e07a,#16a34a)",
+                background: "var(--gl-cyan)",
                 padding: "14px 26px",
                 borderRadius: 6,
-                boxShadow: "0 10px 26px rgba(34,180,90,.4)",
+                boxShadow: "var(--shadow-hero-cta)",
                 textDecoration: "none",
                 display: "inline-block",
               }}
@@ -518,7 +532,7 @@ export function LobbyHero({
                   fontSize: 21,
                   letterSpacing: ".05em",
                   textTransform: "uppercase",
-                  color: "#06210f",
+                  color: "var(--color-text-on-cyan)",
                 }}
               >
                 ▶ Start Next Mission
