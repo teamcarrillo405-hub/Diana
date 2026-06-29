@@ -49,6 +49,27 @@ export function LobbyHero({
         @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
         .gl-tab:hover{color:#fff !important;}
         .gl-lobby-cta:hover{transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6);}
+        /* Phones + small tablets: collapse the fixed-position hero into a stack. */
+        @media (max-width: 900px) {
+          .gl-nav-tabs { display: none !important; }
+          .gl-nav-extra { display: none !important; }
+          .gl-hero-bg { height: 100% !important; }
+          .gl-hero-content {
+            height: auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 20px !important;
+            padding: 28px 16px 40px !important;
+          }
+          .gl-player { display: none !important; }
+          .gl-title { position: static !important; left: auto !important; bottom: auto !important; order: 1; }
+          .gl-energy { position: static !important; right: auto !important; top: auto !important; width: 100% !important; order: 2; }
+          .gl-xp { position: static !important; right: auto !important; bottom: auto !important; width: 100% !important; order: 3; }
+          .gl-hero-name { font-size: 44px !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .gl-lobby-cta:hover { transform: none; }
+        }
       `}</style>
 
       {/* ═══ HERO ZONE — nav + hero share one swappable background ═══ */}
@@ -56,7 +77,7 @@ export function LobbyHero({
       <div style={{ position: "relative", overflow: "hidden", background: "#0a1024", width: "100vw", marginLeft: "calc(50% - 50vw)" }}>
 
         {/* Hero background + tint */}
-        <div style={{ position: "absolute", inset: 0, width: "100%", height: 718, zIndex: 0, background: "#000" }}>
+        <div className="gl-hero-bg" style={{ position: "absolute", inset: 0, width: "100%", height: 718, zIndex: 0, background: "#000" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/stadium-bg.jpg"
@@ -90,7 +111,7 @@ export function LobbyHero({
             <div aria-hidden="true" style={{ width: 34, height: 34, borderRadius: 8, background: "rgba(120,150,220,.12)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#aab8e0" }}>⌕</div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 26, marginLeft: 6, fontFamily: SF, fontWeight: 700, fontSize: 18, letterSpacing: ".06em", textTransform: "uppercase" }}>
+          <div className="gl-nav-tabs" style={{ display: "flex", alignItems: "center", gap: 26, marginLeft: 6, fontFamily: SF, fontWeight: 700, fontSize: 18, letterSpacing: ".06em", textTransform: "uppercase" }}>
             {NAV_TABS.map(({ label, href, active }) => (
               <Link
                 key={label}
@@ -116,27 +137,27 @@ export function LobbyHero({
             <LobbyAudioNote />
 
             {/* Player avatar placeholder */}
-            <div aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "50%", border: "2px solid rgba(41,208,255,.38)", flexShrink: 0, background: "rgba(120,150,220,.12)" }} />
+            <div className="gl-nav-extra" aria-hidden="true" style={{ width: 36, height: 36, borderRadius: "50%", border: "2px solid rgba(41,208,255,.38)", flexShrink: 0, background: "rgba(120,150,220,.12)" }} />
 
             {/* Settings gear */}
-            <Link href="/settings" aria-label="Settings" style={{ width: 38, height: 38, borderRadius: 8, background: "rgba(120,150,220,.12)", border: "1px solid rgba(120,150,220,.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <Link className="gl-nav-extra" href="/settings" aria-label="Settings" style={{ width: 38, height: 38, borderRadius: 8, background: "rgba(120,150,220,.12)", border: "1px solid rgba(120,150,220,.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
             </Link>
           </div>
         </div>
 
         {/* HERO ELEMENTS */}
-        <div style={{ position: "relative", zIndex: 2, maxWidth: 1440, margin: "0 auto", height: 660 }}>
+        <div className="gl-hero-content" style={{ position: "relative", zIndex: 2, maxWidth: 1440, margin: "0 auto", height: 660 }}>
 
           {/*
             Player photo cutout — right side, blended into the background.
             Empty/transparent by default (student photo is uploaded at runtime);
             no visible dashed box. Drop /public/hero-char.webp to populate it.
           */}
-          <div aria-hidden="true" style={{ position: "absolute", right: 0, bottom: 0, width: 360, height: 540, zIndex: 4, pointerEvents: "none" }} />
+          <div className="gl-player" aria-hidden="true" style={{ position: "absolute", right: 0, bottom: 0, width: 360, height: 540, zIndex: 4, pointerEvents: "none" }} />
 
           {/* ENERGY CHECK (top-right) */}
-          <div style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8 }}>
+          <div className="gl-energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8 }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", borderRadius: "8px 8px 0 0", background: "transparent", border: "1px solid rgba(41,208,255,.28)", borderBottom: "none", fontFamily: SF, fontWeight: 800, fontSize: 14, letterSpacing: ".12em", color: "rgba(41,208,255,.95)", textShadow: "0 0 12px rgba(41,208,255,.4)" }}>ENERGY CHECK</div>
             <div style={{ position: "relative", borderRadius: "0 12px 12px 12px", border: "1px solid rgba(41,208,255,.22)", background: "transparent", minHeight: 128, padding: "18px 18px 16px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <span aria-hidden="true" style={{ position: "absolute", left: -1, top: -1, width: 12, height: 12, borderLeft: "2px solid rgba(41,208,255,.8)", borderTop: "2px solid rgba(41,208,255,.8)", borderRadius: "2px 0 0 0" }} />
@@ -154,9 +175,9 @@ export function LobbyHero({
           </div>
 
           {/* Title + Next Move (mid-left) */}
-          <div style={{ position: "absolute", left: 34, bottom: 120, zIndex: 8 }}>
+          <div className="gl-title" style={{ position: "absolute", left: 34, bottom: 120, zIndex: 8 }}>
             <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: ".3em", color: "rgba(41,208,255,.9)", textTransform: "uppercase", marginBottom: -4, fontFamily: BF, textShadow: "0 0 16px rgba(41,208,255,.55),0 2px 8px rgba(0,0,0,.9)" }}>YOUR LOBBY</div>
-            <div style={{ fontFamily: SF, fontStyle: "italic", fontWeight: 800, fontSize: 72, lineHeight: ".88", letterSpacing: ".01em", textTransform: "uppercase", textShadow: "0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)" }}>{displayName}</div>
+            <div className="gl-hero-name" style={{ fontFamily: SF, fontStyle: "italic", fontWeight: 800, fontSize: 72, lineHeight: ".88", letterSpacing: ".01em", textTransform: "uppercase", textShadow: "0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)" }}>{displayName}</div>
             <div style={{ marginTop: 16, maxWidth: 390 }}>
               <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: ".2em", color: "rgba(41,208,255,.9)", textTransform: "uppercase", marginBottom: 12, fontFamily: BF, textShadow: "0 0 14px rgba(41,208,255,.5),0 2px 6px rgba(0,0,0,.9)" }}>YOUR NEXT MOVE</div>
               <Link
@@ -170,7 +191,7 @@ export function LobbyHero({
           </div>
 
           {/* WEEKLY XP (bottom-right) */}
-          <div style={{ position: "absolute", right: 34, bottom: 44, width: 380, zIndex: 8 }}>
+          <div className="gl-xp" style={{ position: "absolute", right: 34, bottom: 44, width: 380, zIndex: 8 }}>
             <div style={{ position: "relative", padding: "16px 18px", display: "flex", background: "transparent", border: "1px solid rgba(41,208,255,.2)", borderRadius: 14 }}>
               <span aria-hidden="true" style={{ position: "absolute", left: -1, top: -1, width: 14, height: 14, borderLeft: "2px solid rgba(41,208,255,.8)", borderTop: "2px solid rgba(41,208,255,.8)", borderRadius: "2px 0 0 0" }} />
               <span aria-hidden="true" style={{ position: "absolute", right: -1, top: -1, width: 14, height: 14, borderRight: "2px solid rgba(41,208,255,.8)", borderTop: "2px solid rgba(41,208,255,.8)", borderRadius: "0 2px 0 0" }} />
