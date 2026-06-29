@@ -98,7 +98,7 @@ export function LobbyHero({
           height: 718,
           zIndex: 1,
           pointerEvents: "none",
-          background: "var(--color-tint-stadium)",
+          background: "rgba(0,0,0,.68)",
         }}
       />
 
@@ -266,23 +266,7 @@ export function LobbyHero({
           height: 660,
         }}
       >
-        {/* Hero character cutout (right side) */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/hero-char.webp"
-          alt=""
-          aria-hidden="true"
-          style={{
-            position: "absolute",
-            bottom: 0,
-            right: 48,
-            height: "90%",
-            objectFit: "contain",
-            zIndex: 4,
-            mixBlendMode: "multiply",
-            pointerEvents: "none",
-          }}
-        />
+        {/* Hero character cutout — re-add once /public/hero-char.webp exists. */}
 
         {/* Stadium light flares */}
         <div
@@ -532,7 +516,7 @@ export function LobbyHero({
                   fontSize: 21,
                   letterSpacing: ".05em",
                   textTransform: "uppercase",
-                  color: "var(--color-text-on-cyan)",
+                  color: "#04080f",
                 }}
               >
                 ▶ Start Next Mission
