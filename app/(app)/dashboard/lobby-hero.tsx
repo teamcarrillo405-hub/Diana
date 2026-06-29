@@ -52,7 +52,8 @@ export function LobbyHero({
       `}</style>
 
       {/* ═══ HERO ZONE — nav + hero share one swappable background ═══ */}
-      <div style={{ position: "relative", overflow: "hidden", background: "#0a1024" }}>
+      {/* Full-bleed breakout: span the viewport even inside a constrained shell. */}
+      <div style={{ position: "relative", overflow: "hidden", background: "#0a1024", width: "100vw", marginLeft: "calc(50% - 50vw)" }}>
 
         {/* Hero background + tint */}
         <div style={{ position: "absolute", inset: 0, width: "100%", height: 718, zIndex: 0, background: "#000" }}>
@@ -163,7 +164,7 @@ export function LobbyHero({
                 className="gl-lobby-cta"
                 style={{ background: "#29d0ff", padding: "22px 40px", borderRadius: 12, boxShadow: "0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6)", display: "inline-flex", width: "fit-content", alignSelf: "flex-start", alignItems: "center", gap: 12, textDecoration: "none", transition: "transform .12s,box-shadow .2s" }}
               >
-                <span style={{ fontFamily: SF, fontWeight: 800, fontSize: 36, letterSpacing: ".04em", textTransform: "uppercase", color: "#04080f" }}>▶ Start Next Mission</span>
+                <span style={{ fontFamily: SF, fontWeight: 800, fontSize: "var(--text-28)", letterSpacing: ".04em", textTransform: "uppercase", color: "#04080f", whiteSpace: "nowrap" }}>▶ Start Next Mission</span>
               </Link>
             </div>
           </div>
