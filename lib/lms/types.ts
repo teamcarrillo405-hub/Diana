@@ -20,6 +20,11 @@ export type NormalizedAssignment = {
   external_source: LmsProvider;
   external_url?: string | null;
   rubric_text?: string | null;
+  // Source course identity. When present, sync maps the assignment to a real
+  // per-course class (e.g. each Canvas course → a Diana class) instead of the
+  // flat per-provider shadow class. Omitted by feed-style providers (ICS).
+  external_course_id?: string | null;
+  external_course_name?: string | null;
 };
 
 export type SyncResult = {

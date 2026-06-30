@@ -76,6 +76,8 @@ export async function fetchCanvasAssignments(
         external_source: "canvas",
         external_url: a.html_url ?? null,
         rubric_text: formatCanvasRubric(a.rubric),
+        external_course_id: String(course.id),
+        external_course_name: course.name,
       });
     }
   }
