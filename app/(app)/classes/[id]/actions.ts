@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { parseRubricText } from "@/lib/rubric/rubric";
 import { parseSyllabusText } from "@/lib/syllabus/parse";
@@ -57,10 +56,7 @@ export async function addSyllabus(input: z.infer<typeof AddSyllabus>) {
   // Heuristically extract key dates + policies so the class hub can surface them
   // without re-parsing on every render.
   const parsedSyllabus = parseSyllabusText(parsed.data.rawText);
-  // class_syllabi isn't in the generated DB types until the migration is applied;
-  // go through the untyped client for this insert.
-  const db = supabase as unknown as SupabaseClient;
-  const { error } = await db.from("class_syllabi").insert({
+  const { error } = await supabase.from("class_syllabi").insert({
     owner_id: user.id,
     class_id: parsed.data.classId,
     title: parsed.data.title,

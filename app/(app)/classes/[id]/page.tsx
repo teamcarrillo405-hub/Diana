@@ -12,7 +12,6 @@ import {
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { deriveConceptSeeds, gapBridgeSuggestion, isWeakConceptName } from "@/lib/mastery/concepts";
 import { formatDueAt } from "@/lib/format";
@@ -20,7 +19,6 @@ import { fetchCanvasGrades, fetchCanvasCourseScores } from "@/lib/lms/canvas";
 import { gradeInsights, type CourseGradeSnapshot } from "@/lib/grades/insights";
 import { RubricForm } from "./rubric-form";
 import { SyllabusForm } from "./syllabus-form";
-import type { ParsedSyllabus } from "@/lib/syllabus/parse";
 import { openStaxForClassName } from "@/lib/content/openstax";
 import { MasteryPanel, type MasteryConceptView } from "./mastery-panel";
 import { AppTopNav } from "../../app-top-nav";
@@ -102,9 +100,7 @@ export default async function ClassDetailPage({
       .eq("class_id", id)
       .order("updated_at", { ascending: false })
       .limit(6),
-    // class_syllabi isn't in the generated DB types until the migration is
-    // applied; query it through the untyped client.
-    (supabase as unknown as SupabaseClient)
+    supabase
       .from("class_syllabi")
       .select("id, title, parsed, created_at")
       .eq("class_id", id)
@@ -115,8 +111,7 @@ export default async function ClassDetailPage({
   type ClassNote = { id: string; title: string | null; updated_at: string };
   const notes = (classNotes ?? []) as ClassNote[];
 
-  type ClassSyllabus = { id: string; title: string; parsed: ParsedSyllabus | null; created_at: string };
-  const syllabus = ((classSyllabi ?? []) as ClassSyllabus[])[0] ?? null;
+  const syllabus = classSyllabi?.[0] ?? null;
 
   type CanvasConfig = { base_url: string; token: string };
   const canvasConfig = (lmsConnections?.[0]?.config ?? null) as CanvasConfig | null;

@@ -1,3 +1,5 @@
+import type { ParsedSyllabus } from "@/lib/syllabus/parse";
+
 export type Json =
   | string
   | number
@@ -10,6 +12,39 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      class_syllabi: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          title: string;
+          raw_text: string | null;
+          parsed: ParsedSyllabus | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          title: string;
+          raw_text?: string | null;
+          parsed?: ParsedSyllabus | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          title?: string;
+          raw_text?: string | null;
+          parsed?: ParsedSyllabus | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       worker_jobs: {
         Row: {
           id: string;
