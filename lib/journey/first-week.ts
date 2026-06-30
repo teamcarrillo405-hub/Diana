@@ -44,14 +44,14 @@ export function firstWeekJourney(inputs: JourneyInputs): FirstWeekJourney {
       key: "home",
       title: "Give your work a home",
       detail: "Connect Canvas or add one class — everything you capture lands somewhere.",
-      href: "/imports",
+      href: "/settings",
       done: inputs.hasClassOrConnection,
     },
     {
       key: "work-in",
       title: "Get your assignments in",
       detail: "Import due dates or add one assignment by hand.",
-      href: "/imports",
+      href: "/settings",
       done: inputs.assignmentCount > 0,
     },
     {

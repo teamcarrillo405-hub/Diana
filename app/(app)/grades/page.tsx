@@ -95,7 +95,7 @@ export default async function GradesPage() {
           <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-10)", padding: "var(--space-14)" }}>
             <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>
               Canvas did not answer just now. Your grades are safe. Try again in a bit, or check the connection in{" "}
-              <Link href="/imports" style={{ color: "var(--gl-gold)", textDecoration: "underline" }}>
+              <Link href="/settings" style={{ color: "var(--gl-gold)", textDecoration: "underline" }}>
                 Imports
               </Link>
               .
@@ -246,7 +246,7 @@ function DisconnectedGrades() {
         <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>Diana turns scores into one clear move. It does not rank, shame, or turn grades into a scoreboard.</p>
         <div>
           <Link
-            href="/imports"
+            href="/settings"
             style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-cyan)", color: "#04080f", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}
           >
             Connect Canvas

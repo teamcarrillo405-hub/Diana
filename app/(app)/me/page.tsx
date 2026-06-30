@@ -35,7 +35,7 @@ export default async function MePage() {
             and the scripts that make asking for help less awkward.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Link href="/accessibility" className="diana-button diana-button-primary">
+            <Link href="/settings" className="diana-button diana-button-primary">
               Adjust reading support
               <Accessibility size={17} />
             </Link>

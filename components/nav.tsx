@@ -4,12 +4,10 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Accessibility,
   BarChart3,
   BookOpen,
   Brain,
   Calendar,
-  CalendarPlus,
   Camera,
   CheckSquare,
   ChevronDown,
@@ -67,12 +65,10 @@ const SECONDARY_ITEMS = [
   { href: "/study-groups", label: "Groups", icon: UsersRound },
   { href: "/timer", label: "Timer", icon: Timer },
   { href: "/calendar", label: "Calendar", icon: Calendar },
-  { href: "/imports", label: "Imports", icon: CalendarPlus },
   { href: "/templates", label: "Templates", icon: LayoutTemplate },
   { href: "/proof", label: "Proof", icon: ShieldCheck },
   { href: "/classes", label: "Classes", icon: BookOpen },
   { href: "/insights", label: "Insights", icon: BarChart3 },
-  { href: "/accessibility", label: "Access", icon: Accessibility },
   { href: "/settings", label: "Settings", icon: Cog },
 ] satisfies AppShellNavItem[];
 
@@ -105,7 +101,6 @@ const DESKTOP_GROUPS = [
       { href: "/study-buddy", label: "Study buddy", icon: MessageCircle },
       { href: "/flashcards", label: "Flashcards", icon: Brain },
       { href: "/timer", label: "Timer", icon: Timer },
-      { href: "/imports", label: "Imports", icon: CalendarPlus },
     ],
   },
   {
@@ -121,7 +116,6 @@ const DESKTOP_GROUPS = [
   {
     label: "System",
     items: [
-      { href: "/accessibility", label: "Access", icon: Accessibility },
       { href: "/settings", label: "Settings", icon: Cog },
     ],
   },

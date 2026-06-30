@@ -22,15 +22,13 @@ const GROUPS: { title: string; links: { label: string; href: string; note?: stri
     title: "Profile & support",
     links: [
       { label: "Me", href: "/me", note: "Learning profile" },
-      { label: "Accessibility", href: "/accessibility", note: "Reading controls" },
       { label: "Wellness", href: "/wellness", note: "Check-ins + sleep" },
-      { label: "Settings", href: "/settings", note: "Preferences" },
+      { label: "Settings", href: "/settings", note: "Reading + connections" },
     ],
   },
   {
     title: "Connections & sharing",
     links: [
-      { label: "Imports", href: "/imports", note: "Canvas, Classroom, ICS" },
       { label: "Export", href: "/export", note: "Your data" },
       { label: "Parent share", href: "/parent-share", note: "Growth digest" },
       { label: "Teacher share", href: "/teacher-share", note: "Classes + receipts" },
