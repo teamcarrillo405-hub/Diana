@@ -20,3 +20,22 @@ external/
 # Playwright session tokens must never land in the repo
 **/auth-storage-state.json
 .gstack/
+
+# ── Phantom junk files ────────────────────────────────────────────────────
+# Zero-byte files created when JS/TS/CSS fragments get executed in a shell and
+# `>` redirects a token to a file (e.g. an AI/codex session pasting code).
+# All patterns are root-anchored (leading /) so they can NEVER match real
+# source like docs/design/. If a new fragment shape appears, add it here.
+/[({][!-~]*
+/,*
+/*.,+
+/0
+/3
+/design
+/span
+/helpedAt
+/transcribe-note
+/weekStart.getTime()
+/a.due_at
+/assignment.id
+/window.clearInterval(id)
