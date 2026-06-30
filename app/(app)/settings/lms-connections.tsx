@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { connectCanvas, connectIcs, connectClassroom, connectClever, connectGitLab, disconnectLms } from "./lms-actions";
+import { connectCanvas, connectIcs, connectClever, connectGitLab, disconnectLms } from "./lms-actions";
 
 type Connection = {
   id: string;
@@ -187,16 +187,11 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
         <summary className="cursor-pointer text-sm font-medium">Connect Google Classroom</summary>
         <div className="mt-3 space-y-2 text-sm">
           <p className="text-muted">
-            Sign in with Google (with Classroom permissions granted) before connecting. Once connected, press Sync now to pull coursework.
+            Connect with Google to grant Classroom access. This keeps a secure refresh token so Diana can sync your coursework automatically in the background — not just while you&apos;re signed in.
           </p>
-          <form
-            action={async () => {
-              const r = await connectClassroom();
-              setBanner(r.ok ? null : { tone: "warn", message: r.message });
-            }}
-          >
-            <button type="submit" className="rounded-md border border-border bg-card px-3 py-1 text-sm">Connect Google Classroom</button>
-          </form>
+          <a href="/api/lms/google-oauth/start" className="inline-block rounded-md border border-border bg-card px-3 py-1 text-sm">
+            Connect Google Classroom
+          </a>
         </div>
       </details>
 

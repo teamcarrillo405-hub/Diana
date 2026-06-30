@@ -1,34 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { syncLmsAssignments } from "@/lib/lms/sync";
-import type { NormalizedAssignment } from "@/lib/lms/types";
+import { getValidGoogleToken, fetchClassroomAssignments, type GoogleClassroomConfig } from "@/lib/lms/google";
 
-type ClassroomDate = { year: number; month: number; day: number };
-type ClassroomTime = { hours?: number; minutes?: number };
-type CourseWork = {
-  id: string;
-  title: string;
-  description?: string;
-  dueDate?: ClassroomDate;
-  dueTime?: ClassroomTime;
-  alternateLink?: string;
-};
-type Course = { id: string; name: string };
-type Announcement = {
-  id: string;
-  text?: string;
-  alternateLink?: string;
-  updateTime?: string;
-};
+type Announcement = { id: string; text?: string; alternateLink?: string };
 
-function reconstructDueIso(d?: ClassroomDate, t?: ClassroomTime): string | null {
-  if (!d) return null;
-  const hours = t?.hours ?? 23;
-  const minutes = t?.minutes ?? 59;
-  return new Date(Date.UTC(d.year, d.month - 1, d.day, hours, minutes)).toISOString();
-}
-
-async function fetchJson<T>(url: string, token: string): Promise<T> {
+async function classroomGet<T>(url: string, token: string): Promise<T> {
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
   });
@@ -41,24 +18,14 @@ export async function POST(req: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in to sync" }, { status: 401 });
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const providerToken = session?.provider_token;
-  if (!providerToken) {
-    return NextResponse.json(
-      { error: "Reconnect Google Classroom — your sign-in session needs to be refreshed" },
-      { status: 401 },
-    );
-  }
-
   const { connectionId } = (await req.json()) as { connectionId: string };
   if (!connectionId) {
     return NextResponse.json({ error: "Missing connectionId" }, { status: 400 });
   }
 
-  // Verify the connection exists and belongs to this user. RLS also enforces this; defense in depth.
   const { data: conn, error: connErr } = await supabase
     .from("lms_connections")
-    .select("id, owner_id, provider")
+    .select("id, owner_id, provider, config")
     .eq("id", connectionId)
     .eq("provider", "google_classroom")
     .single();
@@ -66,38 +33,37 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Connection not found" }, { status: 404 });
   }
 
-  try {
-    const coursesResp = await fetchJson<{ courses?: Course[] }>(
-      "https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE",
-      providerToken,
+  // Prefer the stored OAuth token (refreshed via refresh_token); fall back to the
+  // interactive Supabase Google session token for connections made the old way.
+  const cfg = (conn.config ?? {}) as GoogleClassroomConfig;
+  let token: string | null = null;
+  const valid = await getValidGoogleToken(cfg);
+  if (valid) {
+    token = valid.token;
+    if (valid.refreshed) {
+      await supabase
+        .from("lms_connections")
+        .update({ config: { ...cfg, ...valid.refreshed } })
+        .eq("id", conn.id);
+    }
+  } else {
+    const { data: { session } } = await supabase.auth.getSession();
+    token = session?.provider_token ?? null;
+  }
+  if (!token) {
+    return NextResponse.json(
+      { error: "Reconnect Google Classroom — connect via the Google button to enable background sync" },
+      { status: 401 },
     );
-    const courses = coursesResp.courses ?? [];
+  }
 
-    let skipped = 0;
-    const items: NormalizedAssignment[] = [];
+  try {
+    const { items, skipped, courses } = await fetchClassroomAssignments(token);
 
     for (const course of courses) {
-      const workResp = await fetchJson<{ courseWork?: CourseWork[] }>(
-        `https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`,
-        providerToken,
-      );
-      const work = workResp.courseWork ?? [];
-      for (const w of work) {
-        const due = reconstructDueIso(w.dueDate, w.dueTime);
-        if (!due) { skipped += 1; continue; }
-        items.push({
-          external_id: w.id,
-          title: w.title,
-          description: w.description ?? null,
-          due_at: due,
-          external_source: "google_classroom",
-          external_url: w.alternateLink ?? null,
-        });
-      }
-
-      const announcementsResp = await fetchJson<{ announcements?: Announcement[] }>(
+      const announcementsResp = await classroomGet<{ announcements?: Announcement[] }>(
         `https://classroom.googleapis.com/v1/courses/${course.id}/announcements`,
-        providerToken,
+        token,
       ).catch(() => ({ announcements: [] }));
       const announcements = (announcementsResp.announcements ?? [])
         .filter((announcement) => announcement.text?.trim())
@@ -117,12 +83,10 @@ export async function POST(req: Request) {
     }
 
     const result = await syncLmsAssignments(supabase, user.id, "google_classroom", items, skipped);
-
     await supabase
       .from("lms_connections")
       .update({ last_synced_at: new Date().toISOString() })
       .eq("id", connectionId);
-
     return NextResponse.json(result);
   } catch (e) {
     const message = e instanceof Error ? e.message : "Classroom import had a problem";

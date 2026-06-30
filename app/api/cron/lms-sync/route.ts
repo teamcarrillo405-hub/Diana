@@ -7,6 +7,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import { fetchCanvasAssignments } from "@/lib/lms/canvas";
 import { fetchIcsAssignments } from "@/lib/lms/ics";
 import { fetchGitLabAssignments } from "@/lib/lms/gitlab";
+import { getValidGoogleToken, fetchClassroomAssignments, type GoogleClassroomConfig } from "@/lib/lms/google";
 import { syncLmsAssignments } from "@/lib/lms/sync";
 import type { LmsProvider, NormalizedAssignment } from "@/lib/lms/types";
 
@@ -16,13 +17,14 @@ import type { LmsProvider, NormalizedAssignment } from "@/lib/lms/types";
  * student to open /settings. Service-role: walks every token-based connection
  * across all owners and re-syncs it.
  *
- * google_classroom is intentionally excluded: it authenticates with the live
- * Supabase Google `provider_token`, which only exists inside an interactive
- * session — so it can only sync on-demand (on /settings open), not from cron.
+ * google_classroom is included when the connection has a stored refresh_token
+ * (from the dedicated Google OAuth flow) — getValidGoogleToken mints a fresh
+ * access token. Connections made the old session-token-only way have no refresh
+ * token, so they're skipped here and stay on-demand until reconnected.
  *
  * Protected by CRON_SECRET; Vercel cron sends it as a bearer token.
  */
-const CRON_PROVIDERS: LmsProvider[] = ["canvas", "ics", "gitlab"];
+const CRON_PROVIDERS: LmsProvider[] = ["canvas", "ics", "gitlab", "google_classroom"];
 
 export async function GET(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -68,6 +70,21 @@ export async function GET(request: Request) {
         fetched = await fetchGitLabAssignments(
           cfg as { project: string; token: string; base_url?: string; labels?: string },
         );
+      } else if (c.provider === "google_classroom") {
+        const valid = await getValidGoogleToken(cfg as GoogleClassroomConfig);
+        if (!valid) {
+          // No stored refresh_token — can't background-sync; stays on-demand.
+          failed += 1;
+          continue;
+        }
+        if (valid.refreshed) {
+          await supabase
+            .from("lms_connections")
+            .update({ config: { ...cfg, ...valid.refreshed } })
+            .eq("id", c.id);
+        }
+        const gc = await fetchClassroomAssignments(valid.token);
+        fetched = { items: gc.items, skipped: gc.skipped };
       } else {
         continue;
       }
