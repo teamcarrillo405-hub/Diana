@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, CalendarDays, CheckSquare, Home } from "lucide-react";
+import { CalendarDays, CheckSquare, Home } from "lucide-react";
 import { MoreMenu } from "./more-menu";
 import type { NavLabel } from "./app-top-nav";
 
@@ -8,7 +8,6 @@ const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 const TABS: { label: NavLabel; href: string; Icon: typeof Home }[] = [
   { label: "Today", href: "/dashboard", Icon: Home },
   { label: "Work", href: "/assignments", Icon: CheckSquare },
-  { label: "Classes", href: "/classes", Icon: BookOpen },
   { label: "Calendar", href: "/calendar", Icon: CalendarDays },
 ];
 

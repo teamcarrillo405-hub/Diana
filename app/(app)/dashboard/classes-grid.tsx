@@ -45,7 +45,26 @@ export function classTheme(cls: { id: string; name: string; color?: string | nul
 }
 
 export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
-  if (classes.length === 0) return null;
+  if (classes.length === 0) {
+    // No classes yet — with no Classes tab (Model A), this is the only on-landing
+    // path to set one up, so render a prompt instead of nothing.
+    return (
+      <div style={{ background: "var(--gl-bg-base)", width: "100%", fontFamily: "var(--font-barlow), 'Barlow Semi Condensed', sans-serif", color: "#fff" }}>
+        <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "24px 34px 48px" }}>
+          <div style={{ fontFamily: SF, fontWeight: 800, fontStyle: "italic", fontSize: 26, letterSpacing: ".03em", textTransform: "uppercase", marginBottom: 22 }}>
+            My Classes
+          </div>
+          <Link
+            href="/classes"
+            style={{ display: "grid", gap: 8, borderRadius: 16, border: "1px dashed rgba(41,208,255,.32)", background: "rgba(41,208,255,.05)", padding: "44px 24px", textAlign: "center", textDecoration: "none", color: "#fff" }}
+          >
+            <span style={{ fontFamily: SF, fontWeight: 800, fontSize: 22, textTransform: "uppercase" }}>Add your first class</span>
+            <span style={{ fontSize: 14, color: "rgba(200,210,230,.75)" }}>Set up a class so Diana can organize your work, notes, and grades by subject.</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const needsAttentionCount = classes.filter((c) => c.needsAttention).length;
 
@@ -113,6 +132,12 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
               </span>
             </div>
           )}
+          <Link
+            href="/classes"
+            style={{ marginLeft: "auto", fontFamily: SF, fontWeight: 700, fontSize: 14, letterSpacing: ".04em", textTransform: "uppercase", color: "#29d0ff", textDecoration: "none" }}
+          >
+            All classes
+          </Link>
         </div>
 
         {/* Responsive class grid: 3 → 2 → 1 columns */}

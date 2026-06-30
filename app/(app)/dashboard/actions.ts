@@ -91,11 +91,10 @@ export type ReminderItem = {
 };
 
 /**
- * F7 — Fetch reminder candidates. Returns assignments that are either:
- *   - past due (due_at < now), OR
- *   - due within 48 hours (due_at < now + 48h)
- * Excludes submitted/graded/abandoned. Quiet-hours and weekend gating happens
- * client-side in ReminderBanner (Pitfall 1 — server runs UTC).
+ * Fetch reminder candidates — ONLY overdue / not-turned-in work: past the due
+ * date and still open (not submitted/graded/abandoned). Upcoming "due soon"
+ * items are intentionally NOT reminded here. Past-due items bypass the
+ * quiet-hours/weekend gate in ReminderBanner, so they always surface.
  */
 export async function getReminderItems(): Promise<ReminderItem[]> {
   const supabase = await createClient();
@@ -103,7 +102,6 @@ export async function getReminderItems(): Promise<ReminderItem[]> {
   if (!user) return [];
 
   const now = new Date();
-  const window48hIso = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString();
 
   const { data, error } = await supabase
     .from("assignments")
@@ -111,7 +109,7 @@ export async function getReminderItems(): Promise<ReminderItem[]> {
     .eq("owner_id", user.id)
     .not("status", "in", "(submitted,graded,abandoned)")
     .not("due_at", "is", null)
-    .lt("due_at", window48hIso)
+    .lt("due_at", now.toISOString())
     .order("due_at", { ascending: true })
     .limit(10);
 
