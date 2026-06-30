@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { LobbyAudioNote } from "./lobby-audio-note";
+import { PlayerPhotoSlot } from "./player-photo-slot";
 import { type QuestItem } from "./quest-carousel";
 
 export type GameDay = {
@@ -159,41 +160,8 @@ export function LobbyHero({
         {/* HERO ELEMENTS */}
         <div className="gl-hero-content" style={{ position: "relative", zIndex: 2, maxWidth: 1440, margin: "0 auto", height: 660 }}>
 
-          {/* Player photo slot — clickable upload prompt → /settings (real route;
-              the /api/remove-bg background-removal flow lives there). */}
-          <Link
-            className="gl-player"
-            href="/settings"
-            aria-label="Add your photo"
-            style={{
-              position: "absolute",
-              left: "50%",
-              top: "50%",
-              transform: "translate(-50%, -54%)",
-              width: 300,
-              height: 440,
-              zIndex: 4,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 10,
-              border: "2px dashed rgba(41,208,255,.35)",
-              borderRadius: 8,
-              background: "rgba(4,8,20,.4)",
-              textDecoration: "none",
-              color: "rgba(170,184,224,1)",
-            }}
-          >
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="rgba(41,208,255,.6)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-            <span style={{ fontFamily: SF, fontWeight: 700, fontSize: 13, letterSpacing: ".1em", textTransform: "uppercase", color: "rgba(170,184,224,1)" }}>
-              Tap to add your photo
-            </span>
-          </Link>
+          {/* Player photo slot — shows the uploaded cutout, or the upload prompt. */}
+          <PlayerPhotoSlot />
 
           {/* ENERGY CHECK (top-right) — links to the THINK tab where energy is set */}
           <Link className="gl-energy" href="/dashboard/think" aria-label="Check in on your energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8, textDecoration: "none", color: "#fff" }}>

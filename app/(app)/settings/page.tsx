@@ -6,6 +6,7 @@ import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AccentPicker } from "@/components/accent-picker";
 import { ThemePicker } from "@/components/theme-picker";
 import { IepImport } from "./iep-import";
+import { PlayerPhoto } from "./player-photo";
 import { AdaptationPanel } from "./adaptation-panel";
 import { CanvaSection } from "./canva-section";
 import { LmsConnections } from "./lms-connections";
@@ -91,6 +92,8 @@ export default async function SettingsPage() {
           </div>
           <AccentPicker />
         </section>
+
+        <PlayerPhoto />
       </section>
 
       <section className="nexus-settings-stack">
