@@ -27,7 +27,7 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
     <div
       style={{
         position: "relative",
-        background: "linear-gradient(180deg,#080c1e,#04060f)",
+        background: "var(--gl-bg-base)",
         width: "100%",
         fontFamily: "var(--font-barlow), 'Barlow Semi Condensed', sans-serif",
         color: "#fff",
@@ -35,8 +35,8 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
     >
       <style>{`
         @keyframes gl-needs-attention {
-          0%,100% { box-shadow: 0 0 0 1.5px rgba(245,158,11,.75), 0 12px 36px rgba(0,0,0,.5); }
-          55%      { box-shadow: 0 0 0 4px rgba(245,158,11,.15), 0 12px 36px rgba(0,0,0,.5); }
+          0%,100% { box-shadow: 0 0 0 1.5px rgba(255,210,74,.75), 0 12px 36px rgba(0,0,0,.5); }
+          55%      { box-shadow: 0 0 0 4px rgba(255,210,74,.15), 0 12px 36px rgba(0,0,0,.5); }
         }
         .gl-class-card:hover {
           transform: translateY(-5px);
@@ -67,18 +67,18 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
                 gap: 6,
                 padding: "5px 11px",
                 borderRadius: 6,
-                background: "rgba(255,55,55,.14)",
-                border: "1px solid rgba(255,55,55,.28)",
+                background: "var(--gl-gold-12)",
+                border: "1px solid var(--gl-gold-28)",
               }}
             >
               <div
-                style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff5555" }}
+                style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gl-gold)" }}
               />
               <span
                 style={{
                   fontWeight: 700,
                   fontSize: 12,
-                  color: "#f59e0b",
+                  color: "var(--gl-gold)",
                   letterSpacing: ".06em",
                   textTransform: "uppercase",
                 }}
@@ -113,19 +113,19 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
   const done = cls.allDone;
 
   const badgeBg = done
-    ? "rgba(54,224,122,.2)"
+    ? "var(--gl-green-20)"
     : cls.needsAttention
-      ? "rgba(245,158,11,.18)"
-      : "rgba(8,12,26,.7)";
-  const badgeFg = done ? "#36e07a" : cls.needsAttention ? "#f59e0b" : "#aab8e0";
+      ? "var(--gl-gold-16)"
+      : "var(--gl-bg-card)";
+  const badgeFg = done ? "var(--gl-green)" : cls.needsAttention ? "var(--gl-gold)" : "var(--gl-text-muted)";
   const ctaBg = cls.active
-    ? "linear-gradient(180deg,#36e07a,#16a34a)"
+    ? "linear-gradient(180deg,var(--gl-green),var(--gl-green-dark))"
     : done
-      ? "rgba(54,224,122,.12)"
-      : "rgba(120,150,220,.12)";
-  const ctaFg = cls.active ? "#06210f" : done ? "#36e07a" : "#cdd6f2";
+      ? "var(--gl-green-12)"
+      : "var(--gl-blue-12)";
+  const ctaFg = cls.active ? "#06210f" : done ? "var(--gl-green)" : "var(--gl-text-secondary)";
   const ctaLabel = cls.active ? "OPEN NOW →" : done ? "REVIEW →" : "OPEN →";
-  const ctaShadow = cls.active ? "0 6px 20px rgba(34,180,90,.35)" : "none";
+  const ctaShadow = cls.active ? "var(--shadow-cta-green)" : "none";
 
   return (
     <Link
@@ -134,7 +134,7 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
       style={{
         borderRadius: 16,
         overflow: "hidden",
-        border: "1px solid rgba(120,150,220,.16)",
+        border: "1px solid var(--gl-blue-20)",
         animation: cls.needsAttention ? "gl-needs-attention 2s ease-in-out infinite" : "none",
         textDecoration: "none",
         color: "#fff",
@@ -209,8 +209,8 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
               letterSpacing: ".1em",
               padding: "3px 9px",
               borderRadius: 5,
-              background: "#29d0ff",
-              color: "#06243a",
+              background: "var(--gl-cyan)",
+              color: "var(--gl-text-on-cyan)",
             }}
           >
             CURRENT
@@ -241,7 +241,7 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
       <div
         style={{
           padding: "14px 16px 16px",
-          background: "linear-gradient(180deg,rgba(16,22,46,.98),rgba(10,14,32,.98))",
+          background: "var(--gradient-card-navy)",
         }}
       >
         <div
@@ -256,7 +256,7 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
           {cls.name}
         </div>
         {cls.period && (
-          <div style={{ fontWeight: 500, fontSize: 12, color: "#7d88ad", marginTop: 3 }}>
+          <div style={{ fontWeight: 500, fontSize: 12, color: "var(--gl-text-dim)", marginTop: 3 }}>
             {cls.period}
           </div>
         )}
@@ -266,11 +266,11 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
               marginTop: 10,
               padding: "8px 11px",
               borderRadius: 8,
-              background: "rgba(255,255,255,.05)",
-              border: "1px solid rgba(120,150,220,.14)",
+              background: "var(--gl-bg-card)",
+              border: "1px solid var(--gl-blue-14)",
               fontSize: 12,
               fontWeight: 600,
-              color: "#cdd6f2",
+              color: "var(--gl-text-secondary)",
             }}
           >
             📌 {cls.activeAssignment}
@@ -282,7 +282,7 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
           style={{
             height: 5,
             borderRadius: 4,
-            background: "rgba(120,150,220,.18)",
+            background: "var(--gl-blue-20)",
             overflow: "hidden",
             marginTop: 12,
           }}
@@ -302,7 +302,7 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
             marginTop: 7,
             fontSize: 11,
             fontWeight: 600,
-            color: "#7d88ad",
+            color: "var(--gl-text-dim)",
           }}
         >
           {cls.pct}% complete

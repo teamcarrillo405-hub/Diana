@@ -1,13 +1,10 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import {
   ArrowRight,
-  BookOpenCheck,
   CheckCircle2,
   Clock3,
   FilePlus2,
   Layers3,
-  ListChecks,
   Mic,
   ShieldCheck,
 } from "lucide-react";
@@ -18,10 +15,7 @@ import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import type { AssignmentStatus, AssignmentKind } from "@/lib/supabase/types";
-import {
-  NexusKicker,
-  NexusPageShell,
-} from "@/components/nexus/nexus-ui";
+import { NexusPageShell } from "@/components/nexus/nexus-ui";
 import { AppTopNav } from "../app-top-nav";
 
 type AssignmentRow = {
@@ -442,66 +436,119 @@ export default async function AssignmentsPage() {
   );
 }
 
+const TONE_COLOR: Record<Lane["tone"], string> = {
+  cyan: "var(--gl-cyan)",
+  pink: "var(--gl-pink)",
+  gold: "var(--gl-gold)",
+  blue: "var(--gl-blue)",
+  purple: "var(--gl-purple-light)",
+};
+
+const TONE_BORDER: Record<Lane["tone"], string> = {
+  cyan: "var(--gl-cyan-22)",
+  pink: "var(--gl-pink-30)",
+  gold: "var(--gl-gold-28)",
+  blue: "var(--gl-blue-28)",
+  purple: "var(--gl-purple-30)",
+};
+
+const TONE_BG: Record<Lane["tone"], string> = {
+  cyan: "var(--gl-cyan-08)",
+  pink: "var(--gl-pink-12)",
+  gold: "var(--gl-gold-12)",
+  blue: "var(--gl-blue-12)",
+  purple: "var(--gl-purple-12)",
+};
+
 function AssignmentLane({ lane }: { lane: Lane }) {
+  const color = TONE_COLOR[lane.tone];
   return (
-    <section className="assignment-lane" data-tone={lane.tone}>
-      <div className="assignment-lane-head">
+    <section style={{ display: "grid", gap: "var(--space-9)" }}>
+      <style>{`.alg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-9);}@media(max-width:640px){.alg{grid-template-columns:minmax(0,1fr);}}`}</style>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-12)" }}>
         <div>
-          <NexusKicker tone={lane.tone}>{lane.eyebrow}</NexusKicker>
-          <h2>{lane.title}</h2>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color, margin: "0 0 var(--space-3)" }}>
+            {lane.eyebrow}
+          </p>
+          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-34)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>
+            {lane.title}
+          </h2>
         </div>
-        <span>{lane.items.length} {lane.items.length === 1 ? "item" : "items"}</span>
+        <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", border: "1px solid var(--gl-border-neutral)", borderRadius: "var(--radius-pill)", padding: "var(--space-3) var(--space-6)", whiteSpace: "nowrap", flexShrink: 0 }}>
+          {lane.items.length} {lane.items.length === 1 ? "item" : "items"}
+        </span>
       </div>
-      <div className="assignment-card-grid">
+      <div className="alg">
         {lane.items.map((assignment) => (
-          <AssignmentMissionCard key={assignment.id} assignment={assignment} />
+          <AssignmentMissionCard key={assignment.id} assignment={assignment} tone={lane.tone} />
         ))}
       </div>
     </section>
   );
 }
 
-function AssignmentMissionCard({ assignment }: { assignment: MissionAssignment }) {
+function AssignmentMissionCard({ assignment, tone }: { assignment: MissionAssignment; tone: Lane["tone"] }) {
   const percent = readiness(assignment);
-  const color = assignment.classes?.color ?? undefined;
+  const color = TONE_COLOR[tone];
+  const borderColor = TONE_BORDER[tone];
+  const bgColor = TONE_BG[tone];
+  const classColor = assignment.classes?.color ?? color;
 
   return (
     <Link
       href={`/assignments/${assignment.id}`}
-      className="assignment-mission-card"
-      style={color ? { "--assignment-color": color } as CSSProperties : undefined}
+      style={{
+        position: "relative",
+        overflow: "hidden",
+        display: "grid",
+        gap: "var(--space-5)",
+        padding: "var(--space-12) var(--space-12) var(--space-12) var(--space-15)",
+        borderRadius: "var(--radius-card)",
+        border: `1px solid ${borderColor}`,
+        background: bgColor,
+        backdropFilter: "var(--blur-card)",
+        textDecoration: "none",
+        clipPath: "polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 13px 100%, 0 calc(100% - 13px))",
+        transition: "transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease",
+      }}
     >
-      <span className="assignment-card-class">
-        <Layers3 size={14} />
+      <span aria-hidden="true" style={{ position: "absolute", insetBlock: 0, left: 0, width: 3, background: color }} />
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)", fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: classColor }}>
+        <Layers3 size={13} />
         {assignment.classes?.name ?? "Class"}
       </span>
-      <strong>{assignment.title}</strong>
-      <span className="assignment-card-meta">
+      <strong style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-18)", fontWeight: "var(--weight-800)", lineHeight: "var(--leading-snug)", color: "var(--gl-text-primary)", overflowWrap: "anywhere" }}>
+        {assignment.title}
+      </strong>
+      <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-600)", letterSpacing: "var(--tracking-12)", color: "var(--gl-text-muted)" }}>
         {assignment.due_at ? formatDueAt(assignment.due_at) : "No due date"} / {starterMinutes(assignment)} min start
       </span>
-      <span className="assignment-card-progress" aria-label={`${percent}% ready`}>
-        <i style={{ width: `${percent}%` }} />
+      <span
+        aria-label={`${percent}% ready`}
+        style={{ display: "block", height: 5, borderRadius: 3, border: `1px solid ${borderColor}`, background: bgColor, overflow: "hidden" }}
+      >
+        <i style={{ display: "block", height: "100%", width: `${percent}%`, background: `linear-gradient(90deg, ${color}, var(--gl-cyan))` }} />
       </span>
-      <span className="assignment-card-footer">
-        <span>
-          <ListChecks size={13} />
-          {KIND_LABEL[assignment.kind]}
-        </span>
-        <span>
-          <BookOpenCheck size={13} />
-          {reasonLabel(assignment)}
-        </span>
-        <StatusPill status={assignment.status} />
-      </span>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4)" }}>
+        {[KIND_LABEL[assignment.kind], reasonLabel(assignment)].map((label) => (
+          <span
+            key={label}
+            style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-2) var(--space-6)", borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-600)", color: "var(--gl-text-muted)" }}
+          >
+            {label}
+          </span>
+        ))}
+        <StatusPill status={assignment.status} color={color} />
+      </div>
     </Link>
   );
 }
 
-function StatusPill({ status }: { status: string }) {
+function StatusPill({ status, color }: { status: string; color: string }) {
   const isComplete = status === "submitted" || status === "graded";
   return (
-    <span className="assignment-status-pill">
-      {isComplete ? <CheckCircle2 size={13} className="text-ok" /> : <ShieldCheck size={13} />}
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-2) var(--space-6)", borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-600)", color: isComplete ? "var(--gl-green)" : color }}>
+      {isComplete ? <CheckCircle2 size={12} /> : <ShieldCheck size={12} />}
       {STATUS_LABEL[status as AssignmentStatus] ?? status}
     </span>
   );
