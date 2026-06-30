@@ -45,6 +45,61 @@ async function fetchAllPages<T>(initialUrl: string, token: string): Promise<T[]>
   return out;
 }
 
+// ---------------------------------------------------------------------------
+// OAuth token refresh. Personal access tokens (oauth !== true) never expire and
+// pass through untouched. OAuth access tokens (~1h) are refreshed via the stored
+// refresh_token; the caller persists `refreshed` back into the connection config.
+// Canvas's refresh grant returns a new access_token but reuses the refresh_token.
+// ---------------------------------------------------------------------------
+export type CanvasTokenConfig = {
+  base_url: string;
+  token: string;
+  oauth?: boolean;
+  refresh_token?: string | null;
+  expires_at?: string | null;
+};
+
+export type ValidCanvasToken = {
+  token: string;
+  refreshed?: { token: string; expires_at: string | null };
+};
+
+export async function getValidCanvasToken(config: CanvasTokenConfig): Promise<ValidCanvasToken> {
+  // Personal access token (or no refresh available) — use as-is.
+  if (!config.oauth || !config.refresh_token) {
+    return { token: config.token };
+  }
+  const now = Date.now();
+  const expiresMs = config.expires_at ? Date.parse(config.expires_at) : 0;
+  if (config.token && expiresMs - now > 90_000) {
+    return { token: config.token };
+  }
+  const clientId = process.env.CANVAS_CLIENT_ID;
+  const clientSecret = process.env.CANVAS_CLIENT_SECRET;
+  if (!clientId || !clientSecret) {
+    return { token: config.token }; // can't refresh; best effort with the stale token
+  }
+  const tokenUrl = new URL("/login/oauth2/token", config.base_url);
+  const res = await fetch(tokenUrl, {
+    method: "POST",
+    headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      client_id: clientId,
+      client_secret: clientSecret,
+      refresh_token: config.refresh_token,
+    }),
+  }).catch(() => null);
+  if (!res || !res.ok) return { token: config.token };
+  const body = (await res.json()) as { access_token?: string; expires_in?: number };
+  if (!body.access_token) return { token: config.token };
+  const expires_at =
+    typeof body.expires_in === "number"
+      ? new Date(Date.now() + body.expires_in * 1000).toISOString()
+      : null;
+  return { token: body.access_token, refreshed: { token: body.access_token, expires_at } };
+}
+
 export async function fetchCanvasAssignments(
   config: CanvasConfig,
 ): Promise<{ items: NormalizedAssignment[]; skipped: number }> {

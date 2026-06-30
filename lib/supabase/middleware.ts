@@ -17,7 +17,9 @@ const PUBLIC_EXACT = new Set([
   "/api/workers/metrics/prometheus",
   "/api/workers/version",
 ]);
-const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d"];
+// "/share" is the account-less parent/teacher summary — it validates its own
+// token server-side (service role), so it must bypass the auth wall.
+const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d", "/share"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
 
 function isPublic(path: string): boolean {

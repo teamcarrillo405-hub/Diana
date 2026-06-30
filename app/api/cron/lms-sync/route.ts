@@ -4,7 +4,7 @@ export const maxDuration = 300;
 
 import { NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { fetchCanvasAssignments } from "@/lib/lms/canvas";
+import { fetchCanvasAssignments, getValidCanvasToken } from "@/lib/lms/canvas";
 import { fetchIcsAssignments } from "@/lib/lms/ics";
 import { fetchGitLabAssignments } from "@/lib/lms/gitlab";
 import { getValidGoogleToken, fetchClassroomAssignments, type GoogleClassroomConfig } from "@/lib/lms/google";
@@ -61,7 +61,20 @@ export async function GET(request: Request) {
         const base_url = cfg.base_url as string | undefined;
         const token = cfg.token as string | undefined;
         if (!base_url || !token) throw new Error("missing Canvas credentials");
-        fetched = await fetchCanvasAssignments({ base_url, token });
+        const valid = await getValidCanvasToken({
+          base_url,
+          token,
+          oauth: cfg.oauth as boolean | undefined,
+          refresh_token: cfg.refresh_token as string | null | undefined,
+          expires_at: cfg.expires_at as string | null | undefined,
+        });
+        if (valid.refreshed) {
+          await supabase
+            .from("lms_connections")
+            .update({ config: { ...cfg, token: valid.refreshed.token, expires_at: valid.refreshed.expires_at } })
+            .eq("id", c.id);
+        }
+        fetched = await fetchCanvasAssignments({ base_url, token: valid.token });
       } else if (c.provider === "ics") {
         const url = cfg.url as string | undefined;
         if (!url) throw new Error("missing ICS url");

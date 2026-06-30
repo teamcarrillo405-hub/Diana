@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { fetchCanvasAssignments } from "@/lib/lms/canvas";
+import { fetchCanvasAssignments, getValidCanvasToken } from "@/lib/lms/canvas";
 import { syncLmsAssignments } from "@/lib/lms/sync";
 
 export async function POST(req: Request) {
@@ -24,15 +24,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Connection not found" }, { status: 404 });
   }
 
-  const cfg = conn.config as { base_url?: string; token?: string };
+  const cfg = conn.config as { base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
   if (!cfg.base_url || !cfg.token) {
     return NextResponse.json({ error: "Connection is missing Canvas URL or token" }, { status: 400 });
   }
 
   try {
-    const { items, skipped } = await fetchCanvasAssignments({
+    const valid = await getValidCanvasToken({
       base_url: cfg.base_url,
       token: cfg.token,
+      oauth: cfg.oauth,
+      refresh_token: cfg.refresh_token,
+      expires_at: cfg.expires_at,
+    });
+    if (valid.refreshed) {
+      await supabase
+        .from("lms_connections")
+        .update({ config: { ...cfg, token: valid.refreshed.token, expires_at: valid.refreshed.expires_at } })
+        .eq("id", conn.id);
+    }
+    const { items, skipped } = await fetchCanvasAssignments({
+      base_url: cfg.base_url,
+      token: valid.token,
     });
     const result = await syncLmsAssignments(supabase, user.id, "canvas", items, skipped);
 
