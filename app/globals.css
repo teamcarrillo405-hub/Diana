@@ -9427,6 +9427,21 @@ body[data-experience-mode="future"] .future-wave-bar {
   padding-inline: 0; /* frame already supplies the 34px gutter */
 }
 
+/* Flush mode — pages that render their own <AppTopNav> (see usesAppTopNav in
+   lib/navigation.ts) sit at the very top/edge: drop the frame padding and the
+   child max-width clamp. Placed after the base rules so it wins the tie. The
+   .app-command-frame color rule still applies (class is kept, not removed). */
+.app-command-frame--flush {
+  padding: 0;
+}
+.nexus-authenticated-field .app-command-frame--flush > main:not(.signal-page):not(.student-portal-page),
+.nexus-authenticated-field .app-command-frame--flush > section:not(.signal-page):not(.student-portal-page),
+.nexus-authenticated-field .app-command-frame--flush > div:not(.diana-page):not(.student-portal-page) {
+  width: 100%;
+  max-width: none;
+  margin-inline: 0;
+}
+
 .nexus-side-nav {
   background-image:
     linear-gradient(180deg, rgb(var(--nexus-cyan-rgb) / 0.12), transparent 24%),

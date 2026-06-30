@@ -10,7 +10,6 @@ import {
   ListChecks,
   Mic,
   ShieldCheck,
-  SlidersHorizontal,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
@@ -423,54 +422,6 @@ export default async function AssignmentsPage() {
         <Mic size={30} />
         Talk to Diana
       </Link>
-
-      {/* assignment-sort-panel — Why this order (single bordered row) */}
-      <section
-        style={{
-          borderRadius: "var(--radius-panel)",
-          border: "1px solid var(--gl-blue-30)",
-          background: "var(--gl-bg-card)",
-          padding: "var(--space-11) var(--space-13)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-12)", flexWrap: "wrap" }}>
-          <span
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "var(--space-4)",
-              fontFamily: "var(--font-display)",
-              fontWeight: "var(--weight-800)",
-              fontSize: "var(--text-12)",
-              letterSpacing: "var(--tracking-16)",
-              textTransform: "uppercase",
-              color: "var(--gl-blue)",
-            }}
-          >
-            <SlidersHorizontal size={14} />
-            Why this order
-          </span>
-          <div style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}>
-            {["Due window", "Effort", "Energy fit", "Class priority", "Proof needed"].map((rule) => (
-              <span
-                key={rule}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  padding: "var(--space-3) var(--space-9)",
-                  borderRadius: "var(--radius-button)",
-                  border: "1px solid var(--gl-border-neutral)",
-                  background: "var(--gl-blue-12)",
-                  fontSize: "var(--text-13)",
-                  color: "var(--gl-text-secondary)",
-                }}
-              >
-                {rule}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section className="assignment-lane-stack" aria-label="Assignment priority lanes">
         {lanes.map((lane) => (
