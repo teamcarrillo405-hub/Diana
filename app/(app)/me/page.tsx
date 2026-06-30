@@ -1,7 +1,19 @@
 import Link from "next/link";
 import { Accessibility, Brain, Clock3, GraduationCap, Mic2, ShieldCheck } from "lucide-react";
 import { loadProfile } from "@/lib/profile";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
+
+const pillBase = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: "var(--space-3)",
+  borderRadius: "var(--radius-pill)",
+  padding: "var(--space-9) var(--space-14)",
+  fontFamily: "var(--font-body)",
+  fontWeight: "var(--weight-700)",
+  fontSize: "var(--text-13)",
+  textDecoration: "none",
+} as const;
 
 export default async function MePage() {
   const profile = await loadProfile();
@@ -23,31 +35,37 @@ export default async function MePage() {
   ];
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page space-y-8">
-      <section className="grid gap-6 py-2 lg:grid-cols-[0.8fr_1.2fr]">
-        <header className="space-y-5">
-          <p className="diana-kicker">
-            <Brain size={15} />
-            My Brain
-          </p>
-          <h1 className="diana-app-title max-w-xl">Understand how school works for you.</h1>
-          <p className="diana-copy">
-            This is the student-controlled learning profile: strengths, support settings, accommodations,
-            and the scripts that make asking for help less awkward.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link href="/settings" className="diana-button diana-button-primary">
-              Adjust reading support
-              <Accessibility size={17} />
-            </Link>
-            <Link href="/future-path" className="diana-button diana-button-secondary">
-              Connect to Future Path
-            </Link>
-          </div>
-        </header>
-
+    <PageShell
+      active="More"
+      eyebrow="My Brain"
+      title="Understand how school works for you."
+      subtitle="This is the student-controlled learning profile: strengths, support settings, accommodations, and the scripts that make asking for help less awkward."
+      accent="var(--gl-cyan)"
+      icon={Brain}
+      action={
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-9)" }}>
+          <Link
+            href="/settings"
+            style={{ ...pillBase, background: "var(--gl-cyan)", color: "var(--gl-text-on-cyan)" }}
+          >
+            Adjust reading support
+            <Accessibility size={17} />
+          </Link>
+          <Link
+            href="/future-path"
+            style={{
+              ...pillBase,
+              background: "transparent",
+              color: "var(--gl-text-primary)",
+              border: "1px solid var(--gl-cyan)",
+            }}
+          >
+            Connect to Future Path
+          </Link>
+        </div>
+      }
+    >
+      <section className="py-2">
         <div className="diana-zone p-5">
           <p className="text-sm font-black text-brand-strong dark:text-brand">What Diana should remember</p>
           <div className="mt-5 grid gap-3">
@@ -95,8 +113,7 @@ export default async function MePage() {
           )}
         </div>
       </section>
-      </div>
-    </>
+    </PageShell>
   );
 }
 

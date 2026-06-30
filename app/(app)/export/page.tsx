@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ShieldCheck } from "lucide-react";
 import { displayNotificationPrefs, displayVerbosity } from "@/lib/privacy/export";
 import { createClient } from "@/lib/supabase/server";
 import { inventoryForUser } from "./actions";
 import { PrivacyDashboard } from "./privacy-dashboard";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
 
 export default async function ExportPage() {
   const supabase = await createClient();
@@ -24,18 +25,18 @@ export default async function ExportPage() {
   const inventory = await inventoryForUser(user.id);
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page space-y-6">
-      <header className="space-y-1">
-        <Link href="/settings" className="text-xs text-muted hover:underline">
-          Back to Settings
-        </Link>
-        <h1 className="text-display">Data and privacy</h1>
-        <p className="text-sm text-muted">
-          Export your data, tune privacy preferences, and manage account-level choices.
-        </p>
-      </header>
+    <PageShell
+      active="More"
+      eyebrow="Data and privacy"
+      title="Data and privacy"
+      subtitle="Export your data, tune privacy preferences, and manage account-level choices."
+      accent="var(--gl-gold)"
+      icon={ShieldCheck}
+    >
+      <div className="space-y-6">
+      <Link href="/settings" className="text-xs text-muted hover:underline">
+        Back to Settings
+      </Link>
       <PrivacyDashboard
         inventory={inventory}
         notificationPrefs={displayNotificationPrefs(profile?.notification_preferences)}
@@ -47,6 +48,6 @@ export default async function ExportPage() {
         }))}
       />
       </div>
-    </>
+    </PageShell>
   );
 }

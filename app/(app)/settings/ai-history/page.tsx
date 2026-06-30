@@ -1,25 +1,25 @@
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { getAiHistory } from "./actions";
 import { CsvExportButton } from "./csv-export-button";
-import { AppTopNav } from "../../app-top-nav";
+import { PageShell } from "../../page-shell";
 
 export default async function AiHistoryPage() {
   const rows = await getAiHistory(100);
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page space-y-6">
-      <header className="space-y-1">
-        <Link href="/settings" className="text-xs text-muted hover:underline">
-          ← Settings
-        </Link>
-        <h1 className="text-display">Your AI history</h1>
-        <p className="text-sm text-muted">
-          This is a log of every time Diana used AI to help you. You can show it
-          to a teacher or parent any time.
-        </p>
-      </header>
+    <PageShell
+      active="More"
+      eyebrow="AI history"
+      title="Your AI history"
+      subtitle="This is a log of every time Diana used AI to help you. You can show it to a teacher or parent any time."
+      accent="var(--gl-purple-light)"
+      icon={Sparkles}
+    >
+      <div className="space-y-6">
+      <Link href="/settings" className="text-xs text-muted hover:underline">
+        ← Settings
+      </Link>
 
       {rows.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card p-6 text-sm text-muted">
@@ -73,7 +73,7 @@ export default async function AiHistoryPage() {
         </>
       )}
       </div>
-    </>
+    </PageShell>
   );
 }
 

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AppTopNav } from "../app-top-nav";
+import { Share2 } from "lucide-react";
+import { PageShell } from "../page-shell";
 import { ParentSharingView } from "./parent-view";
 import { TeacherSharingView } from "./teacher-view";
 
@@ -25,17 +26,14 @@ export default async function SharingPage({
   ];
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page space-y-6">
-        <header className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted">Sharing</p>
-          <h1 className="text-display">Share progress, on your terms</h1>
-          <p className="text-sm text-muted">
-            Student-controlled views for the people who support you. Pick who you&apos;re sharing with.
-          </p>
-        </header>
-
+    <PageShell
+      active="More"
+      eyebrow="Sharing"
+      title="Share progress, on your terms"
+      subtitle="Student-controlled views for the people who support you. Pick who you're sharing with."
+      accent="var(--gl-cyan)"
+      icon={Share2}
+    >
         {/* Tab switcher */}
         <div role="tablist" aria-label="Sharing audience" className="flex gap-2 border-b border-border">
           {tabs.map(({ key, label }) => {
@@ -59,7 +57,6 @@ export default async function SharingPage({
         </div>
 
         {active === "teacher" ? <TeacherSharingView /> : <ParentSharingView />}
-      </div>
-    </>
+    </PageShell>
   );
 }

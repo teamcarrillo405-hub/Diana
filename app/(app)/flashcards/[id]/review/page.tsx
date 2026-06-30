@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
+import { Brain } from "lucide-react";
 import { ReviewSession } from "./review-session";
-import { AppTopNav } from "../../../app-top-nav";
+import { PageShell } from "../../../page-shell";
 
 export default async function ReviewPage({
   params,
@@ -28,10 +29,15 @@ export default async function ReviewPage({
   // If the card isn't due (or doesn't exist), fall back to first due card or 404.
   if (startIdx === -1 && fullQueue.length === 0) {
     return (
-      <>
-        <AppTopNav active="Work" />
-        <div className="diana-page space-y-6">
-          <h1 className="text-display">Review</h1>
+      <PageShell
+        active="Work"
+        eyebrow="Flashcards"
+        title="Review."
+        subtitle="Nothing due right now."
+        accent="var(--gl-cyan)"
+        icon={Brain}
+      >
+        <div className="space-y-6">
           <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
             <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
             <Link
@@ -42,7 +48,7 @@ export default async function ReviewPage({
             </Link>
           </div>
         </div>
-      </>
+      </PageShell>
     );
   }
 
@@ -54,9 +60,15 @@ export default async function ReviewPage({
   if (ordered.length === 0) notFound();
 
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-4">
+    <PageShell
+      active="Work"
+      eyebrow="Flashcards"
+      title="Review."
+      subtitle="Quiz yourself on what's due today."
+      accent="var(--gl-cyan)"
+      icon={Brain}
+    >
+      <div className="space-y-4">
         <Link href="/flashcards" className="nexus-kicker text-xs text-muted hover:underline">
           ← Study
         </Link>
@@ -68,6 +80,6 @@ export default async function ReviewPage({
           ttsVoice={profile?.tts_voice ?? "nova"}
         />
       </div>
-    </>
+    </PageShell>
   );
 }

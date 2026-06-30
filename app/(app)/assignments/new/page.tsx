@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { NewAssignmentForm } from "./form";
 import type { CalibrationStats } from "@/lib/time-budget/calibration";
 import { parseTemplateRow, type AssignmentTemplate } from "@/lib/templates/templates";
-import { AppTopNav } from "../../app-top-nav";
+import { FilePlus2 } from "lucide-react";
+import { PageShell } from "../../page-shell";
 
 export default async function NewAssignmentPage({
   searchParams,
@@ -44,10 +45,15 @@ export default async function NewAssignmentPage({
 
   if (!classes || classes.length === 0) {
     return (
-      <>
-        <AppTopNav active="Work" />
-        <div className="diana-page space-y-4">
-          <h1 className="text-display">Add an assignment</h1>
+      <PageShell
+        active="Work"
+        eyebrow="Schoolwork"
+        title="Add an assignment."
+        subtitle="You need a class first."
+        accent="var(--gl-cyan)"
+        icon={FilePlus2}
+      >
+        <div className="space-y-4">
           <p className="nexus-panel rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
             You need a class first.{" "}
             <Link href="/classes" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
@@ -56,24 +62,25 @@ export default async function NewAssignmentPage({
             .
           </p>
         </div>
-      </>
+      </PageShell>
     );
   }
 
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-        <header>
-          <p className="nexus-kicker">Schoolwork</p>
-          <h1 className="text-display">Add an assignment</h1>
-          <Link
-            href="/assignments"
-            className="text-xs text-muted hover:underline"
-          >
-            ← All tasks
-          </Link>
-        </header>
+    <PageShell
+      active="Work"
+      eyebrow="Schoolwork"
+      title="Add an assignment."
+      accent="var(--gl-cyan)"
+      icon={FilePlus2}
+    >
+      <div className="space-y-6">
+        <Link
+          href="/assignments"
+          className="text-xs text-muted hover:underline"
+        >
+          ← All tasks
+        </Link>
         <NewAssignmentForm
           classes={classes}
           calibrationMap={calibrationMap}
@@ -81,6 +88,6 @@ export default async function NewAssignmentPage({
           initialTemplateId={initialTemplateId ?? ""}
         />
       </div>
-    </>
+    </PageShell>
   );
 }

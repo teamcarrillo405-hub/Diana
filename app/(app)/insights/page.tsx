@@ -14,7 +14,7 @@ import {
 } from "@/lib/platform/analytics";
 import { createClient } from "@/lib/supabase/server";
 import { InsightsClient, type ExperimentRow, type FeatureFlagRow } from "./insights-client";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
 
 export default async function InsightsPage() {
   const supabase = await createClient();
@@ -102,17 +102,14 @@ export default async function InsightsPage() {
   const activeExperiments = (experiments.data ?? []).filter((experiment) => experiment.enabled).length;
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page space-y-6">
-      <header className="space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wider text-muted">Platform intelligence</p>
-        <h1 className="text-display">Insights</h1>
-        <p className="text-sm text-muted">
-          Usage, AI token spend, rollout controls, and app health in one place.
-        </p>
-      </header>
-
+    <PageShell
+      active="More"
+      eyebrow="Platform intelligence"
+      title="Insights"
+      subtitle="Usage, AI token spend, rollout controls, and app health in one place."
+      accent="var(--gl-text-muted)"
+      icon={BarChart3}
+    >
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard icon={Coins} label="AI tokens today" value={totalTokens.toLocaleString()} />
         <MetricCard icon={Activity} label="7-day session avg" value={`${averageSessionMinutes} min`} />
@@ -225,8 +222,7 @@ export default async function InsightsPage() {
       </section>
 
       <InsightsClient flags={(flags.data ?? []) as FeatureFlagRow[]} experiments={(experiments.data ?? []) as ExperimentRow[]} />
-      </div>
-    </>
+    </PageShell>
   );
 }
 

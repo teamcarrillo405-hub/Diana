@@ -1,5 +1,6 @@
+import { NotebookPen } from "lucide-react";
 import { CardForm } from "./card-form";
-import { AppTopNav } from "../../app-top-nav";
+import { PageShell } from "../../page-shell";
 
 export default async function NewCardPage({
   searchParams,
@@ -8,18 +9,15 @@ export default async function NewCardPage({
 }) {
   const { note } = await searchParams;
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-        <header className="space-y-1">
-          <p className="nexus-kicker">Remember bar</p>
-          <h1 className="text-display">New card</h1>
-          <p className="text-sm text-muted">
-            Front is the prompt. Back is the answer.
-          </p>
-        </header>
-        <CardForm sourceNoteId={note ?? null} />
-      </div>
-    </>
+    <PageShell
+      active="Work"
+      eyebrow="Remember bar"
+      title="New card."
+      subtitle="Front is the prompt. Back is the answer."
+      accent="var(--gl-cyan)"
+      icon={NotebookPen}
+    >
+      <CardForm sourceNoteId={note ?? null} />
+    </PageShell>
   );
 }

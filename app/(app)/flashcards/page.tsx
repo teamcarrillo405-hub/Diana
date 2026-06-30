@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { Brain, ListChecks } from "lucide-react";
 import { EmptyStateMark } from "@/components/empty-state-mark";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
 
 export default async function FlashcardsPage() {
   const supabase = await createClient();
@@ -23,19 +23,35 @@ export default async function FlashcardsPage() {
   const upcoming = (all ?? []).filter((c) => c.due_at > nowIso);
 
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-      <header className="flex items-baseline justify-between">
-        <h1 className="text-display">Study</h1>
+    <PageShell
+      active="Work"
+      eyebrow="Flashcards"
+      title="Study."
+      subtitle="Review what's due, then build new cards from your notes."
+      accent="var(--gl-cyan)"
+      icon={Brain}
+      action={
         <Link
           href="/flashcards/new"
-          className="nexus-button nexus-button-primary rounded-md px-3 py-1.5 text-sm font-medium"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-3)",
+            padding: "var(--space-9) var(--space-14)",
+            borderRadius: "var(--radius-pill)",
+            background: "var(--gl-cyan)",
+            color: "var(--gl-text-on-cyan)",
+            fontFamily: "var(--font-body)",
+            fontWeight: "var(--weight-700)",
+            fontSize: "var(--text-13)",
+            textDecoration: "none",
+          }}
         >
           + New card
         </Link>
-      </header>
-
+      }
+    >
+      <div className="space-y-6">
       <section className="nexus-panel rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
         <p className="nexus-kicker text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
           Remember bar
@@ -116,6 +132,6 @@ export default async function FlashcardsPage() {
         </div>
       )}
       </div>
-    </>
+    </PageShell>
   );
 }

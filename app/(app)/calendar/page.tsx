@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { addDays, format, parseISO, subDays } from "date-fns";
+import { CalendarDays } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
 import {
   buildWeek,
   groupByDay,
@@ -104,41 +105,40 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
     dayTotals.set(key, total);
   }
 
+  const weekLabel = `Week of ${format(weekStart, "MMM d")} – ${format(weekEnd, "MMM d, yyyy")}`;
+
+  const pillStyle: React.CSSProperties = {
+    border: "1px solid var(--gl-border-neutral)",
+    color: "var(--gl-text-secondary)",
+    borderRadius: "var(--radius-pill)",
+    padding: "var(--space-5) var(--space-10)",
+    fontFamily: "var(--font-body)",
+    fontSize: "var(--text-12)",
+    textDecoration: "none",
+  };
+
   return (
-    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)" }}>
-      <AppTopNav active="Calendar" />
-      <main className="diana-page space-y-6 py-6">
-      <header className="mb-6 flex items-center justify-between">
-        <div>
-          <p className="nexus-kicker">Calendar deck</p>
-          <h1 className="text-2xl font-bold text-fg">Calendar</h1>
-          <p className="text-sm text-muted">
-            Week of {format(weekStart, "MMM d")} –{" "}
-            {format(weekEnd, "MMM d, yyyy")}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/calendar?week=${prevAnchor}`}
-            className="nexus-button nexus-button-secondary rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
-          >
+    <PageShell
+      active="Calendar"
+      eyebrow="Calendar deck"
+      title="Calendar"
+      subtitle={weekLabel}
+      accent="var(--gl-cyan)"
+      icon={CalendarDays}
+      action={
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-8)" }}>
+          <Link href={`/calendar?week=${prevAnchor}`} style={pillStyle}>
             Prev
           </Link>
-          <Link
-            href={`/calendar?week=${todayAnchor}`}
-            className="nexus-button nexus-button-secondary rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
-          >
+          <Link href={`/calendar?week=${todayAnchor}`} style={pillStyle}>
             This week
           </Link>
-          <Link
-            href={`/calendar?week=${nextAnchor}`}
-            className="nexus-button nexus-button-secondary rounded-md border border-border bg-card px-3 py-1.5 text-sm text-fg hover:bg-border/40"
-          >
+          <Link href={`/calendar?week=${nextAnchor}`} style={pillStyle}>
             Next
           </Link>
         </div>
-      </header>
-
+      }
+    >
       <div className="grid grid-cols-1 gap-3 md:grid-cols-7">
         {week.map((day) => {
           const key = format(day, "yyyy-MM-dd");
@@ -199,7 +199,6 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
           );
         })}
       </div>
-    </main>
-    </div>
+    </PageShell>
   );
 }

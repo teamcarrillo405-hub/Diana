@@ -1,7 +1,8 @@
+import { HeartPulse } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { todayIsoDate } from "@/lib/wellness/health";
 import { WellnessClient } from "./wellness-client";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
 
 export default async function WellnessPage() {
   const supabase = await createClient();
@@ -33,16 +34,20 @@ export default async function WellnessPage() {
   ]);
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page">
-        <WellnessClient
-          today={today}
-          activityLogs={activityLogs ?? []}
-          goals={goals ?? []}
-          sleepLogs={sleepLogs ?? []}
-        />
-      </div>
-    </>
+    <PageShell
+      active="More"
+      eyebrow="Wellness"
+      title="Take care of how you feel."
+      subtitle="Track activity, sleep, and goals so the support fits how you actually feel day to day."
+      accent="var(--gl-green)"
+      icon={HeartPulse}
+    >
+      <WellnessClient
+        today={today}
+        activityLogs={activityLogs ?? []}
+        goals={goals ?? []}
+        sleepLogs={sleepLogs ?? []}
+      />
+    </PageShell>
   );
 }

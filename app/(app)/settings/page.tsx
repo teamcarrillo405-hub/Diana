@@ -16,7 +16,8 @@ import { PushSettings } from "@/components/push-settings";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { labelsForInterests } from "@/lib/student-identity/interests";
-import { AppTopNav } from "../app-top-nav";
+import { Settings as Cog } from "lucide-react";
+import { PageShell } from "../page-shell";
 
 export default async function SettingsPage() {
   const profile = await loadProfile();
@@ -35,17 +36,15 @@ export default async function SettingsPage() {
   const playerPhotoUrl: string | null = profile.photo_url ?? null;
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page nexus-settings-page space-y-8">
-      <header className="nexus-settings-hero">
-        <span className="nexus-kicker">System preferences</span>
-        <h1 className="text-display">Settings</h1>
-        <p className="max-w-3xl text-muted">
-          Keep profile, reading support, school connections, and privacy controls in one calm place.
-        </p>
-      </header>
-
+    <PageShell
+      active="More"
+      eyebrow="System preferences"
+      title="Settings"
+      subtitle="Keep profile, reading support, school connections, and privacy controls in one calm place."
+      accent="var(--gl-cyan)"
+      icon={Cog}
+    >
+      <div className="nexus-settings-page space-y-8">
       <section className="nexus-settings-grid">
         <section className="nexus-panel nexus-panel-dense space-y-3">
           <span className="nexus-kicker">Student identity</span>
@@ -167,7 +166,7 @@ export default async function SettingsPage() {
         </section>
       </section>
       </div>
-    </>
+    </PageShell>
   );
 }
 

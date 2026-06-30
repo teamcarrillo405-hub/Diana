@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { nextMayExamDate } from "@/lib/ap/command";
 import { ApClient } from "./ap-client";
-import { AppTopNav } from "../app-top-nav";
+import { GraduationCap } from "lucide-react";
+import { PageShell } from "../page-shell";
 
 export default async function ApPage() {
   const supabase = await createClient();
@@ -23,15 +24,19 @@ export default async function ApPage() {
   ]);
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page">
-        <ApClient
-          defaultExamDate={nextMayExamDate()}
-          plans={plans ?? []}
-          attempts={attempts ?? []}
-        />
-      </div>
-    </>
+    <PageShell
+      active="More"
+      eyebrow="Exam prep"
+      title="AP Command"
+      subtitle="Plan your exams and track practice toward your goal band."
+      accent="var(--gl-gold)"
+      icon={GraduationCap}
+    >
+      <ApClient
+        defaultExamDate={nextMayExamDate()}
+        plans={plans ?? []}
+        attempts={attempts ?? []}
+      />
+    </PageShell>
   );
 }

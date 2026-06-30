@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { StudyGroupsClient, type StudyGroupWorkspace } from "./study-groups-client";
-import { AppTopNav } from "../app-top-nav";
+import { UsersRound } from "lucide-react";
+import { PageShell } from "../page-shell";
 
 export default async function StudyGroupsPage({
   searchParams,
@@ -90,16 +91,20 @@ export default async function StudyGroupsPage({
   }
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page">
-        <StudyGroupsClient
-          groups={groupRows}
-          selectedGroupId={selectedGroup?.id ?? null}
-          workspace={workspace}
-        />
-      </div>
-    </>
+    <PageShell
+      active="More"
+      eyebrow="Collaborate"
+      title="Study Groups"
+      subtitle="Learn together with shared decks, collaborative notes, and project tasks."
+      accent="var(--gl-blue)"
+      icon={UsersRound}
+    >
+      <StudyGroupsClient
+        groups={groupRows}
+        selectedGroupId={selectedGroup?.id ?? null}
+        workspace={workspace}
+      />
+    </PageShell>
   );
 }
 

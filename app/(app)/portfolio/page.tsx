@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { PortfolioClient } from "./portfolio-client";
 import { canvaEnv, listCanvaDesigns, type CanvaDesign } from "@/lib/integrations/canva";
 import { getValidCanvaToken } from "@/lib/integrations/canva-server";
-import { AppTopNav } from "../app-top-nav";
+import { Images } from "lucide-react";
+import { PageShell } from "../page-shell";
 
 export default async function PortfolioPage() {
   const supabase = await createClient();
@@ -60,14 +61,14 @@ export default async function PortfolioPage() {
   }
 
   return (
-    <>
-      <AppTopNav active="More" />
-      <div className="diana-page space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-display">Portfolio</h1>
-        <p className="text-sm text-muted">Collect creative work with process notes.</p>
-      </header>
-
+    <PageShell
+      active="More"
+      eyebrow="Creative work"
+      title="Portfolio"
+      subtitle="Collect creative work with process notes."
+      accent="var(--gl-purple-light)"
+      icon={Images}
+    >
       {canvaDesigns.length > 0 && (
         <section className="space-y-2">
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
@@ -97,7 +98,6 @@ export default async function PortfolioPage() {
       )}
 
       <PortfolioClient portfolios={portfolios} />
-      </div>
-    </>
+    </PageShell>
   );
 }

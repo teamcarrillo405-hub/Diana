@@ -2,8 +2,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ExternalSubmissionSync } from "../external-submission-sync";
+import { CheckSquare } from "lucide-react";
 import { SubmitChecklist } from "./checklist";
-import { AppTopNav } from "../../../app-top-nav";
+import { PageShell } from "../../../page-shell";
 
 export default async function SubmitPage({
   params,
@@ -28,24 +29,24 @@ export default async function SubmitPage({
     .order("position", { ascending: true });
 
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-      <header className="space-y-1">
-        <Link
-          href={`/assignments/${id}`}
-          className="nexus-kicker text-xs text-muted hover:underline"
-        >
-          ← {a.title}
-        </Link>
-        <h1 className="text-display">Before you click submit</h1>
-        <p className="text-sm text-muted">
-          Tick each box as you check it. Required boxes have to be checked.
-        </p>
-        <p className="text-xs text-muted">
-          Add your own checks as needed; remove any that don&apos;t apply.
-        </p>
-      </header>
+    <PageShell
+      active="Work"
+      eyebrow="Schoolwork"
+      title="Before you click submit."
+      subtitle="Tick each box as you check it. Required boxes have to be checked."
+      accent="var(--gl-cyan)"
+      icon={CheckSquare}
+    >
+      <div className="space-y-6">
+      <Link
+        href={`/assignments/${id}`}
+        className="nexus-kicker text-xs text-muted hover:underline"
+      >
+        ← {a.title}
+      </Link>
+      <p className="text-xs text-muted">
+        Add your own checks as needed; remove any that don&apos;t apply.
+      </p>
 
       <SubmitChecklist
         assignmentId={id}
@@ -60,6 +61,6 @@ export default async function SubmitPage({
         initialStatus={a.submission_sync_status}
       />
       </div>
-    </>
+    </PageShell>
   );
 }

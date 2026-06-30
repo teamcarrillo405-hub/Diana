@@ -1,8 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { Inbox } from "lucide-react";
 import { ConfirmForm } from "./confirm-form";
-import { AppTopNav } from "../../app-top-nav";
+import { PageShell } from "../../page-shell";
 
 export default async function InboxItemPage({
   params,
@@ -51,15 +52,18 @@ export default async function InboxItemPage({
   // Already converted — show link to the assignment
   if (item.status === "converted" && item.assignment_id) {
     return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-        <header className="space-y-1">
-          <Link href="/inbox" className="text-xs text-muted hover:underline">
-            ← Inbox
-          </Link>
-          <h1 className="text-display">Converted</h1>
-        </header>
+    <PageShell
+      active="Work"
+      eyebrow="Inbox"
+      title="Converted."
+      subtitle="This capture became an assignment."
+      accent="var(--gl-cyan)"
+      icon={Inbox}
+    >
+      <div className="space-y-6">
+        <Link href="/inbox" className="text-xs text-muted hover:underline">
+          ← Inbox
+        </Link>
         <div className="rounded-xl border border-border bg-card p-4">
           <p className="text-sm text-muted">This capture became an assignment.</p>
           <Link
@@ -70,47 +74,50 @@ export default async function InboxItemPage({
           </Link>
         </div>
       </div>
-    </>
+    </PageShell>
     );
   }
 
   // Dismissed
   if (item.status === "dismissed") {
     return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-        <header className="space-y-1">
-          <Link href="/inbox" className="text-xs text-muted hover:underline">
-            ← Inbox
-          </Link>
-          <h1 className="text-display">Dismissed</h1>
-        </header>
+    <PageShell
+      active="Work"
+      eyebrow="Inbox"
+      title="Dismissed."
+      subtitle="This item was dismissed."
+      accent="var(--gl-cyan)"
+      icon={Inbox}
+    >
+      <div className="space-y-6">
+        <Link href="/inbox" className="text-xs text-muted hover:underline">
+          ← Inbox
+        </Link>
         <p className="text-sm text-muted">This item was dismissed.</p>
       </div>
-    </>
+    </PageShell>
     );
   }
 
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-      <header className="space-y-1">
-        <Link href="/inbox" className="text-xs text-muted hover:underline">
-          ← Inbox
-        </Link>
-        <h1 className="text-display">Review capture</h1>
-        <p className="text-xs text-muted">
-          {new Date(item.created_at).toLocaleDateString(undefined, {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </p>
-      </header>
+    <PageShell
+      active="Work"
+      eyebrow="Inbox"
+      title="Review capture."
+      subtitle={new Date(item.created_at).toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      })}
+      accent="var(--gl-cyan)"
+      icon={Inbox}
+    >
+      <div className="space-y-6">
+      <Link href="/inbox" className="text-xs text-muted hover:underline">
+        ← Inbox
+      </Link>
 
       {/* Raw capture */}
       <section className="space-y-2">
@@ -178,6 +185,6 @@ export default async function InboxItemPage({
         suggestedDueAt={hasAiSuggestion ? item.suggested_due_at : null}
       />
       </div>
-    </>
+    </PageShell>
   );
 }
