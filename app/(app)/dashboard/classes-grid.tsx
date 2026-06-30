@@ -94,6 +94,10 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
           .gl-classes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
           @media (max-width: 1024px) { .gl-classes-grid { grid-template-columns: repeat(2, 1fr); } }
           @media (max-width: 640px) { .gl-classes-grid { grid-template-columns: 1fr; } }
+          /* Emil: tactile cards — custom ease-out, hover lift gated for touch, press feedback */
+          .gl-class-card { transition: transform 200ms cubic-bezier(.23,1,.32,1), box-shadow 200ms cubic-bezier(.23,1,.32,1); }
+          @media (hover:hover) { .gl-class-card:hover { transform: translateY(-4px); } }
+          .gl-class-card:active { transform: scale(.99); }
         `}</style>
         <div className="gl-classes-grid">
           {classes.map((cls) => (
@@ -132,7 +136,6 @@ function ClassCard({ cls }: { cls: ClassCardData }) {
         overflow: "hidden",
         border: "1px solid rgba(120,150,220,.16)",
         animation: cls.needsAttention ? "gl-needs-attention 2s ease-in-out infinite" : "none",
-        transition: "transform .2s, box-shadow .2s",
         textDecoration: "none",
         color: "#fff",
         display: "block",
