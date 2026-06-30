@@ -33,11 +33,11 @@ export function TimeBar({
       <div
         style={{
           borderRadius: "var(--radius-button)",
-          border: "1px solid var(--gl-red-28)",
-          background: "var(--gl-red-14)",
+          border: "1px solid var(--gl-gold-28)",
+          background: "var(--gl-gold-12)",
           padding: "var(--space-6)",
           fontSize: "var(--text-12)",
-          color: "var(--gl-red-text)",
+          color: "var(--gl-gold)",
         }}
       >
         <p>{message}</p>
