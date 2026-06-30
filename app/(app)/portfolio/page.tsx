@@ -75,14 +75,11 @@ export default async function PortfolioPage() {
             Your recent Canva designs
           </h2>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {canvaDesigns.map((design) => (
-              <li key={design.id}>
-                <a
-                  href={design.editUrl ?? design.viewUrl ?? "#"}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block overflow-hidden rounded-2xl border border-border bg-card transition hover:bg-surface-soft"
-                >
+            {canvaDesigns.map((design) => {
+              const url = design.editUrl ?? design.viewUrl ?? null;
+              const cardClass = "block overflow-hidden rounded-2xl border border-border bg-card transition hover:bg-surface-soft";
+              const inner = (
+                <>
                   {design.thumbnailUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element -- external Canva CDN thumbnail
                     <img src={design.thumbnailUrl} alt="" className="h-28 w-full object-cover" />
@@ -90,9 +87,18 @@ export default async function PortfolioPage() {
                     <div className="flex h-28 w-full items-center justify-center bg-brand/5 text-2xl text-brand">✦</div>
                   )}
                   <p className="truncate px-3 py-2 text-sm font-medium">{design.title}</p>
-                </a>
-              </li>
-            ))}
+                </>
+              );
+              return (
+                <li key={design.id}>
+                  {url ? (
+                    <a href={url} target="_blank" rel="noreferrer" className={cardClass}>{inner}</a>
+                  ) : (
+                    <div className={cardClass}>{inner}</div>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </section>
       )}

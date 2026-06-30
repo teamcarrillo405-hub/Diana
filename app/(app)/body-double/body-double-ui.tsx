@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { bodyDoubleBreakdown } from "@/lib/executive/session";
 
 type AmbientSound = "silence" | "rain" | "white-noise";
 
@@ -18,17 +17,10 @@ function formatClock(d: Date): string {
   return `${h12}:${m} ${period}`;
 }
 
-function getFocusCount(): number {
-  const seed = Math.floor(Date.now() / (1000 * 60 * 7));
-  return 3 + (seed % 10);
-}
-
 export function BodyDoubleUi() {
   const [now, setNow] = useState<Date | null>(null);
   const [ambient, setAmbient] = useState<AmbientSound>("silence");
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const breakdown = now ? bodyDoubleBreakdown(now) : bodyDoubleBreakdown();
-  const focusCount = breakdown.reduce((sum, row) => sum + row.count, 0);
 
   // Tick the clock once per second. Initialize to null on SSR, then hydrate.
   useEffect(() => {
@@ -56,17 +48,8 @@ export function BodyDoubleUi() {
         </p>
 
         <p className="text-sm font-medium text-muted">
-          {focusCount} {focusCount === 1 ? "student" : "students"} focusing right now
+          A shared quiet hour — put your head down and work alongside Diana.
         </p>
-
-        <div className="grid w-full max-w-sm grid-cols-2 gap-2 text-sm">
-          {breakdown.map((row) => (
-            <div key={row.label} className="rounded-md border border-border bg-background px-3 py-2">
-              <p className="font-medium">{row.count}</p>
-              <p className="text-xs text-muted">{row.label}</p>
-            </div>
-          ))}
-        </div>
 
         <div
           className="body-double-pulse h-3 w-3 rounded-full bg-accent"

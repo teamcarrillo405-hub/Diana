@@ -357,7 +357,7 @@ export default async function AssignmentsPage({
                   <ArrowRight size={16} />
                 </Link>
                 <Link
-                  href={`/assignments/${next.id}?focus=breakdown`}
+                  href={`/assignments/${next.id}#task-breakdown`}
                   style={{
                     display: "inline-flex",
                     alignItems: "center",

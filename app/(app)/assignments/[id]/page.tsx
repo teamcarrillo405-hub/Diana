@@ -378,6 +378,7 @@ export default async function AssignmentDetailPage({
         assignmentRubricText={a.rubric_text ?? null}
       />
 
+      <div id="task-breakdown" />
       <TaskBreakdown
         assignmentId={a.id}
         classAiMode={classAiMode}
