@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
 import type { DianaOrbState } from "@/components/signal/clarity-orb";
@@ -146,6 +147,28 @@ export default async function ThinkPage({
             lastReflectedAt={profile?.last_weekly_reflection_at ?? null}
             mood={profile?.session_mood ?? null}
           />
+          <Link
+            href="/notes"
+            style={{
+              alignSelf: "flex-start",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "var(--space-3)",
+              borderRadius: "var(--radius-button)",
+              border: "1px solid var(--gl-purple-30)",
+              background: "var(--gl-purple-14)",
+              padding: "var(--space-5) var(--space-10)",
+              fontFamily: "var(--font-display)",
+              fontWeight: "var(--weight-800)",
+              fontSize: "var(--text-13)",
+              letterSpacing: "var(--tracking-04)",
+              textTransform: "uppercase",
+              color: "var(--gl-purple-light)",
+              textDecoration: "none",
+            }}
+          >
+            See all notes →
+          </Link>
         </div>
       </div>
     </div>
