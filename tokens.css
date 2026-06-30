@@ -221,8 +221,10 @@
 
   /* Font sizes */
   --text-72:  72px;   /* hero name (G-MONEY) */
+  --text-46:  46px;   /* mission board H1 */
   --text-40:  40px;   /* class card title */
   --text-36:  36px;   /* hero CTA button label */
+  --text-34:  34px;   /* mission board start-now H2 */
   --text-32:  32px;   /* energy confirmed label */
   --text-28:  28px;   /* MY CLASSES section header */
   --text-26:  26px;   /* check-in question / settings header */
@@ -247,8 +249,10 @@
 
   /* Letter spacing */
   --tracking-30:  .30em;  /* "YOUR LOBBY" kicker */
+  --tracking-28:  .28em;  /* mission board header eyebrow */
   --tracking-20:  .20em;  /* "YOUR NEXT MOVE" / section kickers */
   --tracking-18:  .18em;  /* "WEEK 4" label */
+  --tracking-16:  .16em;  /* mission board panel kicker */
   --tracking-14:  .14em;  /* WEEKLY XP label */
   --tracking-12:  .12em;  /* class status label */
   --tracking-10:  .10em;  /* upload label */
@@ -262,7 +266,9 @@
   /* Line heights (used with display type) */
   --leading-hero:   .88;  /* hero name (72px G-MONEY) */
   --leading-tight:  .90;  /* class card title */
+  --leading-snug:   .96;  /* mission board start-now H2 */
   --leading-normal: 1.5;  /* body copy */
+  --leading-relaxed: 1.55; /* mission board descriptions */
   --leading-card:   1.1;  /* overwhelmed one-move label */
 
 
@@ -306,6 +312,8 @@
   --radius-option: 10px;  /* energy picker options in check-in */
   --radius-hero:   12px;  /* hero CTA, audio transcript box, check-in top tab */
   --radius-card:   14px;  /* class cards, week XP panel, focus card */
+  --radius-panel:  16px;  /* mission board command panels */
+  --radius-pill:   20px;  /* mission board why-strip chips */
   --radius-modal:  20px;  /* settings modal */
   --radius-dialog: 22px;  /* audio overlay modal */
   --radius-circle: 50%;   /* circular photo, recording orb */
