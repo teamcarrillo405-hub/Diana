@@ -775,7 +775,7 @@ export default async function DashboardPage({
                 </span>
               </span>
               <span className="mt-0.5 block text-xs text-muted">
-                A day-by-day prep plan is ready — practice early, light recall the night before.
+                A day-by-day prep plan is ready. Practice early, light recall the night before.
               </span>
             </span>
           </Link>

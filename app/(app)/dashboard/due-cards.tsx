@@ -49,7 +49,7 @@ export function DueCards({
                 : `${count} cards to review today.`}
             </p>
             <p style={{ marginTop: "2px", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>
-              Whenever you have 5 minutes — no rush.
+              Whenever you have 5 minutes, no rush.
             </p>
           </div>
         </div>

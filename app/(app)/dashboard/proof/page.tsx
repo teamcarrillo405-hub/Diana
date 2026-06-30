@@ -58,7 +58,7 @@ export default async function ProofPage() {
             Proof
           </h1>
           <p style={{ marginTop: "var(--space-2)", fontSize: "var(--text-15)", color: "var(--gl-text-overlay-60)" }}>
-            The quiet payoff — what you finished and the one move that helps your grade most.
+            The quiet payoff: what you finished and the one move that helps your grade most.
           </p>
         </header>
 
