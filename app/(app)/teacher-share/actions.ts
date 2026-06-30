@@ -77,7 +77,7 @@ export async function createPortalAssignment(
     .single();
 
   if (error || !data) return { ok: false, error: error?.message ?? "Could not create assignment." };
-  revalidatePath("/teacher-share");
+  revalidatePath("/sharing");
   revalidatePath("/assignments");
   revalidatePath(`/classes/${parsed.data.classId}`);
   return { ok: true, id: data.id };
@@ -106,7 +106,7 @@ export async function saveRosterMember(
     consent_visible: false,
   });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/teacher-share");
+  revalidatePath("/sharing");
   return { ok: true };
 }
 
@@ -136,8 +136,7 @@ export async function saveProgressNote(
     visible_to_parent: parsed.data.visibleToParent,
   });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/teacher-share");
-  revalidatePath("/parent-share");
+  revalidatePath("/sharing");
   return { ok: true };
 }
 
@@ -171,7 +170,7 @@ export async function confirmAccommodations(
     notes: parsed.data.notes,
   });
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/teacher-share");
+  revalidatePath("/sharing");
   return { ok: true };
 }
 
@@ -191,7 +190,7 @@ export async function saveAssignmentAiPolicy(
     .eq("id", parsed.data.assignmentId)
     .eq("owner_id", user.id);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/teacher-share");
+  revalidatePath("/sharing");
   revalidatePath(`/assignments/${parsed.data.assignmentId}`);
   return { ok: true };
 }

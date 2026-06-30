@@ -27,7 +27,7 @@ const requiredRoutes = [
   "/notes",
   "/flashcards",
   "/settings/ai-history",
-  "/teacher-share",
+  "/sharing",
 ] as const;
 
 const publicRoutes = ["/", "/login", "/signup"] as const;

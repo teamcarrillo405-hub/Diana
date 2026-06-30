@@ -86,6 +86,7 @@ function routeToFeature(route: string): string {
   if (route.startsWith("/portfolio")) return "portfolio";
   if (route.startsWith("/wellness")) return "wellness";
   if (route.startsWith("/ap")) return "ap";
+  if (route.startsWith("/sharing")) return "sharing_portal";
   if (route.startsWith("/teacher-share")) return "teacher_portal";
   if (route.startsWith("/parent-share")) return "parent_portal";
   if (route.startsWith("/insights")) return "insights";

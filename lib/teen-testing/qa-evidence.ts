@@ -11,7 +11,7 @@ export const TEEN_UX_REQUIRED_QA_ROUTES = [
   "/notes",
   "/flashcards",
   "/settings/ai-history",
-  "/teacher-share",
+  "/sharing",
 ] as const;
 
 export const TEEN_UX_AUTHENTICATED_QA_ROUTES = [
@@ -21,7 +21,7 @@ export const TEEN_UX_AUTHENTICATED_QA_ROUTES = [
   "/notes",
   "/flashcards",
   "/settings/ai-history",
-  "/teacher-share",
+  "/sharing",
 ] as const;
 
 export const TEEN_UX_REQUIRED_QA_VIEWPORTS = [

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile, profileBodyClass } from "@/lib/profile";
-import { BottomNav, SideNav } from "@/components/nav";
 import { AppCommandFrame } from "@/components/app-command-frame";
 import { OverwhelmedButton } from "@/components/overwhelmed-button";
 import { QuickCapture } from "@/components/quick-capture";
@@ -19,7 +18,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
   return (
     <div className={`nexus-app-shell flex min-h-dvh ${profileBodyClass(profile)}`}>
-      <SideNav />
       <div className="flex min-w-0 flex-1 flex-col">
         <main id="main-content" className="app-field nexus-authenticated-field flex-1 pb-24 md:pb-6">
           <AppCommandFrame>
@@ -32,7 +30,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </div>
           </AppCommandFrame>
         </main>
-        <BottomNav />
         <div className="hidden md:block">
           <QuickCapture />
           <OverwhelmedButton />

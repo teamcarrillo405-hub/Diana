@@ -30,8 +30,7 @@ const GROUPS: { title: string; links: { label: string; href: string; note?: stri
     title: "Connections & sharing",
     links: [
       { label: "Export", href: "/export", note: "Your data" },
-      { label: "Parent share", href: "/parent-share", note: "Growth digest" },
-      { label: "Teacher share", href: "/teacher-share", note: "Classes + receipts" },
+      { label: "Sharing", href: "/sharing", note: "Parents + teachers" },
       { label: "Study groups", href: "/study-groups", note: "Shared decks + notes" },
     ],
   },

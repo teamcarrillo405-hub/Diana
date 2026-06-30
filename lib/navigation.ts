@@ -40,6 +40,8 @@ export function usesAppTopNav(pathname: string): boolean {
     pathname === "/wellness" ||
     pathname === "/export" ||
     pathname === "/ap" ||
+    pathname === "/sharing" ||
+    pathname === "/insights" ||
     pathname === "/settings" ||
     pathname.startsWith("/settings/")
   );
