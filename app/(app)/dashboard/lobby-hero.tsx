@@ -101,7 +101,7 @@ export function LobbyHero({
           <PlayerPhotoSlot src={photoUrl} />
 
           {/* ENERGY CHECK (top-right) — links to the THINK tab where energy is set */}
-          <Link className="gl-energy" href="/dashboard/think" aria-label="Check in on your energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8, textDecoration: "none", color: "#fff" }}>
+          <Link className="gl-energy" href="/notes" aria-label="Check in on your energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8, textDecoration: "none", color: "#fff" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", borderRadius: "8px 8px 0 0", background: "transparent", border: "1px solid rgba(41,208,255,.28)", borderBottom: "none", fontFamily: SF, fontWeight: 800, fontSize: 14, letterSpacing: ".12em", color: "rgba(41,208,255,.95)", textShadow: "0 0 12px rgba(41,208,255,.4)" }}>ENERGY CHECK</div>
             <div style={{ position: "relative", borderRadius: "0 12px 12px 12px", border: "1px solid rgba(41,208,255,.22)", background: "transparent", minHeight: 128, padding: "18px 18px 16px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <span aria-hidden="true" style={{ position: "absolute", left: -1, top: -1, width: 12, height: 12, borderLeft: "2px solid rgba(41,208,255,.8)", borderTop: "2px solid rgba(41,208,255,.8)", borderRadius: "2px 0 0 0" }} />

@@ -27,6 +27,7 @@ import { buildStudentStateModel, sourceAnchorsFromAssignment } from "@/lib/stude
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import { LastShownClassCookie } from "./last-shown-class-cookie";
+import { ClassesGrid, classTheme, type ClassCardData } from "./classes-grid";
 
 type SubjectClassJoin = {
   name?: string | null;
@@ -324,6 +325,7 @@ export default async function DashboardPage({
     { data: anyTimeLog },
     { data: dueCards },
     { data: weekDoneSignals },
+    { data: weeklyClasses },
   ] = await Promise.all([
     supabase
       .from("assignments")
@@ -399,6 +401,12 @@ export default async function DashboardPage({
       .eq("kind", "completed")
       .gte("occurred_at", weekStartIso)
       .not("assignment_id", "is", null),
+    supabase
+      .from("classes")
+      .select("id, name, color")
+      .is("archived_at", null)
+      .order("created_at", { ascending: true })
+      .limit(12),
   ]);
 
   const recentSignals = (signals ?? [])
@@ -572,6 +580,33 @@ export default async function DashboardPage({
     return t >= weekStart.getTime() && t < weekStart.getTime() + 7 * 86400000;
   }).length;
 
+  const classCardDataList: ClassCardData[] = (weeklyClasses ?? []).map((cls) => {
+    const asgts = (assignments ?? []).filter((a) => a.class_id === cls.id);
+    const needsAttentionAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
+    const inProgressAsgts = asgts.filter((a) => ["drafting", "checking"].includes(a.status));
+    const doneAsgts = asgts.filter((a) => a.status === "exporting");
+    const topRanked = ranked.find((a) => a.class_id === cls.id);
+    const nextDue = [...asgts]
+      .filter((a) => a.due_at)
+      .sort((a, b) => new Date(a.due_at!).getTime() - new Date(b.due_at!).getTime())[0];
+    const theme = classTheme(cls);
+    return {
+      id: cls.id,
+      name: cls.name,
+      symbol: theme.symbol,
+      bannerBg: theme.bannerBg,
+      accent: theme.accent,
+      active: inProgressAsgts.length > 0 || topRanked?.class_id === cls.id,
+      needsAttention: needsAttentionAsgts.length > 0,
+      allDone: asgts.length > 0 && asgts.length === doneAsgts.length,
+      pct: asgts.length > 0 ? Math.round((doneAsgts.length / asgts.length) * 100) : 0,
+      period: "",
+      activeAssignment: topRanked?.title ?? inProgressAsgts[0]?.title ?? "",
+      dueBadge: nextDue?.due_at ? formatDueAt(nextDue.due_at) : asgts.length === 0 ? "no tasks" : "no due date",
+      href: `/classes/${cls.id}`,
+    } satisfies ClassCardData;
+  });
+
   const questItems: QuestItem[] = ranked.slice(0, 5).map((a, i) => {
     const aRow = (assignments ?? []).find((x) => x.id === a.id);
     const subject = aRow ? subjectLabelForAssignment(aRow) : KIND_LABEL[a.kind as keyof typeof KIND_LABEL] || "Work";
@@ -607,6 +642,7 @@ export default async function DashboardPage({
         photoUrl={playerPhotoUrl}
       />
       <ReminderBanner items={reminderItems} />
+      <ClassesGrid classes={classCardDataList} />
     </div>
   );
 }
