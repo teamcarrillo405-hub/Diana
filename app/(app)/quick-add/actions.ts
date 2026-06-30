@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { triggerClassification } from "../inbox/[id]/actions";
 
 const Input = z.object({
   raw: z.string().min(1).max(5000),
@@ -34,6 +35,11 @@ export async function saveInboxItem(
     .single();
 
   if (error) return { ok: false, error: error.message };
+
+  // Kick off async AI classification (vision for photos, text otherwise) so the
+  // "Diana read" suggestions populate. Fire-and-forget — never blocks capture.
+  void triggerClassification(data.id);
+
   return { ok: true, id: data.id };
 }
 

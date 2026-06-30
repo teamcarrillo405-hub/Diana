@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { saveInboxItem } from "../quick-add/actions";
 
 type SRInstance = {
   continuous: boolean;
@@ -15,8 +16,11 @@ type SRConstructor = new () => SRInstance;
 export function LobbyAudioNote() {
   const [recording, setRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [saving, setSaving] = useState(false);
   const recognitionRef = useRef<SRInstance | null>(null);
   const shouldRecordRef = useRef(false);
+
+  const NOT_SUPPORTED = "Speech recognition not supported. Try Chrome or Edge.";
 
   function startAudio() {
     const win = window as unknown as { SpeechRecognition?: SRConstructor; webkitSpeechRecognition?: SRConstructor };
@@ -24,7 +28,7 @@ export function LobbyAudioNote() {
 
     if (!SR) {
       setRecording(true);
-      setTranscript("Speech recognition not supported. Try Chrome or Edge.");
+      setTranscript(NOT_SUPPORTED);
       return;
     }
 
@@ -50,12 +54,26 @@ export function LobbyAudioNote() {
     setTranscript("");
   }
 
-  function stopAudio() {
+  async function stopAudio() {
     shouldRecordRef.current = false;
     recognitionRef.current?.stop();
     recognitionRef.current = null;
+
+    const text = transcript.trim();
+    // Nothing usable captured — just close.
+    if (!text || text === NOT_SUPPORTED) {
+      setRecording(false);
+      setTranscript("");
+      return;
+    }
+
+    // Save the voice transcript to the capture inbox; saveInboxItem also kicks
+    // off AI classification so it lands with a suggested class/kind/due.
+    setSaving(true);
+    await saveInboxItem({ raw: text, captureMode: "voice" });
+    setSaving(false);
     setRecording(false);
-    // TODO: wire to saveQuickCapture({ raw: transcript }) from components/quick-capture-actions.ts
+    setTranscript("");
   }
 
   function cancelAudio() {
@@ -213,12 +231,14 @@ export function LobbyAudioNote() {
             <div style={{ display: "flex", gap: 12 }}>
               <button
                 onClick={stopAudio}
+                disabled={saving}
                 style={{
                   transform: "skewX(-8deg)",
                   padding: "12px 28px",
                   borderRadius: 8,
                   background: "linear-gradient(180deg,#36e07a,#16a34a)",
-                  cursor: "pointer",
+                  cursor: saving ? "wait" : "pointer",
+                  opacity: saving ? 0.7 : 1,
                   boxShadow: "0 8px 24px rgba(34,180,90,.35)",
                   border: "none",
                 }}
@@ -234,7 +254,7 @@ export function LobbyAudioNote() {
                     color: "#06210f",
                   }}
                 >
-                  Save Note
+                  {saving ? "Saving…" : "Save Note"}
                 </div>
               </button>
               <button
