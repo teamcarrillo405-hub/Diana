@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { MessageSquarePlus, X } from "lucide-react";
 import { saveQuickCapture } from "./quick-capture-actions";
 import { VoiceTextarea } from "@/components/voice-textarea";
+import { usesAppTopNav } from "@/lib/navigation";
 
 export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "inline" }) {
   const pathname = usePathname();
@@ -50,7 +51,8 @@ export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "i
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  if (placement === "fixed" && pathname === "/dashboard") {
+  // Hidden on pages that own a top nav (rule centralized in usesAppTopNav).
+  if (placement === "fixed" && usesAppTopNav(pathname)) {
     return null;
   }
 

@@ -34,6 +34,7 @@ import {
   X,
 } from "lucide-react";
 import { ThemeQuickToggle } from "@/components/theme-picker";
+import { usesAppTopNav } from "@/lib/navigation";
 
 export type AppShellNavItem = {
   href: string;
@@ -143,8 +144,9 @@ function isActivePath(path: string, href: string) {
 export function BottomNav() {
   const path = usePathname();
 
-  // Dashboard routes are full-bleed (own top nav) — hide the bottom nav there.
-  if (path.startsWith("/dashboard")) return null;
+  // Pages with the shared AppTopNav own their nav — hide the bottom nav there.
+  // The rule lives in one place (usesAppTopNav); never re-check the path here.
+  if (usesAppTopNav(path)) return null;
 
   return (
     <nav
@@ -192,10 +194,9 @@ export function SideNav() {
       : group.items,
   })).filter((group) => group.items.length > 0);
 
-  // Dashboard routes are full-bleed (own top nav) — hide the sidebar there.
-  // /assignments now has its own top tab strip (DashboardTabs), so retire the
-  // sidebar there too (per docs/design/NAVIGATION.md).
-  if (path.startsWith("/dashboard") || path === "/assignments") return null;
+  // Pages with the shared AppTopNav own their nav — hide the sidebar there.
+  // The rule lives in one place (usesAppTopNav); never re-check the path here.
+  if (usesAppTopNav(path)) return null;
 
   return (
     <aside className="nexus-side-nav hidden w-24 shrink-0 border-r border-border bg-surface-raised md:block" data-nav="compact-app-rail">
