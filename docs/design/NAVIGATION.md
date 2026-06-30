@@ -128,10 +128,19 @@ The map above is the target. Current code reality as of this rewrite:
 - ✅ **Templates folded in** — `/assignments/new` already had a "Start from a template" picker, so the standalone `/templates` gallery was pure redundancy; deleted + references cleaned.
 - ✅ **Sharing merge done** — `/sharing` tabbed page (Parents | Teachers); `/parent-share` + `/teacher-share` are now redirects.
 - ✅ **OLD NAV RETIRED — dual-nav system removed.** `components/nav.tsx` deleted; `SideNav`/`BottomNav` removed from `app/(app)/layout.tsx`. Every `(app)` page renders AppTopNav (or redirects) and is registered in `usesAppTopNav`. There is now exactly ONE navigation system app-wide. This closes the original "old design mixed with new design" problem.
-- ⬜ **Study-tools section on Work** — pages migrated; the consolidated section/links on `/assignments` not built yet.
-- ⬜ **Focus-session merge** (`/timer` + `/body-double`) — deferred per decision; migrated separately for now.
-- ⬜ **Notes-into-class-hub migration** — `/notes` still standalone.
-- ⬜ **Mobile nav** — AppTopNav tabs are hidden under 900px (`.gl-nav-tabs { display:none }`); mobile currently has no top-nav tabs.
+- ✅ **Study-tools section on Work** — `/assignments` shows a Study tools row (Focus timer, Flashcards, Break it down, Study buddy).
+- ✅ **Focus-session merge** — `/timer` is one Focus session surface with a Solo / With-others toggle; `/body-double` redirects to `/timer?with=others`.
+- ✅ **Notes-in-class-hub** — `/classes/[id]` shows that subject's notes + New note action. (`/notes` remains as the cross-subject surface.)
+- ✅ **Mobile nav** — `MobileTabBar` fixed bottom bar (Today/Work/Classes/Calendar + More) shown ≤900px; reuses the MoreMenu drawer via `variant="mobile"`.
+
+### Capture-pipeline fixes (from §8 audit)
+- ✅ **Image/text classification now fires** — `saveInboxItem` calls `triggerClassification` (fire-and-forget) so the classify-inbox vision model populates suggestions.
+- ✅ **RECORD button saves** — top-nav voice transcript is saved to the inbox (+ classified) instead of being discarded.
+
+### Still open (product decisions, not nav wiring)
+- ⬜ Weekly XP is cosmetic (completion ratio + hardcoded game-day); no real points/streak engine.
+- ⬜ No true week-over-week comparison metric.
+- ⬜ Syllabus feature (per-class upload/parse) — net-new, not built.
 
 This file is the spec; it stays ahead of the code where ⬜ items remain.
 
@@ -153,8 +162,8 @@ End-to-end traces found several flows that are built but not connected. These ar
 
 | Flow | Status | The break | Fix location |
 |---|---|---|---|
-| **Image capture → classification** | 🔴 Broken mid-pipeline | Photo uploads to `inbox-photos` + creates an `inbox_items` row, but the AI vision classifier (`supabase/functions/classify-inbox`, real Claude Haiku vision) is **never triggered** — `triggerClassification()` has zero callers. Suggestions stay null forever; "Diana read" always empty. | Call `triggerClassification(id)` after `saveInboxItem` succeeds — `app/(app)/quick-add/actions.ts:37` |
-| **Top-nav RECORD button** | 🔴 Stub | `LobbyAudioNote` transcribes via Web Speech but **discards the transcript** on save. | `app/(app)/dashboard/lobby-audio-note.tsx:58` (`// TODO: wire to saveQuickCapture`) |
+| **Image capture → classification** | ✅ Fixed | `saveInboxItem` now calls `triggerClassification` (fire-and-forget) so the classify-inbox vision model runs and populates suggestions. | `app/(app)/quick-add/actions.ts` |
+| **Top-nav RECORD button** | ✅ Fixed | `LobbyAudioNote.stopAudio` now saves the transcript to the inbox (+ classifies) with a Saving… state. | `app/(app)/dashboard/lobby-audio-note.tsx` |
 | **`/quick-add` voice tab** | ✅ Complete | Records → OpenAI Whisper → real inbox row. | — |
 | **Inbox → assignment confirm** | ✅ Complete | Works; only cosmetic dependency on the broken classifier (suggested defaults empty). | — |
 | **Weekly XP** | ⚠️ Cosmetic | Not a points/streak/level engine — just `completed / due-this-week` relabeled "XP." "Game day" is hardcoded mock (`dashboard/page.tsx:640`). | Needs a real gamification model if desired |
