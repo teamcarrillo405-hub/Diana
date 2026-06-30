@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
 import { DashboardTabs } from "../dashboard-tabs";
@@ -67,6 +68,28 @@ export default async function ProofPage() {
           <Suspense fallback={null}>
             <GradeMoveCard />
           </Suspense>
+          <Link
+            href="/proof"
+            style={{
+              alignSelf: "flex-start",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "var(--space-3)",
+              borderRadius: "var(--radius-button)",
+              border: "1px solid var(--gl-green-30)",
+              background: "var(--gl-green-12)",
+              padding: "var(--space-5) var(--space-10)",
+              fontFamily: "var(--font-display)",
+              fontWeight: "var(--weight-800)",
+              fontSize: "var(--text-13)",
+              letterSpacing: "var(--tracking-04)",
+              textTransform: "uppercase",
+              color: "var(--gl-green)",
+              textDecoration: "none",
+            }}
+          >
+            See all proof →
+          </Link>
         </div>
       </div>
     </div>
