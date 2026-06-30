@@ -25,6 +25,7 @@ import {
   NexusPageShell,
   NexusPanel,
 } from "@/components/nexus/nexus-ui";
+import { DashboardTabs } from "../dashboard/dashboard-tabs";
 
 type AssignmentRow = {
   id: string;
@@ -153,6 +154,9 @@ export default async function AssignmentsPage() {
 
   return (
     <NexusPageShell className="assignments-mission-page space-y-8">
+      {/* Top tab strip (replaces the left sidebar here) — destinations per docs/design/NAVIGATION.md */}
+      <DashboardTabs />
+
       {/* Mission Board handoff — scan-line keyframes + reduced-motion guard */}
       <style>{`
         @keyframes mb-scan { 0% { transform: translateY(-12px); } 100% { transform: translateY(150px); } }

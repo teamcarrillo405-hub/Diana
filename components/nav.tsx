@@ -193,7 +193,9 @@ export function SideNav() {
   })).filter((group) => group.items.length > 0);
 
   // Dashboard routes are full-bleed (own top nav) — hide the sidebar there.
-  if (path.startsWith("/dashboard")) return null;
+  // /assignments now has its own top tab strip (DashboardTabs), so retire the
+  // sidebar there too (per docs/design/NAVIGATION.md).
+  if (path.startsWith("/dashboard") || path === "/assignments") return null;
 
   return (
     <aside className="nexus-side-nav hidden w-24 shrink-0 border-r border-border bg-surface-raised md:block" data-nav="compact-app-rail">

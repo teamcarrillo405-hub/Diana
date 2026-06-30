@@ -5,13 +5,14 @@ import { usePathname } from "next/navigation";
 
 type Tab = { label: string; href: string; accent: string };
 
-// Tab accent colors per Dashboard Plan §Tab layout specs.
+// Destinations locked in docs/design/NAVIGATION.md (one layer, real pages —
+// no curated middle page). Accent colors per Dashboard Plan §Tab layout specs.
 const TABS: Tab[] = [
   { label: "Today", href: "/dashboard", accent: "var(--gl-cyan)" },
-  { label: "Work", href: "/dashboard/work", accent: "var(--gl-cyan)" },
-  { label: "Think", href: "/dashboard/think", accent: "var(--gl-purple-light)" },
-  { label: "Proof", href: "/dashboard/proof", accent: "var(--gl-green)" },
-  { label: "Future", href: "/dashboard/future", accent: "var(--gl-gold)" },
+  { label: "Work", href: "/assignments", accent: "var(--gl-cyan)" },
+  { label: "Think", href: "/notes", accent: "var(--gl-purple-light)" },
+  { label: "Proof", href: "/proof", accent: "var(--gl-green)" },
+  { label: "Future", href: "/future-path", accent: "var(--gl-gold)" },
 ];
 
 /**
