@@ -129,7 +129,7 @@ export default async function ClassDetailPage({
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Today" />
+      <AppTopNav active="Classes" />
       <style>{`
         .cd-hero { display: grid; gap: var(--space-13); }
         @media (min-width: 1024px) { .cd-hero { grid-template-columns: 1.2fr 0.8fr; align-items: start; } }

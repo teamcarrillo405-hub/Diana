@@ -100,7 +100,7 @@ export default async function NotesPage({
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Think" />
+      <AppTopNav active="Classes" />
       <style>{`
         .nm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-9); }
         @media (max-width: 640px) { .nm-grid { grid-template-columns: 1fr; } }

@@ -134,7 +134,7 @@ export default async function ClassesPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Today" />
+      <AppTopNav active="Classes" />
       <style>{`
         .cls-lane-grid { display: grid; gap: var(--space-9); }
         @media (min-width: 768px) { .cls-lane-grid { grid-template-columns: 1fr 1fr; } }

@@ -59,7 +59,7 @@ export default async function NoteDetailPage({
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Think" />
+      <AppTopNav active="Classes" />
       <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
 
         {/* Header — back link + hero */}

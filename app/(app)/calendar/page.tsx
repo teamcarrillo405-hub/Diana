@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { addDays, format, parseISO, subDays } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
+import { AppTopNav } from "../app-top-nav";
 import {
   buildWeek,
   groupByDay,
@@ -104,7 +105,9 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
   }
 
   return (
-    <main className="diana-page space-y-6 py-6">
+    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)" }}>
+      <AppTopNav active="Calendar" />
+      <main className="diana-page space-y-6 py-6">
       <header className="mb-6 flex items-center justify-between">
         <div>
           <p className="nexus-kicker">Calendar deck</p>
@@ -197,5 +200,6 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
         })}
       </div>
     </main>
+    </div>
   );
 }

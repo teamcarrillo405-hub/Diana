@@ -84,7 +84,7 @@ export default async function FuturePathPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Future" />
+      <AppTopNav active="More" />
       <style>{`
         .fp-stage { display: grid; gap: var(--space-13); }
         @media (min-width: 1024px) { .fp-stage { grid-template-columns: 0.7fr 1.3fr; align-items: start; } }

@@ -65,7 +65,7 @@ export default async function GradesPage() {
   if (!config?.base_url || !config?.token) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-        <AppTopNav active="Proof" />
+        <AppTopNav active="More" />
         <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
           <GradeHero />
           <DisconnectedGrades />
@@ -89,7 +89,7 @@ export default async function GradesPage() {
   if (loadIssue || !insights) {
     return (
       <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-        <AppTopNav active="Proof" />
+        <AppTopNav active="More" />
         <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
           <GradeHero />
           <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-10)", padding: "var(--space-14)" }}>
@@ -110,7 +110,7 @@ export default async function GradesPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Proof" />
+      <AppTopNav active="More" />
       <style>{`
         .gr-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-9); }
         @media (max-width: 640px) { .gr-metrics { grid-template-columns: 1fr; } }

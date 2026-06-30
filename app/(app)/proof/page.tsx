@@ -76,7 +76,7 @@ export default async function ProofPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Proof" />
+      <AppTopNav active="More" />
       <style>{`
         .pf-stage { display: grid; gap: var(--space-13); }
         @media (min-width: 1024px) { .pf-stage { grid-template-columns: 0.74fr 1.26fr; } }

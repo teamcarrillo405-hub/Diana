@@ -1,20 +1,20 @@
 import Link from "next/link";
 
 import { LobbyAudioNote } from "./dashboard/lobby-audio-note";
+import { MoreMenu } from "./more-menu";
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 
-export type NavLabel = "Today" | "Work" | "Think" | "Proof" | "Future" | "More";
+export type NavLabel = "Today" | "Work" | "Classes" | "Calendar" | "More";
 
-// Destinations locked in docs/design/NAVIGATION.md — top tabs point at the real
-// pages (no curated middle layer). MORE opens the settings/drawer surface.
+// Tabs locked in docs/design/NAVIGATION.md — class-centric 5-tab model.
+// Today/Work/Classes/Calendar are direct links; More opens an overlay drawer
+// (MoreMenu) holding every secondary destination. No curated middle layer.
 const NAV_TABS: { label: NavLabel; href: string }[] = [
   { label: "Today", href: "/dashboard" },
   { label: "Work", href: "/assignments" },
-  { label: "Think", href: "/notes" },
-  { label: "Proof", href: "/proof" },
-  { label: "Future", href: "/future-path" },
-  { label: "More", href: "/settings" },
+  { label: "Classes", href: "/classes" },
+  { label: "Calendar", href: "/calendar" },
 ];
 
 /**
@@ -76,6 +76,7 @@ export function AppTopNav({ active }: { active: NavLabel }) {
               </Link>
             );
           })}
+          <MoreMenu active={active === "More"} />
         </div>
 
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
