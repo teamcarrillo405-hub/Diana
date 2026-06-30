@@ -1,32 +1,13 @@
-import Link from "next/link";
-import type { CSSProperties } from "react";
-import {
-  ArrowRight,
-  BookOpen,
-  ClipboardCheck,
-  Layers3,
-  MessageSquareText,
-  NotebookTabs,
-  Radar,
-  SlidersHorizontal,
-} from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { formatDueAt } from "@/lib/format";
 import { ClassForm } from "./class-form";
 import { AppTopNav } from "../app-top-nav";
-import { classTheme } from "../dashboard/classes-grid";
+import { MyClassesGrid, type ClassCardModel, type CtaVariant } from "./my-classes-grid";
 
-const SF = "var(--font-display)";
+const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 const BODY = "var(--font-body)";
 
-type ClassRow = {
-  id: string;
-  name: string;
-  teacher: string | null;
-  color: string | null;
-  created_at: string;
-};
-
+type ClassRow = { id: string; name: string; created_at: string };
 type AssignmentRow = {
   id: string;
   title: string;
@@ -34,271 +15,198 @@ type AssignmentRow = {
   status: string;
   due_at: string | null;
   estimated_minutes: number | null;
-  reading_load: number;
+  kind: string;
 };
 
-type RubricRow = {
-  id: string;
-  class_id: string | null;
-  parse_status: string | null;
-};
-
-type NoteRow = {
-  id: string;
-  class_id: string | null;
-};
-
-type ClassLane = ClassRow & {
-  openAssignments: AssignmentRow[];
-  nextAssignment: AssignmentRow | null;
-  rubricCount: number;
-  noteCount: number;
-  loadScore: number;
-  dueSoonCount: number;
-  rulebrickLabel: string;
-};
+const CLOSED = ["submitted", "graded", "abandoned"];
 
 function dueMs(value: string | null) {
   return value ? new Date(value).getTime() : Number.MAX_SAFE_INTEGER;
 }
 
-function dueSoon(row: AssignmentRow, now: Date) {
-  if (!row.due_at) return false;
-  const days = (new Date(row.due_at).getTime() - now.getTime()) / 86_400_000;
-  return days <= 3;
+function dueShort(iso: string) {
+  return new Date(iso)
+    .toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })
+    .replace(",", "")
+    .toUpperCase();
 }
 
-function loadScore(assignments: AssignmentRow[], rubricCount: number, noteCount: number, now: Date) {
-  const due = assignments.filter((row) => dueSoon(row, now)).length;
-  const reading = assignments.reduce((sum, row) => sum + Math.max(0, row.reading_load ?? 0), 0);
-  const minutes = assignments.reduce((sum, row) => sum + Math.max(0, row.estimated_minutes ?? 0), 0);
-  const sourceBoost = Math.min(18, rubricCount * 8 + noteCount * 2);
-  return Math.max(10, Math.min(96, Math.round(24 + due * 18 + assignments.length * 7 + reading * 3 + minutes / 18 + sourceBoost)));
-}
+function deriveCard(
+  cls: ClassRow,
+  assignments: AssignmentRow[],
+  tookMin: Map<string, number>,
+  now: Date,
+): { card: ClassCardModel; urgency: number; overdueCount: number; notTurnedInCount: number } {
+  const mine = assignments.filter((a) => a.class_id === cls.id);
+  const open = mine.filter((a) => !CLOSED.includes(a.status));
+  const byDue = [...open].sort((a, b) => dueMs(a.due_at) - dueMs(b.due_at));
+  const overdue = byDue.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
+  const doneNotSubmitted = open.find((a) => a.status === "exporting") ?? null;
+  const recentDone = [...mine.filter((a) => a.status === "submitted" || a.status === "graded")].sort(
+    (a, b) => dueMs(b.due_at) - dueMs(a.due_at),
+  )[0] ?? null;
 
-function rulebrickLabel(rubrics: RubricRow[], notes: NoteRow[]) {
-  if (rubrics.some((rubric) => rubric.parse_status === "parsed")) return "parsed rulebrick";
-  if (rubrics.length > 0) return "teacher rules saved";
-  if (notes.length > 0) return "notes captured";
-  return "needs teacher rules";
+  // Upcoming quiz/test in the next week → quiz row.
+  const quizSoon = byDue.find((a) => {
+    if (a.kind !== "test_prep" || !a.due_at) return false;
+    const days = (new Date(a.due_at).getTime() - now.getTime()) / 86_400_000;
+    return days >= -0.5 && days <= 7;
+  });
+  const quiz = quizSoon
+    ? (() => {
+        const days = Math.round((new Date(quizSoon.due_at!).getTime() - now.getTime()) / 86_400_000);
+        const label = days <= 0 ? "Quiz today" : days === 1 ? "Quiz tomorrow" : `Quiz in ${days} days`;
+        return { label, flashcardsHref: "/flashcards", quizHref: "/flashcards" };
+      })()
+    : null;
+
+  const base = { id: cls.id, name: cls.name, eventPill: null as string | null, quiz, href: `/classes/${cls.id}` };
+
+  // No work at all.
+  if (open.length === 0 && !recentDone) {
+    return {
+      card: { ...base, statusLabel: "No work yet", statusTone: "muted", isNow: false, taskTitle: null, taskBadge: null, doneBar: false, timeLabel: null, progressPct: 0, cta: { label: "Open class", href: `/classes/${cls.id}`, variant: "cyanOutline" } },
+      urgency: 0, overdueCount: 0, notTurnedInCount: 0,
+    };
+  }
+
+  // Done, not turned in.
+  if (doneNotSubmitted) {
+    const took = tookMin.get(doneNotSubmitted.id) ?? 0;
+    return {
+      card: {
+        ...base,
+        statusLabel: "Not turned in",
+        statusTone: "muted",
+        isNow: false,
+        taskTitle: doneNotSubmitted.title,
+        taskBadge: doneNotSubmitted.due_at ? { text: dueShort(doneNotSubmitted.due_at), tone: "neutral" } : null,
+        doneBar: true,
+        timeLabel: took > 0 ? `took ${took} min` : null,
+        progressPct: 100,
+        cta: { label: "Turn in now", href: `/assignments/${doneNotSubmitted.id}/submit`, variant: "goldFilled" },
+      },
+      urgency: 4, overdueCount: 0, notTurnedInCount: 1,
+    };
+  }
+
+  // Has open work → in progress or not started.
+  if (open.length > 0) {
+    const focus = overdue[0] ?? byDue[0];
+    const isOverdue = Boolean(focus.due_at && new Date(focus.due_at).getTime() < now.getTime());
+    const started = focus.status === "drafting" || focus.status === "checking";
+    const dueSoon = Boolean(focus.due_at && (new Date(focus.due_at).getTime() - now.getTime()) / 86_400_000 <= 2);
+    const cta = started
+      ? isOverdue || dueSoon
+        ? { label: "Open now", href: `/assignments/${focus.id}?focus=next-step`, variant: "cyanFilled" as const }
+        : { label: "Continue", href: `/assignments/${focus.id}?focus=next-step`, variant: "cyanOutline" as const }
+      : { label: "Start now", href: `/assignments/${focus.id}?focus=next-step`, variant: (isOverdue ? "redFilled" : "cyanFilled") as CtaVariant };
+    return {
+      card: {
+        ...base,
+        statusLabel: started ? "In progress" : "Not started",
+        statusTone: "cyan",
+        isNow: false,
+        taskTitle: focus.title,
+        taskBadge: isOverdue ? { text: "Overdue", tone: "overdue" } : focus.due_at ? { text: dueShort(focus.due_at), tone: "neutral" } : null,
+        doneBar: false,
+        timeLabel: focus.estimated_minutes ? `est. ${focus.estimated_minutes} min` : null,
+        progressPct: started ? 55 : 0,
+        cta,
+      },
+      urgency: isOverdue ? 3 : dueSoon ? 2 : 1,
+      overdueCount: overdue.length,
+      notTurnedInCount: 0,
+    };
+  }
+
+  // Everything turned in.
+  const took = recentDone ? tookMin.get(recentDone.id) ?? 0 : 0;
+  return {
+    card: {
+      ...base,
+      statusLabel: "Turned in",
+      statusTone: "muted",
+      isNow: false,
+      taskTitle: recentDone?.title ?? null,
+      taskBadge: { text: "Done ✓", tone: "done" },
+      doneBar: true,
+      timeLabel: took > 0 ? `took ${took} min` : null,
+      progressPct: 100,
+      cta: { label: "Review", href: recentDone ? `/assignments/${recentDone.id}` : `/classes/${cls.id}`, variant: "dark" },
+    },
+    urgency: 0, overdueCount: 0, notTurnedInCount: 0,
+  };
 }
 
 export default async function ClassesPage() {
   const supabase = await createClient();
   const now = new Date();
 
-  const [{ data: classes }, { data: assignments }, { data: rubrics }, { data: notes }] = await Promise.all([
-    supabase
-      .from("classes")
-      .select("id, name, teacher, color, created_at")
-      .is("archived_at", null)
-      .order("created_at", { ascending: false }),
+  const [{ data: classes }, { data: assignments }, { data: logs }] = await Promise.all([
+    supabase.from("classes").select("id, name, created_at").is("archived_at", null).order("created_at", { ascending: false }),
     supabase
       .from("assignments")
-      .select("id, title, class_id, status, due_at, estimated_minutes, reading_load")
+      .select("id, title, class_id, status, due_at, estimated_minutes, kind")
       .not("class_id", "is", null)
       .order("due_at", { ascending: true, nullsFirst: false }),
-    supabase.from("rubrics").select("id, class_id, parse_status"),
-    supabase.from("notes").select("id, class_id").not("class_id", "is", null),
+    supabase.from("assignment_time_log").select("assignment_id, started_at, ended_at").not("ended_at", "is", null),
   ]);
 
-  const activeClasses = (classes ?? []) as ClassRow[];
+  const classRows = (classes ?? []) as ClassRow[];
   const assignmentRows = (assignments ?? []) as AssignmentRow[];
-  const rubricRows = (rubrics ?? []) as RubricRow[];
-  const noteRows = (notes ?? []) as NoteRow[];
-  const openAssignments = assignmentRows.filter((row) => !["submitted", "graded", "abandoned"].includes(row.status));
 
-  const lanes: ClassLane[] = activeClasses
-    .map((classRow) => {
-      const classAssignments = openAssignments
-        .filter((a) => a.class_id === classRow.id)
-        .sort((a, b) => dueMs(a.due_at) - dueMs(b.due_at));
-      const classRubrics = rubricRows.filter((r) => r.class_id === classRow.id);
-      const classNotes = noteRows.filter((n) => n.class_id === classRow.id);
-      return {
-        ...classRow,
-        openAssignments: classAssignments,
-        nextAssignment: classAssignments[0] ?? null,
-        rubricCount: classRubrics.length,
-        noteCount: classNotes.length,
-        dueSoonCount: classAssignments.filter((a) => dueSoon(a, now)).length,
-        loadScore: loadScore(classAssignments, classRubrics.length, classNotes.length, now),
-        rulebrickLabel: rulebrickLabel(classRubrics, classNotes),
-      };
-    })
-    .sort((a, b) => b.loadScore - a.loadScore || dueMs(a.nextAssignment?.due_at ?? null) - dueMs(b.nextAssignment?.due_at ?? null));
+  const tookMin = new Map<string, number>();
+  for (const log of (logs ?? []) as { assignment_id: string | null; started_at: string | null; ended_at: string | null }[]) {
+    if (!log.assignment_id || !log.started_at || !log.ended_at) continue;
+    const mins = Math.max(0, Math.round((new Date(log.ended_at).getTime() - new Date(log.started_at).getTime()) / 60000));
+    tookMin.set(log.assignment_id, (tookMin.get(log.assignment_id) ?? 0) + mins);
+  }
 
-  const totalDueSoon = lanes.reduce((sum, l) => sum + l.dueSoonCount, 0);
-  const withRulebricks = lanes.filter((l) => l.rubricCount > 0).length;
-  const namedTeachers = lanes.filter((l) => Boolean(l.teacher)).length;
+  const derived = classRows.map((c) => deriveCard(c, assignmentRows, tookMin, now));
+
+  // Mark the single most-urgent class as the "Now" focal card.
+  let nowIdx = -1;
+  let bestUrgency = 0;
+  derived.forEach((d, i) => {
+    if (d.urgency > bestUrgency) {
+      bestUrgency = d.urgency;
+      nowIdx = i;
+    }
+  });
+  if (nowIdx >= 0) derived[nowIdx].card.isNow = true;
+
+  const cards = derived.map((d) => d.card);
+  const overdueCount = derived.reduce((s, d) => s + d.overdueCount, 0);
+  const notTurnedInCount = derived.reduce((s, d) => s + d.notTurnedInCount, 0);
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
       <AppTopNav active="Classes" />
-      <style>{`
-        .cls-lane-grid { display: grid; gap: var(--space-9); }
-        @media (min-width: 768px) { .cls-lane-grid { grid-template-columns: 1fr 1fr; } }
-        @media (min-width: 1280px) { .cls-lane-grid { grid-template-columns: 1fr 1fr 1fr; } }
-        .cls-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-9); }
-        @media (min-width: 640px) { .cls-metrics { grid-template-columns: repeat(4, 1fr); } }
-        .cls-focus { display: grid; gap: var(--space-13); }
-        @media (min-width: 1024px) { .cls-focus { grid-template-columns: 1fr 1fr; align-items: start; } }
-      `}</style>
       <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
-
-        {/* Hero */}
-        <header style={{ display: "grid", gap: "var(--space-8)" }}>
-          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <Layers3 size={13} aria-hidden="true" />
-            Class lanes
-          </p>
-          <h1 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, maxWidth: "20ch" }}>
-            Every subject gets a signal.
-          </h1>
-          <p style={{ fontFamily: BODY, fontSize: "var(--text-16)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", maxWidth: "52ch", margin: 0 }}>
-            Classes are where teacher rules, homework, notes, rubrics, and proof become one lane instead of scattered school stuff.
-          </p>
-        </header>
-
-        {/* Metrics */}
-        <div className="cls-metrics">
-          {[
-            { label: "Active", value: activeClasses.length, detail: "class lanes" },
-            { label: "Due soon", value: totalDueSoon, detail: "3-day window" },
-            { label: "Rulebricks", value: withRulebricks, detail: "teacher rules" },
-            { label: "Teachers", value: namedTeachers, detail: "named contacts" },
-          ].map((m) => (
-            <div key={m.label} style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12)" }}>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: "0 0 var(--space-4)" }}>{m.label}</p>
-              <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: "0 0 var(--space-2)" }}>{m.value}</p>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>{m.detail}</p>
+        {cards.length === 0 ? (
+          <div style={{ display: "grid", gap: "var(--space-12)" }}>
+            <h1 style={{ margin: 0, fontFamily: SF, fontWeight: 800, fontSize: 30, letterSpacing: ".02em", textTransform: "uppercase", color: "var(--gl-text-primary)" }}>My Classes</h1>
+            <div style={{ borderRadius: 16, border: "1px dashed var(--gl-border-neutral)", padding: "44px 24px", textAlign: "center", display: "grid", gap: "var(--space-5)" }}>
+              <span style={{ fontFamily: SF, fontWeight: 800, fontSize: 22, textTransform: "uppercase", color: "var(--gl-text-primary)" }}>Add your first class</span>
+              <span style={{ fontFamily: BODY, fontSize: 14, color: "var(--gl-text-secondary)" }}>Set up a class so Diana can organize your work, notes, and grades by subject.</span>
             </div>
-          ))}
-        </div>
-
-        {/* Highest-signal focus card */}
-        {lanes[0] && (
-          <div className="cls-focus" style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-cyan)", background: "var(--gl-cyan-10)", padding: "var(--space-14)" }}>
-            <div style={{ display: "grid", gap: "var(--space-8)" }}>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                <SlidersHorizontal size={13} />
-                Highest signal
-              </p>
-              <div>
-                <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)", margin: "0 0 var(--space-2)" }}>{lanes[0].loadScore} signal</p>
-                <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>{lanes[0].name}</h2>
-                <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: "var(--space-3) 0 var(--space-10)" }}>{lanes[0].teacher ?? "Teacher contact can be added later"}</p>
-                <Link href={`/classes/${lanes[0].id}`} style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-cyan)", color: "#04080f", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}>
-                  Open lane
-                  <ArrowRight size={13} />
-                </Link>
-              </div>
-            </div>
-            <div style={{ display: "grid", gap: "var(--space-5)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12)" }}>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                <Radar size={12} />
-                Next move
-              </p>
-              <p style={{ fontFamily: SF, fontWeight: "var(--weight-700)", fontSize: "var(--text-20)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>{lanes[0].nextAssignment?.title ?? "This lane is clear"}</p>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-muted)", margin: 0 }}>
-                {lanes[0].nextAssignment?.due_at ? formatDueAt(lanes[0].nextAssignment.due_at) : "Ready when something arrives"}
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Lane grid */}
-        {lanes.length === 0 ? (
-          <div style={{ borderRadius: "var(--radius-card)", border: "1px dashed var(--gl-border-neutral)", padding: "var(--space-20)", textAlign: "center", display: "grid", gap: "var(--space-6)" }}>
-            <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>No lanes yet</p>
-            <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>Add the first class.</p>
-            <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>Once a class exists, Diana can connect assignments, rubrics, notes, and proof to the right subject.</p>
           </div>
         ) : (
-          <section className="cls-lane-grid" aria-label="Class signal lanes">
-            {lanes.map((lane) => (
-              <LaneCard key={lane.id} lane={lane} />
-            ))}
-          </section>
+          <MyClassesGrid cards={cards} overdueCount={overdueCount} notTurnedInCount={notTurnedInCount} />
         )}
 
         {/* Add a class */}
-        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)" }}>
-          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: "0 0 var(--space-8)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <BookOpen size={13} />
+        <details style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12) var(--space-14)" }}>
+          <summary style={{ cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "var(--space-4)", fontFamily: BODY, fontSize: "var(--text-12)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-cyan)" }}>
+            <BookOpen size={14} />
             Add a class
-          </p>
-          <ClassForm />
-        </section>
+          </summary>
+          <div style={{ marginTop: "var(--space-10)" }}>
+            <ClassForm />
+          </div>
+        </details>
       </div>
     </div>
-  );
-}
-
-function LaneCard({ lane }: { lane: ClassLane }) {
-  const theme = classTheme({ id: lane.id, name: lane.name, color: lane.color });
-  return (
-    <Link
-      href={`/classes/${lane.id}`}
-      style={{ display: "grid", gap: "var(--space-9)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", textDecoration: "none", overflow: "hidden" }}
-    >
-      {/* Class banner strip */}
-      <div style={{ borderRadius: "var(--radius-card)", background: theme.bannerBg, padding: "var(--space-10) var(--space-12)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: theme.accent }}>{theme.symbol}</span>
-        <span style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", color: theme.accent, opacity: 0.8 }}>{lane.loadScore} signal</span>
-      </div>
-
-      {/* Name + teacher */}
-      <div>
-        <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-22)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: "0 0 var(--space-2)" }}>{lane.name}</h2>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-muted)", margin: 0 }}>{lane.teacher ?? "Add teacher contact"}</p>
-      </div>
-
-      {/* Signal bars */}
-      <div style={{ display: "grid", gap: "var(--space-5)" }}>
-        {[
-          { label: "work", value: Math.min(96, 28 + lane.openAssignments.length * 14) },
-          { label: "due", value: Math.min(96, 20 + lane.dueSoonCount * 28) },
-          { label: "rules", value: Math.min(96, 22 + lane.rubricCount * 38 + lane.noteCount * 4) },
-        ].map((bar) => (
-          <div key={bar.label} style={{ display: "grid", gridTemplateColumns: "3rem 1fr 2rem", gap: "var(--space-4)", alignItems: "center" }}>
-            <span style={{ fontFamily: BODY, fontSize: "var(--text-10)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-text-muted)" }}>{bar.label}</span>
-            <div style={{ height: 4, borderRadius: 2, background: "var(--gl-border-neutral)", overflow: "hidden" }}>
-              <div style={{ height: "100%", width: `${Math.max(6, bar.value)}%`, borderRadius: 2, background: theme.accent, opacity: 0.7 }} />
-            </div>
-            <span style={{ fontFamily: BODY, fontSize: "var(--text-10)", color: "var(--gl-text-muted)", textAlign: "right" }}>{bar.value}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Next in lane */}
-      <div style={{ display: "grid", gap: "var(--space-3)", paddingTop: "var(--space-6)", borderTop: "1px solid var(--gl-border-neutral)" }}>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-10)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-          <Radar size={11} />
-          Next in lane
-        </p>
-        <p style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", margin: 0 }}>{lane.nextAssignment?.title ?? "No open schoolwork"}</p>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>
-          {lane.nextAssignment?.due_at ? formatDueAt(lane.nextAssignment.due_at) : "Ready when something arrives"}
-        </p>
-      </div>
-
-      {/* Footer */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4) var(--space-8)", paddingTop: "var(--space-6)", borderTop: "1px solid var(--gl-border-neutral)" }}>
-        {[
-          { icon: ClipboardCheck, label: lane.rulebrickLabel },
-          { icon: NotebookTabs, label: `${lane.noteCount} notes` },
-          { icon: MessageSquareText, label: lane.teacher ? "contact saved" : "add contact" },
-        ].map(({ icon: Icon, label }) => (
-          <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)" }}>
-            <Icon size={11} />
-            {label}
-          </span>
-        ))}
-        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-11)", color: theme.accent, marginLeft: "auto" }}>
-          Open lane <ArrowRight size={11} />
-        </span>
-      </div>
-    </Link>
   );
 }
