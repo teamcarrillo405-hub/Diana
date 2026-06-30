@@ -21,6 +21,7 @@ type LobbyHeroProps = {
   quests?: QuestItem[];
   gameDay?: GameDay | null;
   focusHref: string;
+  photoUrl?: string | null;
 };
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
@@ -41,6 +42,7 @@ export function LobbyHero({
   weekDone,
   weekTotal,
   focusHref,
+  photoUrl = null,
 }: LobbyHeroProps) {
   const xpPct = weekTotal > 0 ? Math.round((weekDone / weekTotal) * 100) : 0;
   const displayName = studentName.toUpperCase();
@@ -161,7 +163,7 @@ export function LobbyHero({
         <div className="gl-hero-content" style={{ position: "relative", zIndex: 2, maxWidth: 1440, margin: "0 auto", height: 660 }}>
 
           {/* Player photo slot — shows the uploaded cutout, or the upload prompt. */}
-          <PlayerPhotoSlot />
+          <PlayerPhotoSlot src={photoUrl} />
 
           {/* ENERGY CHECK (top-right) — links to the THINK tab where energy is set */}
           <Link className="gl-energy" href="/dashboard/think" aria-label="Check in on your energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8, textDecoration: "none", color: "#fff" }}>

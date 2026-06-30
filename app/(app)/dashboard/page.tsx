@@ -308,6 +308,18 @@ export default async function DashboardPage({
   const profile = await loadProfile();
   const search = await searchParams;
   const now = new Date();
+
+  // Cross-device lobby photo (profiles.photo_url; generated types may lag the
+  // migration, so this read is cast). RLS already scopes profiles to the owner.
+  let playerPhotoUrl: string | null = null;
+  if (profile?.user_id) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: photoRow } = await (supabase.from("profiles") as any)
+      .select("photo_url")
+      .eq("user_id", profile.user_id)
+      .maybeSingle();
+    playerPhotoUrl = (photoRow?.photo_url as string | null) ?? null;
+  }
   const learnerProfile = profile
     ? await getLearnerProfile({ supabase, ownerId: profile.user_id })
     : null;
@@ -691,6 +703,7 @@ export default async function DashboardPage({
           quests={questItems}
           gameDay={{ title: "HOME 🏈", time: "FRI 7:00 PM", opponent: "vs Eagles" }}
           focusHref={taskHref}
+          photoUrl={playerPhotoUrl}
         />
         <ClassesGrid classes={classCardDataList} />
       </div>

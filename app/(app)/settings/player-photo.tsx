@@ -1,33 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
+import { savePlayerPhoto, clearPlayerPhoto } from "./player-photo-actions";
 
-// Same key the lobby reads. Per the handoff photo system: the background-removed
-// cutout is stored client-side as a base64 data URL and shown in the lobby hero.
-const STORAGE_KEY = "diana-fullbody-src";
-
-function blobToDataUrl(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("read-failed"));
-    reader.readAsDataURL(blob);
-  });
+// Downscale the background-removed cutout so the stored data URL stays small
+// (it lives on the profile row and is read on the dashboard). WebP keeps
+// transparency and is compact; PNG is the fallback.
+async function downscaleToDataUrl(blob: Blob, maxHeight = 560): Promise<string> {
+  const bitmap = await createImageBitmap(blob);
+  const scale = Math.min(1, maxHeight / bitmap.height);
+  const w = Math.max(1, Math.round(bitmap.width * scale));
+  const h = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas-unavailable");
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close?.();
+  const webp = canvas.toDataURL("image/webp", 0.85);
+  return webp.startsWith("data:image/webp") ? webp : canvas.toDataURL("image/png");
 }
 
-export function PlayerPhoto() {
-  const [photo, setPhoto] = useState<string | null>(null);
+export function PlayerPhoto({ initialPhoto }: { initialPhoto: string | null }) {
+  const [photo, setPhoto] = useState<string | null>(initialPhoto);
   const [busy, setBusy] = useState(false);
+  const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    try {
-      setPhoto(localStorage.getItem(STORAGE_KEY));
-    } catch {
-      /* localStorage unavailable */
-    }
-  }, []);
 
   async function handleFile(file: File) {
     if (!file.type.startsWith("image/")) {
@@ -47,7 +47,7 @@ export function PlayerPhoto() {
         try {
           detail = (await res.json())?.error ?? "";
         } catch {
-          /* non-json error body */
+          /* non-json body */
         }
         setMessage(
           res.status === 503
@@ -57,16 +57,16 @@ export function PlayerPhoto() {
         return;
       }
 
-      const dataUrl = await blobToDataUrl(await res.blob());
-      try {
-        localStorage.setItem(STORAGE_KEY, dataUrl);
-      } catch {
-        setMessage("Photo processed, but it couldn't be saved on this device.");
-        return;
-      }
-      setPhoto(dataUrl);
-      window.dispatchEvent(new Event("diana-photo-changed"));
-      setMessage("Saved. Your photo now shows in your lobby.");
+      const dataUrl = await downscaleToDataUrl(await res.blob());
+      startTransition(async () => {
+        const result = await savePlayerPhoto(dataUrl);
+        if (!result.ok) {
+          setMessage(result.error);
+          return;
+        }
+        setPhoto(dataUrl);
+        setMessage("Saved. Your photo now shows in your lobby, on every device.");
+      });
     } catch {
       setMessage("Something went wrong uploading. Try again.");
     } finally {
@@ -76,22 +76,26 @@ export function PlayerPhoto() {
   }
 
   function removePhoto() {
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* ignore */
-    }
-    setPhoto(null);
     setMessage(null);
-    window.dispatchEvent(new Event("diana-photo-changed"));
+    startTransition(async () => {
+      const result = await clearPlayerPhoto();
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      setPhoto(null);
+    });
   }
+
+  const working = busy || pending;
 
   return (
     <section className="nexus-panel nexus-panel-dense space-y-3">
       <span className="nexus-kicker">Player photo</span>
       <h2 className="text-xl font-semibold">Your lobby photo</h2>
       <p className="text-sm text-muted">
-        Upload a photo and Diana removes the background so it sits cleanly in your lobby. It stays on this device.
+        Upload a photo and Diana removes the background so it sits cleanly in your lobby. It syncs to your account, so it
+        shows up on any device you sign in on.
       </p>
 
       <div className="flex items-center gap-4">
@@ -117,16 +121,16 @@ export function PlayerPhoto() {
           />
           <button
             type="button"
-            disabled={busy}
+            disabled={working}
             onClick={() => inputRef.current?.click()}
             className="nexus-button nexus-button-primary w-fit px-3 py-2 text-sm disabled:opacity-50"
           >
-            {busy ? "Processing…" : photo ? "Replace photo" : "Upload photo"}
+            {working ? "Working…" : photo ? "Replace photo" : "Upload photo"}
           </button>
           {photo && (
             <button
               type="button"
-              disabled={busy}
+              disabled={working}
               onClick={removePhoto}
               className="nexus-button nexus-button-ghost w-fit px-3 py-2 text-sm disabled:opacity-50"
             >

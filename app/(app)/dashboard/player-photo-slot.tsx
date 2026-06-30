@@ -1,44 +1,20 @@
-"use client";
-
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
-const STORAGE_KEY = "diana-fullbody-src";
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 
 /**
- * Hero player-photo slot. Reads the background-removed cutout the student
- * uploads in Settings (stored as a base64 data URL in localStorage) and shows
- * it; when there's no photo, shows the dashed "Tap to add your photo" prompt
- * that links to Settings. Updates live via the `diana-photo-changed` event and
- * cross-tab `storage` events. Carries `gl-player` so it hides on mobile.
+ * Hero player-photo slot. `src` is the student's background-removed cutout,
+ * persisted on their profile (cross-device) and passed in from the server.
+ * When there's no photo, shows the dashed "Tap to add your photo" prompt that
+ * links to Settings. Carries `gl-player` so it hides on mobile.
  */
-export function PlayerPhotoSlot() {
-  const [photo, setPhoto] = useState<string | null>(null);
-
-  useEffect(() => {
-    const read = () => {
-      try {
-        setPhoto(localStorage.getItem(STORAGE_KEY));
-      } catch {
-        /* localStorage unavailable */
-      }
-    };
-    read();
-    window.addEventListener("diana-photo-changed", read);
-    window.addEventListener("storage", read);
-    return () => {
-      window.removeEventListener("diana-photo-changed", read);
-      window.removeEventListener("storage", read);
-    };
-  }, []);
-
-  if (photo) {
+export function PlayerPhotoSlot({ src }: { src: string | null }) {
+  if (src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
         className="gl-player"
-        src={photo}
+        src={src}
         alt=""
         aria-hidden="true"
         style={{
