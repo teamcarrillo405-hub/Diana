@@ -8,6 +8,7 @@ import {
   ClipboardCheck,
   ExternalLink,
   GraduationCap,
+  NotebookPen,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
@@ -75,7 +76,7 @@ export default async function ClassDetailPage({
     .single();
   if (!cls) notFound();
 
-  const [{ data: rubrics }, { data: assignments }, { data: lmsConnections }] = await Promise.all([
+  const [{ data: rubrics }, { data: assignments }, { data: lmsConnections }, { data: classNotes }] = await Promise.all([
     supabase
       .from("rubrics")
       .select("id, title, parse_status, created_at")
@@ -92,7 +93,16 @@ export default async function ClassDetailPage({
       .eq("provider", "canvas")
       .order("created_at", { ascending: false })
       .limit(1),
+    supabase
+      .from("notes")
+      .select("id, title, updated_at")
+      .eq("class_id", id)
+      .order("updated_at", { ascending: false })
+      .limit(6),
   ]);
+
+  type ClassNote = { id: string; title: string | null; updated_at: string };
+  const notes = (classNotes ?? []) as ClassNote[];
 
   type CanvasConfig = { base_url: string; token: string };
   const canvasConfig = (lmsConnections?.[0]?.config ?? null) as CanvasConfig | null;
@@ -254,6 +264,52 @@ export default async function ClassDetailPage({
             </details>
           </div>
         </div>
+
+        {/* Subject notes — notes live inside the class (per CLAUDE.md) */}
+        <section style={{ display: "grid", gap: "var(--space-9)" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-8)" }}>
+            <div style={{ display: "grid", gap: "var(--space-3)" }}>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-purple-light)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+                <NotebookPen size={13} />
+                Subject notes
+              </p>
+              <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>
+                Notes for {cls.name}
+              </h2>
+            </div>
+            <Link
+              href="/notes/new"
+              style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-purple-light)", color: "#0a0820", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none", flexShrink: 0 }}
+            >
+              New note
+            </Link>
+          </div>
+          {notes.length === 0 ? (
+            <div style={{ borderRadius: "var(--radius-card)", border: "1px dashed var(--gl-border-neutral)", padding: "var(--space-14)", display: "grid", gap: "var(--space-5)" }}>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>No notes yet</p>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>Capture a note, voice memo, or photo and Diana routes it to this class.</p>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gap: "var(--space-4)" }}>
+              {notes.map((note) => (
+                <Link
+                  key={note.id}
+                  href={`/notes/${note.id}`}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-8)", padding: "var(--space-10) var(--space-12)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", textDecoration: "none" }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "var(--space-5)", fontFamily: BODY, fontWeight: "var(--weight-600)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", minWidth: 0 }}>
+                    <NotebookPen size={14} style={{ color: "var(--gl-purple-light)", flexShrink: 0 }} />
+                    <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{note.title || "Untitled note"}</span>
+                  </span>
+                  <span style={{ display: "flex", alignItems: "center", gap: "var(--space-6)", flexShrink: 0 }}>
+                    <span style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{new Date(note.updated_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}</span>
+                    <ArrowRight size={12} style={{ color: "var(--gl-purple-light)" }} />
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Grade panel — shown when Canvas is connected and a matching course is found */}
         {classGrade && (
