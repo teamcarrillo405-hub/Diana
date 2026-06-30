@@ -5529,7 +5529,9 @@ body[data-experience-mode="future"] .future-wave-bar {
 
 .app-command-frame {
   width: 100%;
-  padding: clamp(0.85rem, 1.8vw, 1.75rem);
+  /* Vertical breathing room stays responsive; horizontal gutter is the
+     app-wide 34px (--space-17) so every page matches the dashboard. */
+  padding: clamp(0.85rem, 1.8vw, 1.75rem) var(--space-17);
 }
 
 .auth-dock {
@@ -9422,7 +9424,7 @@ body[data-experience-mode="future"] .future-wave-bar {
 
 .nexus-authenticated-field .app-command-frame > main[class*="mx-auto"],
 .nexus-authenticated-field .app-command-frame > div[class*="mx-auto"] {
-  padding-inline: clamp(1rem, 3vw, 4rem);
+  padding-inline: 0; /* frame already supplies the 34px gutter */
 }
 
 .nexus-side-nav {

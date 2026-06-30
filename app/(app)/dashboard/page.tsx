@@ -683,7 +683,7 @@ export default async function DashboardPage({
       <div
         style={{
           marginTop: "calc(-1 * clamp(0.85rem, 1.8vw, 1.75rem))",
-          marginInline: "calc(-1 * clamp(0.85rem, 1.8vw, 1.75rem))",
+          marginInline: "calc(-1 * var(--space-17))",
         }}
       >
         <LobbyHero
