@@ -140,7 +140,7 @@ The map above is the target. Current code reality as of this rewrite:
 ### Product features (built)
 - ✅ **Real XP / level / streak** — `lib/gamification/xp.ts`, shown in the Proof Momentum section. (Locked lobby hero unchanged; hardcoded game-day mock removed.)
 - ✅ **Week-over-week** — `lib/insights/week-over-week.ts`, in the Proof Momentum section.
-- ✅ **Syllabus per class** — `class_syllabi` table + `lib/syllabus/parse.ts` + class-hub section. **Requires migration `20260613010000_class_syllabi.sql` to be applied (`supabase db push`)** before the table exists; UI degrades to an empty state until then.
+- ✅ **Syllabus per class** — `class_syllabi` table + `lib/syllabus/parse.ts` + class-hub section. Migration `20260613010000_class_syllabi.sql` **applied to diana-staging (2026-06-30)** — feature is live. (Code still uses untyped-client casts until DB types are regenerated — optional cleanup.)
 
 This file is the spec; it stays ahead of the code where ⬜ items remain.
 
