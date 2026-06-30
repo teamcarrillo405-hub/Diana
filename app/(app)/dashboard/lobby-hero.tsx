@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { LobbyAudioNote } from "./lobby-audio-note";
 import { type QuestItem } from "./quest-carousel";
@@ -84,12 +85,14 @@ export function LobbyHero({
 
         {/* Hero background + tint */}
         <div className="gl-hero-bg" style={{ position: "absolute", inset: 0, width: "100%", height: 718, zIndex: 0, background: "#000" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src="/stadium-bg.jpg"
             alt=""
             aria-hidden="true"
-            style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
+            fill
+            priority
+            sizes="100vw"
+            style={{ objectFit: "cover" }}
           />
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.68)", zIndex: 1 }} />
         </div>
@@ -163,8 +166,8 @@ export function LobbyHero({
           */}
           <div className="gl-player" aria-hidden="true" style={{ position: "absolute", right: 0, bottom: 0, width: 360, height: 540, zIndex: 4, pointerEvents: "none" }} />
 
-          {/* ENERGY CHECK (top-right) */}
-          <div className="gl-energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8 }}>
+          {/* ENERGY CHECK (top-right) — links to the THINK tab where energy is set */}
+          <Link className="gl-energy" href="/dashboard/think" aria-label="Check in on your energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8, textDecoration: "none", color: "#fff" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", borderRadius: "8px 8px 0 0", background: "transparent", border: "1px solid rgba(41,208,255,.28)", borderBottom: "none", fontFamily: SF, fontWeight: 800, fontSize: 14, letterSpacing: ".12em", color: "rgba(41,208,255,.95)", textShadow: "0 0 12px rgba(41,208,255,.4)" }}>ENERGY CHECK</div>
             <div style={{ position: "relative", borderRadius: "0 12px 12px 12px", border: "1px solid rgba(41,208,255,.22)", background: "transparent", minHeight: 128, padding: "18px 18px 16px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <span aria-hidden="true" style={{ position: "absolute", left: -1, top: -1, width: 12, height: 12, borderLeft: "2px solid rgba(41,208,255,.8)", borderTop: "2px solid rgba(41,208,255,.8)", borderRadius: "2px 0 0 0" }} />
@@ -179,12 +182,12 @@ export function LobbyHero({
                 <div style={{ flex: 1, padding: "13px 6px", borderRadius: 10, background: "rgba(41,208,255,.15)", border: "1.5px solid rgba(41,208,255,.6)", textAlign: "center", fontFamily: SF, fontWeight: 800, fontSize: 15, letterSpacing: ".06em", color: "#29d0ff", boxShadow: "0 0 14px rgba(41,208,255,.2)", whiteSpace: "nowrap" }}>LOCKED IN</div>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* Title + Next Move (mid-left) */}
           <div className="gl-title" style={{ position: "absolute", left: 34, bottom: 120, zIndex: 8 }}>
             <div style={{ fontWeight: 700, fontSize: 13, letterSpacing: ".3em", color: "rgba(41,208,255,.9)", textTransform: "uppercase", marginBottom: -4, fontFamily: BF, textShadow: "0 0 16px rgba(41,208,255,.55),0 2px 8px rgba(0,0,0,.9)" }}>YOUR LOBBY</div>
-            <div className="gl-hero-name" style={{ fontFamily: SF, fontStyle: "italic", fontWeight: 800, fontSize: 72, lineHeight: ".88", letterSpacing: ".01em", textTransform: "uppercase", textShadow: "0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)" }}>{displayName}</div>
+            <h1 className="gl-hero-name" style={{ margin: 0, fontFamily: SF, fontStyle: "italic", fontWeight: 800, fontSize: 72, lineHeight: ".88", letterSpacing: ".01em", textTransform: "uppercase", textShadow: "0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)" }}>{displayName}</h1>
             <div style={{ marginTop: 16, maxWidth: 390 }}>
               <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: ".2em", color: "rgba(41,208,255,.9)", textTransform: "uppercase", marginBottom: 12, fontFamily: BF, textShadow: "0 0 14px rgba(41,208,255,.5),0 2px 6px rgba(0,0,0,.9)" }}>YOUR NEXT MOVE</div>
               <Link
