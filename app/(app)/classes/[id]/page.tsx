@@ -329,11 +329,8 @@ export default async function ClassDetailPage({
         <section style={{ display: "grid", gap: "var(--space-9)" }}>
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-8)" }}>
             <div style={{ display: "grid", gap: "var(--space-3)" }}>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-purple-light)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                <NotebookPen size={13} />
-                Subject notes
-              </p>
-              <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>
+              <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-5)" }}>
+                <NotebookPen size={20} style={{ color: "var(--gl-purple-light)" }} />
                 Notes for {cls.name}
               </h2>
             </div>

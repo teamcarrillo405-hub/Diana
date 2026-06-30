@@ -414,8 +414,6 @@ export default async function AssignmentsPage({
                 borderRadius: "var(--radius-panel)",
                 border: "1px solid var(--gl-border-neutral)",
                 background: "var(--gl-bg-card)",
-                backdropFilter: "blur(10px)",
-                WebkitBackdropFilter: "blur(10px)",
                 padding: "var(--space-13) var(--space-13) var(--space-12)",
                 overflow: "hidden",
               }}
