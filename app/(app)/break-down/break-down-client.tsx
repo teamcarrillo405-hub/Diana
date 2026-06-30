@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, ClipboardList, TimerReset } from "lucide-react";
+import { CheckCircle2, ClipboardList, Loader2, TimerReset } from "lucide-react";
+import type { BreakdownStep } from "@/lib/task-breakdown/types";
 
 type Step = {
   id: string;
@@ -11,85 +12,6 @@ type Step = {
 
 const EXAMPLE_TEXT =
   "Biology lab report: explain the hypothesis, summarize the data table, and write the conclusion using the rubric.";
-
-export function BreakDownClient() {
-  const [raw, setRaw] = useState(EXAMPLE_TEXT);
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const steps = useMemo(() => buildLocalSteps(raw), [raw]);
-  const doneCount = steps.filter((step) => checked[step.id]).length;
-  const nextStep = steps.find((step) => !checked[step.id]) ?? steps[0];
-
-  return (
-    <div className="space-y-5">
-      <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-        <div className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm sm:p-5">
-          <div className="flex items-center gap-2">
-            <span className="flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-              <ClipboardList size={18} />
-            </span>
-            <div>
-              <h2 className="text-base font-semibold">Paste the assignment</h2>
-              <p className="text-sm text-muted">Diana turns it into visible five-minute moves.</p>
-            </div>
-          </div>
-          <textarea
-            value={raw}
-            onChange={(event) => setRaw(event.target.value)}
-            rows={5}
-            className="mt-4 w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
-            placeholder="Paste the prompt, rubric, or what you remember."
-          />
-        </div>
-
-        <div className="nexus-panel nexus-panel-dense flex min-h-full flex-col justify-between gap-6">
-          <div className="space-y-3">
-            <p className="nexus-kicker">Next move</p>
-            <h2 className="max-w-2xl text-3xl font-semibold leading-tight">
-              {nextStep?.action ?? "Add a prompt to start."}
-            </h2>
-            <p className="text-sm text-muted">One academic action first. More choices stay below.</p>
-          </div>
-          <div className="flex flex-wrap gap-2 text-xs text-muted">
-            <span className="nexus-chip rounded-full border px-3 py-1">{doneCount} of {steps.length} marked</span>
-            <span className="nexus-chip rounded-full border px-3 py-1">{nextStep?.minutes ?? 2} min</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-semibold">Your mini-plan</h2>
-          <span className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
-            {doneCount} of {steps.length} marked
-          </span>
-        </div>
-        <ol className="mt-4 grid gap-2 md:grid-cols-2">
-          {steps.map((step, index) => (
-            <li key={step.id} className="flex min-h-24 gap-3 rounded-2xl border border-border bg-surface p-3">
-              <button
-                type="button"
-                aria-label={`Mark step ${index + 1}`}
-                onClick={() => setChecked((current) => ({ ...current, [step.id]: !current[step.id] }))}
-                className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border ${
-                  checked[step.id] ? "border-brand bg-brand text-white" : "border-border text-muted"
-                }`}
-              >
-                <CheckCircle2 size={15} />
-              </button>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{step.action}</p>
-                <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
-                  <TimerReset size={13} />
-                  {step.minutes} min
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-    </div>
-  );
-}
 
 function buildLocalSteps(value: string): Step[] {
   const text = value.trim();
@@ -135,4 +57,143 @@ function dedupe(steps: Step[]) {
     seen.add(step.id);
     return true;
   });
+}
+
+function adaptAiSteps(aiSteps: BreakdownStep[]): Step[] {
+  return aiSteps.map((s) => ({ id: String(s.step), action: s.action, minutes: s.minutes }));
+}
+
+export function BreakDownClient() {
+  const [raw, setRaw] = useState(EXAMPLE_TEXT);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const [aiSteps, setAiSteps] = useState<Step[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const localSteps = useMemo(() => buildLocalSteps(raw), [raw]);
+  const steps = aiSteps ?? localSteps;
+  const doneCount = steps.filter((step) => checked[step.id]).length;
+  const nextStep = steps.find((step) => !checked[step.id]) ?? steps[0];
+
+  function handleRawChange(value: string) {
+    setRaw(value);
+    setAiSteps(null);
+    setError(null);
+    setChecked({});
+  }
+
+  async function handleBreakDown() {
+    if (!raw.trim() || raw.trim().length < 2) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/diana/break-down", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ assignment: raw }),
+      });
+      const data = (await res.json()) as {
+        ok: boolean;
+        steps?: BreakdownStep[];
+        error?: string;
+      };
+      if (!data.ok || !data.steps || data.steps.length === 0) {
+        setError(data.error ?? "Diana could not break that down right now.");
+      } else {
+        setAiSteps(adaptAiSteps(data.steps));
+        setChecked({});
+      }
+    } catch {
+      setError("Could not reach Diana. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-5">
+      <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
+        <div className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm sm:p-5">
+          <div className="flex items-center gap-2">
+            <span className="flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+              <ClipboardList size={18} />
+            </span>
+            <div>
+              <h2 className="text-base font-semibold">Paste the assignment</h2>
+              <p className="text-sm text-muted">Diana turns it into visible five-minute moves.</p>
+            </div>
+          </div>
+          <textarea
+            value={raw}
+            onChange={(event) => handleRawChange(event.target.value)}
+            rows={5}
+            className="mt-4 w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
+            placeholder="Paste the prompt, rubric, or what you remember."
+          />
+          {error ? (
+            <p className="mt-2 text-xs text-muted">{error}</p>
+          ) : null}
+          <button
+            type="button"
+            onClick={handleBreakDown}
+            disabled={loading || raw.trim().length < 2}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {loading ? <Loader2 size={14} className="animate-spin" /> : null}
+            {loading ? "Breaking it down…" : "Break this down"}
+          </button>
+        </div>
+
+        <div className="nexus-panel nexus-panel-dense flex min-h-full flex-col justify-between gap-6">
+          <div className="space-y-3">
+            <p className="nexus-kicker">Next move</p>
+            <h2 className="max-w-2xl text-3xl font-semibold leading-tight">
+              {nextStep?.action ?? "Add a prompt to start."}
+            </h2>
+            <p className="text-sm text-muted">One academic action first. More choices stay below.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs text-muted">
+            <span className="nexus-chip rounded-full border px-3 py-1">{doneCount} of {steps.length} marked</span>
+            <span className="nexus-chip rounded-full border px-3 py-1">{nextStep?.minutes ?? 2} min</span>
+            {aiSteps ? (
+              <span className="nexus-chip rounded-full border border-brand/30 px-3 py-1 text-brand">Diana plan</span>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-base font-semibold">Your mini-plan</h2>
+          <span className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
+            {doneCount} of {steps.length} marked
+          </span>
+        </div>
+        <ol className="mt-4 grid gap-2 md:grid-cols-2">
+          {steps.map((step, index) => (
+            <li key={step.id} className="flex min-h-24 gap-3 rounded-2xl border border-border bg-surface p-3">
+              <button
+                type="button"
+                aria-label={`Mark step ${index + 1}`}
+                onClick={() => setChecked((current) => ({ ...current, [step.id]: !current[step.id] }))}
+                className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border ${
+                  checked[step.id] ? "border-brand bg-brand text-white" : "border-border text-muted"
+                }`}
+              >
+                <CheckCircle2 size={15} />
+              </button>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium">{step.action}</p>
+                <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
+                  <TimerReset size={13} />
+                  {step.minutes} min
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
+  );
 }
