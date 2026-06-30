@@ -16,37 +16,46 @@ export function TimeBudget({ totalMinutes, items }: TimeBudgetProps) {
   const heavy = totalMinutes > 180;
 
   return (
-    <section className="rounded-2xl border border-border bg-card">
+    <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", backdropFilter: "var(--blur-card)", WebkitBackdropFilter: "var(--blur-card)" }}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between px-5 py-4"
+        style={{
+          display: "flex",
+          width: "100%",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "transparent",
+          border: "none",
+          padding: "var(--space-10) var(--space-13)",
+          cursor: "pointer",
+        }}
         aria-expanded={open}
       >
-        <span className="text-sm font-medium">What&apos;s left tonight?</span>
-        <span className={`text-sm font-semibold ${heavy ? "text-amber-600 dark:text-amber-400" : "text-accent"}`}>
+        <span style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-600)", color: "var(--gl-text-secondary)" }}>What&apos;s left tonight?</span>
+        <span style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-700)", color: heavy ? "var(--gl-amber)" : "var(--gl-cyan)" }}>
           {items.length === 0 ? "—" : label}
         </span>
       </button>
 
       {open && (
-        <div className="border-t border-border px-5 pb-5 pt-3 space-y-3">
+        <div style={{ borderTop: "1px solid var(--gl-border-neutral)", padding: "var(--space-6) var(--space-13) var(--space-13)", display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
           {items.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>
               Nothing estimated. Add assignments with time estimates to see your budget.
             </p>
           ) : (
             <>
               {heavy && (
-                <p className="text-xs text-amber-700 dark:text-amber-400">
+                <p style={{ fontSize: "var(--text-12)", color: "var(--gl-amber)" }}>
                   That&apos;s a lot for tonight — you might want to decide which to tackle first.
                 </p>
               )}
-              <ul className="divide-y divide-border">
+              <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
                 {items.map((item) => (
-                  <li key={item.assignmentId} className="flex items-center justify-between py-2">
-                    <span className="text-sm truncate">{item.title}</span>
-                    <span className="ml-3 shrink-0 text-xs text-muted">~{item.effectiveMinutes} min</span>
+                  <li key={item.assignmentId} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--space-2) 0", borderTop: "1px solid var(--gl-border-neutral-sm)" }}>
+                    <span style={{ fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.title}</span>
+                    <span style={{ marginLeft: "var(--space-8)", flexShrink: 0, fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>~{item.effectiveMinutes} min</span>
                   </li>
                 ))}
               </ul>

@@ -4,7 +4,6 @@ import {
   ArrowRight,
   BookOpen,
   ClipboardCheck,
-  GraduationCap,
   Layers3,
   MessageSquareText,
   NotebookTabs,
@@ -14,15 +13,11 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { formatDueAt } from "@/lib/format";
 import { ClassForm } from "./class-form";
-import {
-  NexusArcadeScene,
-  NexusEmptyState,
-  NexusKicker,
-  NexusMetric,
-  NexusPageHeader,
-  NexusPageShell,
-  NexusPanel,
-} from "@/components/nexus/nexus-ui";
+import { AppTopNav } from "../app-top-nav";
+import { classTheme } from "../dashboard/classes-grid";
+
+const SF = "var(--font-display)";
+const BODY = "var(--font-body)";
 
 type ClassRow = {
   id: string;
@@ -62,8 +57,6 @@ type ClassLane = ClassRow & {
   dueSoonCount: number;
   rulebrickLabel: string;
 };
-
-const tones = ["cyan", "pink", "gold", "blue", "purple"] as const;
 
 function dueMs(value: string | null) {
   return value ? new Date(value).getTime() : Number.MAX_SAFE_INTEGER;
@@ -105,13 +98,8 @@ export default async function ClassesPage() {
       .select("id, title, class_id, status, due_at, estimated_minutes, reading_load")
       .not("class_id", "is", null)
       .order("due_at", { ascending: true, nullsFirst: false }),
-    supabase
-      .from("rubrics")
-      .select("id, class_id, parse_status"),
-    supabase
-      .from("notes")
-      .select("id, class_id")
-      .not("class_id", "is", null),
+    supabase.from("rubrics").select("id, class_id, parse_status"),
+    supabase.from("notes").select("id, class_id").not("class_id", "is", null),
   ]);
 
   const activeClasses = (classes ?? []) as ClassRow[];
@@ -123,175 +111,194 @@ export default async function ClassesPage() {
   const lanes: ClassLane[] = activeClasses
     .map((classRow) => {
       const classAssignments = openAssignments
-        .filter((assignment) => assignment.class_id === classRow.id)
+        .filter((a) => a.class_id === classRow.id)
         .sort((a, b) => dueMs(a.due_at) - dueMs(b.due_at));
-      const classRubrics = rubricRows.filter((rubric) => rubric.class_id === classRow.id);
-      const classNotes = noteRows.filter((note) => note.class_id === classRow.id);
-
+      const classRubrics = rubricRows.filter((r) => r.class_id === classRow.id);
+      const classNotes = noteRows.filter((n) => n.class_id === classRow.id);
       return {
         ...classRow,
         openAssignments: classAssignments,
         nextAssignment: classAssignments[0] ?? null,
         rubricCount: classRubrics.length,
         noteCount: classNotes.length,
-        dueSoonCount: classAssignments.filter((assignment) => dueSoon(assignment, now)).length,
+        dueSoonCount: classAssignments.filter((a) => dueSoon(a, now)).length,
         loadScore: loadScore(classAssignments, classRubrics.length, classNotes.length, now),
         rulebrickLabel: rulebrickLabel(classRubrics, classNotes),
       };
     })
     .sort((a, b) => b.loadScore - a.loadScore || dueMs(a.nextAssignment?.due_at ?? null) - dueMs(b.nextAssignment?.due_at ?? null));
 
-  const totalDueSoon = lanes.reduce((sum, lane) => sum + lane.dueSoonCount, 0);
-  const withRulebricks = lanes.filter((lane) => lane.rubricCount > 0).length;
-  const namedTeachers = lanes.filter((lane) => Boolean(lane.teacher)).length;
+  const totalDueSoon = lanes.reduce((sum, l) => sum + l.dueSoonCount, 0);
+  const withRulebricks = lanes.filter((l) => l.rubricCount > 0).length;
+  const namedTeachers = lanes.filter((l) => Boolean(l.teacher)).length;
 
   return (
-    <NexusPageShell className="classes-lane-page space-y-8">
-      <NexusPageHeader
-        eyebrow="Class lanes"
-        title={<>Every subject gets a signal.</>}
-        description="Classes are where teacher rules, homework, notes, rubrics, and proof become one lane instead of scattered school stuff."
-        visual={<NexusArcadeScene />}
-        tone="blue"
-      />
+    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
+      <AppTopNav active="Classes" />
+      <style>{`
+        .cls-lane-grid { display: grid; gap: var(--space-9); }
+        @media (min-width: 768px) { .cls-lane-grid { grid-template-columns: 1fr 1fr; } }
+        @media (min-width: 1280px) { .cls-lane-grid { grid-template-columns: 1fr 1fr 1fr; } }
+        .cls-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-9); }
+        @media (min-width: 640px) { .cls-metrics { grid-template-columns: repeat(4, 1fr); } }
+        .cls-focus { display: grid; gap: var(--space-13); }
+        @media (min-width: 1024px) { .cls-focus { grid-template-columns: 1fr 1fr; align-items: start; } }
+      `}</style>
+      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
 
-      <div className="class-command-grid">
-        <NexusPanel className="class-metrics-panel" tone="purple">
-          <NexusMetric label="Active" value={activeClasses.length} detail="class lanes" tone="cyan" />
-          <NexusMetric label="Due soon" value={totalDueSoon} detail="3-day window" tone="gold" />
-          <NexusMetric label="Rulebricks" value={withRulebricks} detail="teacher rules" tone="pink" />
-          <NexusMetric label="Teachers" value={namedTeachers} detail="named contacts" tone="blue" />
-        </NexusPanel>
+        {/* Hero */}
+        <header style={{ display: "grid", gap: "var(--space-8)" }}>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <Layers3 size={13} aria-hidden="true" />
+            Class lanes
+          </p>
+          <h1 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, maxWidth: "20ch" }}>
+            Every subject gets a signal.
+          </h1>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-16)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", maxWidth: "52ch", margin: 0 }}>
+            Classes are where teacher rules, homework, notes, rubrics, and proof become one lane instead of scattered school stuff.
+          </p>
+        </header>
 
-        {lanes[0] ? <ClassFocusPanel lane={lanes[0]} /> : null}
-      </div>
-
-      {lanes.length === 0 ? (
-        <NexusEmptyState eyebrow="No lanes yet" title="Add the first class.">
-          <p>Once a class exists, Diana can connect assignments, rubrics, notes, and proof to the right subject.</p>
-        </NexusEmptyState>
-      ) : (
-        <section className="class-lane-grid" aria-label="Class signal lanes">
-          {lanes.map((lane, index) => (
-            <ClassLaneCard key={lane.id} lane={lane} tone={tones[index % tones.length]} />
+        {/* Metrics */}
+        <div className="cls-metrics">
+          {[
+            { label: "Active", value: activeClasses.length, detail: "class lanes" },
+            { label: "Due soon", value: totalDueSoon, detail: "3-day window" },
+            { label: "Rulebricks", value: withRulebricks, detail: "teacher rules" },
+            { label: "Teachers", value: namedTeachers, detail: "named contacts" },
+          ].map((m) => (
+            <div key={m.label} style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12)" }}>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: "0 0 var(--space-4)" }}>{m.label}</p>
+              <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: "0 0 var(--space-2)" }}>{m.value}</p>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>{m.detail}</p>
+            </div>
           ))}
-        </section>
-      )}
-
-      <NexusPanel className="class-add-panel class-add-panel-secondary" tone="cyan">
-        <NexusKicker>
-          <BookOpen size={14} />
-          Add a class
-        </NexusKicker>
-        <ClassForm />
-      </NexusPanel>
-    </NexusPageShell>
-  );
-}
-
-function ClassFocusPanel({ lane }: { lane: ClassLane }) {
-  return (
-    <NexusPanel className="class-focus-panel" tone="cyan">
-      <NexusKicker>
-        <SlidersHorizontal size={14} />
-        Highest signal
-      </NexusKicker>
-      <div className="class-focus-main">
-        <div>
-          <span>{lane.loadScore} signal</span>
-          <h2>{lane.name}</h2>
-          <p>{lane.teacher ?? "Teacher contact can be added later"}</p>
         </div>
-        <Link href={`/classes/${lane.id}`} className="class-focus-action">
-          Open lane
-          <ArrowRight size={15} />
-        </Link>
+
+        {/* Highest-signal focus card */}
+        {lanes[0] && (
+          <div className="cls-focus" style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-cyan)", background: "var(--gl-cyan-10)", padding: "var(--space-14)" }}>
+            <div style={{ display: "grid", gap: "var(--space-8)" }}>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+                <SlidersHorizontal size={13} />
+                Highest signal
+              </p>
+              <div>
+                <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)", margin: "0 0 var(--space-2)" }}>{lanes[0].loadScore} signal</p>
+                <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>{lanes[0].name}</h2>
+                <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: "var(--space-3) 0 var(--space-10)" }}>{lanes[0].teacher ?? "Teacher contact can be added later"}</p>
+                <Link href={`/classes/${lanes[0].id}`} style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-cyan)", color: "#04080f", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}>
+                  Open lane
+                  <ArrowRight size={13} />
+                </Link>
+              </div>
+            </div>
+            <div style={{ display: "grid", gap: "var(--space-5)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12)" }}>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+                <Radar size={12} />
+                Next move
+              </p>
+              <p style={{ fontFamily: SF, fontWeight: "var(--weight-700)", fontSize: "var(--text-20)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>{lanes[0].nextAssignment?.title ?? "This lane is clear"}</p>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-muted)", margin: 0 }}>
+                {lanes[0].nextAssignment?.due_at ? formatDueAt(lanes[0].nextAssignment.due_at) : "Ready when something arrives"}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Lane grid */}
+        {lanes.length === 0 ? (
+          <div style={{ borderRadius: "var(--radius-card)", border: "1px dashed var(--gl-border-neutral)", padding: "var(--space-20)", textAlign: "center", display: "grid", gap: "var(--space-6)" }}>
+            <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>No lanes yet</p>
+            <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>Add the first class.</p>
+            <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>Once a class exists, Diana can connect assignments, rubrics, notes, and proof to the right subject.</p>
+          </div>
+        ) : (
+          <section className="cls-lane-grid" aria-label="Class signal lanes">
+            {lanes.map((lane) => (
+              <LaneCard key={lane.id} lane={lane} />
+            ))}
+          </section>
+        )}
+
+        {/* Add a class */}
+        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)" }}>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: "0 0 var(--space-8)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <BookOpen size={13} />
+            Add a class
+          </p>
+          <ClassForm />
+        </section>
       </div>
-      <div className="class-focus-next">
-        <span>
-          <Radar size={13} />
-          Next move
-        </span>
-        <strong>{lane.nextAssignment?.title ?? "This lane is clear"}</strong>
-        <small>{lane.nextAssignment?.due_at ? formatDueAt(lane.nextAssignment.due_at) : "Ready when something arrives"}</small>
-      </div>
-    </NexusPanel>
+    </div>
   );
 }
 
-function ClassLaneCard({
-  lane,
-  tone,
-}: {
-  lane: ClassLane;
-  tone: (typeof tones)[number];
-}) {
-  const colorStyle = lane.color ? ({ "--class-color": lane.color } as CSSProperties) : undefined;
-
+function LaneCard({ lane }: { lane: ClassLane }) {
+  const theme = classTheme({ id: lane.id, name: lane.name, color: lane.color });
   return (
-    <Link href={`/classes/${lane.id}`} className="class-lane-card" data-tone={tone} style={colorStyle}>
-      <div className="class-lane-top">
-        <span className="class-lane-subject">
-          <Layers3 size={14} />
-          {lane.name}
-        </span>
-        <span className="class-lane-score">
-          <b>{lane.loadScore}</b>
-          signal
-        </span>
+    <Link
+      href={`/classes/${lane.id}`}
+      style={{ display: "grid", gap: "var(--space-9)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", textDecoration: "none", overflow: "hidden" }}
+    >
+      {/* Class banner strip */}
+      <div style={{ borderRadius: "var(--radius-card)", background: theme.bannerBg, padding: "var(--space-10) var(--space-12)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: theme.accent }}>{theme.symbol}</span>
+        <span style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", color: theme.accent, opacity: 0.8 }}>{lane.loadScore} signal</span>
       </div>
 
-      <div className="class-lane-main">
-        <h2>{lane.name}</h2>
-        <p>{lane.teacher ?? "Add teacher contact"}</p>
+      {/* Name + teacher */}
+      <div>
+        <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-22)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: "0 0 var(--space-2)" }}>{lane.name}</h2>
+        <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-muted)", margin: 0 }}>{lane.teacher ?? "Add teacher contact"}</p>
       </div>
 
-      <div className="class-lane-bars" aria-label={`${lane.name} class signal bars`}>
-        <SignalBar label="work" value={Math.min(96, 28 + lane.openAssignments.length * 14)} />
-        <SignalBar label="due" value={Math.min(96, 20 + lane.dueSoonCount * 28)} />
-        <SignalBar label="rules" value={Math.min(96, 22 + lane.rubricCount * 38 + lane.noteCount * 4)} />
+      {/* Signal bars */}
+      <div style={{ display: "grid", gap: "var(--space-5)" }}>
+        {[
+          { label: "work", value: Math.min(96, 28 + lane.openAssignments.length * 14) },
+          { label: "due", value: Math.min(96, 20 + lane.dueSoonCount * 28) },
+          { label: "rules", value: Math.min(96, 22 + lane.rubricCount * 38 + lane.noteCount * 4) },
+        ].map((bar) => (
+          <div key={bar.label} style={{ display: "grid", gridTemplateColumns: "3rem 1fr 2rem", gap: "var(--space-4)", alignItems: "center" }}>
+            <span style={{ fontFamily: BODY, fontSize: "var(--text-10)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-text-muted)" }}>{bar.label}</span>
+            <div style={{ height: 4, borderRadius: 2, background: "var(--gl-border-neutral)", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${Math.max(6, bar.value)}%`, borderRadius: 2, background: theme.accent, opacity: 0.7 }} />
+            </div>
+            <span style={{ fontFamily: BODY, fontSize: "var(--text-10)", color: "var(--gl-text-muted)", textAlign: "right" }}>{bar.value}</span>
+          </div>
+        ))}
       </div>
 
-      <div className="class-lane-next">
-        <span>
-          <Radar size={14} />
+      {/* Next in lane */}
+      <div style={{ display: "grid", gap: "var(--space-3)", paddingTop: "var(--space-6)", borderTop: "1px solid var(--gl-border-neutral)" }}>
+        <p style={{ fontFamily: BODY, fontSize: "var(--text-10)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+          <Radar size={11} />
           Next in lane
-        </span>
-        <strong>{lane.nextAssignment?.title ?? "No open schoolwork"}</strong>
-        <small>{lane.nextAssignment?.due_at ? formatDueAt(lane.nextAssignment.due_at) : "Ready when something arrives"}</small>
+        </p>
+        <p style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", margin: 0 }}>{lane.nextAssignment?.title ?? "No open schoolwork"}</p>
+        <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>
+          {lane.nextAssignment?.due_at ? formatDueAt(lane.nextAssignment.due_at) : "Ready when something arrives"}
+        </p>
       </div>
 
-      <div className="class-lane-footer">
-        <span>
-          <ClipboardCheck size={13} />
-          {lane.rulebrickLabel}
-        </span>
-        <span>
-          <NotebookTabs size={13} />
-          {lane.noteCount} notes
-        </span>
-        <span>
-          <MessageSquareText size={13} />
-          {lane.teacher ? "contact saved" : "add contact"}
-        </span>
-        <span className="class-lane-open">
-          Open lane
-          <ArrowRight size={13} />
+      {/* Footer */}
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4) var(--space-8)", paddingTop: "var(--space-6)", borderTop: "1px solid var(--gl-border-neutral)" }}>
+        {[
+          { icon: ClipboardCheck, label: lane.rulebrickLabel },
+          { icon: NotebookTabs, label: `${lane.noteCount} notes` },
+          { icon: MessageSquareText, label: lane.teacher ? "contact saved" : "add contact" },
+        ].map(({ icon: Icon, label }) => (
+          <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)" }}>
+            <Icon size={11} />
+            {label}
+          </span>
+        ))}
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-2)", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-11)", color: theme.accent, marginLeft: "auto" }}>
+          Open lane <ArrowRight size={11} />
         </span>
       </div>
     </Link>
-  );
-}
-
-function SignalBar({ label, value }: { label: string; value: number }) {
-  const clamped = Math.max(6, Math.min(100, Math.round(value)));
-  return (
-    <span className="class-signal-bar">
-      <span>{label}</span>
-      <i>
-        <b style={{ width: `${clamped}%` }} />
-      </i>
-      <em>{clamped}</em>
-    </span>
   );
 }

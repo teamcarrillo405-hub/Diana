@@ -1,16 +1,36 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Brain, CheckCircle2, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+import { Brain, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
 import { isRefusalNeeded } from "@/lib/ai/refuse-redirect";
 
 type Mode = "guide" | "hint" | "quiz";
+
+type DianaResponse = {
+  title: string;
+  main: string;
+  reason: string;
+  steps: string[];
+  anchor: string;
+};
 
 const MODES: Array<{ id: Mode; label: string }> = [
   { id: "guide", label: "Guide me" },
   { id: "hint", label: "Hint ladder" },
   { id: "quiz", label: "Quiz me" },
 ];
+
+const BOUNDARY_RESPONSE: DianaResponse = {
+  title: "Help boundary",
+  main: "I can help you build the next part, but the final work stays yours.",
+  reason: "That protects authorship and keeps the learning move visible.",
+  anchor: "",
+  steps: [
+    "Name the part you want to create first.",
+    "Draft one rough sentence or setup line.",
+    "Ask Diana to check structure, evidence, or reasoning.",
+  ],
+};
 
 export function StudyBuddyClient({
   initialSource,
@@ -26,7 +46,38 @@ export function StudyBuddyClient({
     initialQuestion?.trim() || "I have evidence but do not know how to start the paragraph.",
   );
   const [mode, setMode] = useState<Mode>("guide");
-  const response = useMemo(() => buildResponse({ source, question, mode }), [source, question, mode]);
+  const [response, setResponse] = useState<DianaResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleAsk() {
+    if (isRefusalNeeded(question)) {
+      setResponse(BOUNDARY_RESPONSE);
+      setError(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/diana/study-buddy", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source, question, mode }),
+      });
+      const data = (await res.json()) as { ok: boolean; response?: DianaResponse; error?: string };
+      if (!data.ok || !data.response) {
+        setError(data.error ?? "Diana study help is unavailable right now.");
+      } else {
+        setResponse(data.response);
+      }
+    } catch {
+      setError("Could not reach Diana. Check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
@@ -75,6 +126,15 @@ export function StudyBuddyClient({
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          onClick={handleAsk}
+          disabled={loading || question.trim().length < 2}
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          {loading ? <Loader2 size={15} className="animate-spin" /> : null}
+          {loading ? "Asking Diana…" : "Ask Diana"}
+        </button>
       </section>
 
       <aside className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
@@ -82,88 +142,48 @@ export function StudyBuddyClient({
           <ShieldCheck size={17} className="text-brand" />
           <h2 className="text-base font-semibold">Diana response</h2>
         </div>
-        <div className="mt-4 rounded-2xl border border-brand/20 bg-brand/10 p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
-            {response.title}
-          </p>
-          <p className="mt-2 text-sm font-medium">{response.main}</p>
-          <p className="mt-2 text-sm text-muted">{response.reason}</p>
-        </div>
-        <div className="mt-4 space-y-2">
-          {response.steps.map((step) => (
-            <div key={step} className="flex gap-2 rounded-2xl border border-border bg-surface p-3 text-sm">
-              <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-brand" />
-              <span>{step}</span>
+
+        {error ? (
+          <div className="mt-4 rounded-2xl border border-border bg-surface p-3">
+            <p className="text-sm text-muted">{error}</p>
+          </div>
+        ) : loading ? (
+          <div className="mt-4 flex items-center gap-2 rounded-2xl border border-brand/20 bg-brand/10 p-3">
+            <Loader2 size={15} className="animate-spin text-brand" />
+            <p className="text-sm text-muted">Diana is thinking…</p>
+          </div>
+        ) : response ? (
+          <>
+            <div className="mt-4 rounded-2xl border border-brand/20 bg-brand/10 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
+                {response.title}
+              </p>
+              <p className="mt-2 text-sm font-medium">{response.main}</p>
+              <p className="mt-2 text-sm text-muted">{response.reason}</p>
             </div>
-          ))}
-        </div>
-        <div className="mt-4 rounded-2xl border border-border bg-surface p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted">Source anchor</p>
-          <p className="mt-1 text-sm text-muted">{response.anchor}</p>
-        </div>
+            <div className="mt-4 space-y-2">
+              {response.steps.map((step) => (
+                <div key={step} className="flex gap-2 rounded-2xl border border-border bg-surface p-3 text-sm">
+                  <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-brand" />
+                  <span>{step}</span>
+                </div>
+              ))}
+            </div>
+            {response.anchor ? (
+              <div className="mt-4 rounded-2xl border border-border bg-surface p-3">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Source anchor</p>
+                <p className="mt-1 text-sm text-muted">{response.anchor}</p>
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
+            <p className="text-sm text-muted">
+              Add your source and question, choose a mode, then click Ask Diana.
+            </p>
+          </div>
+        )}
       </aside>
     </div>
   );
-}
-
-function buildResponse({ source, question, mode }: { source: string; question: string; mode: Mode }) {
-  const trimmedSource = source.trim();
-  const directAnswer = isRefusalNeeded(question);
-  const anchor = trimmedSource
-    ? `This help is anchored to: ${trimmedSource.slice(0, 120)}${trimmedSource.length > 120 ? "..." : ""}`
-    : "Add a source so Diana can anchor the next move.";
-
-  if (directAnswer) {
-    return {
-      title: "Help boundary",
-      main: "I can help you build the next part, but the final work stays yours.",
-      reason: "That protects authorship and keeps the learning move visible.",
-      anchor,
-      steps: [
-        "Name the part you want to create first.",
-        "Draft one rough sentence or setup line.",
-        "Ask Diana to check structure, evidence, or reasoning.",
-      ],
-    };
-  }
-
-  if (mode === "hint") {
-    return {
-      title: "Hint ladder",
-      main: "Start with the smallest clue from the source before asking for more.",
-      reason: "Hints stay useful when they point back to class material.",
-      anchor,
-      steps: [
-        "Hint 1: underline the key noun or verb in the prompt.",
-        "Hint 2: match that word to one line in your source.",
-        "Hint 3: write a sentence starter, then fill in your own evidence.",
-      ],
-    };
-  }
-
-  if (mode === "quiz") {
-    return {
-      title: "Quick check",
-      main: "Answer one question before moving on.",
-      reason: "A short recall check shows whether the next step is ready.",
-      anchor,
-      steps: [
-        "What is the assignment asking you to produce?",
-        "Which source detail supports that move?",
-        "What would you write first if it only had to be rough?",
-      ],
-    };
-  }
-
-  return {
-    title: "Guided step",
-    main: "What is the first thing your source asks you to use or explain?",
-    reason: "Answer that first, then Diana can help you choose the next structure.",
-    anchor,
-    steps: [
-      "Point to one phrase in the source.",
-      "Say what that phrase means in your words.",
-      "Turn that into the first rough line of work.",
-    ],
-  };
 }

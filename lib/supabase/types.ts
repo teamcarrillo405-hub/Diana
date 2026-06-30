@@ -1,3 +1,5 @@
+import type { ParsedSyllabus } from "@/lib/syllabus/parse";
+
 export type Json =
   | string
   | number
@@ -10,6 +12,39 @@ export type Database = {
   __InternalSupabase: { PostgrestVersion: "14.5" };
   public: {
     Tables: {
+      class_syllabi: {
+        Row: {
+          id: string;
+          owner_id: string;
+          class_id: string | null;
+          title: string;
+          raw_text: string | null;
+          parsed: ParsedSyllabus | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          class_id?: string | null;
+          title: string;
+          raw_text?: string | null;
+          parsed?: ParsedSyllabus | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          class_id?: string | null;
+          title?: string;
+          raw_text?: string | null;
+          parsed?: ParsedSyllabus | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       worker_jobs: {
         Row: {
           id: string;
@@ -127,6 +162,140 @@ export type Database = {
           count?: number;
           created_at?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      learner_profile_snapshots: {
+        Row: {
+          id: string;
+          owner_id: string;
+          profile_json: Json;
+          confidence_json: Json;
+          source_counts_json: Json;
+          computed_at: string;
+          version: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          profile_json?: Json;
+          confidence_json?: Json;
+          source_counts_json?: Json;
+          computed_at?: string;
+          version?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          profile_json?: Json;
+          confidence_json?: Json;
+          source_counts_json?: Json;
+          computed_at?: string;
+          version?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      learning_events: {
+        Row: {
+          id: string;
+          owner_id: string;
+          tenant_id: string;
+          event_name: string;
+          source_table: string | null;
+          source_id: string | null;
+          assignment_id: string | null;
+          feature: string | null;
+          payload: Json;
+          occurred_at: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          tenant_id: string;
+          event_name: string;
+          source_table?: string | null;
+          source_id?: string | null;
+          assignment_id?: string | null;
+          feature?: string | null;
+          payload?: Json;
+          occurred_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          tenant_id?: string;
+          event_name?: string;
+          source_table?: string | null;
+          source_id?: string | null;
+          assignment_id?: string | null;
+          feature?: string | null;
+          payload?: Json;
+          occurred_at?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "learning_events_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      learning_rollup_jobs: {
+        Row: {
+          id: string;
+          owner_id: string;
+          tenant_id: string;
+          status: "queued" | "running" | "succeeded" | "error" | "disabled";
+          reason: string;
+          attempts: number;
+          max_attempts: number;
+          available_at: string;
+          locked_at: string | null;
+          locked_until: string | null;
+          locked_by: string | null;
+          error_summary: string | null;
+          queued_at: string;
+          completed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          tenant_id: string;
+          status?: "queued" | "running" | "succeeded" | "error" | "disabled";
+          reason?: string;
+          attempts?: number;
+          max_attempts?: number;
+          available_at?: string;
+          locked_at?: string | null;
+          locked_until?: string | null;
+          locked_by?: string | null;
+          error_summary?: string | null;
+          queued_at?: string;
+          completed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          tenant_id?: string;
+          status?: "queued" | "running" | "succeeded" | "error" | "disabled";
+          reason?: string;
+          attempts?: number;
+          max_attempts?: number;
+          available_at?: string;
+          locked_at?: string | null;
+          locked_until?: string | null;
+          locked_by?: string | null;
+          error_summary?: string | null;
+          queued_at?: string;
+          completed_at?: string | null;
         };
         Relationships: [];
       };
@@ -2226,6 +2395,8 @@ export type Database = {
           interests: string[]; // 0020 migration; manually annotated until supabase:types regen
           line_focus: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing: LineSpacing;
+          learning_loop_paused: boolean; // 0045 migration; manually annotated until supabase:types regen
+          learning_loop_reset_at: string | null; // 0045 migration; manually annotated until supabase:types regen
           last_mood_checkin_at: string | null; // 0025 migration; manually annotated until supabase:types regen
           last_weekly_reflection_at: string | null; // 0025 migration; manually annotated until supabase:types regen
           mastery_signals: Json; // 0020 migration; manually annotated until supabase:types regen
@@ -2251,6 +2422,7 @@ export type Database = {
           updated_at: string;
           user_id: string;
           visual_pacing: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
+          photo_url: string | null; // 20260613 migration; manually annotated until supabase:types regen
         };
         Insert: {
           accommodations?: string[];
@@ -2272,6 +2444,8 @@ export type Database = {
           interests?: string[]; // 0020 migration; manually annotated until supabase:types regen
           line_focus?: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing?: LineSpacing;
+          learning_loop_paused?: boolean; // 0045 migration; manually annotated until supabase:types regen
+          learning_loop_reset_at?: string | null; // 0045 migration; manually annotated until supabase:types regen
           last_mood_checkin_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
           last_weekly_reflection_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
           mastery_signals?: Json; // 0020 migration; manually annotated until supabase:types regen
@@ -2297,6 +2471,7 @@ export type Database = {
           updated_at?: string;
           user_id: string;
           visual_pacing?: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
+          photo_url?: string | null; // 20260613 migration; manually annotated until supabase:types regen
         };
         Update: {
           accommodations?: string[];
@@ -2318,6 +2493,8 @@ export type Database = {
           interests?: string[]; // 0020 migration; manually annotated until supabase:types regen
           line_focus?: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing?: LineSpacing;
+          learning_loop_paused?: boolean; // 0045 migration; manually annotated until supabase:types regen
+          learning_loop_reset_at?: string | null; // 0045 migration; manually annotated until supabase:types regen
           last_mood_checkin_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
           last_weekly_reflection_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
           mastery_signals?: Json; // 0020 migration; manually annotated until supabase:types regen
@@ -2343,6 +2520,7 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
           visual_pacing?: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
+          photo_url?: string | null; // 20260613 migration; manually annotated until supabase:types regen
         };
         Relationships: [];
       };

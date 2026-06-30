@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { StudyGroupsClient, type StudyGroupWorkspace } from "./study-groups-client";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function StudyGroupsPage({
   searchParams,
@@ -89,13 +90,16 @@ export default async function StudyGroupsPage({
   }
 
   return (
-    <div className="diana-page">
-      <StudyGroupsClient
-        groups={groupRows}
-        selectedGroupId={selectedGroup?.id ?? null}
-        workspace={workspace}
-      />
-    </div>
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page">
+        <StudyGroupsClient
+          groups={groupRows}
+          selectedGroupId={selectedGroup?.id ?? null}
+          workspace={workspace}
+        />
+      </div>
+    </>
   );
 }
 

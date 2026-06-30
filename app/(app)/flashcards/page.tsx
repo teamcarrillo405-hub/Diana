@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { Brain, ListChecks } from "lucide-react";
 import { EmptyStateMark } from "@/components/empty-state-mark";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function FlashcardsPage() {
   const supabase = await createClient();
@@ -22,7 +23,9 @@ export default async function FlashcardsPage() {
   const upcoming = (all ?? []).filter((c) => c.due_at > nowIso);
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-6">
       <header className="flex items-baseline justify-between">
         <h1 className="text-display">Study</h1>
         <Link
@@ -112,6 +115,7 @@ export default async function FlashcardsPage() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

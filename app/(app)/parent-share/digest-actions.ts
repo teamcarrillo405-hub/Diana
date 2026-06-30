@@ -42,6 +42,6 @@ export async function saveParentDigest(input: z.infer<typeof Input>): Promise<{ 
     .eq("user_id", user.id);
   if (error) return { ok: false, error: "Couldn't save just now — try again." };
 
-  revalidatePath("/parent-share");
+  revalidatePath("/sharing");
   return { ok: true };
 }

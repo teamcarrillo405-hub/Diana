@@ -74,6 +74,21 @@ export function PwaRuntime() {
 
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
+
+    // Only register the service worker in production. In development it serves
+    // pages/bundles from Cache Storage before the network and is NOT cleared by a
+    // hard refresh, so stale cached bundles mask real code changes during design
+    // work. In dev, actively unregister any existing worker and drop its caches.
+    if (process.env.NODE_ENV !== "production") {
+      void navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => void reg.unregister());
+      });
+      if ("caches" in window) {
+        void caches.keys().then((keys) => keys.forEach((key) => void caches.delete(key)));
+      }
+      return;
+    }
+
     navigator.serviceWorker.register("/sw.js").catch(() => {});
 
     function onMessage(event: MessageEvent) {

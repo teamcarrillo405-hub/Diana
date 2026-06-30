@@ -23,6 +23,14 @@ export type ScorerProfile = {
   extra_time_pct: number;
 };
 
+export type ScorerLearningLoop = {
+  friction?: {
+    readingHeavyNeedsSmallerSteps?: boolean;
+    writingHeavyNeedsScaffold?: boolean;
+    stuckPattern?: "none" | "restart" | "direct_answer" | "still_stuck" | "overload";
+  };
+};
+
 export type ScoredAssignment = Assignment & {
   score: number;
   reasons: string[];
@@ -74,6 +82,7 @@ export function rankAssignments(
   energy: EnergyLevel = "medium",
   profile: ScorerProfile = { diagnoses: [], extra_time_pct: 0 },
   lastShownClassId: string | null = null,
+  learningLoop: ScorerLearningLoop | null = null,
 ): ScoredAssignment[] {
   const scored = assignments
     .filter(
@@ -82,7 +91,7 @@ export function rankAssignments(
         a.status !== "graded" &&
         a.status !== "abandoned",
     )
-    .map((a) => score(a, signals, now, energy, profile));
+    .map((a) => score(a, signals, now, energy, profile, learningLoop));
 
   if (lastShownClassId) {
     for (const s of scored) {
@@ -107,6 +116,7 @@ function score(
   now: Date,
   energy: EnergyLevel,
   profile: ScorerProfile,
+  learningLoop: ScorerLearningLoop | null,
 ): ScoredAssignment {
   let s = 0;
   const reasons: string[] = [];
@@ -187,6 +197,25 @@ function score(
       reasons.push("focus window is the right time for this");
     }
     if (writingHeavy) s += 4;
+  }
+
+  if (learningLoop?.friction?.readingHeavyNeedsSmallerSteps && readingHeavy && !highConsequence) {
+    s -= 6;
+    reasons.push("reading needs a smaller first move");
+  }
+
+  if (learningLoop?.friction?.writingHeavyNeedsScaffold && writingHeavy) {
+    s += 4;
+    reasons.push("writing scaffold ready");
+  }
+
+  if (
+    learningLoop?.friction?.stuckPattern === "restart" &&
+    lastSignal &&
+    a.status !== "todo"
+  ) {
+    s += 5;
+    reasons.push("restart support available");
   }
 
   if (est === null) s -= 3;

@@ -3,7 +3,6 @@ import { loadProfile } from "@/lib/profile";
 import { OnboardingForm } from "./form";
 import { SchoolMixRibbon } from "@/components/signal/school-mix-ribbon";
 import { SignalStage } from "@/components/signal/signal-stage";
-import { NexusArcadeScene } from "@/components/nexus/nexus-ui";
 
 export default async function OnboardingPage() {
   const profile = await loadProfile();
@@ -24,7 +23,7 @@ export default async function OnboardingPage() {
             </p>
             <SchoolMixRibbon />
             <div className="nexus-auth-preview hidden lg:block">
-              <NexusArcadeScene className="min-h-[24rem]" />
+              <div className="min-h-[24rem]" aria-hidden="true" />
             </div>
           </aside>
 

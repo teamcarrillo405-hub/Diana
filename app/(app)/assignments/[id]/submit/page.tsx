@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ExternalSubmissionSync } from "../external-submission-sync";
 import { SubmitChecklist } from "./checklist";
+import { AppTopNav } from "../../../app-top-nav";
 
 export default async function SubmitPage({
   params,
@@ -27,7 +28,9 @@ export default async function SubmitPage({
     .order("position", { ascending: true });
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link
           href={`/assignments/${id}`}
@@ -56,6 +59,7 @@ export default async function SubmitPage({
         externalUrl={a.external_url}
         initialStatus={a.submission_sync_status}
       />
-    </div>
+      </div>
+    </>
   );
 }

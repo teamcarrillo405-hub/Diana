@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { LifeBuoy } from "lucide-react";
 import { recordOverwhelmed } from "./overwhelmed-actions";
+import { usesAppTopNav } from "@/lib/navigation";
 
 export function OverwhelmedButton({ placement = "fixed" }: { placement?: "fixed" | "inline" }) {
   const pathname = usePathname();
@@ -27,7 +28,8 @@ export function OverwhelmedButton({ placement = "fixed" }: { placement?: "fixed"
     });
   }
 
-  if (placement === "fixed" && pathname === "/dashboard") {
+  // Hidden on pages that own a top nav (rule centralized in usesAppTopNav).
+  if (placement === "fixed" && usesAppTopNav(pathname)) {
     return null;
   }
 

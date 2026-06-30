@@ -29,6 +29,8 @@ const BASE: ProfilePrefs = {
   reading_word_spacing: "normal",
   font_size: "normal",
   line_spacing: "normal",
+  learning_loop_paused: false,
+  learning_loop_reset_at: null,
   dyslexia_font: false,
   reduced_motion: false,
   high_contrast: false,
@@ -44,6 +46,7 @@ const BASE: ProfilePrefs = {
   daily_token_budget: 50000,
   tokens_used_today: 0,
   token_reset_date: "2026-05-29",
+  photo_url: null,
 };
 
 describe("profileBodyClass reading_font", () => {

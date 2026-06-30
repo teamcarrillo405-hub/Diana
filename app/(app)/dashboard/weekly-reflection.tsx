@@ -6,6 +6,18 @@ import { shouldShowWeeklyReflection } from "@/lib/emotional/session";
 
 type Mood = "good" | "meh" | "rough";
 
+const cardStyle: React.CSSProperties = {
+  borderRadius: "var(--radius-card)",
+  border: "1px solid var(--gl-purple-30)",
+  background: "var(--gl-bg-card)",
+  backdropFilter: "var(--blur-card)",
+  WebkitBackdropFilter: "var(--blur-card)",
+  padding: "var(--space-12)",
+  display: "flex",
+  flexDirection: "column",
+  gap: "var(--space-8)",
+};
+
 export function WeeklyReflection({
   lastReflectedAt,
   mood,
@@ -52,20 +64,22 @@ export function WeeklyReflection({
   }
 
   return (
-    <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
+    <section style={cardStyle}>
       <div>
-        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Weekly reflection</h2>
-        <p className="mt-1 text-sm text-muted">What clicked this week? What still feels foggy?</p>
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-13)", letterSpacing: "var(--tracking-14)", textTransform: "uppercase", color: "var(--gl-purple-light)" }}>
+          Weekly reflection
+        </h2>
+        <p style={{ marginTop: "var(--space-3)", fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>What clicked this week? What still feels foggy?</p>
       </div>
       {reflection ? (
-        <div className="space-y-3">
-          <p className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted">
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+          <p style={{ borderRadius: "var(--radius-button)", border: "1px solid var(--gl-cyan-22)", background: "var(--gl-cyan-08)", padding: "var(--space-6) var(--space-8)", fontSize: "var(--text-14)", color: "var(--gl-text-secondary)" }}>
             {reflection}
           </p>
           <button
             type="button"
             onClick={() => setVisible(false)}
-            className="rounded-md border border-border px-3 py-2 text-sm hover:bg-border/30"
+            style={{ alignSelf: "flex-start", borderRadius: "var(--radius-button)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-btn-neutral)", padding: "var(--space-4) var(--space-8)", fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", cursor: "pointer" }}
           >
             Done
           </button>
@@ -77,15 +91,38 @@ export function WeeklyReflection({
             onChange={(event) => setBody(event.target.value)}
             rows={3}
             maxLength={1500}
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
             placeholder="A few words is enough."
+            style={{
+              width: "100%",
+              borderRadius: "var(--radius-button)",
+              border: "1px solid var(--gl-purple-30)",
+              background: "var(--gl-bg-input)",
+              padding: "var(--space-6) var(--space-8)",
+              fontSize: "var(--text-14)",
+              fontFamily: "var(--font-body)",
+              color: "var(--gl-text-primary)",
+              resize: "vertical",
+            }}
           />
-          <div className="flex flex-wrap gap-2">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4)" }}>
             <button
               type="button"
               onClick={save}
               disabled={pending || body.trim().length < 2}
-              className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+              style={{
+                borderRadius: "var(--radius-button)",
+                border: "none",
+                background: "var(--gl-purple)",
+                padding: "var(--space-4) var(--space-8)",
+                fontFamily: "var(--font-display)",
+                fontWeight: "var(--weight-800)",
+                fontSize: "var(--text-14)",
+                letterSpacing: "var(--tracking-04)",
+                textTransform: "uppercase",
+                color: "#fff",
+                cursor: pending || body.trim().length < 2 ? "default" : "pointer",
+                opacity: pending || body.trim().length < 2 ? 0.5 : 1,
+              }}
             >
               Save reflection
             </button>
@@ -93,12 +130,21 @@ export function WeeklyReflection({
               type="button"
               onClick={skip}
               disabled={pending}
-              className="rounded-md border border-border px-3 py-2 text-sm text-muted hover:bg-border/30 disabled:opacity-50"
+              style={{
+                borderRadius: "var(--radius-button)",
+                border: "1px solid var(--gl-border-neutral)",
+                background: "var(--gl-bg-btn-neutral)",
+                padding: "var(--space-4) var(--space-8)",
+                fontSize: "var(--text-14)",
+                color: "var(--gl-text-muted)",
+                cursor: pending ? "default" : "pointer",
+                opacity: pending ? 0.5 : 1,
+              }}
             >
               Skip this week
             </button>
           </div>
-          {message && <p className="text-sm text-muted">{message}</p>}
+          {message && <p style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>{message}</p>}
         </>
       )}
     </section>

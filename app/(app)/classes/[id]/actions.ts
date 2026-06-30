@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { parseRubricText } from "@/lib/rubric/rubric";
+import { parseSyllabusText } from "@/lib/syllabus/parse";
 
 const AddRubric = z.object({
   classId: z.string().uuid(),
@@ -31,6 +32,36 @@ export async function addRubric(input: z.infer<typeof AddRubric>) {
     raw_text: parsed.data.rawText,
     parsed: criteria.length > 0 ? { criteria } : null,
     parse_status: criteria.length > 0 ? "parsed" : "manual",
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath(`/classes/${parsed.data.classId}`);
+  return { ok: true };
+}
+
+const AddSyllabus = z.object({
+  classId: z.string().uuid(),
+  title: z.string().min(1).max(160),
+  rawText: z.string().min(1).max(50_000),
+});
+
+export async function addSyllabus(input: z.infer<typeof AddSyllabus>) {
+  const parsed = AddSyllabus.safeParse(input);
+  if (!parsed.success) return { error: "Invalid input." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
+
+  // Heuristically extract key dates + policies so the class hub can surface them
+  // without re-parsing on every render.
+  const parsedSyllabus = parseSyllabusText(parsed.data.rawText);
+  const { error } = await supabase.from("class_syllabi").insert({
+    owner_id: user.id,
+    class_id: parsed.data.classId,
+    title: parsed.data.title,
+    raw_text: parsed.data.rawText,
+    parsed: parsedSyllabus,
   });
   if (error) return { error: error.message };
 

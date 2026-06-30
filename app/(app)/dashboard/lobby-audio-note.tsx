@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { saveInboxItem } from "../quick-add/actions";
 
 type SRInstance = {
   continuous: boolean;
@@ -15,8 +16,11 @@ type SRConstructor = new () => SRInstance;
 export function LobbyAudioNote() {
   const [recording, setRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [saving, setSaving] = useState(false);
   const recognitionRef = useRef<SRInstance | null>(null);
   const shouldRecordRef = useRef(false);
+
+  const NOT_SUPPORTED = "Speech recognition not supported. Try Chrome or Edge.";
 
   function startAudio() {
     const win = window as unknown as { SpeechRecognition?: SRConstructor; webkitSpeechRecognition?: SRConstructor };
@@ -24,7 +28,7 @@ export function LobbyAudioNote() {
 
     if (!SR) {
       setRecording(true);
-      setTranscript("Speech recognition not supported. Try Chrome or Edge.");
+      setTranscript(NOT_SUPPORTED);
       return;
     }
 
@@ -50,12 +54,26 @@ export function LobbyAudioNote() {
     setTranscript("");
   }
 
-  function stopAudio() {
+  async function stopAudio() {
     shouldRecordRef.current = false;
     recognitionRef.current?.stop();
     recognitionRef.current = null;
+
+    const text = transcript.trim();
+    // Nothing usable captured — just close.
+    if (!text || text === NOT_SUPPORTED) {
+      setRecording(false);
+      setTranscript("");
+      return;
+    }
+
+    // Save the voice transcript to the capture inbox; saveInboxItem also kicks
+    // off AI classification so it lands with a suggested class/kind/due.
+    setSaving(true);
+    await saveInboxItem({ raw: text, captureMode: "voice" });
+    setSaving(false);
     setRecording(false);
-    // TODO: wire to saveQuickCapture({ raw: transcript }) from components/quick-capture-actions.ts
+    setTranscript("");
   }
 
   function cancelAudio() {
@@ -70,28 +88,35 @@ export function LobbyAudioNote() {
 
   return (
     <>
+      <style>{`
+        /* Keyframe kept local so the recording pulse works wherever LobbyAudioNote
+           renders (dashboard AND /assignments), not just inside the lobby hero. */
+        @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
+        .gl-record{transition:transform 140ms cubic-bezier(.23,1,.32,1),background .2s;}
+        .gl-record:active{transform:scale(.97);}
+      `}</style>
       <button
+        className="gl-record"
         onClick={() => (recording ? cancelAudio() : startAudio())}
         title={recording ? "Stop recording" : "Start audio note"}
         style={{
-          padding: "8px 14px",
-          borderRadius: 8,
+          padding: "var(--space-7) var(--space-14)",
+          borderRadius: "var(--radius-button)",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
-          gap: 7,
-          border: "1.5px solid rgba(120,150,220,.32)",
-          background: recording ? "rgba(255,55,55,.22)" : "rgba(120,150,220,.14)",
-          animation: recording ? "gl-mic-pulse 1.5s ease-in-out infinite" : "none",
-          transition: "background .2s",
+          gap: "var(--space-4)",
+          border: `1.5px solid ${recording ? "var(--gl-red-mic-border-active)" : "var(--gl-red-mic-idle)"}`,
+          background: recording ? "var(--gl-red-mic-active)" : "var(--gl-red-mic-idle)",
+          animation: recording ? "gl-mic-pulse 1s ease-in-out infinite" : "none",
         }}
       >
         <svg
-          width="16"
-          height="16"
+          width="18"
+          height="18"
           viewBox="0 0 24 24"
           fill="none"
-          stroke={recording ? "#ff4444" : "#cdd6f2"}
+          stroke="var(--gl-text-primary)"
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -104,14 +129,14 @@ export function LobbyAudioNote() {
         <span
           style={{
             fontFamily: SF,
-            fontWeight: 700,
-            fontSize: 15,
-            letterSpacing: ".06em",
+            fontWeight: 800,
+            fontSize: 17,
+            letterSpacing: ".08em",
             textTransform: "uppercase",
-            color: recording ? "#ff4444" : "#cdd6f2",
+            color: "var(--gl-text-primary)",
           }}
         >
-          Note
+          RECORD
         </span>
       </button>
 
@@ -206,12 +231,14 @@ export function LobbyAudioNote() {
             <div style={{ display: "flex", gap: 12 }}>
               <button
                 onClick={stopAudio}
+                disabled={saving}
                 style={{
                   transform: "skewX(-8deg)",
                   padding: "12px 28px",
                   borderRadius: 8,
                   background: "linear-gradient(180deg,#36e07a,#16a34a)",
-                  cursor: "pointer",
+                  cursor: saving ? "wait" : "pointer",
+                  opacity: saving ? 0.7 : 1,
                   boxShadow: "0 8px 24px rgba(34,180,90,.35)",
                   border: "none",
                 }}
@@ -227,7 +254,7 @@ export function LobbyAudioNote() {
                     color: "#06210f",
                   }}
                 >
-                  Save Note
+                  {saving ? "Saving…" : "Save Note"}
                 </div>
               </button>
               <button

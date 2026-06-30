@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { recordLearningEvent } from "@/lib/learning-loop/server";
 
 const Input = z.object({
   features: z.array(z.string().min(1).max(80)).min(1).max(4),
@@ -29,5 +30,18 @@ export async function recordHelpFeedback(input: z.infer<typeof Input>): Promise<
     helpful: parsed.data.helpful,
   }));
   const { error } = await supabase.from("ai_help_feedback").insert(rows);
+  if (!error) {
+    await Promise.all(parsed.data.features.map((feature) =>
+      recordLearningEvent({
+        supabase,
+        ownerId: user.id,
+        eventName: "help_feedback",
+        assignmentId: parsed.data.assignmentId ?? null,
+        feature,
+        sourceTable: "ai_help_feedback",
+        payload: { helpful: parsed.data.helpful },
+      }).catch(() => undefined),
+    ));
+  }
   return { ok: !error };
 }

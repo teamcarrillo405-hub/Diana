@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#04060f;}
+  *{box-sizing:border-box;}
+  @keyframes ia-blink{0%,100%{opacity:.5}50%{opacity:1}}
+  @keyframes ia-pulse{0%,100%{box-shadow:0 0 0 0 rgba(41,208,255,.4)}70%{box-shadow:0 0 0 9px rgba(41,208,255,0)}}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:'Barlow Semi Condensed',sans-serif;color:#fff;padding-bottom:90px">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TOP NAV — real product nav, tabs are functional in this ref
+       ═══════════════════════════════════════════════════════════ -->
+  <div style="position:sticky;top:0;z-index:40;background:rgba(2,5,14,.86);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 24px">
+      <div style="display:flex;gap:8px">
+        <div style="width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</div>
+      </div>
+      <div style="display:flex;align-items:stretch;gap:4px;margin-left:2px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <sc-for list="{{ nav }}" as="t" hint-placeholder-count="6">
+          <div onClick="{{ t.onClick }}" style="position:relative;display:flex;align-items:center;padding:18px 12px;cursor:pointer;color:{{ t.color }};transition:color .15s" style-hover="color:#fff">
+            <sc-if value="{{ t.meta }}" hint-placeholder-val="{{ false }}">
+              <span style="display:inline-flex;align-items:center;gap:7px;padding:5px 13px;border-radius:7px;background:{{ t.metaBg }};border:1px solid {{ t.metaBorder }};font-size:15px;letter-spacing:.08em">◆ {{ t.label }}</span>
+            </sc-if>
+            <sc-if value="{{ t.real }}" hint-placeholder-val="{{ true }}">
+              <span>{{ t.label }}</span>
+            </sc-if>
+            <sc-if value="{{ t.active }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;left:8px;right:8px;bottom:0;height:3px;background:#29d0ff;border-radius:2px;box-shadow:0 0 12px rgba(41,208,255,.6)"></div>
+            </sc-if>
+          </div>
+        </sc-for>
+        <div style="display:flex;align-items:center;padding:18px 12px;color:#5a648a;font-size:18px">More</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,180,70,.7)">Plan · not source</div>
+        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">G</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PLAN VIEW — the distribution map (the deliverable)
+       ═══════════════════════════════════════════════════════════ -->
+  <sc-if value="{{ isPlan }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:1440px;margin:0 auto;padding:32px 24px 0">
+
+    <!-- AUTHORITY BANNER -->
+    <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-radius:11px;border:1px solid rgba(255,180,70,.4);background:rgba(255,180,70,.07);margin-bottom:26px">
+      <div style="width:30px;height:30px;border-radius:8px;background:rgba(255,180,70,.16);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#ffb347" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      </div>
+      <div style="flex:1">
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#ffc873">Placement plan · not the pixel source</span>
+        <span style="font-size:13.5px;color:rgba(200,218,255,.7);margin-left:10px">Pixel source of truth is <b style="color:#fff">Student Lobby.dc.html</b>. Screens here are condensed recaps for layout planning — build from <b style="color:#fff">Dashboard Plan.md</b>.</span>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:8px">
+      <div>
+        <div style="font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.3em;color:rgba(41,208,255,.85);text-transform:uppercase;margin-bottom:8px">Dashboard · Information Architecture</div>
+        <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:54px;line-height:.9;text-transform:uppercase;letter-spacing:.01em">Where every<br>feature lives</div>
+      </div>
+      <div style="max-width:440px;font-size:15px;line-height:1.6;color:rgba(200,218,255,.72)">
+        The landing page stays calm — hero, classes, and one quiet alert slot. The other 17 components move to <span style="color:#29d0ff;font-weight:600">WORK · THINK · PROOF · FUTURE</span>. Click any tab above to see it built in the locked Student Lobby system.
+      </div>
+    </div>
+
+    <!-- Distribution columns -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:36px">
+      <sc-for list="{{ planCols }}" as="col" hint-placeholder-count="5">
+        <div onClick="{{ col.onClick }}" style="border-radius:14px;border:1px solid {{ col.border }};background:rgba(4,8,20,.6);overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s" style-hover="transform:translateY(-4px);border-color:{{ col.accent }}">
+          <!-- col header -->
+          <div style="padding:16px 16px 14px;background:{{ col.headBg }};border-bottom:1px solid {{ col.border }}">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:24px;letter-spacing:.04em;text-transform:uppercase;color:{{ col.accent }}">{{ col.name }}</div>
+            <div style="font-size:12px;font-weight:600;color:rgba(200,218,255,.55);text-transform:uppercase;letter-spacing:.1em;margin-top:2px">{{ col.sub }}</div>
+          </div>
+          <!-- items -->
+          <div style="padding:12px;display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ col.items }}" as="it" hint-placeholder-count="3">
+              <div style="padding:11px 12px;border-radius:9px;background:{{ it.chipBg }};border:1px solid {{ it.chipBorder }}">
+                <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+                  <div style="width:7px;height:7px;border-radius:2px;background:{{ it.dot }};flex-shrink:0"></div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.02em;color:#eaf1ff;line-height:1">{{ it.title }}</div>
+                </div>
+                <div style="font-size:12px;line-height:1.45;color:rgba(200,218,255,.6);padding-left:14px">{{ it.role }}</div>
+                <sc-if value="{{ it.tag }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:7px;margin-left:14px;display:inline-block;padding:2px 8px;border-radius:4px;background:{{ it.tagBg }};font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:{{ it.tagFg }}">{{ it.tag }}</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- Legend -->
+    <div style="margin-top:24px;display:flex;align-items:center;gap:22px;flex-wrap:wrap;padding:14px 18px;border-radius:12px;background:rgba(4,8,20,.5);border:1px solid rgba(120,150,220,.14)">
+      <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:rgba(200,218,255,.5)">Tag key</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(200,218,255,.7)"><span style="padding:2px 8px;border-radius:4px;background:rgba(41,208,255,.16);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#7fdcff">EXISTING</span> already on the page today</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(200,218,255,.7)"><span style="padding:2px 8px;border-radius:4px;background:rgba(255,180,70,.18);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#ffc873">NEW</span> the one addition to TODAY</div>
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(200,218,255,.7)"><span style="padding:2px 8px;border-radius:4px;background:rgba(120,150,220,.18);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#aab8e0">CONDITIONAL</span> only shows when its trigger fires</div>
+    </div>
+
+    <!-- Why this works -->
+    <div style="margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="padding:18px 20px;border-radius:12px;background:rgba(4,8,20,.5);border:1px solid rgba(120,150,220,.14)">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#29d0ff;margin-bottom:6px">One question per screen</div>
+        <div style="font-size:13.5px;line-height:1.6;color:rgba(200,218,255,.7)">TODAY answers "what now?" Each tab answers exactly one follow-up — do the work, check in, prove it, plan ahead.</div>
+      </div>
+      <div style="padding:18px 20px;border-radius:12px;background:rgba(4,8,20,.5);border:1px solid rgba(120,150,220,.14)">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#b09cff;margin-bottom:6px">Nothing duplicated</div>
+        <div style="font-size:13.5px;line-height:1.6;color:rgba(200,218,255,.7)">The hero already covers next-move, energy, and workload — so those components don't get re-added as cards below.</div>
+      </div>
+      <div style="padding:18px 20px;border-radius:12px;background:rgba(4,8,20,.5);border:1px solid rgba(120,150,220,.14)">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#ffd24a;margin-bottom:6px">Quiet by default</div>
+        <div style="font-size:13.5px;line-height:1.6;color:rgba(200,218,255,.7)">Alerts live in one shared slot — empty most days, one calm strip when something needs attention.</div>
+      </div>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TODAY VIEW — landing as-is + the NEW alert slot
+       ═══════════════════════════════════════════════════════════ -->
+  <sc-if value="{{ isToday }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1440px;margin:0 auto;padding:30px 24px 0">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.3em;color:rgba(41,208,255,.85);text-transform:uppercase;margin-bottom:6px">Today · the calm landing</div>
+      <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase">What do I do now?</div>
+      <div style="margin-top:8px;font-size:15px;color:rgba(200,218,255,.62)">Hero and classes are unchanged. One quiet alert slot is the only thing added below the nav.</div>
+    </div>
+
+    <!-- existing hero recap -->
+    <div style="position:relative;border-radius:16px;overflow:hidden;border:1px solid rgba(41,208,255,.18);background:linear-gradient(120deg,#0a1024,#0a1830);padding:26px 28px;margin-bottom:14px">
+      <div style="position:absolute;right:18px;top:14px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(120,150,220,.6);text-transform:uppercase">lobby-hero.tsx · unchanged</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap">
+        <div>
+          <div style="font-weight:700;font-size:12px;letter-spacing:.3em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:2px">Your Lobby</div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:46px;line-height:.9;text-transform:uppercase">G-Money</div>
+          <div style="margin-top:14px;display:inline-flex;align-items:center;gap:10px;background:#29d0ff;padding:13px 24px;border-radius:10px;box-shadow:0 0 28px rgba(41,208,255,.4)">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:24px;letter-spacing:.03em;text-transform:uppercase;color:#04080f">▶ Start English</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px">
+          <div style="width:150px;padding:14px 16px;border-radius:12px;border:1px solid rgba(41,208,255,.22);background:rgba(4,8,20,.4)">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#9fb0dd;text-transform:uppercase;margin-bottom:6px">Energy today</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:26px;text-transform:uppercase">Locked in</div>
+          </div>
+          <div style="width:170px;padding:14px 16px;border-radius:12px;border:1px solid rgba(41,208,255,.2);background:rgba(4,8,20,.4)">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.14em;color:#ffd24a;text-transform:uppercase">Medium night</span></div>
+            <div style="font-size:12px;color:rgba(200,218,255,.6);margin-top:4px">est. 1h 45m tonight</div>
+            <div style="height:4px;border-radius:3px;background:rgba(120,150,220,.18);overflow:hidden;margin-top:8px"><div style="height:100%;width:58%;background:#ffd24a;box-shadow:0 0 8px #ffd24a"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE NEW ALERT SLOT -->
+    <div style="margin:18px 0">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:rgba(200,218,255,.5)">Alert slot</div>
+        <div style="padding:2px 8px;border-radius:4px;background:rgba(255,180,70,.18);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#ffc873">NEW · THE ONLY ADDITION TO TODAY</div>
+        <div style="flex:1;height:1px;background:rgba(120,150,220,.16)"></div>
+      </div>
+
+      <!-- live alert -->
+      <sc-if value="{{ alertVisible }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;display:flex;align-items:center;gap:16px;padding:15px 18px;border-radius:12px;border:1px solid {{ alert.border }};background:{{ alert.bg }};overflow:hidden">
+          <div style="position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid {{ alert.accent }};border-top:2px solid {{ alert.accent }};border-radius:2px 0 0 0"></div>
+          <div style="position:absolute;right:-1px;top:-1px;width:12px;height:12px;border-right:2px solid {{ alert.accent }};border-top:2px solid {{ alert.accent }};border-radius:0 2px 0 0"></div>
+          <div style="position:absolute;left:-1px;bottom:-1px;width:12px;height:12px;border-left:2px solid {{ alert.accent }};border-bottom:2px solid {{ alert.accent }};border-radius:0 0 0 2px"></div>
+          <div style="position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-right:2px solid {{ alert.accent }};border-bottom:2px solid {{ alert.accent }};border-radius:0 0 2px 0"></div>
+          <div style="width:36px;height:36px;border-radius:9px;background:{{ alert.iconBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="{{ alert.accent }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:2px">
+              <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:{{ alert.accent }}">{{ alert.label }}</span>
+              <span style="font-family:'Barlow Semi Condensed',sans-serif;font-size:11px;color:rgba(120,150,220,.55)">{{ alert.src }}</span>
+            </div>
+            <div style="font-size:15px;font-weight:600;color:#eef2ff">{{ alert.msg }}</div>
+            <div style="font-size:12.5px;color:rgba(200,218,255,.55);margin-top:1px">{{ alert.sub }}</div>
+          </div>
+          <sc-if value="{{ alert.cta }}" hint-placeholder-val="{{ false }}">
+            <div style="flex-shrink:0;padding:9px 16px;border-radius:8px;border:1px solid {{ alert.border }};background:{{ alert.iconBg }};font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:{{ alert.accent }};cursor:pointer">{{ alert.cta }}</div>
+          </sc-if>
+          <div onClick="{{ dismissAlert }}" style="flex-shrink:0;width:30px;height:30px;border-radius:7px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#9fb0dd;font-size:15px" style-hover="background:rgba(120,150,220,.2)">✕</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ alertEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px;padding:15px 18px;border-radius:12px;border:1px dashed rgba(120,150,220,.22);background:rgba(4,8,20,.3)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(54,224,122,.7)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span style="font-size:14px;color:rgba(200,218,255,.55)">Nothing needs attention — the slot renders nothing. This is most days.</span>
+        </div>
+      </sc-if>
+
+      <!-- state switcher -->
+      <div style="display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <span style="font-size:12px;color:rgba(200,218,255,.4);text-transform:uppercase;letter-spacing:.1em;font-weight:600">Preview states:</span>
+        <sc-for list="{{ alertChips }}" as="ch" hint-placeholder-count="4">
+          <div onClick="{{ ch.onClick }}" style="padding:6px 13px;border-radius:7px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;background:{{ ch.bg }};border:1px solid {{ ch.border }};color:{{ ch.fg }}">{{ ch.label }}</div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- classes header recap -->
+    <div style="margin-top:22px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:.06em;text-transform:uppercase">My Classes</div>
+        <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:6px;background:rgba(255,55,55,.14);border:1px solid rgba(255,55,55,.28)"><div style="width:6px;height:6px;border-radius:50%;background:#ff5555"></div><span style="font-weight:700;font-size:12px;color:#ff7070;letter-spacing:.06em;text-transform:uppercase">1 overdue</span></div>
+        <div style="margin-left:auto;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(120,150,220,.6);text-transform:uppercase">classes-grid.tsx · unchanged</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+        <sc-for list="{{ miniClasses }}" as="c" hint-placeholder-count="3">
+          <div style="border-radius:14px;border:1px solid {{ c.border }};background:rgba(4,8,20,.72);padding:16px 18px;box-shadow:{{ c.ring }}">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em;color:rgba(41,208,255,.6);text-transform:uppercase;margin-bottom:6px">{{ c.status }}</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:30px;line-height:.9;text-transform:uppercase">{{ c.name }}</div>
+            <div style="margin-top:12px;padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(120,150,220,.12);font-size:13px;color:#e8f0ff">{{ c.assignment }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       WORK VIEW — do the work
+       ═══════════════════════════════════════════════════════════ -->
+  <sc-if value="{{ isWork }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1440px;margin:0 auto;padding:34px 24px 0">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.3em;color:rgba(41,208,255,.85);text-transform:uppercase;margin-bottom:6px">Work · do the work</div>
+      <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase">Tonight's focus</div>
+      <div style="margin-top:8px;font-size:15px;color:rgba(200,218,255,.62)">Tapping START on the hero lands here — the full focus surface plus the tools to actually work.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:20px;align-items:start">
+
+      <!-- FOCUS HERO CARD -->
+      <div style="position:relative;border-radius:18px;border:1px solid rgba(41,208,255,.28);background:linear-gradient(135deg,rgba(8,14,30,.95),rgba(10,20,44,.92));padding:26px 28px;overflow:hidden;box-shadow:0 0 40px rgba(41,208,255,.08)">
+        <div style="position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-left:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:2px 0 0 0"></div>
+        <div style="position:absolute;right:-1px;top:-1px;width:16px;height:16px;border-right:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:0 2px 0 0"></div>
+        <div style="position:absolute;left:-1px;bottom:-1px;width:16px;height:16px;border-left:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 0 2px"></div>
+        <div style="position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-right:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 2px 0"></div>
+
+        <div style="position:absolute;right:16px;top:14px;font-family:'Barlow Semi Condensed',sans-serif;font-size:11px;letter-spacing:.04em;color:rgba(120,150,220,.6)">focus-hero-card.tsx + time-bar.tsx + start-session-button.tsx</div>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:7px;border:1px solid rgba(41,208,255,.3);background:rgba(41,208,255,.1);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#29d0ff">✦ Right now</span>
+          <span style="display:inline-flex;align-items:center;gap:7px;padding:5px 12px;border-radius:7px;border:1px solid rgba(120,150,220,.22);background:rgba(120,150,220,.08);font-size:12px;font-weight:600;color:#cdd6f2"><span style="width:8px;height:8px;border-radius:50%;background:#29d0ff"></span>English</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:7px;border:1px solid rgba(120,150,220,.22);background:rgba(120,150,220,.08);font-size:12px;font-weight:600;color:#cdd6f2">⚙ Steady focus</span>
+        </div>
+
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:38px;line-height:.95;text-transform:uppercase">Reading response — Chapter 3</div>
+        <div style="margin-top:8px;font-size:14px;color:rgba(200,218,255,.65)">Reading · ~25 min for you · Due Thu 9:00 PM</div>
+
+        <!-- TIME BAR -->
+        <div style="margin-top:20px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+            <span style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.5)">Time until due</span>
+            <span style="font-size:12px;font-weight:700;color:#29d0ff">Thu 9:00 PM</span>
+          </div>
+          <div style="height:8px;border-radius:5px;background:rgba(120,150,220,.16);overflow:hidden"><div style="height:100%;width:62%;border-radius:5px;background:linear-gradient(90deg,#29d0ff,rgba(41,208,255,.5));box-shadow:0 0 10px rgba(41,208,255,.5)"></div></div>
+          <div style="margin-top:6px;font-size:11.5px;color:rgba(120,150,220,.55)">time-bar.tsx — past-due branch swaps to a red micro-task button</div>
+        </div>
+
+        <!-- WHY THIS ONE -->
+        <div style="margin-top:20px">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.5);margin-bottom:8px">Why this one</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-for list="{{ reasons }}" as="r" hint-placeholder-count="3">
+              <span style="padding:5px 12px;border-radius:20px;border:1px solid rgba(41,208,255,.2);background:rgba(41,208,255,.08);font-size:12.5px;color:#7fdcff">{{ r }}</span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT RAIL: start, TTS, budget, due cards -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;border-radius:13px;background:#29d0ff;box-shadow:0 0 28px rgba(41,208,255,.4);cursor:pointer">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">▶ Start focus</span>
+        </div>
+        <div style="position:relative;display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;border-radius:11px;border:1px solid rgba(120,150,220,.24);background:rgba(120,150,220,.06);cursor:pointer">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd6f2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:#cdd6f2">Read it to me</span>
+          <span style="position:absolute;right:12px;font-size:10px;color:rgba(120,150,220,.5)">tts-button</span>
+        </div>
+
+        <!-- TIME BUDGET (collapsible) -->
+        <div style="border-radius:13px;border:1px solid rgba(120,150,220,.18);background:rgba(4,8,20,.6);overflow:hidden">
+          <div onClick="{{ toggleTB }}" style="display:flex;align-items:center;justify-content:space-between;padding:15px 17px;cursor:pointer">
+            <span style="font-size:14px;font-weight:600;color:#e8f0ff">What's left tonight?</span>
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;color:#ffd24a">{{ tbLabel }}</span>
+          </div>
+          <sc-if value="{{ tbOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid rgba(120,150,220,.14);padding:6px 17px 14px">
+              <sc-for list="{{ tbItems }}" as="b" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(120,150,220,.08)"><span style="font-size:13px;color:#cdd6f2">{{ b.title }}</span><span style="font-size:12px;color:rgba(200,218,255,.5)">~{{ b.min }} min</span></div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- DUE CARDS -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-radius:13px;border:1px solid rgba(41,208,255,.2);background:rgba(41,208,255,.05);cursor:pointer">
+          <div><div style="font-size:14px;font-weight:600;color:#e8f0ff">12 cards due</div><div style="font-size:12px;color:rgba(200,218,255,.55)">due-cards.tsx · flashcard review</div></div>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:#29d0ff">Review →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- READING LOAD TOGGLE -->
+    <div style="margin-top:20px;display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:13px;border:1px solid rgba(120,150,220,.16);background:rgba(4,8,20,.5);flex-wrap:wrap">
+      <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:rgba(200,218,255,.6)">Assignment view</div>
+      <div style="display:flex;border-radius:9px;overflow:hidden;border:1px solid rgba(41,208,255,.22)">
+        <div onClick="{{ setStandardView }}" style="padding:9px 18px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:{{ standardBg }};color:{{ standardFg }}">Standard</div>
+        <div onClick="{{ setReadingView }}" style="padding:9px 18px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:{{ readingBg }};color:{{ readingFg }}">Reading load</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+        <span style="font-size:12px;color:rgba(200,218,255,.5);text-transform:uppercase;letter-spacing:.08em;font-weight:600">Reading-load badge</span>
+        <div style="display:flex;gap:3px">
+          <sc-for list="{{ readingDots }}" as="d" hint-placeholder-count="5">
+            <div style="width:9px;height:9px;border-radius:50%;background:{{ d }}"></div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="width:100%;font-size:11.5px;color:rgba(120,150,220,.55)">reading-load-toggle.tsx — badge clamps 0–5; toggle preserves the ?energy= param</div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       THINK VIEW — how am I
+       ═══════════════════════════════════════════════════════════ -->
+  <sc-if value="{{ isThink }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1440px;margin:0 auto;padding:34px 24px 0">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.3em;color:#b09cff;text-transform:uppercase;margin-bottom:6px">Think · how am I</div>
+      <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase">Check in with yourself</div>
+      <div style="margin-top:8px;font-size:15px;color:rgba(200,218,255,.62)">State, adaptation, and reflection — the richer versions of the quick energy check in the hero.</div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+
+      <!-- MOOD CHECK-IN -->
+      <div style="grid-column:1 / -1;position:relative;border-radius:16px;border:1px solid rgba(126,92,255,.3);background:linear-gradient(135deg,rgba(16,12,30,.92),rgba(20,14,40,.9));padding:24px 26px">
+        <div style="position:absolute;right:16px;top:14px;font-family:'Barlow Semi Condensed',sans-serif;font-size:11px;letter-spacing:.04em;color:rgba(120,150,220,.6)">mood-check-in.tsx</div>
+        <sc-if value="{{ moodDone }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div>
+              <div style="font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b09cff;margin-bottom:6px">Support set for today</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:30px;text-transform:uppercase">{{ moodSummary }}</div>
+              <div style="margin-top:6px;font-size:14px;color:rgba(200,218,255,.65)">Diana will keep blocks {{ moodAdvice }}.</div>
+            </div>
+            <div onClick="{{ resetMood }}" style="padding:10px 18px;border-radius:9px;border:1px solid rgba(126,92,255,.35);background:rgba(126,92,255,.12);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:#b09cff">Change</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ moodActive }}" hint-placeholder-val="{{ true }}">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#b09cff;margin-bottom:3px">Daily setup</div>
+          <div style="font-size:14px;color:rgba(200,218,255,.65);margin-bottom:18px">Two taps so Diana can set the right support level.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:9px">How is your body energy?</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ bodyChoices }}" as="b" hint-placeholder-count="3">
+                  <div onClick="{{ b.onClick }}" style="padding:12px 14px;border-radius:11px;cursor:pointer;border:1.5px solid {{ b.border }};background:{{ b.bg }}">
+                    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:15px">{{ b.icon }}</span><span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:{{ b.fg }}">{{ b.label }}</span></div>
+                    <div style="margin-top:2px;font-size:12px;color:rgba(200,218,255,.5);padding-left:24px">{{ b.detail }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:9px">How is your focus?</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ focusChoices }}" as="f" hint-placeholder-count="3">
+                  <div onClick="{{ f.onClick }}" style="padding:12px 14px;border-radius:11px;cursor:pointer;border:1.5px solid {{ f.border }};background:{{ f.bg }}">
+                    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:15px">◐</span><span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:{{ f.fg }}">{{ f.label }}</span></div>
+                    <div style="margin-top:2px;font-size:12px;color:rgba(200,218,255,.5);padding-left:24px">{{ f.detail }}</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div onClick="{{ saveMood }}" style="margin-top:18px;display:inline-block;padding:12px 24px;border-radius:10px;background:{{ moodSaveBg }};cursor:{{ moodSaveCursor }};font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:{{ moodSaveFg }}">Set today's support</div>
+        </sc-if>
+      </div>
+
+      <!-- SESSION ADAPTATION -->
+      <div style="position:relative;border-radius:14px;border:1px solid rgba(120,150,220,.18);background:rgba(4,8,20,.6);padding:20px 22px">
+        <div style="position:absolute;right:14px;top:13px;font-size:10px;color:rgba(120,150,220,.5);font-family:'Barlow Semi Condensed'">session-adaptation-card.tsx</div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.55);margin-bottom:6px">Lighter start</div>
+        <div style="font-size:15px;color:#e8f0ff;margin-bottom:14px">One small step, then reassess — no need to plan the whole night.</div>
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:9px;border:1px solid rgba(120,150,220,.22);background:rgba(120,150,220,.08);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:#cdd6f2">15 min block →</div>
+        <div style="margin-top:12px;display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(126,92,255,.16);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#b09cff">HIDDEN WHEN MOOD IS GOOD</div>
+      </div>
+
+      <!-- SLEEP RECOVERY -->
+      <div style="position:relative;border-radius:14px;border:1px solid rgba(120,150,220,.18);background:rgba(4,8,20,.6);padding:20px 22px">
+        <div style="position:absolute;right:14px;top:13px;font-size:10px;color:rgba(120,150,220,.5);font-family:'Barlow Semi Condensed'">sleep-recovery-card.tsx</div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.55);margin-bottom:6px">Sleep + recovery</div>
+        <div style="font-size:15px;color:#e8f0ff;margin-bottom:14px">Short on sleep this week — keeping tonight lighter is a smart move.</div>
+        <div style="display:inline-flex;align-items:center;gap:8px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:#29d0ff;cursor:pointer">Update sleep log →</div>
+        <div style="margin-top:12px;display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(120,150,220,.18);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#aab8e0">CONDITIONAL · MESSAGE EXISTS</div>
+      </div>
+
+      <!-- ENERGY PICKER -->
+      <div style="grid-column:1 / -1;position:relative;border-radius:14px;border:1px solid rgba(120,150,220,.18);background:rgba(4,8,20,.5);padding:20px 22px">
+        <div style="position:absolute;right:14px;top:13px;font-size:10px;color:rgba(120,150,220,.5);font-family:'Barlow Semi Condensed'">energy-picker.tsx</div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.55);margin-bottom:14px">Brain state — re-pick anytime</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+          <sc-for list="{{ energyPills }}" as="e" hint-placeholder-count="5">
+            <div onClick="{{ e.onClick }}" style="padding:14px 12px;border-radius:11px;cursor:pointer;border:1.5px solid {{ e.border }};background:{{ e.bg }};text-align:center">
+              <div style="font-size:20px;margin-bottom:6px">{{ e.icon }}</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:{{ e.fg }}">{{ e.label }}</div>
+              <div style="font-size:11px;color:rgba(200,218,255,.45);margin-top:2px">{{ e.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- WEEKLY REFLECTION -->
+      <div style="grid-column:1 / -1;position:relative;border-radius:14px;border:1px solid rgba(126,92,255,.24);background:rgba(4,8,20,.5);padding:22px 24px">
+        <div style="position:absolute;right:14px;top:13px;font-size:10px;color:rgba(120,150,220,.5);font-family:'Barlow Semi Condensed'">weekly-reflection.tsx</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#fff">Weekly reflection</div>
+          <div style="padding:2px 8px;border-radius:4px;background:rgba(126,92,255,.16);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#b09cff">TIME-GATED · ONCE / WEEK</div>
+        </div>
+        <div style="font-size:14px;color:rgba(200,218,255,.6);margin-bottom:14px">How did this week go? A couple sentences is plenty.</div>
+        <textarea value="{{ reflection }}" onChange="{{ setReflection }}" placeholder="This week I…" style="width:100%;min-height:88px;box-sizing:border-box;padding:14px 16px;border-radius:11px;background:rgba(10,16,36,.8);border:1px solid rgba(126,92,255,.25);color:#fff;font-size:14px;font-family:'Barlow Semi Condensed',sans-serif;resize:vertical;outline:none"></textarea>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+          <div style="padding:11px 22px;border-radius:9px;background:{{ reflectBtnBg }};cursor:{{ reflectBtnCursor }};font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:{{ reflectBtnFg }}">Save reflection</div>
+          <div style="font-size:13px;color:rgba(200,218,255,.45)">Diana reflects back what went well — needs 2+ characters.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       PROOF VIEW — what I've shown
+       ═══════════════════════════════════════════════════════════ -->
+  <sc-if value="{{ isProof }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1440px;margin:0 auto;padding:34px 24px 0">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.3em;color:#36e07a;text-transform:uppercase;margin-bottom:6px">Proof · what I have shown</div>
+      <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase">Your evidence</div>
+      <div style="margin-top:8px;font-size:15px;color:rgba(200,218,255,.62)">Progress signals and grade moves — the quiet payoff, kept off the landing so it never nags.</div>
+    </div>
+
+    <!-- DONE TODAY -->
+    <div style="display:flex;align-items:center;gap:14px;padding:18px 22px;border-radius:13px;border:1px solid rgba(54,224,122,.28);background:rgba(54,224,122,.07);margin-bottom:18px">
+      <div style="width:42px;height:42px;border-radius:11px;background:rgba(54,224,122,.14);display:flex;align-items:center;justify-content:center">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#36e07a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <div style="flex:1">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:24px;letter-spacing:.02em;text-transform:uppercase;color:#36e07a">3 things done today</div>
+        <div style="font-size:13px;color:rgba(200,218,255,.55)">done-today.tsx · neutral counter — no streaks, no shame language</div>
+      </div>
+      <div style="padding:2px 8px;border-radius:4px;background:rgba(54,224,122,.16);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#8ef0b8">HIDDEN WHEN COUNT = 0</div>
+    </div>
+
+    <!-- GRADE MOVE -->
+    <div style="position:relative;border-radius:14px;border:1px solid rgba(41,208,255,.25);background:rgba(41,208,255,.05);padding:22px 24px;margin-bottom:18px">
+      <div style="position:absolute;right:14px;top:13px;font-size:10px;color:rgba(120,150,220,.5);font-family:'Barlow Semi Condensed'">grade-move-card.tsx</div>
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(41,208,255,.12);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#29d0ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#29d0ff;margin-bottom:5px">One move that helps your grade</div>
+          <div style="font-size:18px;font-weight:600;color:#eef2ff">Resubmit Lab 2 <span style="color:rgba(200,218,255,.5);font-weight:500">· Biology</span></div>
+          <div style="font-size:13.5px;color:rgba(200,218,255,.6);margin-top:4px">Re-submitting recovers the most points available right now.</div>
+        </div>
+        <div style="align-self:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:#29d0ff;cursor:pointer">Open →</div>
+      </div>
+      <div style="margin-top:14px;display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(120,150,220,.18);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#aab8e0">CANVAS-GATED · 2.5s TIMEOUT, SILENT IF SLOW/ABSENT</div>
+    </div>
+
+    <div style="padding:18px 22px;border-radius:13px;border:1px dashed rgba(120,150,220,.2);background:rgba(4,8,20,.3);font-size:13.5px;color:rgba(200,218,255,.5);line-height:1.6">
+      <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(200,218,255,.6)">Also lives here →</span>  portfolio, mastery progress, and submitted work. Out of scope for this distribution — listed so the tab reads as the "evidence" surface.
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FUTURE VIEW — what's coming
+       ═══════════════════════════════════════════════════════════ -->
+  <sc-if value="{{ isFuture }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:1440px;margin:0 auto;padding:34px 24px 0">
+    <div style="margin-bottom:24px">
+      <div style="font-family:'Barlow Semi Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.3em;color:#ffd24a;text-transform:uppercase;margin-bottom:6px">Future · what is coming</div>
+      <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase">Looking ahead</div>
+      <div style="margin-top:8px;font-size:15px;color:rgba(200,218,255,.62)">Time-gated planning that would clutter the landing — it lives here until its moment.</div>
+    </div>
+
+    <!-- EVENING PLANNING -->
+    <div style="position:relative;border-radius:15px;border:1px solid rgba(255,210,74,.26);background:linear-gradient(135deg,rgba(26,20,4,.7),rgba(20,16,6,.6));padding:22px 24px;margin-bottom:18px">
+      <div style="position:absolute;right:14px;top:13px;font-size:10px;color:rgba(120,150,220,.5);font-family:'Barlow Semi Condensed'">evening-planning.tsx</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#ffd24a">Tonight's plan</div>
+        <div style="padding:2px 8px;border-radius:4px;background:rgba(255,210,74,.16);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:9px;letter-spacing:.12em;color:#ffd24a">SHOWS 5–8 PM ONLY</div>
+      </div>
+      <div style="font-size:14px;color:rgba(200,218,255,.6);margin-bottom:16px">Set an intention for each thing on tonight's calendar.</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ intentions }}" as="iv" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:11px;background:rgba(4,8,20,.5);border:1px solid rgba(120,150,220,.16)">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#ffd24a;width:62px;flex-shrink:0">{{ iv.time }}</div>
+            <div style="flex:1;font-size:14.5px;color:#e8f0ff">{{ iv.label }}</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:#aab8e0;cursor:pointer">Set intention →</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- QUEST CAROUSEL -->
+    <div style="position:relative;border-radius:15px;border:1px solid rgba(120,150,220,.18);background:rgba(4,8,20,.5);padding:22px 24px;margin-bottom:18px">
+      <div style="position:absolute;right:14px;top:13px;font-size:10px;color:rgba(120,150,220,.5);font-family:'Barlow Semi Condensed'">quest-carousel.tsx · auto-advances every 5s</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:22px;letter-spacing:.03em;text-transform:uppercase;color:#fff">Quest path</div>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(120,150,220,.4),transparent)"></div>
+      </div>
+      <div style="overflow:hidden;border-radius:12px">
+        <div style="display:flex;transition:transform .5s cubic-bezier(.22,.61,.36,1);transform:{{ questTransform }}">
+          <sc-for list="{{ quests }}" as="q" hint-placeholder-count="5">
+            <div style="flex:0 0 100%;width:100%;padding:18px 22px;background:linear-gradient(135deg,rgba(18,26,52,.96),rgba(10,16,36,.96));box-sizing:border-box;display:flex;flex-direction:column;gap:12px;min-height:128px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#0a1024;background:{{ q.accent }}">{{ q.n }}</div>
+                  <div style="font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:{{ q.accent }}">{{ q.subject }}</div>
+                </div>
+                <div style="font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 10px;border-radius:5px;background:rgba(120,150,220,.14);color:#aab8e0">{{ q.due }}</div>
+              </div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:26px;line-height:1.05;color:#fff">{{ q.title }}</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:#7d88ad"><span>Step {{ q.n }} of 5</span><span style="color:#cdd6f2">Open →</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;gap:7px;justify-content:center;margin-top:14px">
+        <sc-for list="{{ questDots }}" as="d" hint-placeholder-count="5">
+          <div onClick="{{ d.onClick }}" style="height:5px;border-radius:3px;cursor:pointer;transition:all .35s;width:{{ d.w }};background:{{ d.bg }}"></div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:18px 22px;border-radius:13px;border:1px dashed rgba(120,150,220,.2);background:rgba(4,8,20,.3);font-size:13.5px;color:rgba(200,218,255,.5);line-height:1.6">
+      <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(200,218,255,.6)">Also lives here →</span>  upcoming tests, AP planning, and the week-ahead view. Listed for context — this tab is the "what's coming" surface.
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:920},&quot;defaultView&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;plan&quot;,&quot;today&quot;,&quot;work&quot;,&quot;think&quot;,&quot;proof&quot;,&quot;future&quot;],&quot;default&quot;:&quot;plan&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Reference&quot;},&quot;alertDefault&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;reminder&quot;,&quot;burnout&quot;,&quot;token&quot;,&quot;empty&quot;],&quot;default&quot;:&quot;reminder&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Reference&quot;}}">
+class Component extends DCLogic {
+  state = {
+    tab: this.props.defaultView || 'plan',
+    alert: this.props.alertDefault || 'reminder',
+    alertDismissed: false,
+    moodBody: null, moodFocus: null, moodDone: false,
+    tbOpen: false,
+    readingView: 'standard',
+    energyPick: 'okay',
+    qi: 0,
+    reflection: '',
+  };
+
+  setTab = (t) => this.setState({ tab: t });
+  showAlert = (a) => this.setState({ alert: a, alertDismissed: false });
+  dismissAlert = () => this.setState({ alertDismissed: true });
+  setMoodBody = (v) => this.setState({ moodBody: v });
+  setMoodFocus = (v) => this.setState({ moodFocus: v });
+  saveMood = () => { if (this.state.moodBody && this.state.moodFocus) this.setState({ moodDone: true }); };
+  resetMood = () => this.setState({ moodDone: false, moodBody: null, moodFocus: null });
+  toggleTB = () => this.setState(s => ({ tbOpen: !s.tbOpen }));
+  setReadingView = (v) => this.setState({ readingView: v });
+  setEnergy = (v) => this.setState({ energyPick: v });
+  setReflection = (e) => this.setState({ reflection: e.target.value });
+
+  questGo = (i) => { clearInterval(this._qt); this.setState({ qi: i }); this._startQuest(); };
+  _startQuest() { this._qt = setInterval(() => this.setState(s => ({ qi: (s.qi + 1) % 5 })), 5000); }
+  componentDidMount() { this._startQuest(); }
+  componentWillUnmount() { clearInterval(this._qt); }
+
+  get questData() {
+    return [
+      { n: 1, subject: 'Math',      title: 'Finish Ch. 4 problems', due: 'FRI',   accent: '#ff6a3d' },
+      { n: 2, subject: 'English',   title: 'Read pages 40–60',      due: 'WED',   accent: '#29d0ff' },
+      { n: 3, subject: 'Science',   title: 'Lab write-up',          due: 'THU',   accent: '#36e07a' },
+      { n: 4, subject: 'History',   title: 'Study guide',           due: 'MON',   accent: '#ffd24a' },
+      { n: 5, subject: 'Athletics', title: "Log today's workout",   due: 'TODAY', accent: '#7e5cff' },
+    ];
+  }
+
+  renderVals() {
+    const tab = this.state.tab;
+    const showTags = this.props.showSourceTags !== false;
+    const tone = (t) => ({
+      cyan:   { chipBg: 'rgba(41,208,255,.06)', chipBorder: 'rgba(41,208,255,.2)',  dot: '#29d0ff', tagBg: 'rgba(41,208,255,.16)', tagFg: '#7fdcff' },
+      purple: { chipBg: 'rgba(126,92,255,.07)', chipBorder: 'rgba(126,92,255,.26)', dot: '#b09cff', tagBg: 'rgba(126,92,255,.18)', tagFg: '#c4b4ff' },
+      green:  { chipBg: 'rgba(54,224,122,.06)', chipBorder: 'rgba(54,224,122,.24)', dot: '#36e07a', tagBg: 'rgba(54,224,122,.16)', tagFg: '#8ef0b8' },
+      gold:   { chipBg: 'rgba(255,210,74,.06)', chipBorder: 'rgba(255,210,74,.24)', dot: '#ffd24a', tagBg: 'rgba(255,210,74,.16)', tagFg: '#ffe08a' },
+      amber:  { chipBg: 'rgba(255,180,70,.08)', chipBorder: 'rgba(255,180,70,.3)',  dot: '#ffb347', tagBg: 'rgba(255,180,70,.2)',  tagFg: '#ffc873' },
+    }[t]);
+
+    // ---- NAV ----
+    const tabs = [
+      { id: 'plan',   label: 'Plan',   meta: true },
+      { id: 'today',  label: 'Today',  real: true },
+      { id: 'work',   label: 'Work',   real: true },
+      { id: 'think',  label: 'Think',  real: true },
+      { id: 'proof',  label: 'Proof',  real: true },
+      { id: 'future', label: 'Future', real: true },
+    ];
+    const nav = tabs.map(t => ({
+      ...t,
+      active: tab === t.id,
+      color: tab === t.id ? '#fff' : (t.meta ? '#29d0ff' : '#8b96bd'),
+      metaBg: tab === t.id ? 'rgba(41,208,255,.2)' : 'rgba(41,208,255,.1)',
+      metaBorder: tab === t.id ? 'rgba(41,208,255,.55)' : 'rgba(41,208,255,.28)',
+      onClick: () => this.setTab(t.id),
+    }));
+
+    // ---- PLAN columns ----
+    const colDef = [
+      { id: 'today', name: 'Today', sub: 'Land here', accent: '#29d0ff', headBg: 'rgba(41,208,255,.07)', border: 'rgba(41,208,255,.22)', items: [
+        { title: 'lobby-hero.tsx', role: 'The one next move, energy & workload — all already here', tag: 'EXISTING', t: 'cyan' },
+        { title: 'Alert slot', role: 'Reminder · Burnout · Token, one calm strip at a time', tag: 'NEW', t: 'amber' },
+        { title: 'classes-grid.tsx', role: 'The 6 class cards', tag: 'EXISTING', t: 'cyan' },
+      ]},
+      { id: 'work', name: 'Work', sub: 'Do the work', accent: '#29d0ff', headBg: 'rgba(41,208,255,.07)', border: 'rgba(41,208,255,.22)', items: [
+        { title: 'focus-hero-card.tsx', role: 'Full focus surface for the top task', t: 'cyan' },
+        { title: 'time-bar.tsx', role: 'Due countdown + past-due branch', t: 'cyan' },
+        { title: 'start-session-button.tsx', role: 'Launch the timer', t: 'cyan' },
+        { title: 'time-budget.tsx', role: "What's left tonight (collapsible)", t: 'cyan' },
+        { title: 'due-cards.tsx', role: 'Flashcards due for review', t: 'cyan' },
+        { title: 'reading-load-toggle.tsx', role: 'Reading-load view + badge', t: 'cyan' },
+      ]},
+      { id: 'think', name: 'Think', sub: 'How am I', accent: '#b09cff', headBg: 'rgba(126,92,255,.08)', border: 'rgba(126,92,255,.26)', items: [
+        { title: 'mood-check-in.tsx', role: '2-step body energy + focus', t: 'purple' },
+        { title: 'session-adaptation-card.tsx', role: 'Mood-driven adaptation', tag: 'WHEN ROUGH', t: 'purple' },
+        { title: 'sleep-recovery-card.tsx', role: 'Sleep + recovery link', tag: 'CONDITIONAL', t: 'purple' },
+        { title: 'energy-picker.tsx', role: '5 brain-state re-pick', t: 'purple' },
+        { title: 'weekly-reflection.tsx', role: 'Weekly reflection + AI reply', tag: 'TIME-GATED', t: 'purple' },
+      ]},
+      { id: 'proof', name: 'Proof', sub: "What I've shown", accent: '#36e07a', headBg: 'rgba(54,224,122,.07)', border: 'rgba(54,224,122,.24)', items: [
+        { title: 'grade-move-card.tsx', role: 'Highest-leverage grade move', tag: 'CANVAS', t: 'green' },
+        { title: 'done-today.tsx', role: 'Count of completed signals', tag: 'WHEN > 0', t: 'green' },
+      ]},
+      { id: 'future', name: 'Future', sub: "What's coming", accent: '#ffd24a', headBg: 'rgba(255,210,74,.07)', border: 'rgba(255,210,74,.24)', items: [
+        { title: 'evening-planning.tsx', role: "Tonight's event intentions", tag: '5–8 PM', t: 'gold' },
+        { title: 'quest-carousel.tsx', role: 'Upcoming quest path', t: 'gold' },
+      ]},
+    ];
+    const planCols = colDef.map(c => ({
+      ...c,
+      onClick: () => this.setTab(c.id),
+      items: c.items.map(it => { const k = tone(it.t); return { ...it, chipBg: k.chipBg, chipBorder: k.chipBorder, dot: k.dot, tagBg: k.tagBg, tagFg: k.tagFg }; }),
+    }));
+
+    // ---- ALERT SLOT ----
+    const ALERTS = {
+      reminder: { label: 'Past due', src: 'reminder-banner.tsx', msg: 'English · Reading Quiz is still open.', sub: 'Bypasses quiet hours because it is open past its due time.', cta: 'Open →', accent: '#ff7070', border: 'rgba(255,85,85,.5)', bg: 'rgba(255,55,55,.07)', iconBg: 'rgba(255,55,55,.14)' },
+      burnout:  { label: 'Reset cue', src: 'burnout-cue.tsx', msg: "You've been heads-down a while.", sub: 'A short, low-pressure block can help you reset — amber, never red.', cta: 'Start a light block →', accent: '#ffd24a', border: 'rgba(255,210,74,.45)', bg: 'rgba(255,210,74,.06)', iconBg: 'rgba(255,210,74,.14)' },
+      token:    { label: 'AI budget', src: 'token-budget-banner.tsx', msg: "You're close to today's AI quota.", sub: 'Notes, flashcards, and the dashboard keep working as usual.', cta: null, accent: '#ffb347', border: 'rgba(255,180,70,.4)', bg: 'rgba(255,180,70,.06)', iconBg: 'rgba(255,180,70,.14)' },
+    };
+    const alert = ALERTS[this.state.alert];
+    const alertChipDef = [
+      { id: 'reminder', label: 'Past due', accent: '#ff7070' },
+      { id: 'burnout', label: 'Burnout', accent: '#ffd24a' },
+      { id: 'token', label: 'AI budget', accent: '#ffb347' },
+      { id: 'empty', label: 'Empty', accent: '#36e07a' },
+    ];
+    const isEmptyState = this.state.alert === 'empty' || this.state.alertDismissed;
+    const alertChips = alertChipDef.map(c => {
+      const sel = (this.state.alert === c.id && !this.state.alertDismissed) || (c.id === 'empty' && isEmptyState);
+      return { ...c, onClick: () => (c.id === 'empty' ? this.setState({ alert: 'empty', alertDismissed: false }) : this.showAlert(c.id)),
+        bg: sel ? 'rgba(41,208,255,.16)' : 'rgba(120,150,220,.08)', border: sel ? 'rgba(41,208,255,.4)' : 'rgba(120,150,220,.18)', fg: sel ? '#fff' : '#9fb0dd' };
+    });
+
+    // ---- TODAY mini classes ----
+    const miniClasses = [
+      { name: 'English', status: 'Overdue', assignment: 'Read pages 40–60', border: 'rgba(255,85,85,.5)', ring: 'none' },
+      { name: 'Math', status: 'In progress · Now', assignment: 'Finish Ch. 4 problems', border: 'rgba(41,208,255,.6)', ring: '0 0 0 1.5px rgba(41,208,255,.4),0 0 28px rgba(41,208,255,.2)' },
+      { name: 'Science', status: 'Not turned in', assignment: 'Lab write-up', border: 'rgba(255,210,74,.5)', ring: 'none' },
+    ];
+
+    // ---- WORK ----
+    const tbTotal = '1h 45m';
+    const tbItems = [
+      { title: 'Reading response — Ch. 3', min: 25 },
+      { title: 'Math Ch. 4 problems', min: 45 },
+      { title: 'History study guide', min: 35 },
+    ];
+    const readingView = this.state.readingView;
+    const readingDots = [0,1,2,3,4].map(i => i < 3 ? '#29d0ff' : 'rgba(120,150,220,.25)');
+
+    // ---- THINK ----
+    const bodyDef = [
+      { v: 'low', label: 'Low', detail: 'Keep it lighter', icon: '🍃' },
+      { v: 'okay', label: 'Okay', detail: 'Normal start', icon: '🔋' },
+      { v: 'ready', label: 'Ready', detail: 'Bigger lift', icon: '⚡' },
+    ];
+    const focusDef = [
+      { v: 'scattered', label: 'Scattered', detail: 'Contain choices' },
+      { v: 'steady', label: 'Steady', detail: 'Clear next step' },
+      { v: 'locked', label: 'Locked in', detail: 'Use the window' },
+    ];
+    const bodyChoices = bodyDef.map(b => { const a = this.state.moodBody === b.v; return { ...b, onClick: () => this.setMoodBody(b.v), bg: a ? 'rgba(126,92,255,.16)' : 'rgba(10,16,36,.5)', border: a ? 'rgba(126,92,255,.6)' : 'rgba(120,150,220,.18)', fg: a ? '#fff' : '#cdd6f2' }; });
+    const focusChoices = focusDef.map(f => { const a = this.state.moodFocus === f.v; return { ...f, onClick: () => this.setMoodFocus(f.v), bg: a ? 'rgba(126,92,255,.16)' : 'rgba(10,16,36,.5)', border: a ? 'rgba(126,92,255,.6)' : 'rgba(120,150,220,.18)', fg: a ? '#fff' : '#cdd6f2' }; });
+    const moodReady = !!(this.state.moodBody && this.state.moodFocus);
+    const bodyLabel = (bodyDef.find(b => b.v === this.state.moodBody) || {}).label || '';
+    const focusLabel = (focusDef.find(f => f.v === this.state.moodFocus) || {}).label || '';
+
+    const energyDef = [
+      { v: 'low', label: 'Low', note: 'start small', icon: '🍃' },
+      { v: 'okay', label: 'Okay', note: 'steady', icon: '🔋' },
+      { v: 'onit', label: 'On it', note: 'more motion', icon: '⚡' },
+      { v: 'over', label: 'Overwhelmed', note: 'one breath', icon: '🌫' },
+      { v: 'creative', label: 'Creative', note: 'ideas moving', icon: '✦' },
+    ];
+    const energyPills = energyDef.map(e => { const a = this.state.energyPick === e.v; return { ...e, onClick: () => this.setEnergy(e.v), bg: a ? 'rgba(41,208,255,.14)' : 'rgba(10,16,36,.5)', border: a ? 'rgba(41,208,255,.5)' : 'rgba(120,150,220,.18)', fg: a ? '#fff' : '#cdd6f2' }; });
+    const reflectReady = this.state.reflection.trim().length >= 2;
+
+    // ---- FUTURE ----
+    const intentions = [
+      { time: '5:30 PM', label: 'Soccer practice — bring cleats + water' },
+      { time: '7:00 PM', label: 'Family dinner — phone away' },
+    ];
+    const questDots = [0,1,2,3,4].map(i => ({ onClick: () => this.questGo(i), w: i === this.state.qi ? '20px' : '6px', bg: i === this.state.qi ? '#29d0ff' : 'rgba(120,150,220,.28)' }));
+
+    const heading = () => '';
+    const sourceTag = () => '';
+
+    return {
+      nav, planCols,
+      isPlan: tab === 'plan', isToday: tab === 'today', isWork: tab === 'work', isThink: tab === 'think', isProof: tab === 'proof', isFuture: tab === 'future',
+
+      // alert
+      alert,
+      alertVisible: !isEmptyState,
+      alertEmpty: isEmptyState,
+      alertChips,
+      dismissAlert: this.dismissAlert,
+
+      // today
+      todayHeading: heading('Today · the calm landing', 'rgba(41,208,255,.85)', 'What do I do now?', 'Hero and classes are unchanged. One quiet alert slot is the only thing added below the nav.'),
+      miniClasses,
+
+      // work
+      workHeading: heading('Work · do the work', 'rgba(41,208,255,.85)', "Tonight's focus", 'Tapping START on the hero lands here — the full focus surface plus the tools to actually work.'),
+      workSourceTag: sourceTag('focus-hero-card.tsx + time-bar.tsx + start-session-button.tsx'),
+      reasons: ['Due soonest', 'Matches your energy', 'Short first step'],
+      tbOpen: this.state.tbOpen, toggleTB: this.toggleTB, tbLabel: tbTotal, tbItems,
+      setStandardView: () => this.setReadingView('standard'),
+      setReadingView: () => this.setReadingView('reading'),
+      standardBg: readingView === 'standard' ? '#29d0ff' : 'transparent',
+      standardFg: readingView === 'standard' ? '#04080f' : '#9fb0dd',
+      readingBg: readingView === 'reading' ? '#29d0ff' : 'transparent',
+      readingFg: readingView === 'reading' ? '#04080f' : '#9fb0dd',
+      readingDots,
+
+      // think
+      thinkHeading: heading('Think · how am I', '#b09cff', 'Check in with yourself', 'State, adaptation, and reflection — the richer versions of the quick energy check in the hero.'),
+      thinkSourceTag: sourceTag('mood-check-in.tsx'),
+      moodDone: this.state.moodDone, moodActive: !this.state.moodDone,
+      bodyChoices, focusChoices,
+      moodSummary: (bodyLabel && focusLabel) ? (bodyLabel + ' body · ' + focusLabel + ' focus') : 'Set for today',
+      moodAdvice: this.state.moodBody === 'low' ? 'short and contained' : this.state.moodBody === 'ready' ? 'a little bigger' : 'steady',
+      saveMood: this.saveMood, resetMood: this.resetMood,
+      moodSaveBg: moodReady ? 'linear-gradient(180deg,#7e5cff,#5a3ecc)' : 'rgba(126,92,255,.2)',
+      moodSaveFg: moodReady ? '#fff' : 'rgba(200,218,255,.4)',
+      moodSaveCursor: moodReady ? 'pointer' : 'not-allowed',
+      energyPills,
+      reflection: this.state.reflection, setReflection: this.setReflection,
+      reflectBtnBg: reflectReady ? 'linear-gradient(180deg,#7e5cff,#5a3ecc)' : 'rgba(126,92,255,.2)',
+      reflectBtnFg: reflectReady ? '#fff' : 'rgba(200,218,255,.4)',
+      reflectBtnCursor: reflectReady ? 'pointer' : 'not-allowed',
+
+      // proof
+      proofHeading: heading('Proof · what I have shown', '#36e07a', 'Your evidence', 'Progress signals and grade moves — the quiet payoff, kept off the landing so it never nags.'),
+
+      // future
+      futureHeading: heading('Future · what is coming', '#ffd24a', 'Looking ahead', 'Time-gated planning that would clutter the landing — it lives here until its moment.'),
+      intentions,
+      quests: this.questData,
+      questTransform: 'translateX(-' + (this.state.qi * 100) + '%)',
+      questDots,
+    };
+  }
+}
+</script>
+</body>
+</html>

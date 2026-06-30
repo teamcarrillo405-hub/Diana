@@ -1,0 +1,179 @@
+# Diana — Navigation Architecture (locked decision)
+
+This is the settled answer to "what are the tabs and what lives where" so it does not get re-litigated or quietly drift. **Read this before changing any navigation, adding a page, or repointing a tab.**
+
+Last restructured: 2026-06-30. Supersedes the earlier 6-tab (TODAY · WORK · THINK · PROOF · FUTURE · MORE) layout.
+
+---
+
+## 1. The format
+
+One navigation system, app-wide: the lobby HUD top bar (full-bleed, cyan underline active state) is the only nav. No left sidebar on any page. No curated middle pages sitting in front of the real ones.
+
+## 2. The tabs (5 top-level destinations)
+
+```
+TODAY · WORK · CLASSES · CALENDAR · MORE
+```
+
+| Tab | Destination | Active label | Role |
+|---|---|---|---|
+| TODAY | `/dashboard` | `Today` | At-a-glance: what's happening now |
+| WORK | `/assignments` | `Work` | The cross-class "what do I do right now" Mission Board + study tools |
+| CLASSES | `/classes` | `Classes` | Per-subject hub — notes, grades, rubrics, syllabus, assignments, mastery |
+| CALENDAR | `/calendar` | `Calendar` | The "when" view — week of assignments + workload |
+| MORE | overlay drawer | `More` | Everything secondary, grouped (see §4) |
+
+The Capture button (📷 → `/quick-add`) and the Record note button stay in the nav bar's right cluster, outside the tab list. The settings gear also stays in the right cluster as a shortcut into MORE → Settings.
+
+### Change from the previous layout
+- **"THINK" is retired as a tab.** It was an abstract label for the Notes surface. Notes now live **inside each class** (matches CLAUDE.md: "within the classes should be the notes specific to the subject"). A global all-notes search may live within the Classes tab.
+- **CLASSES is promoted to a top tab** — the class is the organizing unit of the product, so it earns primary placement rather than being buried under Work.
+- **PROOF and FUTURE are no longer top tabs.** They move into the MORE drawer. They remain full real pages; they just aren't in the primary 5.
+- **CALENDAR is promoted** from an orphaned page to a top tab.
+
+### The class hub (`/classes/[id]`) contains
+Per-subject, everything attached to one class:
+- Notes specific to this subject (moved in from the old standalone `/notes`)
+- Grades (Canvas course score + trend — already added)
+- Rubrics / "rulebricks" (teacher rules → checkable moves)
+- **Syllabus (NEW feature to build)** — upload/parse a syllabus, extract dates + policies. Does not exist today; rubrics are a separate concept and do not cover it.
+- Assignments in this class
+- Mastery map (concepts + confidence)
+- Free sources (OpenStax)
+
+---
+
+## 3. What each tab contains
+
+### TODAY — `/dashboard`
+Home / glance view. Sections: LobbyHero (player photo + quest carousel + game day), ReminderBanner, ClassesGrid.
+
+### WORK — `/assignments`
+The schoolwork hub. Sections:
+- Mission Board lanes (Start now, Due soon, Needs proof, Study/test prep, Later this week)
+- Metrics tiles
+- **Capture inbox** strip → `/inbox`
+- Time budget + Due cards + Reading-load toggle
+- **Talk to Diana** (voice) → `/voice` — prominent, persistent entry point (locked, see §7)
+- **Classes** → `/classes` → `/classes/[id]` (subject lane: assignments, rubrics, grade, mastery, free sources, subject notes)
+- **Study tools section** (new): Timer, Body-double, Flashcards, Templates, Break-down — surfaced as a visible row on Work, not buried
+
+### THINK — `/notes`
+Notes and thinking surface. Sections: note synthesis panel, metric tiles, mood/energy/sleep check-ins, latest capture, search, notes list. Study-buddy (Socratic helper) attaches here.
+
+### CALENDAR — `/calendar`
+Weekly view of assignments grouped by day with workload tiers (light/moderate/heavy), accommodation-aware. Absorbs the upcoming-assignments list formerly at `/reminders`.
+
+### MORE — overlay drawer
+Grouped list of every secondary destination. See §4.
+
+---
+
+## 4. The MORE drawer (grouped)
+
+The drawer NAVIGATION.md has always promised is now real. It is the single home for everything not in the primary 5. Grouped:
+
+**Evidence & growth**
+- Proof — `/proof` (authorship trail, constellation, wins, study artifacts; grades + portfolio links)
+- Grades — `/grades` (Canvas grade intelligence)
+- Portfolio — `/portfolio`
+- Future Path — `/future-path` (college prep, strengths, AP plans, evening planning)
+
+**Profile & support**
+- Me — `/me` (learning profile)
+- Accessibility — `/accessibility` (reading controls)
+- Wellness — `/wellness`
+- Settings — `/settings`
+
+**Connections & sharing**
+- Imports — `/imports` (LMS: Canvas, Google Classroom, Clever, ICS)
+- Export — `/export` (data export + privacy)
+- Parent share — `/parent-share`
+- Teacher share — `/teacher-share`
+- Study groups — `/study-groups`
+
+**Not in student nav**
+- Insights — `/insights` is an **admin/internal** analytics surface (token usage, web vitals, error events, feature flags). It is NOT a student destination and must not appear in the student MORE drawer. Keep it reachable by direct URL / a separate admin entry only.
+
+---
+
+## 5. Merge / retire decisions (audit, 2026-06-30)
+
+These pages were found to duplicate a primary surface. Resolve before/while rewiring nav.
+
+| Page | Decision | Rationale |
+|---|---|---|
+| `/focus` | **Retire** | Duplicates the Mission Board "Start now" panel on `/assignments`. |
+| `/shame-mode` | **Retire** | "One calm thing at a time" overlaps Work. May later return as a Work *mode toggle*, not a page. |
+| `/wins` | **Merge → `/proof`** | Proof already renders a Wins list. Fold standalone in, then delete. |
+| `/recap` | **Merge → `/proof`** | Daily completed/started/upcoming recap belongs with the evidence view. |
+| `/reminders` | **Fold out** | Quiet-hours rules → `/settings`; upcoming list → `/calendar`. Then delete the page. |
+
+**Still needing a home (orphans, no inbound nav):** `/templates`, `/parent-share`, `/teacher-share`, `/study-buddy`, `/break-down`, `/study-groups`, `/ap`, `/film` (unknown — investigate). Plus fragile near-orphans `/wellness`, `/accessibility`, `/me` (each one breakable link away from being stranded). Proposed homes: `/ap` → Future; sharing pages → More→Connections; `/templates` → merge into "new assignment"; study-buddy/break-down → see §7.
+
+---
+
+## 6. Implementation status (what still needs wiring)
+
+The map above is the target. Current code reality as of this rewrite:
+
+- ✅ `AppTopNav` rewired to the 5-tab model (Today/Work/Classes/Calendar + More drawer).
+- ✅ MORE drawer overlay built (`app/(app)/more-menu.tsx`) — all secondary pages reachable.
+- ✅ `/classes` and `/calendar` are now top tabs.
+- ✅ Merges/retirements in §5 done — `/focus`, `/shame-mode`, `/wins`, `/recap`, `/reminders` deleted; references cleaned from `lib/features.ts`, `components/nav.tsx`, `lib/journey/first-week.ts`, `tests/responsive-qa.spec.ts`.
+- ✅ `lib/navigation.ts` (`usesAppTopNav`) updated so classes/grades/inbox/calendar no longer double-render the old SideNav.
+- ✅ **Redundant pages deleted** — `/accessibility` + `/imports` (pure duplicates of Settings sections); inbound links repointed to `/settings`.
+- ✅ **Page-by-page migration** — AppTopNav added to all kept secondary pages and registered in `usesAppTopNav`: voice, quick-add, inbox/[id], flashcards (+new/review), timer, body-double, break-down (Work); study-buddy (Classes); study-groups, portfolio, me, wellness, export, ap, settings (+ai-history) (More). Also fixed previously-navless `/assignments/[id]`, `/assignments/new`, `/assignments/[id]/submit`.
+- ✅ **Templates folded in** — `/assignments/new` already had a "Start from a template" picker, so the standalone `/templates` gallery was pure redundancy; deleted + references cleaned.
+- ✅ **Sharing merge done** — `/sharing` tabbed page (Parents | Teachers); `/parent-share` + `/teacher-share` are now redirects.
+- ✅ **OLD NAV RETIRED — dual-nav system removed.** `components/nav.tsx` deleted; `SideNav`/`BottomNav` removed from `app/(app)/layout.tsx`. Every `(app)` page renders AppTopNav (or redirects) and is registered in `usesAppTopNav`. There is now exactly ONE navigation system app-wide. This closes the original "old design mixed with new design" problem.
+- ✅ **Study-tools section on Work** — `/assignments` shows a Study tools row (Focus timer, Flashcards, Break it down, Study buddy).
+- ✅ **Focus-session merge** — `/timer` is one Focus session surface with a Solo / With-others toggle; `/body-double` redirects to `/timer?with=others`.
+- ✅ **Notes-in-class-hub** — `/classes/[id]` shows that subject's notes + New note action. (`/notes` remains as the cross-subject surface.)
+- ✅ **Mobile nav** — `MobileTabBar` fixed bottom bar (Today/Work/Classes/Calendar + More) shown ≤900px; reuses the MoreMenu drawer via `variant="mobile"`.
+
+### Capture-pipeline fixes (from §8 audit)
+- ✅ **Image/text classification now fires** — `saveInboxItem` calls `triggerClassification` (fire-and-forget) so the classify-inbox vision model populates suggestions.
+- ✅ **RECORD button saves** — top-nav voice transcript is saved to the inbox (+ classified) instead of being discarded.
+
+### Product features (built)
+- ✅ **Real XP / level / streak** — `lib/gamification/xp.ts`, shown in the Proof Momentum section. (Locked lobby hero unchanged; hardcoded game-day mock removed.)
+- ✅ **Week-over-week** — `lib/insights/week-over-week.ts`, in the Proof Momentum section.
+- ✅ **Syllabus per class** — `class_syllabi` table + `lib/syllabus/parse.ts` + class-hub section. Migration `20260613010000_class_syllabi.sql` **applied to diana-staging (2026-06-30)** — feature is live. (Code still uses untyped-client casts until DB types are regenerated — optional cleanup.)
+
+This file is the spec; it stays ahead of the code where ⬜ items remain.
+
+---
+
+## 7. Locked sub-decisions (carried forward)
+
+### AI agent placement
+`/voice`, `/study-buddy`, and `/break-down` all hit real Diana API routes (`/api/diana/voice-candidate`, `/api/diana/study-buddy`, `/api/diana/break-down`). (Correction: an earlier version of this doc called study-buddy/break-down "heuristic" — they do make real API calls; whether the API itself is model-backed vs. heuristic should be confirmed per route.) `/voice` is the general-purpose agent surface. Confirm each route's backing before relying on it.
+
+### Voice entry point
+`/voice` gets a prominent, persistent entry point on the Work page (Mission Board), alongside the Start Now panel. It is a general-purpose AI agent, not tied to a single assignment, so it earns visible Work placement rather than living in the More drawer.
+
+---
+
+## 8. Known process gaps (logic audit, 2026-06-30)
+
+End-to-end traces found several flows that are built but not connected. These are program-file bugs, not design choices.
+
+| Flow | Status | The break | Fix location |
+|---|---|---|---|
+| **Image capture → classification** | ✅ Fixed | `saveInboxItem` now calls `triggerClassification` (fire-and-forget) so the classify-inbox vision model runs and populates suggestions. | `app/(app)/quick-add/actions.ts` |
+| **Top-nav RECORD button** | ✅ Fixed | `LobbyAudioNote.stopAudio` now saves the transcript to the inbox (+ classifies) with a Saving… state. | `app/(app)/dashboard/lobby-audio-note.tsx` |
+| **`/quick-add` voice tab** | ✅ Complete | Records → OpenAI Whisper → real inbox row. | — |
+| **Inbox → assignment confirm** | ✅ Complete | Works; only cosmetic dependency on the broken classifier (suggested defaults empty). | — |
+| **Weekly XP** | ⚠️ Cosmetic | Not a points/streak/level engine — just `completed / due-this-week` relabeled "XP." "Game day" is hardcoded mock (`dashboard/page.tsx:640`). | Needs a real gamification model if desired |
+| **Energy check** | ✅ Real (hero tile static) | Stored as `task_signals` mood_checkin; feeds ranking + support plan. Hero "ENERGY CHECK" tile is static display; real picker is on the Notes/Think surface. | — |
+| **Overdue** | ✅ Real | Local `due_at < now` + status. | — |
+| **Not turned in / missing** | ✅ Real, Canvas-only | From Canvas `missing` flag. No local missing-detection without an LMS. | Gap: no local fallback |
+| **Week-over-week** | ⚠️ Partial | Only "recent vs earlier window" trend (grades, parent digest). No true this-week-vs-last-week comparison exists. | Needs new logic if desired |
+| **Onboarding enforcement** | ⚠️ Gap | `profiles.onboarded_at` marks completion, but middleware does NOT force new users through `/onboarding` — signup lands straight on `/dashboard`. | `lib/supabase/middleware.ts` |
+| **Landing background customization** | ❌ Absent | Theme (light/dark) + 5 accent colors exist (localStorage only, not DB-synced) and do NOT affect the landing page. No per-user background/wallpaper feature anywhere. | Net-new feature if desired |
+
+## 9. Rule going forward
+
+Before adding a page or changing nav: check this file first. When a page reaches parity with the `--gl-*` token system, confirm its placement here (primary tab vs. MORE drawer) and update §6. **Never** reintroduce a curated middle layer in front of a real page — this file exists specifically to prevent that pattern from returning.

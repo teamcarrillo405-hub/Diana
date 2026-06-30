@@ -2,9 +2,12 @@ import { NextResponse } from "next/server";
 import {
   createDianaVoiceCandidate,
   createDianaVoiceCandidateAuditPayload,
+  type DianaVoiceCandidateInput,
   isDianaVoiceSidecarEnabled,
   normalizeDianaVoiceCandidateInput,
 } from "@/lib/integrations/diana-voice-sidecar";
+import { learnerPromptLine } from "@/lib/learning-loop/profile";
+import { getLearnerProfile, recordLearningEvent } from "@/lib/learning-loop/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 import {
@@ -55,11 +58,17 @@ export async function POST(request: Request) {
     );
   }
 
-  let workerJob: ProductionWorkerJob<typeof parsed> | null = null;
+  const learnerProfile = await getLearnerProfile({ supabase, ownerId: user.id }).catch(() => null);
+  const inputWithLearnedContext = {
+    ...parsed,
+    learnedContext: learnerProfile ? learnerPromptLine(learnerProfile) : null,
+  };
+
+  let workerJob: ProductionWorkerJob<DianaVoiceCandidateInput> | null = null;
   try {
     const tenantId = personalTenantId(user.id);
     workerJob = createVoiceCandidateWorkerJob({
-      input: parsed,
+      input: inputWithLearnedContext,
       studentId: user.id,
       tenantId,
       sessionId: request.headers.get("x-diana-session-id") ?? "voice-session",
@@ -100,14 +109,14 @@ export async function POST(request: Request) {
     }
 
     await enqueueWorkerJob(workerJob, "running");
-    const result = await createDianaVoiceCandidate({ input: parsed });
+    const result = await createDianaVoiceCandidate({ input: inputWithLearnedContext });
     const { error } = await supabase.from("authorship_log").insert({
       owner_id: user.id,
       assignment_id: assignmentId,
       actor: "diana",
       event_type: "local_voice_candidate",
       payload: {
-        ...createDianaVoiceCandidateAuditPayload(parsed, result),
+        ...createDianaVoiceCandidateAuditPayload(inputWithLearnedContext, result),
         workerJob: {
           id: workerJob.id,
           traceId: workerJob.traceId,
@@ -147,6 +156,20 @@ export async function POST(request: Request) {
         model: result.trace.model,
       },
     });
+    await recordLearningEvent({
+      supabase,
+      ownerId: user.id,
+      eventName: "voice_candidate_completed",
+      assignmentId,
+      feature: "diana.voice_candidate",
+      sourceTable: "worker_jobs",
+      sourceId: workerJob.id,
+      payload: {
+        source: parsed.source,
+        queued: false,
+        responseChars: result.response.length,
+      } as unknown as Json,
+    }).catch(() => undefined);
 
     return NextResponse.json({
       ok: true,

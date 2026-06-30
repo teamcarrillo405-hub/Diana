@@ -1,32 +1,18 @@
-import Link from "next/link";
-import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { GradeMoveCard } from "./grade-move-card";
 import { LobbyHero } from "./lobby-hero";
-import { ClassesGrid, type ClassCardData } from "./classes-grid";
+import { ReminderBanner } from "./reminder-banner";
 import type { QuestItem } from "./quest-carousel";
-import { CalendarClock } from "lucide-react";
 import { nextUpcomingTest } from "@/lib/test-prep/plan";
 import { firstWeekJourney } from "@/lib/journey/first-week";
 import { createClient } from "@/lib/supabase/server";
 import { isWellnessSupportAssignment, rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
+import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { computeNightBudget } from "@/lib/time-budget/compute";
-import { TokenBudgetBanner } from "./token-budget-banner";
-import { ReadingLoadToggle } from "./reading-load-toggle";
 import { getEventIntentions, getReminderItems } from "./actions";
-import { EveningPlanning } from "./evening-planning";
-import { DoneToday } from "./done-today";
-import { ReminderBanner } from "./reminder-banner";
-import { BurnoutCue } from "./burnout-cue";
-import { MoodCheckIn } from "./mood-check-in";
-import { SessionAdaptationCard } from "./session-adaptation-card";
-import { WeeklyReflection } from "./weekly-reflection";
-import { SleepRecoveryCard } from "./sleep-recovery-card";
 import {
-  burnoutSignal,
   sessionAdaptationForMood,
   shouldShowMoodCheckIn,
 } from "@/lib/emotional/session";
@@ -35,19 +21,13 @@ import {
   energyFromBody,
   readinessFromSignalValue,
 } from "@/lib/support/policy";
-import { StudentStateCard } from "@/components/student-state-card";
 import type { DianaOrbState } from "@/components/signal/clarity-orb";
-import {
-  LaunchSequence,
-  StudentTodayCommandCenter,
-  type SubjectSignal,
-  SupportCueDrawer,
-  TonightDrawer,
-} from "@/components/student-portal/student-today";
+import { type SubjectSignal } from "@/components/student-portal/student-today";
 import { buildStudentStateModel, sourceAnchorsFromAssignment } from "@/lib/student-state/model";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import { LastShownClassCookie } from "./last-shown-class-cookie";
+import { ClassesGrid, classTheme, type ClassCardData } from "./classes-grid";
 
 type SubjectClassJoin = {
   name?: string | null;
@@ -263,33 +243,7 @@ function fallbackStarterStep(assignment: { kind: string; reading_load?: number |
   return "Open the task and choose the first visible part.";
 }
 
-const ACCENT_CYCLE = ["#29d0ff", "#a855f7", "#f59e0b", "#36e07a", "#f472b6"];
-
-function classTheme(cls: { id: string; name: string; color?: string | null }) {
-  const n = cls.name || "";
-  if (/math|algebra|geometry|calculus|pre.?calc|stats|trig/i.test(n))
-    return { symbol: "M", bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" };
-  if (/english|writing|lit|language|essay|grammar|composition/i.test(n))
-    return { symbol: "E", bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" };
-  if (/science|bio|chem|physics|earth|environ/i.test(n))
-    return { symbol: "S", bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" };
-  if (/hist|social|world|gov|econ|geo|civics/i.test(n))
-    return { symbol: "H", bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" };
-  if (/art|music|drama|theater|dance|creative|photo/i.test(n))
-    return { symbol: "A", bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" };
-  if (/pe|physical|health|sport|fitness|gym/i.test(n))
-    return { symbol: "P", bannerBg: "linear-gradient(135deg,#1a2a00,#3a5c00)", accent: "#84cc16" };
-  if (/spanish|french|german|latin|chinese|japanese|korean|lang/i.test(n))
-    return { symbol: "L", bannerBg: "linear-gradient(135deg,#1a1000,#3a2600)", accent: "#ffd24a" };
-  const FALLBACK = [
-    { bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" },
-    { bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" },
-    { bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" },
-    { bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" },
-    { bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" },
-  ];
-  return { symbol: (n[0] ?? "C").toUpperCase(), ...FALLBACK[cls.id.charCodeAt(0) % FALLBACK.length] };
-}
+const ACCENT_CYCLE = ["#29d0ff", "#7e5cff", "#ffd24a", "#36e07a", "#f25fb0"];
 
 function statusLabelForInventory(status: string) {
   if (status === "todo") return "ready";
@@ -328,6 +282,12 @@ export default async function DashboardPage({
   const profile = await loadProfile();
   const search = await searchParams;
   const now = new Date();
+
+  // Cross-device lobby photo, read from the owner's profile (RLS-scoped).
+  const playerPhotoUrl: string | null = profile?.photo_url ?? null;
+  const learnerProfile = profile
+    ? await getLearnerProfile({ supabase, ownerId: profile.user_id })
+    : null;
   const roughActive =
     profile?.rough_mode_until ? new Date(profile.rough_mode_until).getTime() > now.getTime() : false;
   const adaptation = sessionAdaptationForMood(roughActive ? "rough" : profile?.session_mood);
@@ -353,7 +313,6 @@ export default async function DashboardPage({
     { data: signals },
     { data: latestReadinessSignal },
     { data: doneToday },
-    { data: timeLogs },
     { data: overwhelmedToday },
     { data: supportSignals },
     { data: completionMilestones },
@@ -365,8 +324,8 @@ export default async function DashboardPage({
     { data: anyStartSignal },
     { data: anyTimeLog },
     { data: dueCards },
-    { data: weeklyClasses },
     { data: weekDoneSignals },
+    { data: weeklyClasses },
   ] = await Promise.all([
     supabase
       .from("assignments")
@@ -394,10 +353,6 @@ export default async function DashboardPage({
       .select("id")
       .eq("kind", "completed")
       .gte("occurred_at", todayStart.toISOString()),
-    supabase
-      .from("assignment_time_log")
-      .select("started_at, ended_at, elapsed_minutes")
-      .gte("started_at", todayStart.toISOString()),
     supabase
       .from("task_signals")
       .select("id")
@@ -441,17 +396,17 @@ export default async function DashboardPage({
       .lte("due_at", new Date().toISOString())
       .order("due_at", { ascending: true }),
     supabase
-      .from("classes")
-      .select("id, name, color")
-      .is("archived_at", null)
-      .order("created_at", { ascending: true })
-      .limit(12),
-    supabase
       .from("task_signals")
       .select("assignment_id")
       .eq("kind", "completed")
       .gte("occurred_at", weekStartIso)
       .not("assignment_id", "is", null),
+    supabase
+      .from("classes")
+      .select("id, name, color")
+      .is("archived_at", null)
+      .order("created_at", { ascending: true })
+      .limit(12),
   ]);
 
   const recentSignals = (signals ?? [])
@@ -460,24 +415,6 @@ export default async function DashboardPage({
   const capturedTodayCount = inboxToday?.length ?? 0;
   const needsCheckCount = (inboxToday ?? []).filter((item) => item.status === "unclassified").length;
   const submittedTodayCount = submittedToday?.length ?? 0;
-  const minutesToday = (timeLogs ?? []).reduce((sum, log) => {
-    if (typeof log.elapsed_minutes === "number") return sum + log.elapsed_minutes;
-    if (log.ended_at) {
-      return sum + Math.max(0, Math.round((new Date(log.ended_at).getTime() - new Date(log.started_at).getTime()) / 60000));
-    }
-    return sum;
-  }, 0);
-  const openSessionMinutes = (timeLogs ?? []).reduce((sum, log) => {
-    if (log.ended_at) return sum;
-    return sum + Math.max(0, Math.round((now.getTime() - new Date(log.started_at).getTime()) / 60000));
-  }, 0);
-
-  const burnout = burnoutSignal({
-    minutesToday,
-    openSessionMinutes,
-    overwhelmedSignals: overwhelmedToday?.length ?? 0,
-    mood: adaptation.mood,
-  });
   const sleepAdjustment = sleepRecoveryAdjustment(
     latestSleep
       ? {
@@ -529,9 +466,10 @@ export default async function DashboardPage({
     {
       diagnoses: profile?.diagnoses ?? [],
       extra_time_pct: profile?.extra_time_pct ?? 0,
-    },
-    lastShownClassId,
-  );
+      },
+      lastShownClassId,
+      learnerProfile,
+    );
   const top = ranked[0];
   const topStepsPromise = top
     ? supabase
@@ -642,19 +580,6 @@ export default async function DashboardPage({
     return t >= weekStart.getTime() && t < weekStart.getTime() + 7 * 86400000;
   }).length;
 
-  const questItems: QuestItem[] = ranked.slice(0, 5).map((a, i) => {
-    const aRow = (assignments ?? []).find((x) => x.id === a.id);
-    const subject = aRow ? subjectLabelForAssignment(aRow) : KIND_LABEL[a.kind as keyof typeof KIND_LABEL] || "Work";
-    return {
-      n: i + 1,
-      subject,
-      title: a.title,
-      due: a.due_at ? formatDueAt(a.due_at) : "no due date",
-      accent: ACCENT_CYCLE[i % ACCENT_CYCLE.length],
-      href: `/assignments/${a.id}?focus=next-step`,
-    };
-  });
-
   const classCardDataList: ClassCardData[] = (weeklyClasses ?? []).map((cls) => {
     const asgts = (assignments ?? []).filter((a) => a.class_id === cls.id);
     const needsAttentionAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
@@ -678,9 +603,23 @@ export default async function DashboardPage({
       period: "",
       activeAssignment: topRanked?.title ?? inProgressAsgts[0]?.title ?? "",
       dueBadge: nextDue?.due_at ? formatDueAt(nextDue.due_at) : asgts.length === 0 ? "no tasks" : "no due date",
-      href: `/assignments?class=${cls.id}`,
+      href: `/classes/${cls.id}`,
+    } satisfies ClassCardData;
+  });
+
+  const questItems: QuestItem[] = ranked.slice(0, 5).map((a, i) => {
+    const aRow = (assignments ?? []).find((x) => x.id === a.id);
+    const subject = aRow ? subjectLabelForAssignment(aRow) : KIND_LABEL[a.kind as keyof typeof KIND_LABEL] || "Work";
+    return {
+      n: i + 1,
+      subject,
+      title: a.title,
+      due: a.due_at ? formatDueAt(a.due_at) : "no due date",
+      accent: ACCENT_CYCLE[i % ACCENT_CYCLE.length],
+      href: `/assignments/${a.id}?focus=next-step`,
     };
   });
+
   const bodySupport = ranked.find((assignment) => assignment.id !== top?.id && isWellnessSupportAssignment(assignment))
     ?? ranked.find((assignment) => isWellnessSupportAssignment(assignment))
     ?? null;
@@ -692,136 +631,17 @@ export default async function DashboardPage({
     <div className="student-portal-page">
       <LastShownClassCookie classId={top?.class_id ?? null} />
 
-      {/* Full-bleed Grayson Lobby — breaks out of app-command-frame padding */}
-      <div
-        style={{
-          marginTop: "calc(-1 * clamp(0.85rem, 1.8vw, 1.75rem))",
-          marginInline: "calc(-1 * clamp(0.85rem, 1.8vw, 1.75rem))",
-        }}
-      >
-        <LobbyHero
-          studentName={profile?.display_name || "Player"}
-          weekNumber={weekNumber}
-          weekDone={weekDone}
-          weekTotal={weekTotal}
-          quests={questItems}
-          gameDay={{ title: "HOME 🏈", time: "FRI 7:00 PM", opponent: "vs Eagles" }}
-          focusHref={taskHref}
-        />
-        <ClassesGrid classes={classCardDataList} />
-      </div>
-
-      <div className="diana-page student-today-page" data-nexus-mode={nexusMode}>
-      <StudentTodayCommandCenter
-        studentName={profile?.display_name || "there"}
-        taskTitle={taskTitle}
-        nextMove={taskNextMove}
-        href={taskHref}
-        minutes={taskMinutes}
-        reason={taskReason}
-        missionChannel={missionChannel}
-        missionType={missionType}
-        missionLoadLabel={missionLoadLabel}
-        missionProofLabel={missionProofLabel}
-        doneTodayCount={doneTodayCount}
-        capturedTodayCount={capturedTodayCount}
-        readyTodayCount={ranked.length}
-        submittedTodayCount={submittedTodayCount}
-        needsCheckCount={needsCheckCount}
-        leftTodayCount={ranked.length}
-        whyReasons={top?.reasons ?? []}
-        brainState={brainState}
-        readingControl={<ReadingLoadToggle active={isReadingLoadView} />}
-        subjectSignals={subjectSignals}
-        subjectCount={subjectCount || subjectSignals.length}
-        bodySupportTitle={bodySupportTitle}
-        bodySupportDetail={bodySupportDetail}
-        bodySupportHref={bodySupportHref}
-        styleMode={nexusMode}
-        fullModeHref={dashboardHref({ energy, brain: brainState, mode: "full", readingLoad: isReadingLoadView })}
-        calmModeHref={dashboardHref({ energy, brain: brainState, mode: "calm-light", readingLoad: isReadingLoadView })}
+      <LobbyHero
+        studentName={profile?.display_name || "Player"}
+        weekNumber={weekNumber}
+        weekDone={weekDone}
+        weekTotal={weekTotal}
+        quests={questItems}
+        focusHref={taskHref}
+        photoUrl={playerPhotoUrl}
       />
-
-      <LaunchSequence journey={journey} />
-
-      <section className="pm-secondary-stack" aria-label="Planning context">
-      {(() => {
-        const upcomingTest = nextUpcomingTest(assignments ?? [], now);
-        if (!upcomingTest?.due_at) return null;
-        const days = Math.max(
-          0,
-          Math.round(
-            (new Date(new Date(upcomingTest.due_at).toDateString()).getTime() -
-              new Date(now.toDateString()).getTime()) /
-              86_400_000,
-          ),
-        );
-        return (
-          <Link
-            href={`/assignments/${(upcomingTest as { id: string }).id}`}
-            className="pm-test-plan-card touch-target"
-          >
-            <CalendarClock size={17} className="mt-0.5 shrink-0 text-brand" />
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">
-                {upcomingTest.title}
-                <span className="font-normal text-muted">
-                  {" "}· {days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`}
-                </span>
-              </span>
-              <span className="mt-0.5 block text-xs text-muted">
-                A day-by-day prep plan is ready — practice early, light recall the night before.
-              </span>
-            </span>
-          </Link>
-        );
-      })()}
-
-      <Suspense fallback={null}>
-        <GradeMoveCard />
-      </Suspense>
-
-        {studentStateModel && (
-          <details className="today-drawer pm-support-rationale">
-            <summary className="touch-target">
-              <span>Support reasoning</span>
-              <small>Open</small>
-            </summary>
-            <div className="today-drawer-content">
-              <StudentStateCard model={studentStateModel} title="Why this support level" />
-            </div>
-          </details>
-        )}
-      </section>
-
-      <SupportCueDrawer>
-        <DoneToday count={doneTodayCount} />
-        <ReminderBanner items={reminderItems} />
-        <MoodCheckIn
-          visible={shouldShowMoodCheckIn({
-            disabled: profile?.mood_checkin_disabled,
-            lastCheckInAt: profile?.last_mood_checkin_at,
-            now,
-          })}
-        />
-        <SessionAdaptationCard adaptation={adaptation} />
-        <BurnoutCue show={burnout.show} message={burnout.message} />
-        <SleepRecoveryCard message={sleepAdjustment.message} />
-        {profile && <TokenBudgetBanner profile={profile} />}
-        <EveningPlanning intentions={eveningIntentions} />
-        <WeeklyReflection
-          lastReflectedAt={profile?.last_weekly_reflection_at ?? null}
-          mood={profile?.session_mood ?? null}
-        />
-      </SupportCueDrawer>
-
-      <TonightDrawer
-        totalMinutes={budget.totalMinutes}
-        items={budget.items}
-        dueCount={dueCount}
-        firstCardId={firstDueId}
-      />
-      </div>
+      <ReminderBanner items={reminderItems} />
+      <ClassesGrid classes={classCardDataList} />
     </div>
   );
 }

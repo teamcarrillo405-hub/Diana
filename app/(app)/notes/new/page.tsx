@@ -1,12 +1,12 @@
 import { loadProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
+import { NotebookPen } from "lucide-react";
 import type { ClassCandidate } from "@/lib/notes/class-router";
 import { NoteEditor } from "./note-editor";
-import {
-  NexusArcadeScene,
-  NexusPageHeader,
-  NexusPageShell,
-} from "@/components/nexus/nexus-ui";
+import { AppTopNav } from "../../app-top-nav";
+
+const SF = "var(--font-display)";
+const BODY = "var(--font-body)";
 
 export default async function NewNotePage({
   searchParams,
@@ -54,19 +54,31 @@ export default async function NewNotePage({
   }
 
   return (
-    <NexusPageShell className="notes-new-page space-y-8">
-      <NexusPageHeader
-        eyebrow="Notes studio"
-        title={<>Start with whatever you have.</>}
-        description="Type, talk, upload audio, or scan a page. Diana saves the capture and routes it to the right class."
-        visual={<NexusArcadeScene />}
-        tone="purple"
-      />
-      <NoteEditor
-        assignmentId={assignment ?? null}
-        ttsProvider={ttsProvider}
-        classCandidates={classCandidates}
-      />
-    </NexusPageShell>
+    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
+      <AppTopNav active="Classes" />
+      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
+
+        {/* Hero */}
+        <header style={{ display: "grid", gap: "var(--space-8)" }}>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-purple-light)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <NotebookPen size={13} aria-hidden="true" />
+            Notes studio
+          </p>
+          <h1 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, maxWidth: "20ch" }}>
+            Start with whatever you have.
+          </h1>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-16)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", maxWidth: "44ch", margin: 0 }}>
+            Type, talk, upload audio, or scan a page. Diana saves the capture and routes it to the right class.
+          </p>
+        </header>
+
+        {/* Note editor */}
+        <NoteEditor
+          assignmentId={assignment ?? null}
+          ttsProvider={ttsProvider}
+          classCandidates={classCandidates}
+        />
+      </div>
+    </div>
   );
 }

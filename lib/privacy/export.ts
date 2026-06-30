@@ -10,6 +10,8 @@ export type DataInventoryInput = {
   teenTestObservations: number;
   aiInteractions: number;
   masteryConcepts: number;
+  learnerProfileSnapshots: number;
+  learningEvents: number;
   shareLinks: number;
 };
 
@@ -38,6 +40,8 @@ export const PRIVACY_DELETE_CATEGORIES = [
   "teen_test_observations",
   "ai_interactions",
   "mastery_concepts",
+  "learner_profile_snapshots",
+  "learning_events",
   "share_links",
   "session_handoff",
 ] as const;
@@ -65,6 +69,8 @@ export function buildDataInventory(input: DataInventoryInput): DataInventoryRow[
     { label: "Teen test observations", count: input.teenTestObservations },
     { label: "AI interactions", count: input.aiInteractions },
     { label: "Mastery concepts", count: input.masteryConcepts },
+    { label: "Learner profile snapshots", count: input.learnerProfileSnapshots },
+    { label: "Learning events", count: input.learningEvents },
     { label: "Share links", count: input.shareLinks },
   ];
 }
@@ -128,6 +134,8 @@ export function categoryLabel(category: PrivacyDeleteCategory): string {
     teen_test_observations: "Teen test observations",
     ai_interactions: "AI history",
     mastery_concepts: "Mastery data",
+    learner_profile_snapshots: "Learner profile snapshots",
+    learning_events: "Learning events",
     share_links: "Share links",
     session_handoff: "Device handoff",
   } satisfies Record<PrivacyDeleteCategory, string>)[category];

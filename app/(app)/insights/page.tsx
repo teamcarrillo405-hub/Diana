@@ -14,6 +14,7 @@ import {
 } from "@/lib/platform/analytics";
 import { createClient } from "@/lib/supabase/server";
 import { InsightsClient, type ExperimentRow, type FeatureFlagRow } from "./insights-client";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function InsightsPage() {
   const supabase = await createClient();
@@ -101,7 +102,9 @@ export default async function InsightsPage() {
   const activeExperiments = (experiments.data ?? []).filter((experiment) => experiment.enabled).length;
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page space-y-6">
       <header className="space-y-1">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted">Platform intelligence</p>
         <h1 className="text-display">Insights</h1>
@@ -222,7 +225,8 @@ export default async function InsightsPage() {
       </section>
 
       <InsightsClient flags={(flags.data ?? []) as FeatureFlagRow[]} experiments={(experiments.data ?? []) as ExperimentRow[]} />
-    </div>
+      </div>
+    </>
   );
 }
 

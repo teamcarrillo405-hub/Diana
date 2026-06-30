@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PortfolioClient } from "./portfolio-client";
 import { canvaEnv, listCanvaDesigns, type CanvaDesign } from "@/lib/integrations/canva";
 import { getValidCanvaToken } from "@/lib/integrations/canva-server";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function PortfolioPage() {
   const supabase = await createClient();
@@ -59,7 +60,9 @@ export default async function PortfolioPage() {
   }
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page space-y-6">
       <header className="space-y-1">
         <h1 className="text-display">Portfolio</h1>
         <p className="text-sm text-muted">Collect creative work with process notes.</p>
@@ -94,6 +97,7 @@ export default async function PortfolioPage() {
       )}
 
       <PortfolioClient portfolios={portfolios} />
-    </div>
+      </div>
+    </>
   );
 }

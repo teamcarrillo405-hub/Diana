@@ -4,6 +4,26 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { BookOpen } from "lucide-react";
 
+const segBase: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  borderRadius: 999,
+  padding: "var(--space-2) var(--space-6)",
+  fontSize: "var(--text-12)",
+  fontWeight: "var(--weight-600)",
+  textDecoration: "none",
+};
+const segActive: React.CSSProperties = {
+  ...segBase,
+  background: "var(--gl-cyan-10)",
+  color: "var(--gl-cyan)",
+};
+const segInactive: React.CSSProperties = {
+  ...segBase,
+  border: "1px solid var(--gl-border-neutral)",
+  color: "var(--gl-text-muted)",
+};
+
 export function ReadingLoadToggle({ active }: { active: boolean }) {
   const pathname = usePathname();
   const params = useSearchParams();
@@ -20,27 +40,24 @@ export function ReadingLoadToggle({ active }: { active: boolean }) {
   const onHref = onQuery ? `${pathname}?${onQuery}` : pathname;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 text-xs">
-      <span className="font-medium uppercase tracking-wider text-muted">Sort</span>
-      <Link
-        href={offHref}
-        className={
-          !active
-            ? "touch-target inline-flex items-center rounded-full bg-brand/10 px-3 py-1 text-brand-strong dark:text-brand"
-            : "touch-target inline-flex items-center rounded-full border border-border px-3 py-1 text-muted hover:bg-surface-soft"
-        }
+    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--space-4)" }}>
+      <span
+        style={{
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-11)",
+          fontWeight: "var(--weight-700)",
+          letterSpacing: "var(--tracking-20)",
+          textTransform: "uppercase",
+          color: "var(--gl-text-muted)",
+        }}
       >
+        Sort
+      </span>
+      <Link href={offHref} style={!active ? segActive : segInactive}>
         Right now
       </Link>
-      <Link
-        href={onHref}
-        className={
-          active
-            ? "touch-target inline-flex items-center rounded-full bg-brand/10 px-3 py-1 text-brand-strong dark:text-brand"
-            : "touch-target inline-flex items-center rounded-full border border-border px-3 py-1 text-muted hover:bg-surface-soft"
-        }
-      >
-        <span className="inline-flex items-center gap-1">
+      <Link href={onHref} style={active ? segActive : segInactive}>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-1)" }}>
           <BookOpen size={12} aria-hidden />
           By reading load
         </span>
@@ -55,7 +72,7 @@ export function ReadingLoadBadge({ load }: { load: number | null }) {
   const count = Math.min(5, Math.max(0, Math.round(load)));
   return (
     <span
-      className="inline-flex items-center gap-0.5 text-xs text-muted"
+      style={{ display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}
       aria-label={`Reading load ${count} of 5`}
     >
       {Array.from({ length: count }).map((_, i) => (

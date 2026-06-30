@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { AccentPicker } from "@/components/accent-picker";
-import { NexusArcadeScene } from "@/components/nexus/nexus-ui";
 import { ThemePicker } from "@/components/theme-picker";
 
 export default function OnboardingDonePage() {
@@ -31,7 +30,7 @@ export default function OnboardingDonePage() {
           </div>
 
           <div className="nexus-auth-preview">
-            <NexusArcadeScene className="min-h-[28rem]" />
+            <div className="min-h-[28rem]" aria-hidden="true" />
           </div>
         </div>
       </section>

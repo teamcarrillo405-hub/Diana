@@ -22,6 +22,8 @@ describe("privacy export helpers", () => {
       teenTestObservations: 10,
       aiInteractions: 13,
       masteryConcepts: 3,
+      learnerProfileSnapshots: 2,
+      learningEvents: 6,
       shareLinks: 1,
     })).toEqual([
       { label: "Classes", count: 2 },
@@ -35,6 +37,8 @@ describe("privacy export helpers", () => {
       { label: "Teen test observations", count: 10 },
       { label: "AI interactions", count: 13 },
       { label: "Mastery concepts", count: 3 },
+      { label: "Learner profile snapshots", count: 2 },
+      { label: "Learning events", count: 6 },
       { label: "Share links", count: 1 },
     ]);
   });
@@ -78,5 +82,7 @@ describe("privacy export helpers", () => {
     expect(categoryLabel("competitive_benchmarks")).toBe("Competitive benchmarks");
     expect(categoryLabel("teen_test_observations")).toBe("Teen test observations");
     expect(categoryLabel("session_handoff")).toBe("Device handoff");
+    expect(categoryLabel("learner_profile_snapshots")).toBe("Learner profile snapshots");
+    expect(categoryLabel("learning_events")).toBe("Learning events");
   });
 });

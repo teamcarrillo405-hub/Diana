@@ -9,7 +9,26 @@ export function StartSessionButton({ roughMode = false, difficulty = null }: { r
   return (
     <Link
       href={href}
-      className="touch-target inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface-raised px-4 py-2 text-sm hover:bg-surface-soft"
+      style={{
+        display: "inline-flex",
+        width: "100%",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "var(--space-4)",
+        borderRadius: "var(--radius-hero)",
+        border: "1px solid var(--gl-cyan-28)",
+        background: "var(--gl-cyan)",
+        padding: "var(--space-9) var(--space-10)",
+        fontFamily: "var(--font-display)",
+        fontWeight: "var(--weight-800)",
+        fontStyle: "italic",
+        fontSize: "var(--text-18)",
+        letterSpacing: "var(--tracking-05)",
+        textTransform: "uppercase",
+        color: "var(--gl-text-on-cyan)",
+        textDecoration: "none",
+        boxShadow: "var(--shadow-hero-cta)",
+      }}
     >
       <Timer size={16} />
       Start a work session

@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,800&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+  html,body{margin:0;background:#04060f;}
+  *{box-sizing:border-box;}
+  image-slot{display:block;}
+  @keyframes gl-pulse{0%,100%{opacity:.55;transform:translateX(-50%) scale(1)}50%{opacity:.95;transform:translateX(-50%) scale(1.06)}}
+  @keyframes hud-blink{0%,100%{opacity:.7}50%{opacity:1}}
+  @keyframes hud-scan{0%{transform:translateY(-100%)}100%{transform:translateY(660px)}}
+  @keyframes gl-spin{to{transform:rotate(360deg)}}
+  @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
+  @keyframes gl-overdue{0%,100%{box-shadow:0 0 0 1.5px rgba(255,55,55,.8),0 12px 36px rgba(0,0,0,.5)}55%{box-shadow:0 0 0 4px rgba(255,55,55,.15),0 12px 36px rgba(0,0,0,.5)}}
+  @keyframes gl-turnin{0%,100%{box-shadow:0 0 0 1.5px rgba(255,210,74,.85),0 12px 36px rgba(0,0,0,.5)}55%{box-shadow:0 0 0 5px rgba(255,210,74,.16),0 12px 36px rgba(0,0,0,.5)}}
+  @keyframes gl-claim{0%,100%{box-shadow:0 0 0 0 rgba(255,210,74,.85),0 6px 22px rgba(255,210,74,.5)}65%{box-shadow:0 0 0 14px rgba(255,210,74,0),0 6px 22px rgba(255,210,74,.5)}}
+  @keyframes jarvis-spin{to{transform:rotate(360deg)}}
+  @keyframes jarvis-spin-rev{to{transform:rotate(-360deg)}}
+  @keyframes jarvis-ripple{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.1);opacity:0}}
+  @keyframes jarvis-core-idle{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.1);opacity:1}}
+  @keyframes jarvis-core-rec{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.22);opacity:1}}
+  @keyframes orb-glow{0%,100%{filter:brightness(1.05) drop-shadow(0 0 18px rgba(41,208,255,.55))}50%{filter:brightness(1.22) drop-shadow(0 0 48px rgba(41,208,255,.95))}}
+  @keyframes orb-glow-rec{0%,100%{filter:brightness(1.3) drop-shadow(0 0 28px rgba(41,208,255,.8))}50%{filter:brightness(2) drop-shadow(0 0 80px rgba(41,208,255,1))}}
+  @keyframes orb-p{0%{transform:translateX(50%) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(2);opacity:0}20%{opacity:1}100%{transform:translateX(50%) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(0);opacity:1}}
+  @keyframes orb-breath{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.45}50%{transform:translate(-50%,-50%) scale(1.06);opacity:.8}}
+  .gl-tab:hover{color:#fff !important;}
+</style>
+</helmet>
+
+<div style="width:100%;font-family:'Barlow Semi Condensed',sans-serif;color:#fff;">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HERO ZONE — nav + hero share one swappable background
+       ═══════════════════════════════════════════════════════════ -->
+  <div style="position:relative;overflow:hidden;background:#0a1024;">
+
+    <!-- Hero background — two layers, fade between them -->
+    <div style="position:absolute;inset:0;width:100%;height:718px;z-index:0;background:#000">
+      <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgFootballOpacity }};transition:opacity .5s" alt="Football bg">
+      <img src="./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgScienceOpacity }};transition:opacity .5s" alt="Science bg">
+      <img src="./uploads/grok-image-e2a03daf-7692-41ff-a4b7-2b4cc6daa95e.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgMusicOpacity }};transition:opacity .5s" alt="Music bg">
+      <img src="./uploads/grok-image-74811ff2-f7a6-4a2a-91da-29b5088ed2fe.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgDefaultOpacity }};transition:opacity .5s" alt="Default bg">
+      <div style="position:absolute;inset:0;background:{{ bgTintColor }};z-index:1;transition:background .5s"></div>
+    </div>
+
+
+
+    <!-- TOP NAV -->
+    <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+      <div style="display:flex;gap:8px">
+        <div style="width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</div>
+        <div style="width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <div style="position:relative;color:#fff;padding:18px 2px"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div>Today</div>
+        <div class="gl-tab" style="color:#8b96bd;cursor:pointer">Work</div>
+        <div class="gl-tab" style="color:#8b96bd;cursor:pointer">Think</div>
+        <div class="gl-tab" style="color:#8b96bd;cursor:pointer">Proof</div>
+        <div class="gl-tab" style="color:#8b96bd;cursor:pointer">Future</div>
+        <div class="gl-tab" style="color:#8b96bd;cursor:pointer">More</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+
+        <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</div>
+
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid {{ micBorderColor }};background:{{ micBg }};animation:{{ micAnim }};transition:all .2s" onClick="{{ toggleAudio }}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ micIconColor }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:{{ micIconColor }}">RECORD</span>
+        </div>
+        <image-slot id="gl-player-hero" style="width:36px;height:36px;border-radius:{{ navPhotoRadius }};clip-path:{{ navPhotoClip }};border:2px solid rgba(41,208,255,.38);flex-shrink:0;cursor:pointer" shape="circle" placeholder="Your photo"></image-slot>
+        <!-- Settings gear -->
+        <div onClick="{{ toggleSettings }}" style="width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" style-hover="background:rgba(120,150,220,.22)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO ELEMENTS -->
+    <div style="position:relative;z-index:2;max-width:1440px;margin:0 auto;height:660px;">
+
+
+      <!-- field band -->
+      
+
+      <!-- glowing platform -->
+      
+      
+
+      <!-- PLAYER CARD — student photo center hero -->
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-56%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px">
+        <div style="position: absolute; top: {{ photoTop }}; left: {{ photoLeft }}">
+          <div style="width:{{ photoW }};height:{{ photoH }};border-radius:{{ photoContainerRadius }};clip-path:{{ photoContainerClip }};border:{{ photoContainerBorder }};box-shadow:{{ photoContainerShadow }};overflow:{{ photoContainerOverflow }};background:transparent;position:relative">
+            <sc-if value="{{ isFull }}" hint-placeholder-val="{{ false }}">
+              <!-- Full body: processed image or drop zone -->
+              <sc-if value="{{ hasFullBodyImg }}" hint-placeholder-val="{{ false }}">
+                
+              </sc-if>
+              <sc-if value="{{ showFullBodyDropzone }}" hint-placeholder-val="{{ false }}">
+                <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed rgba(41,208,255,.35);border-radius:8px;background:rgba(4,8,20,.4)">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(41,208,255,.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(41,208,255,.65);text-align:center">UPLOAD IN SETTINGS</div>
+                </div>
+              </sc-if>
+            </sc-if>
+            <sc-if value="{{ isNotFull }}" hint-placeholder-val="{{ false }}">
+              <image-slot id="gl-player-hero" style="width:{{ photoW }};height:{{ photoH }}" shape="circle" fit="cover" placeholder="Tap to add your photo"></image-slot>
+            </sc-if><img data-fb-img="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="top: 69px; left: -107px; position: absolute; width: 343px; height: 501px" alt="Player"></div>
+          <!-- Foot glow for full-body mode -->
+          
+          
+        </div>
+        
+      </div>
+
+      <!-- QUICK CHECK-IN (top-right, Game Day format) -->
+      <div style="position:absolute;right:34px;top:72px;width:320px;z-index:8">
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:8px 8px 0 0;background:transparent;border:1px solid rgba(41,208,255,.28);border-bottom:none;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.12em;color:rgba(41,208,255,.95);text-shadow:0 0 12px rgba(41,208,255,.4)">ENERGY CHECK</div>
+        <div style="position:relative;border-radius:0 12px 12px 12px;border:1px solid rgba(41,208,255,.22);background:transparent;min-height:128px;padding:18px 18px 16px;display:flex;flex-direction:column;justify-content:center">
+          <div style="position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:2px 0 0 0"></div>
+          <div style="position:absolute;right:-1px;top:-1px;width:12px;height:12px;border-right:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:0 2px 0 0"></div>
+          <div style="position:absolute;left:-1px;bottom:-1px;width:12px;height:12px;border-left:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 0 2px"></div>
+          <div style="position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-right:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 2px 0"></div>
+          <!-- BEFORE: energy picker -->
+          <sc-if value="{{ showCheckin }}" hint-placeholder-val="{{ true }}">
+            <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:26px;line-height:.95;text-transform:uppercase;margin-bottom:5px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.9)">How's your energy?</div>
+            <div style="font-size:14px;color:rgba(210,228,255,.9);margin-bottom:14px;text-shadow:0 1px 8px rgba(0,0,0,.9)">We'll match your study plan to your energy</div>
+            <div style="display:flex;gap:8px">
+              <div onClick="{{ readinessLow }}" style="flex:1;padding:13px 0;border-radius:10px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.15);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;color:rgba(200,210,230,.7)" style-hover="background:rgba(255,255,255,.12)">LOW</div>
+              <div onClick="{{ readinessOkay }}" style="flex:1;padding:13px 0;border-radius:10px;background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;color:#fff" style-hover="background:rgba(255,255,255,.18)">OKAY</div>
+              <div onClick="{{ readinessHigh }}" style="flex:1;padding:13px 6px;border-radius:10px;background:rgba(41,208,255,.15);border:1.5px solid rgba(41,208,255,.6);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:#29d0ff;box-shadow:0 0 14px rgba(41,208,255,.2);white-space:nowrap" style-hover="background:rgba(41,208,255,.25)">LOCKED IN</div>
+            </div>
+          </sc-if>
+          <!-- AFTER: confirmed state -->
+          <sc-if value="{{ showFocus }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#9fb0dd;text-transform:uppercase;margin-bottom:4px">Energy today</div>
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:32px;line-height:.9;text-transform:uppercase;color:#fff">{{ energyLabel }}</div>
+              </div>
+              <div onClick="{{ resetCheckin }}" style="padding:8px 14px;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.22);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;color:#aab8e0;flex-shrink:0" style-hover="background:rgba(120,150,220,.22)">Change</div>
+            </div>
+            <sc-if value="{{ energyAdaptLabel }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:8px;font-size:12px;font-weight:600;color:rgba(200,218,255,.7);padding:6px 10px;border-radius:6px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.14)">{{ energyAdaptLabel }}</div>
+            </sc-if>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- title + Focus Card (mid-left) -->
+      <div style="position:absolute;left:34px;bottom:120px;z-index:8">
+        <div style="font-weight:700;font-size:13px;letter-spacing:.3em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:-4px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 16px rgba(41,208,255,.55),0 2px 8px rgba(0,0,0,.9)">YOUR LOBBY</div>
+        <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:72px;line-height:.88;letter-spacing:.01em;text-transform:uppercase;text-shadow:0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)">G-Money</div>
+        <div style="margin-top:16px;max-width:390px">
+          <div style="font-size:14px;font-weight:700;letter-spacing:.2em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:12px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 14px rgba(41,208,255,.5),0 2px 6px rgba(0,0,0,.9)">YOUR NEXT MOVE</div>
+          <div onClick="{{ focusCard.onCta }}" style="background:#29d0ff;padding:22px 40px;border-radius:12px;box-shadow:0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6);cursor:pointer;display:inline-flex;align-items:center;gap:12px;transition:transform .12s,box-shadow .2s" style-hover="transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6)"><div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:36px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">▶ {{ nextActionCta }}</div></div>
+          <div style="margin-top:11px;font-size:15px;font-weight:600;color:#eef2ff;text-shadow:0 1px 10px rgba(0,0,0,.95)">{{ heroMoveSub }}</div>
+          <sc-if value="{{ heroFinishBy }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:6px;display:flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:#c0d0f0;text-shadow:0 1px 8px rgba(0,0,0,.95)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0d0f0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 14.5 15"></polyline><path d="M10 3h4"></path><line x1="12" y1="3" x2="12" y2="5"></line></svg>
+              {{ heroFinishBy }}
+            </div>
+          </sc-if>
+          
+        </div>
+        <div style="display:none">
+
+          <!-- CHECK-IN STATE -->
+          <sc-if value="{{ showCheckin }}" hint-placeholder-val="{{ true }}">
+            <div style="border-radius:14px;background:linear-gradient(135deg,rgba(8,12,26,.96),rgba(12,18,42,.96));border:1px solid rgba(41,208,255,.22);padding:16px 18px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#9fb0dd;text-transform:uppercase;margin-bottom:10px">QUICK CHECK-IN</div>
+              <div style="font-size:14px;font-weight:600;color:#cdd6f2;margin-bottom:12px">How's your energy right now?</div>
+              <div style="display:flex;gap:8px">
+                <div onClick="{{ readinessLow }}" style="flex:1;padding:9px 0;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.2);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;color:#aab8e0" style-hover="background:rgba(120,150,220,.22)">😴 Low</div>
+                <div onClick="{{ readinessOkay }}" style="flex:1;padding:9px 0;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.2);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;color:#cdd6f2" style-hover="background:rgba(120,150,220,.22)">👍 Okay</div>
+                <div onClick="{{ readinessHigh }}" style="flex:1;padding:9px 0;border-radius:8px;background:rgba(41,208,255,.1);border:1px solid rgba(41,208,255,.28);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;color:#29d0ff" style-hover="background:rgba(41,208,255,.18)">⚡ Locked</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- OVERWHELMED STATE -->
+          <sc-if value="{{ showOverwhelmed }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:14px;background:linear-gradient(135deg,rgba(8,12,26,.96),rgba(12,18,42,.96));border:1px solid rgba(126,92,255,.35);padding:16px 18px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#b09cff;text-transform:uppercase;margin-bottom:8px">ONE THING ONLY</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:19px;line-height:1.1;text-transform:uppercase;color:#fff;margin-bottom:4px">{{ focusCard.oneMove }}</div>
+              <div style="font-size:12px;color:#9fb0dd;line-height:1.5;margin-bottom:12px">That's it. One action. You've got this.</div>
+              <div style="display:flex;gap:8px">
+                <div onClick="{{ focusCard.onCta }}" style="flex:1;padding:10px;border-radius:8px;background:linear-gradient(180deg,#7e5cff,#5a3ecc);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:#fff;box-shadow:0 6px 18px rgba(126,92,255,.4)">{{ focusCard.ctaLabel }}</div>
+                <div onClick="{{ dismissOverwhelmed }}" style="padding:10px 14px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.2);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;color:#9fb0dd">I'm good</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- FOCUS STATE -->
+          <sc-if value="{{ showFocus }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:14px;background:linear-gradient(135deg,rgba(8,12,26,.96),rgba(12,18,42,.96));border:1px solid {{ focusCard.borderColor }};padding:16px 18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#9fb0dd;text-transform:uppercase">YOUR NEXT 5 MIN</div>
+                <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:{{ focusCard.urgencyBg }};color:{{ focusCard.urgencyFg }}">{{ focusCard.urgencyLabel }}</div>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:{{ focusCard.urgencyFg }};letter-spacing:.08em;text-transform:uppercase">{{ focusCard.subject }}</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;color:#fff;margin-top:2px">{{ focusCard.assignment }}</div>
+              <div style="font-size:11px;color:#7d88ad;margin-top:4px">{{ focusCard.timeStr }}</div>
+              <div onClick="{{ focusCard.onCta }}" style="margin-top:12px;padding:10px;border-radius:8px;background:{{ focusCard.ctaBg }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:{{ focusCard.ctaFg }};box-shadow:{{ focusCard.ctaShadow }};transition:transform .1s" style-hover="transform:translateY(-1px)">{{ focusCard.ctaLabel }}</div>
+              <div style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:12px">
+                <span onClick="{{ setOverwhelmed }}" style="font-size:11px;font-weight:600;color:#7d88ad;cursor:pointer;text-decoration:underline;text-underline-offset:2px">Overwhelmed?</span>
+                <span style="color:rgba(120,150,220,.3)">·</span>
+                <span onClick="{{ resetCheckin }}" style="font-size:11px;font-weight:600;color:#7d88ad;cursor:pointer;text-decoration:underline;text-underline-offset:2px">Change mood</span>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+
+      <!-- WEEK XP (bottom-right) — original game-day ring + weekly XP track -->
+      <div style="position:absolute;right:34px;bottom:44px;width:380px;z-index:8">
+        <div style="position:relative;padding:16px 18px;display:flex;background:transparent;border:1px solid rgba(41,208,255,.2);border-radius:14px">
+          <div style="position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:2px 0 0 0"></div>
+          <div style="position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-right:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:0 2px 0 0"></div>
+          <div style="position:absolute;left:-1px;bottom:-1px;width:14px;height:14px;border-left:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 0 2px"></div>
+          <div style="position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-right:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 2px 0"></div>
+          <!-- Weekly XP — flat, no ring -->
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.9);text-shadow:0 0 12px rgba(41,208,255,.4)">WEEKLY XP</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;color:#fff">8 <span style="font-size:14px;color:rgba(255,255,255,.45)">/ 12</span></div>
+            </div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.2em;color:rgba(41,208,255,.55);text-transform:uppercase;margin-bottom:10px">WEEK 4</div>
+            <!-- XP tier dots -->
+            <div style="position:relative;height:16px;display:flex;align-items:center;gap:2px;margin-bottom:8px">
+              <div style="position:absolute;left:0;right:0;height:3px;border-radius:2px;background:rgba(120,150,220,.18)"></div>
+              <div style="position:absolute;left:0;width:65%;height:3px;border-radius:2px;background:linear-gradient(90deg,#29d0ff,rgba(41,208,255,.5))"></div>
+              <sc-for list="{{ battlePassTiers }}" as="t" hint-placeholder-count="12">
+                <div style="position:relative;z-index:2;width:10px;height:10px;border-radius:50%;background:{{ t.bg }};border:{{ t.border }};box-shadow:{{ t.glow }};flex-shrink:0"></div>
+              </sc-for>
+            </div>
+            <div style="width:100%">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.18em;color:{{ workloadColor }};text-transform:uppercase">{{ workloadLabel }} NIGHT</div>
+                <div style="font-size:12px;font-weight:600;color:rgba(200,218,255,.6)">{{ tonightEst }}</div>
+              </div>
+              <div style="height:4px;border-radius:3px;background:rgba(120,150,220,.18);overflow:hidden">
+                <div style="height:100%;border-radius:3px;width:{{ workloadPct }};background:{{ workloadColor }};box-shadow:0 0 8px {{ workloadColor }}"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MY CLASSES — separate background zone
+       ═══════════════════════════════════════════════════════════ -->
+  <div style="position:relative;background:#04060f;width:100%;">
+    <!-- Top fade connecting hero to classes -->
+    <div style="position:absolute;top:0;left:0;right:0;height:60px;background:linear-gradient(180deg,rgba(4,8,20,.95),transparent);pointer-events:none;z-index:1"></div>
+    <div style="position:relative;z-index:2;max-width:1440px;margin:0 auto;padding:24px 34px 48px;">
+
+      <!-- Section header -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:28px;letter-spacing:.06em;text-transform:uppercase;text-shadow:0 0 30px rgba(41,208,255,.15)">MY CLASSES</div>
+        <sc-if value="{{ overdueCount }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:6px;background:rgba(255,55,55,.14);border:1px solid rgba(255,55,55,.28)"><div style="width:6px;height:6px;border-radius:50%;background:#ff5555"></div><span style="font-weight:700;font-size:12px;color:#ff7070;letter-spacing:.06em;text-transform:uppercase">{{ overdueCount }} overdue</span></div>
+        </sc-if>
+        <sc-if value="{{ finishedCount }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:6px;background:rgba(255,210,74,.14);border:1px solid rgba(255,210,74,.32);animation:none"><div style="width:6px;height:6px;border-radius:50%;background:#ffd24a"></div><span style="font-weight:700;font-size:12px;color:#ffd24a;letter-spacing:.06em;text-transform:uppercase">{{ finishedCount }} not turned in</span></div>
+        </sc-if>
+        <sc-if value="{{ lowModeActive }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:6px;padding:5px 11px;border-radius:6px;background:rgba(126,92,255,.14);border:1px solid rgba(126,92,255,.3)"><span style="font-size:12px">🎯</span><span style="font-weight:700;font-size:12px;color:#b09cff;letter-spacing:.06em;text-transform:uppercase">Focus mode — one thing</span></div>
+        </sc-if>
+        <div style="flex:1"></div>
+      </div>
+
+      <!-- 3×2 grid -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+        <sc-for list="{{ classes }}" as="c" hint-placeholder-count="6">
+          <div style="display:{{ c.cardDisplay }};border-radius:14px;overflow:hidden;border:1px solid {{ c.cardBorder }};box-shadow:{{ c.cardRing }};animation:{{ c.cardAnim }};transition:transform .2s;cursor:pointer;background:rgba(4,8,20,.72);backdrop-filter:blur(10px)" style-hover="transform:translateY(-4px);">
+            <!-- Accent top bar + subject name -->
+            <div style="padding:18px 20px 0 20px">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.12em;color:rgba(41,208,255,.6);text-transform:uppercase">{{ c.statusLabel }}</div>
+                <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-left:auto;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.08em;padding:2px 7px;border-radius:4px;background:#29d0ff;color:#06243a;flex-shrink:0;white-space:nowrap">NOW</div>
+                </sc-if>
+              </div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:40px;line-height:.9;text-transform:uppercase;letter-spacing:.01em">{{ c.name }}</div>
+            </div>
+            <!-- Body -->
+            <div style="padding:14px 20px 18px">
+              <sc-if value="{{ c.gameDay }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-bottom:10px;display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:6px;background:rgba(255,106,61,.12);border:1px solid rgba(255,150,90,.25)">
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:13px;text-transform:uppercase;color:#fff;letter-spacing:.03em">{{ c.gameDay }}</span>
+                </div>
+              </sc-if>
+              <div style="padding:9px 12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(120,150,220,.12);display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <div style="font-size:14px;font-weight:600;color:#e8f0ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.nextAssignment }}</div>
+                <div style="flex-shrink:0;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;background:{{ c.dueBg }};color:{{ c.dueFg }}">{{ c.nextDue }}</div>
+              </div>
+              <sc-if value="{{ c.submissionStatus }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:8px;padding:9px 12px;border-radius:6px;background:rgba(255,210,74,.1);border:1px solid rgba(255,210,74,.3);font-size:14px;font-weight:700;color:#ffd24a;text-align:center">You're done — one tap to submit</div>
+              </sc-if>
+              <sc-if value="{{ c.timeLabel }}" hint-placeholder-val="{{ true }}">
+                <div style="margin-top:8px;display:flex;align-items:center;gap:5px">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(200,218,255,.5)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 14.5 15"></polyline><path d="M10 3h4"></path><line x1="12" y1="3" x2="12" y2="5"></line></svg>
+                  <span style="font-size:13px;font-weight:600;color:rgba(200,218,255,.6)">{{ c.timeLabel }}</span>
+                </div>
+              </sc-if>
+              <div style="height:3px;border-radius:4px;background:rgba(120,150,220,.15);overflow:hidden;margin-top:12px"><div style="height:100%;border-radius:4px;width:{{ c.pct }};background:#29d0ff"></div></div>
+              <div onClick="{{ c.onCta }}" style="margin-top:12px;padding:13px;border-radius:9px;background:{{ c.ctaBg }};text-align:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;color:{{ c.ctaFg }};box-shadow:{{ c.ctaShadow }};cursor:pointer;transition:transform .12s;animation:{{ c.ctaAnim }}" style-hover="transform:translateY(-1px)">{{ c.ctaLabel }}</div>
+              <!-- Study tools — only when test/quiz ≤3 days away -->
+              <sc-if value="{{ c.hasStudyTools }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(120,150,220,.12)">
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;color:{{ c.studyCountdownColor }}">{{ c.studyCountdown }}</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                    <div style="padding:9px 8px;border-radius:8px;background:rgba(41,208,255,.08);border:1px solid rgba(41,208,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:rgba(41,208,255,.85)" style-hover="background:rgba(41,208,255,.16)">FLASHCARDS</div>
+                    <div style="padding:9px 8px;border-radius:8px;background:rgba(41,208,255,.08);border:1px solid rgba(41,208,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:rgba(41,208,255,.85)" style-hover="background:rgba(41,208,255,.16)">QUIZ ME</div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== AUDIO NOTE OVERLAY ===== -->
+  <sc-if value="{{ recording }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(4,6,15,.88);backdrop-filter:blur(14px)">
+      <div style="background:linear-gradient(180deg,rgba(18,24,50,.98),rgba(10,14,32,.98));border:1px solid rgba(120,150,220,.22);border-radius:22px;padding:36px 40px;width:500px;display:flex;flex-direction:column;align-items:center;gap:22px;box-shadow:0 32px 80px rgba(0,0,0,.6)">
+        <div style="width:84px;height:84px;border-radius:50%;background:rgba(255,55,55,.14);border:2px solid rgba(255,55,55,.55);display:flex;align-items:center;justify-content:center;animation:gl-mic-pulse 1.5s ease-in-out infinite">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ff4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        </div>
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.06em;text-transform:uppercase;color:#fff">Listening…</div>
+        <div style="min-height:90px;width:100%;border-radius:12px;background:rgba(120,150,220,.08);border:1px solid rgba(120,150,220,.16);padding:16px 20px;font-size:15px;font-weight:500;color:#cdd6f2;line-height:1.6;text-align:center">{{ transcriptDisplay }}</div>
+        <div style="display:flex;gap:12px">
+          <div onClick="{{ stopAudio }}" style="transform:skewX(-8deg);padding:12px 28px;border-radius:8px;background:linear-gradient(180deg,#36e07a,#16a34a);cursor:pointer;box-shadow:0 8px 24px rgba(34,180,90,.35)"><div style="transform:skewX(8deg);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;color:#06210f">Save Note</div></div>
+          <div onClick="{{ cancelAudio }}" style="padding:12px 22px;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.22);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;color:#aab8e0">Cancel</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ SETTINGS MODAL ═══ -->
+  <sc-if value="{{ showSettings }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.7);backdrop-filter:blur(8px)" onClick="{{ toggleSettings }}">
+      <div style="width:520px;background:rgba(4,8,20,.96);border:1px solid rgba(41,208,255,.22);border-radius:20px;padding:32px;box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 40px rgba(41,208,255,.08)" onClick="{{ stopProp }}">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px">
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Settings</div>
+          <div onClick="{{ toggleSettings }}" style="width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#aab8e0" style-hover="background:rgba(120,150,220,.22)">✕</div>
+        </div>
+
+        <!-- Section: Background -->
+        <div style="margin-bottom:28px">
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:14px">Lobby Background</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <!-- Football -->
+            <div onClick="{{ setBgFootball }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgFootballBorder }};background:{{ bgFootballActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Football">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">STADIUM</div>
+            </div>
+            <!-- Science -->
+            <div onClick="{{ setBgScience }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgScienceBorder }};background:{{ bgScienceActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Science">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">SCI LAB</div>
+            </div>
+            <!-- Music -->
+            <div onClick="{{ setBgMusic }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgMusicBorder }};background:{{ bgMusicActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-e2a03daf-7692-41ff-a4b7-2b4cc6daa95e.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Music">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">MUSIC</div>
+            </div>
+            <!-- Default -->
+            <div onClick="{{ setBgDefault }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgDefaultBorder }};background:{{ bgDefaultActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-74811ff2-f7a6-4a2a-91da-29b5088ed2fe.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Default">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">DEFAULT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Player Photo -->
+        <div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:14px">Player Photo</div>
+          <sc-if value="{{ bgChanged }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-bottom:12px;padding:10px 14px;border-radius:8px;background:rgba(255,210,74,.1);border:1px solid rgba(255,210,74,.3);font-size:13px;font-weight:600;color:#ffd24a">Background changed — upload a new photo or keep your current one.</div>
+          </sc-if>
+          <div style="margin-bottom:14px">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(41,208,255,.65);margin-bottom:6px">remove.bg API Key</div>
+            <input type="password" value="{{ removeBgKey }}" onChange="{{ setRemoveBgKey }}" placeholder="Paste your remove.bg API key…" style="width:100%;box-sizing:border-box;padding:10px 12px;border-radius:8px;background:rgba(10,16,36,.8);border:1px solid rgba(41,208,255,.22);color:#fff;font-size:14px;font-family:monospace;outline:none">
+            <div style="margin-top:6px;font-size:12px;color:rgba(200,218,255,.5)">Get a free key at <span style="color:rgba(41,208,255,.7)">remove.bg</span> · Background removed automatically.</div>
+          </div>
+          <!-- Upload section — hidden when student chose No Photo -->
+          <sc-if value="{{ showPhotoUpload }}" hint-placeholder-val="{{ true }}">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <label style="display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:10px;background:rgba(41,208,255,.1);border:1.5px solid rgba(41,208,255,.35);cursor:pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(41,208,255,.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:rgba(41,208,255,.9)">Upload Photo</span>
+                <input type="file" accept="image/*" onChange="{{ handleFullBodyFileInput }}" style="display:none">
+              </label>
+              <div onClick="{{ clearPhoto }}" style="display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:10px;background:rgba(120,150,220,.08);border:1.5px solid rgba(120,150,220,.22);cursor:pointer" style-hover="background:rgba(120,150,220,.16)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(200,218,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:rgba(200,218,255,.6)">No Photo</span>
+              </div>
+            </div>
+          </sc-if>
+          <!-- Add Photo button — shown after student chose No Photo -->
+          <sc-if value="{{ showAddPhotoBtn }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ showAddPhoto }}" style="display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:10px;background:rgba(41,208,255,.08);border:1.5px solid rgba(41,208,255,.28);cursor:pointer" style-hover="background:rgba(41,208,255,.14)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="rgba(41,208,255,.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+              <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:rgba(41,208,255,.8)">Add Photo</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ removeBgStatus }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:8px;font-size:13px;font-weight:600;color:{{ removeBgStatusColor }}">{{ removeBgStatus }}</div>
+          </sc-if>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = (() => {
+    // Purge stale blob URLs (they expire on page reload)
+    const stored = localStorage.getItem('diana-fullbody-src') || '';
+    if (stored.startsWith('blob:')) { localStorage.removeItem('diana-fullbody-src'); }
+    return {
+      qi: 0, ci: 0, recording: false, transcript: '', statusOverrides: {}, checkinDone: false, readiness: null, overwhelmed: false, showSettings: false,
+      selectedBg: localStorage.getItem('diana-selected-bg') || 'football',
+      photoStyle: 'full',
+      bgChanged: false,
+      noPhoto: !stored || stored.startsWith('blob:'),
+      removeBgKey: localStorage.getItem('diana-removebg-key') || '',
+      removeBgStatus: '',
+      processedFullBodySrc: stored.startsWith('blob:') ? '' : stored,
+    };
+  })();
+
+  turnIn = (i) => this.setState(s => ({ statusOverrides: { ...s.statusOverrides, [i]: 'turned_in' } }));
+  toggleSettings = () => this.setState(s => ({ showSettings: !s.showSettings }));
+  setBg = (v) => {
+    localStorage.setItem('diana-selected-bg', v);
+    const hadPhoto = !!this.state.processedFullBodySrc;
+    this.setState({ selectedBg: v, bgChanged: hadPhoto });
+  };
+  setBgScience = () => this.setBg('science');
+  setPhotoStyle = (v) => { this.setState({ photoStyle: v }); };
+  clearPhoto = (e) => {
+    if (e) e.stopPropagation();
+    localStorage.removeItem('diana-fullbody-src');
+    this.setState({ processedFullBodySrc: '', bgChanged: false, removeBgStatus: '', noPhoto: true });
+    const img = document.querySelector('[data-fb-img]');
+    if (img) img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+  };
+  showAddPhoto = () => this.setState({ noPhoto: false });
+
+  setRemoveBgKey = (e) => {
+    const key = e.target.value;
+    localStorage.setItem('diana-removebg-key', key);
+    this.setState({ removeBgKey: key });
+  };
+
+  handleFullBodyDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const file = e.dataTransfer ? e.dataTransfer.files[0] : e.target.files[0];
+    if (!file) return;
+    const key = this.state.removeBgKey.trim();
+    if (!key) {
+      this.setState({ removeBgStatus: 'Enter your remove.bg API key in Settings first.' });
+      return;
+    }
+    this.setState({ removeBgStatus: 'Removing background...' });
+    const form = new FormData();
+    form.append('image_file', file);
+    form.append('size', 'auto');
+    fetch('https://api.remove.bg/v1.0/removebg', {
+      method: 'POST',
+      headers: { 'X-Api-Key': key },
+      body: form,
+    })
+      .then(r => {
+        if (!r.ok) throw new Error('API error ' + r.status);
+        return r.blob();
+      })
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          localStorage.setItem('diana-fullbody-src', dataUrl);
+          this.setState({ processedFullBodySrc: dataUrl, removeBgStatus: 'Background removed!' });
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(err => {
+        this.setState({ removeBgStatus: 'Error: ' + err.message });
+      });
+  };
+
+  handleFullBodyDragOver = (e) => { e.preventDefault(); };
+  handleFullBodyFileInput = (e) => this.handleFullBodyDrop(e);
+  openFileInput = () => { const el = document.querySelector('[data-fullbody-input]'); if (el) el.click(); };
+  setReadiness = (level) => this.setState({ checkinDone: true, readiness: level });
+  resetCheckin = () => this.setState({ checkinDone: false, readiness: null, overwhelmed: false });
+  setOverwhelmed = () => this.setState({ overwhelmed: true });
+  dismissOverwhelmed = () => this.setState({ overwhelmed: false });
+
+  componentDidMount() {
+    this._questTimer = setInterval(() => {
+      this.setState(s => ({ qi: (s.qi + 1) % 5 }));
+    }, 5000);
+    this._syncFullBodyImg();
+  }
+
+  componentDidUpdate() {
+    this._syncFullBodyImg();
+  }
+
+  _syncFullBodyImg() {
+    const img = document.querySelector('[data-fb-img]');
+    if (img && this.state.processedFullBodySrc) {
+      img.src = this.state.processedFullBodySrc;
+    }
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._questTimer);
+    this._shouldRecord = false;
+    this._recognition?.stop();
+  }
+
+  toggleAudio = () => {
+    if (this.state.recording) { this.cancelAudio(); } else { this.startAudio(); }
+  };
+
+  startAudio() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      this.setState({ recording: true, transcript: 'Speech recognition not supported. Try Chrome or Edge.' });
+      return;
+    }
+    this._recognition = new SR();
+    this._recognition.continuous = true;
+    this._recognition.interimResults = true;
+    this._shouldRecord = true;
+    this._recognition.onresult = (e) => {
+      const t = Array.from(e.results).map(r => r[0].transcript).join(' ');
+      this.setState({ transcript: t });
+    };
+    this._recognition.onend = () => {
+      if (this._shouldRecord) this._recognition.start();
+    };
+    this._recognition.start();
+    this.setState({ recording: true, transcript: '' });
+  }
+
+  stopAudio = () => {
+    this._shouldRecord = false;
+    this._recognition?.stop();
+    this._recognition = null;
+    this.setState({ recording: false });
+    // transcript available in this.state.transcript — wire to Diana quick-capture later
+  };
+
+  cancelAudio = () => {
+    this._shouldRecord = false;
+    this._recognition?.stop();
+    this._recognition = null;
+    this.setState({ recording: false, transcript: '' });
+  };
+
+  get quests() {
+    return [
+      { n: 1, subject: 'Math',      title: 'Finish Ch. 4 problems', due: 'FRI',   accent: '#ff6a3d', icon: '📐' },
+      { n: 2, subject: 'English',   title: 'Read pages 40–60',      due: 'WED',   accent: '#29d0ff', icon: '📖' },
+      { n: 3, subject: 'Science',   title: 'Lab write-up',          due: 'THU',   accent: '#36e07a', icon: '🔬' },
+      { n: 4, subject: 'History',   title: 'Study guide',           due: 'MON',   accent: '#ffd24a', icon: '🏛️' },
+      { n: 5, subject: 'Athletics', title: "Log today's workout",   due: 'TODAY', accent: '#7e5cff', icon: '🏈' },
+    ];
+  }
+
+  get nextMove() {
+    const classes = this.classes;
+    const r = this.state.readiness;
+    if (r === 'low') {
+      return classes.filter(c => c.status !== 'turned_in').sort((a, b) => (a.estMin || 999) - (b.estMin || 999))[0] || null;
+    }
+    if (r === 'high') {
+      const od = classes.find(c => c.status === 'not_started' && c.overdue);
+      if (od) return od;
+      return classes.filter(c => c.status !== 'turned_in' && c.status !== 'finished').sort((a, b) => (b.estMin || 0) - (a.estMin || 0))[0] || classes.find(c => c.status === 'finished') || null;
+    }
+    const od = classes.find(c => c.status === 'not_started' && c.overdue);
+    if (od) return od;
+    const fin = classes.find(c => c.status === 'finished');
+    if (fin) return fin;
+    const act = classes.find(c => c.status === 'in_progress' && c.active);
+    if (act) return act;
+    return classes.find(c => c.status === 'in_progress') || null;
+  }
+
+  get classes() {
+    const STATUS_META = {
+      not_started: { label: 'NOT STARTED',   chipBg: 'rgba(120,150,220,.2)',  chipFg: '#aab8e0' },
+      in_progress: { label: 'IN PROGRESS',   chipBg: 'rgba(41,208,255,.2)',   chipFg: '#29d0ff' },
+      finished:    { label: 'NOT TURNED IN', chipBg: 'rgba(255,210,74,.24)',  chipFg: '#ffd24a' },
+      turned_in:   { label: 'TURNED IN ✓',   chipBg: 'rgba(54,224,122,.22)',  chipFg: '#36e07a' },
+    };
+    const raw = [
+      { name: 'Math',      pct: 64,  status: 'in_progress', estMin: 45, tookMin: 0,  studyLabel: "Ch. 4 flashcards",        gameDay: "",                               upcomingTest: { type: 'QUIZ', label: 'Ch. 4 Quiz',    date: 'FRI Jun 27', strip: 'FRI', daysAway: 2 }, accent: '#ff6a3d', active: true,  overdue: false, symbol: 'Σ∞',  bannerBg: 'linear-gradient(135deg,#1a1020,#2e1408)', period: '1st period · 8:00 AM',  nextAssignment: 'Finish Ch. 4 problems',   nextDue: 'FRI Jun 27', imageSrc: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'English',   pct: 0,   status: 'not_started', estMin: 60, tookMin: 0,  studyLabel: "Vocab flashcards",         gameDay: "",                               upcomingTest: { type: 'QUIZ', label: 'Reading Quiz', date: 'THU Jun 26', strip: 'THU', daysAway: 1 }, accent: '#29d0ff', active: false, overdue: true,  symbol: 'Aa',  bannerBg: 'linear-gradient(135deg,#071828,#0a2038)', period: '2nd period · 9:15 AM',  nextAssignment: 'Read pages 40–60',        nextDue: 'OVERDUE',   imageSrc: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'Science',   pct: 100, status: 'finished',    estMin: 0,  tookMin: 0,  studyLabel: "Lab concepts review",      gameDay: "",                               upcomingTest: null,                                                                               accent: '#36e07a', active: false, overdue: false, symbol: 'Hz',  bannerBg: 'linear-gradient(135deg,#071a12,#0a2a1c)', period: '3rd period · 10:30 AM', nextAssignment: 'Lab write-up',            nextDue: 'THU Jun 26', imageSrc: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'History',   pct: 100, status: 'turned_in',   estMin: 0,  tookMin: 35, studyLabel: "Key terms review",         gameDay: "",                               upcomingTest: { type: 'TEST', label: 'Ch. 7 Test',    date: 'MON Jun 29', strip: 'MON', daysAway: 4 }, accent: '#ffd24a', active: false, overdue: false, symbol: 'BC',  bannerBg: 'linear-gradient(135deg,#1a1200,#2e2000)', period: '4th period · 12:00 PM', nextAssignment: 'Study guide — Ch. 7',    nextDue: 'DONE ✓',    imageSrc: 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'Athletics', pct: 100, status: 'turned_in',   estMin: 0,  tookMin: 12, studyLabel: "",                         gameDay: "HOME vs Eagles · FRI 7:00 PM", upcomingTest: null,                                                                               accent: '#7e5cff', active: false, overdue: false, symbol: '#32', bannerBg: 'linear-gradient(135deg,#100818,#1c1030)', period: '5th period · 1:15 PM',  nextAssignment: 'Workout log',             nextDue: 'DONE ✓',    imageSrc: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'Art',       pct: 55,  status: 'in_progress', estMin: 50, tookMin: 0,  studyLabel: "",                         gameDay: "",                               upcomingTest: null,                                                                               accent: '#f25fb0', active: false, overdue: false, symbol: '∿',   bannerBg: 'linear-gradient(135deg,#1a0818,#2e0e28)', period: '6th period · 2:30 PM',  nextAssignment: 'Sketchbook pg. 12–14',    nextDue: 'FRI Jun 27', imageSrc: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=320&fit=crop&q=80&auto=format' },
+    ];
+    return raw.map((c, i) => {
+      const status = this.state.statusOverrides[i] || c.status;
+      const meta = STATUS_META[status];
+      const finished = status === 'finished';
+      const turnedIn = status === 'turned_in';
+      const urgentStart = status === 'not_started' && c.overdue;
+      return {
+        ...c,
+        status,
+        slotId: 'gl-class-' + i,
+        pct: c.pct + '%',
+        pctLabel: c.pct + '%',
+        hasAssignment: !!c.nextAssignment,
+        dueFg: c.overdue && !turnedIn ? '#ff7070' : 'rgba(200,218,255,.6)',
+        dueBg: c.overdue && !turnedIn ? 'rgba(255,55,55,.15)' : 'rgba(120,150,220,.1)',
+        statusLabel: turnedIn ? 'TURNED IN' : finished ? 'NOT TURNED IN' : status === 'in_progress' ? 'IN PROGRESS' : status === 'not_started' ? 'NOT STARTED' : meta.label,
+        statusChipBg: meta.chipBg,
+        statusChipFg: meta.chipFg,
+        cardAnim: 'none',
+        ctaLabel: finished ? 'TURN IN NOW' : turnedIn ? 'REVIEW →' : status === 'not_started' ? (urgentStart ? 'START NOW →' : 'START →') : (c.active ? 'OPEN NOW →' : 'CONTINUE →'),
+        ctaBg: finished ? 'linear-gradient(180deg,#ffd24a,#f5a623)' : turnedIn ? 'rgba(41,208,255,.06)' : c.active ? '#29d0ff' : urgentStart ? 'linear-gradient(180deg,#ff5a4a,#d63020)' : 'rgba(41,208,255,.08)',
+        ctaFg: finished ? '#3a2a00' : turnedIn ? 'rgba(200,220,255,.55)' : c.active ? '#04080f' : urgentStart ? '#fff' : '#29d0ff',
+        ctaShadow: finished ? 'none' : c.active ? '0 0 24px rgba(41,208,255,.45),0 6px 20px rgba(0,0,0,.4)' : urgentStart ? '0 6px 20px rgba(214,48,32,.45)' : 'none',
+        ctaAnim: finished ? 'gl-claim 1.4s ease-in-out infinite' : 'none',
+        idx: i,
+        timeLabel: turnedIn ? ("took " + c.tookMin + " min") : (c.estMin > 0 ? ("est. " + c.estMin + " min" + (status === 'finished' ? " to turn in" : "")) : ""),
+        // Study tools only appear when a test/quiz is ≤3 days away and not yet turned in
+        hasStudyTools: !!(c.upcomingTest && c.upcomingTest.daysAway <= 3 && status !== 'turned_in'),
+        studyCountdown: (() => {
+          if (!c.upcomingTest || c.upcomingTest.daysAway > 3) return '';
+          const d = c.upcomingTest.daysAway;
+          const t = c.upcomingTest.type;
+          if (d === 0) return t + ' TODAY';
+          if (d === 1) return t + ' TOMORROW';
+          return t + ' IN ' + d + ' DAYS';
+        })(),
+        studyCountdownUrgent: !!(c.upcomingTest && c.upcomingTest.daysAway <= 1),
+        studyCountdownColor: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? 'rgba(255,110,80,.9)' : 'rgba(255,210,74,.8)',
+        studyLabel: c.upcomingTest ? "Practice test" : (c.studyLabel || ""),
+        gameDay: c.gameDay || "",
+        imageSrc: c.imageSrc || "",
+        submissionStatus: finished ? "Done — ready to submit" : turnedIn ? "Submitted" : "",
+        submitStatusIcon: "",
+        submitStatusBg: finished ? "rgba(255,210,74,.12)" : "rgba(54,224,122,.12)",
+        submitStatusBorder: finished ? "rgba(255,210,74,.28)" : "rgba(54,224,122,.28)",
+        submitStatusFg: finished ? "#ffd24a" : "#36e07a",
+        // PHASE 1: base borders by status; the single cyan glow is applied to the next-move tile in renderVals
+        cardBorder: (c.overdue && !turnedIn) ? 'rgba(255,85,85,.4)' : finished ? 'rgba(255,210,74,.38)' : 'rgba(120,150,220,.16)',
+        cardRing: 'none',
+        testRow: (c.upcomingTest && c.upcomingTest.daysAway <= 2) ? (c.upcomingTest.type + " · " + c.upcomingTest.label) : "",
+        testRowDate: c.upcomingTest ? c.upcomingTest.date : "",
+        testRowBg: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "rgba(255,55,55,.1)" : "rgba(255,210,74,.1)",
+        testRowBorder: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "rgba(255,55,55,.28)" : "rgba(255,210,74,.28)",
+        testRowFg: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "#ff8070" : "#ffd24a",
+        testRowDateFg: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "#ff7070" : "#ffd24a",
+        onCta: finished ? (() => this.turnIn(i)) : (() => {}),
+        cardDisplay: 'block',
+      };
+    });
+  }
+
+  clamp(v, max) { return Math.max(0, Math.min(v, max)); }
+
+  questPrev = () => { clearInterval(this._questTimer); this.setState(s => ({ qi: (s.qi - 1 + 5) % 5 })); this._questTimer = setInterval(() => this.setState(s => ({ qi: (s.qi + 1) % 5 })), 5000); };
+  questNext = () => { clearInterval(this._questTimer); this.setState(s => ({ qi: (s.qi + 1) % 5 })); this._questTimer = setInterval(() => this.setState(s => ({ qi: (s.qi + 1) % 5 })), 5000); };
+  classPrev = () => this.setState(s => ({ ci: this.clamp(s.ci - 1, 3) }));
+  classNext = () => this.setState(s => ({ ci: this.clamp(s.ci + 1, 3) }));
+
+  renderVals() {
+    const allClasses = this.classes;
+    const activeClasses = allClasses.filter(c => c.status === 'in_progress' || c.status === 'not_started');
+    const totalMin = activeClasses.reduce((sum, c) => sum + (c.estMin || 0), 0);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    const finishAt = new Date(Date.now() + totalMin * 60000);
+    const finishByStr = finishAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const tonightEst = totalMin > 0 ? ("est. " + (h > 0 ? h + "h " : "") + (m > 0 ? m + "min" : "") + " tonight") : "All caught up tonight ✓";
+    const tonightLabel = tonightEst;
+    const workloadLabel = totalMin === 0 ? 'CLEAR' : totalMin < 60 ? 'LIGHT' : totalMin < 120 ? 'MEDIUM' : 'HEAVY';
+    const workloadColor = totalMin === 0 ? '#36e07a' : totalMin < 60 ? '#36e07a' : totalMin < 120 ? '#ffd24a' : '#ff7070';
+    const workloadPct = totalMin === 0 ? '0%' : Math.min(100, Math.round(totalMin / 180 * 100)) + '%';
+    
+    // SCORECARD FIX: Next action CTA — show assignment-specific move, not generic "Start Next Mission"
+    const nextActionCta = this.nextMove ? ("START " + this.nextMove.name.toUpperCase()) : "START NEXT MISSION";
+    // PHASE 1: hero funnel subtitle — context lives under the one PLAY button
+    const heroMoveSub = this.nextMove ? (this.nextMove.name + " · " + this.nextMove.nextAssignment) : "All caught up — nice work today";
+    const overdueCount = allClasses.filter(c => c.overdue && c.status !== 'turned_in').length;
+    // PHASE 2: Weekly XP tier track — 12 XP to level up, 8 earned this week
+    const xpTotal = 12, xpEarned = 8, xpRemaining = xpTotal - xpEarned;
+    const battlePassTiers = Array.from({length: xpTotal}, (_, i) => {
+      const filled = i < xpEarned;
+      const active = i === xpEarned;
+      return {
+        bg: filled ? '#29d0ff' : active ? '#ffd24a' : 'rgba(120,150,220,.18)',
+        border: active ? '2px solid rgba(255,210,74,.9)' : 'none',
+        glow: active ? '0 0 0 3px rgba(255,210,74,.25),0 0 10px rgba(255,210,74,.6)' : filled ? '0 0 5px rgba(41,208,255,.45)' : 'none',
+      };
+    });
+    const battlePassLabel = xpRemaining > 0 ? (xpRemaining + " XP to unlock Week 5 🏆") : "Week 5 unlocked! 🏆";
+    const finishedCount = allClasses.filter(c => c.status === 'finished').length;
+
+    const move = this.nextMove;
+    const r = this.state.readiness;
+    // Low energy: sort shortest tasks first, high energy: priority/overdue first
+    if (r === 'low') {
+      allClasses.sort((a, b) => {
+        const aD = a.status === 'turned_in' ? 1 : 0;
+        const bD = b.status === 'turned_in' ? 1 : 0;
+        if (aD !== bD) return aD - bD;
+        return (a.estMin || 999) - (b.estMin || 999);
+      });
+    }
+    // Energy adaptation confirmation label
+    const energyAdaptLabel = r === 'low' ? "Shortest tasks first — you've got this" : r === 'high' ? "Priority tasks first — locked in" : '';
+    // Fix CURRENT badge: always match the hero's next move, not a static flag
+    allClasses.forEach(c => { c.active = false; });
+    if (move) {
+      const target = allClasses.find(c => c.idx === move.idx);
+      if (target) {
+        target.active = true;
+        target.cardBorder = 'rgba(41,208,255,.65)';
+        target.cardRing = '0 0 0 1.5px rgba(41,208,255,.55),0 0 36px rgba(41,208,255,.34)';
+      }
+    }
+    // PHASE 3: Adaptive collapse — low energy collapses to one card only
+    const lowModeActive = this.state.readiness === 'low';
+    if (lowModeActive) {
+      allClasses.forEach(c => {
+        c.cardDisplay = (move && c.idx === move.idx) ? 'block' : 'none';
+      });
+    }
+    // PHASE 3: Felt time — finish-by shown in the hero funnel
+    // Show est. time for the specific next move (not total), so the student knows how long THIS task takes
+    const heroFinishBy = (this.nextMove && this.nextMove.estMin > 0) ? ('est. ' + this.nextMove.estMin + ' min') : '';
+    const focusCard = (() => {
+      if (!move) return { subject: '', assignment: 'All caught up tonight!', timeStr: 'Great work today', urgencyLabel: 'DONE', urgencyBg: 'rgba(54,224,122,.2)', urgencyFg: '#36e07a', borderColor: 'rgba(54,224,122,.3)', ctaLabel: 'REVIEW NOTES \u2192', ctaBg: 'rgba(54,224,122,.12)', ctaFg: '#36e07a', ctaShadow: 'none', onCta: () => {}, oneMove: 'Take a break' };
+      const isTurnin = move.status === 'finished';
+      const isOverdue = move.status === 'not_started' && move.overdue;
+      const isHigh = this.state.readiness === 'high';
+      const urgencyLabel = isTurnin ? 'QUICK WIN' : isOverdue ? 'OVERDUE' : isHigh ? 'LOCKED IN' : 'NEXT UP';
+      const urgencyBg = isTurnin ? 'rgba(255,210,74,.2)' : isOverdue ? 'rgba(255,55,55,.2)' : 'rgba(41,208,255,.18)';
+      const urgencyFg = isTurnin ? '#ffd24a' : isOverdue ? '#ff7070' : '#29d0ff';
+      const borderColor = isTurnin ? 'rgba(255,210,74,.3)' : isOverdue ? 'rgba(255,85,85,.3)' : 'rgba(41,208,255,.25)';
+      const ctaLabel = isTurnin ? '\u26a1 TURN IN NOW' : isOverdue ? 'START NOW \u2192' : 'CONTINUE \u2192';
+      const ctaBg = isTurnin ? 'linear-gradient(180deg,#ffd24a,#f5a623)' : isOverdue ? 'linear-gradient(180deg,#ff6a5a,#e0392b)' : 'linear-gradient(180deg,#36e07a,#16a34a)';
+      const ctaFg = isTurnin ? '#3a2a00' : '#fff';
+      const ctaShadow = isTurnin ? '0 6px 20px rgba(255,210,74,.4)' : isOverdue ? '0 6px 20px rgba(224,57,43,.4)' : '0 6px 20px rgba(34,180,90,.35)';
+      return {
+        subject: move.name,
+        assignment: move.nextAssignment,
+        timeStr: isTurnin ? '30 seconds \u00b7 quick win' : (move.timeLabel || ''),
+        urgencyLabel, urgencyBg, urgencyFg, borderColor,
+        ctaLabel, ctaBg, ctaFg, ctaShadow,
+        onCta: isTurnin ? (() => this.turnIn(move.idx)) : (() => {}),
+        oneMove: isTurnin ? ('Turn in ' + move.name + ' writeup') : ('Open ' + move.name + ' and read the first line'),
+      };
+    })();
+
+    return {
+      quests: this.quests,
+      classes: allClasses,
+      tonightLabel,
+      overdueCount,
+      finishedCount,
+      focusCard,
+      nextActionCta,
+      heroMoveSub,
+      battlePassTiers,
+      battlePassLabel,
+      lowModeActive,
+      heroFinishBy,
+      orbGlowAnim: this.state.recording ? 'orb-glow-rec .8s ease-in-out infinite' : 'orb-glow 3s ease-in-out infinite',
+      jarvisArcAnim: this.state.recording ? 'jarvis-spin 2s linear infinite' : 'jarvis-spin 10s linear infinite',
+      jarvisArc2Anim: this.state.recording ? 'jarvis-spin-rev 1.5s linear infinite' : 'jarvis-spin-rev 7s linear infinite',
+      jarvisScanAnim: this.state.recording ? 'jarvis-spin 1s linear infinite' : 'jarvis-spin 5s linear infinite',
+      jarvisLabel: this.state.recording ? 'LISTENING...' : 'TAP TO SPEAK',
+      energyLabel: this.state.readiness === 'low' ? '😴 Low' : this.state.readiness === 'high' ? '⚡ Locked in' : '👍 Okay',
+      testStrip: [
+        { label: "Reading Quiz · English", date: "THU", bg: "rgba(255,55,55,.14)",   border: "rgba(255,55,55,.3)",   fg: "#ff8070", dateFg: "#ff7070" },
+        { label: "Ch. 4 Quiz · Math",      date: "FRI", bg: "rgba(255,210,74,.12)",  border: "rgba(255,210,74,.28)", fg: "#ffd24a", dateFg: "#ffd24a" },
+        { label: "Ch. 7 Test · History",   date: "MON", bg: "rgba(120,150,220,.1)",  border: "rgba(120,150,220,.22)",fg: "#aab8e0", dateFg: "#9fb0dd" },
+      ],
+      showCheckin: !this.state.checkinDone,
+      showFocus: this.state.checkinDone,
+      showOverwhelmed: this.state.overwhelmed,
+      setOverwhelmed: this.setOverwhelmed,
+      dismissOverwhelmed: this.dismissOverwhelmed,
+      resetCheckin: this.resetCheckin,
+      readinessLow: () => this.setReadiness('low'),
+      readinessOkay: () => this.setReadiness('okay'),
+      readinessHigh: () => this.setReadiness('high'),
+      questTransform: `translateX(${-this.state.qi * 288}px)`,
+      questDots: Array.from({length: 5}, (_, i) => ({
+        bg: i === this.state.qi ? '#29d0ff' : 'rgba(120,150,220,.28)',
+        w: i === this.state.qi ? '20px' : '6px',
+      })),
+      classTransform: `translateX(${-this.state.ci * 212}px)`,
+      questPrev: this.questPrev,
+      questNext: this.questNext,
+      classPrev: this.classPrev,
+      classNext: this.classNext,
+      recording: this.state.recording,
+      transcriptDisplay: this.state.transcript || 'Start speaking…',
+      micBg: this.state.recording ? 'rgba(180,20,20,1)' : 'rgba(220,38,38,1)',
+      micBorderColor: this.state.recording ? 'rgba(255,80,80,.9)' : 'rgba(220,38,38,1)',
+      micAnim: this.state.recording ? 'gl-mic-pulse 1s ease-in-out infinite' : 'none',
+      micIconColor: '#ffffff',
+      workloadLabel, workloadColor, workloadPct, tonightEst, energyAdaptLabel,
+      // Settings
+      showSettings: this.state.showSettings,
+      toggleSettings: this.toggleSettings,
+      stopProp: (e) => e.stopPropagation(),
+      setRemoveBgKey: this.setRemoveBgKey,
+      removeBgKey: this.state.removeBgKey,
+      removeBgStatus: this.state.removeBgStatus,
+      removeBgStatusColor: this.state.removeBgStatus.startsWith('Error') ? '#ff7070' : this.state.removeBgStatus.startsWith('Background removed') ? '#36e07a' : 'rgba(200,218,255,.6)',
+      handleFullBodyDrop: this.handleFullBodyDrop,
+      handleFullBodyDragOver: this.handleFullBodyDragOver,
+      handleFullBodyFileInput: this.handleFullBodyFileInput,
+      openFileInput: this.openFileInput,
+      processedFullBodySrc: this.state.processedFullBodySrc,
+      hasFullBodyImg: !!this.state.processedFullBodySrc,
+      showFullBodyDropzone: !this.state.processedFullBodySrc && !this.state.noPhoto,
+      setBgFootball: () => this.setBg('football'),
+      setBgScience: () => this.setBg('science'),
+      setBgMusic: () => this.setBg('music'),
+      setBgDefault: () => this.setBg('default'),
+      clearPhoto: this.clearPhoto,
+      bgChanged: this.state.bgChanged,
+      noPhoto: this.state.noPhoto,
+      showPhotoUpload: !this.state.noPhoto,
+      showAddPhotoBtn: this.state.noPhoto,
+      showAddPhoto: this.showAddPhoto,
+      bgTechOpacity: this.state.selectedBg === 'tech' ? 1 : 0,
+      bgFootballOpacity: this.state.selectedBg === 'football' ? 1 : 0,
+      bgScienceOpacity: this.state.selectedBg === 'science' ? 1 : 0,
+      bgMusicOpacity: this.state.selectedBg === 'music' ? 1 : 0,
+      bgDefaultOpacity: this.state.selectedBg === 'default' ? 1 : 0,
+      bgTintColor: this.state.selectedBg === 'football' ? 'rgba(0,0,0,.68)' : this.state.selectedBg === 'music' ? 'rgba(0,0,0,.70)' : this.state.selectedBg === 'default' ? 'rgba(0,0,0,.45)' : 'rgba(0,0,0,.42)',
+      bgTechActive: this.state.selectedBg === 'tech' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgFootballActive: this.state.selectedBg === 'football' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgScienceActive: this.state.selectedBg === 'science' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgTechBorder: this.state.selectedBg === 'tech' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgFootballBorder: this.state.selectedBg === 'football' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgScienceBorder: this.state.selectedBg === 'science' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgMusicActive: this.state.selectedBg === 'music' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgMusicBorder: this.state.selectedBg === 'music' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgDefaultActive: this.state.selectedBg === 'default' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgDefaultBorder: this.state.selectedBg === 'default' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoCircleActive: this.state.photoStyle === 'circle' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoHexActive: this.state.photoStyle === 'hex' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoSquareActive: this.state.photoStyle === 'square' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoFullActive: this.state.photoStyle === 'full' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoCircleBorder: this.state.photoStyle === 'circle' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoHexBorder: this.state.photoStyle === 'hex' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoSquareBorder: this.state.photoStyle === 'square' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoFullBorder: this.state.photoStyle === 'full' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      // Full body: tall portrait, no crop, transparent bg shows through
+      isFull: this.state.photoStyle === 'full',
+      isNotFull: this.state.photoStyle !== 'full',
+      photoContainerRadius: this.state.photoStyle === 'square' ? '20px' : this.state.photoStyle === 'full' ? '0px' : '50%',
+      photoContainerClip: this.state.photoStyle === 'hex' ? 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' : 'none',
+      photoContainerBorder: this.state.photoStyle === 'full' ? 'none' : '3px solid rgba(41,208,255,.65)',
+      photoContainerShadow: this.state.photoStyle === 'full' ? 'none' : '0 0 36px rgba(41,208,255,.4),0 0 80px rgba(41,208,255,.15)',
+      photoContainerOverflow: this.state.photoStyle === 'full' ? 'visible' : 'hidden',
+      photoW: this.state.photoStyle === 'full' ? '180px' : '220px',
+      photoH: this.state.photoStyle === 'full' ? '340px' : '220px',
+      photoTop: this.state.photoStyle === 'full' ? '-240px' : '-128px',
+      photoLeft: this.state.photoStyle === 'full' ? '-90px' : '-110px',
+      // Per-background photo positioning for the fb-img element
+      fbImgStyle: this.state.selectedBg === 'football'
+        ? 'width:221px;height:385px;object-fit:contain;object-position:bottom;position:absolute;left:-12px'
+        : this.state.selectedBg === 'music'
+        ? 'width:343px;height:501px;object-fit:contain;object-position:bottom;position:absolute;top:64px;left:-107px'
+        : this.state.selectedBg === 'default'
+        ? 'width:343px;height:501px;object-fit:contain;object-position:bottom;position:absolute;top:69px;left:-107px'
+        : 'width:221px;height:385px;object-fit:contain;object-position:bottom;position:absolute;left:-12px',
+      photoFootGlow: this.state.photoStyle === 'full' ? 'block' : 'none',
+      navPhotoRadius: this.state.photoStyle === 'square' ? '8px' : this.state.photoStyle === 'full' ? '6px' : '50%',
+      navPhotoClip: this.state.photoStyle === 'hex' ? 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' : 'none',
+      toggleAudio: this.toggleAudio,
+      stopAudio: this.stopAudio,
+      cancelAudio: this.cancelAudio,
+    };
+  }
+}
+</script>
+</body>
+</html>
