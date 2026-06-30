@@ -4,15 +4,43 @@ import { loadProfile } from "@/lib/profile";
 import { rankAssignments, type Assignment, type EnergyLevel } from "@/lib/scoring/next-five-minutes";
 import { computeNightBudget, type BudgetAssignment } from "@/lib/time-budget/compute";
 import { buildSupportPlan } from "@/lib/support/policy";
+import { formatDueAt } from "@/lib/format";
 
 import { DashboardTabShell } from "@/components/ui/dashboard-tab-shell";
 import { TabHeading } from "@/components/ui/tab-heading";
 import { DashboardTabs } from "../dashboard-tabs";
+import { ClassesGrid, type ClassCardData } from "../classes-grid";
 import { FocusHeroCard } from "../focus-hero-card";
 import { StartSessionButton } from "../start-session-button";
 import { TimeBudget } from "../time-budget";
 import { DueCards } from "../due-cards";
 import { ReadingLoadToggle, ReadingLoadBadge } from "../reading-load-toggle";
+
+function classTheme(cls: { id: string; name: string; color?: string | null }) {
+  const n = cls.name || "";
+  if (/math|algebra|geometry|calculus|pre.?calc|stats|trig/i.test(n))
+    return { symbol: "M", bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" };
+  if (/english|writing|lit|language|essay|grammar|composition/i.test(n))
+    return { symbol: "E", bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" };
+  if (/science|bio|chem|physics|earth|environ/i.test(n))
+    return { symbol: "S", bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" };
+  if (/hist|social|world|gov|econ|geo|civics/i.test(n))
+    return { symbol: "H", bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" };
+  if (/art|music|drama|theater|dance|creative|photo/i.test(n))
+    return { symbol: "A", bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" };
+  if (/pe|physical|health|sport|fitness|gym/i.test(n))
+    return { symbol: "P", bannerBg: "linear-gradient(135deg,#1a2a00,#3a5c00)", accent: "#84cc16" };
+  if (/spanish|french|german|latin|chinese|japanese|korean|lang/i.test(n))
+    return { symbol: "L", bannerBg: "linear-gradient(135deg,#1a1000,#3a2600)", accent: "#ffd24a" };
+  const FALLBACK = [
+    { bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" },
+    { bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" },
+    { bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" },
+    { bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" },
+    { bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" },
+  ];
+  return { symbol: (n[0] ?? "C").toUpperCase(), ...FALLBACK[cls.id.charCodeAt(0) % FALLBACK.length] };
+}
 
 function isEnergy(v: string | undefined): v is EnergyLevel {
   return v === "low" || v === "medium" || v === "high";
@@ -40,6 +68,7 @@ export default async function WorkPage({
     { data: assignments },
     { data: signals },
     { data: dueCards },
+    { data: weeklyClasses },
   ] = await Promise.all([
     supabase
       .from("assignments")
@@ -59,6 +88,12 @@ export default async function WorkPage({
       .select("id, due_at")
       .lte("due_at", nowIso)
       .order("due_at", { ascending: true }),
+    supabase
+      .from("classes")
+      .select("id, name, color")
+      .is("archived_at", null)
+      .order("created_at", { ascending: true })
+      .limit(12),
   ]);
 
   const recentSignals = (signals ?? []).filter(
@@ -116,6 +151,33 @@ export default async function WorkPage({
 
   const dueCount = dueCards?.length ?? 0;
   const firstCardId = dueCards?.[0]?.id ?? null;
+
+  const classCardDataList: ClassCardData[] = (weeklyClasses ?? []).map((cls) => {
+    const asgts = (assignments ?? []).filter((a) => a.class_id === cls.id);
+    const needsAttentionAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
+    const inProgressAsgts = asgts.filter((a) => ["drafting", "checking"].includes(a.status));
+    const doneAsgts = asgts.filter((a) => a.status === "exporting");
+    const topRanked = ranked.find((a) => a.class_id === cls.id);
+    const nextDue = [...asgts]
+      .filter((a) => a.due_at)
+      .sort((a, b) => new Date(a.due_at!).getTime() - new Date(b.due_at!).getTime())[0];
+    const theme = classTheme(cls);
+    return {
+      id: cls.id,
+      name: cls.name,
+      symbol: theme.symbol,
+      bannerBg: theme.bannerBg,
+      accent: theme.accent,
+      active: inProgressAsgts.length > 0 || topRanked?.class_id === cls.id,
+      needsAttention: needsAttentionAsgts.length > 0,
+      allDone: asgts.length > 0 && asgts.length === doneAsgts.length,
+      pct: asgts.length > 0 ? Math.round((doneAsgts.length / asgts.length) * 100) : 0,
+      period: "",
+      activeAssignment: topRanked?.title ?? inProgressAsgts[0]?.title ?? "",
+      dueBadge: nextDue?.due_at ? formatDueAt(nextDue.due_at) : asgts.length === 0 ? "no tasks" : "no due date",
+      href: `/assignments?class=${cls.id}`,
+    };
+  });
 
   return (
     <DashboardTabShell>
@@ -182,6 +244,8 @@ export default async function WorkPage({
           <ReadingLoadToggle active={readingLoadView} />
           {top && <ReadingLoadBadge load={top.reading_load} />}
         </div>
+
+        <ClassesGrid classes={classCardDataList} />
     </DashboardTabShell>
   );
 }

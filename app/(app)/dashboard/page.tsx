@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { LobbyHero } from "./lobby-hero";
-import { ClassesGrid, type ClassCardData } from "./classes-grid";
+import { ReminderBanner } from "./reminder-banner";
 import type { QuestItem } from "./quest-carousel";
 import { nextUpcomingTest } from "@/lib/test-prep/plan";
 import { firstWeekJourney } from "@/lib/journey/first-week";
@@ -13,7 +13,6 @@ import { KIND_LABEL } from "@/lib/checklists/templates";
 import { computeNightBudget } from "@/lib/time-budget/compute";
 import { getEventIntentions, getReminderItems } from "./actions";
 import {
-  burnoutSignal,
   sessionAdaptationForMood,
   shouldShowMoodCheckIn,
 } from "@/lib/emotional/session";
@@ -245,32 +244,6 @@ function fallbackStarterStep(assignment: { kind: string; reading_load?: number |
 
 const ACCENT_CYCLE = ["#29d0ff", "#7e5cff", "#ffd24a", "#36e07a", "#f25fb0"];
 
-function classTheme(cls: { id: string; name: string; color?: string | null }) {
-  const n = cls.name || "";
-  if (/math|algebra|geometry|calculus|pre.?calc|stats|trig/i.test(n))
-    return { symbol: "M", bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" };
-  if (/english|writing|lit|language|essay|grammar|composition/i.test(n))
-    return { symbol: "E", bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" };
-  if (/science|bio|chem|physics|earth|environ/i.test(n))
-    return { symbol: "S", bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" };
-  if (/hist|social|world|gov|econ|geo|civics/i.test(n))
-    return { symbol: "H", bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" };
-  if (/art|music|drama|theater|dance|creative|photo/i.test(n))
-    return { symbol: "A", bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" };
-  if (/pe|physical|health|sport|fitness|gym/i.test(n))
-    return { symbol: "P", bannerBg: "linear-gradient(135deg,#1a2a00,#3a5c00)", accent: "#84cc16" };
-  if (/spanish|french|german|latin|chinese|japanese|korean|lang/i.test(n))
-    return { symbol: "L", bannerBg: "linear-gradient(135deg,#1a1000,#3a2600)", accent: "#ffd24a" };
-  const FALLBACK = [
-    { bannerBg: "linear-gradient(135deg,#0a1a3c,#1428a0)", accent: "#29d0ff" },
-    { bannerBg: "linear-gradient(135deg,#1a0d3c,#2a0d7a)", accent: "#a855f7" },
-    { bannerBg: "linear-gradient(135deg,#0a2a10,#0d5c1a)", accent: "#36e07a" },
-    { bannerBg: "linear-gradient(135deg,#2a1000,#6b2600)", accent: "#f59e0b" },
-    { bannerBg: "linear-gradient(135deg,#2a002a,#6b006b)", accent: "#f472b6" },
-  ];
-  return { symbol: (n[0] ?? "C").toUpperCase(), ...FALLBACK[cls.id.charCodeAt(0) % FALLBACK.length] };
-}
-
 function statusLabelForInventory(status: string) {
   if (status === "todo") return "ready";
   if (status === "drafting" || status === "checking") return "in progress";
@@ -339,7 +312,6 @@ export default async function DashboardPage({
     { data: signals },
     { data: latestReadinessSignal },
     { data: doneToday },
-    { data: timeLogs },
     { data: overwhelmedToday },
     { data: supportSignals },
     { data: completionMilestones },
@@ -351,7 +323,6 @@ export default async function DashboardPage({
     { data: anyStartSignal },
     { data: anyTimeLog },
     { data: dueCards },
-    { data: weeklyClasses },
     { data: weekDoneSignals },
   ] = await Promise.all([
     supabase
@@ -380,10 +351,6 @@ export default async function DashboardPage({
       .select("id")
       .eq("kind", "completed")
       .gte("occurred_at", todayStart.toISOString()),
-    supabase
-      .from("assignment_time_log")
-      .select("started_at, ended_at, elapsed_minutes")
-      .gte("started_at", todayStart.toISOString()),
     supabase
       .from("task_signals")
       .select("id")
@@ -427,12 +394,6 @@ export default async function DashboardPage({
       .lte("due_at", new Date().toISOString())
       .order("due_at", { ascending: true }),
     supabase
-      .from("classes")
-      .select("id, name, color")
-      .is("archived_at", null)
-      .order("created_at", { ascending: true })
-      .limit(12),
-    supabase
       .from("task_signals")
       .select("assignment_id")
       .eq("kind", "completed")
@@ -446,24 +407,6 @@ export default async function DashboardPage({
   const capturedTodayCount = inboxToday?.length ?? 0;
   const needsCheckCount = (inboxToday ?? []).filter((item) => item.status === "unclassified").length;
   const submittedTodayCount = submittedToday?.length ?? 0;
-  const minutesToday = (timeLogs ?? []).reduce((sum, log) => {
-    if (typeof log.elapsed_minutes === "number") return sum + log.elapsed_minutes;
-    if (log.ended_at) {
-      return sum + Math.max(0, Math.round((new Date(log.ended_at).getTime() - new Date(log.started_at).getTime()) / 60000));
-    }
-    return sum;
-  }, 0);
-  const openSessionMinutes = (timeLogs ?? []).reduce((sum, log) => {
-    if (log.ended_at) return sum;
-    return sum + Math.max(0, Math.round((now.getTime() - new Date(log.started_at).getTime()) / 60000));
-  }, 0);
-
-  const burnout = burnoutSignal({
-    minutesToday,
-    openSessionMinutes,
-    overwhelmedSignals: overwhelmedToday?.length ?? 0,
-    mood: adaptation.mood,
-  });
   const sleepAdjustment = sleepRecoveryAdjustment(
     latestSleep
       ? {
@@ -642,32 +585,6 @@ export default async function DashboardPage({
     };
   });
 
-  const classCardDataList: ClassCardData[] = (weeklyClasses ?? []).map((cls) => {
-    const asgts = (assignments ?? []).filter((a) => a.class_id === cls.id);
-    const needsAttentionAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
-    const inProgressAsgts = asgts.filter((a) => ["drafting", "checking"].includes(a.status));
-    const doneAsgts = asgts.filter((a) => a.status === "exporting");
-    const topRanked = ranked.find((a) => a.class_id === cls.id);
-    const nextDue = [...asgts]
-      .filter((a) => a.due_at)
-      .sort((a, b) => new Date(a.due_at!).getTime() - new Date(b.due_at!).getTime())[0];
-    const theme = classTheme(cls);
-    return {
-      id: cls.id,
-      name: cls.name,
-      symbol: theme.symbol,
-      bannerBg: theme.bannerBg,
-      accent: theme.accent,
-      active: inProgressAsgts.length > 0 || topRanked?.class_id === cls.id,
-      needsAttention: needsAttentionAsgts.length > 0,
-      allDone: asgts.length > 0 && asgts.length === doneAsgts.length,
-      pct: asgts.length > 0 ? Math.round((doneAsgts.length / asgts.length) * 100) : 0,
-      period: "",
-      activeAssignment: topRanked?.title ?? inProgressAsgts[0]?.title ?? "",
-      dueBadge: nextDue?.due_at ? formatDueAt(nextDue.due_at) : asgts.length === 0 ? "no tasks" : "no due date",
-      href: `/assignments?class=${cls.id}`,
-    };
-  });
   const bodySupport = ranked.find((assignment) => assignment.id !== top?.id && isWellnessSupportAssignment(assignment))
     ?? ranked.find((assignment) => isWellnessSupportAssignment(assignment))
     ?? null;
@@ -679,22 +596,17 @@ export default async function DashboardPage({
     <div className="student-portal-page">
       <LastShownClassCookie classId={top?.class_id ?? null} />
 
-      {/* Full-bleed Grayson Lobby. /dashboard uses the flush AppCommandFrame
-          (zero padding/gutter), and LobbyHero does its own 100vw breakout — so no
-          negative-margin compensation is needed here anymore. */}
-      <div>
-        <LobbyHero
-          studentName={profile?.display_name || "Player"}
-          weekNumber={weekNumber}
-          weekDone={weekDone}
-          weekTotal={weekTotal}
-          quests={questItems}
-          gameDay={{ title: "HOME 🏈", time: "FRI 7:00 PM", opponent: "vs Eagles" }}
-          focusHref={taskHref}
-          photoUrl={playerPhotoUrl}
-        />
-        <ClassesGrid classes={classCardDataList} />
-      </div>
+      <LobbyHero
+        studentName={profile?.display_name || "Player"}
+        weekNumber={weekNumber}
+        weekDone={weekDone}
+        weekTotal={weekTotal}
+        quests={questItems}
+        gameDay={{ title: "HOME 🏈", time: "FRI 7:00 PM", opponent: "vs Eagles" }}
+        focusHref={taskHref}
+        photoUrl={playerPhotoUrl}
+      />
+      <ReminderBanner items={reminderItems} />
     </div>
   );
 }

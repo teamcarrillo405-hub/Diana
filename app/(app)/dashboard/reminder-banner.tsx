@@ -46,30 +46,62 @@ export function ReminderBanner({ items }: { items: ReminderItem[] }) {
   }
 
   return (
-    <section className="space-y-2" aria-label="Open reminders">
-      <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
+    <section
+      style={{
+        maxWidth: "var(--layout-max-width)",
+        margin: "0 auto",
+        padding: "var(--space-8) var(--space-17)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-4)",
+      }}
+      aria-label="Open reminders"
+    >
+      <p
+        style={{
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--text-11)",
+          fontWeight: "var(--weight-700)",
+          letterSpacing: "var(--tracking-20)",
+          textTransform: "uppercase",
+          color: "var(--gl-text-muted)",
+        }}
+      >
         Reminders
-      </h2>
-      <ul className="space-y-2">
+      </p>
+      <ul style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", listStyle: "none", padding: 0, margin: 0 }}>
         {visible.map((i) => (
           <li
             key={i.id}
-            className="flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-4"
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: "var(--space-8)",
+              borderRadius: "var(--radius-card)",
+              border: "1px solid var(--gl-gold-28)",
+              background: "var(--gl-gold-12)",
+              padding: "var(--space-10) var(--space-12)",
+            }}
           >
-            <Link href={`/assignments/${i.id}`} className="min-w-0 flex-1">
+            <Link
+              href={`/assignments/${i.id}`}
+              style={{ minWidth: 0, flex: 1, textDecoration: "none" }}
+            >
               {i.class_name && (
-                <div className="mb-1 flex items-center gap-1.5">
+                <div style={{ marginBottom: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
                   {i.class_color && (
                     <span
-                      className="inline-block h-2 w-2 rounded-full"
-                      style={{ background: i.class_color }}
+                      style={{ display: "inline-block", width: 8, height: 8, borderRadius: "var(--radius-circle)", background: i.class_color }}
                     />
                   )}
-                  <span className="text-xs text-muted">{i.class_name}</span>
+                  <span style={{ fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{i.class_name}</span>
                 </div>
               )}
-              <p className="text-sm font-medium">{i.title}</p>
-              <p className="mt-0.5 text-xs text-muted">
+              <p style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-600)", color: "var(--gl-text-secondary)" }}>
+                {i.title}
+              </p>
+              <p style={{ marginTop: "var(--space-1)", fontSize: "var(--text-12)", color: "var(--gl-gold)" }}>
                 {i.is_past_due
                   ? "This is still open."
                   : i.hours_until_due != null && i.hours_until_due <= 1
@@ -80,7 +112,16 @@ export function ReminderBanner({ items }: { items: ReminderItem[] }) {
             <button
               type="button"
               onClick={() => handleDismiss(i.id)}
-              className="shrink-0 rounded-md border border-border bg-card px-2 py-1 text-xs text-muted hover:bg-border/30"
+              style={{
+                flexShrink: 0,
+                borderRadius: "var(--radius-pill)",
+                border: "1px solid var(--gl-border-neutral)",
+                background: "var(--gl-bg-card)",
+                padding: "var(--space-2) var(--space-6)",
+                fontSize: "var(--text-12)",
+                color: "var(--gl-text-muted)",
+                cursor: "pointer",
+              }}
             >
               Dismiss
             </button>
