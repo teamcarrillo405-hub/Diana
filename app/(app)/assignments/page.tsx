@@ -435,6 +435,22 @@ export default async function AssignmentsPage({
         </div>
       </div>
 
+      {/* Secondary — calm voice entry, demoted from a 36px hero so it never out-shouts Start */}
+      <Link
+        href="/voice"
+        style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", width: "fit-content", padding: "var(--space-7) var(--space-13)", borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-lime-45, rgba(173,230,80,.45))", background: "transparent", color: "var(--gl-lime)", fontFamily: "var(--font-body)", fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", textDecoration: "none" }}
+      >
+        <Mic size={16} />
+        Talk to Diana
+      </Link>
+
+      {/* Planning & tools — secondary modules collapsed so the focal Start-now stays the one move */}
+      <details>
+        <summary style={{ cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "var(--text-12)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-text-muted)" }}>
+          Planning &amp; tools
+        </summary>
+        <div style={{ marginTop: "var(--space-12)", display: "grid", gap: "var(--space-12)" }}>
+
       {/* Capture inbox — unclassified items waiting for sorting */}
       {(inboxItems ?? []).length > 0 && (
         <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-08, rgba(255,210,74,.08))", padding: "var(--space-13) var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
@@ -479,38 +495,6 @@ export default async function AssignmentsPage({
       {/* Reading-load toggle — full-width row */}
       <ReadingLoadToggle active={isReadingLoad} />
 
-      {/* Voice entry point — slanted lime CTA to the general-purpose Diana agent (see docs/design/NAVIGATION.md) */}
-      <Link
-        href="/voice"
-        style={{
-          display: "inline-block",
-          transform: "skewX(-10deg)",
-          padding: "22px 40px",
-          borderRadius: "var(--radius-hero)",
-          background: "var(--gl-lime)",
-          boxShadow: "0 0 32px var(--gl-lime-45), 0 8px 28px rgba(0,0,0,.6)",
-          textDecoration: "none",
-        }}
-      >
-        <div
-          style={{
-            transform: "skewX(10deg)",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "var(--space-4)",
-            fontFamily: "var(--font-display)",
-            fontWeight: "var(--weight-800)",
-            fontSize: "var(--text-36)",
-            letterSpacing: "var(--tracking-04)",
-            textTransform: "uppercase",
-            color: "var(--gl-text-on-cyan)",
-          }}
-        >
-          <Mic size={30} />
-          Talk to Diana
-        </div>
-      </Link>
-
       {/* Study tools — quick access to the work-session surfaces */}
       <section style={{ display: "grid", gap: "var(--space-9)" }} aria-label="Study tools">
         <style>{`.atools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-6);}@media(max-width:760px){.atools{grid-template-columns:repeat(2,minmax(0,1fr));}}`}</style>
@@ -536,7 +520,13 @@ export default async function AssignmentsPage({
           ))}
         </div>
       </section>
+        </div>
+      </details>
 
+      {/* Your work — the full board, below the focal move */}
+      <h2 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-22)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: "var(--space-6) 0 var(--space-2)" }}>
+        Your work
+      </h2>
       <section className="assignment-lane-stack" aria-label="Assignment priority lanes">
         {lanes.map((lane) => (
           <AssignmentLane key={lane.title} lane={lane} />
