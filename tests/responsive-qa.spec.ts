@@ -33,15 +33,11 @@ const requiredRoutes = [
 const publicRoutes = ["/", "/login", "/signup"] as const;
 
 const extraRoutes = [
-  "/focus",
   "/study-buddy",
   "/break-down",
-  "/reminders",
   "/imports",
   "/templates",
   "/accessibility",
-  "/recap",
-  "/shame-mode",
 ] as const;
 
 const bannedVisibleTerms = [

@@ -18,6 +18,11 @@ export function usesAppTopNav(pathname: string): boolean {
     pathname.startsWith("/assignments/") ||
     pathname === "/notes" ||
     pathname.startsWith("/notes/") ||
+    pathname === "/classes" ||
+    pathname.startsWith("/classes/") ||
+    pathname === "/calendar" ||
+    pathname === "/grades" ||
+    pathname === "/inbox" ||
     pathname === "/proof" ||
     pathname === "/future-path"
   );

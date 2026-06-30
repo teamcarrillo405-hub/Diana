@@ -58,7 +58,7 @@ export function firstWeekJourney(inputs: JourneyInputs): FirstWeekJourney {
       key: "first-move",
       title: "See your first move",
       detail: "Diana picks the one thing worth starting — open it and look around.",
-      href: "/focus",
+      href: "/assignments",
       done: inputs.hasStartedAnything,
     },
     {

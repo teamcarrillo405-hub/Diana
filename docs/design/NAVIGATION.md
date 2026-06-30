@@ -118,13 +118,17 @@ These pages were found to duplicate a primary surface. Resolve before/while rewi
 
 The map above is the target. Current code reality as of this rewrite:
 
-- `AppTopNav` (`app/(app)/app-top-nav.tsx`) still lists the old 6 tabs and points MORE at `/settings`. **Needs:** new 5-tab list + a real MORE drawer.
-- MORE drawer overlay **does not exist yet** — must be built. Until it exists, ~13 pages are reachable only by typing the URL.
-- `/classes` has **no inbound nav link** today — Work must link to it.
-- Study-tools section on Work **not built yet**.
-- Merges/retirements in §5 **not done yet**.
+- ✅ `AppTopNav` rewired to the 5-tab model (Today/Work/Classes/Calendar + More drawer).
+- ✅ MORE drawer overlay built (`app/(app)/more-menu.tsx`) — all secondary pages reachable.
+- ✅ `/classes` and `/calendar` are now top tabs.
+- ✅ Merges/retirements in §5 done — `/focus`, `/shame-mode`, `/wins`, `/recap`, `/reminders` deleted; references cleaned from `lib/features.ts`, `components/nav.tsx`, `lib/journey/first-week.ts`, `tests/responsive-qa.spec.ts`.
+- ✅ `lib/navigation.ts` (`usesAppTopNav`) updated so classes/grades/inbox/calendar no longer double-render the old SideNav.
+- ⬜ **Study-tools section on Work** — not built yet.
+- ⬜ **Notes-into-class-hub migration** — `/notes` still standalone.
+- ⬜ **Old SideNav/BottomNav retirement** — `components/nav.tsx` still renders on the ~30 pages that don't yet have AppTopNav (via `app/(app)/layout.tsx`). Full removal requires migrating every page to AppTopNav (or hoisting AppTopNav into the layout) first.
+- ⬜ **Mobile nav** — AppTopNav tabs are hidden under 900px (`.gl-nav-tabs { display:none }`); mobile currently has no top-nav tabs.
 
-Track these as program-file tasks separate from this doc. This file is the spec; it is intentionally ahead of the code.
+This file is the spec; it stays ahead of the code where ⬜ items remain.
 
 ---
 

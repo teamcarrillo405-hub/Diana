@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   Accessibility,
   BarChart3,
-  Bell,
   BookOpen,
   Brain,
   Calendar,
@@ -14,7 +13,6 @@ import {
   Camera,
   CheckSquare,
   ChevronDown,
-  ClipboardList,
   FileText,
   GraduationCap,
   HeartPulse,
@@ -57,11 +55,9 @@ const PRIMARY_MOBILE_ITEMS = [
 ] satisfies AppShellNavItem[];
 
 const SECONDARY_ITEMS = [
-  { href: "/focus", label: "Focus plan", icon: Timer },
   { href: "/study-buddy", label: "Study buddy", icon: MessageCircle },
   { href: "/break-down", label: "Break down", icon: ListChecks },
   { href: "/grades", label: "Grades", icon: BarChart3 },
-  { href: "/reminders", label: "Reminders", icon: Bell },
   { href: "/portfolio", label: "Portfolio", icon: Images },
   { href: "/voice", label: "Voice", icon: Mic2 },
   { href: "/me", label: "My brain", icon: Sparkles },
@@ -73,8 +69,6 @@ const SECONDARY_ITEMS = [
   { href: "/calendar", label: "Calendar", icon: Calendar },
   { href: "/imports", label: "Imports", icon: CalendarPlus },
   { href: "/templates", label: "Templates", icon: LayoutTemplate },
-  { href: "/wins", label: "Wins", icon: Sparkles },
-  { href: "/shame-mode", label: "Reset mode", icon: ClipboardList },
   { href: "/proof", label: "Proof", icon: ShieldCheck },
   { href: "/classes", label: "Classes", icon: BookOpen },
   { href: "/insights", label: "Insights", icon: BarChart3 },
@@ -97,7 +91,6 @@ const DESKTOP_GROUPS = [
     label: "Schoolwork",
     defaultOpen: true,
     items: [
-      { href: "/focus", label: "Focus plan", icon: Timer },
       { href: "/break-down", label: "Break down", icon: ListChecks },
       { href: "/templates", label: "Templates", icon: LayoutTemplate },
       { href: "/calendar", label: "Calendar", icon: Calendar },
@@ -118,9 +111,7 @@ const DESKTOP_GROUPS = [
   {
     label: "Proof and me",
     items: [
-      { href: "/reminders", label: "Reminders", icon: Bell },
       { href: "/wellness", label: "Wellness", icon: HeartPulse },
-      { href: "/wins", label: "Wins", icon: Sparkles },
       { href: "/portfolio", label: "Portfolio", icon: Images },
       { href: "/me", label: "My brain", icon: Sparkles },
       { href: "/study-groups", label: "Groups", icon: UsersRound },
@@ -132,7 +123,6 @@ const DESKTOP_GROUPS = [
     items: [
       { href: "/accessibility", label: "Access", icon: Accessibility },
       { href: "/settings", label: "Settings", icon: Cog },
-      { href: "/shame-mode", label: "Reset mode", icon: ClipboardList },
     ],
   },
 ] satisfies AppShellNavGroup[];
