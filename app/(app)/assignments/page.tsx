@@ -8,6 +8,7 @@ import {
   FilePlus2,
   Layers3,
   ListChecks,
+  Mic,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
@@ -278,6 +279,7 @@ export default async function AssignmentsPage() {
         <div
           style={{
             position: "relative",
+            alignSelf: "start",
             borderRadius: "var(--radius-panel)",
             border: "1px solid var(--gl-cyan-25)",
             background: "linear-gradient(135deg, var(--gl-focus-from), var(--gl-focus-to))",
@@ -440,19 +442,113 @@ export default async function AssignmentsPage() {
         </NexusPanel>
       </div>
 
-      <NexusPanel className="assignment-sort-panel" tone="blue">
-        <NexusKicker>
-          <SlidersHorizontal size={14} />
-          Why this order
-        </NexusKicker>
-        <div className="assignment-sort-rules">
-          <span>Due window</span>
-          <span>Effort</span>
-          <span>Energy fit</span>
-          <span>Class priority</span>
-          <span>Proof needed</span>
+      {/* Voice entry point — general-purpose Diana agent (see docs/design/NAVIGATION.md) */}
+      <section
+        style={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-11)",
+          flexWrap: "wrap",
+          borderRadius: "var(--radius-panel)",
+          border: "1px solid var(--gl-purple-30)",
+          background: "var(--gl-purple-12)",
+          padding: "var(--space-11) var(--space-13)",
+          overflow: "hidden",
+        }}
+      >
+        <span style={{ position: "absolute", left: -1, top: -1, width: 14, height: 14, borderLeft: "2px solid var(--gl-purple)", borderTop: "2px solid var(--gl-purple)", borderRadius: "2px 0 0 0" }} />
+        <span style={{ position: "absolute", right: -1, top: -1, width: 14, height: 14, borderRight: "2px solid var(--gl-purple)", borderTop: "2px solid var(--gl-purple)", borderRadius: "0 2px 0 0" }} />
+        <span style={{ position: "absolute", left: -1, bottom: -1, width: 14, height: 14, borderLeft: "2px solid var(--gl-purple)", borderBottom: "2px solid var(--gl-purple)", borderRadius: "0 0 0 2px" }} />
+        <span style={{ position: "absolute", right: -1, bottom: -1, width: 14, height: 14, borderRight: "2px solid var(--gl-purple)", borderBottom: "2px solid var(--gl-purple)", borderRadius: "0 0 2px 0" }} />
+
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-4)",
+            fontFamily: "var(--font-display)",
+            fontWeight: "var(--weight-800)",
+            fontSize: "var(--text-14)",
+            letterSpacing: "var(--tracking-06)",
+            textTransform: "uppercase",
+            color: "var(--gl-purple-light)",
+          }}
+        >
+          <Mic size={16} />
+          Talk it through with Diana
+        </span>
+        <Link
+          href="/voice"
+          style={{
+            marginLeft: "auto",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-3)",
+            padding: "var(--space-5) var(--space-11)",
+            borderRadius: "var(--radius-option)",
+            background: "var(--gl-purple)",
+            fontFamily: "var(--font-display)",
+            fontWeight: "var(--weight-800)",
+            fontSize: "var(--text-13)",
+            letterSpacing: "var(--tracking-04)",
+            textTransform: "uppercase",
+            color: "var(--gl-text-primary)",
+            textDecoration: "none",
+          }}
+        >
+          Start talking
+          <ArrowRight size={15} />
+        </Link>
+      </section>
+
+      {/* assignment-sort-panel — Why this order (single bordered row) */}
+      <section
+        style={{
+          borderRadius: "var(--radius-panel)",
+          border: "1px solid var(--gl-blue-30)",
+          background: "var(--gl-bg-card)",
+          padding: "var(--space-11) var(--space-13)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-12)", flexWrap: "wrap" }}>
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "var(--space-4)",
+              fontFamily: "var(--font-display)",
+              fontWeight: "var(--weight-800)",
+              fontSize: "var(--text-12)",
+              letterSpacing: "var(--tracking-16)",
+              textTransform: "uppercase",
+              color: "var(--gl-blue)",
+            }}
+          >
+            <SlidersHorizontal size={14} />
+            Why this order
+          </span>
+          <div style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}>
+            {["Due window", "Effort", "Energy fit", "Class priority", "Proof needed"].map((rule) => (
+              <span
+                key={rule}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "var(--space-3) var(--space-9)",
+                  borderRadius: "var(--radius-button)",
+                  border: "1px solid var(--gl-border-neutral)",
+                  background: "var(--gl-blue-12)",
+                  fontSize: "var(--text-13)",
+                  color: "var(--gl-text-secondary)",
+                }}
+              >
+                {rule}
+              </span>
+            ))}
+          </div>
         </div>
-      </NexusPanel>
+      </section>
 
       <section className="assignment-lane-stack" aria-label="Assignment priority lanes">
         {lanes.map((lane) => (
