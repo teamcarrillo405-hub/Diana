@@ -269,16 +269,17 @@ export default async function AssignmentDetailPage({
   });
 
   return (
-    <div className="diana-page space-y-8">
-      <header className="nexus-panel space-y-3 p-5 sm:p-6">
+    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)", padding: "var(--space-17) var(--space-17) var(--space-24)" }}>
+      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", display: "grid", gap: "var(--space-12)" }}>
+      <header style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-6)" }}>
         <Link
           href={a.classes ? `/classes/${a.classes.id}` : "/assignments"}
-          className="nexus-kicker text-xs text-muted hover:underline"
+          style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", textDecoration: "none" }}
         >
           ← {a.classes?.name ?? "Tasks"}
         </Link>
-        <div className="flex items-start justify-between gap-3">
-          <h1 className="text-display">{a.title}</h1>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-8)" }}>
+          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-34)", fontWeight: "var(--weight-800)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, lineHeight: "var(--leading-tight)" }}>{a.title}</h1>
           {ttsOn && (
             <TtsButton
               text={readAloudText}
@@ -289,17 +290,17 @@ export default async function AssignmentDetailPage({
             />
           )}
         </div>
-        <p className="text-sm text-muted">
+        <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-13)", color: "var(--gl-text-muted)", margin: 0 }}>
           {KIND_LABEL[a.kind]}
           {a.due_at && ` · ${formatDueAt(a.due_at)}`}
         </p>
         {a.external_source && (
-          <p className="text-xs text-muted">
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>
             Imported from {formatExternalSource(a.external_source)}
             {a.external_url && (
               <>
                 {" "}
-                <Link href={a.external_url} target="_blank" className="text-accent hover:underline">
+                <Link href={a.external_url} target="_blank" style={{ color: "var(--gl-cyan)", textDecoration: "underline" }}>
                   Open original
                 </Link>
               </>
@@ -307,14 +308,14 @@ export default async function AssignmentDetailPage({
           </p>
         )}
         {(a.reading_load >= 3 || a.writing_load >= 3) && (
-          <div className="flex flex-wrap gap-1.5 text-xs">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4)" }}>
             {a.reading_load >= 3 && (
-              <span className="rounded-full bg-sky-500/10 px-2 py-0.5 text-sky-700 dark:text-sky-300">
+              <span style={{ padding: "2px var(--space-6)", borderRadius: "var(--radius-pill)", background: "var(--gl-blue-12)", fontSize: "var(--text-11)", fontWeight: "var(--weight-600)", color: "var(--gl-blue)" }}>
                 Heavy reading
               </span>
             )}
             {a.writing_load >= 3 && (
-              <span className="rounded-full bg-violet-500/10 px-2 py-0.5 text-violet-700 dark:text-violet-300">
+              <span style={{ padding: "2px var(--space-6)", borderRadius: "var(--radius-pill)", background: "var(--gl-purple-12)", fontSize: "var(--text-11)", fontWeight: "var(--weight-600)", color: "var(--gl-purple-light)" }}>
                 Heavy writing
               </span>
             )}
@@ -334,11 +335,11 @@ export default async function AssignmentDetailPage({
       <TaskSwitchCue assignmentId={a.id} classId={a.classes?.id ?? null} title={a.title} />
 
       {focus === "next-step" && (
-        <section className="rounded-2xl border border-brand/20 bg-brand/10 p-4">
-          <p className="text-sm font-medium text-brand-strong dark:text-brand">
+        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-cyan-22)", background: "var(--gl-cyan-08)", padding: "var(--space-12)" }}>
+          <p style={{ fontFamily: "var(--font-body)", fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-cyan)", margin: "0 0 var(--space-4)" }}>
             Next-step mode
           </p>
-          <p className="mt-1 text-sm text-muted">
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-muted)", margin: 0 }}>
             Start with the first visible academic move below. If the steps are not built yet, use Break it down first.
           </p>
         </section>
@@ -469,14 +470,14 @@ export default async function AssignmentDetailPage({
       {/* Citation tool is always available — any assignment may need a source citation */}
       <CitationTool assignmentId={a.id} classAiMode={classAiMode} />
 
-      <section className="nexus-panel space-y-3 rounded-2xl border border-border bg-card p-5">
-        <div className="flex items-baseline justify-between">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted">
+      <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-6)" }}>
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--space-8)" }}>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>
             Where are you?
           </p>
-          <p className="text-xs text-muted">{STATUS_HINT[status]}</p>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>{STATUS_HINT[status]}</p>
         </div>
-        <p className="text-lg font-semibold">{STATUS_LABEL[status]}</p>
+        <p style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-22)", fontWeight: "var(--weight-800)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>{STATUS_LABEL[status]}</p>
         <StatusButtons assignmentId={id} from={status} options={nexts} />
       </section>
 
@@ -494,20 +495,20 @@ export default async function AssignmentDetailPage({
       )}
 
       {status === "drafting" && (
-        <div className="flex justify-end">
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
           <PivotForm assignmentId={id} />
         </div>
       )}
 
       {status === "exporting" && (
-        <div className="nexus-panel rounded-xl border border-accent bg-accent/5 p-4">
-          <p className="font-medium">Run through your submission checklist first.</p>
-          <p className="mt-1 text-sm text-muted">
+        <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-cyan-22)", background: "var(--gl-cyan-08)", padding: "var(--space-12)", display: "grid", gap: "var(--space-5)" }}>
+          <p style={{ fontFamily: "var(--font-body)", fontWeight: "var(--weight-700)", fontSize: "var(--text-15)", color: "var(--gl-text-primary)", margin: 0 }}>Run through your submission checklist first.</p>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-muted)", margin: 0 }}>
             Diana will hold you here until you tick the required boxes.
           </p>
           <Link
             href={`/assignments/${id}/submit`}
-            className="mt-3 inline-block rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
+            style={{ display: "inline-flex", alignItems: "center", padding: "var(--space-8) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-cyan)", color: "var(--gl-text-on-cyan)", fontFamily: "var(--font-body)", fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none", width: "fit-content" }}
           >
             Open the checklist
           </Link>
@@ -519,6 +520,7 @@ export default async function AssignmentDetailPage({
       )}
 
       <AiUsageLog interactions={aiLog ?? []} />
+      </div>
     </div>
   );
 }
