@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { FileText, Images, LockKeyhole, ShieldCheck } from "lucide-react";
+import { Flame, FileText, Images, LockKeyhole, ShieldCheck, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { computeXp } from "@/lib/gamification/xp";
+import { weekOverWeek } from "@/lib/insights/week-over-week";
 import { ProofConstellation, ProofReceiptVisual } from "@/components/student-portal/proof-receipt-visual";
 import { AppTopNav } from "../app-top-nav";
 import { DoneToday } from "../dashboard/done-today";
@@ -50,16 +52,40 @@ export default async function ProofPage() {
     );
   }
 
+  const now = new Date();
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
+  const windowStartIso = new Date(now.getTime() - 120 * 86_400_000).toISOString();
 
-  const [{ data: authorship }, { data: artifacts }, { data: wins }, { data: portfolios }, { data: doneToday }] = await Promise.all([
+  const [
+    { data: authorship },
+    { data: artifacts },
+    { data: wins },
+    { data: portfolios },
+    { data: doneToday },
+    { data: completionsWindow },
+    { data: studyLogsWindow },
+    { count: reviewsWindow },
+    { count: notesWindow },
+  ] = await Promise.all([
     supabase.from("authorship_log").select("id, actor, event_type, created_at").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(8),
     supabase.from("study_artifacts").select("id, title, artifact_type, source_anchor_count, created_at").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(4),
     supabase.from("task_signals").select("id, occurred_at, assignments(title, kind)").eq("owner_id", user.id).eq("kind", "completed").order("occurred_at", { ascending: false }).limit(5),
     supabase.from("portfolios").select("id, title, description, portfolio_items(id, title, reflection_text, created_at)").eq("owner_id", user.id).order("updated_at", { ascending: false }).limit(3),
     supabase.from("task_signals").select("id").eq("kind", "completed").gte("occurred_at", todayStart.toISOString()),
+    supabase.from("task_signals").select("occurred_at").eq("owner_id", user.id).eq("kind", "completed").gte("occurred_at", windowStartIso),
+    supabase.from("assignment_time_log").select("started_at").eq("owner_id", user.id).gte("started_at", windowStartIso),
+    supabase.from("flashcard_reviews").select("id", { count: "exact", head: true }).gte("reviewed_at", windowStartIso),
+    supabase.from("notes").select("id", { count: "exact", head: true }).eq("owner_id", user.id).gte("created_at", windowStartIso),
   ]);
+
+  const completionDates = (completionsWindow ?? []).map((row) => row.occurred_at as string);
+  const studyDayKeys = [...new Set((studyLogsWindow ?? []).map((row) => String(row.started_at).slice(0, 10)))];
+  const xp = computeXp(
+    { completionDates, studyDayKeys, flashcardReviews: reviewsWindow ?? 0, notesCreated: notesWindow ?? 0 },
+    now,
+  );
+  const wow = weekOverWeek(completionDates, now);
 
   const receiptRows = (authorship ?? []) as AuthorshipRow[];
   const artifactRows = (artifacts ?? []) as ArtifactRow[];
@@ -130,6 +156,52 @@ export default async function ProofPage() {
               <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", margin: 0 }}>
                 Every saved win becomes raw material for essays, teacher conversations, scholarships, and support plans.
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Momentum — real XP / level / streak + week-over-week */}
+        <section style={{ display: "grid", gap: "var(--space-9)" }}>
+          <style>{`.pf-momentum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-9);}@media(max-width:760px){.pf-momentum{grid-template-columns:1fr;}}`}</style>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-green)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <Zap size={13} />
+            Momentum
+          </p>
+          <div className="pf-momentum">
+            {/* XP + level */}
+            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-green-22)", background: "var(--gl-green-12)", padding: "var(--space-14)", display: "grid", gap: "var(--space-6)" }}>
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--space-6)" }}>
+                <span style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-text-muted)" }}>Level {xp.level}</span>
+                <span style={{ fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)" }}>{xp.totalXp.toLocaleString()} XP</span>
+              </div>
+              <div style={{ position: "relative", height: 8, borderRadius: 4, background: "var(--gl-green-22)", overflow: "hidden" }}>
+                <span style={{ position: "absolute", inset: 0, width: `${xp.pctToNext}%`, background: "var(--gl-green)", borderRadius: 4 }} />
+              </div>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-secondary)", margin: 0 }}>
+                {xp.xpForNextLevel - xp.xpIntoLevel} XP to level {xp.level + 1}
+              </p>
+            </div>
+            {/* Streak */}
+            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-gold)" }}>
+                <Flame size={13} /> Streak
+              </span>
+              <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: 0 }}>
+                {xp.streakDays} <span style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>day{xp.streakDays === 1 ? "" : "s"}</span>
+              </p>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-secondary)", margin: 0 }}>
+                {xp.streakDays === 0 ? "Do one thing today to start a streak." : "Days in a row with progress."}
+              </p>
+            </div>
+            {/* Week over week */}
+            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-cyan)" }}>
+                {wow.direction === "down" ? <TrendingDown size={13} /> : <TrendingUp size={13} />} This week
+              </span>
+              <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: 0 }}>
+                {wow.thisWeek} <span style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>vs {wow.lastWeek} last</span>
+              </p>
+              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-secondary)", margin: 0 }}>{wow.label}</p>
             </div>
           </div>
         </section>
