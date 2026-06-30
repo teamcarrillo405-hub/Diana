@@ -243,7 +243,7 @@ function fallbackStarterStep(assignment: { kind: string; reading_load?: number |
   return "Open the task and choose the first visible part.";
 }
 
-const ACCENT_CYCLE = ["#29d0ff", "#a855f7", "#f59e0b", "#36e07a", "#f472b6"];
+const ACCENT_CYCLE = ["#29d0ff", "#7e5cff", "#ffd24a", "#36e07a", "#f25fb0"];
 
 function classTheme(cls: { id: string; name: string; color?: string | null }) {
   const n = cls.name || "";

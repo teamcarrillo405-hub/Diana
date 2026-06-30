@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 
+import { DashboardTabShell } from "@/components/ui/dashboard-tab-shell";
+import { TabHeading } from "@/components/ui/tab-heading";
 import { DashboardTabs } from "../dashboard-tabs";
 import { GradeMoveCard } from "../grade-move-card";
 import { DoneToday } from "../done-today";
@@ -22,46 +24,14 @@ export default async function ProofPage() {
   const doneTodayCount = doneToday?.length ?? 0;
 
   return (
-    <div style={{ background: "var(--gl-bg-base)", minHeight: "100dvh" }}>
-      <div
-        style={{
-          maxWidth: "var(--layout-max-width)",
-          margin: "0 auto",
-          padding: "var(--space-17) var(--space-17) var(--space-21)",
-        }}
-      >
+    <DashboardTabShell>
         <DashboardTabs />
-
-        <header style={{ marginBottom: "var(--space-15)" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "var(--text-13)",
-              fontWeight: "var(--weight-700)",
-              letterSpacing: "var(--tracking-30)",
-              textTransform: "uppercase",
-              color: "var(--gl-green)",
-            }}
-          >
-            What I&apos;ve shown
-          </p>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "var(--text-40)",
-              fontWeight: "var(--weight-800)",
-              fontStyle: "italic",
-              textTransform: "uppercase",
-              color: "var(--gl-text-primary)",
-              lineHeight: "var(--leading-tight)",
-            }}
-          >
-            Proof
-          </h1>
-          <p style={{ marginTop: "var(--space-2)", fontSize: "var(--text-15)", color: "var(--gl-text-overlay-60)" }}>
-            The quiet payoff: what you finished and the one move that helps your grade most.
-          </p>
-        </header>
+        <TabHeading
+          kicker="What I've shown"
+          title="Proof"
+          sub="The quiet payoff: what you finished and the one move that helps your grade most."
+          accent="var(--gl-green)"
+        />
 
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-12)" }}>
           <DoneToday count={doneTodayCount} />
@@ -91,7 +61,6 @@ export default async function ProofPage() {
             See all proof →
           </Link>
         </div>
-      </div>
-    </div>
+    </DashboardTabShell>
   );
 }

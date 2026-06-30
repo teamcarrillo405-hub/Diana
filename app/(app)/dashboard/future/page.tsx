@@ -5,12 +5,14 @@ import { rankAssignments, type Assignment, type EnergyLevel } from "@/lib/scorin
 import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 
+import { DashboardTabShell } from "@/components/ui/dashboard-tab-shell";
+import { TabHeading } from "@/components/ui/tab-heading";
 import { DashboardTabs } from "../dashboard-tabs";
 import { EveningPlanning } from "../evening-planning";
 import { QuestCarousel, type QuestItem } from "../quest-carousel";
 import { getEventIntentions } from "../actions";
 
-const ACCENT_CYCLE = ["#29d0ff", "#a855f7", "#f59e0b", "#36e07a", "#f472b6"];
+const ACCENT_CYCLE = ["#29d0ff", "#7e5cff", "#ffd24a", "#36e07a", "#f25fb0"];
 
 function isEnergy(v: string | undefined): v is EnergyLevel {
   return v === "low" || v === "medium" || v === "high";
@@ -80,46 +82,14 @@ export default async function FuturePage({
   });
 
   return (
-    <div style={{ background: "var(--gl-bg-base)", minHeight: "100dvh" }}>
-      <div
-        style={{
-          maxWidth: "var(--layout-max-width)",
-          margin: "0 auto",
-          padding: "var(--space-17) var(--space-17) var(--space-21)",
-        }}
-      >
+    <DashboardTabShell>
         <DashboardTabs />
-
-        <header style={{ marginBottom: "var(--space-15)" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "var(--text-13)",
-              fontWeight: "var(--weight-700)",
-              letterSpacing: "var(--tracking-30)",
-              textTransform: "uppercase",
-              color: "var(--gl-gold)",
-            }}
-          >
-            What&apos;s coming
-          </p>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "var(--text-40)",
-              fontWeight: "var(--weight-800)",
-              fontStyle: "italic",
-              textTransform: "uppercase",
-              color: "var(--gl-text-primary)",
-              lineHeight: "var(--leading-tight)",
-            }}
-          >
-            Future
-          </h1>
-          <p style={{ marginTop: "var(--space-2)", fontSize: "var(--text-15)", color: "var(--gl-text-overlay-60)" }}>
-            Tonight&apos;s plan and the quest path ahead.
-          </p>
-        </header>
+        <TabHeading
+          kicker="What's coming"
+          title="Future"
+          sub="Tonight's plan and the quest path ahead."
+          accent="var(--gl-gold)"
+        />
 
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-12)" }}>
           {/* EveningPlanning self-gates to 5–8pm and hides when there are no intentions. */}
@@ -136,7 +106,6 @@ export default async function FuturePage({
             </div>
           )}
         </div>
-      </div>
-    </div>
+    </DashboardTabShell>
   );
 }

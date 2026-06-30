@@ -5,6 +5,8 @@ import { rankAssignments, type Assignment, type EnergyLevel } from "@/lib/scorin
 import { computeNightBudget, type BudgetAssignment } from "@/lib/time-budget/compute";
 import { buildSupportPlan } from "@/lib/support/policy";
 
+import { DashboardTabShell } from "@/components/ui/dashboard-tab-shell";
+import { TabHeading } from "@/components/ui/tab-heading";
 import { DashboardTabs } from "../dashboard-tabs";
 import { FocusHeroCard } from "../focus-hero-card";
 import { StartSessionButton } from "../start-session-button";
@@ -116,51 +118,18 @@ export default async function WorkPage({
   const firstCardId = dueCards?.[0]?.id ?? null;
 
   return (
-    <div style={{ background: "var(--gl-bg-base)", minHeight: "100dvh" }}>
-      <div
-        style={{
-          maxWidth: "var(--layout-max-width)",
-          margin: "0 auto",
-          padding: "var(--space-17) var(--space-17) var(--space-21)",
-        }}
-      >
+    <DashboardTabShell>
         <style>{`
 .dw-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-13);}
-@media(min-width:1024px){.dw-grid{grid-template-columns:minmax(0,1fr) 380px;align-items:start;}}
+@media(min-width:1024px){.dw-grid{grid-template-columns:minmax(0,1fr) var(--layout-work-rail);align-items:start;}}
 `}</style>
         <DashboardTabs />
-
-        {/* Tab heading block */}
-        <header style={{ marginBottom: "var(--space-15)" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "var(--text-13)",
-              fontWeight: "var(--weight-700)",
-              letterSpacing: "var(--tracking-30)",
-              textTransform: "uppercase",
-              color: "var(--gl-cyan)",
-            }}
-          >
-            Do the work
-          </p>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "var(--text-40)",
-              fontWeight: "var(--weight-800)",
-              fontStyle: "italic",
-              textTransform: "uppercase",
-              color: "var(--gl-text-primary)",
-              lineHeight: "var(--leading-tight)",
-            }}
-          >
-            Work
-          </h1>
-          <p style={{ marginTop: "var(--space-2)", fontSize: "var(--text-15)", color: "var(--gl-text-overlay-60)" }}>
-            Your next move, the clock on it, and what&apos;s left tonight.
-          </p>
-        </header>
+        <TabHeading
+          kicker="Do the work"
+          title="Work"
+          sub="Your next move, the clock on it, and what's left tonight."
+          accent="var(--gl-cyan)"
+        />
 
         {top && focusAssignment ? (
           <div className="dw-grid">
@@ -213,7 +182,6 @@ export default async function WorkPage({
           <ReadingLoadToggle active={readingLoadView} />
           {top && <ReadingLoadBadge load={top.reading_load} />}
         </div>
-      </div>
-    </div>
+    </DashboardTabShell>
   );
 }

@@ -9,6 +9,8 @@ import {
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
 
+import { DashboardTabShell } from "@/components/ui/dashboard-tab-shell";
+import { TabHeading } from "@/components/ui/tab-heading";
 import { DashboardTabs } from "../dashboard-tabs";
 import { MoodCheckIn } from "../mood-check-in";
 import { SessionAdaptationCard } from "../session-adaptation-card";
@@ -88,46 +90,14 @@ export default async function ThinkPage({
           : "okay");
 
   return (
-    <div style={{ background: "var(--gl-bg-base)", minHeight: "100dvh" }}>
-      <div
-        style={{
-          maxWidth: "var(--layout-max-width)",
-          margin: "0 auto",
-          padding: "var(--space-17) var(--space-17) var(--space-21)",
-        }}
-      >
+    <DashboardTabShell>
         <DashboardTabs />
-
-        <header style={{ marginBottom: "var(--space-15)" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "var(--text-13)",
-              fontWeight: "var(--weight-700)",
-              letterSpacing: "var(--tracking-30)",
-              textTransform: "uppercase",
-              color: "var(--gl-purple-light)",
-            }}
-          >
-            How am I
-          </p>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "var(--text-40)",
-              fontWeight: "var(--weight-800)",
-              fontStyle: "italic",
-              textTransform: "uppercase",
-              color: "var(--gl-text-primary)",
-              lineHeight: "var(--leading-tight)",
-            }}
-          >
-            Think
-          </h1>
-          <p style={{ marginTop: "var(--space-2)", fontSize: "var(--text-15)", color: "var(--gl-text-overlay-60)" }}>
-            Check in, adapt tonight, and reflect on the week.
-          </p>
-        </header>
+        <TabHeading
+          kicker="How am I"
+          title="Think"
+          sub="Check in, adapt tonight, and reflect on the week."
+          accent="var(--gl-purple-light)"
+        />
 
         {/* Each of these self-gates: MoodCheckIn hides once today's check-in
             exists; SessionAdaptationCard hides when mood is good; SleepRecoveryCard
@@ -170,7 +140,6 @@ export default async function ThinkPage({
             See all notes →
           </Link>
         </div>
-      </div>
-    </div>
+    </DashboardTabShell>
   );
 }

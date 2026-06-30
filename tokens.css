@@ -569,6 +569,24 @@
   --gl-focus-from: var(--color-bg-focus-card-from);
   --gl-focus-to: var(--color-bg-focus-card-to);
 
+  /* Blue opacity family — rgba(91,155,255,...) used for neutral borders/buttons */
+  --gl-blue-14: rgba(91,155,255,.14);  /* nav button bg, due-date badge bg */
+  --gl-blue-20: rgba(91,155,255,.20);  /* card border */
+  --gl-blue-28: rgba(91,155,255,.28);  /* inactive dot indicator */
+  --gl-blue-40: rgba(91,155,255,.40);  /* header divider gradient */
+
+  /* Cyan — additional opacity steps */
+  --gl-cyan-60: rgba(41,208,255,.60);  /* energy button active state, upload icon stroke */
+
+  /* Background — dark translucent overlay (upload areas, photo slots) */
+  --gl-bg-overlay: rgba(4,8,20,.40);
+
+  /* Gradient — dark navy card (quest-carousel card backgrounds) */
+  --gradient-card-navy: linear-gradient(180deg, rgba(18,26,52,.96), rgba(10,16,36,.96));
+
+  /* Layout — WORK tab sidebar rail width (Dashboard Plan spec: 1fr / 380px) */
+  --layout-work-rail: 380px;
+
   /* Talk to Diana — lime accent + glow */
   --gl-lime: #a3e635;
   --gl-lime-45: rgba(163,230,53,.45);

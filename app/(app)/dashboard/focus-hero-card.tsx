@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Clock3, Gauge, Sparkles } from "lucide-react";
+import { HudCorners } from "@/components/ui/hud-corners";
 import { TimeBar } from "./time-bar";
 import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
@@ -21,18 +22,6 @@ type TtsConfig = {
   voice: string;
 };
 
-// HUD corner-bracket set — 4 absolute corners, 16px, 2px cyan (lobby motif).
-function HudCorners() {
-  const base = { position: "absolute" as const, width: 16, height: 16 };
-  return (
-    <>
-      <span aria-hidden="true" style={{ ...base, top: -1, left: -1, borderTop: "2px solid var(--gl-cyan-85)", borderLeft: "2px solid var(--gl-cyan-85)", borderRadius: "var(--radius-xs) 0 0 0" }} />
-      <span aria-hidden="true" style={{ ...base, top: -1, right: -1, borderTop: "2px solid var(--gl-cyan-85)", borderRight: "2px solid var(--gl-cyan-85)", borderRadius: "0 var(--radius-xs) 0 0" }} />
-      <span aria-hidden="true" style={{ ...base, bottom: -1, left: -1, borderBottom: "2px solid var(--gl-cyan-85)", borderLeft: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 0 var(--radius-xs)" }} />
-      <span aria-hidden="true" style={{ ...base, bottom: -1, right: -1, borderBottom: "2px solid var(--gl-cyan-85)", borderRight: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 var(--radius-xs) 0" }} />
-    </>
-  );
-}
 
 const chipStyle: React.CSSProperties = {
   display: "inline-flex",
