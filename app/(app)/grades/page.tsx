@@ -208,7 +208,12 @@ export default async function GradesPage() {
                 </p>
               </div>
             ))}
-            {insights.courses.length === 0 && <GradeSignalPreview mode="connected-empty" />}
+            {insights.courses.length === 0 && (
+              <div style={{ borderRadius: "var(--radius-card)", border: "1px dashed var(--gl-border-neutral)", padding: "var(--space-16)", display: "grid", gap: "var(--space-5)", textAlign: "center" }}>
+                <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>No Canvas grades yet</p>
+                <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", margin: 0 }}>Once your teachers post graded work in Canvas, your real scores show up here after the next sync.</p>
+              </div>
+            )}
           </div>
         </section>
 

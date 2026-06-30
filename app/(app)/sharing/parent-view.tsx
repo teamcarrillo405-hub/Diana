@@ -30,7 +30,7 @@ export async function ParentSharingView() {
       .eq("owner_id", ownerId)
       .gte("due_at", now.toISOString())
       .lte("due_at", next7Iso)
-      .not("status", "in", "(done,submitted,graded)"),
+      .not("status", "in", "(submitted,graded,abandoned)"),
     supabase
       .from("assignment_time_log")
       .select("started_at, ended_at")
@@ -71,6 +71,7 @@ export async function ParentSharingView() {
       supabase
         .from("flashcard_reviews")
         .select("id", { count: "exact", head: true })
+        .eq("owner_id", ownerId)
         .gte("reviewed_at", windowStartIso),
       supabase
         .from("assignments")

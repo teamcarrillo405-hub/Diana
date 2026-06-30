@@ -39,9 +39,9 @@ export default async function FuturePathPage() {
     ? await Promise.all([
         supabase.from("task_signals").select("id", { count: "exact", head: true }).eq("owner_id", user.id).eq("kind", "completed"),
         supabase.from("portfolio_items").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
-        supabase.from("assignments").select("id", { count: "exact", head: true }).neq("status", "submitted").neq("status", "graded").neq("status", "abandoned"),
-        supabase.from("assignments").select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)").neq("status", "submitted").neq("status", "graded").neq("status", "abandoned").order("due_at", { ascending: true, nullsFirst: false }),
-        supabase.from("task_signals").select("assignment_id, occurred_at").in("kind", ["started", "completed"]).gte("occurred_at", fourHoursAgoIso).order("occurred_at", { ascending: false }),
+        supabase.from("assignments").select("id", { count: "exact", head: true }).eq("owner_id", user.id).neq("status", "submitted").neq("status", "graded").neq("status", "abandoned"),
+        supabase.from("assignments").select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)").eq("owner_id", user.id).neq("status", "submitted").neq("status", "graded").neq("status", "abandoned").order("due_at", { ascending: true, nullsFirst: false }),
+        supabase.from("task_signals").select("assignment_id, occurred_at").eq("owner_id", user.id).in("kind", ["started", "completed"]).gte("occurred_at", fourHoursAgoIso).order("occurred_at", { ascending: false }),
         getEventIntentions(),
       ])
     : [{ count: 0 }, { count: 0 }, { count: 0 }, { data: [] }, { data: [] }, []];
