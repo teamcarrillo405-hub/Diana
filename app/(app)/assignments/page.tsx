@@ -399,28 +399,36 @@ export default async function AssignmentsPage() {
         </div>
       </div>
 
-      {/* Voice entry point — hero-style CTA to the general-purpose Diana agent (see docs/design/NAVIGATION.md) */}
+      {/* Voice entry point — slanted lime CTA to the general-purpose Diana agent (see docs/design/NAVIGATION.md) */}
       <Link
         href="/voice"
         style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "var(--space-4)",
+          display: "inline-block",
+          transform: "skewX(-10deg)",
           padding: "22px 40px",
           borderRadius: "var(--radius-hero)",
-          background: "var(--gl-cyan)",
-          boxShadow: "0 0 32px rgba(41,208,255,.45), 0 8px 28px rgba(0,0,0,.6)",
-          fontFamily: "var(--font-display)",
-          fontWeight: "var(--weight-800)",
-          fontSize: "var(--text-36)",
-          letterSpacing: "var(--tracking-04)",
-          textTransform: "uppercase",
-          color: "var(--gl-text-on-cyan)",
+          background: "var(--gl-lime)",
+          boxShadow: "0 0 32px var(--gl-lime-45), 0 8px 28px rgba(0,0,0,.6)",
           textDecoration: "none",
         }}
       >
-        <Mic size={30} />
-        Talk to Diana
+        <div
+          style={{
+            transform: "skewX(10deg)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-4)",
+            fontFamily: "var(--font-display)",
+            fontWeight: "var(--weight-800)",
+            fontSize: "var(--text-36)",
+            letterSpacing: "var(--tracking-04)",
+            textTransform: "uppercase",
+            color: "var(--gl-text-on-cyan)",
+          }}
+        >
+          <Mic size={30} />
+          Talk to Diana
+        </div>
       </Link>
 
       <section className="assignment-lane-stack" aria-label="Assignment priority lanes">

@@ -71,6 +71,9 @@ export function LobbyAudioNote() {
   return (
     <>
       <style>{`
+        /* Keyframe kept local so the recording pulse works wherever LobbyAudioNote
+           renders (dashboard AND /assignments), not just inside the lobby hero. */
+        @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
         .gl-record{transition:transform 140ms cubic-bezier(.23,1,.32,1),background .2s;}
         .gl-record:active{transform:scale(.97);}
       `}</style>
@@ -85,8 +88,8 @@ export function LobbyAudioNote() {
           display: "flex",
           alignItems: "center",
           gap: 7,
-          border: "1.5px solid rgba(120,150,220,.32)",
-          background: recording ? "rgba(255,55,55,.22)" : "rgba(120,150,220,.14)",
+          border: recording ? "1px solid var(--gl-red-28)" : "1px solid var(--gl-cyan-28)",
+          background: recording ? "var(--gl-red-20)" : "var(--gl-cyan-14)",
           animation: recording ? "gl-mic-pulse 1.5s ease-in-out infinite" : "none",
         }}
       >
@@ -95,7 +98,7 @@ export function LobbyAudioNote() {
           height="16"
           viewBox="0 0 24 24"
           fill="none"
-          stroke={recording ? "#ff4444" : "#cdd6f2"}
+          stroke={recording ? "var(--gl-red-icon)" : "var(--gl-cyan)"}
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -112,7 +115,7 @@ export function LobbyAudioNote() {
             fontSize: 15,
             letterSpacing: ".06em",
             textTransform: "uppercase",
-            color: recording ? "#ff4444" : "#cdd6f2",
+            color: recording ? "var(--gl-red-icon)" : "var(--gl-cyan)",
           }}
         >
           Note
