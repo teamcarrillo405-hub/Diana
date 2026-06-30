@@ -36,6 +36,23 @@
   outline-offset: 2px;
 }
 
+/* Universal reduced-motion safety net. Component-level rules below handle
+   specific cases, but this guarantees EVERY animation/transition — including
+   inline-styled motion on the gl-token pages (mission-card hovers, the mic
+   pulse, the lobby CTA, the More drawer, PageShell) — collapses when the user
+   asks for less motion. Reduced motion is a spec requirement for Diana's
+   anxiety-prone, neurodivergent audience, not a nicety. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Project-manager dashboard pass: one command, one queue, fewer competing panels. */
 .pm-dashboard {
   display: grid;
