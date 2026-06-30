@@ -21,9 +21,7 @@ import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import type { AssignmentStatus, AssignmentKind } from "@/lib/supabase/types";
 import {
   NexusKicker,
-  NexusMetric,
   NexusPageShell,
-  NexusPanel,
 } from "@/components/nexus/nexus-ui";
 import { DashboardTabs } from "../dashboard/dashboard-tabs";
 
@@ -157,125 +155,54 @@ export default async function AssignmentsPage() {
       {/* Top tab strip (replaces the left sidebar here) — destinations per docs/design/NAVIGATION.md */}
       <DashboardTabs />
 
-      {/* Mission Board handoff — scan-line keyframes + reduced-motion guard */}
-      <style>{`
-        @keyframes mb-scan { 0% { transform: translateY(-12px); } 100% { transform: translateY(150px); } }
-        @media (prefers-reduced-motion: reduce) { .mb-scan-line { animation: none !important; } }
-      `}</style>
-
-      {/* NexusPageHeader — eyebrow / title / description / Add assignment / NexusArcadeScene */}
+      {/* Header — title + Add assignment only */}
       <header
         style={{
-          display: "grid",
-          gridTemplateColumns: "minmax(0, 1fr) 300px",
-          gap: "var(--space-16)",
+          display: "flex",
+          flexWrap: "wrap",
           alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--space-12)",
           marginBottom: "var(--space-15)",
         }}
       >
-        <div>
-          <p
-            style={{
-              margin: "0 0 var(--space-3)",
-              fontFamily: "var(--font-display)",
-              fontWeight: "var(--weight-700)",
-              fontSize: "var(--text-13)",
-              letterSpacing: "var(--tracking-28)",
-              textTransform: "uppercase",
-              color: "var(--gl-cyan-70)",
-            }}
-          >
-            Mission board
-          </p>
-          <h1
-            style={{
-              margin: 0,
-              fontFamily: "var(--font-display)",
-              fontStyle: "italic",
-              fontWeight: "var(--weight-800)",
-              fontSize: "var(--text-46)",
-              lineHeight: "var(--leading-tight)",
-              letterSpacing: "var(--tracking-01)",
-              textTransform: "uppercase",
-              color: "var(--gl-text-primary)",
-            }}
-          >
-            This is not a pile.
-            <br />
-            It is an order.
-          </h1>
-          <p
-            style={{
-              margin: "var(--space-10) 0 0",
-              maxWidth: "560px",
-              fontSize: "var(--text-15)",
-              lineHeight: "var(--leading-relaxed)",
-              color: "var(--gl-text-overlay-60)",
-            }}
-          >
-            Assignments are grouped by what Grayson can do next: start, protect a due date, save proof, study, or park for later.
-          </p>
-          <div style={{ marginTop: "var(--space-12)" }}>
-            <Link
-              href="/assignments/new"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "var(--space-3)",
-                padding: "var(--space-9) var(--space-14)",
-                borderRadius: "var(--radius-option)",
-                background: "var(--gl-cyan)",
-                boxShadow: "0 0 28px var(--gl-cyan-30)",
-                fontFamily: "var(--font-display)",
-                fontWeight: "var(--weight-800)",
-                fontSize: "var(--text-17)",
-                letterSpacing: "var(--tracking-04)",
-                textTransform: "uppercase",
-                color: "var(--gl-text-on-cyan)",
-                textDecoration: "none",
-              }}
-            >
-              <FilePlus2 size={17} />
-              Add assignment
-            </Link>
-          </div>
-        </div>
-
-        {/* NexusArcadeScene — "priority stack" HUD motif */}
-        <div
+        <h1
           style={{
-            position: "relative",
-            height: "172px",
-            borderRadius: "var(--radius-card)",
-            border: "1px solid var(--gl-cyan-18)",
-            background: "linear-gradient(135deg, var(--gl-focus-from), var(--gl-focus-to))",
-            overflow: "hidden",
-            padding: "var(--space-12) var(--space-13)",
+            margin: 0,
+            fontFamily: "var(--font-display)",
+            fontStyle: "italic",
+            fontWeight: "var(--weight-800)",
+            fontSize: "var(--text-46)",
+            lineHeight: "var(--leading-tight)",
+            letterSpacing: "var(--tracking-01)",
+            textTransform: "uppercase",
+            color: "var(--gl-text-primary)",
           }}
         >
-          <span style={{ position: "absolute", left: -1, top: -1, width: 15, height: 15, borderLeft: "2px solid var(--gl-cyan-85)", borderTop: "2px solid var(--gl-cyan-85)", borderRadius: "2px 0 0 0" }} />
-          <span style={{ position: "absolute", right: -1, top: -1, width: 15, height: 15, borderRight: "2px solid var(--gl-cyan-85)", borderTop: "2px solid var(--gl-cyan-85)", borderRadius: "0 2px 0 0" }} />
-          <span style={{ position: "absolute", left: -1, bottom: -1, width: 15, height: 15, borderLeft: "2px solid var(--gl-cyan-85)", borderBottom: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 0 2px" }} />
-          <span style={{ position: "absolute", right: -1, bottom: -1, width: 15, height: 15, borderRight: "2px solid var(--gl-cyan-85)", borderBottom: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 2px 0" }} />
-          <span className="mb-scan-line" style={{ position: "absolute", left: 0, right: 0, top: 0, height: 2, background: "linear-gradient(90deg, transparent, var(--gl-cyan-70), transparent)", animation: "mb-scan 3.2s linear infinite" }} />
-          <p style={{ margin: "0 0 var(--space-8)", fontFamily: "var(--font-display)", fontWeight: "var(--weight-700)", fontSize: "var(--text-10)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-dim)" }}>
-            Priority stack
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
-            {[
-              { n: 1, w: "92%", tone: "var(--gl-cyan)" },
-              { n: 2, w: "74%", tone: "var(--gl-gold)" },
-              { n: 3, w: "58%", tone: "var(--gl-green)" },
-              { n: 4, w: "44%", tone: "var(--gl-blue)" },
-              { n: 5, w: "30%", tone: "var(--gl-purple)" },
-            ].map((bar) => (
-              <div key={bar.n} style={{ display: "flex", alignItems: "center", gap: "var(--space-4)" }}>
-                <span style={{ width: 12, fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-12)", color: bar.tone }}>{bar.n}</span>
-                <span style={{ height: 8, width: bar.w, borderRadius: "3px", background: bar.tone, opacity: 0.85 }} />
-              </div>
-            ))}
-          </div>
-        </div>
+          Mission Board
+        </h1>
+        <Link
+          href="/assignments/new"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "var(--space-3)",
+            padding: "var(--space-9) var(--space-14)",
+            borderRadius: "var(--radius-option)",
+            background: "var(--gl-cyan)",
+            boxShadow: "0 0 28px var(--gl-cyan-30)",
+            fontFamily: "var(--font-display)",
+            fontWeight: "var(--weight-800)",
+            fontSize: "var(--text-17)",
+            letterSpacing: "var(--tracking-04)",
+            textTransform: "uppercase",
+            color: "var(--gl-text-on-cyan)",
+            textDecoration: "none",
+          }}
+        >
+          <FilePlus2 size={17} />
+          Add assignment
+        </Link>
       </header>
 
       <div className="assignment-command-grid">
@@ -439,72 +366,63 @@ export default async function AssignmentsPage() {
           )}
         </div>
 
-        <NexusPanel className="assignment-metrics-panel" tone="purple">
-          <NexusMetric label="Start now" value={next ? 1 : 0} detail="top move" tone="cyan" />
-          <NexusMetric label="Due soon" value={dueSoonCount} detail="3-day window" tone="gold" />
-          <NexusMetric label="Needs proof" value={proofCount} detail="receipt lane" tone="pink" />
-        </NexusPanel>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
+          {[
+            { label: "Start now", value: next ? 1 : 0, detail: "top move", tone: "var(--gl-cyan)" },
+            { label: "Due soon", value: dueSoonCount, detail: "3-day window", tone: "var(--gl-gold)" },
+            { label: "Needs proof", value: proofCount, detail: "receipt lane", tone: "var(--gl-pink)" },
+          ].map((tile) => (
+            <div
+              key={tile.label}
+              style={{
+                position: "relative",
+                borderRadius: "var(--radius-panel)",
+                border: "1px solid var(--gl-border-neutral)",
+                background: "var(--gl-bg-card)",
+                backdropFilter: "blur(10px)",
+                WebkitBackdropFilter: "blur(10px)",
+                padding: "var(--space-13) var(--space-13) var(--space-12)",
+                overflow: "hidden",
+              }}
+            >
+              <span style={{ position: "absolute", left: 0, right: 0, top: 0, height: 3, background: tile.tone }} />
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "38px", lineHeight: 1, color: tile.tone }}>
+                {tile.value}
+              </div>
+              <div style={{ marginTop: "var(--space-3)", fontFamily: "var(--font-display)", fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", letterSpacing: "var(--tracking-04)", textTransform: "uppercase", color: "var(--gl-text-secondary)" }}>
+                {tile.label}
+              </div>
+              <div style={{ marginTop: "var(--space-1)", fontSize: "var(--text-12)", color: "var(--gl-text-dim)" }}>
+                {tile.detail}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Voice entry point — general-purpose Diana agent (see docs/design/NAVIGATION.md) */}
-      <section
+      {/* Voice entry point — hero-style CTA to the general-purpose Diana agent (see docs/design/NAVIGATION.md) */}
+      <Link
+        href="/voice"
         style={{
-          position: "relative",
-          display: "flex",
+          display: "inline-flex",
           alignItems: "center",
-          gap: "var(--space-11)",
-          flexWrap: "wrap",
-          borderRadius: "var(--radius-panel)",
-          border: "1px solid var(--gl-purple-30)",
-          background: "var(--gl-purple-12)",
-          padding: "var(--space-11) var(--space-13)",
-          overflow: "hidden",
+          gap: "var(--space-4)",
+          padding: "22px 40px",
+          borderRadius: "var(--radius-hero)",
+          background: "var(--gl-cyan)",
+          boxShadow: "0 0 32px rgba(41,208,255,.45), 0 8px 28px rgba(0,0,0,.6)",
+          fontFamily: "var(--font-display)",
+          fontWeight: "var(--weight-800)",
+          fontSize: "var(--text-36)",
+          letterSpacing: "var(--tracking-04)",
+          textTransform: "uppercase",
+          color: "var(--gl-text-on-cyan)",
+          textDecoration: "none",
         }}
       >
-        <span style={{ position: "absolute", left: -1, top: -1, width: 14, height: 14, borderLeft: "2px solid var(--gl-purple)", borderTop: "2px solid var(--gl-purple)", borderRadius: "2px 0 0 0" }} />
-        <span style={{ position: "absolute", right: -1, top: -1, width: 14, height: 14, borderRight: "2px solid var(--gl-purple)", borderTop: "2px solid var(--gl-purple)", borderRadius: "0 2px 0 0" }} />
-        <span style={{ position: "absolute", left: -1, bottom: -1, width: 14, height: 14, borderLeft: "2px solid var(--gl-purple)", borderBottom: "2px solid var(--gl-purple)", borderRadius: "0 0 0 2px" }} />
-        <span style={{ position: "absolute", right: -1, bottom: -1, width: 14, height: 14, borderRight: "2px solid var(--gl-purple)", borderBottom: "2px solid var(--gl-purple)", borderRadius: "0 0 2px 0" }} />
-
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "var(--space-4)",
-            fontFamily: "var(--font-display)",
-            fontWeight: "var(--weight-800)",
-            fontSize: "var(--text-14)",
-            letterSpacing: "var(--tracking-06)",
-            textTransform: "uppercase",
-            color: "var(--gl-purple-light)",
-          }}
-        >
-          <Mic size={16} />
-          Talk it through with Diana
-        </span>
-        <Link
-          href="/voice"
-          style={{
-            marginLeft: "auto",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "var(--space-3)",
-            padding: "var(--space-5) var(--space-11)",
-            borderRadius: "var(--radius-option)",
-            background: "var(--gl-purple)",
-            fontFamily: "var(--font-display)",
-            fontWeight: "var(--weight-800)",
-            fontSize: "var(--text-13)",
-            letterSpacing: "var(--tracking-04)",
-            textTransform: "uppercase",
-            color: "var(--gl-text-primary)",
-            textDecoration: "none",
-          }}
-        >
-          Start talking
-          <ArrowRight size={15} />
-        </Link>
-      </section>
+        <Mic size={30} />
+        Talk to Diana
+      </Link>
 
       {/* assignment-sort-panel — Why this order (single bordered row) */}
       <section
