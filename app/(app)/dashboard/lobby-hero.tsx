@@ -105,7 +105,7 @@ export function LobbyHero({
           style={{
             position: "relative",
             zIndex: 30,
-            maxWidth: 1440,
+            maxWidth: "100%",
             margin: "0 auto",
             height: 58,
             display: "flex",
@@ -160,7 +160,7 @@ export function LobbyHero({
         </div>
 
         {/* HERO ELEMENTS */}
-        <div className="gl-hero-content" style={{ position: "relative", zIndex: 2, maxWidth: 1440, margin: "0 auto", height: 660 }}>
+        <div className="gl-hero-content" style={{ position: "relative", zIndex: 2, maxWidth: "100%", margin: "0 auto", height: 660 }}>
 
           {/* Player photo slot — shows the uploaded cutout, or the upload prompt. */}
           <PlayerPhotoSlot src={photoUrl} />
