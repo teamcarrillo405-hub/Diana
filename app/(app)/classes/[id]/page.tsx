@@ -183,38 +183,10 @@ export default async function ClassDetailPage({
               >
                 AI mode: {cls.ai_mode ?? "green"}
               </Link>
-              {nextAssignment && (
-                <Link
-                  href={`/assignments/${nextAssignment.id}`}
-                  style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: theme.accent, color: "#04080f", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}
-                >
-                  Open next work
-                  <ArrowRight size={14} />
-                </Link>
-              )}
             </div>
           </header>
 
-          {/* Metrics panel */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-9)" }}>
-            {[
-              { label: "Open work", value: openAssignments.length, detail: "in this lane" },
-              { label: "Rulebricks", value: classRubrics.length, detail: "teacher rules" },
-              { label: "Concepts", value: concepts.length, detail: "mastery map" },
-              { label: "Sources", value: books.length, detail: "free texts" },
-            ].map((m) => (
-              <div key={m.label} style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12)" }}>
-                <p style={{ fontFamily: BODY, fontSize: "var(--text-10)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: "0 0 var(--space-3)" }}>{m.label}</p>
-                <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: "0 0 var(--space-2)" }}>{m.value}</p>
-                <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)", margin: 0 }}>{m.detail}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Next in lane + rulebricks panels */}
-        <div className="cd-panels">
-          {/* Next in lane */}
+          {/* Next in this lane — the focal "what do I do in this class now?" (replaces metric décor) */}
           <div style={{ borderRadius: "var(--radius-card)", border: `1px solid ${theme.accent}44`, background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-9)", alignContent: "start" }}>
             <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: theme.accent, margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
               <SlidersHorizontal size={13} />
@@ -242,9 +214,10 @@ export default async function ClassDetailPage({
               </div>
             )}
           </div>
+        </section>
 
-          {/* Rulebricks panel */}
-          <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-9)", alignContent: "start" }}>
+        {/* Rulebricks — teacher rules → checkable moves */}
+        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-9)", alignContent: "start" }}>
             <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-gold)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
               <ClipboardCheck size={13} />
               Rulebricks
@@ -271,8 +244,7 @@ export default async function ClassDetailPage({
                 <RubricForm classId={id} />
               </div>
             </details>
-          </div>
-        </div>
+        </section>
 
         {/* Syllabus — pasted + heuristically parsed key dates and policies */}
         <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
