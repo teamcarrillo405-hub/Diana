@@ -6,6 +6,7 @@ import {
   FilePlus2,
   Layers3,
   Mic,
+  ScanLine,
   ShieldCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -118,7 +119,7 @@ export default async function AssignmentsPage({
   const now = new Date();
   const fourHoursAgoIso = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
 
-  const [{ data: assignments }, { data: signals }, { data: dueCards }] = await Promise.all([
+  const [{ data: assignments }, { data: signals }, { data: dueCards }, { data: inboxItems }] = await Promise.all([
     supabase
       .from("assignments")
       .select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)")
@@ -134,6 +135,12 @@ export default async function AssignmentsPage({
       .select("id")
       .lte("due_at", new Date().toISOString())
       .order("due_at", { ascending: true }),
+    supabase
+      .from("inbox_items")
+      .select("id, raw, capture_mode")
+      .in("status", ["unclassified", "classified"])
+      .order("created_at", { ascending: false })
+      .limit(5),
   ]);
 
   const rows = (assignments ?? []) as AssignmentRow[];
@@ -423,6 +430,41 @@ export default async function AssignmentsPage({
           ))}
         </div>
       </div>
+
+      {/* Capture inbox — unclassified items waiting for sorting */}
+      {(inboxItems ?? []).length > 0 && (
+        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-08, rgba(255,210,74,.08))", padding: "var(--space-13) var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-8)", flexWrap: "wrap" }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-gold)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+              <ScanLine size={13} />
+              Capture inbox · {(inboxItems ?? []).length} waiting
+            </p>
+            <Link
+              href="/inbox"
+              style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-12)", fontWeight: "var(--weight-700)", color: "var(--gl-gold)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: "var(--space-2)" }}
+            >
+              See all <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div style={{ display: "grid", gap: "var(--space-4)" }}>
+            {(inboxItems ?? []).slice(0, 3).map((item) => (
+              <Link
+                key={item.id}
+                href={`/inbox/${item.id}`}
+                style={{ display: "flex", alignItems: "center", gap: "var(--space-8)", padding: "var(--space-9) var(--space-10)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", textDecoration: "none" }}
+              >
+                <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-gold)", flexShrink: 0 }}>
+                  {item.capture_mode === "photo" ? "Photo" : item.capture_mode === "voice" ? "Voice" : "Note"}
+                </span>
+                <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-13)", color: "var(--gl-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                  {item.raw.replace(/^\[Grayson demo\]\s*/i, "")}
+                </span>
+                <ArrowRight size={13} style={{ color: "var(--gl-text-muted)", flexShrink: 0 }} />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Time budget + due cards — right rail tools */}
       <div style={{ display: "grid", gap: "var(--space-9)" }}>

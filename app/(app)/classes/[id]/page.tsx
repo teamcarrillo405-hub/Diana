@@ -14,6 +14,8 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { deriveConceptSeeds, gapBridgeSuggestion, isWeakConceptName } from "@/lib/mastery/concepts";
 import { formatDueAt } from "@/lib/format";
+import { fetchCanvasGrades, fetchCanvasCourseScores } from "@/lib/lms/canvas";
+import { gradeInsights, type CourseGradeSnapshot } from "@/lib/grades/insights";
 import { RubricForm } from "./rubric-form";
 import { openStaxForClassName } from "@/lib/content/openstax";
 import { MasteryPanel, type MasteryConceptView } from "./mastery-panel";
@@ -73,7 +75,7 @@ export default async function ClassDetailPage({
     .single();
   if (!cls) notFound();
 
-  const [{ data: rubrics }, { data: assignments }] = await Promise.all([
+  const [{ data: rubrics }, { data: assignments }, { data: lmsConnections }] = await Promise.all([
     supabase
       .from("rubrics")
       .select("id, title, parse_status, created_at")
@@ -84,7 +86,32 @@ export default async function ClassDetailPage({
       .select("id, title, status, due_at")
       .eq("class_id", id)
       .order("due_at", { ascending: true, nullsFirst: false }),
+    supabase
+      .from("lms_connections")
+      .select("config")
+      .eq("provider", "canvas")
+      .order("created_at", { ascending: false })
+      .limit(1),
   ]);
+
+  type CanvasConfig = { base_url: string; token: string };
+  const canvasConfig = (lmsConnections?.[0]?.config ?? null) as CanvasConfig | null;
+  let classGrade: CourseGradeSnapshot | null = null;
+  if (canvasConfig?.base_url && canvasConfig?.token) {
+    try {
+      const [records, courseScores] = await Promise.all([
+        fetchCanvasGrades(canvasConfig),
+        fetchCanvasCourseScores(canvasConfig),
+      ]);
+      const { courses } = gradeInsights(records, courseScores);
+      const nameLower = cls.name.toLowerCase();
+      classGrade = courses.find((s) =>
+        s.courseName.toLowerCase().includes(nameLower) || nameLower.includes(s.courseName.toLowerCase())
+      ) ?? null;
+    } catch {
+      // Canvas unavailable — skip grade panel
+    }
+  }
   const classRubrics = (rubrics ?? []) as ClassRubric[];
   const classAssignments = (assignments ?? []) as ClassAssignment[];
   const openAssignments = classAssignments.filter((a) => !["submitted", "graded", "abandoned"].includes(a.status));
@@ -227,6 +254,34 @@ export default async function ClassDetailPage({
             </details>
           </div>
         </div>
+
+        {/* Grade panel — shown when Canvas is connected and a matching course is found */}
+        {classGrade && (
+          <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-green-28, rgba(54,224,122,.28))", background: "var(--gl-green-08, rgba(54,224,122,.08))", padding: "var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
+            <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-green)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+              <GraduationCap size={13} />
+              Current grade
+            </p>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-8)", flexWrap: "wrap" }}>
+              <div>
+                <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: 1, color: "var(--gl-green)", margin: 0 }}>
+                  {classGrade.currentScorePct !== null ? `${Math.round(classGrade.currentScorePct)}%` : "—"}
+                </p>
+                <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-secondary)", margin: "var(--space-3) 0 0" }}>
+                  {classGrade.gradedCount} graded item{classGrade.gradedCount === 1 ? "" : "s"} ·{" "}
+                  {classGrade.trend === "rising" ? "trending up" : classGrade.trend === "settling" ? "dipping slightly" : "holding steady"}
+                </p>
+              </div>
+              <Link
+                href="/grades"
+                style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-green-28, rgba(54,224,122,.28))", color: "var(--gl-green)", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}
+              >
+                Full grade view
+                <ArrowRight size={13} />
+              </Link>
+            </div>
+          </section>
+        )}
 
         {/* Mastery panel — client component */}
         {concepts.length > 0 && (
