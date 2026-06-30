@@ -44,7 +44,7 @@ export function ClassesGrid({ classes }: { classes: ClassCardData[] }) {
         }
       `}</style>
 
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "24px 34px 48px" }}>
+      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "24px 34px 48px" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 22 }}>
           <div

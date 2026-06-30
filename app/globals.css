@@ -1804,7 +1804,7 @@ img, svg, video, canvas, input, textarea, select {
 }
 
 .diana-page {
-  width: min(100%, 1880px);
+  width: min(100%, var(--layout-max-width));
   margin-inline: auto;
   padding-inline: clamp(1rem, 3vw, 3rem);
 }
@@ -4993,7 +4993,7 @@ body[data-experience-mode="future"] .future-wave-bar {
 }
 
 .signal-shell {
-  width: min(100%, 1880px);
+  width: min(100%, var(--layout-max-width));
   margin-inline: auto;
   padding-inline: clamp(1rem, 3vw, 4rem);
 }
@@ -5522,7 +5522,7 @@ body[data-experience-mode="future"] .future-wave-bar {
 }
 
 .signal-wide-shell {
-  width: min(100%, 1880px);
+  width: min(100%, var(--layout-max-width));
   margin-inline: auto;
   padding-inline: clamp(1rem, 3vw, 3rem);
 }
@@ -6173,7 +6173,7 @@ body[data-experience-mode="future"] .future-wave-bar {
 .diana-page,
 .signal-shell,
 .signal-wide-shell {
-  width: min(100%, 1880px);
+  width: min(100%, var(--layout-max-width));
   margin-inline: auto;
   padding-inline: clamp(1rem, 3vw, 4rem);
 }
@@ -9416,7 +9416,7 @@ body[data-experience-mode="future"] .future-wave-bar {
 .nexus-authenticated-field .app-command-frame > main:not(.signal-page):not(.student-portal-page),
 .nexus-authenticated-field .app-command-frame > section:not(.signal-page):not(.student-portal-page),
 .nexus-authenticated-field .app-command-frame > div:not(.diana-page):not(.student-portal-page) {
-  width: min(100%, 1880px);
+  width: min(100%, var(--layout-max-width));
   margin-inline: auto;
 }
 

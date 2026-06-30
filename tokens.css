@@ -375,7 +375,7 @@
      15. LAYOUT DIMENSIONS
      ============================================================ */
 
-  --layout-max-width:       1440px;  /* max-width for hero and classes content */
+  --layout-max-width:       1760px;  /* app-wide content max-width (hero, classes, tabs, all pages) */
   --layout-hero-bg-height:  718px;   /* background image / hero outer height */
   --layout-hero-height:     660px;   /* hero content container height */
   --layout-nav-height:      58px;    /* top navigation bar height */
