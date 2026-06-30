@@ -15,7 +15,6 @@ import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import type { AssignmentStatus, AssignmentKind } from "@/lib/supabase/types";
-import { NexusPageShell } from "@/components/nexus/nexus-ui";
 import { AppTopNav } from "../app-top-nav";
 
 type AssignmentRow = {
@@ -146,7 +145,7 @@ export default async function AssignmentsPage() {
   const proofCount = lanes.find((lane) => lane.title === "Needs proof")?.items.length ?? 0;
 
   return (
-    <NexusPageShell className="assignments-mission-page space-y-8">
+    <div style={{ background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
       {/* Shared top nav (replaces the left sidebar here) — destinations per docs/design/NAVIGATION.md */}
       <AppTopNav active="Work" />
 
@@ -432,7 +431,7 @@ export default async function AssignmentsPage() {
           <AssignmentLane key={lane.title} lane={lane} />
         ))}
       </section>
-    </NexusPageShell>
+    </div>
   );
 }
 

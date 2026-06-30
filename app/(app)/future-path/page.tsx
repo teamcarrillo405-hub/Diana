@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
 import { deriveFuturePath } from "@/lib/future-path/derive";
 import { FutureMapVisual } from "@/components/student-portal/future-map-visual";
+import { AppTopNav } from "../app-top-nav";
 
 const SF = "var(--font-display)";
 const BODY = "var(--font-body)";
@@ -33,6 +34,7 @@ export default async function FuturePathPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
+      <AppTopNav active="Future" />
       <style>{`
         .fp-stage { display: grid; gap: var(--space-13); }
         @media (min-width: 1024px) { .fp-stage { grid-template-columns: 0.7fr 1.3fr; align-items: start; } }

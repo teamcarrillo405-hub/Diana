@@ -4,6 +4,7 @@ import { ArrowRight, FileText, NotebookPen, Plus, Search, Sparkles, Tags } from 
 import { createClient } from "@/lib/supabase/server";
 import { snippetForQuery } from "@/lib/notes/related";
 import { NoteSynthesisPanel } from "./note-synthesis-panel";
+import { AppTopNav } from "../app-top-nav";
 
 const SF = "var(--font-display)";
 const BODY = "var(--font-body)";
@@ -43,6 +44,7 @@ export default async function NotesPage({
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
+      <AppTopNav active="Think" />
       <style>{`
         .nm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-9); }
         @media (max-width: 640px) { .nm-grid { grid-template-columns: 1fr; } }

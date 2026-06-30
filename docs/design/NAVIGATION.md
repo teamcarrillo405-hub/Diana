@@ -17,10 +17,10 @@ Each top tab points directly at the real, fully-built page once that page has be
 | Tab | Destination | Status |
 |---|---|---|
 | TODAY | `/dashboard` | Done — lobby hero + classes |
-| WORK | `/assignments` (Mission Board) | In progress |
-| THINK | `/notes` | Not started |
-| PROOF | `/proof` | Not started |
-| FUTURE | `/future-path` | Not started |
+| WORK | `/assignments` (Mission Board) | Done — Phase 3 |
+| THINK | `/notes` | Done — Phase 3 |
+| PROOF | `/proof` | Done — Phase 3 |
+| FUTURE | `/future-path` | Done — Phase 3 |
 | MORE | Overlay drawer — same grouped list as the old SideNav More drawer | Carries over as-is |
 
 ## Transition state (expected, not a bug)
