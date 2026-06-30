@@ -28,6 +28,7 @@ import { AssignmentReadingBlock } from "@/components/assignment-reading-block";
 import { IntentionPrompt } from "./intention-prompt";
 import { ApHelper } from "./ap-helper";
 import { ArtsHelper } from "./arts-helper";
+import { AppTopNav } from "../../app-top-nav";
 import { ReadingPanel } from "./reading-panel";
 import { ComputerScienceHelper } from "./computer-science-helper";
 import { ForeignLanguageHelper } from "./foreign-language-helper";
@@ -269,7 +270,9 @@ export default async function AssignmentDetailPage({
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)", padding: "var(--space-17) var(--space-17) var(--space-24)" }}>
+    <>
+      <AppTopNav active="Work" />
+      <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)", padding: "var(--space-17) var(--space-17) var(--space-24)" }}>
       <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", display: "grid", gap: "var(--space-12)" }}>
       <header style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-6)" }}>
         <Link
@@ -522,6 +525,7 @@ export default async function AssignmentDetailPage({
       <AiUsageLog interactions={aiLog ?? []} />
       </div>
     </div>
+    </>
   );
 }
 

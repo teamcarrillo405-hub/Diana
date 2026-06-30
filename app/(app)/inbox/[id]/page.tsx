@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmForm } from "./confirm-form";
+import { AppTopNav } from "../../app-top-nav";
 
 export default async function InboxItemPage({
   params,
@@ -50,7 +51,9 @@ export default async function InboxItemPage({
   // Already converted — show link to the assignment
   if (item.status === "converted" && item.assignment_id) {
     return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-6">
         <header className="space-y-1">
           <Link href="/inbox" className="text-xs text-muted hover:underline">
             ← Inbox
@@ -67,13 +70,16 @@ export default async function InboxItemPage({
           </Link>
         </div>
       </div>
+    </>
     );
   }
 
   // Dismissed
   if (item.status === "dismissed") {
     return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-6">
         <header className="space-y-1">
           <Link href="/inbox" className="text-xs text-muted hover:underline">
             ← Inbox
@@ -82,11 +88,14 @@ export default async function InboxItemPage({
         </header>
         <p className="text-sm text-muted">This item was dismissed.</p>
       </div>
+    </>
     );
   }
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link href="/inbox" className="text-xs text-muted hover:underline">
           ← Inbox
@@ -168,6 +177,7 @@ export default async function InboxItemPage({
         suggestedKind={hasAiSuggestion ? item.suggested_kind : null}
         suggestedDueAt={hasAiSuggestion ? item.suggested_due_at : null}
       />
-    </div>
+      </div>
+    </>
   );
 }

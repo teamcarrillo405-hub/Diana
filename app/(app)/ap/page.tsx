@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { nextMayExamDate } from "@/lib/ap/command";
 import { ApClient } from "./ap-client";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function ApPage() {
   const supabase = await createClient();
@@ -22,12 +23,15 @@ export default async function ApPage() {
   ]);
 
   return (
-    <div className="diana-page">
-      <ApClient
-        defaultExamDate={nextMayExamDate()}
-        plans={plans ?? []}
-        attempts={attempts ?? []}
-      />
-    </div>
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page">
+        <ApClient
+          defaultExamDate={nextMayExamDate()}
+          plans={plans ?? []}
+          attempts={attempts ?? []}
+        />
+      </div>
+    </>
   );
 }

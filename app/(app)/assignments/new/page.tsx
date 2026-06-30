@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NewAssignmentForm } from "./form";
 import type { CalibrationStats } from "@/lib/time-budget/calibration";
 import { parseTemplateRow, type AssignmentTemplate } from "@/lib/templates/templates";
+import { AppTopNav } from "../../app-top-nav";
 
 export default async function NewAssignmentPage({
   searchParams,
@@ -43,37 +44,43 @@ export default async function NewAssignmentPage({
 
   if (!classes || classes.length === 0) {
     return (
-      <div className="diana-page space-y-4">
-        <h1 className="text-display">Add an assignment</h1>
-        <p className="nexus-panel rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
-          You need a class first.{" "}
-          <Link href="/classes" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
-            Set one up
-          </Link>
-          .
-        </p>
-      </div>
+      <>
+        <AppTopNav active="Work" />
+        <div className="diana-page space-y-4">
+          <h1 className="text-display">Add an assignment</h1>
+          <p className="nexus-panel rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
+            You need a class first.{" "}
+            <Link href="/classes" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
+              Set one up
+            </Link>
+            .
+          </p>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="diana-page space-y-6">
-      <header>
-        <p className="nexus-kicker">Schoolwork</p>
-        <h1 className="text-display">Add an assignment</h1>
-        <Link
-          href="/assignments"
-          className="text-xs text-muted hover:underline"
-        >
-          ← All tasks
-        </Link>
-      </header>
-      <NewAssignmentForm
-        classes={classes}
-        calibrationMap={calibrationMap}
-        templates={parsedTemplates}
-        initialTemplateId={initialTemplateId ?? ""}
-      />
-    </div>
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-6">
+        <header>
+          <p className="nexus-kicker">Schoolwork</p>
+          <h1 className="text-display">Add an assignment</h1>
+          <Link
+            href="/assignments"
+            className="text-xs text-muted hover:underline"
+          >
+            ← All tasks
+          </Link>
+        </header>
+        <NewAssignmentForm
+          classes={classes}
+          calibrationMap={calibrationMap}
+          templates={parsedTemplates}
+          initialTemplateId={initialTemplateId ?? ""}
+        />
+      </div>
+    </>
   );
 }

@@ -4,6 +4,7 @@ import { displayNotificationPrefs, displayVerbosity } from "@/lib/privacy/export
 import { createClient } from "@/lib/supabase/server";
 import { inventoryForUser } from "./actions";
 import { PrivacyDashboard } from "./privacy-dashboard";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function ExportPage() {
   const supabase = await createClient();
@@ -23,7 +24,9 @@ export default async function ExportPage() {
   const inventory = await inventoryForUser(user.id);
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link href="/settings" className="text-xs text-muted hover:underline">
           Back to Settings
@@ -43,6 +46,7 @@ export default async function ExportPage() {
           verbosity: displayVerbosity(profile?.ai_verbosity_by_subject, klass.id),
         }))}
       />
-    </div>
+      </div>
+    </>
   );
 }

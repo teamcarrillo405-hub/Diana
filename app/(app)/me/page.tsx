@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Accessibility, Brain, Clock3, GraduationCap, Mic2, ShieldCheck } from "lucide-react";
 import { loadProfile } from "@/lib/profile";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function MePage() {
   const profile = await loadProfile();
@@ -22,7 +23,9 @@ export default async function MePage() {
   ];
 
   return (
-    <div className="diana-page space-y-8">
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page space-y-8">
       <section className="grid gap-6 py-2 lg:grid-cols-[0.8fr_1.2fr]">
         <header className="space-y-5">
           <p className="diana-kicker">
@@ -92,7 +95,8 @@ export default async function MePage() {
           )}
         </div>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
 

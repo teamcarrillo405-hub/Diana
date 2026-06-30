@@ -16,6 +16,7 @@ import { PushSettings } from "@/components/push-settings";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { labelsForInterests } from "@/lib/student-identity/interests";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function SettingsPage() {
   const profile = await loadProfile();
@@ -34,7 +35,9 @@ export default async function SettingsPage() {
   const playerPhotoUrl: string | null = profile.photo_url ?? null;
 
   return (
-    <div className="diana-page nexus-settings-page space-y-8">
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page nexus-settings-page space-y-8">
       <header className="nexus-settings-hero">
         <span className="nexus-kicker">System preferences</span>
         <h1 className="text-display">Settings</h1>
@@ -163,7 +166,8 @@ export default async function SettingsPage() {
           <SignOutButton />
         </section>
       </section>
-    </div>
+      </div>
+    </>
   );
 }
 

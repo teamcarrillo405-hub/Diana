@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { todayIsoDate } from "@/lib/wellness/health";
 import { WellnessClient } from "./wellness-client";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function WellnessPage() {
   const supabase = await createClient();
@@ -32,13 +33,16 @@ export default async function WellnessPage() {
   ]);
 
   return (
-    <div className="diana-page">
-      <WellnessClient
-        today={today}
-        activityLogs={activityLogs ?? []}
-        goals={goals ?? []}
-        sleepLogs={sleepLogs ?? []}
-      />
-    </div>
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page">
+        <WellnessClient
+          today={today}
+          activityLogs={activityLogs ?? []}
+          goals={goals ?? []}
+          sleepLogs={sleepLogs ?? []}
+        />
+      </div>
+    </>
   );
 }

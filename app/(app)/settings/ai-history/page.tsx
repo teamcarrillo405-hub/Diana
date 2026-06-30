@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { getAiHistory } from "./actions";
 import { CsvExportButton } from "./csv-export-button";
+import { AppTopNav } from "../../app-top-nav";
 
 export default async function AiHistoryPage() {
   const rows = await getAiHistory(100);
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="More" />
+      <div className="diana-page space-y-6">
       <header className="space-y-1">
         <Link href="/settings" className="text-xs text-muted hover:underline">
           ← Settings
@@ -69,7 +72,8 @@ export default async function AiHistoryPage() {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 }
 

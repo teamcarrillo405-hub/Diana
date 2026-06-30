@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import { TimerUi } from "./timer-ui";
 import { loadProfile } from "@/lib/profile";
 import type { SessionMood } from "@/lib/executive/session";
+import { AppTopNav } from "../app-top-nav";
 
 export default async function TimerPage({
   searchParams,
@@ -18,7 +19,9 @@ export default async function TimerPage({
       : null;
 
   return (
-    <div className="diana-page space-y-6">
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-6">
       <header className="space-y-1">
         <p className="nexus-kicker">Timer deck</p>
         <h1 className="text-display">Your session</h1>
@@ -41,6 +44,7 @@ export default async function TimerPage({
           <p className="text-xs text-muted">Someone else is studying right now too.</p>
         </div>
       </Link>
-    </div>
+      </div>
+    </>
   );
 }

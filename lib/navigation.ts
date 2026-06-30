@@ -23,7 +23,24 @@ export function usesAppTopNav(pathname: string): boolean {
     pathname === "/calendar" ||
     pathname === "/grades" ||
     pathname === "/inbox" ||
+    pathname.startsWith("/inbox/") ||
     pathname === "/proof" ||
-    pathname === "/future-path"
+    pathname === "/future-path" ||
+    pathname === "/flashcards" ||
+    pathname.startsWith("/flashcards/") ||
+    pathname === "/timer" ||
+    pathname === "/body-double" ||
+    pathname === "/break-down" ||
+    pathname === "/study-buddy" ||
+    pathname === "/study-groups" ||
+    pathname === "/voice" ||
+    pathname === "/quick-add" ||
+    pathname === "/portfolio" ||
+    pathname === "/me" ||
+    pathname === "/wellness" ||
+    pathname === "/export" ||
+    pathname === "/ap" ||
+    pathname === "/settings" ||
+    pathname.startsWith("/settings/")
   );
 }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
 import { ReviewSession } from "./review-session";
+import { AppTopNav } from "../../../app-top-nav";
 
 export default async function ReviewPage({
   params,
@@ -27,18 +28,21 @@ export default async function ReviewPage({
   // If the card isn't due (or doesn't exist), fall back to first due card or 404.
   if (startIdx === -1 && fullQueue.length === 0) {
     return (
-      <div className="diana-page space-y-6">
-        <h1 className="text-display">Review</h1>
-        <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-          <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
-          <Link
-            href="/flashcards"
-            className="mt-3 inline-block text-sm text-accent hover:underline"
-          >
-            ← Back to Study
-          </Link>
+      <>
+        <AppTopNav active="Work" />
+        <div className="diana-page space-y-6">
+          <h1 className="text-display">Review</h1>
+          <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+            <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
+            <Link
+              href="/flashcards"
+              className="mt-3 inline-block text-sm text-accent hover:underline"
+            >
+              ← Back to Study
+            </Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -50,17 +54,20 @@ export default async function ReviewPage({
   if (ordered.length === 0) notFound();
 
   return (
-    <div className="diana-page space-y-4">
-      <Link href="/flashcards" className="nexus-kicker text-xs text-muted hover:underline">
-        ← Study
-      </Link>
-      <ReviewSession
-        queue={ordered}
-        ttsProvider={profile?.tts_provider ?? "browser"}
-        ttsSpeed={Number(profile?.tts_speed ?? 1)}
-        ttsPitch={Number(profile?.tts_pitch ?? 1)}
-        ttsVoice={profile?.tts_voice ?? "nova"}
-      />
-    </div>
+    <>
+      <AppTopNav active="Work" />
+      <div className="diana-page space-y-4">
+        <Link href="/flashcards" className="nexus-kicker text-xs text-muted hover:underline">
+          ← Study
+        </Link>
+        <ReviewSession
+          queue={ordered}
+          ttsProvider={profile?.tts_provider ?? "browser"}
+          ttsSpeed={Number(profile?.tts_speed ?? 1)}
+          ttsPitch={Number(profile?.tts_pitch ?? 1)}
+          ttsVoice={profile?.tts_voice ?? "nova"}
+        />
+      </div>
+    </>
   );
 }
