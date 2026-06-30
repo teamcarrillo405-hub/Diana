@@ -126,9 +126,10 @@ The map above is the target. Current code reality as of this rewrite:
 - ✅ **Redundant pages deleted** — `/accessibility` + `/imports` (pure duplicates of Settings sections); inbound links repointed to `/settings`.
 - ✅ **Page-by-page migration** — AppTopNav added to all kept secondary pages and registered in `usesAppTopNav`: voice, quick-add, inbox/[id], flashcards (+new/review), timer, body-double, break-down (Work); study-buddy (Classes); study-groups, portfolio, me, wellness, export, ap, settings (+ai-history) (More). Also fixed previously-navless `/assignments/[id]`, `/assignments/new`, `/assignments/[id]/submit`.
 - ✅ **Templates folded in** — `/assignments/new` already had a "Start from a template" picker, so the standalone `/templates` gallery was pure redundancy; deleted + references cleaned.
-- ⬜ **Old SideNav/BottomNav retirement** — `components/nav.tsx` now renders on only **3** remaining pages: `/parent-share`, `/teacher-share` (deferred tabbed merge), `/insights` (admin). Once those are handled, delete `components/nav.tsx` + its render in `app/(app)/layout.tsx`.
+- ✅ **Sharing merge done** — `/sharing` tabbed page (Parents | Teachers); `/parent-share` + `/teacher-share` are now redirects.
+- ✅ **OLD NAV RETIRED — dual-nav system removed.** `components/nav.tsx` deleted; `SideNav`/`BottomNav` removed from `app/(app)/layout.tsx`. Every `(app)` page renders AppTopNav (or redirects) and is registered in `usesAppTopNav`. There is now exactly ONE navigation system app-wide. This closes the original "old design mixed with new design" problem.
 - ⬜ **Study-tools section on Work** — pages migrated; the consolidated section/links on `/assignments` not built yet.
-- ⬜ **Focus-session merge** (`/timer` + `/body-double`) and **Sharing merge** (`/parent-share` + `/teacher-share`) — both deferred per decision; migrated separately for now.
+- ⬜ **Focus-session merge** (`/timer` + `/body-double`) — deferred per decision; migrated separately for now.
 - ⬜ **Notes-into-class-hub migration** — `/notes` still standalone.
 - ⬜ **Mobile nav** — AppTopNav tabs are hidden under 900px (`.gl-nav-tabs { display:none }`); mobile currently has no top-nav tabs.
 
