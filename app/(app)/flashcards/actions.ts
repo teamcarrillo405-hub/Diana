@@ -13,7 +13,6 @@ const CreateInput = z.object({
   imageStorageKey: z.string().optional().nullable(),
 });
 
-const DeleteInput = z.object({ id: z.string().uuid() });
 
 export async function createFlashcard(
   input: z.infer<typeof CreateInput>,
@@ -106,24 +105,3 @@ async function resolveConceptForSourceNote({
   return data?.id ?? null;
 }
 
-export async function deleteFlashcard(
-  input: z.infer<typeof DeleteInput>,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const parsed = DeleteInput.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Invalid input." };
-
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, error: "Not signed in." };
-
-  const { error } = await supabase
-    .from("flashcards")
-    .delete()
-    .eq("id", parsed.data.id)
-    .eq("owner_id", user.id);
-
-  if (error) return { ok: false, error: error.message };
-  revalidatePath("/flashcards");
-  revalidatePath("/dashboard");
-  return { ok: true };
-}

@@ -639,6 +639,7 @@ export default async function DashboardPage({
         quests={questItems}
         focusHref={taskHref}
         photoUrl={playerPhotoUrl}
+        energy={energy}
       />
       <ReminderBanner items={reminderItems} />
       <ClassesGrid classes={classCardDataList} />

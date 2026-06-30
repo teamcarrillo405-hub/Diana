@@ -22,6 +22,8 @@ type LobbyHeroProps = {
   gameDay?: GameDay | null;
   focusHref: string;
   photoUrl?: string | null;
+  // Current energy ("low" | "medium" | "high") — drives the ENERGY CHECK selector.
+  energy?: string;
 };
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
@@ -34,6 +36,7 @@ export function LobbyHero({
   weekTotal,
   focusHref,
   photoUrl = null,
+  energy,
 }: LobbyHeroProps) {
   const xpPct = weekTotal > 0 ? Math.round((weekDone / weekTotal) * 100) : 0;
   const displayName = studentName.toUpperCase();
@@ -100,8 +103,8 @@ export function LobbyHero({
           {/* Player photo slot — shows the uploaded cutout, or the upload prompt. */}
           <PlayerPhotoSlot src={photoUrl} />
 
-          {/* ENERGY CHECK (top-right) — links to the THINK tab where energy is set */}
-          <Link className="gl-energy" href="/notes" aria-label="Check in on your energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8, textDecoration: "none", color: "#fff" }}>
+          {/* ENERGY CHECK (top-right) — each pill sets ?energy; the dashboard adapts and the active pill reflects current energy */}
+          <div className="gl-energy" style={{ position: "absolute", right: 34, top: 72, width: 320, zIndex: 8, color: "#fff" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "5px 14px", borderRadius: "8px 8px 0 0", background: "transparent", border: "1px solid rgba(41,208,255,.28)", borderBottom: "none", fontFamily: SF, fontWeight: 800, fontSize: 14, letterSpacing: ".12em", color: "rgba(41,208,255,.95)", textShadow: "0 0 12px rgba(41,208,255,.4)" }}>ENERGY CHECK</div>
             <div style={{ position: "relative", borderRadius: "0 12px 12px 12px", border: "1px solid rgba(41,208,255,.22)", background: "transparent", minHeight: 128, padding: "18px 18px 16px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
               <span aria-hidden="true" style={{ position: "absolute", left: -1, top: -1, width: 12, height: 12, borderLeft: "2px solid rgba(41,208,255,.8)", borderTop: "2px solid rgba(41,208,255,.8)", borderRadius: "2px 0 0 0" }} />
@@ -111,12 +114,38 @@ export function LobbyHero({
               <div style={{ fontFamily: SF, fontStyle: "italic", fontWeight: 800, fontSize: 26, lineHeight: ".95", textTransform: "uppercase", marginBottom: 5, color: "#fff", textShadow: "0 2px 10px rgba(0,0,0,.9)" }}>How&apos;s your energy?</div>
               <div style={{ fontSize: 14, color: "rgba(210,228,255,.9)", marginBottom: 14, textShadow: "0 1px 8px rgba(0,0,0,.9)" }}>We&apos;ll match your study plan to your energy</div>
               <div style={{ display: "flex", gap: 8 }}>
-                <div style={{ flex: 1, padding: "13px 0", borderRadius: 10, background: "rgba(255,255,255,.06)", border: "1.5px solid rgba(255,255,255,.15)", textAlign: "center", fontFamily: SF, fontWeight: 800, fontSize: 16, letterSpacing: ".06em", color: "rgba(200,210,230,.7)" }}>LOW</div>
-                <div style={{ flex: 1, padding: "13px 0", borderRadius: 10, background: "rgba(255,255,255,.1)", border: "1.5px solid rgba(255,255,255,.22)", textAlign: "center", fontFamily: SF, fontWeight: 800, fontSize: 16, letterSpacing: ".06em", color: "#fff" }}>OKAY</div>
-                <div style={{ flex: 1, padding: "13px 6px", borderRadius: 10, background: "rgba(41,208,255,.15)", border: "1.5px solid rgba(41,208,255,.6)", textAlign: "center", fontFamily: SF, fontWeight: 800, fontSize: 15, letterSpacing: ".06em", color: "#29d0ff", boxShadow: "0 0 14px rgba(41,208,255,.2)", whiteSpace: "nowrap" }}>LOCKED IN</div>
+                {([{ key: "low", label: "LOW" }, { key: "medium", label: "OKAY" }, { key: "high", label: "LOCKED IN" }] as const).map(({ key, label }) => {
+                  const active = energy === key;
+                  return (
+                    <Link
+                      key={key}
+                      href={`/dashboard?energy=${key}`}
+                      aria-pressed={active}
+                      aria-label={`Set energy to ${label}`}
+                      style={{
+                        flex: 1,
+                        padding: "13px 6px",
+                        borderRadius: 10,
+                        textAlign: "center",
+                        textDecoration: "none",
+                        fontFamily: SF,
+                        fontWeight: 800,
+                        fontSize: label === "LOCKED IN" ? 15 : 16,
+                        letterSpacing: ".06em",
+                        whiteSpace: "nowrap",
+                        background: active ? "rgba(41,208,255,.15)" : "rgba(255,255,255,.06)",
+                        border: active ? "1.5px solid rgba(41,208,255,.6)" : "1.5px solid rgba(255,255,255,.15)",
+                        color: active ? "#29d0ff" : "rgba(200,210,230,.7)",
+                        boxShadow: active ? "0 0 14px rgba(41,208,255,.2)" : "none",
+                      }}
+                    >
+                      {label}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
-          </Link>
+          </div>
 
           {/* Title + Next Move (mid-left) */}
           <div className="gl-title" style={{ position: "absolute", left: 34, bottom: 120, zIndex: 8 }}>
