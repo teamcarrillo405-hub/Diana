@@ -1,11 +1,7 @@
-import Link from "next/link";
-import { Suspense } from "react";
 import { cookies } from "next/headers";
-import { GradeMoveCard } from "./grade-move-card";
 import { LobbyHero } from "./lobby-hero";
 import { ClassesGrid, type ClassCardData } from "./classes-grid";
 import type { QuestItem } from "./quest-carousel";
-import { CalendarClock } from "lucide-react";
 import { nextUpcomingTest } from "@/lib/test-prep/plan";
 import { firstWeekJourney } from "@/lib/journey/first-week";
 import { createClient } from "@/lib/supabase/server";
@@ -15,17 +11,7 @@ import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { formatDueAt } from "@/lib/format";
 import { KIND_LABEL } from "@/lib/checklists/templates";
 import { computeNightBudget } from "@/lib/time-budget/compute";
-import { TokenBudgetBanner } from "./token-budget-banner";
-import { ReadingLoadToggle } from "./reading-load-toggle";
 import { getEventIntentions, getReminderItems } from "./actions";
-import { EveningPlanning } from "./evening-planning";
-import { DoneToday } from "./done-today";
-import { ReminderBanner } from "./reminder-banner";
-import { BurnoutCue } from "./burnout-cue";
-import { MoodCheckIn } from "./mood-check-in";
-import { SessionAdaptationCard } from "./session-adaptation-card";
-import { WeeklyReflection } from "./weekly-reflection";
-import { SleepRecoveryCard } from "./sleep-recovery-card";
 import {
   burnoutSignal,
   sessionAdaptationForMood,
@@ -36,15 +22,8 @@ import {
   energyFromBody,
   readinessFromSignalValue,
 } from "@/lib/support/policy";
-import { StudentStateCard } from "@/components/student-state-card";
 import type { DianaOrbState } from "@/components/signal/clarity-orb";
-import {
-  LaunchSequence,
-  StudentTodayCommandCenter,
-  type SubjectSignal,
-  SupportCueDrawer,
-  TonightDrawer,
-} from "@/components/student-portal/student-today";
+import { type SubjectSignal } from "@/components/student-portal/student-today";
 import { buildStudentStateModel, sourceAnchorsFromAssignment } from "@/lib/student-state/model";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import type { AssignmentStatus } from "@/lib/supabase/types";
@@ -714,118 +693,6 @@ export default async function DashboardPage({
           focusHref={taskHref}
         />
         <ClassesGrid classes={classCardDataList} />
-      </div>
-
-      <div className="diana-page student-today-page" data-nexus-mode={nexusMode}>
-      <StudentTodayCommandCenter
-        studentName={profile?.display_name || "there"}
-        taskTitle={taskTitle}
-        nextMove={taskNextMove}
-        href={taskHref}
-        minutes={taskMinutes}
-        reason={taskReason}
-        missionChannel={missionChannel}
-        missionType={missionType}
-        missionLoadLabel={missionLoadLabel}
-        missionProofLabel={missionProofLabel}
-        doneTodayCount={doneTodayCount}
-        capturedTodayCount={capturedTodayCount}
-        readyTodayCount={ranked.length}
-        submittedTodayCount={submittedTodayCount}
-        needsCheckCount={needsCheckCount}
-        leftTodayCount={ranked.length}
-        whyReasons={top?.reasons ?? []}
-        brainState={brainState}
-        readingControl={<ReadingLoadToggle active={isReadingLoadView} />}
-        subjectSignals={subjectSignals}
-        subjectCount={subjectCount || subjectSignals.length}
-        bodySupportTitle={bodySupportTitle}
-        bodySupportDetail={bodySupportDetail}
-        bodySupportHref={bodySupportHref}
-        styleMode={nexusMode}
-        fullModeHref={dashboardHref({ energy, brain: brainState, mode: "full", readingLoad: isReadingLoadView })}
-        calmModeHref={dashboardHref({ energy, brain: brainState, mode: "calm-light", readingLoad: isReadingLoadView })}
-      />
-
-      <LaunchSequence journey={journey} />
-
-      <section className="pm-secondary-stack" aria-label="Planning context">
-      {(() => {
-        const upcomingTest = nextUpcomingTest(assignments ?? [], now);
-        if (!upcomingTest?.due_at) return null;
-        const days = Math.max(
-          0,
-          Math.round(
-            (new Date(new Date(upcomingTest.due_at).toDateString()).getTime() -
-              new Date(now.toDateString()).getTime()) /
-              86_400_000,
-          ),
-        );
-        return (
-          <Link
-            href={`/assignments/${(upcomingTest as { id: string }).id}`}
-            className="pm-test-plan-card touch-target"
-          >
-            <CalendarClock size={17} className="mt-0.5 shrink-0 text-brand" />
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold">
-                {upcomingTest.title}
-                <span className="font-normal text-muted">
-                  {" "}· {days === 0 ? "today" : days === 1 ? "tomorrow" : `in ${days} days`}
-                </span>
-              </span>
-              <span className="mt-0.5 block text-xs text-muted">
-                A day-by-day prep plan is ready. Practice early, light recall the night before.
-              </span>
-            </span>
-          </Link>
-        );
-      })()}
-
-      <Suspense fallback={null}>
-        <GradeMoveCard />
-      </Suspense>
-
-        {studentStateModel && (
-          <details className="today-drawer pm-support-rationale">
-            <summary className="touch-target">
-              <span>Support reasoning</span>
-              <small>Open</small>
-            </summary>
-            <div className="today-drawer-content">
-              <StudentStateCard model={studentStateModel} title="Why this support level" />
-            </div>
-          </details>
-        )}
-      </section>
-
-      <SupportCueDrawer>
-        <DoneToday count={doneTodayCount} />
-        <ReminderBanner items={reminderItems} />
-        <MoodCheckIn
-          visible={shouldShowMoodCheckIn({
-            disabled: profile?.mood_checkin_disabled,
-            lastCheckInAt: profile?.last_mood_checkin_at,
-            now,
-          })}
-        />
-        <SessionAdaptationCard adaptation={adaptation} />
-        <BurnoutCue show={burnout.show} message={burnout.message} />
-        <SleepRecoveryCard message={sleepAdjustment.message} />
-        {profile && <TokenBudgetBanner profile={profile} />}
-        <EveningPlanning intentions={eveningIntentions} />
-        <WeeklyReflection
-          lastReflectedAt={profile?.last_weekly_reflection_at ?? null}
-          mood={profile?.session_mood ?? null}
-        />
-      </SupportCueDrawer>
-
-      <TonightDrawer
-        totalMinutes={budget.totalMinutes}
-        items={budget.items}
-        dueCount={dueCount}
-        firstCardId={firstDueId}
-      />
       </div>
     </div>
   );
