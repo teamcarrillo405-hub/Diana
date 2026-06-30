@@ -33,7 +33,7 @@ export function EnergyPicker({ currentBrain }: { currentBrain: DianaOrbState }) 
           return (
             <Link
               key={brain}
-              href={`/dashboard?energy=${energy}&brain=${brain}`}
+              href={`/dashboard/think?energy=${energy}&brain=${brain}`}
               data-brain-state={brain}
               aria-current={active ? "true" : undefined}
               style={{
