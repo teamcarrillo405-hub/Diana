@@ -9417,6 +9417,21 @@ body[data-experience-mode="future"] .future-wave-bar {
   backdrop-filter: blur(22px);
 }
 
+/* ── gl-token accent bridge (visual transition-state pass) ──────────────────
+   The authenticated app's older body components (assignment helpers, settings
+   panels, study-groups, etc.) use the legacy utility classes text-accent /
+   bg-accent / text-brand, which resolve to --accent / --brand. In the dark
+   theme those are PURPLE, clashing with the gl-token pages' CYAN. The old dark
+   card/text/border values are already gl-aligned, so the only mismatch is the
+   accent. Remap accent + brand to gl cyan, scoped to the authenticated shell
+   only — the public landing and auth pages are outside .nexus-authenticated-field
+   and keep their own design. One rule aligns every legacy component at once. */
+.nexus-authenticated-field {
+  --accent: 41 208 255;        /* gl-cyan #29d0ff, was 167 139 250 (purple) */
+  --brand: 41 208 255;         /* gl-cyan */
+  --brand-strong: 41 208 255;  /* gl-cyan */
+}
+
 .nexus-authenticated-field .app-command-frame > :is(main, section, div) {
   color: var(--nexus-text);
 }
