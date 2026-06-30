@@ -17,6 +17,7 @@ export function LobbyAudioNote() {
   const [recording, setRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const recognitionRef = useRef<SRInstance | null>(null);
   const shouldRecordRef = useRef(false);
 
@@ -52,6 +53,7 @@ export function LobbyAudioNote() {
     recognitionRef.current = r;
     setRecording(true);
     setTranscript("");
+    setSaveError(null);
   }
 
   async function stopAudio() {
@@ -70,8 +72,14 @@ export function LobbyAudioNote() {
     // Save the voice transcript to the capture inbox; saveInboxItem also kicks
     // off AI classification so it lands with a suggested class/kind/due.
     setSaving(true);
-    await saveInboxItem({ raw: text, captureMode: "voice" });
+    const result = await saveInboxItem({ raw: text, captureMode: "voice" });
     setSaving(false);
+    if (!result.ok) {
+      // Don't close — surface the failure so the transcript isn't silently lost.
+      setSaveError(result.error || "Could not save your note. Try again.");
+      return;
+    }
+    setSaveError(null);
     setRecording(false);
     setTranscript("");
   }
@@ -82,6 +90,7 @@ export function LobbyAudioNote() {
     recognitionRef.current = null;
     setRecording(false);
     setTranscript("");
+    setSaveError(null);
   }
 
   const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
@@ -227,6 +236,12 @@ export function LobbyAudioNote() {
             >
               {transcript || "Start speaking…"}
             </div>
+
+            {saveError && (
+              <div role="alert" style={{ width: "100%", fontFamily: SF, fontSize: 14, letterSpacing: ".03em", color: "#ffb4b4", textAlign: "center" }}>
+                {saveError}
+              </div>
+            )}
 
             <div style={{ display: "flex", gap: 12 }}>
               <button

@@ -29,7 +29,6 @@ export function usesAppTopNav(pathname: string): boolean {
     pathname === "/flashcards" ||
     pathname.startsWith("/flashcards/") ||
     pathname === "/timer" ||
-    pathname === "/body-double" ||
     pathname === "/break-down" ||
     pathname === "/study-buddy" ||
     pathname === "/study-groups" ||

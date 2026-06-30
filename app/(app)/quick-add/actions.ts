@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { triggerClassification } from "../inbox/[id]/actions";
 
@@ -39,6 +40,12 @@ export async function saveInboxItem(
   // Kick off async AI classification (vision for photos, text otherwise) so the
   // "Diana read" suggestions populate. Fire-and-forget — never blocks capture.
   void triggerClassification(data.id);
+
+  // Refresh the surfaces that show capture counts so a new item appears without
+  // a manual navigation (dashboard "captured today", Work inbox callout, inbox).
+  revalidatePath("/dashboard");
+  revalidatePath("/assignments");
+  revalidatePath("/inbox");
 
   return { ok: true, id: data.id };
 }

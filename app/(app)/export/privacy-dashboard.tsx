@@ -92,11 +92,15 @@ export function PrivacyDashboard({
       return;
     }
     startTransition(async () => {
-      const encrypted = JSON.parse(await file.text()) as EncryptedPayload;
-      const plain = await decryptText(encrypted, passphrase);
-      const parsed = JSON.parse(plain) as { profile?: unknown };
-      const result = await importProfileBackup({ profile: parsed.profile });
-      setMessage(result.ok ? "Profile backup imported." : result.error);
+      try {
+        const encrypted = JSON.parse(await file.text()) as EncryptedPayload;
+        const plain = await decryptText(encrypted, passphrase);
+        const parsed = JSON.parse(plain) as { profile?: unknown };
+        const result = await importProfileBackup({ profile: parsed.profile });
+        setMessage(result.ok ? "Profile backup imported." : result.error);
+      } catch {
+        setMessage("Could not read that backup — check the file and passphrase.");
+      }
     });
   }
 

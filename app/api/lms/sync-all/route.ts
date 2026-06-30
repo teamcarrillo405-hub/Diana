@@ -1,9 +1,10 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { fetchCanvasAssignments } from "@/lib/lms/canvas";
+import { fetchCanvasAssignments, getValidCanvasToken } from "@/lib/lms/canvas";
 import { fetchGitLabAssignments } from "@/lib/lms/gitlab";
 import { fetchIcsAssignments } from "@/lib/lms/ics";
+import { getValidGoogleToken, fetchClassroomAssignments, type GoogleClassroomConfig } from "@/lib/lms/google";
 import { syncLmsAssignments } from "@/lib/lms/sync";
 import type { LmsProvider, NormalizedAssignment, SyncResult } from "@/lib/lms/types";
 import { createClient } from "@/lib/supabase/server";
@@ -14,92 +15,40 @@ type Connection = {
   config: Record<string, unknown>;
 };
 
-type ClassroomDate = { year: number; month: number; day: number };
-type ClassroomTime = { hours?: number; minutes?: number };
 type Course = { id: string; name: string };
-type CourseWork = {
-  id: string;
-  title: string;
-  description?: string;
-  dueDate?: ClassroomDate;
-  dueTime?: ClassroomTime;
-  alternateLink?: string;
-};
-type Announcement = {
-  id: string;
-  text?: string;
-  alternateLink?: string;
-};
+type Announcement = { id: string; text?: string; alternateLink?: string };
 
-function reconstructDueIso(d?: ClassroomDate, t?: ClassroomTime): string | null {
-  if (!d) return null;
-  return new Date(Date.UTC(d.year, d.month - 1, d.day, t?.hours ?? 23, t?.minutes ?? 59)).toISOString();
-}
-
-async function fetchJson<T>(url: string, token: string): Promise<T> {
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-  });
+async function classroomGet<T>(url: string, token: string): Promise<T> {
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } });
   if (!res.ok) throw new Error(`Classroom request to ${url} returned ${res.status}`);
   return (await res.json()) as T;
 }
 
-async function fetchClassroomAssignments(
+async function importClassroomAnnouncements(
+  courses: Course[],
   token: string,
   ownerId: string,
   supabase: Awaited<ReturnType<typeof createClient>>,
-): Promise<{ items: NormalizedAssignment[]; skipped: number }> {
-  const coursesResp = await fetchJson<{ courses?: Course[] }>(
-    "https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE",
-    token,
-  );
-  const courses = coursesResp.courses ?? [];
-  const items: NormalizedAssignment[] = [];
-  let skipped = 0;
-
+): Promise<void> {
   for (const course of courses) {
-    const workResp = await fetchJson<{ courseWork?: CourseWork[] }>(
-      `https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`,
-      token,
-    );
-    for (const work of workResp.courseWork ?? []) {
-      const due = reconstructDueIso(work.dueDate, work.dueTime);
-      if (!due) {
-        skipped += 1;
-        continue;
-      }
-      items.push({
-        external_id: work.id,
-        title: work.title,
-        description: work.description ?? null,
-        due_at: due,
-        external_source: "google_classroom",
-        external_url: work.alternateLink ?? null,
-      });
-    }
-
-    const announcementsResp = await fetchJson<{ announcements?: Announcement[] }>(
+    const resp = await classroomGet<{ announcements?: Announcement[] }>(
       `https://classroom.googleapis.com/v1/courses/${course.id}/announcements`,
       token,
     ).catch(() => ({ announcements: [] }));
-    const announcements = (announcementsResp.announcements ?? [])
-      .filter((announcement) => announcement.text?.trim())
-      .slice(0, 10);
+    const announcements = (resp.announcements ?? []).filter((a) => a.text?.trim()).slice(0, 10);
     if (announcements.length > 0) {
-      await supabase.from("inbox_items").insert(announcements.map((announcement) => ({
+      await supabase.from("inbox_items").insert(announcements.map((a) => ({
         owner_id: ownerId,
         raw: [
           `Google Classroom announcement from ${course.name}`,
-          announcement.text,
-          announcement.alternateLink ? `Link: ${announcement.alternateLink}` : "",
+          a.text,
+          a.alternateLink ? `Link: ${a.alternateLink}` : "",
         ].filter(Boolean).join("\n"),
         capture_mode: "text",
         status: "unclassified",
       })));
     }
   }
-
-  return { items, skipped };
 }
 
 export async function POST() {
@@ -121,16 +70,45 @@ export async function POST() {
     try {
       let fetched: { items: NormalizedAssignment[]; skipped: number };
       if (connection.provider === "canvas") {
-        const cfg = connection.config as { base_url?: string; token?: string };
+        const cfg = connection.config as { base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
         if (!cfg.base_url || !cfg.token) throw new Error("Canvas connection is missing credentials");
-        fetched = await fetchCanvasAssignments({ base_url: cfg.base_url, token: cfg.token });
+        const valid = await getValidCanvasToken({
+          base_url: cfg.base_url,
+          token: cfg.token,
+          oauth: cfg.oauth,
+          refresh_token: cfg.refresh_token,
+          expires_at: cfg.expires_at,
+        });
+        if (valid.refreshed) {
+          await supabase
+            .from("lms_connections")
+            .update({ config: { ...cfg, token: valid.refreshed.token, expires_at: valid.refreshed.expires_at } })
+            .eq("id", connection.id);
+        }
+        fetched = await fetchCanvasAssignments({ base_url: cfg.base_url, token: valid.token });
       } else if (connection.provider === "ics") {
         const cfg = connection.config as { url?: string };
         if (!cfg.url) throw new Error("Calendar connection is missing its URL");
         fetched = await fetchIcsAssignments(cfg.url);
       } else if (connection.provider === "google_classroom") {
-        if (!session?.provider_token) throw new Error("Google Classroom session needs to be refreshed");
-        fetched = await fetchClassroomAssignments(session.provider_token, user.id, supabase);
+        const cfg = connection.config as GoogleClassroomConfig;
+        let token: string | null = null;
+        const valid = await getValidGoogleToken(cfg);
+        if (valid) {
+          token = valid.token;
+          if (valid.refreshed) {
+            await supabase
+              .from("lms_connections")
+              .update({ config: { ...cfg, ...valid.refreshed } })
+              .eq("id", connection.id);
+          }
+        } else {
+          token = session?.provider_token ?? null;
+        }
+        if (!token) throw new Error("Google Classroom session needs to be refreshed");
+        const gc = await fetchClassroomAssignments(token);
+        fetched = { items: gc.items, skipped: gc.skipped };
+        await importClassroomAnnouncements(gc.courses, token, user.id, supabase);
       } else if (connection.provider === "gitlab") {
         fetched = await fetchGitLabAssignments(connection.config as {
           project: string;

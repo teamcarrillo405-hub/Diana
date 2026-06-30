@@ -152,8 +152,8 @@ export default async function FuturePathPage() {
 
           {/* Future cards grid */}
           <div className="fp-cards">
-            <FutureCard icon={Map} title="My college map" body="Grade-based steps from habits and interests to applications and decisions." href="/future-path" />
-            <FutureCard icon={FileText} title="My application builder" body="Activities, essay ideas, recommendation asks, FAFSA, and scholarship tasks." href="/future-path" />
+            <FutureCard icon={Map} title="My college map" body="Grade-based steps from habits and interests to applications and decisions." comingSoon />
+            <FutureCard icon={FileText} title="My application builder" body="Activities, essay ideas, recommendation asks, FAFSA, and scholarship tasks." comingSoon />
             <FutureCard icon={ShieldCheck} title="My proof folder" body={`${model.proofCount} completed proof points and ${model.portfolioItemCount} portfolio items can support essays and conversations.`} href="/proof" />
             <FutureCard icon={Landmark} title="My support plan" body="What helps me learn, how I ask for help, and what I need before due dates." href="/me" />
             <FutureCard icon={GraduationCap} title="AP exam prep" body="Track AP exam plans, goal score bands, and practice attempts as exam day approaches." href="/ap" />
@@ -193,12 +193,10 @@ export default async function FuturePathPage() {
   );
 }
 
-function FutureCard({ icon: Icon, title, body, href }: { icon: ElementType; title: string; body: string; href: string }) {
-  return (
-    <Link
-      href={href}
-      style={{ display: "block", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", textDecoration: "none", transition: "border-color 180ms ease, background 180ms ease" }}
-    >
+function FutureCard({ icon: Icon, title, body, href, comingSoon = false }: { icon: ElementType; title: string; body: string; href?: string; comingSoon?: boolean }) {
+  const cardStyle = { display: "block", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", textDecoration: "none", transition: "border-color 180ms ease, background 180ms ease" } as const;
+  const inner = (
+    <>
       <Icon size={19} style={{ color: "var(--gl-gold)" }} aria-hidden="true" />
       <h3 style={{ fontFamily: SF, fontSize: "var(--text-22)", fontWeight: "var(--weight-800)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: "var(--space-10) 0 var(--space-5)" }}>
         {title}
@@ -206,9 +204,13 @@ function FutureCard({ icon: Icon, title, body, href }: { icon: ElementType; titl
       <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-muted)", margin: "0 0 var(--space-10)" }}>
         {body}
       </p>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", fontFamily: "var(--font-body)", fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", color: "var(--gl-gold)" }}>
-        Open <ArrowRight size={13} />
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", fontFamily: "var(--font-body)", fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", color: comingSoon ? "var(--gl-text-muted)" : "var(--gl-gold)" }}>
+        {comingSoon ? "Coming soon" : <>Open <ArrowRight size={13} /></>}
       </span>
-    </Link>
+    </>
   );
+  if (comingSoon || !href) {
+    return <div style={{ ...cardStyle, opacity: 0.6 }} aria-disabled="true">{inner}</div>;
+  }
+  return <Link href={href} style={cardStyle}>{inner}</Link>;
 }

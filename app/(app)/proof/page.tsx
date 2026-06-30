@@ -72,10 +72,10 @@ export default async function ProofPage() {
     supabase.from("study_artifacts").select("id, title, artifact_type, source_anchor_count, created_at").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(4),
     supabase.from("task_signals").select("id, occurred_at, assignments(title, kind)").eq("owner_id", user.id).eq("kind", "completed").order("occurred_at", { ascending: false }).limit(5),
     supabase.from("portfolios").select("id, title, description, portfolio_items(id, title, reflection_text, created_at)").eq("owner_id", user.id).order("updated_at", { ascending: false }).limit(3),
-    supabase.from("task_signals").select("id").eq("kind", "completed").gte("occurred_at", todayStart.toISOString()),
+    supabase.from("task_signals").select("id").eq("owner_id", user.id).eq("kind", "completed").gte("occurred_at", todayStart.toISOString()),
     supabase.from("task_signals").select("occurred_at").eq("owner_id", user.id).eq("kind", "completed").gte("occurred_at", windowStartIso),
     supabase.from("assignment_time_log").select("started_at").eq("owner_id", user.id).gte("started_at", windowStartIso),
-    supabase.from("flashcard_reviews").select("id", { count: "exact", head: true }).gte("reviewed_at", windowStartIso),
+    supabase.from("flashcard_reviews").select("id", { count: "exact", head: true }).eq("owner_id", user.id).gte("reviewed_at", windowStartIso),
     supabase.from("notes").select("id", { count: "exact", head: true }).eq("owner_id", user.id).gte("created_at", windowStartIso),
   ]);
 

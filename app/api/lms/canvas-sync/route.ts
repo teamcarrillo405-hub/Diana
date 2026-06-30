@@ -18,6 +18,7 @@ export async function POST(req: Request) {
     .select("id, owner_id, provider, config")
     .eq("id", connectionId)
     .eq("provider", "canvas")
+    .eq("owner_id", user.id)
     .single();
 
   if (connErr || !conn) {

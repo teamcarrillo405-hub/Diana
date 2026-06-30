@@ -40,29 +40,8 @@ export async function connectIcs(formData: FormData) {
   return { ok: true, message: "Calendar connected" };
 }
 
-export async function connectClassroom() {
-  // A Classroom "connection" is just a marker row — the actual OAuth lives on session.provider_token.
-  // Student must already be signed in via Google with Classroom scopes (see user_setup in plan frontmatter).
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { ok: false, message: "Sign in to continue" };
-
-  const { data: existing } = await supabase
-    .from("lms_connections")
-    .select("id")
-    .eq("owner_id", user.id)
-    .eq("provider", "google_classroom")
-    .maybeSingle();
-  if (existing?.id) return { ok: true, message: "Google Classroom already connected" };
-
-  const { error } = await supabase
-    .from("lms_connections")
-    .insert({ owner_id: user.id, provider: "google_classroom", config: {} });
-  if (error) return { ok: false, message: "Could not save the connection — try again in a moment" };
-
-  revalidatePath("/settings");
-  return { ok: true, message: "Google Classroom connected" };
-}
+// connectClassroom() removed — Google Classroom now uses the dedicated OAuth flow
+// at /api/lms/google-oauth/start (stores a refresh token), not a marker row.
 
 export async function connectClever(formData: FormData) {
   const district = String(formData.get("district") ?? "").trim();

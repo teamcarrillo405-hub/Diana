@@ -12,6 +12,7 @@ import {
   taskCompletionRate,
   webVitalStatus,
 } from "@/lib/platform/analytics";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { InsightsClient, type ExperimentRow, type FeatureFlagRow } from "./insights-client";
 import { PageShell } from "../page-shell";
@@ -19,7 +20,7 @@ import { PageShell } from "../page-shell";
 export default async function InsightsPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return null;
+  if (!user) redirect("/login");
 
   const now = new Date();
   const todayIso = now.toISOString().slice(0, 10);
