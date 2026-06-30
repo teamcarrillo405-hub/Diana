@@ -549,6 +549,18 @@
      "amber"; the on-brand value is gold. Keep warnings off red. */
   --gl-amber: var(--color-gold);
 
+  /* Mission Board handoff — blue/pink lane accents, extra opacities, focus-card aliases */
+  --gl-blue: #5b9bff;
+  --gl-blue-30: rgba(91,155,255,.30);
+  --gl-blue-12: rgba(91,155,255,.12);
+  --gl-pink: #f25fb0;
+  --gl-pink-30: rgba(242,95,176,.30);
+  --gl-pink-12: rgba(242,95,176,.12);
+  --gl-purple-12: rgba(126,92,255,.12);
+  --gl-cyan-30: rgba(41,208,255,.30);
+  --gl-focus-from: var(--color-bg-focus-card-from);
+  --gl-focus-to: var(--color-bg-focus-card-to);
+
 }
 
 
