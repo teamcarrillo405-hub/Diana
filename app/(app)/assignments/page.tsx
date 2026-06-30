@@ -1,13 +1,17 @@
 import Link from "next/link";
 import {
   ArrowRight,
+  Brain,
   CheckCircle2,
   Clock3,
   FilePlus2,
   Layers3,
+  ListChecks,
+  MessagesSquare,
   Mic,
   ScanLine,
   ShieldCheck,
+  TimerReset,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
@@ -506,6 +510,32 @@ export default async function AssignmentsPage({
           Talk to Diana
         </div>
       </Link>
+
+      {/* Study tools — quick access to the work-session surfaces */}
+      <section style={{ display: "grid", gap: "var(--space-9)" }} aria-label="Study tools">
+        <style>{`.atools{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-6);}@media(max-width:760px){.atools{grid-template-columns:repeat(2,minmax(0,1fr));}}`}</style>
+        <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>
+          Study tools
+        </p>
+        <div className="atools">
+          {[
+            { href: "/timer", label: "Focus timer", note: "Timed work block", Icon: TimerReset },
+            { href: "/flashcards", label: "Flashcards", note: "Spaced review", Icon: Brain },
+            { href: "/break-down", label: "Break it down", note: "Prompt → steps", Icon: ListChecks },
+            { href: "/study-buddy", label: "Study buddy", note: "Socratic hints", Icon: MessagesSquare },
+          ].map(({ href, label, note, Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              style={{ display: "grid", gap: "var(--space-3)", padding: "var(--space-11) var(--space-12)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", textDecoration: "none" }}
+            >
+              <Icon size={18} style={{ color: "var(--gl-cyan)" }} />
+              <span style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-16)", textTransform: "uppercase", color: "var(--gl-text-primary)" }}>{label}</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", color: "var(--gl-text-muted)" }}>{note}</span>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       <section className="assignment-lane-stack" aria-label="Assignment priority lanes">
         {lanes.map((lane) => (
