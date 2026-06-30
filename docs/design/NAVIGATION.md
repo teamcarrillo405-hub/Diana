@@ -137,10 +137,10 @@ The map above is the target. Current code reality as of this rewrite:
 - ✅ **Image/text classification now fires** — `saveInboxItem` calls `triggerClassification` (fire-and-forget) so the classify-inbox vision model populates suggestions.
 - ✅ **RECORD button saves** — top-nav voice transcript is saved to the inbox (+ classified) instead of being discarded.
 
-### Still open (product decisions, not nav wiring)
-- ⬜ Weekly XP is cosmetic (completion ratio + hardcoded game-day); no real points/streak engine.
-- ⬜ No true week-over-week comparison metric.
-- ⬜ Syllabus feature (per-class upload/parse) — net-new, not built.
+### Product features (built)
+- ✅ **Real XP / level / streak** — `lib/gamification/xp.ts`, shown in the Proof Momentum section. (Locked lobby hero unchanged; hardcoded game-day mock removed.)
+- ✅ **Week-over-week** — `lib/insights/week-over-week.ts`, in the Proof Momentum section.
+- ✅ **Syllabus per class** — `class_syllabi` table + `lib/syllabus/parse.ts` + class-hub section. **Requires migration `20260613010000_class_syllabi.sql` to be applied (`supabase db push`)** before the table exists; UI degrades to an empty state until then.
 
 This file is the spec; it stays ahead of the code where ⬜ items remain.
 
