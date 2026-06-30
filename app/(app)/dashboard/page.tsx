@@ -5,19 +5,16 @@ import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { loadProfile } from "@/lib/profile";
 import { getLearnerProfile } from "@/lib/learning-loop/server";
-import { formatDueAt } from "@/lib/format";
 import { getReminderItems } from "./actions";
 import { sessionAdaptationForMood } from "@/lib/emotional/session";
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
 import { LastShownClassCookie } from "./last-shown-class-cookie";
-import { ClassesGrid, classTheme, type ClassCardData } from "./classes-grid";
 
-// The dashboard renders the locked Student Lobby — hero + reminders + class grid.
-// Every richer feature (quests, subject signals, mood/evening/reflection, body
-// support, mission card, first-week journey) lives on its own route (/future-path,
-// /notes, /assignments, /assignments/[id], /wellness, /body-double), so this page
-// only fetches what the three mounted components actually need.
+// Model B landing: the dashboard is just the next-move hero + an overdue summary.
+// Classes live on their own /classes tab; every richer feature (quests, subject
+// signals, mood/evening/reflection, body support, mission card) lives on its own
+// route, so this page only fetches what the hero + reminder banner need.
 
 export default async function DashboardPage({
   searchParams,
@@ -56,7 +53,6 @@ export default async function DashboardPage({
     { data: latestReadinessSignal },
     { data: latestSleep },
     { data: weekDoneSignals },
-    { data: weeklyClasses },
     reminderItems,
   ] = await Promise.all([
     supabase
@@ -92,12 +88,6 @@ export default async function DashboardPage({
       .eq("kind", "completed")
       .gte("occurred_at", weekStartIso)
       .not("assignment_id", "is", null),
-    supabase
-      .from("classes")
-      .select("id, name, color")
-      .is("archived_at", null)
-      .order("created_at", { ascending: true })
-      .limit(12),
     getReminderItems(),
   ]);
 
@@ -146,33 +136,6 @@ export default async function DashboardPage({
   }).length;
   const weekTotal = openDueThisWeek + weekDone;
 
-  const classCardDataList: ClassCardData[] = (weeklyClasses ?? []).map((cls) => {
-    const asgts = (assignments ?? []).filter((a) => a.class_id === cls.id);
-    const needsAttentionAsgts = asgts.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
-    const inProgressAsgts = asgts.filter((a) => ["drafting", "checking"].includes(a.status));
-    const doneAsgts = asgts.filter((a) => a.status === "exporting");
-    const topRanked = ranked.find((a) => a.class_id === cls.id);
-    const nextDue = [...asgts]
-      .filter((a) => a.due_at)
-      .sort((a, b) => new Date(a.due_at!).getTime() - new Date(b.due_at!).getTime())[0];
-    const theme = classTheme(cls);
-    return {
-      id: cls.id,
-      name: cls.name,
-      symbol: theme.symbol,
-      bannerBg: theme.bannerBg,
-      accent: theme.accent,
-      active: inProgressAsgts.length > 0 || topRanked?.class_id === cls.id,
-      needsAttention: needsAttentionAsgts.length > 0,
-      allDone: asgts.length > 0 && asgts.length === doneAsgts.length,
-      pct: asgts.length > 0 ? Math.round((doneAsgts.length / asgts.length) * 100) : 0,
-      period: "",
-      activeAssignment: topRanked?.title ?? inProgressAsgts[0]?.title ?? "",
-      dueBadge: nextDue?.due_at ? formatDueAt(nextDue.due_at) : asgts.length === 0 ? "no tasks" : "no due date",
-      href: `/classes/${cls.id}`,
-    } satisfies ClassCardData;
-  });
-
   return (
     <div className="student-portal-page">
       <LastShownClassCookie classId={top?.class_id ?? null} />
@@ -187,7 +150,6 @@ export default async function DashboardPage({
         energy={energy}
       />
       <ReminderBanner items={reminderItems} />
-      <ClassesGrid classes={classCardDataList} />
     </div>
   );
 }

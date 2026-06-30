@@ -6,14 +6,15 @@ import { isQuietHours, isWeekend, shouldShowReminder } from "@/lib/reminders/rem
 import type { ReminderItem } from "./actions";
 
 /**
- * F7 — In-app reminder banner. NO browser push.
- * Quiet hours + weekend gate is client-side (Pitfall 1 — server runs UTC).
- * Items still open beyond their due date bypass quiet hours and weekend (D-04 escalation).
- * Dismissal is per-session via useState Set (D-05 — mirrors EveningPlanning).
+ * Overdue / not-turned-in summary. Collapsed by default to a single line
+ * ("N things overdue"); tap to expand the list. NO browser push.
+ * Quiet hours + weekend gate is client-side; past-due items bypass it (D-04).
+ * Dismissal is per-session via useState Set.
  */
 export function ReminderBanner({ items }: { items: ReminderItem[] }) {
   const [now, setNow] = useState<Date | null>(null);
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     setNow(new Date());
@@ -55,79 +56,87 @@ export function ReminderBanner({ items }: { items: ReminderItem[] }) {
         flexDirection: "column",
         gap: "var(--space-4)",
       }}
-      aria-label="Open reminders"
+      aria-label="Overdue work"
     >
-      <p
+      {/* Collapsed summary — one calm line; expands to the list on tap. */}
+      <button
+        type="button"
+        onClick={() => setExpanded((v) => !v)}
+        aria-expanded={expanded}
         style={{
-          fontFamily: "var(--font-body)",
-          fontSize: "var(--text-11)",
-          fontWeight: "var(--weight-700)",
-          letterSpacing: "var(--tracking-20)",
-          textTransform: "uppercase",
-          color: "var(--gl-text-muted)",
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-6)",
+          width: "100%",
+          textAlign: "left",
+          cursor: "pointer",
+          borderRadius: "var(--radius-card)",
+          border: "1px solid var(--gl-gold-28)",
+          background: "var(--gl-gold-12)",
+          padding: "var(--space-9) var(--space-12)",
         }}
       >
-        Reminders
-      </p>
-      <ul style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", listStyle: "none", padding: 0, margin: 0 }}>
-        {visible.map((i) => (
-          <li
-            key={i.id}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              gap: "var(--space-8)",
-              borderRadius: "var(--radius-card)",
-              border: "1px solid var(--gl-gold-28)",
-              background: "var(--gl-gold-12)",
-              padding: "var(--space-10) var(--space-12)",
-            }}
-          >
-            <Link
-              href={`/assignments/${i.id}`}
-              style={{ minWidth: 0, flex: 1, textDecoration: "none" }}
-            >
-              {i.class_name && (
-                <div style={{ marginBottom: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                  {i.class_color && (
-                    <span
-                      style={{ display: "inline-block", width: 8, height: 8, borderRadius: "var(--radius-circle)", background: i.class_color }}
-                    />
-                  )}
-                  <span style={{ fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{i.class_name}</span>
-                </div>
-              )}
-              <p style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-600)", color: "var(--gl-text-secondary)" }}>
-                {i.title}
-              </p>
-              <p style={{ marginTop: "var(--space-1)", fontSize: "var(--text-12)", color: "var(--gl-gold)" }}>
-                {i.is_past_due
-                  ? "This is still open."
-                  : i.hours_until_due != null && i.hours_until_due <= 1
-                  ? "Due within the hour."
-                  : `Due in ${i.hours_until_due} hours.`}
-              </p>
-            </Link>
-            <button
-              type="button"
-              onClick={() => handleDismiss(i.id)}
+        <span style={{ width: 8, height: 8, borderRadius: "var(--radius-circle)", background: "var(--gl-gold)", flexShrink: 0 }} />
+        <span style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-16)", letterSpacing: "var(--tracking-04)", textTransform: "uppercase", color: "var(--gl-gold)" }}>
+          {visible.length} {visible.length === 1 ? "thing" : "things"} overdue
+        </span>
+        <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "var(--text-12)", fontWeight: "var(--weight-700)", color: "var(--gl-gold)" }}>
+          {expanded ? "Hide" : "Review"}
+        </span>
+      </button>
+
+      {expanded && (
+        <ul style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", listStyle: "none", padding: 0, margin: 0 }}>
+          {visible.map((i) => (
+            <li
+              key={i.id}
               style={{
-                flexShrink: 0,
-                borderRadius: "var(--radius-pill)",
-                border: "1px solid var(--gl-border-neutral)",
-                background: "var(--gl-bg-card)",
-                padding: "var(--space-2) var(--space-6)",
-                fontSize: "var(--text-12)",
-                color: "var(--gl-text-muted)",
-                cursor: "pointer",
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: "var(--space-8)",
+                borderRadius: "var(--radius-card)",
+                border: "1px solid var(--gl-gold-28)",
+                background: "var(--gl-gold-12)",
+                padding: "var(--space-10) var(--space-12)",
               }}
             >
-              Dismiss
-            </button>
-          </li>
-        ))}
-      </ul>
+              <Link href={`/assignments/${i.id}`} style={{ minWidth: 0, flex: 1, textDecoration: "none" }}>
+                {i.class_name && (
+                  <div style={{ marginBottom: "var(--space-2)", display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+                    {i.class_color && (
+                      <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "var(--radius-circle)", background: i.class_color }} />
+                    )}
+                    <span style={{ fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{i.class_name}</span>
+                  </div>
+                )}
+                <p style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-600)", color: "var(--gl-text-secondary)" }}>
+                  {i.title}
+                </p>
+                <p style={{ marginTop: "var(--space-1)", fontSize: "var(--text-12)", color: "var(--gl-gold)" }}>
+                  Still open — turn it in when you can.
+                </p>
+              </Link>
+              <button
+                type="button"
+                onClick={() => handleDismiss(i.id)}
+                style={{
+                  flexShrink: 0,
+                  borderRadius: "var(--radius-pill)",
+                  border: "1px solid var(--gl-border-neutral)",
+                  background: "var(--gl-bg-card)",
+                  padding: "var(--space-2) var(--space-6)",
+                  fontSize: "var(--text-12)",
+                  color: "var(--gl-text-muted)",
+                  cursor: "pointer",
+                }}
+              >
+                Dismiss
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

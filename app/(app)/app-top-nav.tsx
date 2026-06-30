@@ -8,13 +8,13 @@ const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 
 export type NavLabel = "Today" | "Work" | "Classes" | "Calendar" | "More";
 
-// 4-tab model (Model A): classes live on the Today landing's class grid, so
-// there is no standalone Classes tab — tapping a class on Today opens its hub.
-// Today/Work/Calendar are direct links; More opens an overlay drawer (MoreMenu)
-// holding every secondary destination.
+// 5-tab model (Model B): the landing is just "next move + overdue", so classes
+// get their own tab. Today/Work/Classes/Calendar are direct links; More opens an
+// overlay drawer (MoreMenu) holding every secondary destination.
 const NAV_TABS: { label: NavLabel; href: string }[] = [
   { label: "Today", href: "/dashboard" },
   { label: "Work", href: "/assignments" },
+  { label: "Classes", href: "/classes" },
   { label: "Calendar", href: "/calendar" },
 ];
 
