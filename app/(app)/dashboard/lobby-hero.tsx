@@ -48,7 +48,13 @@ export function LobbyHero({
       <style>{`
         @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
         .gl-tab:hover{color:#fff !important;}
-        .gl-lobby-cta:hover{transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6);}
+        /* Emil: custom ease-out, hover gated for touch, press feedback on :active */
+        .gl-lobby-cta{transition:transform 160ms cubic-bezier(.23,1,.32,1),box-shadow 240ms cubic-bezier(.23,1,.32,1);}
+        @media (hover:hover){.gl-lobby-cta:hover{transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6);}}
+        .gl-lobby-cta:active{transform:scale(.97);}
+        .gl-capture{transition:transform 160ms cubic-bezier(.23,1,.32,1),background .2s;}
+        @media (hover:hover){.gl-capture:hover{background:rgba(41,208,255,.22);}}
+        .gl-capture:active{transform:scale(.97);}
         /* Phones + small tablets: collapse the fixed-position hero into a stack. */
         @media (max-width: 900px) {
           .gl-nav-tabs { display: none !important; }
@@ -128,6 +134,7 @@ export function LobbyHero({
           <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
             <Link
               href="/quick-add"
+              className="gl-capture"
               style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 16px", borderRadius: 8, background: "rgba(41,208,255,.14)", border: "1px solid rgba(41,208,255,.28)", textDecoration: "none", fontFamily: SF, fontWeight: 800, fontSize: 16, letterSpacing: ".06em", textTransform: "uppercase", color: "#29d0ff" }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>
@@ -183,7 +190,7 @@ export function LobbyHero({
               <Link
                 href={focusHref}
                 className="gl-lobby-cta"
-                style={{ background: "#29d0ff", padding: "22px 40px", borderRadius: 12, boxShadow: "0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6)", display: "inline-flex", width: "fit-content", alignSelf: "flex-start", alignItems: "center", gap: 12, textDecoration: "none", transition: "transform .12s,box-shadow .2s" }}
+                style={{ background: "#29d0ff", padding: "22px 40px", borderRadius: 12, boxShadow: "0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6)", display: "inline-flex", width: "fit-content", alignSelf: "flex-start", alignItems: "center", gap: 12, textDecoration: "none" }}
               >
                 <span style={{ fontFamily: SF, fontWeight: 800, fontSize: "var(--text-28)", letterSpacing: ".04em", textTransform: "uppercase", color: "#04080f", whiteSpace: "nowrap" }}>▶ Start Next Mission</span>
               </Link>
