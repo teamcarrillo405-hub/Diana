@@ -17,7 +17,6 @@ export const FEATURES: FeatureMeta[] = [
   { slug: "F12", path: "/voice", title: "Voice capture", summary: "Talk through a task; Diana turns it into a checklist.", slice: 4, status: "live" },
   { slug: "F13", path: "/parent-share", title: "Parent share", summary: "Optional weekly read-only summary, with explicit teen consent.", slice: 4, status: "live" },
   { slug: "F14", path: "/teacher-share", title: "Teacher snapshot", summary: "Optional one-page status for IEP/504 check-ins, student-controlled.", slice: 4, status: "live" },
-  { slug: "F16", path: "/templates", title: "Assignment templates", summary: "Reusable structures for lab reports, essays, problem sets.", slice: 5, status: "live" },
   { slug: "F17", path: "/insights", title: "Insights", summary: "Patterns in your week: focus windows, open loops, and study signals.", slice: 5, status: "live" },
   { slug: "F18", path: "/quick-add", title: "Quick capture", summary: "Throw an idea at Diana from anywhere; she will route it.", slice: 5, status: "live" },
   { slug: "F19", path: "/export", title: "Take your data", summary: "One-click JSON export and account deletion.", slice: 6, status: "live" },

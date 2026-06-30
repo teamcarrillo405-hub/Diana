@@ -125,10 +125,10 @@ The map above is the target. Current code reality as of this rewrite:
 - ✅ `lib/navigation.ts` (`usesAppTopNav`) updated so classes/grades/inbox/calendar no longer double-render the old SideNav.
 - ✅ **Redundant pages deleted** — `/accessibility` + `/imports` (pure duplicates of Settings sections); inbound links repointed to `/settings`.
 - ✅ **Page-by-page migration** — AppTopNav added to all kept secondary pages and registered in `usesAppTopNav`: voice, quick-add, inbox/[id], flashcards (+new/review), timer, body-double, break-down (Work); study-buddy (Classes); study-groups, portfolio, me, wellness, export, ap, settings (+ai-history) (More). Also fixed previously-navless `/assignments/[id]`, `/assignments/new`, `/assignments/[id]/submit`.
-- ⬜ **Old SideNav/BottomNav retirement** — `components/nav.tsx` now renders on only **4** remaining pages: `/parent-share`, `/teacher-share` (deferred tabbed merge), `/templates` (to fold into `/assignments/new`), `/insights` (admin). Once those are handled, delete `components/nav.tsx` + its render in `app/(app)/layout.tsx`.
+- ✅ **Templates folded in** — `/assignments/new` already had a "Start from a template" picker, so the standalone `/templates` gallery was pure redundancy; deleted + references cleaned.
+- ⬜ **Old SideNav/BottomNav retirement** — `components/nav.tsx` now renders on only **3** remaining pages: `/parent-share`, `/teacher-share` (deferred tabbed merge), `/insights` (admin). Once those are handled, delete `components/nav.tsx` + its render in `app/(app)/layout.tsx`.
 - ⬜ **Study-tools section on Work** — pages migrated; the consolidated section/links on `/assignments` not built yet.
 - ⬜ **Focus-session merge** (`/timer` + `/body-double`) and **Sharing merge** (`/parent-share` + `/teacher-share`) — both deferred per decision; migrated separately for now.
-- ⬜ **Templates fold-in** — `/templates` → `/assignments/new` picker, then delete.
 - ⬜ **Notes-into-class-hub migration** — `/notes` still standalone.
 - ⬜ **Mobile nav** — AppTopNav tabs are hidden under 900px (`.gl-nav-tabs { display:none }`); mobile currently has no top-nav tabs.
 

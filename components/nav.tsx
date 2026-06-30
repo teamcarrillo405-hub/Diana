@@ -16,7 +16,6 @@ import {
   HeartPulse,
   Home,
   Images,
-  LayoutTemplate,
   ListChecks,
   Menu,
   MessageCircle,
@@ -65,7 +64,6 @@ const SECONDARY_ITEMS = [
   { href: "/study-groups", label: "Groups", icon: UsersRound },
   { href: "/timer", label: "Timer", icon: Timer },
   { href: "/calendar", label: "Calendar", icon: Calendar },
-  { href: "/templates", label: "Templates", icon: LayoutTemplate },
   { href: "/proof", label: "Proof", icon: ShieldCheck },
   { href: "/classes", label: "Classes", icon: BookOpen },
   { href: "/insights", label: "Insights", icon: BarChart3 },
@@ -88,7 +86,6 @@ const DESKTOP_GROUPS = [
     defaultOpen: true,
     items: [
       { href: "/break-down", label: "Break down", icon: ListChecks },
-      { href: "/templates", label: "Templates", icon: LayoutTemplate },
       { href: "/calendar", label: "Calendar", icon: Calendar },
       { href: "/grades", label: "Grades", icon: BarChart3 },
       { href: "/classes", label: "Classes", icon: BookOpen },

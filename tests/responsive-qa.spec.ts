@@ -35,7 +35,6 @@ const publicRoutes = ["/", "/login", "/signup"] as const;
 const extraRoutes = [
   "/study-buddy",
   "/break-down",
-  "/templates",
 ] as const;
 
 const bannedVisibleTerms = [
