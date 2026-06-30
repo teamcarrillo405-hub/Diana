@@ -12,12 +12,15 @@ import {
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { deriveConceptSeeds, gapBridgeSuggestion, isWeakConceptName } from "@/lib/mastery/concepts";
 import { formatDueAt } from "@/lib/format";
 import { fetchCanvasGrades, fetchCanvasCourseScores } from "@/lib/lms/canvas";
 import { gradeInsights, type CourseGradeSnapshot } from "@/lib/grades/insights";
 import { RubricForm } from "./rubric-form";
+import { SyllabusForm } from "./syllabus-form";
+import type { ParsedSyllabus } from "@/lib/syllabus/parse";
 import { openStaxForClassName } from "@/lib/content/openstax";
 import { MasteryPanel, type MasteryConceptView } from "./mastery-panel";
 import { AppTopNav } from "../../app-top-nav";
@@ -76,7 +79,7 @@ export default async function ClassDetailPage({
     .single();
   if (!cls) notFound();
 
-  const [{ data: rubrics }, { data: assignments }, { data: lmsConnections }, { data: classNotes }] = await Promise.all([
+  const [{ data: rubrics }, { data: assignments }, { data: lmsConnections }, { data: classNotes }, { data: classSyllabi }] = await Promise.all([
     supabase
       .from("rubrics")
       .select("id, title, parse_status, created_at")
@@ -99,10 +102,21 @@ export default async function ClassDetailPage({
       .eq("class_id", id)
       .order("updated_at", { ascending: false })
       .limit(6),
+    // class_syllabi isn't in the generated DB types until the migration is
+    // applied; query it through the untyped client.
+    (supabase as unknown as SupabaseClient)
+      .from("class_syllabi")
+      .select("id, title, parsed, created_at")
+      .eq("class_id", id)
+      .order("created_at", { ascending: false })
+      .limit(1),
   ]);
 
   type ClassNote = { id: string; title: string | null; updated_at: string };
   const notes = (classNotes ?? []) as ClassNote[];
+
+  type ClassSyllabus = { id: string; title: string; parsed: ParsedSyllabus | null; created_at: string };
+  const syllabus = ((classSyllabi ?? []) as ClassSyllabus[])[0] ?? null;
 
   type CanvasConfig = { base_url: string; token: string };
   const canvasConfig = (lmsConnections?.[0]?.config ?? null) as CanvasConfig | null;
@@ -264,6 +278,57 @@ export default async function ClassDetailPage({
             </details>
           </div>
         </div>
+
+        {/* Syllabus — pasted + heuristically parsed key dates and policies */}
+        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-gold)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <ClipboardCheck size={13} />
+            Syllabus
+          </p>
+          {syllabus ? (
+            <div style={{ display: "grid", gap: "var(--space-10)" }}>
+              <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-22)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>{syllabus.title}</h2>
+              {(syllabus.parsed?.keyDates?.length ?? 0) > 0 && (
+                <div style={{ display: "grid", gap: "var(--space-5)" }}>
+                  <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>Key dates</p>
+                  <div style={{ display: "grid", gap: "var(--space-4)" }}>
+                    {syllabus.parsed!.keyDates!.slice(0, 8).map((d, i) => (
+                      <div key={i} style={{ display: "flex", gap: "var(--space-8)", alignItems: "baseline", padding: "var(--space-6) var(--space-10)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-base)" }}>
+                        <span style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-12)", color: "var(--gl-gold)", whiteSpace: "nowrap" }}>{d.date}</span>
+                        <span style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-secondary)", overflow: "hidden", textOverflow: "ellipsis" }}>{d.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {(syllabus.parsed?.policies?.length ?? 0) > 0 && (
+                <div style={{ display: "grid", gap: "var(--space-5)" }}>
+                  <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>Policies</p>
+                  <div style={{ display: "grid", gap: "var(--space-4)" }}>
+                    {syllabus.parsed!.policies!.map((p, i) => (
+                      <div key={i} style={{ display: "grid", gap: "var(--space-2)", padding: "var(--space-8) var(--space-10)", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-base)" }}>
+                        <span style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-12)", color: "var(--gl-text-primary)" }}>{p.kind}</span>
+                        <span style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{p.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-muted)", margin: 0 }}>
+              Paste the class syllabus so Diana can pull out due dates, grading, and late-work rules.
+            </p>
+          )}
+          <details open={!syllabus} style={{ marginTop: "var(--space-2)" }}>
+            <summary style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", color: "var(--gl-gold)", cursor: "pointer" }}>
+              {syllabus ? "Replace syllabus" : "Add syllabus"}
+            </summary>
+            <div style={{ marginTop: "var(--space-8)" }}>
+              <SyllabusForm classId={id} />
+            </div>
+          </details>
+        </section>
 
         {/* Subject notes — notes live inside the class (per CLAUDE.md) */}
         <section style={{ display: "grid", gap: "var(--space-9)" }}>
