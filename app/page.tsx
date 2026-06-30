@@ -11,7 +11,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { FutureModeToggle } from "@/components/future-mode-toggle";
-import { NexusArcadeScene, NexusMetric } from "@/components/nexus/nexus-ui";
 
 export default function LandingPage() {
   return (
@@ -68,11 +67,10 @@ export default function LandingPage() {
           </div>
 
           <div className="nexus-hero-core">
-            <NexusArcadeScene />
             <div className="nexus-hero-stats grid gap-3 sm:grid-cols-3">
-              <NexusMetric label="Start" value="05" detail="minutes" tone="cyan" />
-              <NexusMetric label="Sources" value="ON" detail="visible" tone="gold" />
-              <NexusMetric label="Proof" value="YRS" detail="student-owned" tone="pink" />
+              <div className="nexus-metric nexus-tone-cyan"><span>Start</span><strong>05</strong><small>minutes</small></div>
+              <div className="nexus-metric nexus-tone-gold"><span>Sources</span><strong>ON</strong><small>visible</small></div>
+              <div className="nexus-metric nexus-tone-pink"><span>Proof</span><strong>YRS</strong><small>student-owned</small></div>
             </div>
           </div>
         </div>

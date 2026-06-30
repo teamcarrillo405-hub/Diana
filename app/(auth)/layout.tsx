@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { ArrowLeft, LockKeyhole } from "lucide-react";
 import { FutureModeToggle } from "@/components/future-mode-toggle";
-import { NexusArcadeScene } from "@/components/nexus/nexus-ui";
 import { SignalStage } from "@/components/signal/signal-stage";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
@@ -32,7 +31,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             <div className="nexus-auth-preview">
-              <NexusArcadeScene className="min-h-[24rem]" />
+              <div className="min-h-[24rem]" aria-hidden="true" />
             </div>
           </section>
 

@@ -1,16 +1,15 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { ArrowLeft, NotebookPen } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
 import { findRelatedNotes, type RelatedNoteCandidate } from "@/lib/notes/related";
 import { NoteDetail } from "./note-detail";
 import type { OutlineNode } from "@/lib/notes/types";
-import {
-  NexusArcadeScene,
-  NexusKicker,
-  NexusPageShell,
-  NexusPanel,
-} from "@/components/nexus/nexus-ui";
+import { AppTopNav } from "../../app-top-nav";
+
+const SF = "var(--font-display)";
+const BODY = "var(--font-body)";
 
 export default async function NoteDetailPage({
   params,
@@ -49,7 +48,7 @@ export default async function NoteDetailPage({
   };
   const relatedNotes = findRelatedNotes(
     currentForRelated,
-    ((relatedCandidates ?? []) as RelatedNoteCandidate[]),
+    (relatedCandidates ?? []) as RelatedNoteCandidate[],
   );
   const classAiMode = noteAiMode(n);
   const readingPrefs = {
@@ -59,41 +58,59 @@ export default async function NoteDetailPage({
   };
 
   return (
-    <NexusPageShell className="notes-detail-page space-y-8">
-      <NexusPanel className="notes-detail-hero" tone="purple">
-        <div className="notes-detail-hero-copy">
-          <Link href="/notes" className="class-back-link">
-            &larr; Notes
-          </Link>
-          <NexusKicker tone="purple">Note detail</NexusKicker>
-          <h1>{n.title}</h1>
-          <p>Turn this capture into class proof, recall, cards, or a study guide without losing the original note.</p>
-        </div>
-        <NexusArcadeScene />
-      </NexusPanel>
+    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
+      <AppTopNav active="Think" />
+      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
 
-      <NoteDetail
-        id={n.id}
-        bodyText={n.body_text}
-        transcriptText={n.transcript_text}
-        outline={outline}
-        actionItems={Array.isArray(n.action_items_json) ? n.action_items_json.filter((item): item is string => typeof item === "string") : []}
-        source={n.source ?? "manual"}
-        tags={n.tags ?? []}
-        aiSuggestedTags={n.ai_suggested_tags ?? []}
-        relatedNotes={relatedNotes}
-        readingPrefs={readingPrefs}
-        ttsOn={Boolean(profile?.tts_enabled)}
-        ttsProvider={profile?.tts_provider ?? "browser"}
-        ttsSpeed={Number(profile?.tts_speed ?? 1)}
-        ttsPitch={Number(profile?.tts_pitch ?? 1)}
-        ttsVoice={profile?.tts_voice ?? "nova"}
-        classId={n.class_id ?? null}
-        ownerId={profile?.user_id ?? ""}
-        classAiMode={classAiMode}
-        classes={classes ?? []}
-      />
-    </NexusPageShell>
+        {/* Header — back link + hero */}
+        <header style={{ display: "grid", gap: "var(--space-8)" }}>
+          <Link
+            href="/notes"
+            style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", fontFamily: BODY, fontSize: "var(--text-12)", fontWeight: "var(--weight-600)", color: "var(--gl-text-muted)", textDecoration: "none" }}
+          >
+            <ArrowLeft size={13} aria-hidden="true" />
+            Back to notes
+          </Link>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-purple-light)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <NotebookPen size={13} aria-hidden="true" />
+            Note detail
+          </p>
+          <h1 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, maxWidth: "30ch" }}>
+            {n.title}
+          </h1>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-16)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", maxWidth: "44ch", margin: 0 }}>
+            Turn this capture into class proof, recall, cards, or a study guide without losing the original note.
+          </p>
+        </header>
+
+        {/* Note detail — client component with all interactive actions */}
+        <NoteDetail
+          id={n.id}
+          bodyText={n.body_text}
+          transcriptText={n.transcript_text}
+          outline={outline}
+          actionItems={
+            Array.isArray(n.action_items_json)
+              ? n.action_items_json.filter((item): item is string => typeof item === "string")
+              : []
+          }
+          source={n.source ?? "manual"}
+          tags={n.tags ?? []}
+          aiSuggestedTags={n.ai_suggested_tags ?? []}
+          relatedNotes={relatedNotes}
+          readingPrefs={readingPrefs}
+          ttsOn={Boolean(profile?.tts_enabled)}
+          ttsProvider={profile?.tts_provider ?? "browser"}
+          ttsSpeed={Number(profile?.tts_speed ?? 1)}
+          ttsPitch={Number(profile?.tts_pitch ?? 1)}
+          ttsVoice={profile?.tts_voice ?? "nova"}
+          classId={n.class_id ?? null}
+          ownerId={profile?.user_id ?? ""}
+          classAiMode={classAiMode}
+          classes={classes ?? []}
+        />
+      </div>
+    </div>
   );
 }
 

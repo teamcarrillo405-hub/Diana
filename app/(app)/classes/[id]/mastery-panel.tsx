@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { FileDown, Radar } from "lucide-react";
 import { recordAiQuizMasteryResult, updateConceptConfidence } from "./mastery-actions";
-import { NexusKicker, NexusPanel } from "@/components/nexus/nexus-ui";
 
 export type MasteryConceptView = {
   id: string;
@@ -44,10 +43,10 @@ export function MasteryPanel({
   return (
     <section className="class-mastery-section">
       <div className="class-section-head">
-        <NexusKicker tone="pink">
+        <p className="nexus-kicker nexus-tone-pink">
           <Radar size={14} />
           Mastery map
-        </NexusKicker>
+        </p>
         <Link
           href={`/classes/${classId}/mastery/export`}
           className="nexus-button nexus-button-secondary"
@@ -58,11 +57,11 @@ export function MasteryPanel({
       </div>
 
       {reviewNext && (
-        <NexusPanel className="class-review-next" tone="pink">
+        <section className="class-review-next nexus-panel nexus-tone-pink nexus-panel-default">
           <span>Review next</span>
           <strong>{reviewLabel}</strong>
           <p>{bridge}</p>
-        </NexusPanel>
+        </section>
       )}
 
       <div className="class-concept-grid">

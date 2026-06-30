@@ -2,8 +2,11 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, BookOpenCheck, LockKeyhole, PencilRuler, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { NexusKicker, NexusPageShell, NexusPanel } from "@/components/nexus/nexus-ui";
+import { AppTopNav } from "../../../app-top-nav";
 import { saveClassAiMode } from "./actions";
+
+const SF = "var(--font-display)";
+const BODY = "var(--font-body)";
 
 export default async function ClassAiSettingsPage({
   params,
@@ -31,76 +34,61 @@ export default async function ClassAiSettingsPage({
   }
 
   return (
-    <NexusPageShell className="class-settings-page space-y-8">
-      <section className="class-settings-hero">
-        <Link href={`/classes/${id}`} className="class-back-link">
-          <ArrowLeft size={15} />
-          Back to {cls.name}
-        </Link>
-        <NexusKicker tone="gold">
-          <ShieldCheck size={14} />
-          Class AI rules
-        </NexusKicker>
-        <h1>AI mode for {cls.name}</h1>
-        <p>
-          Pick how Diana can help in this subject. This setting applies before any assignment-level override.
-        </p>
-      </section>
+    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
+      <AppTopNav active="Today" />
+      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
 
-      <form action={action} className="class-settings-form">
-        <input type="hidden" name="classId" value={id} />
+        {/* Hero */}
+        <header style={{ display: "grid", gap: "var(--space-8)" }}>
+          <Link
+            href={`/classes/${id}`}
+            style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", fontFamily: BODY, fontSize: "var(--text-12)", fontWeight: "var(--weight-600)", color: "var(--gl-text-muted)", textDecoration: "none" }}
+          >
+            <ArrowLeft size={13} />
+            Back to {cls.name}
+          </Link>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-gold)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            <ShieldCheck size={13} />
+            Class AI rules
+          </p>
+          <h1 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, maxWidth: "22ch" }}>
+            AI mode for {cls.name}
+          </h1>
+          <p style={{ fontFamily: BODY, fontSize: "var(--text-16)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", maxWidth: "44ch", margin: 0 }}>
+            Pick how Diana can help in this subject. This setting applies before any assignment-level override.
+          </p>
+        </header>
 
-        <NexusPanel className="class-ai-mode-panel" tone="gold">
-          <label className="class-ai-mode-option" data-mode="green">
-            <input
-              type="radio"
-              name="aiMode"
-              value="green"
-              defaultChecked={currentMode === "green"}
-            />
-            <span className="class-ai-mode-icon"><BookOpenCheck size={18} /></span>
-            <span className="class-ai-mode-copy">
-              <strong>Full help</strong>
-              <span>Study help, planning, citation support, and guided scaffolds are available for this class.</span>
-            </span>
-            <span className="class-ai-mode-status">Green</span>
-          </label>
-
-          <label className="class-ai-mode-option" data-mode="yellow">
-            <input
-              type="radio"
-              name="aiMode"
-              value="yellow"
-              defaultChecked={currentMode === "yellow"}
-            />
-            <span className="class-ai-mode-icon"><PencilRuler size={18} /></span>
-            <span className="class-ai-mode-copy">
-              <strong>Citations only</strong>
-              <span>Diana can help with sources and citations, but not content-generating support.</span>
-            </span>
-            <span className="class-ai-mode-status">Yellow</span>
-          </label>
-
-          <label className="class-ai-mode-option" data-mode="red">
-            <input
-              type="radio"
-              name="aiMode"
-              value="red"
-              defaultChecked={currentMode === "red"}
-            />
-            <span className="class-ai-mode-icon"><LockKeyhole size={18} /></span>
-            <span className="class-ai-mode-copy">
-              <strong>AI off</strong>
-              <span>AI help stays unavailable for this class. Diana still keeps assignments, sources, and rules organized.</span>
-            </span>
-            <span className="class-ai-mode-status">Off</span>
-          </label>
-        </NexusPanel>
-
-        <button type="submit" className="nexus-button nexus-button-primary class-settings-save">
-          Save class rule
-        </button>
-      </form>
-    </NexusPageShell>
+        {/* Form */}
+        <form action={action}>
+          <input type="hidden" name="classId" value={id} />
+          <div className="class-ai-mode-panel nexus-panel nexus-tone-gold nexus-panel-default">
+            {[
+              { value: "green", Icon: BookOpenCheck, label: "Full help", desc: "Study help, planning, citation support, and guided scaffolds are available for this class.", modeLabel: "Green" },
+              { value: "yellow", Icon: PencilRuler, label: "Citations only", desc: "Diana can help with sources and citations, but not content-generating support.", modeLabel: "Yellow" },
+              { value: "red", Icon: LockKeyhole, label: "AI off", desc: "AI help stays unavailable for this class. Diana still keeps assignments, sources, and rules organized.", modeLabel: "Off" },
+            ].map(({ value, Icon, label, desc, modeLabel }) => (
+              <label key={value} className="class-ai-mode-option" data-mode={value}>
+                <input
+                  type="radio"
+                  name="aiMode"
+                  value={value}
+                  defaultChecked={currentMode === value}
+                />
+                <span className="class-ai-mode-icon"><Icon size={18} /></span>
+                <span className="class-ai-mode-copy">
+                  <strong>{label}</strong>
+                  <span>{desc}</span>
+                </span>
+                <span className="class-ai-mode-status">{modeLabel}</span>
+              </label>
+            ))}
+          </div>
+          <button type="submit" className="nexus-button nexus-button-primary class-settings-save">
+            Save class rule
+          </button>
+        </form>
+      </div>
+    </div>
   );
 }
