@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Menu } from "lucide-react";
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 const BODY = "var(--font-body)";
@@ -36,7 +37,7 @@ const GROUPS: { title: string; links: { label: string; href: string; note?: stri
   },
 ];
 
-export function MoreMenu({ active }: { active: boolean }) {
+export function MoreMenu({ active, variant = "tab" }: { active: boolean; variant?: "tab" | "mobile" }) {
   const [open, setOpen] = useState(false);
 
   // Close on Escape and lock body scroll while the drawer is open.
@@ -56,34 +57,63 @@ export function MoreMenu({ active }: { active: boolean }) {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        className={active ? undefined : "gl-tab"}
-        style={{
-          position: "relative",
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-          fontFamily: SF,
-          fontWeight: 700,
-          fontSize: 18,
-          letterSpacing: ".06em",
-          textTransform: "uppercase",
-          color: active ? "#fff" : "#8b96bd",
-          padding: active ? "18px 2px" : "0 2px",
-        }}
-      >
-        {active && (
-          <span
-            aria-hidden="true"
-            style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 3, background: "#29d0ff", borderRadius: 2 }}
-          />
-        )}
-        More
-      </button>
+      {variant === "mobile" ? (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 3,
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            padding: "6px 0",
+            color: active ? "#29d0ff" : "#8b96bd",
+            fontFamily: SF,
+            fontWeight: 700,
+            fontSize: 11,
+            letterSpacing: ".04em",
+            textTransform: "uppercase",
+          }}
+        >
+          <Menu size={20} />
+          More
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={open}
+          className={active ? undefined : "gl-tab"}
+          style={{
+            position: "relative",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            fontFamily: SF,
+            fontWeight: 700,
+            fontSize: 18,
+            letterSpacing: ".06em",
+            textTransform: "uppercase",
+            color: active ? "#fff" : "#8b96bd",
+            padding: active ? "18px 2px" : "0 2px",
+          }}
+        >
+          {active && (
+            <span
+              aria-hidden="true"
+              style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 3, background: "#29d0ff", borderRadius: 2 }}
+            />
+          )}
+          More
+        </button>
+      )}
 
       {open && (
         <div

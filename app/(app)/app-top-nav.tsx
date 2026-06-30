@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { LobbyAudioNote } from "./dashboard/lobby-audio-note";
 import { MoreMenu } from "./more-menu";
+import { MobileTabBar } from "./mobile-tab-bar";
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 
@@ -100,6 +101,9 @@ export function AppTopNav({ active }: { active: NavLabel }) {
           </Link>
         </div>
       </div>
+
+      {/* Mobile-only bottom tab bar (top tabs are hidden under 900px) */}
+      <MobileTabBar active={active} />
     </>
   );
 }
