@@ -8132,9 +8132,9 @@ body[data-experience-mode="future"] .future-wave-bar {
   outline: none;
 }
 
-.notes-search-input:focus,
-.notes-editor-input:focus,
-.notes-editor-textarea:focus {
+.notes-search-input:focus-visible,
+.notes-editor-input:focus-visible,
+.notes-editor-textarea:focus-visible {
   border-color: rgb(var(--nexus-cyan-rgb) / 0.45);
   box-shadow: 0 0 0 3px rgb(var(--nexus-cyan-rgb) / 0.1);
 }
