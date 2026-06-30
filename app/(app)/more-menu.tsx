@@ -16,7 +16,8 @@ const GROUPS: { title: string; links: { label: string; href: string; note?: stri
       { label: "Proof", href: "/proof", note: "Authorship, wins, artifacts" },
       { label: "Grades", href: "/grades", note: "Canvas scores + moves" },
       { label: "Portfolio", href: "/portfolio", note: "Curated work" },
-      { label: "Future Path", href: "/future-path", note: "College prep + AP" },
+      { label: "Future Path", href: "/future-path", note: "College prep" },
+      { label: "AP exam prep", href: "/ap", note: "Plans + practice" },
     ],
   },
   {

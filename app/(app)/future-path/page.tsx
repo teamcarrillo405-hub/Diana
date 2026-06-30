@@ -156,6 +156,7 @@ export default async function FuturePathPage() {
             <FutureCard icon={FileText} title="My application builder" body="Activities, essay ideas, recommendation asks, FAFSA, and scholarship tasks." href="/future-path" />
             <FutureCard icon={ShieldCheck} title="My proof folder" body={`${model.proofCount} completed proof points and ${model.portfolioItemCount} portfolio items can support essays and conversations.`} href="/proof" />
             <FutureCard icon={Landmark} title="My support plan" body="What helps me learn, how I ask for help, and what I need before due dates." href="/me" />
+            <FutureCard icon={GraduationCap} title="AP exam prep" body="Track AP exam plans, goal score bands, and practice attempts as exam day approaches." href="/ap" />
           </div>
         </section>
 
