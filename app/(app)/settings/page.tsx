@@ -30,17 +30,8 @@ export default async function SettingsPage() {
     .select("id, provider, config, last_synced_at")
     .order("created_at", { ascending: false });
 
-  // Cross-device lobby photo (profiles.photo_url; generated types may lag the
-  // migration, so this read is cast). RLS already scopes profiles to the owner.
-  let playerPhotoUrl: string | null = null;
-  if (user?.id) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: photoRow } = await (supabase.from("profiles") as any)
-      .select("photo_url")
-      .eq("user_id", user.id)
-      .maybeSingle();
-    playerPhotoUrl = (photoRow?.photo_url as string | null) ?? null;
-  }
+  // Cross-device lobby photo, read from the owner's profile (RLS-scoped).
+  const playerPhotoUrl: string | null = profile.photo_url ?? null;
 
   return (
     <div className="diana-page nexus-settings-page space-y-8">

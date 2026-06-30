@@ -9,9 +9,6 @@ const MAX_DATA_URL_LEN = 1_600_000;
 
 type Result = { ok: true } | { ok: false; error: string };
 
-// profiles.photo_url is added in migration 20260613000000_player_photo. The
-// generated Supabase types may lag until `supabase gen types` is re-run, so the
-// payload is cast to satisfy the typed client without touching generated types.
 async function setPhoto(value: string | null): Promise<Result> {
   const supabase = await createClient();
   const {
@@ -21,7 +18,7 @@ async function setPhoto(value: string | null): Promise<Result> {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ photo_url: value } as never)
+    .update({ photo_url: value })
     .eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
 
