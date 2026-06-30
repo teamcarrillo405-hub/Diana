@@ -96,8 +96,10 @@ function buildLanes(open: MissionAssignment[], completed: MissionAssignment[], n
     .filter((row) => !startIds.has(row.id) && !dueSoonIds.has(row.id) && !proofIds.has(row.id) && !studyIds.has(row.id))
     .slice(0, 6);
 
+  // "Start now" is intentionally NOT a lane — the top pick already has its own
+  // Start Now panel above the lane stack. startNow/startIds remain so the lanes
+  // below still exclude that top pick (no duplicate across panel + lanes).
   const lanes: Lane[] = [
-    { title: "Start now", eyebrow: "Diana pick", items: startNow, tone: "cyan" },
     { title: "Due soon", eyebrow: "Time window", items: dueSoon, tone: "gold" },
     { title: "Needs proof", eyebrow: "Receipt lane", items: needsProof, tone: "pink" },
     { title: "Study / test prep", eyebrow: "Recall lane", items: studyPrep, tone: "blue" },

@@ -679,13 +679,10 @@ export default async function DashboardPage({
     <div className="student-portal-page">
       <LastShownClassCookie classId={top?.class_id ?? null} />
 
-      {/* Full-bleed Grayson Lobby — breaks out of app-command-frame padding */}
-      <div
-        style={{
-          marginTop: "calc(-1 * clamp(0.85rem, 1.8vw, 1.75rem))",
-          marginInline: "calc(-1 * var(--space-17))",
-        }}
-      >
+      {/* Full-bleed Grayson Lobby. /dashboard uses the flush AppCommandFrame
+          (zero padding/gutter), and LobbyHero does its own 100vw breakout — so no
+          negative-margin compensation is needed here anymore. */}
+      <div>
         <LobbyHero
           studentName={profile?.display_name || "Player"}
           weekNumber={weekNumber}
