@@ -17,6 +17,25 @@ const FOCUS_CHOICES: Array<{ value: FocusState; label: string; detail: string }>
   { value: "locked", label: "Locked in", detail: "Use the window" },
 ];
 
+function choiceStyle(active: boolean): React.CSSProperties {
+  return {
+    borderRadius: "var(--radius-button)",
+    border: active ? "1px solid var(--gl-purple-30)" : "1px solid var(--gl-border-neutral)",
+    background: active ? "var(--gl-purple-14)" : "var(--gl-bg-energy-btn)",
+    padding: "var(--space-6)",
+    textAlign: "left",
+    cursor: "pointer",
+    color: active ? "var(--gl-purple-light)" : "var(--gl-text-secondary)",
+  };
+}
+
+const legendStyle: React.CSSProperties = {
+  fontFamily: "var(--font-body)",
+  fontSize: "var(--text-14)",
+  fontWeight: "var(--weight-700)",
+  color: "var(--gl-text-primary)",
+};
+
 export function MoodCheckIn({ visible }: { visible: boolean }) {
   const [shown, setShown] = useState(visible);
   const [body, setBody] = useState<BodyState | null>(null);
@@ -46,79 +65,84 @@ export function MoodCheckIn({ visible }: { visible: boolean }) {
   const readyToSave = Boolean(body && focus);
 
   return (
-    <section className="space-y-4 rounded-2xl border border-border bg-surface-raised p-5">
+    <section
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-10)",
+        borderRadius: "var(--radius-card)",
+        border: "1px solid var(--gl-purple-30)",
+        background: "var(--gl-bg-card)",
+        backdropFilter: "var(--blur-card)",
+        WebkitBackdropFilter: "var(--blur-card)",
+        padding: "var(--space-12)",
+      }}
+    >
       <div>
-        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Daily setup</h2>
-        <p className="mt-1 text-sm text-muted">
+        <h2 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-13)", letterSpacing: "var(--tracking-14)", textTransform: "uppercase", color: "var(--gl-purple-light)" }}>
+          Daily setup
+        </h2>
+        <p style={{ marginTop: "var(--space-3)", fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>
           Two taps so Diana can set the right support level.
         </p>
       </div>
 
-      <fieldset className="space-y-2">
-        <legend className="text-sm font-semibold">How is your body energy?</legend>
-        <div className="grid gap-2 sm:grid-cols-3">
+      <fieldset style={{ border: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        <legend style={legendStyle}>How is your body energy?</legend>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "var(--space-4)" }}>
           {BODY_CHOICES.map((choice) => {
             const Icon = choice.icon;
             const active = body === choice.value;
             return (
-              <button
-                key={choice.value}
-                type="button"
-                disabled={pending}
-                onClick={() => setBody(choice.value)}
-                aria-pressed={active}
-                className={`touch-target rounded-xl border px-3 py-3 text-left disabled:opacity-50 ${
-                  active
-                    ? "border-brand/30 bg-brand/10 text-brand-strong dark:text-brand"
-                    : "border-border bg-background hover:bg-surface-soft"
-                }`}
-              >
-                <span className="flex items-center gap-2 text-sm font-medium">
+              <button key={choice.value} type="button" disabled={pending} onClick={() => setBody(choice.value)} aria-pressed={active} style={{ ...choiceStyle(active), opacity: pending ? 0.5 : 1 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", fontSize: "var(--text-14)", fontWeight: "var(--weight-600)" }}>
                   <Icon size={15} />
                   {choice.label}
                 </span>
-                <span className="mt-1 block text-xs text-muted">{choice.detail}</span>
+                <span style={{ marginTop: "var(--space-1)", display: "block", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{choice.detail}</span>
               </button>
             );
           })}
         </div>
       </fieldset>
 
-      <fieldset className="space-y-2">
-        <legend className="text-sm font-semibold">How is your focus?</legend>
-        <div className="grid gap-2 sm:grid-cols-3">
+      <fieldset style={{ border: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: "var(--space-4)" }}>
+        <legend style={legendStyle}>How is your focus?</legend>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "var(--space-4)" }}>
           {FOCUS_CHOICES.map((choice) => {
             const active = focus === choice.value;
             return (
-              <button
-                key={choice.value}
-                type="button"
-                disabled={pending}
-                onClick={() => setFocus(choice.value)}
-                aria-pressed={active}
-                className={`touch-target rounded-xl border px-3 py-3 text-left disabled:opacity-50 ${
-                  active
-                    ? "border-brand/30 bg-brand/10 text-brand-strong dark:text-brand"
-                    : "border-border bg-background hover:bg-surface-soft"
-                }`}
-              >
-                <span className="flex items-center gap-2 text-sm font-medium">
+              <button key={choice.value} type="button" disabled={pending} onClick={() => setFocus(choice.value)} aria-pressed={active} style={{ ...choiceStyle(active), opacity: pending ? 0.5 : 1 }}>
+                <span style={{ display: "flex", alignItems: "center", gap: "var(--space-4)", fontSize: "var(--text-14)", fontWeight: "var(--weight-600)" }}>
                   <Brain size={15} />
                   {choice.label}
                 </span>
-                <span className="mt-1 block text-xs text-muted">{choice.detail}</span>
+                <span style={{ marginTop: "var(--space-1)", display: "block", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}>{choice.detail}</span>
               </button>
             );
           })}
         </div>
       </fieldset>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4)" }}>
         <button
           type="button"
           disabled={pending || !readyToSave}
           onClick={() => save()}
-          className="touch-target inline-flex items-center justify-center rounded-xl bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-strong disabled:opacity-50"
+          style={{
+            borderRadius: "var(--radius-button)",
+            border: "none",
+            background: "var(--gl-purple)",
+            padding: "var(--space-4) var(--space-10)",
+            fontFamily: "var(--font-display)",
+            fontWeight: "var(--weight-800)",
+            fontSize: "var(--text-14)",
+            letterSpacing: "var(--tracking-04)",
+            textTransform: "uppercase",
+            color: "#fff",
+            cursor: pending || !readyToSave ? "default" : "pointer",
+            opacity: pending || !readyToSave ? 0.5 : 1,
+          }}
         >
           Set today&apos;s support
         </button>
@@ -126,7 +150,7 @@ export function MoodCheckIn({ visible }: { visible: boolean }) {
           type="button"
           disabled={pending}
           onClick={() => save({ skip: true })}
-          className="touch-target rounded-xl border border-border px-3 py-2 text-sm text-muted hover:bg-surface-soft disabled:opacity-50"
+          style={{ borderRadius: "var(--radius-button)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-btn-neutral)", padding: "var(--space-4) var(--space-8)", fontSize: "var(--text-14)", color: "var(--gl-text-muted)", cursor: pending ? "default" : "pointer", opacity: pending ? 0.5 : 1 }}
         >
           Skip today
         </button>
@@ -134,12 +158,12 @@ export function MoodCheckIn({ visible }: { visible: boolean }) {
           type="button"
           disabled={pending}
           onClick={() => save({ disable: true, skip: true })}
-          className="touch-target rounded-xl border border-border px-3 py-2 text-sm text-muted hover:bg-surface-soft disabled:opacity-50"
+          style={{ borderRadius: "var(--radius-button)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-btn-neutral)", padding: "var(--space-4) var(--space-8)", fontSize: "var(--text-14)", color: "var(--gl-text-muted)", cursor: pending ? "default" : "pointer", opacity: pending ? 0.5 : 1 }}
         >
           Do not ask again
         </button>
       </div>
-      {message && <p className="text-sm text-muted">{message}</p>}
+      {message && <p style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>{message}</p>}
     </section>
   );
 }
