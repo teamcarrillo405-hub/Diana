@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { TimerReset } from "lucide-react";
 import { TimerUi } from "./timer-ui";
 import { BodyDoubleUi } from "../body-double/body-double-ui";
 import { loadProfile } from "@/lib/profile";
 import type { SessionMood } from "@/lib/executive/session";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
 
 // Focus session — one surface, two modes. Solo = the timer; With others = the
 // body-double shared space. /body-double redirects here with ?with=others.
@@ -28,51 +29,56 @@ export default async function FocusSessionPage({
   const activeKey = withOthers ? "others" : "solo";
 
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-        <header className="space-y-1">
-          <p className="nexus-kicker">Focus session</p>
-          <h1 className="text-display">{withOthers ? "Focus together" : "Your session"}</h1>
-          <p className="text-sm text-muted">
-            {withOthers
-              ? "A calm shared space. Someone else is focusing right now too."
-              : roughMode
-                ? "A smaller block is ready."
-                : "Pick a block and a reward. Start when you're ready."}
-          </p>
-        </header>
-
-        {/* Solo / With-others toggle */}
-        <div role="tablist" aria-label="Focus mode" className="flex gap-2 border-b border-border">
-          {modes.map(({ key, label, href }) => {
-            const isActive = key === activeKey;
-            return (
-              <Link
-                key={key}
-                role="tab"
-                aria-selected={isActive}
-                href={href}
-                className={`-mb-px border-b-2 px-4 py-2 text-sm font-semibold transition ${
-                  isActive ? "border-accent text-fg" : "border-transparent text-muted hover:text-fg"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-
-        {withOthers ? (
-          <BodyDoubleUi />
-        ) : (
-          <TimerUi
-            roughMode={roughMode}
-            sessionMood={sessionMood}
-            difficulty={Number.isFinite(parsedDifficulty) ? parsedDifficulty : null}
-          />
-        )}
+    <PageShell
+      active="Work"
+      eyebrow="Focus session"
+      title={withOthers ? "Focus together." : "Your session."}
+      subtitle={
+        withOthers
+          ? "A calm shared space. Someone else is focusing right now too."
+          : roughMode
+            ? "A smaller block is ready."
+            : "Pick a block and a reward. Start when you're ready."
+      }
+      accent="var(--gl-cyan)"
+      icon={TimerReset}
+    >
+      {/* Solo / With-others toggle */}
+      <div role="tablist" aria-label="Focus mode" style={{ display: "flex", gap: "var(--space-4)", borderBottom: "1px solid var(--gl-border-neutral)" }}>
+        {modes.map(({ key, label, href }) => {
+          const isActive = key === activeKey;
+          return (
+            <Link
+              key={key}
+              role="tab"
+              aria-selected={isActive}
+              href={href}
+              style={{
+                marginBottom: -1,
+                borderBottom: `2px solid ${isActive ? "var(--gl-cyan)" : "transparent"}`,
+                padding: "var(--space-6) var(--space-10)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--text-13)",
+                fontWeight: "var(--weight-700)",
+                color: isActive ? "var(--gl-text-primary)" : "var(--gl-text-muted)",
+                textDecoration: "none",
+              }}
+            >
+              {label}
+            </Link>
+          );
+        })}
       </div>
-    </>
+
+      {withOthers ? (
+        <BodyDoubleUi />
+      ) : (
+        <TimerUi
+          roughMode={roughMode}
+          sessionMood={sessionMood}
+          difficulty={Number.isFinite(parsedDifficulty) ? parsedDifficulty : null}
+        />
+      )}
+    </PageShell>
   );
 }

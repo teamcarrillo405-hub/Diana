@@ -1,8 +1,9 @@
+import { Camera } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { loadProfile } from "@/lib/profile";
 import { CaptureForm } from "./capture-form";
-import { AppTopNav } from "../app-top-nav";
+import { PageShell } from "../page-shell";
 
 export default async function QuickAddPage() {
   const supabase = await createClient();
@@ -15,15 +16,15 @@ export default async function QuickAddPage() {
   const ttsProvider = profile?.tts_provider === "openai" ? "openai" : "browser";
 
   return (
-    <>
-      <AppTopNav active="Work" />
-      <div className="diana-page space-y-6">
-        <header className="space-y-1">
-          <h1 className="text-display">Quick add</h1>
-          <p className="text-sm text-muted">What do you need to remember?</p>
-        </header>
-        <CaptureForm ttsProvider={ttsProvider} />
-      </div>
-    </>
+    <PageShell
+      active="Work"
+      eyebrow="Capture"
+      title="Quick add."
+      subtitle="Snap a photo, talk it out, or jot a quick note — Diana routes it to the right class."
+      accent="var(--gl-cyan)"
+      icon={Camera}
+    >
+      <CaptureForm ttsProvider={ttsProvider} />
+    </PageShell>
   );
 }
