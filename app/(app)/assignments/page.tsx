@@ -23,7 +23,7 @@ import {
   NexusKicker,
   NexusPageShell,
 } from "@/components/nexus/nexus-ui";
-import { DashboardTabs } from "../dashboard/dashboard-tabs";
+import { AppTopNav } from "../app-top-nav";
 
 type AssignmentRow = {
   id: string;
@@ -152,8 +152,8 @@ export default async function AssignmentsPage() {
 
   return (
     <NexusPageShell className="assignments-mission-page space-y-8">
-      {/* Top tab strip (replaces the left sidebar here) — destinations per docs/design/NAVIGATION.md */}
-      <DashboardTabs />
+      {/* Shared top nav (replaces the left sidebar here) — destinations per docs/design/NAVIGATION.md */}
+      <AppTopNav active="Work" />
 
       {/* Header — title + Add assignment only */}
       <header
