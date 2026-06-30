@@ -70,7 +70,12 @@ export function LobbyAudioNote() {
 
   return (
     <>
+      <style>{`
+        .gl-record{transition:transform 140ms cubic-bezier(.23,1,.32,1),background .2s;}
+        .gl-record:active{transform:scale(.97);}
+      `}</style>
       <button
+        className="gl-record"
         onClick={() => (recording ? cancelAudio() : startAudio())}
         title={recording ? "Stop recording" : "Start audio note"}
         style={{
@@ -83,7 +88,6 @@ export function LobbyAudioNote() {
           border: "1.5px solid rgba(120,150,220,.32)",
           background: recording ? "rgba(255,55,55,.22)" : "rgba(120,150,220,.14)",
           animation: recording ? "gl-mic-pulse 1.5s ease-in-out infinite" : "none",
-          transition: "background .2s",
         }}
       >
         <svg
