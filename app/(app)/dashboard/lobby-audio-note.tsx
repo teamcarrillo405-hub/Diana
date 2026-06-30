@@ -82,23 +82,23 @@ export function LobbyAudioNote() {
         onClick={() => (recording ? cancelAudio() : startAudio())}
         title={recording ? "Stop recording" : "Start audio note"}
         style={{
-          padding: "8px 14px",
-          borderRadius: 8,
+          padding: "var(--space-7) var(--space-14)",
+          borderRadius: "var(--radius-button)",
           cursor: "pointer",
           display: "flex",
           alignItems: "center",
-          gap: 7,
-          border: recording ? "1px solid var(--gl-red-28)" : "1px solid var(--gl-cyan-28)",
-          background: recording ? "var(--gl-red-20)" : "var(--gl-cyan-14)",
-          animation: recording ? "gl-mic-pulse 1.5s ease-in-out infinite" : "none",
+          gap: "var(--space-4)",
+          border: `1.5px solid ${recording ? "var(--gl-red-mic-border-active)" : "var(--gl-red-mic-idle)"}`,
+          background: recording ? "var(--gl-red-mic-active)" : "var(--gl-red-mic-idle)",
+          animation: recording ? "gl-mic-pulse 1s ease-in-out infinite" : "none",
         }}
       >
         <svg
-          width="16"
-          height="16"
+          width="18"
+          height="18"
           viewBox="0 0 24 24"
           fill="none"
-          stroke={recording ? "var(--gl-red-icon)" : "var(--gl-cyan)"}
+          stroke="var(--gl-text-primary)"
           strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -111,14 +111,14 @@ export function LobbyAudioNote() {
         <span
           style={{
             fontFamily: SF,
-            fontWeight: 700,
-            fontSize: 15,
-            letterSpacing: ".06em",
+            fontWeight: 800,
+            fontSize: 17,
+            letterSpacing: ".08em",
             textTransform: "uppercase",
-            color: recording ? "var(--gl-red-icon)" : "var(--gl-cyan)",
+            color: "var(--gl-text-primary)",
           }}
         >
-          Note
+          RECORD
         </span>
       </button>
 

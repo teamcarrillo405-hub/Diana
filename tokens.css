@@ -573,6 +573,9 @@
   --gl-lime: #a3e635;
   --gl-lime-45: rgba(163,230,53,.45);
 
+  /* Student Lobby RECORD button — recording-state border accent */
+  --gl-red-mic-border-active: rgba(255,80,80,.9);
+
 }
 
 
