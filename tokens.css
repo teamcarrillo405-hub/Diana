@@ -569,6 +569,10 @@
   --gl-focus-from: var(--color-bg-focus-card-from);
   --gl-focus-to: var(--color-bg-focus-card-to);
 
+  /* Talk to Diana — lime accent + glow */
+  --gl-lime: #a3e635;
+  --gl-lime-45: rgba(163,230,53,.45);
+
 }
 
 
