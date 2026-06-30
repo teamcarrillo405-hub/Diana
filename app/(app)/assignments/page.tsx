@@ -16,6 +16,10 @@ import { KIND_LABEL } from "@/lib/checklists/templates";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import type { AssignmentStatus, AssignmentKind } from "@/lib/supabase/types";
 import { AppTopNav } from "../app-top-nav";
+import { computeNightBudget } from "@/lib/time-budget/compute";
+import { TimeBudget } from "../dashboard/time-budget";
+import { DueCards } from "../dashboard/due-cards";
+import { ReadingLoadToggle } from "../dashboard/reading-load-toggle";
 
 type AssignmentRow = {
   id: string;
@@ -102,13 +106,19 @@ function buildLanes(open: MissionAssignment[], completed: MissionAssignment[], n
   return lanes.filter((lane) => lane.items.length > 0);
 }
 
-export default async function AssignmentsPage() {
+export default async function AssignmentsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>;
+}) {
+  const { view } = await searchParams;
+  const isReadingLoad = view === "reading-load";
   const supabase = await createClient();
   const profile = await loadProfile();
   const now = new Date();
   const fourHoursAgoIso = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
 
-  const [{ data: assignments }, { data: signals }] = await Promise.all([
+  const [{ data: assignments }, { data: signals }, { data: dueCards }] = await Promise.all([
     supabase
       .from("assignments")
       .select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)")
@@ -119,6 +129,11 @@ export default async function AssignmentsPage() {
       .in("kind", ["started", "completed"])
       .gte("occurred_at", fourHoursAgoIso)
       .order("occurred_at", { ascending: false }),
+    supabase
+      .from("flashcards")
+      .select("id")
+      .lte("due_at", new Date().toISOString())
+      .order("due_at", { ascending: true }),
   ]);
 
   const rows = (assignments ?? []) as AssignmentRow[];
@@ -143,6 +158,21 @@ export default async function AssignmentsPage() {
   const lanes = buildLanes(open, completed, now);
   const dueSoonCount = open.filter((row) => dueWindow(row, now) <= 3).length;
   const proofCount = lanes.find((lane) => lane.title === "Needs proof")?.items.length ?? 0;
+  const dueCardCount = dueCards?.length ?? 0;
+  const firstCardId = dueCards?.[0]?.id ?? null;
+  const { totalMinutes, items: budgetItems } = computeNightBudget(
+    rows.map((row) => ({
+      id: row.id,
+      title: row.title,
+      classId: row.class_id,
+      kind: row.kind,
+      estimated_minutes: row.estimated_minutes,
+      reading_load: row.reading_load,
+      due_at: row.due_at,
+      status: row.status,
+    })),
+    { diagnoses: profile?.diagnoses ?? [], extra_time_pct: profile?.extra_time_pct ?? 0 },
+  );
 
   return (
     <div style={{ background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
@@ -393,6 +423,15 @@ export default async function AssignmentsPage() {
           ))}
         </div>
       </div>
+
+      {/* Time budget + due cards — right rail tools */}
+      <div style={{ display: "grid", gap: "var(--space-9)" }}>
+        <TimeBudget totalMinutes={totalMinutes} items={budgetItems} />
+        {dueCardCount > 0 && <DueCards count={dueCardCount} firstCardId={firstCardId} />}
+      </div>
+
+      {/* Reading-load toggle — full-width row */}
+      <ReadingLoadToggle active={isReadingLoad} />
 
       {/* Voice entry point — slanted lime CTA to the general-purpose Diana agent (see docs/design/NAVIGATION.md) */}
       <Link

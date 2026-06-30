@@ -2,9 +2,19 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { ArrowRight, FileText, NotebookPen, Plus, Search, Sparkles, Tags } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { loadProfile } from "@/lib/profile";
 import { snippetForQuery } from "@/lib/notes/related";
 import { NoteSynthesisPanel } from "./note-synthesis-panel";
 import { AppTopNav } from "../app-top-nav";
+import { sessionAdaptationForMood, shouldShowMoodCheckIn } from "@/lib/emotional/session";
+import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
+import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
+import type { DianaOrbState } from "@/components/signal/clarity-orb";
+import { MoodCheckIn } from "../dashboard/mood-check-in";
+import { SessionAdaptationCard } from "../dashboard/session-adaptation-card";
+import { SleepRecoveryCard } from "../dashboard/sleep-recovery-card";
+import { EnergyPicker } from "../dashboard/energy-picker";
+import { WeeklyReflection } from "../dashboard/weekly-reflection";
 
 const SF = "var(--font-display)";
 const BODY = "var(--font-body)";
@@ -12,12 +22,17 @@ const BODY = "var(--font-body)";
 export default async function NotesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; tag?: string }>;
+  searchParams: Promise<{ q?: string; tag?: string; energy?: "low" | "medium" | "high"; brain?: DianaOrbState }>;
 }) {
-  const { q, tag } = await searchParams;
+  const { q, tag, energy: energyParam, brain: brainParam } = await searchParams;
   const search = q?.trim() ?? "";
   const tagFilter = tag?.trim() ?? "";
   const supabase = await createClient();
+  const profile = await loadProfile();
+  const now = new Date();
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
   let query = supabase
     .from("notes")
     .select("id, title, body_text, transcript_text, updated_at, assignment_id, class_id, source, tags, ai_suggested_tags, classes(id, name)")
@@ -30,7 +45,48 @@ export default async function NotesPage({
     query = query.contains("tags", [tagFilter]);
   }
 
-  const { data: notes } = await query;
+  const [
+    { data: notes },
+    { data: latestReadinessSignal },
+    { data: overwhelmedToday },
+    { data: latestSleep },
+  ] = await Promise.all([
+    query,
+    supabase.from("task_signals").select("value, occurred_at").eq("kind", "mood_checkin").gte("occurred_at", todayStart.toISOString()).order("occurred_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("task_signals").select("id").eq("kind", "overwhelmed").gte("occurred_at", todayStart.toISOString()),
+    supabase.from("sleep_logs").select("sleep_date, sleep_quality, sleep_hours").order("sleep_date", { ascending: false }).limit(1).maybeSingle(),
+  ]);
+
+  const roughActive = profile?.rough_mode_until
+    ? new Date(profile.rough_mode_until).getTime() > now.getTime()
+    : false;
+  const adaptation = sessionAdaptationForMood(roughActive ? "rough" : profile?.session_mood);
+  const sleepAdjustment = sleepRecoveryAdjustment(
+    latestSleep
+      ? {
+          sleep_date: latestSleep.sleep_date,
+          sleep_quality: latestSleep.sleep_quality as SleepQuality,
+          sleep_hours: latestSleep.sleep_hours === null ? null : Number(latestSleep.sleep_hours),
+        }
+      : null,
+    now,
+  );
+  const readiness = readinessFromSignalValue(latestReadinessSignal?.value);
+  const energy =
+    energyParam ??
+    energyFromBody(readiness?.body) ??
+    sleepAdjustment.energyOverride ??
+    adaptation.energyOverride ??
+    "medium";
+  const brainState: DianaOrbState =
+    brainParam ??
+    (roughActive || (overwhelmedToday?.length ?? 0) > 0
+      ? "overwhelmed"
+      : energy === "low"
+        ? "low"
+        : energy === "high"
+          ? "on-it"
+          : "okay");
   const noteRows = notes ?? [];
   const totalTags = new Set(noteRows.flatMap((n) => [...(n.tags ?? []), ...(n.ai_suggested_tags ?? [])])).size;
   const classLinked = noteRows.filter((n) => n.class_id).length;
@@ -82,6 +138,24 @@ export default async function NotesPage({
               <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>{detail}</p>
             </div>
           ))}
+        </div>
+
+        {/* Check-in block — mood, adaptation, sleep, energy, weekly reflection */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-9)" }}>
+          <MoodCheckIn
+            visible={shouldShowMoodCheckIn({
+              disabled: profile?.mood_checkin_disabled,
+              lastCheckInAt: profile?.last_mood_checkin_at,
+              now,
+            })}
+          />
+          <SessionAdaptationCard adaptation={adaptation} />
+          <SleepRecoveryCard message={sleepAdjustment.message} />
+          <EnergyPicker currentBrain={brainState} />
+          <WeeklyReflection
+            lastReflectedAt={profile?.last_weekly_reflection_at ?? null}
+            mood={profile?.session_mood ?? null}
+          />
         </div>
 
         {/* Latest capture */}

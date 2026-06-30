@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import Link from "next/link";
 import { ArrowRight, FileText, GraduationCap, Landmark, Map, ShieldCheck, Sparkles } from "lucide-react";
 import type { ElementType } from "react";
@@ -6,6 +7,12 @@ import { loadProfile } from "@/lib/profile";
 import { deriveFuturePath } from "@/lib/future-path/derive";
 import { FutureMapVisual } from "@/components/student-portal/future-map-visual";
 import { AppTopNav } from "../app-top-nav";
+import { EveningPlanning } from "../dashboard/evening-planning";
+import { QuestCarousel, type QuestItem } from "../dashboard/quest-carousel";
+import { getEventIntentions } from "../dashboard/actions";
+import { rankAssignments } from "@/lib/scoring/next-five-minutes";
+import { formatDueAt } from "@/lib/format";
+import { KIND_LABEL } from "@/lib/checklists/templates";
 
 const SF = "var(--font-display)";
 const BODY = "var(--font-body)";
@@ -15,13 +22,56 @@ export default async function FuturePathPage() {
   const profile = await loadProfile();
   const { data: { user } } = await supabase.auth.getUser();
 
-  const [{ count: proofCount }, { count: portfolioItemCount }, { count: openAssignmentCount }] = user
+  const now = new Date();
+  const fourHoursAgoIso = new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString();
+  const cookieStore = await cookies();
+  const lastShownClassId = cookieStore.get("diana_last_class")?.value ?? null;
+  const ACCENT_CYCLE = ["#29d0ff", "#7e5cff", "#ffd24a", "#36e07a", "#f25fb0"];
+
+  const [
+    { count: proofCount },
+    { count: portfolioItemCount },
+    { count: openAssignmentCount },
+    { data: assignments },
+    { data: signals },
+    intentions,
+  ] = user
     ? await Promise.all([
         supabase.from("task_signals").select("id", { count: "exact", head: true }).eq("owner_id", user.id).eq("kind", "completed"),
         supabase.from("portfolio_items").select("id", { count: "exact", head: true }).eq("owner_id", user.id),
         supabase.from("assignments").select("id", { count: "exact", head: true }).neq("status", "submitted").neq("status", "graded").neq("status", "abandoned"),
+        supabase.from("assignments").select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)").neq("status", "submitted").neq("status", "graded").neq("status", "abandoned").order("due_at", { ascending: true, nullsFirst: false }),
+        supabase.from("task_signals").select("assignment_id, occurred_at").in("kind", ["started", "completed"]).gte("occurred_at", fourHoursAgoIso).order("occurred_at", { ascending: false }),
+        getEventIntentions(),
       ])
-    : [{ count: 0 }, { count: 0 }, { count: 0 }];
+    : [{ count: 0 }, { count: 0 }, { count: 0 }, { data: [] }, { data: [] }, []];
+
+  const recentSignals = (signals ?? []).filter(
+    (s): s is { assignment_id: string; occurred_at: string } => s.assignment_id !== null,
+  );
+  const ranked = assignments
+    ? rankAssignments(
+        assignments as Parameters<typeof rankAssignments>[0],
+        recentSignals,
+        now,
+        "medium",
+        { diagnoses: profile?.diagnoses ?? [], extra_time_pct: profile?.extra_time_pct ?? 0 },
+        lastShownClassId,
+      )
+    : [];
+  const questItems: QuestItem[] = ranked.slice(0, 5).map((a, i) => {
+    const aRow = (assignments ?? []).find((x) => x.id === a.id);
+    const joined = aRow ? (Array.isArray(aRow.classes) ? aRow.classes[0] : aRow.classes) : null;
+    const subject = (joined as { name?: string | null } | null)?.name?.trim() || KIND_LABEL[a.kind as keyof typeof KIND_LABEL] || "Work";
+    return {
+      n: i + 1,
+      subject,
+      title: a.title,
+      due: a.due_at ? formatDueAt(a.due_at) : "no due date",
+      accent: ACCENT_CYCLE[i % ACCENT_CYCLE.length],
+      href: `/assignments/${a.id}?focus=next-step`,
+    };
+  });
 
   const model = deriveFuturePath({
     schoolYear: profile?.school_year ?? null,
@@ -126,6 +176,16 @@ export default async function FuturePathPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* Tonight + quest path */}
+        <section style={{ display: "grid", gap: "var(--space-12)" }}>
+          <EveningPlanning intentions={intentions} />
+          {questItems.length > 0 && (
+            <div style={{ position: "relative", minHeight: 240 }}>
+              <QuestCarousel quests={questItems} />
+            </div>
+          )}
         </section>
       </div>
     </div>

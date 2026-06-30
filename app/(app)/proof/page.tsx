@@ -1,8 +1,11 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { FileText, Images, LockKeyhole, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { ProofConstellation, ProofReceiptVisual } from "@/components/student-portal/proof-receipt-visual";
 import { AppTopNav } from "../app-top-nav";
+import { DoneToday } from "../dashboard/done-today";
+import { GradeMoveCard } from "../dashboard/grade-move-card";
 
 const SF = "var(--font-display)";
 const BODY = "var(--font-body)";
@@ -47,11 +50,15 @@ export default async function ProofPage() {
     );
   }
 
-  const [{ data: authorship }, { data: artifacts }, { data: wins }, { data: portfolios }] = await Promise.all([
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const [{ data: authorship }, { data: artifacts }, { data: wins }, { data: portfolios }, { data: doneToday }] = await Promise.all([
     supabase.from("authorship_log").select("id, actor, event_type, created_at").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(8),
     supabase.from("study_artifacts").select("id, title, artifact_type, source_anchor_count, created_at").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(4),
     supabase.from("task_signals").select("id, occurred_at, assignments(title, kind)").eq("owner_id", user.id).eq("kind", "completed").order("occurred_at", { ascending: false }).limit(5),
     supabase.from("portfolios").select("id, title, description, portfolio_items(id, title, reflection_text, created_at)").eq("owner_id", user.id).order("updated_at", { ascending: false }).limit(3),
+    supabase.from("task_signals").select("id").eq("kind", "completed").gte("occurred_at", todayStart.toISOString()),
   ]);
 
   const receiptRows = (authorship ?? []) as AuthorshipRow[];
@@ -59,6 +66,7 @@ export default async function ProofPage() {
   const winRows = (wins ?? []) as WinRow[];
   const portfolioRows = (portfolios ?? []) as PortfolioRow[];
   const portfolioItemCount = portfolioRows.reduce((sum, p) => sum + (p.portfolio_items?.length ?? 0), 0);
+  const doneTodayCount = doneToday?.length ?? 0;
 
   const actorColor: Record<string, string> = {
     student: "var(--gl-cyan)",
@@ -124,6 +132,14 @@ export default async function ProofPage() {
               </p>
             </div>
           </div>
+        </section>
+
+        {/* Today's proof — done count + grade move */}
+        <section style={{ display: "grid", gap: "var(--space-9)" }}>
+          <DoneToday count={doneTodayCount} />
+          <Suspense fallback={null}>
+            <GradeMoveCard />
+          </Suspense>
         </section>
 
         {/* Authorship trail + sidebar */}
