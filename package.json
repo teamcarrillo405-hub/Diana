@@ -51,6 +51,7 @@
     "@capacitor/haptics": "^8.0.2",
     "@fontsource/atkinson-hyperlegible-next": "^5.2.7",
     "@fontsource/opendyslexic": "^5.2.5",
+    "@imgly/background-removal": "^1.7.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.2",
     "date-fns": "^4.1.0",

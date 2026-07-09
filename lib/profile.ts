@@ -46,6 +46,8 @@ export type ProfilePrefs = Pick<
   | "tokens_used_today"  // AI-SAFETY-01: running total for today
   | "token_reset_date"   // AI-SAFETY-01: UTC date of last reset
   | "photo_url"          // 20260613 migration: cross-device lobby photo (data URL)
+  | "photo_offset_x"     // 20260709 migration: drag-to-reposition crop offset (0-100)
+  | "photo_offset_y"
 >;
 
 export async function loadProfile(): Promise<ProfilePrefs | null> {
@@ -55,7 +57,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const { data } = await supabase
     .from("profiles")
     .select(
-      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, interests, mastery_signals, session_mood, last_mood_checkin_at, last_weekly_reflection_at, mood_checkin_disabled, rough_mode_until, ai_verbosity_by_subject, notification_preferences, privacy_preferences, bionic_reading, visual_pacing, line_focus, reading_letter_spacing, reading_word_spacing, font_size, line_spacing, learning_loop_paused, learning_loop_reset_at, dyslexia_font, reduced_motion, high_contrast, tts_enabled, tts_provider, tts_speed, tts_pitch, tts_voice, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date, photo_url",
+      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, interests, mastery_signals, session_mood, last_mood_checkin_at, last_weekly_reflection_at, mood_checkin_disabled, rough_mode_until, ai_verbosity_by_subject, notification_preferences, privacy_preferences, bionic_reading, visual_pacing, line_focus, reading_letter_spacing, reading_word_spacing, font_size, line_spacing, learning_loop_paused, learning_loop_reset_at, dyslexia_font, reduced_motion, high_contrast, tts_enabled, tts_provider, tts_speed, tts_pitch, tts_voice, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date, photo_url, photo_offset_x, photo_offset_y",
     )
     .eq("user_id", user.id)
     .single();

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
+    --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-12:rgba(54,224,122,.12);
+    --gl-slate:#8b96bd;
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  .flip-scene{perspective:1400px}
+  .flip-card{position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,.2,.2,1)}
+  .flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+  .flip-back{transform:rotateY(180deg)}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)">
+
+  <!-- APP NAV -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#8b96bd">
+      <a href="Student Lobby.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Today</a><a href="Work.dc.html" style="text-decoration:none;color:#fff;cursor:pointer">Work</a><a href="Classes.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a><a href="Calendar.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a><a href="Messages.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f;flex-shrink:0;cursor:pointer;border:2px solid rgba(41,208,255,.38)">G</a>
+    </div>
+  </div>
+
+  <!-- ═══ LIST SCREEN ═══ -->
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1440px;margin:0 auto;padding:26px 34px 64px">
+      <header style="margin-bottom:22px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--gl-cyan);opacity:.85;margin-bottom:9px">Flashcards</div>
+        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:38px;line-height:.92;text-transform:uppercase">Keep it fresh.</h1>
+        <p style="margin:10px 0 0;font-size:14.5px;color:var(--gl-text-overlay-60)">Spaced so you review each card right before you'd forget it — never more than you need.</p>
+      </header>
+
+      <!-- due summary + start -->
+      <div style="display:flex;align-items:center;gap:18px;border-radius:16px;border:1px solid var(--gl-cyan-25);background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));padding:22px 26px;margin-bottom:24px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:44px;line-height:1;color:var(--gl-cyan)">{{ dueTotal }}</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-text-secondary);margin-top:4px">Cards due now</div>
+        </div>
+        <div style="flex:1;min-width:200px;font-size:13.5px;color:var(--gl-text-overlay-60)">Across {{ deckCount }} decks. About {{ estMinutes }} minutes, start to finish.</div>
+        <div onClick="{{ startReview }}" style="display:inline-flex;align-items:center;gap:9px;padding:13px 24px;border-radius:11px;background:var(--gl-cyan);box-shadow:0 0 26px rgba(41,208,255,.34);cursor:pointer">
+          <span style="font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">Review due cards</span>
+        </div>
+      </div>
+
+      <!-- decks -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <sc-for list="{{ decks }}" as="d" hint-placeholder-count="6">
+          <div style="position:relative;border-radius:14px;border:1px solid var(--gl-border);border-left:3px solid {{ d.color }};background:var(--gl-bg-card);backdrop-filter:blur(10px);padding:16px 18px">
+            <div style="font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ d.color }}">{{ d.cls }}</div>
+            <div style="font-family:var(--font-display);font-weight:800;font-size:19px;line-height:1.1;margin-top:5px;color:#fff">{{ d.name }}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px">
+              <span style="font-size:12.5px;color:var(--gl-text-overlay-60)">{{ d.dueLabel }}</span>
+              <span style="font-family:var(--font-display);font-weight:800;font-size:13px;color:{{ d.color }}">{{ d.count }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ REVIEW SESSION ═══ -->
+  <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1440px;margin:0 auto;padding:30px 34px 60px;display:flex;flex-direction:column;align-items:center">
+     <div style="width:100%;max-width:640px;display:flex;flex-direction:column;align-items:center">
+
+      <sc-if value="{{ sessionActive }}" hint-placeholder-val="{{ true }}">
+        <!-- progress -->
+        <div style="width:100%;display:flex;align-items:center;gap:12px;margin-bottom:26px">
+          <div onClick="{{ exitReview }}" style="cursor:pointer;color:var(--gl-text-muted)">✕</div>
+          <div style="flex:1;height:6px;border-radius:3px;background:rgba(120,150,220,.16);overflow:hidden">
+            <div style="height:100%;border-radius:3px;width:{{ progressPct }}%;background:var(--gl-cyan);transition:width .3s"></div>
+          </div>
+          <span style="font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--gl-text-muted)">{{ cardIndexLabel }}</span>
+        </div>
+
+        <!-- flip card (scaleX squeeze — content swaps at the pinch point; avoids backface-visibility/rotateY, which render unreliably in screenshot/export pipelines) -->
+        <div style="width:100%;height:320px;margin-bottom:26px;perspective:1000px">
+          <div onClick="{{ flip }}" style="width:100%;height:100%;cursor:pointer;transform:scaleX({{ squeezeX }});transition:transform .16s ease-{{ squeezeEasing }}">
+            <sc-if value="{{ showFront }}" hint-placeholder-val="{{ true }}">
+              <div style="width:100%;height:100%;box-sizing:border-box;border-radius:18px;border:1px solid var(--gl-cyan-25);background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;box-shadow:0 20px 50px -20px rgba(41,208,255,.25)">
+                <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:16px">{{ card.cls }}</div>
+                <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:26px;line-height:1.15;color:#fff">{{ card.front }}</div>
+                <div style="margin-top:20px;font-size:12.5px;color:var(--gl-text-dim)">Tap to flip</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+              <div style="width:100%;height:100%;box-sizing:border-box;border-radius:18px;border:1px solid var(--gl-green-30);background:linear-gradient(135deg,rgba(8,26,18,.96),rgba(6,18,14,.96));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center">
+                <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-green);margin-bottom:16px">Answer</div>
+                <div style="font-size:18px;line-height:1.5;color:#eaf9ef">{{ card.back }}</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <!-- rating buttons -->
+        <sc-if value="{{ showRatings }}" hint-placeholder-val="{{ false }}">
+          <div style="width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+            <sc-for list="{{ ratingButtons }}" as="r" hint-placeholder-count="4">
+              <div onClick="{{ r.onClick }}" style="text-align:center;padding:14px 0;border-radius:12px;cursor:pointer;background:{{ r.bg }};border:1px solid {{ r.border }}">
+                <div style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:{{ r.fg }}">{{ r.label }}</div>
+                <div style="font-size:11px;color:{{ r.subFg }};margin-top:3px">{{ r.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ hideRatings }}" hint-placeholder-val="{{ true }}">
+          <div style="height:20px;font-size:12.5px;color:var(--gl-text-dim)">Flip the card to rate how it went.</div>
+        </sc-if>
+      </sc-if>
+
+      <!-- session complete -->
+      <sc-if value="{{ sessionDone }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:50px 20px">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 16px;display:block"><path d="M20 6 9 17l-5-5"></path></svg>
+          <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:28px;text-transform:uppercase">All caught up.</div>
+          <p style="margin:10px auto 0;max-width:340px;font-size:14px;color:var(--gl-text-overlay-60)">{{ reviewedCount }} cards reviewed. Diana already scheduled when each one comes back — nothing to track yourself.</p>
+          <div onClick="{{ exitReview }}" style="margin:22px auto 0;display:inline-flex;padding:12px 24px;border-radius:10px;background:var(--gl-cyan);cursor:pointer">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">Back to decks</span>
+          </div>
+        </div>
+      </sc-if>
+     </div>
+    </div>
+  </sc-if>
+
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { screen: 'list', i: 0, flipped: false, squeezed: false, done: false, reviewed: 0 };
+
+  startReview = () => this.setState({ screen: 'review', i: 0, flipped: false, squeezed: false, done: false, reviewed: 0 });
+  exitReview = () => this.setState({ screen: 'list' });
+  flip = () => {
+    if (this.state.squeezed) return;
+    const wasFlipped = this.state.flipped;
+    this.setState({ squeezed: true });
+    clearTimeout(this._flipT);
+    this._flipT = setTimeout(() => {
+      this.setState({ flipped: !wasFlipped, squeezed: false });
+    }, 160);
+  };
+
+  CARDS() {
+    return [
+      { cls: 'Math', front: 'Quadratic formula', back: 'x = (\u2212b \u00b1 \u221a(b\u00b2 \u2212 4ac)) / 2a' },
+      { cls: 'English', front: 'What is a metaphor?', back: 'A direct comparison between two unlike things, without using "like" or "as."' },
+      { cls: 'Science', front: 'What does pH measure?', back: "A solution's acidity or basicity, on a scale of 0 (acidic) to 14 (basic)." },
+      { cls: 'History', front: 'When did the Cold War begin?', back: '1947, following the end of World War II.' },
+      { cls: 'Math', front: 'Derivative of sin(x)', back: 'cos(x)' },
+    ];
+  }
+
+  rate = () => {
+    const cards = this.CARDS();
+    const nextI = this.state.i + 1;
+    if (nextI >= cards.length) {
+      this.setState({ done: true, reviewed: cards.length });
+    } else {
+      this.setState({ i: nextI, flipped: false, squeezed: false, reviewed: this.state.reviewed + 1 });
+    }
+  };
+  componentWillUnmount() { clearTimeout(this._flipT); }
+
+  renderVals() {
+    const st = this.state;
+    const cards = this.CARDS();
+    const card = cards[Math.min(st.i, cards.length - 1)];
+
+    const decks = [
+      { cls: 'Math', name: 'Ch. 4 formulas', color: 'var(--gl-slate)', dueLabel: 'Due now', count: 8 },
+      { cls: 'English', name: 'Literary devices', color: 'var(--gl-slate)', dueLabel: 'Due now', count: 5 },
+      { cls: 'Science', name: 'Chemistry vocab', color: 'var(--gl-slate)', dueLabel: 'Due now', count: 4 },
+      { cls: 'History', name: 'Cold War timeline', color: 'var(--gl-slate)', dueLabel: 'Due tomorrow', count: 6 },
+      { cls: 'Math', name: 'Derivatives', color: 'var(--gl-slate)', dueLabel: 'Due in 2 days', count: 3 },
+      { cls: 'Athletics', name: 'Training terms', color: 'var(--gl-slate)', dueLabel: 'Up to date', count: 0 },
+    ];
+    const dueTotal = decks.reduce((sum, d) => sum + (d.dueLabel !== 'Up to date' && d.dueLabel !== 'Due in 2 days' ? d.count : 0), 0);
+
+    const ratingDefs = [
+      { v: 1, label: 'Again', sub: '< 10 min', bg: 'rgba(120,150,220,.08)', border: 'var(--gl-border)', fg: 'var(--gl-text-secondary)', subFg: 'var(--gl-text-dim)' },
+      { v: 2, label: 'Hard', sub: '1 day', bg: 'var(--gl-gold-14)', border: 'var(--gl-gold-30)', fg: 'var(--gl-gold)', subFg: 'rgba(255,210,74,.7)' },
+      { v: 3, label: 'Good', sub: '3 days', bg: 'var(--gl-cyan-14)', border: 'var(--gl-cyan-25)', fg: 'var(--gl-cyan)', subFg: 'rgba(41,208,255,.7)' },
+      { v: 4, label: 'Easy', sub: '6 days', bg: 'var(--gl-green-12)', border: 'var(--gl-green-30)', fg: 'var(--gl-green)', subFg: 'rgba(54,224,122,.7)' },
+    ];
+    const ratingButtons = ratingDefs.map((r) => ({ ...r, onClick: this.rate }));
+
+    return {
+      isList: st.screen === 'list', isReview: st.screen === 'review',
+      dueTotal, deckCount: decks.filter((d) => d.count > 0).length, estMinutes: Math.max(3, Math.round(dueTotal * 0.6)),
+      decks, startReview: this.startReview,
+      sessionActive: !st.done, sessionDone: st.done,
+      exitReview: this.exitReview,
+      progressPct: Math.round((st.i / cards.length) * 100),
+      cardIndexLabel: (st.i + 1) + ' / ' + cards.length,
+      card, flip: this.flip,
+      squeezeX: st.squeezed ? 0 : 1,
+      squeezeEasing: st.squeezed ? 'in' : 'out',
+      showFront: !st.flipped, showBack: st.flipped,
+      showRatings: st.flipped, hideRatings: !st.flipped,
+      ratingButtons,
+      reviewedCount: st.reviewed,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -39,3 +39,6 @@ external/
 /a.due_at
 /assignment.id
 /window.clearInterval(id)
+
+# Backend export bundles (generated)
+/export/

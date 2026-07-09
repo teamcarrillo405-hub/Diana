@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
+    --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-12:rgba(54,224,122,.12);
+    --gl-red:#ff5555; --gl-red-30:rgba(255,85,85,.4); --gl-red-12:rgba(255,55,55,.1);
+    --gl-purple-light:#b09cff; --gl-pink:#f25fb0; --gl-slate:#8b96bd; --gl-indigo:#5b7fff;
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)">
+
+  <!-- APP NAV -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+      <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Today</a>
+      <a href="Work.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Work</a>
+      <a href="Classes.dc.html" style="display:inline-block;text-decoration:none;position:relative;color:#fff;padding:18px 2px;cursor:pointer"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div>Classes</a>
+      <a href="Calendar.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+      <a href="Messages.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+            <div style="width:100%;height:100%;background-image:{{ avatarPhotoCss }};background-size:cover;background-position:{{ photoObjectPosition }}"></div>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+        </sc-if>
+        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+        </sc-if>
+        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f">{{ initials }}</span>
+        </sc-if>
+      </a>
+      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:44px 34px 70px">
+
+    <!-- ═══════ GRID SCREEN ═══════ -->
+    <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
+    <div>
+      <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:34px">
+        <div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:#29d0ff;margin-bottom:10px">Fall term · 6 classes</div>
+          <h1 style="margin:0;font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:56px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:#fff;text-wrap:balance">Your classes</h1>
+        </div>
+        <a href="New Class.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;background:rgba(41,208,255,.08);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-cyan)" style-hover="background:rgba(41,208,255,.16)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add class
+        </a>
+      </header>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+        <sc-for list="{{ gridClasses }}" as="c" hint-placeholder-count="6">
+          <div onClick="{{ c.onOpenDetail }}" style="border-radius:14px;overflow:hidden;border:1px solid {{ c.cardBorder }};box-shadow:{{ c.cardRing }};background:rgba(4,8,20,.72);backdrop-filter:blur(10px);cursor:pointer;transition:transform .2s" style-hover="transform:translateY(-4px)">
+            <div style="padding:20px 20px 18px">
+              <!-- eyebrow: current period + teacher -->
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;min-height:16px">
+                <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:inline-flex;align-items:center;gap:6px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-cyan)"><span style="width:6px;height:6px;border-radius:50%;background:var(--gl-cyan);box-shadow:0 0 8px var(--gl-cyan)"></span>In session now</div>
+                </sc-if>
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim)">{{ c.teacher }}</div>
+              </div>
+              <!-- subject name + course grade -->
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:40px;line-height:.9;text-transform:uppercase;letter-spacing:.01em">{{ c.name }}</div>
+                <div style="text-align:right;flex-shrink:0">
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:27px;line-height:.9;color:{{ c.gradeColor }}">{{ c.gradeLetter }}</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--gl-text-dim);margin-top:3px">{{ c.gradePct }}</div>
+                </div>
+              </div>
+
+              <!-- concept mastery bricks -->
+              <div style="margin-top:18px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-muted)">Mastery</div>
+                  <div style="font-size:12px;font-weight:600;color:var(--gl-text-dim)">{{ c.masterySummary }}</div>
+                </div>
+                <div style="display:flex;gap:5px">
+                  <sc-for list="{{ c.bricks }}" as="b" hint-placeholder-count="4">
+                    <div title="{{ b.name }}" style="flex:1;height:9px;border-radius:3px;background:{{ b.color }}"></div>
+                  </sc-for>
+                </div>
+              </div>
+
+              <!-- quiet next-up reference line -->
+              <div style="margin-top:15px;display:flex;align-items:center;gap:7px;min-width:0">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ c.nextIconColor }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 14.5 15"></polyline><path d="M10 3h4"></path><line x1="12" y1="3" x2="12" y2="5"></line></svg>
+                <span style="font-size:13px;font-weight:600;color:{{ c.nextColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.nextLine }}</span>
+              </div>
+
+              <!-- study tools — consistent on every card -->
+              <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div onClick="{{ goFlashcards }}" style="padding:10px 8px;border-radius:8px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.2);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:rgba(41,208,255,.85)" style-hover="background:rgba(41,208,255,.14)">Flashcards</div>
+                <div onClick="{{ goQuiz }}" style="padding:10px 8px;border-radius:8px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.2);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:rgba(41,208,255,.85)" style-hover="background:rgba(41,208,255,.14)">Quiz me</div>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ═══════ DETAIL SCREEN ═══════ -->
+    <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div>
+      <div onClick="{{ backToGrid }}" style="display:inline-flex;align-items:center;gap:7px;margin-bottom:16px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>All classes
+      </div>
+
+      <div style="position:relative;border-radius:16px;border:1px solid {{ sel.color }}40;background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));padding:24px 26px;overflow:hidden;margin-bottom:22px">
+        <div style="position:absolute;left:-1px;top:-1px;width:15px;height:15px;border-left:2px solid {{ sel.color }};border-top:2px solid {{ sel.color }};border-radius:2px 0 0 0;opacity:.8"></div>
+        <div style="position:absolute;right:-1px;top:-1px;width:15px;height:15px;border-right:2px solid {{ sel.color }};border-top:2px solid {{ sel.color }};border-radius:0 2px 0 0;opacity:.8"></div>
+        <div style="position:absolute;left:-1px;bottom:-1px;width:15px;height:15px;border-left:2px solid {{ sel.color }};border-bottom:2px solid {{ sel.color }};border-radius:0 0 0 2px;opacity:.8"></div>
+        <div style="position:absolute;right:-1px;bottom:-1px;width:15px;height:15px;border-right:2px solid {{ sel.color }};border-bottom:2px solid {{ sel.color }};border-radius:0 0 2px 0;opacity:.8"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:16px">
+            <div style="width:52px;height:52px;border-radius:13px;background:{{ sel.iconBg }};display:flex;align-items:center;justify-content:center;color:{{ sel.color }};font-family:var(--font-display);font-weight:800;font-size:26px">{{ sel.initial }}</div>
+            <div>
+              <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:38px;line-height:.92;text-transform:uppercase">{{ sel.name }}</h1>
+              <div style="margin-top:3px;font-size:13.5px;color:var(--gl-text-overlay-60)">{{ sel.teacher }}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:9px;background:rgba(255,255,255,.04);border:1px solid var(--gl-border)">
+            <span style="width:8px;height:8px;border-radius:50%;background:{{ sel.aiModeColor }}"></span>
+            <span style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-text-secondary)">AI help: {{ sel.aiModeLabel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px">
+        <!-- mastery -->
+        <div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;color:var(--gl-text-secondary)">Concept mastery</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ sel.concepts }}" as="m" hint-placeholder-count="4">
+              <div onClick="{{ m.onClick }}" style="border-radius:12px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:13px 15px;cursor:pointer">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                  <div style="font-size:14px;font-weight:600;color:#fff">{{ m.name }}</div>
+                  <div style="position:relative;width:30px;height:30px;border-radius:50%;background:{{ m.glowBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <div style="width:12px;height:12px;border-radius:50%;background:{{ m.dotColor }};box-shadow:{{ m.glow }}"></div>
+                  </div>
+                </div>
+                <div style="margin-top:8px;height:5px;border-radius:3px;background:rgba(120,150,220,.15);overflow:hidden">
+                  <div style="height:100%;border-radius:3px;width:{{ m.pct }}%;background:{{ sel.color }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- syllabus -->
+        <div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;color:var(--gl-text-secondary)">Syllabus</div>
+          <div style="border-radius:12px;border:1px dashed var(--gl-border);background:rgba(4,8,20,.4);padding:15px 17px">
+            <sc-if value="{{ sel.hasSyllabus }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:11px">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
+                <div><div style="font-size:14px;font-weight:600;color:#fff">{{ sel.syllabusName }}</div><div style="font-size:12px;color:var(--gl-text-dim)">Key dates + policies parsed automatically</div></div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+
+      <!-- notes for this class -->
+      <div style="margin-top:22px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-secondary)">Notes</div>
+          <div style="display:flex;align-items:center;gap:14px">
+            <a href="Notes.dc.html" style="text-decoration:none;font-size:12.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-text-dim);cursor:pointer">See all →</a>
+            <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan-25)">
+              <span style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-cyan)">+ New note</span>
+            </a>
+          </div>
+        </div>
+        <sc-if value="{{ sel.hasNotes }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px">
+            <sc-for list="{{ sel.notes }}" as="n" hint-placeholder-count="2">
+              <a href="Notes.dc.html" style="text-decoration:none;display:block;border-radius:12px;border:1px solid var(--gl-border);border-left:3px solid {{ sel.color }};background:var(--gl-bg-card);padding:14px 16px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:14.5px;color:#fff">{{ n.title }}</span>
+                  <span style="font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-dim);flex-shrink:0;margin-left:10px">{{ n.source }}</span>
+                </div>
+                <div style="font-size:12.5px;color:var(--gl-text-overlay-60);line-height:1.5">{{ n.snippet }}</div>
+              </a>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{ sel.hasNotesEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:12px;border:1px dashed var(--gl-border);padding:16px;font-size:13px;color:var(--gl-text-dim)">No notes captured for {{ sel.name }} yet — text, photo, and voice captures land here automatically.</div>
+        </sc-if>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1400}}">
+class Component extends DCLogic {
+  state = { screen: 'grid', selId: null };
+  noop = () => {};
+  openClass = (id) => this.setState({ screen: 'detail', selId: id });
+  backToGrid = () => this.setState({ screen: 'grid' });
+
+  NOTES_BY_CLASS() {
+    return {
+      math: [ { title: 'Whiteboard — quadratic formula steps', source: 'Photo', snippet: 'Factor first, fall back to the formula if it won\u2019t factor cleanly.' } ],
+      english: [ { title: 'Rhetorical devices — lecture', source: 'Voice', snippet: 'Anaphora is repetition at the start of clauses. Asyndeton drops conjunctions for pace.' } ],
+      science: [ { title: 'Mitochondria lecture recap', source: 'Voice', snippet: 'The inner membrane folds into cristae, increasing surface area for the electron transport chain.' }, { title: 'Lab safety walkthrough', source: 'Photo', snippet: 'Goggles at all times, know where the eyewash station is before starting.' } ],
+      history: [ { title: 'Chapter 12 reading notes', source: 'Typed', snippet: 'Industrial Revolution began in Britain due to access to coal, capital, and trade networks.' } ],
+      athletics: [ { title: 'Post-practice notes from Coach', source: 'Voice', snippet: 'Focus on footwork before the scrimmage Friday.' } ],
+      art: [ { title: 'Color theory cheat sheet', source: 'Typed', snippet: 'Complementary colors sit opposite on the wheel \u2014 use for contrast, not everywhere at once.' } ],
+    };
+  }
+
+  ICONS() {
+    return {
+      calc: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="8" y2="10"/><line x1="12" y1="10" x2="12" y2="10"/><line x1="16" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="18"/><line x1="8" y1="18" x2="12" y2="18"/></svg>',
+      pen: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+      atom: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><ellipse cx="12" cy="12" rx="10" ry="4.2"/><ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(120 12 12)"/></svg>',
+      landmark: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 21 8 3 8"/></svg>',
+      trophy: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg>',
+      heart: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>',
+    };
+  }
+
+  DATA() {
+    const I = this.ICONS();
+    const aiColors = { green: 'var(--gl-green)', yellow: 'var(--gl-gold)', red: 'var(--gl-text-dim)' };
+    const aiLabels = { green: 'Full help', yellow: 'Guided only', red: 'Minimal' };
+    const grades = { math: { letter: 'B+', pct: 88 }, english: { letter: 'C+', pct: 79 }, science: { letter: 'A\u2212', pct: 91 }, history: { letter: 'A\u2212', pct: 90 }, athletics: { letter: 'A', pct: 99 }, art: { letter: 'A', pct: 96 } };
+    return [
+      { id: 'math', name: 'Math', teacher: 'Mr. Alvarez', color: 'var(--gl-cyan)', iconBg: 'var(--gl-cyan-08)', icon: I.calc, iconLg: I.calc, aiMode: 'green', overdue: false, nextUp: 'Unit 4 problem set · due tomorrow', loadLabel: '2 open', mastery: 3,
+        status: 'in_progress', estMin: 45, tookMin: 0, studyLabel: 'Ch. 4 flashcards', gameDay: '', upcomingTest: { type: 'QUIZ', label: 'Ch. 4 Quiz', date: 'FRI Jun 27', daysAway: 2 }, active: true, pct: 64, nextAssignment: 'Finish Ch. 4 problems', nextDue: 'FRI Jun 27',
+        assignments: [
+          { title: 'Unit 4 problem set', due: 'Due tomorrow 9pm', status: 'Todo', color: 'var(--gl-text-dim)', dueColor: 'var(--gl-text-overlay-60)' },
+          { title: 'Ch. 4 flashcards', due: '18 cards due', status: 'Review', color: 'var(--gl-purple-light)', dueColor: 'var(--gl-text-overlay-60)' },
+        ],
+        hasSyllabus: true, syllabusName: 'Algebra II — Fall syllabus.pdf',
+        concepts: [
+          { name: 'Quadratic functions', level: 3 }, { name: 'Factoring', level: 4 }, { name: 'Systems of equations', level: 2 }, { name: 'Polynomials', level: 1 },
+        ] },
+      { id: 'english', name: 'English', teacher: 'Ms. Chen', color: 'var(--gl-cyan)', iconBg: 'var(--gl-cyan-08)', icon: I.pen, iconLg: I.pen, aiMode: 'yellow', overdue: true, overdueLabel: '1 overdue', nextUp: 'Reading response · turn in', loadLabel: '1 open', mastery: 2,
+        status: 'not_started', estMin: 60, tookMin: 0, studyLabel: 'Vocab flashcards', gameDay: '', upcomingTest: { type: 'QUIZ', label: 'Reading Quiz', date: 'THU Jun 26', daysAway: 1 }, active: false, pct: 0, nextAssignment: 'Read pages 40–60', nextDue: 'OVERDUE',
+        assignments: [ { title: 'Reading response — Ch. 3', due: 'Overdue by 1 day', status: 'Turn in', color: 'var(--gl-red)', dueColor: 'var(--gl-red)' } ],
+        hasSyllabus: true, syllabusName: 'AP Lit — syllabus.pdf',
+        concepts: [ { name: 'Rhetorical analysis', level: 2 }, { name: 'Thesis structure', level: 3 }, { name: 'Close reading', level: 2 } ] },
+      { id: 'science', name: 'Science', teacher: 'Dr. Patel', color: 'var(--gl-cyan)', iconBg: 'var(--gl-cyan-08)', icon: I.atom, iconLg: I.atom, aiMode: 'green', overdue: false, nextUp: 'Lab write-up · due Thu', loadLabel: '1 open', mastery: 3,
+        status: 'finished', estMin: 0, tookMin: 0, studyLabel: 'Lab concepts review', gameDay: '', upcomingTest: null, active: false, pct: 100, nextAssignment: 'Lab write-up', nextDue: 'THU Jun 26',
+        assignments: [ { title: 'Lab write-up — Titration', due: 'Due Thursday', status: 'Drafting', color: 'var(--gl-text-dim)', dueColor: 'var(--gl-text-overlay-60)' } ],
+        hasSyllabus: false, syllabusName: '',
+        concepts: [ { name: 'Acid-base reactions', level: 3 }, { name: 'Stoichiometry', level: 2 }, { name: 'Molarity', level: 4 } ] },
+      { id: 'history', name: 'History', teacher: 'Mr. Diaz', color: 'var(--gl-cyan)', iconBg: 'var(--gl-cyan-08)', icon: I.landmark, iconLg: I.landmark, aiMode: 'green', overdue: false, nextUp: 'Study guide — Unit 6 · Fri', loadLabel: '1 open', mastery: 2,
+        status: 'turned_in', estMin: 0, tookMin: 35, canvasState: 'graded', grade: '47/50', letterGrade: 'A-', studyLabel: 'Key terms review', gameDay: '', upcomingTest: { type: 'TEST', label: 'Ch. 7 Test', date: 'MON Jun 29', daysAway: 4 }, active: false, pct: 100, nextAssignment: 'Study guide — Ch. 7', nextDue: 'DONE ✓',
+        assignments: [ { title: 'Study guide — Unit 6', due: 'Due Friday', status: 'Todo', color: 'var(--gl-text-dim)', dueColor: 'var(--gl-text-overlay-60)' } ],
+        hasSyllabus: true, syllabusName: 'US History — syllabus.pdf',
+        concepts: [ { name: 'Cold War era', level: 2 }, { name: 'Civil rights movement', level: 3 } ] },
+      { id: 'athletics', name: 'Athletics', teacher: 'Coach Reyes', color: 'var(--gl-cyan)', iconBg: 'var(--gl-cyan-08)', icon: I.trophy, iconLg: I.trophy, aiMode: 'red', overdue: false, nextUp: 'Log workout reflection · Mon', loadLabel: '1 open', mastery: 1,
+        status: 'turned_in', estMin: 0, tookMin: 12, canvasState: 'graded', grade: '10/10', letterGrade: 'A', studyLabel: '', gameDay: 'HOME vs Eagles · FRI 7:00 PM', upcomingTest: null, active: false, pct: 100, nextAssignment: 'Workout log', nextDue: 'DONE ✓',
+        assignments: [ { title: 'Log workout reflection', due: 'Due Monday', status: 'Todo', color: 'var(--gl-text-dim)', dueColor: 'var(--gl-text-overlay-60)' } ],
+        hasSyllabus: false, syllabusName: '',
+        concepts: [ { name: 'Training log consistency', level: 1 } ] },
+      { id: 'art', name: 'Art', teacher: 'Ms. Bloom', color: 'var(--gl-cyan)', iconBg: 'var(--gl-cyan-08)', icon: I.heart, iconLg: I.heart, aiMode: 'green', overdue: false, nextUp: 'Nothing due — nice.', loadLabel: '0 open', mastery: 4,
+        status: 'in_progress', estMin: 50, tookMin: 0, studyLabel: '', gameDay: '', upcomingTest: null, active: false, pct: 55, nextAssignment: 'Sketchbook pg. 12–14', nextDue: 'FRI Jun 27',
+        assignments: [], hasSyllabus: false, syllabusName: '',
+        concepts: [ { name: 'Color theory', level: 4 }, { name: 'Composition', level: 3 } ] },
+    ].map((c) => ({ ...c, initial: c.name[0].toUpperCase(), aiModeColor: aiColors[c.aiMode], aiModeLabel: aiLabels[c.aiMode], courseGrade: grades[c.id] }));
+  }
+
+  goFlashcards = (e) => { if (e && e.stopPropagation) e.stopPropagation(); window.location.href = 'Flashcards.dc.html'; };
+  goQuiz = (e) => { if (e && e.stopPropagation) e.stopPropagation(); window.location.href = 'Work.dc.html'; };
+
+  masteryColor(lvl) {
+    return lvl >= 4 ? 'var(--gl-green)' : lvl >= 3 ? 'var(--gl-cyan)' : lvl >= 2 ? 'var(--gl-gold)' : 'var(--gl-text-dim)';
+  }
+  gradeColor(pct) {
+    return pct >= 90 ? 'var(--gl-green)' : pct >= 80 ? 'var(--gl-cyan)' : pct >= 70 ? 'var(--gl-gold)' : 'var(--gl-text-dim)';
+  }
+
+  get gridClasses() {
+    return this.DATA().map((c) => {
+      const total = c.concepts.length;
+      const strong = c.concepts.filter((m) => m.level >= 3).length;
+      const bricks = c.concepts.map((m) => ({ name: m.name, color: this.masteryColor(m.level) }));
+      const open = c.assignments[0];
+      let nextLine, nextColor = 'var(--gl-text-muted)', nextIconColor = 'rgba(200,218,255,.5)';
+      if (!open) { nextLine = 'Nothing due \u2014 you\u2019re set'; nextColor = 'var(--gl-text-dim)'; nextIconColor = 'rgba(200,218,255,.4)'; }
+      else if (c.overdue) { nextLine = 'Overdue: ' + open.title; nextColor = '#ff8a8a'; nextIconColor = '#ff8a8a'; }
+      else { nextLine = 'Next: ' + open.title + ' \u00b7 ' + open.due.replace(/^Due\s+/, ''); }
+      return {
+        ...c,
+        gradeLetter: c.courseGrade.letter,
+        gradePct: c.courseGrade.pct + '%',
+        gradeColor: this.gradeColor(c.courseGrade.pct),
+        masterySummary: strong + ' of ' + total + ' strong',
+        bricks,
+        nextLine, nextColor, nextIconColor,
+        cardBorder: c.active ? 'rgba(41,208,255,.5)' : 'rgba(120,150,220,.16)',
+        cardRing: c.active ? '0 0 0 1px rgba(41,208,255,.4),0 0 30px rgba(41,208,255,.22)' : 'none',
+        onOpenDetail: () => this.openClass(c.id),
+      };
+    });
+  }
+
+  renderVals() {
+    const st = this.state; const data = this.DATA();
+
+    const rawSel = data.find((c) => c.id === st.selId) || data[0];
+    const sel = rawSel ? {
+      ...rawSel,
+      concepts: rawSel.concepts.map((m) => {
+        const glowC = this.masteryColor(m.level);
+        return { ...m, pct: m.level * 25, dotColor: glowC, glow: '0 0 10px ' + glowC, glowBg: 'rgba(120,150,220,.08)', onClick: () => {} };
+      }),
+      notes: (this.NOTES_BY_CLASS()[rawSel.id] || []),
+      hasNotes: (this.NOTES_BY_CLASS()[rawSel.id] || []).length > 0,
+      hasNotesEmpty: (this.NOTES_BY_CLASS()[rawSel.id] || []).length === 0,
+    } : null;
+
+    return {
+      noop: this.noop,
+      isGrid: st.screen === 'grid', isDetail: st.screen === 'detail',
+      gridClasses: this.gridClasses, sel, backToGrid: this.backToGrid,
+      goFlashcards: this.goFlashcards, goQuiz: this.goQuiz,
+      ...this.avatarVals(),
+    };
+  }
+
+  avatarVals() {
+    const src = (() => { const p = localStorage.getItem('diana-profile-src') || ''; return p.startsWith('blob:') ? '' : p; })();
+    const type = localStorage.getItem('diana-avatar-type') || 'none';
+    const ox = parseFloat(localStorage.getItem('diana-photo-offset-x')) || 50;
+    const oy = parseFloat(localStorage.getItem('diana-photo-offset-y')) || 50;
+    const name = localStorage.getItem('diana-profile-name') || 'Grayson';
+    const initials = name.trim().split(/\s+/).map((w) => w[0] || '').slice(0, 2).join('').toUpperCase() || 'G';
+    return {
+      profilePhotoSrc: src,
+      avatarPhotoCss: (type === 'upload' && src) ? ('url("' + src + '")') : 'none',
+      photoObjectPosition: ox + '% ' + oy + '%',
+      isAvatarUpload: type === 'upload',
+      hasProfilePhoto: type === 'upload' && !!src,
+      isAvatarBoy: type === 'boy',
+      isAvatarGirl: type === 'girl',
+      showInitialsFallback: type === 'none' || (type === 'upload' && !src),
+      initials,
+    };
+  }
+}
+</script>
+</body>
+</html>

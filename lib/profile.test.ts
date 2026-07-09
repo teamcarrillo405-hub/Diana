@@ -47,6 +47,8 @@ const BASE: ProfilePrefs = {
   tokens_used_today: 0,
   token_reset_date: "2026-05-29",
   photo_url: null,
+  photo_offset_x: 50,
+  photo_offset_y: 50,
 };
 
 describe("profileBodyClass reading_font", () => {

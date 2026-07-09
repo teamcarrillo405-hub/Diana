@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
+    --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-10:rgba(41,208,255,.1); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-40:rgba(255,210,74,.4); --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.08);
+    --gl-green:#36e07a; --gl-green-40:rgba(54,224,122,.4); --gl-green-30:rgba(54,224,122,.3); --gl-green-12:rgba(54,224,122,.12);
+    --gl-slate:#8b96bd;
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)">
+
+  <!-- APP NAV -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#8b96bd">
+      <a href="Student Lobby.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Today</a><a href="Work.dc.html" style="text-decoration:none;color:#fff;cursor:pointer">Work</a><a href="Classes.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a><a href="Calendar.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a><a href="Messages.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f;flex-shrink:0;cursor:pointer;border:2px solid rgba(41,208,255,.38)">G</a>
+    </div>
+  </div>
+
+  <!-- breadcrumb -->
+  <div style="max-width:1440px;margin:0 auto;padding:18px 34px 0;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gl-text-dim)">
+    <span style="cursor:pointer" style-hover="color:var(--gl-text-muted)">Biology</span>
+    <span>›</span>
+    <span style="cursor:pointer" style-hover="color:var(--gl-text-muted)">Cell Respiration Reading</span>
+    <span>›</span>
+    <span style="color:var(--gl-text-muted)">Study tools</span>
+  </div>
+
+  <!-- ═══ SCREEN A — PICKER ═══ -->
+  <sc-if value="{{ isPicker }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1440px;margin:0 auto;padding:14px 34px 70px">
+      <header style="margin-bottom:22px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--gl-cyan);opacity:.85;margin-bottom:9px">Study tools</div>
+        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:38px;line-height:.92;text-transform:uppercase">Make this stick.</h1>
+        <p style="margin:10px 0 0;font-size:14.5px;color:var(--gl-text-overlay-60);max-width:600px">Diana turns your own class material into practice — never a stand-in for doing the reading.</p>
+      </header>
+
+      <!-- source card -->
+      <div style="display:flex;align-items:center;gap:13px;border-radius:13px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:14px 16px;margin-bottom:26px">
+        <div style="width:38px;height:38px;border-radius:10px;background:var(--gl-cyan-10);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim)">Source · Reading assignment</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;margin-top:2px">Cell Respiration — Ch. 9, pp. 210–224</div>
+        </div>
+        <div style="font-size:12.5px;color:var(--gl-cyan);font-weight:600">AI policy: {{ aiPolicyLabel }}</div>
+      </div>
+
+      <!-- STEP 1 — artifact type -->
+      <div style="margin-bottom:26px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-muted);margin-bottom:12px">1 · What do you want to make?</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <div onClick="{{ selectGuide }}" style="position:relative;border-radius:15px;border:1.5px solid {{ guideBorder }};background:{{ guideBg }};padding:20px 18px;cursor:pointer;transition:all .15s">
+            <div style="width:36px;height:36px;border-radius:10px;background:{{ guideIconBg }};display:flex;align-items:center;justify-content:center;color:var(--gl-cyan)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+            </div>
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;margin-top:12px;color:var(--gl-text-primary)">Study guide</div>
+            <div style="font-size:12.5px;color:var(--gl-text-overlay-60);margin-top:5px;line-height:1.45">Key ideas organized into sections, in plain language.</div>
+            <sc-if value="{{ guideSelected }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;right:12px;top:12px;width:20px;height:20px;border-radius:50%;background:var(--gl-cyan);display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+            </sc-if>
+          </div>
+          <div onClick="{{ selectTest }}" style="position:relative;border-radius:15px;border:1.5px solid {{ testBorder }};background:{{ testBg }};padding:20px 18px;cursor:pointer;transition:all .15s">
+            <div style="width:36px;height:36px;border-radius:10px;background:{{ testIconBg }};display:flex;align-items:center;justify-content:center;color:var(--gl-cyan)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+            </div>
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;margin-top:12px;color:var(--gl-text-primary)">Practice test</div>
+            <div style="font-size:12.5px;color:var(--gl-text-overlay-60);margin-top:5px;line-height:1.45">Recall questions with hints, plus a backward-planned prep schedule.</div>
+            <sc-if value="{{ testSelected }}" hint-placeholder-val="{{ true }}">
+              <div style="position:absolute;right:12px;top:12px;width:20px;height:20px;border-radius:50%;background:var(--gl-cyan);display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+            </sc-if>
+          </div>
+          <div onClick="{{ selectCards }}" style="position:relative;border-radius:15px;border:1.5px solid {{ cardsBorder }};background:{{ cardsBg }};padding:20px 18px;cursor:pointer;transition:all .15s">
+            <div style="width:36px;height:36px;border-radius:10px;background:{{ cardsIconBg }};display:flex;align-items:center;justify-content:center;color:var(--gl-cyan)">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="15" height="12" rx="2"></rect><path d="M7 2h15v12"></path></svg>
+            </div>
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;margin-top:12px;color:var(--gl-text-primary)">Flashcards</div>
+            <div style="font-size:12.5px;color:var(--gl-text-overlay-60);margin-top:5px;line-height:1.45">Front/back cards that feed spaced-repetition review.</div>
+            <sc-if value="{{ cardsSelected }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;right:12px;top:12px;width:20px;height:20px;border-radius:50%;background:var(--gl-cyan);display:flex;align-items:center;justify-content:center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2 — mode -->
+      <div style="margin-bottom:26px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-muted);margin-bottom:12px">2 · How should Diana help?</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ modeCards }}" as="m" hint-placeholder-count="4">
+            <div onClick="{{ m.onClick }}" style="display:flex;align-items:center;gap:14px;border-radius:12px;border:1.5px solid {{ m.border }};background:{{ m.bg }};padding:13px 16px;cursor:pointer">
+              <div style="width:20px;height:20px;border-radius:50%;border:2px solid {{ m.dotBorder }};background:{{ m.dotBg }};flex-shrink:0;display:flex;align-items:center;justify-content:center">
+                <sc-if value="{{ m.selected }}" hint-placeholder-val="{{ false }}"><div style="width:9px;height:9px;border-radius:50%;background:#04080f"></div></sc-if>
+              </div>
+              <div style="flex:1">
+                <div style="display:flex;align-items:center;gap:9px">
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--gl-text-primary)">{{ m.label }}</span>
+                  <sc-if value="{{ m.recommended }}" hint-placeholder-val="{{ false }}">
+                    <span style="padding:2px 8px;border-radius:5px;background:var(--gl-cyan-14);font-family:var(--font-display);font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-cyan)">Recommended for this reading</span>
+                  </sc-if>
+                </div>
+                <div style="font-size:12.5px;color:var(--gl-text-overlay-60);margin-top:2px">{{ m.desc }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- AI status demo toggle (reference only) -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px">
+        <span style="font-size:12px;color:var(--gl-text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600">Preview class AI policy:</span>
+        <div onClick="{{ setAiFull }}" style="padding:6px 13px;border-radius:7px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:{{ aiFullBg }};border:1px solid {{ aiFullBorder }};color:{{ aiFullFg }}">Full support</div>
+        <div onClick="{{ setAiBlocked }}" style="padding:6px 13px;border-radius:7px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:{{ aiOffBg }};border:1px solid {{ aiOffBorder }};color:{{ aiOffFg }}">Off for this class</div>
+      </div>
+
+      <!-- generate or blocked -->
+      <sc-if value="{{ aiBlocked }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:14px;border-radius:13px;border:1px solid var(--gl-cyan-25, rgba(41,208,255,.25));background:var(--gl-cyan-08);padding:16px 18px">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:14.5px;color:var(--gl-text-primary)">AI study artifacts are off for this class.</div>
+            <div style="font-size:13px;color:var(--gl-text-overlay-60);margin-top:2px">You can still make cards manually from your own highlights — nothing about this class needs AI to study well.</div>
+          </div>
+          <div style="padding:10px 18px;border-radius:9px;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan-25, rgba(41,208,255,.25));font-family:var(--font-display);font-weight:800;font-size:13.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-cyan);cursor:pointer;white-space:nowrap">Make cards manually</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ aiReady }}" hint-placeholder-val="{{ true }}">
+        <div onClick="{{ generate }}" style="display:inline-flex;align-items:center;gap:9px;padding:15px 28px;border-radius:11px;cursor:pointer;background:var(--gl-cyan);box-shadow:0 0 28px rgba(41,208,255,.34)">
+          <span style="font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">Generate {{ selectedTypeLabel }}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ═══ SCREEN B — RESULT ═══ -->
+  <sc-if value="{{ isResult }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1440px;margin:0 auto;padding:14px 34px 80px">
+      <div onClick="{{ backToPicker }}" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:600;color:var(--gl-text-dim);cursor:pointer;margin-bottom:14px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+        Back to study tools
+      </div>
+
+      <header style="margin-bottom:18px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:{{ viewAccent }};opacity:.85;margin-bottom:9px">{{ viewLabel }} · from Cell Respiration Reading</div>
+        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:34px;line-height:.94;text-transform:uppercase">{{ viewTitle }}</h1>
+      </header>
+
+      <!-- preview switcher (reference) -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px">
+        <span style="font-size:12px;color:var(--gl-text-dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600">Preview:</span>
+        <sc-for list="{{ viewChips }}" as="v" hint-placeholder-count="3">
+          <div onClick="{{ v.onClick }}" style="padding:6px 14px;border-radius:7px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;background:{{ v.bg }};border:1px solid {{ v.border }};color:{{ v.fg }}">{{ v.label }}</div>
+        </sc-for>
+      </div>
+
+      <!-- ░░ STUDY GUIDE ░░ -->
+      <sc-if value="{{ isGuide }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:15px;border:1px solid var(--gl-cyan-25);background:var(--gl-bg-card);padding:22px 24px;margin-bottom:16px">
+          <div style="font-size:15px;line-height:1.6;color:var(--gl-text-secondary)">Cellular respiration converts glucose into usable energy across three connected stages. Glycolysis happens in the cytoplasm without oxygen; the Krebs cycle and electron transport chain happen inside the mitochondria and need oxygen to keep running.</div>
+          <div style="display:flex;flex-direction:column;gap:16px;margin-top:20px">
+            <sc-for list="{{ guideSections }}" as="g" hint-placeholder-count="2">
+              <div style="border-radius:12px;background:rgba(120,150,220,.05);border:1px solid var(--gl-border);padding:16px 18px">
+                <div style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:9px">{{ g.heading }}</div>
+                <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px">
+                  <sc-for list="{{ g.bullets }}" as="b" hint-placeholder-count="3"><li style="font-size:13.5px;color:var(--gl-text-secondary);line-height:1.5">{{ b }}</li></sc-for>
+                </ul>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="border-radius:13px;border:1px solid var(--gl-border);background:rgba(120,150,220,.04);padding:16px 18px;margin-bottom:16px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-muted);margin-bottom:10px">Next steps</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--gl-text-secondary)"><div style="width:6px;height:6px;border-radius:50%;background:var(--gl-cyan)"></div>Pick one section and turn it into active recall.</div>
+            <div style="display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--gl-text-secondary)"><div style="width:6px;height:6px;border-radius:50%;background:var(--gl-cyan)"></div>Keep the final answer in your own words.</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ░░ PRACTICE TEST ░░ -->
+      <sc-if value="{{ isTest }}" hint-placeholder-val="{{ false }}">
+        <!-- practice settings -->
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+          <span style="padding:6px 13px;border-radius:20px;border:1px solid var(--gl-cyan-25, rgba(41,208,255,.25));background:var(--gl-cyan-08);font-size:12.5px;font-weight:600;color:var(--gl-text-secondary)">8 questions</span>
+          <span style="padding:6px 13px;border-radius:20px;border:1px solid var(--gl-cyan-25, rgba(41,208,255,.25));background:var(--gl-cyan-08);font-size:12.5px;font-weight:600;color:var(--gl-text-secondary)">Standard difficulty</span>
+          <span style="padding:6px 13px;border-radius:20px;border:1px solid var(--gl-cyan-25, rgba(41,208,255,.25));background:var(--gl-cyan-08);font-size:12.5px;font-weight:600;color:var(--gl-text-secondary)">Short response · Multiple choice · Evidence check · Application</span>
+        </div>
+
+        <!-- Test Prep Plan -->
+        <div style="border-radius:15px;border:1px solid var(--gl-cyan-25, rgba(41,208,255,.25));background:linear-gradient(135deg,rgba(26,20,4,.5),rgba(20,16,6,.4));padding:20px 22px;margin-bottom:20px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-cyan)">Test prep plan</div>
+            <span style="padding:2px 9px;border-radius:5px;background:var(--gl-cyan-14);font-family:var(--font-display);font-weight:800;font-size:10px;letter-spacing:.08em;color:var(--gl-cyan)">UNIT 3 TEST · 4 DAYS OUT</span>
+          </div>
+          <div style="font-size:13.5px;color:var(--gl-text-overlay-60);margin-bottom:16px">Diana is tracking 4 concepts for this class — 2 still feel shaky. That's where prep time pays off.</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ prepDays }}" as="d" hint-placeholder-count="4">
+              <div style="display:flex;gap:14px;align-items:flex-start">
+                <div style="width:82px;flex-shrink:0;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:{{ d.isToday }};padding-top:2px">{{ d.heading }}</div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+                  <sc-for list="{{ d.entries }}" as="e" hint-placeholder-count="1">
+                    <div style="display:flex;align-items:flex-start;gap:8px;font-size:13.5px;color:var(--gl-text-secondary);line-height:1.4">
+                      <div style="width:6px;height:6px;border-radius:2px;background:var(--gl-cyan);margin-top:6px;flex-shrink:0"></div>{{ e }}
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- quiz items -->
+        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px">
+          <sc-for list="{{ quizItems }}" as="q" hint-placeholder-count="3">
+            <div style="border-radius:13px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px 18px">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim)">Question {{ q.n }} · {{ q.sourceAnchor }}</div>
+              </div>
+              <div style="font-size:15px;color:var(--gl-text-primary);margin-top:6px;font-weight:500">{{ q.question }}</div>
+              <div style="display:flex;flex-direction:column;gap:7px;margin-top:12px">
+                <sc-for list="{{ q.choiceObjs }}" as="c" hint-placeholder-count="4">
+                  <div onClick="{{ c.onClick }}" style="padding:10px 13px;border-radius:9px;border:1.5px solid {{ c.border }};background:{{ c.bg }};font-size:13.5px;color:{{ c.fg }};cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+                    <span>{{ c.text }}</span>
+                    <sc-if value="{{ c.showCheck }}" hint-placeholder-val="{{ false }}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ q.revealed }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:10px;padding:10px 12px;border-radius:9px;background:var(--gl-cyan-08);border:1px solid var(--gl-cyan-18);font-size:12.5px;color:var(--gl-text-secondary)"><b style="color:var(--gl-cyan)">Hint:</b> {{ q.hint }}</div>
+              </sc-if>
+              <sc-if value="{{ q.unanswered }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ q.onHint }}" style="margin-top:10px;display:inline-block;font-size:12.5px;font-weight:600;color:var(--gl-text-dim);cursor:pointer;text-decoration:underline;text-underline-offset:3px">Show hint instead</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- ░░ FLASHCARDS ░░ -->
+      <sc-if value="{{ isCards }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:13.5px;color:var(--gl-text-overlay-60)">Review each card and edit wording before saving — these feed straight into your Flashcards deck, scheduled by spaced repetition.</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+          <sc-for list="{{ draftCards }}" as="c" hint-placeholder-count="4">
+            <div style="border-radius:13px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:15px 17px">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-cyan)">{{ c.sourceAnchor }}</div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-dim)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="cursor:pointer"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px">
+                <div><div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:3px">Front</div><div style="font-size:14px;color:var(--gl-text-primary);font-weight:600">{{ c.front }}</div></div>
+                <div><div style="font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:3px">Back</div><div style="font-size:14px;color:var(--gl-text-secondary)">{{ c.back }}</div></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ cardsSaved }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:11px;border-radius:12px;border:1px solid var(--gl-green-30);background:var(--gl-green-12);padding:14px 18px">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+            <span style="font-size:14px;color:var(--gl-text-secondary)"><b style="color:var(--gl-green)">6 cards</b> added to Flashcards — Diana will schedule the first review.</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ cardsUnsaved }}" hint-placeholder-val="{{ true }}">
+          <div onClick="{{ saveCards }}" style="display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:11px;cursor:pointer;background:var(--gl-cyan);box-shadow:0 0 26px rgba(41,208,255,.34)">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">Save 6 cards to review</span>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- REVIEW LOOP STRIP (shared) -->
+      <div style="border-radius:14px;border:1px solid var(--gl-border);background:rgba(120,150,220,.04);padding:18px 20px;margin-top:20px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-muted);margin-bottom:14px">The review loop</div>
+        <div style="display:flex;align-items:flex-start;gap:4px">
+          <sc-for list="{{ loopSteps }}" as="s" hint-placeholder-count="6">
+            <div style="flex:1;text-align:center;position:relative">
+              <div style="display:flex;align-items:center">
+                <div style="flex:1;height:2px;background:{{ s.lineBefore }}"></div>
+                <div style="width:11px;height:11px;border-radius:50%;background:{{ s.dot }};border:2px solid {{ s.dotBorder }};flex-shrink:0"></div>
+                <div style="flex:1;height:2px;background:{{ s.lineAfter }}"></div>
+              </div>
+              <div style="margin-top:8px;font-family:var(--font-display);font-weight:800;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:{{ s.labelColor }}">{{ s.label }}</div>
+              <sc-if value="{{ s.active }}" hint-placeholder-val="{{ false }}">
+                <div style="margin-top:4px;font-size:11px;color:var(--gl-text-overlay-60);line-height:1.35;padding:0 4px">{{ s.detail }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- AUTHORSHIP / TRUST FOOTER (shared) -->
+      <div style="display:flex;align-items:flex-start;gap:12px;border-radius:13px;background:rgba(120,150,220,.03);border:1px solid var(--gl-border);padding:14px 18px;margin-top:14px">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-dim)" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+        <div style="font-size:12.5px;line-height:1.55;color:var(--gl-text-dim)"><b style="color:var(--gl-text-muted)">How Diana helped:</b> used your class material to draft practice prompts — your source stayed primary, and this isn't a stand-in for final assignment work. Edit anything before you treat it as learned.</div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    screen: 'picker',
+    selectedType: 'practice_test',
+    selectedMode: 'retrieval_quiz',
+    aiBlocked: false,
+    resultView: 'test',
+    quiz: { 0: { status: 'unanswered' }, 1: { status: 'unanswered' }, 2: { status: 'unanswered' } },
+    cardsSaved: false,
+  };
+
+  selectType = (t) => this.setState({ selectedType: t });
+  selectMode = (m) => this.setState({ selectedMode: m });
+  setAiFull = () => this.setState({ aiBlocked: false });
+  setAiBlocked = () => this.setState({ aiBlocked: true });
+  generate = () => {
+    const map = { study_guide: 'guide', practice_test: 'test', flashcard_set: 'cards' };
+    this.setState({ screen: 'result', resultView: map[this.state.selectedType] });
+  };
+  backToPicker = () => this.setState({ screen: 'picker' });
+  setResultView = (v) => this.setState({ resultView: v });
+  saveCards = () => this.setState({ cardsSaved: true });
+
+  answerQuiz = (qIdx, choiceIdx, correctIdx) => {
+    this.setState(s => ({ quiz: { ...s.quiz, [qIdx]: { status: 'answered', picked: choiceIdx, correctIdx } } }));
+  };
+  showHint = (qIdx) => {
+    this.setState(s => ({ quiz: { ...s.quiz, [qIdx]: { ...s.quiz[qIdx], status: 'hint' } } }));
+  };
+
+  get TYPE_DEFS() {
+    return [
+      { id: 'study_guide', label: 'Study guide' },
+      { id: 'practice_test', label: 'Practice test' },
+      { id: 'flashcard_set', label: 'Flashcards' },
+    ];
+  }
+
+  get MODE_DEFS() {
+    return [
+      { id: 'guided_steps', label: 'Guide me through this', desc: 'Step-by-step questions that keep the work in your hands.' },
+      { id: 'visual_breakdown', label: 'Show it another way', desc: 'Turn the task into a board, diagram, timeline, or cards.' },
+      { id: 'retrieval_quiz', label: 'Quiz me on this', desc: 'Practice recall with hints and source anchors.', recommended: true },
+      { id: 'flashcard_builder', label: 'Make cards from this', desc: 'Create study cards from this assignment, notes, or terms.' },
+    ];
+  }
+
+  get QUIZ_DATA() {
+    return [
+      { question: 'What does glycolysis break glucose down into, and where in the cell does it happen?', sourceAnchor: 'Assignment prompt sentence 2', hint: 'Look at the paragraph naming the cytoplasm.', choices: ['Pyruvate, in the cytoplasm', 'CO2, in the mitochondria', 'ATP, in the nucleus'], correctIdx: 0 },
+      { question: 'Why does the electron transport chain need oxygen to keep running?', sourceAnchor: 'Assignment prompt sentence 5', hint: 'Check what the chain hands electrons off to at the very end.', choices: ['Oxygen is the final electron acceptor', 'Oxygen provides the glucose', 'Oxygen replaces ATP synthase'], correctIdx: 0 },
+      { question: 'Where does the Krebs cycle take place, and what does it produce for the next stage?', sourceAnchor: 'Assignment prompt sentence 7', hint: 'The next stage is the electron transport chain.', choices: ['Mitochondrial matrix, electron carriers', 'Cytoplasm, pyruvate', 'Cell membrane, oxygen'], correctIdx: 0 },
+    ];
+  }
+
+  get PREP_DAYS() {
+    return [
+      { heading: 'Today', isToday: true, entries: ['First practice test — early enough that the results can change the plan.'] },
+      { heading: 'Tomorrow', isToday: false, entries: ['Review what the practice test surfaced — those topics first.', 'Walk through Krebs Cycle and Electron Transport Chain with your notes open.'] },
+      { heading: 'In 2 days', isToday: false, entries: ['Second practice test — confirm the shaky spots moved.'] },
+      { heading: 'In 3 days', isToday: false, entries: ['Night before: light recall only — cards once through, then sleep.'] },
+    ];
+  }
+
+  get CARD_DATA() {
+    return [
+      { front: 'Glycolysis', back: 'Splits glucose into pyruvate in the cytoplasm; does not need oxygen.', sourceAnchor: 'Assignment prompt sentence 2' },
+      { front: 'Krebs cycle', back: 'Happens in the mitochondrial matrix; produces electron carriers for the next stage.', sourceAnchor: 'Assignment prompt sentence 7' },
+      { front: 'Electron transport chain', back: 'Passes electrons through the inner membrane; oxygen is the final acceptor.', sourceAnchor: 'Assignment prompt sentence 5' },
+      { front: 'ATP synthase', back: 'Uses the hydrogen gradient built by the chain to produce ATP.', sourceAnchor: 'Assignment prompt sentence 9' },
+    ];
+  }
+
+  renderVals() {
+    const { screen, selectedType, selectedMode, aiBlocked, resultView, quiz, cardsSaved } = this.state;
+
+    const guideSelected = selectedType === 'study_guide';
+    const testSelected = selectedType === 'practice_test';
+    const cardsSelected = selectedType === 'flashcard_set';
+
+    const modeCards = this.MODE_DEFS.map(m => {
+      const sel = m.id === selectedMode;
+      return {
+        ...m, selected: sel, recommended: !!m.recommended,
+        onClick: () => this.selectMode(m.id),
+        border: sel ? 'var(--gl-cyan)' : 'var(--gl-border)',
+        bg: sel ? 'var(--gl-cyan-08)' : 'var(--gl-bg-card)',
+        dotBorder: sel ? 'var(--gl-cyan)' : 'var(--gl-border)',
+        dotBg: sel ? 'var(--gl-cyan)' : 'transparent',
+      };
+    });
+
+    const selectedTypeDef = this.TYPE_DEFS.find(t => t.id === selectedType);
+
+    const quizItems = this.QUIZ_DATA.map((q, i) => {
+      const st = quiz[i] || { status: 'unanswered' };
+      const choiceObjs = q.choices.map((text, ci) => {
+        const answered = st.status === 'answered';
+        const isCorrect = ci === q.correctIdx;
+        const isPicked = st.picked === ci;
+        let border = 'var(--gl-border)', bg = 'var(--gl-bg-card)', fg = 'var(--gl-text-secondary)';
+        if (answered && isCorrect) { border = 'var(--gl-green-30)'; bg = 'var(--gl-green-12)'; fg = 'var(--gl-text-primary)'; }
+        else if (answered && isPicked && !isCorrect) { border = 'var(--gl-gold-30)'; bg = 'var(--gl-gold-08)'; fg = 'var(--gl-text-secondary)'; }
+        return { text, onClick: () => this.answerQuiz(i, ci, q.correctIdx), border, bg, fg, showCheck: answered && isCorrect };
+      });
+      return {
+        n: i + 1, question: q.question, sourceAnchor: q.sourceAnchor, hint: q.hint,
+        choiceObjs,
+        revealed: st.status === 'hint' || st.status === 'answered',
+        unanswered: st.status === 'unanswered',
+        onHint: () => this.showHint(i),
+      };
+    });
+
+    const loopDefs = [
+      { id: 'source', label: 'Source', detail: 'Confirm the source material from Cell Respiration Reading.' },
+      { id: 'helper', label: 'Helper', detail: 'Choose guided steps, visual breakdown, quiz, or cards.' },
+      { id: 'artifact', label: selectedTypeDef.label, detail: selectedType === 'flashcard_set' ? 'Edit card wording before saving to review.' : 'Try one source-anchored question before checking the answer.' },
+      { id: 'review', label: 'Review', detail: 'Rate recall honestly so Diana can schedule the next review.' },
+      { id: 'mastery', label: 'Mastery', detail: 'Mark whether the idea is still learning, getting there, or secure.' },
+      { id: 'next_support', label: 'Next support', detail: 'Let recall history shape the next helper mode.' },
+    ];
+    const activeIdx = 2; // 'artifact' — we just generated
+    const loopSteps = loopDefs.map((s, i) => ({
+      label: s.label, detail: s.detail, active: i === activeIdx,
+      dot: i <= activeIdx ? 'var(--gl-cyan)' : 'rgba(120,150,220,.25)',
+      dotBorder: i <= activeIdx ? 'var(--gl-cyan)' : 'var(--gl-border)',
+      labelColor: i === activeIdx ? 'var(--gl-cyan)' : (i < activeIdx ? 'var(--gl-text-muted)' : 'var(--gl-text-dim)'),
+      lineBefore: i === 0 ? 'transparent' : (i <= activeIdx ? 'var(--gl-cyan)' : 'rgba(120,150,220,.2)'),
+      lineAfter: i === loopDefs.length - 1 ? 'transparent' : (i < activeIdx ? 'var(--gl-cyan)' : 'rgba(120,150,220,.2)'),
+    }));
+
+    const viewChipDefs = [
+      { id: 'guide', label: 'Study guide', accent: 'var(--gl-cyan)' },
+      { id: 'test', label: 'Practice test', accent: 'var(--gl-cyan)' },
+      { id: 'cards', label: 'Flashcards', accent: 'var(--gl-cyan)' },
+    ];
+    const viewChips = viewChipDefs.map(v => {
+      const sel = v.id === resultView;
+      return { ...v, onClick: () => this.setResultView(v.id), bg: sel ? 'var(--gl-cyan-14)' : 'transparent', border: sel ? v.accent : 'var(--gl-border)', fg: sel ? '#fff' : 'var(--gl-text-muted)' };
+    });
+    const viewMeta = {
+      guide: { label: 'Study guide', title: 'Cellular respiration, section by section.', accent: 'var(--gl-cyan)' },
+      test: { label: 'Practice test', title: 'Unit 3 practice test.', accent: 'var(--gl-cyan)' },
+      cards: { label: 'Flashcards', title: '6 cards drafted for review.', accent: 'var(--gl-cyan)' },
+    };
+
+    return {
+      isPicker: screen === 'picker', isResult: screen === 'result',
+      modeCards,
+      selectGuide: () => this.selectType('study_guide'),
+      selectTest: () => this.selectType('practice_test'),
+      selectCards: () => this.selectType('flashcard_set'),
+      guideSelected, testSelected, cardsSelected,
+      guideBorder: guideSelected ? 'var(--gl-cyan)' : 'var(--gl-border)',
+      guideBg: guideSelected ? 'var(--gl-cyan-08)' : 'var(--gl-bg-card)',
+      guideIconBg: guideSelected ? 'var(--gl-cyan-14)' : 'rgba(120,150,220,.1)',
+      testBorder: testSelected ? 'var(--gl-cyan)' : 'var(--gl-border)',
+      testBg: testSelected ? 'var(--gl-cyan-08)' : 'var(--gl-bg-card)',
+      testIconBg: testSelected ? 'var(--gl-cyan-14)' : 'rgba(120,150,220,.1)',
+      cardsBorder: cardsSelected ? 'var(--gl-cyan)' : 'var(--gl-border)',
+      cardsBg: cardsSelected ? 'var(--gl-cyan-08)' : 'var(--gl-bg-card)',
+      cardsIconBg: cardsSelected ? 'var(--gl-cyan-14)' : 'rgba(120,150,220,.1)',
+      selectedTypeLabel: selectedTypeDef.label,
+      aiBlocked, aiReady: !aiBlocked,
+      aiPolicyLabel: aiBlocked ? 'off for this class' : 'full study support',
+      setAiFull: this.setAiFull, setAiBlocked: this.setAiBlocked,
+      aiFullBg: !aiBlocked ? 'var(--gl-cyan-14)' : 'transparent', aiFullBorder: !aiBlocked ? 'var(--gl-cyan)' : 'var(--gl-border)', aiFullFg: !aiBlocked ? '#fff' : 'var(--gl-text-muted)',
+      aiOffBg: aiBlocked ? 'var(--gl-gold-14)' : 'transparent', aiOffBorder: aiBlocked ? 'var(--gl-gold)' : 'var(--gl-border)', aiOffFg: aiBlocked ? '#fff' : 'var(--gl-text-muted)',
+      generate: this.generate,
+      backToPicker: this.backToPicker,
+      viewLabel: viewMeta[resultView].label, viewTitle: viewMeta[resultView].title, viewAccent: viewMeta[resultView].accent,
+      viewChips,
+      isGuide: resultView === 'guide', isTest: resultView === 'test', isCards: resultView === 'cards',
+      guideSections: [
+        { heading: 'What to know', bullets: ['Glycolysis splits glucose into pyruvate in the cytoplasm, no oxygen needed.', 'The Krebs cycle runs in the mitochondrial matrix and produces electron carriers.', 'The electron transport chain uses oxygen as the final electron acceptor.'] },
+        { heading: 'What to practice', bullets: ['Say what happens at each stage using your own words, not the textbook\u2019s.', 'Trace where each stage physically happens in the cell.'] },
+      ],
+      prepDays: this.PREP_DAYS.map(d => ({ ...d, isToday: d.isToday ? 'var(--gl-cyan)' : 'var(--gl-text-muted)' })),
+      quizItems,
+      draftCards: this.CARD_DATA,
+      cardsSaved, cardsUnsaved: !cardsSaved, saveCards: this.saveCards,
+      loopSteps,
+    };
+  }
+}
+</script>
+</body>
+</html>

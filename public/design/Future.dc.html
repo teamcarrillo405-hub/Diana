@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-green:#36e07a; --gl-green-light:#8ef0b8; --gl-green-28:rgba(54,224,122,.28); --gl-green-14:rgba(54,224,122,.14);
+    --gl-gold:#29d0ff; --gl-gold-light:#7fe0ff; --gl-gold-30:rgba(41,208,255,.30); --gl-gold-26:rgba(41,208,255,.26); --gl-gold-16:rgba(41,208,255,.16); --gl-gold-10:rgba(41,208,255,.10); --gl-gold-07:rgba(41,208,255,.07);
+    --gl-text-primary:#ffffff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-subdued:#9fb0dd;
+    --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.60);
+    --gl-border-neutral:rgba(120,150,220,.18); --gl-bg-input:rgba(10,16,36,.80);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  @keyframes fu-pulse{0%,100%{opacity:.45}50%{opacity:.9}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 620px at 82% -5%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)">
+
+  <!-- ════════ APP NAV (matches Student Lobby exactly, More active) ════════ -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+      <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Today</a>
+      <a href="Work.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+      <a href="Classes.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+      <a href="Calendar.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+      <a href="Messages.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <div onClick="{{ goQuickAdd }}" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</div>
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f;flex-shrink:0;cursor:pointer;border:2px solid rgba(41,208,255,.38)">G</a>
+      <div onClick="{{ goSettings }}" style="width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:26px 34px 64px">
+
+    
+
+    <!-- More-surfaces sub-nav -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px">
+      <span style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gl-text-subdued);margin-right:4px">More</span>
+      <a href="Think.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-border-neutral);background:transparent;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">
+        Think
+      </a>
+      <a href="Proof.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-border-neutral);background:transparent;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">
+        Proof
+      </a>
+      <a href="Future.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-gold-30);background:var(--gl-gold-10);font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-gold-light)">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-gold);box-shadow:0 0 8px var(--gl-gold)"></span>Future
+      </a>
+    </div>
+
+    <!-- header -->
+    <header style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items:center;margin-bottom:26px">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--gl-gold-light);margin-bottom:9px">Future · what is coming</div>
+        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:var(--gl-text-primary)">Looking<br>ahead.</h1>
+        <p style="margin:12px 0 0;max-width:540px;font-size:14.5px;line-height:1.55;color:var(--gl-text-overlay-60)">Time-gated planning that would clutter the landing — it lives here until its moment. Set an intention for tonight, then walk the quest path for what is next.</p>
+      </div>
+      <div style="position:relative;border-radius:14px;border:1px solid var(--gl-gold-26);background:linear-gradient(135deg,rgba(8,12,26,.94),rgba(12,18,42,.92));overflow:hidden;padding:16px 18px">
+        <div style="position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid var(--gl-gold);border-top:2px solid var(--gl-gold);border-radius:2px 0 0 0"></div>
+        <div style="position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-right:2px solid var(--gl-gold);border-top:2px solid var(--gl-gold);border-radius:0 2px 0 0"></div>
+        <div style="position:absolute;left:-1px;bottom:-1px;width:14px;height:14px;border-left:2px solid var(--gl-gold);border-bottom:2px solid var(--gl-gold);border-radius:0 0 0 2px"></div>
+        <div style="position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-right:2px solid var(--gl-gold);border-bottom:2px solid var(--gl-gold);border-radius:0 0 2px 0"></div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:12px">Tonight</div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ tonightReadout }}" as="r" hint-placeholder-count="3">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gl-text-subdued)">{{ r.label }}</span>
+              <span style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;color:{{ r.color }}">{{ r.value }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </header>
+
+    <div style="display:flex;flex-direction:column;gap:18px;max-width:920px">
+
+      <!-- ══ EVENING PLANNING — gated 5–8 PM ══ -->
+      <sc-if value="{{ planOpen }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;border-radius:15px;border:1px solid var(--gl-gold-26);background:linear-gradient(135deg,rgba(8,12,26,.94),rgba(12,18,42,.92));padding:22px 24px">
+          
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:19px;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-gold)">Tonight's plan</div>
+            <div style="display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:5px;background:var(--gl-gold-16)"><span style="width:5px;height:5px;border-radius:50%;background:var(--gl-gold);animation:fu-pulse 2s ease-in-out infinite"></span><span style="font-family:var(--font-display);font-weight:800;font-size:10px;letter-spacing:.12em;color:var(--gl-gold)">LIVE · 5–8 PM WINDOW</span></div>
+          </div>
+          <div style="font-size:14px;color:var(--gl-text-overlay-60);margin-bottom:16px">Set an intention for each thing on tonight's calendar. Two minutes now saves a scramble later.</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ intentions }}" as="iv" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:14px;padding:13px 16px;border-radius:11px;background:rgba(4,8,20,.5);border:1px solid {{ iv.rowBorder }}">
+                <div style="font-family:var(--font-display);font-weight:800;font-size:14px;color:var(--gl-gold);width:64px;flex-shrink:0">{{ iv.time }}</div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14.5px;color:#e8f0ff">{{ iv.label }}</div>
+                  <sc-if value="{{ iv.hasNote }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:4px;display:flex;align-items:center;gap:7px">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gl-gold)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <span style="font-size:13px;color:var(--gl-gold-light);font-style:italic">{{ iv.note }}</span>
+                    </div>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ iv.isEditing }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+                    <input value="{{ draft }}" onInput="{{ onDraft }}" onKeyDown="{{ onKey }}" autoFocus="{{ true }}" placeholder="What's your intention?" style="width:230px;padding:8px 12px;border-radius:8px;background:var(--gl-bg-input);border:1px solid var(--gl-gold-30);color:#fff;font-family:var(--font-body);font-size:13.5px;outline:none"></input>
+                    <div onClick="{{ saveEdit }}" style="padding:8px 14px;border-radius:8px;background:var(--gl-gold);font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#0a1024;cursor:pointer">Save</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ iv.isEmpty }}" hint-placeholder-val="{{ true }}">
+                  <div onClick="{{ iv.onSet }}" style="flex-shrink:0;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-text-muted);cursor:pointer" style-hover="color:var(--gl-gold)">Set intention →</div>
+                </sc-if>
+                <sc-if value="{{ iv.hasNote }}" hint-placeholder-val="{{ false }}">
+                  <div onClick="{{ iv.onSet }}" style="flex-shrink:0;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-text-dim);cursor:pointer" style-hover="color:var(--gl-gold)">Edit</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- gate: too early -->
+      <sc-if value="{{ planEarly }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;padding:20px 22px;border-radius:14px;border:1px dashed var(--gl-border-neutral);background:rgba(4,8,20,.3)">
+          <div style="position:absolute;right:16px;top:15px;font-family:var(--font-body);font-size:10px;color:var(--gl-text-dim)">evening-planning.tsx · gated</div>
+          <div style="display:flex;align-items:center;gap:13px">
+            <div style="width:40px;height:40px;border-radius:11px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
+            </div>
+            <div>
+              <div style="font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-text-secondary)">Planning opens at 5 PM</div>
+              <div style="font-size:13.5px;color:var(--gl-text-overlay-60);margin-top:2px">The evening-planning card stays hidden during the school day — it only appears in the 5–8 PM wind-down window, so it never competes with class work.</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- gate: window closed -->
+      <sc-if value="{{ planLate }}" hint-placeholder-val="{{ false }}">
+        <div style="position:relative;padding:20px 22px;border-radius:14px;border:1px dashed var(--gl-border-neutral);background:rgba(4,8,20,.3)">
+          <div style="position:absolute;right:16px;top:15px;font-family:var(--font-body);font-size:10px;color:var(--gl-text-dim)">evening-planning.tsx · window closed</div>
+          <div style="display:flex;align-items:center;gap:13px">
+            <div style="width:40px;height:40px;border-radius:11px;background:var(--gl-gold-10);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gl-gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div style="flex:1">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-text-secondary)">Planning window closed for tonight</div>
+              <div style="font-size:13.5px;color:var(--gl-text-overlay-60);margin-top:2px">{{ lateSummary }} It reopens tomorrow at 5 PM — no late-night guilt loop.</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ══ QUEST CAROUSEL — auto-advances every 5s ══ -->
+      <div onMouseEnter="{{ pauseQuest }}" onMouseLeave="{{ resumeQuest }}" style="position:relative;border-radius:15px;border:1px solid var(--gl-border-neutral);background:rgba(4,8,20,.5);padding:22px 24px">
+        <div style="position:absolute;right:16px;top:15px;font-family:var(--font-body);font-size:10px;color:var(--gl-text-dim)">quest-carousel.tsx · auto-advances every 5s</div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+          <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:22px;letter-spacing:.03em;text-transform:uppercase;color:#fff">Quest path</div>
+          <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(120,150,220,.4),transparent)"></div>
+          <div style="display:flex;align-items:center;gap:6px;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim)"><span style="width:5px;height:5px;border-radius:50%;background:{{ playDot }}"></span>{{ playLabel }}</div>
+        </div>
+        <div style="overflow:hidden;border-radius:12px">
+          <div style="display:flex;transition:transform .5s cubic-bezier(.22,.61,.36,1);transform:{{ questTransform }}">
+            <sc-for list="{{ quests }}" as="q" hint-placeholder-count="5">
+              <div style="flex:0 0 100%;width:100%;padding:20px 22px;background:linear-gradient(135deg,rgba(18,26,52,.96),rgba(10,16,36,.96));box-sizing:border-box;display:flex;flex-direction:column;gap:12px;min-height:132px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <div style="width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:15px;color:#0a1024;background:{{ q.accent }}">{{ q.n }}</div>
+                    <div style="font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:{{ q.accent }}">{{ q.subject }}</div>
+                  </div>
+                  <div style="font-size:11px;font-weight:600;letter-spacing:.06em;padding:4px 10px;border-radius:5px;background:rgba(120,150,220,.14);color:var(--gl-text-muted)">DUE {{ q.due }}</div>
+                </div>
+                <div style="font-family:var(--font-display);font-weight:700;font-size:26px;line-height:1.05;color:#fff">{{ q.title }}</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--gl-text-dim)"><span>Step {{ q.n }} of {{ questCount }}</span><a href="{{ q.href }}" style="text-decoration:none;color:var(--gl-text-secondary);font-family:var(--font-display);font-weight:800;letter-spacing:.04em;text-transform:uppercase;font-size:13px">Open →</a></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;gap:7px;justify-content:center;margin-top:14px">
+          <sc-for list="{{ questDots }}" as="d" hint-placeholder-count="5">
+            <div onClick="{{ d.onClick }}" style="height:5px;border-radius:3px;cursor:pointer;transition:all .35s;width:{{ d.w }};background:{{ d.bg }}"></div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- SCOPE NOTE -->
+      <div style="padding:18px 22px;border-radius:13px;border:1px dashed var(--gl-border-neutral);background:rgba(4,8,20,.3);font-size:13.5px;color:rgba(200,218,255,.5);line-height:1.6">
+        <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(200,218,255,.6)">Why it lives here →</span> both cards are time-sensitive by nature — the planning card is dead weight at 10 AM, and the quest path is a "what's next" glance, not a "do it now" prompt. Keeping them off the landing is what keeps TODAY calm.
+      </div>
+    </div>
+  </div>
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1240},&quot;timeState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;afternoon&quot;,&quot;evening&quot;,&quot;night&quot;],&quot;default&quot;:&quot;evening&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Reference&quot;,&quot;label&quot;:&quot;Time of day&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      timeState: props.timeState || 'evening',   // afternoon | evening | night
+      qi: 0,
+      intentions: [
+        { id: 'soccer', time: '5:30 PM', label: 'Soccer practice — bring cleats + water', note: '' },
+        { id: 'dinner', time: '7:00 PM', label: 'Family dinner — phone away', note: '' },
+        { id: 'read',   time: '8:15 PM', label: 'Finish English reading — ch. 5', note: '' },
+      ],
+      editingId: null,
+      draft: '',
+      paused: false,
+    };
+    this._qt = null;
+  }
+
+  get quests() {
+    return [
+      { n: 1, subject: 'Math',      title: 'Unit 4 problem set',        due: 'FRI',   accent: '#8b96bd', href: 'Homework Mission.dc.html?a=math-u4' },
+      { n: 2, subject: 'English',   title: 'Reading response',          due: 'WED',   accent: '#8b96bd', href: 'Homework Mission.dc.html?a=eng-reading' },
+      { n: 3, subject: 'Science',   title: 'Lab write-up — Titration',  due: 'THU',   accent: '#8b96bd', href: 'Homework Mission.dc.html?a=sci-titration' },
+      { n: 4, subject: 'History',   title: 'Study guide — Unit 6',      due: 'MON',   accent: '#8b96bd', href: 'Homework Mission.dc.html?a=hist-sg6' },
+      { n: 5, subject: 'Athletics', title: 'Log workout reflection',    due: 'TODAY', accent: '#8b96bd', href: 'Homework Mission.dc.html?a=ath-reflect' },
+    ];
+  }
+
+  componentDidMount() { this._startQuest(); }
+  componentWillUnmount() { clearInterval(this._qt); }
+
+  _startQuest() {
+    clearInterval(this._qt);
+    if (this.state.paused) return;
+    this._qt = setInterval(() => this.setState(s => ({ qi: (s.qi + 1) % this.quests.length })), 5000);
+  }
+
+  questGo = (i) => { this.setState({ qi: i }); this._startQuest(); };
+  pauseQuest = () => { clearInterval(this._qt); this.setState({ paused: true }); };
+  resumeQuest = () => { this.setState({ paused: false }, () => this._startQuest()); };
+
+  setTime = (v) => this.setState({ timeState: v, editingId: null, draft: '' });
+
+  startEdit = (id) => {
+    const it = this.state.intentions.find(x => x.id === id);
+    this.setState({ editingId: id, draft: it ? it.note : '' });
+  };
+  onDraft = (e) => this.setState({ draft: e.target.value });
+  saveEdit = () => this.setState(s => ({
+    intentions: s.intentions.map(x => x.id === s.editingId ? { ...x, note: s.draft.trim() } : x),
+    editingId: null, draft: '',
+  }));
+  cancelEdit = () => this.setState({ editingId: null, draft: '' });
+  onKey = (e) => { if (e.key === 'Enter') this.saveEdit(); else if (e.key === 'Escape') this.cancelEdit(); };
+
+  goQuickAdd = () => { window.location.href = 'Quick Add.dc.html'; };
+  goSettings = () => { window.location.href = 'Settings.dc.html'; };
+
+  renderVals() {
+    const st = this.state;
+    const ts = st.timeState;
+
+    const timeChips = [
+      { label: 'Afternoon', v: 'afternoon' },
+      { label: 'Evening', v: 'evening' },
+      { label: 'Night', v: 'night' },
+    ].map(c => {
+      const on = ts === c.v;
+      return { label: c.label, onClick: () => this.setTime(c.v), bg: on ? 'var(--gl-gold-16)' : 'transparent', border: on ? 'var(--gl-gold)' : 'var(--gl-border-neutral)', fg: on ? '#fff' : 'var(--gl-text-muted)' };
+    });
+
+    const setCount = st.intentions.filter(i => i.note).length;
+    const total = st.intentions.length;
+
+    const intentions = st.intentions.map(iv => {
+      const isEditing = st.editingId === iv.id;
+      const hasNote = !!iv.note && !isEditing;
+      return {
+        ...iv,
+        isEditing,
+        hasNote,
+        isEmpty: !iv.note && !isEditing,
+        onSet: () => this.startEdit(iv.id),
+        rowBorder: hasNote ? 'var(--gl-gold-30)' : 'var(--gl-border-neutral)',
+      };
+    });
+
+    const quests = this.quests;
+    const questDots = quests.map((q, i) => ({
+      onClick: () => this.questGo(i),
+      w: i === st.qi ? '20px' : '6px',
+      bg: i === st.qi ? 'var(--gl-gold)' : 'rgba(120,150,220,.28)',
+    }));
+
+    const windowLabel = ts === 'evening' ? 'Open · 5–8 PM' : ts === 'afternoon' ? 'Opens 5 PM' : 'Closed';
+    const windowColor = ts === 'evening' ? 'var(--gl-gold-light)' : 'var(--gl-text-dim)';
+
+    const tonightReadout = [
+      { label: 'Planning', value: windowLabel, color: windowColor },
+      { label: 'Intentions set', value: setCount + ' / ' + total, color: setCount > 0 ? 'var(--gl-gold-light)' : 'var(--gl-text-dim)' },
+      { label: 'Next quest', value: 'Step ' + (st.qi + 1), color: 'var(--gl-text-secondary)' },
+    ];
+
+    return {
+      goQuickAdd: this.goQuickAdd, goSettings: this.goSettings,
+      timeChips,
+      planOpen: ts === 'evening',
+      planEarly: ts === 'afternoon',
+      planLate: ts === 'night',
+      lateSummary: setCount > 0 ? ('You set ' + setCount + ' of ' + total + ' intentions tonight.') : 'No intentions were set tonight.',
+      intentions,
+      draft: st.draft,
+      onDraft: this.onDraft, onKey: this.onKey, saveEdit: this.saveEdit,
+      quests, questCount: quests.length,
+      questTransform: 'translateX(-' + (st.qi * 100) + '%)',
+      questDots,
+      pauseQuest: this.pauseQuest, resumeQuest: this.resumeQuest,
+      playLabel: st.paused ? 'Paused' : 'Auto',
+      playDot: st.paused ? 'var(--gl-text-dim)' : 'var(--gl-gold)',
+      tonightReadout,
+    };
+  }
+}
+</script>
+</body>
+</html>

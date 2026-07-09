@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-10:rgba(41,208,255,.1); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-12:rgba(54,224,122,.12);
+    --gl-purple:#b09cff; --gl-purple-30:rgba(126,92,255,.3); --gl-purple-14:rgba(126,92,255,.14); --gl-purple-08:rgba(126,92,255,.08);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+
+  *::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important;}
+  *{scrollbar-width:none;}
+</style>
+</helmet>
+
+<div style="width:100%;height:100vh;display:flex;flex-direction:column;font-family:var(--font-body);color:var(--gl-text-primary);background:var(--gl-bg-base)">
+
+  <!-- APP NAV -->
+  <div style="position:relative;z-index:30;flex-shrink:0;width:100%;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#8b96bd">
+      <a href="Student Lobby.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Today</a><a href="Work.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Work</a><a href="Classes.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a><a href="Calendar.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a><a href="Messages.dc.html" style="text-decoration:none;color:#fff;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f;flex-shrink:0;cursor:pointer;border:2px solid rgba(41,208,255,.38)">G</a>
+    </div>
+  </div>
+
+  <!-- ═══ PERSISTENT SPLIT VIEW ═══ -->
+  <div style="flex:1;display:flex;min-height:0;max-width:1440px;width:100%;margin:0 auto">
+
+    <!-- LEFT RAIL — always visible, groups never hidden behind a click -->
+    <div style="width:272px;flex-shrink:0;border-right:1px solid var(--gl-border);background:rgba(4,8,20,.5);display:flex;flex-direction:column;min-height:0">
+      <div style="padding:18px 16px 12px;flex-shrink:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <span style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-purple)">Study groups</span>
+          <div onClick="{{ toggleNewPanel }}" style="width:26px;height:26px;border-radius:7px;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan-30);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-cyan);font-size:16px;font-weight:700;line-height:1">+</div>
+        </div>
+        <div style="font-size:11.5px;color:var(--gl-text-overlay-60);line-height:1.4">No leaderboards, no ranks — just working together.</div>
+      </div>
+
+      <!-- inline create/join panel -->
+      <sc-if value="{{ newPanelOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="margin:0 16px 14px;padding:14px;border-radius:12px;border:1px solid var(--gl-border);background:var(--gl-bg-card);flex-shrink:0">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-primary);margin-bottom:8px">Start a group</div>
+          <input value="{{ newGroupName }}" onInput="{{ setNewGroupName }}" placeholder="e.g. Biology Study" style="width:100%;padding:9px 11px;border-radius:8px;background:rgba(10,16,36,.6);border:1px solid var(--gl-border);color:#fff;font-size:13px;font-family:var(--font-body);outline:none;margin-bottom:8px"></input>
+          <div onClick="{{ createGroup }}" style="display:inline-block;padding:8px 16px;border-radius:8px;cursor:{{ createCursor }};background:{{ createBg }};font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:{{ createFg }};margin-bottom:12px">Create</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-primary);margin-bottom:8px;padding-top:10px;border-top:1px solid var(--gl-border)">Join with a code</div>
+          <input value="{{ joinCode }}" onInput="{{ setJoinCode }}" placeholder="e.g. BIO4TH" style="width:100%;padding:9px 11px;border-radius:8px;background:rgba(10,16,36,.6);border:1px solid var(--gl-border);color:#fff;font-size:13px;font-family:var(--font-body);text-transform:uppercase;outline:none;margin-bottom:8px"></input>
+          <div onClick="{{ joinGroup }}" style="display:inline-block;padding:8px 16px;border-radius:8px;cursor:{{ joinCursor }};background:{{ joinBg }};font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:{{ joinFg }}">Join</div>
+        </div>
+      </sc-if>
+
+      <!-- group list -->
+      <div style="flex:1;overflow-y:auto;padding:4px 10px 14px;display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ groupList }}" as="g" hint-placeholder-count="2">
+          <div onClick="{{ g.onClick }}" style="display:flex;align-items:center;gap:11px;border-radius:11px;padding:10px 10px;cursor:pointer;border:1px solid {{ g.border }};background:{{ g.bg }}">
+            <div style="width:36px;height:36px;border-radius:10px;background:{{ g.avatarBg }};display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:14px;color:{{ g.avatarFg }};flex-shrink:0">{{ g.initial }}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--gl-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.name }}</div>
+              <div style="font-size:11px;color:var(--gl-text-overlay-60);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ g.memberCount }} members</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- RIGHT PANE — active room -->
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0">
+
+      <!-- group header -->
+      <div style="flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 24px;border-bottom:1px solid var(--gl-border)">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:11px;background:var(--gl-cyan-14);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:16px;color:var(--gl-cyan)">{{ activeGroup.initial }}</div>
+          <div>
+            <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase">{{ activeGroup.name }}</h1>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+              <div style="display:flex">
+                <div style="width:19px;height:19px;border-radius:50%;background:#5b9bff;border:2px solid #060a18;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">M</div>
+                <div style="width:19px;height:19px;border-radius:50%;background:#f25fb0;border:2px solid #060a18;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;margin-left:-6px">J</div>
+                <div style="width:19px;height:19px;border-radius:50%;background:#36e07a;border:2px solid #060a18;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#04080f;margin-left:-6px">A</div>
+                <div style="width:19px;height:19px;border-radius:50%;background:#29d0ff;border:2px solid #060a18;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#04080f;margin-left:-6px">G</div>
+              </div>
+              <span style="font-size:12px;color:var(--gl-text-overlay-60)">{{ activeGroup.memberCount }} members</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 13px;border-radius:9px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border)">
+          <span style="font-size:11px;color:var(--gl-text-dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600">Join code</span>
+          <span style="font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.1em;color:var(--gl-cyan)">{{ activeGroup.joinCode }}</span>
+        </div>
+      </div>
+
+      <!-- section tabs -->
+      <div style="flex-shrink:0;display:flex;align-items:center;gap:4px;padding:0 24px;border-bottom:1px solid var(--gl-border);overflow-x:auto">
+        <sc-for list="{{ sectionTabs }}" as="s" hint-placeholder-count="5">
+          <div onClick="{{ s.onClick }}" style="position:relative;padding:11px 14px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:{{ s.color }};white-space:nowrap">
+            {{ s.label }}
+            <sc-if value="{{ s.active }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:5px;right:5px;bottom:-1px;height:2px;background:var(--gl-cyan)"></div></sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- section content, scrollable -->
+      <div style="flex:1;overflow-y:auto;padding:20px 24px 28px">
+
+        <!-- ░░ STUDY ROOM (live chat + presence + context-aware AI) ░░ -->
+        <sc-if value="{{ isTogether }}" hint-placeholder-val="{{ false }}">
+          <!-- presence -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-muted)">In the room now</span>
+            <sc-for list="{{ presence }}" as="p" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;gap:6px;padding:5px 11px 5px 5px;border-radius:20px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border)">
+                <div style="position:relative;width:22px;height:22px;border-radius:50%;background:{{ p.avatarBg }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:{{ p.avatarFg }}">{{ p.initial }}
+                  <sc-if value="{{ p.active }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border-radius:50%;background:var(--gl-green);border:2px solid #060a18"></div></sc-if>
+                </div>
+                <span style="font-size:12px;font-weight:600;color:var(--gl-text-secondary)">{{ p.name }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- context switcher -->
+          <div style="margin-bottom:16px">
+            <div style="font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:8px">What's the room working on?</div>
+            <div style="display:flex;gap:9px;flex-wrap:wrap">
+              <sc-for list="{{ contextChips }}" as="c" hint-placeholder-count="2">
+                <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:8px;padding:9px 15px;border-radius:10px;cursor:pointer;border:1.5px solid {{ c.border }};background:{{ c.bg }}">
+                  <span style="font-size:14px">{{ c.icon }}</span>
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:13.5px;color:{{ c.fg }}">{{ c.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- context-aware nudge, changes with the chip above -->
+          <div style="display:flex;align-items:center;gap:14px;border-radius:13px;border:1px solid {{ nudgeBorder }};background:{{ nudgeBg }};padding:15px 18px;margin-bottom:16px">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="{{ nudgeAccent }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+            <div style="flex:1">
+              <div style="font-size:14px;font-weight:600;color:var(--gl-text-primary)">{{ nudgeHeadline }}</div>
+              <div style="font-size:12.5px;color:var(--gl-text-overlay-60);margin-top:2px">{{ nudgeSub }}</div>
+            </div>
+            <div onClick="{{ askAboutStuck }}" style="flex-shrink:0;padding:9px 16px;border-radius:9px;background:{{ nudgeBtnBg }};border:1px solid {{ nudgeBorder }};font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:{{ nudgeAccent }};cursor:pointer;white-space:nowrap">{{ nudgeCta }}</div>
+          </div>
+
+          <div style="font-size:12.5px;color:var(--gl-text-overlay-60);margin-bottom:14px;line-height:1.5">Chat together and Diana joins in — aware of what the room is working on. No comparing who asked what or who's ahead; this is a team space. Your own private help in Work and Study tools stays just yours.</div>
+
+          <!-- unified live feed -->
+          <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:18px 20px;display:flex;flex-direction:column;gap:16px;max-height:360px;overflow-y:auto;margin-bottom:14px">
+            <sc-for list="{{ groupThread }}" as="m" hint-placeholder-count="3">
+              <sc-if value="{{ m.isDiana }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:11px">
+                  <div style="width:28px;height:28px;border-radius:8px;background:var(--gl-cyan-14);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M3 12h18"></path></svg>
+                  </div>
+                  <div style="flex:1">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px"><span style="font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--gl-cyan)">Diana</span><span style="font-size:10.5px;color:var(--gl-text-dim);text-transform:uppercase;letter-spacing:.06em">visible to the whole group</span></div>
+                    <div style="font-size:14px;line-height:1.6;color:var(--gl-text-secondary)">{{ m.text }}</div>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ m.isStudent }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:11px">
+                  <div style="width:28px;height:28px;border-radius:50%;background:{{ m.avatarBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;font-weight:700;color:{{ m.avatarFg }}">{{ m.initial }}</div>
+                  <div style="flex:1">
+                    <div style="font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--gl-text-muted);margin-bottom:4px">{{ m.author }}</div>
+                    <div style="font-size:14px;line-height:1.6;color:var(--gl-text-primary)">{{ m.text }}</div>
+                    <sc-if value="{{ m.attachment }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:8px;display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:9px;border:1px solid {{ m.attachment.border }};background:{{ m.attachment.bg }}">
+                        <span style="font-size:15px">{{ m.attachment.icon }}</span>
+                        <div>
+                          <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ m.attachment.fg }}">{{ m.attachment.kind }}</div>
+                          <div style="font-size:12.5px;font-weight:600;color:var(--gl-text-primary)">{{ m.attachment.label }}</div>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-if>
+            </sc-for>
+          </div>
+
+          <!-- attachment chip (pending) -->
+          <sc-if value="{{ pendingAttachment }}" hint-placeholder-val="{{ false }}">
+            <div style="display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border-radius:9px;border:1px solid {{ pendingAttachment.border }};background:{{ pendingAttachment.bg }};margin-bottom:9px">
+              <span style="font-size:15px">{{ pendingAttachment.icon }}</span>
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ pendingAttachment.fg }}">Attaching · {{ pendingAttachment.kind }}</div>
+                <div style="font-size:12.5px;font-weight:600;color:var(--gl-text-primary)">{{ pendingAttachment.label }}</div>
+              </div>
+              <div onClick="{{ clearAttachment }}" style="margin-left:6px;width:20px;height:20px;border-radius:6px;background:rgba(120,150,220,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-text-dim);font-size:12px">✕</div>
+            </div>
+          </sc-if>
+
+          <!-- composer -->
+          <div style="position:relative;display:flex;align-items:center;gap:10px">
+            <div onClick="{{ toggleAttachMenu }}" style="position:relative;width:40px;height:40px;flex-shrink:0;border-radius:10px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-text-muted);font-size:19px;font-weight:700">+
+              <sc-if value="{{ attachMenuOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;bottom:48px;left:0;width:220px;border-radius:12px;border:1px solid var(--gl-border);background:#0a0f22;box-shadow:0 12px 30px rgba(0,0,0,.5);padding:6px;z-index:20">
+                  <sc-for list="{{ attachOptions }}" as="a" hint-placeholder-count="4">
+                    <div onClick="{{ a.onClick }}" style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;cursor:pointer" style-hover="background:rgba(120,150,220,.1)">
+                      <span style="font-size:16px">{{ a.icon }}</span>
+                      <div>
+                        <div style="font-size:13px;font-weight:600;color:var(--gl-text-primary)">{{ a.kind }}</div>
+                        <div style="font-size:11px;color:var(--gl-text-dim)">{{ a.hint }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+            <input value="{{ groupQuestion }}" onInput="{{ setGroupQuestion }}" placeholder="Chat with the room — mention @Diana for AI help…" style="flex:1;padding:12px 15px;border-radius:10px;background:rgba(10,16,36,.6);border:1px solid var(--gl-border);color:#fff;font-size:14px;font-family:var(--font-body);outline:none"></input>
+            <div onClick="{{ sendGroupQuestion }}" style="padding:12px 20px;border-radius:10px;cursor:{{ sendCursor }};background:{{ sendBg }};font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:{{ sendFg }};white-space:nowrap;flex-shrink:0">Send</div>
+          </div>
+        </sc-if>
+
+        <!-- ░░ SESSION ░░ -->
+        <sc-if value="{{ isSession }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start">
+            <div style="border-radius:16px;border:1px solid var(--gl-cyan-25);background:linear-gradient(135deg,rgba(8,12,26,.9),rgba(12,18,42,.85));padding:30px;text-align:center">
+              <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:10px">Shared focus session</div>
+              <div style="font-family:var(--font-display);font-weight:800;font-size:60px;line-height:1;color:#fff;font-variant-numeric:tabular-nums">{{ sessionTime }}</div>
+              <div style="font-size:14px;color:var(--gl-text-overlay-60);margin-top:8px">{{ sessionPhaseLabel }} · Mitochondria review</div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:22px">
+                <div onClick="{{ toggleSession }}" style="padding:12px 26px;border-radius:10px;cursor:pointer;background:var(--gl-cyan);box-shadow:0 0 22px rgba(41,208,255,.3);font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">{{ sessionBtnLabel }}</div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px">
+                <div style="width:24px;height:24px;border-radius:50%;background:#5b9bff;border:2px solid #04060f;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff">M</div>
+                <div style="width:24px;height:24px;border-radius:50%;background:#f25fb0;border:2px solid #04060f;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;margin-left:-8px">J</div>
+                <span style="font-size:12px;color:var(--gl-text-dim);margin-left:6px">2 others joined this session</span>
+              </div>
+            </div>
+            <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:18px 20px">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-muted);margin-bottom:12px">Session settings</div>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13.5px;color:var(--gl-text-secondary)">Focus block</span><span style="font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--gl-text-primary)">25 min</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:13.5px;color:var(--gl-text-secondary)">Break</span><span style="font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--gl-text-primary)">5 min</span></div>
+              </div>
+              <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--gl-border);font-size:12px;color:var(--gl-text-dim);line-height:1.5">Everyone in the group works on their own material during the block — this just keeps the clock shared.</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ░░ SHARED DECKS ░░ -->
+        <sc-if value="{{ isDecks }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:13.5px;color:var(--gl-text-overlay-60)">Share a deck and it installs into every member's Flashcards automatically.</div>
+            <div style="padding:9px 16px;border-radius:9px;cursor:pointer;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan);font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:#fff;white-space:nowrap">Share a deck</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px">
+            <sc-for list="{{ sharedDecks }}" as="d" hint-placeholder-count="2">
+              <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:18px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:16px">{{ d.title }}</span>
+                  <span style="padding:2px 8px;border-radius:5px;background:{{ d.sourceBg }};font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ d.sourceFg }}">{{ d.sourceLabel }}</span>
+                </div>
+                <div style="font-size:12.5px;color:var(--gl-text-overlay-60)">{{ d.cardCount }} cards · shared by {{ d.sharedBy }}</div>
+                <div style="margin-top:12px;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--gl-green)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>Installed in your Flashcards</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- ░░ GROUP NOTES ░░ -->
+        <sc-if value="{{ isNotes }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+            <span style="font-size:12.5px;color:var(--gl-text-overlay-60)">Everyone in the group can edit — changes save automatically.</span>
+            <span style="margin-left:auto;font-size:12px;color:var(--gl-text-dim)">Last edited by Maya · 2 min ago</span>
+          </div>
+          <textarea value="{{ groupNoteText }}" onChange="{{ setGroupNoteText }}" style="width:100%;min-height:280px;box-sizing:border-box;padding:18px 20px;border-radius:14px;background:var(--gl-bg-card);border:1px solid var(--gl-border);color:#fff;font-size:14.5px;line-height:1.7;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+        </sc-if>
+
+        <!-- ░░ PEER EXPLANATIONS (shares the Notes tab) ░░ -->
+        <sc-if value="{{ isExplain }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gl-text-muted);margin:26px 0 12px">Peer explanations</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <div style="font-size:13.5px;color:var(--gl-text-overlay-60)">Explaining it in your own words is one of the strongest ways to learn it.</div>
+            <div style="padding:9px 16px;border-radius:9px;cursor:pointer;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan);font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:#fff;white-space:nowrap">Add an explanation</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ explanations }}" as="e" hint-placeholder-count="3">
+              <div style="border-radius:13px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px 18px">
+                <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
+                  <div style="width:24px;height:24px;border-radius:50%;background:{{ e.avatarBg }};display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:{{ e.avatarFg }}">{{ e.initial }}</div>
+                  <span style="font-size:12.5px;font-weight:600;color:var(--gl-text-muted)">{{ e.author }}</span>
+                  <span style="padding:2px 8px;border-radius:5px;background:var(--gl-purple-08);font-size:11px;font-weight:600;color:var(--gl-purple)">{{ e.concept }}</span>
+                </div>
+                <div style="font-size:14px;line-height:1.6;color:var(--gl-text-secondary)">{{ e.explanation }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- ░░ TASK BOARD (shares the Session tab) ░░ -->
+        <sc-if value="{{ isTasks }}" hint-placeholder-val="{{ false }}">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gl-text-muted);margin:26px 0 12px">Task board</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+            <sc-for list="{{ taskColumns }}" as="col" hint-placeholder-count="3">
+              <div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                  <span style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:{{ col.color }}">{{ col.label }}</span>
+                  <span style="font-size:12px;color:var(--gl-text-dim)">{{ col.count }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:9px;min-height:60px">
+                  <sc-for list="{{ col.tasks }}" as="t" hint-placeholder-count="2">
+                    <div style="border-radius:11px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:13px 15px">
+                      <div style="font-size:13.5px;font-weight:600;color:var(--gl-text-primary);line-height:1.4">{{ t.title }}</div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
+                        <span style="font-size:11.5px;color:var(--gl-text-dim)">{{ t.assignee }}</span>
+                        <sc-if value="{{ t.due }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;color:var(--gl-text-dim)">{{ t.due }}</span></sc-if>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1300,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = {
+    activeGroupId: 'bio',
+    newPanelOpen: false,
+    newGroupName: '',
+    joinCode: '',
+    section: 'together',
+    sessionRunning: false,
+    sessionSecondsLeft: 25 * 60,
+    groupQuestion: '',
+    roomContext: 'test_prep',
+    attachMenuOpen: false,
+    pendingAttachment: null,
+    threads: {
+      test_prep: [
+        { isStudent: true, author: 'Jordan', initial: 'J', avatarBg: '#f25fb0', avatarFg: '#fff', text: 'Can we go over why oxygen matters for the electron transport chain? I keep mixing up where it fits in.' },
+        { isDiana: true, text: "Good one to ask as a group — a few of you flagged this on the practice test. Oxygen is the very last stop for the electrons moving through the chain. If it's not there to accept them, the whole chain backs up and stops." },
+        { isStudent: true, author: 'Amara', initial: 'A', avatarBg: '#36e07a', avatarFg: '#04080f', text: 'That clicked for me — thanks Jordan for asking.' },
+        { isStudent: true, author: 'You', initial: 'G', avatarBg: '#29d0ff', avatarFg: '#04080f', text: 'should we redo the practice test now that we get it?' },
+        { isDiana: true, text: 'Good instinct — a second practice test tends to help most right after a concept clicks. Whoever wants to can retake it from Study Tools; the room can keep chatting through anything else that comes up.' },
+      ],
+      project: [
+        { isStudent: true, author: 'Maya', initial: 'M', avatarBg: '#5b9bff', avatarFg: '#fff', text: "I finished the cell diagram outline — posting it to Group Notes now." },
+        { isStudent: true, author: 'Amara', initial: 'A', avatarBg: '#36e07a', avatarFg: '#04080f', text: "Nice. I can take the labeling pass if someone starts the function-sentence writeups?" },
+        { isDiana: true, text: "Looking at the task board: labeling and function write-ups are both still open, and the rubric weights labels + source notes highest. Splitting those two the way you're planning covers the highest-value parts first." },
+        { isStudent: true, author: 'You', initial: 'G', avatarBg: '#29d0ff', avatarFg: '#04080f', text: "I'll take the function write-ups then." },
+      ],
+    },
+    groupNoteText: "Concepts we're still shaky on:\n- Electron transport chain (why oxygen matters)\n- Difference between Krebs cycle location and products\n\nMaya: I found a good analogy for cristae — think of it like folding a fitted sheet to fit more surface into a drawer.",
+  };
+
+  get GROUPS() {
+    return {
+      bio: { id: 'bio', name: 'Biology Study', initial: 'B', memberCount: 4, joinCode: 'BIO4TH', avatarBg: 'var(--gl-cyan-14)', avatarFg: 'var(--gl-cyan)' },
+      apush: { id: 'apush', name: 'APUSH Unit 6 Crew', initial: 'A', memberCount: 3, joinCode: 'APUSH6', avatarBg: 'var(--gl-gold-14)', avatarFg: 'var(--gl-gold)' },
+    };
+  }
+
+  get ATTACH_DEFS() {
+    return [
+      { id: 'deck', icon: '🃏', kind: 'Flashcard deck', hint: 'Cell Respiration Terms · 12 cards', label: 'Cell Respiration Terms', border: 'var(--gl-purple-30)', bg: 'var(--gl-purple-08)', fg: 'var(--gl-purple)' },
+      { id: 'note', icon: '📝', kind: 'Note', hint: 'Mitochondria lecture recap', label: 'Mitochondria lecture recap', border: 'var(--gl-cyan-18)', bg: 'var(--gl-cyan-08)', fg: 'var(--gl-cyan)' },
+      { id: 'task', icon: '✅', kind: 'Task', hint: 'Diagram labeling pass', label: 'Diagram labeling pass', border: 'var(--gl-gold-30)', bg: 'var(--gl-gold-08)', fg: 'var(--gl-gold)' },
+      { id: 'test', icon: '🎓', kind: 'Practice test', hint: 'Unit 3 Biology · 8 questions', label: 'Unit 3 Biology practice test', border: 'var(--gl-green-30)', bg: 'var(--gl-green-12)', fg: 'var(--gl-green)' },
+    ];
+  }
+
+  selectGroup = (id) => this.setState({ activeGroupId: id });
+  toggleNewPanel = () => this.setState(s => ({ newPanelOpen: !s.newPanelOpen }));
+  setSection = (s) => this.setState({ section: s });
+  setNewGroupName = (e) => this.setState({ newGroupName: e.target.value });
+  setJoinCode = (e) => this.setState({ joinCode: e.target.value });
+  createGroup = () => { if (this.state.newGroupName.trim().length > 0) this.setState({ newPanelOpen: false, newGroupName: '' }); };
+  joinGroup = () => { if (this.state.joinCode.trim().length >= 4) this.setState({ newPanelOpen: false, joinCode: '' }); };
+
+  toggleSession = () => {
+    if (this.state.sessionRunning) { clearInterval(this._t); this.setState({ sessionRunning: false }); return; }
+    this.setState({ sessionRunning: true });
+    this._t = setInterval(() => {
+      this.setState(s => {
+        const next = s.sessionSecondsLeft - 1;
+        if (next <= 0) { clearInterval(this._t); return { sessionSecondsLeft: 0, sessionRunning: false }; }
+        return { sessionSecondsLeft: next };
+      });
+    }, 1000);
+  };
+  componentWillUnmount() { clearInterval(this._t); }
+  setGroupNoteText = (e) => this.setState({ groupNoteText: e.target.value });
+  setGroupQuestion = (e) => this.setState({ groupQuestion: e.target.value });
+  setRoomContext = (ctx) => this.setState({ roomContext: ctx });
+
+  toggleAttachMenu = () => this.setState(s => ({ attachMenuOpen: !s.attachMenuOpen }));
+  pickAttachment = (def) => this.setState({ pendingAttachment: def, attachMenuOpen: false });
+  clearAttachment = () => this.setState({ pendingAttachment: null });
+
+  sendGroupQuestion = () => {
+    const q = this.state.groupQuestion.trim();
+    const att = this.state.pendingAttachment;
+    if (!q && !att) return;
+    const ctx = this.state.roomContext;
+    const reply = ctx === 'test_prep'
+      ? "Good question for the room — tie it back to the three stages you've been using (glycolysis, Krebs cycle, electron transport chain) and place this inside the one it belongs to. Ask a follow-up any time — everyone here sees it."
+      : "Noted against the task board — that helps narrow what's still open. Keep splitting work out loud like this so nothing gets duplicated.";
+    const userMsg = { isStudent: true, author: 'You', initial: 'G', avatarBg: '#29d0ff', avatarFg: '#04080f', text: q || 'Shared something with the room:', attachment: att };
+    this.setState(s => ({
+      threads: { ...s.threads, [ctx]: [...s.threads[ctx], userMsg, { isDiana: true, text: reply }] },
+      groupQuestion: '',
+      pendingAttachment: null,
+    }));
+  };
+  askAboutStuck = () => {
+    const ctx = this.state.roomContext;
+    if (ctx === 'test_prep') {
+      const q = 'Can the group get a different explanation of the electron transport chain?';
+      const reply = "Happy to try another angle for everyone: think of the chain like a relay race passing a baton (the electron) down a line of runners. Oxygen is the runner waiting at the very end — without it standing there, the baton has nowhere to go and the whole relay stops.";
+      this.setState(s => ({ threads: { ...s.threads, test_prep: [...s.threads.test_prep, { isStudent: true, author: 'You', initial: 'G', avatarBg: '#29d0ff', avatarFg: '#04080f', text: q }, { isDiana: true, text: reply }] } }));
+    } else {
+      const q = 'What’s still open on the project?';
+      const reply = "Two tasks are still open: finding practice questions on the electron transport chain, and finishing the diagram labeling pass — the labeling pass is worth the most points on the rubric, so that's the one I'd tackle first as a room.";
+      this.setState(s => ({ threads: { ...s.threads, project: [...s.threads.project, { isStudent: true, author: 'You', initial: 'G', avatarBg: '#29d0ff', avatarFg: '#04080f', text: q }, { isDiana: true, text: reply }] } }));
+    }
+  };
+
+  renderVals() {
+    const { activeGroupId, newPanelOpen, newGroupName, joinCode, section, sessionRunning, sessionSecondsLeft, groupNoteText, groupQuestion, roomContext, threads, attachMenuOpen, pendingAttachment } = this.state;
+
+    const mins = Math.floor(sessionSecondsLeft / 60);
+    const secs = sessionSecondsLeft % 60;
+    const sessionTime = `${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+
+    const groupList = Object.values(this.GROUPS).map(g => ({
+      ...g,
+      onClick: () => this.selectGroup(g.id),
+      border: g.id === activeGroupId ? 'var(--gl-cyan-25)' : 'var(--gl-border)',
+      bg: g.id === activeGroupId ? 'var(--gl-cyan-08)' : 'transparent',
+    }));
+    const activeGroup = this.GROUPS[activeGroupId];
+
+    const sectionDefs = [
+      { id: 'together', label: 'Study Room' },
+      { id: 'session', label: 'Session & tasks' },
+      { id: 'decks', label: 'Shared decks' },
+      { id: 'notes', label: 'Notes & explanations' },
+    ];
+    const sectionTabs = sectionDefs.map(s => ({ label: s.label, onClick: () => this.setSection(s.id), active: s.id === section, color: s.id === section ? '#fff' : 'var(--gl-text-dim)' }));
+
+    const attachOptions = this.ATTACH_DEFS.map(a => ({ ...a, onClick: () => this.pickAttachment(a) }));
+
+    const sharedDecks = [
+      { title: 'Cell Respiration Terms', sourceLabel: 'AI-built', sourceBg: 'var(--gl-purple-08)', sourceFg: 'var(--gl-purple)', cardCount: 12, sharedBy: 'You' },
+      { title: 'Photosynthesis Vocab', sourceLabel: 'Student', sourceBg: 'var(--gl-cyan-08)', sourceFg: 'var(--gl-cyan)', cardCount: 8, sharedBy: 'Jordan' },
+    ];
+
+    const explanations = [
+      { author: 'Maya', initial: 'M', avatarBg: '#5b9bff', avatarFg: '#fff', concept: 'Cristae folding', explanation: "Think of it like folding a fitted sheet to fit more surface into a drawer — same idea, just for the inner membrane fitting more surface area into the mitochondria." },
+      { author: 'Jordan', initial: 'J', avatarBg: '#f25fb0', avatarFg: '#fff', concept: 'ETC oxygen role', explanation: "Oxygen is just the last stop for the electrons — if it's not there to catch them, the whole chain backs up and stops." },
+      { author: 'Amara', initial: 'A', avatarBg: '#36e07a', avatarFg: '#04080f', concept: 'Krebs cycle location', explanation: "It happens in the matrix, which is the innermost space — not the membrane itself. That part tripped me up too." },
+    ];
+
+    const taskColumns = [
+      { id: 'open', label: 'Open', color: 'var(--gl-text-muted)', tasks: [ { title: 'Find 3 practice questions on the electron transport chain', assignee: 'Unassigned', due: null } ] },
+      { id: 'in_progress', label: 'In progress', color: 'var(--gl-gold)', tasks: [ { title: 'Draft the Krebs cycle diagram for the group notes', assignee: 'Amara', due: 'Thu' } ] },
+      { id: 'done', label: 'Done', color: 'var(--gl-green)', tasks: [ { title: 'Share the cell respiration flashcard deck', assignee: 'You', due: null }, { title: 'Book a shared session time', assignee: 'Maya', due: null } ] },
+    ];
+    const taskColumnsOut = taskColumns.map(c => ({ ...c, count: c.tasks.length }));
+
+    return {
+      groupList, activeGroup,
+      newPanelOpen, toggleNewPanel: this.toggleNewPanel,
+      newGroupName, setNewGroupName: this.setNewGroupName,
+      joinCode, setJoinCode: this.setJoinCode,
+      createGroup: this.createGroup, joinGroup: this.joinGroup,
+      createCursor: newGroupName.trim() ? 'pointer' : 'not-allowed',
+      createBg: newGroupName.trim() ? 'var(--gl-cyan)' : 'var(--gl-cyan-14)',
+      createFg: newGroupName.trim() ? '#04080f' : 'var(--gl-text-dim)',
+      joinCursor: joinCode.trim().length >= 4 ? 'pointer' : 'not-allowed',
+      joinBg: joinCode.trim().length >= 4 ? 'var(--gl-cyan)' : 'var(--gl-cyan-14)',
+      joinFg: joinCode.trim().length >= 4 ? '#04080f' : 'var(--gl-text-dim)',
+      sectionTabs,
+      isTogether: section === 'together', isSession: section === 'session', isDecks: section === 'decks', isNotes: section === 'notes', isExplain: section === 'notes', isTasks: section === 'session',
+      presence: [
+        { name: 'You', initial: 'G', avatarBg: '#29d0ff', avatarFg: '#04080f', active: true },
+        { name: 'Maya', initial: 'M', avatarBg: '#5b9bff', avatarFg: '#fff', active: true },
+        { name: 'Jordan', initial: 'J', avatarBg: '#f25fb0', avatarFg: '#fff', active: true },
+        { name: 'Amara', initial: 'A', avatarBg: '#36e07a', avatarFg: '#04080f', active: false },
+      ],
+      contextChips: [
+        { id: 'test_prep', icon: '🎓', label: 'Test prep: Unit 3 Biology', onClick: () => this.setRoomContext('test_prep'), border: roomContext === 'test_prep' ? 'var(--gl-gold)' : 'var(--gl-border)', bg: roomContext === 'test_prep' ? 'var(--gl-gold-08)' : 'var(--gl-bg-card)', fg: roomContext === 'test_prep' ? '#fff' : 'var(--gl-text-muted)' },
+        { id: 'project', icon: '📂', label: 'Project: Cell Diagram Poster', onClick: () => this.setRoomContext('project'), border: roomContext === 'project' ? 'var(--gl-cyan)' : 'var(--gl-border)', bg: roomContext === 'project' ? 'var(--gl-cyan-08)' : 'var(--gl-bg-card)', fg: roomContext === 'project' ? '#fff' : 'var(--gl-text-muted)' },
+      ],
+      nudgeAccent: roomContext === 'test_prep' ? 'var(--gl-gold)' : 'var(--gl-cyan)',
+      nudgeBorder: roomContext === 'test_prep' ? 'var(--gl-gold-30)' : 'var(--gl-cyan-25)',
+      nudgeBg: roomContext === 'test_prep' ? 'var(--gl-gold-08)' : 'var(--gl-cyan-08)',
+      nudgeBtnBg: roomContext === 'test_prep' ? 'var(--gl-gold-14)' : 'var(--gl-cyan-14)',
+      nudgeHeadline: roomContext === 'test_prep' ? 'The room is still working through the electron transport chain.' : 'Two tasks are still open on the board.',
+      nudgeSub: roomContext === 'test_prep' ? "Noticed across a few members' notes and explanations — worth asking Diana to explain it a different way, together." : 'Diana can help split what’s left so nothing gets duplicated.',
+      nudgeCta: roomContext === 'test_prep' ? 'Ask about this' : 'Check the board',
+      askAboutStuck: this.askAboutStuck,
+      groupThread: threads[roomContext],
+      groupQuestion, setGroupQuestion: this.setGroupQuestion, sendGroupQuestion: this.sendGroupQuestion,
+      sendCursor: (groupQuestion.trim() || pendingAttachment) ? 'pointer' : 'not-allowed',
+      sendBg: (groupQuestion.trim() || pendingAttachment) ? 'var(--gl-cyan)' : 'var(--gl-cyan-14)',
+      sendFg: (groupQuestion.trim() || pendingAttachment) ? '#04080f' : 'var(--gl-text-dim)',
+      attachMenuOpen, toggleAttachMenu: this.toggleAttachMenu, attachOptions,
+      pendingAttachment, clearAttachment: this.clearAttachment,
+      sessionTime, sessionPhaseLabel: sessionRunning ? 'Focus block running' : (sessionSecondsLeft === 0 ? 'Block complete' : 'Ready when you are'),
+      toggleSession: this.toggleSession, sessionBtnLabel: sessionRunning ? 'Pause' : 'Start focus block',
+      sharedDecks, explanations, taskColumns: taskColumnsOut,
+      groupNoteText, setGroupNoteText: this.setGroupNoteText,
+    };
+  }
+}
+</script>
+</body>
+</html>

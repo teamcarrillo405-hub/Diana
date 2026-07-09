@@ -2423,6 +2423,8 @@ export type Database = {
           user_id: string;
           visual_pacing: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
           photo_url: string | null; // 20260613 migration; manually annotated until supabase:types regen
+          photo_offset_x: number; // 20260709 migration; manually annotated until supabase:types regen
+          photo_offset_y: number; // 20260709 migration; manually annotated until supabase:types regen
         };
         Insert: {
           accommodations?: string[];
@@ -2472,6 +2474,8 @@ export type Database = {
           user_id: string;
           visual_pacing?: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
           photo_url?: string | null; // 20260613 migration; manually annotated until supabase:types regen
+          photo_offset_x?: number; // 20260709 migration; manually annotated until supabase:types regen
+          photo_offset_y?: number; // 20260709 migration; manually annotated until supabase:types regen
         };
         Update: {
           accommodations?: string[];
@@ -2521,6 +2525,8 @@ export type Database = {
           user_id?: string;
           visual_pacing?: VisualPacing; // 0021 migration; manually annotated until supabase:types regen
           photo_url?: string | null; // 20260613 migration; manually annotated until supabase:types regen
+          photo_offset_x?: number; // 20260709 migration; manually annotated until supabase:types regen
+          photo_offset_y?: number; // 20260709 migration; manually annotated until supabase:types regen
         };
         Relationships: [];
       };

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14);
+    --gl-gold:#ffd24a; --gl-gold-14:rgba(255,210,74,.14);
+    --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.3);border-radius:4px}
+  .gl-tab:hover{color:#fff !important;}
+</style>
+</helmet>
+
+<div style="width:1440px;min-height:900px;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -10%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)" data-screen-label="AI History">
+
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <a href="Student Lobby.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
+        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <div style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center" title="Profile">
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">G</span>
+      </div>
+      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:22px">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:6px">AI History</div>
+        <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:32px;text-transform:uppercase">Every AI call, in the open.</div>
+        <div style="font-size:13.5px;color:var(--gl-text-dim);margin-top:6px">What Diana asked, which feature used it, and how many tokens it cost.</div>
+      </div>
+      <div onClick="{{ onExportCsv }}" style="padding:11px 20px;border-radius:10px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30);white-space:nowrap">⬇ Export CSV</div>
+    </div>
+
+    <sc-if value="{{ exportMessage }}" hint-placeholder-val="{{ false }}">
+      <div style="border-radius:10px;border:1px solid var(--gl-green-30);background:var(--gl-green-14);padding:11px 16px;font-size:12.5px;color:var(--gl-green);margin-bottom:16px">{{ exportMessage }}</div>
+    </sc-if>
+
+    <div style="display:flex;gap:8px;margin-bottom:18px">
+      <sc-for list="{{ featureFilters }}" as="f" hint-placeholder-count="6">
+        <div onClick="{{ f.onClick }}" style="padding:8px 15px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+      </sc-for>
+    </div>
+
+    <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);overflow:hidden">
+      <div style="display:grid;grid-template-columns:130px 160px 1fr 130px 110px;gap:12px;padding:12px 20px;border-bottom:1px solid var(--gl-border);font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-text-dim)">
+        <div>Date</div><div>Feature</div><div>Prompt</div><div>Model</div><div style="text-align:right">Tokens</div>
+      </div>
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="8">
+        <div style="display:grid;grid-template-columns:130px 160px 1fr 130px 110px;gap:12px;padding:13px 20px;border-bottom:1px solid var(--gl-border);align-items:start">
+          <div style="font-size:12px;color:var(--gl-text-dim);font-family:var(--font-mono)">{{ r.dateLabel }}</div>
+          <div>
+            <div style="display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;background:{{ r.featureBg }};color:{{ r.featureColor }}">{{ r.featureLabel }}</div>
+          </div>
+          <div>
+            <div style="font-size:13px;color:var(--gl-text-secondary);line-height:1.4">{{ r.promptSummary }}</div>
+            <sc-if value="{{ r.assignmentTitle }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;color:var(--gl-text-dim);margin-top:3px">on {{ r.assignmentTitle }}</div>
+            </sc-if>
+          </div>
+          <div style="font-size:12px;color:var(--gl-text-dim);font-family:var(--font-mono)">{{ r.model }}</div>
+          <div style="text-align:right;font-size:13px;font-family:var(--font-mono);color:var(--gl-cyan)">{{ r.tokensLabel }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="text-align:center;padding:60px 20px;color:var(--gl-text-dim)">No AI calls logged for this filter.</div>
+    </sc-if>
+
+    <div style="margin-top:16px;font-size:12px;color:var(--gl-text-dim);text-align:center">Showing {{ visibleCount }} of {{ totalCount }} interactions · Delete or export all of it anytime in <span style="color:var(--gl-cyan)">Export &amp; Privacy</span>.</div>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  FEATURE_COLORS = {
+    'AI Help': 'var(--gl-cyan)', 'Co-write': 'var(--gl-violet)', 'Study artifacts': 'var(--gl-gold)',
+    'Take the test': 'var(--gl-green)', 'Flashcards': 'var(--gl-cyan)', 'Visual tools': 'var(--gl-violet)',
+  };
+
+  state = {
+    filter: 'all',
+    exportMessage: '',
+    rows: [
+      { id: '1', created_at: '2027-05-14T09:12:00Z', feature: 'AI Help', assignment_title: 'DBQ: Reconstruction essay', model: 'claude-haiku', prompt_summary: 'Break down thesis-writing steps for a history DBQ', tokens_used: 612 },
+      { id: '2', created_at: '2027-05-14T08:40:00Z', feature: 'Co-write', assignment_title: 'Personal narrative draft', model: 'claude-sonnet', prompt_summary: 'Suggest structure for a 5-paragraph narrative essay', tokens_used: 1180 },
+      { id: '3', created_at: '2027-05-13T21:05:00Z', feature: 'Study artifacts', assignment_title: 'Unit 4 Chemistry', model: 'claude-haiku', prompt_summary: 'Generate a practice test from chapter 7 notes', tokens_used: 2140 },
+      { id: '4', created_at: '2027-05-13T19:30:00Z', feature: 'Flashcards', assignment_title: null, model: 'claude-haiku', prompt_summary: 'Create flashcards from Spanish vocabulary list', tokens_used: 480 },
+      { id: '5', created_at: '2027-05-12T16:02:00Z', feature: 'Take the test', assignment_title: 'Bio midterm review', model: 'claude-sonnet', prompt_summary: 'Explain why an MCQ answer was incorrect', tokens_used: 340 },
+      { id: '6', created_at: '2027-05-12T14:18:00Z', feature: 'Visual tools', assignment_title: 'WWII causes', model: 'claude-haiku', prompt_summary: 'Build a timeline of events leading to WWII', tokens_used: 890 },
+      { id: '7', created_at: '2027-05-11T20:44:00Z', feature: 'AI Help', assignment_title: 'Calculus AB problem set 6', model: 'claude-haiku', prompt_summary: 'Explain related-rates setup without giving the answer', tokens_used: 505 },
+      { id: '8', created_at: '2027-05-10T13:22:00Z', feature: 'Co-write', assignment_title: 'Lab report — titration', model: 'claude-sonnet', prompt_summary: 'Review conclusion paragraph for clarity', tokens_used: 760 },
+    ],
+  };
+
+  renderVals() {
+    const s = this.state;
+    const features = ['all', ...new Set(s.rows.map(r => r.feature))];
+    const featureFilters = features.map(f => ({
+      label: f === 'all' ? 'All' : f,
+      border: s.filter === f ? 'var(--gl-cyan-30)' : 'var(--gl-border)',
+      bg: s.filter === f ? 'var(--gl-cyan-14)' : 'rgba(4,8,20,.4)',
+      fg: s.filter === f ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ filter: f }),
+    }));
+
+    const filtered = s.filter === 'all' ? s.rows : s.rows.filter(r => r.feature === s.filter);
+    const rows = filtered.map(r => {
+      const d = new Date(r.created_at);
+      const dateLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' · ' + d.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      const color = this.FEATURE_COLORS[r.feature] || 'var(--gl-cyan)';
+      return {
+        ...r, dateLabel, featureLabel: r.feature, featureColor: color,
+        featureBg: color.replace(')', '').replace('var(--gl-', 'rgba(') ? this.tintFor(r.feature) : 'rgba(41,208,255,.14)',
+        assignmentTitle: r.assignment_title, model: r.model, promptSummary: r.prompt_summary,
+        tokensLabel: r.tokens_used.toLocaleString(),
+      };
+    });
+
+    return {
+      featureFilters, rows,
+      isEmpty: filtered.length === 0,
+      visibleCount: filtered.length, totalCount: s.rows.length,
+      exportMessage: s.exportMessage,
+      onExportCsv: () => this.setState({ exportMessage: `Exported ${s.rows.length} interactions as CSV.` }),
+    };
+  }
+
+  tintFor(feature) {
+    const map = {
+      'AI Help': 'rgba(41,208,255,.14)', 'Co-write': 'rgba(167,139,250,.14)', 'Study artifacts': 'rgba(255,210,74,.14)',
+      'Take the test': 'rgba(54,224,122,.14)', 'Flashcards': 'rgba(41,208,255,.14)', 'Visual tools': 'rgba(167,139,250,.14)',
+    };
+    return map[feature] || 'rgba(41,208,255,.14)';
+  }
+}
+
+</script>
+</body>
+</html>

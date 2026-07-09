@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&amp;family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  @font-face{font-family:'OpenDyslexic';src:url('https://cdn.jsdelivr.net/npm/@fontsource/opendyslexic@5.2.5/files/opendyslexic-latin-400-normal.woff2') format('woff2');font-weight:400;font-display:swap;}
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
+    --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-70:rgba(41,208,255,.7); --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-10:rgba(41,208,255,.1); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-25:rgba(255,210,74,.25); --gl-gold-14:rgba(255,210,74,.14);
+    --gl-green:#36e07a; --gl-green-25:rgba(54,224,122,.25); --gl-green-12:rgba(54,224,122,.12);
+    --gl-purple:#7e5cff; --gl-purple-light:#b09cff; --gl-purple-30:rgba(126,92,255,.3); --gl-purple-12:rgba(126,92,255,.12);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6); --gl-text-on-cyan:#04080f;
+    --gl-border:rgba(120,150,220,.18); --gl-bg-input:rgba(10,16,36,.8);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  @keyframes ob-blink{0%,100%{opacity:.4}50%{opacity:1}}
+  @keyframes ob-pulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.06);opacity:1}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+  ::placeholder{color:var(--gl-text-dim)}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1100px 620px at 50% -8%,rgba(41,208,255,.08),transparent 60%),var(--gl-bg-base)">
+<div style="max-width:1280px;margin:0 auto;padding:26px 30px 70px">
+
+  <!-- top bar: logo + step counter + progress dots -->
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="width:30px;height:30px;display:inline-block;filter:drop-shadow(0 0 10px rgba(41,208,255,.6))"><svg viewBox="0 0 32 32" fill="none" width="100%" height="100%" style="display:block"><ellipse cx="16" cy="16" rx="13" ry="5.4" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.6" opacity="0.6"></ellipse><circle cx="16" cy="16" r="6.6" fill="#29d0ff" opacity="0.16"></circle><circle cx="16" cy="16" r="3.7" fill="#8fe6ff"></circle><circle cx="27.8" cy="10.5" r="2.2" fill="#29d0ff"></circle></svg></span>
+      <span style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:21px;letter-spacing:.05em;text-transform:uppercase">Diana</span>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+      <span style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-dim)">Step {{ stepNum }} of 7</span>
+      <div style="display:flex;gap:6px">
+        <sc-for list="{{ dots }}" as="d" hint-placeholder-count="7">
+          <div onClick="{{ d.onClick }}" style="height:6px;border-radius:3px;cursor:pointer;transition:all .3s;width:{{ d.w }};background:{{ d.bg }}"></div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <!-- reference note -->
+  <div style="margin-top:14px;display:flex;align-items:center;gap:10px;padding:8px 13px;border-radius:9px;border:1px dashed var(--gl-border);background:rgba(4,8,20,.4)">
+    <span style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-dim)">Interactive · click Next or the dots</span>
+    <span style="font-size:12px;color:var(--gl-text-overlay-60)">Desktop and mobile show the same step. Wired to <b style="color:var(--gl-text-muted)">saveOnboarding()</b>, LMS OAuth, and player-photo actions.</span>
+  </div>
+
+  <!-- FRAMES -->
+  <div style="margin-top:20px;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap;justify-content:center">
+
+    <!-- ░░ DESKTOP FRAME ░░ -->
+    <div style="flex:1 1 720px;min-width:560px;max-width:860px">
+      <div style="position:relative;border-radius:16px;border:1px solid var(--gl-cyan-18,rgba(41,208,255,.18));background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));overflow:hidden;box-shadow:0 34px 80px -38px rgba(41,208,255,.5)">
+        <div style="display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--gl-border)">
+          <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span><span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span><span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+          <span style="margin-left:10px;font-size:11px;color:var(--gl-text-dim);font-family:var(--font-display);letter-spacing:.08em">diana.app / onboarding</span>
+        </div>
+        <div style="display:flex;min-height:540px">
+          <!-- visual panel -->
+          <div style="position:relative;width:42%;border-right:1px solid var(--gl-border);overflow:hidden;background:radial-gradient(420px 420px at 50% 42%,rgba(20,40,90,.55),transparent 62%)">
+            <canvas ref="{{ canvasRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block"></canvas>
+            <div style="position:absolute;left:24px;bottom:22px;right:24px;z-index:2">
+              <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan-70)">{{ step.kicker }}</div>
+              <div style="margin-top:4px;font-size:13.5px;line-height:1.5;color:var(--gl-text-overlay-60)">{{ step.encourage }}</div>
+            </div>
+          </div>
+          <!-- content panel -->
+          <div style="flex:1;padding:34px 36px;display:flex;flex-direction:column">
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:34px;line-height:.96;text-transform:uppercase">{{ step.q }}</div>
+            <div style="margin-top:10px;font-size:15px;line-height:1.55;color:var(--gl-text-overlay-60);max-width:440px">{{ step.sub }}</div>
+            <div style="margin-top:22px;flex:1">{{ desktopBody }}</div>
+            <!-- controls -->
+            <div style="margin-top:24px;display:flex;align-items:center;gap:12px">
+              <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ back }}" style="padding:13px 20px;border-radius:10px;border:1px solid var(--gl-border);cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-secondary)">Back</div>
+              </sc-if>
+              <div onClick="{{ next }}" style="margin-left:auto;display:inline-flex;align-items:center;gap:9px;padding:14px 26px;border-radius:10px;background:var(--gl-cyan);box-shadow:0 0 30px rgba(41,208,255,.36);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-on-cyan)">{{ nextLabel }} <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-dim)">Desktop</div>
+    </div>
+
+    <!-- ░░ PHONE FRAME ░░ -->
+    <div style="flex:0 0 auto">
+      <div style="position:relative;width:300px;height:610px;border-radius:40px;border:1px solid var(--gl-cyan-25);background:#070b18;padding:10px;box-shadow:0 34px 80px -30px rgba(41,208,255,.5)">
+        <div style="position:absolute;top:20px;left:50%;transform:translateX(-50%);width:90px;height:7px;border-radius:4px;background:rgba(120,150,220,.3);z-index:3"></div>
+        <div style="width:100%;height:100%;border-radius:31px;overflow:hidden;background:linear-gradient(180deg,var(--gl-bg-hero),var(--gl-bg-base));display:flex;flex-direction:column">
+          <!-- phone top: core + dots -->
+          <div style="position:relative;height:128px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(220px 160px at 50% 40%,rgba(20,40,90,.6),transparent 64%);border-bottom:1px solid var(--gl-border)">
+            <div style="position:relative;width:62px;height:62px;border-radius:50%;background:radial-gradient(circle,rgba(160,228,255,.7),rgba(41,208,255,.35) 45%,transparent 72%);display:flex;align-items:center;justify-content:center;animation:ob-pulse 3s ease-in-out infinite">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:#04080f">{{ stepNum }}</div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:5px">
+              <sc-for list="{{ dots }}" as="d" hint-placeholder-count="7">
+                <div style="width:{{ d.pw }};height:5px;border-radius:3px;background:{{ d.bg }}"></div>
+              </sc-for>
+            </div>
+          </div>
+          <!-- phone body -->
+          <div style="flex:1;overflow:auto;padding:18px 16px 8px">
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:24px;line-height:.96;text-transform:uppercase">{{ step.q }}</div>
+            <div style="margin-top:7px;font-size:13px;line-height:1.5;color:var(--gl-text-overlay-60)">{{ step.sub }}</div>
+            <div style="margin-top:16px">{{ phoneBody }}</div>
+          </div>
+          <!-- phone controls -->
+          <div style="flex-shrink:0;padding:12px 16px 18px;border-top:1px solid var(--gl-border);display:flex;align-items:center;gap:10px;background:rgba(2,5,14,.6)">
+            <sc-if value="{{ canBack }}" hint-placeholder-val="{{ false }}">
+              <div onClick="{{ back }}" style="width:46px;height:46px;flex-shrink:0;border-radius:11px;border:1px solid var(--gl-border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-text-secondary)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg></div>
+            </sc-if>
+            <div onClick="{{ next }}" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:11px;background:var(--gl-cyan);box-shadow:0 0 24px rgba(41,208,255,.36);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-on-cyan)">{{ nextLabel }}</div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:10px;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-dim)">Mobile</div>
+    </div>
+  </div>
+
+</div>
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:820}}">
+class Component extends DCLogic {
+  canvasRef = React.createRef();
+  state = {
+    step: 0,
+    name: '',
+    grade: 11,
+    diagnoses: [],
+    extra: 'none',
+    dys: false,
+    size: 'normal',
+    spacing: 'normal',
+    tts: true,
+    interests: [],
+    gConn: false, cConn: false, manual: false, connecting: null,
+    bg: 'stadium',
+    photoSrc: null, bgRemoving: false, bgRemoved: false,
+  };
+
+  // ---- 3D core that gains a node per step ----
+  componentDidMount() {
+    this._t = 0;
+    const N = 300; this._pts = [];
+    for (let i = 0; i < N; i++) { const y = 1 - (i/(N-1))*2; const rad = Math.sqrt(Math.max(0,1-y*y)); const th = i*Math.PI*(3-Math.sqrt(5)); this._pts.push({x:Math.cos(th)*rad,y,z:Math.sin(th)*rad}); }
+    this._tones = [[41,208,255],[255,210,74],[54,224,122],[176,156,255],[242,95,176],[91,155,255],[160,228,255]];
+    const loop = () => { this._draw(); this._raf = requestAnimationFrame(loop); };
+    loop();
+  }
+  componentWillUnmount() { cancelAnimationFrame(this._raf); }
+  _draw() {
+    const c = this.canvasRef.current; if (!c) return;
+    if (this._c !== c) { this._c = c; this._ctx = c.getContext('2d'); this._sized = false; }
+    const ctx = this._ctx; if (!ctx) return;
+    const dpr = Math.min(window.devicePixelRatio||1,2); const r = c.getBoundingClientRect();
+    if (!r.width||!r.height) return;
+    if (!this._sized||this._w!==r.width||this._h!==r.height){ this._w=r.width;this._h=r.height;c.width=Math.round(r.width*dpr);c.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);this._sized=true; }
+    const W=this._w,H=this._h; this._t+=0.004; const t=this._t;
+    const ry=t, rx=0.36; const cx=W*0.5, cy=H*0.42; const R=Math.min(W,H)*0.30; const f=3.0;
+    const cY=Math.cos(ry),sY=Math.sin(ry),cX=Math.cos(rx),sX=Math.sin(rx);
+    const rot=(x,y,z)=>{const x1=x*cY-z*sY,z1=x*sY+z*cY;const y1=y*cX-z1*sX,z2=y*sX+z1*cX;return{x:x1,y:y1,z:z2};};
+    const proj=(p)=>{const s=f/(f+p.z);return{sx:cx+p.x*R*s,sy:cy+p.y*R*s,s,z:p.z};};
+    ctx.clearRect(0,0,W,H); ctx.globalCompositeOperation='lighter';
+    const ds=this._pts.map(p=>{const q=rot(p.x,p.y,p.z);return{...proj(q),z:q.z};}).sort((a,b)=>a.z-b.z);
+    for(const d of ds){const a=0.05+(d.z+1)/2*0.30;ctx.fillStyle='rgba(130,190,255,'+a.toFixed(3)+')';ctx.beginPath();ctx.arc(d.sx,d.sy,0.5+d.s*0.9,0,6.283);ctx.fill();}
+    // orbiting nodes = step+1
+    const count = this.state.step + 1;
+    for(let i=0;i<count;i++){
+      const tone=this._tones[i%this._tones.length]; const rr=1.4+i*0.12; const inc=(i%2?-1:1)*(0.3+i*0.12);
+      const a=i*1.7+t*(0.5+i*0.05)*(i%2?-1:1)*6; const x=Math.cos(a)*rr,z0=Math.sin(a)*rr; const yy=z0*Math.sin(inc),zz=z0*Math.cos(inc);
+      const q=rot(x,yy,zz),pr=proj(q); const depth=(q.z+1)/2; const glow=12*pr.s*(0.6+depth*0.7);
+      const g=ctx.createRadialGradient(pr.sx,pr.sy,0,pr.sx,pr.sy,glow);
+      g.addColorStop(0,'rgba('+tone[0]+','+tone[1]+','+tone[2]+','+(0.9*(0.5+depth*0.5)).toFixed(3)+')');
+      g.addColorStop(0.4,'rgba('+tone[0]+','+tone[1]+','+tone[2]+',0.3)'); g.addColorStop(1,'rgba('+tone[0]+','+tone[1]+','+tone[2]+',0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(pr.sx,pr.sy,glow,0,6.283);ctx.fill();
+      ctx.fillStyle=depth>0.45?'#fff':'rgba('+tone[0]+','+tone[1]+','+tone[2]+',1)';ctx.beginPath();ctx.arc(pr.sx,pr.sy,2*pr.s,0,6.283);ctx.fill();
+    }
+    const pulse=0.5+0.5*Math.sin(t*2.6); const coreR=R*(0.5+0.06*pulse);
+    const cg=ctx.createRadialGradient(cx,cy,0,cx,cy,coreR);
+    cg.addColorStop(0,'rgba(160,228,255,'+(0.45+0.2*pulse).toFixed(3)+')');cg.addColorStop(0.22,'rgba(41,208,255,'+(0.26+0.12*pulse).toFixed(3)+')');cg.addColorStop(0.6,'rgba(40,100,210,0.1)');cg.addColorStop(1,'rgba(10,16,40,0)');
+    ctx.fillStyle=cg;ctx.beginPath();ctx.arc(cx,cy,coreR,0,6.283);ctx.fill();
+    ctx.globalCompositeOperation='source-over';
+  }
+
+  go = (i) => this.setState({ step: Math.max(0, Math.min(6, i)) });
+  next = () => this.setState((s) => ({ step: Math.min(6, s.step + 1) }));
+  back = () => this.setState((s) => ({ step: Math.max(0, s.step - 1) }));
+  setName = (e) => this.setState({ name: e.target.value });
+  setGrade = (g) => this.setState({ grade: g });
+  toggleDx = (v) => this.setState((s) => {
+    if (v === 'none') return { diagnoses: ['none'] };
+    const has = s.diagnoses.includes(v);
+    const d = (has ? s.diagnoses.filter((x) => x !== v) : [...s.diagnoses.filter((x)=>x!=='none'), v]);
+    return { diagnoses: d };
+  });
+  setExtra = (v) => this.setState({ extra: v });
+  setDys = () => this.setState((s) => ({ dys: !s.dys }));
+  setSize = (v) => this.setState({ size: v });
+  setSpacing = (v) => this.setState({ spacing: v });
+  setTts = () => this.setState((s) => ({ tts: !s.tts }));
+  toggleInterest = (v) => this.setState((s) => {
+    const has = s.interests.includes(v);
+    if (has) return { interests: s.interests.filter((x) => x !== v) };
+    if (s.interests.length >= 5) return {};
+    return { interests: [...s.interests, v] };
+  });
+  connectSource = (v) => {
+    const key = v + 'Conn';
+    if (v === 'c' && !this.state.gConn) return;
+    if (this.state[key]) { this.setState({ [key]: false }); return; }
+    this.setState({ connecting: v });
+    clearTimeout(this['_ct' + v]);
+    this['_ct' + v] = setTimeout(() => this.setState({ [key]: true, connecting: null }), 950);
+  };
+  toggleManual = () => this.setState((s) => ({ manual: !s.manual }));
+  setBg = (v) => this.setState({ bg: v });
+  fileRef = React.createRef();
+  pickFile = () => { const el = this.fileRef.current; if (el) el.click(); };
+  onFile = (e) => { const f = e.target.files && e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => this.setState({ photoSrc: r.result, bgRemoved: false, bgRemoving: false }); r.readAsDataURL(f); };
+  removeBg = () => { if (!this.state.photoSrc || this.state.bgRemoved || this.state.bgRemoving) return; this.setState({ bgRemoving: true }); clearTimeout(this._bg); this._bg = setTimeout(() => this.setState({ bgRemoving: false, bgRemoved: true }), 1200); };
+  clearPhoto = () => this.setState({ photoSrc: null, bgRemoved: false, bgRemoving: false });
+
+  STEPS() {
+    return [
+      { kicker: 'Welcome', encourage: 'This takes about a minute. Each answer makes Diana fit you better.', q: 'Let\u2019s build your lobby.', sub: 'First, what should Diana call you, and what year are you in?', kind: 'welcome' },
+      { kicker: 'How you work', encourage: 'No labels, no judgement. Diana just adjusts the support level.', q: 'Anything that helps us support you?', sub: 'Optional. Pick any that fit. You can change these anytime.', kind: 'diagnoses' },
+      { kicker: 'Easy reading', encourage: 'Built for dyslexia from the start, not bolted on after.', q: 'Make reading feel easy.', sub: 'Set it once here. It applies everywhere in Diana.', kind: 'reading' },
+      { kicker: 'You', encourage: 'Diana uses these to make examples and backgrounds feel like yours.', q: 'What are you into?', sub: 'Pick up to 5. This personalizes how things look and read.', kind: 'interests' },
+      { kicker: 'Your classes', encourage: 'Connect once and every assignment flows in on its own.', q: 'Bring in your classes.', sub: 'One Google sign-in brings in your classes. Add Canvas after.', kind: 'connect' },
+      { kicker: 'Make it yours', encourage: 'This is the lobby you\u2019ll see every day. Make it feel like you.', q: 'Make it yours.', sub: 'Add a photo and pick a background. All approved templates.', kind: 'makeit' },
+      { kicker: 'Ready', encourage: 'Everything you capture now lands somewhere and comes back as one clear move.', q: 'Your lobby is ready.', sub: 'You\u2019re all set. Head to Today and see your first move.', kind: 'ready' },
+    ];
+  }
+
+  renderVals() {
+    const st = this.state;
+    const steps = this.STEPS();
+    const step = steps[st.step];
+    const tones = ['var(--gl-cyan)','var(--gl-gold)','var(--gl-green)','var(--gl-purple-light)','var(--gl-cyan)','var(--gl-purple-light)','var(--gl-green)'];
+
+    const dots = steps.map((_, i) => ({
+      onClick: () => this.go(i),
+      w: i === st.step ? '26px' : '12px',
+      pw: i === st.step ? '20px' : '8px',
+      bg: i < st.step ? 'var(--gl-cyan-70)' : i === st.step ? 'var(--gl-cyan)' : 'rgba(120,150,220,.28)',
+    }));
+
+    const chip = (sel) => ({
+      bg: sel ? 'var(--gl-cyan-14)' : 'rgba(10,16,36,.5)',
+      border: sel ? 'var(--gl-cyan)' : 'var(--gl-border)',
+      fg: sel ? '#fff' : 'var(--gl-text-secondary)',
+    });
+
+    // shared option data
+    const grades = [9, 10, 11, 12];
+    const dxOpts = [
+      { v: 'adhd', label: 'ADHD' }, { v: 'dyslexia', label: 'Dyslexia' }, { v: 'dyscalculia', label: 'Dyscalculia' },
+      { v: 'dysgraphia', label: 'Dysgraphia' }, { v: 'asd', label: 'Autism' }, { v: 'anxiety', label: 'Anxiety' },
+      { v: 'none', label: 'None of these' },
+    ];
+    const interestOpts = ['Sports','Gaming','Music','Art','Movies','Coding','Reading','Fitness','Cars','Animals','Fashion','Space'];
+    const bgOpts = [
+      { v: 'stadium', label: 'Stadium', grad: "#0a1024 url('./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg') center/cover no-repeat" },
+      { v: 'science', label: 'Science Lab', grad: "#0a1024 url('./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg') center/cover no-repeat" },
+      { v: 'music', label: 'Music', grad: "#0a1024 url('./uploads/grok-image-e2a03daf-7692-41ff-a4b7-2b4cc6daa95e.jpg') center/cover no-repeat" },
+      { v: 'default', label: 'Default', grad: "#0a1024 url('./uploads/grok-image-74811ff2-f7a6-4a2a-91da-29b5088ed2fe.jpg') center/cover no-repeat" },
+    ];
+
+    const dyslexiaFontFamily = st.dys ? "'OpenDyslexic', sans-serif" : "'Atkinson Hyperlegible', sans-serif";
+    const sizePx = { small: 13, normal: 15, large: 18, xlarge: 22 }[st.size];
+    const lineH = { compact: 1.35, normal: 1.6, loose: 1.9 }[st.spacing];
+
+    // build React bodies for desktop + phone (kept identical content, sizes differ by container)
+    const R = React.createElement;
+    const e = (tag, props, ...kids) => R(tag, props, ...kids);
+
+    const chipRow = (opts, isSel, onPick, small) => e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: small ? 7 : 9 } },
+      ...opts.map((o) => { const v = o.v ?? o; const label = o.label ?? o; const k = chip(isSel(v));
+        return e('div', { key: v, onClick: () => onPick(v), style: { padding: small ? '9px 13px' : '11px 16px', borderRadius: 10, cursor: 'pointer', border: '1.5px solid ' + k.border, background: k.bg, color: k.fg, fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: small ? 14 : 15, letterSpacing: '.02em', textTransform: 'uppercase' } }, label); }));
+
+    const bodyFor = (small) => {
+      const fs = small ? 0.92 : 1;
+      switch (step.kind) {
+        case 'welcome': return e('div', { style: { display: 'flex', flexDirection: 'column', gap: small ? 16 : 20 } },
+          e('div', null,
+            e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--gl-text-dim)', marginBottom: 7 } }, 'Your name'),
+            e('input', { value: st.name, onChange: this.setName, placeholder: 'Type your name', style: { width: '100%', padding: small ? '12px 14px' : '14px 16px', borderRadius: 11, background: 'var(--gl-bg-input)', border: '1px solid ' + (st.name ? 'var(--gl-cyan-30)' : 'var(--gl-border)'), color: '#fff', fontSize: small ? 15 : 17, fontFamily: 'var(--font-body)', outline: 'none' } })),
+          e('div', null,
+            e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--gl-text-dim)', marginBottom: 9 } }, 'Grade'),
+            chipRow(grades.map((g) => ({ v: g, label: g + 'th' })), (v) => st.grade === v, this.setGrade, small)));
+        case 'diagnoses': return e('div', { style: { display: 'flex', flexDirection: 'column', gap: small ? 16 : 22 } },
+          chipRow(dxOpts, (v) => st.diagnoses.includes(v), this.toggleDx, small),
+          e('div', null,
+            e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--gl-text-dim)', marginBottom: 9 } }, 'Extra time on work?'),
+            chipRow([{ v: 'none', label: 'No' }, { v: '25', label: '+25%' }, { v: '50', label: '+50%' }], (v) => st.extra === v, this.setExtra, small)));
+        case 'reading': return e('div', { style: { display: 'flex', flexDirection: 'column', gap: small ? 13 : 16 } },
+          e('div', { onClick: this.setDys, style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: small ? '12px 14px' : '14px 16px', borderRadius: 12, border: '1.5px solid ' + (st.dys ? 'var(--gl-cyan)' : 'var(--gl-border)'), background: st.dys ? 'var(--gl-cyan-08)' : 'rgba(10,16,36,.5)', cursor: 'pointer' } },
+            e('div', null, e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: small ? 15 : 17, textTransform: 'uppercase', color: '#fff' } }, 'Dyslexia-friendly font'), e('div', { style: { fontSize: 12, color: 'var(--gl-text-overlay-60)', marginTop: 2 } }, 'OpenDyslexic, weighted letters')),
+            e('div', { style: { width: 46, height: 26, borderRadius: 14, background: st.dys ? 'var(--gl-cyan)' : 'rgba(120,150,220,.25)', position: 'relative', flexShrink: 0, transition: 'background .2s' } }, e('div', { style: { position: 'absolute', top: 3, left: st.dys ? 23 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left .2s' } }))),
+          e('div', { style: { display: 'flex', gap: 10, flexWrap: 'wrap' } },
+            e('div', { style: { flex: '1 1 120px' } }, e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--gl-text-dim)', marginBottom: 7 } }, 'Text size'), chipRow([{ v: 'small', label: 'S' }, { v: 'normal', label: 'M' }, { v: 'large', label: 'L' }, { v: 'xlarge', label: 'XL' }], (v) => st.size === v, this.setSize, true)),
+            e('div', { style: { flex: '1 1 140px' } }, e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--gl-text-dim)', marginBottom: 7 } }, 'Spacing'), chipRow([{ v: 'compact', label: 'Tight' }, { v: 'normal', label: 'Normal' }, { v: 'loose', label: 'Loose' }], (v) => st.spacing === v, this.setSpacing, true))),
+          e('div', { style: { padding: small ? '12px 14px' : '15px 17px', borderRadius: 12, border: '1px solid var(--gl-border)', background: 'rgba(10,16,36,.4)' } },
+            e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 10, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--gl-cyan-70)', marginBottom: 8 } }, 'Live preview'),
+            e('div', { style: { fontFamily: dyslexiaFontFamily, fontSize: sizePx * (small ? 0.92 : 1), lineHeight: lineH, color: 'var(--gl-text-secondary)' } }, 'Reading should feel calm. This is exactly how your assignments and notes will look.')));
+        case 'interests': return e('div', null,
+          chipRow(interestOpts, (v) => st.interests.includes(v), this.toggleInterest, small),
+          e('div', { style: { marginTop: 14, fontSize: 12.5, color: st.interests.length >= 5 ? 'var(--gl-gold)' : 'var(--gl-text-dim)' } }, st.interests.length + ' of 5 picked'));
+        case 'connect': {
+          const card = (v, iconBg, iconFg, letter, title, subtitle) => {
+            const on = st[v + 'Conn']; const busy = st.connecting === v;
+            const bd = on ? 'var(--gl-green)' : busy ? 'var(--gl-cyan)' : 'var(--gl-border)';
+            const bg = on ? 'var(--gl-green-12)' : busy ? 'var(--gl-cyan-08)' : 'rgba(255,255,255,.04)';
+            return e('div', { onClick: () => this.connectSource(v), style: { display: 'flex', alignItems: 'center', gap: 12, padding: small ? '13px 15px' : '15px 18px', borderRadius: 12, border: '1.5px solid ' + bd, background: bg, cursor: 'pointer' } },
+              e('div', { style: { width: 34, height: 34, borderRadius: 9, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800, color: iconFg, fontFamily: 'var(--font-display)' } }, letter),
+              e('div', { style: { flex: 1 } }, e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: small ? 15 : 16, textTransform: 'uppercase', color: '#fff' } }, title), e('div', { style: { fontSize: 12, color: 'var(--gl-text-overlay-60)' } }, subtitle)),
+              on ? e('span', { style: { display: 'inline-flex', alignItems: 'center', gap: 5, color: 'var(--gl-green)', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 12, letterSpacing: '.06em', textTransform: 'uppercase' } }, e('svg', { width: 15, height: 15, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2.6, strokeLinecap: 'round', strokeLinejoin: 'round' }, e('path', { d: 'M20 6 9 17l-5-5' })), 'Connected')
+                : busy ? e('span', { style: { color: 'var(--gl-cyan)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, letterSpacing: '.06em', textTransform: 'uppercase' } }, 'Connecting\u2026')
+                : e('span', { style: { color: 'var(--gl-cyan)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, letterSpacing: '.06em', textTransform: 'uppercase' } }, 'Connect'));
+          };
+          return e('div', { style: { display: 'flex', flexDirection: 'column', gap: small ? 10 : 11 } },
+            e('div', { style: { fontSize: 12.5, lineHeight: 1.45, color: 'var(--gl-text-overlay-60)', marginBottom: 2 } }, 'One sign-in with Google connects your identity and Google Classroom. Add Canvas right after \u2014 it uses the same Google login.'),
+            e('div', { onClick: () => this.connectSource('g'), style: { display: 'flex', alignItems: 'center', gap: 12, padding: small ? '13px 15px' : '15px 18px', borderRadius: 12, border: '1.5px solid ' + (st.gConn ? 'var(--gl-green)' : 'var(--gl-cyan-25)'), background: st.gConn ? 'var(--gl-green-12)' : '#fff', cursor: 'pointer' } },
+              e('div', { style: { width: 34, height: 34, borderRadius: 9, background: st.gConn ? 'rgba(255,255,255,.12)' : '#fff', border: st.gConn ? '1px solid rgba(255,255,255,.25)' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800, color: '#4285F4', fontFamily: 'var(--font-display)', fontSize: 18 } }, 'G'),
+              e('div', { style: { flex: 1 } }, e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: small ? 15 : 16, textTransform: 'uppercase', color: st.gConn ? '#fff' : '#1a1a2e' } }, st.gConn ? 'Google connected' : 'Continue with Google'), e('div', { style: { fontSize: 12, color: st.gConn ? 'var(--gl-text-overlay-60)' : '#5a648a' } }, st.gConn ? 'Signed in \u00b7 Classroom imported' : 'Signs you in and imports Classroom')),
+              st.gConn ? e('svg', { width: 17, height: 17, viewBox: '0 0 24 24', fill: 'none', stroke: 'var(--gl-green)', strokeWidth: 2.6, strokeLinecap: 'round', strokeLinejoin: 'round' }, e('path', { d: 'M20 6 9 17l-5-5' })) : st.connecting === 'g' ? e('span', { style: { color: '#5a648a', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' } }, 'Connecting\u2026') : null),
+            e('div', { onClick: st.gConn ? () => this.connectSource('c') : undefined, style: { display: 'flex', alignItems: 'center', gap: 12, padding: small ? '13px 15px' : '15px 18px', borderRadius: 12, border: '1.5px solid ' + (st.cConn ? 'var(--gl-green)' : 'var(--gl-border)'), background: st.cConn ? 'var(--gl-green-12)' : 'rgba(255,255,255,.04)', cursor: st.gConn ? 'pointer' : 'not-allowed', opacity: st.gConn ? 1 : 0.5 } },
+              e('div', { style: { width: 34, height: 34, borderRadius: 9, background: '#E2231A', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)' } }, 'C'),
+              e('div', { style: { flex: 1 } }, e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: small ? 15 : 16, textTransform: 'uppercase', color: '#fff' } }, 'Canvas'), e('div', { style: { fontSize: 12, color: 'var(--gl-text-overlay-60)' } }, st.gConn ? 'Uses your Google login' : 'Connect Google first')),
+              st.cConn ? e('svg', { width: 17, height: 17, viewBox: '0 0 24 24', fill: 'none', stroke: 'var(--gl-green)', strokeWidth: 2.6, strokeLinecap: 'round', strokeLinejoin: 'round' }, e('path', { d: 'M20 6 9 17l-5-5' })) : st.connecting === 'c' ? e('span', { style: { color: 'var(--gl-cyan)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' } }, 'Linking\u2026') : st.gConn ? e('span', { style: { color: 'var(--gl-cyan)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, textTransform: 'uppercase' } }, 'Link') : null),
+            e('div', { style: { display: 'flex', alignItems: 'center', gap: 10, margin: '4px 0' } }, e('div', { style: { flex: 1, height: 1, background: 'var(--gl-border)' } }), e('span', { style: { fontSize: 11, fontWeight: 600, letterSpacing: '.1em', textTransform: 'uppercase', color: 'var(--gl-text-dim)' } }, 'or also'), e('div', { style: { flex: 1, height: 1, background: 'var(--gl-border)' } })),
+            e('div', { onClick: this.toggleManual, style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: small ? '13px 15px' : '15px 18px', borderRadius: 12, border: '1.5px dashed ' + (st.manual ? 'var(--gl-cyan)' : 'var(--gl-border)'), background: st.manual ? 'var(--gl-cyan-08)' : 'transparent', cursor: 'pointer' } },
+              e('div', null, e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: small ? 15 : 16, textTransform: 'uppercase', color: 'var(--gl-text-secondary)' } }, 'Add classes myself'), e('div', { style: { fontSize: 12, color: 'var(--gl-text-overlay-60)' } }, 'Name each class, attach a syllabus')),
+              e('span', { style: { color: 'var(--gl-cyan)', fontWeight: 800, fontSize: 20 } }, st.manual ? '\u2212' : '+')),
+            st.manual ? e('div', { style: { display: 'flex', flexDirection: 'column', gap: 8, marginTop: 2 } },
+              ...['Math', 'English', 'Science'].map((nm, i) => e('div', { key: i, style: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--gl-border)', background: 'rgba(10,16,36,.5)' } },
+                e('div', { style: { width: 3, alignSelf: 'stretch', borderRadius: 2, background: ['#ff6a3d','#29d0ff','#36e07a'][i] } }),
+                e('input', { defaultValue: nm, style: { flex: 1, background: 'transparent', border: 'none', color: '#fff', fontSize: 14, fontFamily: 'var(--font-body)', outline: 'none' } }),
+                e('span', { style: { fontSize: 11, color: 'var(--gl-cyan)', fontFamily: 'var(--font-display)', fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer' } }, '\uD83D\uDCCE Syllabus')))) : null);
+        }
+        case 'makeit': return e('div', { style: { display: 'flex', flexDirection: 'column', gap: small ? 16 : 20 } },
+          e('div', { style: { display: 'flex', alignItems: 'center', gap: 14 } },
+            e('div', { onClick: this.pickFile, style: { position: 'relative', width: small ? 68 : 80, height: small ? 68 : 80, borderRadius: '50%', flexShrink: 0, overflow: 'hidden', border: '2px solid ' + (st.photoSrc ? (st.bgRemoved ? 'var(--gl-green)' : 'var(--gl-cyan)') : 'var(--gl-border)'), background: st.bgRemoved ? 'radial-gradient(circle at 50% 42%, rgba(41,208,255,.4), rgba(4,8,20,.92))' : 'rgba(10,16,36,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--gl-text-dim)', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: small ? 24 : 28 } },
+              st.photoSrc ? e('img', { src: st.photoSrc, alt: 'you', style: { width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }) : '+',
+              st.bgRemoving ? e('div', { style: { position: 'absolute', inset: 0, background: 'rgba(4,8,20,.62)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontFamily: 'var(--font-display)', fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--gl-cyan)' } }, 'Cutting\u2026') : null),
+            e('div', { style: { flex: 1 } },
+              e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: small ? 15 : 17, textTransform: 'uppercase', color: '#fff' } }, st.photoSrc ? (st.bgRemoved ? 'Background removed' : 'Photo added') : 'Add your photo'),
+              e('div', { style: { fontSize: 12.5, lineHeight: 1.45, color: 'var(--gl-text-overlay-60)', marginTop: 2, maxWidth: 240 } }, st.photoSrc ? (st.bgRemoved ? 'You stand in your lobby now. Tap the photo to change it.' : 'Looks great. Remove the background so you stand in your lobby.') : 'Upload a photo, then remove the background so you stand in your lobby.'),
+              e('div', { style: { display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' } },
+                e('div', { onClick: this.pickFile, style: { padding: '8px 14px', borderRadius: 9, border: '1px solid var(--gl-cyan-25)', background: 'var(--gl-cyan-08)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '.03em', textTransform: 'uppercase', color: 'var(--gl-cyan)' } }, st.photoSrc ? 'Change' : 'Upload photo'),
+                (st.photoSrc && !st.bgRemoved) ? e('div', { onClick: this.removeBg, style: { padding: '8px 14px', borderRadius: 9, border: '1px solid var(--gl-border)', cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '.03em', textTransform: 'uppercase', color: 'var(--gl-text-secondary)', opacity: st.bgRemoving ? 0.6 : 1 } }, st.bgRemoving ? 'Removing\u2026' : 'Remove background') : null,
+                (st.photoSrc && st.bgRemoved) ? e('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 12px', borderRadius: 9, border: '1px solid var(--gl-green-25)', background: 'var(--gl-green-12)', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 12, letterSpacing: '.03em', textTransform: 'uppercase', color: 'var(--gl-green)' } }, '\u2713 Cut out') : null,
+                st.photoSrc ? e('div', { onClick: this.clearPhoto, style: { padding: '8px 10px', borderRadius: 9, cursor: 'pointer', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 13, letterSpacing: '.03em', textTransform: 'uppercase', color: 'var(--gl-text-dim)' } }, 'Remove') : null)),
+            e('input', { ref: this.fileRef, type: 'file', accept: 'image/*', onChange: this.onFile, style: { display: 'none' } })),
+          e('div', null,
+            e('div', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '.12em', textTransform: 'uppercase', color: 'var(--gl-text-dim)', marginBottom: 9 } }, 'Background'),
+            e('div', { style: { display: 'grid', gridTemplateColumns: small ? '1fr 1fr' : '1fr 1fr 1fr 1fr', gap: 9 } },
+              ...bgOpts.map((b) => e('div', { key: b.v, onClick: () => this.setBg(b.v), style: { borderRadius: 11, overflow: 'hidden', border: '2px solid ' + (st.bg === b.v ? 'var(--gl-cyan)' : 'var(--gl-border)'), cursor: 'pointer' } },
+                e('div', { style: { height: small ? 44 : 54, background: b.grad } }),
+                e('div', { style: { padding: '6px 8px', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 11, letterSpacing: '.04em', textTransform: 'uppercase', color: st.bg === b.v ? '#fff' : 'var(--gl-text-dim)', background: 'rgba(4,8,20,.6)' } }, b.label))))));
+        case 'ready': return e('div', { style: { display: 'flex', flexDirection: 'column', gap: 14 } },
+          ...[['Classes connected', (st.gConn || st.cConn || st.manual)], ['Reading set up', true], [(st.interests.length || 0) + ' interests', st.interests.length > 0], ['Lobby personalized', !!st.photoSrc]].map((row, i) =>
+            e('div', { key: i, style: { display: 'flex', alignItems: 'center', gap: 11, padding: small ? '11px 13px' : '13px 15px', borderRadius: 11, border: '1px solid ' + (row[1] ? 'var(--gl-green-25)' : 'var(--gl-border)'), background: row[1] ? 'var(--gl-green-12)' : 'rgba(10,16,36,.4)' } },
+              e('svg', { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', stroke: row[1] ? 'var(--gl-green)' : 'var(--gl-text-dim)', strokeWidth: 2.4, strokeLinecap: 'round', strokeLinejoin: 'round' }, e('path', { d: 'M20 6 9 17l-5-5' })),
+              e('span', { style: { fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: small ? 14 : 16, letterSpacing: '.02em', textTransform: 'uppercase', color: row[1] ? '#fff' : 'var(--gl-text-dim)' } }, row[0]))));
+        default: return null;
+      }
+    };
+
+    return {
+      canvasRef: this.canvasRef,
+      stepNum: st.step + 1,
+      step,
+      dots,
+      canBack: st.step > 0,
+      next: this.next, back: this.back,
+      nextLabel: st.step === 6 ? 'Go to Today' : st.step === 0 ? 'Start' : 'Next',
+      desktopBody: bodyFor(false),
+      phoneBody: bodyFor(true),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14);
+    --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14); --gl-violet-08:rgba(167,139,250,.06);
+    --gl-red:#ff7070; --gl-red-30:rgba(255,85,85,.5); --gl-red-08:rgba(255,55,55,.07);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.3);border-radius:4px}
+  .gl-tab:hover{color:#fff !important;}
+</style>
+</helmet>
+
+<div style="width:1440px;min-height:900px;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -10%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)" data-screen-label="Sharing">
+
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <a href="Student Lobby.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
+        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <div style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center" title="Profile">
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">G</span>
+      </div>
+      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px">
+    <div style="margin-bottom:22px">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:6px">Sharing</div>
+      <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:32px;text-transform:uppercase">You control who sees what.</div>
+      <div style="font-size:13.5px;color:var(--gl-text-dim);margin-top:6px">Parent digest is opt-in. Teacher tools stay separate from your personal AI history.</div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-bottom:22px">
+      <div onClick="{{ onTabParent }}" style="padding:10px 20px;border-radius:9px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;border:1px solid {{ parentTabBorder }};background:{{ parentTabBg }};color:{{ parentTabFg }}">Parent digest</div>
+      <div onClick="{{ onTabTeacher }}" style="padding:10px 20px;border-radius:9px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;border:1px solid {{ teacherTabBorder }};background:{{ teacherTabBg }};color:{{ teacherTabFg }}">Teacher portal</div>
+    </div>
+
+    <!-- PARENT TAB -->
+    <sc-if value="{{ isParent }}" hint-placeholder-val="{{ true }}">
+      <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;max-width:560px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:16px;text-transform:uppercase;margin-bottom:8px">Weekly parent digest</div>
+        <div style="font-size:13px;color:var(--gl-text-muted);line-height:1.5;margin-bottom:18px">You choose whether to send one. Diana never contacts a parent unless you turn this on with an email you provide.</div>
+        <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:6px">Parent or guardian email</div>
+        <input type="email" placeholder="parent@email.com" value="{{ parentEmail }}" onChange="{{ onParentEmailChange }}" style="width:100%;padding:11px 14px;border-radius:9px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13.5px;margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-size:13.5px;font-weight:600">Send weekly digest</div>
+            <div style="font-size:11.5px;color:var(--gl-text-dim)">A calm summary — no grades, no AI chat contents</div>
+          </div>
+          <div onClick="{{ onToggleDigest }}" style="width:44px;height:26px;border-radius:13px;background:{{ digestTrackBg }};position:relative;cursor:pointer">
+            <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ digestKnobLeft }}"></div>
+          </div>
+        </div>
+        <div onClick="{{ onSaveDigest }}" style="width:fit-content;padding:10px 20px;border-radius:9px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30)">Save</div>
+        <sc-if value="{{ digestMessage }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:12px;font-size:12.5px;color:var(--gl-green)">{{ digestMessage }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- TEACHER TAB -->
+    <sc-if value="{{ isTeacher }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+
+        <!-- ROSTER -->
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:22px 24px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;margin-bottom:14px">Class roster</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+            <sc-for list="{{ roster }}" as="m" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between;border-radius:9px;border:1px solid var(--gl-border);padding:10px 13px">
+                <div>
+                  <div style="font-size:13px;font-weight:700">{{ m.displayName }}</div>
+                  <div style="font-size:11px;color:var(--gl-text-dim)">{{ m.role }} · {{ m.status }}</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:8px">
+            <input type="text" placeholder="Name" value="{{ newMemberName }}" onChange="{{ onNewMemberNameChange }}" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px">
+            <div onClick="{{ onAddMember }}" style="padding:9px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--gl-cyan);background:var(--gl-cyan-14);border:1px solid var(--gl-cyan-30);white-space:nowrap">+ Invite</div>
+          </div>
+        </div>
+
+        <!-- CREATE ASSIGNMENT -->
+        <div style="border-radius:16px;border:1px solid var(--gl-cyan-30);background:var(--gl-cyan-08);padding:22px 24px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:14px">Post an assignment</div>
+          <input type="text" placeholder="Title" value="{{ newAssignTitle }}" onChange="{{ onNewAssignTitleChange }}" style="width:100%;padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;margin-bottom:10px">
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <sc-for list="{{ kindOptions }}" as="k" hint-placeholder-count="3">
+              <div onClick="{{ k.onClick }}" style="flex:1;text-align:center;padding:8px 4px;border-radius:7px;cursor:pointer;font-size:11.5px;font-weight:600;border:1px solid {{ k.border }};background:{{ k.bg }};color:{{ k.fg }}">{{ k.label }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <sc-for list="{{ aiModeOptions }}" as="a" hint-placeholder-count="3">
+              <div onClick="{{ a.onClick }}" style="flex:1;text-align:center;padding:8px 4px;border-radius:7px;cursor:pointer;font-size:11.5px;font-weight:600;border:1px solid {{ a.border }};background:{{ a.bg }};color:{{ a.fg }}">{{ a.label }}</div>
+            </sc-for>
+          </div>
+          <div onClick="{{ onCreateAssignment }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30)">Post assignment</div>
+          <sc-if value="{{ assignMessage }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;font-size:12px;color:var(--gl-cyan)">{{ assignMessage }}</div>
+          </sc-if>
+        </div>
+
+        <!-- PROGRESS NOTES -->
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:22px 24px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;margin-bottom:14px">Progress notes</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;max-height:160px;overflow-y:auto">
+            <sc-for list="{{ progressNotes }}" as="n" hint-placeholder-count="2">
+              <div style="border-radius:9px;border:1px solid var(--gl-border);padding:10px 13px">
+                <div style="font-size:12.5px;color:var(--gl-text-secondary);line-height:1.4">{{ n.noteText }}</div>
+                <div style="font-size:10.5px;color:var(--gl-text-dim);margin-top:4px">— {{ n.authorName }} {{ n.visibleLabel }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <input type="text" placeholder="Add a note…" value="{{ newNoteText }}" onChange="{{ onNewNoteTextChange }}" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px;margin-bottom:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:8px">
+              <div onClick="{{ onToggleNoteVisible }}" style="width:38px;height:22px;border-radius:11px;background:{{ noteVisibleTrackBg }};position:relative;cursor:pointer">
+                <div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ noteVisibleKnobLeft }}"></div>
+              </div>
+              <div style="font-size:11.5px;color:var(--gl-text-dim)">Visible to parent</div>
+            </div>
+            <div onClick="{{ onAddNote }}" style="padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:700;color:var(--gl-green);background:var(--gl-green-14);border:1px solid var(--gl-green-30)">Add note</div>
+          </div>
+        </div>
+
+        <!-- ACCOMMODATIONS -->
+        <div style="border-radius:16px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);padding:22px 24px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;color:var(--gl-violet);margin-bottom:10px">Confirm accommodations</div>
+          <div style="font-size:12px;color:var(--gl-text-muted);margin-bottom:12px;line-height:1.5">Current profile: {{ accommodationsSummary }}</div>
+          <input type="text" placeholder="Confirmed by (name)" value="{{ confirmedBy }}" onChange="{{ onConfirmedByChange }}" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px;margin-bottom:10px">
+          <div onClick="{{ onConfirmAccommodations }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;background:var(--gl-violet-14);color:var(--gl-violet);border:1px solid var(--gl-violet-30)">Confirm on file</div>
+          <sc-if value="{{ confirmMessage }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:10px;font-size:12px;color:var(--gl-violet)">{{ confirmMessage }}</div>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    tab: 'parent',
+    parentEmail: '', digestEnabled: false, digestMessage: '',
+    roster: [
+      { id: 'r1', displayName: 'Ms. Alvarez', role: 'teacher', status: 'active' },
+      { id: 'r2', displayName: 'Grayson M.', role: 'student', status: 'active' },
+    ],
+    newMemberName: '',
+    newAssignTitle: '', assignKind: 'essay', assignAiMode: 'green', assignMessage: '',
+    progressNotes: [
+      { id: 'n1', noteText: 'Strong improvement on thesis clarity this week.', authorName: 'Ms. Alvarez', visibleToParent: true },
+    ],
+    newNoteText: '', newNoteVisible: false,
+    confirmedBy: '', confirmMessage: '',
+  };
+
+  renderVals() {
+    const s = this.state;
+
+    const kindOptions = ['essay','lab','problem_set'].map(v => ({
+      label: v.replace('_',' '), border: s.assignKind === v ? 'var(--gl-cyan-30)' : 'var(--gl-border)',
+      bg: s.assignKind === v ? 'var(--gl-cyan-14)' : 'rgba(4,8,20,.4)', fg: s.assignKind === v ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ assignKind: v }),
+    }));
+    const aiModeLabels = { green: 'AI: Green', yellow: 'AI: Yellow', red: 'AI: Red' };
+    const aiModeColors = { green: 'var(--gl-green)', yellow: 'var(--gl-gold)', red: 'var(--gl-red)' };
+    const aiModeOptions = ['green','yellow','red'].map(v => ({
+      label: aiModeLabels[v],
+      border: s.assignAiMode === v ? aiModeColors[v].replace(')', ',.4)').replace('var(--gl-', 'rgba(') : 'var(--gl-border)',
+      bg: s.assignAiMode === v ? aiModeColors[v].replace(')', ',.14)').replace('var(--gl-', 'rgba(') : 'rgba(4,8,20,.4)',
+      fg: s.assignAiMode === v ? aiModeColors[v] : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ assignAiMode: v }),
+    }));
+
+    return {
+      isParent: s.tab === 'parent', isTeacher: s.tab === 'teacher',
+      parentTabBorder: s.tab === 'parent' ? 'var(--gl-cyan-30)' : 'var(--gl-border)',
+      parentTabBg: s.tab === 'parent' ? 'var(--gl-cyan-14)' : 'transparent',
+      parentTabFg: s.tab === 'parent' ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      teacherTabBorder: s.tab === 'teacher' ? 'var(--gl-cyan-30)' : 'var(--gl-border)',
+      teacherTabBg: s.tab === 'teacher' ? 'var(--gl-cyan-14)' : 'transparent',
+      teacherTabFg: s.tab === 'teacher' ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      onTabParent: () => this.setState({ tab: 'parent' }),
+      onTabTeacher: () => this.setState({ tab: 'teacher' }),
+
+      parentEmail: s.parentEmail, onParentEmailChange: e => this.setState({ parentEmail: e.target.value }),
+      digestTrackBg: s.digestEnabled ? 'var(--gl-cyan-30)' : 'rgba(120,150,220,.16)',
+      digestKnobLeft: s.digestEnabled ? '21px' : '3px',
+      onToggleDigest: () => this.setState(prev => ({ digestEnabled: !prev.digestEnabled })),
+      digestMessage: s.digestMessage,
+      onSaveDigest: () => {
+        if (s.digestEnabled && !s.parentEmail.includes('@')) { this.setState({ digestMessage: 'Check the email address.' }); return; }
+        this.setState({ digestMessage: s.digestEnabled && s.parentEmail ? 'Weekly digest will be sent.' : 'Digest turned off.' });
+      },
+
+      roster: s.roster,
+      newMemberName: s.newMemberName, onNewMemberNameChange: e => this.setState({ newMemberName: e.target.value }),
+      onAddMember: () => {
+        if (!s.newMemberName.trim()) return;
+        this.setState(prev => ({ roster: [...prev.roster, { id: 'r' + Date.now(), displayName: prev.newMemberName, role: 'student', status: 'invited' }], newMemberName: '' }));
+      },
+
+      newAssignTitle: s.newAssignTitle, onNewAssignTitleChange: e => this.setState({ newAssignTitle: e.target.value }),
+      kindOptions, aiModeOptions, assignMessage: s.assignMessage,
+      onCreateAssignment: () => {
+        if (!s.newAssignTitle.trim()) { this.setState({ assignMessage: 'Add a title first.' }); return; }
+        this.setState({ assignMessage: `Posted "${s.newAssignTitle}" to the class.`, newAssignTitle: '' });
+      },
+
+      progressNotes: s.progressNotes.map(n => ({ ...n, visibleLabel: n.visibleToParent ? '· visible to parent' : '' })),
+      newNoteText: s.newNoteText, onNewNoteTextChange: e => this.setState({ newNoteText: e.target.value }),
+      noteVisibleTrackBg: s.newNoteVisible ? 'var(--gl-green-30)' : 'rgba(120,150,220,.16)',
+      noteVisibleKnobLeft: s.newNoteVisible ? '19px' : '3px',
+      onToggleNoteVisible: () => this.setState(prev => ({ newNoteVisible: !prev.newNoteVisible })),
+      onAddNote: () => {
+        if (!s.newNoteText.trim()) return;
+        this.setState(prev => ({
+          progressNotes: [{ id: 'n' + Date.now(), noteText: prev.newNoteText, authorName: 'Ms. Alvarez', visibleToParent: prev.newNoteVisible }, ...prev.progressNotes],
+          newNoteText: '', newNoteVisible: false,
+        }));
+      },
+
+      accommodationsSummary: 'Extended time 50%, TTS enabled, dyslexia font',
+      confirmedBy: s.confirmedBy, onConfirmedByChange: e => this.setState({ confirmedBy: e.target.value }),
+      confirmMessage: s.confirmMessage,
+      onConfirmAccommodations: () => {
+        if (!s.confirmedBy.trim()) { this.setState({ confirmMessage: 'Add a name first.' }); return; }
+        this.setState({ confirmMessage: `Confirmed by ${s.confirmedBy} — on file.`, confirmedBy: '' });
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

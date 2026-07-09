@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#04060f;}
+  *{box-sizing:border-box;}
+  @keyframes no-pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.25)}}
+  @keyframes no-ring{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.5)}70%{box-shadow:0 0 0 9px rgba(255,55,55,0)}}
+</style>
+</helmet>
+
+<div style="font-family:'Barlow Semi Condensed',sans-serif;color:#fff;padding:56px 60px 120px;min-width:2100px;">
+
+  <!-- ══════════ TURN 1 ══════════ -->
+  <section style="display:block;">
+
+    <div style="max-width:900px;margin-bottom:8px;">
+      <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.34em;text-transform:uppercase;color:#29d0ff;opacity:.8;">Turn 1 · Under-hero notifications</div>
+      <h1 style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:40px;letter-spacing:.01em;margin:8px 0 10px;">Four ways to show it — no dropdown</h1>
+      <p style="font-size:16px;line-height:1.6;color:#9fb0dd;margin:0;">Same data in every option: <strong style="color:#ff8f8f;">1 overdue</strong>, <strong style="color:#ffd24a;">1 not turned in</strong>, <strong style="color:#c4b5fd;">2 tests within 3 days</strong>. Each treatment sits in the same spot — the strip directly under the hero. Reference an option by its badge (e.g. <a href="#1c" style="color:#29d0ff;">1c</a>).</p>
+    </div>
+
+    <!-- side-by-side wrapping row -->
+    <div style="display:flex;flex-wrap:wrap;gap:34px;align-items:flex-start;margin-top:34px;">
+
+      <!-- ─────────── 1a ─────────── -->
+      <div id="1a" style="width:1000px;flex:0 0 auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;background:#29d0ff;color:#04060f;padding:3px 11px;border-radius:6px;">1a</span>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.02em;">Glanceable strip</span>
+        </div>
+        <p style="font-size:14px;color:#8291bb;margin:0 0 16px;max-width:900px;">Always visible, zero clicks. Every item is a compact card in a row — the student sees everything the moment the lobby loads. Best for “nothing hidden.”</p>
+
+        <!-- stage -->
+        <div style="border-radius:16px;overflow:hidden;border:1px solid rgba(120,150,220,.14);background:#0a1024;">
+          <div style="height:64px;background:linear-gradient(180deg,#0d1428,#0a1024);border-bottom:1px solid rgba(120,150,220,.08);display:flex;align-items:flex-end;padding:0 26px 10px;">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(159,176,221,.45);">▲ hero ends here</span>
+          </div>
+          <div style="padding:22px 26px 26px;">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#29d0ff;opacity:.85;margin-bottom:13px;">Needs attention</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+
+              <div style="flex:1;min-width:210px;display:flex;gap:11px;padding:13px 15px;border-radius:12px;background:rgba(255,55,55,.07);border:1px solid rgba(255,55,55,.26);">
+                <div style="width:3px;border-radius:2px;background:#ff5555;flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ff7a7a;margin-bottom:3px;">Overdue · 2 days</div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;color:#fff;line-height:1;">English</div>
+                  <div style="font-size:12px;color:#9fb0dd;margin-top:3px;">Read pages 40–60</div>
+                </div>
+              </div>
+
+              <div style="flex:1;min-width:210px;display:flex;gap:11px;padding:13px 15px;border-radius:12px;background:rgba(255,210,74,.07);border:1px solid rgba(255,210,74,.24);">
+                <div style="width:3px;border-radius:2px;background:#ffd24a;flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#ffd24a;margin-bottom:3px;">Not turned in</div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;color:#fff;line-height:1;">Science</div>
+                  <div style="font-size:12px;color:#9fb0dd;margin-top:3px;">Lab write-up ready</div>
+                </div>
+              </div>
+
+              <div style="flex:1;min-width:210px;display:flex;gap:11px;padding:13px 15px;border-radius:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.26);">
+                <div style="width:3px;border-radius:2px;background:#a78bfa;flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c4b5fd;margin-bottom:3px;">Quiz · tomorrow</div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;color:#fff;line-height:1;">English</div>
+                  <div style="font-size:12px;color:#9fb0dd;margin-top:3px;">Reading Quiz</div>
+                </div>
+              </div>
+
+              <div style="flex:1;min-width:210px;display:flex;gap:11px;padding:13px 15px;border-radius:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.26);">
+                <div style="width:3px;border-radius:2px;background:#a78bfa;flex-shrink:0;"></div>
+                <div>
+                  <div style="font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#c4b5fd;margin-bottom:3px;">Quiz · Fri</div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;color:#fff;line-height:1;">Math</div>
+                  <div style="font-size:12px;color:#9fb0dd;margin-top:3px;">Ch. 4 Quiz</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────── 1b ─────────── -->
+      <div id="1b" style="width:1000px;flex:0 0 auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;background:#29d0ff;color:#04060f;padding:3px 11px;border-radius:6px;">1b</span>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.02em;">Priority banner</span>
+        </div>
+        <p style="font-size:14px;color:#8291bb;margin:0 0 16px;max-width:900px;">Surfaces the single most urgent thing with a real action button; everything else is a quiet chip. Best for “tell me the one thing to do now.”</p>
+
+        <div style="border-radius:16px;overflow:hidden;border:1px solid rgba(120,150,220,.14);background:#0a1024;">
+          <div style="height:64px;background:linear-gradient(180deg,#0d1428,#0a1024);border-bottom:1px solid rgba(120,150,220,.08);display:flex;align-items:flex-end;padding:0 26px 10px;">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(159,176,221,.45);">▲ hero ends here</span>
+          </div>
+          <div style="padding:22px 26px 26px;">
+
+            <div style="border-radius:14px;border:1px solid rgba(255,55,55,.32);background:linear-gradient(100deg,rgba(255,55,55,.14),rgba(255,55,55,.04) 60%);padding:18px 20px;position:relative;overflow:hidden;">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#ff5555;"></div>
+              <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+                <div style="width:11px;height:11px;border-radius:50%;background:#ff5555;flex-shrink:0;animation:no-ring 1.6s ease-out infinite;"></div>
+                <div style="flex:1;min-width:260px;">
+                  <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                    <span style="font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#ff7a7a;background:rgba(255,55,55,.16);padding:3px 9px;border-radius:5px;">Overdue · 2 days late</span>
+                  </div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:.01em;color:#fff;line-height:1.05;">English — Read pages 40–60</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;background:linear-gradient(180deg,#ff5a4a,#d63020);cursor:pointer;flex-shrink:0;box-shadow:0 6px 20px rgba(214,48,32,.4);">
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:#fff;">Start now →</span>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;padding-top:15px;border-top:1px solid rgba(255,255,255,.08);">
+                <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.26);">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;"></span>
+                  <span style="font-size:12px;color:#c4b5fd;font-weight:600;">Reading Quiz · English — tomorrow</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.26);">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#a78bfa;"></span>
+                  <span style="font-size:12px;color:#c4b5fd;font-weight:600;">Ch. 4 Quiz · Math — Fri</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:20px;background:rgba(255,210,74,.1);border:1px solid rgba(255,210,74,.24);">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#ffd24a;"></span>
+                  <span style="font-size:12px;color:#ffd24a;font-weight:600;">Science — not turned in</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────── 1c ─────────── -->
+      <div id="1c" style="width:1000px;flex:0 0 auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;background:#29d0ff;color:#04060f;padding:3px 11px;border-radius:6px;">1c</span>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.02em;">HUD “needs attention” panel</span>
+        </div>
+        <p style="font-size:14px;color:#8291bb;margin:0 0 16px;max-width:900px;">A bordered HUD panel with corner brackets, matching the Weekly XP card. A tidy vertical inbox — status tag, subject, detail, quick action per row. Best for a real “to-clear” list.</p>
+
+        <div style="border-radius:16px;overflow:hidden;border:1px solid rgba(120,150,220,.14);background:#0a1024;">
+          <div style="height:64px;background:linear-gradient(180deg,#0d1428,#0a1024);border-bottom:1px solid rgba(120,150,220,.08);display:flex;align-items:flex-end;padding:0 26px 10px;">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(159,176,221,.45);">▲ hero ends here</span>
+          </div>
+          <div style="padding:22px 26px 26px;">
+
+            <div style="position:relative;border:1px solid rgba(41,208,255,.22);border-radius:14px;background:linear-gradient(180deg,rgba(18,26,54,.6),rgba(10,14,32,.4));padding:18px 20px;">
+              <div style="position:absolute;top:-1px;left:-1px;width:16px;height:16px;border-top:2px solid #29d0ff;border-left:2px solid #29d0ff;border-top-left-radius:14px;"></div>
+              <div style="position:absolute;top:-1px;right:-1px;width:16px;height:16px;border-top:2px solid #29d0ff;border-right:2px solid #29d0ff;border-top-right-radius:14px;"></div>
+              <div style="position:absolute;bottom:-1px;left:-1px;width:16px;height:16px;border-bottom:2px solid #29d0ff;border-left:2px solid #29d0ff;border-bottom-left-radius:14px;"></div>
+              <div style="position:absolute;bottom:-1px;right:-1px;width:16px;height:16px;border-bottom:2px solid #29d0ff;border-right:2px solid #29d0ff;border-bottom-right-radius:14px;"></div>
+
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;">
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.22em;text-transform:uppercase;color:#29d0ff;">Needs attention</span>
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;color:#04060f;background:#29d0ff;border-radius:20px;padding:1px 10px;">4</span>
+              </div>
+
+              <div style="display:flex;flex-direction:column;gap:9px;">
+
+                <div style="display:flex;align-items:center;gap:14px;padding:11px 13px;border-radius:10px;background:rgba(255,55,55,.07);border:1px solid rgba(255,55,55,.22);">
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10.5px;letter-spacing:.1em;color:#ff7a7a;background:rgba(255,55,55,.16);border-radius:5px;padding:4px 8px;width:104px;text-align:center;flex-shrink:0;">OVERDUE 2d</span>
+                  <div style="flex:1;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff;">English</span><span style="font-size:13px;color:#9fb0dd;margin-left:9px;">Read pages 40–60</span></div>
+                  <span style="font-size:20px;color:#ff7a7a;line-height:1;">→</span>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:14px;padding:11px 13px;border-radius:10px;background:rgba(255,210,74,.06);border:1px solid rgba(255,210,74,.2);">
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10.5px;letter-spacing:.1em;color:#ffd24a;background:rgba(255,210,74,.14);border-radius:5px;padding:4px 8px;width:104px;text-align:center;flex-shrink:0;">NOT TURNED IN</span>
+                  <div style="flex:1;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff;">Science</span><span style="font-size:13px;color:#9fb0dd;margin-left:9px;">Lab write-up ready to submit</span></div>
+                  <span style="font-size:20px;color:#ffd24a;line-height:1;">→</span>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:14px;padding:11px 13px;border-radius:10px;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.22);">
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10.5px;letter-spacing:.1em;color:#c4b5fd;background:rgba(167,139,250,.14);border-radius:5px;padding:4px 8px;width:104px;text-align:center;flex-shrink:0;">QUIZ · TMRW</span>
+                  <div style="flex:1;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff;">English</span><span style="font-size:13px;color:#9fb0dd;margin-left:9px;">Reading Quiz</span></div>
+                  <span style="font-size:20px;color:#c4b5fd;line-height:1;">→</span>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:14px;padding:11px 13px;border-radius:10px;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.22);">
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10.5px;letter-spacing:.1em;color:#c4b5fd;background:rgba(167,139,250,.14);border-radius:5px;padding:4px 8px;width:104px;text-align:center;flex-shrink:0;">QUIZ · FRI</span>
+                  <div style="flex:1;"><span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff;">Math</span><span style="font-size:13px;color:#9fb0dd;margin-left:9px;">Ch. 4 Quiz</span></div>
+                  <span style="font-size:20px;color:#c4b5fd;line-height:1;">→</span>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ─────────── 1d ─────────── -->
+      <div id="1d" style="width:1000px;flex:0 0 auto;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:6px;">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;background:#29d0ff;color:#04060f;padding:3px 11px;border-radius:6px;">1d</span>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.02em;">Counter tiles + inline filter</span>
+        </div>
+        <p style="font-size:14px;color:#8291bb;margin:0 0 16px;max-width:900px;">Three counters up top; tap one to filter the always-visible list below it — no floating layer, it lives in the page. Best when the counts themselves matter. <span style="color:#29d0ff;">Try the tiles →</span></p>
+
+        <div style="border-radius:16px;overflow:hidden;border:1px solid rgba(120,150,220,.14);background:#0a1024;">
+          <div style="height:64px;background:linear-gradient(180deg,#0d1428,#0a1024);border-bottom:1px solid rgba(120,150,220,.08);display:flex;align-items:flex-end;padding:0 26px 10px;">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:rgba(159,176,221,.45);">▲ hero ends here</span>
+          </div>
+          <div style="padding:22px 26px 26px;">
+
+            <div style="display:flex;gap:11px;margin-bottom:16px;">
+              <div onClick="{{ setAll }}" style="flex:1;cursor:pointer;padding:13px 16px;border-radius:11px;border:1px solid {{ allBorder }};background:{{ allBg }};display:flex;align-items:center;gap:11px;transition:all .14s;">
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;color:#e6ecff;line-height:1;">4</span>
+                <span style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#9fb0dd;">All items</span>
+              </div>
+              <div onClick="{{ setOverdue }}" style="flex:1;cursor:pointer;padding:13px 16px;border-radius:11px;border:1px solid {{ overdueBorder }};background:{{ overdueBg }};display:flex;align-items:center;gap:11px;transition:all .14s;">
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;color:#ff8f8f;line-height:1;">1</span>
+                <span style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ff7a7a;">Overdue</span>
+              </div>
+              <div onClick="{{ setNti }}" style="flex:1;cursor:pointer;padding:13px 16px;border-radius:11px;border:1px solid {{ ntiBorder }};background:{{ ntiBg }};display:flex;align-items:center;gap:11px;transition:all .14s;">
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;color:#ffd24a;line-height:1;">1</span>
+                <span style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#ffd24a;">Not turned in</span>
+              </div>
+              <div onClick="{{ setTests }}" style="flex:1;cursor:pointer;padding:13px 16px;border-radius:11px;border:1px solid {{ testBorder }};background:{{ testBg }};display:flex;align-items:center;gap:11px;transition:all .14s;">
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;color:#c4b5fd;line-height:1;">2</span>
+                <span style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#c4b5fd;">Tests ≤3d</span>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ visibleItems }}" as="it" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:10px;background:{{ it.bg }};border:1px solid {{ it.border }};">
+                  <span style="width:7px;height:7px;border-radius:50%;background:{{ it.dot }};flex-shrink:0;"></span>
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff;width:96px;flex-shrink:0;">{{ it.subject }}</span>
+                  <span style="font-size:13.5px;color:#9fb0dd;flex:1;">{{ it.detail }}</span>
+                  <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:{{ it.tagFg }};">{{ it.tag }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { filter: 'all' };
+
+  get items() {
+    return [
+      { subject: 'English', detail: 'Read pages 40–60', tag: 'Overdue · 2d', cat: 'overdue', dot: '#ff5555', tagFg: '#ff7a7a', bg: 'rgba(255,55,55,.07)', border: 'rgba(255,55,55,.22)' },
+      { subject: 'Science', detail: 'Lab write-up ready to submit', tag: 'Not turned in', cat: 'nti', dot: '#ffd24a', tagFg: '#ffd24a', bg: 'rgba(255,210,74,.06)', border: 'rgba(255,210,74,.2)' },
+      { subject: 'English', detail: 'Reading Quiz', tag: 'Quiz · tomorrow', cat: 'tests', dot: '#a78bfa', tagFg: '#c4b5fd', bg: 'rgba(167,139,250,.06)', border: 'rgba(167,139,250,.22)' },
+      { subject: 'Math', detail: 'Ch. 4 Quiz', tag: 'Quiz · Fri', cat: 'tests', dot: '#a78bfa', tagFg: '#c4b5fd', bg: 'rgba(167,139,250,.06)', border: 'rgba(167,139,250,.22)' },
+    ];
+  }
+
+  tileStyle(key) {
+    const on = this.state.filter === key;
+    const map = {
+      all:     ['rgba(41,208,255,.5)',  'rgba(41,208,255,.1)'],
+      overdue: ['rgba(255,55,55,.5)',   'rgba(255,55,55,.1)'],
+      nti:     ['rgba(255,210,74,.5)',  'rgba(255,210,74,.1)'],
+      tests:   ['rgba(167,139,250,.5)', 'rgba(167,139,250,.1)'],
+    };
+    return on ? { border: map[key][0], bg: map[key][1] } : { border: 'rgba(120,150,220,.16)', bg: 'rgba(120,150,220,.04)' };
+  }
+
+  renderVals() {
+    const f = this.state.filter;
+    const visibleItems = f === 'all' ? this.items : this.items.filter(i => i.cat === f);
+    const a = this.tileStyle('all'), o = this.tileStyle('overdue'), n = this.tileStyle('nti'), t = this.tileStyle('tests');
+    return {
+      visibleItems,
+      setAll: () => this.setState({ filter: 'all' }),
+      setOverdue: () => this.setState({ filter: 'overdue' }),
+      setNti: () => this.setState({ filter: 'nti' }),
+      setTests: () => this.setState({ filter: 'tests' }),
+      allBorder: a.border, allBg: a.bg,
+      overdueBorder: o.border, overdueBg: o.bg,
+      ntiBorder: n.border, ntiBg: n.bg,
+      testBorder: t.border, testBg: t.bg,
+    };
+  }
+}
+</script>
+</body>
+</html>

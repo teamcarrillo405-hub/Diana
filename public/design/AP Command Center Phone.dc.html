@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14); --gl-green-08:rgba(54,224,122,.08);
+    --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14); --gl-violet-08:rgba(167,139,250,.06);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+</style>
+</helmet>
+
+<div style="width:390px;height:844px;font-family:var(--font-body);color:var(--gl-text-primary);background:var(--gl-bg-base);display:flex;flex-direction:column;overflow:hidden;position:relative" data-screen-label="AP Command Center Phone">
+
+  <div style="height:47px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:600">
+    <span>9:41</span><div style="display:flex;align-items:center;gap:6px"><svg width="17" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="7" width="3" height="5" rx="1"></rect><rect x="5" y="4" width="3" height="8" rx="1"></rect><rect x="10" y="1.5" width="3" height="10.5" rx="1"></rect></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#fff" stroke-opacity=".5"></rect><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"></rect><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" fill-opacity=".5"></rect></svg></div>
+  </div>
+
+  <!-- ═══ LIST ═══ -->
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div style="padding:6px 18px 12px;flex-shrink:0">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan)">AP Command Center</div>
+      <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">Pace it. Don't panic.</div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:6px 18px 90px;display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+        <div onClick="{{ p.onOpen }}" style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:15px 16px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-cyan)">{{ p.formatLabel }}</div>
+            <sc-if value="{{ p.goalBand }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--gl-gold-14);color:var(--gl-gold)">Goal {{ p.goalBand }}</div>
+            </sc-if>
+          </div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;margin-bottom:6px">{{ p.subjectLabel }}</div>
+          <div style="display:flex;align-items:baseline;gap:7px">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:26px;color:{{ p.urgencyColor }}">{{ p.daysLeft }}</div>
+            <div style="font-size:11.5px;color:var(--gl-text-dim)">days to exam</div>
+          </div>
+        </div>
+      </sc-for>
+      <div onClick="{{ onNewPlanToggle }}" style="text-align:center;padding:13px;border-radius:12px;border:1px dashed var(--gl-cyan-30);color:var(--gl-cyan);font-size:13px;font-weight:600">+ New exam plan</div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ DETAIL ═══ -->
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;overflow-y:auto;padding:6px 18px 90px">
+      <div onClick="{{ onBack }}" style="display:flex;align-items:center;gap:6px;color:var(--gl-text-dim);font-size:12.5px;font-weight:600;margin:8px 0 10px;width:fit-content">← All exam plans</div>
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:4px">{{ activePlan.formatLabel }}</div>
+      <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:22px;text-transform:uppercase">{{ activePlan.subjectLabel }}</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:24px;color:{{ activePlan.urgencyColor }}">{{ activePlan.daysLeft }}</div>
+        <div style="font-size:12px;color:var(--gl-text-dim)">days until exam</div>
+      </div>
+
+      <div style="margin-top:14px;border-radius:12px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:15px 16px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;margin-bottom:10px">📋 Paced plan</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ activePlan.milestones }}" as="m" hint-placeholder-count="4">
+            <div style="display:flex;gap:8px;font-size:12.5px;color:var(--gl-text-secondary);line-height:1.4"><span style="color:var(--gl-cyan)">→</span><span>{{ m }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <div onClick="{{ onGenerateOutline }}" style="flex:1;text-align:center;padding:11px;border-radius:10px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);font-family:var(--font-display);font-weight:700;font-size:11.5px;text-transform:uppercase;color:var(--gl-violet)">✎ FRQ outline</div>
+        <div onClick="{{ onGenerateMcq }}" style="flex:1;text-align:center;padding:11px;border-radius:10px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);font-family:var(--font-display);font-weight:700;font-size:11.5px;text-transform:uppercase;color:var(--gl-violet)">◈ MCQ practice</div>
+      </div>
+
+      <sc-if value="{{ showOutline }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:12px;border-radius:12px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);padding:15px 16px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;color:var(--gl-violet);margin-bottom:10px">{{ activePlan.outlineTitle }}</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ activePlan.outline }}" as="o" hint-placeholder-count="4">
+              <div>
+                <div style="font-family:var(--font-display);font-weight:700;font-size:11.5px;color:var(--gl-violet)">{{ o.label }}</div>
+                <div style="font-size:12.5px;color:var(--gl-text-secondary);line-height:1.4">{{ o.prompt }}</div>
+                <div style="font-size:10.5px;color:var(--gl-text-dim);margin-top:2px">Evidence: {{ o.evidence }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ showMcq }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:12px;border-radius:12px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);padding:15px 16px">
+          <div style="font-size:13px;color:var(--gl-text-secondary);line-height:1.5;margin-bottom:10px">{{ activePlan.mcq.stem }}</div>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <sc-for list="{{ activePlan.mcq.choices }}" as="c" hint-placeholder-count="4">
+              <div onClick="{{ c.onClick }}" style="border-radius:9px;border:1px solid {{ c.border }};background:{{ c.bg }};padding:9px 12px">
+                <div style="display:flex;gap:6px;font-size:12.5px;color:var(--gl-text-secondary)"><b style="color:{{ c.labelColor }}">{{ c.label }}.</b><span>{{ c.text }}</span></div>
+                <sc-if value="{{ c.revealed }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:11px;color:var(--gl-text-dim);margin-top:4px;line-height:1.35">{{ c.explanation }}</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="margin-top:14px;border-radius:12px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:15px 16px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;margin-bottom:10px">📝 Log a practice set</div>
+        <div style="display:flex;gap:7px;margin-bottom:10px">
+          <sc-for list="{{ practiceTypes }}" as="pt" hint-placeholder-count="3">
+            <div onClick="{{ pt.onClick }}" style="flex:1;text-align:center;padding:8px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid {{ pt.border }};background:{{ pt.bg }};color:{{ pt.fg }}">{{ pt.label }}</div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:10px">
+          <input type="number" min="0" placeholder="Correct" value="{{ correctCount }}" onChange="{{ onCorrectCountChange }}" style="flex:1;padding:8px 11px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px;font-family:var(--font-mono)">
+          <input type="number" min="1" placeholder="Total" value="{{ totalCount }}" onChange="{{ onTotalCountChange }}" style="flex:1;padding:8px 11px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px;font-family:var(--font-mono)">
+        </div>
+        <div onClick="{{ onSavePractice }}" style="text-align:center;padding:10px;border-radius:9px;font-family:var(--font-display);font-weight:700;font-size:12px;text-transform:uppercase;background:var(--gl-green-14);color:var(--gl-green);border:1px solid var(--gl-green-30)">Save practice set</div>
+        <sc-if value="{{ lastBandMessage }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;padding:9px 12px;border-radius:8px;background:var(--gl-gold-08);border:1px solid var(--gl-gold-30);font-size:11.5px;color:var(--gl-text-secondary)">{{ lastBandMessage }}</div>
+        </sc-if>
+      </div>
+
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ activePlan.practiceAttempts }}" as="a" hint-placeholder-count="2">
+          <div style="border-radius:10px;border:1px solid var(--gl-border);background:rgba(4,8,20,.4);padding:11px 13px">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase">{{ a.practiceType }}</div>
+              <sc-if value="{{ a.scoreBand }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:var(--gl-cyan-14);color:var(--gl-cyan)">Band {{ a.scoreBand }}</div>
+              </sc-if>
+            </div>
+            <sc-if value="{{ a.hasCounts }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ a.correctCount }}/{{ a.totalCount }} correct</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- BOTTOM TAB BAR -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:78px;display:flex;align-items:flex-start;padding-top:8px;border-top:1px solid var(--gl-border);background:rgba(4,8,20,.92);backdrop-filter:blur(12px)">
+    <sc-for list="{{ tabBar }}" as="t" hint-placeholder-count="5">
+      <a href="{{ t.href }}" style="display:block;flex:1;text-align:center;text-decoration:none;color:{{ t.color }}">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:14px 0">{{ t.label }}</div>
+      </a>
+    </sc-for>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" bottom="96" hint-size="64px,64px"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  OUTLINES = {
+    history_dbq: [ ['Context','Set the time period and historical tension.','One background fact'], ['Thesis','Answer the prompt with a defensible claim.','Main line of reasoning'], ['Document groups','Group documents by reason, not by order.','Two or more document references'], ['Outside evidence','Add one specific fact beyond the documents.','Named event, policy, or person'], ['Complexity','Name a limit, counterpoint, or change over time.','Contrast evidence'] ],
+    math_frq: [ ['Setup','Define variables and known values.','Equation or graph feature'], ['Work','Show symbolic or numeric steps.','Units and notation'], ['Interpret','Answer in context.','Meaning of the result'] ],
+    science_frq: [ ['Claim','Answer the science task directly.','Variable or concept'], ['Evidence','Use data, observation, or equation context.','Specific value or pattern'], ['Reasoning','Connect evidence to the science rule.','Mechanism or principle'] ],
+  };
+  SUBJECTS = {
+    us_history: { label: 'US History', format: 'history_dbq' },
+    calculus_ab: { label: 'Calculus AB', format: 'math_frq' },
+    biology: { label: 'Biology', format: 'science_frq' },
+  };
+
+  state = {
+    screen: 'list', activeId: null,
+    showOutline: false, showMcq: false, revealedChoices: {},
+    practiceType: 'mcq', correctCount: '', totalCount: '', lastBandMessage: '',
+    plans: [
+      { id: 'plan1', subject: 'us_history', examDate: '2027-05-06', goalBand: '4-5', practiceAttempts: [ { practiceType: 'mcq', correctCount: 22, totalCount: 30, scoreBand: '3-4' } ] },
+      { id: 'plan2', subject: 'calculus_ab', examDate: '2027-05-11', goalBand: '', practiceAttempts: [] },
+      { id: 'plan3', subject: 'biology', examDate: '2027-05-08', goalBand: '5', practiceAttempts: [] },
+    ],
+  };
+
+  formatLabel(f) { return f.replace(/_/g, ' '); }
+  daysUntilExam(examDate) {
+    const exam = Date.parse(examDate + 'T00:00:00.000Z');
+    if (!Number.isFinite(exam)) return 0;
+    const now = new Date();
+    const today = Date.parse(now.toISOString().slice(0, 10) + 'T00:00:00.000Z');
+    return Math.max(0, Math.ceil((exam - today) / 86400000));
+  }
+  milestonePlan(format, days) {
+    if (days >= 60) return ['Build a two-week foundation map.', 'Do one format-specific practice set each week.', 'Turn open concepts into flashcards or mastery topics.', 'Schedule one timed section after the first review pass.'];
+    if (days >= 30) return [`Focus on ${this.formatLabel(format)} timing.`, 'Alternate MCQ practice with one FRQ outline.', 'Review explanations for every answer choice.', 'Make a calm one-week checkpoint list.'];
+    if (days >= 7) return ['Use shorter timed sets and one full FRQ outline.', 'Review only the highest-value concepts after each set.', 'Keep sleep and meals steady during review days.', 'Prepare materials and exam-day logistics early.'];
+    return ['Use light review and format reminders.', 'Practice one short response outline, then stop.', 'Pack materials and choose a recovery plan after the exam.'];
+  }
+  scoreBand(correct, total) {
+    if (!total || total <= 0) return { band: null, message: 'Add a practice set to estimate a score band.' };
+    const ratio = Math.max(0, Math.min(1, correct / total));
+    const band = ratio >= 0.85 ? '4-5' : ratio >= 0.65 ? '3-4' : ratio >= 0.45 ? '2-3' : '1-2';
+    return { band, message: `You're in the ${band} range based on this practice set.` };
+  }
+  fallbackQuestion(subject) {
+    return {
+      stem: `Which choice best supports a ${subject.label} claim using course evidence?`, bestChoice: 'A', skill: this.formatLabel(subject.format),
+      choices: [
+        { label: 'A', text: 'A choice with specific evidence and reasoning.', explanation: 'Best fit because it uses evidence and explains the link.' },
+        { label: 'B', text: 'A choice that names a topic only.', explanation: 'Less supported because it does not explain the link.' },
+        { label: 'C', text: 'A choice that is too broad.', explanation: 'Less supported because it does not stay close to the prompt.' },
+        { label: 'D', text: 'A choice that uses a related but weaker detail.', explanation: 'Less supported because the evidence is not central.' },
+      ],
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const tabDefs = [ ['🏠','Today','Student Lobby Phone.dc.html'], ['⚡','Work','Work Phone.dc.html'], ['📚','Classes','Classes Phone.dc.html'], ['📅','Calendar','Calendar Phone.dc.html'], ['⋯','More','More Phone.dc.html'] ];
+    const tabBar = tabDefs.map(([icon,label,href]) => ({ icon, label, href, color: 'var(--gl-text-dim)' }));
+
+    const decorate = (p) => {
+      const subject = this.SUBJECTS[p.subject];
+      const days = this.daysUntilExam(p.examDate);
+      const milestones = this.milestonePlan(subject.format, days);
+      const urgencyColor = days <= 7 ? 'var(--gl-gold)' : days <= 30 ? 'var(--gl-cyan)' : 'var(--gl-green)';
+      return { ...p, subjectLabel: subject.label, formatLabel: this.formatLabel(subject.format), daysLeft: days, urgencyColor, milestones,
+        onOpen: () => this.setState({ screen: 'detail', activeId: p.id, showOutline: false, showMcq: false, lastBandMessage: '', correctCount: '', totalCount: '' }) };
+    };
+
+    const plans = s.plans.map(decorate);
+    const activeRaw = s.plans.find(p => p.id === s.activeId) || s.plans[0];
+    const activeSubject = activeRaw ? this.SUBJECTS[activeRaw.subject] : null;
+    let activePlan = null;
+    if (activeRaw) {
+      const decorated = decorate(activeRaw);
+      const outline = this.OUTLINES[activeSubject.format] || [];
+      const q = this.fallbackQuestion(activeSubject);
+      const revealKey = activeRaw.id;
+      activePlan = {
+        ...decorated,
+        outlineTitle: `${activeSubject.label} FRQ outline`,
+        outline: outline.map(([label, prompt, evidence]) => ({ label, prompt, evidence })),
+        mcq: {
+          stem: q.stem,
+          choices: q.choices.map(c => {
+            const revealed = !!(s.revealedChoices[revealKey] && s.revealedChoices[revealKey][c.label]);
+            const isBest = c.label === q.bestChoice;
+            return { ...c, revealed,
+              border: revealed && isBest ? 'var(--gl-green-30)' : 'var(--gl-border)',
+              bg: revealed && isBest ? 'var(--gl-green-08)' : 'rgba(4,8,20,.4)',
+              labelColor: revealed && isBest ? 'var(--gl-green)' : 'var(--gl-violet)',
+              onClick: () => this.setState(prev => {
+                const rc = { ...prev.revealedChoices };
+                rc[revealKey] = { ...(rc[revealKey] || {}), [c.label]: true };
+                return { revealedChoices: rc };
+              }) };
+          }),
+        },
+        practiceAttempts: activeRaw.practiceAttempts.map(a => ({ ...a, hasCounts: a.correctCount !== null && a.correctCount !== undefined && a.totalCount })),
+      };
+    }
+
+    const practiceTypeDefs = [ ['mcq','MCQ'], ['frq','FRQ'], ['mixed','Mixed'] ];
+    const practiceTypes = practiceTypeDefs.map(([id, label]) => ({
+      id, label,
+      border: s.practiceType === id ? 'var(--gl-green-30)' : 'var(--gl-border)',
+      bg: s.practiceType === id ? 'var(--gl-green-14)' : 'rgba(4,8,20,.4)',
+      fg: s.practiceType === id ? 'var(--gl-green)' : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ practiceType: id }),
+    }));
+
+    return {
+      isList: s.screen === 'list', isDetail: s.screen === 'detail',
+      plans, onNewPlanToggle: () => {},
+      activePlan, onBack: () => this.setState({ screen: 'list' }),
+      showOutline: s.showOutline, showMcq: s.showMcq,
+      onGenerateOutline: () => this.setState(p => ({ showOutline: !p.showOutline, showMcq: false })),
+      onGenerateMcq: () => this.setState(p => ({ showMcq: !p.showMcq, showOutline: false })),
+      practiceTypes,
+      correctCount: s.correctCount, onCorrectCountChange: e => this.setState({ correctCount: e.target.value }),
+      totalCount: s.totalCount, onTotalCountChange: e => this.setState({ totalCount: e.target.value }),
+      lastBandMessage: s.lastBandMessage,
+      onSavePractice: () => {
+        if (!activeRaw) return;
+        const correct = s.correctCount === '' ? null : parseInt(s.correctCount, 10);
+        const total = s.totalCount === '' ? null : parseInt(s.totalCount, 10);
+        const bandResult = (correct !== null && total) ? this.scoreBand(correct, total) : { band: null, message: 'Practice saved. Add MCQ counts anytime for a band estimate.' };
+        this.setState(prev => ({
+          plans: prev.plans.map(p => p.id === activeRaw.id
+            ? { ...p, practiceAttempts: [{ practiceType: prev.practiceType, correctCount: correct, totalCount: total, scoreBand: bandResult.band }, ...p.practiceAttempts] }
+            : p),
+          correctCount: '', totalCount: '', lastBandMessage: bandResult.message,
+        }));
+      },
+      tabBar,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

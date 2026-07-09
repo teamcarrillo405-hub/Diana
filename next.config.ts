@@ -9,6 +9,12 @@ const config: NextConfig = {
   turbopack: {
     root: projectRoot,
   },
+  async redirects() {
+    return [
+      // Design reference app (public/design) — /design lands on the Student Lobby.
+      { source: "/design", destination: "/design/Student%20Lobby.dc.html", permanent: false },
+    ];
+  },
 };
 
 export default config;

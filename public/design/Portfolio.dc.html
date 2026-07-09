@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14); --gl-green-08:rgba(54,224,122,.08);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.3);border-radius:4px}
+  .gl-tab:hover{color:#fff !important;}
+</style>
+</helmet>
+<x-import component-from-global-scope="image-slot" from="./image-slot.js" id="portfolio-loader-slot" hint-size="1,1" style="position:absolute;left:-9999px;top:0;width:1px;height:1px"></x-import>
+
+<div style="width:1440px;min-height:900px;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -10%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)" data-screen-label="Portfolio">
+
+  <!-- NAV -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <a href="Student Lobby.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
+        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <div style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center" title="Profile">
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">G</span>
+      </div>
+      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══ LIST SCREEN ═══ -->
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px">
+        <div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:6px">Portfolio</div>
+          <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:34px;line-height:1.02;text-transform:uppercase">Proof of your best work.</div>
+        </div>
+        <div onClick="{{ onNewPortfolioToggle }}" style="padding:11px 20px;border-radius:10px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30);white-space:nowrap">+ New portfolio</div>
+      </div>
+
+      <sc-if value="{{ showNewPortfolio }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:14px;border:1px solid var(--gl-cyan-30);background:var(--gl-cyan-08);padding:18px 20px;margin-bottom:22px;display:flex;flex-direction:column;gap:10px">
+          <input type="text" placeholder="Portfolio title (e.g. AP Art Portfolio)" value="{{ newTitle }}" onChange="{{ onNewTitleChange }}" style="width:100%;padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13.5px;font-family:var(--font-body)">
+          <input type="text" placeholder="Short description (optional)" value="{{ newDesc }}" onChange="{{ onNewDescChange }}" style="width:100%;padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13.5px;font-family:var(--font-body)">
+          <div style="display:flex;gap:10px">
+            <div onClick="{{ onCreatePortfolio }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30)">Create</div>
+            <div onClick="{{ onNewPortfolioToggle }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-size:12.5px;color:var(--gl-text-dim)">Cancel</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <sc-for list="{{ portfolios }}" as="p" hint-placeholder-count="3">
+          <div onClick="{{ p.onOpen }}" style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);overflow:hidden;cursor:pointer;display:flex;flex-direction:column">
+            <div style="height:130px;background:{{ p.coverBg }};display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:24px;letter-spacing:.08em;text-transform:uppercase;color:rgba(238,242,255,.85)">{{ p.emoji }}</div>
+            <div style="padding:16px 18px;display:flex;flex-direction:column;gap:6px">
+              <sc-if value="{{ p.classTag }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-cyan);width:fit-content">{{ p.classTag }}</div>
+              </sc-if>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:17px">{{ p.title }}</div>
+              <div style="font-size:12.5px;color:var(--gl-text-dim);line-height:1.4">{{ p.description }}</div>
+              <div style="font-size:11.5px;color:var(--gl-text-muted);margin-top:4px">{{ p.itemCount }} item{{ p.itemPlural }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:70px 20px;color:var(--gl-text-dim)">
+          <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:24px;margin-bottom:10px;color:rgba(238,242,255,.55)">＋</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--gl-text-muted)">No portfolios yet</div>
+          <div style="font-size:13px;margin-top:6px">Start one to collect your best work over time.</div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ═══ DETAIL SCREEN ═══ -->
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px">
+      <div onClick="{{ onBack }}" style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--gl-text-dim);font-size:13px;font-weight:600;margin-bottom:18px;width:fit-content">← All portfolios</div>
+
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:8px">
+        <div>
+          <sc-if value="{{ activePortfolio.classTag }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:6px">{{ activePortfolio.classTag }}</div>
+          </sc-if>
+          <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:32px;line-height:1.02;text-transform:uppercase">{{ activePortfolio.title }}</div>
+          <div style="font-size:13.5px;color:var(--gl-text-dim);margin-top:6px;max-width:600px">{{ activePortfolio.description }}</div>
+        </div>
+        <div onClick="{{ onAddItemToggle }}" style="padding:11px 20px;border-radius:10px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-green-14);color:var(--gl-green);border:1px solid var(--gl-green-30);white-space:nowrap">+ Add item</div>
+      </div>
+
+      <sc-if value="{{ showAddItem }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:20px;border-radius:14px;border:1px solid var(--gl-green-30);background:var(--gl-green-08);padding:20px 22px;display:grid;grid-template-columns:200px 1fr;gap:18px">
+          <image-slot id="portfolio-new-item-image" style="width:200px;height:150px;border-radius:11px" shape="rounded" radius="11" placeholder="Drop a photo of the work"></image-slot>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <input type="text" placeholder="Item title (e.g. Final ceramics piece)" value="{{ newItemTitle }}" onChange="{{ onNewItemTitleChange }}" style="width:100%;padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13.5px;font-family:var(--font-body)">
+            <textarea placeholder="Reflection — what did you learn, or what are you proud of?" value="{{ newItemReflection }}" onChange="{{ onNewItemReflectionChange }}" style="width:100%;min-height:70px;padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:var(--font-body);resize:vertical"></textarea>
+            <div style="display:flex;gap:10px">
+              <div onClick="{{ onSaveItem }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-green-14);color:var(--gl-green);border:1px solid var(--gl-green-30)">Save item</div>
+              <div onClick="{{ onAddItemToggle }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-size:12.5px;color:var(--gl-text-dim)">Cancel</div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px">
+        <sc-for list="{{ activePortfolio.items }}" as="it" hint-placeholder-count="3">
+          <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);overflow:hidden">
+            <image-slot id="{{ it.slotId }}" style="width:100%;height:150px" shape="rect" placeholder="Drop a photo" src="{{ it.imageSrc }}"></image-slot>
+            <div style="padding:14px 16px">
+              <div style="font-family:var(--font-display);font-weight:700;font-size:14.5px;margin-bottom:6px">{{ it.title }}</div>
+              <sc-if value="{{ it.reflectionText }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12px;color:var(--gl-text-secondary);line-height:1.45">{{ it.reflectionText }}</div>
+              </sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ activePortfolio.isEmptyItems }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:60px 20px;color:var(--gl-text-dim)">
+          <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:22px;margin-bottom:8px;color:rgba(238,242,255,.55)">＋</div>
+          <div style="font-size:13.5px">Add your first item to start this portfolio.</div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'list', activeId: null,
+    showNewPortfolio: false, newTitle: '', newDesc: '',
+    showAddItem: false, newItemTitle: '', newItemReflection: '',
+    portfolios: [
+      {
+        id: 'p1', title: 'AP Art Portfolio', description: 'Sustained investigation pieces for the AP Studio Art submission.',
+        classTag: 'AP Studio Art', emoji: 'ART', coverBg: 'linear-gradient(135deg,rgba(41,208,255,.14),rgba(41,208,255,.03))',
+        items: [
+          { title: 'Ceramic vessel study', reflectionText: 'First attempt at wheel-thrown form — proud of the symmetry after four tries.', imageSrc: '' },
+          { title: 'Charcoal self-portrait', reflectionText: 'Focused on value range instead of line for this one.', imageSrc: '' },
+        ],
+      },
+      {
+        id: 'p2', title: 'Robotics Build Log', description: 'Photos and notes from the season build, for the engineering notebook.',
+        classTag: null, emoji: 'ROBOTICS', coverBg: 'linear-gradient(135deg,rgba(255,210,74,.14),rgba(255,210,74,.03))',
+        items: [
+          { title: 'Drivetrain v2', reflectionText: 'Swapped to a 6-wheel drop-center design after week 1 testing.', imageSrc: '' },
+        ],
+      },
+      {
+        id: 'p3', title: 'Writing Samples', description: 'Essays and creative pieces I\u2019m proud of, for college apps.',
+        classTag: null, emoji: 'WRITING', coverBg: 'linear-gradient(135deg,rgba(54,224,122,.14),rgba(54,224,122,.03))',
+        items: [],
+      },
+    ],
+  };
+
+  renderVals() {
+    const s = this.state;
+    const navNames = ['Today','Work','Classes','Calendar','More'];
+    const navHrefs = { Today: 'Student Lobby.dc.html', Work: 'Work.dc.html', Classes: 'Classes.dc.html', Calendar: 'Calendar.dc.html', More: 'More.dc.html' };
+    const navTabs = navNames.map(n => ({ name: n, href: navHrefs[n], color: 'var(--gl-text-dim)', bg: 'transparent' }));
+
+    const portfolios = s.portfolios.map(p => ({
+      ...p,
+      itemCount: p.items.length,
+      itemPlural: p.items.length === 1 ? '' : 's',
+      onOpen: () => this.setState({ screen: 'detail', activeId: p.id, showAddItem: false }),
+    }));
+
+    const active = s.portfolios.find(p => p.id === s.activeId) || s.portfolios[0];
+    const activePortfolio = active ? {
+      ...active,
+      items: active.items.map((it, i) => ({ ...it, slotId: `portfolio-item-${active.id}-${i}` })),
+      isEmptyItems: active.items.length === 0,
+    } : null;
+
+    return {
+      navTabs,
+      isList: s.screen === 'list',
+      isDetail: s.screen === 'detail',
+      isEmpty: s.portfolios.length === 0,
+      portfolios,
+      showNewPortfolio: s.showNewPortfolio,
+      onNewPortfolioToggle: () => this.setState(p => ({ showNewPortfolio: !p.showNewPortfolio })),
+      newTitle: s.newTitle,
+      onNewTitleChange: e => this.setState({ newTitle: e.target.value }),
+      newDesc: s.newDesc,
+      onNewDescChange: e => this.setState({ newDesc: e.target.value }),
+      onCreatePortfolio: () => {
+        if (!s.newTitle.trim()) return;
+        const id = 'p' + (s.portfolios.length + 1) + '-' + Date.now();
+        this.setState(prev => ({
+          portfolios: [...prev.portfolios, { id, title: prev.newTitle, description: prev.newDesc || 'New portfolio.', classTag: null, emoji: 'NEW', coverBg: 'linear-gradient(135deg,rgba(41,208,255,.12),rgba(41,208,255,.02))', items: [] }],
+          newTitle: '', newDesc: '', showNewPortfolio: false,
+        }));
+      },
+
+      activePortfolio,
+      onBack: () => this.setState({ screen: 'list', showAddItem: false }),
+      showAddItem: s.showAddItem,
+      onAddItemToggle: () => this.setState(p => ({ showAddItem: !p.showAddItem })),
+      newItemTitle: s.newItemTitle,
+      onNewItemTitleChange: e => this.setState({ newItemTitle: e.target.value }),
+      newItemReflection: s.newItemReflection,
+      onNewItemReflectionChange: e => this.setState({ newItemReflection: e.target.value }),
+      onSaveItem: () => {
+        if (!s.newItemTitle.trim() || !active) return;
+        this.setState(prev => ({
+          portfolios: prev.portfolios.map(p => p.id === active.id
+            ? { ...p, items: [...p.items, { title: prev.newItemTitle, reflectionText: prev.newItemReflection, imageSrc: '' }] }
+            : p),
+          newItemTitle: '', newItemReflection: '', showAddItem: false,
+        }));
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

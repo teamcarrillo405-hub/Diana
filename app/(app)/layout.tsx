@@ -7,6 +7,7 @@ import { QuickCapture } from "@/components/quick-capture";
 import { PlatformAnalyticsTracker } from "@/components/platform-analytics-tracker";
 import { PwaRuntime } from "@/components/pwa-runtime";
 import { SessionHandoffTracker } from "@/components/session-handoff-tracker";
+import { AgentFab } from "@/components/agent-fab";
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -37,6 +38,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <PlatformAnalyticsTracker />
         <SessionHandoffTracker />
         <PwaRuntime />
+        {profile?.age_bracket !== "under_13" && <AgentFab />}
       </div>
     </div>
   );

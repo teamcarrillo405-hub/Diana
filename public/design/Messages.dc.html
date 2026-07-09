@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-green:#36e07a;
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  @keyframes ms-pulse{0%,100%{opacity:.4}50%{opacity:1}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)">
+
+  <!-- APP NAV — Messages active -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+      <a href="Student Lobby.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
+      <a href="Work.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+      <a href="Classes.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+      <a href="Calendar.dc.html" style="text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+      <a href="Messages.dc.html" style="display:inline-block;text-decoration:none;position:relative;color:#fff;padding:18px 2px">Messages<div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div></a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+            <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }}" alt="You">
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+        </sc-if>
+        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+        </sc-if>
+        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f">{{ initials }}</span>
+        </sc-if>
+      </a>
+      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:44px 34px 70px">
+
+    <!-- Header + view toggle -->
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:28px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:var(--gl-cyan);opacity:.85;margin-bottom:10px">Synced from Canvas</div>
+        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:56px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:#fff;text-wrap:balance">Messages</h1>
+      </div>
+      <div style="display:flex;gap:6px;padding:5px;border-radius:11px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border)">
+        <div onClick="{{ showConversations }}" style="display:flex;align-items:center;gap:8px;padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;background:{{ tabConvBg }};color:{{ tabConvFg }}">Conversations<sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ true }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--gl-cyan);color:#04080f;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center">{{ unreadCount }}</span></sc-if></div>
+        <div onClick="{{ showAnnouncements }}" style="padding:9px 16px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;background:{{ tabAnnBg }};color:{{ tabAnnFg }}">Announcements</div>
+      </div>
+    </header>
+
+    <!-- CONVERSATIONS VIEW -->
+    <sc-if value="{{ isConversations }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:360px 1fr;gap:16px;align-items:start">
+
+        <!-- List rail -->
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ convList }}" as="m" hint-placeholder-count="4">
+            <div onClick="{{ m.onSelect }}" style="position:relative;border-radius:13px;border:1px solid {{ m.border }};background:{{ m.bg }};backdrop-filter:blur(10px);padding:14px 15px 14px 16px;cursor:pointer;overflow:hidden">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:{{ m.accent }};opacity:{{ m.stripeOpacity }}"></div>
+              <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px">
+                <sc-if value="{{ m.unread }}" hint-placeholder-val="{{ true }}"><span style="width:8px;height:8px;border-radius:50%;background:var(--gl-cyan);flex-shrink:0"></span></sc-if>
+                <span style="font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.02em;color:{{ m.nameFg }}">{{ m.from }}</span>
+                <span style="padding:2px 8px;border-radius:6px;background:{{ m.chipBg }};border:1px solid {{ m.chipBorder }};font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:{{ m.accent }}">{{ m.course }}</span>
+                <span style="margin-left:auto;font-size:11.5px;color:var(--gl-text-dim);flex-shrink:0">{{ m.time }}</span>
+              </div>
+              <div style="font-size:14px;font-weight:600;color:{{ m.subjectFg }};margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.subject }}</div>
+              <div style="font-size:13px;color:var(--gl-text-overlay-60);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ m.preview }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <!-- Thread pane -->
+        <div style="border-radius:16px;border:1px solid var(--gl-cyan-18);background:var(--gl-bg-card);backdrop-filter:blur(12px);min-height:520px;display:flex;flex-direction:column;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:12px;padding:18px 22px;border-bottom:1px solid var(--gl-border)">
+            <div style="width:42px;height:42px;border-radius:11px;background:{{ activeChipBg }};border:1px solid {{ activeChipBorder }};display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:17px;color:{{ activeAccent }}">{{ activeInitial }}</div>
+            <div style="min-width:0">
+              <div style="font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.02em">{{ activeFrom }}</div>
+              <div style="font-size:12.5px;color:var(--gl-text-dim)">{{ activeRole }} · {{ activeCourse }}</div>
+            </div>
+            <a href="{{ activeAssignmentHref }}" style="margin-left:auto;text-decoration:none;padding:8px 14px;border-radius:8px;background:rgba(41,208,255,.08);border:1px solid var(--gl-cyan-25);font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-cyan)">Open class →</a>
+          </div>
+
+          <div style="flex:1;padding:22px;display:flex;flex-direction:column;gap:16px;overflow-y:auto">
+            <div style="text-align:center;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim)">{{ activeDate }}</div>
+            <!-- teacher bubble -->
+            <div style="max-width:82%;align-self:flex-start">
+              <div style="padding:14px 16px;border-radius:4px 15px 15px 15px;background:rgba(120,150,220,.1);border:1px solid var(--gl-border);font-size:14.5px;line-height:1.5;color:#eaf0ff">{{ activeSubjectLine }}<br><br>{{ activeBody }}</div>
+              <div style="margin-top:5px;font-size:11px;color:var(--gl-text-dim)">{{ activeFrom }} · {{ activeTime }} ago</div>
+            </div>
+            <!-- student bubble -->
+            <div style="max-width:82%;align-self:flex-end">
+              <div style="padding:14px 16px;border-radius:15px 4px 15px 15px;background:rgba(41,208,255,.12);border:1px solid var(--gl-cyan-25);font-size:14.5px;line-height:1.5;color:#eaf6ff">Thanks — I'll be there. Should I bring my annotated copy?</div>
+              <div style="margin-top:5px;text-align:right;font-size:11px;color:var(--gl-text-dim)">You · just now</div>
+            </div>
+          </div>
+
+          <!-- composer -->
+          <div style="padding:14px 18px;border-top:1px solid var(--gl-border);display:flex;align-items:center;gap:12px">
+            <input value="{{ draft }}" onInput="{{ onDraft }}" placeholder="Reply to {{ activeFrom }}…" style="flex:1;padding:12px 15px;border-radius:10px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border);color:#fff;font-family:var(--font-body);font-size:14.5px;outline:none">
+            <div onClick="{{ onSend }}" style="display:inline-flex;align-items:center;gap:7px;padding:12px 20px;border-radius:10px;background:var(--gl-cyan);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:#04080f">Send</div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ANNOUNCEMENTS VIEW -->
+    <sc-if value="{{ isAnnouncements }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:12px;max-width:760px">
+        <sc-for list="{{ annList }}" as="a" hint-placeholder-count="3">
+          <div style="position:relative;border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);backdrop-filter:blur(10px);padding:18px 20px 18px 22px;overflow:hidden">
+            <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:{{ a.accent }}"></div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+              <span style="padding:3px 10px;border-radius:7px;background:{{ a.chipBg }};border:1px solid {{ a.chipBorder }};font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ a.accent }}">{{ a.course }}</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--gl-text-dim)">{{ a.time }} ago</span>
+            </div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:19px;letter-spacing:.01em;margin-bottom:6px">{{ a.title }}</div>
+            <div style="font-size:14.5px;line-height:1.55;color:var(--gl-text-overlay-60)">{{ a.body }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:820}}">
+class Component extends DCLogic {
+  state = { view: 'conversations', activeId: 9001, draft: '' };
+
+  showConversations = () => this.setState({ view: 'conversations' });
+  showAnnouncements = () => this.setState({ view: 'announcements' });
+  select = (id) => this.setState({ activeId: id });
+  onDraft = (e) => this.setState({ draft: e.target.value });
+  onSend = () => this.setState({ draft: '' });
+
+  MESSAGES() {
+    return [
+      { id: 9001, courseId: 30118, course: 'English', accent: '#8b96bd', from: 'Ms. Rivera', role: 'Teacher', subject: 'Re: Reading Quiz make-up', preview: "You can take the make-up Thursday during 2nd period — bring your annotations.", body: "You can take the make-up this Thursday during 2nd period. Come to room 214 with your annotated copy and we'll get you squared away. No penalty — life happens.", time: '2h', unread: true },
+      { id: 9002, courseId: 30131, course: 'History', accent: '#8b96bd', from: 'Mr. Boyd', role: 'Teacher', subject: 'Great work on the Ch. 7 study guide', preview: 'Scored 47/50 — your timeline section was the strongest in the class.', body: 'Scored 47/50 — your timeline section was the strongest in the class. If you want the extra 3 points, add two primary-source quotes and resubmit by Monday.', time: '1d', unread: true },
+      { id: 9003, courseId: 30124, course: 'Science', accent: '#8b96bd', from: 'Dr. Nash', role: 'Teacher', subject: 'Lab write-up received', preview: 'Got your submission. Feedback posted by Friday.', body: "Got your lab write-up — thanks for turning it in on time. I'll have feedback and a grade posted by Friday. Good use of the control group.", time: '2d', unread: false },
+      { id: 9004, courseId: 30112, course: 'Math', accent: '#8b96bd', from: 'Ms. Okafor', role: 'Teacher', subject: 'Ch. 4 quiz Friday', preview: 'Reminder: calculators allowed, one page of notes.', body: 'Quick reminder: the Ch. 4 quiz is Friday. Calculators allowed, and you may bring one handwritten page of notes. Focus on sections 4.2 and 4.4.', time: '3d', unread: false },
+    ];
+  }
+
+  ANNOUNCEMENTS() {
+    return [
+      { id: 7001, course: 'English', accent: '#8b96bd', title: 'No class Friday — assembly schedule', body: "We move to the auditorium 2nd period for the assembly. The Reading Quiz is pushed to Monday. Enjoy the short day.", time: '4h' },
+      { id: 7002, course: 'Science', accent: '#8b96bd', title: 'Lab safety refresher before Thursday', body: 'Review the safety handout in Files before Thursday\u2019s lab. Goggles are required for everyone \u2014 no exceptions this time.', time: '1d' },
+      { id: 7003, course: 'Athletics', accent: '#8b96bd', title: 'Home game moved to 7:00 PM Friday', body: 'The home game vs. the Eagles is now 7:00 PM Friday. Buses leave at 5:30. Bring your jersey and a full water bottle.', time: '2d' },
+    ];
+  }
+
+  tint(accent, a) {
+    const map = {
+      '#8b96bd': '139,150,189',
+    };
+    return 'rgba(' + (map[accent] || '120,150,220') + ',' + a + ')';
+  }
+
+  renderVals() {
+    const msgs = this.MESSAGES();
+    const active = msgs.find(m => m.id === this.state.activeId) || msgs[0];
+    const COURSE_AID = { English: 'eng-rhet', History: 'hist-sg6', Science: 'sci-titration', Math: 'math-u4', Athletics: 'ath-reflect' };
+    const activeAssignmentHref = 'Homework Mission.dc.html' + (COURSE_AID[active.course] ? '?a=' + COURSE_AID[active.course] : '');
+    const unreadCount = msgs.filter(m => m.unread).length;
+    const isConv = this.state.view === 'conversations';
+
+    const convList = msgs.map(m => ({
+      ...m,
+      onSelect: () => this.select(m.id),
+      selected: m.id === active.id,
+      border: m.id === active.id ? 'var(--gl-cyan-25)' : (m.unread ? 'var(--gl-cyan-18)' : 'var(--gl-border)'),
+      bg: m.id === active.id ? 'rgba(41,208,255,.06)' : 'var(--gl-bg-card)',
+      stripeOpacity: m.id === active.id ? '1' : (m.unread ? '.7' : '.3'),
+      chipBg: this.tint(m.accent, .1),
+      chipBorder: this.tint(m.accent, .3),
+      nameFg: m.unread ? '#fff' : 'var(--gl-text-secondary)',
+      subjectFg: m.unread ? '#eaf0ff' : 'var(--gl-text-muted)',
+    }));
+
+    const annList = this.ANNOUNCEMENTS().map(a => ({
+      ...a,
+      chipBg: this.tint(a.accent, .1),
+      chipBorder: this.tint(a.accent, .3),
+    }));
+
+    return {
+      isConversations: isConv,
+      isAnnouncements: !isConv,
+      showConversations: this.showConversations,
+      showAnnouncements: this.showAnnouncements,
+      tabConvBg: isConv ? 'var(--gl-cyan)' : 'transparent',
+      tabConvFg: isConv ? '#04080f' : 'var(--gl-text-muted)',
+      tabAnnBg: !isConv ? 'var(--gl-cyan)' : 'transparent',
+      tabAnnFg: !isConv ? '#04080f' : 'var(--gl-text-muted)',
+      unreadCount,
+      hasUnread: unreadCount > 0,
+      convList,
+      annList,
+      // active thread
+      activeFrom: active.from,
+      activeRole: active.role,
+      activeCourse: active.course,
+      activeAssignmentHref,
+      activeInitial: active.from.replace(/^(Ms\.|Mr\.|Dr\.)\s*/, '').charAt(0),
+      activeAccent: active.accent,
+      activeChipBg: this.tint(active.accent, .12),
+      activeChipBorder: this.tint(active.accent, .3),
+      activeSubjectLine: active.subject,
+      activeBody: active.body,
+      activeTime: active.time,
+      activeDate: 'Today',
+      draft: this.state.draft,
+      onDraft: this.onDraft,
+      onSend: this.onSend,
+      ...this.avatarVals(),
+    };
+  }
+
+  avatarVals() {
+    const src = (() => { const p = localStorage.getItem('diana-profile-src') || ''; return p.startsWith('blob:') ? '' : p; })();
+    const type = localStorage.getItem('diana-avatar-type') || 'none';
+    const ox = parseFloat(localStorage.getItem('diana-photo-offset-x')) || 50;
+    const oy = parseFloat(localStorage.getItem('diana-photo-offset-y')) || 50;
+    const name = localStorage.getItem('diana-profile-name') || 'Grayson';
+    const initials = name.trim().split(/\s+/).map((w) => w[0] || '').slice(0, 2).join('').toUpperCase() || 'G';
+    return {
+      profilePhotoSrc: src,
+      avatarPhotoCss: (type === 'upload' && src) ? ('url("' + src + '")') : 'none',
+      photoObjectPosition: ox + '% ' + oy + '%',
+      isAvatarUpload: type === 'upload',
+      hasProfilePhoto: type === 'upload' && !!src,
+      isAvatarBoy: type === 'boy',
+      isAvatarGirl: type === 'girl',
+      showInitialsFallback: type === 'none' || (type === 'upload' && !src),
+      initials,
+    };
+  }
+}
+</script>
+</body>
+</html>

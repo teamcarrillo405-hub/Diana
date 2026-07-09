@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-nav:rgba(2,5,14,.72); --gl-bg-card:rgba(4,8,20,.72);
+    --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
+    --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-70:rgba(41,208,255,.70);
+    --gl-cyan-30:rgba(41,208,255,.30); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18);
+    --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-10:rgba(41,208,255,.10); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.30); --gl-gold-14:rgba(255,210,74,.14);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.30); --gl-green-12:rgba(54,224,122,.12);
+    --gl-pink:#f25fb0; --gl-purple:#7e5cff; --gl-purple-light:#b09cff; --gl-purple-30:rgba(126,92,255,.3); --gl-blue:#5b9bff;
+    --gl-text-primary:#ffffff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-subdued:#9fb0dd;
+    --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.60); --gl-text-on-cyan:#04080f;
+    --gl-border-neutral:rgba(120,150,220,.18); --gl-bg-input:rgba(10,16,36,.80);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}
+  *{box-sizing:border-box;}
+  @keyframes dl-blink{0%,100%{opacity:.4}50%{opacity:1}}
+  @keyframes dl-fa{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+  @keyframes dl-fb{0%,100%{transform:translateY(0)}50%{transform:translateY(11px)}}
+  @keyframes dl-shim{0%,100%{text-shadow:0 0 26px rgba(41,208,255,.35)}50%{text-shadow:0 0 46px rgba(41,208,255,.8)}}
+  @keyframes dl-spin{to{transform:rotate(360deg)}}
+  @keyframes dl-ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+  ::placeholder{color:var(--gl-text-dim)}
+  image-slot{display:block;width:100%;height:100%}
+</style>
+<script src="image-slot.js"></script>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:var(--gl-bg-base)">
+
+  <!-- reference chrome: screen switch -->
+  <div style="position:fixed;right:18px;bottom:18px;z-index:90;display:flex;gap:6px;padding:6px;border-radius:11px;border:1px solid var(--gl-border-neutral);background:rgba(4,8,20,.86);backdrop-filter:blur(12px)">
+    <sc-for list="{{ screenChips }}" as="s" hint-placeholder-count="2">
+      <div onClick="{{ s.onClick }}" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;background:{{ s.bg }};color:{{ s.fg }}">{{ s.label }}</div>
+    </sc-for>
+  </div>
+
+  <!-- ════════════════════════════ SCREEN 1 — LANDING ════════════════════════════ -->
+  <sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+  <div>
+
+    <!-- ░░░ CINEMATIC 3D HERO ░░░ -->
+    <section style="position:relative;min-height:100vh;overflow:hidden;background:radial-gradient(1200px 760px at 66% 46%,rgba(20,40,90,.55),transparent 62%),radial-gradient(900px 600px at 8% 16%,rgba(126,92,255,.10),transparent 60%),linear-gradient(180deg,#070b18,#04060f 70%)">
+      <canvas ref="{{ canvasRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0"></canvas>
+      <div style="position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(circle at 66% 50%,transparent 40%,rgba(4,6,15,.5) 78%,rgba(4,6,15,.9) 100%)"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:200px;z-index:1;pointer-events:none;background:linear-gradient(180deg,transparent,var(--gl-bg-base))"></div>
+
+      <!-- nav -->
+      <nav style="position:relative;z-index:5;max-width:1440px;margin:0 auto;height:78px;display:flex;align-items:center;gap:14px;padding:0 22px">
+        <div style="display:flex;align-items:center;gap:11px">
+          <span style="width:32px;height:32px;display:inline-block;filter:drop-shadow(0 0 10px rgba(41,208,255,.6))"><svg viewBox="0 0 32 32" fill="none" width="100%" height="100%" style="display:block"><ellipse cx="16" cy="16" rx="13" ry="5.4" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.6" opacity="0.6"></ellipse><ellipse cx="16" cy="16" rx="9.4" ry="3.7" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.2" opacity="0.32"></ellipse><circle cx="16" cy="16" r="6.6" fill="#29d0ff" opacity="0.16"></circle><circle cx="16" cy="16" r="3.7" fill="#8fe6ff"></circle><circle cx="16" cy="16" r="1.9" fill="#ffffff"></circle><circle cx="27.8" cy="10.5" r="3.4" fill="#29d0ff" opacity="0.3"></circle><circle cx="27.8" cy="10.5" r="2.2" fill="#29d0ff"></circle><circle cx="27.8" cy="10.5" r="1" fill="#bdefff"></circle></svg></span>
+          <span style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:24px;letter-spacing:.06em;text-transform:uppercase">Diana</span>
+        </div>
+        <div style="margin-left:auto;display:flex;align-items:center;gap:10px">
+          <div onClick="{{ goSignIn }}" style="padding:9px 16px;border-radius:9px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-secondary)" style-hover="color:#fff">Sign in</div>
+          <div onClick="{{ goSignIn }}" style="display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:9px;cursor:pointer;background:var(--gl-cyan);box-shadow:0 0 24px rgba(41,208,255,.32);font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-on-cyan)" style-hover="box-shadow:0 0 38px rgba(41,208,255,.5)">Get started</div>
+        </div>
+      </nav>
+
+      <!-- hero content -->
+      <div style="position:relative;z-index:4;max-width:1440px;margin:0 auto;padding:0 34px;min-height:calc(100vh - 78px);display:flex;flex-direction:column;justify-content:center">
+        <div style="max-width:600px">
+          <div style="display:inline-flex;align-items:center;gap:9px;padding:7px 14px;border-radius:20px;border:1px solid var(--gl-cyan-25);background:rgba(4,8,20,.5);backdrop-filter:blur(8px);font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gl-cyan-85);margin-bottom:26px">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--gl-cyan);box-shadow:0 0 9px var(--gl-cyan);animation:dl-blink 1.8s ease-in-out infinite"></span>
+            A living system for your schoolwork
+          </div>
+          <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:82px;line-height:.84;text-transform:uppercase;letter-spacing:.004em">
+            <span style="display:block">Everything</span>
+            <span style="display:block">in orbit.</span>
+            <span style="display:block;color:var(--gl-cyan);animation:dl-shim 3.6s ease-in-out infinite">One next move.</span>
+          </h1>
+          <p style="margin:28px 0 0;max-width:486px;font-size:18px;line-height:1.55;color:var(--gl-text-overlay-60)">Diana pulls every assignment, quiz, and reading into one living system, then surfaces the single thing worth doing right now.</p>
+          <div style="margin-top:34px;display:flex;gap:13px;flex-wrap:wrap">
+            <div onClick="{{ goSignIn }}" style="display:inline-flex;align-items:center;gap:9px;padding:16px 28px;border-radius:11px;cursor:pointer;background:var(--gl-cyan);box-shadow:0 0 40px rgba(41,208,255,.42);font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-on-cyan)" style-hover="box-shadow:0 0 60px rgba(41,208,255,.65)">
+              Start free
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+            </div>
+            <div onClick="{{ scrollHow }}" style="display:inline-flex;align-items:center;gap:9px;padding:16px 24px;border-radius:11px;cursor:pointer;border:1px solid var(--gl-border-neutral);background:rgba(4,8,20,.4);backdrop-filter:blur(8px);font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-secondary)" style-hover="border-color:var(--gl-cyan-25)">
+              See how it works
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"></path></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- floating telemetry -->
+      <div style="position:absolute;z-index:5;top:21%;right:7.5%;animation:dl-fa 7s ease-in-out infinite">
+        <div style="display:flex;align-items:center;gap:13px;padding:13px 15px;border-radius:14px;border:1px solid var(--gl-cyan-25);background:rgba(4,8,20,.6);backdrop-filter:blur(10px);box-shadow:0 18px 50px -22px rgba(41,208,255,.6)">
+          <div style="width:46px;height:46px;border-radius:50%;background:conic-gradient(var(--gl-cyan) 0 86%,rgba(120,150,220,.16) 86% 100%);display:flex;align-items:center;justify-content:center">
+            <div style="width:36px;height:36px;border-radius:50%;background:#0a1024;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:16px;color:var(--gl-cyan)">86</div>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-dim)">Readiness</div>
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:16px;text-transform:uppercase;color:#fff">Locked in</div>
+          </div>
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-green);box-shadow:0 0 8px var(--gl-green);animation:dl-blink 1.6s ease-in-out infinite"></span>
+        </div>
+      </div>
+      <div style="position:absolute;z-index:5;top:45%;right:4.5%;animation:dl-fb 8.4s ease-in-out infinite">
+        <div style="display:flex;align-items:center;gap:11px;padding:12px 15px;border-radius:13px;border:1px solid var(--gl-gold-30);background:rgba(4,8,20,.6);backdrop-filter:blur(10px)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gl-gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-dim)">Tonight's load</div>
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:16px;text-transform:uppercase;color:#fff">Medium, 1h 45m</div>
+          </div>
+        </div>
+      </div>
+      <div style="position:absolute;z-index:5;top:66%;right:9%;animation:dl-fa 6.2s ease-in-out infinite">
+        <div style="display:flex;align-items:center;gap:11px;padding:12px 15px;border-radius:13px;border:1px solid var(--gl-cyan-25);background:rgba(4,8,20,.6);backdrop-filter:blur(10px)">
+          <div style="width:30px;height:30px;border-radius:8px;background:var(--gl-cyan-10);border:1px solid var(--gl-cyan-25);display:flex;align-items:center;justify-content:center">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </div>
+          <div>
+            <div style="font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-cyan)">Next move ready</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:14px;color:#fff">English, 12 min start</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ticker -->
+      <div style="position:absolute;z-index:5;left:0;right:0;bottom:0;border-top:1px solid var(--gl-border-neutral);background:rgba(2,5,14,.5);backdrop-filter:blur(10px);overflow:hidden">
+        <div style="display:flex;width:max-content;animation:dl-ticker 26s linear infinite;padding:11px 0">
+          <div style="display:flex;align-items:center;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-dim)">
+            <sc-for list="{{ tickerItems }}" as="ti" hint-placeholder-count="8">
+              <span style="display:inline-flex;align-items:center;gap:8px;padding-right:18px">
+                <sc-if value="{{ ti.dot }}" hint-placeholder-val="{{ false }}"><span style="width:6px;height:6px;border-radius:50%;background:#29d0ff;box-shadow:0 0 7px #29d0ff"></span></sc-if>
+                {{ ti.label }}<span style="opacity:.35;padding-left:18px">/</span>
+              </span>
+            </sc-for>
+          </div>
+          <div style="display:flex;align-items:center;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-dim)">
+            <sc-for list="{{ tickerItems }}" as="ti" hint-placeholder-count="8">
+              <span style="display:inline-flex;align-items:center;gap:8px;padding-right:18px">
+                <sc-if value="{{ ti.dot }}" hint-placeholder-val="{{ false }}"><span style="width:6px;height:6px;border-radius:50%;background:#29d0ff;box-shadow:0 0 7px #29d0ff"></span></sc-if>
+                {{ ti.label }}<span style="opacity:.35;padding-left:18px">/</span>
+              </span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░ HOW IT WORKS — product showcase ░░░ -->
+    <section id="how" style="max-width:1440px;margin:0 auto;padding:90px 34px 20px">
+      <div style="text-align:center;margin-bottom:60px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gl-cyan-70)">How Diana works</div>
+        <h2 style="margin:10px 0 0;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:46px;line-height:.92;text-transform:uppercase">Less pile. More signal.</h2>
+        <p style="margin:14px auto 0;max-width:520px;font-size:16px;line-height:1.55;color:var(--gl-text-overlay-60)">Three moves take you from a wall of homework to the one thing worth starting.</p>
+      </div>
+
+      <!-- ROW 1 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center;margin-bottom:90px">
+        <div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-cyan)">01 / The lobby</div>
+          <h3 style="margin:12px 0 0;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:34px;line-height:.96;text-transform:uppercase">Everything in one calm place.</h3>
+          <p style="margin:14px 0 0;font-size:16px;line-height:1.6;color:var(--gl-text-overlay-60)">Open Diana and see one ranked lobby. Your classes, your next move, and how much is left tonight. No scrolling a giant list, no deciding where to begin.</p>
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:11px">
+            <sc-for list="{{ row1Bullets }}" as="b" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:11px;font-size:14.5px;color:var(--gl-text-secondary)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>{{ b }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <!-- MOCK: lobby -->
+        <div style="position:relative;border-radius:16px;border:1px solid var(--gl-cyan-18);background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));overflow:hidden;box-shadow:0 34px 80px -36px rgba(41,208,255,.5)">
+          <div style="display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--gl-border-neutral)">
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="margin-left:10px;font-size:11px;color:var(--gl-text-dim);font-family:var(--font-display);letter-spacing:.08em">diana.app / lobby</span>
+          </div>
+          <div style="padding:20px">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-text-dim)">Your lobby</div>
+            <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:24px;text-transform:uppercase;margin-top:2px">Tonight's next move</div>
+            <div style="margin-top:14px;border-radius:13px;border:1px solid var(--gl-cyan-25);background:rgba(4,8,20,.5);padding:15px 16px">
+              <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-cyan)">English · Reading</div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:18px;line-height:1.1;margin-top:5px">Rhetorical analysis, Ch. 3</div>
+              <div style="margin-top:5px;font-size:12px;color:var(--gl-text-overlay-60)">Due tomorrow · 12 min start</div>
+              <div style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:9px;background:var(--gl-cyan);box-shadow:0 0 20px rgba(41,208,255,.4)"><span style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-on-cyan)">▶ Start 12 minutes</span></div>
+            </div>
+            <div style="margin-top:12px;display:grid;grid-template-columns:repeat(3,1fr);gap:9px">
+              <sc-for list="{{ lobbyChips }}" as="c" hint-placeholder-count="3">
+                <div style="border-radius:10px;border:1px solid var(--gl-border-neutral);border-left:3px solid {{ c.tone }};background:rgba(4,8,20,.45);padding:9px 10px">
+                  <div style="font-family:var(--font-display);font-weight:700;font-size:14px;text-transform:uppercase;color:#fff">{{ c.name }}</div>
+                  <div style="font-size:10px;color:var(--gl-text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:1px">{{ c.status }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 2 (reversed) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center;margin-bottom:90px">
+        <!-- MOCK: mission board -->
+        <div style="position:relative;border-radius:16px;border:1px solid var(--gl-cyan-18);background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));overflow:hidden;box-shadow:0 34px 80px -36px rgba(126,92,255,.4)">
+          <div style="display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--gl-border-neutral)">
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="margin-left:10px;font-size:11px;color:var(--gl-text-dim);font-family:var(--font-display);letter-spacing:.08em">diana.app / mission-board</span>
+          </div>
+          <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ lanes }}" as="ln" hint-placeholder-count="2">
+              <div>
+                <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:{{ ln.tone }}">{{ ln.title }}</span>
+                  <span style="font-size:10px;color:var(--gl-text-dim)">{{ ln.count }}</span>
+                  <div style="flex:1;height:1px;background:var(--gl-border-neutral)"></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <sc-for list="{{ ln.items }}" as="m" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:11px;border-radius:10px;border:1px solid var(--gl-border-neutral);border-left:3px solid {{ m.tone }};background:rgba(4,8,20,.45);padding:10px 12px">
+                      <span style="font-family:var(--font-display);font-weight:800;font-size:13px;color:{{ m.tone }};width:14px">{{ m.n }}</span>
+                      <div style="flex:1;min-width:0">
+                        <div style="font-size:13px;font-weight:600;color:#eef2ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.title }}</div>
+                        <div style="font-size:10.5px;color:{{ m.dueColor }};margin-top:1px">{{ m.due }}</div>
+                      </div>
+                      <span style="font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ m.tone }};padding:3px 8px;border-radius:5px;background:{{ m.pillBg }}">{{ m.pill }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-purple-light)">02 / The ranking</div>
+          <h3 style="margin:12px 0 0;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:34px;line-height:.96;text-transform:uppercase">Diana decides what is worth doing now.</h3>
+          <p style="margin:14px 0 0;font-size:16px;line-height:1.6;color:var(--gl-text-overlay-60)">Five signals sort your work into clear lanes. Due window, effort, energy fit, class priority, and proof needed. The top card is always the smartest first move.</p>
+          <div style="margin-top:20px;display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ signals }}" as="sg" hint-placeholder-count="5">
+              <span style="display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:8px;border:1px solid var(--gl-border-neutral);background:rgba(120,150,220,.06);font-size:13px;color:var(--gl-text-secondary)"><span style="font-family:var(--font-display);font-weight:800;font-size:11px;color:var(--gl-blue)">{{ sg.n }}</span>{{ sg.label }}</span>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROW 3 -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:54px;align-items:center">
+        <div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-gold)">03 / The session</div>
+          <h3 style="margin:12px 0 0;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:34px;line-height:.96;text-transform:uppercase">Start in one tap. Stay calm the whole way.</h3>
+          <p style="margin:14px 0 0;font-size:16px;line-height:1.6;color:var(--gl-text-overlay-60)">Pick a card and go. A focus timer, a gentle pace, and attention that shows up in amber, never red. Past due work is reframed as something you pick back up, not punished.</p>
+          <div style="margin-top:20px;display:flex;flex-direction:column;gap:11px">
+            <sc-for list="{{ row3Bullets }}" as="b" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;gap:11px;font-size:14.5px;color:var(--gl-text-secondary)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gl-gold)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>{{ b }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <!-- MOCK: focus session -->
+        <div style="position:relative;border-radius:16px;border:1px solid var(--gl-cyan-18);background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));overflow:hidden;box-shadow:0 34px 80px -36px rgba(41,208,255,.45);padding:30px 26px;text-align:center">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan)">Focus session · English</div>
+          <div style="margin:20px auto 0;width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--gl-cyan) 0 62%,rgba(120,150,220,.16) 62% 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(41,208,255,.25)">
+            <div style="width:150px;height:150px;border-radius:50%;background:var(--gl-bg-hero);display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:44px;line-height:1;color:#fff">12:00</div>
+              <div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-dim);margin-top:4px">minutes left</div>
+            </div>
+          </div>
+          <div style="margin-top:20px;display:inline-flex;align-items:center;gap:9px;padding:11px 16px;border-radius:10px;border:1px solid var(--gl-gold-30);background:var(--gl-gold-14)">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--gl-gold)"></span>
+            <span style="font-size:13px;color:var(--gl-text-secondary)">Ease in. One paragraph, then keep going.</span>
+          </div>
+          <div style="margin-top:16px;display:flex;justify-content:center;gap:10px">
+            <div style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:10px;background:var(--gl-cyan);font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-on-cyan)">Pause</div>
+            <div style="display:inline-flex;align-items:center;padding:11px 18px;border-radius:10px;border:1px solid var(--gl-border-neutral);font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-secondary)">I'm done</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░ SEE IT ON YOUR SCREEN — image slots ░░░ -->
+    <section style="max-width:1440px;margin:0 auto;padding:80px 34px 20px">
+      <div style="text-align:center;margin-bottom:38px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gl-cyan-70)">See it in action</div>
+        <h2 style="margin:10px 0 0;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:40px;line-height:.92;text-transform:uppercase">Built for the way you actually study.</h2>
+      </div>
+      <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:24px;align-items:center">
+        <!-- desktop frame with image slot -->
+        <div style="position:relative;border-radius:16px;border:1px solid var(--gl-cyan-18);background:rgba(4,8,20,.5);overflow:hidden;box-shadow:0 34px 80px -38px rgba(41,208,255,.5)">
+          <div style="display:flex;align-items:center;gap:7px;padding:11px 14px;border-bottom:1px solid var(--gl-border-neutral)">
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="width:9px;height:9px;border-radius:50%;background:rgba(120,150,220,.3)"></span>
+            <span style="margin-left:10px;font-size:11px;color:var(--gl-text-dim);font-family:var(--font-display);letter-spacing:.08em">diana.app / dashboard</span>
+          </div>
+          <div style="width:100%;aspect-ratio:16/10;background:var(--gl-bg-hero)">
+            <image-slot id="shot-desktop" shape="rect" src="screenshots/dash_desktop_v3.png" placeholder="Drop a desktop screenshot of the dashboard" fit="cover" style="display:block;width:100%;height:100%"></image-slot>
+          </div>
+        </div>
+        <!-- phone frame with image slot -->
+        <div style="justify-self:center;position:relative;width:230px;height:466px;border-radius:34px;border:1px solid var(--gl-cyan-25);background:#070b18;padding:9px;box-shadow:0 34px 80px -30px rgba(41,208,255,.5)">
+          <div style="position:absolute;top:18px;left:50%;transform:translateX(-50%);width:74px;height:6px;border-radius:4px;background:rgba(120,150,220,.3);z-index:2"></div>
+          <div style="width:100%;height:100%;border-radius:26px;overflow:hidden;background:var(--gl-bg-hero)">
+            <image-slot id="shot-phone" shape="rect" src="screenshots/dash_phone_v2.png" placeholder="Drop a phone screenshot" fit="cover" style="display:block;width:100%;height:100%"></image-slot>
+          </div>
+        </div>
+      </div>
+      <p style="margin:18px 0 0;text-align:center;font-size:13px;color:var(--gl-text-dim)">Drag your own product screenshots onto the frames above. They persist with the design.</p>
+    </section>
+
+    <!-- ░░░ CALM BAND ░░░ -->
+    <section style="max-width:1440px;margin:0 auto;padding:50px 34px 20px">
+      <div style="position:relative;border-radius:20px;border:1px solid var(--gl-purple-30);background:linear-gradient(135deg,rgba(18,13,34,.85),rgba(9,12,28,.7));padding:46px 44px;overflow:hidden">
+        <div style="position:absolute;right:-90px;top:-90px;width:320px;height:320px;border-radius:50%;background:radial-gradient(circle,rgba(126,92,255,.2),transparent 70%);pointer-events:none"></div>
+        <div style="position:absolute;left:-70px;bottom:-90px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(41,208,255,.1),transparent 70%);pointer-events:none"></div>
+        <div style="position:relative;text-align:center;max-width:620px;margin:0 auto">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gl-purple-light)">The calm invariant</div>
+          <h2 style="margin:10px 0 0;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:40px;line-height:.92;text-transform:uppercase">Attention, never alarm.</h2>
+          <p style="margin:14px auto 0;font-size:15.5px;line-height:1.6;color:var(--gl-text-overlay-60)">Diana is built for real brains and hard weeks. Pressure never helps you start, so the whole system stays calm by design. Three rules hold everywhere.</p>
+        </div>
+        <div style="position:relative;margin-top:36px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+          <div style="border-radius:15px;border:1px solid var(--gl-gold-30);background:rgba(4,8,20,.42);padding:24px 24px">
+            <div style="width:48px;height:48px;border-radius:13px;border:1px solid var(--gl-gold-30);background:var(--gl-gold-14);display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gl-gold)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 0 1-3.4 0"></path></svg>
+            </div>
+            <div style="margin-top:15px;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:21px;line-height:.98;text-transform:uppercase;color:#fff">Amber means attention</div>
+            <p style="margin:9px 0 0;font-size:14px;line-height:1.55;color:var(--gl-text-overlay-60)">When something needs you, it glows a calm amber. No red alarms, no buzzing badges, no panic.</p>
+          </div>
+          <div style="border-radius:15px;border:1px solid var(--gl-green-30);background:rgba(4,8,20,.42);padding:24px 24px">
+            <div style="width:48px;height:48px;border-radius:13px;border:1px solid var(--gl-green-30);background:var(--gl-green-12);display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+            </div>
+            <div style="margin-top:15px;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:21px;line-height:.98;text-transform:uppercase;color:#fff">Green means done</div>
+            <p style="margin:9px 0 0;font-size:14px;line-height:1.55;color:var(--gl-text-overlay-60)">Progress shows up quietly. No streaks to break and nothing to lose, so a hard day never sets you back.</p>
+          </div>
+          <div style="border-radius:15px;border:1px solid var(--gl-border-neutral);background:rgba(4,8,20,.42);padding:24px 24px">
+            <div style="width:48px;height:48px;border-radius:13px;border:1px solid var(--gl-border-neutral);background:rgba(120,150,220,.08);display:flex;align-items:center;justify-content:center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M5.6 5.6l12.8 12.8"></path></svg>
+            </div>
+            <div style="margin-top:15px;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:21px;line-height:.98;text-transform:uppercase;color:#fff">Red is never used</div>
+            <p style="margin:9px 0 0;font-size:14px;line-height:1.55;color:var(--gl-text-overlay-60)">Past due work is reframed as something you pick back up, not a failure. The color of alarm has no place here.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ░░░ CLOSING CTA ░░░ -->
+    <section style="max-width:1440px;margin:0 auto;padding:40px 34px 80px">
+      <div style="position:relative;border-radius:20px;border:1px solid var(--gl-cyan-25);background:radial-gradient(700px 300px at 50% 0%,rgba(41,208,255,.12),transparent 70%),linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));padding:56px 30px;text-align:center;overflow:hidden">
+        <span style="width:46px;height:46px;display:inline-block;filter:drop-shadow(0 0 14px rgba(41,208,255,.7))"><svg viewBox="0 0 32 32" fill="none" width="100%" height="100%" style="display:block"><ellipse cx="16" cy="16" rx="13" ry="5.4" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.6" opacity="0.6"></ellipse><ellipse cx="16" cy="16" rx="9.4" ry="3.7" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.2" opacity="0.32"></ellipse><circle cx="16" cy="16" r="6.6" fill="#29d0ff" opacity="0.16"></circle><circle cx="16" cy="16" r="3.7" fill="#8fe6ff"></circle><circle cx="16" cy="16" r="1.9" fill="#ffffff"></circle><circle cx="27.8" cy="10.5" r="3.4" fill="#29d0ff" opacity="0.3"></circle><circle cx="27.8" cy="10.5" r="2.2" fill="#29d0ff"></circle><circle cx="27.8" cy="10.5" r="1" fill="#bdefff"></circle></svg></span>
+        <div style="margin-top:16px;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:48px;line-height:.92;text-transform:uppercase">Ready when you are.</div>
+        <p style="margin:14px auto 0;max-width:440px;font-size:16px;color:var(--gl-text-overlay-60)">Sign in with the email or Google account you already use for school. Free for students, always.</p>
+        <div onClick="{{ goSignIn }}" style="margin:26px auto 0;display:inline-flex;align-items:center;gap:9px;padding:16px 34px;border-radius:11px;cursor:pointer;background:var(--gl-cyan);box-shadow:0 0 44px rgba(41,208,255,.45);font-family:var(--font-display);font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-on-cyan)">Get started <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
+        <div style="margin-top:16px;font-size:14px;color:var(--gl-text-dim)">Already have an account? <span onClick="{{ goSignIn }}" style="color:var(--gl-cyan);cursor:pointer;font-weight:600">Sign in</span></div>
+      </div>
+
+      <div style="margin-top:36px;padding-top:22px;border-top:1px solid var(--gl-border-neutral);display:flex;align-items:center;gap:13px;flex-wrap:wrap">
+        <span style="width:24px;height:24px;display:inline-block"><svg viewBox="0 0 32 32" fill="none" width="100%" height="100%" style="display:block"><ellipse cx="16" cy="16" rx="13" ry="5.4" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.6" opacity="0.6"></ellipse><ellipse cx="16" cy="16" rx="9.4" ry="3.7" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.2" opacity="0.32"></ellipse><circle cx="16" cy="16" r="6.6" fill="#29d0ff" opacity="0.16"></circle><circle cx="16" cy="16" r="3.7" fill="#8fe6ff"></circle><circle cx="16" cy="16" r="1.9" fill="#ffffff"></circle><circle cx="27.8" cy="10.5" r="3.4" fill="#29d0ff" opacity="0.3"></circle><circle cx="27.8" cy="10.5" r="2.2" fill="#29d0ff"></circle><circle cx="27.8" cy="10.5" r="1" fill="#bdefff"></circle></svg></span>
+        <span style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:16px;text-transform:uppercase;color:var(--gl-text-muted);letter-spacing:.04em">Diana</span>
+        <span style="font-size:13px;color:var(--gl-text-dim)">A calmer way through the schoolwork pile.</span>
+        <div style="margin-left:auto;display:flex;gap:18px;font-size:13px;color:var(--gl-text-dim)"><span>Privacy</span><span>Terms</span><span>Help</span></div>
+      </div>
+    </section>
+  </div>
+  </sc-if>
+
+  <!-- ════════════════════════════ SCREEN 2 — SIGN IN ════════════════════════════ -->
+  <sc-if value="{{ isSignIn }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;display:grid;grid-template-columns:1fr 1fr">
+    <div style="position:relative;background:linear-gradient(150deg,var(--gl-bg-hero),#06091a);border-right:1px solid var(--gl-cyan-18);padding:48px 52px;display:flex;flex-direction:column;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(700px 400px at 30% 20%,rgba(41,208,255,.10),transparent 60%),radial-gradient(600px 400px at 80% 90%,rgba(126,92,255,.10),transparent 60%);pointer-events:none"></div>
+      <div style="position:relative;display:flex;align-items:center;gap:11px">
+        <span style="width:32px;height:32px;display:inline-block;filter:drop-shadow(0 0 10px rgba(41,208,255,.6))"><svg viewBox="0 0 32 32" fill="none" width="100%" height="100%" style="display:block"><ellipse cx="16" cy="16" rx="13" ry="5.4" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.6" opacity="0.6"></ellipse><ellipse cx="16" cy="16" rx="9.4" ry="3.7" transform="rotate(-25 16 16)" stroke="#29d0ff" stroke-width="1.2" opacity="0.32"></ellipse><circle cx="16" cy="16" r="6.6" fill="#29d0ff" opacity="0.16"></circle><circle cx="16" cy="16" r="3.7" fill="#8fe6ff"></circle><circle cx="16" cy="16" r="1.9" fill="#ffffff"></circle><circle cx="27.8" cy="10.5" r="3.4" fill="#29d0ff" opacity="0.3"></circle><circle cx="27.8" cy="10.5" r="2.2" fill="#29d0ff"></circle><circle cx="27.8" cy="10.5" r="1" fill="#bdefff"></circle></svg></span>
+        <span style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:23px;text-transform:uppercase;letter-spacing:.06em">Diana</span>
+      </div>
+      <div style="position:relative;margin-top:auto">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan-70)">Welcome back</div>
+        <div style="margin-top:12px;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:48px;line-height:.9;text-transform:uppercase">Your lobby<br>is waiting.</div>
+        <p style="margin:18px 0 0;max-width:380px;font-size:15.5px;line-height:1.6;color:var(--gl-text-overlay-60)">Pick up exactly where you left off. Diana already knows your next move.</p>
+        <div style="margin-top:26px;max-width:330px;border-radius:13px;border:1px solid var(--gl-cyan-25);background:rgba(4,8,20,.5);padding:14px 15px">
+          <div style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-cyan)">English · Reading</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;margin-top:4px">Rhetorical analysis, Ch. 3</div>
+          <div style="margin-top:4px;font-size:12px;color:var(--gl-text-overlay-60)">Due tomorrow · 12 min start</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:40px 28px;background:radial-gradient(900px 600px at 70% 10%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)">
+      <div style="position:relative;width:100%;max-width:400px;border-radius:18px;border:1px solid var(--gl-cyan-25);background:linear-gradient(135deg,var(--gl-focus-from),var(--gl-focus-to));padding:34px 32px;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)">
+        <div style="position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-left:2px solid var(--gl-cyan-85);border-top:2px solid var(--gl-cyan-85);border-radius:2px 0 0 0"></div>
+        <div style="position:absolute;right:-1px;top:-1px;width:16px;height:16px;border-right:2px solid var(--gl-cyan-85);border-top:2px solid var(--gl-cyan-85);border-radius:0 2px 0 0"></div>
+        <div style="position:absolute;left:-1px;bottom:-1px;width:16px;height:16px;border-left:2px solid var(--gl-cyan-85);border-bottom:2px solid var(--gl-cyan-85);border-radius:0 0 0 2px"></div>
+        <div style="position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-right:2px solid var(--gl-cyan-85);border-bottom:2px solid var(--gl-cyan-85);border-radius:0 0 2px 0"></div>
+
+        <h2 style="margin:0;font-family:var(--font-display);font-weight:800;font-style:italic;font-size:32px;line-height:.96;text-transform:uppercase">Sign in</h2>
+        <p style="margin:8px 0 0;font-size:14.5px;color:var(--gl-text-overlay-60)">Use the account you already use for school.</p>
+
+        <div style="margin-top:24px;display:flex;flex-direction:column;gap:10px">
+          <div onClick="{{ goApp }}" style="display:flex;align-items:center;justify-content:center;gap:11px;padding:13px;border-radius:11px;cursor:pointer;background:#fff;font-family:var(--font-display);font-weight:700;font-size:16px;letter-spacing:.02em;text-transform:uppercase;color:#1a1a2e" style-hover="opacity:.92">
+            <svg width="19" height="19" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1z"></path><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"></path><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84z"></path><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38z"></path></svg>
+            Continue with Google
+          </div>
+        </div>
+
+        <div style="margin:20px 0;display:flex;align-items:center;gap:12px">
+          <div style="flex:1;height:1px;background:var(--gl-border-neutral)"></div>
+          <span style="font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim)">or sign in</span>
+          <div style="flex:1;height:1px;background:var(--gl-border-neutral)"></div>
+        </div>
+
+        <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-subdued);margin-bottom:7px">School email</label>
+        <input value="{{ email }}" onInput="{{ setEmail }}" placeholder="you@school.edu" type="email" style="width:100%;padding:13px 15px;border-radius:11px;background:var(--gl-bg-input);border:1px solid {{ emailBorder }};color:#fff;font-size:15px;font-family:var(--font-body);outline:none"></input>
+
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin:14px 0 7px">
+          <label style="font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-subdued)">Password</label>
+          <span onClick="{{ togglePw }}" style="font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-dim);cursor:pointer">{{ pwToggleLabel }}</span>
+        </div>
+        <input value="{{ password }}" onInput="{{ setPassword }}" onKeyDown="{{ onPwKey }}" placeholder="Enter your password" type="{{ pwType }}" style="width:100%;padding:13px 15px;border-radius:11px;background:var(--gl-bg-input);border:1px solid {{ pwBorder }};color:#fff;font-size:15px;font-family:var(--font-body);outline:none"></input>
+
+        <div onClick="{{ signIn }}" style="margin-top:15px;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:11px;cursor:{{ signCursor }};background:{{ signBg }};box-shadow:{{ signShadow }};font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:{{ signFg }}">Sign in <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
+
+        <div style="margin-top:12px;text-align:center"><span onClick="{{ noop }}" style="font-size:12.5px;font-weight:600;color:var(--gl-text-dim);cursor:pointer">Forgot password?</span></div>
+
+        <p style="margin:18px 0 0;font-size:12.5px;line-height:1.5;color:var(--gl-text-dim)">Signing in as <b style="color:var(--gl-text-subdued)">Grayson</b>. By continuing you agree to the <span style="color:var(--gl-text-subdued)">Terms</span> and <span style="color:var(--gl-text-subdued)">Privacy Policy</span>.</p>
+
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--gl-border-neutral);text-align:center;font-size:13.5px;color:var(--gl-text-dim)">
+          New to Diana? <span onClick="{{ goLanding }}" style="color:var(--gl-cyan);cursor:pointer;font-weight:600">Learn more</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;landing&quot;,&quot;signin&quot;],&quot;default&quot;:&quot;landing&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Reference&quot;,&quot;label&quot;:&quot;Screen&quot;}}">
+class Component extends DCLogic {
+  canvasRef = React.createRef();
+  state = { screen: this.props.screen || 'landing', email: 'grayson.hale@school.edu', password: '', showPw: false };
+
+  noop = () => {};
+  goApp = () => { window.location.href = 'Student Lobby.dc.html'; };
+  goSignIn = () => this.setState({ screen: 'signin' });
+  goLanding = () => this.setState({ screen: 'landing' });
+  setEmail = (e) => this.setState({ email: e.target.value });
+  setPassword = (e) => this.setState({ password: e.target.value });
+  togglePw = () => this.setState((s) => ({ showPw: !s.showPw }));
+  signIn = () => { if (/.+@.+\..+/.test(this.state.email) && this.state.password.length >= 1) this.goApp(); };
+  onPwKey = (e) => { if (e.key === 'Enter') this.signIn(); };
+  scrollHow = () => {
+    const el = document.getElementById('how');
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 24, behavior: 'smooth' });
+  };
+
+  componentDidMount() {
+    this._t = 0; this._mx = 0; this._my = 0;
+    this._onMove = (e) => {
+      const c = this.canvasRef.current; if (!c) return;
+      const r = c.getBoundingClientRect();
+      this._mx = ((e.clientX - r.left) / r.width - 0.5);
+      this._my = ((e.clientY - r.top) / r.height - 0.5);
+    };
+    window.addEventListener('pointermove', this._onMove);
+
+    const N = 360; this._pts = [];
+    for (let i = 0; i < N; i++) {
+      const y = 1 - (i / (N - 1)) * 2;
+      const rad = Math.sqrt(Math.max(0, 1 - y * y));
+      const th = i * Math.PI * (3 - Math.sqrt(5));
+      this._pts.push({ x: Math.cos(th) * rad, y, z: Math.sin(th) * rad });
+    }
+    this._rings = [
+      { rr: 1.34, inc: 0.34, tone: [120, 200, 255] },
+      { rr: 1.66, inc: -0.5, tone: [95, 165, 255] },
+      { rr: 1.98, inc: 0.92, tone: [150, 130, 255] },
+    ];
+    this._nodes = [
+      { rr: 1.34, inc: 0.34, phase: 0.0, sp: 0.10, tone: [41, 208, 255], big: true },
+      { rr: 1.66, inc: -0.5, phase: 2.1, sp: -0.075, tone: [255, 210, 74] },
+      { rr: 1.98, inc: 0.92, phase: 4.0, sp: 0.055, tone: [54, 224, 122] },
+      { rr: 1.66, inc: -0.5, phase: 5.3, sp: -0.075, tone: [242, 95, 176] },
+    ];
+    const loop = () => { this._draw(); this._raf = requestAnimationFrame(loop); };
+    loop();
+  }
+
+  componentWillUnmount() {
+    cancelAnimationFrame(this._raf);
+    window.removeEventListener('pointermove', this._onMove);
+  }
+
+  _draw() {
+    const canvas = this.canvasRef.current; if (!canvas) return;
+    if (this._canvas !== canvas) { this._canvas = canvas; this._ctx = canvas.getContext('2d'); this._sized = false; }
+    const ctx = this._ctx; if (!ctx) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const r = canvas.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    if (!this._sized || this._w !== r.width || this._h !== r.height) {
+      this._w = r.width; this._h = r.height;
+      canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); this._sized = true;
+    }
+    const W = this._w, H = this._h;
+    this._t += 0.0040;
+    const t = this._t;
+    const ry = t + (this._mx || 0) * 0.7;
+    const rx = 0.34 + (this._my || 0) * 0.45;
+    const cx = W * (W > 820 ? 0.66 : 0.5), cy = H * 0.50;
+    const R = Math.min(W, H) * 0.34;
+    const f = 3.0;
+    const cY = Math.cos(ry), sY = Math.sin(ry), cX = Math.cos(rx), sX = Math.sin(rx);
+    const rot = (x, y, z) => {
+      const x1 = x * cY - z * sY, z1 = x * sY + z * cY;
+      const y1 = y * cX - z1 * sX, z2 = y * sX + z1 * cX;
+      return { x: x1, y: y1, z: z2 };
+    };
+    const proj = (p) => { const s = f / (f + p.z); return { sx: cx + p.x * R * s, sy: cy + p.y * R * s, s, z: p.z }; };
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'lighter';
+
+    const ds = this._pts.map((p) => { const q = rot(p.x, p.y, p.z); return { ...proj(q), z: q.z }; });
+    ds.sort((a, b) => a.z - b.z);
+    for (const d of ds) {
+      const a = 0.05 + (d.z + 1) / 2 * 0.32;
+      ctx.fillStyle = 'rgba(130,190,255,' + a.toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(d.sx, d.sy, 0.5 + d.s * 0.95, 0, 6.283); ctx.fill();
+    }
+
+    for (const rg of this._rings) {
+      const seg = 140;
+      for (let i = 0; i < seg; i++) {
+        const a = i / seg * 6.283;
+        const x = Math.cos(a) * rg.rr, z0 = Math.sin(a) * rg.rr;
+        const yy = z0 * Math.sin(rg.inc), zz = z0 * Math.cos(rg.inc);
+        const q = rot(x, yy, zz), pr = proj(q);
+        const al = 0.04 + (q.z + 1) / 2 * 0.20;
+        ctx.fillStyle = 'rgba(' + rg.tone[0] + ',' + rg.tone[1] + ',' + rg.tone[2] + ',' + al.toFixed(3) + ')';
+        ctx.beginPath(); ctx.arc(pr.sx, pr.sy, 0.7 * pr.s + 0.25, 0, 6.283); ctx.fill();
+      }
+    }
+
+    for (const nd of this._nodes) {
+      const a = nd.phase + t * nd.sp * 60;
+      const x = Math.cos(a) * nd.rr, z0 = Math.sin(a) * nd.rr;
+      const yy = z0 * Math.sin(nd.inc), zz = z0 * Math.cos(nd.inc);
+      const q = rot(x, yy, zz), pr = proj(q);
+      const depth = (q.z + 1) / 2;
+      const glow = (nd.big ? 17 : 11) * pr.s * (0.55 + depth * 0.75);
+      const [r2, g2, b2] = nd.tone;
+      const g = ctx.createRadialGradient(pr.sx, pr.sy, 0, pr.sx, pr.sy, glow);
+      g.addColorStop(0, 'rgba(' + r2 + ',' + g2 + ',' + b2 + ',' + (0.9 * (0.5 + depth * 0.5)).toFixed(3) + ')');
+      g.addColorStop(0.4, 'rgba(' + r2 + ',' + g2 + ',' + b2 + ',0.32)');
+      g.addColorStop(1, 'rgba(' + r2 + ',' + g2 + ',' + b2 + ',0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(pr.sx, pr.sy, glow, 0, 6.283); ctx.fill();
+      ctx.fillStyle = depth > 0.45 ? '#ffffff' : 'rgba(' + r2 + ',' + g2 + ',' + b2 + ',1)';
+      ctx.beginPath(); ctx.arc(pr.sx, pr.sy, (nd.big ? 2.5 : 1.8) * pr.s, 0, 6.283); ctx.fill();
+    }
+
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2.6);
+    const coreR = R * (0.52 + 0.06 * pulse);
+    const cg = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+    cg.addColorStop(0, 'rgba(160,228,255,' + (0.45 + 0.2 * pulse).toFixed(3) + ')');
+    cg.addColorStop(0.22, 'rgba(41,208,255,' + (0.26 + 0.12 * pulse).toFixed(3) + ')');
+    cg.addColorStop(0.6, 'rgba(40,100,210,0.10)');
+    cg.addColorStop(1, 'rgba(10,16,40,0)');
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, 6.283); ctx.fill();
+
+    ctx.globalCompositeOperation = 'source-over';
+  }
+
+  renderVals() {
+    const { screen, email, password, showPw } = this.state;
+    const emailOk = /.+@.+\..+/.test(email);
+    const valid = emailOk && password.length >= 1;
+
+    const screenDef = [{ id: 'landing', label: 'Landing' }, { id: 'signin', label: 'Sign in' }];
+    const screenChips = screenDef.map((s) => ({
+      label: s.label,
+      onClick: () => this.setState({ screen: s.id }),
+      bg: screen === s.id ? 'var(--gl-cyan)' : 'transparent',
+      fg: screen === s.id ? 'var(--gl-text-on-cyan)' : 'var(--gl-text-muted)',
+    }));
+
+    const tickerItems = [
+      { label: 'System live', dot: true },
+      { label: 'Reading 4 classes', dot: false },
+      { label: 'Next move ready', dot: false },
+      { label: 'Tonight 1h 45m', dot: false },
+      { label: 'Readiness 86', dot: false },
+      { label: 'No red, ever', dot: false },
+      { label: 'Energy locked in', dot: false },
+      { label: '12 cards due', dot: false },
+    ];
+
+    const lobbyChips = [
+      { name: 'Math', status: 'In progress', tone: '#ff6a3d' },
+      { name: 'English', status: 'Now', tone: '#29d0ff' },
+      { name: 'Science', status: 'Not turned in', tone: '#36e07a' },
+    ];
+
+    const lanes = [
+      { title: 'Start now', count: '1 item', tone: 'var(--gl-cyan)', items: [
+        { n: 1, title: 'Rhetorical analysis, Ch. 3', due: 'Due tomorrow', dueColor: 'var(--gl-text-overlay-60)', tone: 'var(--gl-cyan)', pill: 'Ready', pillBg: 'var(--gl-cyan-10)' },
+      ]},
+      { title: 'Due soon', count: '2 items', tone: 'var(--gl-gold)', items: [
+        { n: 2, title: 'Unit 4 problem set', due: 'In 2 days', dueColor: 'var(--gl-text-overlay-60)', tone: 'var(--gl-gold)', pill: 'In progress', pillBg: 'var(--gl-gold-14)' },
+        { n: 3, title: 'Reading guide, New Deal', due: 'Past due, Mon', dueColor: 'var(--gl-gold)', tone: 'var(--gl-gold)', pill: 'Pick up', pillBg: 'var(--gl-gold-14)' },
+      ]},
+    ];
+
+    const signals = [
+      { n: 1, label: 'Due window' }, { n: 2, label: 'Effort' }, { n: 3, label: 'Energy fit' },
+      { n: 4, label: 'Class priority' }, { n: 5, label: 'Proof needed' },
+    ];
+
+    const row1Bullets = ['One ranked view across every class', 'See tonight\u2019s load before you start'];
+    const row3Bullets = ['A focus timer that paces you', 'Attention in amber, never red'];
+
+    return {
+      isLanding: screen === 'landing',
+      isSignIn: screen === 'signin',
+      screenChips, tickerItems,
+      lobbyChips, lanes, signals, row1Bullets, row3Bullets,
+      canvasRef: this.canvasRef,
+      noop: this.noop, goApp: this.goApp, goSignIn: this.goSignIn, goLanding: this.goLanding, scrollHow: this.scrollHow,
+      email, setEmail: this.setEmail,
+      emailBorder: emailOk ? 'var(--gl-cyan-30)' : 'var(--gl-border-neutral)',
+      password, setPassword: this.setPassword, onPwKey: this.onPwKey,
+      pwBorder: password.length ? 'var(--gl-cyan-30)' : 'var(--gl-border-neutral)',
+      pwType: showPw ? 'text' : 'password',
+      togglePw: this.togglePw, pwToggleLabel: showPw ? 'Hide' : 'Show',
+      signIn: this.signIn,
+      signBg: valid ? 'var(--gl-cyan)' : 'var(--gl-cyan-14)',
+      signFg: valid ? 'var(--gl-text-on-cyan)' : 'var(--gl-text-dim)',
+      signShadow: valid ? '0 0 24px rgba(41,208,255,.34)' : 'none',
+      signCursor: valid ? 'pointer' : 'not-allowed',
+    };
+  }
+}
+</script>
+</body>
+</html>

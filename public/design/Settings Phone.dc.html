@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14);
+    --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14);
+    --gl-red:#ff7070; --gl-red-30:rgba(255,85,85,.5); --gl-red-08:rgba(255,55,55,.07);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  input[type="range"]{accent-color:var(--gl-cyan)}
+</style>
+</helmet>
+
+<div style="width:390px;height:844px;font-family:var(--font-body);color:var(--gl-text-primary);background:var(--gl-bg-base);display:flex;flex-direction:column;overflow:hidden" data-screen-label="Settings Phone">
+  <div style="height:47px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:600">
+    <span>9:41</span><div style="display:flex;align-items:center;gap:6px"><svg width="17" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="7" width="3" height="5" rx="1"></rect><rect x="5" y="4" width="3" height="8" rx="1"></rect><rect x="10" y="1.5" width="3" height="10.5" rx="1"></rect></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#fff" stroke-opacity=".5"></rect><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"></rect><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" fill-opacity=".5"></rect></svg></div>
+  </div>
+
+  <div style="padding:4px 18px 10px;flex-shrink:0">
+    <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:22px;text-transform:uppercase">Settings</div>
+  </div>
+
+  <div style="flex-shrink:0;display:flex;gap:8px;padding:0 18px 12px;flex-wrap:wrap">
+    <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="5">
+      <div onClick="{{ sec.onClick }}" style="flex-shrink:0;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;white-space:nowrap;color:{{ sec.color }};background:{{ sec.bg }}">{{ sec.label }}</div>
+    </sc-for>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;padding:6px 18px 40px;display:flex;flex-direction:column;gap:16px">
+
+    <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;gap:16px;align-items:center;border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:18px">
+        <x-import component-from-global-scope="image-slot" from="./image-slot.js" id="settings-photo-phone" shape="circle" placeholder="Photo" style="width:64px;height:64px" hint-size="64px,64px"></x-import>
+        <div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:18px">Grayson M.</div>
+          <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:3px">Tap to change photo</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAccessibility }}" hint-placeholder-val="{{ false }}">
+      <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px;display:flex;flex-direction:column;gap:16px">
+        <div>
+          <div style="font-size:11.5px;color:var(--gl-text-dim);margin-bottom:7px">Font size</div>
+          <div style="display:flex;gap:6px">
+            <sc-for list="{{ fontSizes }}" as="f" hint-placeholder-count="4">
+              <div onClick="{{ f.onClick }}" style="flex:1;text-align:center;padding:8px 4px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:13px;font-weight:600">{{ t.label }}</div>
+            <div onClick="{{ t.onClick }}" style="width:42px;height:25px;border-radius:13px;background:{{ t.trackBg }};position:relative">
+              <div style="width:19px;height:19px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }}"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isReading }}" hint-placeholder-val="{{ false }}">
+      <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:13px;font-weight:600">Text-to-speech</div>
+          <div onClick="{{ ttsToggle.onClick }}" style="width:42px;height:25px;border-radius:13px;background:{{ ttsToggle.trackBg }};position:relative">
+            <div style="width:19px;height:19px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ ttsToggle.knobLeft }}"></div>
+          </div>
+        </div>
+        <sc-if value="{{ ttsEnabled }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--gl-text-dim);margin-bottom:6px"><span>Speed</span><span style="color:var(--gl-cyan)">{{ ttsSpeedLabel }}</span></div>
+            <input type="range" min="0.7" max="1.5" step="0.05" value="{{ ttsSpeed }}" onChange="{{ onTtsSpeedChange }}" style="width:100%">
+          </div>
+        </sc-if>
+        <sc-for list="{{ readingToggles }}" as="t" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:13px;font-weight:600">{{ t.label }}</div>
+            <div onClick="{{ t.onClick }}" style="width:42px;height:25px;border-radius:13px;background:{{ t.trackBg }};position:relative">
+              <div style="width:19px;height:19px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }}"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isConnections }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;margin-bottom:10px">Connected</div>
+          <sc-for list="{{ connections }}" as="c" hint-placeholder-count="1">
+            <div style="border-radius:10px;border:1px solid var(--gl-border);padding:11px 13px;margin-bottom:8px">
+              <div style="font-size:13px;font-weight:700">{{ c.label }}</div>
+              <div style="font-size:11px;color:var(--gl-text-dim)">{{ c.detail }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;margin-bottom:10px">Import IEP / 504</div>
+          <textarea placeholder="Paste plan text…" value="{{ iepText }}" onChange="{{ onIepTextChange }}" style="width:100%;min-height:70px;padding:10px 12px;border-radius:9px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px;margin-bottom:10px"></textarea>
+          <div onClick="{{ onImportIep }}" style="width:fit-content;padding:8px 16px;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:11.5px;text-transform:uppercase;background:var(--gl-violet-14);color:var(--gl-violet);border:1px solid var(--gl-violet-30)">Parse &amp; apply</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isLearningLoop }}" hint-placeholder-val="{{ false }}">
+      <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:13.5px;font-weight:700">Personalization</div>
+            <div style="font-size:11px;color:var(--gl-text-dim)">{{ loopStatusLabel }}</div>
+          </div>
+          <div onClick="{{ onToggleLoopPause }}" style="padding:8px 14px;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:11.5px;text-transform:uppercase;background:{{ loopButtonBg }};color:{{ loopButtonFg }};border:1px solid {{ loopButtonBorder }}">{{ loopButtonLabel }}</div>
+        </div>
+        <div style="border-radius:11px;border:1px solid var(--gl-red-30);background:var(--gl-red-08);padding:13px 15px">
+          <div style="font-size:13px;font-weight:700;color:var(--gl-red)">Reset learning profile</div>
+          <div style="font-size:11px;color:var(--gl-text-dim);margin:4px 0 10px">Cannot be undone.</div>
+          <div onClick="{{ onResetLoop }}" style="width:fit-content;padding:8px 14px;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:11.5px;text-transform:uppercase;background:rgba(255,85,85,.14);color:var(--gl-red);border:1px solid var(--gl-red-30)">{{ resetButtonLabel }}</div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="flex-shrink:0;height:60px;display:flex;align-items:center;justify-content:space-around;background:rgba(2,5,14,.92);border-top:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <a href="Student Lobby Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#5a648a"><div style="font-size:17px">⌂</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">Today</div></a>
+    <a href="Work Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#5a648a"><div style="font-size:17px">▤</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">Work</div></a>
+    <a href="Classes Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#5a648a"><div style="font-size:17px">▦</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">Classes</div></a>
+    <a href="More Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#29d0ff"><div style="font-size:17px">•••</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">More</div></a>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" bottom="96" hint-size="64px,64px"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    section: 'profile',
+    fontSize: 'normal',
+    dyslexiaFont: false, reducedMotion: false, highContrast: false,
+    ttsEnabled: true, ttsSpeed: 1.0, bionicReading: false, lineFocus: false,
+    connections: [{ id: 'c1', label: 'Canvas', detail: 'school.instructure.com' }],
+    iepText: '', iepSummary: null,
+    loopPaused: false, resetConfirming: false, resetButtonLabel: 'Reset profile',
+  };
+
+  toggleRow(key, label) {
+    const on = this.state[key];
+    return { label, trackBg: on ? 'var(--gl-cyan-30)' : 'rgba(120,150,220,.16)', knobLeft: on ? '20px' : '3px',
+      onClick: () => this.setState(s => ({ [key]: !s[key] })) };
+  }
+  segButton(currentVal, val, label, onClick) {
+    const active = currentVal === val;
+    return { label, border: active ? 'var(--gl-cyan-30)' : 'var(--gl-border)', bg: active ? 'var(--gl-cyan-14)' : 'rgba(4,8,20,.4)', fg: active ? 'var(--gl-cyan)' : 'var(--gl-text-muted)', onClick };
+  }
+  parseIepText(text) {
+    const lower = text.toLowerCase();
+    const accommodations = [];
+    if (lower.includes('extra time') || lower.includes('extended time')) accommodations.push('Extended time');
+    if (lower.includes('text-to-speech') || lower.includes('read aloud')) accommodations.push('Text-to-speech');
+    if (lower.includes('dyslex')) accommodations.push('Dyslexia-friendly font');
+    if (accommodations.length === 0) accommodations.push('General accommodations noted');
+    return { accommodations };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const sectionDefs = [['profile','Profile'],['accessibility','Accessibility'],['reading','Reading'],['connections','Connections'],['learningloop','Learning loop']];
+    const sections = sectionDefs.map(([id,label]) => ({ label, color: s.section === id ? 'var(--gl-cyan)' : 'var(--gl-text-muted)', bg: s.section === id ? 'var(--gl-cyan-14)' : 'transparent', onClick: () => this.setState({ section: id }) }));
+    const fontSizes = ['small','normal','large','xlarge'].map(v => this.segButton(s.fontSize, v, v[0].toUpperCase()+v.slice(1), () => this.setState({ fontSize: v })));
+    const toggles = [ this.toggleRow('dyslexiaFont','Dyslexia font'), this.toggleRow('highContrast','High contrast'), this.toggleRow('reducedMotion','Reduced motion') ];
+    const readingToggles = [ this.toggleRow('bionicReading','Bionic reading'), this.toggleRow('lineFocus','Line focus') ];
+
+    return {
+      sections,
+      isProfile: s.section==='profile', isAccessibility: s.section==='accessibility', isReading: s.section==='reading', isConnections: s.section==='connections', isLearningLoop: s.section==='learningloop',
+      fontSizes, toggles,
+      ttsEnabled: s.ttsEnabled, ttsToggle: this.toggleRow('ttsEnabled',''), readingToggles,
+      ttsSpeed: s.ttsSpeed, ttsSpeedLabel: s.ttsSpeed.toFixed(2)+'×', onTtsSpeedChange: e => this.setState({ ttsSpeed: parseFloat(e.target.value) }),
+      connections: s.connections,
+      iepText: s.iepText, onIepTextChange: e => this.setState({ iepText: e.target.value }),
+      onImportIep: () => { if (s.iepText.trim().length < 20) return; this.setState({ iepSummary: this.parseIepText(s.iepText) }); },
+      loopStatusLabel: s.loopPaused ? 'Paused' : 'Active — adapting to your pace',
+      loopButtonLabel: s.loopPaused ? 'Resume' : 'Pause',
+      loopButtonBg: s.loopPaused ? 'var(--gl-green-14)' : 'var(--gl-gold-14)',
+      loopButtonFg: s.loopPaused ? 'var(--gl-green)' : 'var(--gl-gold)',
+      loopButtonBorder: s.loopPaused ? 'var(--gl-green-30)' : 'var(--gl-gold-30)',
+      onToggleLoopPause: () => this.setState(p => ({ loopPaused: !p.loopPaused })),
+      resetButtonLabel: s.resetConfirming ? 'Confirm reset' : 'Reset profile',
+      onResetLoop: () => { if (s.resetConfirming) { this.setState({ resetConfirming: false, resetButtonLabel: 'Profile reset' }); } else { this.setState({ resetConfirming: true }); } },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

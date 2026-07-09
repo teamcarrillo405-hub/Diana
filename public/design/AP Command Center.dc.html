@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14); --gl-green-08:rgba(54,224,122,.08);
+    --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14); --gl-violet-08:rgba(167,139,250,.06);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.3);border-radius:4px}
+  select.ap-select{appearance:none;-webkit-appearance:none}
+  .gl-tab:hover{color:#fff !important;}
+</style>
+</helmet>
+
+<div style="width:1440px;min-height:900px;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -10%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)" data-screen-label="AP Command Center">
+
+  <!-- NAV -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <a href="Student Lobby.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
+        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <div style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center" title="Profile">
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">G</span>
+      </div>
+      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══ LIST SCREEN ═══ -->
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:26px">
+        <div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:6px">AP Command Center</div>
+          <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:34px;line-height:1.02;text-transform:uppercase">Pace it. Don't panic.</div>
+          <div style="font-size:13.5px;color:var(--gl-text-dim);margin-top:6px;max-width:560px">A plan per exam, paced to the days you actually have left.</div>
+        </div>
+        <div onClick="{{ onNewPlanToggle }}" style="padding:11px 20px;border-radius:10px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30);white-space:nowrap">+ New exam plan</div>
+      </div>
+
+      <sc-if value="{{ showNewPlan }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:14px;border:1px solid var(--gl-cyan-30);background:var(--gl-cyan-08);padding:18px 20px;margin-bottom:22px;display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:12px;align-items:end">
+          <div>
+            <div style="font-size:11px;color:var(--gl-text-dim);margin-bottom:6px">Subject</div>
+            <select class="ap-select" value="{{ newSubject }}" onChange="{{ onNewSubjectChange }}" style="width:100%;padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13.5px;font-family:var(--font-body)">
+              <sc-for list="{{ subjectOptions }}" as="opt" hint-placeholder-count="19">
+                <option value="{{ opt.id }}">{{ opt.label }}</option>
+              </sc-for>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--gl-text-dim);margin-bottom:6px">Exam date</div>
+            <input type="date" value="{{ newExamDate }}" onChange="{{ onNewExamDateChange }}" style="width:100%;padding:9px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:var(--font-body)">
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--gl-text-dim);margin-bottom:6px">Goal band (optional)</div>
+            <input type="text" placeholder="e.g. 4-5" value="{{ newGoalBand }}" onChange="{{ onNewGoalBandChange }}" style="width:100%;padding:9px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:var(--font-body)">
+          </div>
+          <div style="grid-column:1/-1;display:flex;gap:10px">
+            <div onClick="{{ onCreatePlan }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30)">Create plan</div>
+            <div onClick="{{ onNewPlanToggle }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-size:12.5px;color:var(--gl-text-dim)">Cancel</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+        <sc-for list="{{ plans }}" as="p" hint-placeholder-count="3">
+          <div onClick="{{ p.onOpen }}" style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:18px 20px;cursor:pointer;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-cyan)">{{ p.formatLabel }}</div>
+              <sc-if value="{{ p.goalBand }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--gl-gold-14);color:var(--gl-gold)">Goal {{ p.goalBand }}</div>
+              </sc-if>
+            </div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:19px">{{ p.subjectLabel }}</div>
+            <div style="display:flex;align-items:baseline;gap:8px">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1;color:{{ p.urgencyColor }}">{{ p.daysLeft }}</div>
+              <div style="font-size:12px;color:var(--gl-text-dim)">days to exam</div>
+            </div>
+            <div style="font-size:12px;color:var(--gl-text-muted);line-height:1.4">{{ p.firstMilestone }}</div>
+            <sc-if value="{{ p.practiceCount }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px;color:var(--gl-text-dim);padding-top:8px;border-top:1px solid var(--gl-border)">{{ p.practiceCount }} practice set{{ p.practicePlural }} logged</div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:70px 20px;color:var(--gl-text-dim)">
+          <div style="font-size:34px;margin-bottom:10px">🎯</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;color:var(--gl-text-muted)">No exam plans yet</div>
+          <div style="font-size:13px;margin-top:6px">Add your first AP exam to get a paced plan.</div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- ═══ DETAIL SCREEN ═══ -->
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px;display:grid;grid-template-columns:1.2fr 1fr;gap:22px">
+
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div onClick="{{ onBack }}" style="display:flex;align-items:center;gap:6px;cursor:pointer;color:var(--gl-text-dim);font-size:13px;font-weight:600;width:fit-content">← All exam plans</div>
+
+        <div>
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:6px">{{ activePlan.formatLabel }}</div>
+          <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:30px;line-height:1.02;text-transform:uppercase">{{ activePlan.subjectLabel }}</div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:8px">
+            <div style="font-family:var(--font-display);font-weight:800;font-size:30px;color:{{ activePlan.urgencyColor }}">{{ activePlan.daysLeft }}</div>
+            <div style="font-size:13px;color:var(--gl-text-dim)">days until exam · {{ activePlan.examDate }}</div>
+          </div>
+        </div>
+
+        <!-- MILESTONE PLAN -->
+        <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:20px 22px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.02em;text-transform:uppercase;margin-bottom:12px">📋 Paced plan</div>
+          <div style="display:flex;flex-direction:column;gap:9px">
+            <sc-for list="{{ activePlan.milestones }}" as="m" hint-placeholder-count="4">
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--gl-text-secondary);line-height:1.45">
+                <span style="color:var(--gl-cyan);flex-shrink:0">→</span><span>{{ m }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <!-- SCAFFOLD GENERATORS -->
+        <div style="display:flex;gap:10px">
+          <div onClick="{{ onGenerateOutline }}" style="flex:1;text-align:center;padding:13px;border-radius:11px;cursor:pointer;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-violet)">✎ FRQ outline</div>
+          <div onClick="{{ onGenerateMcq }}" style="flex:1;text-align:center;padding:13px;border-radius:11px;cursor:pointer;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-violet)">◈ MCQ practice</div>
+        </div>
+
+        <!-- FRQ OUTLINE -->
+        <sc-if value="{{ showOutline }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:14px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);padding:20px 22px">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;color:var(--gl-violet);margin-bottom:12px">{{ activePlan.outlineTitle }}</div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <sc-for list="{{ activePlan.outline }}" as="o" hint-placeholder-count="4">
+                <div style="display:flex;gap:12px">
+                  <div style="font-family:var(--font-display);font-weight:700;font-size:12px;color:var(--gl-violet);min-width:98px">{{ o.label }}</div>
+                  <div style="flex:1">
+                    <div style="font-size:13px;color:var(--gl-text-secondary);line-height:1.4">{{ o.prompt }}</div>
+                    <div style="font-size:11px;color:var(--gl-text-dim);margin-top:3px">Evidence: {{ o.evidence }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- MCQ PRACTICE -->
+        <sc-if value="{{ showMcq }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:14px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);padding:20px 22px">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;color:var(--gl-violet);margin-bottom:4px">{{ activePlan.mcq.skill }}</div>
+            <div style="font-size:13.5px;color:var(--gl-text-secondary);line-height:1.5;margin-bottom:12px">{{ activePlan.mcq.stem }}</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ activePlan.mcq.choices }}" as="c" hint-placeholder-count="4">
+                <div onClick="{{ c.onClick }}" style="border-radius:9px;border:1px solid {{ c.border }};background:{{ c.bg }};padding:10px 13px;cursor:pointer">
+                  <div style="display:flex;gap:8px;font-size:13px;color:var(--gl-text-secondary)"><b style="color:{{ c.labelColor }}">{{ c.label }}.</b><span>{{ c.text }}</span></div>
+                  <sc-if value="{{ c.revealed }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:5px;line-height:1.4">{{ c.explanation }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+
+      <!-- PRACTICE LOG COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:20px 22px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;margin-bottom:14px">📝 Log a practice set</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <sc-for list="{{ practiceTypes }}" as="pt" hint-placeholder-count="3">
+              <div onClick="{{ pt.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ pt.border }};background:{{ pt.bg }};color:{{ pt.fg }}">{{ pt.label }}</div>
+            </sc-for>
+          </div>
+          <div style="display:flex;gap:10px;margin-bottom:12px">
+            <input type="number" min="0" placeholder="Correct" value="{{ correctCount }}" onChange="{{ onCorrectCountChange }}" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:var(--font-mono)">
+            <input type="number" min="1" placeholder="Total" value="{{ totalCount }}" onChange="{{ onTotalCountChange }}" style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:var(--font-mono)">
+          </div>
+          <input type="text" placeholder="Notes (optional)" value="{{ practiceNotes }}" onChange="{{ onPracticeNotesChange }}" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:var(--font-body);margin-bottom:12px">
+          <div onClick="{{ onSavePractice }}" style="text-align:center;padding:11px;border-radius:9px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:var(--gl-green-14);color:var(--gl-green);border:1px solid var(--gl-green-30)">Save practice set</div>
+          <sc-if value="{{ lastBandMessage }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:12px;padding:10px 13px;border-radius:9px;background:var(--gl-gold-08);border:1px solid var(--gl-gold-30);font-size:12px;color:var(--gl-text-secondary)">{{ lastBandMessage }}</div>
+          </sc-if>
+        </div>
+
+        <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:20px 22px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;margin-bottom:12px">History</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ activePlan.practiceAttempts }}" as="a" hint-placeholder-count="2">
+              <div style="border-radius:10px;border:1px solid var(--gl-border);background:rgba(4,8,20,.4);padding:11px 14px">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+                  <div style="font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em">{{ a.practiceType }}</div>
+                  <sc-if value="{{ a.scoreBand }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;background:var(--gl-cyan-14);color:var(--gl-cyan)">Band {{ a.scoreBand }}</div>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ a.hasCounts }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:12px;color:var(--gl-text-dim)">{{ a.correctCount }}/{{ a.totalCount }} correct</div>
+                </sc-if>
+                <sc-if value="{{ a.notes }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:11.5px;color:var(--gl-text-secondary);margin-top:4px">{{ a.notes }}</div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ activePlan.isEmptyPractice }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:12.5px;color:var(--gl-text-dim);text-align:center;padding:14px 0">No practice sets logged yet.</div>
+          </sc-if>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  SUBJECTS = [
+    { id: 'us_history', label: 'US History', format: 'history_dbq' },
+    { id: 'world_history', label: 'World History', format: 'history_dbq' },
+    { id: 'english_language', label: 'English Language', format: 'english_synthesis' },
+    { id: 'english_literature', label: 'English Literature', format: 'literary_analysis' },
+    { id: 'biology', label: 'Biology', format: 'science_frq' },
+    { id: 'chemistry', label: 'Chemistry', format: 'science_frq' },
+    { id: 'physics', label: 'Physics 1/2/C', format: 'science_frq' },
+    { id: 'calculus_ab', label: 'Calculus AB', format: 'math_frq' },
+    { id: 'calculus_bc', label: 'Calculus BC', format: 'math_frq' },
+    { id: 'statistics', label: 'Statistics', format: 'statistics_frq' },
+    { id: 'computer_science_a', label: 'Computer Science A', format: 'computer_science_frq' },
+    { id: 'computer_science_principles', label: 'Computer Science Principles', format: 'computer_science_frq' },
+    { id: 'spanish', label: 'Spanish', format: 'language_frq' },
+    { id: 'french', label: 'French', format: 'language_frq' },
+    { id: 'art_history', label: 'Art History', format: 'art_history_frq' },
+    { id: 'psychology', label: 'Psychology', format: 'social_science_frq' },
+    { id: 'microeconomics', label: 'Microeconomics', format: 'social_science_frq' },
+    { id: 'macroeconomics', label: 'Macroeconomics', format: 'social_science_frq' },
+    { id: 'government', label: 'Government', format: 'social_science_frq' },
+  ];
+
+  OUTLINES = {
+    history_dbq: [ ['Context','Set the time period and historical tension.','One background fact'], ['Thesis','Answer the prompt with a defensible claim.','Main line of reasoning'], ['Document groups','Group documents by reason, not by order.','Two or more document references'], ['Outside evidence','Add one specific fact beyond the documents.','Named event, policy, or person'], ['Complexity','Name a limit, counterpoint, or change over time.','Contrast evidence'] ],
+    english_synthesis: [ ['Position','State the qualified claim.','Prompt language'], ['Source map','Group sources by the role they play.','Two source references'], ['Line of reasoning','Explain how the evidence moves the claim forward.','Commentary after each source'], ['Nuance','Add concession, limit, or implication.','A specific tradeoff'] ],
+    literary_analysis: [ ['Text claim','Name the interpretation of the passage or work.','Literary element'], ['Evidence','Select brief textual details.','Quoted phrase or scene detail'], ['Commentary','Connect technique to meaning.','Effect on theme or character'] ],
+    science_frq: [ ['Claim','Answer the science task directly.','Variable or concept'], ['Evidence','Use data, observation, or equation context.','Specific value or pattern'], ['Reasoning','Connect evidence to the science rule.','Mechanism or principle'] ],
+    math_frq: [ ['Setup','Define variables and known values.','Equation or graph feature'], ['Work','Show symbolic or numeric steps.','Units and notation'], ['Interpret','Answer in context.','Meaning of the result'] ],
+    statistics_frq: [ ['State','Identify the procedure or parameter.','Context labels'], ['Plan','Check conditions and method.','Condition evidence'], ['Do','Compute with clear notation.','Formula and values'], ['Conclude','Interpret in context.','Plain-language conclusion'] ],
+    computer_science_frq: [ ['Trace','Name inputs, outputs, and state changes.','Example value'], ['Plan','Write pseudocode before code.','Loop or condition'], ['Check','Test edge cases from the prompt.','Boundary case'] ],
+    language_frq: [ ['Task','Identify audience, purpose, and register.','Prompt cue'], ['Structure','Plan opening, details, and closing.','Transition phrase'], ['Language control','Use accurate familiar structures.','Verb tense or connector'] ],
+    art_history_frq: [ ['Identify','Name work, culture, or period when required.','Title, artist, or tradition'], ['Formal evidence','Describe visible form before interpretation.','Line, material, scale, composition'], ['Context','Connect form to function or meaning.','Historical or cultural fact'] ],
+    social_science_frq: [ ['Define','State the concept in class terms.','Course vocabulary'], ['Apply','Connect the concept to the scenario.','Scenario detail'], ['Explain','Show the cause, effect, or comparison.','Reasoning sentence'] ],
+  };
+
+  state = {
+    screen: 'list', activeId: null,
+    showNewPlan: false, newSubject: 'us_history', newExamDate: '2027-05-06', newGoalBand: '',
+    showOutline: false, showMcq: false, revealedChoices: {},
+    practiceType: 'mcq', correctCount: '', totalCount: '', practiceNotes: '', lastBandMessage: '',
+    plans: [
+      { id: 'plan1', subject: 'us_history', examDate: '2027-05-06', goalBand: '4-5', practiceAttempts: [
+        { practiceType: 'mcq', correctCount: 22, totalCount: 30, scoreBand: '3-4', notes: 'Better on Gilded Age, weak on Reconstruction.' },
+      ] },
+      { id: 'plan2', subject: 'calculus_ab', examDate: '2027-05-11', goalBand: '', practiceAttempts: [] },
+      { id: 'plan3', subject: 'biology', examDate: '2027-05-08', goalBand: '5', practiceAttempts: [] },
+    ],
+  };
+
+  subjectById(id) { return this.SUBJECTS.find(s => s.id === id) || this.SUBJECTS[0]; }
+  formatLabel(format) { return format.replace(/_/g, ' '); }
+
+  daysUntilExam(examDate) {
+    const exam = Date.parse(examDate + 'T00:00:00.000Z');
+    if (!Number.isFinite(exam)) return 0;
+    const now = new Date();
+    const today = Date.parse(now.toISOString().slice(0, 10) + 'T00:00:00.000Z');
+    return Math.max(0, Math.ceil((exam - today) / 86400000));
+  }
+
+  milestonePlan(format, days) {
+    if (days >= 60) return [
+      `Build a two-week foundation map.`,
+      'Do one format-specific practice set each week.',
+      'Turn open concepts into flashcards or mastery topics.',
+      'Schedule one timed section after the first review pass.',
+    ];
+    if (days >= 30) return [
+      `Focus on ${this.formatLabel(format)} timing.`,
+      'Alternate MCQ practice with one FRQ outline.',
+      'Review explanations for every answer choice.',
+      'Make a calm one-week checkpoint list.',
+    ];
+    if (days >= 7) return [
+      'Use shorter timed sets and one full FRQ outline.',
+      'Review only the highest-value concepts after each set.',
+      'Keep sleep and meals steady during review days.',
+      'Prepare materials and exam-day logistics early.',
+    ];
+    return [
+      'Use light review and format reminders.',
+      'Practice one short response outline, then stop.',
+      'Pack materials and choose a recovery plan after the exam.',
+    ];
+  }
+
+  scoreBand(correct, total) {
+    if (!total || total <= 0) return { band: null, message: 'Add a practice set to estimate a score band.' };
+    const ratio = Math.max(0, Math.min(1, correct / total));
+    const band = ratio >= 0.85 ? '4-5' : ratio >= 0.65 ? '3-4' : ratio >= 0.45 ? '2-3' : '1-2';
+    return { band, message: `You're in the ${band} range based on this practice set.` };
+  }
+
+  fallbackQuestion(subject) {
+    return {
+      stem: `Which choice best supports a ${subject.label} claim using course evidence?`,
+      bestChoice: 'A', skill: this.formatLabel(subject.format),
+      choices: [
+        { label: 'A', text: 'A choice with specific evidence and reasoning.', explanation: 'Best fit because it uses evidence and explains the link.' },
+        { label: 'B', text: 'A choice that names a topic only.', explanation: 'Less supported because it does not explain the link.' },
+        { label: 'C', text: 'A choice that is too broad.', explanation: 'Less supported because it does not stay close to the prompt.' },
+        { label: 'D', text: 'A choice that uses a related but weaker detail.', explanation: 'Less supported because the evidence is not central.' },
+      ],
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const navNames = ['Today','Work','Classes','Calendar','More'];
+    const navHrefs = { Today: 'Student Lobby.dc.html', Work: 'Work.dc.html', Classes: 'Classes.dc.html', Calendar: 'Calendar.dc.html', More: 'More.dc.html' };
+    const navTabs = navNames.map(n => ({ name: n, href: navHrefs[n], color: 'var(--gl-text-dim)', bg: 'transparent' }));
+    const subjectOptions = this.SUBJECTS.map(sub => ({ id: sub.id, label: sub.label }));
+
+    const decoratePlan = (p) => {
+      const subject = this.subjectById(p.subject);
+      const days = this.daysUntilExam(p.examDate);
+      const milestones = this.milestonePlan(subject.format, days);
+      const urgencyColor = days <= 7 ? 'var(--gl-gold)' : days <= 30 ? 'var(--gl-cyan)' : 'var(--gl-green)';
+      return {
+        ...p, subjectLabel: subject.label, formatLabel: this.formatLabel(subject.format),
+        daysLeft: days, urgencyColor, firstMilestone: milestones[0], milestones,
+        practiceCount: p.practiceAttempts.length, practicePlural: p.practiceAttempts.length === 1 ? '' : 's',
+        onOpen: () => this.setState({ screen: 'detail', activeId: p.id, showOutline: false, showMcq: false, lastBandMessage: '', correctCount: '', totalCount: '', practiceNotes: '' }),
+      };
+    };
+
+    const plans = s.plans.map(decoratePlan);
+    const activeRaw = s.plans.find(p => p.id === s.activeId) || s.plans[0];
+    const activeSubject = activeRaw ? this.subjectById(activeRaw.subject) : null;
+    let activePlan = null;
+    if (activeRaw) {
+      const decorated = decoratePlan(activeRaw);
+      const outline = this.OUTLINES[activeSubject.format] || [];
+      const q = this.fallbackQuestion(activeSubject);
+      const revealKey = activeRaw.id;
+      activePlan = {
+        ...decorated,
+        outlineTitle: `${activeSubject.label} FRQ outline`,
+        outline: outline.map(([label, prompt, evidence]) => ({ label, prompt, evidence })),
+        mcq: {
+          skill: q.skill, stem: q.stem,
+          choices: q.choices.map(c => {
+            const revealed = !!(s.revealedChoices[revealKey] && s.revealedChoices[revealKey][c.label]);
+            const isBest = c.label === q.bestChoice;
+            return {
+              ...c, revealed,
+              border: revealed ? (isBest ? 'var(--gl-green-30)' : 'var(--gl-border)') : 'var(--gl-border)',
+              bg: revealed ? (isBest ? 'var(--gl-green-08)' : 'rgba(4,8,20,.4)') : 'rgba(4,8,20,.4)',
+              labelColor: revealed && isBest ? 'var(--gl-green)' : 'var(--gl-violet)',
+              onClick: () => this.setState(prev => {
+                const rc = { ...prev.revealedChoices };
+                rc[revealKey] = { ...(rc[revealKey] || {}), [c.label]: true };
+                return { revealedChoices: rc };
+              }),
+            };
+          }),
+        },
+        practiceAttempts: activeRaw.practiceAttempts.map(a => ({
+          ...a, hasCounts: a.correctCount !== null && a.correctCount !== undefined && a.totalCount,
+        })),
+        isEmptyPractice: activeRaw.practiceAttempts.length === 0,
+      };
+    }
+
+    const practiceTypeDefs = [ ['mcq','MCQ'], ['frq','FRQ'], ['mixed','Mixed'] ];
+    const practiceTypes = practiceTypeDefs.map(([id, label]) => ({
+      id, label,
+      border: s.practiceType === id ? 'var(--gl-green-30)' : 'var(--gl-border)',
+      bg: s.practiceType === id ? 'var(--gl-green-14)' : 'rgba(4,8,20,.4)',
+      fg: s.practiceType === id ? 'var(--gl-green)' : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ practiceType: id }),
+    }));
+
+    return {
+      navTabs,
+      isList: s.screen === 'list', isDetail: s.screen === 'detail',
+      isEmpty: s.plans.length === 0,
+      plans,
+      showNewPlan: s.showNewPlan,
+      onNewPlanToggle: () => this.setState(p => ({ showNewPlan: !p.showNewPlan })),
+      subjectOptions,
+      newSubject: s.newSubject, onNewSubjectChange: e => this.setState({ newSubject: e.target.value }),
+      newExamDate: s.newExamDate, onNewExamDateChange: e => this.setState({ newExamDate: e.target.value }),
+      newGoalBand: s.newGoalBand, onNewGoalBandChange: e => this.setState({ newGoalBand: e.target.value }),
+      onCreatePlan: () => {
+        const id = 'plan' + Date.now();
+        this.setState(prev => ({
+          plans: [...prev.plans, { id, subject: prev.newSubject, examDate: prev.newExamDate, goalBand: prev.newGoalBand, practiceAttempts: [] }],
+          showNewPlan: false, newGoalBand: '',
+        }));
+      },
+
+      activePlan,
+      onBack: () => this.setState({ screen: 'list' }),
+      showOutline: s.showOutline, showMcq: s.showMcq,
+      onGenerateOutline: () => this.setState(p => ({ showOutline: !p.showOutline, showMcq: false })),
+      onGenerateMcq: () => this.setState(p => ({ showMcq: !p.showMcq, showOutline: false })),
+
+      practiceTypes,
+      correctCount: s.correctCount, onCorrectCountChange: e => this.setState({ correctCount: e.target.value }),
+      totalCount: s.totalCount, onTotalCountChange: e => this.setState({ totalCount: e.target.value }),
+      practiceNotes: s.practiceNotes, onPracticeNotesChange: e => this.setState({ practiceNotes: e.target.value }),
+      lastBandMessage: s.lastBandMessage,
+      onSavePractice: () => {
+        if (!activeRaw) return;
+        const correct = s.correctCount === '' ? null : parseInt(s.correctCount, 10);
+        const total = s.totalCount === '' ? null : parseInt(s.totalCount, 10);
+        const bandResult = (correct !== null && total) ? this.scoreBand(correct, total) : { band: null, message: 'Practice saved. Add MCQ counts anytime for a band estimate.' };
+        this.setState(prev => ({
+          plans: prev.plans.map(p => p.id === activeRaw.id
+            ? { ...p, practiceAttempts: [{ practiceType: prev.practiceType, correctCount: correct, totalCount: total, scoreBand: bandResult.band, notes: prev.practiceNotes }, ...p.practiceAttempts] }
+            : p),
+          correctCount: '', totalCount: '', practiceNotes: '', lastBandMessage: bandResult.message,
+        }));
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

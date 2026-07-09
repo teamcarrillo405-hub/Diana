@@ -35,7 +35,8 @@ export interface LogParams {
     | "arts_scaffold"
     | "health_scaffold"
     | "ap_scaffold"
-    | "study_artifacts";
+    | "study_artifacts"
+    | "agent_coach";
   model: string;
   promptSummary: string;
   tokensUsed: number;

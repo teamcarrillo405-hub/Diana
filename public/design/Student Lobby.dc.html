@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,800&amp;display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<script type="module">
+  // Real in-browser background removal (free AI model, no API key). Lazy-loaded on first use.
+  window.__loadBgRemoval = () => import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.7/+esm')
+    .then(m => m.removeBackground || (m.default && m.default.removeBackground) || m.default);
+</script>
+<style>
+  html,body{margin:0;background:#04060f;}
+  *{box-sizing:border-box;}
+  image-slot{display:block;}
+  @keyframes gl-pulse{0%,100%{opacity:.55;transform:translateX(-50%) scale(1)}50%{opacity:.95;transform:translateX(-50%) scale(1.06)}}
+  @keyframes hud-blink{0%,100%{opacity:.7}50%{opacity:1}}
+  @keyframes hud-scan{0%{transform:translateY(-100%)}100%{transform:translateY(660px)}}
+  @keyframes gl-spin{to{transform:rotate(360deg)}}
+  @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
+  @keyframes gl-overdue{0%,100%{box-shadow:0 0 0 1.5px rgba(255,55,55,.8),0 12px 36px rgba(0,0,0,.5)}55%{box-shadow:0 0 0 4px rgba(255,55,55,.15),0 12px 36px rgba(0,0,0,.5)}}
+  @keyframes gl-turnin{0%,100%{box-shadow:0 0 0 1.5px rgba(255,210,74,.85),0 12px 36px rgba(0,0,0,.5)}55%{box-shadow:0 0 0 5px rgba(255,210,74,.16),0 12px 36px rgba(0,0,0,.5)}}
+  @keyframes gl-claim{0%,100%{box-shadow:0 0 0 0 rgba(255,210,74,.85),0 6px 22px rgba(255,210,74,.5)}65%{box-shadow:0 0 0 14px rgba(255,210,74,0),0 6px 22px rgba(255,210,74,.5)}}
+  @keyframes jarvis-spin{to{transform:rotate(360deg)}}
+  @keyframes jarvis-spin-rev{to{transform:rotate(-360deg)}}
+  @keyframes jarvis-ripple{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.1);opacity:0}}
+  @keyframes jarvis-core-idle{0%,100%{transform:scale(1);opacity:.82}50%{transform:scale(1.1);opacity:1}}
+  @keyframes jarvis-core-rec{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.22);opacity:1}}
+  @keyframes orb-glow{0%,100%{filter:brightness(1.05) drop-shadow(0 0 18px rgba(41,208,255,.55))}50%{filter:brightness(1.22) drop-shadow(0 0 48px rgba(41,208,255,.95))}}
+  @keyframes orb-glow-rec{0%,100%{filter:brightness(1.3) drop-shadow(0 0 28px rgba(41,208,255,.8))}50%{filter:brightness(2) drop-shadow(0 0 80px rgba(41,208,255,1))}}
+  @keyframes orb-p{0%{transform:translateX(50%) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(2);opacity:0}20%{opacity:1}100%{transform:translateX(50%) rotateX(var(--rx)) rotateY(var(--ry)) rotateZ(var(--rz)) scale(0);opacity:1}}
+  @keyframes orb-breath{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.45}50%{transform:translate(-50%,-50%) scale(1.06);opacity:.8}}
+  .gl-tab:hover{color:#fff !important;}
+
+  /* ── Reduced motion: auto-respect the OS setting, and the in-app toggle (data-rm) ── */
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;animation-delay:0ms !important;transition-duration:.001ms !important;scroll-behavior:auto !important;}
+  }
+  html[data-rm="1"] *,html[data-rm="1"] *::before,html[data-rm="1"] *::after{animation:none !important;transition:none !important;}
+
+  /* ── High contrast: lift muted text off photo backgrounds. Selectors match React's
+       serialized inline style (rgb()/rgba() with spaces), not the source hex. ── */
+  html[data-hc="1"] [style*="rgb(125, 136, 173)"]{color:#dbe4f8 !important;}
+  html[data-hc="1"] [style*="rgb(139, 150, 189)"]{color:#d6dff4 !important;}
+  html[data-hc="1"] [style*="rgb(159, 176, 221)"]{color:#e2ebff !important;}
+  html[data-hc="1"] [style*="rgb(170, 184, 224)"]{color:#e9f0ff !important;}
+  html[data-hc="1"] [style*="rgb(176, 156, 255)"]{color:#d8ccff !important;}
+  html[data-hc="1"] [style*="rgb(205, 214, 242)"]{color:#f3f7ff !important;}
+  html[data-hc="1"] [style*="rgba(200, 218, 255"]{color:#e8f0ff !important;}
+  html[data-hc="1"] [style*="rgba(210, 228, 255"]{color:#f2f8ff !important;}
+  html[data-hc="1"] [style*="rgba(200, 210, 230"]{color:#eaf0ff !important;}
+  html[data-hc="1"] .gl-tab{color:#c6d0ea !important;}
+  /* Darker, more solid backing behind the hero photo so text always clears contrast */
+  html[data-hc="1"] [data-hc-scrim]{background:rgba(4,6,15,.62) !important;}
+
+</style>
+</helmet>
+
+<div style="width:100%;font-family:'Barlow Semi Condensed',sans-serif;color:#fff;position:relative;">
+
+  <!-- Page background — swappable photo, stretched behind the whole page -->
+  <div style="position:absolute;inset:0;width:100%;height:100%;z-index:0;background:#000">
+      <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgFootballOpacity }};transition:opacity .5s" alt="Football bg">
+      <img src="./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgScienceOpacity }};transition:opacity .5s" alt="Science bg">
+      <img src="./uploads/grok-image-e2a03daf-7692-41ff-a4b7-2b4cc6daa95e.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgMusicOpacity }};transition:opacity .5s" alt="Music bg">
+      <img src="./uploads/grok-image-74811ff2-f7a6-4a2a-91da-29b5088ed2fe.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgDefaultOpacity }};transition:opacity .5s" alt="Default bg">
+      <div data-hc-scrim="" style="position:absolute;inset:0;background:{{ bgTintColor }};z-index:1;transition:background .5s"></div>
+    </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       HERO ZONE — nav + hero content sit above the page background
+       ═══════════════════════════════════════════════════════════ -->
+  <div style="position:relative;z-index:1;overflow:hidden;">
+
+    <!-- TOP NAV -->
+    <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+      <div style="display:flex;gap:8px">
+        <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+        <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;position:relative;color:#fff;padding:18px 2px"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div>Today</a>
+        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+
+        <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid {{ micBorderColor }};background:{{ micBg }};animation:{{ micAnim }};transition:all .2s" onClick="{{ toggleAudio }}">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ micIconColor }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:{{ micIconColor }}">RECORD</span>
+        </div>
+        <div onClick="{{ goToProfileFromNav }}" style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;cursor:pointer;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center" title="Profile">
+          <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
+            <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+              <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }}" alt="You">
+            </sc-if>
+          </sc-if>
+          <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+          </sc-if>
+          <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+          </sc-if>
+          <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">{{ initials }}</span>
+          </sc-if>
+        </div>
+        <!-- Settings gear -->
+        <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" style-hover="background:rgba(120,150,220,.22)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- HERO ELEMENTS -->
+    <div style="position:relative;z-index:2;max-width:1440px;margin:0 auto;height:660px;">
+
+
+      <!-- field band -->
+      
+
+      <!-- glowing platform -->
+      
+      
+
+      <!-- PLAYER CARD — student photo center hero -->
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-56%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px">
+        <div style="position: absolute; top: {{ photoTop }}; left: {{ photoLeft }}">
+          <div style="width:{{ photoW }};height:{{ photoH }};border-radius:{{ photoContainerRadius }};clip-path:{{ photoContainerClip }};border:{{ photoContainerBorder }};box-shadow:{{ photoContainerShadow }};overflow:{{ photoContainerOverflow }};background:transparent;position:relative">
+            <sc-if value="{{ isFull }}" hint-placeholder-val="{{ false }}">
+              <!-- Full body: processed image or drop zone -->
+              <sc-if value="{{ hasFullBodyImg }}" hint-placeholder-val="{{ false }}">
+                
+              </sc-if>
+              <sc-if value="{{ showFullBodyDropzone }}" hint-placeholder-val="{{ false }}">
+                <div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed rgba(41,208,255,.35);border-radius:8px;background:rgba(4,8,20,.4)">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(41,208,255,.6)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.1em;color:rgba(41,208,255,.65);text-align:center">UPLOAD IN SETTINGS</div>
+                </div>
+              </sc-if>
+            </sc-if>
+            <sc-if value="{{ isNotFull }}" hint-placeholder-val="{{ false }}">
+              <image-slot id="gl-player-hero" style="width:{{ photoW }};height:{{ photoH }}" shape="circle" fit="cover" placeholder="Tap to add your photo"></image-slot>
+            </sc-if><img data-fb-img="" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="top: 69px; left: -107px; position: absolute; width: 343px; height: 501px" alt="Player"></div>
+          <!-- Foot glow for full-body mode -->
+          
+          
+        </div>
+        
+      </div>
+
+      <!-- QUICK CHECK-IN (bottom-right, Game Day format — baseline-matched to name/CTA block for symmetry; offset to clear the AI agent fab) -->
+      <div style="position:absolute;right:150px;bottom:120px;width:290px;z-index:8">
+        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:8px 8px 0 0;background:transparent;border:1px solid rgba(41,208,255,.28);border-bottom:none;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.12em;color:rgba(41,208,255,.95);text-shadow:0 0 12px rgba(41,208,255,.4)">ENERGY CHECK</div>
+        <div style="position:relative;border-radius:0 12px 12px 12px;border:1px solid rgba(41,208,255,.22);background:transparent;min-height:128px;padding:18px 18px 16px;display:flex;flex-direction:column;justify-content:center">
+          <div style="position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:2px 0 0 0"></div>
+          <div style="position:absolute;right:-1px;top:-1px;width:12px;height:12px;border-right:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:0 2px 0 0"></div>
+          <div style="position:absolute;left:-1px;bottom:-1px;width:12px;height:12px;border-left:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 0 2px"></div>
+          <div style="position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-right:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 2px 0"></div>
+          <!-- BEFORE: energy picker -->
+          <sc-if value="{{ showCheckin }}" hint-placeholder-val="{{ true }}">
+            <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:26px;line-height:.95;text-transform:uppercase;margin-bottom:5px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.9)">How's your energy?</div>
+            <div style="font-size:14px;color:rgba(210,228,255,.9);margin-bottom:14px;text-shadow:0 1px 8px rgba(0,0,0,.9)">We'll match your study plan to your energy</div>
+            <div style="display:flex;gap:8px">
+              <div onClick="{{ readinessLow }}" style="flex:1;padding:13px 4px;border-radius:10px;background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:#eef2ff;white-space:nowrap" style-hover="background:rgba(255,255,255,.17)">LOW</div>
+              <div onClick="{{ readinessOkay }}" style="flex:1;padding:13px 4px;border-radius:10px;background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:#eef2ff;white-space:nowrap" style-hover="background:rgba(255,255,255,.17)">OKAY</div>
+              <div onClick="{{ readinessHigh }}" style="flex:1;padding:13px 4px;border-radius:10px;background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:#eef2ff;white-space:nowrap" style-hover="background:rgba(255,255,255,.17)">LOCKED IN</div>
+            </div>
+          </sc-if>
+          <!-- AFTER: confirmed state -->
+          <sc-if value="{{ showFocus }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div>
+                <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#9fb0dd;text-transform:uppercase;margin-bottom:4px">Energy today</div>
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:32px;line-height:.9;text-transform:uppercase;color:#fff">{{ energyLabel }}</div>
+              </div>
+              <div onClick="{{ resetCheckin }}" style="padding:8px 14px;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.22);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;color:#aab8e0;flex-shrink:0" style-hover="background:rgba(120,150,220,.22)">Change</div>
+            </div>
+            <sc-if value="{{ energyAdaptLabel }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:8px;font-size:12px;font-weight:600;color:rgba(200,218,255,.7);padding:6px 10px;border-radius:6px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.14)">{{ energyAdaptLabel }}</div>
+            </sc-if>
+          </sc-if>
+        </div>
+      </div>
+
+      <!-- title + Focus Card (mid-left) -->
+      <div style="position:absolute;left:34px;bottom:120px;z-index:8">
+        <div style="font-weight:700;font-size:13px;letter-spacing:.3em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:-4px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 16px rgba(41,208,255,.55),0 2px 8px rgba(0,0,0,.9)">YOUR LOBBY</div>
+        <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:72px;line-height:.88;letter-spacing:.01em;text-transform:uppercase;text-shadow:0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)">G-Money</div>
+        <div style="margin-top:16px;max-width:390px">
+          <div style="font-size:14px;font-weight:700;letter-spacing:.2em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:12px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 14px rgba(41,208,255,.5),0 2px 6px rgba(0,0,0,.9)">YOUR NEXT MOVE</div>
+          <div onClick="{{ focusCard.onCta }}" style="background:#29d0ff;padding:22px 40px;border-radius:12px;box-shadow:0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6);cursor:pointer;display:inline-flex;align-items:center;gap:12px;transition:transform .12s,box-shadow .2s" style-hover="transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6)"><div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:36px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">▶ {{ nextActionCta }}</div></div>
+          <div style="margin-top:11px;font-size:15px;font-weight:600;color:#eef2ff;text-shadow:0 1px 10px rgba(0,0,0,.95)">{{ heroMoveSub }}</div>
+          <sc-if value="{{ heroFinishBy }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:6px;display:flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:#c0d0f0;text-shadow:0 1px 8px rgba(0,0,0,.95)">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0d0f0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 14.5 15"></polyline><path d="M10 3h4"></path><line x1="12" y1="3" x2="12" y2="5"></line></svg>
+              {{ heroFinishBy }}
+            </div>
+          </sc-if>
+          
+        </div>
+        <div style="display:none">
+
+          <!-- CHECK-IN STATE -->
+          <sc-if value="{{ showCheckin }}" hint-placeholder-val="{{ true }}">
+            <div style="border-radius:14px;background:linear-gradient(135deg,rgba(8,12,26,.96),rgba(12,18,42,.96));border:1px solid rgba(41,208,255,.22);padding:16px 18px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#9fb0dd;text-transform:uppercase;margin-bottom:10px">QUICK CHECK-IN</div>
+              <div style="font-size:14px;font-weight:600;color:#cdd6f2;margin-bottom:12px">How's your energy right now?</div>
+              <div style="display:flex;gap:8px">
+                <div onClick="{{ readinessLow }}" style="flex:1;padding:9px 0;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.24);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;color:#eef2ff" style-hover="background:rgba(120,150,220,.24)">😴 Low</div>
+                <div onClick="{{ readinessOkay }}" style="flex:1;padding:9px 0;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.24);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;color:#eef2ff" style-hover="background:rgba(120,150,220,.24)">👍 Okay</div>
+                <div onClick="{{ readinessHigh }}" style="flex:1;padding:9px 0;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.24);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;color:#eef2ff" style-hover="background:rgba(120,150,220,.24)">⚡ Locked</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- OVERWHELMED STATE -->
+          <sc-if value="{{ showOverwhelmed }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:14px;background:linear-gradient(135deg,rgba(8,12,26,.96),rgba(12,18,42,.96));border:1px solid rgba(126,92,255,.35);padding:16px 18px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#b09cff;text-transform:uppercase;margin-bottom:8px">ONE THING ONLY</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:19px;line-height:1.1;text-transform:uppercase;color:#fff;margin-bottom:4px">{{ focusCard.oneMove }}</div>
+              <div style="font-size:13px;color:#9fb0dd;line-height:1.5;margin-bottom:12px">That's it. One action. You've got this.</div>
+              <div style="display:flex;gap:8px">
+                <div onClick="{{ focusCard.onCta }}" style="flex:1;padding:10px;border-radius:8px;background:linear-gradient(180deg,#7e5cff,#5a3ecc);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:#fff;box-shadow:0 6px 18px rgba(126,92,255,.4)">{{ focusCard.ctaLabel }}</div>
+                <div onClick="{{ dismissOverwhelmed }}" style="padding:10px 14px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.2);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;color:#9fb0dd">I'm good</div>
+              </div>
+            </div>
+          </sc-if>
+
+          <!-- FOCUS STATE -->
+          <sc-if value="{{ showFocus }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:14px;background:linear-gradient(135deg,rgba(8,12,26,.96),rgba(12,18,42,.96));border:1px solid {{ focusCard.borderColor }};padding:16px 18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                <div style="font-size:10px;font-weight:700;letter-spacing:.2em;color:#9fb0dd;text-transform:uppercase">YOUR NEXT 5 MIN</div>
+                <div style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:{{ focusCard.urgencyBg }};color:{{ focusCard.urgencyFg }}">{{ focusCard.urgencyLabel }}</div>
+              </div>
+              <div style="font-size:11px;font-weight:700;color:{{ focusCard.urgencyFg }};letter-spacing:.08em;text-transform:uppercase">{{ focusCard.subject }}</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;color:#fff;margin-top:2px">{{ focusCard.assignment }}</div>
+              <div style="font-size:13px;color:#7d88ad;margin-top:4px">{{ focusCard.timeStr }}</div>
+              <div onClick="{{ focusCard.onCta }}" style="margin-top:12px;padding:10px;border-radius:8px;background:{{ focusCard.ctaBg }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:{{ focusCard.ctaFg }};box-shadow:{{ focusCard.ctaShadow }};transition:transform .1s" style-hover="transform:translateY(-1px)">{{ focusCard.ctaLabel }}</div>
+              <div style="margin-top:8px;display:flex;align-items:center;justify-content:center;gap:12px">
+                <span onClick="{{ setOverwhelmed }}" style="font-size:13px;font-weight:600;color:#7d88ad;cursor:pointer;text-decoration:underline;text-underline-offset:2px">Overwhelmed?</span>
+                <span style="color:rgba(120,150,220,.3)">·</span>
+                <span onClick="{{ resetCheckin }}" style="font-size:13px;font-weight:600;color:#7d88ad;cursor:pointer;text-decoration:underline;text-underline-offset:2px">Change mood</span>
+              </div>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Category detail popup — opens from a Needs-attention box; renders nothing when closed -->
+  <sc-if value="{{ catOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeCategory }}" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(4,6,15,.82);backdrop-filter:blur(10px);padding:24px">
+      <div onClick="{{ stopProp }}" style="position:relative;width:540px;max-width:94vw;max-height:82vh;overflow-y:auto;background:linear-gradient(180deg,rgba(14,20,42,.98),rgba(8,12,28,.98));border:1px solid {{ activeCat.soft }};border-radius:18px;padding:24px 26px;box-shadow:0 32px 80px rgba(0,0,0,.6)">
+        <div style="position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-left:2px solid {{ activeCat.accent }};border-top:2px solid {{ activeCat.accent }};border-radius:2px 0 0 0"></div>
+        <div style="position:absolute;right:-1px;top:-1px;width:16px;height:16px;border-right:2px solid {{ activeCat.accent }};border-top:2px solid {{ activeCat.accent }};border-radius:0 2px 0 0"></div>
+        <div style="position:absolute;left:-1px;bottom:-1px;width:16px;height:16px;border-left:2px solid {{ activeCat.accent }};border-bottom:2px solid {{ activeCat.accent }};border-radius:0 0 0 2px"></div>
+        <div style="position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-right:2px solid {{ activeCat.accent }};border-bottom:2px solid {{ activeCat.accent }};border-radius:0 0 2px 0"></div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:26px;letter-spacing:.02em;text-transform:uppercase;color:{{ activeCat.accent }}">{{ activeCat.label }}</div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;padding:3px 11px;border-radius:7px;background:rgba(120,150,220,.12);color:#fff">{{ activeCat.count }}</div>
+          <div onClick="{{ closeCategory }}" title="Close" style="margin-left:auto;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:rgba(120,150,220,.1);color:rgba(200,218,255,.7);cursor:pointer;font-size:17px;line-height:1" style-hover="background:rgba(120,150,220,.22);color:#fff">✕</div>
+        </div>
+        <sc-if value="{{ activeCat.isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:11px;padding:20px;border-radius:12px;background:rgba(54,224,122,.06);border:1px solid rgba(54,224,122,.2)">
+            <div style="width:8px;height:8px;border-radius:50%;background:#36e07a;flex-shrink:0"></div>
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:16px;color:#36e07a">{{ activeCat.emptyMsg }}.</span>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <sc-for list="{{ activeCat.items }}" as="it" hint-placeholder-count="2">
+            <div onClick="{{ it.onClick }}" style="display:flex;align-items:center;gap:13px;padding:14px 15px;border-radius:12px;background:rgba(120,150,220,.05);border:1px solid rgba(120,150,220,.14);cursor:pointer" style-hover="background:rgba(41,208,255,.08)">
+              <div style="width:3px;align-self:stretch;border-radius:2px;background:{{ it.accent }};flex-shrink:0"></div>
+              <div style="flex:1;min-width:0">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:17px;color:#fff;line-height:1.1">{{ it.title }}</div>
+                <div style="font-size:12.5px;color:#9fb0dd;margin-top:3px">{{ it.meta }}</div>
+              </div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:{{ it.accent }};flex-shrink:0">{{ it.when }}</div>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(200,218,255,.5)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M9 6l6 6-6 6"></path></svg>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- Needs-attention — four boxes (Weekly-XP styling); each opens a popup list -->
+  <div style="max-width:1440px;margin:0 auto;padding:22px 34px 60px;position:relative;z-index:1">
+    <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#29d0ff;opacity:.85;margin-bottom:13px">Needs attention</div>
+    <div style="display:flex;gap:14px;flex-wrap:wrap">
+      <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="4">
+        <div onClick="{{ cat.onOpen }}" style="flex:1;min-width:230px;position:relative;padding:16px 18px;background:transparent;border:1px solid rgba(41,208,255,.2);border-radius:14px;cursor:pointer;opacity:{{ cat.opacity }}" style-hover="background:rgba(41,208,255,.05)">
+          <div style="position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:2px 0 0 0"></div>
+          <div style="position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-right:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:0 2px 0 0"></div>
+          <div style="position:absolute;left:-1px;bottom:-1px;width:14px;height:14px;border-left:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 0 2px"></div>
+          <div style="position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-right:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 2px 0"></div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:{{ cat.accent }};text-shadow:0 0 12px {{ cat.soft }}">{{ cat.label }}</div>
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;color:#fff;line-height:1">{{ cat.count }}</div>
+          </div>
+          <div style="font-size:13px;color:#9fb0dd;margin-bottom:11px">{{ cat.sub }}</div>
+          <div style="display:flex;align-items:center;gap:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:{{ cat.accent }};opacity:.85">View list<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- ===== AUDIO NOTE OVERLAY ===== -->
+  <sc-if value="{{ recording }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(4,6,15,.88);backdrop-filter:blur(14px)">
+      <div style="background:linear-gradient(180deg,rgba(18,24,50,.98),rgba(10,14,32,.98));border:1px solid rgba(120,150,220,.22);border-radius:22px;padding:36px 40px;width:500px;display:flex;flex-direction:column;align-items:center;gap:22px;box-shadow:0 32px 80px rgba(0,0,0,.6)">
+
+        <sc-if value="{{ isSaved }}" hint-placeholder-val="{{ false }}">
+          <div style="width:84px;height:84px;border-radius:50%;background:{{ savedClassBg }};border:2px solid {{ savedClassAccent }};display:flex;align-items:center;justify-content:center">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="{{ savedClassAccent }}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          </div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.06em;text-transform:uppercase;color:#fff">Saved to {{ savedClassName }}</div>
+        </sc-if>
+
+        <sc-if value="{{ isPicking }}" hint-placeholder-val="{{ false }}">
+          <div style="width:100%">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:21px;letter-spacing:.05em;text-transform:uppercase;color:#fff;text-align:center;margin-bottom:6px">Save to which class?</div>
+            <div style="font-size:13px;color:#7d88ad;text-align:center;margin-bottom:20px;line-height:1.5">{{ transcriptDisplay }}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <sc-for list="{{ classChips }}" as="c" hint-placeholder-count="6">
+                <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:9px;padding:13px 15px;border-radius:10px;cursor:pointer;border:1.5px solid rgba(120,150,220,.22);background:rgba(120,150,220,.06);transition:all .15s" style-hover="border-color:{{ c.accent }};background:rgba(120,150,220,.14)">
+                  <span style="width:9px;height:9px;border-radius:50%;background:{{ c.accent }};flex-shrink:0"></span>
+                  <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14.5px;letter-spacing:.04em;text-transform:uppercase;color:#fff">{{ c.name }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div onClick="{{ backToListening }}" style="margin-top:18px;text-align:center;font-size:13px;color:#7d88ad;cursor:pointer">← Back to recording</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isListening }}" hint-placeholder-val="{{ true }}">
+          <div style="width:84px;height:84px;border-radius:50%;background:{{ micOverlayBg }};border:2px solid {{ micOverlayBorder }};display:flex;align-items:center;justify-content:center;animation:{{ micOverlayAnim }}">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="{{ micOverlayIconColor }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+          </div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:22px;letter-spacing:.06em;text-transform:uppercase;color:#fff">{{ overlayStatusLabel }}</div>
+          <div style="min-height:90px;width:100%;border-radius:12px;background:rgba(120,150,220,.08);border:1px solid rgba(120,150,220,.16);padding:16px 20px;font-size:15px;font-weight:500;color:#cdd6f2;line-height:1.6;text-align:center">{{ transcriptDisplay }}</div>
+          <div style="display:flex;gap:10px">
+            <div onClick="{{ togglePause }}" style="display:flex;align-items:center;gap:8px;padding:12px 20px;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.22);cursor:pointer">
+              <sc-if value="{{ isPaused }}" hint-placeholder-val="{{ false }}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="#aab8e0" stroke="none"><path d="M6 4l15 8-15 8V4z"></path></svg>
+              </sc-if>
+              <sc-if value="{{ isNotPaused }}" hint-placeholder-val="{{ true }}">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="#aab8e0" stroke="none"><rect x="6" y="4" width="4" height="16" rx="1"></rect><rect x="14" y="4" width="4" height="16" rx="1"></rect></svg>
+              </sc-if>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:#aab8e0">{{ pauseLabel }}</div>
+            </div>
+            <div onClick="{{ saveNote }}" style="flex:1;transform:skewX(-8deg);padding:12px 20px;border-radius:8px;background:linear-gradient(180deg,#36e07a,#16a34a);cursor:pointer;box-shadow:0 8px 24px rgba(34,180,90,.35);text-align:center"><div style="transform:skewX(8deg);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;color:#06210f">Save Note</div></div>
+            <div onClick="{{ cancelAudio }}" style="padding:12px 20px;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.22);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.05em;text-transform:uppercase;color:#aab8e0">Cancel</div>
+          </div>
+        </sc-if>
+
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ ACCOUNT SETTINGS MODAL ═══ -->
+  <sc-if value="{{ showSettings }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);padding:24px" onClick="{{ toggleSettings }}">
+      <div style="width:900px;max-width:100%;height:660px;max-height:88vh;display:flex;flex-direction:column;background:rgba(4,8,20,.97);border:1px solid rgba(41,208,255,.22);border-radius:20px;box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 40px rgba(41,208,255,.08);overflow:hidden" onClick="{{ stopProp }}">
+
+        <!-- Header -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 28px;border-bottom:1px solid rgba(120,150,220,.16);flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:13px">
+            <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;color:#04080f">G</div>
+            <div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:23px;letter-spacing:.06em;text-transform:uppercase;color:#fff;line-height:1">Account</div>
+              <div style="font-size:12px;color:#7d88ad;margin-top:3px">{{ profileName }} · {{ grade }} · {{ school }}</div>
+            </div>
+          </div>
+          <div onClick="{{ toggleSettings }}" style="width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:#aab8e0" style-hover="background:rgba(120,150,220,.22)">✕</div>
+        </div>
+
+        <!-- Body: rail + content -->
+        <div style="display:flex;flex:1;min-height:0">
+
+          <!-- Left rail -->
+          <div style="width:208px;flex-shrink:0;border-right:1px solid rgba(120,150,220,.16);padding:16px 12px;overflow-y:auto">
+            <sc-for list="{{ settingsTabs }}" as="t" hint-placeholder-count="7">
+              <div onClick="{{ t.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:9px;cursor:pointer;margin-bottom:3px;color:{{ t.color }};background:{{ t.bg }};transition:all .12s">
+                <span style="width:6px;height:6px;border-radius:50%;background:{{ t.dot }};flex-shrink:0"></span>
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase">{{ t.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+
+          <!-- Content -->
+          <div style="flex:1;overflow-y:auto;padding:26px 30px;min-height:0">
+
+            <!-- TAB: Profile -->
+            <sc-if value="{{ isTabProfile }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:6px">Profile</div>
+              <div style="font-size:12.5px;color:#7d88ad;margin-bottom:24px">Who you are across Diana.</div>
+              <div style="display:flex;gap:20px;align-items:flex-start;margin-bottom:22px">
+                <div onPointerDown="{{ onAvatarPointerDown }}" style="width:88px;height:88px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2.5px solid rgba(41,208,255,.55);box-shadow:0 0 24px rgba(41,208,255,.25);background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;position:relative;cursor:{{ avatarCursor }}">
+                  <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
+                    <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                      <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }};pointer-events:none;user-select:none" alt="Your photo" draggable="false">
+                    </sc-if>
+                  </sc-if>
+                  <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+                    <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+                  </sc-if>
+                  <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+                    <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+                  </sc-if>
+                  <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:32px;color:#04080f">{{ initials }}</span>
+                  </sc-if>
+                </div>
+                <div style="flex:1">
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:21px;color:#fff">{{ profileName }}</div>
+                  <div style="font-size:12.5px;color:#7d88ad;margin-top:3px;margin-bottom:14px">grayson.m@northgate.edu</div>
+
+                  <!-- Avatar type picker -->
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:8px">Choose avatar</div>
+                  <div style="display:flex;gap:10px;margin-bottom:14px">
+                    <div onClick="{{ setAvatarUpload }}" title="Your photo" style="width:44px;height:44px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderUpload }};background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                      <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                        <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover" alt="Photo option">
+                      </sc-if>
+                      <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ true }}">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                      </sc-if>
+                    </div>
+                    <div onClick="{{ setAvatarBoy }}" title="Boy avatar" style="width:44px;height:44px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderBoy }};flex-shrink:0">
+                      <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+                    </div>
+                    <div onClick="{{ setAvatarGirl }}" title="Girl avatar" style="width:44px;height:44px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderGirl }};flex-shrink:0">
+                      <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+                    </div>
+                    <div onClick="{{ setAvatarNone }}" title="No picture" style="width:44px;height:44px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderNone }};background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                      <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">{{ initials }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Contextual controls -->
+                  <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ true }}">
+                    <div style="display:flex;gap:9px;align-items:center">
+                      <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 15px;border-radius:8px;background:rgba(41,208,255,.12);border:1px solid rgba(41,208,255,.35);cursor:pointer" style-hover="background:rgba(41,208,255,.2)">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#29d0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#29d0ff">{{ profilePhotoBtnLabel }}</span>
+                        <input type="file" accept="image/*" onChange="{{ setProfilePhoto }}" style="display:none">
+                      </label>
+                      <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ removeProfilePhoto }}" style="display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:8px;background:rgba(120,150,220,.08);border:1px solid rgba(120,150,220,.22);cursor:pointer" style-hover="background:rgba(120,150,220,.16)">
+                          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#aab8e0">Remove</span>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size:11.5px;color:#7d88ad;margin-top:8px">Drag your photo above to reposition it.</div>
+                    </sc-if>
+                    <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ true }}">
+                      <div style="font-size:11.5px;color:#7d88ad;margin-top:8px">No photo yet — we'll show your initials until you upload one.</div>
+                    </sc-if>
+                  </sc-if>
+                  <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px;color:#7d88ad">Boy avatar selected.</div>
+                  </sc-if>
+                  <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px;color:#7d88ad">Girl avatar selected.</div>
+                  </sc-if>
+                  <sc-if value="{{ isAvatarNone }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px;color:#7d88ad">No picture — showing your initials, and nothing will appear in your lobby hero.</div>
+                  </sc-if>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:16px;margin-bottom:28px">
+                <div>
+                  <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:7px">Display name</div>
+                  <input type="text" value="{{ profileName }}" onChange="{{ setProfileName }}" style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:9px;background:rgba(10,16,36,.8);border:1px solid rgba(120,150,220,.22);color:#fff;font-size:14px;font-family:'Barlow Semi Condensed',sans-serif;outline:none">
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                  <div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:7px">Grade</div>
+                    <input type="text" value="{{ grade }}" onChange="{{ setGrade }}" style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:9px;background:rgba(10,16,36,.8);border:1px solid rgba(120,150,220,.22);color:#fff;font-size:14px;font-family:'Barlow Semi Condensed',sans-serif;outline:none">
+                  </div>
+                  <div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:7px">School</div>
+                    <input type="text" value="{{ school }}" onChange="{{ setSchool }}" style="width:100%;box-sizing:border-box;padding:11px 14px;border-radius:9px;background:rgba(10,16,36,.8);border:1px solid rgba(120,150,220,.22);color:#fff;font-size:14px;font-family:'Barlow Semi Condensed',sans-serif;outline:none">
+                  </div>
+                </div>
+              </div>
+              <a href="Diana - Landing + Sign In.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:9px;background:rgba(255,85,85,.1);border:1px solid rgba(255,85,85,.3);cursor:pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff7070" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:#ff7070">Sign out</span>
+              </a>
+            </sc-if>
+
+            <!-- TAB: Appearance -->
+            <sc-if value="{{ isTabAppearance }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:6px">Appearance</div>
+              <div style="font-size:12.5px;color:#7d88ad;margin-bottom:22px">Personalize your lobby — this only changes what you see.</div>
+
+              <!-- Section: Background -->
+              <div style="margin-bottom:28px">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:14px">Lobby Background</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <!-- Football -->
+            <div onClick="{{ setBgFootball }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgFootballBorder }};background:{{ bgFootballActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Football">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">STADIUM</div>
+            </div>
+            <!-- Science -->
+            <div onClick="{{ setBgScience }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgScienceBorder }};background:{{ bgScienceActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Science">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">SCI LAB</div>
+            </div>
+            <!-- Music -->
+            <div onClick="{{ setBgMusic }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgMusicBorder }};background:{{ bgMusicActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-e2a03daf-7692-41ff-a4b7-2b4cc6daa95e.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Music">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">MUSIC</div>
+            </div>
+            <!-- Default -->
+            <div onClick="{{ setBgDefault }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgDefaultBorder }};background:{{ bgDefaultActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-74811ff2-f7a6-4a2a-91da-29b5088ed2fe.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Default">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">DEFAULT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Hero Photo -->
+        <div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:8px">Lobby Hero Photo</div>
+          <div style="font-size:12.5px;color:#7d88ad;margin-bottom:16px">Whatever avatar you pick in Profile sits in the center of your lobby.</div>
+
+          <!-- No picture chosen -->
+          <sc-if value="{{ isAvatarNone }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;background:rgba(120,150,220,.06);border:1px dashed rgba(120,150,220,.25)">
+              <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;color:#04080f;flex-shrink:0">{{ initials }}</div>
+              <div style="flex:1">
+                <div style="font-size:13.5px;font-weight:700;color:#fff;margin-bottom:2px">No picture chosen</div>
+                <div style="font-size:12px;color:#7d88ad">Nothing will appear in your lobby hero — pick a photo or avatar in Profile if you want one.</div>
+              </div>
+              <div onClick="{{ goToProfileTab }}" style="padding:9px 16px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:rgba(41,208,255,.14);color:#29d0ff;border:1px solid rgba(41,208,255,.35);flex-shrink:0">Go to Profile</div>
+            </div>
+          </sc-if>
+
+          <!-- Boy / Girl avatar chosen -->
+          <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.2)">
+              <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg></div>
+              <div style="flex:1">
+                <div style="font-size:13.5px;font-weight:700;color:#fff">Boy avatar</div>
+                <div style="font-size:12px;color:#7d88ad;margin-top:2px">Showing in your lobby hero</div>
+              </div>
+              <div onClick="{{ goToProfileTab }}" style="padding:9px 16px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:rgba(120,150,220,.1);color:#aab8e0;border:1px solid rgba(120,150,220,.24);flex-shrink:0">Change</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.25)">
+              <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg></div>
+              <div style="flex:1">
+                <div style="font-size:13.5px;font-weight:700;color:#fff">Girl avatar</div>
+                <div style="font-size:12px;color:#7d88ad;margin-top:2px">Showing in your lobby hero</div>
+              </div>
+              <div onClick="{{ goToProfileTab }}" style="padding:9px 16px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:rgba(120,150,220,.1);color:#aab8e0;border:1px solid rgba(120,150,220,.24);flex-shrink:0">Change</div>
+            </div>
+          </sc-if>
+
+          <!-- Uploaded photo -->
+          <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;background:rgba(41,208,255,.06);border:1px dashed rgba(41,208,255,.3)">
+                <div style="flex:1">
+                  <div style="font-size:13.5px;font-weight:700;color:#fff;margin-bottom:2px">No photo uploaded yet</div>
+                  <div style="font-size:12px;color:#7d88ad">Add one in the Profile tab to show it in your lobby.</div>
+                </div>
+                <div onClick="{{ goToProfileTab }}" style="padding:9px 16px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;background:rgba(41,208,255,.14);color:#29d0ff;border:1px solid rgba(41,208,255,.35);flex-shrink:0">Go to Profile</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:16px;align-items:flex-start">
+                <!-- Preview -->
+                <div style="width:96px;height:120px;border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid rgba(120,150,220,.2);background:radial-gradient(120px 90px at 50% 40%,rgba(41,208,255,.14),rgba(4,8,20,.9))">
+                  <img data-hero-preview-img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" style="width:100%;height:100%;object-fit:contain;object-position:bottom;-webkit-mask-image:{{ heroPreviewMask }};mask-image:{{ heroPreviewMask }}" alt="Hero preview">
+                </div>
+                <div style="flex:1">
+                  <!-- Actions -->
+                  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:10px">
+                    <sc-if value="{{ bgProcessing }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border-radius:8px;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.35)">
+                        <span style="width:14px;height:14px;border-radius:50%;border:2px solid rgba(167,139,250,.35);border-top-color:#a78bfa;display:inline-block;animation:gl-spin .7s linear infinite"></span>
+                        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#a78bfa">Removing background…</span>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ notProcessing }}" hint-placeholder-val="{{ true }}">
+                      <sc-if value="{{ bgRemoved }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ useOriginalPhoto }}" style="display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:8px;cursor:pointer;background:rgba(120,150,220,.08);border:1px solid rgba(120,150,220,.22)" style-hover="background:rgba(120,150,220,.16)">
+                          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#aab8e0">Use original</span>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ noBgRemoved }}" hint-placeholder-val="{{ true }}">
+                        <div onClick="{{ toggleBgRemoved }}" style="display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:8px;cursor:pointer;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.35)" style-hover="background:rgba(167,139,250,.22)">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+                          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#a78bfa">Remove background</span>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ bgProcessing }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px;color:#7d88ad">Running the cut-out on your device — the first run downloads the AI model, so give it a few seconds.</div>
+                  </sc-if>
+                  <sc-if value="{{ bgError }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#ff6b6b"><span style="width:7px;height:7px;border-radius:50%;background:#ff6b6b"></span>{{ bgError }}</div>
+                  </sc-if>
+                  <sc-if value="{{ bgRemoved }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#36e07a"><span style="width:7px;height:7px;border-radius:50%;background:#36e07a"></span>Background removed — clean cut-out active</div>
+                  </sc-if>
+                  <sc-if value="{{ noBgRemoved }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size:11.5px;color:#7d88ad">Cuts your photo out of its background and drops you into the scene — runs privately on your device.</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+          </sc-if>
+        </div>
+            </sc-if>
+
+            <!-- TAB: Notifications -->
+            <sc-if value="{{ isTabNotifications }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:6px">Notifications</div>
+              <div style="font-size:12.5px;color:#7d88ad;margin-bottom:24px">Choose what Diana pings you about.</div>
+              <div style="display:flex;flex-direction:column;gap:18px;margin-bottom:26px">
+                <sc-for list="{{ notifToggles }}" as="t" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <div style="padding-right:16px">
+                      <div style="font-size:14px;font-weight:600;color:#e6ecfb">{{ t.label }}</div>
+                      <div style="font-size:12px;color:#7d88ad;margin-top:2px">{{ t.sub }}</div>
+                    </div>
+                    <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer;transition:background .15s;flex-shrink:0">
+                      <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }};transition:left .15s"></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="padding-top:20px;border-top:1px solid rgba(120,150,220,.16)">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:8px">Quiet hours</div>
+                <div style="font-size:12.5px;color:#7d88ad;margin-bottom:14px">No notifications during this window.</div>
+                <div style="display:flex;align-items:flex-end;gap:12px">
+                  <div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#7d88ad;margin-bottom:7px">From</div>
+                    <input type="time" value="{{ quietStart }}" onChange="{{ setQuietStart }}" style="padding:10px 13px;border-radius:9px;background:rgba(10,16,36,.8);border:1px solid rgba(120,150,220,.22);color:#fff;font-size:14px;font-family:'JetBrains Mono',monospace;outline:none">
+                  </div>
+                  <div style="padding-bottom:11px;color:#7d88ad">→</div>
+                  <div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#7d88ad;margin-bottom:7px">To</div>
+                    <input type="time" value="{{ quietEnd }}" onChange="{{ setQuietEnd }}" style="padding:10px 13px;border-radius:9px;background:rgba(10,16,36,.8);border:1px solid rgba(120,150,220,.22);color:#fff;font-size:14px;font-family:'JetBrains Mono',monospace;outline:none">
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- TAB: Accessibility -->
+            <sc-if value="{{ isTabAccessibility }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:6px">Accessibility</div>
+              <div style="font-size:12.5px;color:#7d88ad;margin-bottom:24px">Make Diana easier on your eyes and focus.</div>
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div>
+                  <div style="font-size:12px;color:#7d88ad;margin-bottom:9px">Font size</div>
+                  <div style="display:flex;gap:8px">
+                    <sc-for list="{{ fontSizes }}" as="f" hint-placeholder-count="4">
+                      <div onClick="{{ f.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:#7d88ad;margin-bottom:9px">Line spacing</div>
+                  <div style="display:flex;gap:8px">
+                    <sc-for list="{{ lineSpacings }}" as="l" hint-placeholder-count="3">
+                      <div onClick="{{ l.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ l.border }};background:{{ l.bg }};color:{{ l.fg }}">{{ l.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:15px;padding-top:18px;border-top:1px solid rgba(120,150,220,.16)">
+                  <sc-for list="{{ a11yToggles }}" as="t" hint-placeholder-count="3">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                      <div style="padding-right:16px">
+                        <div style="font-size:14px;font-weight:600;color:#e6ecfb">{{ t.label }}</div>
+                        <div style="font-size:12px;color:#7d88ad;margin-top:2px">{{ t.sub }}</div>
+                      </div>
+                      <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer;transition:background .15s;flex-shrink:0">
+                        <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }};transition:left .15s"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- TAB: Reading & Speech -->
+            <sc-if value="{{ isTabReading }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:6px">Reading &amp; Speech</div>
+              <div style="font-size:12.5px;color:#7d88ad;margin-bottom:24px">Hear your work and shape how text reads.</div>
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <div style="padding-right:16px">
+                    <div style="font-size:14px;font-weight:600;color:#e6ecfb">Text-to-speech</div>
+                    <div style="font-size:12px;color:#7d88ad;margin-top:2px">Read assignments and notes aloud</div>
+                  </div>
+                  <div onClick="{{ ttsToggle.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ ttsToggle.trackBg }};position:relative;cursor:pointer;transition:background .15s;flex-shrink:0">
+                    <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ ttsToggle.knobLeft }};transition:left .15s"></div>
+                  </div>
+                </div>
+                <sc-if value="{{ ttsEnabled }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:15px;padding-left:2px">
+                    <div>
+                      <div style="font-size:12px;color:#7d88ad;margin-bottom:9px">Voice provider</div>
+                      <div style="display:flex;gap:8px">
+                        <sc-for list="{{ ttsProviders }}" as="p" hint-placeholder-count="3">
+                          <div onClick="{{ p.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ p.border }};background:{{ p.bg }};color:{{ p.fg }}">{{ p.label }}</div>
+                        </sc-for>
+                      </div>
+                    </div>
+                    <div>
+                      <div style="display:flex;justify-content:space-between;font-size:12px;color:#7d88ad;margin-bottom:7px"><span>Speed</span><span style="font-family:'JetBrains Mono',monospace;color:#29d0ff">{{ ttsSpeedLabel }}</span></div>
+                      <input type="range" min="0.7" max="1.5" step="0.05" value="{{ ttsSpeed }}" onChange="{{ onTtsSpeedChange }}" style="width:100%;accent-color:#29d0ff">
+                    </div>
+                  </div>
+                </sc-if>
+                <div style="display:flex;flex-direction:column;gap:15px;padding-top:18px;border-top:1px solid rgba(120,150,220,.16)">
+                  <sc-for list="{{ readingToggles }}" as="t" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;justify-content:space-between">
+                      <div style="padding-right:16px">
+                        <div style="font-size:14px;font-weight:600;color:#e6ecfb">{{ t.label }}</div>
+                        <div style="font-size:12px;color:#7d88ad;margin-top:2px">{{ t.sub }}</div>
+                      </div>
+                      <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer;transition:background .15s;flex-shrink:0">
+                        <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }};transition:left .15s"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:#7d88ad;margin-bottom:9px">Reading font</div>
+                  <div style="display:flex;gap:8px">
+                    <sc-for list="{{ readingFonts }}" as="f" hint-placeholder-count="4">
+                      <div onClick="{{ f.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- TAB: Connections -->
+            <sc-if value="{{ isTabConnections }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:6px">Connections</div>
+              <div style="font-size:12.5px;color:#7d88ad;margin-bottom:24px">Link your school systems and accommodations.</div>
+
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:12px">Connected accounts</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px">
+                <sc-for list="{{ connections }}" as="c" hint-placeholder-count="2">
+                  <div style="display:flex;align-items:center;justify-content:space-between;border-radius:10px;border:1px solid rgba(120,150,220,.18);padding:12px 15px">
+                    <div>
+                      <div style="font-size:13.5px;font-weight:700;color:#fff">{{ c.label }}</div>
+                      <div style="font-size:11.5px;color:#7d88ad">{{ c.detail }}</div>
+                    </div>
+                    <div onClick="{{ c.onDisconnect }}" style="padding:7px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:#ff7070;background:rgba(255,55,55,.07);border:1px solid rgba(255,85,85,.4)">Disconnect</div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ noConnections }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:12.5px;color:#7d88ad;padding:6px 0">No connections yet.</div>
+                </sc-if>
+              </div>
+
+              <div style="border-radius:14px;border:1px solid rgba(41,208,255,.3);background:rgba(41,208,255,.06);padding:20px;margin-bottom:20px">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:#29d0ff;margin-bottom:12px">Add Canvas</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+                  <input type="text" placeholder="Canvas base URL" value="{{ canvasUrl }}" onChange="{{ onCanvasUrlChange }}" style="padding:10px 13px;border-radius:8px;border:1px solid rgba(120,150,220,.22);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:'Barlow Semi Condensed',sans-serif;outline:none">
+                  <input type="text" placeholder="Access token" value="{{ canvasToken }}" onChange="{{ onCanvasTokenChange }}" style="padding:10px 13px;border-radius:8px;border:1px solid rgba(120,150,220,.22);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:'Barlow Semi Condensed',sans-serif;outline:none">
+                </div>
+                <div onClick="{{ onConnectCanvas }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:rgba(41,208,255,.14);color:#29d0ff;border:1px solid rgba(41,208,255,.3)">Connect Canvas</div>
+                <sc-if value="{{ connectMessage }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:12px;font-size:12.5px;color:#cdd6f2">{{ connectMessage }}</div>
+                </sc-if>
+              </div>
+
+              <div style="border-radius:14px;border:1px solid rgba(120,150,220,.18);background:rgba(4,8,20,.72);padding:20px">
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:8px">Import IEP / 504 plan</div>
+                <div style="font-size:12.5px;color:#7d88ad;margin-bottom:12px">Paste your plan — Diana pulls out accommodations and applies matching settings.</div>
+                <textarea placeholder="Paste IEP or 504 text here…" value="{{ iepText }}" onChange="{{ onIepTextChange }}" style="width:100%;box-sizing:border-box;min-height:84px;padding:12px 14px;border-radius:10px;border:1px solid rgba(120,150,220,.18);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:'Barlow Semi Condensed',sans-serif;resize:vertical;margin-bottom:12px;outline:none"></textarea>
+                <div onClick="{{ onImportIep }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:rgba(167,139,250,.14);color:#a78bfa;border:1px solid rgba(167,139,250,.3)">Parse &amp; apply</div>
+                <sc-if value="{{ iepSummary }}" hint-placeholder-val="{{ false }}">
+                  <div style="margin-top:14px;border-radius:10px;border:1px solid rgba(167,139,250,.3);background:rgba(167,139,250,.06);padding:14px 16px">
+                    <div style="font-size:12px;font-weight:700;color:#a78bfa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Applied accommodations</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:6px">
+                      <sc-for list="{{ iepAccommodations }}" as="a" hint-placeholder-count="3">
+                        <div style="font-size:11.5px;padding:4px 10px;border-radius:6px;background:rgba(167,139,250,.15);color:#cdd6f2">{{ a }}</div>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <!-- TAB: Diana & Privacy -->
+            <sc-if value="{{ isTabDiana }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#fff;margin-bottom:6px">Diana &amp; Privacy</div>
+              <div style="font-size:12.5px;color:#7d88ad;margin-bottom:24px">Control what Diana learns and where your data goes.</div>
+
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:12px">Learning loop</div>
+              <div style="font-size:12.5px;color:#aab8e0;line-height:1.5;margin-bottom:14px">Diana quietly learns what helps you — pacing, explanations, review timing. You're always in control of that profile.</div>
+              <div style="display:flex;align-items:center;justify-content:space-between;border-radius:12px;border:1px solid rgba(120,150,220,.18);padding:15px 17px;margin-bottom:12px">
+                <div>
+                  <div style="font-size:14px;font-weight:700;color:#fff">Personalization</div>
+                  <div style="font-size:12px;color:#7d88ad;margin-top:2px">{{ loopStatusLabel }}</div>
+                </div>
+                <div onClick="{{ onToggleLoopPause }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:{{ loopButtonBg }};color:{{ loopButtonFg }};border:1px solid {{ loopButtonBorder }}">{{ loopButtonLabel }}</div>
+              </div>
+              <div style="border-radius:12px;border:1px solid rgba(255,85,85,.4);background:rgba(255,55,55,.07);padding:15px 17px;margin-bottom:26px">
+                <div style="font-size:14px;font-weight:700;color:#ff7070">Reset learning profile</div>
+                <div style="font-size:12px;color:#7d88ad;margin-top:4px;margin-bottom:12px">Erases what Diana has learned about your pace and preferences. Cannot be undone.</div>
+                <div onClick="{{ onResetLoop }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,85,85,.14);color:#ff7070;border:1px solid rgba(255,85,85,.4)">{{ resetButtonLabel }}</div>
+              </div>
+
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:12px">Your data</div>
+              <div style="display:flex;flex-direction:column;gap:9px">
+                <sc-for list="{{ privacyLinks }}" as="p" hint-placeholder-count="3">
+                  <a href="{{ p.href }}" style="text-decoration:none;display:flex;align-items:center;justify-content:space-between;border-radius:10px;border:1px solid rgba(120,150,220,.18);padding:13px 15px" style-hover="border-color:rgba(41,208,255,.4)">
+                    <div>
+                      <div style="font-size:13.5px;font-weight:700;color:#fff">{{ p.label }}</div>
+                      <div style="font-size:11.5px;color:#7d88ad">{{ p.desc }}</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7d88ad" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+                  </a>
+                </sc-for>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = (() => {
+    return {
+      qi: 0, ci: 0, recording: false, transcript: '', paused: false, picking: false, saved: false, savedClassName: null, savedClassAccent: null, statusOverrides: {}, checkinDone: false, notifOpen: false, readiness: null, overwhelmed: false, showSettings: false, alertDismissed: false, catOpen: null,
+      selectedBg: localStorage.getItem('diana-selected-bg') || 'football',
+      photoStyle: 'full',
+      bgChanged: false,
+      noPhoto: true,
+      processedFullBodySrc: '',
+      profilePhotoSrc: (() => { const p = localStorage.getItem('diana-profile-src') || ''; return p.startsWith('blob:') ? '' : p; })(),
+      avatarType: localStorage.getItem('diana-avatar-type') || 'none',
+      photoOffsetX: parseFloat(localStorage.getItem('diana-photo-offset-x')) || 50,
+      photoOffsetY: parseFloat(localStorage.getItem('diana-photo-offset-y')) || 50,
+      bgRemoved: localStorage.getItem('diana-bg-removed') === '1',
+      photoCutoutSrc: localStorage.getItem('diana-photo-cutout') || '',
+      bgProcessing: false,
+      bgError: '',
+      // Account settings
+      settingsTab: 'profile',
+      profileName: 'Grayson M.', grade: '9th grade', school: 'Northgate High',
+      notifRemind: true, notifDueSoon: true, notifTests: true, notifDianaNudge: true,
+      quietStart: '21:00', quietEnd: '07:00',
+      fontSize: 'normal', lineSpacing: 'normal',
+      dyslexiaFont: false, highContrast: false, reducedMotion: false,
+      ttsEnabled: false, ttsProvider: 'browser', ttsSpeed: 1.0,
+      bionicReading: false, lineFocus: false, readingFont: 'system',
+      connections: [{ id: 'c1', label: 'Canvas', detail: 'northgate.instructure.com' }],
+      canvasUrl: '', canvasToken: '', connectMessage: '',
+      iepText: '', iepSummary: null,
+      loopPaused: false, resetConfirming: false,
+    };
+  })();
+
+  turnIn = (i) => this.setState(s => ({ statusOverrides: { ...s.statusOverrides, [i]: 'turned_in' } }));
+  toggleNotif = () => this.setState(s => ({ notifOpen: !s.notifOpen }));
+  toggleSettings = () => this.setState(s => ({ showSettings: !s.showSettings }));
+  setSettingsTab = (id) => this.setState({ settingsTab: id });
+  setProfileName = (e) => this.setState({ profileName: e.target.value });
+  setGrade = (e) => this.setState({ grade: e.target.value });
+  setSchool = (e) => this.setState({ school: e.target.value });
+  setQuietStart = (e) => this.setState({ quietStart: e.target.value });
+  setQuietEnd = (e) => this.setState({ quietEnd: e.target.value });
+
+  sToggle(key, label, sub) {
+    const on = this.state[key];
+    return {
+      label, sub,
+      trackBg: on ? 'rgba(41,208,255,.45)' : 'rgba(120,150,220,.16)',
+      knobLeft: on ? '21px' : '3px',
+      onClick: () => this.setState(s => ({ [key]: !s[key] })),
+    };
+  }
+  sSeg(cur, val, label, onClick) {
+    const a = cur === val;
+    return {
+      label,
+      border: a ? 'rgba(41,208,255,.5)' : 'rgba(120,150,220,.2)',
+      bg: a ? 'rgba(41,208,255,.14)' : 'rgba(4,8,20,.4)',
+      fg: a ? '#29d0ff' : '#aab8e0',
+      onClick,
+    };
+  }
+  parseIepText(text) {
+    const lower = text.toLowerCase();
+    const acc = [];
+    if (lower.includes('extra time') || lower.includes('extended time')) acc.push('Extended time');
+    if (lower.includes('text-to-speech') || lower.includes('read aloud')) acc.push('Text-to-speech');
+    if (lower.includes('dyslex')) acc.push('Dyslexia-friendly font');
+    if (lower.includes('large print') || lower.includes('large font')) acc.push('Large font');
+    if (lower.includes('reduced distraction') || lower.includes('quiet')) acc.push('Reduced distractions');
+    if (acc.length === 0) acc.push('General accommodations noted');
+    return acc;
+  }
+  setBg = (v) => {
+    localStorage.setItem('diana-selected-bg', v);
+    const hadPhoto = !!this.state.processedFullBodySrc;
+    this.setState({ selectedBg: v, bgChanged: hadPhoto });
+  };
+  setBgScience = () => this.setBg('science');
+  setPhotoStyle = (v) => { this.setState({ photoStyle: v }); };
+  clearPhoto = (e) => { if (e) e.stopPropagation(); this.removeProfilePhoto(); };
+  showAddPhoto = () => this.setState({ noPhoto: false });
+
+  // ── Profile avatar: photo / boy / girl / initials ──
+  setAvatarType = (type) => {
+    localStorage.setItem('diana-avatar-type', type);
+    this.setState({ avatarType: type });
+  };
+  setProfilePhoto = (e) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (!file) return;    const reader = new FileReader();
+    reader.onload = () => {
+      const d = reader.result;
+      localStorage.setItem('diana-profile-src', d);
+      localStorage.setItem('diana-avatar-type', 'upload');
+      localStorage.setItem('diana-photo-offset-x', '50');
+      localStorage.setItem('diana-photo-offset-y', '50');
+      localStorage.setItem('diana-bg-removed', '0');
+      localStorage.removeItem('diana-photo-cutout');
+      this.setState({ profilePhotoSrc: d, avatarType: 'upload', photoOffsetX: 50, photoOffsetY: 50, bgRemoved: false, photoCutoutSrc: '', bgError: '' });
+    };
+    reader.readAsDataURL(file);
+  };
+  removeProfilePhoto = () => {
+    localStorage.removeItem('diana-profile-src');
+    localStorage.setItem('diana-bg-removed', '0');
+    localStorage.removeItem('diana-photo-cutout');
+    this.setState({ profilePhotoSrc: '', bgRemoved: false, photoCutoutSrc: '', bgError: '' });
+  };
+  toggleBgRemoved = async () => {
+    // Real background removal via an in-browser AI segmentation model (no API key needed).
+    const src = this.state.profilePhotoSrc;
+    if (!src || this.state.bgProcessing) return;
+    // Reuse an already-computed cut-out for this photo if we have one.
+    if (this.state.photoCutoutSrc) {
+      localStorage.setItem('diana-bg-removed', '1');
+      this.setState({ bgRemoved: true, bgError: '' });
+      return;
+    }
+    this.setState({ bgProcessing: true, bgError: '' });
+    try {
+      if (!window.__loadBgRemoval) throw new Error('Background-removal module unavailable');
+      const removeBackground = await window.__loadBgRemoval();
+      if (typeof removeBackground !== 'function') throw new Error('Background-removal function not found');
+      const blob = await removeBackground(src);
+      const dataUrl = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error('read failed'));
+        r.readAsDataURL(blob);
+      });
+      localStorage.setItem('diana-photo-cutout', dataUrl);
+      localStorage.setItem('diana-bg-removed', '1');
+      this.setState({ photoCutoutSrc: dataUrl, bgRemoved: true, bgProcessing: false, bgError: '' });
+    } catch (err) {
+      console.error('Background removal failed:', err);
+      this.setState({ bgProcessing: false, bgError: 'Couldn\u2019t remove the background \u2014 check your connection and try again.' });
+    }
+  };
+  useOriginalPhoto = () => {
+    localStorage.setItem('diana-bg-removed', '0');
+    this.setState({ bgRemoved: false });
+  };
+
+  // Drag-to-reposition the uploaded avatar within its circular frame
+  onAvatarPointerDown = (e) => {
+    if (this.state.avatarType !== 'upload' || !this.state.profilePhotoSrc) return;
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const start = { x: e.clientX, y: e.clientY, ox: this.state.photoOffsetX, oy: this.state.photoOffsetY, w: rect.width, h: rect.height };
+    this._dragging = true;
+    const move = (ev) => {
+      if (!this._dragging) return;
+      const dx = ev.clientX - start.x;
+      const dy = ev.clientY - start.y;
+      const nx = Math.max(0, Math.min(100, start.ox - (dx / start.w) * 100));
+      const ny = Math.max(0, Math.min(100, start.oy - (dy / start.h) * 100));
+      this.setState({ photoOffsetX: nx, photoOffsetY: ny });
+    };
+    const up = () => {
+      this._dragging = false;
+      localStorage.setItem('diana-photo-offset-x', String(this.state.photoOffsetX));
+      localStorage.setItem('diana-photo-offset-y', String(this.state.photoOffsetY));
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  openFileInput = () => { const el = document.querySelector('[data-fullbody-input]'); if (el) el.click(); };
+  setReadiness = (level) => this.setState({ checkinDone: true, readiness: level });
+  resetCheckin = () => this.setState({ checkinDone: false, readiness: null, overwhelmed: false });
+  setOverwhelmed = () => this.setState({ overwhelmed: true });
+  dismissOverwhelmed = () => this.setState({ overwhelmed: false });
+
+  componentDidMount() {
+    this._questTimer = setInterval(() => {
+      this.setState(s => ({ qi: (s.qi + 1) % 5 }));
+    }, 5000);
+    this._syncFullBodyImg();
+    this._syncHeroPreviewImg();
+    this._syncA11y();
+  }
+
+  componentDidUpdate() {
+    this._syncFullBodyImg();
+    this._syncHeroPreviewImg();
+    this._syncA11y();
+  }
+
+  componentWillUnmount() {
+    if (this._questTimer) clearInterval(this._questTimer);
+    const r = document.documentElement;
+    if (r) { delete r.dataset.hc; delete r.dataset.rm; }
+  }
+
+  _syncA11y() {
+    const r = document.documentElement;
+    if (!r) return;
+    if (this.state.highContrast) r.dataset.hc = '1'; else delete r.dataset.hc;
+    if (this.state.reducedMotion) r.dataset.rm = '1'; else delete r.dataset.rm;
+  }
+
+  _avatarDataUri(type) {
+    const bg = type === 'girl' ? '#2a1f42' : '#0a3348';
+    const fig = type === 'girl' ? '#e3d4ff' : '#bfe6ff';
+    const hair = type === 'girl'
+      ? '<path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"/><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"/><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"/>'
+      : '<path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"/>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+      + '<circle cx="50" cy="50" r="50" fill="' + bg + '"/>'
+      + '<circle cx="50" cy="40" r="17" fill="' + fig + '"/>'
+      + '<path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="' + fig + '"/>'
+      + hair + '</svg>';
+    return 'data:image/svg+xml,' + encodeURIComponent(svg);
+  }
+
+  _syncFullBodyImg() {
+    const img = document.querySelector('[data-fb-img]');
+    if (!img) return;
+    const { avatarType, profilePhotoSrc, photoCutoutSrc, photoOffsetX, photoOffsetY, bgRemoved } = this.state;
+    const useCutout = bgRemoved && !!photoCutoutSrc;
+    let src = '';
+    if (avatarType === 'upload' && profilePhotoSrc) src = useCutout ? photoCutoutSrc : profilePhotoSrc;
+    else if (avatarType === 'boy') src = this._avatarDataUri('boy');
+    else if (avatarType === 'girl') src = this._avatarDataUri('girl');
+    img.src = src || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    if (avatarType === 'upload' && profilePhotoSrc) {
+      img.style.objectFit = 'cover';
+      img.style.objectPosition = photoOffsetX + '% ' + photoOffsetY + '%';
+      // Real cut-out = genuine transparency, no mask. Legacy fallback = soft vignette.
+      const mask = (bgRemoved && !photoCutoutSrc) ? 'radial-gradient(ellipse 60% 66% at 50% 34%, #000 58%, transparent 100%)' : 'none';
+      img.style.webkitMaskImage = mask;
+      img.style.maskImage = mask;
+    } else {
+      img.style.objectFit = 'contain';
+      img.style.objectPosition = 'bottom';
+      img.style.webkitMaskImage = 'none';
+      img.style.maskImage = 'none';
+    }
+  }
+
+  _syncHeroPreviewImg() {
+    const img = document.querySelector('[data-hero-preview-img]');
+    if (!img) return;
+    const { profilePhotoSrc, photoCutoutSrc, bgRemoved } = this.state;
+    const chosen = (bgRemoved && photoCutoutSrc) ? photoCutoutSrc : profilePhotoSrc;
+    const src = chosen || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
+    if (img.src !== src) img.src = src;
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._questTimer);
+    this._shouldRecord = false;
+    this._recognition?.stop();
+    clearTimeout(this._saveTimer);
+  }
+
+  toggleAudio = () => {
+    if (this.state.recording) { this.cancelAudio(); } else { this.startAudio(false); }
+  };
+
+  startAudio(resume) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      this.setState({ recording: true, paused: false, picking: false, transcript: 'Speech recognition not supported. Try Chrome or Edge.' });
+      return;
+    }
+    const base = resume ? this.state.transcript : '';
+    this._recognition = new SR();
+    this._recognition.continuous = true;
+    this._recognition.interimResults = true;
+    this._shouldRecord = true;
+    this._recognition.onresult = (e) => {
+      const t = Array.from(e.results).map(r => r[0].transcript).join(' ');
+      this.setState({ transcript: (base + ' ' + t).trim() });
+    };
+    this._recognition.onend = () => {
+      if (this._shouldRecord) this._recognition.start();
+    };
+    this._recognition.start();
+    this.setState({ recording: true, paused: false, picking: false, transcript: base });
+  }
+
+  togglePause = () => {
+    if (this.state.paused) {
+      this.startAudio(true);
+    } else {
+      this._shouldRecord = false;
+      this._recognition?.stop();
+      this.setState({ paused: true });
+    }
+  };
+
+  saveNote = () => {
+    this._shouldRecord = false;
+    this._recognition?.stop();
+    this.setState({ paused: true, picking: true });
+  };
+
+  backToListening = () => {
+    this.startAudio(true);
+  };
+
+  confirmClass = (i) => {
+    const cls = this.classes[i];
+    clearTimeout(this._saveTimer);
+    this.setState({ savedClassName: cls.name, savedClassAccent: cls.accent, saved: true, picking: false });
+    this._saveTimer = setTimeout(() => { this.cancelAudio(); }, 1300);
+    // transcript + class available in this.state.transcript / cls.name — wire to Diana quick-capture later
+  };
+
+  cancelAudio = () => {
+    clearTimeout(this._saveTimer);
+    this._shouldRecord = false;
+    this._recognition?.stop();
+    this._recognition = null;
+    this.setState({ recording: false, transcript: '', paused: false, picking: false, saved: false, savedClassName: null, savedClassAccent: null });
+  };
+
+  get quests() {
+    return [
+      { n: 1, subject: 'Math',      title: 'Finish Ch. 4 problems', due: 'FRI',   accent: '#ff6a3d', icon: '📐' },
+      { n: 2, subject: 'English',   title: 'Read pages 40–60',      due: 'WED',   accent: '#29d0ff', icon: '📖' },
+      { n: 3, subject: 'Science',   title: 'Lab write-up',          due: 'THU',   accent: '#36e07a', icon: '🔬' },
+      { n: 4, subject: 'History',   title: 'Study guide',           due: 'MON',   accent: '#ffd24a', icon: '🏛️' },
+      { n: 5, subject: 'Athletics', title: "Log today's workout",   due: 'TODAY', accent: '#7e5cff', icon: '🏈' },
+    ];
+  }
+
+  get nextMove() {
+    const classes = this.classes;
+    const r = this.state.readiness;
+    if (r === 'low') {
+      return classes.filter(c => c.status !== 'turned_in').sort((a, b) => (a.estMin || 999) - (b.estMin || 999))[0] || null;
+    }
+    if (r === 'high') {
+      const od = classes.find(c => c.status === 'not_started' && c.overdue);
+      if (od) return od;
+      return classes.filter(c => c.status !== 'turned_in' && c.status !== 'finished').sort((a, b) => (b.estMin || 0) - (a.estMin || 0))[0] || classes.find(c => c.status === 'finished') || null;
+    }
+    const od = classes.find(c => c.status === 'not_started' && c.overdue);
+    if (od) return od;
+    const fin = classes.find(c => c.status === 'finished');
+    if (fin) return fin;
+    const act = classes.find(c => c.status === 'in_progress' && c.active);
+    if (act) return act;
+    return classes.find(c => c.status === 'in_progress') || null;
+  }
+
+  // Map each class to its current assignment in the shared catalog (diana-data.js)
+  AID = { Math: 'math-u4', English: 'eng-rhet', Science: 'sci-titration', History: 'hist-sg6', Athletics: 'ath-reflect' };
+  detailHref(name) { const id = this.AID[name]; return 'Homework Mission.dc.html' + (id ? '?a=' + id : ''); }
+
+  // Canvas-synced student identity (used across app + Messages surface)
+  get student() {
+    return { userId: 500123, sisId: 'S10492277', name: 'Grayson', shortName: 'G' };
+  }
+
+  // Canvas Conversations (teacher ↔ student). Powers the Messages tab.
+  get messages() {
+    return [
+      { id: 9001, courseId: 30118, course: 'English', accent: '#29d0ff', from: 'Ms. Rivera', role: 'Teacher', subject: 'Re: Reading Quiz make-up', preview: "You can take the make-up Thursday during 2nd period — bring your annotations.", time: '2h', unread: true },
+      { id: 9002, courseId: 30131, course: 'History', accent: '#ffd24a', from: 'Mr. Boyd', role: 'Teacher', subject: 'Great work on the Ch. 7 study guide', preview: 'Scored 47/50 — your timeline section was the strongest in the class.', time: '1d', unread: true },
+      { id: 9003, courseId: 30124, course: 'Science', accent: '#36e07a', from: 'Dr. Nash', role: 'Teacher', subject: 'Lab write-up received', preview: 'Got your submission. Feedback posted by Friday.', time: '2d', unread: false },
+      { id: 9004, courseId: 30112, course: 'Math', accent: '#ff6a3d', from: 'Ms. Okafor', role: 'Teacher', subject: 'Ch. 4 quiz Friday', preview: 'Reminder: calculators allowed, one page of notes.', time: '3d', unread: false },
+    ];
+  }
+
+  // Canvas Announcements (course-level). Also surfaced in Messages.
+  get announcements() {
+    return [
+      { id: 7001, courseId: 30118, course: 'English', accent: '#29d0ff', title: 'No class Friday — assembly schedule', body: 'We move to the auditorium 2nd period. Reading Quiz pushed to Monday.', time: '4h' },
+      { id: 7002, courseId: 30124, course: 'Science', accent: '#36e07a', title: 'Lab safety refresher before Thursday', body: 'Review the handout in Files. Goggles required for everyone.', time: '1d' },
+      { id: 7003, courseId: 30140, course: 'Athletics', accent: '#7e5cff', title: 'Home game moved to 7:00 PM Friday', body: 'Buses leave at 5:30. Bring your jersey and water.', time: '2d' },
+    ];
+  }
+
+  get classes() {
+    const STATUS_META = {
+      not_started: { label: 'NOT STARTED',   chipBg: 'rgba(120,150,220,.2)',  chipFg: '#aab8e0' },
+      in_progress: { label: 'IN PROGRESS',   chipBg: 'rgba(41,208,255,.2)',   chipFg: '#29d0ff' },
+      finished:    { label: 'NOT TURNED IN', chipBg: 'rgba(255,210,74,.24)',  chipFg: '#ffd24a' },
+      turned_in:   { label: 'TURNED IN ✓',   chipBg: 'rgba(54,224,122,.22)',  chipFg: '#36e07a' },
+    };
+    // ── Canvas sync contract ── every course/assignment carries the IDs + fields
+    //    both systems reference. Keyed by class; merged into each record below.
+    const CANVAS_SYNC = {
+      Math:      { courseId: 30112, assignmentId: 88231, dueAt: '2025-06-27T23:59:00-05:00', submissionState: 'unsubmitted', score: null, pointsPossible: 20, letterGrade: null },
+      English:   { courseId: 30118, assignmentId: 88240, dueAt: '2025-06-25T23:59:00-05:00', submissionState: 'missing',     score: null, pointsPossible: 30, letterGrade: null },
+      Science:   { courseId: 30124, assignmentId: 88255, dueAt: '2025-06-26T23:59:00-05:00', submissionState: 'submitted',   score: null, pointsPossible: 25, letterGrade: null },
+      History:   { courseId: 30131, assignmentId: 88260, dueAt: '2025-06-24T23:59:00-05:00', submissionState: 'graded',      score: 47,   pointsPossible: 50, letterGrade: 'A-' },
+      Athletics: { courseId: 30140, assignmentId: 88266, dueAt: '2025-06-23T23:59:00-05:00', submissionState: 'graded',      score: 10,   pointsPossible: 10, letterGrade: 'A'  },
+      Art:       { courseId: 30155, assignmentId: 88270, dueAt: '2025-06-27T23:59:00-05:00', submissionState: 'unsubmitted', score: null, pointsPossible: 15, letterGrade: null },
+    };
+    const raw = [
+      { name: 'Math',      pct: 64,  status: 'in_progress', estMin: 45, tookMin: 0,  studyLabel: "Ch. 4 flashcards",        gameDay: "",                               upcomingTest: { type: 'QUIZ', label: 'Ch. 4 Quiz',    date: 'FRI Jun 27', strip: 'FRI', daysAway: 2 }, accent: '#ff6a3d', active: true,  overdue: false, symbol: 'Σ∞',  bannerBg: 'linear-gradient(135deg,#1a1020,#2e1408)', period: '1st period · 8:00 AM',  nextAssignment: 'Finish Ch. 4 problems',   nextDue: 'FRI Jun 27', imageSrc: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'English',   pct: 0,   status: 'not_started', estMin: 60, tookMin: 0,  studyLabel: "Vocab flashcards",         gameDay: "",                               upcomingTest: { type: 'QUIZ', label: 'Reading Quiz', date: 'THU Jun 26', strip: 'THU', daysAway: 1 }, accent: '#29d0ff', active: false, overdue: true,  daysLate: 2, symbol: 'Aa',  bannerBg: 'linear-gradient(135deg,#071828,#0a2038)', period: '2nd period · 9:15 AM',  nextAssignment: 'Read pages 40–60',        nextDue: 'OVERDUE',   imageSrc: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'Science',   pct: 100, status: 'finished',    estMin: 0,  tookMin: 0,  studyLabel: "Lab concepts review",      gameDay: "",                               upcomingTest: null,                                                                               accent: '#36e07a', active: false, overdue: false, symbol: 'Hz',  bannerBg: 'linear-gradient(135deg,#071a12,#0a2a1c)', period: '3rd period · 10:30 AM', nextAssignment: 'Lab write-up',            nextDue: 'THU Jun 26', imageSrc: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'History',   pct: 100, status: 'turned_in',   estMin: 0,  tookMin: 35, studyLabel: "Key terms review",         gameDay: "",                               upcomingTest: { type: 'TEST', label: 'Ch. 7 Test',    date: 'MON Jun 29', strip: 'MON', daysAway: 4 }, accent: '#ffd24a', active: false, overdue: false, symbol: 'BC',  bannerBg: 'linear-gradient(135deg,#1a1200,#2e2000)', period: '4th period · 12:00 PM', nextAssignment: 'Study guide — Ch. 7',    nextDue: 'DONE ✓',    imageSrc: 'https://images.unsplash.com/photo-1447069387593-a5de0862481e?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'Athletics', pct: 100, status: 'turned_in',   estMin: 0,  tookMin: 12, studyLabel: "",                         gameDay: "HOME vs Eagles · FRI 7:00 PM", upcomingTest: null,                                                                               accent: '#7e5cff', active: false, overdue: false, symbol: '#32', bannerBg: 'linear-gradient(135deg,#100818,#1c1030)', period: '5th period · 1:15 PM',  nextAssignment: 'Workout log',             nextDue: 'DONE ✓',    imageSrc: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=320&fit=crop&q=80&auto=format' },
+      { name: 'Art',       pct: 55,  status: 'in_progress', estMin: 50, tookMin: 0,  studyLabel: "",                         gameDay: "",                               upcomingTest: null,                                                                               accent: '#f25fb0', active: false, overdue: false, symbol: '∿',   bannerBg: 'linear-gradient(135deg,#1a0818,#2e0e28)', period: '6th period · 2:30 PM',  nextAssignment: 'Sketchbook pg. 12–14',    nextDue: 'FRI Jun 27', imageSrc: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=320&fit=crop&q=80&auto=format' },
+    ];
+    return raw.map((c, i) => {
+      const status = this.state.statusOverrides[i] || c.status;
+      const cx = CANVAS_SYNC[c.name] || {};
+      const gradeLabel = cx.score != null ? (cx.score + '/' + cx.pointsPossible + (cx.letterGrade ? ' · ' + cx.letterGrade : '')) : '';
+      const meta = STATUS_META[status];
+      const finished = status === 'finished';
+      const turnedIn = status === 'turned_in';
+      const urgentStart = status === 'not_started' && c.overdue;
+      return {
+        ...c,
+        status,
+        slotId: 'gl-class-' + i,
+        // Canvas sync fields (carried on every record; render where relevant)
+        courseId: cx.courseId,
+        assignmentId: cx.assignmentId,
+        dueAt: cx.dueAt,
+        canvasState: cx.submissionState,
+        gradeScore: cx.score,
+        gradePoints: cx.pointsPossible,
+        letterGrade: cx.letterGrade,
+        gradeLabel,
+        pct: c.pct + '%',
+        pctLabel: c.pct + '%',
+        hasAssignment: !!c.nextAssignment,
+        dueFg: c.overdue && !turnedIn ? '#ff7070' : 'rgba(200,218,255,.6)',
+        dueBg: c.overdue && !turnedIn ? 'rgba(255,55,55,.15)' : 'rgba(120,150,220,.1)',
+        statusLabel: turnedIn ? 'TURNED IN' : finished ? 'NOT TURNED IN' : status === 'in_progress' ? 'IN PROGRESS' : status === 'not_started' ? 'NOT STARTED' : meta.label,
+        statusChipBg: meta.chipBg,
+        statusChipFg: meta.chipFg,
+        cardAnim: 'none',
+        ctaLabel: finished ? 'TURN IN NOW' : turnedIn ? 'REVIEW →' : status === 'not_started' ? (urgentStart ? 'START NOW →' : 'START →') : (c.active ? 'OPEN NOW →' : 'CONTINUE →'),
+        ctaBg: finished ? 'linear-gradient(180deg,#ffd24a,#f5a623)' : turnedIn ? 'rgba(41,208,255,.06)' : c.active ? '#29d0ff' : urgentStart ? 'linear-gradient(180deg,#ff5a4a,#d63020)' : 'rgba(41,208,255,.08)',
+        ctaFg: finished ? '#3a2a00' : turnedIn ? 'rgba(200,220,255,.55)' : c.active ? '#04080f' : urgentStart ? '#fff' : '#29d0ff',
+        ctaShadow: finished ? 'none' : c.active ? '0 0 24px rgba(41,208,255,.45),0 6px 20px rgba(0,0,0,.4)' : urgentStart ? '0 6px 20px rgba(214,48,32,.45)' : 'none',
+        ctaAnim: finished ? 'gl-claim 1.4s ease-in-out infinite' : 'none',
+        idx: i,
+        timeLabel: turnedIn ? ("took " + c.tookMin + " min") : (c.estMin > 0 ? ("est. " + c.estMin + " min" + (status === 'finished' ? " to turn in" : "")) : ""),
+        // Study tools only appear when a test/quiz is ≤3 days away and not yet turned in
+        hasStudyTools: !!(c.upcomingTest && c.upcomingTest.daysAway <= 3 && status !== 'turned_in'),
+        studyCountdown: (() => {
+          if (!c.upcomingTest || c.upcomingTest.daysAway > 3) return '';
+          const d = c.upcomingTest.daysAway;
+          const t = c.upcomingTest.type;
+          if (d === 0) return t + ' TODAY';
+          if (d === 1) return t + ' TOMORROW';
+          return t + ' IN ' + d + ' DAYS';
+        })(),
+        studyCountdownUrgent: !!(c.upcomingTest && c.upcomingTest.daysAway <= 1),
+        studyCountdownColor: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? 'rgba(255,110,80,.9)' : 'rgba(255,210,74,.8)',
+        studyLabel: c.upcomingTest ? "Practice test" : (c.studyLabel || ""),
+        gameDay: c.gameDay || "",
+        imageSrc: c.imageSrc || "",
+        submissionStatus: finished ? "Done — ready to submit" : turnedIn ? "Submitted" : "",
+        submitStatusIcon: "",
+        submitStatusBg: finished ? "rgba(255,210,74,.12)" : "rgba(54,224,122,.12)",
+        submitStatusBorder: finished ? "rgba(255,210,74,.28)" : "rgba(54,224,122,.28)",
+        submitStatusFg: finished ? "#ffd24a" : "#36e07a",
+        // PHASE 1: base borders by status; the single cyan glow is applied to the next-move tile in renderVals
+        cardBorder: (c.overdue && !turnedIn) ? 'rgba(255,85,85,.4)' : finished ? 'rgba(255,210,74,.38)' : 'rgba(120,150,220,.16)',
+        cardRing: 'none',
+        testRow: (c.upcomingTest && c.upcomingTest.daysAway <= 2) ? (c.upcomingTest.type + " · " + c.upcomingTest.label) : "",
+        testRowDate: c.upcomingTest ? c.upcomingTest.date : "",
+        testRowBg: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "rgba(255,55,55,.1)" : "rgba(255,210,74,.1)",
+        testRowBorder: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "rgba(255,55,55,.28)" : "rgba(255,210,74,.28)",
+        testRowFg: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "#ff8070" : "#ffd24a",
+        testRowDateFg: (c.upcomingTest && c.upcomingTest.daysAway <= 1) ? "#ff7070" : "#ffd24a",
+        onCta: finished ? (() => this.turnIn(i)) : (() => { window.location.href = this.detailHref(c.name); }),
+        cardDisplay: 'block',
+      };
+    });
+  }
+
+  clamp(v, max) { return Math.max(0, Math.min(v, max)); }
+
+  questPrev = () => { clearInterval(this._questTimer); this.setState(s => ({ qi: (s.qi - 1 + 5) % 5 })); this._questTimer = setInterval(() => this.setState(s => ({ qi: (s.qi + 1) % 5 })), 5000); };
+  questNext = () => { clearInterval(this._questTimer); this.setState(s => ({ qi: (s.qi + 1) % 5 })); this._questTimer = setInterval(() => this.setState(s => ({ qi: (s.qi + 1) % 5 })), 5000); };
+  classPrev = () => this.setState(s => ({ ci: this.clamp(s.ci - 1, 3) }));
+  classNext = () => this.setState(s => ({ ci: this.clamp(s.ci + 1, 3) }));
+  dismissAlert = () => this.setState({ alertDismissed: true });
+  openCategory = (k) => this.setState({ catOpen: k });
+  closeCategory = () => this.setState({ catOpen: null });
+  stopProp = (e) => e.stopPropagation();
+
+  renderVals() {
+    const allClasses = this.classes;
+    const activeClasses = allClasses.filter(c => c.status === 'in_progress' || c.status === 'not_started');
+    const totalMin = activeClasses.reduce((sum, c) => sum + (c.estMin || 0), 0);
+    const h = Math.floor(totalMin / 60);
+    const m = totalMin % 60;
+    const finishAt = new Date(Date.now() + totalMin * 60000);
+    const finishByStr = finishAt.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    const tonightEst = totalMin > 0 ? ("est. " + (h > 0 ? h + "h " : "") + (m > 0 ? m + "min" : "") + " tonight") : "All caught up tonight ✓";
+    const tonightLabel = tonightEst;
+    const workloadLabel = totalMin === 0 ? 'CLEAR' : totalMin < 60 ? 'LIGHT' : totalMin < 120 ? 'MEDIUM' : 'HEAVY';
+    const workloadColor = totalMin === 0 ? '#36e07a' : totalMin < 60 ? '#36e07a' : totalMin < 120 ? '#ffd24a' : '#ff7070';
+    const workloadPct = totalMin === 0 ? '0%' : Math.min(100, Math.round(totalMin / 180 * 100)) + '%';
+    
+    // SCORECARD FIX: Next action CTA — show assignment-specific move, not generic "Start Next Mission"
+    const nextActionCta = this.nextMove ? ("START " + this.nextMove.name.toUpperCase()) : "START NEXT MISSION";
+    // PHASE 1: hero funnel subtitle — context lives under the one PLAY button
+    const heroMoveSub = this.nextMove ? (this.nextMove.name + " · " + this.nextMove.nextAssignment) : "All caught up — nice work today";
+    const overdueCount = allClasses.filter(c => c.overdue && c.status !== 'turned_in').length;
+    // Alert Slot — one elevated priority strip (past-due → burnout → token); renders nothing when clear or dismissed
+    const alert = (() => {
+      if (this.state.alertDismissed) return null;
+      if (overdueCount > 0) {
+        const s = overdueCount === 1 ? '' : 's';
+        return {
+          label: 'Past due', glyph: '!', accent: '#ff7070',
+          border: 'rgba(255,85,85,.5)', bg: 'rgba(255,55,55,.07)', iconBg: 'rgba(255,85,85,.1)',
+          msg: overdueCount + ' assignment' + s + ' slipped past the due date',
+          sub: 'Still accepting late — clear it before tonight\u2019s work',
+          cta: 'Fix now', ctaHref: 'Work.dc.html',
+        };
+      }
+      return null;
+    })();
+    // Notification detail list: overdue (subject + days late), not turned in (subject), upcoming test/quiz within 3 days
+    const notifItems = [];
+    allClasses.forEach(c => {
+      if (c.overdue && c.status !== 'turned_in') {
+        const dl = c.daysLate || 1;
+        notifItems.push({ key: c.name + '-overdue', accent: '#ff5555', kickerFg: '#ff7a7a', bg: 'rgba(255,55,55,.07)', border: 'rgba(255,55,55,.26)', kicker: 'OVERDUE · ' + dl + (dl === 1 ? ' DAY' : ' DAYS'), title: c.name, sub: c.nextAssignment });
+      }
+      if (c.status === 'finished') {
+        notifItems.push({ key: c.name + '-nti', accent: '#ffd24a', kickerFg: '#ffd24a', bg: 'rgba(255,210,74,.07)', border: 'rgba(255,210,74,.24)', kicker: 'NOT TURNED IN', title: c.name, sub: c.nextAssignment + ' ready' });
+      }
+      if (c.upcomingTest && c.upcomingTest.daysAway <= 3 && c.status !== 'turned_in') {
+        const d = c.upcomingTest.daysAway;
+        const whenShort = d === 0 ? 'today' : d === 1 ? 'tomorrow' : c.upcomingTest.strip;
+        notifItems.push({ key: c.name + '-test', accent: '#a78bfa', kickerFg: '#c4b5fd', bg: 'rgba(167,139,250,.07)', border: 'rgba(167,139,250,.26)', kicker: c.upcomingTest.type + ' · ' + whenShort, title: c.name, sub: c.upcomingTest.label });
+      }
+    });
+
+    // ===== Needs-attention categories: 4 boxes, each opens a popup list =====
+    const testGo = (name) => () => { window.location.href = 'Homework Mission.dc.html' + (this.AID[name] ? '?a=' + this.AID[name] + '&start=1' : ''); };
+    const detGo = (name) => () => { window.location.href = this.detailHref(name); };
+    const msgGo = () => () => { window.location.href = 'Messages.dc.html'; };
+
+    const testList = allClasses.filter(c => c.upcomingTest).map(c => {
+      const d = c.upcomingTest.daysAway;
+      return { accent: '#b79bff', title: c.name + ' · ' + c.upcomingTest.label, meta: c.upcomingTest.type + ' · ' + c.upcomingTest.date, when: d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : c.upcomingTest.strip, onClick: testGo(c.name) };
+    });
+    const overdueList = allClasses.filter(c => c.overdue && c.status !== 'turned_in').map(c => {
+      const dl = c.daysLate || 1;
+      return { accent: '#ff7a7a', title: c.name, meta: c.nextAssignment, when: dl + (dl === 1 ? 'd late' : 'd late'), onClick: detGo(c.name) };
+    });
+    const ntiList = allClasses.filter(c => c.status === 'finished').map(c => ({ accent: '#ffd24a', title: c.name, meta: c.nextAssignment + ' — ready to submit', when: 'Ready', onClick: detGo(c.name) }));
+    const feedbackList = [
+      { accent: '#4be08e', title: 'History · Ch. 7 study guide', meta: 'Mr. Boyd — scored 47/50', when: 'New', onClick: msgGo() },
+      { accent: '#4be08e', title: 'Science · Lab write-up', meta: 'Dr. Nash — feedback posted by Friday', when: 'Sent', onClick: msgGo() },
+      { accent: '#7fdcff', title: 'English · Reading Quiz make-up', meta: 'Ms. Rivera — Thursday, 2nd period', when: 'New', onClick: msgGo() },
+    ];
+
+    const catStyle = {
+      tests:    { accent: '#b79bff', soft: 'rgba(167,139,250,.45)' },
+      overdue:  { accent: '#ff7a7a', soft: 'rgba(255,85,85,.45)' },
+      nti:      { accent: '#ffd24a', soft: 'rgba(255,210,74,.45)' },
+      feedback: { accent: '#4be08e', soft: 'rgba(54,224,122,.45)' },
+    };
+    const catDefs = [
+      { key: 'tests',    label: 'Quizzes & tests', items: testList,     sub0: 'Nothing coming up',   subN: 'coming up' },
+      { key: 'overdue',  label: 'Overdue',         items: overdueList,  sub0: 'Nothing overdue',     subN: 'past the due date' },
+      { key: 'nti',      label: 'Not turned in',   items: ntiList,      sub0: 'All submitted',       subN: 'done, not submitted' },
+      { key: 'feedback', label: 'Feedback',        items: feedbackList, sub0: 'No new feedback',     subN: 'new from teachers' },
+    ];
+    const categories = catDefs.map(c => {
+      const n = c.items.length;
+      return { key: c.key, label: c.label, count: n, items: c.items, accent: catStyle[c.key].accent, soft: catStyle[c.key].soft, sub: n === 0 ? c.sub0 : (n + ' ' + c.subN), opacity: n === 0 ? '.5' : '1', onOpen: () => this.openCategory(c.key) };
+    });
+    const activeCat = (() => {
+      const found = categories.find(c => c.key === this.state.catOpen);
+      if (!found) return null;
+      return { ...found, isEmpty: found.count === 0, emptyMsg: catDefs.find(d => d.key === found.key).sub0 };
+    })();
+    const finishedCount = allClasses.filter(c => c.status === 'finished').length;
+
+    const move = this.nextMove;
+    const r = this.state.readiness;
+    // Low energy: sort shortest tasks first, high energy: priority/overdue first
+    if (r === 'low') {
+      allClasses.sort((a, b) => {
+        const aD = a.status === 'turned_in' ? 1 : 0;
+        const bD = b.status === 'turned_in' ? 1 : 0;
+        if (aD !== bD) return aD - bD;
+        return (a.estMin || 999) - (b.estMin || 999);
+      });
+    }
+    // Energy adaptation confirmation label
+    const energyAdaptLabel = r === 'low' ? "Shortest tasks first — you've got this" : r === 'high' ? "Priority tasks first — locked in" : '';
+    // Fix CURRENT badge: always match the hero's next move, not a static flag
+    allClasses.forEach(c => { c.active = false; });
+    if (move) {
+      const target = allClasses.find(c => c.idx === move.idx);
+      if (target) {
+        target.active = true;
+        target.cardBorder = 'rgba(41,208,255,.65)';
+        target.cardRing = '0 0 0 1.5px rgba(41,208,255,.55),0 0 36px rgba(41,208,255,.34)';
+      }
+    }
+    // PHASE 3: Adaptive collapse — low energy collapses to one card only
+    const lowModeActive = this.state.readiness === 'low';
+    if (lowModeActive) {
+      allClasses.forEach(c => {
+        c.cardDisplay = (move && c.idx === move.idx) ? 'block' : 'none';
+      });
+    }
+    // PHASE 3: Felt time — finish-by shown in the hero funnel
+    // Show est. time for the specific next move (not total), so the student knows how long THIS task takes
+    const heroFinishBy = (this.nextMove && this.nextMove.estMin > 0) ? ('est. ' + this.nextMove.estMin + ' min') : '';
+    const focusCard = (() => {
+      if (!move) return { subject: '', assignment: 'All caught up tonight!', timeStr: 'Great work today', urgencyLabel: 'DONE', urgencyBg: 'rgba(54,224,122,.2)', urgencyFg: '#36e07a', borderColor: 'rgba(54,224,122,.3)', ctaLabel: 'REVIEW NOTES \u2192', ctaBg: 'rgba(54,224,122,.12)', ctaFg: '#36e07a', ctaShadow: 'none', onCta: () => { window.location.href = 'Notes.dc.html'; }, oneMove: 'Take a break' };
+      const isTurnin = move.status === 'finished';
+      const isOverdue = move.status === 'not_started' && move.overdue;
+      const isHigh = this.state.readiness === 'high';
+      const urgencyLabel = isTurnin ? 'QUICK WIN' : isOverdue ? 'OVERDUE' : isHigh ? 'LOCKED IN' : 'NEXT UP';
+      const urgencyBg = isTurnin ? 'rgba(255,210,74,.2)' : isOverdue ? 'rgba(255,55,55,.2)' : 'rgba(41,208,255,.18)';
+      const urgencyFg = isTurnin ? '#ffd24a' : isOverdue ? '#ff7070' : '#29d0ff';
+      const borderColor = isTurnin ? 'rgba(255,210,74,.3)' : isOverdue ? 'rgba(255,85,85,.3)' : 'rgba(41,208,255,.25)';
+      const ctaLabel = isTurnin ? '\u26a1 TURN IN NOW' : isOverdue ? 'START NOW \u2192' : 'CONTINUE \u2192';
+      const ctaBg = isTurnin ? 'linear-gradient(180deg,#ffd24a,#f5a623)' : isOverdue ? 'linear-gradient(180deg,#ff6a5a,#e0392b)' : 'linear-gradient(180deg,#36e07a,#16a34a)';
+      const ctaFg = isTurnin ? '#3a2a00' : '#fff';
+      const ctaShadow = isTurnin ? '0 6px 20px rgba(255,210,74,.4)' : isOverdue ? '0 6px 20px rgba(224,57,43,.4)' : '0 6px 20px rgba(34,180,90,.35)';
+      return {
+        subject: move.name,
+        assignment: move.nextAssignment,
+        timeStr: isTurnin ? '30 seconds \u00b7 quick win' : (move.timeLabel || ''),
+        urgencyLabel, urgencyBg, urgencyFg, borderColor,
+        ctaLabel, ctaBg, ctaFg, ctaShadow,
+        onCta: isTurnin ? (() => this.turnIn(move.idx)) : (() => { window.location.href = this.detailHref(move.name); }),
+        oneMove: isTurnin ? ('Turn in ' + move.name + ' writeup') : ('Open ' + move.name + ' and read the first line'),
+      };
+    })();
+
+    return {
+      quests: this.quests,
+      classes: allClasses,
+      student: this.student,
+      messages: this.messages,
+      announcements: this.announcements,
+      unreadCount: this.messages.filter(m => m.unread).length,
+      tonightLabel,
+      overdueCount,
+      finishedCount,
+      alert,
+      hasAlert: !!alert,
+      dismissAlert: this.dismissAlert,
+      notifItems,
+      hasNoNotifs: notifItems.length === 0,
+      categories,
+      activeCat,
+      catOpen: !!activeCat,
+      closeCategory: this.closeCategory,
+      stopProp: this.stopProp,
+      notifOpen: this.state.notifOpen,
+      toggleNotif: this.toggleNotif,
+      notifChevron: this.state.notifOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+      focusCard,
+      nextActionCta,
+      heroMoveSub,
+      lowModeActive,
+      heroFinishBy,
+      orbGlowAnim: this.state.recording ? 'orb-glow-rec .8s ease-in-out infinite' : 'orb-glow 3s ease-in-out infinite',
+      jarvisArcAnim: this.state.recording ? 'jarvis-spin 2s linear infinite' : 'jarvis-spin 10s linear infinite',
+      jarvisArc2Anim: this.state.recording ? 'jarvis-spin-rev 1.5s linear infinite' : 'jarvis-spin-rev 7s linear infinite',
+      jarvisScanAnim: this.state.recording ? 'jarvis-spin 1s linear infinite' : 'jarvis-spin 5s linear infinite',
+      jarvisLabel: this.state.recording ? 'LISTENING...' : 'TAP TO SPEAK',
+      energyLabel: this.state.readiness === 'low' ? 'Low' : this.state.readiness === 'high' ? 'Locked in' : 'Okay',
+      testStrip: [
+        { label: "Reading Quiz · English", date: "THU", bg: "rgba(255,55,55,.14)",   border: "rgba(255,55,55,.3)",   fg: "#ff8070", dateFg: "#ff7070" },
+        { label: "Ch. 4 Quiz · Math",      date: "FRI", bg: "rgba(255,210,74,.12)",  border: "rgba(255,210,74,.28)", fg: "#ffd24a", dateFg: "#ffd24a" },
+        { label: "Ch. 7 Test · History",   date: "MON", bg: "rgba(120,150,220,.1)",  border: "rgba(120,150,220,.22)",fg: "#aab8e0", dateFg: "#9fb0dd" },
+      ],
+      showCheckin: !this.state.checkinDone,
+      showFocus: this.state.checkinDone,
+      showOverwhelmed: this.state.overwhelmed,
+      setOverwhelmed: this.setOverwhelmed,
+      dismissOverwhelmed: this.dismissOverwhelmed,
+      resetCheckin: this.resetCheckin,
+      readinessLow: () => this.setReadiness('low'),
+      readinessOkay: () => this.setReadiness('okay'),
+      readinessHigh: () => this.setReadiness('high'),
+      questTransform: `translateX(${-this.state.qi * 288}px)`,
+      questDots: Array.from({length: 5}, (_, i) => ({
+        bg: i === this.state.qi ? '#29d0ff' : 'rgba(120,150,220,.28)',
+        w: i === this.state.qi ? '20px' : '6px',
+      })),
+      classTransform: `translateX(${-this.state.ci * 212}px)`,
+      questPrev: this.questPrev,
+      questNext: this.questNext,
+      classPrev: this.classPrev,
+      classNext: this.classNext,
+      recording: this.state.recording,
+      transcriptDisplay: this.state.transcript || 'Start speaking…',
+      isPaused: this.state.paused,
+      isNotPaused: !this.state.paused,
+      isPicking: this.state.picking,
+      isSaved: this.state.saved,
+      isListening: !this.state.picking && !this.state.saved,
+      pauseLabel: this.state.paused ? 'Resume' : 'Pause',
+      overlayStatusLabel: this.state.paused ? 'Paused' : 'Listening…',
+      micOverlayBg: this.state.paused ? 'rgba(120,150,220,.1)' : 'rgba(255,55,55,.14)',
+      micOverlayBorder: this.state.paused ? 'rgba(120,150,220,.28)' : 'rgba(255,55,55,.55)',
+      micOverlayIconColor: this.state.paused ? '#aab8e0' : '#ff4444',
+      micOverlayAnim: this.state.paused ? 'none' : 'gl-mic-pulse 1.5s ease-in-out infinite',
+      savedClassName: this.state.savedClassName,
+      savedClassAccent: this.state.savedClassAccent,
+      savedClassBg: this.state.savedClassAccent ? (this.state.savedClassAccent + '24') : 'rgba(54,224,122,.14)',
+      classChips: this.classes.map((c, i) => ({ name: c.name, accent: c.accent, onClick: () => this.confirmClass(i) })),
+      micBg: this.state.recording ? 'rgba(180,20,20,1)' : 'rgba(220,38,38,1)',
+      micBorderColor: this.state.recording ? 'rgba(255,80,80,.9)' : 'rgba(220,38,38,1)',
+      micAnim: this.state.recording ? 'gl-mic-pulse 1s ease-in-out infinite' : 'none',
+      micIconColor: '#ffffff',
+      energyAdaptLabel,
+      // Settings
+      showSettings: this.state.showSettings,
+      toggleSettings: this.toggleSettings,
+      stopProp: (e) => e.stopPropagation(),
+
+      // ── Account settings tabs ──
+      settingsTabs: [
+        ['profile', 'Profile', '#29d0ff'], ['appearance', 'Appearance', '#29d0ff'],
+        ['notifications', 'Notifications', '#ffd24a'], ['accessibility', 'Accessibility', '#36e07a'],
+        ['reading', 'Reading & Speech', '#a78bfa'], ['connections', 'Connections', '#29d0ff'],
+        ['diana', 'Diana & Privacy', '#ffd24a'],
+      ].map(([id, label, dot]) => ({
+        label, dot,
+        color: this.state.settingsTab === id ? '#fff' : '#8b96bd',
+        bg: this.state.settingsTab === id ? 'rgba(41,208,255,.14)' : 'transparent',
+        onClick: () => this.setSettingsTab(id),
+      })),
+      isTabProfile: this.state.settingsTab === 'profile',
+      isTabAppearance: this.state.settingsTab === 'appearance',
+      isTabNotifications: this.state.settingsTab === 'notifications',
+      isTabAccessibility: this.state.settingsTab === 'accessibility',
+      isTabReading: this.state.settingsTab === 'reading',
+      isTabConnections: this.state.settingsTab === 'connections',
+      isTabDiana: this.state.settingsTab === 'diana',
+
+      // Profile
+      profileName: this.state.profileName, grade: this.state.grade, school: this.state.school,
+      setProfileName: this.setProfileName, setGrade: this.setGrade, setSchool: this.setSchool,
+
+      // Notifications
+      notifToggles: [
+        this.sToggle('notifRemind', 'Assignment reminders', 'A nudge the evening before something is due'),
+        this.sToggle('notifDueSoon', 'Due-soon alerts', 'Ping me when a task moves into the next 24 hours'),
+        this.sToggle('notifTests', 'Test & quiz alerts', 'Countdown reminders for upcoming tests'),
+        this.sToggle('notifDianaNudge', 'Diana nudges', 'Let Diana check in when you seem stuck or overwhelmed'),
+      ],
+      quietStart: this.state.quietStart, quietEnd: this.state.quietEnd,
+      setQuietStart: this.setQuietStart, setQuietEnd: this.setQuietEnd,
+
+      // Accessibility
+      fontSizes: ['small', 'normal', 'large', 'xlarge'].map(v =>
+        this.sSeg(this.state.fontSize, v, v === 'xlarge' ? 'XL' : v[0].toUpperCase() + v.slice(1), () => this.setState({ fontSize: v }))),
+      lineSpacings: ['compact', 'normal', 'loose'].map(v =>
+        this.sSeg(this.state.lineSpacing, v, v[0].toUpperCase() + v.slice(1), () => this.setState({ lineSpacing: v }))),
+      a11yToggles: [
+        this.sToggle('dyslexiaFont', 'Dyslexia-friendly font', 'Switch body text to a dyslexia-tuned typeface'),
+        this.sToggle('highContrast', 'High contrast', 'Increase text and border contrast'),
+        this.sToggle('reducedMotion', 'Reduced motion', 'Turn off animations and transitions'),
+      ],
+
+      // Reading & Speech
+      ttsEnabled: this.state.ttsEnabled,
+      ttsToggle: this.sToggle('ttsEnabled', '', ''),
+      ttsProviders: ['browser', 'openai', 'elevenlabs'].map(v =>
+        this.sSeg(this.state.ttsProvider, v, v === 'browser' ? 'Browser' : v === 'openai' ? 'OpenAI' : 'ElevenLabs', () => this.setState({ ttsProvider: v }))),
+      ttsSpeed: this.state.ttsSpeed, ttsSpeedLabel: this.state.ttsSpeed.toFixed(2) + '×',
+      onTtsSpeedChange: (e) => this.setState({ ttsSpeed: parseFloat(e.target.value) }),
+      readingToggles: [
+        this.sToggle('bionicReading', 'Bionic reading', 'Bold the leading letters of each word'),
+        this.sToggle('lineFocus', 'Line focus', 'Dim everything but the active line'),
+      ],
+      readingFonts: [['system', 'System'], ['lexend', 'Lexend'], ['atkinson', 'Atkinson'], ['opendyslexic', 'OpenDys']].map(([v, label]) =>
+        this.sSeg(this.state.readingFont, v, label, () => this.setState({ readingFont: v }))),
+
+      // Connections
+      connections: this.state.connections.map(c => ({ ...c, onDisconnect: () => this.setState(prev => ({ connections: prev.connections.filter(x => x.id !== c.id) })) })),
+      noConnections: this.state.connections.length === 0,
+      canvasUrl: this.state.canvasUrl, onCanvasUrlChange: (e) => this.setState({ canvasUrl: e.target.value }),
+      canvasToken: this.state.canvasToken, onCanvasTokenChange: (e) => this.setState({ canvasToken: e.target.value }),
+      connectMessage: this.state.connectMessage,
+      onConnectCanvas: () => {
+        if (!this.state.canvasUrl.trim() || !this.state.canvasToken.trim()) { this.setState({ connectMessage: 'Both Canvas URL and token are needed' }); return; }
+        this.setState(prev => ({
+          connections: [...prev.connections, { id: 'c' + Date.now(), label: 'Canvas', detail: prev.canvasUrl }],
+          canvasUrl: '', canvasToken: '', connectMessage: 'Canvas connected',
+        }));
+      },
+      iepText: this.state.iepText, onIepTextChange: (e) => this.setState({ iepText: e.target.value }),
+      iepSummary: !!this.state.iepSummary, iepAccommodations: this.state.iepSummary || [],
+      onImportIep: () => { if (this.state.iepText.trim().length < 20) return; this.setState({ iepSummary: this.parseIepText(this.state.iepText) }); },
+
+      // Diana & Privacy
+      loopStatusLabel: this.state.loopPaused ? 'Paused — Diana is not adapting right now' : 'Active — Diana is adapting to your pace',
+      loopButtonLabel: this.state.loopPaused ? 'Resume' : 'Pause',
+      loopButtonBg: this.state.loopPaused ? 'rgba(54,224,122,.14)' : 'rgba(255,210,74,.14)',
+      loopButtonFg: this.state.loopPaused ? '#36e07a' : '#ffd24a',
+      loopButtonBorder: this.state.loopPaused ? 'rgba(54,224,122,.3)' : 'rgba(255,210,74,.3)',
+      onToggleLoopPause: () => this.setState(prev => ({ loopPaused: !prev.loopPaused })),
+      resetButtonLabel: this.state.resetConfirming ? 'Click again to confirm' : 'Reset profile',
+      onResetLoop: () => { if (this.state.resetConfirming) { this.setState({ resetConfirming: false }); } else { this.setState({ resetConfirming: true }); } },
+      privacyLinks: [
+        { href: 'AI History.dc.html', label: 'AI history', desc: 'Every AI call, in the open' },
+        { href: 'Export and Privacy.dc.html', label: 'Export & privacy', desc: 'Data inventory, export, delete' },
+        { href: 'Sharing.dc.html', label: 'Sharing', desc: 'Parent digest, teacher portal' },
+      ],
+      openFileInput: this.openFileInput,
+      // Avatar type: photo / boy / girl / initials
+      avatarType: this.state.avatarType,
+      isAvatarUpload: this.state.avatarType === 'upload',
+      avatarCursor: (this.state.avatarType === 'upload' && this.state.profilePhotoSrc) ? 'grab' : 'default',
+      isAvatarBoy: this.state.avatarType === 'boy',
+      isAvatarGirl: this.state.avatarType === 'girl',
+      isAvatarNone: this.state.avatarType === 'none',
+      showInitialsFallback: this.state.avatarType === 'none' || (this.state.avatarType === 'upload' && !this.state.profilePhotoSrc),
+      initials: (this.state.profileName || '').trim().split(/\s+/).map(w => w[0] || '').slice(0, 2).join('').toUpperCase() || 'G',
+      setAvatarUpload: () => this.setAvatarType('upload'),
+      setAvatarBoy: () => this.setAvatarType('boy'),
+      setAvatarGirl: () => this.setAvatarType('girl'),
+      setAvatarNone: () => this.setAvatarType('none'),
+      avatarSwatchBorder: (t) => this.state.avatarType === t ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      swatchBorderUpload: this.state.avatarType === 'upload' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      swatchBorderBoy: this.state.avatarType === 'boy' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      swatchBorderGirl: this.state.avatarType === 'girl' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      swatchBorderNone: this.state.avatarType === 'none' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      hasFullBodyImg: this.state.avatarType !== 'none' && !(this.state.avatarType === 'upload' && !this.state.profilePhotoSrc),
+      showFullBodyDropzone: this.state.avatarType === 'upload' && !this.state.profilePhotoSrc,
+      // Profile photo
+      profilePhotoSrc: this.state.profilePhotoSrc,
+      hasProfilePhoto: !!this.state.profilePhotoSrc,
+      profilePhotoBtnLabel: this.state.profilePhotoSrc ? 'Change photo' : 'Upload photo',
+      noProfilePhoto: !this.state.profilePhotoSrc,
+      setProfilePhoto: this.setProfilePhoto,
+      removeProfilePhoto: this.removeProfilePhoto,
+      onAvatarPointerDown: this.onAvatarPointerDown,
+      photoObjectPosition: this.state.photoOffsetX + '% ' + this.state.photoOffsetY + '%',
+      goToProfileTab: () => this.setSettingsTab('profile'),
+      goToProfileFromNav: () => this.setState({ showSettings: true, settingsTab: 'profile' }),
+      toggleBgRemoved: this.toggleBgRemoved,
+      useOriginalPhoto: this.useOriginalPhoto,
+      bgRemoved: this.state.bgRemoved,
+      noBgRemoved: !this.state.bgRemoved,
+      bgProcessing: this.state.bgProcessing,
+      notProcessing: !this.state.bgProcessing,
+      bgError: this.state.bgError,
+      heroPreviewSrc: this.state.profilePhotoSrc,
+      heroPreviewMask: (this.state.bgRemoved && !this.state.photoCutoutSrc) ? 'radial-gradient(ellipse 60% 66% at 50% 34%, #000 58%, transparent 100%)' : 'none',
+      setBgFootball: () => this.setBg('football'),
+      setBgScience: () => this.setBg('science'),
+      setBgMusic: () => this.setBg('music'),
+      setBgDefault: () => this.setBg('default'),
+      clearPhoto: this.clearPhoto,
+      bgChanged: this.state.bgChanged,
+      noPhoto: this.state.noPhoto,
+      showPhotoUpload: !this.state.noPhoto,
+      showAddPhotoBtn: this.state.noPhoto,
+      showAddPhoto: this.showAddPhoto,
+      bgTechOpacity: this.state.selectedBg === 'tech' ? 1 : 0,
+      bgFootballOpacity: this.state.selectedBg === 'football' ? 1 : 0,
+      bgScienceOpacity: this.state.selectedBg === 'science' ? 1 : 0,
+      bgMusicOpacity: this.state.selectedBg === 'music' ? 1 : 0,
+      bgDefaultOpacity: this.state.selectedBg === 'default' ? 1 : 0,
+      bgTintColor: this.state.selectedBg === 'football' ? 'rgba(0,0,0,.68)' : this.state.selectedBg === 'music' ? 'rgba(0,0,0,.70)' : this.state.selectedBg === 'default' ? 'rgba(0,0,0,.45)' : 'rgba(0,0,0,.42)',
+      bgTechActive: this.state.selectedBg === 'tech' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgFootballActive: this.state.selectedBg === 'football' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgScienceActive: this.state.selectedBg === 'science' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgTechBorder: this.state.selectedBg === 'tech' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgFootballBorder: this.state.selectedBg === 'football' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgScienceBorder: this.state.selectedBg === 'science' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgMusicActive: this.state.selectedBg === 'music' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgMusicBorder: this.state.selectedBg === 'music' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      bgDefaultActive: this.state.selectedBg === 'default' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      bgDefaultBorder: this.state.selectedBg === 'default' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoCircleActive: this.state.photoStyle === 'circle' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoHexActive: this.state.photoStyle === 'hex' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoSquareActive: this.state.photoStyle === 'square' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoFullActive: this.state.photoStyle === 'full' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
+      photoCircleBorder: this.state.photoStyle === 'circle' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoHexBorder: this.state.photoStyle === 'hex' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoSquareBorder: this.state.photoStyle === 'square' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      photoFullBorder: this.state.photoStyle === 'full' ? 'rgba(41,208,255,.7)' : 'rgba(120,150,220,.2)',
+      // Full body: tall portrait, no crop, transparent bg shows through
+      isFull: this.state.photoStyle === 'full',
+      isNotFull: this.state.photoStyle !== 'full',
+      photoContainerRadius: this.state.photoStyle === 'square' ? '20px' : this.state.photoStyle === 'full' ? '0px' : '50%',
+      photoContainerClip: this.state.photoStyle === 'hex' ? 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' : 'none',
+      photoContainerBorder: this.state.photoStyle === 'full' ? 'none' : '3px solid rgba(41,208,255,.65)',
+      photoContainerShadow: this.state.photoStyle === 'full' ? 'none' : '0 0 36px rgba(41,208,255,.4),0 0 80px rgba(41,208,255,.15)',
+      photoContainerOverflow: this.state.photoStyle === 'full' ? 'visible' : 'hidden',
+      photoW: this.state.photoStyle === 'full' ? '180px' : '220px',
+      photoH: this.state.photoStyle === 'full' ? '340px' : '220px',
+      photoTop: this.state.photoStyle === 'full' ? '-240px' : '-128px',
+      photoLeft: this.state.photoStyle === 'full' ? '-90px' : '-110px',
+      // Per-background photo positioning for the fb-img element
+      fbImgStyle: this.state.selectedBg === 'football'
+        ? 'width:221px;height:385px;object-fit:contain;object-position:bottom;position:absolute;left:-12px'
+        : this.state.selectedBg === 'music'
+        ? 'width:343px;height:501px;object-fit:contain;object-position:bottom;position:absolute;top:64px;left:-107px'
+        : this.state.selectedBg === 'default'
+        ? 'width:343px;height:501px;object-fit:contain;object-position:bottom;position:absolute;top:69px;left:-107px'
+        : 'width:221px;height:385px;object-fit:contain;object-position:bottom;position:absolute;left:-12px',
+      photoFootGlow: this.state.photoStyle === 'full' ? 'block' : 'none',
+      navPhotoRadius: this.state.photoStyle === 'square' ? '8px' : this.state.photoStyle === 'full' ? '6px' : '50%',
+      navPhotoClip: this.state.photoStyle === 'hex' ? 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)' : 'none',
+      toggleAudio: this.toggleAudio,
+      saveNote: this.saveNote,
+      togglePause: this.togglePause,
+      backToListening: this.backToListening,
+      cancelAudio: this.cancelAudio,
+      goFlashcards: () => { window.location.href = 'Flashcards.dc.html'; },
+      goQuiz: () => { window.location.href = 'Work.dc.html'; },
+    };
+  }
+}
+</script>
+</body>
+</html>

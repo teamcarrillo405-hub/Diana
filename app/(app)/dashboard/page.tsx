@@ -1,8 +1,10 @@
 import { cookies } from "next/headers";
-import { LobbyHero } from "./lobby-hero";
+import { LobbyHero, type NextMove } from "./lobby-hero";
 import { ReminderBanner } from "./reminder-banner";
+import { NeedsAttention } from "./needs-attention";
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
+import { buildNeedsAttention, type FeedbackNote } from "@/lib/dashboard/needs-attention";
 import { loadProfile } from "@/lib/profile";
 import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { getReminderItems } from "./actions";
@@ -10,6 +12,12 @@ import { sessionAdaptationForMood } from "@/lib/emotional/session";
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
 import { LastShownClassCookie } from "./last-shown-class-cookie";
+
+function classNameOf(a: { classes?: { name?: string | null } | Array<{ name?: string | null }> | null }): string | null {
+  const c = a.classes;
+  if (!c) return null;
+  return Array.isArray(c) ? (c[0]?.name ?? null) : (c.name ?? null);
+}
 
 // Model B landing: the dashboard is just the next-move hero + an overdue summary.
 // Classes live on their own /classes tab; every richer feature (quests, subject
@@ -41,10 +49,7 @@ export default async function DashboardPage({
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const fourHoursAgoIso = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
-  const weekStart = new Date(now);
-  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
-  weekStart.setHours(0, 0, 0, 0);
-  const weekStartIso = weekStart.toISOString();
+  const sevenDaysAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
   // One parallel batch — every query here is independent and feeds the render.
   const [
@@ -52,7 +57,7 @@ export default async function DashboardPage({
     { data: signals },
     { data: latestReadinessSignal },
     { data: latestSleep },
-    { data: weekDoneSignals },
+    { data: feedbackNotes },
     reminderItems,
   ] = await Promise.all([
     supabase
@@ -83,11 +88,10 @@ export default async function DashboardPage({
       .limit(1)
       .maybeSingle(),
     supabase
-      .from("task_signals")
-      .select("assignment_id")
-      .eq("kind", "completed")
-      .gte("occurred_at", weekStartIso)
-      .not("assignment_id", "is", null),
+      .from("teacher_progress_notes")
+      .select("id, note_text, created_at, assignment_id, assignments(title)")
+      .gte("created_at", sevenDaysAgoIso)
+      .order("created_at", { ascending: false }),
     getReminderItems(),
   ]);
 
@@ -120,21 +124,11 @@ export default async function DashboardPage({
   );
   const top = ranked[0];
   const taskHref = top ? `/assignments/${top.id}?focus=next-step` : "/assignments/new";
+  const nextMove: NextMove | null = top
+    ? { className: classNameOf(top), title: top.title, estMin: top.effective_minutes }
+    : null;
 
-  // ── Lobby data ──────────────────────────────────────────────────────────────
-  const weekNumber = profile?.onboarded_at
-    ? Math.max(1, Math.ceil((now.getTime() - new Date(profile.onboarded_at).getTime()) / (7 * 86400000)))
-    : 1;
-  const weekDone = new Set((weekDoneSignals ?? []).map((s) => s.assignment_id)).size;
-  // Total = still-open work due this week + work already completed this week. The
-  // open list excludes submitted/graded, so completed work must be added back in;
-  // otherwise the denominator shrinks as the student finishes (was showing 3/1).
-  const openDueThisWeek = (assignments ?? []).filter((a) => {
-    if (!a.due_at) return false;
-    const t = new Date(a.due_at).getTime();
-    return t >= weekStart.getTime() && t < weekStart.getTime() + 7 * 86400000;
-  }).length;
-  const weekTotal = openDueThisWeek + weekDone;
+  const needsAttention = buildNeedsAttention(assignments ?? [], (feedbackNotes ?? []) as FeedbackNote[], now);
 
   return (
     <div className="student-portal-page">
@@ -142,14 +136,13 @@ export default async function DashboardPage({
 
       <LobbyHero
         studentName={profile?.display_name || "Player"}
-        weekNumber={weekNumber}
-        weekDone={weekDone}
-        weekTotal={weekTotal}
         focusHref={taskHref}
         photoUrl={playerPhotoUrl}
-        energy={energy}
+        selectedEnergy={search.energy ?? null}
+        nextMove={nextMove}
       />
       <ReminderBanner items={reminderItems} />
+      <NeedsAttention categories={needsAttention} />
     </div>
   );
 }

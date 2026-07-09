@@ -5,6 +5,7 @@ import { SignOutButton } from "./sign-out";
 import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AccentPicker } from "@/components/accent-picker";
 import { ThemePicker } from "@/components/theme-picker";
+import { LobbyBackgroundPicker } from "./lobby-background-picker";
 import { IepImport } from "./iep-import";
 import { PlayerPhoto } from "./player-photo";
 import { AdaptationPanel } from "./adaptation-panel";
@@ -34,6 +35,8 @@ export default async function SettingsPage() {
 
   // Cross-device lobby photo, read from the owner's profile (RLS-scoped).
   const playerPhotoUrl: string | null = profile.photo_url ?? null;
+  const playerPhotoOffsetX: number = profile.photo_offset_x ?? 50;
+  const playerPhotoOffsetY: number = profile.photo_offset_y ?? 50;
 
   return (
     <PageShell
@@ -96,9 +99,14 @@ export default async function SettingsPage() {
             <ThemePicker />
           </div>
           <AccentPicker />
+          <LobbyBackgroundPicker />
         </section>
 
-        <PlayerPhoto initialPhoto={playerPhotoUrl} />
+        <PlayerPhoto
+          initialPhoto={playerPhotoUrl}
+          initialOffsetX={playerPhotoOffsetX}
+          initialOffsetY={playerPhotoOffsetY}
+        />
       </section>
 
       <section className="nexus-settings-stack">

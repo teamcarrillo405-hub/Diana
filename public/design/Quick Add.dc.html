@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-12:rgba(54,224,122,.12);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14);
+    --gl-slate:#8b96bd;
+    --gl-red:#ff5555;
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18); --gl-bg-input:rgba(10,16,36,.8);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  @keyframes qa-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+  @keyframes qa-wave{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+  ::placeholder{color:var(--gl-text-dim)}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:var(--gl-bg-base)">
+
+  <!-- dimmed app backdrop for context -->
+  <div style="position:relative;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);filter:blur(1.5px);opacity:.5">
+    <div style="display:flex;gap:8px"><div style="width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12)"></div></div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#8b96bd">
+      <div>Today</div><div>Work</div><div>Classes</div><div>Calendar</div><div>More</div>
+    </div>
+  </div>
+  <div style="max-width:1440px;margin:0 auto;padding:40px 34px;opacity:.35;filter:blur(2px);pointer-events:none">
+    <div style="height:28px;width:220px;background:rgba(120,150,220,.14);border-radius:6px;margin-bottom:18px"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div style="height:140px;border-radius:14px;background:rgba(120,150,220,.08)"></div>
+      <div style="height:140px;border-radius:14px;background:rgba(120,150,220,.08)"></div>
+      <div style="height:140px;border-radius:14px;background:rgba(120,150,220,.08)"></div>
+    </div>
+  </div>
+
+  <!-- persistent nav pill -->
+  <div style="position:fixed;top:18px;right:18px;z-index:90;display:flex;gap:6px">
+    <a href="Student Lobby.dc.html" title="Today" style="text-decoration:none;width:32px;height:32px;border-radius:9px;background:rgba(4,8,20,.9);border:1px solid var(--gl-border);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:var(--gl-text-muted);font-size:15px">⌂</a>
+    <a href="More.dc.html" title="More" style="text-decoration:none;width:32px;height:32px;border-radius:9px;background:rgba(4,8,20,.9);border:1px solid var(--gl-border);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;color:var(--gl-text-muted);font-size:13px">•••</a>
+  </div>
+
+  <!-- reference switcher -->
+  <div style="position:fixed;left:18px;bottom:18px;z-index:90;display:flex;gap:6px;padding:6px;border-radius:11px;border:1px solid var(--gl-border);background:rgba(4,8,20,.9);backdrop-filter:blur(12px)">
+    <sc-for list="{{ screenChips }}" as="s" hint-placeholder-count="2">
+      <div onClick="{{ s.onClick }}" style="padding:7px 14px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;background:{{ s.bg }};color:{{ s.fg }}">{{ s.label }}</div>
+    </sc-for>
+  </div>
+
+  <!-- ═══ DESKTOP MODAL ═══ -->
+  <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(4,6,15,.86);backdrop-filter:blur(14px)">
+      <div style="position:relative;width:520px;border-radius:20px;border:1px solid var(--gl-cyan-25);background:linear-gradient(180deg,rgba(18,24,50,.98),rgba(10,14,32,.98));padding:30px 32px;overflow:hidden">
+        <div style="position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-left:2px solid var(--gl-cyan-85);border-top:2px solid var(--gl-cyan-85);border-radius:2px 0 0 0"></div>
+        <div style="position:absolute;right:-1px;top:-1px;width:16px;height:16px;border-right:2px solid var(--gl-cyan-85);border-top:2px solid var(--gl-cyan-85);border-radius:0 2px 0 0"></div>
+        <div style="position:absolute;left:-1px;bottom:-1px;width:16px;height:16px;border-left:2px solid var(--gl-cyan-85);border-bottom:2px solid var(--gl-cyan-85);border-radius:0 0 0 2px"></div>
+        <div style="position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-right:2px solid var(--gl-cyan-85);border-bottom:2px solid var(--gl-cyan-85);border-radius:0 0 2px 0"></div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:.05em;text-transform:uppercase">Capture</div>
+          <a href="Student Lobby.dc.html" title="Close" style="text-decoration:none;width:30px;height:30px;border-radius:8px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-text-muted)">✕</a>
+        </div>
+
+        <div style="display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--gl-cyan-25);margin-bottom:18px">
+          <sc-for list="{{ modeChips }}" as="m" hint-placeholder-count="3">
+            <div onClick="{{ m.onClick }}" style="flex:1;text-align:center;padding:11px 0;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:13px;border:1px solid {{ filedBorder }};background:{{ filedBg }};padding:14px 16px;margin-bottom:15px">
+            <sc-if value="{{ isAmbiguous }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:14px;color:var(--gl-text-secondary);margin-bottom:11px">Saved — <b style="color:#fff">which class is this?</b></div>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ classPicker }}" as="c" hint-placeholder-count="5">
+                  <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:8px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border);cursor:pointer">
+                    <span style="width:8px;height:8px;border-radius:50%;background:{{ c.color }}"></span>
+                    <span style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:#e6ecff">{{ c.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isFiled }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:11px">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;color:var(--gl-text-secondary)">Filed to <b style="color:{{ filedColor }}">{{ filedName }}</b></div>
+                  <div style="font-size:12px;color:var(--gl-text-muted);margin-top:3px">{{ filedKind }} · {{ filedDue }}</div>
+                </div>
+                <div onClick="{{ toggleChange }}" style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-muted);cursor:pointer;white-space:nowrap">Change</div>
+              </div>
+              <sc-if value="{{ changingClass }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--gl-border)">
+                  <sc-for list="{{ classPicker }}" as="c" hint-placeholder-count="5">
+                    <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:8px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border);cursor:pointer">
+                      <span style="width:8px;height:8px;border-radius:50%;background:{{ c.color }}"></span>
+                      <span style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.03em;text-transform:uppercase;color:#e6ecff">{{ c.name }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <a href="Notes.dc.html" style="margin-top:13px;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:9px;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan-25);text-decoration:none">
+                <span style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-cyan)">See it in {{ filedName }} notes</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+              </a>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isText }}" hint-placeholder-val="{{ true }}">
+          <textarea value="{{ text }}" onChange="{{ setText }}" placeholder="What do you need to remember? &quot;Quiz Friday on Ch. 5…&quot;" style="width:100%;min-height:150px;box-sizing:border-box;padding:15px 16px;border-radius:12px;background:var(--gl-bg-input);border:1px solid var(--gl-border);color:#fff;font-size:16px;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+        </sc-if>
+        <sc-if value="{{ isVoice }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:15px;padding:10px 0 2px">
+            <div onClick="{{ toggleListen }}" style="width:104px;height:104px;border-radius:50%;background:{{ micBg }};border:2px solid {{ micBorder }};display:flex;align-items:center;justify-content:center;cursor:pointer;animation:{{ micAnim }};box-shadow:{{ micShadow }}">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="{{ micStroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="17" x2="12" y2="22"></line></svg>
+            </div>
+            <div style="font-size:14.5px;color:var(--gl-text-muted);font-weight:600">{{ micLabel }}</div>
+            <sc-if value="{{ hasVoiceText }}" hint-placeholder-val="{{ false }}">
+              <textarea value="{{ text }}" onChange="{{ setText }}" style="width:100%;min-height:70px;box-sizing:border-box;padding:13px 15px;border-radius:12px;background:var(--gl-bg-input);border:1px solid var(--gl-cyan-25);color:#fff;font-size:15.5px;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isPhoto }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ photoAttached }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ clearPhoto }}" style="position:relative;height:170px;border-radius:13px;background:linear-gradient(135deg,#1a3a2c,#0a1c14);border:1px solid var(--gl-cyan-25);display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <div style="text-align:center">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 8px;display:block"><path d="M20 6 9 17l-5-5"></path></svg>
+                <div style="font-size:13px;color:var(--gl-text-secondary)">Photo attached — tap to remove</div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ photoEmpty }}" hint-placeholder-val="{{ true }}">
+            <div onClick="{{ attachPhoto }}" style="height:170px;border-radius:13px;border:1.5px dashed var(--gl-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <div style="font-size:13.5px;color:var(--gl-text-muted)">Snap the board or a handout</div>
+            </div>
+          </sc-if>
+          <textarea value="{{ caption }}" onChange="{{ setCaption }}" placeholder="Add a caption (optional)" style="width:100%;min-height:54px;box-sizing:border-box;margin-top:12px;padding:11px 14px;border-radius:11px;background:var(--gl-bg-input);border:1px solid var(--gl-border);color:#fff;font-size:14px;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+        </sc-if>
+        <sc-if value="{{ isAssignment }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ assnSaved }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:11px;border-radius:13px;border:1px solid var(--gl-green-30);background:var(--gl-green-12);padding:16px">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              <div style="flex:1">
+                <div style="font-size:14.5px;color:var(--gl-text-secondary)">Added to <b style="color:{{ assnClassColor }}">{{ assnClass }}</b> — due {{ assnDueLabel }}</div>
+              </div>
+              <a href="Work.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:6px;flex-shrink:0">
+                <span style="font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-cyan)">See it in Work</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+              </a>
+            </div>
+          </sc-if>
+          <sc-if value="{{ assnNotSaved }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:16px;padding:6px 2px 2px">
+            <div>
+              <label style="display:block;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:9px">Snap the homework</label>
+              <sc-if value="{{ assnPhoto }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ clearAssnPhoto }}" style="position:relative;height:130px;border-radius:13px;background:linear-gradient(135deg,#1a3a2c,#0a1c14);border:1px solid var(--gl-cyan-25);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                  <div style="text-align:center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 6px;display:block"><path d="M20 6 9 17l-5-5"></path></svg>
+                    <div style="font-size:12px;color:var(--gl-text-secondary)">Photo attached — tap to remove</div>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ assnPhotoEmpty }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ attachAssnPhoto }}" style="height:130px;border-radius:13px;border:1.5px dashed var(--gl-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  <div style="font-size:12.5px;color:var(--gl-text-muted)">Snap or attach the worksheet, rubric, or board</div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div>
+              <label style="display:block;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:9px">Class</label>
+              <div style="display:flex;flex-wrap:wrap;gap:8px">
+                <sc-for list="{{ assnClassChips }}" as="c" hint-placeholder-count="6">
+                  <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:9px;cursor:pointer;border:1.5px solid {{ c.border }};background:{{ c.bg }}">
+                    <span style="width:8px;height:8px;border-radius:50%;background:{{ c.dot }}"></span>
+                    <span style="font-family:var(--font-display);font-weight:700;font-size:13.5px;letter-spacing:.02em;text-transform:uppercase;color:{{ c.fg }}">{{ c.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="position:relative">
+              <label style="display:block;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:9px">Due date</label>
+              <div onClick="{{ toggleAssnCal }}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:11px;background:var(--gl-bg-input);border:1px solid {{ assnDueBorder }};cursor:pointer">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span style="font-size:15px;color:{{ assnDueFg }}">{{ assnDueLabel }}</span>
+              </div>
+              <sc-if value="{{ assnCalOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;bottom:calc(100% + 8px);left:0;z-index:40;width:280px;border-radius:14px;border:1px solid var(--gl-cyan-25);background:#0a0e20;box-shadow:0 16px 40px rgba(0,0,0,.5);padding:14px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+                    <div onClick="{{ assnPrevMonth }}" style="width:26px;height:26px;border-radius:7px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cdd6f2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+                    </div>
+                    <div style="font-family:var(--font-display);font-weight:700;font-size:13.5px;letter-spacing:.03em;text-transform:uppercase;color:#fff">{{ assnCalLabel }}</div>
+                    <div onClick="{{ assnNextMonth }}" style="width:26px;height:26px;border-radius:7px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#cdd6f2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+                    </div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+                    <sc-for list="{{ dow }}" as="w" hint-placeholder-count="7">
+                      <div style="text-align:center;font-size:10.5px;font-weight:700;color:var(--gl-text-dim);padding:4px 0">{{ w }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+                    <sc-for list="{{ assnCalCells }}" as="cell" hint-placeholder-count="35">
+                      <sc-if value="{{ cell.blank }}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+                      <sc-if value="{{ cell.real }}" hint-placeholder-val="{{ true }}">
+                        <div onClick="{{ cell.onClick }}" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;border:1px solid {{ cell.border }};background:{{ cell.bg }};cursor:pointer">
+                          <span style="font-size:12.5px;font-weight:{{ cell.weight }};color:{{ cell.fg }}">{{ cell.d }}</span>
+                        </div>
+                      </sc-if>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div onClick="{{ saveAssignment }}" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:11px;background:{{ assnSaveBg }};box-shadow:{{ assnSaveShadow }};cursor:{{ assnSaveCursor }}">
+              <span style="font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:{{ assnSaveFg }}">Add to Work</span>
+            </div>
+          </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ isNotAssignment }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ showLive }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 14px;border-radius:11px;background:rgba(120,150,220,.05);border:1px dashed {{ liveColor }}">
+              <span style="font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gl-text-dim)">Diana sees</span>
+              <span style="width:9px;height:9px;border-radius:50%;background:{{ liveColor }}"></span>
+              <span style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:{{ liveColor }}">{{ liveName }}</span>
+              <span style="margin-left:auto;font-size:12px;color:var(--gl-text-muted)">{{ liveKind }} · {{ liveDue }}</span>
+            </div>
+          </sc-if>
+          <div onClick="{{ save }}" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-radius:11px;background:{{ saveBg }};box-shadow:{{ saveShadow }};cursor:{{ saveCursor }}">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:17px;letter-spacing:.04em;text-transform:uppercase;color:{{ saveFg }}">{{ saveLabel }}</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ═══ MOBILE BOTTOM SHEET ═══ -->
+  <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:100;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,6,15,.86);backdrop-filter:blur(10px)">
+      <div style="width:390px;max-height:80vh;overflow:auto;border-radius:22px 22px 0 0;border:1px solid var(--gl-cyan-25);border-bottom:none;background:linear-gradient(180deg,rgba(18,24,50,.98),rgba(10,14,32,.98));padding:14px 20px 26px">
+        <div style="width:40px;height:5px;border-radius:3px;background:rgba(120,150,220,.3);margin:0 auto 16px"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:20px;letter-spacing:.05em;text-transform:uppercase">Capture</div>
+          <a href="Student Lobby.dc.html" title="Close" style="text-decoration:none;width:28px;height:28px;border-radius:8px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;color:var(--gl-text-muted)">✕</a>
+        </div>
+
+        <div style="display:flex;border-radius:10px;overflow:hidden;border:1px solid var(--gl-cyan-25);margin-bottom:16px">
+          <sc-for list="{{ modeChips }}" as="m" hint-placeholder-count="3">
+            <div onClick="{{ m.onClick }}" style="flex:1;text-align:center;padding:10px 0;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ saved }}" hint-placeholder-val="{{ false }}">
+          <div style="border-radius:13px;border:1px solid {{ filedBorder }};background:{{ filedBg }};padding:13px 15px;margin-bottom:13px">
+            <sc-if value="{{ isAmbiguous }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:13px;color:var(--gl-text-secondary);margin-bottom:10px">Saved — <b style="color:#fff">which class?</b></div>
+              <div style="display:flex;flex-wrap:wrap;gap:7px">
+                <sc-for list="{{ classPicker }}" as="c" hint-placeholder-count="5">
+                  <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:6px;padding:7px 11px;border-radius:8px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border);cursor:pointer">
+                    <span style="width:7px;height:7px;border-radius:50%;background:{{ c.color }}"></span>
+                    <span style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:#e6ecff">{{ c.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isFiled }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;align-items:center;gap:10px">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:13px;color:var(--gl-text-secondary)">Filed to <b style="color:{{ filedColor }}">{{ filedName }}</b></div>
+                  <div style="font-size:11.5px;color:var(--gl-text-muted);margin-top:3px">{{ filedKind }} · {{ filedDue }}</div>
+                </div>
+                <div onClick="{{ toggleChange }}" style="font-family:var(--font-display);font-weight:700;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-muted);cursor:pointer;white-space:nowrap">Change</div>
+              </div>
+              <sc-if value="{{ changingClass }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:11px;padding-top:11px;border-top:1px solid var(--gl-border)">
+                  <sc-for list="{{ classPicker }}" as="c" hint-placeholder-count="5">
+                    <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:6px;padding:7px 11px;border-radius:8px;background:rgba(120,150,220,.08);border:1px solid var(--gl-border);cursor:pointer">
+                      <span style="width:7px;height:7px;border-radius:50%;background:{{ c.color }}"></span>
+                      <span style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:#e6ecff">{{ c.name }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+              <a href="Notes.dc.html" style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px;border-radius:9px;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan-25);text-decoration:none">
+                <span style="font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-cyan)">See it in {{ filedName }} notes</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+              </a>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isText }}" hint-placeholder-val="{{ true }}">
+          <textarea value="{{ text }}" onChange="{{ setText }}" placeholder="What do you need to remember?" style="width:100%;min-height:120px;box-sizing:border-box;padding:13px 14px;border-radius:12px;background:var(--gl-bg-input);border:1px solid var(--gl-border);color:#fff;font-size:15px;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+        </sc-if>
+        <sc-if value="{{ isVoice }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:13px;padding:8px 0 2px">
+            <div onClick="{{ toggleListen }}" style="width:92px;height:92px;border-radius:50%;background:{{ micBg }};border:2px solid {{ micBorder }};display:flex;align-items:center;justify-content:center;cursor:pointer;animation:{{ micAnim }};box-shadow:{{ micShadow }}">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="{{ micStroke }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="17" x2="12" y2="22"></line></svg>
+            </div>
+            <div style="font-size:13.5px;color:var(--gl-text-muted);font-weight:600">{{ micLabel }}</div>
+            <sc-if value="{{ hasVoiceText }}" hint-placeholder-val="{{ false }}">
+              <textarea value="{{ text }}" onChange="{{ setText }}" style="width:100%;min-height:60px;box-sizing:border-box;padding:11px 14px;border-radius:12px;background:var(--gl-bg-input);border:1px solid var(--gl-cyan-25);color:#fff;font-size:14.5px;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ isPhoto }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ photoAttached }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ clearPhoto }}" style="position:relative;height:140px;border-radius:13px;background:linear-gradient(135deg,#1a3a2c,#0a1c14);border:1px solid var(--gl-cyan-25);display:flex;align-items:center;justify-content:center;cursor:pointer">
+              <div style="text-align:center">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 6px;display:block"><path d="M20 6 9 17l-5-5"></path></svg>
+                <div style="font-size:12px;color:var(--gl-text-secondary)">Photo attached — tap to remove</div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ photoEmpty }}" hint-placeholder-val="{{ true }}">
+            <div onClick="{{ attachPhoto }}" style="height:140px;border-radius:13px;border:1.5px dashed var(--gl-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <div style="font-size:12.5px;color:var(--gl-text-muted)">Snap the board or a handout</div>
+            </div>
+          </sc-if>
+          <textarea value="{{ caption }}" onChange="{{ setCaption }}" placeholder="Add a caption (optional)" style="width:100%;min-height:50px;box-sizing:border-box;margin-top:10px;padding:10px 13px;border-radius:11px;background:var(--gl-bg-input);border:1px solid var(--gl-border);color:#fff;font-size:13.5px;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+        </sc-if>
+        <sc-if value="{{ isAssignment }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ assnSaved }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:9px;border-radius:13px;border:1px solid var(--gl-green-30);background:var(--gl-green-12);padding:14px">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+              <div style="flex:1">
+                <div style="font-size:13px;color:var(--gl-text-secondary)">Added to <b style="color:{{ assnClassColor }}">{{ assnClass }}</b> — due {{ assnDueLabel }}</div>
+              </div>
+              <a href="Work Phone.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:5px;flex-shrink:0">
+                <span style="font-family:var(--font-display);font-weight:800;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-cyan)">Work</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+              </a>
+            </div>
+          </sc-if>
+          <sc-if value="{{ assnNotSaved }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:14px;padding:4px 2px 2px">
+            <div>
+              <label style="display:block;font-family:var(--font-display);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:8px">Snap the homework</label>
+              <sc-if value="{{ assnPhoto }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ clearAssnPhoto }}" style="position:relative;height:110px;border-radius:13px;background:linear-gradient(135deg,#1a3a2c,#0a1c14);border:1px solid var(--gl-cyan-25);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                  <div style="text-align:center">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin:0 auto 6px;display:block"><path d="M20 6 9 17l-5-5"></path></svg>
+                    <div style="font-size:11.5px;color:var(--gl-text-secondary)">Photo attached — tap to remove</div>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ assnPhotoEmpty }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ attachAssnPhoto }}" style="height:110px;border-radius:13px;border:1.5px dashed var(--gl-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  <div style="font-size:11.5px;color:var(--gl-text-muted)">Snap the worksheet or board</div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div>
+              <label style="display:block;font-family:var(--font-display);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:8px">Class</label>
+              <div style="display:flex;flex-wrap:wrap;gap:7px">
+                <sc-for list="{{ assnClassChips }}" as="c" hint-placeholder-count="6">
+                  <div onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:9px;cursor:pointer;border:1.5px solid {{ c.border }};background:{{ c.bg }}">
+                    <span style="width:7px;height:7px;border-radius:50%;background:{{ c.dot }}"></span>
+                    <span style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.02em;text-transform:uppercase;color:{{ c.fg }}">{{ c.name }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="position:relative">
+              <label style="display:block;font-family:var(--font-display);font-weight:700;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:8px">Due date</label>
+              <div onClick="{{ toggleAssnCal }}" style="display:flex;align-items:center;gap:9px;padding:11px 13px;border-radius:11px;background:var(--gl-bg-input);border:1px solid {{ assnDueBorder }};cursor:pointer">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gl-cyan)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <span style="font-size:14px;color:{{ assnDueFg }}">{{ assnDueLabel }}</span>
+              </div>
+              <sc-if value="{{ assnCalOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="position:absolute;bottom:calc(100% + 8px);left:0;right:0;z-index:40;border-radius:14px;border:1px solid var(--gl-cyan-25);background:#0a0e20;box-shadow:0 16px 40px rgba(0,0,0,.5);padding:12px">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
+                    <div onClick="{{ assnPrevMonth }}" style="width:24px;height:24px;border-radius:7px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cdd6f2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+                    </div>
+                    <div style="font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.03em;text-transform:uppercase;color:#fff">{{ assnCalLabel }}</div>
+                    <div onClick="{{ assnNextMonth }}" style="width:24px;height:24px;border-radius:7px;background:rgba(120,150,220,.1);display:flex;align-items:center;justify-content:center;cursor:pointer">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cdd6f2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+                    </div>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px">
+                    <sc-for list="{{ dow }}" as="w" hint-placeholder-count="7">
+                      <div style="text-align:center;font-size:10px;font-weight:700;color:var(--gl-text-dim);padding:3px 0">{{ w }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px">
+                    <sc-for list="{{ assnCalCells }}" as="cell" hint-placeholder-count="35">
+                      <sc-if value="{{ cell.blank }}" hint-placeholder-val="{{ false }}"><div></div></sc-if>
+                      <sc-if value="{{ cell.real }}" hint-placeholder-val="{{ true }}">
+                        <div onClick="{{ cell.onClick }}" style="aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;border:1px solid {{ cell.border }};background:{{ cell.bg }};cursor:pointer">
+                          <span style="font-size:11.5px;font-weight:{{ cell.weight }};color:{{ cell.fg }}">{{ cell.d }}</span>
+                        </div>
+                      </sc-if>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+
+            <div onClick="{{ saveAssignment }}" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:11px;background:{{ assnSaveBg }};box-shadow:{{ assnSaveShadow }};cursor:{{ assnSaveCursor }}">
+              <span style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:{{ assnSaveFg }}">Add to Work</span>
+            </div>
+          </div>
+          </sc-if>
+        </sc-if>
+
+        <sc-if value="{{ isNotAssignment }}" hint-placeholder-val="{{ true }}">
+          <sc-if value="{{ showLive }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:9px;margin-top:13px;padding:9px 13px;border-radius:11px;background:rgba(120,150,220,.05);border:1px dashed {{ liveColor }}">
+              <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-text-dim)">Diana sees</span>
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ liveColor }}"></span>
+              <span style="font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:{{ liveColor }}">{{ liveName }}</span>
+              <span style="margin-left:auto;font-size:11.5px;color:var(--gl-text-muted)">{{ liveKind }} · {{ liveDue }}</span>
+            </div>
+          </sc-if>
+          <div onClick="{{ save }}" style="margin-top:13px;display:flex;align-items:center;justify-content:center;gap:8px;padding:13px;border-radius:11px;background:{{ saveBg }};box-shadow:{{ saveShadow }};cursor:{{ saveCursor }}">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:{{ saveFg }}">{{ saveLabel }}</span>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;mobile&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Reference&quot;}}">
+class Component extends DCLogic {
+  getInitialMode() {
+    try {
+      const m = new URLSearchParams(window.location.search).get('mode');
+      if (['text', 'voice', 'photo', 'assignment'].indexOf(m) !== -1) return m;
+    } catch (e) {}
+    return 'text';
+  }
+
+  state = { screen: this.props.screen || 'desktop', mode: this.getInitialMode(), text: '', saved: false, photoAttached: false, caption: '', filed: null, changingClass: false, listening: false,
+    assnPhoto: false, assnClass: null, assnDue: null, assnCalOpen: false, assnCalY: 2026, assnCalM: 6, assnSaved: false };
+
+  TODAY = { y: 2026, m: 6, d: 1 };
+  MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  DOW = ['S','M','T','W','T','F','S'];
+
+  CLASSES = [
+    { name: 'Math',      color: '#ff6a3d', kw: ['math','algebra','geometry','equation','equations','problem','problems','worksheet','graph','calculator','integral','derivative','solve','quadratic','fraction','trig','theorem'] },
+    { name: 'English',   color: '#29d0ff', kw: ['english','read','reading','pages','essay','book','novel','article','paragraph','vocab','vocabulary','gatsby','shakespeare','poem','poetry','annotate','writing'] },
+    { name: 'Science',   color: '#36e07a', kw: ['science','lab','biology','chemistry','physics','cell','cells','atom','experiment','hypothesis','safety','molecule','photosynthesis','ecosystem','dissection'] },
+    { name: 'History',   color: '#ffd24a', kw: ['history','civil','revolution','timeline','constitution','amendment','ancient','empire','treaty','civilization','government','wwii','colonial'] },
+    { name: 'Athletics', color: 'var(--gl-slate)', kw: ['workout','practice','game','coach','athletics','football','training','conditioning','scrimmage','drill','laps'] },
+    { name: 'Art',       color: 'var(--gl-slate)', kw: ['art','paint','painting','sketch','drawing','draw','portfolio','canvas','palette','color theory','composition','still life','ceramics'] },
+  ];
+
+  setScreen = (v) => this.setState({ screen: v });
+  setMode = (v) => this.setState({ mode: v, saved: false });
+  setText = (e) => this.setState({ text: e.target.value });
+  setCaption = (e) => this.setState({ caption: e.target.value });
+  attachPhoto = () => this.setState({ photoAttached: true });
+  clearPhoto = () => this.setState({ photoAttached: false });
+  toggleListen = () => {
+    const st = this.state;
+    if (st.listening) {
+      const filled = st.text.trim().length ? st.text : 'Chemistry lab safety worksheet due Friday';
+      this.setState({ listening: false, text: filled });
+    } else {
+      this.setState({ listening: true, saved: false });
+    }
+  };
+  noop = () => {};
+
+  save = () => {
+    const st = this.state;
+    const enabled = (st.mode === 'text' || st.mode === 'voice') ? st.text.trim().length > 0 : st.photoAttached;
+    if (!enabled) return;
+    const raw = (st.mode === 'text' || st.mode === 'voice') ? st.text : (st.caption || 'lab safety worksheet photo');
+    const d = this.detect(raw) || { ambiguous: true, kind: 'Note', due: 'No date yet' };
+    this.setState({ saved: true, filed: d, changingClass: false, text: '', photoAttached: false, caption: '', listening: false });
+    clearTimeout(this._t);
+    if (!d.ambiguous) { this._t = setTimeout(() => this.setState({ saved: false, filed: null, changingClass: false }), 9000); }
+  };
+
+  pickClass = (c) => {
+    const f = this.state.filed || {};
+    this.setState({ filed: { name: c.name, color: c.color, kind: f.kind || 'Note', due: f.due || 'No date yet', ambiguous: false }, changingClass: false });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => this.setState({ saved: false, filed: null, changingClass: false }), 9000);
+  };
+  toggleChange = () => this.setState((s) => ({ changingClass: !s.changingClass }));
+
+  detect(raw) {
+    const t = (raw || '').toLowerCase();
+    if (t.trim().length < 3) return null;
+    let best = null, bestScore = 0, second = 0;
+    for (const c of this.CLASSES) {
+      let s = 0;
+      for (const k of c.kw) { if (t.indexOf(k) !== -1) s += (k.length > 5 ? 2 : 1); }
+      if (s > bestScore) { second = bestScore; bestScore = s; best = c; }
+      else if (s > second) { second = s; }
+    }
+    const kind = this.guessKind(t), due = this.guessDue(t);
+    if (!best || bestScore === 0 || bestScore <= second) return { ambiguous: true, kind, due };
+    return { name: best.name, color: best.color, kind, due, ambiguous: false };
+  }
+
+  guessKind(t) {
+    if (/\b(test|quiz|exam|midterm|final)\b/.test(t)) return 'Test-prep note';
+    if (/\b(lab|experiment)\b/.test(t)) return 'Lab note';
+    if (/\b(problem|problems|worksheet|solve)\b/.test(t)) return 'Practice note';
+    if (/\b(read|reading|pages?|article|chapter|annotate)\b/.test(t)) return 'Reading note';
+    if (/\b(essay|write|writing|paragraph)\b/.test(t)) return 'Writing note';
+    if (/\b(workout|practice|log|run|training|drill)\b/.test(t)) return 'Activity log';
+    return 'Note';
+  }
+
+  guessDue(t) {
+    const days = { monday: 'Mon', tuesday: 'Tue', wednesday: 'Wed', thursday: 'Thu', friday: 'Fri', saturday: 'Sat', sunday: 'Sun' };
+    for (const d in days) { if (t.indexOf(d) !== -1) return 'Due ' + days[d]; }
+    if (t.indexOf('tomorrow') !== -1) return 'Due tomorrow';
+    if (t.indexOf('tonight') !== -1 || t.indexOf('today') !== -1) return 'Due today';
+    if (t.indexOf('next week') !== -1) return 'Due next week';
+    return 'No date yet';
+  }
+
+  attachAssnPhoto = () => this.setState({ assnPhoto: true });
+  clearAssnPhoto = () => this.setState({ assnPhoto: false });
+  pickAssnClass = (name) => this.setState({ assnClass: name });
+  toggleAssnCal = () => this.setState((s) => ({ assnCalOpen: !s.assnCalOpen }));
+  closeAssnCal = () => this.setState({ assnCalOpen: false });
+  assnPrevMonth = () => this.setState((s) => { let m = s.assnCalM - 1, y = s.assnCalY; if (m < 0) { m = 11; y--; } return { assnCalM: m, assnCalY: y }; });
+  assnNextMonth = () => this.setState((s) => { let m = s.assnCalM + 1, y = s.assnCalY; if (m > 11) { m = 0; y++; } return { assnCalM: m, assnCalY: y }; });
+  pickAssnDay = (y, m, d) => this.setState({ assnDue: { y, m, d }, assnCalOpen: false });
+
+  saveAssignment = () => {
+    const st = this.state;
+    if (!(st.assnPhoto && st.assnClass && st.assnDue)) return;
+    this.setState({ assnSaved: true });
+    clearTimeout(this._at);
+    this._at = setTimeout(() => this.setState({ assnSaved: false, assnPhoto: false, assnClass: null, assnDue: null, assnCalOpen: false }), 9000);
+  };
+
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._at); }
+
+  assnCalGrid(y, m) {
+    const leading = new Date(y, m, 1).getDay();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    const cells = [];
+    for (let i = 0; i < leading; i++) cells.push({ blank: true });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = y === this.TODAY.y && m === this.TODAY.m && d === this.TODAY.d;
+      const sel = this.state.assnDue;
+      const isSel = !!(sel && sel.y === y && sel.m === m && sel.d === d);
+      const isPast = new Date(y, m, d) < new Date(this.TODAY.y, this.TODAY.m, this.TODAY.d);
+      cells.push({
+        blank: false, real: true, d, onClick: () => this.pickAssnDay(y, m, d),
+        border: isSel ? 'var(--gl-cyan)' : isToday ? 'var(--gl-gold-30)' : 'transparent',
+        bg: isSel ? 'var(--gl-cyan)' : isToday ? 'var(--gl-gold-14)' : 'transparent',
+        fg: isSel ? '#04080f' : isPast ? 'var(--gl-text-dim)' : isToday ? 'var(--gl-gold)' : '#e6ecff',
+        weight: isSel || isToday ? 800 : 600,
+      });
+    }
+    while (cells.length % 7 !== 0) cells.push({ blank: true });
+    return cells;
+  }
+
+  renderVals() {
+    const st = this.state;
+    const currentRaw = st.mode === 'photo' ? st.caption : st.text;
+    const live = st.saved ? null : this.detect(currentRaw);
+    const hasLive = !!(live && !live.ambiguous);
+    const f = st.filed || null;
+    const listening = st.listening;
+    const hasVoiceText = st.mode === 'voice' && st.text.trim().length > 0;
+    const classPicker = this.CLASSES.map((c) => ({ name: c.name, color: c.color, onClick: () => this.pickClass(c) }));
+    const screenChips = [
+      { label: 'Desktop', onClick: () => this.setScreen('desktop'), bg: st.screen === 'desktop' ? 'var(--gl-cyan)' : 'transparent', fg: st.screen === 'desktop' ? '#04080f' : 'var(--gl-text-muted)' },
+      { label: 'Mobile', onClick: () => this.setScreen('mobile'), bg: st.screen === 'mobile' ? 'var(--gl-cyan)' : 'transparent', fg: st.screen === 'mobile' ? '#04080f' : 'var(--gl-text-muted)' },
+    ];
+    const modeDefs = [{ v: 'text', label: 'Text' }, { v: 'voice', label: 'Voice' }, { v: 'photo', label: 'Photo' }, { v: 'assignment', label: 'Assignment' }];
+    const modeChips = modeDefs.map((m) => ({ label: m.label, onClick: () => this.setMode(m.v), bg: st.mode === m.v ? 'var(--gl-cyan)' : 'transparent', fg: st.mode === m.v ? '#04080f' : 'var(--gl-text-secondary)' }));
+
+    const saveEnabled = (st.mode === 'text' || st.mode === 'voice') ? st.text.trim().length > 0 : st.photoAttached;
+
+    const assnClassChips = this.CLASSES.map((c) => {
+      const sel = st.assnClass === c.name;
+      return { name: c.name, onClick: () => this.pickAssnClass(c.name), dot: c.color, border: sel ? c.color : 'var(--gl-border)', bg: sel ? 'rgba(120,150,220,.1)' : 'transparent', fg: sel ? '#fff' : 'var(--gl-text-secondary)' };
+    });
+    const assnCalCells = this.assnCalGrid(st.assnCalY, st.assnCalM);
+    const assnCalLabel = this.MONTH_NAMES[st.assnCalM] + ' ' + st.assnCalY;
+    const assnDueLabel = st.assnDue ? (this.MONTH_NAMES[st.assnDue.m].slice(0, 3) + ' ' + st.assnDue.d) : 'Pick a date';
+    const assnValid = !!(st.assnPhoto && st.assnClass && st.assnDue);
+    const assnClassColor = st.assnClass ? (this.CLASSES.find((c) => c.name === st.assnClass) || {}).color : 'var(--gl-cyan)';
+
+    return {
+      assnPhoto: st.assnPhoto, assnPhotoEmpty: !st.assnPhoto, attachAssnPhoto: this.attachAssnPhoto, clearAssnPhoto: this.clearAssnPhoto,
+      assnClassChips, assnClass: st.assnClass, assnClassColor,
+      assnCalOpen: st.assnCalOpen, toggleAssnCal: this.toggleAssnCal,
+      assnCalCells, assnCalLabel, assnPrevMonth: this.assnPrevMonth, assnNextMonth: this.assnNextMonth,
+      dow: this.DOW,
+      assnDueLabel, assnHasDue: !!st.assnDue, assnDueBorder: st.assnDue ? 'var(--gl-cyan-30)' : 'var(--gl-border)', assnDueFg: st.assnDue ? '#fff' : 'var(--gl-text-dim)',
+      assnValid,
+      assnSaveBg: assnValid ? 'var(--gl-cyan)' : 'var(--gl-cyan-14)', assnSaveFg: assnValid ? '#04080f' : 'var(--gl-text-dim)',
+      assnSaveShadow: assnValid ? '0 0 22px rgba(41,208,255,.34)' : 'none', assnSaveCursor: assnValid ? 'pointer' : 'not-allowed',
+      saveAssignment: this.saveAssignment, assnSaved: st.assnSaved, assnNotSaved: !st.assnSaved,
+      screenChips, modeChips,
+      isDesktop: st.screen === 'desktop', isMobile: st.screen === 'mobile',
+      isText: st.mode === 'text', isPhoto: st.mode === 'photo', isAssignment: st.mode === 'assignment', isNotAssignment: st.mode !== 'assignment',
+      isVoice: st.mode === 'voice', listening, hasVoiceText, toggleListen: this.toggleListen,
+      micLabel: listening ? 'Listening… tap to stop' : (hasVoiceText ? 'Tap to add more · or edit below' : 'Tap to talk'),
+      micBg: listening ? 'var(--gl-cyan-14)' : 'rgba(120,150,220,.08)',
+      micBorder: listening ? 'var(--gl-cyan)' : 'var(--gl-border)',
+      micStroke: listening ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      micAnim: listening ? 'qa-pulse 1.4s ease-in-out infinite' : 'none',
+      micShadow: listening ? '0 0 30px rgba(41,208,255,.4)' : 'none',
+      noop: this.noop, setText: this.setText, setCaption: this.setCaption,
+      text: st.text, caption: st.caption,
+      photoAttached: st.photoAttached, photoEmpty: !st.photoAttached,
+      attachPhoto: this.attachPhoto, clearPhoto: this.clearPhoto,
+      saved: st.saved,
+      save: this.save,
+      showLive: hasLive,
+      liveName: hasLive ? live.name : '',
+      liveColor: hasLive ? live.color : 'var(--gl-cyan)',
+      liveKind: hasLive ? live.kind : '',
+      liveDue: hasLive ? live.due : '',
+      saveLabel: hasLive ? ('File to ' + live.name) : 'Save',
+      classPicker,
+      isAmbiguous: !!(f && f.ambiguous),
+      isFiled: !!(f && !f.ambiguous),
+      changingClass: !!(st.changingClass && f && !f.ambiguous),
+      toggleChange: this.toggleChange,
+      filedName: (f && f.name) || '',
+      filedColor: (f && f.color) || 'var(--gl-green)',
+      filedKind: (f && f.kind) || 'Note',
+      filedDue: (f && f.due && f.due !== 'No date yet') ? f.due : 'Saved just now',
+      filedBg: (f && f.ambiguous) ? 'rgba(120,150,220,.06)' : 'var(--gl-green-12)',
+      filedBorder: (f && f.ambiguous) ? 'var(--gl-border)' : 'var(--gl-green-30)',
+      saveBg: saveEnabled ? 'var(--gl-cyan)' : 'var(--gl-cyan-14)',
+      saveFg: saveEnabled ? '#04080f' : 'var(--gl-text-dim)',
+      saveShadow: saveEnabled ? '0 0 24px rgba(41,208,255,.34)' : 'none',
+      saveCursor: saveEnabled ? 'pointer' : 'not-allowed',
+    };
+  }
+}
+</script>
+</body>
+</html>

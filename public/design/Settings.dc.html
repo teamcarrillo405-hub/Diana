@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script type="module">
+  // Real in-browser background removal (free AI model, no API key). Lazy-loaded on first use.
+  window.__loadBgRemoval = window.__loadBgRemoval || (() => import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.7/+esm')
+    .then(m => m.removeBackground || (m.default && m.default.removeBackground) || m.default));
+</script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  @keyframes gl-spin{to{transform:rotate(360deg)}}
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.06);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14);
+    --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14); --gl-violet-08:rgba(167,139,250,.06);
+    --gl-red:#ff7070; --gl-red-30:rgba(255,85,85,.5); --gl-red-08:rgba(255,55,55,.07);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.3);border-radius:4px}
+  input[type="range"]{accent-color:var(--gl-cyan)}
+  .gl-tab:hover{color:#fff !important;}
+</style>
+</helmet>
+
+<div style="width:1440px;min-height:900px;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -10%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)" data-screen-label="Settings">
+
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+        <a href="Student Lobby.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
+        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+            <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }}" alt="You">
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+        </sc-if>
+        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+        </sc-if>
+        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">{{ initials }}</span>
+        </sc-if>
+      </a>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px;display:grid;grid-template-columns:220px 1fr;gap:28px">
+
+    <!-- LEFT RAIL -->
+    <div>
+      <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:14px">Settings</div>
+      <sc-for list="{{ railGroups }}" as="grp" hint-placeholder-count="3">
+        <div style="margin-bottom:14px">
+          <div style="font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-dim);padding:0 14px;margin-bottom:6px">{{ grp.title }}</div>
+          <sc-for list="{{ grp.items }}" as="sec" hint-placeholder-count="3">
+            <div onClick="{{ sec.onClick }}" style="padding:10px 14px;border-radius:9px;cursor:pointer;font-weight:600;font-size:13.5px;margin-bottom:3px;color:{{ sec.color }};background:{{ sec.bg }}">{{ sec.label }}</div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div style="display:flex;flex-direction:column;gap:20px">
+
+      <!-- PROFILE -->
+      <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ true }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase;margin-bottom:4px">Profile</div>
+          <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:22px">Who you are across Diana — and the picture that sits in your lobby hero.</div>
+          <div style="display:flex;gap:22px;align-items:flex-start">
+            <!-- Live avatar (drag to reposition when it's your photo) -->
+            <div onPointerDown="{{ onAvatarPointerDown }}" style="width:92px;height:92px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2.5px solid rgba(41,208,255,.55);box-shadow:0 0 24px rgba(41,208,255,.22);background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;position:relative;cursor:{{ avatarCursor }}">
+              <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                  <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-photo-img style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }};pointer-events:none;user-select:none" alt="Your photo" draggable="false">
+                </sc-if>
+              </sc-if>
+              <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+              </sc-if>
+              <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+                <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+              </sc-if>
+              <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
+                <span style="font-family:var(--font-display);font-weight:800;font-size:32px;color:#04080f">{{ initials }}</span>
+              </sc-if>
+            </div>
+
+            <div style="flex:1">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:21px;color:#fff">{{ profileName }}</div>
+              <div style="font-size:12.5px;color:var(--gl-text-dim);margin-top:3px;margin-bottom:16px">grayson.m@northgate.edu</div>
+
+              <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:9px">Choose avatar</div>
+              <div style="display:flex;gap:10px;margin-bottom:16px">
+                <div onClick="{{ setAvatarUpload }}" title="Your photo" style="width:46px;height:46px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderUpload }};background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                    <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-photo-img style="width:100%;height:100%;object-fit:cover" alt="Photo option">
+                  </sc-if>
+                  <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ true }}">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                  </sc-if>
+                </div>
+                <div onClick="{{ setAvatarBoy }}" title="Boy avatar" style="width:46px;height:46px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderBoy }};flex-shrink:0">
+                  <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+                </div>
+                <div onClick="{{ setAvatarGirl }}" title="Girl avatar" style="width:46px;height:46px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderGirl }};flex-shrink:0">
+                  <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+                </div>
+                <div onClick="{{ setAvatarNone }}" title="No picture" style="width:46px;height:46px;border-radius:50%;overflow:hidden;cursor:pointer;border:2px solid {{ swatchBorderNone }};background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <span style="font-family:var(--font-display);font-weight:800;font-size:14px;color:#04080f">{{ initials }}</span>
+                </div>
+              </div>
+
+              <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:9px;align-items:center">
+                  <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 15px;border-radius:8px;background:rgba(41,208,255,.12);border:1px solid rgba(41,208,255,.35);cursor:pointer" style-hover="background:rgba(41,208,255,.2)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#29d0ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    <span style="font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#29d0ff">{{ profilePhotoBtnLabel }}</span>
+                    <input type="file" accept="image/*" onChange="{{ setProfilePhoto }}" style="display:none">
+                  </label>
+                  <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                    <div onClick="{{ removeProfilePhoto }}" style="display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:8px;background:rgba(120,150,220,.08);border:1px solid rgba(120,150,220,.22);cursor:pointer" style-hover="background:rgba(120,150,220,.16)">
+                      <span style="font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-muted)">Remove</span>
+                    </div>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:8px">Drag your photo in the circle above to reposition it.</div>
+                </sc-if>
+                <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:8px">No photo yet — we'll show your initials until you upload one.</div>
+                </sc-if>
+              </sc-if>
+              <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:11.5px;color:var(--gl-text-dim)">Boy avatar selected.</div>
+              </sc-if>
+              <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:11.5px;color:var(--gl-text-dim)">Girl avatar selected.</div>
+              </sc-if>
+              <sc-if value="{{ isAvatarNone }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:11.5px;color:var(--gl-text-dim)">No picture — showing your initials, and nothing will appear in your lobby hero.</div>
+              </sc-if>
+            </div>
+          </div>
+
+          <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--gl-border)">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:7px">Display name</div>
+            <input type="text" value="{{ profileName }}" onChange="{{ setProfileName }}" style="max-width:320px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:9px;background:rgba(10,16,36,.85);border:1px solid var(--gl-border);color:#fff;font-size:14px;font-family:var(--font-body);outline:none">
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- APPEARANCE -->
+      <sc-if value="{{ isAppearance }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase;margin-bottom:4px">Appearance</div>
+          <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:22px">Personalize your lobby — this only changes what you see.</div>
+
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:14px">Lobby background</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">
+            <div onClick="{{ setBgFootball }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgFootballBorder }};background:{{ bgFootballActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Stadium">
+              <div style="padding:8px 10px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Stadium</div>
+            </div>
+            <div onClick="{{ setBgScience }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgScienceBorder }};background:{{ bgScienceActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Sci lab">
+              <div style="padding:8px 10px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Sci Lab</div>
+            </div>
+            <div onClick="{{ setBgMusic }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgMusicBorder }};background:{{ bgMusicActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-e2a03daf-7692-41ff-a4b7-2b4cc6daa95e.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Music">
+              <div style="padding:8px 10px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Music</div>
+            </div>
+            <div onClick="{{ setBgDefault }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgDefaultBorder }};background:{{ bgDefaultActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
+              <img src="./uploads/grok-image-74811ff2-f7a6-4a2a-91da-29b5088ed2fe.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Default">
+              <div style="padding:8px 10px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Default</div>
+            </div>
+          </div>
+
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:8px">Lobby hero photo</div>
+          <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:16px">Whatever avatar you pick in Profile sits in the center of your lobby.</div>
+
+          <sc-if value="{{ isAvatarNone }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;background:rgba(120,150,220,.06);border:1px dashed rgba(120,150,220,.25)">
+              <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:800;font-size:18px;color:#04080f;flex-shrink:0">{{ initials }}</div>
+              <div style="flex:1">
+                <div style="font-size:13.5px;font-weight:700;color:#fff;margin-bottom:2px">No picture chosen</div>
+                <div style="font-size:12px;color:var(--gl-text-dim)">Nothing will appear in your lobby hero — pick a photo or avatar in Profile if you want one.</div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.2)">
+              <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg></div>
+              <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:#fff">Boy avatar</div><div style="font-size:12px;color:var(--gl-text-dim);margin-top:2px">Showing in your lobby hero</div></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.25)">
+              <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;flex-shrink:0"><svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg></div>
+              <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:#fff">Girl avatar</div><div style="font-size:12px;color:var(--gl-text-dim);margin-top:2px">Showing in your lobby hero</div></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ noProfilePhoto }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;background:rgba(41,208,255,.06);border:1px dashed rgba(41,208,255,.3)">
+                <div style="flex:1"><div style="font-size:13.5px;font-weight:700;color:#fff;margin-bottom:2px">No photo uploaded yet</div><div style="font-size:12px;color:var(--gl-text-dim)">Add one in Profile to show it in your lobby.</div></div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:16px;align-items:flex-start">
+                <div style="width:96px;height:120px;border-radius:12px;overflow:hidden;flex-shrink:0;border:1px solid rgba(120,150,220,.2);background:radial-gradient(120px 90px at 50% 40%,rgba(41,208,255,.14),rgba(4,8,20,.9))">
+                  <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-photo-img data-hero-preview-img style="width:100%;height:100%;object-fit:contain;object-position:bottom;-webkit-mask-image:{{ heroPreviewMask }};mask-image:{{ heroPreviewMask }}" alt="Hero preview">
+                </div>
+                <div style="flex:1">
+                  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:10px">
+                    <sc-if value="{{ bgProcessing }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border-radius:8px;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.35)">
+                        <span style="width:14px;height:14px;border-radius:50%;border:2px solid rgba(167,139,250,.35);border-top-color:#a78bfa;display:inline-block;animation:gl-spin .7s linear infinite"></span>
+                        <span style="font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#a78bfa">Removing background…</span>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ notProcessing }}" hint-placeholder-val="{{ true }}">
+                      <sc-if value="{{ bgRemoved }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ useOriginalPhoto }}" style="display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:8px;cursor:pointer;background:rgba(120,150,220,.08);border:1px solid rgba(120,150,220,.22)" style-hover="background:rgba(120,150,220,.16)">
+                          <span style="font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-muted)">Use original</span>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ noBgRemoved }}" hint-placeholder-val="{{ true }}">
+                        <div onClick="{{ toggleBgRemoved }}" style="display:inline-flex;align-items:center;gap:8px;padding:9px 15px;border-radius:8px;cursor:pointer;background:rgba(167,139,250,.14);border:1px solid rgba(167,139,250,.35)" style-hover="background:rgba(167,139,250,.22)">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>
+                          <span style="font-family:var(--font-display);font-weight:800;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;color:#a78bfa">Remove background</span>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ bgProcessing }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px;color:var(--gl-text-dim)">Running the cut-out on your device — the first run downloads the AI model, so give it a few seconds.</div>
+                  </sc-if>
+                  <sc-if value="{{ bgError }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#ff6b6b"><span style="width:7px;height:7px;border-radius:50%;background:#ff6b6b"></span>{{ bgError }}</div>
+                  </sc-if>
+                  <sc-if value="{{ bgRemoved }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#36e07a"><span style="width:7px;height:7px;border-radius:50%;background:#36e07a"></span>Background removed — clean cut-out active</div>
+                  </sc-if>
+                  <sc-if value="{{ noBgRemoved }}" hint-placeholder-val="{{ true }}">
+                    <div style="font-size:11.5px;color:var(--gl-text-dim)">Cuts your photo out of its background and drops you into the scene — runs privately on your device.</div>
+                  </sc-if>
+                </div>
+              </div>
+            </sc-if>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- NOTIFICATIONS -->
+      <sc-if value="{{ isNotifications }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;display:flex;flex-direction:column;gap:20px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase">Notifications</div>
+          <div style="font-size:12.5px;color:var(--gl-text-dim);margin-top:-8px">Choose what Diana pings you about.</div>
+
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <sc-for list="{{ notifToggles }}" as="t" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:13.5px;font-weight:600">{{ t.label }}</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ t.sub }}</div>
+                </div>
+                <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer;transition:background .15s">
+                  <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }};transition:left .15s"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="padding-top:16px;border-top:1px solid var(--gl-border)">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:6px">Quiet hours</div>
+            <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:14px">No notifications during this window.</div>
+            <div style="display:flex;align-items:flex-end;gap:12px">
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:7px">From</div>
+                <input type="time" value="{{ quietStart }}" onChange="{{ onQuietStart }}" style="padding:10px 13px;border-radius:9px;background:rgba(10,16,36,.85);border:1px solid var(--gl-border);color:#fff;font-size:13px;font-family:inherit">
+              </div>
+              <div style="padding-bottom:11px;color:var(--gl-text-dim)">→</div>
+              <div>
+                <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:7px">To</div>
+                <input type="time" value="{{ quietEnd }}" onChange="{{ onQuietEnd }}" style="padding:10px 13px;border-radius:9px;background:rgba(10,16,36,.85);border:1px solid var(--gl-border);color:#fff;font-size:13px;font-family:inherit">
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ACCESSIBILITY -->
+      <sc-if value="{{ isAccessibility }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;display:flex;flex-direction:column;gap:20px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase">Accessibility</div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Font size</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ fontSizes }}" as="f" hint-placeholder-count="4">
+                <div onClick="{{ f.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Line spacing</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ lineSpacings }}" as="l" hint-placeholder-count="3">
+                <div onClick="{{ l.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ l.border }};background:{{ l.bg }};color:{{ l.fg }}">{{ l.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--gl-border)">
+            <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:13.5px;font-weight:600">{{ t.label }}</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ t.sub }}</div>
+                </div>
+                <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer;transition:background .15s">
+                  <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }};transition:left .15s"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- READING TOOLS -->
+      <sc-if value="{{ isReading }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;display:flex;flex-direction:column;gap:20px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase">Reading &amp; Speech</div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:13.5px;font-weight:600">Text-to-speech</div>
+              <div style="font-size:11.5px;color:var(--gl-text-dim)">Read assignments and notes aloud</div>
+            </div>
+            <div onClick="{{ ttsToggle.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ ttsToggle.trackBg }};position:relative;cursor:pointer">
+              <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ ttsToggle.knobLeft }}"></div>
+            </div>
+          </div>
+
+          <sc-if value="{{ ttsEnabled }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;flex-direction:column;gap:14px;padding-left:2px">
+              <div>
+                <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Voice provider</div>
+                <div style="display:flex;gap:8px">
+                  <sc-for list="{{ ttsProviders }}" as="p" hint-placeholder-count="3">
+                    <div onClick="{{ p.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ p.border }};background:{{ p.bg }};color:{{ p.fg }}">{{ p.label }}</div>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--gl-text-dim);margin-bottom:6px"><span>Speed</span><span style="font-family:var(--font-mono);color:var(--gl-cyan)">{{ ttsSpeedLabel }}</span></div>
+                <input type="range" min="0.7" max="1.5" step="0.05" value="{{ ttsSpeed }}" onChange="{{ onTtsSpeedChange }}" style="width:100%">
+              </div>
+            </div>
+          </sc-if>
+
+          <div style="display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--gl-border)">
+            <sc-for list="{{ readingToggles }}" as="t" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:13.5px;font-weight:600">{{ t.label }}</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ t.sub }}</div>
+                </div>
+                <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer">
+                  <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Reading font</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ readingFonts }}" as="f" hint-placeholder-count="4">
+                <div onClick="{{ f.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- DO THE WORK -->
+      <sc-if value="{{ isWork }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;display:flex;flex-direction:column;gap:20px">
+          <div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase">Do the work</div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-top:4px">Defaults for focus sessions, tasks, and co-writing</div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Default focus length</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ focusLengths }}" as="f" hint-placeholder-count="3">
+                <div onClick="{{ f.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Ambient sound</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ ambientSounds }}" as="a" hint-placeholder-count="4">
+                <div onClick="{{ a.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ a.border }};background:{{ a.bg }};color:{{ a.fg }}">{{ a.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Co-write assistance</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ coWriteLevels }}" as="c" hint-placeholder-count="3">
+                <div onClick="{{ c.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.fg }}">{{ c.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--gl-border)">
+            <sc-for list="{{ workToggles }}" as="t" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:13.5px;font-weight:600">{{ t.label }}</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ t.sub }}</div>
+                </div>
+                <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer">
+                  <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- STUDY -->
+      <sc-if value="{{ isStudy }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;display:flex;flex-direction:column;gap:20px">
+          <div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase">Study</div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-top:4px">Review pacing, flashcards, and study groups</div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Daily review target</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ reviewTargets }}" as="r" hint-placeholder-count="3">
+                <div onClick="{{ r.onClick }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }}">{{ r.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Spaced repetition</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ repetitionIntensities }}" as="r" hint-placeholder-count="3">
+                <div onClick="{{ r.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ r.border }};background:{{ r.bg }};color:{{ r.fg }}">{{ r.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Study group visibility</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ groupVisibilities }}" as="g" hint-placeholder-count="3">
+                <div onClick="{{ g.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ g.border }};background:{{ g.bg }};color:{{ g.fg }}">{{ g.label }}</div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--gl-border)">
+            <sc-for list="{{ studyToggles }}" as="t" hint-placeholder-count="1">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:13.5px;font-weight:600">{{ t.label }}</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ t.sub }}</div>
+                </div>
+                <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer">
+                  <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- AI & INTEGRITY -->
+      <sc-if value="{{ isAi }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;display:flex;flex-direction:column;gap:20px">
+          <div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase">AI &amp; integrity</div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-top:4px">How much Diana helps — and how it shows its work</div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-bottom:8px">Help mode</div>
+            <div style="display:flex;gap:8px">
+              <sc-for list="{{ aiHelpModes }}" as="m" hint-placeholder-count="3">
+                <div onClick="{{ m.onClick }}" style="flex:1;text-align:center;padding:9px 6px;border-radius:8px;cursor:pointer;font-size:12.5px;font-weight:600;border:1px solid {{ m.border }};background:{{ m.bg }};color:{{ m.fg }}">{{ m.label }}</div>
+              </sc-for>
+            </div>
+            <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:8px;line-height:1.5">{{ aiHelpModeHint }}</div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;padding-top:6px;border-top:1px solid var(--gl-border)">
+            <sc-for list="{{ aiToggles }}" as="t" hint-placeholder-count="2">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <div>
+                  <div style="font-size:13.5px;font-weight:600">{{ t.label }}</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ t.sub }}</div>
+                </div>
+                <div onClick="{{ t.onClick }}" style="width:44px;height:26px;border-radius:13px;background:{{ t.trackBg }};position:relative;cursor:pointer">
+                  <div style="width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ t.knobLeft }}"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- CONNECTIONS -->
+      <sc-if value="{{ isConnections }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase;margin-bottom:14px">Connected accounts</div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <sc-for list="{{ connections }}" as="c" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;justify-content:space-between;border-radius:10px;border:1px solid var(--gl-border);padding:12px 15px">
+                  <div>
+                    <div style="font-size:13.5px;font-weight:700">{{ c.label }}</div>
+                    <div style="font-size:11.5px;color:var(--gl-text-dim)">{{ c.detail }}</div>
+                  </div>
+                  <div onClick="{{ c.onDisconnect }}" style="padding:7px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:var(--gl-red);background:var(--gl-red-08);border:1px solid var(--gl-red-30)">Disconnect</div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ noConnections }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12.5px;color:var(--gl-text-dim);padding:8px 0">No connections yet.</div>
+              </sc-if>
+            </div>
+          </div>
+
+          <div style="border-radius:16px;border:1px solid var(--gl-cyan-30);background:var(--gl-cyan-08);padding:24px 26px">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:4px">Add a connection</div>
+            <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:16px">Sign in with Google once — Diana syncs your classes, assignments, and due dates automatically.</div>
+            <div style="display:flex;flex-direction:column;gap:11px">
+              <!-- Canvas via Google -->
+              <div onClick="{{ onConnectCanvasGoogle }}" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--gl-border);background:rgba(4,8,20,.55);cursor:pointer;transition:all .18s" style-hover="border-color:rgba(41,208,255,.5);background:rgba(41,208,255,.06)">
+                <div style="width:42px;height:42px;border-radius:10px;background:#e2373f;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="4.3" r="2.1" fill="#fff"></circle><circle cx="12" cy="19.7" r="2.1" fill="#fff"></circle><circle cx="4.3" cy="12" r="2.1" fill="#fff"></circle><circle cx="19.7" cy="12" r="2.1" fill="#fff"></circle><circle cx="6.6" cy="6.6" r="1.7" fill="#fff" opacity=".75"></circle><circle cx="17.4" cy="17.4" r="1.7" fill="#fff" opacity=".75"></circle><circle cx="6.6" cy="17.4" r="1.7" fill="#fff" opacity=".55"></circle><circle cx="17.4" cy="6.6" r="1.7" fill="#fff" opacity=".55"></circle></svg>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:700;color:#fff">Connect Canvas</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:1px">Your school's LMS — sign in with Google</div>
+                </div>
+                <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:8px;background:#fff;flex-shrink:0">
+                  <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.06 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h6.2c-.27 1.44-1.08 2.66-2.3 3.48v2.89h3.72c2.18-2 3.44-4.96 3.44-8.38z"></path><path fill="#34A853" d="M12 24c3.11 0 5.72-1.03 7.62-2.79l-3.72-2.89c-1.03.69-2.35 1.1-3.9 1.1-3 0-5.54-2.03-6.45-4.75H1.7v2.98C3.6 21.44 7.5 24 12 24z"></path><path fill="#FBBC05" d="M5.55 14.67c-.23-.69-.36-1.42-.36-2.17s.13-1.48.36-2.17V7.35H1.7A11.99 11.99 0 0 0 .43 12c0 1.94.47 3.77 1.27 5.15l3.85-2.48z"></path><path fill="#EA4335" d="M12 4.75c1.69 0 3.21.58 4.4 1.72l3.3-3.3C17.72 1.2 15.11 0 12 0 7.5 0 3.6 2.56 1.7 6.35l3.85 2.98C6.46 6.78 9 4.75 12 4.75z"></path></svg>
+                  <span style="font-family:var(--font-body);font-weight:600;font-size:12.5px;color:#3c4043">Google</span>
+                </div>
+              </div>
+              <!-- Google Classroom -->
+              <div onClick="{{ onConnectGoogleClassroom }}" style="display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--gl-border);background:rgba(4,8,20,.55);cursor:pointer;transition:all .18s" style-hover="border-color:rgba(41,208,255,.5);background:rgba(41,208,255,.06)">
+                <div style="width:42px;height:42px;border-radius:10px;background:#0f9d58;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="14" rx="1.5"></rect><path d="M8 20h8"></path><circle cx="12" cy="10" r="2"></circle><path d="M8.5 15c.5-1.6 1.9-2.4 3.5-2.4s3 .8 3.5 2.4"></path></svg>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div style="font-size:14px;font-weight:700;color:#fff">Connect Google Classroom</div>
+                  <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:1px">Your Google for Education student account</div>
+                </div>
+                <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 13px;border-radius:8px;background:#fff;flex-shrink:0">
+                  <svg width="15" height="15" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.06 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h6.2c-.27 1.44-1.08 2.66-2.3 3.48v2.89h3.72c2.18-2 3.44-4.96 3.44-8.38z"></path><path fill="#34A853" d="M12 24c3.11 0 5.72-1.03 7.62-2.79l-3.72-2.89c-1.03.69-2.35 1.1-3.9 1.1-3 0-5.54-2.03-6.45-4.75H1.7v2.98C3.6 21.44 7.5 24 12 24z"></path><path fill="#FBBC05" d="M5.55 14.67c-.23-.69-.36-1.42-.36-2.17s.13-1.48.36-2.17V7.35H1.7A11.99 11.99 0 0 0 .43 12c0 1.94.47 3.77 1.27 5.15l3.85-2.48z"></path><path fill="#EA4335" d="M12 4.75c1.69 0 3.21.58 4.4 1.72l3.3-3.3C17.72 1.2 15.11 0 12 0 7.5 0 3.6 2.56 1.7 6.35l3.85 2.98C6.46 6.78 9 4.75 12 4.75z"></path></svg>
+                  <span style="font-family:var(--font-body);font-weight:600;font-size:12.5px;color:#3c4043">Google</span>
+                </div>
+              </div>
+            </div>
+            <sc-if value="{{ connectMessage }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:13px;display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:#36e07a"><span style="width:7px;height:7px;border-radius:50%;background:#36e07a"></span>{{ connectMessage }}</div>
+            </sc-if>
+            <div onClick="{{ onToggleCanvasToken }}" style="margin-top:16px;font-size:12px;color:var(--gl-text-muted);cursor:pointer;border-top:1px solid var(--gl-border);padding-top:14px" style-hover="color:var(--gl-cyan)">Advanced: connect Canvas with an access token instead</div>
+            <sc-if value="{{ showCanvasToken }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:12px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                  <input type="text" placeholder="Canvas base URL" value="{{ canvasUrl }}" onChange="{{ onCanvasUrlChange }}" style="padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px">
+                  <input type="text" placeholder="Canvas access token" value="{{ canvasToken }}" onChange="{{ onCanvasTokenChange }}" style="padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px">
+                </div>
+                <div onClick="{{ onConnectCanvas }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30)">Connect Canvas</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;text-transform:uppercase;margin-bottom:6px">Import IEP / 504 plan</div>
+            <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:16px">Upload your plan or paste it below — Diana pulls out accommodations and applies matching settings. Your document stays private to you.</div>
+
+            <label style="display:flex;align-items:center;gap:14px;padding:18px 18px;border-radius:12px;border:1.5px dashed var(--gl-violet-30);background:var(--gl-violet-08);cursor:pointer;transition:all .18s" style-hover="border-color:var(--gl-violet);background:rgba(167,139,250,.13)">
+              <div style="width:44px;height:44px;border-radius:11px;background:var(--gl-violet-14);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:14px;font-weight:700;color:#fff">Upload IEP / 504 document</div>
+                <div style="font-size:11.5px;color:var(--gl-text-dim);margin-top:2px">PDF, DOC, DOCX, or TXT</div>
+              </div>
+              <div style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:#a78bfa;padding:8px 14px;border-radius:8px;border:1px solid var(--gl-violet-30);flex-shrink:0">Browse</div>
+              <input type="file" accept=".pdf,.doc,.docx,.txt" onChange="{{ onIepFile }}" style="display:none">
+            </label>
+            <sc-if value="{{ iepFileName }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:11px;display:flex;align-items:center;gap:9px;padding:10px 14px;border-radius:9px;background:rgba(54,224,122,.1);border:1px solid rgba(54,224,122,.3)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#36e07a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <span style="font-size:12.5px;color:#fff;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ iepFileName }}</span>
+                <span style="font-size:11.5px;color:var(--gl-text-dim);margin-left:auto;flex-shrink:0">Accommodations applied</span>
+              </div>
+            </sc-if>
+
+            <div style="display:flex;align-items:center;gap:12px;margin:16px 0">
+              <div style="flex:1;height:1px;background:var(--gl-border)"></div>
+              <div style="font-size:11px;color:var(--gl-text-dim);letter-spacing:.1em;text-transform:uppercase">or paste text</div>
+              <div style="flex:1;height:1px;background:var(--gl-border)"></div>
+            </div>
+
+            <textarea placeholder="Paste IEP or 504 text here…" value="{{ iepText }}" onChange="{{ onIepTextChange }}" style="width:100%;box-sizing:border-box;min-height:90px;padding:12px 14px;border-radius:10px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;font-family:var(--font-body);resize:vertical;margin-bottom:12px"></textarea>
+            <div onClick="{{ onImportIep }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:var(--gl-violet-14);color:var(--gl-violet);border:1px solid var(--gl-violet-30)">Parse &amp; apply</div>
+            <sc-if value="{{ iepSummary }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:14px;border-radius:10px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);padding:14px 16px">
+                <div style="font-size:12px;font-weight:700;color:var(--gl-violet);text-transform:uppercase;margin-bottom:8px">Applied accommodations</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px">
+                  <sc-for list="{{ iepSummary.accommodations }}" as="a" hint-placeholder-count="3">
+                    <div style="font-size:11.5px;padding:4px 10px;border-radius:6px;background:rgba(167,139,250,.15);color:var(--gl-text-secondary)">{{ a }}</div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- LEARNING LOOP -->
+      <sc-if value="{{ isLearningLoop }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px;display:flex;flex-direction:column;gap:18px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase">Learning loop</div>
+          <div style="font-size:13px;color:var(--gl-text-muted);line-height:1.5;max-width:560px">Diana quietly learns what helps you — pacing, explanations, review timing. You're always in control of that profile.</div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;border-radius:12px;border:1px solid var(--gl-border);padding:16px 18px">
+            <div>
+              <div style="font-size:14px;font-weight:700">Personalization</div>
+              <div style="font-size:12px;color:var(--gl-text-dim);margin-top:2px">{{ loopStatusLabel }}</div>
+            </div>
+            <div onClick="{{ onToggleLoopPause }}" style="padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:{{ loopButtonBg }};color:{{ loopButtonFg }};border:1px solid {{ loopButtonBorder }}">{{ loopButtonLabel }}</div>
+          </div>
+
+          <div style="border-radius:12px;border:1px solid var(--gl-red-30);background:var(--gl-red-08);padding:16px 18px">
+            <div style="font-size:14px;font-weight:700;color:var(--gl-red)">Reset learning profile</div>
+            <div style="font-size:12px;color:var(--gl-text-dim);margin-top:4px;margin-bottom:12px">Erases what Diana has learned about your pace and preferences. Cannot be undone.</div>
+            <div onClick="{{ onResetLoop }}" style="width:fit-content;padding:9px 18px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;background:rgba(255,85,85,.14);color:var(--gl-red);border:1px solid var(--gl-red-30)">{{ resetButtonLabel }}</div>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    section: 'profile',
+    // Avatar / hero photo (shared with Today lobby via localStorage)
+    avatarType: localStorage.getItem('diana-avatar-type') || 'none',
+    profilePhotoSrc: (() => { const p = localStorage.getItem('diana-profile-src') || ''; return p.startsWith('blob:') ? '' : p; })(),
+    photoOffsetX: parseFloat(localStorage.getItem('diana-photo-offset-x')) || 50,
+    photoOffsetY: parseFloat(localStorage.getItem('diana-photo-offset-y')) || 50,
+    bgRemoved: localStorage.getItem('diana-bg-removed') === '1',
+    photoCutoutSrc: localStorage.getItem('diana-photo-cutout') || '',
+    bgProcessing: false,
+    bgError: '',
+    selectedBg: localStorage.getItem('diana-selected-bg') || 'football',
+    profileName: 'Grayson M.',
+    notifRemind: true, notifDueSoon: true, notifTests: true, notifDianaNudge: true,
+    quietStart: '21:00', quietEnd: '07:00',
+    fontSize: 'normal', lineSpacing: 'normal',
+    dyslexiaFont: false, reducedMotion: false, highContrast: false,
+    ttsEnabled: true, ttsProvider: 'browser', ttsSpeed: 1.0,
+    bionicReading: false, lineFocus: false,
+    readingFont: 'system',
+    // Do the work
+    focusLength: '50', focusBreaks: true, ambientSound: 'off', autoBreakdown: true, coWriteLevel: 'suggest',
+    // Study
+    reviewTarget: '20', repetitionIntensity: 'standard', groupVisibility: 'classmates', autoFlashcards: true,
+    // AI & integrity
+    aiHelpMode: 'guide', aiShowReasoning: true, aiCiteSources: true,
+    connections: [
+      { id: 'c1', provider: 'canvas', label: 'Canvas', detail: 'school.instructure.com' },
+    ],
+    canvasUrl: '', canvasToken: '', connectMessage: '',
+    iepText: '', iepSummary: null, iepFileName: '', showCanvasToken: false,
+    loopPaused: false, resetConfirming: false, resetButtonLabel: 'Reset profile',
+  };
+
+  toggleRow(key, label, sub) {
+    const on = this.state[key];
+    return {
+      label, sub,
+      trackBg: on ? 'var(--gl-cyan-30)' : 'rgba(120,150,220,.16)',
+      knobLeft: on ? '21px' : '3px',
+      onClick: () => this.setState(s => ({ [key]: !s[key] })),
+    };
+  }
+
+  segButton(currentVal, val, label, onClick) {
+    const active = currentVal === val;
+    return {
+      label,
+      border: active ? 'var(--gl-cyan-30)' : 'var(--gl-border)',
+      bg: active ? 'var(--gl-cyan-14)' : 'rgba(4,8,20,.4)',
+      fg: active ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      onClick,
+    };
+  }
+
+  parseIepText(text) {
+    const lower = text.toLowerCase();
+    const accommodations = [];
+    if (lower.includes('extra time') || lower.includes('extended time')) accommodations.push('Extended time');
+    if (lower.includes('text-to-speech') || lower.includes('read aloud')) accommodations.push('Text-to-speech');
+    if (lower.includes('dyslex')) accommodations.push('Dyslexia-friendly font');
+    if (lower.includes('large print') || lower.includes('large font')) accommodations.push('Large font');
+    if (lower.includes('reduced distraction') || lower.includes('quiet')) accommodations.push('Reduced distractions');
+    if (accommodations.length === 0) accommodations.push('General accommodations noted');
+    return { accommodations };
+  }
+
+  componentDidMount() { this._syncPhotoImgs(); }
+  componentDidUpdate() { this._syncPhotoImgs(); }
+  _syncPhotoImgs() {
+    const src = this.state.profilePhotoSrc;
+    if (!src) return;
+    // Round avatar + swatches always show the original photo.
+    document.querySelectorAll('[data-photo-img]').forEach(img => { if (img.src !== src) img.src = src; });
+    // The hero preview shows the transparent cut-out when background removal is active.
+    const heroSrc = (this.state.bgRemoved && this.state.photoCutoutSrc) ? this.state.photoCutoutSrc : src;
+    document.querySelectorAll('[data-hero-preview-img]').forEach(img => { if (img.src !== heroSrc) img.src = heroSrc; });
+  }
+
+  // ── Avatar / hero photo (writes shared localStorage keys the Today lobby reads) ──
+  setAvatarType = (type) => {
+    localStorage.setItem('diana-avatar-type', type);
+    this.setState({ avatarType: type });
+  };
+  setProfilePhoto = (e) => {
+    const file = e.target.files ? e.target.files[0] : null;
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const d = reader.result;
+      localStorage.setItem('diana-profile-src', d);
+      localStorage.setItem('diana-avatar-type', 'upload');
+      localStorage.setItem('diana-photo-offset-x', '50');
+      localStorage.setItem('diana-photo-offset-y', '50');
+      localStorage.setItem('diana-bg-removed', '0');
+      localStorage.removeItem('diana-photo-cutout');
+      this.setState({ profilePhotoSrc: d, avatarType: 'upload', photoOffsetX: 50, photoOffsetY: 50, bgRemoved: false, photoCutoutSrc: '', bgError: '' });
+    };
+    reader.readAsDataURL(file);
+  };
+  removeProfilePhoto = () => {
+    localStorage.removeItem('diana-profile-src');
+    localStorage.setItem('diana-bg-removed', '0');
+    localStorage.removeItem('diana-photo-cutout');
+    this.setState({ profilePhotoSrc: '', bgRemoved: false, photoCutoutSrc: '', bgError: '' });
+  };
+  toggleBgRemoved = async () => {
+    // Real background removal via an in-browser AI segmentation model (no API key needed).
+    const src = this.state.profilePhotoSrc;
+    if (!src || this.state.bgProcessing) return;
+    if (this.state.photoCutoutSrc) {
+      localStorage.setItem('diana-bg-removed', '1');
+      this.setState({ bgRemoved: true, bgError: '' });
+      return;
+    }
+    this.setState({ bgProcessing: true, bgError: '' });
+    try {
+      if (!window.__loadBgRemoval) throw new Error('Background-removal module unavailable');
+      const removeBackground = await window.__loadBgRemoval();
+      if (typeof removeBackground !== 'function') throw new Error('Background-removal function not found');
+      const blob = await removeBackground(src);
+      const dataUrl = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = () => rej(new Error('read failed'));
+        r.readAsDataURL(blob);
+      });
+      localStorage.setItem('diana-photo-cutout', dataUrl);
+      localStorage.setItem('diana-bg-removed', '1');
+      this.setState({ photoCutoutSrc: dataUrl, bgRemoved: true, bgProcessing: false, bgError: '' });
+    } catch (err) {
+      console.error('Background removal failed:', err);
+      this.setState({ bgProcessing: false, bgError: 'Couldn\u2019t remove the background \u2014 check your connection and try again.' });
+    }
+  };
+  useOriginalPhoto = () => {
+    localStorage.setItem('diana-bg-removed', '0');
+    this.setState({ bgRemoved: false });
+  };
+  onAvatarPointerDown = (e) => {
+    if (this.state.avatarType !== 'upload' || !this.state.profilePhotoSrc) return;
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const start = { x: e.clientX, y: e.clientY, ox: this.state.photoOffsetX, oy: this.state.photoOffsetY, w: rect.width, h: rect.height };
+    this._dragging = true;
+    const move = (ev) => {
+      if (!this._dragging) return;
+      const dx = ev.clientX - start.x;
+      const dy = ev.clientY - start.y;
+      const nx = Math.max(0, Math.min(100, start.ox - (dx / start.w) * 100));
+      const ny = Math.max(0, Math.min(100, start.oy - (dy / start.h) * 100));
+      this.setState({ photoOffsetX: nx, photoOffsetY: ny });
+    };
+    const up = () => {
+      this._dragging = false;
+      localStorage.setItem('diana-photo-offset-x', String(this.state.photoOffsetX));
+      localStorage.setItem('diana-photo-offset-y', String(this.state.photoOffsetY));
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  setBg = (v) => {
+    localStorage.setItem('diana-selected-bg', v);
+    this.setState({ selectedBg: v });
+  };
+
+  renderVals() {
+    const s = this.state;
+    const mkItem = (id, label) => ({
+      label,
+      color: s.section === id ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      bg: s.section === id ? 'var(--gl-cyan-14)' : 'transparent',
+      onClick: () => this.setState({ section: id }),
+    });
+    const mkLinkItem = (href, label) => ({
+      label,
+      color: 'var(--gl-text-muted)',
+      bg: 'transparent',
+      onClick: () => { window.location.href = href; },
+    });
+    const railGroups = [
+      { title: 'You', items: [ mkItem('profile','Profile'), mkItem('appearance','Appearance'), mkItem('notifications','Notifications'), mkItem('accessibility','Accessibility'), mkItem('reading','Reading & Speech') ] },
+      { title: 'Tools', items: [ mkItem('work','Do the work'), mkItem('study','Study'), mkItem('ai','AI & integrity') ] },
+      { title: 'Data & privacy', items: [ mkItem('connections','Connections & IEP'), mkItem('learningloop','Learning loop') ] },
+      { title: 'Account', items: [
+        mkLinkItem('Sharing.dc.html', 'Sharing'),
+        mkLinkItem('AI History.dc.html', 'AI history'),
+        mkLinkItem('Export and Privacy.dc.html', 'Export & privacy'),
+        mkLinkItem('Diana - Landing + Sign In.dc.html', 'Sign out'),
+      ] },
+    ];
+
+    const fontSizes = ['small','normal','large','xlarge'].map(v =>
+      this.segButton(s.fontSize, v, v[0].toUpperCase() + v.slice(1), () => this.setState({ fontSize: v })));
+    const lineSpacings = ['compact','normal','loose'].map(v =>
+      this.segButton(s.lineSpacing, v, v[0].toUpperCase() + v.slice(1), () => this.setState({ lineSpacing: v })));
+
+    const toggles = [
+      this.toggleRow('dyslexiaFont', 'Dyslexia-friendly font', 'Switch body text to a dyslexia-tuned typeface'),
+      this.toggleRow('highContrast', 'High contrast', 'Increase text and border contrast'),
+      this.toggleRow('reducedMotion', 'Reduced motion', 'Turn off animations and transitions'),
+    ];
+
+    const ttsProviders = ['browser','openai','elevenlabs'].map(v =>
+      this.segButton(s.ttsProvider, v, v === 'browser' ? 'Browser' : v === 'openai' ? 'OpenAI' : 'ElevenLabs', () => this.setState({ ttsProvider: v })));
+    const readingToggles = [
+      this.toggleRow('bionicReading', 'Bionic reading', 'Bold the leading letters of each word'),
+      this.toggleRow('lineFocus', 'Line focus', 'Dim everything but the active line'),
+    ];
+    const readingFonts = [
+      ['system','System'], ['lexend','Lexend'], ['atkinson','Atkinson'], ['opendyslexic','OpenDyslexic'],
+    ].map(([v,label]) => this.segButton(s.readingFont, v, label, () => this.setState({ readingFont: v })));
+
+    const focusLengths = [['25','25 min'],['50','50 min'],['90','90 min']].map(([v,l]) =>
+      this.segButton(s.focusLength, v, l, () => this.setState({ focusLength: v })));
+    const ambientSounds = [['off','Off'],['rain','Rain'],['cafe','Café'],['white','White noise']].map(([v,l]) =>
+      this.segButton(s.ambientSound, v, l, () => this.setState({ ambientSound: v })));
+    const coWriteLevels = [['off','Off'],['suggest','Suggestions'],['draft','Draft with me']].map(([v,l]) =>
+      this.segButton(s.coWriteLevel, v, l, () => this.setState({ coWriteLevel: v })));
+    const workToggles = [
+      this.toggleRow('focusBreaks', 'Break reminders', 'Nudge a short break between focus blocks'),
+      this.toggleRow('autoBreakdown', 'Auto-split big assignments', 'Break large tasks into steps automatically'),
+    ];
+
+    const reviewTargets = [['10','10'],['20','20'],['40','40']].map(([v,l]) =>
+      this.segButton(s.reviewTarget, v, l, () => this.setState({ reviewTarget: v })));
+    const repetitionIntensities = [['gentle','Gentle'],['standard','Standard'],['aggressive','Aggressive']].map(([v,l]) =>
+      this.segButton(s.repetitionIntensity, v, l, () => this.setState({ repetitionIntensity: v })));
+    const groupVisibilities = [['private','Private'],['classmates','Classmates'],['public','Public']].map(([v,l]) =>
+      this.segButton(s.groupVisibility, v, l, () => this.setState({ groupVisibility: v })));
+    const studyToggles = [
+      this.toggleRow('autoFlashcards', 'Auto-generate flashcards', 'Turn notes into flashcards as you capture them'),
+    ];
+
+    const aiHelpModes = [['explain','Explain only'],['guide','Guide me'],['answers','Full answers']].map(([v,l]) =>
+      this.segButton(s.aiHelpMode, v, l, () => this.setState({ aiHelpMode: v })));
+    const aiToggles = [
+      this.toggleRow('aiShowReasoning', 'Show reasoning', 'Include step-by-step thinking in answers'),
+      this.toggleRow('aiCiteSources', 'Cite sources', 'Attach the sources Diana used'),
+    ];
+    const aiHintMap = {
+      explain: 'Diana explains concepts and checks your thinking, but never writes answers for you.',
+      guide: 'Diana walks you through problems step by step — nudging without handing over the solution.',
+      answers: 'Diana can produce full worked answers. Best for review; check your school\'s integrity policy.',
+    };
+    const aiHelpModeHint = aiHintMap[s.aiHelpMode];
+
+    return {
+      railGroups,
+      isProfile: s.section === 'profile', isNotifications: s.section === 'notifications',
+      isAppearance: s.section === 'appearance',
+      // Avatar picker
+      profileName: s.profileName,
+      setProfileName: e => this.setState({ profileName: e.target.value }),
+      initials: (s.profileName || 'G').trim().split(/\s+/).map(w => w[0]).join('').slice(0,2).toUpperCase(),
+      avatarType: s.avatarType,
+      isAvatarUpload: s.avatarType === 'upload', isAvatarBoy: s.avatarType === 'boy',
+      isAvatarGirl: s.avatarType === 'girl', isAvatarNone: s.avatarType === 'none' || !s.avatarType,
+      hasProfilePhoto: !!s.profilePhotoSrc, noProfilePhoto: !s.profilePhotoSrc,
+      profilePhotoSrc: s.profilePhotoSrc,
+      photoObjectPosition: s.photoOffsetX + '% ' + s.photoOffsetY + '%',
+      avatarCursor: (s.avatarType === 'upload' && s.profilePhotoSrc) ? 'grab' : 'default',
+      showInitialsFallback: !((s.avatarType === 'upload' && s.profilePhotoSrc) || s.avatarType === 'boy' || s.avatarType === 'girl'),
+      profilePhotoBtnLabel: s.profilePhotoSrc ? 'Replace photo' : 'Upload photo',
+      swatchBorderUpload: s.avatarType === 'upload' ? 'var(--gl-cyan)' : 'rgba(120,150,220,.3)',
+      swatchBorderBoy: s.avatarType === 'boy' ? 'var(--gl-cyan)' : 'rgba(120,150,220,.3)',
+      swatchBorderGirl: s.avatarType === 'girl' ? 'var(--gl-cyan)' : 'rgba(120,150,220,.3)',
+      swatchBorderNone: (s.avatarType === 'none' || !s.avatarType) ? 'var(--gl-cyan)' : 'rgba(120,150,220,.3)',
+      setAvatarUpload: () => this.setAvatarType('upload'),
+      setAvatarBoy: () => this.setAvatarType('boy'),
+      setAvatarGirl: () => this.setAvatarType('girl'),
+      setAvatarNone: () => this.setAvatarType('none'),
+      setProfilePhoto: this.setProfilePhoto,
+      removeProfilePhoto: this.removeProfilePhoto,
+      onAvatarPointerDown: this.onAvatarPointerDown,
+      // Hero photo bg removal
+      bgRemoved: s.bgRemoved, noBgRemoved: !s.bgRemoved,
+      bgProcessing: s.bgProcessing, notProcessing: !s.bgProcessing, bgError: s.bgError,
+      toggleBgRemoved: this.toggleBgRemoved, useOriginalPhoto: this.useOriginalPhoto,
+      heroPreviewMask: (s.bgRemoved && !s.photoCutoutSrc) ? 'radial-gradient(ellipse 60% 66% at 50% 34%, #000 58%, transparent 100%)' : 'none',
+      // Lobby background picker
+      setBgFootball: () => this.setBg('football'), setBgScience: () => this.setBg('science'),
+      setBgMusic: () => this.setBg('music'), setBgDefault: () => this.setBg('default'),
+      bgFootballBorder: s.selectedBg === 'football' ? 'var(--gl-cyan)' : 'rgba(120,150,220,.2)',
+      bgScienceBorder: s.selectedBg === 'science' ? 'var(--gl-cyan)' : 'rgba(120,150,220,.2)',
+      bgMusicBorder: s.selectedBg === 'music' ? 'var(--gl-cyan)' : 'rgba(120,150,220,.2)',
+      bgDefaultBorder: s.selectedBg === 'default' ? 'var(--gl-cyan)' : 'rgba(120,150,220,.2)',
+      bgFootballActive: s.selectedBg === 'football' ? 'rgba(41,208,255,.08)' : 'transparent',
+      bgScienceActive: s.selectedBg === 'science' ? 'rgba(41,208,255,.08)' : 'transparent',
+      bgMusicActive: s.selectedBg === 'music' ? 'rgba(41,208,255,.08)' : 'transparent',
+      bgDefaultActive: s.selectedBg === 'default' ? 'rgba(41,208,255,.08)' : 'transparent',
+      isAccessibility: s.section === 'accessibility',
+      notifToggles: [
+        this.toggleRow('notifRemind', 'Assignment reminders', 'A nudge the evening before something is due'),
+        this.toggleRow('notifDueSoon', 'Due-soon alerts', 'Ping me when a task moves into the next 24 hours'),
+        this.toggleRow('notifTests', 'Test & quiz alerts', 'Countdown reminders for upcoming tests'),
+        this.toggleRow('notifDianaNudge', 'Diana nudges', 'Let Diana check in when you seem stuck or overwhelmed'),
+      ],
+      quietStart: s.quietStart, quietEnd: s.quietEnd,
+      onQuietStart: e => this.setState({ quietStart: e.target.value }),
+      onQuietEnd: e => this.setState({ quietEnd: e.target.value }),
+      isReading: s.section === 'reading', isConnections: s.section === 'connections',
+      isLearningLoop: s.section === 'learningloop',
+      isWork: s.section === 'work', isStudy: s.section === 'study', isAi: s.section === 'ai',
+
+      fontSizes, lineSpacings, toggles,
+
+      focusLengths, ambientSounds, coWriteLevels, workToggles,
+      reviewTargets, repetitionIntensities, groupVisibilities, studyToggles,
+      aiHelpModes, aiToggles, aiHelpModeHint,
+
+      ttsEnabled: s.ttsEnabled,
+      ttsToggle: this.toggleRow('ttsEnabled', '', ''),
+      ttsProviders, readingToggles, readingFonts,
+      ttsSpeed: s.ttsSpeed, ttsSpeedLabel: s.ttsSpeed.toFixed(2) + '×',
+      onTtsSpeedChange: e => this.setState({ ttsSpeed: parseFloat(e.target.value) }),
+
+      connections: s.connections.map(c => ({ ...c, onDisconnect: () => this.setState(prev => ({ connections: prev.connections.filter(x => x.id !== c.id) })) })),
+      noConnections: s.connections.length === 0,
+      canvasUrl: s.canvasUrl, onCanvasUrlChange: e => this.setState({ canvasUrl: e.target.value }),
+      canvasToken: s.canvasToken, onCanvasTokenChange: e => this.setState({ canvasToken: e.target.value }),
+      connectMessage: s.connectMessage,
+      onConnectCanvas: () => {
+        if (!s.canvasUrl.trim() || !s.canvasToken.trim()) {
+          this.setState({ connectMessage: 'Both Canvas URL and token are needed' }); return;
+        }
+        this.setState(prev => ({
+          connections: [...prev.connections.filter(c => c.provider !== 'canvas'), { id: 'c' + Date.now(), provider: 'canvas', label: 'Canvas', detail: prev.canvasUrl }],
+          canvasUrl: '', canvasToken: '', connectMessage: 'Canvas connected', showCanvasToken: false,
+        }));
+      },
+      showCanvasToken: s.showCanvasToken,
+      onToggleCanvasToken: () => this.setState(prev => ({ showCanvasToken: !prev.showCanvasToken })),
+      onConnectCanvasGoogle: () => {
+        this.setState(prev => {
+          if (prev.connections.some(c => c.provider === 'canvas' && /google/i.test(c.detail))) return { connectMessage: 'Canvas is already connected through Google.' };
+          return {
+            connections: [...prev.connections.filter(c => c.provider !== 'canvas'), { id: 'c' + Date.now(), provider: 'canvas', label: 'Canvas', detail: 'via Google \u00b7 grayson.m@northgate.edu' }],
+            connectMessage: 'Canvas connected through Google.',
+          };
+        });
+      },
+      onConnectGoogleClassroom: () => {
+        this.setState(prev => {
+          if (prev.connections.some(c => c.provider === 'google')) return { connectMessage: 'Google Classroom is already connected.' };
+          return {
+            connections: [...prev.connections, { id: 'g' + Date.now(), provider: 'google', label: 'Google Classroom', detail: 'grayson.m@northgate.edu' }],
+            connectMessage: 'Google Classroom connected.',
+          };
+        });
+      },
+
+      iepText: s.iepText, onIepTextChange: e => this.setState({ iepText: e.target.value }),
+      iepSummary: s.iepSummary,
+      iepFileName: s.iepFileName,
+      onIepFile: (e) => {
+        const file = e.target.files ? e.target.files[0] : null;
+        if (!file) return;
+        const name = file.name;
+        if (/\.txt$/i.test(name)) {
+          const r = new FileReader();
+          r.onload = () => this.setState({ iepFileName: name, iepText: r.result, iepSummary: this.parseIepText(String(r.result)) });
+          r.readAsText(file);
+        } else {
+          this.setState({ iepFileName: name, iepSummary: this.parseIepText('extended time text-to-speech reduced distraction large font') });
+        }
+      },
+      onImportIep: () => {
+        if (s.iepText.trim().length < 20) return;
+        this.setState({ iepSummary: this.parseIepText(s.iepText) });
+      },
+
+      loopStatusLabel: s.loopPaused ? 'Paused — Diana is not adapting right now' : 'Active — Diana is adapting to your pace',
+      loopButtonLabel: s.loopPaused ? 'Resume' : 'Pause',
+      loopButtonBg: s.loopPaused ? 'var(--gl-green-14)' : 'var(--gl-gold-14)',
+      loopButtonFg: s.loopPaused ? 'var(--gl-green)' : 'var(--gl-gold)',
+      loopButtonBorder: s.loopPaused ? 'var(--gl-green-30)' : 'var(--gl-gold-30)',
+      onToggleLoopPause: () => this.setState(prev => ({ loopPaused: !prev.loopPaused })),
+      resetButtonLabel: s.resetConfirming ? 'Click again to confirm' : 'Reset profile',
+      onResetLoop: () => {
+        if (s.resetConfirming) { this.setState({ resetConfirming: false, resetButtonLabel: 'Profile reset' }); }
+        else { this.setState({ resetConfirming: true }); }
+      },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

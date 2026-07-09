@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14);
+    --gl-gold:#ffd24a; --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14); --gl-violet-08:rgba(167,139,250,.06);
+    --gl-red:#ff7070;
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+</style>
+</helmet>
+
+<div style="width:390px;height:844px;font-family:var(--font-body);color:var(--gl-text-primary);background:var(--gl-bg-base);display:flex;flex-direction:column;overflow:hidden" data-screen-label="Sharing Phone">
+  <div style="height:47px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:600">
+    <span>9:41</span><div style="display:flex;align-items:center;gap:6px"><svg width="17" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="7" width="3" height="5" rx="1"></rect><rect x="5" y="4" width="3" height="8" rx="1"></rect><rect x="10" y="1.5" width="3" height="10.5" rx="1"></rect></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#fff" stroke-opacity=".5"></rect><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"></rect><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" fill-opacity=".5"></rect></svg></div>
+  </div>
+
+  <div style="padding:4px 18px 10px;flex-shrink:0">
+    <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan)">Sharing</div>
+    <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:20px;text-transform:uppercase">You control who sees what.</div>
+  </div>
+
+  <div style="flex-shrink:0;display:flex;gap:8px;padding:0 18px 12px">
+    <div onClick="{{ onTabParent }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;border:1px solid {{ parentTabBorder }};background:{{ parentTabBg }};color:{{ parentTabFg }}">Parent</div>
+    <div onClick="{{ onTabTeacher }}" style="flex:1;text-align:center;padding:9px;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;border:1px solid {{ teacherTabBorder }};background:{{ teacherTabBg }};color:{{ teacherTabFg }}">Teacher</div>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;padding:0 18px 40px">
+    <sc-if value="{{ isParent }}" hint-placeholder-val="{{ true }}">
+      <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:14px;text-transform:uppercase;margin-bottom:8px">Weekly digest</div>
+        <div style="font-size:12px;color:var(--gl-text-muted);line-height:1.4;margin-bottom:14px">You choose whether to send one — no grades, no AI chat contents.</div>
+        <input type="email" placeholder="parent@email.com" value="{{ parentEmail }}" onChange="{{ onParentEmailChange }}" style="width:100%;padding:10px 13px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:600">Send weekly digest</div>
+          <div onClick="{{ onToggleDigest }}" style="width:42px;height:25px;border-radius:13px;background:{{ digestTrackBg }};position:relative">
+            <div style="width:19px;height:19px;border-radius:50%;background:#fff;position:absolute;top:3px;left:{{ digestKnobLeft }}"></div>
+          </div>
+        </div>
+        <div onClick="{{ onSaveDigest }}" style="width:fit-content;padding:9px 18px;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:12px;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30)">Save</div>
+        <sc-if value="{{ digestMessage }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:10px;font-size:12px;color:var(--gl-green)">{{ digestMessage }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isTeacher }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;margin-bottom:10px">Class roster</div>
+          <sc-for list="{{ roster }}" as="m" hint-placeholder-count="2">
+            <div style="border-radius:9px;border:1px solid var(--gl-border);padding:10px 12px;margin-bottom:8px">
+              <div style="font-size:13px;font-weight:700">{{ m.displayName }}</div>
+              <div style="font-size:11px;color:var(--gl-text-dim)">{{ m.role }} · {{ m.status }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="border-radius:14px;border:1px solid var(--gl-cyan-30);background:rgba(41,208,255,.08);padding:16px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:10px">Post an assignment</div>
+          <input type="text" placeholder="Title" value="{{ newAssignTitle }}" onChange="{{ onNewAssignTitleChange }}" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:13px;margin-bottom:10px">
+          <div onClick="{{ onCreateAssignment }}" style="width:fit-content;padding:8px 16px;border-radius:8px;font-family:var(--font-display);font-weight:700;font-size:11.5px;text-transform:uppercase;background:var(--gl-cyan-14);color:var(--gl-cyan);border:1px solid var(--gl-cyan-30)">Post</div>
+          <sc-if value="{{ assignMessage }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:9px;font-size:11.5px;color:var(--gl-cyan)">{{ assignMessage }}</div>
+          </sc-if>
+        </div>
+
+        <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;margin-bottom:10px">Progress notes</div>
+          <sc-for list="{{ progressNotes }}" as="n" hint-placeholder-count="1">
+            <div style="border-radius:9px;border:1px solid var(--gl-border);padding:10px 12px;margin-bottom:8px">
+              <div style="font-size:12px;color:var(--gl-text-secondary);line-height:1.4">{{ n.noteText }}</div>
+              <div style="font-size:10.5px;color:var(--gl-text-dim);margin-top:4px">— {{ n.authorName }} {{ n.visibleLabel }}</div>
+            </div>
+          </sc-for>
+          <input type="text" placeholder="Add a note…" value="{{ newNoteText }}" onChange="{{ onNewNoteTextChange }}" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px;margin-bottom:10px">
+          <div onClick="{{ onAddNote }}" style="width:fit-content;padding:8px 16px;border-radius:8px;font-size:11.5px;font-weight:700;color:var(--gl-green);background:var(--gl-green-14);border:1px solid var(--gl-green-30)">Add note</div>
+        </div>
+
+        <div style="border-radius:14px;border:1px solid var(--gl-violet-30);background:var(--gl-violet-08);padding:16px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;text-transform:uppercase;color:var(--gl-violet);margin-bottom:10px">Confirm accommodations</div>
+          <div style="font-size:11.5px;color:var(--gl-text-muted);margin-bottom:10px;line-height:1.4">{{ accommodationsSummary }}</div>
+          <input type="text" placeholder="Confirmed by" value="{{ confirmedBy }}" onChange="{{ onConfirmedByChange }}" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--gl-border);background:rgba(4,8,20,.6);color:#fff;font-size:12.5px;margin-bottom:10px">
+          <div onClick="{{ onConfirmAccommodations }}" style="width:fit-content;padding:8px 16px;border-radius:8px;font-size:11.5px;font-weight:700;color:var(--gl-violet);background:var(--gl-violet-14);border:1px solid var(--gl-violet-30)">Confirm on file</div>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="flex-shrink:0;height:60px;display:flex;align-items:center;justify-content:space-around;background:rgba(2,5,14,.92);border-top:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <a href="Student Lobby Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#5a648a"><div style="font-size:17px">⌂</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">Today</div></a>
+    <a href="Work Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#5a648a"><div style="font-size:17px">▤</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">Work</div></a>
+    <a href="Classes Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#5a648a"><div style="font-size:17px">▦</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">Classes</div></a>
+    <a href="More Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:3px;color:#29d0ff"><div style="font-size:17px">•••</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.05em;text-transform:uppercase">More</div></a>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" bottom="96" hint-size="64px,64px"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    tab: 'parent', parentEmail: '', digestEnabled: false, digestMessage: '',
+    roster: [ { id:'r1', displayName:'Ms. Alvarez', role:'teacher', status:'active' }, { id:'r2', displayName:'Grayson M.', role:'student', status:'active' } ],
+    newAssignTitle: '', assignMessage: '',
+    progressNotes: [ { id:'n1', noteText:'Strong improvement on thesis clarity this week.', authorName:'Ms. Alvarez', visibleToParent:true } ],
+    newNoteText: '',
+    confirmedBy: '',
+  };
+
+  renderVals() {
+    const s = this.state;
+    return {
+      isParent: s.tab==='parent', isTeacher: s.tab==='teacher',
+      parentTabBorder: s.tab==='parent' ? 'var(--gl-cyan-30)' : 'var(--gl-border)', parentTabBg: s.tab==='parent' ? 'var(--gl-cyan-14)' : 'transparent', parentTabFg: s.tab==='parent' ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      teacherTabBorder: s.tab==='teacher' ? 'var(--gl-cyan-30)' : 'var(--gl-border)', teacherTabBg: s.tab==='teacher' ? 'var(--gl-cyan-14)' : 'transparent', teacherTabFg: s.tab==='teacher' ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      onTabParent: () => this.setState({ tab: 'parent' }), onTabTeacher: () => this.setState({ tab: 'teacher' }),
+
+      parentEmail: s.parentEmail, onParentEmailChange: e => this.setState({ parentEmail: e.target.value }),
+      digestTrackBg: s.digestEnabled ? 'var(--gl-cyan-30)' : 'rgba(120,150,220,.16)', digestKnobLeft: s.digestEnabled ? '20px' : '3px',
+      onToggleDigest: () => this.setState(p => ({ digestEnabled: !p.digestEnabled })),
+      digestMessage: s.digestMessage,
+      onSaveDigest: () => {
+        if (s.digestEnabled && !s.parentEmail.includes('@')) { this.setState({ digestMessage: 'Check the email address.' }); return; }
+        this.setState({ digestMessage: s.digestEnabled && s.parentEmail ? 'Weekly digest will be sent.' : 'Digest turned off.' });
+      },
+
+      roster: s.roster,
+      newAssignTitle: s.newAssignTitle, onNewAssignTitleChange: e => this.setState({ newAssignTitle: e.target.value }),
+      assignMessage: s.assignMessage,
+      onCreateAssignment: () => {
+        if (!s.newAssignTitle.trim()) { this.setState({ assignMessage: 'Add a title first.' }); return; }
+        this.setState({ assignMessage: `Posted "${s.newAssignTitle}".`, newAssignTitle: '' });
+      },
+
+      progressNotes: s.progressNotes.map(n => ({ ...n, visibleLabel: n.visibleToParent ? '· visible to parent' : '' })),
+      newNoteText: s.newNoteText, onNewNoteTextChange: e => this.setState({ newNoteText: e.target.value }),
+      onAddNote: () => {
+        if (!s.newNoteText.trim()) return;
+        this.setState(prev => ({ progressNotes: [{ id:'n'+Date.now(), noteText: prev.newNoteText, authorName:'Ms. Alvarez', visibleToParent:false }, ...prev.progressNotes], newNoteText: '' }));
+      },
+
+      accommodationsSummary: 'Extended time 50%, TTS enabled, dyslexia font',
+      confirmedBy: s.confirmedBy, onConfirmedByChange: e => this.setState({ confirmedBy: e.target.value }),
+      onConfirmAccommodations: () => { if (s.confirmedBy.trim()) this.setState({ confirmedBy: '' }); },
+    };
+  }
+}
+
+</script>
+</body>
+</html>

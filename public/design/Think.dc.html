@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-purple:#29d0ff; --gl-purple-light:#7fe0ff; --gl-purple-30:rgba(41,208,255,.30); --gl-purple-24:rgba(41,208,255,.24); --gl-purple-16:rgba(41,208,255,.16); --gl-purple-10:rgba(41,208,255,.10);
+    --gl-green:#36e07a; --gl-green-28:rgba(54,224,122,.28); --gl-gold:#ffd24a; --gl-gold-26:rgba(255,210,74,.26);
+    --gl-text-primary:#ffffff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-subdued:#9fb0dd;
+    --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.60);
+    --gl-border-neutral:rgba(120,150,220,.18); --gl-bg-input:rgba(10,16,36,.80);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  @keyframes tk-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 620px at 82% -5%,rgba(41,208,255,.07),transparent 60%),var(--gl-bg-base)">
+
+  <!-- ════════ APP NAV (matches Student Lobby exactly, More active) ════════ -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
+      <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Today</a>
+      <a href="Work.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
+      <a href="Classes.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
+      <a href="Calendar.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
+      <a href="Messages.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <div onClick="{{ goQuickAdd }}" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</div>
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f;flex-shrink:0;cursor:pointer;border:2px solid rgba(41,208,255,.38)">G</a>
+      <div onClick="{{ goSettings }}" style="width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:26px 34px 64px">
+
+    
+
+    <!-- More-surfaces sub-nav -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:22px">
+      <span style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--gl-text-subdued);margin-right:4px">More</span>
+      <a href="Think.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-purple-30);background:var(--gl-purple-16);font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-purple-light)">
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-purple-light);box-shadow:0 0 8px var(--gl-purple-light)"></span>Think
+      </a>
+      <a href="Proof.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-border-neutral);background:transparent;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">
+        Proof
+      </a>
+      <a href="Future.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-border-neutral);background:transparent;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">
+        Future
+      </a>
+    </div>
+
+    <!-- header -->
+    <header style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items:center;margin-bottom:26px">
+      <div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--gl-purple-light);margin-bottom:9px">Think · how am I</div>
+        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:var(--gl-text-primary)">Check in with<br>yourself.</h1>
+        <p style="margin:12px 0 0;max-width:540px;font-size:14.5px;line-height:1.55;color:var(--gl-text-overlay-60)">State, adaptation, and reflection — the fuller versions of the quick energy check on the landing. Diana uses these to set the right support level, never to score you.</p>
+      </div>
+      <div style="position:relative;border-radius:14px;border:1px solid var(--gl-purple-30);background:linear-gradient(135deg,rgba(8,12,26,.94),rgba(12,18,42,.92));overflow:hidden;padding:16px 18px">
+        <div style="position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid var(--gl-purple-light);border-top:2px solid var(--gl-purple-light);border-radius:2px 0 0 0"></div>
+        <div style="position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-right:2px solid var(--gl-purple-light);border-top:2px solid var(--gl-purple-light);border-radius:0 2px 0 0"></div>
+        <div style="position:absolute;left:-1px;bottom:-1px;width:14px;height:14px;border-left:2px solid var(--gl-purple-light);border-bottom:2px solid var(--gl-purple-light);border-radius:0 0 0 2px"></div>
+        <div style="position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-right:2px solid var(--gl-purple-light);border-bottom:2px solid var(--gl-purple-light);border-radius:0 0 2px 0"></div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:12px">Today's state</div>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <sc-for list="{{ stateReadout }}" as="r" hint-placeholder-count="3">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px">
+              <span style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gl-text-subdued)">{{ r.label }}</span>
+              <span style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:19px;text-transform:uppercase;color:{{ r.color }}">{{ r.value }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </header>
+
+    <!-- grid -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start">
+
+      <!-- MOOD CHECK-IN -->
+      <div style="grid-column:1 / -1;position:relative;border-radius:16px;border:1px solid var(--gl-purple-30);background:linear-gradient(135deg,rgba(8,12,26,.94),rgba(12,18,42,.92));padding:24px 26px;overflow:hidden">
+        <div style="position:absolute;right:-1px;top:-1px;width:16px;height:16px;border-right:2px solid var(--gl-purple-light);border-top:2px solid var(--gl-purple-light);border-radius:0 2px 0 0;opacity:.7"></div>
+        <sc-if value="{{ moodDone }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-purple-light);margin-bottom:6px">Support set for today</div>
+              <div style="font-family:var(--font-display);font-weight:800;font-style:italic;font-size:30px;text-transform:uppercase;color:#fff">{{ moodSummary }}</div>
+              <div style="margin-top:6px;font-size:14px;color:rgba(200,218,255,.65)">Diana will keep blocks {{ moodAdvice }}.</div>
+            </div>
+            <div onClick="{{ resetMood }}" style="padding:10px 18px;border-radius:9px;border:1px solid var(--gl-purple-30);background:var(--gl-purple-10);cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-purple-light)">Change</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ moodActive }}" hint-placeholder-val="{{ true }}">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-purple-light);margin-bottom:3px">Daily setup</div>
+          <div style="font-size:14px;color:rgba(200,218,255,.65);margin-bottom:18px">Two taps so Diana can set the right support level. There are no wrong answers here.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:9px">How is your body energy?</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ bodyChoices }}" as="b" hint-placeholder-count="3">
+                  <div onClick="{{ b.onClick }}" style="padding:12px 14px;border-radius:11px;cursor:pointer;border:1.5px solid {{ b.border }};background:{{ b.bg }}">
+                    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:15px">{{ b.icon }}</span><span style="font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:{{ b.fg }}">{{ b.label }}</span><span style="margin-left:auto;font-size:12px;color:rgba(200,218,255,.5)">{{ b.detail }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:9px">How is your focus?</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ focusChoices }}" as="f" hint-placeholder-count="3">
+                  <div onClick="{{ f.onClick }}" style="padding:12px 14px;border-radius:11px;cursor:pointer;border:1.5px solid {{ f.border }};background:{{ f.bg }}">
+                    <div style="display:flex;align-items:center;gap:9px"><span style="font-size:14px;color:{{ f.fg }}">{{ f.icon }}</span><span style="font-family:var(--font-display);font-weight:800;font-size:16px;letter-spacing:.03em;text-transform:uppercase;color:{{ f.fg }}">{{ f.label }}</span><span style="margin-left:auto;font-size:12px;color:rgba(200,218,255,.5)">{{ f.detail }}</span></div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+          <div onClick="{{ saveMood }}" style="margin-top:18px;display:inline-block;padding:12px 24px;border-radius:10px;background:{{ moodSaveBg }};cursor:{{ moodSaveCursor }};font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:{{ moodSaveFg }}">Save check-in</div>
+        </sc-if>
+      </div>
+
+      <!-- SESSION ADAPTATION (hidden when mood is good) -->
+      <sc-if value="{{ showAdapt }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;border-radius:14px;border:1px solid var(--gl-border-neutral);background:rgba(4,8,20,.6);padding:20px 22px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.55);margin-bottom:6px">Lighter start</div>
+          <div style="font-size:15px;line-height:1.5;color:#e8f0ff;margin-bottom:14px">{{ adaptMessage }}</div>
+          <div onClick="{{ goFocus }}" style="display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:9px;border:1px solid var(--gl-border-neutral);background:rgba(120,150,220,.08);cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-text-secondary)">Start a 15-min block
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- SLEEP RECOVERY -->
+      <div style="position:relative;border-radius:14px;border:1px solid var(--gl-border-neutral);background:rgba(4,8,20,.6);padding:20px 22px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.55);margin-bottom:6px">Sleep + recovery</div>
+        <div style="font-size:15px;line-height:1.5;color:#e8f0ff;margin-bottom:14px">Short on sleep this week — keeping tonight lighter is a smart move, not a setback.</div>
+        <a href="Wellness.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-cyan)">Update sleep log
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </a>
+      </div>
+
+      <!-- ENERGY PICKER -->
+      <div style="grid-column:1 / -1;position:relative;border-radius:14px;border:1px solid var(--gl-border-neutral);background:rgba(4,8,20,.5);padding:20px 22px">
+        <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:14px">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(200,218,255,.55)">Brain state — re-pick anytime</div>
+          <span style="font-size:12.5px;color:var(--gl-text-dim)">Changes which blocks Diana suggests next</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+          <sc-for list="{{ energyPills }}" as="e" hint-placeholder-count="5">
+            <div onClick="{{ e.onClick }}" style="padding:14px 12px;border-radius:11px;cursor:pointer;border:1.5px solid {{ e.border }};background:{{ e.bg }};text-align:center">
+              <div style="font-size:20px;margin-bottom:6px">{{ e.icon }}</div>
+              <div style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:{{ e.fg }}">{{ e.label }}</div>
+              <div style="font-size:11px;color:rgba(200,218,255,.45);margin-top:2px">{{ e.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- WEEKLY REFLECTION -->
+      <div style="grid-column:1 / -1;position:relative;border-radius:14px;border:1px solid var(--gl-purple-24);background:rgba(4,8,20,.5);padding:22px 24px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#fff">Weekly reflection</div>
+          <div style="padding:2px 8px;border-radius:4px;background:var(--gl-purple-16);font-family:var(--font-display);font-weight:800;font-size:10px;letter-spacing:.12em;color:var(--gl-purple-light)">ONCE / WEEK</div>
+        </div>
+        <div style="font-size:14px;color:rgba(200,218,255,.6);margin-bottom:14px">How did this week go? A couple sentences is plenty.</div>
+        <textarea value="{{ reflection }}" onChange="{{ setReflection }}" placeholder="This week I…" style="width:100%;min-height:88px;box-sizing:border-box;padding:14px 16px;border-radius:11px;background:var(--gl-bg-input);border:1px solid var(--gl-purple-24);color:#fff;font-size:14px;font-family:var(--font-body);resize:vertical;outline:none"></textarea>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:12px">
+          <div onClick="{{ saveReflection }}" style="padding:11px 22px;border-radius:9px;background:{{ reflectBtnBg }};cursor:{{ reflectBtnCursor }};font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:{{ reflectBtnFg }}">Save reflection</div>
+          <div style="font-size:13px;color:rgba(200,218,255,.45)">Diana reflects back what went well — needs 2+ characters.</div>
+        </div>
+        <sc-if value="{{ reflectSaved }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px;display:flex;gap:12px;padding:15px 17px;border-radius:12px;border:1px solid var(--gl-purple-24);background:var(--gl-purple-10)">
+            <div style="width:30px;height:30px;flex-shrink:0;border-radius:8px;background:var(--gl-purple-16);display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gl-purple-light)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+            </div>
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-purple-light);margin-bottom:4px">Diana, reflecting back</div>
+              <div style="font-size:14px;line-height:1.55;color:#e8f0ff">{{ reflectReply }}</div>
+            </div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </div>
+</div>
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1560},&quot;moodState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;fresh&quot;,&quot;logged&quot;],&quot;default&quot;:&quot;fresh&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Reference&quot;,&quot;label&quot;:&quot;Mood check-in&quot;},&quot;moodQuality&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;needs-support&quot;,&quot;good&quot;],&quot;default&quot;:&quot;needs-support&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Reference&quot;,&quot;label&quot;:&quot;Signal quality&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const logged = (props.moodState || 'fresh') === 'logged';
+    this.state = {
+      moodBody: logged ? 'okay' : null,
+      moodFocus: logged ? 'steady' : null,
+      moodDone: logged,
+      energyPick: 'okay',
+      reflection: '',
+      reflectSaved: false,
+      moodQuality: props.moodQuality || 'needs-support',
+    };
+  }
+
+  goQuickAdd = () => { window.location.href = 'Quick Add.dc.html'; };
+  goSettings = () => { window.location.href = 'Settings.dc.html'; };
+  goFocus = () => { window.location.href = 'Work.dc.html'; };
+
+  setMoodBody = (v) => this.setState({ moodBody: v });
+  setMoodFocus = (v) => this.setState({ moodFocus: v });
+  saveMood = () => { if (this.state.moodBody && this.state.moodFocus) this.setState({ moodDone: true }); };
+  resetMood = () => this.setState({ moodDone: false, moodBody: null, moodFocus: null });
+  setEnergy = (v) => this.setState({ energyPick: v });
+  setReflection = (e) => this.setState({ reflection: e.target.value, reflectSaved: false });
+  saveReflection = () => { if (this.state.reflection.trim().length >= 2) this.setState({ reflectSaved: true }); };
+
+  renderVals() {
+    const st = this.state;
+    const quality = st.moodQuality;
+    const good = quality === 'good';
+
+    // reference chrome
+    const logged = st.moodDone;
+    const moodChips = [
+      { label: 'Fresh', on: !logged, onClick: () => this.resetMood() },
+      { label: 'Logged', on: logged, onClick: () => this.setState({ moodDone: true, moodBody: st.moodBody || 'okay', moodFocus: st.moodFocus || 'steady' }) },
+    ].map((c) => ({ label: c.label, onClick: c.onClick, bg: c.on ? 'var(--gl-purple-16)' : 'transparent', border: c.on ? 'var(--gl-purple)' : 'var(--gl-border-neutral)', fg: c.on ? '#fff' : 'var(--gl-text-muted)' }));
+
+    // moodQuality is a prop (reference toggle) — chips deep-link the page to itself with the flag
+    const qualityChips = [
+      { label: 'Needs support', v: 'needs-support' },
+      { label: 'Good', v: 'good' },
+    ].map((c) => { const on = quality === c.v; return { label: c.label, onClick: () => this.setState({ moodQuality: c.v }), bg: on ? 'var(--gl-purple-16)' : 'transparent', border: on ? 'var(--gl-purple)' : 'var(--gl-border-neutral)', fg: on ? '#fff' : 'var(--gl-text-muted)' }; });
+
+    // mood choices
+    const bodyDef = [
+      { v: 'low', label: 'Low', detail: 'Keep it lighter', icon: '🍃' },
+      { v: 'okay', label: 'Okay', detail: 'Normal start', icon: '🔋' },
+      { v: 'ready', label: 'Ready', detail: 'Bigger lift', icon: '⚡' },
+    ];
+    const focusDef = [
+      { v: 'scattered', label: 'Scattered', detail: 'Contain choices', icon: '◌' },
+      { v: 'steady', label: 'Steady', detail: 'Clear next step', icon: '◐' },
+      { v: 'locked', label: 'Locked in', detail: 'Use the window', icon: '●' },
+    ];
+    const pick = (def, cur, setter) => def.map((d) => { const a = cur === d.v; return { ...d, onClick: () => setter(d.v), bg: a ? 'var(--gl-purple-16)' : 'rgba(10,16,36,.5)', border: a ? 'rgba(41,208,255,.6)' : 'var(--gl-border-neutral)', fg: a ? '#fff' : 'var(--gl-text-secondary)' }; });
+    const bodyChoices = pick(bodyDef, st.moodBody, this.setMoodBody);
+    const focusChoices = pick(focusDef, st.moodFocus, this.setMoodFocus);
+    const moodReady = !!(st.moodBody && st.moodFocus);
+    const bodyLabel = (bodyDef.find((b) => b.v === st.moodBody) || {}).label || '';
+    const focusLabel = (focusDef.find((f) => f.v === st.moodFocus) || {}).label || '';
+
+    // energy
+    const energyDef = [
+      { v: 'low', label: 'Low', note: 'start small', icon: '🍃' },
+      { v: 'okay', label: 'Okay', note: 'steady', icon: '🔋' },
+      { v: 'onit', label: 'On it', note: 'more motion', icon: '⚡' },
+      { v: 'over', label: 'Overwhelmed', note: 'one breath', icon: '🌫' },
+      { v: 'creative', label: 'Creative', note: 'ideas moving', icon: '✦' },
+    ];
+    const energyPills = energyDef.map((e) => { const a = st.energyPick === e.v; return { ...e, onClick: () => this.setEnergy(e.v), bg: a ? 'var(--gl-cyan-14)' : 'rgba(10,16,36,.5)', border: a ? 'rgba(41,208,255,.5)' : 'var(--gl-border-neutral)', fg: a ? '#fff' : 'var(--gl-text-secondary)' }; });
+    const energyLabel = (energyDef.find((e) => e.v === st.energyPick) || {}).label || '—';
+
+    // header readout
+    const stateReadout = [
+      { label: 'Body', value: bodyLabel || '—', color: bodyLabel ? 'var(--gl-purple-light)' : 'var(--gl-text-dim)' },
+      { label: 'Focus', value: focusLabel || '—', color: focusLabel ? 'var(--gl-purple-light)' : 'var(--gl-text-dim)' },
+      { label: 'Brain state', value: energyLabel, color: 'var(--gl-cyan)' },
+    ];
+
+    // reflection
+    const reflectReady = st.reflection.trim().length >= 2;
+    const reflectReply = good
+      ? 'You showed up steady this week — that consistency is the part that compounds. Nice work naming it.'
+      : 'Thanks for being honest about a hard week. Showing up to reflect at all is the win here — Diana will keep next week\u2019s blocks gentle.';
+
+    return {
+      goQuickAdd: this.goQuickAdd, goSettings: this.goSettings, goFocus: this.goFocus,
+      moodChips, qualityChips,
+      moodDone: st.moodDone, moodActive: !st.moodDone,
+      bodyChoices, focusChoices,
+      moodSummary: (bodyLabel && focusLabel) ? (bodyLabel + ' body · ' + focusLabel + ' focus') : 'Set for today',
+      moodAdvice: st.moodBody === 'low' ? 'short and contained' : st.moodBody === 'ready' ? 'a little bigger' : 'steady',
+      saveMood: this.saveMood, resetMood: this.resetMood,
+      moodSaveBg: moodReady ? 'linear-gradient(180deg,#29d0ff,#1c86b8)' : 'var(--gl-purple-10)',
+      moodSaveFg: moodReady ? '#fff' : 'rgba(200,218,255,.4)',
+      moodSaveCursor: moodReady ? 'pointer' : 'not-allowed',
+      showAdapt: !good,
+      adaptMessage: st.moodBody === 'low'
+        ? 'You flagged low energy — one small step, then reassess. No need to plan the whole night.'
+        : 'One small step, then reassess — no need to plan the whole night.',
+      energyPills,
+      stateReadout,
+      reflection: st.reflection, setReflection: this.setReflection, saveReflection: this.saveReflection,
+      reflectBtnBg: reflectReady ? 'linear-gradient(180deg,#29d0ff,#1c86b8)' : 'var(--gl-purple-10)',
+      reflectBtnFg: reflectReady ? '#fff' : 'rgba(200,218,255,.4)',
+      reflectBtnCursor: reflectReady ? 'pointer' : 'not-allowed',
+      reflectSaved: st.reflectSaved,
+      reflectReply,
+    };
+  }
+}
+</script>
+</body>
+</html>

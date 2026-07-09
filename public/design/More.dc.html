@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-25:rgba(41,208,255,.25);
+    --gl-purple:#b09cff; --gl-green:#36e07a; --gl-gold:#ffd24a;
+    --gl-text-primary:#fff; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  a{text-decoration:none;color:inherit}
+  ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.3);border-radius:4px}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)" data-screen-label="More">
+
+  <!-- APP NAV -->
+  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <div style="display:flex;gap:8px">
+      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
+      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase;color:#8b96bd">
+      <a href="Student Lobby.dc.html" style="cursor:pointer;color:#8b96bd">Today</a><a href="Work.dc.html" style="cursor:pointer;color:#8b96bd">Work</a><a href="Classes.dc.html" style="cursor:pointer;color:#8b96bd">Classes</a><a href="Calendar.dc.html" style="cursor:pointer;color:#8b96bd">Calendar</a><a href="Messages.dc.html" class="gl-tab" style="cursor:pointer;color:#8b96bd">Messages</a>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
+      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
+      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
+      </div>
+      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
+        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
+            <div style="width:100%;height:100%;background-image:{{ avatarPhotoCss }};background-size:cover;background-position:{{ photoObjectPosition }}"></div>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
+        </sc-if>
+        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
+          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
+        </sc-if>
+        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
+          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f">{{ initials }}</span>
+        </sc-if>
+      </a>
+      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      </a>
+    </div>
+  </div>
+
+  <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px;display:grid;grid-template-columns:220px 1fr;gap:28px">
+
+    <!-- LEFT RAIL -->
+    <div>
+      <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:14px">More</div>
+      <sc-for list="{{ sections }}" as="sec" hint-placeholder-count="4">
+        <div onClick="{{ sec.onClick }}" style="padding:11px 14px;border-radius:9px;cursor:pointer;font-weight:600;font-size:13.5px;margin-bottom:4px;color:{{ sec.color }};background:{{ sec.bg }}">{{ sec.label }}</div>
+      </sc-for>
+    </div>
+
+    <!-- RIGHT CONTENT -->
+    <div>
+      <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase;margin-bottom:4px">{{ activeTitle }}</div>
+      <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:18px">{{ activeSub }}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+        <sc-for list="{{ activeItems }}" as="it" hint-placeholder-count="6">
+          <a href="{{ it.href }}" style="display:block;border-radius:13px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px 17px;transition:transform .15s,border-color .15s" style-hover="transform:translateY(-2px);border-color:var(--gl-cyan-30)">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:15px;color:#fff">{{ it.name }}</div>
+            <div style="font-size:12px;color:var(--gl-text-overlay-60);margin-top:4px;line-height:1.4">{{ it.desc }}</div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { section: 'reflect' };
+
+  renderVals() {
+    const groups = [
+      {
+        id: 'reflect', label: 'Reflect & plan', title: 'Reflect & plan',
+        sub: 'How am I · what I\u2019ve shown · what\u2019s next',
+        items: [
+          { href: 'Think.dc.html', name: 'Think', desc: 'Mood, energy, reflection — plus Wellness' },
+          { href: 'Proof.dc.html', name: 'Proof', desc: 'Done today, grade moves — plus Portfolio' },
+          { href: 'Future.dc.html', name: 'Future', desc: 'Evening plan, quests — plus AP Command Center' },
+          { href: 'Wellness.dc.html', name: 'Wellness', desc: 'Mood, sleep, energy, reflection' },
+          { href: 'Portfolio.dc.html', name: 'Portfolio', desc: 'Your best work, evidence, progress' },
+          { href: 'AP Command Center.dc.html', name: 'AP Command Center', desc: 'Exam countdowns, unit plan' },
+        ],
+      },
+      {
+        id: 'work', label: 'Do the work', title: 'Do the work',
+        sub: 'Every tool for getting an assignment done',
+        items: [
+          { href: 'Quick Add.dc.html?mode=assignment', name: 'New assignment', desc: 'Snap it, tag the class, set the date' },
+          { href: 'Inbox.dc.html', name: 'Inbox', desc: 'Confirm what Diana caught' },
+          { href: 'Work.dc.html', name: 'Homework', desc: 'One page to do the work \u2014 timer, steps, and Diana built in' },
+        ],
+      },
+      {
+        id: 'study', label: 'Study', title: 'Study',
+        sub: 'Review, generate, and capture what you learn',
+        items: [
+          { href: 'Study Artifacts.dc.html', name: 'Study artifacts', desc: 'Generate guides, tests, cards' },
+          { href: 'Study Groups.dc.html', name: 'Study groups', desc: 'Work together, Diana joins in' },
+        ],
+      },
+    ];
+    const active = groups.find((g) => g.id === this.state.section) || groups[0];
+    const sections = groups.map((g) => ({
+      label: g.label,
+      color: this.state.section === g.id ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      bg: this.state.section === g.id ? 'var(--gl-cyan-14)' : 'transparent',
+      onClick: () => this.setState({ section: g.id }),
+    }));
+    return {
+      sections,
+      activeTitle: active.title,
+      activeSub: active.sub,
+      activeItems: active.items,
+      ...this.avatarVals(),
+    };
+  }
+
+  avatarVals() {
+    const src = (() => { const p = localStorage.getItem('diana-profile-src') || ''; return p.startsWith('blob:') ? '' : p; })();
+    const type = localStorage.getItem('diana-avatar-type') || 'none';
+    const ox = parseFloat(localStorage.getItem('diana-photo-offset-x')) || 50;
+    const oy = parseFloat(localStorage.getItem('diana-photo-offset-y')) || 50;
+    const name = localStorage.getItem('diana-profile-name') || 'Grayson';
+    const initials = name.trim().split(/\s+/).map((w) => w[0] || '').slice(0, 2).join('').toUpperCase() || 'G';
+    return {
+      profilePhotoSrc: src,
+      avatarPhotoCss: (type === 'upload' && src) ? ('url("' + src + '")') : 'none',
+      photoObjectPosition: ox + '% ' + oy + '%',
+      isAvatarUpload: type === 'upload',
+      hasProfilePhoto: type === 'upload' && !!src,
+      isAvatarBoy: type === 'boy',
+      isAvatarGirl: type === 'girl',
+      showInitialsFallback: type === 'none' || (type === 'upload' && !src),
+      initials,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

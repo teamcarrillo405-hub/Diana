@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.08);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14); --gl-green-08:rgba(54,224,122,.08);
+    --gl-violet:#a78bfa; --gl-violet-30:rgba(167,139,250,.3); --gl-violet-14:rgba(167,139,250,.14);
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad;
+    --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+
+  *::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important;}
+  *{scrollbar-width:none;}
+</style>
+</helmet>
+
+<div style="width:390px;height:844px;font-family:var(--font-body);color:var(--gl-text-primary);background:var(--gl-bg-base);display:flex;flex-direction:column;overflow:hidden;position:relative" data-screen-label="Wellness Phone">
+
+  <!-- STATUS BAR -->
+  <div style="height:47px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:600">
+    <span>9:41</span><div style="display:flex;align-items:center;gap:6px"><svg width="17" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="7" width="3" height="5" rx="1"></rect><rect x="5" y="4" width="3" height="8" rx="1"></rect><rect x="10" y="1.5" width="3" height="10.5" rx="1"></rect></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#fff" stroke-opacity=".5"></rect><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"></rect><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" fill-opacity=".5"></rect></svg></div>
+  </div>
+
+  <!-- HEADER -->
+  <div style="padding:6px 18px 14px;flex-shrink:0;border-bottom:1px solid var(--gl-border)">
+    <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan)">Wellness</div>
+    <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:24px;text-transform:uppercase">Move, rest, recover.</div>
+  </div>
+
+  <!-- SCROLL BODY -->
+  <div style="flex:1;overflow-y:auto;padding:16px 18px 90px;display:flex;flex-direction:column;gap:16px">
+
+    <!-- SLEEP -->
+    <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:14px;text-transform:uppercase">Last night's sleep</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <sc-for list="{{ sleepQualities }}" as="q" hint-placeholder-count="3">
+          <div onClick="{{ q.onClick }}" style="flex:1;text-align:center;padding:12px 6px;border-radius:10px;border:1px solid {{ q.border }};background:{{ q.bg }}">
+            <div style="color:{{ q.fg }};font-size:20px;margin-bottom:4px">{{ q.emoji }}</div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:11.5px;text-transform:uppercase;color:{{ q.fg }}">{{ q.label }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input type="range" min="0" max="12" step="0.5" value="{{ sleepHours }}" onChange="{{ onSleepHoursChange }}" style="flex:1;accent-color:var(--gl-cyan)">
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--gl-cyan);min-width:32px;text-align:right">{{ sleepHours }}h</div>
+      </div>
+      <sc-if value="{{ sleepAdjustNote }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:12px;padding:9px 12px;border-radius:8px;background:var(--gl-gold-08);border:1px solid var(--gl-gold-30);font-size:11.5px;color:var(--gl-text-secondary);line-height:1.4">{{ sleepAdjustNote }}</div>
+      </sc-if>
+    </div>
+
+    <!-- MOVEMENT -->
+    <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:14px;text-transform:uppercase;margin-bottom:12px">Log movement</div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
+        <sc-for list="{{ activityTypes }}" as="a" hint-placeholder-count="8">
+          <div onClick="{{ a.onClick }}" style="padding:8px 12px;border-radius:8px;font-size:12.5px;font-weight:600;border:1px solid {{ a.border }};background:{{ a.bg }};color:{{ a.fg }}">{{ a.label }}</div>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <input type="range" min="5" max="180" step="5" value="{{ activityMinutes }}" onChange="{{ onActivityMinutesChange }}" style="flex:1;accent-color:var(--gl-green)">
+        <div style="font-family:var(--font-mono);font-size:13px;color:var(--gl-green);min-width:40px;text-align:right">{{ activityMinutes }}m</div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px">
+        <sc-for list="{{ feltOptions }}" as="f" hint-placeholder-count="4">
+          <div onClick="{{ f.onClick }}" style="padding:6px 11px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
+        </sc-for>
+      </div>
+      <div onClick="{{ onLogActivity }}" style="text-align:center;padding:12px;border-radius:10px;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:{{ logButtonBg }};color:{{ logButtonFg }};border:1px solid {{ logButtonBorder }}">{{ logButtonText }}</div>
+
+      <sc-if value="{{ hasRecentActivity }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--gl-border);display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ recentActivity }}" as="r" hint-placeholder-count="2">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--gl-text-secondary)">
+              <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-green);display:inline-block;flex-shrink:0"></span><span style="flex:1"><b style="color:#fff">{{ r.label }}</b> · {{ r.minutes }}m · {{ r.when }}</span><span style="color:var(--gl-text-dim);font-size:11px">{{ r.felt }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- GOALS -->
+    <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:14px;text-transform:uppercase;margin-bottom:4px">Goals</div>
+      <div style="font-size:11.5px;color:var(--gl-text-dim);margin-bottom:12px">Skill and consistency — never appearance.</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ goals }}" as="g" hint-placeholder-count="2">
+          <div style="border-radius:11px;border:1px solid var(--gl-border);background:rgba(4,8,20,.4);padding:12px 14px">
+            <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px">
+              <span style="font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:5px;background:var(--gl-cyan-14);color:var(--gl-cyan)">{{ g.category }}</span>
+              <span style="font-family:var(--font-display);font-weight:700;font-size:13.5px">{{ g.title }}</span>
+            </div>
+            <div style="font-size:12px;color:var(--gl-text-secondary);line-height:1.4">{{ g.targetText }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <!-- HEALTH HELPER -->
+    <div style="border-radius:14px;border:1px solid var(--gl-violet-30);background:rgba(167,139,250,.06);padding:16px">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:14px;text-transform:uppercase;margin-bottom:4px;color:var(--gl-violet)">Health class helper</div>
+      <div style="font-size:11.5px;color:var(--gl-text-secondary);line-height:1.4;margin-bottom:12px">Study support only — never medical advice.</div>
+      <div onClick="{{ onGenerateFirstAidCards }}" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:10px;border:1px solid var(--gl-border);background:rgba(4,8,20,.4)">
+        <div style="width:30px;height:30px;border-radius:8px;background:var(--gl-violet-14);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">▤</div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:12.5px">CPR / First Aid cards</div>
+          <div style="font-size:10.5px;color:var(--gl-text-dim)">Adds 5 flashcards</div>
+        </div>
+        <sc-if value="{{ firstAidCardsAdded }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:11px;color:var(--gl-green);font-weight:600">✓</div>
+        </sc-if>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM TAB BAR -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:78px;display:flex;align-items:flex-start;padding-top:8px;border-top:1px solid var(--gl-border);background:rgba(4,8,20,.92);backdrop-filter:blur(12px)">
+    <sc-for list="{{ tabBar }}" as="t" hint-placeholder-count="5">
+      <a href="{{ t.href }}" style="display:block;flex:1;text-align:center;text-decoration:none;color:{{ t.color }}">
+        <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:14px 0">{{ t.label }}</div>
+      </a>
+    </sc-for>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" bottom="96" hint-size="64px,64px"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    sleepQuality: null, sleepHours: 7,
+    activityType: 'walk', activityMinutes: 30, felt: null,
+    recentActivity: [ { emoji: '🚶', label: 'Walk', minutes: 25, when: 'Yesterday', felt: 'steady' } ],
+    goals: [ { category: 'consistency', title: 'Move 3x this week', targetText: 'Any movement counts.' } ],
+    firstAidCardsAdded: false,
+  };
+
+  ACTIVITY_TYPES = [
+    { id: 'walk', label: 'Walk', emoji: '🚶' }, { id: 'run', label: 'Run', emoji: '🏃' },
+    { id: 'bike', label: 'Bike', emoji: '🚴' }, { id: 'team_sport', label: 'Team sport', emoji: '⚽' },
+    { id: 'strength', label: 'Strength', emoji: '🏋️' }, { id: 'stretch', label: 'Stretch', emoji: '🧘' },
+    { id: 'dance', label: 'Dance', emoji: '💃' }, { id: 'other', label: 'Other', emoji: '✨' },
+  ];
+  FELT_OPTIONS = [
+    { id: 'steady', label: 'Steady' }, { id: 'tired', label: 'Tired' },
+    { id: 'energized', label: 'Energized' }, { id: 'sore', label: 'Sore' },
+  ];
+
+  sleepAdjustment(quality, hours) {
+    if (!quality) return null;
+    const shortSleep = typeof hours === 'number' && hours > 0 && hours < 6;
+    if (quality === 'rough' || shortSleep) return "Sleep looked light — Diana will favor smaller tasks tomorrow.";
+    if (quality === 'ok') return "Sleep was logged. Diana keeps the usual task mix.";
+    return null;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const qualityDefs = [
+      { id: 'rested', label: 'Rested', emoji: '●', fg: 'var(--gl-green)', border: 'var(--gl-green-30)', bg: 'var(--gl-green-08)' },
+      { id: 'ok', label: 'OK', emoji: '◐', fg: 'var(--gl-cyan)', border: 'var(--gl-cyan-30)', bg: 'var(--gl-cyan-14)' },
+      { id: 'rough', label: 'Rough', emoji: '○', fg: 'var(--gl-gold)', border: 'var(--gl-gold-30)', bg: 'var(--gl-gold-08)' },
+    ];
+    const sleepQualities = qualityDefs.map(q => ({
+      ...q,
+      border: s.sleepQuality === q.id ? q.border : 'var(--gl-border)',
+      bg: s.sleepQuality === q.id ? q.bg : 'rgba(4,8,20,.4)',
+      fg: s.sleepQuality === q.id ? q.fg : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ sleepQuality: q.id }),
+    }));
+
+    const activityTypes = this.ACTIVITY_TYPES.map(a => ({
+      ...a,
+      border: s.activityType === a.id ? 'var(--gl-green-30)' : 'var(--gl-border)',
+      bg: s.activityType === a.id ? 'var(--gl-green-14)' : 'rgba(4,8,20,.4)',
+      fg: s.activityType === a.id ? 'var(--gl-green)' : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ activityType: a.id }),
+    }));
+
+    const feltOptions = this.FELT_OPTIONS.map(f => ({
+      ...f,
+      border: s.felt === f.id ? 'var(--gl-cyan-30)' : 'var(--gl-border)',
+      bg: s.felt === f.id ? 'var(--gl-cyan-14)' : 'rgba(4,8,20,.4)',
+      fg: s.felt === f.id ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      onClick: () => this.setState({ felt: f.id }),
+    }));
+
+    const canLog = !!s.felt;
+    const tabDefs = [ ['🏠','Today','Student Lobby Phone.dc.html'], ['⚡','Work','Work Phone.dc.html'], ['📚','Classes','Classes Phone.dc.html'], ['📅','Calendar','Calendar Phone.dc.html'], ['⋯','More','More Phone.dc.html'] ];
+    const tabBar = tabDefs.map(([icon,label,href]) => ({ icon, label, href, color: 'var(--gl-text-dim)' }));
+
+    return {
+      sleepQualities, sleepHours: s.sleepHours,
+      onSleepHoursChange: e => this.setState({ sleepHours: parseFloat(e.target.value) }),
+      sleepAdjustNote: this.sleepAdjustment(s.sleepQuality, s.sleepHours),
+
+      activityTypes, activityMinutes: s.activityMinutes,
+      onActivityMinutesChange: e => this.setState({ activityMinutes: parseInt(e.target.value, 10) }),
+      feltOptions,
+      logButtonText: canLog ? 'Log it' : 'Choose how it felt',
+      logButtonBg: canLog ? 'var(--gl-green-14)' : 'rgba(120,150,220,.08)',
+      logButtonFg: canLog ? 'var(--gl-green)' : 'var(--gl-text-dim)',
+      logButtonBorder: canLog ? 'var(--gl-green-30)' : 'var(--gl-border)',
+      onLogActivity: () => {
+        if (!canLog) return;
+        const a = this.ACTIVITY_TYPES.find(x => x.id === s.activityType);
+        const f = this.FELT_OPTIONS.find(x => x.id === s.felt);
+        this.setState(prev => ({
+          recentActivity: [{ emoji: a.emoji, label: a.label, minutes: prev.activityMinutes, when: 'Just now', felt: f.label }, ...prev.recentActivity],
+          felt: null,
+        }));
+      },
+      hasRecentActivity: s.recentActivity.length > 0,
+      recentActivity: s.recentActivity,
+      goals: s.goals,
+      firstAidCardsAdded: s.firstAidCardsAdded,
+      onGenerateFirstAidCards: () => this.setState({ firstAidCardsAdded: true }),
+      tabBar,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

@@ -383,7 +383,7 @@
      15. LAYOUT DIMENSIONS
      ============================================================ */
 
-  --layout-max-width:       1760px;  /* app-wide content max-width (hero, classes, tabs, all pages) */
+  --layout-max-width:       1440px;  /* app-wide content max-width — locked to the design bundle (every designs/*.dc.html page is 1440) */
   --layout-hero-bg-height:  718px;   /* background image / hero outer height */
   --layout-hero-height:     660px;   /* hero content container height */
   --layout-nav-height:      58px;    /* top navigation bar height */

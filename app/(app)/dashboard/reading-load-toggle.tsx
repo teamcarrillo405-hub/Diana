@@ -65,19 +65,3 @@ export function ReadingLoadToggle({ active }: { active: boolean }) {
     </div>
   );
 }
-
-/** Render a row of book icons sized by reading_load (capped at 5). */
-export function ReadingLoadBadge({ load }: { load: number | null }) {
-  if (load == null || load <= 0) return null;
-  const count = Math.min(5, Math.max(0, Math.round(load)));
-  return (
-    <span
-      style={{ display: "inline-flex", alignItems: "center", gap: "2px", fontSize: "var(--text-12)", color: "var(--gl-text-muted)" }}
-      aria-label={`Reading load ${count} of 5`}
-    >
-      {Array.from({ length: count }).map((_, i) => (
-        <BookOpen key={i} size={12} aria-hidden />
-      ))}
-    </span>
-  );
-}

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Barlow+Semi+Condensed:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#04060f}
+  *{box-sizing:border-box}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:radial-gradient(1200px 700px at 50% -10%,rgba(41,208,255,.05),transparent 60%),#04060f;font-family:'Barlow Semi Condensed',sans-serif;padding:56px 24px 90px">
+  <div style="max-width:900px;margin:0 auto">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:8px">
+      <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:#29d0ff">Alert Slot</div>
+      <div style="height:1px;flex:1;background:linear-gradient(90deg,rgba(41,208,255,.4),transparent)"></div>
+    </div>
+    <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:34px;letter-spacing:.01em;color:#eef2ff;line-height:1.05;margin-bottom:10px">The one quiet strip on TODAY</div>
+    <div style="font-size:14.5px;line-height:1.6;color:rgba(200,218,255,.62);max-width:640px;margin-bottom:40px">One shared region under the nav, above the class grid. Renders nothing most days. When triggered it shows <strong style="color:#cfe0ff;font-weight:600">one strip at a time</strong> in priority order: past-due → burnout → AI budget. Token &amp; burnout are amber-only, never red.</div>
+
+    <!-- ===== LIVE BEHAVIOR ===== -->
+    <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;color:rgba(200,218,255,.5);margin-bottom:16px">Live behavior · one at a time</div>
+
+    <div style="min-height:88px;margin-bottom:18px">
+      <sc-if value="{{ hasActive }}" hint-placeholder-val="{{ true }}">
+        <div style="position:relative;display:flex;align-items:center;gap:16px;padding:17px 18px;border-radius:14px;border:1px solid {{ active.border }};background:{{ active.bg }};overflow:hidden">
+          <!-- HUD corner brackets -->
+          <div style="position:absolute;top:7px;left:7px;width:11px;height:11px;border-top:2px solid {{ active.accent }};border-left:2px solid {{ active.accent }};opacity:.55"></div>
+          <div style="position:absolute;top:7px;right:7px;width:11px;height:11px;border-top:2px solid {{ active.accent }};border-right:2px solid {{ active.accent }};opacity:.55"></div>
+          <div style="position:absolute;bottom:7px;left:7px;width:11px;height:11px;border-bottom:2px solid {{ active.accent }};border-left:2px solid {{ active.accent }};opacity:.55"></div>
+          <div style="position:absolute;bottom:7px;right:7px;width:11px;height:11px;border-bottom:2px solid {{ active.accent }};border-right:2px solid {{ active.accent }};opacity:.55"></div>
+
+          <div style="width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:{{ active.iconBg }};border:1px solid {{ active.border }}">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;color:{{ active.accent }}">{{ active.glyph }}</span>
+          </div>
+
+          <div style="min-width:0;flex:1">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:{{ active.accent }};margin-bottom:4px">{{ active.label }}</div>
+            <div style="font-size:15px;font-weight:600;color:#eef2ff;line-height:1.25">{{ active.msg }}</div>
+            <div style="font-size:12.5px;color:rgba(200,218,255,.55);margin-top:2px">{{ active.sub }}</div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+            <div onClick="{{ active.onCta }}" style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:{{ active.accent }};padding:9px 15px;border-radius:9px;border:1px solid {{ active.border }};background:{{ active.iconBg }};cursor:pointer;white-space:nowrap" style-hover="background:{{ active.ctaHoverBg }}">{{ active.cta }}</div>
+            <div onClick="{{ active.onDismiss }}" title="Dismiss" style="width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(120,150,220,.1);color:rgba(200,218,255,.6);cursor:pointer;font-size:15px;line-height:1" style-hover="background:rgba(120,150,220,.2);color:#fff">✕</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px;padding:17px 18px;border-radius:14px;border:1px dashed rgba(120,150,220,.22);background:rgba(120,150,220,.03)">
+          <div style="width:24px;height:24px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:rgba(54,224,122,.12);border:1px solid rgba(54,224,122,.4)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#36e07a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+          </div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:.03em;color:rgba(200,218,255,.62)">Nothing needs attention.</div>
+        </div>
+      </sc-if>
+    </div>
+
+    <!-- Trigger controls -->
+    <div style="display:flex;flex-wrap:wrap;gap:9px;margin-bottom:56px">
+      <sc-for list="{{ triggers }}" as="t" hint-placeholder-count="3">
+        <div onClick="{{ t.onClick }}" style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.09em;text-transform:uppercase;padding:9px 14px;border-radius:8px;cursor:pointer;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.fg }}" style-hover="border-color:{{ t.accent }}">{{ t.label }}</div>
+      </sc-for>
+      <div onClick="{{ resetAll }}" style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.09em;text-transform:uppercase;padding:9px 14px;border-radius:8px;cursor:pointer;border:1px solid rgba(120,150,220,.28);background:transparent;color:rgba(200,218,255,.6);margin-left:auto" style-hover="color:#fff;border-color:rgba(120,150,220,.5)">Reset all</div>
+    </div>
+
+    <!-- ===== ALL TONES REFERENCE ===== -->
+    <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11.5px;letter-spacing:.26em;text-transform:uppercase;color:rgba(200,218,255,.5);margin-bottom:16px">All tones · reference gallery</div>
+    <div style="display:flex;flex-direction:column;gap:13px">
+      <sc-for list="{{ gallery }}" as="g" hint-placeholder-count="4">
+        <div style="position:relative;display:flex;align-items:center;gap:16px;padding:17px 18px;border-radius:14px;border:1px {{ g.borderStyle }} {{ g.border }};background:{{ g.bg }};overflow:hidden">
+          <div style="position:absolute;top:7px;left:7px;width:11px;height:11px;border-top:2px solid {{ g.accent }};border-left:2px solid {{ g.accent }};opacity:{{ g.bracketOp }}"></div>
+          <div style="position:absolute;top:7px;right:7px;width:11px;height:11px;border-top:2px solid {{ g.accent }};border-right:2px solid {{ g.accent }};opacity:{{ g.bracketOp }}"></div>
+          <div style="position:absolute;bottom:7px;left:7px;width:11px;height:11px;border-bottom:2px solid {{ g.accent }};border-left:2px solid {{ g.accent }};opacity:{{ g.bracketOp }}"></div>
+          <div style="position:absolute;bottom:7px;right:7px;width:11px;height:11px;border-bottom:2px solid {{ g.accent }};border-right:2px solid {{ g.accent }};opacity:{{ g.bracketOp }}"></div>
+
+          <div style="width:34px;height:34px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:{{ g.iconBg }};border:1px solid {{ g.border }}">
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;color:{{ g.accent }}">{{ g.glyph }}</span>
+          </div>
+          <div style="min-width:0;flex:1">
+            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:{{ g.accent }};margin-bottom:4px">{{ g.label }}</div>
+            <div style="font-size:15px;font-weight:600;color:{{ g.msgColor }};line-height:1.25">{{ g.msg }}</div>
+            <div style="font-size:12.5px;color:rgba(200,218,255,.55);margin-top:2px">{{ g.sub }}</div>
+          </div>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:rgba(200,218,255,.4);flex-shrink:0">{{ g.file }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin-top:26px;padding:15px 18px;border-radius:12px;border:1px solid rgba(255,210,74,.25);background:rgba(255,210,74,.05);font-size:13px;line-height:1.55;color:rgba(230,220,190,.82)">
+      <strong style="color:#ffd24a;font-weight:700">Invariant:</strong> token &amp; burnout cues are amber only — never red. Past-due reminders may use red and bypass quiet hours while the task is still open.
+    </div>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:960,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  state = { dismissed: {} };
+
+  get defs() {
+    return [
+      { key: 'pastdue', label: 'Past due', glyph: '!', file: 'reminder-banner.tsx',
+        accent: '#ff7070', border: 'rgba(255,85,85,.5)', bg: 'rgba(255,55,55,.07)',
+        iconBg: 'rgba(255,85,85,.1)', ctaHoverBg: 'rgba(255,85,85,.16)',
+        msg: 'Ch. 4 quiz corrections are 2 days late', sub: 'Math · Ms. Okafor · still accepting until Friday',
+        cta: 'Fix now' },
+      { key: 'burnout', label: 'Reset cue', glyph: '~', file: 'burnout-cue.tsx',
+        accent: '#ffd24a', border: 'rgba(255,210,74,.45)', bg: 'rgba(255,210,74,.06)',
+        iconBg: 'rgba(255,210,74,.1)', ctaHoverBg: 'rgba(255,210,74,.16)',
+        msg: "You've worked 4 nights straight", sub: 'Take tonight lighter — nothing here is urgent',
+        cta: 'Plan a break' },
+      { key: 'token', label: 'AI budget', glyph: '◈', file: 'token-budget-banner.tsx',
+        accent: '#ffb347', border: 'rgba(255,180,70,.4)', bg: 'rgba(255,180,70,.06)',
+        iconBg: 'rgba(255,180,70,.1)', ctaHoverBg: 'rgba(255,180,70,.16)',
+        msg: '18% of your weekly Diana help remains', sub: 'Resets Sunday · use it on what matters most',
+        cta: 'See usage' },
+    ];
+  }
+
+  dismiss = (k) => this.setState(s => ({ dismissed: { ...s.dismissed, [k]: true } }));
+  trigger = (k) => this.setState(s => { const d = { ...s.dismissed }; delete d[k]; return { dismissed: d }; });
+  resetAll = () => this.setState({ dismissed: {} });
+
+  renderVals() {
+    const dismissed = this.state.dismissed;
+    const active = this.defs.find(d => !dismissed[d.key]);
+
+    const triggers = this.defs.map(d => {
+      const off = dismissed[d.key];
+      return {
+        label: (off ? '+ ' : '● ') + d.label,
+        accent: d.accent,
+        onClick: () => off ? this.trigger(d.key) : this.dismiss(d.key),
+        border: off ? 'rgba(120,150,220,.28)' : d.border,
+        bg: off ? 'transparent' : d.bg,
+        fg: off ? 'rgba(200,218,255,.6)' : d.accent,
+      };
+    });
+
+    const gallery = this.defs.map(d => ({
+      ...d, borderStyle: 'solid', bracketOp: .55, msgColor: '#eef2ff'
+    }));
+    gallery.push({
+      label: 'Empty state', glyph: '✓', file: 'renders null',
+      accent: '#36e07a', border: 'rgba(120,150,220,.22)', borderStyle: 'dashed',
+      bg: 'rgba(120,150,220,.03)', iconBg: 'rgba(54,224,122,.12)', bracketOp: 0,
+      msg: 'Nothing needs attention.', sub: 'Most days — the slot renders nothing at all.',
+      msgColor: 'rgba(200,218,255,.72)'
+    });
+
+    return {
+      active: active ? {
+        ...active,
+        onDismiss: () => this.dismiss(active.key),
+        onCta: () => {},
+      } : null,
+      hasActive: !!active,
+      isEmpty: !active,
+      triggers,
+      gallery,
+      resetAll: this.resetAll,
+    };
+  }
+}
+</script>
+</body>
+</html>

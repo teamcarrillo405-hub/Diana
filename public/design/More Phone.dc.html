@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-cyan:#29d0ff; --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-30:rgba(41,208,255,.3);
+    --gl-purple:#b09cff; --gl-green:#36e07a; --gl-gold:#ffd24a;
+    --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6); --gl-border:rgba(120,150,220,.18);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  a{text-decoration:none;color:inherit}
+
+  *::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important;}
+  *{scrollbar-width:none;}
+</style>
+</helmet>
+
+<div style="width:390px;height:844px;position:relative;font-family:var(--font-body);color:#fff;background:var(--gl-bg-base);display:flex;flex-direction:column;overflow:hidden" data-screen-label="More Phone">
+  <div style="height:47px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:14px;font-weight:600">
+    <span>9:41</span><div style="display:flex;align-items:center;gap:6px"><svg width="17" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="7" width="3" height="5" rx="1"></rect><rect x="5" y="4" width="3" height="8" rx="1"></rect><rect x="10" y="1.5" width="3" height="10.5" rx="1"></rect></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#fff" stroke-opacity=".5"></rect><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"></rect><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" fill-opacity=".5"></rect></svg></div>
+  </div>
+  <div style="padding:4px 18px 10px;flex-shrink:0">
+    <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan)">More</div>
+    <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:21px;text-transform:uppercase">Everything else.</div>
+  </div>
+
+  <div style="flex:1;overflow-y:auto;padding:0 18px 84px">
+    <sc-for list="{{ groups }}" as="grp" hint-placeholder-count="5">
+      <div style="margin-bottom:18px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:{{ grp.color }};margin-bottom:8px">{{ grp.title }}</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="3">
+            <a href="{{ it.href }}" style="display:block;border-radius:11px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:12px 14px">
+              <div style="font-family:var(--font-display);font-weight:700;font-size:14px;color:#fff">{{ it.name }}</div>
+              <div style="font-size:11.5px;color:var(--gl-text-overlay-60);margin-top:2px">{{ it.desc }}</div>
+            </a>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- BOTTOM TAB BAR -->
+  <div style="position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:space-around;background:rgba(2,5,14,.92);border-top:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px);flex-shrink:0">
+    <a href="Student Lobby Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><div style="font-size:18px">⌂</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Today</div></a>
+    <a href="Work Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><div style="font-size:18px">▤</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Work</div></a>
+    <a href="Classes Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><div style="font-size:18px">▦</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Classes</div></a>
+    <a href="More Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--gl-cyan)"><div style="font-size:18px">•••</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">More</div></a>
+  </div>
+</div>
+
+<dc-import name="Agent Fab" bottom="96" hint-size="64px,64px"></dc-import>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const groups = [
+      {
+        title: 'Think · Proof · Future', color: 'var(--gl-purple)',
+        items: [
+          { href: 'Wellness Phone.dc.html', name: 'Think · Wellness', desc: 'Mood, sleep, energy, reflection' },
+          { href: 'Portfolio Phone.dc.html', name: 'Proof · Portfolio', desc: 'Your best work, evidence' },
+          { href: 'AP Command Center Phone.dc.html', name: 'Future · AP Command Center', desc: 'Exam countdowns' },
+        ],
+      },
+      {
+        title: 'Do the work', color: 'var(--gl-cyan)',
+        items: [
+          { href: 'Assignment Detail Phone.dc.html', name: 'Assignment', desc: 'The focus cockpit' },
+          { href: 'Quick Add.dc.html?mode=assignment', name: 'New assignment', desc: 'Snap it, tag the class, set the date' },
+          { href: 'Quick Add.dc.html', name: 'Quick add', desc: 'Capture by text, photo, or voice' },
+          { href: 'Inbox Phone.dc.html', name: 'Inbox', desc: 'Confirm what Diana caught' },
+          { href: 'Work Phone.dc.html', name: 'Homework', desc: 'One page to do the work' },
+        ],
+      },
+      {
+        title: 'Study', color: 'var(--gl-green)',
+        items: [
+          { href: 'Flashcards.dc.html', name: 'Flashcards', desc: 'Spaced review decks' },
+          { href: 'Study Artifacts.dc.html', name: 'Study artifacts', desc: 'Generate guides, tests, cards' },
+          { href: 'Notes.dc.html', name: 'Notes', desc: 'Type, record, or photograph' },
+          { href: 'Study Groups.dc.html', name: 'Study groups', desc: 'Work together' },
+        ],
+      },
+      {
+        title: 'Account', color: 'var(--gl-gold)',
+        items: [
+          { href: 'Settings Phone.dc.html', name: 'Settings', desc: 'Accessibility, reading, LMS' },
+          { href: 'Sharing Phone.dc.html', name: 'Sharing', desc: 'Parent digest, teacher portal' },
+          { href: 'AI History Phone.dc.html', name: 'AI history', desc: 'Every AI call' },
+          { href: 'Export and Privacy Phone.dc.html', name: 'Export & privacy', desc: 'Data, export, delete' },
+        ],
+      },
+    ];
+    return { groups };
+  }
+}
+
+</script>
+</body>
+</html>

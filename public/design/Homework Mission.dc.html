@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;family=Atkinson+Hyperlegible:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
+    --gl-cyan:#29d0ff; --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
+    --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14);
+    --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-12:rgba(54,224,122,.12);
+    --gl-pink:#f25fb0; --gl-purple-light:#b09cff;
+    --gl-text-primary:#fff; --gl-text-secondary:#cdd6f2; --gl-text-muted:#aab8e0; --gl-text-dim:#7d88ad; --gl-text-overlay-60:rgba(200,218,255,.6);
+    --gl-border:rgba(120,150,220,.18); --gl-bg-input:rgba(10,16,36,.8);
+    --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif;
+  }
+  html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  @keyframes hm-dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+  @keyframes hm-pulse{0%,100%{box-shadow:0 0 0 0 rgba(41,208,255,.45),0 8px 26px rgba(0,0,0,.5)}50%{box-shadow:0 0 0 8px rgba(41,208,255,0),0 8px 26px rgba(0,0,0,.5)}}
+  ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+  textarea:focus,input:focus{border-color:rgba(41,208,255,.45) !important;outline:none}
+</style>
+</helmet>
+
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)">
+
+  <!-- SLIM EDITOR BAR -->
+  <div style="position:sticky;top:0;z-index:40;max-width:1440px;margin:0 auto;height:56px;display:flex;align-items:center;gap:16px;padding:0 22px;background:rgba(2,5,14,.82);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
+    <a href="Work.dc.html" style="display:inline-flex;align-items:center;gap:7px;text-decoration:none;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>Work
+    </a>
+    <div style="width:1px;height:22px;background:var(--gl-border)"></div>
+    <div style="display:flex;align-items:center;gap:9px;min-width:0;flex:1">
+      <span style="width:8px;height:8px;border-radius:50%;background:{{ accent }};flex-shrink:0"></span>
+      <span style="font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</span>
+      <span style="font-size:12.5px;color:var(--gl-text-dim);white-space:nowrap">{{ dueLine }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:7px;flex-shrink:0">
+      <span style="width:7px;height:7px;border-radius:50%;background:{{ saveDotColor }}"></span>
+      <span style="font-size:12px;color:var(--gl-text-dim)">{{ saveLabel }}</span>
+    </div>
+    <sc-if value="{{ inWork }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ toggleTimer }}" title="Focus timer" style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:9px;border:1px solid {{ timerBorder }};background:{{ timerBg }};cursor:pointer">
+        <sc-if value="{{ timerOn }}" hint-placeholder-val="{{ false }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--gl-cyan)"><rect x="6" y="5" width="4" height="14" rx="1"></rect><rect x="14" y="5" width="4" height="14" rx="1"></rect></svg>
+        </sc-if>
+        <sc-if value="{{ timerOff }}" hint-placeholder-val="{{ true }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--gl-text-muted)"><path d="M8 5v14l11-7z"></path></svg>
+        </sc-if>
+        <span style="font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;color:{{ timerFg }}">{{ timerLabel }}</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{ inWork }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ openSubmit }}" style="flex-shrink:0;display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:9px;background:var(--gl-cyan);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:#04080f">
+        Submit
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"></path></svg>
+      </div>
+    </sc-if>
+  </div>
+
+  <!-- ============ MOMENT 1: THE ASSIGNMENT ============ -->
+  <sc-if value="{{ inBrief }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:720px;margin:0 auto;padding:64px 34px 90px">
+      <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+        <span style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:{{ accent }}">{{ courseLabel }}</span>
+        <span style="font-size:12px;color:var(--gl-text-dim)">·</span>
+        <span style="padding:3px 11px;border-radius:16px;border:1px solid var(--gl-gold-30);background:var(--gl-gold-14);font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-gold)">{{ dueLine }}</span>
+        <span style="font-size:13px;color:var(--gl-text-dim)">~{{ estimate }}</span>
+      </div>
+      <h1 style="margin:0 0 26px;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:46px;line-height:.94;text-transform:uppercase;color:#fff;text-wrap:balance">{{ title }}</h1>
+
+      <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:26px 28px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-dim);margin-bottom:12px">From your teacher</div>
+        <div style="font-family:{{ readFont }};font-size:17px;line-height:1.75;color:#e8f0ff">{{ briefText }}</div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:18px">
+          <span style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-text-dim)">You hand in:</span>
+          <sc-for list="{{ deliverables }}" as="d" hint-placeholder-count="2">
+            <span style="padding:5px 13px;border-radius:16px;border:1px solid var(--gl-border);background:rgba(255,255,255,.03);font-size:13.5px;font-weight:600;color:var(--gl-text-secondary)">{{ d }}</span>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap">
+        <div onClick="{{ startWork }}" style="display:inline-flex;align-items:center;gap:10px;padding:15px 30px;border-radius:12px;background:var(--gl-cyan);box-shadow:0 0 30px rgba(41,208,255,.35);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:19px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">
+          Start working
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </div>
+        <div onClick="{{ startBrokenDown }}" style="display:inline-flex;align-items:center;gap:9px;padding:14px 22px;border-radius:12px;border:1px solid var(--gl-cyan-25);background:var(--gl-cyan-08);cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-cyan)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
+          Break it into small steps
+        </div>
+      </div>
+      <div style="margin-top:14px;font-size:13.5px;color:var(--gl-text-dim)">Diana can help while you work — but only when you ask.</div>
+    </div>
+  </sc-if>
+
+  <!-- ============ MOMENT 2: THE WORKSPACE ============ -->
+  <sc-if value="{{ inWork }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:1280px;margin:0 auto;padding:20px 28px 80px">
+
+      <!-- optional step pills -->
+      <sc-if value="{{ hasSteps }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+          <sc-for list="{{ stepPills }}" as="p" hint-placeholder-count="4">
+            <div onClick="{{ p.onClick }}" style="display:inline-flex;align-items:center;gap:8px;padding:8px 15px;border-radius:18px;cursor:pointer;border:1px solid {{ p.border }};background:{{ p.bg }}">
+              <sc-if value="{{ p.done }}" hint-placeholder-val="{{ false }}">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--gl-green)" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+              </sc-if>
+              <sc-if value="{{ p.notDone }}" hint-placeholder-val="{{ true }}">
+                <span style="font-family:var(--font-display);font-weight:800;font-size:11.5px;color:{{ p.numFg }}">{{ p.num }}</span>
+              </sc-if>
+              <span style="font-size:13.5px;font-weight:600;color:{{ p.fg }};text-decoration:{{ p.strike }}">{{ p.label }}</span>
+            </div>
+          </sc-for>
+          <div onClick="{{ hideSteps }}" style="margin-left:auto;cursor:pointer;font-size:12px;color:var(--gl-text-dim)">Hide steps</div>
+        </div>
+        <div style="margin:0 4px 16px;font-size:13.5px;color:var(--gl-text-overlay-60)"><span style="font-weight:700;color:var(--gl-cyan);text-transform:uppercase;font-size:11.5px;letter-spacing:.08em">Now:</span> {{ stepTip }}</div>
+      </sc-if>
+      <sc-if value="{{ noSteps }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <div onClick="{{ showSteps }}" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:7px 14px;border-radius:16px;border:1px solid var(--gl-border);font-size:12.5px;font-weight:600;color:var(--gl-text-muted)">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
+            Break it into steps
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:grid;grid-template-columns:{{ workCols }};gap:18px;align-items:start">
+
+        <!-- LEFT: the material -->
+        <div style="position:{{ matPos }};top:72px;border-radius:15px;border:1px solid var(--gl-border);background:var(--gl-bg-card);backdrop-filter:blur(10px);padding:20px 22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:{{ accent }}">{{ materialTitle }}</span>
+            <span style="font-size:11.5px;color:var(--gl-text-dim)">{{ materialMeta }}</span>
+          </div>
+          <div style="font-family:{{ readFont }};font-size:15.5px;line-height:1.8;color:#e8f0ff">
+            <sc-for list="{{ materialSegments }}" as="seg" hint-placeholder-count="4">
+              <sc-if value="{{ seg.isVocab }}" hint-placeholder-val="{{ false }}"><span onClick="{{ seg.onClick }}" title="Tap and Diana explains it" style="cursor:pointer;border-bottom:2px dotted var(--gl-cyan);color:#fff;font-weight:700">{{ seg.text }}</span></sc-if>
+              <sc-if value="{{ seg.isPlain }}" hint-placeholder-val="{{ true }}"><span>{{ seg.text }}</span></sc-if>
+              <sc-if value="{{ seg.isBreak }}" hint-placeholder-val="{{ false }}"><span style="display:block;height:12px"></span></sc-if>
+            </sc-for>
+          </div>
+          <sc-if value="{{ hasMatChips }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:14px">
+              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gl-text-dim)">{{ matChipsLabel }}</span>
+              <sc-for list="{{ matChips }}" as="c" hint-placeholder-count="3">
+                <div onClick="{{ c.onClick }}" title="Tap and Diana explains it" style="padding:4px 11px;border-radius:14px;border:1px solid var(--gl-cyan-25);background:var(--gl-cyan-08);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gl-text-secondary)">{{ c.label }}</div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--gl-border);font-size:12px;color:var(--gl-text-dim)">Dotted words: tap for a plain-language explanation.</div>
+        </div>
+
+        <!-- RIGHT: your work (the hand-in) -->
+        <div style="border-radius:15px;border:1px solid var(--gl-cyan-25);background:var(--gl-bg-card);backdrop-filter:blur(10px);padding:24px 26px;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px">
+            <span style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gl-cyan)">Your work — this is what you hand in</span>
+            <div onClick="{{ openHelp }}" style="display:inline-flex;align-items:center;gap:9px;padding:6px 16px 6px 8px;border-radius:20px;border:1px solid var(--gl-cyan-25);background:var(--gl-cyan-08);cursor:pointer">
+              <img src="agent-robot-bust.png" alt="Diana AI agent" style="width:28px;height:28px;object-fit:cover;object-position:50% 15%;border-radius:50%;filter:drop-shadow(0 0 5px rgba(41,208,255,.5))">
+              <span style="font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-cyan)">Ask Diana</span>
+            </div>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <sc-for list="{{ workFields }}" as="f" hint-placeholder-count="3">
+              <div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-secondary)">{{ f.label }}</span>
+                  <span style="font-size:12.5px;color:var(--gl-text-dim)">{{ f.hint }}</span>
+                </div>
+                <sc-if value="{{ f.multi }}" hint-placeholder-val="{{ true }}">
+                  <textarea value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" rows="{{ f.rows }}" style="width:100%;resize:vertical;padding:13px 15px;border-radius:11px;border:1px solid var(--gl-border);background:var(--gl-bg-input);color:#e8f0ff;font-family:{{ readFont }};font-size:15.5px;line-height:1.65"></textarea>
+                </sc-if>
+                <sc-if value="{{ f.single }}" hint-placeholder-val="{{ false }}">
+                  <input value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" style="width:100%;padding:13px 15px;border-radius:11px;border:1px solid var(--gl-border);background:var(--gl-bg-input);color:#e8f0ff;font-family:{{ readFont }};font-size:15.5px">
+                </sc-if>
+              </div>
+            </sc-for>
+
+            <!-- science data table -->
+            <sc-if value="{{ hasTable }}" hint-placeholder-val="{{ false }}">
+              <div>
+                <div style="font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-secondary);margin-bottom:6px">Data table <span style="font-family:var(--font-body);font-weight:400;font-size:12.5px;letter-spacing:0;text-transform:none;color:var(--gl-text-dim)">from your lab notebook</span></div>
+                <div style="border-radius:11px;border:1px solid var(--gl-border);overflow:hidden">
+                  <div style="display:grid;grid-template-columns:1fr 1.2fr 1.4fr;background:rgba(120,150,220,.1)">
+                    <sc-for list="{{ tableHead }}" as="h" hint-placeholder-count="3">
+                      <div style="padding:9px 13px;font-family:var(--font-display);font-weight:800;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--gl-text-secondary)">{{ h }}</div>
+                    </sc-for>
+                  </div>
+                  <sc-for list="{{ tableRows }}" as="row" hint-placeholder-count="3">
+                    <div style="display:grid;grid-template-columns:1fr 1.2fr 1.4fr;border-top:1px solid var(--gl-border)">
+                      <div style="padding:9px 13px;font-size:14px;font-weight:700;color:var(--gl-text-secondary)">{{ row.c1 }}</div>
+                      <div style="padding:5px 7px"><input value="{{ row.v2 }}" onChange="{{ row.on2 }}" placeholder="—" style="width:100%;padding:6px 8px;border-radius:7px;border:1px solid var(--gl-border);background:var(--gl-bg-input);color:#e8f0ff;font-family:var(--font-body);font-size:14px"></div>
+                      <div style="padding:5px 7px"><input value="{{ row.v3 }}" onChange="{{ row.on3 }}" placeholder="—" style="width:100%;padding:6px 8px;border-radius:7px;border:1px solid var(--gl-border);background:var(--gl-bg-input);color:#e8f0ff;font-family:var(--font-body);font-size:14px"></div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <!-- fields after the table (science: explanation, error) -->
+            <sc-for list="{{ workFields2 }}" as="f" hint-placeholder-count="1">
+              <div>
+                <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:6px">
+                  <span style="font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-secondary)">{{ f.label }}</span>
+                  <span style="font-size:12.5px;color:var(--gl-text-dim)">{{ f.hint }}</span>
+                </div>
+                <sc-if value="{{ f.multi }}" hint-placeholder-val="{{ true }}">
+                  <textarea value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" rows="{{ f.rows }}" style="width:100%;resize:vertical;padding:13px 15px;border-radius:11px;border:1px solid var(--gl-border);background:var(--gl-bg-input);color:#e8f0ff;font-family:{{ readFont }};font-size:15.5px;line-height:1.65"></textarea>
+                </sc-if>
+                <sc-if value="{{ f.single }}" hint-placeholder-val="{{ false }}">
+                  <input value="{{ f.value }}" onChange="{{ f.onChange }}" placeholder="{{ f.placeholder }}" style="width:100%;padding:13px 15px;border-radius:11px;border:1px solid var(--gl-border);background:var(--gl-bg-input);color:#e8f0ff;font-family:{{ readFont }};font-size:15.5px">
+                </sc-if>
+              </div>
+            </sc-for>
+
+            <!-- reading check questions -->
+            <sc-if value="{{ hasQuiz }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <sc-for list="{{ quizQuestions }}" as="q" hint-placeholder-count="2">
+                  <div>
+                    <div style="font-family:{{ readFont }};font-size:15px;font-weight:700;color:#fff;margin-bottom:7px">{{ q.text }}</div>
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <sc-for list="{{ q.options }}" as="o" hint-placeholder-count="3">
+                        <div onClick="{{ o.onClick }}" style="display:flex;align-items:center;gap:10px;padding:10px 13px;border-radius:10px;cursor:pointer;border:1px solid {{ o.border }};background:{{ o.bg }}">
+                          <div style="width:16px;height:16px;border-radius:50%;flex-shrink:0;border:2px solid {{ o.dotBorder }};background:{{ o.dotBg }}"></div>
+                          <span style="font-size:14.5px;color:{{ o.fg }}">{{ o.text }}</span>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <sc-if value="{{ q.hasFeedback }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:7px;padding:9px 13px;border-radius:9px;border:1px solid {{ q.fbBorder }};background:{{ q.fbBg }};font-size:13.5px;color:{{ q.fbFg }}">{{ q.feedback }}</div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ============ MOMENT 3: SUBMITTED ============ -->
+  <sc-if value="{{ inSubmitted }}" hint-placeholder-val="{{ false }}">
+    <div style="max-width:560px;margin:90px auto;text-align:center;padding:0 34px">
+      <div style="width:58px;height:58px;margin:0 auto 18px;border-radius:50%;background:var(--gl-green);display:flex;align-items:center;justify-content:center">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#04310f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"></path></svg>
+      </div>
+      <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:36px;text-transform:uppercase;color:#fff">It's in.</div>
+      <p style="margin:10px 0 0;font-size:15px;line-height:1.6;color:var(--gl-text-overlay-60)">Your teacher gets it exactly as you wrote it. Feedback will show up right here when it comes back.</p>
+      <div style="margin-top:24px"><a href="Work.dc.html" style="display:inline-flex;align-items:center;gap:9px;padding:12px 24px;border-radius:11px;background:var(--gl-cyan);text-decoration:none;font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">What's next on my list<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></a></div>
+    </div>
+  </sc-if>
+
+  <!-- SUBMIT CONFIRM -->
+  <sc-if value="{{ showSubmitConfirm }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeSubmit }}" style="position:fixed;inset:0;z-index:200;background:rgba(2,4,10,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px">
+      <div onClick="{{ stopClick }}" style="width:440px;max-width:100%;border-radius:16px;border:1px solid var(--gl-cyan-25);background:linear-gradient(180deg,var(--gl-focus-from),var(--gl-focus-to));padding:26px 28px">
+        <div style="font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:.03em;text-transform:uppercase;color:#fff">Ready to send it?</div>
+        <p style="margin:10px 0 0;font-size:14.5px;line-height:1.6;color:var(--gl-text-overlay-60)">Quick gut check — read your work out loud once. If it answers the teacher's question and sounds like you, it's ready.</p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:22px">
+          <div onClick="{{ closeSubmit }}" style="padding:10px 18px;border-radius:9px;border:1px solid var(--gl-border);cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">One more look</div>
+          <div onClick="{{ confirmSubmit }}" style="padding:10px 24px;border-radius:9px;background:var(--gl-green);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:#04310f">Submit it</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- FLOATING ROBOT (opens the help drawer in place) -->
+  <sc-if value="{{ fabVisible }}" hint-placeholder-val="{{ true }}">
+    <div onClick="{{ openHelp }}" title="Ask Diana" style="position:fixed;right:26px;bottom:26px;z-index:140;width:64px;height:64px;border-radius:50%;cursor:pointer;background:radial-gradient(circle at 32% 28%,#151d34,#060911 70%);border:1.5px solid rgba(41,208,255,.4);display:flex;align-items:center;justify-content:center;animation:hm-pulse 2.6s ease-in-out infinite">
+      <img src="agent-robot-bust.png" alt="Diana AI agent" style="width:46px;height:46px;object-fit:cover;object-position:50% 15%;border-radius:50%;filter:drop-shadow(0 0 6px rgba(41,208,255,.5))">
+      <div style="position:absolute;right:2px;bottom:2px;width:14px;height:14px;border-radius:50%;background:#36e07a;border:2px solid #04060f"></div>
+    </div>
+  </sc-if>
+
+  <!-- HELP DRAWER -->
+  <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;top:0;right:0;bottom:0;z-index:150;width:390px;max-width:92vw;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--gl-focus-from),var(--gl-focus-to));border-left:1px solid var(--gl-cyan-25);box-shadow:-30px 0 70px rgba(0,0,0,.55)">
+      <div style="display:flex;align-items:center;gap:11px;padding:16px 18px;border-bottom:1px solid var(--gl-border)">
+        <div style="width:38px;height:38px;border-radius:50%;background:var(--gl-cyan-14);border:1px solid var(--gl-cyan-25);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+          <img src="agent-robot-bust.png" alt="Diana AI agent" style="width:34px;height:34px;object-fit:cover;object-position:50% 15%;border-radius:50%;filter:drop-shadow(0 0 5px rgba(41,208,255,.5))">
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:#fff">Diana</div>
+          <div style="font-size:11.5px;color:var(--gl-text-dim)">Coach, not answers</div>
+        </div>
+        <div onClick="{{ closeHelp }}" style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid var(--gl-border)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ chat }}" as="m" hint-placeholder-count="2">
+          <sc-if value="{{ m.isCoach }}" hint-placeholder-val="{{ true }}">
+            <div style="align-self:flex-start;max-width:92%;border-radius:12px 12px 12px 4px;border:1px solid var(--gl-cyan-18);background:var(--gl-cyan-08);padding:10px 13px;font-size:14px;line-height:1.55;color:var(--gl-text-secondary)">{{ m.text }}</div>
+          </sc-if>
+          <sc-if value="{{ m.isMe }}" hint-placeholder-val="{{ false }}">
+            <div style="align-self:flex-end;max-width:88%;border-radius:12px 12px 4px 12px;background:rgba(120,150,220,.14);padding:10px 13px;font-size:14px;line-height:1.5;color:#fff">{{ m.text }}</div>
+          </sc-if>
+        </sc-for>
+        <sc-if value="{{ coachTyping }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-start;display:flex;gap:4px;border-radius:12px 12px 12px 4px;border:1px solid var(--gl-cyan-18);background:var(--gl-cyan-08);padding:12px 14px">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-cyan);animation:hm-dot 1.2s infinite"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-cyan);animation:hm-dot 1.2s .2s infinite"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-cyan);animation:hm-dot 1.2s .4s infinite"></span>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:12px 16px;border-top:1px solid var(--gl-border)">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <sc-for list="{{ coachChips }}" as="c" hint-placeholder-count="3">
+            <div onClick="{{ c.onClick }}" style="padding:6px 12px;border-radius:15px;border:1px solid var(--gl-cyan-25);background:var(--gl-cyan-08);cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gl-text-secondary)">{{ c.label }}</div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input value="{{ coachDraft }}" onChange="{{ onCoachDraft }}" onKeyDown="{{ onCoachKey }}" placeholder="Ask about this assignment…" style="flex:1;padding:11px 13px;border-radius:10px;border:1px solid var(--gl-border);background:var(--gl-bg-input);color:#e8f0ff;font-family:var(--font-body);font-size:14px">
+          <div onClick="{{ sendCoach }}" style="width:42px;height:42px;border-radius:10px;background:var(--gl-cyan);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"></path></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;defaultSubject&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;reading&quot;,&quot;math&quot;,&quot;science&quot;,&quot;history&quot;,&quot;english&quot;,&quot;athletics&quot;],&quot;default&quot;:&quot;science&quot;,&quot;tsType&quot;:&quot;'reading' | 'math' | 'science' | 'history' | 'english' | 'athletics'&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;defaultPhase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;brief&quot;,&quot;work&quot;,&quot;submitted&quot;],&quot;default&quot;:&quot;brief&quot;,&quot;tsType&quot;:&quot;'brief' | 'work' | 'submitted'&quot;,&quot;section&quot;:&quot;Demo&quot;}}">
+class Component extends DCLogic {
+  state = this.initState();
+
+  // Entry links across the app carry ?a=<assignment id> (see diana-data.js).
+  // This page is THE homework page — it resolves the id to a subject mode.
+  initState() {
+    let aid = '', wantSteps = false, wantStart = false;
+    try {
+      const q = new URLSearchParams(window.location.search);
+      aid = q.get('a') || '';
+      wantSteps = q.get('steps') === '1' || q.get('mode') === 'steps';
+      wantStart = q.get('start') === '1' || wantSteps;
+    } catch (e) {}
+    const MAP = { 'sci-titration': 'science', 'math-u4': 'math', 'math-flash': 'math', 'eng-reading': 'reading', 'hist-sg6': 'history', 'eng-rhet': 'english', 'ath-reflect': 'athletics' };
+    const subject = MAP[aid] || this.props.defaultSubject || 'science';
+    return this.baseState(subject, wantStart, wantSteps);
+  }
+
+  baseState(subject, wantStart, wantSteps) { return {
+    subject,
+    phase: wantStart ? 'work' : (this.props.defaultPhase ?? 'brief'),   // brief | work | submitted
+    stepsOn: wantSteps ? { [subject]: true } : {},        // subject -> bool
+    stepIdx: {},        // subject -> current pill idx
+    stepDone: {},       // subject -> {idx:true}
+    work: {},           // subject -> {fieldKey: value}
+    quiz: {},           // subject -> {qIdx: optIdx}
+    chat: {},           // subject -> messages
+    helpOpen: false, coachDraft: '', coachTyping: false,
+    showSubmitConfirm: false,
+    saveState: 'saved',
+    timerOn: false, timerSec: 0,
+    vw: (typeof window !== 'undefined' ? window.innerWidth : 1440),
+  }; }
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem('diana-hw-simple');
+      if (raw) {
+        const p = JSON.parse(raw);
+        this.setState({ work: p.work || {}, quiz: p.quiz || {}, stepDone: p.stepDone || {} });
+      }
+    } catch (e) {}
+    this._onResize = () => this.setState({ vw: window.innerWidth });
+    window.addEventListener('resize', this._onResize);
+    this._tick = setInterval(() => { if (this.state.timerOn) this.setState((s) => ({ timerSec: s.timerSec + 1 })); }, 1000);
+  }
+  componentWillUnmount() { window.removeEventListener('resize', this._onResize); clearInterval(this._tick); clearTimeout(this._saveT); clearTimeout(this._saveT2); clearTimeout(this._coachT); }
+
+  fmtTimer(sec) {
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+  }
+
+  persist() {
+    const s = this.state;
+    try { localStorage.setItem('diana-hw-simple', JSON.stringify({ work: s.work, quiz: s.quiz, stepDone: s.stepDone })); } catch (e) {}
+  }
+  touchSave() {
+    this.setState({ saveState: 'unsaved' });
+    clearTimeout(this._saveT); clearTimeout(this._saveT2);
+    this._saveT = setTimeout(() => {
+      this.setState({ saveState: 'saving' });
+      this.persist();
+      this._saveT2 = setTimeout(() => this.setState({ saveState: 'saved' }), 600);
+    }, 900);
+  }
+
+  SUBJECTS() {
+    return {
+      reading: {
+        course: 'English · Reading', accent: 'var(--gl-pink)',
+        title: 'Reading response — "The Marginal World"', due: 'Due Thu · Jul 9', est: '25 min',
+        brief: 'Read the excerpt from "The Marginal World." Then write a 3\u20134 sentence summary in your own words and answer the two comprehension questions. This is about understanding, not fancy vocabulary — plain words are fine.',
+        deliverables: ['3\u20134 sentence summary', 'Answers to 2 questions'],
+        steps: [
+          { l: 'Read the passage', tip: 'Just read it once, start to finish. Tap any dotted word that trips you.' },
+          { l: 'Write your summary', tip: 'Rough is fine — one honest sentence per box.' },
+          { l: 'Answer the 2 questions', tip: 'Flip back to the passage if you need it — that\u2019s not cheating, that\u2019s reading.' },
+          { l: 'Read it back once', tip: 'Out loud. Fix only what you stumble on.' },
+        ],
+        materialTitle: 'The passage', materialMeta: 'From the teacher\u2019s upload',
+        material: [
+          { t: 'The shore is an ancient world, for as long as there has been an earth and sea there has been this place of the meeting of land and water. Yet it is a world that keeps alive the sense of continuing creation.' },
+          { br: true },
+          { t: 'Each time I enter it, I gain some new awareness of its beauty and its deeper meanings, sensing that ' }, { t: 'intricate', v: 'Intricate means having lots of small, connected parts — like a puzzle with many pieces.' }, { t: ' fabric of life by which one creature is linked with another.' },
+          { br: true },
+          { t: 'The flats took on a mysterious quality as dusk approached, and the last light lay on the water in an ' }, { t: 'iridescent', v: 'Iridescent means shimmering with rainbow-like colors that shift as you move — like a soap bubble.' }, { t: ' sheen. The moment felt ' }, { t: 'ephemeral', v: 'Ephemeral means lasting a very short time — here one moment, gone the next.' }, { t: ', as if it might vanish before it could be named.' },
+        ],
+        fields: [
+          { k: 'main', label: 'Main idea', hint: 'one sentence — what is this mostly about?', ph: 'The shore is…', multi: false },
+          { k: 'summary', label: 'Your summary', hint: '3\u20134 sentences, your own words', ph: 'The writer visits the shore at dusk and…', multi: true, rows: 4 },
+        ],
+        quiz: [
+          { text: '1. What does the writer say the shore keeps alive?', correct: 1, options: ['A fear of the ocean', 'The sense of continuing creation', 'The memory of childhood'],
+            good: 'Yes — that\u2019s in the first paragraph. Nice catch.', soft: 'Close — look back at the first paragraph, last sentence.' },
+          { text: '2. "Ephemeral" is closest in meaning to…', correct: 2, options: ['Bright and colorful', 'Heavy and slow', 'Short-lived'],
+            good: 'Exactly. Something ephemeral doesn\u2019t stick around.', soft: 'Not quite — tap the dotted word in the passage for a hint.' },
+        ],
+      },
+      math: {
+        course: 'Math · Ch. 4', accent: 'var(--gl-purple-light)',
+        title: 'Unit 4 problem set — Problem 3', due: 'Due tomorrow · Jul 7', est: '35 min',
+        brief: 'Complete problems 1\u20138 from Unit 4. Show your work for every problem — the steps count as much as the final answer. You\u2019re on problem 3.',
+        deliverables: ['Worked solutions', 'Final answers'],
+        steps: [
+          { l: 'Read the problem', tip: 'Out loud — your ear catches what skimming misses.' },
+          { l: 'Plan it', tip: 'One line: what\u2019s your first move?' },
+          { l: 'Work + answer', tip: 'Every step in the work box. No skipping.' },
+          { l: 'Check for mistakes', tip: 'Signs, both points, both parts of the question.' },
+        ],
+        materialTitle: 'Problem 3 of 8', materialMeta: 'From the problem set',
+        material: [
+          { t: 'A line passes through the points (2, 5) and (6, 13). Write the equation of the line in ' }, { t: 'slope-intercept form', v: 'Slope-intercept form is y = mx + b, where m is the slope (steepness) and b is where the line crosses the y-axis.' }, { t: ', then find where it crosses the y-axis.' },
+        ],
+        matChips: { label: 'Formulas', items: [
+          { l: 'slope = rise / run', d: 'Slope is how much y changes divided by how much x changes: (y\u2082 \u2212 y\u2081) / (x\u2082 \u2212 x\u2081).' },
+          { l: 'y = mx + b', d: 'The line equation: m is the slope you found, b is the y-intercept. Plug in a known point to solve for b.' },
+          { l: 'Similar example', d: 'A worked example with different numbers: through (1, 2) and (3, 8), slope = (8\u22122)/(3\u22121) = 3, then 2 = 3(1) + b so b = \u22121. Yours works the same way.' },
+        ] },
+        fields: [
+          { k: 'plan', label: 'My plan', hint: 'what will you do first?', ph: 'First find the slope, then…', multi: false },
+          { k: 'workmono', label: 'Work it out', hint: 'every step, no skipping', ph: 'slope = (13 \u2212 5) / (6 \u2212 2) = …', multi: true, rows: 6 },
+          { k: 'answer', label: 'Final answer', hint: 'equation + y-intercept', ph: 'y = …', multi: false },
+        ],
+      },
+      science: {
+        course: 'Science · Chemistry', accent: 'var(--gl-green)',
+        title: 'Lab write-up — Titration', due: 'Due Fri · Jul 10', est: '40 min',
+        brief: 'Write up Tuesday\u2019s titration lab: your hypothesis, the data table from your lab notebook, an explanation of what happened and why, and one source of error. Use the key words where they fit.',
+        deliverables: ['Hypothesis', 'Data table', 'Explanation', 'Source of error'],
+        steps: [
+          { l: 'Hypothesis', tip: 'If → then → because. Tap a key word if it\u2019s fuzzy.' },
+          { l: 'Data table', tip: 'Straight from your lab notebook.' },
+          { l: 'Explanation', tip: 'What you saw first, then why it happened. Use one key word.' },
+          { l: 'Source of error', tip: 'Honest beats impressive.' },
+        ],
+        materialTitle: 'What you did in class', materialMeta: 'Tuesday\u2019s lab',
+        material: [
+          { t: 'You filled the burette with NaOH, added indicator to the acid flask, and ran the ' }, { t: 'titration', v: 'A titration adds one solution to another, drop by drop, until the reaction is exactly complete — the color change tells you when.' }, { t: ' slowly until the color changed, recording the volume at the ' }, { t: 'endpoint', v: 'The endpoint is when the indicator actually changes color — your visible clue that you\u2019re at (or near) the equivalence point.' }, { t: ' for three trials.' },
+        ],
+        matChips: { label: 'Key words', items: [
+          { l: 'titrant', d: 'The titrant is the solution you add bit by bit from the burette — here, the NaOH.' },
+          { l: 'equivalence point', d: 'When the added base exactly matches the acid — chemically balanced. It\u2019s the real target of a titration.' },
+        ] },
+        fields: [
+          { k: 'hypo', label: 'Hypothesis', hint: 'if → then → because', ph: 'If we add NaOH slowly to the acid, then… because…', multi: true, rows: 2 },
+        ],
+        table: { head: ['Trial', 'Vol NaOH (mL)', 'Color change seen'], rows: ['Trial 1', 'Trial 2', 'Trial 3'] },
+        fields2: [
+          { k: 'expl', label: 'Explanation', hint: 'what happened, and why', ph: 'The solution turned light pink because at the equivalence point…', multi: true, rows: 3 },
+          { k: 'error', label: 'One source of error', hint: 'what could have thrown it off?', ph: 'We may have overshot the endpoint because…', multi: true, rows: 2 },
+        ],
+      },
+      history: {
+        course: 'History · Unit 6', accent: 'var(--gl-gold)',
+        title: 'Study guide — Unit 6', due: 'Due Wed · Jul 8', est: '30 min',
+        brief: 'For the Unit 6 study guide, answer the focus question using FDR\u2019s First Inaugural Address: What was FDR trying to accomplish with this speech? Write 4\u20136 sentences, claim first, and quote the source at least once.',
+        deliverables: ['4\u20136 sentence answer with a quote'],
+        steps: [
+          { l: 'Read the source', tip: 'Who is speaking? When? Why does that matter?' },
+          { l: 'Claim', tip: 'Your answer in one sentence — don\u2019t hedge.' },
+          { l: 'Evidence + reasoning', tip: 'The quote goes here, and why it backs your claim.' },
+          { l: 'Write the answer', tip: 'Stitch it together, claim first.' },
+        ],
+        materialTitle: 'The source', materialMeta: 'Primary source · March 1933',
+        material: [
+          { t: '"The only thing we have to fear is fear itself — nameless, ' }, { t: 'unreasoning', v: 'Unreasoning means not based on logic or thought — pure emotion with no reasons behind it.' }, { t: ', unjustified terror which paralyzes needed efforts to convert retreat into advance."' },
+          { br: true },
+          { t: '— Franklin D. Roosevelt, First Inaugural Address, March 1933. Given at the lowest point of the Great Depression, weeks after banks across the country had failed.' },
+        ],
+        matChips: { label: 'Key people', items: [
+          { l: 'Franklin D. Roosevelt', d: 'FDR — president 1933\u20131945. He gave this speech at the lowest point of the Depression, promising bold action.' },
+          { l: 'Herbert Hoover', d: 'The president before FDR. Many blamed his limited response for the Depression worsening — the contrast this speech plays against.' },
+        ] },
+        fields: [
+          { k: 'claim', label: 'Claim', hint: 'your answer in one sentence', ph: 'FDR\u2019s speech was meant to…', multi: false },
+          { k: 'evidence', label: 'Evidence + reasoning', hint: 'the quote, and why it backs your claim', ph: '\u201CThe only thing we have to fear…\u201D shows… because…', multi: true, rows: 3 },
+          { k: 'final', label: 'Your answer', hint: '4\u20136 sentences, claim first', ph: 'In his First Inaugural Address, FDR…', multi: true, rows: 5 },
+        ],
+      },
+      athletics: {
+        course: 'Athletics · Training', accent: '#5b9bff',
+        title: 'Log workout reflection', due: 'Due today', est: '10 min',
+        brief: 'Log today\u2019s workout: what you did, how it felt, and one thing to improve next session. Two or three honest sentences per box is plenty.',
+        deliverables: ['Workout log', 'One improvement'],
+        steps: [
+          { l: 'What you did', tip: 'Just the facts — sets, drills, minutes.' },
+          { l: 'How it felt', tip: 'Energy, soreness, focus — honest beats impressive.' },
+          { l: 'One improvement', tip: 'Small and specific for next session.' },
+        ],
+        materialTitle: 'Today\u2019s session', materialMeta: 'From your training plan',
+        material: [
+          { t: 'Tuesday conditioning: warm-up laps, 4\u00d740m sprints, ladder drills, and 3\u00d75 squats. Coach\u2019s focus this week is ' }, { t: 'explosiveness', v: 'Explosiveness means producing max force fast — quick starts, jumps, first steps — not just being strong.' }, { t: ' off the first step.' },
+        ],
+        fields: [
+          { k: 'did', label: 'What you did', hint: 'sets, drills, minutes', ph: 'Warm-up laps, then 4\u00d740m sprints…', multi: true, rows: 2 },
+          { k: 'felt', label: 'How it felt', hint: 'energy, soreness, focus', ph: 'Legs felt heavy on the last two sprints…', multi: true, rows: 2 },
+          { k: 'improve', label: 'One improvement', hint: 'small and specific', ph: 'Next session I\u2019ll…', multi: false },
+        ],
+      },
+      english: {
+        course: 'English · Writing', accent: 'var(--gl-cyan)',
+        title: 'Rhetorical analysis — Ch. 3', due: 'Due Mon · Jul 13', est: '50 min',
+        brief: 'Write a 3-paragraph rhetorical analysis of the Chapter 3 speech: what techniques does the author use, and how do they work on the reader? Quote the text at least twice.',
+        deliverables: ['3-paragraph essay, 2+ quotes'],
+        steps: [
+          { l: 'Thesis', tip: 'Point + so-what. Two sentences.' },
+          { l: 'Plan paragraphs', tip: 'One line each — scaffolding, not writing.' },
+          { l: 'Draft', tip: 'Don\u2019t edit while you write. Keep the cursor moving.' },
+          { l: 'Polish', tip: 'Read it out loud, fix what you stumble on, check both quotes.' },
+        ],
+        materialTitle: 'The prompt', materialMeta: 'Chapter 3 speech',
+        material: [
+          { t: 'Analyze how the author of the Chapter 3 speech uses ' }, { t: 'rhetorical devices', v: 'Rhetorical devices are techniques writers use to persuade — like repetition, emotional appeals, or vivid word choice.' }, { t: ' — repetition, word choice, appeals to emotion — to move the reader. Name the device, quote the line, explain the effect.' },
+        ],
+        fields: [
+          { k: 'thesis', label: 'Thesis', hint: 'point + so-what', ph: 'The author uses repetition to…, which makes the reader…', multi: true, rows: 2 },
+          { k: 'plan', label: 'Paragraph plan', hint: 'one line per paragraph', ph: 'P1: hook + thesis\nP2: repetition — the line about…\nP3: word choice — \u201C…\u201D', multi: true, rows: 3 },
+          { k: 'draft', label: 'Your draft', hint: 'this is the essay you hand in', ph: 'Start with your thesis and keep going…', multi: true, rows: 9 },
+        ],
+      },
+    };
+  }
+
+  sub() { return this.SUBJECTS()[this.state.subject]; }
+
+  setField(k, val) {
+    this.setState((s) => ({ work: { ...s.work, [s.subject]: { ...(s.work[s.subject] || {}), [k]: val } } }));
+    this.touchSave();
+  }
+  getField(k) { return (this.state.work[this.state.subject] || {})[k] || ''; }
+
+  coachSay(texts, fromMe) {
+    this.setState((s) => {
+      const list = [...(s.chat[s.subject] || this.seedChat())];
+      if (fromMe) list.push({ me: true, text: fromMe });
+      return { chat: { ...s.chat, [s.subject]: list }, coachTyping: true, coachDraft: '', helpOpen: true };
+    });
+    clearTimeout(this._coachT);
+    this._coachT = setTimeout(() => {
+      this.setState((s) => {
+        const list = [...(s.chat[s.subject] || [])];
+        (Array.isArray(texts) ? texts : [texts]).forEach((t) => list.push({ me: false, text: t }));
+        return { chat: { ...s.chat, [s.subject]: list }, coachTyping: false };
+      });
+    }, 1100);
+  }
+
+  seedChat() {
+    return [{ me: false, text: 'Hey — what\u2019s tripping you up? Point at a word, a sentence, or just say \u201CI don\u2019t know where to start.\u201D I\u2019ll help you think it through, not do it for you.' }];
+  }
+
+  explain(def, label) { this.coachSay(def, 'What does \u201C' + label + '\u201D mean?'); }
+
+  sendCoach = () => {
+    const t = (this.state.coachDraft || '').trim();
+    if (!t) return;
+    this.coachSay('Good question. I won\u2019t hand you the answer — but let\u2019s get there. What do you already know for sure about this? Type one thing, even if it feels obvious, and we\u2019ll build from it.', t);
+  };
+
+  renderVals() {
+    const st = this.state;
+    const sub = this.sub();
+    const inBrief = st.phase === 'brief';
+    const inWork = st.phase === 'work';
+    const inSubmitted = st.phase === 'submitted';
+    const readFont = 'var(--font-body)';
+    const narrow = st.vw < 1000;
+
+    const stepsOn = !!st.stepsOn[st.subject];
+    const sIdx = st.stepIdx[st.subject] ?? 0;
+    const sDone = st.stepDone[st.subject] || {};
+
+    const stepPills = sub.steps.map((s, i) => {
+      const done = !!sDone[i], curr = i === sIdx;
+      return {
+        num: String(i + 1), label: s.l, done, notDone: !done,
+        onClick: () => this.setState((prev) => {
+          const d = { ...(prev.stepDone[prev.subject] || {}) };
+          if (i === (prev.stepIdx[prev.subject] ?? 0)) d[i] = !d[i]; // tap current = toggle done
+          return { stepIdx: { ...prev.stepIdx, [prev.subject]: i }, stepDone: { ...prev.stepDone, [prev.subject]: d } };
+        }, () => this.touchSave()),
+        border: curr ? 'var(--gl-cyan)' : done ? 'var(--gl-green-30)' : 'var(--gl-border)',
+        bg: curr ? 'var(--gl-cyan-08)' : 'transparent',
+        numFg: curr ? 'var(--gl-cyan)' : 'var(--gl-text-dim)',
+        fg: done ? 'var(--gl-text-dim)' : curr ? '#fff' : 'var(--gl-text-secondary)',
+        strike: done ? 'line-through' : 'none',
+      };
+    });
+
+    // material segments
+    const materialSegments = sub.material.map((seg) => ({
+      text: seg.t || '', isVocab: !!seg.v, isPlain: !seg.v && !seg.br, isBreak: !!seg.br,
+      onClick: seg.v ? (() => this.explain(seg.v, (seg.t || '').trim())) : undefined,
+    }));
+    const matChips = (sub.matChips ? sub.matChips.items : []).map((it) => ({ label: it.l, onClick: () => this.explain(it.d, it.l) }));
+
+    // work fields (fields + optional fields2 after table)
+    const mkField = (f) => ({
+      label: f.label, hint: f.hint || '', placeholder: f.ph, multi: !!f.multi, single: !f.multi, rows: f.rows || 3,
+      value: this.getField(f.k),
+      onChange: (e) => this.setField(f.k, e.target.value),
+    });
+    const workFields = (sub.fields || []).map(mkField);
+    const workFields2 = (sub.fields2 || []).map(mkField);
+
+    const quizPicks = st.quiz[st.subject] || {};
+    const quizQuestions = (sub.quiz || []).map((q, qi) => {
+      const pick = quizPicks[qi];
+      const answered = pick !== undefined;
+      const right = answered && pick === q.correct;
+      return {
+        text: q.text, hasFeedback: answered,
+        feedback: right ? q.good : q.soft,
+        fbBorder: right ? 'var(--gl-green-30)' : 'var(--gl-gold-30)',
+        fbBg: right ? 'var(--gl-green-12)' : 'var(--gl-gold-14)',
+        fbFg: right ? 'var(--gl-green)' : 'var(--gl-gold)',
+        options: q.options.map((o, oi) => {
+          const sel = pick === oi;
+          return { text: o,
+            onClick: () => { this.setState((s) => ({ quiz: { ...s.quiz, [s.subject]: { ...(s.quiz[s.subject] || {}), [qi]: oi } } })); this.touchSave(); },
+            border: sel ? 'var(--gl-cyan-25)' : 'var(--gl-border)', bg: sel ? 'var(--gl-cyan-08)' : 'rgba(255,255,255,.015)',
+            dotBorder: sel ? 'var(--gl-cyan)' : 'var(--gl-border)', dotBg: sel ? 'var(--gl-cyan)' : 'transparent',
+            fg: sel ? '#fff' : 'var(--gl-text-secondary)' };
+        }),
+      };
+    });
+
+    const tableRows = (sub.table ? sub.table.rows : []).map((r, ri) => ({
+      c1: r,
+      v2: this.getField('t-r' + ri + 'c2'), on2: (e) => this.setField('t-r' + ri + 'c2', e.target.value),
+      v3: this.getField('t-r' + ri + 'c3'), on3: (e) => this.setField('t-r' + ri + 'c3', e.target.value),
+    }));
+
+    const saveMap = {
+      saved: { label: 'Saved', dot: 'var(--gl-green)' },
+      saving: { label: 'Saving…', dot: 'var(--gl-gold)' },
+      unsaved: { label: 'Typing…', dot: 'var(--gl-gold)' },
+    };
+    const saveInfo = saveMap[st.saveState];
+
+    const chat = st.chat[st.subject] || this.seedChat();
+
+    return {
+      inBrief, inWork, inSubmitted,
+      accent: sub.accent, courseLabel: sub.course, title: sub.title, dueLine: sub.due, estimate: sub.est,
+      briefText: sub.brief, deliverables: sub.deliverables,
+      readFont,
+      saveLabel: saveInfo.label, saveDotColor: saveInfo.dot,
+
+      timerOn: st.timerOn, timerOff: !st.timerOn,
+      timerLabel: this.fmtTimer(st.timerSec),
+      timerFg: st.timerOn ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      timerBorder: st.timerOn ? 'var(--gl-cyan-25)' : 'var(--gl-border)',
+      timerBg: st.timerOn ? 'var(--gl-cyan-08)' : 'transparent',
+      toggleTimer: () => this.setState((s) => ({ timerOn: !s.timerOn })),
+
+      startWork: () => this.setState({ phase: 'work' }),
+      startBrokenDown: () => this.setState((s) => ({ phase: 'work', stepsOn: { ...s.stepsOn, [s.subject]: true } })),
+
+      hasSteps: stepsOn, noSteps: !stepsOn,
+      stepPills,
+      stepTip: sub.steps[sIdx].tip,
+      showSteps: () => this.setState((s) => ({ stepsOn: { ...s.stepsOn, [s.subject]: true } })),
+      hideSteps: () => this.setState((s) => ({ stepsOn: { ...s.stepsOn, [s.subject]: false } })),
+
+      workCols: narrow ? 'minmax(0,1fr)' : 'minmax(300px,5fr) minmax(0,7fr)',
+      matPos: narrow ? 'static' : 'sticky',
+      materialTitle: sub.materialTitle, materialMeta: sub.materialMeta,
+      materialSegments,
+      hasMatChips: matChips.length > 0, matChipsLabel: sub.matChips ? sub.matChips.label : '', matChips,
+
+      workFields, workFields2,
+      hasTable: !!sub.table, tableHead: sub.table ? sub.table.head : [], tableRows,
+      hasQuiz: !!sub.quiz, quizQuestions,
+
+      openSubmit: () => this.setState({ showSubmitConfirm: true }),
+      closeSubmit: () => this.setState({ showSubmitConfirm: false }),
+      confirmSubmit: () => this.setState({ showSubmitConfirm: false, phase: 'submitted', helpOpen: false }),
+      stopClick: (e) => e.stopPropagation(),
+      showSubmitConfirm: st.showSubmitConfirm,
+
+      helpOpen: st.helpOpen,
+      fabVisible: !st.helpOpen,
+      openHelp: () => this.setState({ helpOpen: true }),
+      closeHelp: () => this.setState({ helpOpen: false }),
+      chat: chat.map((m) => ({ text: m.text, isCoach: !m.me, isMe: !!m.me })),
+      coachTyping: st.coachTyping,
+      coachChips: [
+        { label: 'I don\u2019t know where to start', onClick: () => this.coachSay('Totally normal. Ignore the whole thing and do just the first box — one rough sentence, 60 seconds. Starting badly beats not starting. I\u2019ll be here when it\u2019s down.', 'I don\u2019t know where to start.') },
+        { label: 'Explain the assignment', onClick: () => this.coachSay('Here\u2019s the teacher\u2019s ask in plain words: ' + sub.brief.split('.')[0].toLowerCase() + '. That\u2019s it. Everything on the left is material to pull from; everything on the right is what you hand in.', 'Explain the assignment.') },
+        { label: 'Check my work', onClick: () => {
+            const w = st.work[st.subject] || {};
+            const typed = Object.keys(w).some((k) => (w[k] || '').trim().length > 0);
+            this.coachSay(typed
+              ? 'Two questions to test it yourself: (1) Does your first sentence directly answer what the teacher asked? (2) Could you point to the exact line in the material that backs it up? If both are yes, you\u2019re in good shape.'
+              : 'Nothing written yet — that\u2019s fine. Get one rough sentence down and I\u2019ll look at it with you.', 'Can you check my work?');
+          } },
+      ],
+      coachDraft: st.coachDraft,
+      onCoachDraft: (e) => this.setState({ coachDraft: e.target.value }),
+      onCoachKey: (e) => { if (e.key === 'Enter') this.sendCoach(); },
+      sendCoach: this.sendCoach,
+    };
+  }
+}
+</script>
+</body>
+</html>

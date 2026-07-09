@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" fill="#0a1024"/>
+    <circle cx="50" cy="50" r="26" fill="#29d0ff" opacity="0.16"/>
+    <path d="M50 32 L58 46 L50 46 L58 68 L42 50 L50 50 Z" fill="#29d0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  @keyframes af-pulse{0%,100%{box-shadow:0 0 0 0 rgba(41,208,255,.45),0 8px 26px rgba(0,0,0,.5)}50%{box-shadow:0 0 0 8px rgba(41,208,255,0),0 8px 26px rgba(0,0,0,.5)}}
+  @keyframes af-in{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
+  @keyframes af-dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+</style>
+</helmet>
+
+<div style="font-family:'Barlow Semi Condensed',sans-serif">
+
+  <sc-if value="{{ fabVisible }}" hint-placeholder-val="{{ true }}">
+    <div style="position:fixed;right:26px;bottom:{{ fabBottom }};z-index:999;display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+      <sc-if value="{{ showTip }}" hint-placeholder-val="{{ false }}">
+        <div style="animation:af-in .35s ease both;padding:9px 14px;border-radius:11px;background:rgba(6,10,24,.92);border:1px solid rgba(41,208,255,.3);backdrop-filter:blur(10px);box-shadow:0 10px 26px rgba(0,0,0,.45);font-size:13px;font-weight:600;color:#eaf6ff;white-space:nowrap">Ask Diana a question</div>
+      </sc-if>
+      <div onClick="{{ openHelp }}" onMouseEnter="{{ showTipOn }}" onMouseLeave="{{ showTipOff }}" title="Ask Diana" style="width:64px;height:64px;border-radius:50%;cursor:pointer;position:relative;background:radial-gradient(circle at 32% 28%,#151d34,#060911 70%);border:1.5px solid rgba(41,208,255,.4);display:flex;align-items:center;justify-content:center;animation:af-pulse 2.6s ease-in-out infinite">
+        <img src="agent-robot-bust.png" alt="Diana AI agent" style="width:46px;height:46px;object-fit:cover;object-position:50% 15%;border-radius:50%;filter:drop-shadow(0 0 6px rgba(41,208,255,.5))">
+        <div style="position:absolute;right:2px;bottom:2px;width:14px;height:14px;border-radius:50%;background:#36e07a;border:2px solid #04060f"></div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;top:0;right:0;bottom:0;z-index:999;width:390px;max-width:92vw;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(8,12,26,.97),rgba(12,18,42,.97));border-left:1px solid rgba(41,208,255,.25);box-shadow:-30px 0 70px rgba(0,0,0,.55)">
+      <div style="display:flex;align-items:center;gap:11px;padding:16px 18px;border-bottom:1px solid rgba(120,150,220,.18)">
+        <div style="width:38px;height:38px;border-radius:50%;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+          <img src="agent-robot-bust.png" alt="Diana AI agent" style="width:34px;height:34px;object-fit:cover;object-position:50% 15%;border-radius:50%;filter:drop-shadow(0 0 5px rgba(41,208,255,.5))">
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:#fff">Diana</div>
+          <div style="font-size:11.5px;color:#7d88ad">Coach, not answers</div>
+        </div>
+        <div onClick="{{ closeHelp }}" style="width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:1px solid rgba(120,150,220,.18)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+        <sc-for list="{{ chat }}" as="m" hint-placeholder-count="1">
+          <sc-if value="{{ m.isCoach }}" hint-placeholder-val="{{ true }}">
+            <div style="align-self:flex-start;max-width:92%;border-radius:12px 12px 12px 4px;border:1px solid rgba(41,208,255,.18);background:rgba(41,208,255,.08);padding:10px 13px;font-size:14px;line-height:1.55;color:#cdd6f2">{{ m.text }}</div>
+          </sc-if>
+          <sc-if value="{{ m.isMe }}" hint-placeholder-val="{{ false }}">
+            <div style="align-self:flex-end;max-width:88%;border-radius:12px 12px 4px 12px;background:rgba(120,150,220,.14);padding:10px 13px;font-size:14px;line-height:1.5;color:#fff">{{ m.text }}</div>
+          </sc-if>
+        </sc-for>
+        <sc-if value="{{ coachTyping }}" hint-placeholder-val="{{ false }}">
+          <div style="align-self:flex-start;display:flex;gap:4px;border-radius:12px 12px 12px 4px;border:1px solid rgba(41,208,255,.18);background:rgba(41,208,255,.08);padding:12px 14px">
+            <span style="width:6px;height:6px;border-radius:50%;background:#29d0ff;animation:af-dot 1.2s infinite"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:#29d0ff;animation:af-dot 1.2s .2s infinite"></span>
+            <span style="width:6px;height:6px;border-radius:50%;background:#29d0ff;animation:af-dot 1.2s .4s infinite"></span>
+          </div>
+        </sc-if>
+      </div>
+      <div style="padding:12px 16px;border-top:1px solid rgba(120,150,220,.18)">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <sc-for list="{{ coachChips }}" as="c" hint-placeholder-count="3">
+            <div onClick="{{ c.onClick }}" style="padding:6px 12px;border-radius:15px;border:1px solid rgba(41,208,255,.25);background:rgba(41,208,255,.08);cursor:pointer;font-size:12.5px;font-weight:600;color:#cdd6f2">{{ c.label }}</div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input value="{{ coachDraft }}" onChange="{{ onCoachDraft }}" onKeyDown="{{ onCoachKey }}" placeholder="Ask Diana anything…" style="flex:1;padding:11px 13px;border-radius:10px;border:1px solid rgba(120,150,220,.18);background:rgba(10,16,36,.8);color:#e8f0ff;font-family:'Barlow Semi Condensed',sans-serif;font-size:14px;box-sizing:border-box">
+          <div onClick="{{ sendCoach }}" style="width:42px;height:42px;border-radius:10px;background:#29d0ff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#04080f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"></path></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:640},&quot;bottom&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:26,&quot;tsType&quot;:&quot;number&quot;,&quot;min&quot;:16,&quot;max&quot;:160,&quot;unit&quot;:&quot;px&quot;,&quot;section&quot;:&quot;Layout&quot;}}">
+class Component extends DCLogic {
+  state = { hover: false, open: false, chat: null, coachDraft: '', coachTyping: false };
+
+  componentWillUnmount() { clearTimeout(this._t); }
+
+  showTipOn = () => this.setState({ hover: true });
+  showTipOff = () => this.setState({ hover: false });
+
+  seedChat() {
+    return [{ me: false, text: 'Hey — what do you need? I can explain anything on this page, or point you at what to do next. If it\u2019s homework, everything happens in Work.' }];
+  }
+
+  say(reply, fromMe) {
+    this.setState((s) => {
+      const list = [...(s.chat || this.seedChat())];
+      if (fromMe) list.push({ me: true, text: fromMe });
+      return { chat: list, coachTyping: true, coachDraft: '' };
+    });
+    clearTimeout(this._t);
+    this._t = setTimeout(() => {
+      this.setState((s) => ({ chat: [...(s.chat || [])].concat({ me: false, text: reply }), coachTyping: false }));
+    }, 1000);
+  }
+
+  sendCoach = () => {
+    const t = (this.state.coachDraft || '').trim();
+    if (!t) return;
+    this.say('Good question. I won\u2019t hand you answers, but I\u2019ll help you think it through. What do you already know for sure about this? Type one thing and we\u2019ll build from it.', t);
+  };
+
+  renderVals() {
+    const st = this.state;
+    return {
+      fabBottom: (parseInt(this.props.bottom, 10) || 26) + 'px',
+      fabVisible: !st.open,
+      showTip: st.hover && !st.open,
+      showTipOn: this.showTipOn, showTipOff: this.showTipOff,
+      openHelp: () => this.setState({ open: true, hover: false }),
+      closeHelp: () => this.setState({ open: false }),
+      helpOpen: st.open,
+      chat: (st.chat || this.seedChat()).map((m) => ({ text: m.text, isCoach: !m.me, isMe: !!m.me })),
+      coachTyping: st.coachTyping,
+      coachChips: [
+        { label: 'What should I do next?', onClick: () => this.say('Open Work — your queue is sorted with the most urgent thing on top. Pick the top one, hit Start working, and I\u2019ll be right there with you.', 'What should I do next?') },
+        { label: 'Explain this page', onClick: () => this.say('Tell me what\u2019s confusing — point at a word, a number, or a button. I\u2019ll explain it in plain language.', 'Explain this page.') },
+        { label: 'I\u2019m feeling stuck', onClick: () => this.say('Stuck is normal — it\u2019s information, not failure. Smallest possible move: open the thing you\u2019re avoiding and do 60 seconds of it. Starting badly beats not starting.', 'I\u2019m feeling stuck.') },
+      ],
+      coachDraft: st.coachDraft,
+      onCoachDraft: (e) => this.setState({ coachDraft: e.target.value }),
+      onCoachKey: (e) => { if (e.key === 'Enter') this.sendCoach(); },
+      sendCoach: this.sendCoach,
+    };
+  }
+}
+</script>
+</body>
+</html>
