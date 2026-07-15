@@ -48,6 +48,12 @@ const clickPrimaryAction = async (
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
     return false;
   }
+  if (scenario.screenId === "quick-add") {
+    await page.getByRole("button", { name: /type task/iu }).click();
+    await page
+      .getByRole("textbox", { name: "Type task", exact: true })
+      .fill("Bring the biology diagram tomorrow.");
+  }
   const action = page.getByRole("button", {
     name: scenario.expectedPrimaryAction.label,
     exact: true,
@@ -80,6 +86,14 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       const beforeUrl = page.url();
 
       const clicked = await clickPrimaryAction(page, scenario);
+      if (scenario.expectedPersistedResult.kind === "navigation") {
+        await page
+          .waitForURL(
+            (url) => url.pathname !== beforePath || url.toString() !== beforeUrl,
+            { timeout: 10_000 },
+          )
+          .catch(() => undefined);
+      }
       await page.waitForLoadState("domcontentloaded", { timeout: 10_000 }).catch(() => undefined);
       await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
       const afterClickPath = new URL(page.url()).pathname;
