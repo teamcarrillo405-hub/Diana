@@ -85,7 +85,7 @@ export function PlayerPhoto({
         setMessage(
           bgRemoved
             ? "Saved. Your photo now shows in your lobby, on every device."
-            : "Saved with the original background — the cutout tool wasn't available on this device.",
+            : "Saved with the original background: the cutout tool wasn't available on this device.",
         );
       });
     } catch {

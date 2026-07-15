@@ -97,11 +97,11 @@ export function adaptationPromptLine(effectiveness: HelperEffectiveness[]): stri
   const parts: string[] = [];
   if (leanIn.length > 0) {
     parts.push(
-      `${leanIn.map((e) => humanFeature(e.feature)).join(" and ")} ${leanIn.length === 1 ? "has" : "have"} landed well for this student — lead with that shape when natural`,
+      `${leanIn.map((e) => humanFeature(e.feature)).join(" and ")} ${leanIn.length === 1 ? "has" : "have"} landed well for this student: lead with that shape when natural`,
     );
   }
   if (easeOff.length > 0) {
-    parts.push(`${humanFeature(easeOff[0].feature)} has not been landing — try a different shape first`);
+    parts.push(`${humanFeature(easeOff[0].feature)} has not been landing: try a different shape first`);
   }
   return `Learned context: ${parts.join("; ")}.`;
 }
@@ -111,9 +111,9 @@ export function adaptationSummary(effectiveness: HelperEffectiveness[]): string[
   const lines: string[] = [];
   for (const e of effectiveness) {
     if (e.stance === "lean_in") {
-      lines.push(`${humanFeature(e.feature)} has been working for you — Diana reaches for it sooner.`);
+      lines.push(`${humanFeature(e.feature)} has been working for you: Diana reaches for it sooner.`);
     } else if (e.stance === "ease_off") {
-      lines.push(`${humanFeature(e.feature)} hasn't been clicking — Diana tries other shapes first.`);
+      lines.push(`${humanFeature(e.feature)} hasn't been clicking: Diana tries other shapes first.`);
     }
   }
   return lines.slice(0, 6);

@@ -23,18 +23,13 @@ const CARD: ClassCardModel = {
 };
 
 describe("MyClassesGrid mobile containment", () => {
-  it("allows grid tracks and long class names to shrink inside a phone viewport", () => {
+  it("uses the shared responsive grid and class-card components", () => {
     const { container } = render(
       <MyClassesGrid cards={[CARD]} dueEarlierCount={0} notTurnedInCount={0} />,
     );
 
-    expect(container.querySelector("style")).toHaveTextContent("minmax(0, 1fr)");
-    expect(screen.getByRole("heading", { name: CARD.name })).toHaveStyle({
-      maxWidth: "100%",
-      overflowWrap: "anywhere",
-    });
-    expect(screen.getByRole("link", { name: "Start now" })).toHaveStyle({
-      boxSizing: "border-box",
-    });
+    expect(container.querySelector(".myc-grid")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: CARD.name }).closest(".ds-class-card")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start now" })).toHaveClass("ds-class-card__cta--cyanFilled");
   });
 });

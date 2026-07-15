@@ -24,7 +24,7 @@ export function buildParentDigestEmail(input: {
   stats: WeekStats;
 }): DigestEmail {
   const name = input.studentName.trim() || "Your student";
-  const subject = `${name}'s week with Diana — ${input.story.headline}`;
+  const subject = `${name}'s week with Diana: ${input.story.headline}`;
 
   const statLines = [
     `${input.stats.completedThisWeek} piece${input.stats.completedThisWeek === 1 ? "" : "s"} of work finished this week`,
@@ -45,7 +45,7 @@ export function buildParentDigestEmail(input: {
 
   const html = `
 <div style="font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; max-width: 540px; margin: 0 auto; color: #0f172a;">
-  <p style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #7c3aed; font-weight: 600;">✦ Diana — weekly note</p>
+  <p style="font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #7c3aed; font-weight: 600;">✦ Diana: weekly note</p>
   <h1 style="font-size: 20px; margin: 8px 0 16px;">${escapeHtml(input.story.headline)}</h1>
   <ul style="padding-left: 18px; line-height: 1.7; margin: 0 0 20px;">
     ${input.story.facts.map((fact) => `<li>${escapeHtml(fact)}</li>`).join("\n    ")}

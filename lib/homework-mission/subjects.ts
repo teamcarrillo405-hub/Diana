@@ -43,7 +43,7 @@ export type HmField = {
 // per assignment — see homework-mission.tsx.
 export const SUBJECT_FIELDS: Record<HmSubject, HmField[]> = {
   reading: [
-    { key: "main", label: "Main idea", hint: "one sentence — what is this mostly about?", placeholder: "The passage is about…", multi: false },
+    { key: "main", label: "Main idea", hint: "one sentence: what is this mostly about?", placeholder: "The passage is about…", multi: false },
     { key: "summary", label: "Your summary", hint: "3–4 sentences, your own words", placeholder: "In your own words…", multi: true, rows: 4 },
   ],
   math: [

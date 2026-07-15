@@ -9,14 +9,14 @@ export type ChecklistItem = {
 const BASE: ChecklistItem[] = [
   { label: "Your name is on the file", detail: "Or required in the document header.", required: true },
   { label: "File is in the format the teacher asked for", detail: "PDF, .docx, link, etc.", required: true },
-  { label: "You actually answered the prompt — not a tangent", detail: null, required: true },
+  { label: "You actually answered the prompt, not a tangent", detail: null, required: true },
 ];
 
 const ESSAY: ChecklistItem[] = [
   { label: "Thesis is in the intro, not buried", detail: "First or last sentence of the opening paragraph.", required: true },
-  { label: "Every body paragraph has evidence", detail: "Quote, citation, or specific example — not just opinion.", required: true },
+  { label: "Every body paragraph has evidence", detail: "Quote, citation, or specific example, not just opinion.", required: true },
   { label: "Conclusion doesn't introduce new ideas", detail: null, required: false },
-  { label: "Citations match the style the teacher specified", detail: "MLA / APA / Chicago — pick one and stick with it.", required: true },
+  { label: "Citations match the style the teacher specified", detail: "MLA / APA / Chicago: pick one and stick with it.", required: true },
 ];
 
 const LAB: ChecklistItem[] = [
@@ -75,7 +75,7 @@ const DYSLEXIA_EXTRAS: ChecklistItem[] = [
 const ADHD_EXTRAS: ChecklistItem[] = [
   {
     label: "You re-read the prompt one more time",
-    detail: "Last check that you actually did what was asked — not what you remembered being asked.",
+    detail: "Last check that you actually did what was asked, not what you remembered being asked.",
     required: true,
   },
 ];

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { isQuietHours, isWeekend, shouldShowReminder } from "@/lib/reminders/reminder-rules";
 import type { ReminderItem } from "./actions";
+import { AlertStrip } from "@/components/ui/alert-strip";
 
 /**
  * Overdue / not-turned-in summary. Collapsed by default to a single line
@@ -59,31 +60,15 @@ export function ReminderBanner({ items }: { items: ReminderItem[] }) {
       aria-label="Work to review"
     >
       {/* Collapsed summary — one calm line; expands to the list on tap. */}
-      <button
-        type="button"
+      <AlertStrip
+        tone="warning"
         onClick={() => setExpanded((v) => !v)}
-        aria-expanded={expanded}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-6)",
-          width: "100%",
-          textAlign: "left",
-          cursor: "pointer",
-          borderRadius: "var(--radius-card)",
-          border: "1px solid var(--gl-gold-28)",
-          background: "var(--gl-gold-12)",
-          padding: "var(--space-9) var(--space-12)",
-        }}
+        expanded={expanded}
+        label={`${visible.length} ${visible.length === 1 ? "item" : "items"} to review`}
+        trailing={expanded ? "Hide" : "Review"}
       >
-        <span style={{ width: 8, height: 8, borderRadius: "var(--radius-circle)", background: "var(--gl-gold)", flexShrink: 0 }} />
-        <span style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-16)", letterSpacing: "var(--tracking-04)", textTransform: "uppercase", color: "var(--gl-gold)" }}>
-          {visible.length} {visible.length === 1 ? "item" : "items"} to review
-        </span>
-        <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "var(--text-12)", fontWeight: "var(--weight-700)", color: "var(--gl-gold)" }}>
-          {expanded ? "Hide" : "Review"}
-        </span>
-      </button>
+        {visible.length} {visible.length === 1 ? "item" : "items"} to review
+      </AlertStrip>
 
       {expanded && (
         <ul style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)", listStyle: "none", padding: 0, margin: 0 }}>
@@ -114,7 +99,7 @@ export function ReminderBanner({ items }: { items: ReminderItem[] }) {
                   {i.title}
                 </p>
                 <p style={{ marginTop: "var(--space-1)", fontSize: "var(--text-12)", color: "var(--gl-gold)" }}>
-                  Still open — turn it in when you can.
+                  Still open. Turn it in when you can.
                 </p>
               </Link>
               <button

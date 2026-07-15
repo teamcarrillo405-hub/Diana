@@ -43,7 +43,7 @@ export function firstWeekJourney(inputs: JourneyInputs): FirstWeekJourney {
     {
       key: "home",
       title: "Give your work a home",
-      detail: "Connect Canvas or add one class — everything you capture lands somewhere.",
+      detail: "Connect Canvas or add one class: everything you capture lands somewhere.",
       href: "/settings",
       done: inputs.hasClassOrConnection,
     },
@@ -57,7 +57,7 @@ export function firstWeekJourney(inputs: JourneyInputs): FirstWeekJourney {
     {
       key: "first-move",
       title: "See your first move",
-      detail: "Diana picks the one thing worth starting — open it and look around.",
+      detail: "Diana picks the one thing worth starting: open it and look around.",
       href: "/assignments",
       done: inputs.hasStartedAnything,
     },

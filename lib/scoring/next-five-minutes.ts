@@ -184,7 +184,7 @@ function score(
     if (diff >= 4) s -= 10;
     if (hasDyslexia && readingHeavy) {
       s -= 12;
-      reasons.push("reading-heavy — save for higher energy");
+      reasons.push("reading-heavy: save for higher energy");
     }
   } else if (energy === "high") {
     if (diff >= 4) {

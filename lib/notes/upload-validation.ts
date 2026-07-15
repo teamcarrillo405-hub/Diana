@@ -40,14 +40,14 @@ export function validateAudioFile(file: File): ValidationResult {
   if (file.size >= MAX_FILE_BYTES) {
     return {
       ok: false,
-      error: "This recording is at or above 25 MB. Whisper works best with shorter clips — try a recording under 25 minutes.",
+      error: "This recording is at or above 25 MB. Whisper works best with shorter clips: try a recording under 25 minutes.",
     };
   }
 
   if (file.size >= WARN_FILE_BYTES) {
     return {
       ok: true,
-      warning: "This is a large recording. Whisper works best under 20 MB — we'll still try, but shorter clips transcribe faster.",
+      warning: "This is a large recording. Whisper works best under 20 MB: we'll still try, but shorter clips transcribe faster.",
     };
   }
 

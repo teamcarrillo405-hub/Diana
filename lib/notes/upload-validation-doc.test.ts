@@ -15,7 +15,7 @@ function makeFile(name: string, sizeBytes: number, mime = "image/jpeg"): File {
   return new File([buf], name, { type: mime });
 }
 
-describe("validateDocFile — extension whitelist", () => {
+describe("validateDocFile: extension whitelist", () => {
   it("accepts .jpg", () => {
     expect(validateDocFile(makeFile("photo.jpg", 1024)).ok).toBe(true);
   });
@@ -57,7 +57,7 @@ describe("validateDocFile — extension whitelist", () => {
   });
 });
 
-describe("validateDocFile — size thresholds", () => {
+describe("validateDocFile: size thresholds", () => {
   it("returns no warning under 10 MB", () => {
     const r = validateDocFile(makeFile("photo.jpg", 1024 * 1024));
     expect(r.ok).toBe(true);
@@ -84,7 +84,7 @@ describe("validateDocFile — size thresholds", () => {
   });
 });
 
-describe("validateDocFile — calm copy invariant", () => {
+describe("validateDocFile: calm copy invariant", () => {
   it("extension-rejection copy is calm", () => {
     const r = validateDocFile(makeFile("song.mp3", 1024));
     expect(r.error).toBeDefined();

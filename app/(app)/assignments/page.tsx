@@ -10,7 +10,6 @@ import {
   MessagesSquare,
   Mic,
   ScanLine,
-  ShieldCheck,
   TimerReset,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -25,6 +24,15 @@ import { computeNightBudget } from "@/lib/time-budget/compute";
 import { TimeBudget } from "../dashboard/time-budget";
 import { DueCards } from "../dashboard/due-cards";
 import { ReadingLoadToggle } from "../dashboard/reading-load-toggle";
+import { AssignmentLane } from "@/components/ui/assignment-lane";
+import { EmptyState } from "@/components/ui/empty-state";
+import { HeroCtaButton } from "@/components/ui/hero-cta-button";
+import { HudCorners } from "@/components/ui/hud-corners";
+import { MetricTile, MISSION_TONE_TOKEN, type MissionTone } from "@/components/ui/metric-tile";
+import { MissionCard, MissionProgress } from "@/components/ui/mission-card";
+import { Panel } from "@/components/ui/panel";
+import { SlantedActionButton } from "@/components/ui/slanted-action-button";
+import { StatusPill, assignmentStatusTone } from "@/components/ui/status-pill";
 
 type AssignmentRow = {
   id: string;
@@ -50,7 +58,7 @@ type Lane = {
   title: string;
   eyebrow: string;
   items: MissionAssignment[];
-  tone: "cyan" | "pink" | "gold" | "blue" | "purple";
+  tone: MissionTone;
 };
 
 function dueWindow(row: { due_at: string | null }, now: Date) {
@@ -216,48 +224,26 @@ export default async function AssignmentsPage({
         >
           Mission Board
         </h1>
-        <Link
-          href="/assignments/new"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "var(--space-3)",
-            padding: "var(--space-9) var(--space-14)",
-            borderRadius: "var(--radius-option)",
-            background: "var(--gl-cyan)",
-            boxShadow: "0 0 28px var(--gl-cyan-30)",
-            fontFamily: "var(--font-display)",
-            fontWeight: "var(--weight-800)",
-            fontSize: "var(--text-17)",
-            letterSpacing: "var(--tracking-04)",
-            textTransform: "uppercase",
-            color: "var(--gl-text-on-cyan)",
-            textDecoration: "none",
-          }}
-        >
-          <FilePlus2 size={17} />
+        <HeroCtaButton href="/assignments/new" icon={<FilePlus2 size={17} aria-hidden="true" />} compact>
           Add assignment
-        </Link>
+        </HeroCtaButton>
       </header>
 
       <div className="assignment-command-grid">
         {/* NexusPanel tone=cyan — Start now */}
-        <div
+        <Panel
+          tone="cyan"
           style={{
             position: "relative",
             alignSelf: "start",
             borderRadius: "var(--radius-panel)",
-            border: "1px solid var(--gl-cyan-25)",
             background: "linear-gradient(135deg, var(--gl-focus-from), var(--gl-focus-to))",
             padding: "var(--space-15) var(--space-16)",
             overflow: "hidden",
             boxShadow: "0 0 40px var(--gl-cyan-08)",
           }}
         >
-          <span style={{ position: "absolute", left: -1, top: -1, width: 16, height: 16, borderLeft: "2px solid var(--gl-cyan-85)", borderTop: "2px solid var(--gl-cyan-85)", borderRadius: "2px 0 0 0" }} />
-          <span style={{ position: "absolute", right: -1, top: -1, width: 16, height: 16, borderRight: "2px solid var(--gl-cyan-85)", borderTop: "2px solid var(--gl-cyan-85)", borderRadius: "0 2px 0 0" }} />
-          <span style={{ position: "absolute", left: -1, bottom: -1, width: 16, height: 16, borderLeft: "2px solid var(--gl-cyan-85)", borderBottom: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 0 2px" }} />
-          <span style={{ position: "absolute", right: -1, bottom: -1, width: 16, height: 16, borderRight: "2px solid var(--gl-cyan-85)", borderBottom: "2px solid var(--gl-cyan-85)", borderRadius: "0 0 2px 0" }} />
+          <HudCorners />
 
           {/* NexusKicker */}
           <p
@@ -334,28 +320,12 @@ export default async function AssignmentsPage({
 
               {/* assignment-next-actions */}
               <div style={{ marginTop: "var(--space-13)", display: "flex", gap: "var(--space-8)", flexWrap: "wrap" }}>
-                <Link
+                <HeroCtaButton
                   href={`/assignments/${next.id}?focus=next-step`}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "var(--space-4)",
-                    padding: "var(--space-9) var(--space-13)",
-                    borderRadius: "var(--radius-option)",
-                    background: "var(--gl-cyan)",
-                    boxShadow: "0 0 24px var(--gl-cyan-30)",
-                    fontFamily: "var(--font-display)",
-                    fontWeight: "var(--weight-800)",
-                    fontSize: "var(--text-16)",
-                    letterSpacing: "var(--tracking-04)",
-                    textTransform: "uppercase",
-                    color: "var(--gl-text-on-cyan)",
-                    textDecoration: "none",
-                  }}
+                  trailingIcon={<ArrowRight size={16} aria-hidden="true" />}
                 >
                   Start {starterMinutes(next)} minutes
-                  <ArrowRight size={16} />
-                </Link>
+                </HeroCtaButton>
                 <Link
                   href={`/assignments/${next.id}#task-breakdown`}
                   style={{
@@ -379,68 +349,36 @@ export default async function AssignmentsPage({
               </div>
             </>
           ) : (
-            <>
-              <h2
-                style={{
-                  margin: 0,
-                  fontFamily: "var(--font-display)",
-                  fontStyle: "italic",
-                  fontWeight: "var(--weight-800)",
-                  fontSize: "var(--text-32)",
-                  lineHeight: "var(--leading-snug)",
-                  textTransform: "uppercase",
-                  color: "var(--gl-text-primary)",
-                }}
-              >
-                No open schoolwork.
-              </h2>
-              <p style={{ margin: "var(--space-6) 0 0", maxWidth: "420px", fontSize: "var(--text-15)", lineHeight: "var(--leading-relaxed)", color: "var(--gl-text-overlay-60)" }}>
-                Add one assignment or capture a teacher note when something new arrives.
-              </p>
-            </>
+            <EmptyState
+              compact
+              title="No open schoolwork."
+              description="Add one assignment or capture a teacher note when something new arrives."
+            />
           )}
-        </div>
+        </Panel>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
           {[
-            { label: "Start now", value: next ? 1 : 0, detail: "top move", tone: "var(--gl-cyan)" },
-            { label: "Due soon", value: dueSoonCount, detail: "3-day window", tone: "var(--gl-gold)" },
-            { label: "Needs proof", value: proofCount, detail: "receipt lane", tone: "var(--gl-pink)" },
+            { label: "Start now", value: next ? 1 : 0, detail: "top move", tone: "cyan" as const },
+            { label: "Due soon", value: dueSoonCount, detail: "3-day window", tone: "gold" as const },
+            { label: "Needs proof", value: proofCount, detail: "receipt lane", tone: "pink" as const },
           ].map((tile) => (
-            <div
+            <MetricTile
               key={tile.label}
-              style={{
-                position: "relative",
-                borderRadius: "var(--radius-panel)",
-                border: "1px solid var(--gl-border-neutral)",
-                background: "var(--gl-bg-card)",
-                padding: "var(--space-13) var(--space-13) var(--space-12)",
-                overflow: "hidden",
-              }}
-            >
-              <span style={{ position: "absolute", left: 0, right: 0, top: 0, height: 3, background: tile.tone }} />
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "38px", lineHeight: 1, color: tile.tone }}>
-                {tile.value}
-              </div>
-              <div style={{ marginTop: "var(--space-3)", fontFamily: "var(--font-display)", fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", letterSpacing: "var(--tracking-04)", textTransform: "uppercase", color: "var(--gl-text-secondary)" }}>
-                {tile.label}
-              </div>
-              <div style={{ marginTop: "var(--space-1)", fontSize: "var(--text-12)", color: "var(--gl-text-dim)" }}>
-                {tile.detail}
-              </div>
-            </div>
+              label={tile.label}
+              value={tile.value}
+              detail={tile.detail}
+              tone={tile.tone}
+            />
           ))}
         </div>
       </div>
 
       {/* Secondary — calm voice entry, demoted from a 36px hero so it never out-shouts Start */}
-      <Link
-        href="/voice"
-        style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", width: "fit-content", padding: "var(--space-7) var(--space-13)", borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-lime-45, rgba(173,230,80,.45))", background: "transparent", color: "var(--gl-lime)", fontFamily: "var(--font-body)", fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", textDecoration: "none" }}
-      >
-        <Mic size={16} />
+      <SlantedActionButton href="/voice" compact>
+        <Mic size={16} aria-hidden="true" />
         Talk to Diana
-      </Link>
+      </SlantedActionButton>
 
       {/* Planning & tools — secondary modules collapsed so the focal Start-now stays the one move */}
       <details>
@@ -451,7 +389,7 @@ export default async function AssignmentsPage({
 
       {/* Capture inbox — unclassified items waiting for sorting */}
       {(inboxItems ?? []).length > 0 && (
-        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-08, rgba(255,210,74,.08))", padding: "var(--space-13) var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
+        <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-12)", padding: "var(--space-13) var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-8)", flexWrap: "wrap" }}>
             <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-gold)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
               <ScanLine size={13} />
@@ -527,92 +465,31 @@ export default async function AssignmentsPage({
       </h2>
       <section className="assignment-lane-stack" aria-label="Assignment priority lanes">
         {lanes.map((lane) => (
-          <AssignmentLane key={lane.title} lane={lane} />
+          <AssignmentLane
+            key={lane.title}
+            eyebrow={lane.eyebrow}
+            title={lane.title}
+            count={lane.items.length}
+            tone={lane.tone}
+          >
+            {lane.items.map((assignment) => (
+              <AssignmentMissionCard key={assignment.id} assignment={assignment} tone={lane.tone} />
+            ))}
+          </AssignmentLane>
         ))}
       </section>
     </div>
   );
 }
 
-const TONE_COLOR: Record<Lane["tone"], string> = {
-  cyan: "var(--gl-cyan)",
-  pink: "var(--gl-pink)",
-  gold: "var(--gl-gold)",
-  blue: "var(--gl-blue)",
-  purple: "var(--gl-purple-light)",
-};
-
-const TONE_BORDER: Record<Lane["tone"], string> = {
-  cyan: "var(--gl-cyan-22)",
-  pink: "var(--gl-pink-30)",
-  gold: "var(--gl-gold-28)",
-  blue: "var(--gl-blue-28)",
-  purple: "var(--gl-purple-30)",
-};
-
-const TONE_BG: Record<Lane["tone"], string> = {
-  cyan: "var(--gl-cyan-08)",
-  pink: "var(--gl-pink-12)",
-  gold: "var(--gl-gold-12)",
-  blue: "var(--gl-blue-12)",
-  purple: "var(--gl-purple-12)",
-};
-
-function AssignmentLane({ lane }: { lane: Lane }) {
-  const color = TONE_COLOR[lane.tone];
-  return (
-    <section style={{ display: "grid", gap: "var(--space-9)" }}>
-      <style>{`.alg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-9);}@media(max-width:640px){.alg{grid-template-columns:minmax(0,1fr);}}`}</style>
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-12)" }}>
-        <div>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color, margin: "0 0 var(--space-3)" }}>
-            {lane.eyebrow}
-          </p>
-          <h2 style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-34)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>
-            {lane.title}
-          </h2>
-        </div>
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", border: "1px solid var(--gl-border-neutral)", borderRadius: "var(--radius-pill)", padding: "var(--space-3) var(--space-6)", whiteSpace: "nowrap", flexShrink: 0 }}>
-          {lane.items.length} {lane.items.length === 1 ? "item" : "items"}
-        </span>
-      </div>
-      <div className="alg">
-        {lane.items.map((assignment) => (
-          <AssignmentMissionCard key={assignment.id} assignment={assignment} tone={lane.tone} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function AssignmentMissionCard({ assignment, tone }: { assignment: MissionAssignment; tone: Lane["tone"] }) {
   const percent = readiness(assignment);
-  const color = TONE_COLOR[tone];
-  const borderColor = TONE_BORDER[tone];
-  const bgColor = TONE_BG[tone];
-  const classColor = assignment.classes?.color ?? color;
+  const color = MISSION_TONE_TOKEN[tone];
 
   return (
-    <Link
-      href={`/assignments/${assignment.id}`}
-      style={{
-        position: "relative",
-        overflow: "hidden",
-        display: "grid",
-        gap: "var(--space-5)",
-        padding: "var(--space-12) var(--space-12) var(--space-12) var(--space-15)",
-        borderRadius: "var(--radius-card)",
-        border: `1px solid ${borderColor}`,
-        background: bgColor,
-        backdropFilter: "var(--blur-card)",
-        textDecoration: "none",
-        clipPath: "polygon(0 0, calc(100% - 13px) 0, 100% 13px, 100% 100%, 13px 100%, 0 calc(100% - 13px))",
-        transition: "transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease",
-      }}
-    >
-      <span aria-hidden="true" style={{ position: "absolute", insetBlock: 0, left: 0, width: 3, background: color }} />
-      <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)", fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: classColor }}>
-        <Layers3 size={13} />
+    <MissionCard href={`/assignments/${assignment.id}`} tone={tone}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)", fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color }}>
+        <Layers3 size={13} aria-hidden="true" />
         {assignment.classes?.name ?? "Class"}
       </span>
       <strong style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-18)", fontWeight: "var(--weight-800)", lineHeight: "var(--leading-snug)", color: "var(--gl-text-primary)", overflowWrap: "anywhere" }}>
@@ -621,12 +498,7 @@ function AssignmentMissionCard({ assignment, tone }: { assignment: MissionAssign
       <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-600)", letterSpacing: "var(--tracking-12)", color: "var(--gl-text-muted)" }}>
         {assignment.due_at ? formatDueAt(assignment.due_at) : "No due date"} / {starterMinutes(assignment)} min start
       </span>
-      <span
-        aria-label={`${percent}% ready`}
-        style={{ display: "block", height: 5, borderRadius: 3, border: `1px solid ${borderColor}`, background: bgColor, overflow: "hidden" }}
-      >
-        <i style={{ display: "block", height: "100%", width: `${percent}%`, background: `linear-gradient(90deg, ${color}, var(--gl-cyan))` }} />
-      </span>
+      <MissionProgress percent={percent} />
       <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-4)" }}>
         {[KIND_LABEL[assignment.kind], reasonLabel(assignment)].map((label) => (
           <span
@@ -636,18 +508,11 @@ function AssignmentMissionCard({ assignment, tone }: { assignment: MissionAssign
             {label}
           </span>
         ))}
-        <StatusPill status={assignment.status} color={color} />
+        <StatusPill
+          label={STATUS_LABEL[assignment.status as AssignmentStatus] ?? assignment.status}
+          tone={assignmentStatusTone(assignment.status)}
+        />
       </div>
-    </Link>
-  );
-}
-
-function StatusPill({ status, color }: { status: string; color: string }) {
-  const isComplete = status === "submitted" || status === "graded";
-  return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-2) var(--space-6)", borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", fontFamily: "var(--font-body)", fontSize: "var(--text-11)", fontWeight: "var(--weight-600)", color: isComplete ? "var(--gl-green)" : color }}>
-      {isComplete ? <CheckCircle2 size={12} /> : <ShieldCheck size={12} />}
-      {STATUS_LABEL[status as AssignmentStatus] ?? status}
-    </span>
+    </MissionCard>
   );
 }

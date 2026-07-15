@@ -32,13 +32,13 @@ export function SyllabusForm({ classId }: { classId: string }) {
   return (
     <form onSubmit={onSubmit} className="class-rubric-form">
       <input
-        placeholder="Syllabus title (e.g. Biology 9 — Fall syllabus)"
+        placeholder="Syllabus title (e.g. Biology 9: Fall syllabus)"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         className="nexus-input"
       />
       <textarea
-        placeholder="Paste the syllabus text — Diana pulls out key dates and policies..."
+        placeholder="Paste the syllabus text: Diana pulls out key dates and policies..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={8}

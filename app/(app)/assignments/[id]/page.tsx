@@ -68,7 +68,7 @@ export default async function AssignmentDetailPage({
   const courseLabel = a.classes?.name ?? "Assignment";
   const dueLine = a.due_at ? formatDueAt(a.due_at) : "No due date";
   const estimate = a.estimated_minutes ? `${a.estimated_minutes} min` : null;
-  const briefText = a.description?.trim() || "No instructions yet — check with your teacher.";
+  const briefText = a.description?.trim() || "No instructions yet: check with your teacher.";
   const deliverables = SUBJECT_FIELDS[subject].map((f) => f.label);
 
   return (

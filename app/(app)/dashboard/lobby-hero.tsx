@@ -24,9 +24,9 @@ type LobbyHeroProps = {
 };
 
 const ENERGY_META = {
-  low: { label: "LOW", value: "Low", adapt: "Shortest tasks first — you've got this" },
+  low: { label: "LOW", value: "Low", adapt: "Shortest tasks first: you've got this" },
   medium: { label: "OKAY", value: "Okay", adapt: "" },
-  high: { label: "LOCKED IN", value: "Locked in", adapt: "Priority tasks first — locked in" },
+  high: { label: "LOCKED IN", value: "Locked in", adapt: "Priority tasks first: locked in" },
 } as const;
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
@@ -40,7 +40,7 @@ export function LobbyHero({ studentName, focusHref, photoUrl = null, selectedEne
   const ctaLabel = nextMove?.className ? `▶ Start ${nextMove.className}` : "▶ Start Next Mission";
   const moveSub = nextMove
     ? [nextMove.className, nextMove.title].filter(Boolean).join(" · ")
-    : "All caught up — nice work today";
+    : "All caught up: nice work today";
   const finishBy = nextMove?.estMin ? `est. ${nextMove.estMin} min` : null;
 
   return (

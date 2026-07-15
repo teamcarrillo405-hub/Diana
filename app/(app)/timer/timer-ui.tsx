@@ -61,7 +61,7 @@ function formatMs(ms: number): string {
 function statusLabel(s: ReturnType<typeof useTimer>["state"]): string {
   if (s.status === "idle") return "Ready when you are";
   if (s.status === "paused") return "Paused";
-  if (s.status === "done") return "Done — enjoy your reward";
+  if (s.status === "done") return "Done: enjoy your reward";
   if (s.phase === "work") return "Working";
   return "Break time";
 }
@@ -290,7 +290,7 @@ export function TimerUi({
               Show countdown number
             </span>
             <span className="ml-1 text-xs text-muted">
-              (Off by default — fewer numbers = less anxiety.)
+              (Off by default: fewer numbers = less anxiety.)
             </span>
           </label>
         </div>

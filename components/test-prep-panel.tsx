@@ -47,7 +47,7 @@ export function TestPrepPanel({
       <p className="text-sm text-muted">{plan.readiness}</p>
       {coversSince && (
         <p className="text-xs text-muted">
-          Planning around class material since {format(new Date(coversSince), "MMMM d")} — your spot in
+          Planning around class material since {format(new Date(coversSince), "MMMM d")}: your spot in
           the curriculum, not the whole year.
         </p>
       )}

@@ -23,7 +23,7 @@ describe("looksLikeVisualProject", () => {
 });
 
 describe("buildDesignBrief", () => {
-  it("uses rubric criteria as sections — the teacher's definition of done", () => {
+  it("uses rubric criteria as sections: the teacher's definition of done", () => {
     const brief = buildDesignBrief({
       assignmentTitle: "Ecosystem poster",
       rubricCriteria: ["Food web diagram", "Three biotic factors", "Human impact"],
@@ -56,7 +56,7 @@ describe("buildDesignBrief", () => {
     ]);
   });
 
-  it("keeps student authorship — every point is a fill-in, nothing pre-written", () => {
+  it("keeps student authorship: every point is a fill-in, nothing pre-written", () => {
     const brief = buildDesignBrief({
       assignmentTitle: "Poster on photosynthesis",
       rubricCriteria: ["Light reactions"],

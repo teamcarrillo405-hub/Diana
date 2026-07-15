@@ -151,7 +151,7 @@ export default async function InboxItemPage({
           <div className="rounded-xl border border-accent/30 bg-accent/5 p-4 text-sm">
             <p>
               <span className="font-medium">Kind:</span>{" "}
-              {item.suggested_kind ?? "—"}
+              {item.suggested_kind ?? "-"}
             </p>
             {item.suggested_due_at && (
               <p className="mt-1">
@@ -160,17 +160,17 @@ export default async function InboxItemPage({
               </p>
             )}
             <p className="mt-1 text-xs text-muted">
-              Confidence: {Math.round((item.suggestion_confidence ?? 0) * 100)}% — you can change
+              Confidence: {Math.round((item.suggestion_confidence ?? 0) * 100)}%: you can change
               anything below before confirming.
             </p>
           </div>
         ) : item.status === "classified" ? (
           <div className="rounded-xl border border-border bg-card p-4 text-sm text-muted">
-            Diana couldn't classify this — help her out below.
+            Diana couldn't classify this: help her out below.
           </div>
         ) : (
           <div className="rounded-xl border border-border bg-card p-4 text-sm text-muted">
-            Classification is running in the background — fill in the fields below if you'd like to
+            Classification is running in the background: fill in the fields below if you'd like to
             convert this now.
           </div>
         )}

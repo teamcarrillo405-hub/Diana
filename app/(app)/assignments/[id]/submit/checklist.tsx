@@ -203,7 +203,7 @@ export function SubmitChecklist({
         disabled={pending || !requiredOk}
         className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {requiredOk ? "I clicked submit — mark it done" : "Finish the required boxes first"}
+        {requiredOk ? "I clicked submit: mark it done" : "Finish the required boxes first"}
       </button>
     </div>
   );

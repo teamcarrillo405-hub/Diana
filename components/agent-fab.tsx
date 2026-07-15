@@ -11,7 +11,7 @@ const BF = "var(--font-barlow), 'Barlow Semi Condensed', sans-serif";
 type ChatMessage = { role: "student" | "coach"; content: string };
 
 const OPENING_MESSAGE =
-  "Hey — what do you need? I can explain anything on this page, or point you at what to do next. If it's homework, everything happens in Work.";
+  "Hey, what do you need? I can explain anything on this page, or point you at what to do next. If it's homework, everything happens in Work.";
 
 const QUICK_CHIPS = [
   "What should I do next?",

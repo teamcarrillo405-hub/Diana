@@ -563,7 +563,7 @@ export function HomeworkMission(props: HomeworkMissionProps) {
               Break it into small steps
             </button>
           </div>
-          <div style={{ marginTop: 14, fontSize: 13.5, color: "#7d88ad" }}>Diana can help while you work — but only when you ask.</div>
+          <div style={{ marginTop: 14, fontSize: 13.5, color: "#7d88ad" }}>Diana can help while you work, but only when you ask.</div>
         </div>
       )}
 
@@ -714,7 +714,7 @@ export function HomeworkMission(props: HomeworkMissionProps) {
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12, gap: 12 }}>
                   <span style={{ fontFamily: SF, fontWeight: 800, fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: meta.accent }}>{materialTitle}</span>
                 </div>
-                <div style={{ fontFamily: BF, fontSize: 15.5, lineHeight: 1.8, color: "#e8f0ff", whiteSpace: "pre-wrap" }}>{material || "No material yet — check the assignment description."}</div>
+                <div style={{ fontFamily: BF, fontSize: 15.5, lineHeight: 1.8, color: "#e8f0ff", whiteSpace: "pre-wrap" }}>{material || "No material yet: check the assignment description."}</div>
 
                 {subject === "math" && currentProblem && (
                   <div style={{ marginTop: 16, paddingTop: 14, borderTop: "1px solid rgba(120,150,220,.18)" }}>
@@ -748,7 +748,7 @@ export function HomeworkMission(props: HomeworkMissionProps) {
               {/* RIGHT — your work */}
               <div style={{ borderRadius: 15, border: "1px solid rgba(41,208,255,.25)", background: "rgba(4,8,20,.72)", backdropFilter: "blur(10px)", padding: "24px 26px", minWidth: 0 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 16 }}>
-                  <span style={{ fontFamily: SF, fontWeight: 800, fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: "#29d0ff" }}>Your work — this is what you hand in</span>
+                  <span style={{ fontFamily: SF, fontWeight: 800, fontSize: 12, letterSpacing: ".12em", textTransform: "uppercase", color: "#29d0ff" }}>Your work: this is what you hand in</span>
                   {aiAvailable && (
                     <button
                       type="button"
@@ -820,7 +820,7 @@ export function HomeworkMission(props: HomeworkMissionProps) {
           <div onClick={(e) => e.stopPropagation()} style={{ width: 440, maxWidth: "92vw", borderRadius: 16, border: "1px solid rgba(41,208,255,.25)", background: "linear-gradient(180deg,rgba(8,12,26,.96),rgba(12,18,42,.96))", padding: "26px 28px" }}>
             <div style={{ fontFamily: SF, fontWeight: 800, fontSize: 22, letterSpacing: ".03em", textTransform: "uppercase", color: "#fff" }}>Ready to send it?</div>
             <p style={{ marginTop: 10, fontSize: 14.5, lineHeight: 1.6, color: "rgba(200,218,255,.6)" }}>
-              Quick gut check — read your work out loud once. If it answers the teacher&apos;s question and sounds like you, it&apos;s ready.
+              Quick gut check: read your work out loud once. If it answers the teacher&apos;s question and sounds like you, it&apos;s ready.
             </p>
             <div style={{ marginTop: 22, display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <button type="button" onClick={() => setShowSubmitConfirm(false)} style={{ padding: "10px 18px", borderRadius: 9, border: "1px solid rgba(120,150,220,.18)", background: "transparent", cursor: "pointer", color: "#aab8e0" }}>

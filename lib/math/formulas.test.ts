@@ -31,7 +31,7 @@ describe("formulas", () => {
     }
   });
 
-  it("no formula contains HTML/JSX tags (plain text Unicode only — D-02)", () => {
+  it("no formula contains HTML/JSX tags (plain text Unicode only: D-02)", () => {
     for (const entry of ALL) {
       expect(entry.formula).not.toMatch(/[<>]/);
     }

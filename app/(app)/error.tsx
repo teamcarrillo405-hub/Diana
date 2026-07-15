@@ -66,7 +66,7 @@ export default function AppError({
               margin: 0,
             }}
           >
-            Your work is safe. Try reloading — if it keeps happening, go back to
+            Your work is safe. Try reloading. If it keeps happening, go back to
             the dashboard.
           </p>
         </div>

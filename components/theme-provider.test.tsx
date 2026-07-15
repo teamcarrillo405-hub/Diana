@@ -35,7 +35,7 @@ describe('ThemeProvider', () => {
     vi.restoreAllMocks();
   });
 
-  it('defaults to system with no stored value — no pinned class, resolved follows OS dark', () => {
+  it('defaults to system with no stored value: no pinned class, resolved follows OS dark', () => {
     mockMatchMedia(true);
     const { getByTestId } = render(<ThemeProvider><Harness /></ThemeProvider>);
     expect(getByTestId('theme').textContent).toBe('system');
@@ -45,7 +45,7 @@ describe('ThemeProvider', () => {
     expect(document.documentElement.classList.contains('light')).toBe(false);
   });
 
-  it('defaults to system with no stored value — resolved follows OS light', () => {
+  it('defaults to system with no stored value: resolved follows OS light', () => {
     mockMatchMedia(false);
     const { getByTestId } = render(<ThemeProvider><Harness /></ThemeProvider>);
     expect(getByTestId('theme').textContent).toBe('system');

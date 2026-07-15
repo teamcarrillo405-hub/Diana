@@ -132,7 +132,7 @@ function planDays(daysUntil: number, shaky: TestPrepConcept[]): PrepDay[] {
   if (daysUntil === 1) {
     return [
       day(0, "Today", [
-        entry("practice_test", "One short practice test — it shows exactly what to look at tonight."),
+        entry("practice_test", "One short practice test: it shows exactly what to look at tonight."),
         entry("light_recall", "Then light recall before bed. Sleep is part of studying."),
       ]),
     ];
@@ -156,22 +156,22 @@ function planDays(daysUntil: number, shaky: TestPrepConcept[]): PrepDay[] {
     const entries: Array<{ kind: PrepEntryKind; label: string }> = [];
 
     if (before === 1) {
-      entries.push(entry("light_recall", "Night before: light recall only — cards once through, then sleep."));
+      entries.push(entry("light_recall", "Night before: light recall only: cards once through, then sleep."));
     } else if (before === 2) {
       entries.push(
         start >= 4
-          ? entry("practice_test", "Second practice test — confirm the shaky spots moved.")
+          ? entry("practice_test", "Second practice test: confirm the shaky spots moved.")
           : entry("practice_test", "Practice test, then review what it surfaces."),
       );
       if (start < 4) entries.push(entry("review_results", "Spend the rest of the time on whatever the practice test surfaced."));
     } else if (before === 3) {
-      entries.push(entry("review_results", "Review what the practice test surfaced — those topics first."));
+      entries.push(entry("review_results", "Review what the practice test surfaced: those topics first."));
       if (shaky.length > 0) entries.push(entry("concept_review", conceptLabel));
     } else if (before === 4) {
-      entries.push(entry("practice_test", "First practice test — early enough that the results can change the plan."));
+      entries.push(entry("practice_test", "First practice test: early enough that the results can change the plan."));
     } else {
       entries.push(entry("concept_review", conceptLabel));
-      entries.push(entry("make_cards", "Turn anything fuzzy into cards — Diana schedules the reviews."));
+      entries.push(entry("make_cards", "Turn anything fuzzy into cards: Diana schedules the reviews."));
     }
 
     days.push(day(offset, heading, entries));
@@ -182,12 +182,12 @@ function planDays(daysUntil: number, shaky: TestPrepConcept[]): PrepDay[] {
 
 function readinessLine(triage: TestPrepConcept[], shaky: TestPrepConcept[]): string {
   if (triage.length === 0) {
-    return "No concept map for this class yet — generate a practice test and Diana starts mapping what's on it.";
+    return "No concept map for this class yet: generate a practice test and Diana starts mapping what's on it.";
   }
   if (shaky.length === 0) {
-    return `All ${triage.length} concepts Diana is tracking feel solid — keep them warm with light recall.`;
+    return `All ${triage.length} concepts Diana is tracking feel solid: keep them warm with light recall.`;
   }
-  return `Diana is tracking ${triage.length} concept${triage.length === 1 ? "" : "s"} for this class — ${shaky.length} still feel${shaky.length === 1 ? "s" : ""} shaky. That's where prep time pays off.`;
+  return `Diana is tracking ${triage.length} concept${triage.length === 1 ? "" : "s"} for this class: ${shaky.length} still feel${shaky.length === 1 ? "s" : ""} shaky. That's where prep time pays off.`;
 }
 
 function day(offset: number, heading: string, entries: Array<{ kind: PrepEntryKind; label: string }>): PrepDay {

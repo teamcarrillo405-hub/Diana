@@ -62,7 +62,7 @@ describe("validateAudioFile", () => {
     expect(r.ok).toBe(true);
   });
 
-  it("warning copy is calm — no banned words", () => {
+  it("warning copy is calm: no banned words", () => {
     const r = validateAudioFile(makeFile("clip.m4a", WARN_FILE_BYTES));
     expect(r.warning).toBeDefined();
     const w = (r.warning ?? "").toLowerCase();
@@ -71,7 +71,7 @@ describe("validateAudioFile", () => {
     expect(w).toMatch(/best|recommend|under|works best/);
   });
 
-  it("error copy is calm — no banned words", () => {
+  it("error copy is calm: no banned words", () => {
     const r = validateAudioFile(makeFile("clip.m4a", MAX_FILE_BYTES));
     expect(r.error).toBeDefined();
     const e = (r.error ?? "").toLowerCase();

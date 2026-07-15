@@ -102,7 +102,7 @@ export function PrivacyDashboard({
         const result = await importProfileBackup({ profile: parsed.profile });
         setMessage(result.ok ? "Profile backup imported." : result.error);
       } catch {
-        setMessage("Could not read that backup — check the file and passphrase.");
+        setMessage("Could not read that backup: check the file and passphrase.");
       }
     });
   }

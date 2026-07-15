@@ -11,7 +11,7 @@ export default function VoicePage() {
       active="Work"
       eyebrow="Talk to Diana"
       title="Think out loud."
-      subtitle="Talk through what you're working on and Diana turns it into a next move — hands-free."
+      subtitle="Talk through what you're working on and Diana turns it into a next move: hands-free."
       accent="var(--gl-lime)"
       icon={Mic}
     >

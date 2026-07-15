@@ -217,7 +217,7 @@ export default async function NotesPage({
             <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-muted)", margin: "0 0 var(--space-12)" }}>
               {search || tagFilter
                 ? "Try a broader search or clear the filter."
-                : "Capture a class — voice or text. Diana saves every 30 seconds."}
+                : "Capture a class: voice or text. Diana saves every 30 seconds."}
             </p>
             <Link
               href="/notes/new"

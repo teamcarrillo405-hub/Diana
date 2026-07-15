@@ -31,7 +31,7 @@ export async function createCanvaDesignForAssignment(
   const supabase = await createClient();
   const token = await getValidCanvaToken(supabase);
   if (!token) {
-    return { ok: false, error: "Connect Canva in Settings first — then this works in one tap." };
+    return { ok: false, error: "Connect Canva in Settings first. Then this works in one tap." };
   }
 
   const { data: assignment } = await supabase
@@ -61,7 +61,7 @@ export async function createCanvaDesignForAssignment(
     const design = await createCanvaDesign(token, brief);
     return { ok: true, editUrl: design?.editUrl ?? null, brief, briefText: briefToClipboardText(brief) };
   } catch {
-    return { ok: false, error: "Canva didn't answer just now — your brief is safe, try again in a bit." };
+    return { ok: false, error: "Canva didn't answer just now. Your brief is safe, so try again in a bit." };
   }
 }
 

@@ -34,7 +34,7 @@ export function TimeBudget({ totalMinutes, items }: TimeBudgetProps) {
       >
         <span style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-600)", color: "var(--gl-text-secondary)" }}>What&apos;s left tonight?</span>
         <span style={{ fontSize: "var(--text-14)", fontWeight: "var(--weight-700)", color: heavy ? "var(--gl-amber)" : "var(--gl-cyan)" }}>
-          {items.length === 0 ? "—" : label}
+          {items.length === 0 ? "-" : label}
         </span>
       </button>
 
@@ -48,7 +48,7 @@ export function TimeBudget({ totalMinutes, items }: TimeBudgetProps) {
             <>
               {heavy && (
                 <p style={{ fontSize: "var(--text-12)", color: "var(--gl-amber)" }}>
-                  That&apos;s a lot for tonight — you might want to decide which to tackle first.
+                  That&apos;s a lot for tonight: you might want to decide which to tackle first.
                 </p>
               )}
               <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>

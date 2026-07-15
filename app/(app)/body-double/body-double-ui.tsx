@@ -44,11 +44,11 @@ export function BodyDoubleUi() {
     <div className="space-y-6">
       <div className="flex flex-col items-center gap-6 rounded-2xl border border-border bg-card p-10">
         <p className="text-base text-muted">
-          Focus together — even from home.
+          Focus together, even from home.
         </p>
 
         <p className="text-sm font-medium text-muted">
-          A shared quiet hour — put your head down and work alongside Diana.
+          A shared quiet hour: put your head down and work alongside Diana.
         </p>
 
         <div
@@ -58,7 +58,7 @@ export function BodyDoubleUi() {
         />
 
         <p className="text-6xl font-light tabular-nums sm:text-7xl">
-          {now ? formatClock(now) : "\u2014:\u2014"}
+          {now ? formatClock(now) : "--:--"}
         </p>
 
         <p className="text-xs text-muted">

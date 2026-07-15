@@ -58,7 +58,7 @@ export default async function AiHistoryPage() {
                           {r.assignment_title ?? "Assignment"}
                         </Link>
                       ) : (
-                        <span className="text-muted">—</span>
+                        <span className="text-muted">-</span>
                       )}
                     </td>
                     <td className="px-4 py-2 text-muted">{r.model}</td>

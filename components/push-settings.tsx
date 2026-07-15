@@ -77,12 +77,12 @@ export function PushSettings() {
         <BellRing size={15} className="text-brand" /> Daily heads-up
       </h2>
       <p className="text-sm text-muted">
-        At most one notification a day — and only when a test is coming or something is due. Works
+        At most one notification a day, and only when a test is coming or something is due. Works
         even when Diana is closed. No streaks, no nagging.
       </p>
       {state === "blocked" ? (
         <p className="text-xs text-muted">
-          Notifications are blocked for this site in your browser settings — allow them there first.
+          Notifications are blocked for this site in your browser settings: allow them there first.
         </p>
       ) : (
         <button

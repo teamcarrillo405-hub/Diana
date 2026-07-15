@@ -101,7 +101,7 @@ describe("FSRS-5 scheduler", () => {
     expect(c.reps).toBe(2);
   });
 
-  it("is deterministic — identical inputs produce identical outputs", () => {
+  it("is deterministic: identical inputs produce identical outputs", () => {
     const c1 = createCard(FIXED_NOW);
     const c2 = createCard(FIXED_NOW);
     const r1 = schedule(c1, Rating.Good, FIXED_NOW);

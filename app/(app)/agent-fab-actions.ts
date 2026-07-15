@@ -18,7 +18,7 @@ const ChatInput = z.object({
 function calmError(rawMessage: string | undefined): string {
   const m = rawMessage ?? "";
   if (m.includes("quota")) {
-    return "You've used your AI quota for today — resets at midnight.";
+    return "You've used your AI quota for today: resets at midnight.";
   }
   return "Diana's offline for a moment. Try again shortly.";
 }

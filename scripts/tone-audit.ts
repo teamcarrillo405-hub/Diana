@@ -5,6 +5,7 @@
  */
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
+import ts from "typescript";
 
 const ROOT = process.cwd();
 
@@ -43,6 +44,7 @@ const SKIP_PATH_PREFIXES = [
   "AGENTS.md",              // project config/instructions — not student-facing UI copy
   "CLAUDE.md",              // project config/instructions — not student-facing UI copy
   "PRODUCT.md",             // product analysis, not student-facing UI copy
+  "README.md",              // developer documentation, not student-facing UI copy
 ];
 
 // File-suffix skip patterns — test files may assert banned words are absent (meta-testing).
@@ -54,6 +56,7 @@ const SKIP_LINE_PATTERNS = [
   /^\s*\/\//,                           // single-line comment
   /^\s*\*[\s/]/,                        // JSDoc / block comment body or close
   /^\s*\/\*/,                           // block comment open
+  /^\s*\{\/\*/,                        // JSX comment line
   /console\.(error|warn|log|info|debug)\(/,  // developer log calls
   /^import\s+/,                         // import statements (component/identifier names)
   /^export\s+(function|class|const)\s/, // exported identifiers (component/function names)
@@ -112,6 +115,47 @@ async function scanFile(file: string): Promise<Violation[]> {
       }
     }
   }
+
+  if (file.endsWith(".ts") || file.endsWith(".tsx")) {
+    const source = ts.createSourceFile(
+      file,
+      text,
+      ts.ScriptTarget.Latest,
+      true,
+      file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+
+    const visit = (node: ts.Node) => {
+      const isRenderedText =
+        ts.isStringLiteralLike(node) ||
+        ts.isJsxText(node) ||
+        node.kind === ts.SyntaxKind.TemplateHead ||
+        node.kind === ts.SyntaxKind.TemplateMiddle ||
+        node.kind === ts.SyntaxKind.TemplateTail;
+
+      if (isRenderedText) {
+        const raw = text.slice(node.getStart(source), node.getEnd());
+        const match = raw.match(/—|\\u2014/);
+        if (match && match.index !== undefined) {
+          const position = node.getStart(source) + match.index;
+          const location = source.getLineAndCharacterOfPosition(position);
+          out.push({
+            file: rel,
+            line: location.line + 1,
+            col: location.character + 1,
+            text: match[0],
+            label: "em dash (use a period, comma, or colon)",
+            severity: "block",
+          });
+        }
+      }
+
+      ts.forEachChild(node, visit);
+    };
+
+    visit(source);
+  }
+
   return out;
 }
 

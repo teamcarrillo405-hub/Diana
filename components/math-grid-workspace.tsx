@@ -84,7 +84,7 @@ export function MathGridWorkspace() {
         <div>
           <h3 className="text-sm font-semibold">Grid paper</h3>
           <p className="text-xs text-muted">
-            One digit per box — the columns stay lined up for you. Your work, better paper.
+            One digit per box: the columns stay lined up for you. Your work, better paper.
           </p>
         </div>
       </div>

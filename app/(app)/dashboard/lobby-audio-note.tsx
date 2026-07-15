@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { saveInboxItem } from "../quick-add/actions";
+import { SlantedActionButton } from "@/components/ui/slanted-action-button";
 
 type SRInstance = {
   continuous: boolean;
@@ -100,7 +101,7 @@ export function LobbyAudioNote() {
       <style>{`
         /* Keyframe kept local so the recording pulse works wherever LobbyAudioNote
            renders (dashboard AND /assignments), not just inside the lobby hero. */
-        @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
+        @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 var(--gl-red-55)}65%{box-shadow:0 0 0 16px transparent}}
         .gl-record{transition:transform 140ms cubic-bezier(.23,1,.32,1),background .2s;}
         .gl-record:active{transform:scale(.97);}
       `}</style>
@@ -158,31 +159,31 @@ export function LobbyAudioNote() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "rgba(4,6,15,.88)",
+            background: "var(--gl-bg-settings-scrim)",
             backdropFilter: "blur(14px)",
           }}
         >
           <div
             style={{
-              background: "linear-gradient(180deg,rgba(18,24,50,.98),rgba(10,14,32,.98))",
-              border: "1px solid rgba(120,150,220,.22)",
-              borderRadius: 22,
-              padding: "36px 40px",
+              background: "var(--gl-bg-settings)",
+              border: "1px solid var(--gl-border-neutral)",
+              borderRadius: "var(--radius-panel)",
+              padding: "var(--space-16) var(--space-17)",
               width: "min(500px, calc(100vw - 48px))",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              gap: 22,
-              boxShadow: "0 32px 80px rgba(0,0,0,.6)",
+              gap: "var(--space-12)",
+              boxShadow: "var(--shadow-modal-audio)",
             }}
           >
             <div
               style={{
                 width: 84,
                 height: 84,
-                borderRadius: "50%",
-                background: "rgba(255,55,55,.14)",
-                border: "2px solid rgba(255,55,55,.55)",
+                borderRadius: "var(--radius-circle)",
+                background: "var(--gl-red-14)",
+                border: "2px solid var(--gl-red-55)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -194,7 +195,7 @@ export function LobbyAudioNote() {
                 height="34"
                 viewBox="0 0 24 24"
                 fill="none"
-                stroke="#ff4444"
+                stroke="var(--gl-red-icon)"
                 strokeWidth="2.2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -213,7 +214,7 @@ export function LobbyAudioNote() {
                 fontSize: 22,
                 letterSpacing: ".06em",
                 textTransform: "uppercase",
-                color: "#fff",
+                color: "var(--gl-text-primary)",
               }}
             >
               Listening…
@@ -223,14 +224,14 @@ export function LobbyAudioNote() {
               style={{
                 minHeight: 90,
                 width: "100%",
-                borderRadius: 12,
-                background: "rgba(120,150,220,.08)",
-                border: "1px solid rgba(120,150,220,.16)",
-                padding: "16px 20px",
-                fontSize: 15,
-                fontWeight: 500,
-                color: "#cdd6f2",
-                lineHeight: 1.6,
+                borderRadius: "var(--radius-hero)",
+                background: "var(--gl-bg-btn-neutral)",
+                border: "1px solid var(--gl-border-neutral)",
+                padding: "var(--space-9) var(--space-11)",
+                fontSize: "var(--text-15)",
+                fontWeight: "var(--weight-500)",
+                color: "var(--gl-text-secondary)",
+                lineHeight: "var(--leading-relaxed)",
                 textAlign: "center",
               }}
             >
@@ -238,54 +239,33 @@ export function LobbyAudioNote() {
             </div>
 
             {saveError && (
-              <div role="alert" style={{ width: "100%", fontFamily: SF, fontSize: 14, letterSpacing: ".03em", color: "#ffb4b4", textAlign: "center" }}>
+              <div role="alert" style={{ width: "100%", fontFamily: SF, fontSize: "var(--text-14)", letterSpacing: "var(--tracking-03)", color: "var(--gl-gold)", textAlign: "center" }}>
                 {saveError}
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 12 }}>
-              <button
+            <div style={{ display: "flex", gap: "var(--space-6)" }}>
+              <SlantedActionButton
                 onClick={stopAudio}
                 disabled={saving}
-                style={{
-                  transform: "skewX(-8deg)",
-                  padding: "12px 28px",
-                  borderRadius: 8,
-                  background: "linear-gradient(180deg,#36e07a,#16a34a)",
-                  cursor: saving ? "wait" : "pointer",
-                  opacity: saving ? 0.7 : 1,
-                  boxShadow: "0 8px 24px rgba(34,180,90,.35)",
-                  border: "none",
-                }}
+                aria-busy={saving}
               >
-                <div
-                  style={{
-                    transform: "skewX(8deg)",
-                    fontFamily: SF,
-                    fontWeight: 800,
-                    fontSize: 18,
-                    letterSpacing: ".05em",
-                    textTransform: "uppercase",
-                    color: "#06210f",
-                  }}
-                >
-                  {saving ? "Saving…" : "Save Note"}
-                </div>
-              </button>
+                {saving ? "Saving…" : "Save Note"}
+              </SlantedActionButton>
               <button
                 onClick={cancelAudio}
                 style={{
-                  padding: "12px 22px",
-                  borderRadius: 8,
-                  background: "rgba(120,150,220,.14)",
-                  border: "1px solid rgba(120,150,220,.22)",
+                  padding: "var(--space-8) var(--space-12)",
+                  borderRadius: "var(--radius-option)",
+                  background: "var(--gl-bg-btn-neutral)",
+                  border: "1px solid var(--gl-border-neutral)",
                   cursor: "pointer",
                   fontFamily: SF,
-                  fontWeight: 800,
-                  fontSize: 18,
-                  letterSpacing: ".05em",
+                  fontWeight: "var(--weight-800)",
+                  fontSize: "var(--text-18)",
+                  letterSpacing: "var(--tracking-04)",
                   textTransform: "uppercase",
-                  color: "#aab8e0",
+                  color: "var(--gl-text-muted)",
                 }}
               >
                 Cancel

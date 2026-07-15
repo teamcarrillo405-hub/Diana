@@ -106,7 +106,7 @@ export function recoveryMoves(records: GradeRecord[]): RecoveryMove[] {
       courseName: r.courseName,
       title: r.title,
       pointsAvailable: r.pointsPossible,
-      reason: `Still open — turning it in puts up to ${r.pointsPossible} pts back on the table.`,
+      reason: `Still open: turning it in puts up to ${r.pointsPossible} pts back on the table.`,
     }));
 
   const reviews: RecoveryMove[] = records
@@ -124,7 +124,7 @@ export function recoveryMoves(records: GradeRecord[]): RecoveryMove[] {
       courseName: r.courseName,
       title: r.title,
       pointsAvailable: r.pointsPossible! - r.score!,
-      reason: `Scored ${r.score}/${r.pointsPossible} — the feedback may show a quick win if a redo or correction is allowed.`,
+      reason: `Scored ${r.score}/${r.pointsPossible}: the feedback may show a quick win if a redo or correction is allowed.`,
     }));
 
   return [...turnIns, ...reviews].slice(0, MAX_RECOVERY_MOVES);

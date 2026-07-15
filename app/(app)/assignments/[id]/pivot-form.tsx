@@ -49,7 +49,7 @@ export function PivotForm({ assignmentId }: { assignmentId: string }) {
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="One sentence is plenty. (e.g. 'Stuck on outline — moving to history reading first.')"
+        placeholder="One sentence is plenty. (e.g. 'Stuck on outline: moving to history reading first.')"
         rows={3}
         maxLength={500}
         className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm"

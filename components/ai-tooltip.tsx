@@ -15,7 +15,7 @@ export const AI_FEATURE_DESCRIPTIONS: Record<string, string> = {
   history_scaffold: "Claude created history prompts while keeping source evidence student-led.",
   cs_scaffold: "Claude created coding prompts while keeping fixes student-led.",
   language_scaffold: "Claude created language-practice prompts without grading fluency.",
-  math_example: "Claude showed a worked example of a similar problem — not yours.",
+  math_example: "Claude showed a worked example of a similar problem, not yours.",
   math_scaffold: "Claude built a guided math step board without solving the problem.",
   visual_tool: "Claude organized note content into a visual study structure.",
   vocab_hover: "Claude defined one vocabulary word in context.",

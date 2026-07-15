@@ -46,7 +46,7 @@ export function buildDailyDigest(assignments: DigestAssignment[], now: Date): Pu
       title: `${test.title} is ${when}`,
       body:
         test.days === 0
-          ? "Light recall only today — your cards once through, then trust your prep."
+          ? "Light recall only today: your cards once through, then trust your prep."
           : "Your prep plan has one move for today. Ten minutes counts.",
     };
   }

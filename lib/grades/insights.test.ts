@@ -58,7 +58,7 @@ describe("recoveryMoves", () => {
     expect(moves[0].title).toBe("Worth a look");
   });
 
-  it("uses calm copy — no shame language in reasons", () => {
+  it("uses calm copy: no shame language in reasons", () => {
     const moves = recoveryMoves([
       record({ notTurnedIn: true, pointsPossible: 20, title: "Lab" }),
       graded(4, 10, "2026-06-01", { title: "Quiz" }),

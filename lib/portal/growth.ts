@@ -44,7 +44,7 @@ export function growthStory(inputs: GrowthInputs): GrowthStory {
   if (facts.length === 0) {
     return {
       headline: "Just getting started.",
-      facts: ["The first weeks are about setting up — finished work will show here as it happens."],
+      facts: ["The first weeks are about setting up: finished work will show here as it happens."],
     };
   }
 
@@ -59,7 +59,7 @@ function headlineFor(inputs: GrowthInputs): string {
 
   if (recent > earlier) return "Momentum is building.";
   if (recent === earlier) return "Steady, consistent work.";
-  return "A quieter stretch lately — rhythms vary, and the structure is holding.";
+  return "A quieter stretch lately: rhythms vary, and the structure is holding.";
 }
 
 function plural(n: number): string {
