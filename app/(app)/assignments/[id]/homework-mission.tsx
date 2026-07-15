@@ -8,7 +8,7 @@ import { SUBJECT_META, SUBJECT_FIELDS, type HmSubject } from "@/lib/homework-mis
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
 import type { MathScaffoldResult } from "@/lib/math/scaffold";
 import { saveHandInField, addProblem, saveProblemWork, saveProblemScaffold, submitFromWorkspace } from "./hm-actions";
-import { requestMathScaffold, requestTaskBreakdown, toggleStepDone, uploadMathPhoto } from "./ai-tools-actions";
+import { acceptTaskBreakdown, requestMathScaffold, requestTaskBreakdown, toggleStepDone, uploadMathPhoto } from "./ai-tools-actions";
 import styles from "../../quiet-command.module.css";
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
@@ -58,8 +58,10 @@ export function HomeworkMission(props: HomeworkMissionProps) {
   );
   const [stepsOn, setStepsOn] = useState(props.startWithSteps);
   const [steps, setSteps] = useState<BreakdownStep[]>(props.steps);
+  const [stepsAccepted, setStepsAccepted] = useState(props.steps.length > 0);
   const [stepIdx, setStepIdx] = useState(0);
   const [stepsLoading, setStepsLoading] = useState(false);
+  const [stepsError, setStepsError] = useState<string | null>(null);
 
   const [savedWork, setSavedWork] = useState<Record<string, string>>(props.savedWork);
   const [saveState, setSaveState] = useState<"saved" | "saving" | "unsaved">("saved");
@@ -194,6 +196,7 @@ export function HomeworkMission(props: HomeworkMissionProps) {
 
   async function generateSteps() {
     setStepsLoading(true);
+    setStepsError(null);
     const res = await requestTaskBreakdown({
       assignmentId,
       aiMode: classAiMode,
@@ -212,14 +215,24 @@ export function HomeworkMission(props: HomeworkMissionProps) {
       estimatedMinutes: undefined,
     });
     setStepsLoading(false);
-    if (!("error" in res)) {
-      setSteps(res.steps);
-      setStepIdx(0);
-    }
+    if ("error" in res) return setStepsError(res.error);
+    setSteps(res.steps);
+    setStepsAccepted(false);
+    setStepIdx(0);
+  }
+
+  async function acceptGeneratedSteps() {
+    setStepsLoading(true);
+    setStepsError(null);
+    const result = await acceptTaskBreakdown({ assignmentId, steps });
+    setStepsLoading(false);
+    if ("error" in result) return setStepsError(result.error);
+    setStepsAccepted(true);
   }
 
   function tapStepPill(i: number) {
     if (i === stepIdx) {
+      if (!stepsAccepted) return;
       const updated = steps.map((s, idx) => (idx === i ? { ...s, done: !s.done } : s));
       setSteps(updated);
       void toggleStepDone({ assignmentId, stepIndex: i, done: updated[i].done });
@@ -353,26 +366,34 @@ export function HomeworkMission(props: HomeworkMissionProps) {
                 </div>
 
                 {steps.length > 0 ? (
-                  <div className={styles.stepRow} aria-label="Assignment steps">
-                    {steps.map((step, index) => (
-                      <button
-                        key={`${step.action}-${index}`}
-                        type="button"
-                        className={`${styles.stepChip} ${index === stepIdx ? styles.stepChipActive : ""}`}
-                        onClick={() => tapStepPill(index)}
-                        aria-current={index === stepIdx ? "step" : undefined}
-                      >
-                        <span>{step.done ? <Check size={13} aria-hidden="true" /> : index + 1}</span>
-                        <span>{step.action}</span>
+                  <>
+                    <div className={styles.stepRow} aria-label="Assignment steps">
+                      {steps.map((step, index) => (
+                        <button
+                          key={`${step.action}-${index}`}
+                          type="button"
+                          className={`${styles.stepChip} ${index === stepIdx ? styles.stepChipActive : ""}`}
+                          onClick={() => tapStepPill(index)}
+                          aria-current={index === stepIdx ? "step" : undefined}
+                        >
+                          <span>{step.done ? <Check size={13} aria-hidden="true" /> : index + 1}</span>
+                          <span>{step.action}</span>
+                        </button>
+                      ))}
+                    </div>
+                    {!stepsAccepted ? (
+                      <button type="button" className={styles.utilityButton} onClick={acceptGeneratedSteps} disabled={stepsLoading}>
+                        {stepsLoading ? "Saving steps…" : "Use these steps"}
                       </button>
-                    ))}
-                  </div>
+                    ) : null}
+                  </>
                 ) : (
                   <button type="button" className={styles.utilityButton} onClick={generateSteps} disabled={!aiAvailable || stepsLoading}>
                     <Sparkles size={15} aria-hidden="true" />
                     {stepsLoading ? "Building steps…" : "Show me smaller steps"}
                   </button>
                 )}
+                {stepsError ? <p className={styles.helperNote}>{stepsError}</p> : null}
 
                 {subject === "math" && currentProblem && !currentProblem.scaffold ? (
                   <button type="button" className={styles.utilityButton} onClick={buildScaffoldForCurrent} disabled={!aiAvailable || scaffoldLoading}>
@@ -610,6 +631,14 @@ export function HomeworkMission(props: HomeworkMissionProps) {
                   <span style={{ fontSize: 13.5, color: "#cdd6f2" }}>{steps[stepIdx].action}</span>
                 </div>
               )}
+              {!stepsAccepted && steps.length > 0 ? (
+                <div style={{ margin: "0 4px 16px" }}>
+                  <button type="button" onClick={acceptGeneratedSteps} disabled={stepsLoading} style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", padding: "8px 15px", borderRadius: 16, border: "1px solid rgba(41,208,255,.3)", background: "rgba(41,208,255,.08)", fontSize: 12.5, fontWeight: 700, color: "#29d0ff" }}>
+                    {stepsLoading ? "Saving steps…" : "Use these steps"}
+                  </button>
+                  {stepsError ? <span style={{ marginLeft: 10, fontSize: 12.5, color: "#fbbf24" }}>{stepsError}</span> : null}
+                </div>
+              ) : null}
               {steps.length === 0 && (
                 <div style={{ marginBottom: 16 }}>
                   <button type="button" onClick={generateSteps} disabled={stepsLoading || !aiAvailable} style={{ display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer", padding: "7px 14px", borderRadius: 16, border: "1px solid rgba(120,150,220,.18)", background: "transparent", fontSize: 12.5, fontWeight: 600, color: "#aab8e0" }}>

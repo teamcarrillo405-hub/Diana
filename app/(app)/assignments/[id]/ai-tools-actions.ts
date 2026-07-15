@@ -33,6 +33,7 @@ import {
 import { parseMathScaffoldResponse, type MathScaffoldResult, type MathSubject } from "@/lib/math/scaffold";
 import { parseScienceScaffoldResponse, type ScienceScaffoldMode, type ScienceScaffoldResult } from "@/lib/science/scaffold";
 import { parseWritingCoauthorResponse, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
+import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import { createClient } from "@/lib/supabase/server";
 
 const HistoryItem = z.object({
@@ -689,6 +690,22 @@ const TaskBreakdownInput = z.object({
   estimatedMinutes: z.number().int().min(1).max(600).optional(),
 });
 
+const AcceptedBreakdownInput = z.object({
+  assignmentId: z.string().uuid(),
+  steps: z.array(z.object({
+    step: z.number().int().min(1).max(12),
+    action: z.string().trim().min(1).max(500),
+    minutes: z.number().int().min(1).max(5),
+    done: z.boolean(),
+  })).min(1).max(12),
+});
+
+function assignmentClassAiMode(classes: { ai_mode?: string | null } | null): AiMode {
+  return classes?.ai_mode === "red" || classes?.ai_mode === "yellow"
+    ? classes.ai_mode
+    : "green";
+}
+
 export async function requestTaskBreakdown(
   input: z.infer<typeof TaskBreakdownInput>,
 ): Promise<{ steps: BreakdownStep[] } | { error: string }> {
@@ -698,29 +715,76 @@ export async function requestTaskBreakdown(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("id, ai_mode_override, classes(ai_mode)")
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return { error: "Assignment not found." };
+
+  const override: AiMode | null =
+    assignment.ai_mode_override === "red" ||
+    assignment.ai_mode_override === "yellow" ||
+    assignment.ai_mode_override === "green"
+      ? assignment.ai_mode_override
+      : null;
+  const aiMode = effectiveAiMode(assignmentClassAiMode(assignment.classes), override);
+  if (aiMode !== "green") {
+    return { error: "AI steps are not available for this assignment." };
+  }
+
   const { data, error } = await supabase.functions.invoke("task-breakdown", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
 
   const content = (data as { content: string }).content ?? "";
   const steps = parseStepsFromContent(content);
+  return { steps };
+}
 
-  // Persist via upsert on assignment_id (unique index ensures one row per assignment)
-  await supabase
+export async function acceptTaskBreakdown(
+  input: z.infer<typeof AcceptedBreakdownInput>,
+): Promise<{ ok: true } | { error: string }> {
+  const parsed = AcceptedBreakdownInput.safeParse(input);
+  if (!parsed.success) return { error: "Choose at least one valid step." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { error: "Not signed in." };
+
+  const supabase = await createClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("id")
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return { error: "Assignment not found." };
+
+  const now = new Date().toISOString();
+  const { error } = await supabase
     .from("assignment_steps")
     .upsert(
       {
         owner_id: ownerId,
         assignment_id: parsed.data.assignmentId,
-        steps,
-        generated_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        steps: parsed.data.steps,
+        generated_at: now,
+        updated_at: now,
       },
       { onConflict: "assignment_id" },
     );
+  if (error) return { error: "The steps could not be saved. Try again." };
 
-  return { steps };
+  await supabase.from("authorship_log").insert({
+    owner_id: ownerId,
+    assignment_id: parsed.data.assignmentId,
+    actor: "student",
+    event_type: "task_breakdown_accepted",
+    payload: { stepCount: parsed.data.steps.length },
+  });
+
+  return { ok: true };
 }
 
 const ToggleStepInput = z.object({
@@ -847,6 +911,7 @@ export async function toggleStepDone(
     .from("assignment_steps")
     .select("steps")
     .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
     .single();
   if (!row) return { error: "No breakdown to update." };
 

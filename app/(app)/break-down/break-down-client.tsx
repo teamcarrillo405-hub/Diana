@@ -1,199 +1,195 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CheckCircle2, ClipboardList, Loader2, TimerReset } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { Check, Loader2, Plus, Sparkles, X } from "lucide-react";
+import { DianaMascotMark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
+import {
+  acceptTaskBreakdown,
+  requestTaskBreakdown,
+  toggleStepDone,
+} from "../assignments/[id]/ai-tools-actions";
 
-type Step = {
-  id: string;
-  action: string;
-  minutes: number;
+type BreakDownClientProps = {
+  assignmentId: string;
+  title: string;
+  description: string;
+  kind: string;
+  estimatedMinutes?: number;
+  aiMode: "red" | "yellow" | "green";
+  initialSteps: BreakdownStep[];
+  returnTo: string;
 };
 
-const EXAMPLE_TEXT =
-  "Biology lab report: explain the hypothesis, summarize the data table, and write the conclusion using the rubric.";
-
-function buildLocalSteps(value: string): Step[] {
-  const text = value.trim();
-  if (!text) return [{ id: "read", action: "Paste or type the assignment prompt.", minutes: 2 }];
-
-  const lower = text.toLowerCase();
-  const steps: Step[] = [
-    { id: "source", action: "Circle the deliverable: what has to be turned in?", minutes: 3 },
-  ];
-
-  if (lower.includes("rubric")) {
-    steps.push({ id: "rubric", action: "Pull out the first rubric requirement and rewrite it in your words.", minutes: 5 });
-  }
-  if (lower.includes("essay") || lower.includes("paragraph") || lower.includes("claim")) {
-    steps.push({ id: "claim", action: "Write one rough claim sentence using your own words.", minutes: 5 });
-    steps.push({ id: "evidence", action: "Pick one piece of evidence that could support that claim.", minutes: 5 });
-  }
-  if (lower.includes("math") || lower.includes("equation") || lower.includes("problem")) {
-    steps.push({ id: "known", action: "Write what is given and what you need to find.", minutes: 4 });
-    steps.push({ id: "operation", action: "Choose the operation or formula that seems closest.", minutes: 4 });
-  }
-  if (lower.includes("lab") || lower.includes("hypothesis") || lower.includes("data")) {
-    steps.push({ id: "hypothesis", action: "Write the hypothesis and point to the data row that matters first.", minutes: 5 });
-    steps.push({ id: "pattern", action: "Describe the pattern in the data without explaining it yet.", minutes: 5 });
-  }
-  if (lower.includes("read") || lower.includes("chapter") || lower.includes("source")) {
-    steps.push({ id: "paragraph", action: "Mark the paragraph or source section that seems most important.", minutes: 4 });
-    steps.push({ id: "gist", action: "Write one sentence saying what that section is mostly about.", minutes: 5 });
-  }
-
-  steps.push(
-    { id: "draft", action: "Create the first rough artifact: sentence, setup, outline, or marked source.", minutes: 5 },
-    { id: "check", action: "Compare that first artifact to the prompt before doing the next part.", minutes: 3 },
-  );
-
-  return dedupe(steps).slice(0, 8);
-}
-
-function dedupe(steps: Step[]) {
-  const seen = new Set<string>();
-  return steps.filter((step) => {
-    if (seen.has(step.id)) return false;
-    seen.add(step.id);
-    return true;
-  });
-}
-
-function adaptAiSteps(aiSteps: BreakdownStep[]): Step[] {
-  return aiSteps.map((s) => ({ id: String(s.step), action: s.action, minutes: s.minutes }));
-}
-
-export function BreakDownClient() {
-  const [raw, setRaw] = useState(EXAMPLE_TEXT);
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
-  const [aiSteps, setAiSteps] = useState<Step[] | null>(null);
-  const [loading, setLoading] = useState(false);
+export function BreakDownClient({
+  assignmentId,
+  title,
+  description,
+  kind,
+  estimatedMinutes,
+  aiMode,
+  initialSteps,
+  returnTo,
+}: BreakDownClientProps) {
+  const router = useRouter();
+  const [steps, setSteps] = useState(initialSteps);
+  const [accepted, setAccepted] = useState(initialSteps.length > 0);
   const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
 
-  const localSteps = useMemo(() => buildLocalSteps(raw), [raw]);
-  const steps = aiSteps ?? localSteps;
-  const doneCount = steps.filter((step) => checked[step.id]).length;
-  const nextStep = steps.find((step) => !checked[step.id]) ?? steps[0];
-
-  function handleRawChange(value: string) {
-    setRaw(value);
-    setAiSteps(null);
+  function generateSteps() {
     setError(null);
-    setChecked({});
+    startTransition(async () => {
+      const result = await requestTaskBreakdown({
+        assignmentId,
+        aiMode,
+        title,
+        description,
+        kind,
+        estimatedMinutes,
+      });
+      if ("error" in result) {
+        setError(result.error);
+        return;
+      }
+      setSteps(result.steps);
+      setAccepted(false);
+    });
   }
 
-  async function handleBreakDown() {
-    if (!raw.trim() || raw.trim().length < 2) return;
-    setLoading(true);
+  function acceptSteps() {
     setError(null);
-
-    try {
-      const res = await fetch("/api/diana/break-down", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ assignment: raw }),
-      });
-      const data = (await res.json()) as {
-        ok: boolean;
-        steps?: BreakdownStep[];
-        error?: string;
-      };
-      if (!data.ok || !data.steps || data.steps.length === 0) {
-        setError(data.error ?? "Diana could not break that down right now.");
-      } else {
-        setAiSteps(adaptAiSteps(data.steps));
-        setChecked({});
+    startTransition(async () => {
+      const result = await acceptTaskBreakdown({ assignmentId, steps });
+      if ("error" in result) {
+        setError(result.error);
+        return;
       }
-    } catch {
-      setError("Could not reach Diana. Check your connection and try again.");
-    } finally {
-      setLoading(false);
-    }
+      setAccepted(true);
+      router.push(returnTo);
+      router.refresh();
+    });
+  }
+
+  function toggleStep(index: number) {
+    if (!accepted) return;
+    const next = !steps[index].done;
+    setSteps((current) =>
+      current.map((step, stepIndex) =>
+        stepIndex === index ? { ...step, done: next } : step,
+      ),
+    );
+    startTransition(async () => {
+      const result = await toggleStepDone({ assignmentId, stepIndex: index, done: next });
+      if ("error" in result) {
+        setSteps((current) =>
+          current.map((step, stepIndex) =>
+            stepIndex === index ? { ...step, done: !next } : step,
+          ),
+        );
+        setError(result.error);
+      }
+    });
   }
 
   return (
-    <div className="space-y-5">
-      <section className="grid gap-4 xl:grid-cols-[0.92fr_1.08fr]">
-        <div className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm sm:p-5">
-          <div className="flex items-center gap-2">
-            <span className="flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-              <ClipboardList size={18} />
-            </span>
-            <div>
-              <h2 className="text-base font-semibold">Paste the assignment</h2>
-              <p className="text-sm text-muted">Diana turns it into visible five-minute moves.</p>
-            </div>
+    <ScreenDesignViewport className="sd-breakdown-screen">
+      <header className="sd-breakdown-header">
+        <div>
+          <h1>TASK BREAKDOWN</h1>
+          <p>ACTION STEPS</p>
+        </div>
+        <Link href={returnTo} aria-label="Close task breakdown" className="sd-source-icon-button">
+          <X size={20} aria-hidden="true" />
+        </Link>
+      </header>
+
+      <main className="sd-breakdown-scroll">
+        <section className="sd-breakdown-coach">
+          <span className="sd-breakdown-mascot">
+            <DianaMascotMark decorative />
+          </span>
+          <div className="sd-breakdown-bubble">
+            <strong>COACH DIANA</strong>
+            <p>
+              {steps.length > 0
+                ? `Here are ${steps.length} manageable moves for ${title}. Take one at a time.`
+                : `I can turn ${title} into a short set of manageable moves.`}
+            </p>
           </div>
-          <textarea
-            value={raw}
-            onChange={(event) => handleRawChange(event.target.value)}
-            rows={5}
-            className="mt-4 w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
-            placeholder="Paste the prompt, rubric, or what you remember."
-          />
-          {error ? (
-            <p className="mt-2 text-xs text-muted">{error}</p>
-          ) : null}
+        </section>
+
+        {steps.length > 0 ? (
+          <ol className="sd-breakdown-list" aria-label="Assignment action steps">
+            {steps.map((step, index) => (
+              <li key={`${step.step}-${step.action}`}>
+                <button
+                  type="button"
+                  className="sd-breakdown-step"
+                  data-checked={step.done}
+                  onClick={() => toggleStep(index)}
+                  disabled={pending || !accepted}
+                  aria-label={`${step.done ? "Unmark" : "Mark"} step ${index + 1}: ${step.action}`}
+                >
+                  <span className="sd-breakdown-check" aria-hidden="true">
+                    {step.done ? <Check size={18} strokeWidth={3} /> : null}
+                  </span>
+                  <span>
+                    <strong>STEP {String(index + 1).padStart(2, "0")}</strong>
+                    <small>{step.action}</small>
+                  </span>
+                  <em>{step.minutes}M</em>
+                </button>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <section className="sd-breakdown-empty">
+            <Sparkles size={28} aria-hidden="true" />
+            <h2>Ready when you are.</h2>
+            <p>
+              {aiMode === "green"
+                ? "Diana will use the assignment prompt to make the first moves visible."
+                : "AI steps are not available for this assignment. Your assignment is still ready to work on."}
+            </p>
+          </section>
+        )}
+
+        {error ? <p className="sd-source-calm-error" role="status">{error}</p> : null}
+      </main>
+
+      <button type="button" className="sd-source-fab" aria-label="Add a quick task" disabled>
+        <Plus size={30} aria-hidden="true" />
+      </button>
+
+      <footer className="sd-breakdown-footer">
+        {steps.length > 0 ? (
           <button
             type="button"
-            onClick={handleBreakDown}
-            disabled={loading || raw.trim().length < 2}
-            className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            className="sd-breakdown-primary"
+            onClick={acceptSteps}
+            disabled={pending}
+            aria-label="Accept task breakdown"
           >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : null}
-            {loading ? "Breaking it down…" : "Break this down"}
+            {pending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : null}
+            {pending ? "SAVING STEPS" : "BEGIN STEPS"}
           </button>
-        </div>
-
-        <div className="diana-panel diana-panel-dense flex min-h-full flex-col justify-between gap-6">
-          <div className="space-y-3">
-            <p className="diana-kicker">Next move</p>
-            <h2 className="max-w-2xl text-3xl font-semibold leading-tight">
-              {nextStep?.action ?? "Add a prompt to start."}
-            </h2>
-            <p className="text-sm text-muted">One academic action first. More choices stay below.</p>
-          </div>
-          <div className="flex flex-wrap gap-2 text-xs text-muted">
-            <span className="diana-chip rounded-full border px-3 py-1">{doneCount} of {steps.length} marked</span>
-            <span className="diana-chip rounded-full border px-3 py-1">{nextStep?.minutes ?? 2} min</span>
-            {aiSteps ? (
-              <span className="diana-chip rounded-full border border-brand/30 px-3 py-1 text-brand">Diana plan</span>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-semibold">Your mini-plan</h2>
-          <span className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
-            {doneCount} of {steps.length} marked
-          </span>
-        </div>
-        <ol className="mt-4 grid gap-2 md:grid-cols-2">
-          {steps.map((step, index) => (
-            <li key={step.id} className="flex min-h-24 gap-3 rounded-2xl border border-border bg-surface p-3">
-              <button
-                type="button"
-                aria-label={`Mark step ${index + 1}`}
-                onClick={() => setChecked((current) => ({ ...current, [step.id]: !current[step.id] }))}
-                className={`mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-full border ${
-                  checked[step.id] ? "border-brand bg-brand text-white" : "border-border text-muted"
-                }`}
-              >
-                <CheckCircle2 size={15} />
-              </button>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium">{step.action}</p>
-                <p className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
-                  <TimerReset size={13} />
-                  {step.minutes} min
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </section>
-    </div>
+        ) : (
+          <button
+            type="button"
+            className="sd-breakdown-primary"
+            onClick={generateSteps}
+            disabled={pending || aiMode !== "green"}
+            aria-label="Generate task breakdown"
+          >
+            {pending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <Sparkles size={18} aria-hidden="true" />}
+            {pending ? "BUILDING STEPS" : "BUILD MY STEPS"}
+          </button>
+        )}
+      </footer>
+    </ScreenDesignViewport>
   );
 }

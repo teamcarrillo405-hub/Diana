@@ -220,6 +220,7 @@ const profile = (
 
 const academicCore = (
   aiMode: "green" | "yellow" | "red" = "green",
+  assignmentValues: Readonly<Record<string, unknown>> = {},
 ): readonly ScreenDesignFixtureRecordFactory[] => [
   profile(),
   record("class", "class-main", {
@@ -235,17 +236,21 @@ const academicCore = (
       status: "todo",
       dueAt: "2026-09-15T22:30:00.000Z",
       estimatedMinutes: 35,
+      ...assignmentValues,
     },
     ["class-main"],
   ),
 ];
 
-const assignmentSupport = (): readonly ScreenDesignFixtureRecordFactory[] => [
-  ...academicCore(),
+const assignmentSupport = (
+  assignmentValues: Readonly<Record<string, unknown>> = {},
+  checklistValues: Readonly<Record<string, unknown>> = {},
+): readonly ScreenDesignFixtureRecordFactory[] => [
+  ...academicCore("green", assignmentValues),
   record(
     "assignment-checklist",
     "checklist-main",
-    { checked: false, label: "Quote and page number are attached" },
+    { checked: false, label: "Quote and page number are attached", ...checklistValues },
     ["assignment-main"],
   ),
   record(
@@ -702,7 +707,7 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     heading: "Review before submitting",
     params: { id: "assignment-main" },
     records: [
-      ...assignmentSupport(),
+      ...assignmentSupport({ status: "exporting" }, { checked: true }),
       record(
         "authorship-log",
         "authorship-main",

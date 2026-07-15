@@ -31,12 +31,16 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
   const patch: { status: typeof to; submitted_at?: string } = { status: to };
   if (to === "submitted") patch.submitted_at = new Date().toISOString();
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("assignments")
     .update(patch)
     .eq("id", id)
-    .eq("status", from);
+    .eq("owner_id", user.id)
+    .eq("status", from)
+    .select("id")
+    .maybeSingle();
   if (error) return { error: error.message };
+  if (!updated) return { error: "Assignment state changed. Refresh and try again." };
 
   if (to === "drafting" || to === "submitted") {
     await supabase.from("task_signals").insert({
@@ -69,6 +73,7 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
           .from("assignment_time_log")
           .select("started_at")
           .eq("assignment_id", id)
+          .eq("owner_id", user.id)
           .is("ended_at", null)
           .order("started_at", { ascending: false })
           .limit(1)
@@ -77,6 +82,7 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
           .from("assignments")
           .select("kind")
           .eq("id", id)
+          .eq("owner_id", user.id)
           .single(),
       ]);
       if (logRow?.started_at && assignment?.kind) {
@@ -94,12 +100,13 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
     const { count } = await supabase
       .from("submission_checklist")
       .select("*", { count: "exact", head: true })
-      .eq("assignment_id", id);
+      .eq("assignment_id", id)
+      .eq("owner_id", user.id);
 
     if (!count) {
       // Look up assignment kind + user's diagnoses to assemble the checklist.
       const [{ data: a }, { data: p }] = await Promise.all([
-        supabase.from("assignments").select("kind").eq("id", id).single(),
+        supabase.from("assignments").select("kind").eq("id", id).eq("owner_id", user.id).single(),
         supabase.from("profiles").select("diagnoses").eq("user_id", user.id).single(),
       ]);
       const kind = (a?.kind ?? "other") as AssignmentKind;
@@ -134,10 +141,13 @@ export async function toggleChecklistItem(input: z.infer<typeof Toggle>) {
   if (!parsed.success) return { error: "Invalid input." };
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
   const { error } = await supabase
     .from("submission_checklist")
     .update({ checked: parsed.data.checked })
-    .eq("id", parsed.data.itemId);
+    .eq("id", parsed.data.itemId)
+    .eq("owner_id", user.id);
   if (error) return { error: error.message };
   return { ok: true };
 }
@@ -148,10 +158,13 @@ export async function setSubmissionUrl(input: z.infer<typeof Url>) {
   if (!parsed.success) return { error: "Invalid input." };
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
   const { error } = await supabase
     .from("assignments")
     .update({ submission_url: parsed.data.url })
-    .eq("id", parsed.data.id);
+    .eq("id", parsed.data.id)
+    .eq("owner_id", user.id);
   if (error) return { error: error.message };
   revalidatePath(`/assignments/${parsed.data.id}/submit`);
   return { ok: true };
@@ -223,6 +236,7 @@ export async function addChecklistItem(input: z.infer<typeof AddItem>) {
     .from("submission_checklist")
     .select("position")
     .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", user.id)
     .order("position", { ascending: false })
     .limit(1);
   const nextPosition = (existing?.[0]?.position ?? -1) + 1;
@@ -252,16 +266,20 @@ export async function deleteChecklistItem(input: z.infer<typeof DeleteItem>) {
   if (!parsed.success) return { error: "Invalid input." };
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
   const { data: row } = await supabase
     .from("submission_checklist")
     .select("assignment_id")
     .eq("id", parsed.data.itemId)
+    .eq("owner_id", user.id)
     .single();
 
   const { error } = await supabase
     .from("submission_checklist")
     .delete()
-    .eq("id", parsed.data.itemId);
+    .eq("id", parsed.data.itemId)
+    .eq("owner_id", user.id);
   if (error) return { error: error.message };
 
   if (row?.assignment_id) {

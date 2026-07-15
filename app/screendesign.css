@@ -1852,3 +1852,665 @@ body.diana-app {
   color: #fde68a;
   font-size: 0.75rem;
 }
+
+/* Phase 36: source-faithful task breakdown and submit checkpoint. */
+.sd-breakdown-screen,
+.sd-submit-screen {
+  display: flex;
+  height: max(100dvh, 852px);
+  min-height: 852px;
+  max-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.sd-source-icon-button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+  color: #f8fafc;
+  text-decoration: none;
+}
+
+.sd-source-fab {
+  position: absolute;
+  z-index: 45;
+  right: 1.5rem;
+  bottom: 7.8rem;
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border: 0;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #74c0ff, #ff79da);
+  box-shadow: 0 10px 30px rgb(45 212 191 / 0.3);
+  color: #0f172a;
+}
+
+.sd-source-calm-error {
+  margin: 0.75rem 0 0;
+  border: 1px solid rgb(251 191 36 / 0.45);
+  border-radius: 0.75rem;
+  background: rgb(251 191 36 / 0.12);
+  padding: 0.65rem 0.75rem;
+  color: #fde68a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.sd-breakdown-header,
+.sd-submit-header {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  min-height: 7rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.05);
+  background: rgb(15 23 42 / 0.88);
+  padding: 3rem 1.5rem 1rem;
+  backdrop-filter: blur(12px);
+}
+
+.sd-breakdown-header h1,
+.sd-submit-header h1 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.035em;
+}
+
+.sd-breakdown-header h1 {
+  font-size: 1.5rem;
+}
+
+.sd-breakdown-header p {
+  margin: 0.1rem 0 0;
+  color: #94a3b8;
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+}
+
+.sd-breakdown-scroll,
+.sd-submit-scroll {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.sd-breakdown-scroll::-webkit-scrollbar,
+.sd-submit-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.sd-breakdown-scroll {
+  padding: 2rem 1.5rem 8.5rem;
+}
+
+.sd-breakdown-coach,
+.sd-submit-coach {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.sd-breakdown-coach {
+  margin-bottom: 2rem;
+}
+
+.sd-breakdown-mascot {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  flex: 0 0 auto;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 0.2rem;
+}
+
+.sd-breakdown-mascot .sd-source-mascot {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.sd-breakdown-bubble {
+  min-width: 0;
+  flex: 1;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-left: 4px solid #74c0ff;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.08);
+  padding: 0.9rem 1rem;
+}
+
+.sd-breakdown-bubble strong {
+  color: #74c0ff;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+.sd-breakdown-bubble p {
+  margin: 0.3rem 0 0;
+  font-size: 0.73rem;
+  font-style: italic;
+  font-weight: 750;
+  line-height: 1.35;
+  text-transform: uppercase;
+}
+
+.sd-breakdown-list,
+.sd-breakdown-list li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sd-breakdown-list {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.sd-breakdown-step {
+  display: grid;
+  width: 100%;
+  min-height: 4.5rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 0.9rem 1rem;
+  color: #f8fafc;
+  text-align: left;
+}
+
+.sd-breakdown-step[data-checked="true"] {
+  border-left: 4px solid #74c0ff;
+  box-shadow: 0 0 15px rgb(116 192 255 / 0.1);
+}
+
+.sd-breakdown-step:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.sd-breakdown-check {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border: 2px solid rgb(255 255 255 / 0.2);
+  border-radius: 0.3rem;
+  color: #0f172a;
+}
+
+.sd-breakdown-step[data-checked="true"] .sd-breakdown-check {
+  border-color: #74c0ff;
+  background: #74c0ff;
+}
+
+.sd-breakdown-step > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.sd-breakdown-step strong,
+.sd-breakdown-step small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.sd-breakdown-step strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.7rem;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.sd-breakdown-step small {
+  color: #94a3b8;
+  font-size: 0.58rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.sd-breakdown-step em {
+  color: #74c0ff;
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.sd-breakdown-empty {
+  display: grid;
+  min-height: 14rem;
+  place-items: center;
+  align-content: center;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 2rem;
+  color: #74c0ff;
+  text-align: center;
+}
+
+.sd-breakdown-empty h2 {
+  margin: 0.75rem 0 0;
+  color: #f8fafc;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1rem;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.sd-breakdown-empty p {
+  margin: 0.5rem 0 0;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  line-height: 1.55;
+}
+
+.sd-breakdown-footer,
+.sd-submit-footer {
+  position: absolute;
+  z-index: 40;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1.5rem 1.5rem 2.25rem;
+  background: linear-gradient(to top, #0f172a 70%, rgb(15 23 42 / 0));
+}
+
+.sd-breakdown-primary,
+.sd-submit-footer button {
+  display: flex;
+  width: 100%;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  border: 0;
+  border-radius: 1rem;
+  background: #74c0ff;
+  box-shadow: 0 0 30px rgb(116 192 255 / 0.24);
+  color: #0f172a;
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.sd-breakdown-primary:disabled,
+.sd-submit-footer button:disabled {
+  box-shadow: none;
+  opacity: 0.55;
+}
+
+.sd-submit-header {
+  min-height: 6.9rem;
+}
+
+.sd-submit-header h1 {
+  overflow: hidden;
+  font-size: 0.82rem;
+  letter-spacing: -0.01em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-submit-scroll {
+  padding: 1.5rem 1.5rem 8.6rem;
+}
+
+.sd-submit-scan {
+  display: grid;
+  justify-items: center;
+  gap: 0.9rem;
+  text-align: center;
+}
+
+.sd-submit-document {
+  position: relative;
+  display: grid;
+  width: 8rem;
+  height: 9.4rem;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid rgb(116 192 255 / 0.3);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  color: rgb(116 192 255 / 0.42);
+}
+
+.sd-submit-document small {
+  position: absolute;
+  right: 0.8rem;
+  bottom: 0.8rem;
+  left: 0.8rem;
+  border-radius: 999px;
+  background: rgb(116 192 255 / 0.18);
+  padding: 0.3rem;
+  color: #bae6fd;
+  font-size: 0.52rem;
+  font-weight: 900;
+}
+
+.sd-submit-scan-line {
+  position: absolute;
+  z-index: 2;
+  top: 52%;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ff79da, transparent);
+}
+
+.sd-submit-scan h2 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.sd-submit-scan p {
+  max-width: 20rem;
+  overflow: hidden;
+  margin: 0.25rem 0 0;
+  color: #94a3b8;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sd-submit-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1.25rem;
+}
+
+.sd-submit-stats > div {
+  display: grid;
+  gap: 0.15rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-bottom: 2px solid #74c0ff;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 0.85rem 1rem;
+}
+
+.sd-submit-stats > div:nth-child(2) {
+  border-bottom-color: #ff79da;
+}
+
+.sd-submit-stats span,
+.sd-submit-stats small {
+  color: #64748b;
+  font-size: 0.5rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.sd-submit-stats strong {
+  color: #74c0ff;
+  font-family: var(--font-display), sans-serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  line-height: 1.1;
+}
+
+.sd-submit-stats > div:nth-child(2) strong {
+  color: #ff79da;
+}
+
+.sd-submit-checklist-shell {
+  display: contents;
+}
+
+.sd-submit-checklist {
+  margin-top: 1.25rem;
+}
+
+.sd-submit-checklist-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.sd-submit-checklist-heading h2,
+.sd-submit-checklist-heading span {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.62rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+}
+
+.sd-submit-checklist-heading span {
+  color: #74c0ff;
+}
+
+.sd-submit-checklist ul,
+.sd-submit-checklist li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sd-submit-checklist ul {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.sd-submit-checklist li {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.85rem;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.sd-submit-checklist li > button:first-child {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  grid-template-columns: 1.4rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  border: 0;
+  background: transparent;
+  padding: 0.75rem;
+  color: #f8fafc;
+  text-align: left;
+}
+
+.sd-submit-checklist li > button:last-child {
+  display: grid;
+  width: 2.6rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid rgb(255 255 255 / 0.08);
+  background: transparent;
+  color: #64748b;
+}
+
+.sd-submit-checkbox {
+  display: grid;
+  width: 1.4rem;
+  height: 1.4rem;
+  place-items: center;
+  border: 2px solid rgb(255 255 255 / 0.2);
+  border-radius: 0.3rem;
+  color: #0f172a;
+}
+
+.sd-submit-checkbox[data-checked="true"] {
+  border-color: #74c0ff;
+  background: #74c0ff;
+}
+
+.sd-submit-checklist li > button:first-child > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.sd-submit-checklist strong,
+.sd-submit-checklist small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sd-submit-checklist strong {
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.sd-submit-checklist small {
+  color: #94a3b8;
+  font-size: 0.56rem;
+}
+
+.sd-submit-checklist em {
+  color: #74c0ff;
+  font-size: 0.48rem;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.sd-submit-empty {
+  margin: 0;
+  border: 1px dashed rgb(255 255 255 / 0.16);
+  border-radius: 0.85rem;
+  padding: 0.85rem;
+  color: #94a3b8;
+  font-size: 0.68rem;
+}
+
+.sd-submit-options,
+.sd-submit-sync {
+  margin-top: 0.65rem;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.03);
+  padding: 0.7rem;
+}
+
+.sd-submit-options summary,
+.sd-submit-sync summary {
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sd-submit-options form,
+.sd-submit-options[open] {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.sd-submit-options label {
+  margin-top: 0.45rem;
+  color: #94a3b8;
+  font-size: 0.6rem;
+  font-weight: 750;
+}
+
+.sd-submit-options form > div {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.sd-submit-options input {
+  min-width: 0;
+  width: 100%;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 0.55rem;
+  background: rgb(15 23 42 / 0.8);
+  padding: 0.6rem;
+  color: #f8fafc;
+  font-size: 0.7rem;
+}
+
+.sd-submit-options form button {
+  border: 1px solid rgb(116 192 255 / 0.25);
+  border-radius: 0.55rem;
+  background: rgb(116 192 255 / 0.1);
+  padding: 0 0.7rem;
+  color: #74c0ff;
+  font-size: 0.6rem;
+  font-weight: 900;
+}
+
+.sd-submit-coach {
+  margin-top: 1.25rem;
+  border: 1px solid rgb(255 121 218 / 0.2);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 0.8rem;
+}
+
+.sd-submit-coach .sd-source-mascot {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.sd-submit-coach h2 {
+  margin: 0;
+  color: #ff79da;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
+.sd-submit-coach p {
+  margin: 0.25rem 0 0;
+  font-size: 0.68rem;
+  font-style: italic;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.sd-submit-sync {
+  margin-bottom: 0.5rem;
+}
+
+.sd-submit-footer button {
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  box-shadow: 0 0 30px rgb(255 121 218 / 0.28);
+}
