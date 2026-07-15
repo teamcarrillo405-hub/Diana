@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 2
+current_plan: 3
 status: executing
-stopped_at: Completed 36-01-PLAN.md
-last_updated: "2026-07-15T17:23:41.411Z"
+stopped_at: Completed 36-02-PLAN.md
+last_updated: "2026-07-15T17:36:17.032Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-01 canonical screen contract
+last_activity_desc: Completed 36-02 local ScreenDesign asset ownership
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 1
-  percent: 0
+  completed_plans: 2
+  percent: 7
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 2
+**Current Plan:** 3
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [░░░░░░░░░░] 3%
-**Last Activity:** 2026-07-15 - Completed 36-01 canonical screen contract
+**Progress:** [█░░░░░░░░░] 7%
+**Last Activity:** 2026-07-15 - Completed 36-02 local ScreenDesign asset ownership
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T17:23:41.403Z
-**Stopped at:** Completed 36-01-PLAN.md
+**Last session:** 2026-07-15T17:36:17.023Z
+**Stopped at:** Completed 36-02-PLAN.md
 
 ---
 
@@ -692,15 +692,19 @@ total_plans_in_phase: 30
 | Plan | Duration | Tasks | Files |
 |------|----------|-------|-------|
 | Phase 36 P01 | 8 min | 3 tasks | 5 files |
+| Phase 36 P02 | 18 min | 2 tasks | 32 files |
 
 ## Decisions
 
 - [Phase 36]: The attached dashboard exclusively owns /dashboard; the export-folder dashboard is excluded. — D-02 establishes source precedence and the registry test enforces it.
 - [Phase 36]: All 47 canonical states use stable typed route, state, action, auth, data, viewport, and snapshot metadata. — Downstream implementation and QA need one deterministic source contract.
 - [Phase 36]: Windows npm and npx execute their adjacent Node CLI after .cmd resolution. — Direct .cmd spawn with shell disabled returns EINVAL; direct Node CLI invocation preserves shell-free argv execution.
+- [Phase 36]: Canonical ScreenDesign media is owned as 24 source assets plus four avatars with exact count and provenance gates. — The canonical registry and D-09 require one deterministic local dependency set.
+- [Phase 36]: Dashboard stadium and athlete imagery remain separate local layers. — Separate files preserve the attached dashboard crop and responsive composition.
+- [Phase 36]: Typed asset lookup exposes only Diana-owned rendering metadata. — Remote provenance URLs and checksums stay outside rendering results.
 
 ## Session
 
-**Last session:** 2026-07-15T17:23:41.403Z
-**Stopped at:** Completed 36-01-PLAN.md
+**Last session:** 2026-07-15T17:36:17.023Z
+**Stopped at:** Completed 36-02-PLAN.md
 **Resume file:** None
