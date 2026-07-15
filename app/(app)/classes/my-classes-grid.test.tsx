@@ -39,10 +39,10 @@ describe("ScreenDesign class library states", () => {
     expect(screen.getByRole("heading", { name: /academic roster/iu })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Empty playbook?" })).toBeInTheDocument();
     expect(screen.getByRole("img", { name: "Diana assistant" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Add a class" })).toHaveAttribute(
-      "href",
-      "/classes?create=1",
-    );
+    expect(screen.getAllByRole("link", { name: "Add a class" })).toHaveLength(2);
+    for (const action of screen.getAllByRole("link", { name: "Add a class" })) {
+      expect(action).toHaveAttribute("href", "/classes?create=1");
+    }
     expect(screen.queryByText("Real class form")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Classes" })).toHaveAttribute(
       "aria-current",
