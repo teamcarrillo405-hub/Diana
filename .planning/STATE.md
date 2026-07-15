@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 10
+current_plan: 11
 status: executing
 stopped_at: Completed 36-09-PLAN.md
-last_updated: "2026-07-15T23:27:14.236Z"
+last_updated: "2026-07-15T23:51:00.288Z"
 last_activity: 2026-07-15
 last_activity_desc: Completed 36-09 capture and work-board ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 10
-  percent: 33
+  completed_plans: 11
+  percent: 0
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 10
+**Current Plan:** 11
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [███░░░░░░░] 33%
+**Progress:** [████░░░░░░] 37%
 **Last Activity:** 2026-07-15 - Completed 36-09 capture and work-board ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T23:27:14.229Z
-**Stopped at:** Completed 36-09-PLAN.md
+**Last session:** 2026-07-15T23:51:00.281Z
+**Stopped at:** Completed 36-10-PLAN.md
 
 ---
 
@@ -701,6 +701,7 @@ total_plans_in_phase: 30
 | Phase 36 P05 | 70 min | 3 tasks | 9 files |
 | Phase 36 P08 | 45 min | 3 tasks | 17 files |
 | Phase 36 P09 | 55 min | 3 tasks | 13 files |
+| Phase 36 P10 | 50 min | 2 tasks | 12 files |
 
 ## Decisions
 
@@ -735,6 +736,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Past-due work uses the calm Due earlier label. — The source hierarchy and factual counts are preserved while the mandatory tone gate remains clean.
 - [Phase 36]: The dashboard Start action uses a semantic anchor. — It produced an observable real route transition in the deterministic navigation harness.
 - [Phase 36]: Dashboard background compatibility exposes only the canonical stadium. — Existing settings consumers remain valid without allowing a legacy visual to replace the attached composition.
+- [Phase 36]: The authenticated classes result alone selects the honest empty or populated library composition. — URL query flags cannot spoof a roster state that is derived from owner-scoped server data.
+- [Phase 36]: Rubric Scout exposes only owner-scoped rubric, syllabus, class, and assignment context, with Diana help available only under green class policy. — The route preserves RLS and explicit owner filters while the UI respects the existing AI traffic-light seam.
+- [Phase 36]: Canonical class QA seeds a real class_syllabi row so source evidence never fabricates course policies. — Deterministic evidence should exercise the same persistent table and semantics as the live route.
 
 ## Session
 
