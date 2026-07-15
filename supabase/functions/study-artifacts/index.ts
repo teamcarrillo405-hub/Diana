@@ -97,6 +97,120 @@ function json(body: unknown, status = 200) {
   });
 }
 
+function buildStudyArtifactFallback({
+  artifactType,
+  studyMode,
+  sourceType,
+  sourceTitle,
+}: {
+  artifactType: string;
+  studyMode: string;
+  sourceType: string;
+  sourceTitle: string;
+}) {
+  const anchor = `${sourceType}: ${sourceTitle}`;
+  const questionCount = artifactType === "practice_test" ? 6 : 3;
+  return JSON.stringify({
+    title: `${sourceTitle} study support`,
+    summary: "A source-anchored review scaffold is ready. Add your own wording as you work through it.",
+    guide: [
+      {
+        heading: "Find the key idea",
+        bullets: [
+          "Reread the source once.",
+          "Mark one term, detail, or step that seems central.",
+          "Explain that part in your own words.",
+        ],
+      },
+    ],
+    quiz: [
+      {
+        question: "What does the source say directly?",
+        choices: ["I can point to a source detail", "I need another look at the source"],
+        answer: "I can point to a source detail",
+        hint: "Keep the source open and choose one exact detail before answering.",
+        sourceAnchor: anchor,
+      },
+    ],
+    cards: [
+      {
+        front: `What is one key idea in ${sourceTitle}?`,
+        back: "Write the idea in your own words, then check it against the source.",
+        sourceAnchor: anchor,
+      },
+    ],
+    nextSteps: ["Choose one source detail.", "Write one short recall response.", "Check your response against the source."],
+    trustNote: "This scaffold stays anchored to the material you provided.",
+    authorshipReceipt: "Diana organized a review scaffold. The student supplies and checks the learning responses.",
+    practiceSettings: {
+      questionCount,
+      difficulty: "standard",
+      questionTypes: ["short_response", "evidence_check"],
+    },
+    editState: {
+      cardsReviewed: 0,
+      cardsEdited: 0,
+      lastEditedAt: null,
+      readyForReview: false,
+    },
+    reviewLoop: {
+      currentStage: "artifact",
+      steps: [
+        {
+          stage: "source",
+          label: "Open the source",
+          sourceAnchor: anchor,
+          studentAction: "Choose one detail to recall.",
+          masterySignal: "Can you explain it without copying?",
+        },
+        {
+          stage: "review",
+          label: "Check your wording",
+          sourceAnchor: anchor,
+          studentAction: "Compare your response with the source.",
+          masterySignal: "Does your response match the source meaning?",
+        },
+      ],
+      nextReviewAction: "Try one source-anchored recall response.",
+      masterySignal: "still_learning",
+      nextSupportUse: `Use ${studyMode.replaceAll("_", " ")} after the first recall response.`,
+    },
+    visualBreakdown: {
+      kind: "source_board",
+      title: "Source to recall",
+      sourceAnchored: true,
+      blocks: [
+        {
+          label: "Source detail",
+          prompt: "Choose one exact detail from the material.",
+          sourceAnchor: anchor,
+          studentAction: "Restate it in your own words.",
+        },
+      ],
+      quizPrompt: "Which source detail supports your response?",
+      storyboard: {
+        format: "board",
+        layout: "Source detail, student wording, source check",
+        altText: "A three-step board that moves from a source detail to a student response and a source check.",
+        sourceAnchors: [anchor],
+        interactionPrompt: "Complete one block at a time.",
+      },
+    },
+    authorshipReceiptDetail: {
+      sourceAnchors: [anchor],
+      dianaActions: ["Organized a source-anchored review scaffold"],
+      studentActions: ["Select source details", "Write recall responses", "Check responses against the source"],
+      aiContribution: "organize",
+      finalWorkProtected: true,
+      refusalRedirectLogged: false,
+      sensitiveDataExcluded: true,
+      teacherSafeSummary: "Diana organized source-based review prompts without creating final assignment work.",
+      studentActionRequired: "The student writes and checks every learning response.",
+      shareSummary: "Source-based study scaffold created. Student responses remain student-authored.",
+    },
+  });
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -159,13 +273,19 @@ Deno.serve(async (req: Request) => {
       classContext ? `Class context:\n${classContext}` : "",
       `Source material:\n${sourceText}`,
     ].filter(Boolean).join("\n\n");
+    const fallbackContent = buildStudyArtifactFallback({
+      artifactType,
+      studyMode,
+      sourceType,
+      sourceTitle,
+    });
     const modelResult = await callStudentTextModel({
       system,
       user: userMessage,
       maxTokens: artifactType === "practice_test" ? 3000 : 2400,
       quality: "quality",
       json: true,
-      fallbackContent: "{}",
+      fallbackContent,
       timeoutMs: 30_000,
     });
     const content = modelResult.content;

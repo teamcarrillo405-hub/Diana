@@ -1,68 +1,82 @@
 # Diana v2.0 Launch Readiness
 
-## Release Gates
+Evidence refreshed on 2026-07-14 for the production app at `https://diana-umber.vercel.app`.
 
-| Gate | Evidence |
-|------|----------|
-| Build | `npm run build` |
-| Type safety | `npm run typecheck` |
-| Unit/component coverage | `npm run test:run` |
-| Calm copy | `npm run tone-audit` |
-| Launch checklist | `npm run launch-audit` |
-| Migration parity | `npx supabase migration list --linked` |
+## Current release
 
-## Verified Release Evidence
+| Surface | Result |
+|---|---|
+| Vercel production | Ready. Deployment `dpl_7qZQY8DupvdaoUDP6RaGbtWWoepq` is aliased to the canonical production URL. |
+| Supabase project | Linked project `oitipayrriupcitgmzju` is current through `20260715033431_inbox_schema_advisor_fixes`. |
+| Student Edge Functions | Twelve student AI functions are active with JWT verification and shared provider routing. |
+| Production AI smoke | Pass. 13 of 13 checks, including all twelve functions and a cross-student ownership denial. |
+| Production browser canary | Pass. 15 of 15 authenticated route loads across three passes, all HTTP 200, with zero console errors. |
 
-Evidence refreshed on 2026-07-14 for deployment `dpl_6Fu8iyyJAFtako1r2kgQZNoKtN1L` at `https://diana-umber.vercel.app`.
+## Repository gates
 
 | Gate | Result |
 |---|---|
-| Production build | Pass. Next.js generated 70 static and dynamic route entries. |
-| Type safety | Pass. `tsc --noEmit` reports no errors. |
-| Unit and component tests | Pass. 126 files and 754 tests. |
-| Responsive visual QA | Pass. 94 checks across public, authenticated, light, dark, phone, tablet, and desktop states. |
-| Accessibility | Pass. 10 Axe checks with no serious or critical findings. |
-| End-to-end student flows | Pass. Onboarding and adaptive Settings flows both complete. |
-| Calm copy | Pass. 0 violations across 397 files. |
-| Teen-native repository score | 10/10. The market claim remains gated on real high-school testing. |
-| Production performance | Pass. Mobile Lighthouse 99 to 100, LCP 1.67 to 2.05 seconds, CLS at or below 0.001. Desktop Lighthouse 100, LCP 0.43 seconds. |
-| Production canary | Pass. 15 authenticated route loads across three passes, with no page failures or console errors. |
-| Migration parity | Pass. Every local migration version matches the linked project history. |
-| Supabase security advisors | Pass for launch. 0 warnings and 1 informational notice for the service-only retention log table. |
-| Vercel | Ready. Production alias points to the verified deployment. |
+| Production build | Pass. Next.js 15.5.20 generated 70 route entries. |
+| Type safety and lint | Pass. `tsc --noEmit` reports no errors. |
+| Unit and component tests | Pass. 127 files and 757 tests. |
+| Calm copy | Pass. 0 violations across 405 audited files. The audit includes rendered em-dash detection. |
+| Dependency audit | Pass. 0 production vulnerabilities. |
+| Launch audit | Pass. 100 percent critical-path coverage. |
+| Responsive browser QA | Pass. 94 checks across public, authenticated, light, dark, phone, tablet, and desktop states. |
+| End-to-end flows | Pass. 2 flows cover onboarding and adaptive Settings surfaces. |
+| Accessibility | Pass. 10 Axe checks found no serious or critical issues across five core routes in light and dark modes. |
+| GitHub PR checks | Pass. Repository gates, worker-image builds, and Vercel preview checks are green on PR #5. |
 
-## Accessibility
+## Production data and AI evidence
 
-- Keyboard: primary app navigation, assignment actions, timer controls, notes, flashcards, export/privacy, and groups must be reachable without pointer input.
-- Screen reader: app routes use headings, labels, link text, and live regions for status messages.
-- Motion: reduced-motion profile class disables animated affordances where CSS supports it.
-- Contrast: high-contrast profile class and amber caution palette avoid red error states.
-- Reading support: OpenDyslexic, Lexend, Atkinson, bionic reading, line focus, visual pacing, TTS, and synchronized read-aloud are available in authenticated reading surfaces.
+- Canonical inbox columns, constraints, indexes, and row-level security are applied.
+- Inbox ownership policies use the optimized authenticated-user lookup.
+- The inbox classifier verifies the bearer token and hides rows owned by another student.
+- Production AI smoke creates temporary test rows, verifies responses, checks the ownership boundary, and removes temporary data.
+- Study artifacts use a source-anchored deterministic fallback when the provider is slow or unavailable.
+- OpenAI is the default student provider. Anthropic is optional and not required for the current production path.
+- OpenAI and ElevenLabs production secrets are present. Secret values are not stored in the repository.
+- The daily retention job `coppa-purge-daily` runs at `0 9 * * *` and calls the approved deletion workflow.
+- Supabase security advisors report no warnings. The remaining informational notice is for the service-only retention log table.
 
-## Performance Budgets
+## Release gates to rerun for every candidate
 
-- LCP: less than or equal to 2.5 seconds.
-- FID: less than or equal to 100 ms.
-- CLS: less than or equal to 0.1.
-- Runtime telemetry: `/api/monitoring/vitals` writes route-level budget status and `/insights` shows over-budget reports.
+```text
+npm run typecheck
+npm run test:run
+npm run tone-audit
+npm run launch-audit
+npm run build
+npm audit --omit=dev
+```
 
-Lighthouse lab runs also record Total Blocking Time. The final production range is 0 to 13 ms on mobile and 0 ms on desktop.
+Browser and production checks:
 
-## Critical-Path Coverage
+```text
+npm run qa:responsive
+npm run test:e2e
+npx playwright test tests/a11y.spec.ts --reporter=line --workers=1
+npm run qa:student-ai-live
+```
 
-`npm run launch-audit` requires test files beside at least 80 percent of the named critical paths. The current critical paths are scoring, FSRS, timer, AI safety, privacy export, social collaboration, analytics, offline store, mastery, and LMS sync.
+## Accessibility and performance contract
 
-## Launch Checklist
+- Keyboard: primary navigation, assignment actions, notes, timer, flashcards, sharing, export, and Settings remain usable without a pointer.
+- Screen reader: routes use headings, useful link or button names, status labels, progress labels, and live status regions.
+- Motion: reduced-motion settings disable optional animated affordances where supported.
+- Contrast: high-contrast controls and the amber attention palette preserve the calm invariant.
+- Reading support: OpenDyslexic, Lexend, Atkinson, bionic reading, line focus, pacing, text-to-speech, and synchronized read-aloud remain available.
+- LCP budget: at or below 2.5 seconds.
+- FID budget: at or below 100 milliseconds.
+- CLS budget: at or below 0.1.
 
-- Confirm linked migrations are current through `study_group_rpc_boundary`.
-- Run the release gates above.
-- Run authenticated browser smoke on dashboard, assignments, notes, flashcards, settings, export/privacy, groups, and insights.
-- Confirm Edge Function secrets for AI/TTS providers before enabling green AI modes in production.
-- Confirm data-retention job is scheduled with service-role credentials.
+## Human validation still required
 
-## Human Validation Still Required
+These steps cannot be completed by repository or production automation:
 
-- Complete the physical-device matrix for iOS Safari, Android Chrome, and managed Chromebooks.
-- Run the five-student teen protocol. Market 10/10 requires 4 of 5 students to prefer Diana for stuck tasks and zero final-work confusion.
-- Confirm production AI and TTS provider secrets before enabling green AI modes for a school launch.
-- Confirm the retention scheduler and operational owner before handling real student records.
+1. Test the current production build on physical iOS Safari, Android Chrome, and a managed Chromebook.
+2. Run the five-student teen protocol. The market claim requires at least four of five students to prefer Diana for stuck tasks and zero final-work confusion.
+3. Assign a named operational owner for student-record incidents, deletion requests, provider failures, and launch-day monitoring.
+4. Approve and merge PR #5. The branch is deployed and verified, but merge authorization remains a human decision.
+
+Do not call the school launch fully approved until these four gates are signed off.
