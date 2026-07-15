@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 
-import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -32,6 +32,19 @@ interface AssetManifest {
   avatarAssetCount: number;
   assets: ManifestEntry[];
 }
+
+interface ImageMetadata {
+  width?: number;
+  height?: number;
+  hasAlpha?: boolean;
+}
+
+type SharpFactory = (
+  input: Buffer,
+  options?: { failOn?: "error" },
+) => { metadata: () => Promise<ImageMetadata> };
+
+const sharp = createRequire(import.meta.url)("sharp") as SharpFactory;
 
 const PUBLIC_ROOT = path.resolve(process.cwd(), "public");
 const MANIFEST_PATH = path.join(PUBLIC_ROOT, "screendesign", "manifest.json");
