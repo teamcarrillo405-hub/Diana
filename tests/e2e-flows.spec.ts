@@ -53,10 +53,11 @@ test("new student completes the step-by-step onboarding wizard", async ({ page }
   await expect(page.getByRole("group", { name: "Theme" })).toBeVisible();
   await page.getByRole("link", { name: /open today/i }).click();
 
-  // Dashboard: the Nexus Today surface replaces the empty state.
+  // Dashboard: onboarding lands in the current ScreenDesign lobby.
   await page.waitForURL(/dashboard/, { timeout: 30_000 });
-  await expect(page.getByRole("heading", { name: "Hi Diana. This move fits right now." })).toBeVisible();
-  await expect(page.getByText("Get your work a home.").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "DIANA QA STUDENT" })).toBeVisible();
+  await expect(page.getByText("YOUR NEXT MOVE", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /start next mission/i })).toBeVisible();
 
   // The dyslexia choice took effect as a smart default (body class).
   const bodyClass = await page.evaluate(
