@@ -1463,12 +1463,62 @@ body.diana-app {
   object-fit: contain;
 }
 
+.sd-student-bottom-nav {
+  position: sticky;
+  z-index: 50;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  width: 100%;
+  min-width: 0;
+  min-height: 5.5rem;
+  border-top: 1px solid rgb(255 255 255 / 0.05);
+  background: rgb(15 23 42 / 0.95);
+  padding: 1rem 1.5rem max(2rem, env(safe-area-inset-bottom, 0px));
+  backdrop-filter: blur(20px);
+}
+
+.sd-student-bottom-nav a {
+  display: flex;
+  min-width: 0;
+  min-height: 2.75rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  border-radius: 0.5rem;
+  color: #64748b;
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+.sd-student-bottom-nav a[aria-current="page"] {
+  color: var(--sd-source-teal, #2dd4bf);
+}
+
+.sd-student-bottom-nav a:active {
+  color: #f8fafc;
+  transform: scale(0.94);
+}
+
+.sd-student-bottom-nav a:focus-visible {
+  outline: 2px solid var(--sd-source-teal, #2dd4bf);
+  outline-offset: 2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .sd-source-action {
+  .sd-source-action,
+  .sd-student-bottom-nav a {
     transition: none;
   }
 
-  .sd-source-action:active {
+  .sd-source-action:active,
+  .sd-student-bottom-nav a:active {
     transform: none;
   }
 }
