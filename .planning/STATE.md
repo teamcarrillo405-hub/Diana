@@ -2,23 +2,35 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
-status: Milestone v2.0 COMPLETE - Phase 35 COMPLETE
-stopped_at: "Completed Phase 35: COPPA retention enforcement, launch audit, launch readiness docs, critical-path coverage gate, migration 0034, and final static gates. Milestone v2.0 complete."
-last_updated: "2026-06-02T12:47:04.0000000-07:00"
+current_phase: 36
+current_plan: 2
+status: executing
+stopped_at: Completed 36-01-PLAN.md
+last_updated: "2026-07-15T17:23:41.411Z"
+last_activity: 2026-07-15
+last_activity_desc: Completed 36-01 canonical screen contract
 progress:
-  total_phases: 35
-  completed_phases: 35
-  total_plans: 63
-  completed_plans: 63
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 30
+  completed_plans: 1
+  percent: 0
+total_plans_in_phase: 30
 ---
 
 # Diana — Project State
 
-**Last updated:** 2026-06-01
-**Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 35 COMPLETE - v2.0 launch hardening delivered
-**Last session:** 2026-06-02T12:47:04.0000000-07:00
-**Stopped at:** Completed Phase 35 with final v2.0 verification; milestone v2.0 is complete
+**Last updated:** 2026-07-15
+**Current branch:** `codex/figma-47-screen-rebuild`
+**Current Phase:** 36
+**Current Plan:** 2
+**Total Plans in Phase:** 30
+**Status:** Ready to execute
+**Progress:** [░░░░░░░░░░] 3%
+**Last Activity:** 2026-07-15 - Completed 36-01 canonical screen contract
+**Active phase:** Phase 36 - Faithful ScreenDesign rebuild
+**Last session:** 2026-07-15T17:23:41.403Z
+**Stopped at:** Completed 36-01-PLAN.md
 
 ---
 
@@ -674,3 +686,21 @@ progress:
 - AI ethics: `docs/ai-ethics.md`
 - Research findings: `docs/research/findings.md`
 - Evidence review (gap analysis): `docs/review/slice-1-evidence-review.md`
+
+## Performance Metrics
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 36 P01 | 8 min | 3 tasks | 5 files |
+
+## Decisions
+
+- [Phase 36]: The attached dashboard exclusively owns /dashboard; the export-folder dashboard is excluded. — D-02 establishes source precedence and the registry test enforces it.
+- [Phase 36]: All 47 canonical states use stable typed route, state, action, auth, data, viewport, and snapshot metadata. — Downstream implementation and QA need one deterministic source contract.
+- [Phase 36]: Windows npm and npx execute their adjacent Node CLI after .cmd resolution. — Direct .cmd spawn with shell disabled returns EINVAL; direct Node CLI invocation preserves shell-free argv execution.
+
+## Session
+
+**Last session:** 2026-07-15T17:23:41.403Z
+**Stopped at:** Completed 36-01-PLAN.md
+**Resume file:** None
