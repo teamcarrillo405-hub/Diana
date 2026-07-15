@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 7
+current_plan: 8
 status: executing
 stopped_at: Completed 36-03-PLAN.md
-last_updated: "2026-07-15T21:57:12.802Z"
+last_updated: "2026-07-15T22:21:09.585Z"
 last_activity: 2026-07-15
 last_activity_desc: Completed 36-03 deterministic ScreenDesign visual and interaction evidence harness
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 7
-  percent: 23
+  completed_plans: 8
+  percent: 0
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 7
+**Current Plan:** 8
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [██░░░░░░░░] 23%
+**Progress:** [███░░░░░░░] 27%
 **Last Activity:** 2026-07-15 - Completed 36-03 deterministic ScreenDesign visual and interaction evidence harness
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T21:57:12.794Z
-**Stopped at:** Completed 36-03-PLAN.md
+**Last session:** 2026-07-15T22:21:09.577Z
+**Stopped at:** Completed 36-05-PLAN.md
 
 ---
 
@@ -698,6 +698,7 @@ total_plans_in_phase: 30
 | Phase 36 P28 | 3h 3m | 2 tasks | 4 files |
 | Phase 36 P06 | 10 min | 3 tasks | 5 files |
 | Phase 36 P03 | 18 min | 2 tasks | 5 files |
+| Phase 36 P05 | 70 min | 3 tasks | 9 files |
 
 ## Decisions
 
@@ -723,6 +724,10 @@ total_plans_in_phase: 30
 - [Phase 36]: Use the same deterministic Chromium environment for source and app evidence. — This makes the 393x852 visual comparison meaningful and reproducible.
 - [Phase 36]: Run ScreenDesign scenarios with one worker and owner-scoped resets. — The shared synthetic data graph must be deterministic before each capture.
 - [Phase 36]: Require explicit golden creation and never update visual baselines silently. — A visual mismatch must remain a visible review gate.
+- [Phase 36]: The live dashboard render path is only the attached stadium Lobby. — TodayGamePlan is orphaned and cannot re-enter the route before the repo-wide removal plan deletes obsolete files.
+- [Phase 36]: Past-due work uses the calm Due earlier label. — The source hierarchy and factual counts are preserved while the mandatory tone gate remains clean.
+- [Phase 36]: The dashboard Start action uses a semantic anchor. — It produced an observable real route transition in the deterministic navigation harness.
+- [Phase 36]: Dashboard background compatibility exposes only the canonical stadium. — Existing settings consumers remain valid without allowing a legacy visual to replace the attached composition.
 
 ## Session
 
