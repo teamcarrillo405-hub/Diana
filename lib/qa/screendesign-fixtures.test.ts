@@ -124,6 +124,10 @@ describe("SCREEN_DESIGN_FIXTURE_SCENARIOS", () => {
           result.recordKind,
         );
         expect(result.alias.trim(), scenario.id).not.toBe("");
+        expect(
+          scenario.records.some((record) => record.alias === result.alias),
+          scenario.id,
+        ).toBe(true);
         expect(result.field.trim(), scenario.id).not.toBe("");
       } else if (result.kind === "navigation") {
         expect(result.destination, scenario.id).toMatch(/^\//);
@@ -133,4 +137,3 @@ describe("SCREEN_DESIGN_FIXTURE_SCENARIOS", () => {
     }
   });
 });
-
