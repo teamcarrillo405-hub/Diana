@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { Menu } from "lucide-react";
 
@@ -118,7 +119,7 @@ export function MoreMenu({ active, variant = "tab" }: { active: boolean; variant
         </button>
       )}
 
-      {open && (
+      {open && createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -210,7 +211,8 @@ export function MoreMenu({ active, variant = "tab" }: { active: boolean; variant
               </section>
             ))}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
