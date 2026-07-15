@@ -7,6 +7,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const VOCAB_PROMPT = `You are Diana's vocabulary scaffold for a high-school student.
 Return ONLY JSON:
@@ -89,47 +90,28 @@ Deno.serve(async (req: Request) => {
       interests.length > 0 ? `Student interests: ${interests.join(", ")}` : "",
     ].filter(Boolean).join("\n");
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 300,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: userMessage }],
-      }),
+    const modelResult = await callStudentTextModel({
+      system: systemPrompt,
+      user: userMessage,
+      maxTokens: 300,
+      json: true,
+      fallbackContent: JSON.stringify(fallbackSupport(word, context)),
     });
-
-    if (!res.ok) {
-      console.error("Anthropic error:", await res.text());
-      return json(fallbackSupport(word, context), 200);
-    }
-
-    const data = await res.json() as {
-      content?: Array<{ type: string; text?: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
-    };
-    const raw = data.content?.[0]?.text?.trim() ?? "";
+    const raw = modelResult.content.trim();
     const support = normalizeSupport(raw, word, context);
-    const inputTokens = data.usage?.input_tokens ?? 0;
-    const outputTokens = data.usage?.output_tokens ?? 0;
 
     Promise.allSettled([
       logInteraction(
         {
           ownerId,
           feature: "vocab_hover",
-          model: "claude-haiku-4-5",
+          model: modelResult.model,
           promptSummary: `vocab: ${word}`,
-          tokensUsed: inputTokens + outputTokens,
+          tokensUsed: modelResult.tokens,
         },
         supabase,
       ),
-      incrementTokens(ownerId, inputTokens + outputTokens, supabase),
+      incrementTokens(ownerId, modelResult.tokens, supabase),
     ]).catch(() => {});
 
     return json(support);

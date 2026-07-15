@@ -7,6 +7,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TAG_PROMPT = `You suggest short study-note tags for a high-school student.
 Rules:
@@ -71,7 +72,8 @@ Deno.serve(async (req: Request) => {
       .single();
 
     if (!note || note.owner_id !== ownerId) return json({ error: "Note not found" }, 404);
-    const aiMode = Array.isArray(note.classes) ? note.classes[0]?.ai_mode : note.classes?.ai_mode;
+    const noteClasses = note.classes as unknown as { ai_mode?: string } | Array<{ ai_mode?: string }> | null;
+    const aiMode = Array.isArray(noteClasses) ? noteClasses[0]?.ai_mode : noteClasses?.ai_mode;
     if (aiMode === "red" || aiMode === "yellow") {
       return json({ error: "AI not available for this class" }, 403);
     }
@@ -90,31 +92,13 @@ Deno.serve(async (req: Request) => {
       `Text: ${(note.transcript_text || note.body_text || "").slice(0, 5000)}`,
     ].join("\n");
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 180,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: noteText }],
-      }),
+    const modelResult = await callStudentTextModel({
+      system,
+      user: noteText,
+      maxTokens: 180,
+      fallbackContent: "[]",
     });
-
-    if (!res.ok) {
-      console.error("note-tags anthropic error:", await res.text());
-      return json({ error: "AI request failed" }, 502);
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const raw = data.content?.[0]?.text ?? "[]";
+    const raw = modelResult.content;
     let parsed: unknown = [];
     try {
       parsed = JSON.parse(raw.replace(/^```json\s*/i, "").replace(/```$/i, "").trim());
@@ -122,7 +106,7 @@ Deno.serve(async (req: Request) => {
       parsed = [];
     }
     const tags = normalizeTags(parsed);
-    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const tokens = modelResult.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -130,7 +114,7 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId: null,
           feature: "note_tags",
-          model: "claude-haiku-4-5",
+          model: modelResult.model,
           promptSummary: String(note.title ?? "").slice(0, 200),
           tokensUsed: tokens,
         }, supabase);

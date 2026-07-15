@@ -1,25 +1,19 @@
 // Deno-importable mirror of lib/ai/safety.ts for Edge Functions.
 // Kept in sync with lib/ai/safety.ts by convention — if you change one, change both.
 
+// PostgREST builders are PromiseLike chains rather than native Promise objects.
+// Keeping the boundary structural but deliberately loose lets both the real
+// Supabase client and small test doubles use the shared safety helpers.
 interface SupabaseLike {
-  from(table: string): {
-    select(cols: string): {
-      eq(col: string, val: string): {
-        single(): Promise<{ data: Record<string, unknown> | null; error: unknown }>;
-      };
-    };
-    update(payload: Record<string, unknown>): {
-      eq(col: string, val: string): Promise<{ error: unknown }>;
-    };
-    insert(payload: Record<string, unknown>): Promise<{ error: unknown }>;
-  };
+  // deno-lint-ignore no-explicit-any
+  from(table: string): any;
 }
 
 export interface BudgetCheck { allowed: boolean; remaining: number; }
 export interface LogParams {
   ownerId: string;
   assignmentId?: string | null;
-  feature: "math_step" | "writing_aid" | "writing_cowrite" | "citation_gen" | "reading_scaffold" | "reading_level" | "science_scaffold" | "history_scaffold" | "cs_scaffold" | "language_scaffold" | "transcribe_note" | "stt_transcribe" | "tts_generate" | "task_breakdown" | "math_example" | "math_scaffold" | "visual_tool" | "vocab_hover" | "doc_extract" | "note_synthesis" | "note_tags" | "weekly_reflection" | "arts_scaffold" | "health_scaffold" | "ap_scaffold" | "study_artifacts" | "agent_coach";
+  feature: "math_step" | "writing_aid" | "writing_cowrite" | "citation_gen" | "classify_inbox" | "reading_scaffold" | "reading_level" | "science_scaffold" | "history_scaffold" | "cs_scaffold" | "language_scaffold" | "transcribe_note" | "stt_transcribe" | "tts_generate" | "task_breakdown" | "math_example" | "math_scaffold" | "visual_tool" | "vocab_hover" | "doc_extract" | "note_synthesis" | "note_tags" | "weekly_reflection" | "arts_scaffold" | "health_scaffold" | "ap_scaffold" | "study_artifacts" | "agent_coach";
   model: string;
   promptSummary: string;
   tokensUsed: number;

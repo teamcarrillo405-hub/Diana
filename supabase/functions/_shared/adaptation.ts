@@ -5,15 +5,8 @@
 // broken AI response.
 
 type SupabaseLike = {
-  from: (table: string) => {
-    select: (cols: string) => {
-      eq: (col: string, value: string) => {
-        order: (col: string, opts: { ascending: boolean }) => {
-          limit: (n: number) => Promise<{ data: unknown[] | null; error: unknown }>;
-        };
-      };
-    };
-  };
+  // deno-lint-ignore no-explicit-any
+  from: (table: string) => any;
 };
 
 const MIN_SAMPLES = 3;

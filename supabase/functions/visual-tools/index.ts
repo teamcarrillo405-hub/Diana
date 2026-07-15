@@ -10,6 +10,7 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TEXT_MODES = new Set(["mind_map", "concept_graph", "timeline", "comparison_table"]);
 const MIME_BY_EXT: Record<string, string> = {
@@ -100,10 +101,11 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
 }
 
 async function runDiagramAnnotation(
-  supabase: ReturnType<typeof createClient>,
+  // deno-lint-ignore no-explicit-any
+  supabase: { storage: any },
   storageKey: string,
   bucket: string,
-): Promise<{ content: string; tokens: number }> {
+): Promise<{ content: string; tokens: number; model: string }> {
   const ext = (storageKey.split(".").pop() ?? "").toLowerCase();
   const mimeType = MIME_BY_EXT[ext];
   if (!mimeType) throw new Error("Pick a .jpg, .png, .webp, or .gif image.");
@@ -112,39 +114,31 @@ async function runDiagramAnnotation(
   if (error || !blob) throw new Error("Diagram image not found.");
   const base64Data = uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer()));
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${Deno.env.get("OPENAI_API_KEY") ?? ""}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      max_tokens: 900,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: DIAGRAM_PROMPT },
-        {
-          role: "user",
-          content: [
-            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" } },
-            { type: "text", text: "Annotate the diagram for study. Do not invent unseen labels." },
-          ],
-        },
-      ],
+  const system = composeSystemPrompt(DIAGRAM_PROMPT, {
+    includeRefuseRedirect: true,
+    includeFrustration: false,
+    includeMinorSafety: true,
+  });
+  const modelResult = await callStudentTextModel({
+    system,
+    user: "Annotate the diagram for study. Do not invent unseen labels.",
+    parts: [
+      { type: "image", mediaType: mimeType, data: base64Data },
+      { type: "text", text: "Annotate the diagram for study. Do not invent unseen labels." },
+    ],
+    maxTokens: 900,
+    quality: "quality",
+    json: true,
+    fallbackContent: JSON.stringify({
+      title: "Diagram study check",
+      annotations: [],
+      quizPrompt: "Name one visible label and explain how it connects to another visible part.",
     }),
   });
-  if (!res.ok) {
-    console.error("visual-tools diagram error:", await res.text());
-    throw new Error("We couldn't annotate that diagram. Try a clearer crop.");
-  }
-  const data = await res.json() as {
-    choices?: Array<{ message?: { content?: string } }>;
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
-  };
   return {
-    content: data.choices?.[0]?.message?.content ?? "{}",
-    tokens: Number(data.usage?.prompt_tokens ?? 0) + Number(data.usage?.completion_tokens ?? 0),
+    content: modelResult.content,
+    tokens: modelResult.tokens,
+    model: modelResult.model,
   };
 }
 
@@ -180,7 +174,7 @@ Deno.serve(async (req: Request) => {
     await resetBudgetIfNewDay(ownerId, supabase);
     const { allowed } = await checkTokenBudget(ownerId, supabase);
     if (!allowed) {
-      return jsonResponse({ error: "You've used your AI quota for today — resets at midnight." }, 429);
+      return jsonResponse({ error: "You've used your AI quota for today. It resets at midnight." }, 429);
     }
 
     let content = "";
@@ -192,7 +186,7 @@ Deno.serve(async (req: Request) => {
       const result = await runDiagramAnnotation(supabase, storageKey, bucket);
       content = result.content;
       tokens = result.tokens;
-      model = "gpt-4o";
+      model = result.model;
     } else {
       if (!TEXT_MODES.has(mode)) return jsonResponse({ error: "Unknown visual mode" }, 400);
       const noteTitle = typeof body.noteTitle === "string" ? body.noteTitle.slice(0, 200) : "Note";
@@ -214,33 +208,16 @@ Deno.serve(async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          model,
-          max_tokens: 1200,
-          system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-          messages: [{
-            role: "user",
-            content: `Mode: ${mode}\nTitle: ${noteTitle}\nNote text:\n${text}`,
-          }],
-        }),
+      const modelResult = await callStudentTextModel({
+        system: systemPrompt,
+        user: `Mode: ${mode}\nTitle: ${noteTitle}\nNote text:\n${text}`,
+        maxTokens: 1200,
+        json: true,
+        fallbackContent: "{}",
       });
-      if (!res.ok) {
-        console.error("visual-tools Anthropic error:", await res.text());
-        return jsonResponse({ error: "AI request failed" }, 502);
-      }
-      const data = await res.json() as {
-        content?: Array<{ type: string; text: string }>;
-        usage?: { input_tokens?: number; output_tokens?: number };
-      };
-      content = data.content?.[0]?.text ?? "";
-      tokens = Number(data.usage?.input_tokens ?? 0) + Number(data.usage?.output_tokens ?? 0);
+      content = modelResult.content;
+      tokens = modelResult.tokens;
+      model = modelResult.model;
     }
 
     Promise.resolve()

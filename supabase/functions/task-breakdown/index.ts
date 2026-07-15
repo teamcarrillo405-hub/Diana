@@ -12,6 +12,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const BREAKDOWN_PROMPT = `You are a task-decomposition assistant for a high-school student with ADHD.
@@ -90,7 +91,7 @@ Deno.serve(async (req: Request) => {
     if (!allowed) {
       return new Response(
         JSON.stringify({
-          error: "You've used your AI quota for today \u2014 resets at midnight.",
+          error: "You've used your AI quota for today. It resets at midnight.",
         }),
         {
           status: 429,
@@ -115,40 +116,16 @@ Deno.serve(async (req: Request) => {
       description ? `Description: ${(description as string).slice(0, 2000)}` : null,
     ].filter(Boolean).join("\n");
 
-    // 7. Call Anthropic Haiku 4.5
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 600,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: userMessage }],
-      }),
+    // 7. Use the shared fast student model.
+    const modelResult = await callStudentTextModel({
+      system: systemPrompt,
+      user: userMessage,
+      maxTokens: 600,
     });
-
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("Anthropic error:", errText);
-      return new Response(JSON.stringify({ error: "AI request failed" }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
     // Return raw content string — parsing happens in the server action via
     // parseStepsFromContent so the parser is testable in vitest (node) instead of Deno.
-    const content = data.content?.[0]?.text ?? "";
-    const tokens =
-      (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const content = modelResult.content;
+    const tokens = modelResult.tokens;
 
     // 8. Fire-and-forget: log to ai_interactions + increment token counter.
     //    Must NOT block the response (AI-SAFETY-01 constraint).
@@ -159,7 +136,7 @@ Deno.serve(async (req: Request) => {
             ownerId,
             assignmentId: (assignmentId as string | null | undefined) ?? null,
             feature: "task_breakdown",
-            model: "claude-haiku-4-5",
+            model: modelResult.model,
             promptSummary: (title as string).slice(0, 200),
             tokensUsed: tokens,
           },

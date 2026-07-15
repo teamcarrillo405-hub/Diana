@@ -7,6 +7,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const REFLECTION_PROMPT = `You are Diana, a calm weekly reflection mirror for a high-school student.
 Rules:
@@ -53,35 +54,18 @@ Deno.serve(async (req: Request) => {
       includeMinorSafety: true,
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 180,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: [`Mood: ${mood ?? "not set"}`, `Reflection: ${reflection.slice(0, 2000)}`].join("\n"),
-        }],
-      }),
+    const userMessage = [
+      `Mood: ${mood ?? "not set"}`,
+      `Reflection: ${reflection.slice(0, 2000)}`,
+    ].join("\n");
+    const modelResult = await callStudentTextModel({
+      system,
+      user: userMessage,
+      maxTokens: 180,
+      fallbackContent: "You took time to notice what this week felt like. Carry one small thing that helped into next week.",
     });
-
-    if (!res.ok) {
-      console.error("weekly-reflection anthropic error:", await res.text());
-      return json({ error: "AI request failed" }, 502);
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const text = (data.content?.[0]?.text ?? "").trim();
-    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const text = modelResult.content.trim();
+    const tokens = modelResult.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -89,7 +73,7 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId: null,
           feature: "weekly_reflection",
-          model: "claude-haiku-4-5",
+          model: modelResult.model,
           promptSummary: reflection.slice(0, 200),
           tokensUsed: tokens,
         }, supabase);

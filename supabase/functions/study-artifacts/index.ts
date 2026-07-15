@@ -8,6 +8,7 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const ARTIFACT_PROMPT = `You create study artifacts from the student's real class material.
 Rules:
@@ -150,42 +151,24 @@ Deno.serve(async (req: Request) => {
       personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: artifactType === "practice_test" ? 1600 : 1300,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: [
-            `Artifact type: ${artifactType}`,
-            `Study mode: ${studyMode}`,
-            `Source type: ${sourceType}`,
-            `Source title: ${sourceTitle}`,
-            classContext ? `Class context:\n${classContext}` : "",
-            `Source material:\n${sourceText}`,
-          ].filter(Boolean).join("\n\n"),
-        }],
-      }),
+    const userMessage = [
+      `Artifact type: ${artifactType}`,
+      `Study mode: ${studyMode}`,
+      `Source type: ${sourceType}`,
+      `Source title: ${sourceTitle}`,
+      classContext ? `Class context:\n${classContext}` : "",
+      `Source material:\n${sourceText}`,
+    ].filter(Boolean).join("\n\n");
+    const modelResult = await callStudentTextModel({
+      system,
+      user: userMessage,
+      maxTokens: artifactType === "practice_test" ? 1600 : 1300,
+      quality: "quality",
+      json: true,
+      fallbackContent: "{}",
     });
-
-    if (!res.ok) {
-      console.error("study-artifacts anthropic error:", await res.text());
-      return json({ error: "AI request failed" }, 502);
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const content = data.content?.[0]?.text ?? "";
-    const tokens = (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    const content = modelResult.content;
+    const tokens = modelResult.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -193,7 +176,7 @@ Deno.serve(async (req: Request) => {
           ownerId,
           assignmentId,
           feature: "study_artifacts",
-          model: "claude-sonnet-4-6",
+          model: modelResult.model,
           promptSummary: `${artifactType}: ${sourceTitle}`.slice(0, 200),
           tokensUsed: tokens,
         }, supabase);
