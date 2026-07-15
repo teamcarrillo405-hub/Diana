@@ -1,10 +1,12 @@
 "use client";
 
+import { CalendarDays, CheckCircle2, Library, Shapes, X } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+
 import { confirmInboxItem, dismissInboxItem } from "./actions";
 
-type ClassOption = { id: string; name: string; color: string };
+type ClassOption = { id: string; name: string; color: string | null };
 
 type AssignmentKind =
   | "essay"
@@ -44,20 +46,22 @@ export function ConfirmForm({
   const [, startTransition] = useTransition();
   const [classId, setClassId] = useState(suggestedClassId ?? classes[0]?.id ?? "");
   const [kind, setKind] = useState<AssignmentKind>(
-    (suggestedKind as AssignmentKind) ?? "other"
+    (suggestedKind as AssignmentKind) ?? "other",
   );
   const [dueAt, setDueAt] = useState(
-    suggestedDueAt ? new Date(suggestedDueAt).toISOString().slice(0, 16) : ""
+    suggestedDueAt ? new Date(suggestedDueAt).toISOString().slice(0, 16) : "",
   );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [dismissing, setDismissing] = useState(false);
-  const [confirming, setConfirming] = useState(false);
+  const [busyAction, setBusyAction] = useState<"confirm" | "dismiss" | null>(null);
 
-  function handleConfirm(e: React.FormEvent) {
-    e.preventDefault();
-    if (!classId) return setErrorMsg("Pick a class.");
+  function handleConfirm(event: React.FormEvent) {
+    event.preventDefault();
+    if (!classId) {
+      setErrorMsg("Choose a class first.");
+      return;
+    }
     setErrorMsg(null);
-    setConfirming(true);
+    setBusyAction("confirm");
 
     startTransition(async () => {
       const result = await confirmInboxItem(inboxItemId, {
@@ -67,98 +71,105 @@ export function ConfirmForm({
       });
       if (result.ok) {
         router.push(`/assignments/${result.assignmentId}`);
-      } else {
-        setErrorMsg(result.error);
-        setConfirming(false);
+        return;
       }
+      setErrorMsg(result.error);
+      setBusyAction(null);
     });
   }
 
   function handleDismiss() {
-    setDismissing(true);
+    setErrorMsg(null);
+    setBusyAction("dismiss");
     startTransition(async () => {
-      await dismissInboxItem(inboxItemId);
-      router.push("/inbox");
+      const result = await dismissInboxItem(inboxItemId);
+      if (result.ok) {
+        router.push("/inbox");
+        return;
+      }
+      setErrorMsg(result.error);
+      setBusyAction(null);
     });
   }
 
   if (classes.length === 0) {
     return (
-      <div className="rounded-xl border border-border bg-card p-4 text-sm text-muted">
-        Add a class first, then you can convert this capture.
-      </div>
+      <section className="sd-inbox-no-class">
+        <Library aria-hidden="true" />
+        <h2>Add a class before confirming this play.</h2>
+        <button type="button" onClick={() => router.push("/classes/new")}>
+          Add class
+        </button>
+      </section>
     );
   }
 
   return (
-    <form onSubmit={handleConfirm} className="space-y-4 rounded-xl border border-border bg-card p-4">
-      <p className="text-xs font-medium uppercase tracking-wider text-muted">
-        Convert to assignment
-      </p>
+    <form className="sd-inbox-confirm-form" onSubmit={handleConfirm}>
+      <p>Confirm the play</p>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <label className="block space-y-1 text-sm font-medium">
-          <span>Class</span>
-          <select
-            value={classId}
-            onChange={(e) => setClassId(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
-          >
-            {classes.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      <label>
+        <span>
+          <Library aria-hidden="true" />
+          Class
+        </span>
+        <select value={classId} onChange={(event) => setClassId(event.target.value)}>
+          {classes.map((classOption) => (
+            <option key={classOption.id} value={classOption.id}>
+              {classOption.name}
+            </option>
+          ))}
+        </select>
+      </label>
 
-        <label className="block space-y-1 text-sm font-medium">
-          <span>Type</span>
-          <select
-            value={kind}
-            onChange={(e) => setKind(e.target.value as AssignmentKind)}
-            className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
-          >
-            {KIND_OPTIONS.map((k) => (
-              <option key={k.value} value={k.value}>
-                {k.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <label>
+        <span>
+          <Shapes aria-hidden="true" />
+          Work type
+        </span>
+        <select
+          value={kind}
+          onChange={(event) => setKind(event.target.value as AssignmentKind)}
+        >
+          {KIND_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
 
-      <label className="block space-y-1 text-sm font-medium">
-        <span>Due (optional)</span>
+      <label>
+        <span>
+          <CalendarDays aria-hidden="true" />
+          Due date, optional
+        </span>
         <input
           type="datetime-local"
           value={dueAt}
-          onChange={(e) => setDueAt(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/50"
+          onChange={(event) => setDueAt(event.target.value)}
         />
       </label>
 
-      {errorMsg && (
-        <p className="rounded-lg bg-border/50 px-3 py-2 text-sm">{errorMsg}</p>
-      )}
+      {errorMsg ? <div className="sd-calm-form-error" role="status">{errorMsg}</div> : null}
 
-      <div className="flex gap-3">
-        <button
-          type="submit"
-          disabled={confirming || dismissing}
-          className="flex-1 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          {confirming ? "Converting…" : "Convert to assignment"}
-        </button>
-        <button
-          type="button"
-          onClick={handleDismiss}
-          disabled={confirming || dismissing}
-          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted hover:bg-border/30 disabled:opacity-50"
-        >
-          {dismissing ? "Dismissing…" : "Dismiss"}
-        </button>
-      </div>
+      <button
+        type="submit"
+        className="sd-inbox-convert"
+        disabled={busyAction !== null}
+      >
+        <CheckCircle2 aria-hidden="true" />
+        {busyAction === "confirm" ? "Adding to work board..." : "Add to work board"}
+      </button>
+      <button
+        type="button"
+        className="sd-inbox-dismiss"
+        onClick={handleDismiss}
+        disabled={busyAction !== null}
+      >
+        <X aria-hidden="true" />
+        {busyAction === "dismiss" ? "Setting aside..." : "Set aside"}
+      </button>
     </form>
   );
 }

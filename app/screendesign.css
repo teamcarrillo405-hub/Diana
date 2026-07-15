@@ -2717,3 +2717,1174 @@ body.diana-app {
 .diana-app .sd-submit-coach p {
   color: #f8fafc;
 }
+
+/* Phase 36-09: source-owned capture, triage, and Work Board compositions. */
+.diana-authenticated-field:has(.sd-capture-work-screen) {
+  padding-bottom: 0 !important;
+}
+
+.diana-app .app-command-frame:has(.sd-capture-work-screen) {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+.diana-authenticated-field:has(.sd-capture-work-screen) .diana-mobile-command,
+.diana-app-shell:has(.sd-capture-work-screen) .agent-fab-anchor,
+.diana-app:has(.sd-capture-work-screen) .skip-link,
+.diana-app:has(.sd-capture-work-screen) nextjs-portal {
+  display: none !important;
+}
+
+.diana-app .sd-capture-work-screen {
+  font-family: var(--font-body), Arial, sans-serif;
+  background: #0f172a;
+  color: #fff;
+}
+
+.diana-app .sd-capture-work-screen :is(h1, h2, h3, p, strong, small, span) {
+  text-wrap: pretty;
+}
+
+.diana-app .sd-capture-work-screen :is(button, input, select, textarea) {
+  font: inherit;
+}
+
+.diana-app .sd-capture-work-screen button {
+  clip-path: none;
+  text-shadow: none;
+}
+
+/* Inbox triage */
+.diana-app .sd-inbox-triage {
+  display: flex;
+  min-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diana-app .sd-triage-header {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  border-bottom: 1px solid rgb(255 255 255 / 0.05);
+  background: rgb(15 23 42 / 0.86);
+  padding: 3.5rem 1.5rem 1rem;
+  backdrop-filter: blur(14px);
+}
+
+.diana-app .sd-triage-header > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.diana-app .sd-triage-header .sd-source-wordmark {
+  width: auto;
+  height: 1.25rem;
+}
+
+.diana-app .sd-triage-new-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #facc15;
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-triage-new-count i {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: #facc15;
+}
+
+.diana-app .sd-triage-header h1 {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-triage-scroll {
+  display: grid;
+  flex: 1 1 auto;
+  align-content: start;
+  gap: 1rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.5rem 1.25rem 2rem;
+}
+
+.diana-app .sd-triage-expanded {
+  display: grid;
+  gap: 1rem;
+  border: 2px solid #74c0ff;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.08), rgb(116 192 255 / 0.08));
+  padding: 1.25rem;
+  box-shadow: 0 0 30px rgb(116 192 255 / 0.15);
+}
+
+.diana-app .sd-triage-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.diana-app .sd-triage-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  color: #94a3b8;
+  font-size: 0.5625rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-triage-kicker svg {
+  width: 1rem;
+  color: #74c0ff;
+}
+
+.diana-app .sd-triage-title-row h2 {
+  display: -webkit-box;
+  max-width: 15rem;
+  margin: 0;
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1.2rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-transform: uppercase;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.diana-app .sd-triage-title-row time {
+  flex: 0 0 2.8rem;
+  color: #64748b;
+  font-size: 0.625rem;
+  font-weight: 900;
+  text-align: right;
+}
+
+.diana-app .sd-triage-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.diana-app .sd-triage-analysis-grid > div {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 0.75rem;
+}
+
+.diana-app .sd-triage-analysis-grid .sd-triage-analysis-wide {
+  grid-column: 1 / -1;
+}
+
+.diana-app .sd-triage-analysis-grid span {
+  color: #94a3b8;
+  font-size: 0.5rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-triage-analysis-grid strong {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.72rem;
+  font-style: italic;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.diana-app .sd-triage-analysis-grid strong svg {
+  width: 1rem;
+  flex: 0 0 auto;
+  color: #74c0ff;
+}
+
+.diana-app .sd-triage-analysis-grid > div:nth-child(2) strong svg {
+  color: #ff79da;
+}
+
+.diana-app .sd-triage-analysis-wide strong svg {
+  color: #facc15;
+}
+
+.diana-app .sd-triage-confirm {
+  display: flex;
+  width: 100%;
+  min-height: 3.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  color: #0f172a;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  text-transform: uppercase;
+  box-shadow: 0 8px 20px rgb(255 121 218 / 0.2);
+}
+
+.diana-app .sd-triage-confirm svg {
+  width: 1.25rem;
+}
+
+.diana-app .sd-triage-edit-link {
+  justify-self: center;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.diana-app .sd-triage-collapsed {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.5rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 1rem;
+  color: #fff;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+}
+
+.diana-app .sd-triage-mode-icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  background: rgb(255 255 255 / 0.05);
+  color: #94a3b8;
+}
+
+.diana-app .sd-triage-mode-icon svg {
+  width: 1.25rem;
+}
+
+.diana-app .sd-triage-collapsed > span:nth-child(2) {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.diana-app .sd-triage-collapsed strong {
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.diana-app .sd-triage-collapsed small {
+  color: #64748b;
+  font-size: 0.58rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-triage-collapsed > svg {
+  width: 1rem;
+  color: #475569;
+}
+
+.diana-app .sd-triage-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  margin-top: 5rem;
+  text-align: center;
+}
+
+.diana-app .sd-triage-empty > svg {
+  color: #74c0ff;
+}
+
+.diana-app .sd-triage-empty h2,
+.diana-app .sd-triage-empty p {
+  margin: 0;
+}
+
+.diana-app .sd-triage-empty a {
+  border-radius: 0.75rem;
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  padding: 0.85rem 1.25rem;
+  color: #0f172a;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+/* Selected inbox item */
+.diana-app .sd-inbox-review {
+  min-height: max(100dvh, 852px);
+  overflow-y: auto;
+}
+
+.diana-app .sd-inbox-review-header {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
+  align-items: center;
+  padding: 3.5rem 1.25rem 1rem;
+}
+
+.diana-app .sd-inbox-review-header > a {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
+  color: #fff;
+}
+
+.diana-app .sd-inbox-review-header .sd-source-wordmark {
+  justify-self: center;
+  height: 1.25rem;
+}
+
+.diana-app .sd-inbox-review > main {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.diana-app .sd-inbox-capture-copy,
+.diana-app .sd-inbox-suggestion,
+.diana-app .sd-inbox-confirm-form,
+.diana-app .sd-inbox-terminal-state,
+.diana-app .sd-inbox-no-class {
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 1.15rem;
+}
+
+.diana-app .sd-inbox-capture-copy > span,
+.diana-app .sd-inbox-confirm-form > p,
+.diana-app .sd-inbox-suggestion > span {
+  color: #74c0ff;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-inbox-capture-copy h1 {
+  margin: 0.65rem 0;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1.35rem;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-inbox-capture-copy time {
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-inbox-photo {
+  width: 100%;
+  max-height: 15rem;
+  border-radius: 1rem;
+  object-fit: contain;
+}
+
+.diana-app .sd-inbox-suggestion > span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #facc15;
+}
+
+.diana-app .sd-inbox-suggestion p {
+  margin: 0.65rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.diana-app .sd-inbox-confirm-form {
+  display: grid;
+  gap: 0.9rem;
+  border-color: rgb(116 192 255 / 0.45);
+}
+
+.diana-app .sd-inbox-confirm-form > p {
+  margin: 0;
+}
+
+.diana-app .sd-inbox-confirm-form label {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.diana-app .sd-inbox-confirm-form label > span {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #94a3b8;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-inbox-confirm-form label svg {
+  width: 0.9rem;
+}
+
+.diana-app .sd-inbox-confirm-form :is(select, input) {
+  width: 100%;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 0.65rem;
+  background: #111c32;
+  padding: 0.8rem;
+  color: #fff;
+}
+
+.diana-app .sd-inbox-convert,
+.diana-app .sd-inbox-dismiss,
+.diana-app .sd-inbox-no-class button {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.7rem;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-inbox-convert {
+  border: 0;
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  color: #0f172a;
+}
+
+.diana-app .sd-inbox-dismiss {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.04);
+  color: #94a3b8;
+}
+
+.diana-app .sd-inbox-terminal-state,
+.diana-app .sd-inbox-no-class {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  margin-top: 5rem;
+  text-align: center;
+}
+
+.diana-app .sd-inbox-terminal-state h1,
+.diana-app .sd-inbox-terminal-state p,
+.diana-app .sd-inbox-no-class h2 {
+  margin: 0;
+}
+
+.diana-app .sd-inbox-terminal-state a,
+.diana-app .sd-inbox-no-class button {
+  border: 0;
+  border-radius: 0.7rem;
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  padding: 0.8rem 1.1rem;
+  color: #0f172a;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-calm-form-error {
+  border: 1px solid rgb(251 191 36 / 0.35);
+  border-radius: 0.65rem;
+  background: rgb(251 191 36 / 0.1);
+  padding: 0.7rem;
+  color: #fde68a;
+  font-size: 0.75rem;
+}
+
+/* Mission Board */
+.diana-app .sd-mission-board {
+  display: flex;
+  min-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diana-app .sd-mission-header {
+  flex: 0 0 auto;
+  border-bottom: 1px solid rgb(255 255 255 / 0.05);
+  background: rgb(15 23 42 / 0.86);
+  padding: 3.5rem 1.5rem 1rem;
+  backdrop-filter: blur(14px);
+}
+
+.diana-app .sd-mission-header > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.diana-app .sd-mission-header .sd-source-wordmark {
+  height: 1.5rem;
+}
+
+.diana-app .sd-mission-header > div:first-child > a {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.03);
+  color: #fff;
+}
+
+.diana-app .sd-mission-heading-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.diana-app .sd-mission-heading-row h1 {
+  margin: 0;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1.85rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-heading-row h1 span {
+  display: block;
+  color: #ff79da;
+}
+
+.diana-app .sd-mission-heading-row p {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  text-align: right;
+}
+
+.diana-app .sd-mission-heading-row p span {
+  color: #94a3b8;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-heading-row p strong {
+  max-width: 10rem;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-scroll {
+  display: grid;
+  flex: 1 1 auto;
+  align-content: start;
+  gap: 2rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1.5rem 1.5rem 9rem;
+}
+
+.diana-app .sd-mission-section {
+  display: grid;
+  gap: 1rem;
+}
+
+.diana-app .sd-mission-section h2 {
+  position: relative;
+  margin: 0;
+  padding-left: 1rem;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.75rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1.5rem;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-section h2::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0.25rem;
+  border-radius: 999px;
+  background: #ff79da;
+  content: "";
+}
+
+.diana-app .sd-mission-section h2[data-tone="blue"]::before {
+  background: #74c0ff;
+}
+
+.diana-app .sd-mission-task-list,
+.diana-app .sd-mission-quick-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.diana-app .sd-mission-task {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  min-height: 7.8rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.03);
+  padding: 1.25rem;
+  color: #fff;
+  text-decoration: none;
+  backdrop-filter: blur(8px);
+}
+
+.diana-app .sd-mission-task[data-priority="true"] {
+  border-left: 4px solid #ff79da;
+}
+
+.diana-app .sd-mission-task-copy {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.diana-app .sd-mission-task-copy strong {
+  overflow: hidden;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.diana-app .sd-mission-task-copy small {
+  overflow: hidden;
+  color: #94a3b8;
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.diana-app .sd-mission-task em {
+  align-self: start;
+  border-radius: 0.25rem;
+  background: rgb(255 121 218 / 0.2);
+  padding: 0.3rem 0.5rem;
+  color: #ff79da;
+  font-size: 0.55rem;
+  font-style: normal;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-start {
+  grid-column: 1 / -1;
+  display: flex;
+  min-height: 2.7rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.05);
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.62rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-quick-list > a {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 1rem;
+  min-height: 4.65rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.03);
+  padding: 1rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.diana-app .sd-mission-quick-list > a > span {
+  grid-row: 1 / 3;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: rgb(116 192 255 / 0.1);
+  color: #74c0ff;
+}
+
+.diana-app .sd-mission-quick-list strong {
+  align-self: end;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-quick-list small {
+  align-self: start;
+  color: #64748b;
+  font-size: 0.55rem;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-mission-quick-list > a > svg {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  width: 1rem;
+  color: #475569;
+}
+
+.diana-app .sd-mission-empty {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.diana-app .sd-mission-empty strong {
+  color: #fff;
+}
+
+.diana-app .sd-mission-capture {
+  position: absolute;
+  z-index: 60;
+  right: 1.5rem;
+  bottom: 7rem;
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #74c0ff, #ff79da);
+  color: #0f172a;
+  box-shadow: 0 10px 30px rgb(45 212 191 / 0.3);
+}
+
+.diana-app .sd-mission-capture svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.diana-app .sd-mission-board .sd-student-bottom-nav {
+  position: absolute;
+  inset: auto 0 0;
+}
+
+.diana-app .sd-mission-board .sd-student-bottom-nav a[aria-current="page"] {
+  color: #ff79da;
+}
+
+/* Quick Add */
+.diana-app .sd-quick-add {
+  display: flex;
+  min-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.diana-app .sd-quick-add-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3.5rem 1.5rem 1rem;
+}
+
+.diana-app .sd-quick-add-header .sd-source-wordmark {
+  height: 1.5rem;
+}
+
+.diana-app .sd-quick-add-header button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  min-height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+  padding: 0;
+  color: #fff;
+}
+
+.diana-app .sd-quick-add-header button svg {
+  width: 1.25rem;
+}
+
+.diana-app .sd-quick-add-main {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.2rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 1rem 1.5rem 2rem;
+}
+
+.diana-app .sd-quick-add-intro {
+  display: grid;
+  gap: 0.35rem;
+  text-align: center;
+}
+
+.diana-app .sd-quick-add-intro h1,
+.diana-app .sd-quick-add-intro p {
+  margin: 0;
+}
+
+.diana-app .sd-quick-add-intro h1 {
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-quick-add-intro p {
+  color: #74c0ff;
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-quick-add-mascot {
+  position: relative;
+  display: grid;
+  flex: 0 0 auto;
+  width: 12rem;
+  height: 12rem;
+  place-items: center;
+}
+
+.diana-app .sd-quick-add-mascot i {
+  position: absolute;
+  width: 16rem;
+  height: 16rem;
+  border-radius: 999px;
+  background: linear-gradient(35deg, rgb(255 121 218 / 0.2), rgb(116 192 255 / 0.2));
+  filter: blur(38px);
+}
+
+.diana-app .sd-quick-add-mascot img {
+  position: relative;
+  z-index: 1;
+  width: 12rem;
+  height: 12rem;
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgb(255 121 218 / 0.35));
+}
+
+.diana-app .sd-capture-mode-list {
+  display: grid;
+  width: 100%;
+  gap: 1rem;
+}
+
+.diana-app .sd-capture-mode-list > button {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 1.5rem;
+  min-height: 6.4rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-left: 4px solid #64748b;
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 1.25rem 1.5rem;
+  color: #fff;
+  text-align: left;
+  backdrop-filter: blur(8px);
+}
+
+.diana-app .sd-capture-mode-list > button[data-mode="photo"] {
+  border-left-color: #74c0ff;
+}
+
+.diana-app .sd-capture-mode-list > button[data-mode="voice"] {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#0f172a, #0f172a) padding-box,
+    linear-gradient(100deg, #ff79da, #74c0ff) border-box;
+  box-shadow: 0 0 20px rgb(255 121 218 / 0.2);
+}
+
+.diana-app .sd-capture-mode-list > button > span {
+  grid-row: 1 / 3;
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.07);
+  color: #fff;
+}
+
+.diana-app .sd-capture-mode-list > button[data-mode="photo"] > span {
+  background: #74c0ff;
+  color: #0f172a;
+  box-shadow: 0 0 15px rgb(116 192 255 / 0.4);
+}
+
+.diana-app .sd-capture-mode-list > button[data-mode="voice"] > span {
+  color: #ff79da;
+}
+
+.diana-app .sd-capture-mode-list svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.diana-app .sd-capture-mode-list strong {
+  align-self: end;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-capture-mode-list small {
+  align-self: start;
+  margin-top: 0.35rem;
+  color: #94a3b8;
+  font-size: 0.625rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-quick-add-main[data-mode]:not([data-mode="menu"]) {
+  gap: 1.25rem;
+  justify-content: flex-start;
+}
+
+.diana-app .sd-quick-add-main[data-mode]:not([data-mode="menu"]) .sd-quick-add-mascot {
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.diana-app .sd-quick-add-main[data-mode]:not([data-mode="menu"]) .sd-quick-add-mascot i {
+  width: 10rem;
+  height: 10rem;
+}
+
+.diana-app .sd-quick-add-main[data-mode]:not([data-mode="menu"]) .sd-quick-add-mascot img {
+  width: 7.5rem;
+  height: 7.5rem;
+}
+
+.diana-app .sd-capture-editor {
+  display: grid;
+  width: 100%;
+  gap: 0.8rem;
+  border: 1px solid rgb(116 192 255 / 0.35);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 1rem;
+}
+
+.diana-app .sd-capture-change-mode {
+  display: inline-flex;
+  width: max-content;
+  min-height: auto;
+  align-items: center;
+  gap: 0.35rem;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: #74c0ff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-capture-change-mode svg {
+  width: 0.9rem;
+}
+
+.diana-app .sd-capture-editor > label {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.diana-app .sd-capture-editor > label > span {
+  color: #94a3b8;
+  font-size: 0.6rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-capture-editor textarea,
+.diana-app .sd-capture-photo-editor textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 0.75rem;
+  background: #111c32;
+  padding: 0.85rem;
+  color: #fff;
+}
+
+.diana-app .sd-capture-photo-editor {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.diana-app .sd-capture-photo-editor > label {
+  display: grid;
+  min-height: 7rem;
+  cursor: pointer;
+  place-items: center;
+  border: 1px dashed rgb(116 192 255 / 0.5);
+  border-radius: 0.75rem;
+  background: rgb(116 192 255 / 0.06);
+  color: #74c0ff;
+  text-align: center;
+}
+
+.diana-app .sd-capture-photo-editor input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.diana-app .sd-capture-submit,
+.diana-app .sd-capture-cancel {
+  display: flex;
+  min-height: 3.15rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.7rem;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-capture-submit {
+  border: 0;
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  color: #0f172a;
+}
+
+.diana-app .sd-capture-cancel {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: transparent;
+  color: #94a3b8;
+}
+
+.diana-app .sd-capture-status {
+  margin: 0;
+  border: 1px solid rgb(116 192 255 / 0.25);
+  border-radius: 0.65rem;
+  background: rgb(116 192 255 / 0.08);
+  padding: 0.65rem;
+  color: #bae6fd;
+  font-size: 0.75rem;
+}
+
+@media (min-width: 394px) {
+  .sd-capture-work-screen {
+    min-height: max(100dvh, 852px);
+  }
+}
