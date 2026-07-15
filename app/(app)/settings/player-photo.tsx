@@ -144,8 +144,8 @@ export function PlayerPhoto({
       <span className="nexus-kicker">Player photo</span>
       <h2 className="text-xl font-semibold">Your lobby photo</h2>
       <p className="text-sm text-muted">
-        Upload a photo and Diana removes the background so it sits cleanly in your lobby — runs privately on your
-        device, no account or key needed. It syncs to your account, so it shows up on any device you sign in on.
+        Upload a photo and Diana removes the background so it sits cleanly in your lobby. This runs privately on your
+        device, with no account or key needed. It syncs to your account, so it shows up on any device you sign in on.
       </p>
 
       <div className="flex items-center gap-4">
@@ -177,6 +177,7 @@ export function PlayerPhoto({
             ref={inputRef}
             type="file"
             accept="image/*"
+            aria-label="Choose a lobby photo"
             className="sr-only"
             onChange={(e) => {
               const file = e.target.files?.[0];

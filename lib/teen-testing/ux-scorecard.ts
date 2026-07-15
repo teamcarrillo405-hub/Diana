@@ -20,7 +20,7 @@ export type TeenNativeUxSection = {
 export type TeenNativeUxEvidence = {
   landingNextFiveMinutes: boolean;
   landingProductIdentity: boolean;
-  landingFutureModeOption: boolean;
+  landingStudentEntryPath: boolean;
   dashboardRightNowCard: boolean;
   assignmentNextStepEntry: boolean;
   priorityMobileNav: boolean;
@@ -28,8 +28,8 @@ export type TeenNativeUxEvidence = {
   responsiveQaClean: boolean;
   authenticatedResponsiveQaClean: boolean;
   authenticatedRoutesNoLoginRedirect: boolean;
-  compactDesktopRail: boolean;
-  desktopCommandSearch: boolean;
+  compactDesktopPrimaryNav: boolean;
+  secondaryDestinationDrawer: boolean;
   authCommandCenterShell: boolean;
   authVisualSignals: boolean;
   authFutureModeToggle: boolean;
@@ -126,8 +126,8 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     id: "mobile_thumb_flow",
     label: "Mobile thumb flow",
     competitorEdge: "Quizlet has a familiar mobile rhythm, and Gemini keeps the core chat action close.",
-    dianaTarget: "Mobile should keep Today, Work, Think, Proof, and Future reachable with no horizontal overflow.",
-    requiredSurfaces: ["five-lane bottom nav", "stacked action rows", "responsive browser QA"],
+    dianaTarget: "Mobile should keep Today, Work, Classes, Calendar, and More reachable with no horizontal overflow.",
+    requiredSurfaces: ["five-tab bottom nav", "stacked action rows", "responsive browser QA"],
     requiredSignals: ["nav_success", "tap_target_clear", "overflow_count"],
     repoCriteria: ["priorityMobileNav", "responsiveActionRows", "responsiveQaClean", "authenticatedResponsiveQaClean"],
     liveCriteria: ["4 of 5 students start from mobile without hunting through secondary routes."],
@@ -186,7 +186,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     repoCriteria: [
       "landingProductIdentity",
       "landingMobilePreviewAboveFold",
-      "landingFutureModeOption",
+      "landingStudentEntryPath",
       "authCommandCenterShell",
       "authVisualSignals",
       "authAfterLoginPreview",
@@ -204,12 +204,12 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     targetScore: 10,
     currentConfidence: "8.7 before this pass: strong clarity, but needed a more memorable product/voice moment.",
     tenDefinition:
-      "The first viewport sells Diana as a student-owned next-move, proof, and Future Path product with one obvious start path.",
+      "The first viewport sells Diana as a student-owned next-move product with one obvious student start path.",
     repoCriteria: [
       "landingNextFiveMinutes",
       "landingProductIdentity",
       "landingMobilePreviewAboveFold",
-      "landingFutureModeOption",
+      "landingStudentEntryPath",
       "futureModeProvider",
       "responsiveQaClean",
     ],
@@ -251,12 +251,12 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     label: "App shell navigation",
     baselineScore: 8.4,
     targetScore: 10,
-    currentConfidence: "The left panel was too long; the 10/10 bar is a short rail with searchable secondary tools.",
+    currentConfidence: "The app shell should keep primary school moves visible and group secondary destinations without crowding the viewport.",
     tenDefinition:
-      "Desktop uses a compact rail for the main school moves and a searchable drawer for secondary tools.",
+      "Desktop uses a compact top navigation for the main school moves and a grouped drawer for secondary destinations.",
     repoCriteria: [
-      "compactDesktopRail",
-      "desktopCommandSearch",
+      "compactDesktopPrimaryNav",
+      "secondaryDestinationDrawer",
       "priorityMobileNav",
       "authenticatedResponsiveQaClean",
     ],
@@ -417,16 +417,16 @@ function scoreSection(section: TeenNativeUxSection, evidence: TeenNativeUxEviden
 const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
   landingNextFiveMinutes: "Make the landing page lead with the next 5 minutes ritual.",
   landingProductIdentity: "Make the landing page show a memorable Diana product moment above the fold.",
-  landingFutureModeOption: "Give public visitors an optional Future Mode / voice-forward path.",
+  landingStudentEntryPath: "Give students one clear public entry path into Diana.",
   dashboardRightNowCard: "Make the dashboard Right now card the first useful surface.",
   assignmentNextStepEntry: "Add a next-step entry point on assignment detail.",
-  priorityMobileNav: "Keep mobile navigation to Today, Work, Think, Proof, Future.",
+  priorityMobileNav: "Keep mobile navigation to Today, Work, Classes, Calendar, and More.",
   responsiveActionRows: "Use stacked full-width action rows on small screens.",
   responsiveQaClean: "Run clean responsive QA with no horizontal overflow or server errors.",
   authenticatedResponsiveQaClean: "Run clean authenticated responsive QA for the app shell and core student routes.",
   authenticatedRoutesNoLoginRedirect: "Prevent authenticated-route screenshots from silently capturing the login page.",
-  compactDesktopRail: "Replace the long desktop sidebar with a compact rail for core school moves.",
-  desktopCommandSearch: "Add searchable secondary navigation for less-common app routes.",
+  compactDesktopPrimaryNav: "Keep core school moves in a compact desktop navigation.",
+  secondaryDestinationDrawer: "Group secondary destinations in the More drawer.",
   authCommandCenterShell: "Make login and signup feel like Diana's private student space, not generic forms.",
   authVisualSignals: "Show voice, source, privacy, and student-control cues on auth pages.",
   authFutureModeToggle: "Expose Future Mode from login and signup.",

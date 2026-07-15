@@ -61,7 +61,7 @@ const authenticatedRoutes = new Set([
   "/notes",
   "/flashcards",
   "/settings/ai-history",
-  "/teacher-share",
+  "/sharing",
   ...extraRoutes,
 ]);
 
@@ -225,9 +225,9 @@ async function captureRoute(
       : "authenticated";
   const fileRoute = route === "/" ? "landing" : route.replace(/^\//, "").replace(/\//g, "-");
   const filePrefix = theme === "dark" ? "dark-" : "";
-  const screenshot = join(outDir, `${filePrefix}${viewport.label}-${fileRoute}.png`);
+  const screenshot = join(outDir, `${filePrefix}${viewport.label}-${fileRoute}.jpg`);
 
-  await page.screenshot({ path: screenshot, fullPage: true });
+  await page.screenshot({ path: screenshot, fullPage: true, type: "jpeg", quality: 72 });
   rows.push({ route, viewport: viewport.label, theme, screenshot, hasHorizontalOverflow, bannedVisible, statusText, authState });
   expect(statusText, `${viewport.label} ${route} should render without an internal server page`).toBe("ok");
   if (needsAuth) {

@@ -13,10 +13,10 @@ export default async function AssignmentDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ start?: string; steps?: string }>;
+  searchParams: Promise<{ focus?: string; start?: string; steps?: string }>;
 }) {
   const { id } = await params;
-  const { start, steps: stepsParam } = await searchParams;
+  const { focus, start, steps: stepsParam } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -89,7 +89,7 @@ export default async function AssignmentDetailPage({
         savedWork={(a.saved_work as Record<string, string>) ?? {}}
         steps={steps}
         problems={problems}
-        startInWork={start === "1" || stepsParam === "1"}
+        startInWork={focus === "next-step" || start === "1" || stepsParam === "1"}
         startWithSteps={stepsParam === "1"}
       />
     </div>
