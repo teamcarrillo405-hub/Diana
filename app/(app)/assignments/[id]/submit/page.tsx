@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, FileText, Settings2 } from "lucide-react";
+import { ArrowLeft, FileText, Plus, Settings2 } from "lucide-react";
 import { DianaMascotMark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { createClient } from "@/lib/supabase/server";
@@ -100,12 +100,6 @@ export default async function SubmitPage({
           </div>
         </section>
 
-        <SubmitChecklist
-          assignmentId={id}
-          items={checklist}
-          currentUrl={assignment.submission_url}
-        />
-
         <section className="sd-submit-coach">
           <DianaMascotMark decorative />
           <div>
@@ -116,6 +110,12 @@ export default async function SubmitPage({
             </p>
           </div>
         </section>
+
+        <SubmitChecklist
+          assignmentId={id}
+          items={checklist}
+          currentUrl={assignment.submission_url}
+        />
 
         {assignment.external_source ? (
           <details className="sd-submit-sync">
@@ -129,6 +129,10 @@ export default async function SubmitPage({
           </details>
         ) : null}
       </main>
+
+      <Link href="/quick-add" className="sd-source-fab" aria-label="Add a quick task">
+        <Plus size={30} aria-hidden="true" />
+      </Link>
     </ScreenDesignViewport>
   );
 }

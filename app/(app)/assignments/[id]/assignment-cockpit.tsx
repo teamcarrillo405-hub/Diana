@@ -80,8 +80,11 @@ export function AssignmentCockpit({
       const next = "redirect" in result && result.redirect
         ? result.redirect
         : destination;
-      if (next) router.push(next);
-      router.refresh();
+      if (next) {
+        router.push(next);
+      } else {
+        router.refresh();
+      }
     });
   }
 

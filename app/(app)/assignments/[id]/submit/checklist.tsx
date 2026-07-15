@@ -35,6 +35,7 @@ export function SubmitChecklist({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [newItemLabel, setNewItemLabel] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
   const requiredOk = items.filter((item) => item.required).every((item) => item.checked);
 
   function toggle(item: Item) {
@@ -84,6 +85,7 @@ export function SubmitChecklist({
 
   function confirmSubmission() {
     setError(null);
+    if (confirmed) return;
     if (!requiredOk) {
       setError("Check each required item when you are ready.");
       return;
@@ -95,8 +97,7 @@ export function SubmitChecklist({
         to: "submitted",
       });
       if ("error" in result && result.error) return setError(result.error);
-      router.push(`/assignments/${assignmentId}`);
-      router.refresh();
+      setConfirmed(true);
     });
   }
 
@@ -164,11 +165,11 @@ export function SubmitChecklist({
         <button
           type="button"
           onClick={confirmSubmission}
-          disabled={pending || !requiredOk}
+          disabled={pending || !requiredOk || confirmed}
           aria-label="Confirm submission"
         >
           {pending ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}
-          {pending ? "CONFIRMING" : requiredOk ? "CONFIRM SUBMISSION" : "CHECK REQUIRED ITEMS"}
+          {pending ? "CONFIRMING" : confirmed ? "SUBMISSION CONFIRMED" : requiredOk ? "CONFIRM SUBMISSION" : "CHECK REQUIRED ITEMS"}
         </button>
       </footer>
     </div>

@@ -1608,6 +1608,7 @@ body.diana-app {
   background: transparent;
   color: #f8fafc;
   cursor: pointer;
+  clip-path: none !important;
 }
 
 .sd-assignment-timer::before {
@@ -1625,11 +1626,19 @@ body.diana-app {
   border-radius: inherit;
   background: conic-gradient(from 4deg, #54cbd1 0 23%, #8abdd5 23% 42%, #db7bd3 42% 70%, #29364c 70% 100%);
   filter: drop-shadow(0 0 20px rgb(45 212 191 / 0.28));
-  mask: radial-gradient(circle, transparent 0 67%, #000 68% 74%, transparent 75%);
+  clip-path: none !important;
+}
+
+.sd-assignment-timer-track::after {
+  position: absolute;
+  inset: 0.72rem;
+  border-radius: inherit;
+  background: #0f172a;
+  content: "";
 }
 
 .sd-assignment-timer-copy {
-  z-index: 1;
+  z-index: 2;
   display: grid;
   gap: 0.2rem;
 }
@@ -2513,4 +2522,198 @@ body.diana-app {
 .sd-submit-footer button {
   background: linear-gradient(100deg, #ff79da, #74c0ff);
   box-shadow: 0 0 30px rgb(255 121 218 / 0.28);
+}
+
+.diana-app:has(.sd-assignment-cockpit) .skip-link,
+.diana-app:has(.sd-submit-screen) .skip-link,
+.diana-app:has(.sd-breakdown-screen) .skip-link {
+  transition: none;
+}
+
+.diana-authenticated-field:has(.sd-assignment-cockpit),
+.diana-authenticated-field:has(.sd-submit-screen),
+.diana-authenticated-field:has(.sd-breakdown-screen) {
+  padding-bottom: 0 !important;
+}
+
+.diana-app .app-command-frame--flush:has(.sd-assignment-cockpit),
+.diana-app .app-command-frame--flush:has(.sd-submit-screen),
+.diana-app .app-command-frame--flush:has(.sd-breakdown-screen) {
+  padding: 0 !important;
+}
+
+.diana-authenticated-field:has(.sd-assignment-cockpit) .diana-mobile-command,
+.diana-authenticated-field:has(.sd-submit-screen) .diana-mobile-command,
+.diana-authenticated-field:has(.sd-breakdown-screen) .diana-mobile-command,
+.diana-app-shell:has(.sd-assignment-cockpit) .agent-fab-anchor,
+.diana-app-shell:has(.sd-submit-screen) .agent-fab-anchor,
+.diana-app-shell:has(.sd-breakdown-screen) .agent-fab-anchor,
+.diana-app:has(.sd-assignment-cockpit) nextjs-portal,
+.diana-app:has(.sd-submit-screen) nextjs-portal,
+.diana-app:has(.sd-breakdown-screen) nextjs-portal {
+  display: none !important;
+}
+
+/* The legacy application theme styles every button as an angular command.
+   These source screens own their controls, so restore the ScreenDesign geometry. */
+.diana-app .sd-assignment-timer {
+  display: grid;
+  width: 15.75rem;
+  min-width: 15.75rem;
+  height: 15.75rem;
+  min-height: 15.75rem;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  color: #f8fafc;
+  clip-path: none;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.diana-app .sd-assignment-timer-track,
+.diana-app .sd-assignment-timer-track::after {
+  border-radius: 999px;
+  clip-path: none;
+}
+
+.diana-app .sd-assignment-drill {
+  display: grid;
+  width: 100%;
+  min-height: 4rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: none;
+  padding: 0.85rem 1rem;
+  color: #f8fafc;
+  clip-path: none;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.diana-app .sd-assignment-state-actions button {
+  width: auto;
+  min-height: 2.35rem;
+  border-radius: 999px;
+  background: rgb(116 192 255 / 0.08);
+  box-shadow: none;
+  padding: 0.55rem 0.8rem;
+  color: #74c0ff;
+  clip-path: none;
+  font-family: inherit;
+}
+
+.diana-app .sd-breakdown-step {
+  display: grid;
+  width: 100%;
+  min-height: 4.5rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: none;
+  padding: 0.9rem 1rem;
+  color: #f8fafc;
+  clip-path: none;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.diana-app .sd-breakdown-step[data-checked="true"] {
+  border-left: 4px solid #74c0ff;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: 0 0 15px rgb(116 192 255 / 0.1);
+  color: #f8fafc;
+}
+
+.diana-app .sd-breakdown-step:disabled {
+  opacity: 1;
+}
+
+.diana-app .sd-source-fab {
+  display: grid;
+  width: 4rem;
+  min-width: 4rem;
+  height: 4rem;
+  min-height: 4rem;
+  place-items: center;
+  border: 0;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #74c0ff, #ff79da);
+  box-shadow: 0 10px 30px rgb(45 212 191 / 0.3);
+  padding: 0;
+  color: #0f172a;
+  clip-path: none;
+  text-decoration: none;
+}
+
+.diana-app .sd-breakdown-primary,
+.diana-app .sd-submit-footer button {
+  display: flex;
+  width: 100%;
+  min-height: 4rem;
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 0 30px rgb(116 192 255 / 0.24);
+  padding: 0.8rem 1rem;
+  color: #0f172a;
+  clip-path: none;
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.diana-app .sd-breakdown-primary {
+  background: #74c0ff;
+}
+
+.diana-app .sd-submit-footer button {
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  box-shadow: 0 0 30px rgb(255 121 218 / 0.28);
+}
+
+.diana-app .sd-submit-checklist li > button:first-child {
+  display: grid;
+  width: auto;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0.75rem;
+  color: #f8fafc;
+  clip-path: none;
+  font-family: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.diana-app .sd-submit-checklist li > button:last-child {
+  display: grid;
+  width: 2.6rem;
+  min-width: 2.6rem;
+  min-height: 0;
+  border: 0;
+  border-left: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  color: #64748b;
+  clip-path: none;
+}
+
+.diana-app .sd-breakdown-bubble p,
+.diana-app .sd-submit-coach p {
+  color: #f8fafc;
 }

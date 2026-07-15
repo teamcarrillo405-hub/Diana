@@ -429,7 +429,21 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     screenId: "assignment-detail",
     heading: "Assignment detail",
     params: { id: "assignment-main" },
-    records: assignmentSupport(),
+    records: [
+      ...assignmentSupport({}, { checked: true }),
+      record(
+        "assignment-step",
+        "assignment-step-main",
+        {
+          steps: [
+            { step: 1, action: "Write a one-sentence claim.", minutes: 5, done: false },
+            { step: 2, action: "Choose the strongest quote.", minutes: 5, done: false },
+            { step: 3, action: "Explain how the quote supports the claim.", minutes: 5, done: false },
+          ],
+        },
+        ["assignment-main"],
+      ),
+    ],
     guardedStates: ["populated"],
     result: mutation("assignment", "assignment-main", "status", "in_progress"),
   },
@@ -825,7 +839,15 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
       record(
         "assignment-step",
         "assignment-step-main",
-        { steps: [{ action: "Pick the quote and page number.", minutes: 5, done: false }] },
+        {
+          steps: [
+            { step: 1, action: "Pick the quote and page number.", minutes: 5, done: true },
+            { step: 2, action: "Write a one-sentence claim.", minutes: 5, done: false },
+            { step: 3, action: "Connect the quote to the claim.", minutes: 5, done: false },
+            { step: 4, action: "Read the response against the rubric.", minutes: 5, done: false },
+            { step: 5, action: "Prepare the final response for submission.", minutes: 5, done: false },
+          ],
+        },
         ["assignment-main"],
       ),
     ],

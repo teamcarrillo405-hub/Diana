@@ -70,7 +70,6 @@ export function BreakDownClient({
       }
       setAccepted(true);
       router.push(returnTo);
-      router.refresh();
     });
   }
 
@@ -161,9 +160,9 @@ export function BreakDownClient({
         {error ? <p className="sd-source-calm-error" role="status">{error}</p> : null}
       </main>
 
-      <button type="button" className="sd-source-fab" aria-label="Add a quick task" disabled>
+      <Link href="/quick-add" className="sd-source-fab" aria-label="Add a quick task">
         <Plus size={30} aria-hidden="true" />
-      </button>
+      </Link>
 
       <footer className="sd-breakdown-footer">
         {steps.length > 0 ? (

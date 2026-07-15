@@ -60,7 +60,7 @@ describe("SubmitChecklist checkpoint", () => {
         from: "exporting",
         to: "submitted",
       });
-      expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}`);
+      expect(screen.getByText("SUBMISSION CONFIRMED")).toBeTruthy();
     });
   });
 });
