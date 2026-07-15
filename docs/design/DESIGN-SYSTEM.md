@@ -117,6 +117,19 @@ Rules:
 
 The old side navigation is retired. Do not introduce another primary navigation pattern.
 
+## Figma source and code mapping
+
+The editable design source is the [Diana Design System](https://www.figma.com/design/M7kvCycCFWJnKUgYmfKheZ/Diana-Design-System). It contains foundations, approved mobile flows, and reusable component pages. The `99 ScreenDesign reference` page preserves all 47 original ScreenDesign HTML exports in a named six-column grid. Those frames are visual references only. They are not production components and must not be copied into the app as generated markup.
+
+| Figma component | Figma node | React implementation |
+|---|---|---|
+| Diana Button, primary emphasis | `8:8` | `components/ui/hero-cta-button.tsx` |
+| Diana Button, quiet emphasis | `8:10` | Page action styles must reuse the shared button tokens in `app/globals.css`; use `SlantedActionButton` only for the lime action convention. |
+| Assignment card | `9:7` | `components/ui/mission-card.tsx` and `MissionProgress` |
+| Mobile navigation | `11:245` | `app/(app)/mobile-tab-bar.tsx` |
+
+Figma Code Connect is not available on the current Professional plan. It requires an Organization or Enterprise plan and published library components. Until the plan changes, this table is the design-to-code mapping contract.
+
 ## Verification
 
 - Component contract tests: `components/ui/design-system.test.tsx`

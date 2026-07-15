@@ -24,7 +24,7 @@ This file records the live implementation path from the ScreenDesign reference t
 | Phase | Status | Evidence |
 |---|---|---|
 | 0. Environment stabilization | Complete for this branch | Development, build, test, Supabase, and Vercel workflows are established. |
-| 1. Design system | Complete for the shared kit | `components/ui/` contains the documented shared components and component tests. |
+| 1. Design system | Complete for the shared kit | `components/ui/` contains the documented shared components and component tests. The Figma source contains foundations, three approved flows, reusable components, and all 47 ScreenDesign references. |
 | 2. Navigation structure | Complete | The five destinations are Today, Work, Classes, Calendar, and More on desktop and phone. |
 | 3. High-traffic page migration | In progress | Assignments, My Classes, reminder, and audio-note actions use the shared kit. Remaining pages migrate when touched. |
 | 4. Student AI routing | Complete for the current student features | Twelve Edge Functions use the shared provider adapter and authenticated production smoke passes. |
@@ -55,6 +55,8 @@ The current extraction is used in:
 - `app/(app)/dashboard/lobby-audio-note.tsx`
 
 Future page work must reuse the kit. A page-specific component is acceptable when its product behavior is unique, but it should not duplicate a shared status, card, alert, button, lane, metric, or empty-state pattern.
+
+The Figma design-to-code contract is recorded in `DESIGN-SYSTEM.md`. Live Code Connect mappings are unavailable on the current Figma Professional plan, so the manual mapping table remains authoritative until the account moves to Organization or Enterprise and the component library is published.
 
 ## Navigation state
 
