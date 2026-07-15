@@ -1,0 +1,942 @@
+[
+  {
+    "route": "/",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-landing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-login.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-signup.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-landing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-login.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-signup.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-landing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-login.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-signup.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-landing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-login.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-signup.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-landing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-login.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-signup.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/proof",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-proof.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/future-path",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-future-path.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/me",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-me.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-dashboard.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-assignments.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-notes.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-flashcards.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-settings-ai-history.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/sharing",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-sharing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-study-buddy.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "375x812",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\375x812-break-down.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-proof.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/future-path",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-future-path.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/me",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-me.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-dashboard.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-assignments.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-notes.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-flashcards.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-settings-ai-history.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/sharing",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-sharing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-study-buddy.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "390x844",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\390x844-break-down.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-proof.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/future-path",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-future-path.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/me",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-me.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-dashboard.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-assignments.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-notes.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-flashcards.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-settings-ai-history.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/sharing",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-sharing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-study-buddy.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "768x1024",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\768x1024-break-down.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-proof.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/future-path",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-future-path.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/me",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-me.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-dashboard.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-assignments.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-notes.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-flashcards.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-settings-ai-history.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/sharing",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-sharing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-study-buddy.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "1024x768",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1024x768-break-down.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/proof",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-proof.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/future-path",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-future-path.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/me",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-me.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-dashboard.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-assignments.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-notes.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-flashcards.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-settings-ai-history.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/sharing",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-sharing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/study-buddy",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-study-buddy.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/break-down",
+    "viewport": "1440x1000",
+    "theme": "light",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\1440x1000-break-down.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-landing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-login.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-signup.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/proof",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-proof.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/future-path",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-future-path.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/me",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-me.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-dashboard.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-assignments.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-notes.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-flashcards.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-settings-ai-history.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/sharing",
+    "viewport": "390x844",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-390x844-sharing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-landing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/login",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-login.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/signup",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-signup.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "public"
+  },
+  {
+    "route": "/proof",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-proof.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/future-path",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-future-path.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/me",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-me.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/dashboard",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-dashboard.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/assignments",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-assignments.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/notes",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-notes.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/flashcards",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-flashcards.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/settings/ai-history",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-settings-ai-history.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  },
+  {
+    "route": "/sharing",
+    "viewport": "1440x1000",
+    "theme": "dark",
+    "screenshot": "C:\\Users\\glcar\\Diana\\.planning\\qa-screenshots\\screen-design-final\\dark-1440x1000-sharing.jpg",
+    "hasHorizontalOverflow": false,
+    "bannedVisible": [],
+    "statusText": "ok",
+    "authState": "authenticated"
+  }
+]
