@@ -169,7 +169,7 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
                 </div>
               </header>
               <div
-                className={`px-3 py-2 text-xs text-fg/80 ${barClass}`}
+                className={`px-3 py-2 text-xs ${barClass}`}
                 aria-label={`Workload ${tierLabel}, ${total} minutes`}
               >
                 {total > 0 ? (

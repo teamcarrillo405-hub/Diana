@@ -54,12 +54,12 @@ export function workloadTier(totalMinutes: number): WorkloadTier {
 export function workloadBarClass(tier: WorkloadTier): string {
   switch (tier) {
     case "light":
-      return "bg-emerald-100";
+      return "bg-emerald-100 text-slate-950";
     case "moderate":
-      return "bg-amber-100";
+      return "bg-amber-100 text-slate-950";
     case "heavy":
-      return "bg-amber-300";
+      return "bg-amber-300 text-slate-950";
     case "overloaded":
-      return "bg-violet-200";
+      return "bg-violet-200 text-slate-950";
   }
 }
