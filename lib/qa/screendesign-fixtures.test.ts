@@ -218,6 +218,7 @@ describe("ScreenDesign owner-scoped seed contract", () => {
     ]);
     const relationByTable: Partial<Record<ScreenDesignSeedTable, string>> = {
       assignments: "class_id",
+      class_syllabi: "class_id",
       assignment_steps: "assignment_id",
       assignment_checklists: "assignment_id",
       submission_checklist: "assignment_id",

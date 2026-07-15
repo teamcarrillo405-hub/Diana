@@ -1163,6 +1163,7 @@ export type ScreenDesignSeedTable =
   | "profiles"
   | "classes"
   | "rubrics"
+  | "class_syllabi"
   | "assignments"
   | "assignment_steps"
   | "assignment_checklists"
@@ -1264,6 +1265,7 @@ const SCREEN_DESIGN_RESET_TARGETS: readonly Readonly<{
   { table: "wellness_goals", ownerColumn: "owner_id" },
   { table: "sleep_logs", ownerColumn: "owner_id" },
   { table: "assignments", ownerColumn: "owner_id" },
+  { table: "class_syllabi", ownerColumn: "owner_id" },
   { table: "rubrics", ownerColumn: "owner_id" },
   { table: "mastery_concepts", ownerColumn: "owner_id" },
   { table: "ap_exam_plans", ownerColumn: "owner_id" },
@@ -1420,6 +1422,32 @@ function buildRowsForFactory(
           parsed: { source: "screendesign-qa", scenarioId: scenario.id },
           parse_status: "parsed",
           parse_error: null,
+        }),
+      ];
+    }
+    case "class-syllabus": {
+      const classId = dependencyId("class");
+      return [
+        row("class_syllabi", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: classId,
+          title: stringValue(values, "title", "English 9 course guide"),
+          raw_text:
+            "Citations: Use APA formatting for the final submission.\nTiming: Upload the final response by the course due time.",
+          parsed: {
+            keyDates: [],
+            policies: [
+              {
+                kind: "Citations",
+                text: "Use APA formatting for the final submission.",
+              },
+              {
+                kind: "Timing",
+                text: "Upload the final response by the course due time.",
+              },
+            ],
+          },
         }),
       ];
     }
