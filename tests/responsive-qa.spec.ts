@@ -188,6 +188,31 @@ async function captureRoute(
     const body = document.body;
     return Math.max(doc.scrollWidth, body?.scrollWidth ?? 0) > doc.clientWidth + 2;
   });
+  const overflowElements = hasHorizontalOverflow
+    ? await page.evaluate(() => {
+        const viewportWidth = document.documentElement.clientWidth;
+        return Array.from(document.querySelectorAll<HTMLElement>("body *"))
+          .map((element) => {
+            const rect = element.getBoundingClientRect();
+            return {
+              element,
+              left: Math.round(rect.left),
+              right: Math.round(rect.right),
+              width: Math.round(rect.width),
+            };
+          })
+          .filter(({ left, right, width }) => width > 0 && (left < -2 || right > viewportWidth + 2))
+          .slice(0, 8)
+          .map(({ element, left, right, width }) => {
+            const label = [
+              element.tagName.toLowerCase(),
+              element.id ? `#${element.id}` : "",
+              ...Array.from(element.classList).slice(0, 3).map((name) => `.${name}`),
+            ].join("");
+            return `${label} (${left}..${right}, width ${width})`;
+          });
+      })
+    : [];
   const bannedVisible = bannedVisibleTerms.filter((term) => text.includes(term));
   const statusText =
     (response?.status() ?? 200) >= 500 || text.includes("internal server error")
@@ -208,7 +233,10 @@ async function captureRoute(
   if (needsAuth) {
     expect(authState, `${viewport.label} ${route} should render signed-in app UI`).toBe("authenticated");
   }
-  expect(hasHorizontalOverflow, `${viewport.label} ${route} should not horizontally overflow`).toBe(false);
+  expect(
+    hasHorizontalOverflow,
+    `${viewport.label} ${route} should not horizontally overflow. Offenders: ${overflowElements.join(", ") || "unknown"}`,
+  ).toBe(false);
   expect(bannedVisible, `${viewport.label} ${route} should not show blocked pressure copy`).toEqual([]);
 }
 
