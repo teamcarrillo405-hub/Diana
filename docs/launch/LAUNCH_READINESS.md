@@ -74,6 +74,8 @@ npm run qa:student-ai-live
 
 These steps cannot be completed by repository or production automation:
 
+Record all four gates in `docs/launch/HUMAN_SIGNOFF.md`. That sheet is the authoritative human handoff for the release candidate.
+
 1. Test the current production build on physical iOS Safari, Android Chrome, and a managed Chromebook.
 2. Run the five-student teen protocol. The market claim requires at least four of five students to prefer Diana for stuck tasks and zero final-work confusion.
 3. Assign a named operational owner for student-record incidents, deletion requests, provider failures, and launch-day monitoring.
