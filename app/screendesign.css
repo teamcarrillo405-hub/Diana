@@ -1309,3 +1309,166 @@ body.diana-app {
     transition: none;
   }
 }
+
+/* ScreenDesign source primitives. Keep this layer structural and screen-agnostic. */
+.sd-source-viewport {
+  --sd-source-blue: #74c0ff;
+  --sd-source-pink: #ff79da;
+  --sd-source-teal: #2dd4bf;
+  --sd-source-amber: #fbbf24;
+  position: relative;
+  isolation: isolate;
+  width: min(100%, 393px);
+  min-width: 0;
+  min-height: 852px;
+  min-height: max(100dvh, 852px);
+  margin-inline: auto;
+  overflow-x: clip;
+  background: #0f172a;
+  color: #f8fafc;
+  padding:
+    env(safe-area-inset-top, 0)
+    env(safe-area-inset-right, 0)
+    env(safe-area-inset-bottom, 0)
+    env(safe-area-inset-left, 0);
+  box-shadow: 0 0 20px rgb(0 0 0 / 0.1);
+}
+
+.sd-source-viewport,
+.sd-source-viewport * {
+  box-sizing: border-box;
+}
+
+.sd-source-viewport > * {
+  max-width: 100%;
+}
+
+.sd-source-media {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.sd-source-glass {
+  min-width: 0;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.05);
+  backdrop-filter: blur(12px);
+}
+
+.sd-source-glass[data-strength="strong"] {
+  background: rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.sd-source-chip,
+.sd-source-action {
+  --sd-source-accent: var(--sd-source-blue, #74c0ff);
+}
+
+.sd-source-chip[data-tone="pink"],
+.sd-source-action[data-tone="pink"] {
+  --sd-source-accent: var(--sd-source-pink, #ff79da);
+}
+
+.sd-source-chip[data-tone="teal"],
+.sd-source-action[data-tone="teal"] {
+  --sd-source-accent: var(--sd-source-teal, #2dd4bf);
+}
+
+.sd-source-chip[data-tone="amber"],
+.sd-source-action[data-tone="amber"] {
+  --sd-source-accent: var(--sd-source-amber, #fbbf24);
+}
+
+.sd-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  border: 1px solid color-mix(in srgb, var(--sd-source-accent) 30%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sd-source-accent) 12%, transparent);
+  padding: 0.35rem 0.65rem;
+  color: var(--sd-source-accent);
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.sd-source-action {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  padding: 0.75rem 1rem;
+  color: #0f172a;
+  font-size: 0.875rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    transform 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.sd-source-action[data-variant="solid"] {
+  background: var(--sd-source-accent);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--sd-source-accent) 30%, transparent);
+}
+
+.sd-source-action[data-variant="outline"] {
+  border-color: color-mix(in srgb, var(--sd-source-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--sd-source-accent) 10%, transparent);
+  color: var(--sd-source-accent);
+}
+
+.sd-source-action:hover {
+  border-color: color-mix(in srgb, var(--sd-source-accent) 70%, transparent);
+}
+
+.sd-source-action:active {
+  transform: scale(0.95);
+}
+
+.sd-source-action:disabled,
+.sd-source-action[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.sd-source-action:focus-visible {
+  outline: 2px solid var(--sd-source-accent);
+  outline-offset: 3px;
+}
+
+.sd-source-wordmark {
+  width: auto;
+  height: 1.5rem;
+  object-fit: contain;
+}
+
+.sd-source-mascot {
+  object-fit: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-source-action {
+    transition: none;
+  }
+
+  .sd-source-action:active {
+    transform: none;
+  }
+}
