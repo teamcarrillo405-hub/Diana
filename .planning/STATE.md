@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 5
+current_plan: 6
 status: executing
-stopped_at: Completed 36-28-PLAN.md
-last_updated: "2026-07-15T21:27:43.885Z"
+stopped_at: Completed 36-06-PLAN.md
+last_updated: "2026-07-15T21:37:03.270Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-28 deterministic local-only ScreenDesign source capture
+last_activity_desc: Completed 36-06 durable ScreenDesign onboarding preferences
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 5
-  percent: 17
+  completed_plans: 6
+  percent: 20
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 5
+**Current Plan:** 6
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [██░░░░░░░░] 17%
-**Last Activity:** 2026-07-15 - Completed 36-28 deterministic local-only ScreenDesign source capture
+**Progress:** [██░░░░░░░░] 20%
+**Last Activity:** 2026-07-15 - Completed 36-06 durable ScreenDesign onboarding preferences
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T21:27:43.877Z
-**Stopped at:** Completed 36-28-PLAN.md
+**Last session:** 2026-07-15T21:37:03.263Z
+**Stopped at:** Completed 36-06-PLAN.md
 
 ---
 
@@ -696,6 +696,7 @@ total_plans_in_phase: 30
 | Phase 36 P04 | 25 min | 3 tasks | 6 files |
 | Phase 36 P27 | 24 min | 2 tasks | 4 files |
 | Phase 36 P28 | 3h 3m | 2 tasks | 4 files |
+| Phase 36 P06 | 10 min | 3 tasks | 5 files |
 
 ## Decisions
 
@@ -715,9 +716,12 @@ total_plans_in_phase: 30
 - [Phase 36]: QA seed responses expose stable aliases and storage-state inputs, never credentials, owner UUIDs, or secrets. — Browser automation receives deterministic handles without leaking privileged identity data.
 - [Phase 36]: Canonical ScreenDesign references normalize only from exact registry entries and exact 28-entry manifest URL mappings. — Fail-closed canonical inputs prevent the conflicting dashboard, fuzzy URLs, and remote asset drift from contaminating fidelity evidence.
 - [Phase 36]: Source capture runs on one isolated origin with browser request evidence and exact path allowlists. — Every external attempt is aborted and recorded, while only canonical documents, compiled CSS, and checked-in manifest assets may complete.
+- [Phase 36]: Dedicated nullable preference fields preserve all legacy onboarding and profile values. — Challenge and schedule answers have distinct semantics and must never be coerced into existing fields.
+- [Phase 36]: Completion time is constructed only after both ScreenDesign selections validate. — The exact-key pure serializer prevents premature onboarding completion and accidental profile overwrites.
+- [Phase 36]: The completion action keeps auth and ownership at the existing Supabase server and profiles RLS boundary. — Authenticated user_id scoping and calm discriminated results preserve the established trust boundary.
 
 ## Session
 
-**Last session:** 2026-07-15T21:27:43.877Z
-**Stopped at:** Completed 36-28-PLAN.md
+**Last session:** 2026-07-15T21:37:03.263Z
+**Stopped at:** Completed 36-06-PLAN.md
 **Resume file:** None
