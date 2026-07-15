@@ -28,11 +28,15 @@ const SKIP_DIRS = new Set([
 
 // Whole-path skip prefixes (research docs may quote banned words for analysis).
 const SKIP_PATH_PREFIXES = [
+  ".gstack/",              // generated QA reports may document detected violations
   "docs/",                  // all docs are design/architecture documents, not UI copy
   "supabase/functions/",    // Deno edge functions are server-side API code, not UI copy
   "app/api/",               // route handlers contain machine status and logs, not UI copy
   "lib/ai/",                // AI system-prompt templates — server-side prompt engineering, not UI copy
+  "lib/competitive/",       // product score criteria, not student-facing UI copy
+  "lib/social/",            // copy validators and data rules, not rendered UI copy
   "lib/syllabus/",          // parser vocabulary matches source documents, not UI copy
+  "lib/teen-testing/",      // internal QA scorecard language, not rendered UI copy
   "scripts/tone-audit.ts",  // the script itself names the banned words
   "AGENTS.md",              // project config/instructions — not student-facing UI copy
   "CLAUDE.md",              // project config/instructions — not student-facing UI copy
@@ -65,6 +69,7 @@ const BANNED_PATTERNS: Array<{ pattern: RegExp; label: string; severity: "block"
   { pattern: /\bmissed\b/i,       label: "'missed'",       severity: "block" },
   { pattern: /\bwrong\b/i,        label: "'wrong'",        severity: "block" },
   { pattern: /\bincorrect\b/i,    label: "'incorrect'",    severity: "block" },
+  { pattern: /(?<!no )\bstreaks?\b/i, label: "'streak'",     severity: "block" },
   { pattern: /you[\u2019']re behind/i, label: "\"you're behind\"", severity: "block" },
   { pattern: /!!/,                label: "'!!' (double exclamation)", severity: "block" },
   { pattern: /\bdeadline\b/i,     label: "'deadline' (consider 'due')", severity: "warn" },

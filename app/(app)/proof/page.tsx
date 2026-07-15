@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Flame, FileText, Images, LockKeyhole, ShieldCheck, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { Activity, FileText, Images, LockKeyhole, ShieldCheck, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { computeXp } from "@/lib/gamification/xp";
 import { weekOverWeek } from "@/lib/insights/week-over-week";
@@ -160,7 +160,7 @@ export default async function ProofPage() {
           </div>
         </section>
 
-        {/* Momentum — real XP / level / streak + week-over-week */}
+        {/* Momentum: real XP, level, recent activity, and week-over-week */}
         <section style={{ display: "grid", gap: "var(--space-9)" }}>
           <style>{`.pf-momentum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-9);}@media(max-width:760px){.pf-momentum{grid-template-columns:1fr;}}`}</style>
           <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-green)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
@@ -181,16 +181,16 @@ export default async function ProofPage() {
                 {xp.xpForNextLevel - xp.xpIntoLevel} XP to level {xp.level + 1}
               </p>
             </div>
-            {/* Streak */}
+            {/* Neutral seven-day activity count */}
             <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
               <span style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-gold)" }}>
-                <Flame size={13} /> Streak
+                <Activity size={13} /> Recent activity
               </span>
               <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: 0 }}>
-                {xp.streakDays} <span style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>day{xp.streakDays === 1 ? "" : "s"}</span>
+                {xp.recentActiveDays} <span style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>day{xp.recentActiveDays === 1 ? "" : "s"}</span>
               </p>
               <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-secondary)", margin: 0 }}>
-                {xp.streakDays === 0 ? "Do one thing today to start a streak." : "Days in a row with progress."}
+                {xp.recentActiveDays === 0 ? "No recent activity yet. Start when you are ready." : "Days with study activity in the last week."}
               </p>
             </div>
             {/* Week over week */}
