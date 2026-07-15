@@ -17,6 +17,8 @@ const SKIP_DIRS = new Set([
   ".next",
   "dist",
   ".planning",
+  "playwright-report",
+  "test-results",
   ".git",
   ".agents",                          // generated agent/tooling skills — not project source
   ".claude",                          // worktrees and Claude tooling — not project source
