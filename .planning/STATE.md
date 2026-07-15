@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 4
+current_plan: 5
 status: executing
-stopped_at: Completed 36-27-PLAN.md
-last_updated: "2026-07-15T18:13:51.722Z"
+stopped_at: Completed 36-28-PLAN.md
+last_updated: "2026-07-15T21:27:43.885Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-27 deterministic ScreenDesign fixtures and owner-scoped QA seed
+last_activity_desc: Completed 36-28 deterministic local-only ScreenDesign source capture
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 4
-  percent: 13
+  completed_plans: 5
+  percent: 17
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 4
+**Current Plan:** 5
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [█░░░░░░░░░] 13%
-**Last Activity:** 2026-07-15 - Completed 36-27 deterministic ScreenDesign fixtures and owner-scoped QA seed
+**Progress:** [██░░░░░░░░] 17%
+**Last Activity:** 2026-07-15 - Completed 36-28 deterministic local-only ScreenDesign source capture
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T18:13:51.715Z
-**Stopped at:** Completed 36-27-PLAN.md
+**Last session:** 2026-07-15T21:27:43.877Z
+**Stopped at:** Completed 36-28-PLAN.md
 
 ---
 
@@ -695,6 +695,7 @@ total_plans_in_phase: 30
 | Phase 36 P02 | 18 min | 2 tasks | 32 files |
 | Phase 36 P04 | 25 min | 3 tasks | 6 files |
 | Phase 36 P27 | 24 min | 2 tasks | 4 files |
+| Phase 36 P28 | 3h 3m | 2 tasks | 4 files |
 
 ## Decisions
 
@@ -712,9 +713,11 @@ total_plans_in_phase: 30
 - [Phase 36]: Screen fixtures seed real Supabase tables with deterministic synthetic IDs and owner-scoped resets. — Idempotent real-schema data preserves honest application behavior while preventing cross-owner mutation.
 - [Phase 36]: The anonymous QA route accepts only the static QA account allowlist and canonical scenario IDs. — Callers cannot choose arbitrary user IDs or escalate the service-role boundary.
 - [Phase 36]: QA seed responses expose stable aliases and storage-state inputs, never credentials, owner UUIDs, or secrets. — Browser automation receives deterministic handles without leaking privileged identity data.
+- [Phase 36]: Canonical ScreenDesign references normalize only from exact registry entries and exact 28-entry manifest URL mappings. — Fail-closed canonical inputs prevent the conflicting dashboard, fuzzy URLs, and remote asset drift from contaminating fidelity evidence.
+- [Phase 36]: Source capture runs on one isolated origin with browser request evidence and exact path allowlists. — Every external attempt is aborted and recorded, while only canonical documents, compiled CSS, and checked-in manifest assets may complete.
 
 ## Session
 
-**Last session:** 2026-07-15T18:13:51.715Z
-**Stopped at:** Completed 36-27-PLAN.md
+**Last session:** 2026-07-15T21:27:43.877Z
+**Stopped at:** Completed 36-28-PLAN.md
 **Resume file:** None
