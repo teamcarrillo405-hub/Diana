@@ -2445,6 +2445,7 @@ export type Database = {
           interests: string[]; // 0020 migration; manually annotated until supabase:types regen
           line_focus: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing: LineSpacing;
+          learning_hurdle: "time_management" | "exam_stress" | "complex_concepts" | "staying_consistent" | null; // 20260715050000 migration
           learning_loop_paused: boolean; // 0045 migration; manually annotated until supabase:types regen
           learning_loop_reset_at: string | null; // 0045 migration; manually annotated until supabase:types regen
           last_mood_checkin_at: string | null; // 0025 migration; manually annotated until supabase:types regen
@@ -2461,6 +2462,7 @@ export type Database = {
           rough_mode_until: string | null; // 0025 migration; manually annotated until supabase:types regen
           school_year: number | null;
           session_mood: string | null; // 0020 migration; manually annotated until supabase:types regen
+          study_schedule_preference: "morning" | "after_practice" | "late_night" | null; // 20260715050000 migration
           timezone: string;
           token_reset_date: string;
           tokens_used_today: number;
@@ -2499,6 +2501,7 @@ export type Database = {
           interests?: string[]; // 0020 migration; manually annotated until supabase:types regen
           line_focus?: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing?: LineSpacing;
+          learning_hurdle?: "time_management" | "exam_stress" | "complex_concepts" | "staying_consistent" | null; // 20260715050000 migration
           learning_loop_paused?: boolean; // 0045 migration; manually annotated until supabase:types regen
           learning_loop_reset_at?: string | null; // 0045 migration; manually annotated until supabase:types regen
           last_mood_checkin_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
@@ -2515,6 +2518,7 @@ export type Database = {
           rough_mode_until?: string | null; // 0025 migration; manually annotated until supabase:types regen
           school_year?: number | null;
           session_mood?: string | null; // 0020 migration; manually annotated until supabase:types regen
+          study_schedule_preference?: "morning" | "after_practice" | "late_night" | null; // 20260715050000 migration
           timezone?: string;
           token_reset_date?: string;
           tokens_used_today?: number;
@@ -2553,6 +2557,7 @@ export type Database = {
           interests?: string[]; // 0020 migration; manually annotated until supabase:types regen
           line_focus?: boolean; // 0021 migration; manually annotated until supabase:types regen
           line_spacing?: LineSpacing;
+          learning_hurdle?: "time_management" | "exam_stress" | "complex_concepts" | "staying_consistent" | null; // 20260715050000 migration
           learning_loop_paused?: boolean; // 0045 migration; manually annotated until supabase:types regen
           learning_loop_reset_at?: string | null; // 0045 migration; manually annotated until supabase:types regen
           last_mood_checkin_at?: string | null; // 0025 migration; manually annotated until supabase:types regen
@@ -2569,6 +2574,7 @@ export type Database = {
           rough_mode_until?: string | null; // 0025 migration; manually annotated until supabase:types regen
           school_year?: number | null;
           session_mood?: string | null; // 0020 migration; manually annotated until supabase:types regen
+          study_schedule_preference?: "morning" | "after_practice" | "late_night" | null; // 20260715050000 migration
           timezone?: string;
           token_reset_date?: string;
           tokens_used_today?: number;
