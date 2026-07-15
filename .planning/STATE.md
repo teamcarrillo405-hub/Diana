@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 3
+current_plan: 4
 status: executing
 stopped_at: Completed 36-02-PLAN.md
-last_updated: "2026-07-15T17:36:17.032Z"
+last_updated: "2026-07-15T17:51:34.363Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-02 local ScreenDesign asset ownership
+last_activity_desc: Completed 36-04 source-faithful visual primitives
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 2
-  percent: 7
+  completed_plans: 3
+  percent: 10
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 3
+**Current Plan:** 4
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [█░░░░░░░░░] 7%
-**Last Activity:** 2026-07-15 - Completed 36-02 local ScreenDesign asset ownership
+**Progress:** [█░░░░░░░░░] 10%
+**Last Activity:** 2026-07-15 - Completed 36-04 source-faithful visual primitives
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T17:36:17.023Z
-**Stopped at:** Completed 36-02-PLAN.md
+**Last session:** 2026-07-15T17:51:34.355Z
+**Stopped at:** Completed 36-04-PLAN.md
 
 ---
 
@@ -693,6 +693,7 @@ total_plans_in_phase: 30
 |------|----------|-------|-------|
 | Phase 36 P01 | 8 min | 3 tasks | 5 files |
 | Phase 36 P02 | 18 min | 2 tasks | 32 files |
+| Phase 36 P04 | 25 min | 3 tasks | 6 files |
 
 ## Decisions
 
@@ -702,6 +703,10 @@ total_plans_in_phase: 30
 - [Phase 36]: Canonical ScreenDesign media is owned as 24 source assets plus four avatars with exact count and provenance gates. — The canonical registry and D-09 require one deterministic local dependency set.
 - [Phase 36]: Dashboard stadium and athlete imagery remain separate local layers. — Separate files preserve the attached dashboard crop and responsive composition.
 - [Phase 36]: Typed asset lookup exposes only Diana-owned rendering metadata. — Remote provenance URLs and checksums stay outside rendering results.
+- [Phase 36]: Shared ScreenDesign code remains below the composition level. — The 47 sources have materially different hierarchy and must not be forced through another generic shell.
+- [Phase 36]: The source canvas is 393px wide and at least 852px tall, centered and viewport-height expanded on larger screens. — This preserves the locked mobile geometry while remaining safe outside the source viewport.
+- [Phase 36]: Student navigation derives one active owner from the pathname and falls back to More for unrelated routes. — Today, Work, Classes, and Calendar own their route prefixes without misclassifying supporting screens.
+- [Phase 36]: SourceMedia accepts only typed local asset ids plus explicit dimensions and image intent. — Arbitrary URLs and ambiguous decorative markup cannot enter shared screen rendering.
 
 ## Session
 

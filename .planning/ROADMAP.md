@@ -544,14 +544,14 @@ Plans:
 **Goal:** Replace Diana's old Nexus/Mission Control presentation with all 47 canonical ScreenDesign states, wired to the existing secure backend and proven source-faithful at 393 by 852 before launch.
 **Requirements:** P36-FIDELITY, P36-ASSETS, P36-OPERATIONS, P36-ONBOARDING, P36-QA, P36-REMOVAL
 **Depends on:** Phase 35
-**Plans:** 2/30 plans executed
+**Plans:** 3/30 plans executed
 
 Plans:
 
 - [x] 36-01-PLAN.md - Canonical 47-screen and route/state contract
 - [x] 36-02-PLAN.md - Localize 24 ScreenDesign assets and four avatars
 - [ ] 36-03-PLAN.md - Exact 393x852 Playwright visual and interaction harness
-- [ ] 36-04-PLAN.md - Source-faithful viewport, media, card, and five-nav primitives
+- [x] 36-04-PLAN.md - Source-faithful viewport, media, card, and five-nav primitives
 - [ ] 36-05-PLAN.md - Attached stadium Lobby dashboard replacement
 - [ ] 36-06-PLAN.md - Durable onboarding hurdle and schedule fields
 - [ ] 36-07-PLAN.md - Four attached onboarding screens in locked order
