@@ -14,6 +14,7 @@ export interface LogParams {
     | "writing_aid"
     | "writing_cowrite"
     | "citation_gen"
+    | "classify_inbox"
     | "reading_scaffold"
     | "reading_level"
     | "science_scaffold"

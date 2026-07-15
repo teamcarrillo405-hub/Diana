@@ -111,6 +111,23 @@ export function displayNotificationPrefs(raw: unknown) {
   return normalizeNotificationPrefs(raw);
 }
 
+export function formatHandoffTimestamp(value: string, timezone: string | null | undefined): string {
+  const timestamp = new Date(value);
+  if (Number.isNaN(timestamp.getTime())) return "Time unavailable";
+
+  const format = (timeZone: string) => new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(timestamp);
+
+  try {
+    return format(timezone || "UTC");
+  } catch {
+    return format("UTC");
+  }
+}
+
 export function deletionRequestPatch(nowIso: string) {
   return {
     consent_ai: false,

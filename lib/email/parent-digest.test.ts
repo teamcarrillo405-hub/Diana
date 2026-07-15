@@ -13,7 +13,7 @@ describe("buildParentDigestEmail", () => {
       story: STORY,
       stats: { completedThisWeek: 3, minutesThisWeek: 95, upcomingNext7Days: 2 },
     });
-    expect(email.subject).toBe("Sam's week with Diana — Momentum is building.");
+    expect(email.subject).toBe("Sam's week with Diana: Momentum is building.");
     expect(email.text).toContain("Finished 5 pieces of work");
     expect(email.text).toContain("95 minutes of focused study time");
     expect(email.html).toContain("Momentum is building.");
@@ -34,7 +34,7 @@ describe("buildParentDigestEmail", () => {
   it("never uses shame language and escapes HTML", () => {
     const email = buildParentDigestEmail({
       studentName: "<script>",
-      story: { headline: "A quieter stretch lately — rhythms vary, and the structure is holding.", facts: [] },
+      story: { headline: "A quieter stretch lately: rhythms vary, and the structure is holding.", facts: [] },
       stats: { completedThisWeek: 1, minutesThisWeek: 10, upcomingNext7Days: 1 },
     });
     expect(email.html).not.toContain("<script>");

@@ -86,18 +86,20 @@ export default async function FuturePathPage() {
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
       <AppTopNav active="More" />
       <style>{`
-        .fp-stage { display: grid; gap: var(--space-13); }
+        .fp-stage, .fp-lanes, .fp-cards, .fp-essay, .fp-steps { min-width: 0; }
+        .fp-stage { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-13); }
         @media (min-width: 1024px) { .fp-stage { grid-template-columns: 0.7fr 1.3fr; align-items: start; } }
-        .fp-lanes { display: grid; gap: var(--space-9); }
+        .fp-lanes { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-9); }
         @media (min-width: 1280px) { .fp-lanes { grid-template-columns: 0.88fr 1.12fr; align-items: start; } }
-        .fp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-9); }
-        @media (max-width: 640px) { .fp-cards { grid-template-columns: 1fr; } }
-        .fp-essay { display: grid; gap: var(--space-13); }
+        .fp-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-9); }
+        @media (max-width: 640px) { .fp-cards { grid-template-columns: minmax(0, 1fr); } }
+        .fp-essay { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-13); }
         @media (min-width: 1024px) { .fp-essay { grid-template-columns: 0.72fr 1.28fr; align-items: start; } }
-        .fp-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-6); }
-        @media (max-width: 640px) { .fp-steps { grid-template-columns: repeat(3, 1fr); } }
+        .fp-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--space-6); }
+        @media (max-width: 640px) { .fp-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+        .fp-stage > *, .fp-lanes > *, .fp-cards > *, .fp-essay > *, .fp-steps > * { min-width: 0; max-width: 100%; }
       `}</style>
-      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
+      <div style={{ width: "100%", minWidth: 0, maxWidth: "var(--layout-max-width)", boxSizing: "border-box", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: "var(--space-17)" }}>
 
         {/* Hero */}
         <section className="fp-stage">
@@ -194,7 +196,7 @@ export default async function FuturePathPage() {
 }
 
 function FutureCard({ icon: Icon, title, body, href, comingSoon = false }: { icon: ElementType; title: string; body: string; href?: string; comingSoon?: boolean }) {
-  const cardStyle = { display: "block", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", textDecoration: "none", transition: "border-color 180ms ease, background 180ms ease" } as const;
+  const cardStyle = { display: "block", minWidth: 0, maxWidth: "100%", boxSizing: "border-box", borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", textDecoration: "none", transition: "border-color 180ms ease, background 180ms ease" } as const;
   const inner = (
     <>
       <Icon size={19} style={{ color: "var(--gl-gold)" }} aria-hidden="true" />

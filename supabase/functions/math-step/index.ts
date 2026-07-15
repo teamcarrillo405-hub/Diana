@@ -12,6 +12,7 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MATH_PROMPT = `You are a Socratic math tutor for a high-school student.
 The student will share a math problem they are stuck on. Your rules:
@@ -90,7 +91,7 @@ Deno.serve(async (req: Request) => {
     if (!allowed) {
       return new Response(
         JSON.stringify({
-          error: "You've used your AI quota for today \u2014 resets at midnight.",
+          error: "You've used your AI quota for today. It resets at midnight.",
         }),
         {
           status: 429,
@@ -133,22 +134,26 @@ Deno.serve(async (req: Request) => {
       { role: "user" as const, content: prompt as string },
     ];
 
-    // 7. Call Anthropic Haiku 4.5
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 400,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages,
-        ...(wantsStream ? { stream: true } : {}),
-      }),
+    // 7. Use the shared fast student model.
+    const userMessage = messages
+      .map((message) => `${message.role === "assistant" ? "Tutor" : "Student"}: ${message.content}`)
+      .join("\n\n");
+    const modelResult = await callStudentTextModel({
+      system: systemPrompt,
+      user: userMessage,
+      maxTokens: 400,
     });
+    const res = wantsStream
+      ? new Response([
+        `data: ${JSON.stringify({ type: "message_start", message: { usage: { input_tokens: 0 } } })}`,
+        `data: ${JSON.stringify({ type: "content_block_delta", delta: { type: "text_delta", text: modelResult.content } })}`,
+        `data: ${JSON.stringify({ type: "message_delta", usage: { output_tokens: modelResult.tokens } })}`,
+        "",
+      ].join("\n\n"), { status: 200 })
+      : new Response(JSON.stringify({
+        content: [{ type: "text", text: modelResult.content }],
+        usage: { input_tokens: 0, output_tokens: modelResult.tokens },
+      }), { status: 200, headers: { "Content-Type": "application/json" } });
 
     // 7b. Streaming path: forward simplified SSE text deltas to the client
     //     while accumulating tokens for the same fire-and-forget logging.
@@ -207,7 +212,7 @@ Deno.serve(async (req: Request) => {
                     ownerId,
                     assignmentId: (assignmentId as string | null | undefined) ?? null,
                     feature: "math_step",
-                    model: "claude-haiku-4-5",
+                    model: modelResult.model,
                     promptSummary: (prompt as string).slice(0, 200),
                     tokensUsed: totalTokens,
                   },
@@ -256,7 +261,7 @@ Deno.serve(async (req: Request) => {
             ownerId,
             assignmentId: (assignmentId as string | null | undefined) ?? null,
             feature: "math_step",
-            model: "claude-haiku-4-5",
+            model: modelResult.model,
             promptSummary: (prompt as string).slice(0, 200),
             tokensUsed: tokens,
           },

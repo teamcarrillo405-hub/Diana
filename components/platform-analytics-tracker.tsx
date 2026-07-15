@@ -6,7 +6,7 @@ import { useReportWebVitals } from "next/web-vitals";
 import { WEB_VITAL_BUDGETS, type WebVitalName } from "@/lib/platform/analytics";
 
 export function PlatformAnalyticsTracker() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const pathRef = useRef(pathname);
 
   useEffect(() => {

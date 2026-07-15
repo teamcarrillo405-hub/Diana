@@ -350,7 +350,7 @@ export default async function ClassDetailPage({
             <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-8)", flexWrap: "wrap" }}>
               <div>
                 <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: 1, color: "var(--gl-green)", margin: 0 }}>
-                  {classGrade.currentScorePct !== null ? `${Math.round(classGrade.currentScorePct)}%` : "—"}
+                  {classGrade.currentScorePct !== null ? `${Math.round(classGrade.currentScorePct)}%` : "-"}
                 </p>
                 <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-secondary)", margin: "var(--space-3) 0 0" }}>
                   {classGrade.gradedCount} graded item{classGrade.gradedCount === 1 ? "" : "s"} ·{" "}

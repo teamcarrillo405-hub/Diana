@@ -17,7 +17,7 @@ export async function connectCanvas(formData: FormData) {
   const { error } = await supabase
     .from("lms_connections")
     .insert({ owner_id: user.id, provider: "canvas", config: { base_url: baseUrl, token } });
-  if (error) return { ok: false, message: "Could not save the connection — try again in a moment" };
+  if (error) return { ok: false, message: "Could not save the connection: try again in a moment" };
 
   revalidatePath("/settings");
   return { ok: true, message: "Canvas connected" };
@@ -34,7 +34,7 @@ export async function connectIcs(formData: FormData) {
   const { error } = await supabase
     .from("lms_connections")
     .insert({ owner_id: user.id, provider: "ics", config: { url } });
-  if (error) return { ok: false, message: "Could not save the connection — try again in a moment" };
+  if (error) return { ok: false, message: "Could not save the connection: try again in a moment" };
 
   revalidatePath("/settings");
   return { ok: true, message: "Calendar connected" };
@@ -155,7 +155,7 @@ export async function disconnectLms(connectionId: string) {
     .delete()
     .eq("id", connectionId)
     .eq("owner_id", user.id);
-  if (error) return { ok: false, message: "Could not remove the connection — try again in a moment" };
+  if (error) return { ok: false, message: "Could not remove the connection: try again in a moment" };
 
   revalidatePath("/settings");
   return { ok: true, message: "Connection removed" };

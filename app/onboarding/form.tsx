@@ -34,10 +34,10 @@ const ACCOMMODATIONS = [
 ] as const;
 
 const YEARS = [
-  { value: 9, label: "9th — Freshman" },
-  { value: 10, label: "10th — Sophomore" },
-  { value: 11, label: "11th — Junior" },
-  { value: 12, label: "12th — Senior" },
+  { value: 9, label: "9th: Freshman" },
+  { value: 10, label: "10th: Sophomore" },
+  { value: 11, label: "11th: Junior" },
+  { value: 12, label: "12th: Senior" },
   { value: 13, label: "Gap year / other" },
 ] as const;
 
@@ -214,7 +214,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
             onBack={back}
             onNext={next}
             nextDisabled={diagnoses.length === 0}
-            nextHint={diagnoses.length === 0 ? 'Pick at least one — "None of these" counts.' : null}
+            nextHint={diagnoses.length === 0 ? 'Pick at least one: "None of these" counts.' : null}
           />
         </StepCard>
       )}
@@ -283,7 +283,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
       {step === "interests" && (
         <StepCard
           title="Pick up to five interests"
-          hint="When an analogy would help, Diana uses these — basketball for momentum, music for fractions."
+          hint="When an analogy would help, Diana uses these: basketball for momentum, music for fractions."
         >
           <div className="grid grid-cols-2 gap-2 pt-2 sm:grid-cols-3">
             {INTEREST_OPTIONS.map((interest) => (
@@ -302,7 +302,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
 
       {step === "literacy" && (
         <StepCard title="A quick word about the AI" hint="">
-          <p className="text-sm text-foreground">Diana uses Claude to help — not to do your work.</p>
+          <p className="text-sm text-foreground">Diana uses Claude to help, not to do your work.</p>
           <ul className="space-y-2 pt-1 text-sm text-muted">
             <li>Diana starts from your thoughts before it organizes anything.</li>
             <li>It asks questions to help you think it through.</li>

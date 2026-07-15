@@ -7,6 +7,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TARGETS = ["simpler", "more_detail"] as const;
 type Target = (typeof TARGETS)[number];
@@ -71,57 +72,35 @@ Deno.serve(async (req: Request) => {
       includeMinorSafety: true,
     });
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 900,
-        system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-        messages: [{
-          role: "user",
-          content: [
-            `Target: ${target}`,
-            `Student interests: ${arrayText(profile?.interests)}`,
-            `Accommodations: ${arrayText(profile?.accommodations)}`,
-            `Text:\n${text}`,
-          ].join("\n"),
-        }],
-      }),
+    const userMessage = [
+      `Target: ${target}`,
+      `Student interests: ${arrayText(profile?.interests)}`,
+      `Accommodations: ${arrayText(profile?.accommodations)}`,
+      `Text:\n${text}`,
+    ].join("\n");
+    const modelResult = await callStudentTextModel({
+      system,
+      user: userMessage,
+      maxTokens: 900,
+      fallbackContent: fallbackAdapt(text, target),
     });
-
-    if (!res.ok) {
-      console.error("Anthropic error:", await res.text());
-      return json({ text: fallbackAdapt(text, target), fallback: true });
-    }
-
-    const data = await res.json() as {
-      content?: Array<{ type: string; text?: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
-    };
-    const adapted = data.content?.[0]?.text?.trim() || fallbackAdapt(text, target);
-    const inputTokens = data.usage?.input_tokens ?? 0;
-    const outputTokens = data.usage?.output_tokens ?? 0;
+    const adapted = modelResult.content.trim() || fallbackAdapt(text, target);
 
     Promise.allSettled([
       logInteraction(
         {
           ownerId,
           feature: "reading_level",
-          model: "claude-haiku-4-5",
+          model: modelResult.model,
           promptSummary: `reading-level: ${target}`,
-          tokensUsed: inputTokens + outputTokens,
+          tokensUsed: modelResult.tokens,
         },
         supabase,
       ),
-      incrementTokens(ownerId, inputTokens + outputTokens, supabase),
+      incrementTokens(ownerId, modelResult.tokens, supabase),
     ]).catch(() => {});
 
-    return json({ text: adapted });
+    return json({ text: adapted, fallback: modelResult.model.endsWith(":fallback") });
   } catch (err) {
     console.error("reading-level error:", err);
     return json({ error: "internal" }, 500);

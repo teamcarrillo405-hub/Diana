@@ -1,4 +1,4 @@
-// Real XP / level / streak, derived from actual student activity.
+// Real XP / level / recent activity, derived from actual student activity.
 //
 // No new tables: XP is computed from existing signals (completed task_signals,
 // study time-log days, flashcard reviews, notes). Calm-by-design — points reward
@@ -21,7 +21,7 @@ export type XpSummary = {
   /** XP needed to reach the next level from the current one. */
   xpForNextLevel: number;
   pctToNext: number;
-  streakDays: number;
+  recentActiveDays: number;
 };
 
 const XP_PER = {
@@ -52,23 +52,15 @@ export function levelForXp(totalXp: number): { level: number; intoLevel: number;
   return { level, intoLevel: remaining, forNext: cost };
 }
 
-/**
- * Consecutive active days ending today (or yesterday, so the streak doesn't
- * "break" just because today's work hasn't happened yet).
- */
-export function computeStreak(activeDayKeys: Set<string>, now: Date): number {
+/** Count distinct active days in the current seven-day window. */
+export function computeRecentActiveDays(activeDayKeys: Set<string>, now: Date): number {
   const dayMs = 86_400_000;
-  let cursor = new Date(now);
-  if (!activeDayKeys.has(isoDayKey(cursor))) {
-    cursor = new Date(now.getTime() - dayMs);
-    if (!activeDayKeys.has(isoDayKey(cursor))) return 0;
+  let count = 0;
+  for (let offset = 0; offset < 7; offset += 1) {
+    const cursor = new Date(now.getTime() - offset * dayMs);
+    if (activeDayKeys.has(isoDayKey(cursor))) count += 1;
   }
-  let streak = 0;
-  while (activeDayKeys.has(isoDayKey(cursor))) {
-    streak += 1;
-    cursor = new Date(cursor.getTime() - dayMs);
-  }
-  return streak;
+  return count;
 }
 
 export function computeXp(activity: XpActivity, now: Date): XpSummary {
@@ -90,6 +82,6 @@ export function computeXp(activity: XpActivity, now: Date): XpSummary {
     xpIntoLevel: intoLevel,
     xpForNextLevel: forNext,
     pctToNext: forNext > 0 ? Math.round((intoLevel / forNext) * 100) : 0,
-    streakDays: computeStreak(activeDays, now),
+    recentActiveDays: computeRecentActiveDays(activeDays, now),
   };
 }

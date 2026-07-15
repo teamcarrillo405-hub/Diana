@@ -35,9 +35,9 @@ export function weekOverWeek(dates: string[], now: Date): WeekOverWeek {
   const direction = delta > 0 ? "up" : delta < 0 ? "down" : "steady";
 
   let label: string;
-  if (lastWeek === 0 && thisWeek === 0) label = "A fresh week — start when you're ready.";
+  if (lastWeek === 0 && thisWeek === 0) label = "A fresh week: start when you're ready.";
   else if (direction === "up") label = `Up ${delta} from last week.`;
-  else if (direction === "down") label = "A quieter week so far — that's okay.";
+  else if (direction === "down") label = "A quieter week so far: that's okay.";
   else label = "Holding steady with last week.";
 
   return { thisWeek, lastWeek, delta, direction, label };

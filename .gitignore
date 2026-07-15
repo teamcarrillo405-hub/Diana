@@ -20,6 +20,7 @@ external/
 # Playwright session tokens must never land in the repo
 **/auth-storage-state.json
 .gstack/
+.planning/qa-screenshots/**/auth-storage-state.json
 
 # ── Phantom junk files ────────────────────────────────────────────────────
 # Zero-byte files created when JS/TS/CSS fragments get executed in a shell and

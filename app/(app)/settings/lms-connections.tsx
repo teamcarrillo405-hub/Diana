@@ -75,7 +75,7 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
       });
       const body = (await res.json()) as SyncResult & { error?: string };
       if (!res.ok) {
-        setBanner({ tone: "warn", message: body.error ?? "The sync didn't complete — try again in a moment" });
+        setBanner({ tone: "warn", message: body.error ?? "The sync didn't complete: try again in a moment" });
         return;
       }
       let message = `Imported ${body.imported} assignments from ${PROVIDER_LABEL[c.provider]}`;
@@ -84,7 +84,7 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
       }
       setBanner({ tone: "ok", message });
     } catch {
-      setBanner({ tone: "warn", message: "The sync didn't complete — try again in a moment" });
+      setBanner({ tone: "warn", message: "The sync didn't complete: try again in a moment" });
     }
   }
 
@@ -187,7 +187,7 @@ export function LmsConnections({ initial }: { initial: Connection[] }) {
         <summary className="cursor-pointer text-sm font-medium">Connect Google Classroom</summary>
         <div className="mt-3 space-y-2 text-sm">
           <p className="text-muted">
-            Connect with Google to grant Classroom access. This keeps a secure refresh token so Diana can sync your coursework automatically in the background — not just while you&apos;re signed in.
+            Connect with Google to grant Classroom access. This keeps a secure refresh token so Diana can sync your coursework automatically in the background, not just while you&apos;re signed in.
           </p>
           <a href="/api/lms/google-oauth/start" className="inline-block rounded-md border border-border bg-card px-3 py-1 text-sm">
             Connect Google Classroom

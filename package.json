@@ -44,11 +44,13 @@
     "qa:visual-gate": "node scripts/qa-visual-gate.mjs",
     "qa:screenshot-worthy": "node scripts/screenshot-worthy-qa.mjs",
     "qa:responsive": "playwright test tests/responsive-qa.spec.ts --reporter=line --workers=1",
+    "qa:student-ai-live": "node scripts/student-ai-live-smoke.mjs",
     "test:e2e": "playwright test tests/e2e-flows.spec.ts --reporter=line --workers=1"
   },
   "dependencies": {
     "@capacitor/core": "^8.4.0",
     "@capacitor/haptics": "^8.0.2",
+    "@chenglou/pretext": "^0.0.8",
     "@fontsource/atkinson-hyperlegible-next": "^5.2.7",
     "@fontsource/opendyslexic": "^5.2.5",
     "@imgly/background-removal": "^1.7.0",
@@ -58,7 +60,7 @@
     "heic2any": "^0.0.4",
     "idb-keyval": "^6.2.4",
     "lucide-react": "^0.460.0",
-    "next": "15.5.18",
+    "next": "15.5.20",
     "node-ical": "^0.26.1",
     "react": "19.0.0",
     "react-dom": "19.0.0",
@@ -91,5 +93,10 @@
     "typescript": "^5.7.2",
     "vitest": "^3.2.4",
     "yaml": "^2.9.0"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "8.5.19"
+    }
   }
 }

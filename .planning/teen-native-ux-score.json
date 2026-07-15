@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-24T01:37:50.234Z",
+  "generatedAt": "2026-07-15T02:54:18.172Z",
   "sections": [
     {
       "id": "first_screen_clarity",
@@ -16,7 +16,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "dianaTarget": "Mobile should keep Today, Work, Think, Proof, and Future reachable with no horizontal overflow.",
+      "dianaTarget": "Mobile should keep Today, Work, Classes, Calendar, and More reachable with no horizontal overflow.",
       "competitorEdge": "Quizlet has a familiar mobile rhythm, and Gemini keeps the core chat action close."
     },
     {
@@ -75,7 +75,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "tenDefinition": "The first viewport sells Diana as a student-owned next-move, proof, and Future Path product with one obvious start path."
+      "tenDefinition": "The first viewport sells Diana as a student-owned next-move product with one obvious student start path."
     },
     {
       "id": "login_signup_visual_appeal",
@@ -105,7 +105,7 @@
       "score": 10,
       "repoComplete": true,
       "missing": [],
-      "tenDefinition": "Desktop uses a compact rail for the main school moves and a searchable drawer for secondary tools."
+      "tenDefinition": "Desktop uses a compact top navigation for the main school moves and a grouped drawer for secondary destinations."
     },
     {
       "id": "assignment_helper_visual_learning",

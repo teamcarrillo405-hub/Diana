@@ -40,7 +40,7 @@ export async function saveParentDigest(input: z.infer<typeof Input>): Promise<{ 
     .from("profiles")
     .update({ notification_preferences: next })
     .eq("user_id", user.id);
-  if (error) return { ok: false, error: "Couldn't save just now — try again." };
+  if (error) return { ok: false, error: "Couldn't save just now: try again." };
 
   revalidatePath("/sharing");
   return { ok: true };

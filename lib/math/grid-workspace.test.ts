@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { buildGrid } from "./grid-workspace";
 
-describe("buildGrid — stacked operations", () => {
+describe("buildGrid: stacked operations", () => {
   it("right-aligns operands so place values share columns", () => {
     const grid = buildGrid("add", 407, 95)!;
     const a = grid.cells.filter((c) => c.row === 1 && c.kind === "digit");
@@ -30,7 +30,7 @@ describe("buildGrid — stacked operations", () => {
   });
 });
 
-describe("buildGrid — long division", () => {
+describe("buildGrid: long division", () => {
   it("aligns the quotient cells directly over the dividend columns", () => {
     const grid = buildGrid("divide", 936, 4)!;
     const quotient = grid.cells.filter((c) => c.row === 0);
@@ -38,7 +38,7 @@ describe("buildGrid — long division", () => {
     expect(quotient.map((c) => c.col)).toEqual(dividend.map((c) => c.col));
   });
 
-  it("keeps work cells under the dividend columns only — column discipline", () => {
+  it("keeps work cells under the dividend columns only: column discipline", () => {
     const grid = buildGrid("divide", 936, 4)!;
     const dividendCols = grid.cells
       .filter((c) => c.row === 1 && c.kind === "digit" && c.col > 1)
@@ -47,13 +47,13 @@ describe("buildGrid — long division", () => {
     expect(work.every((c) => dividendCols.includes(c.col))).toBe(true);
   });
 
-  it("steps mention bringing digits straight down — the alignment teaching", () => {
+  it("steps mention bringing digits straight down: the alignment teaching", () => {
     const grid = buildGrid("divide", 84, 7)!;
     expect(grid.steps.join(" ")).toContain("straight down");
   });
 });
 
-describe("buildGrid — guards", () => {
+describe("buildGrid: guards", () => {
   it("rejects division by zero and oversized numbers", () => {
     expect(buildGrid("divide", 10, 0)).toBeNull();
     expect(buildGrid("add", 123456789, 1)).toBeNull();

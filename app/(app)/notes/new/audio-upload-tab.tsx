@@ -143,7 +143,7 @@ export function AudioUploadTab({
       )}
       {status.kind === "structuring" && (
         <p className="text-sm text-muted">
-          Got it. We&apos;re shaping the transcript into headings and bullets — refresh in a moment to see the outline.
+          Got it. We&apos;re shaping the transcript into headings and bullets: refresh in a moment to see the outline.
         </p>
       )}
       {status.kind === "done" && (

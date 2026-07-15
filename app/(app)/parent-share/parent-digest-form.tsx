@@ -23,7 +23,7 @@ export function ParentDigestForm({
       const result = await saveParentDigest({ email: email.trim(), enabled: nextEnabled });
       if (result.ok) {
         setEnabled(nextEnabled && email.trim().length > 0);
-        setStatus(nextEnabled && email.trim() ? "On — one short email each Sunday." : "Saved.");
+        setStatus(nextEnabled && email.trim() ? "On: one short email each Sunday." : "Saved.");
       } else {
         setStatus(result.error ?? "Couldn't save.");
       }
@@ -36,7 +36,7 @@ export function ParentDigestForm({
         <Mail size={15} className="text-brand" /> Weekly email for a parent
       </h2>
       <p className="text-sm text-muted">
-        One short Sunday email with the growth story above — never grades, assignment names, or AI
+        One short Sunday email with the growth story above: never grades, assignment names, or AI
         conversations. You control it: add the address, turn it off any time.
       </p>
       <div className="flex flex-wrap items-center gap-2">

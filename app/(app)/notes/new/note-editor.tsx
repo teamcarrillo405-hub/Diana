@@ -230,7 +230,7 @@ export function NoteEditor({
           {status === "pending" && "Will save in a few seconds\u2026"}
           {status === "saving"  && "Saving\u2026"}
           {status === "saved"   && "Saved."}
-          {status === "error"   && "Saving when you're back online \u2014 nothing lost."}
+          {status === "error"   && "Saving when you're back online: nothing lost."}
         </p>
         <button
           type="button"

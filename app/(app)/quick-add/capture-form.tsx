@@ -85,7 +85,7 @@ export function CaptureForm({ ttsProvider = "browser" }: { ttsProvider?: "browse
 
     const text = raw.trim();
     if (!text && activeTab !== "photo") {
-      setErrorMsg("Write something first — even a word is enough.");
+      setErrorMsg("Write something first. Even a word is enough.");
       return;
     }
     if (activeTab === "photo" && !photoStorageKey) {
@@ -209,7 +209,7 @@ export function CaptureForm({ ttsProvider = "browser" }: { ttsProvider?: "browse
               {photoUploading ? (
                 <span>Uploading photo…</span>
               ) : photoStorageKey ? (
-                <span className="font-medium text-accent">Photo added — ready to save</span>
+                <span className="font-medium text-accent">Photo added: ready to save</span>
               ) : (
                 <>
                   <span className="text-2xl">📷</span>
@@ -232,12 +232,12 @@ export function CaptureForm({ ttsProvider = "browser" }: { ttsProvider?: "browse
         {/* Status feedback */}
         {status === "offline" && (
           <p className="rounded-lg bg-amber-500/10 px-3 py-2 text-sm text-amber-700 dark:text-amber-300">
-            Saving when you're back online — nothing lost.
+            Saving when you're back online: nothing lost.
           </p>
         )}
         {status === "saved" && (
           <p className="rounded-lg bg-accent/10 px-3 py-2 text-sm text-accent">
-            Saved — sending you to your inbox.
+            Saved: sending you to your inbox.
           </p>
         )}
         {errorMsg && (

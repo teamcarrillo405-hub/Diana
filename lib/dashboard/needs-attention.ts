@@ -16,7 +16,7 @@ export type NeedsAttentionItem = {
 };
 
 export type NeedsAttentionCategory = {
-  key: "tests" | "overdue" | "not_turned_in" | "feedback";
+  key: "tests" | "due_earlier" | "not_turned_in" | "feedback";
   label: string;
   accent: string;
   soft: string;
@@ -63,7 +63,7 @@ export function buildNeedsAttention(
     .filter((a) => a.kind === "test_prep" && a.due_at && new Date(a.due_at) >= now)
     .sort((a, b) => new Date(a.due_at!).getTime() - new Date(b.due_at!).getTime());
 
-  const overdue = assignments
+  const dueEarlier = assignments
     .filter((a) => a.due_at && new Date(a.due_at) < now)
     .sort((a, b) => new Date(a.due_at!).getTime() - new Date(b.due_at!).getTime());
 
@@ -88,12 +88,12 @@ export function buildNeedsAttention(
       }),
     },
     {
-      key: "overdue",
-      label: "Overdue",
-      accent: "#ff7a7a",
-      soft: "rgba(255,85,85,.45)",
-      emptyMsg: "Nothing overdue",
-      items: overdue.map((a) => {
+      key: "due_earlier",
+      label: "Due earlier",
+      accent: "#e8b85d",
+      soft: "rgba(232,184,93,.45)",
+      emptyMsg: "Nothing needs review",
+      items: dueEarlier.map((a) => {
         const days = Math.max(1, Math.floor((now.getTime() - new Date(a.due_at!).getTime()) / 86400000));
         return {
           id: a.id,

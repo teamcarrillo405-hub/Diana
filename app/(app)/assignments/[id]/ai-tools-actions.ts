@@ -149,7 +149,7 @@ async function getOwnerId(): Promise<string | null> {
 function calmError(rawMessage: string | undefined): string {
   const m = rawMessage ?? "";
   if (m.includes("quota")) {
-    return "You've used your AI quota for today — resets at midnight.";
+    return "You've used your AI quota for today: resets at midnight.";
   }
   if (m.includes("AI not available")) {
     return "AI is off for this class. You can change that in class settings.";

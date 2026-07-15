@@ -97,7 +97,7 @@ export function buildDesignBrief(input: {
 
   sections.push({
     heading: designType === "poster" ? "Sources corner" : "Sources slide",
-    points: ["Where your facts came from — Diana's citation tool can format these"],
+    points: ["Where your facts came from: Diana's citation tool can format these"],
   });
 
   return {

@@ -205,7 +205,7 @@
       <!-- title + Focus Card (mid-left) -->
       <div style="position:absolute;left:34px;bottom:120px;z-index:8">
         <div style="font-weight:700;font-size:13px;letter-spacing:.3em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:-4px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 16px rgba(41,208,255,.55),0 2px 8px rgba(0,0,0,.9)">YOUR LOBBY</div>
-        <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:72px;line-height:.88;letter-spacing:.01em;text-transform:uppercase;text-shadow:0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)">G-Money</div>
+        <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:72px;line-height:.88;letter-spacing:.01em;text-transform:uppercase;text-shadow:0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)">{{ profileName }}</div>
         <div style="margin-top:16px;max-width:390px">
           <div style="font-size:14px;font-weight:700;letter-spacing:.2em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:12px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 14px rgba(41,208,255,.5),0 2px 6px rgba(0,0,0,.9)">YOUR NEXT MOVE</div>
           <div onClick="{{ focusCard.onCta }}" style="background:#29d0ff;padding:22px 40px;border-radius:12px;box-shadow:0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6);cursor:pointer;display:inline-flex;align-items:center;gap:12px;transition:transform .12s,box-shadow .2s" style-hover="transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6)"><div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:36px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">▶ {{ nextActionCta }}</div></div>
@@ -887,6 +887,9 @@ class Component extends DCLogic {
       bgError: '',
       // Account settings
       settingsTab: 'profile',
+      // Live-preview hydration (see _bootstrapRealData): null until a real
+      // signed-in session loads real data, then this replaces the mock below.
+      realClasses: null,
       profileName: 'Grayson M.', grade: '9th grade', school: 'Northgate High',
       notifRemind: true, notifDueSoon: true, notifTests: true, notifDianaNudge: true,
       quietStart: '21:00', quietEnd: '07:00',
@@ -1051,6 +1054,73 @@ class Component extends DCLogic {
     this._syncFullBodyImg();
     this._syncHeroPreviewImg();
     this._syncA11y();
+    this._bootstrapRealData();
+  }
+
+  // Live-preview data hydration. This file is served from the same Next.js
+  // app (localhost:3000/design/...), so if you're already logged into the
+  // real app in this browser, the Supabase client below picks up that exact
+  // session from localStorage — no separate login here. Preview only: this
+  // mockup still has no auth/security of its own, so it can show your real
+  // data but can never BE the secured app. See _mapAssignmentToClassRow for
+  // the (lossy) real-data → this-mock's-one-assignment-per-class shape.
+  async _bootstrapRealData() {
+    try {
+      // The real app stores its session in cookies via @supabase/ssr's
+      // createBrowserClient (lib/supabase/client.ts), not plain localStorage —
+      // has to be the same client type to find that session.
+      const { createBrowserClient } = await import('https://esm.sh/@supabase/ssr@0.10.3');
+      const supabase = createBrowserClient(
+        'https://oitipayrriupcitgmzju.supabase.co',
+        'sb_publishable_AV9p3kHYGbFL2g4HFfgeWA_nPIzFlXZ',
+      );
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return; // not logged in this browser — stays on mock data
+
+      const [{ data: profile }, { data: classes }, { data: assignments }] = await Promise.all([
+        supabase.from('profiles').select('display_name, photo_url, photo_offset_x, photo_offset_y').eq('user_id', session.user.id).maybeSingle(),
+        supabase.from('classes').select('id, name, color').eq('owner_id', session.user.id).is('archived_at', null),
+        supabase.from('assignments').select('id, title, due_at, status, estimated_minutes, class_id')
+          .eq('owner_id', session.user.id).not('status', 'in', '(submitted,graded,abandoned)').order('due_at', { ascending: true, nullsFirst: false }),
+      ]);
+
+      const realClasses = (classes || []).map((c, i) => this._mapAssignmentToClassRow(c, (assignments || []).find(a => a.class_id === c.id), i));
+
+      this.setState({
+        realClasses: realClasses.length ? realClasses : null,
+        profileName: (profile?.display_name || '').split(/\s+/)[0] || this.state.profileName,
+        avatarType: profile?.photo_url ? 'upload' : this.state.avatarType,
+        profilePhotoSrc: profile?.photo_url || this.state.profilePhotoSrc,
+        photoOffsetX: profile?.photo_offset_x ?? this.state.photoOffsetX,
+        photoOffsetY: profile?.photo_offset_y ?? this.state.photoOffsetY,
+      });
+    } catch (e) {
+      console.warn('[live-preview] real data hydration skipped:', e);
+    }
+  }
+
+  // One real class → one mock "class card" row. The real app supports many
+  // assignments per class; this mockup was built around exactly one, so we
+  // pick the single most urgent (soonest-due, overdue-first) and represent
+  // just that. A real class with no open assignments renders as turned_in.
+  _mapAssignmentToClassRow(cls, a, i) {
+    const now = new Date();
+    const PALETTE = ['#29d0ff', '#ff6a3d', '#36e07a', '#ffd24a', '#7e5cff', '#f25fb0'];
+    const accent = cls.color || PALETTE[i % PALETTE.length];
+    if (!a) {
+      return { name: cls.name, pct: 100, status: 'turned_in', estMin: 0, tookMin: 0, studyLabel: '', gameDay: '', upcomingTest: null, accent, active: false, overdue: false, symbol: (cls.name[0] || 'C').toUpperCase(), bannerBg: 'linear-gradient(135deg,#0a1024,#111a30)', period: '', nextAssignment: '', nextDue: 'DONE ✓', imageSrc: '' };
+    }
+    const due = a.due_at ? new Date(a.due_at) : null;
+    const overdue = !!(due && due.getTime() < now.getTime());
+    const daysLate = overdue ? Math.max(1, Math.floor((now.getTime() - due.getTime()) / 86400000)) : 0;
+    const status = a.status === 'todo' ? 'not_started' : (a.status === 'checking' || a.status === 'exporting') ? 'finished' : 'in_progress';
+    const nextDue = overdue ? 'OVERDUE' : due ? due.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase() : '';
+    return {
+      name: cls.name, pct: status === 'not_started' ? 0 : 55, status, estMin: a.estimated_minutes || 30, tookMin: 0,
+      studyLabel: '', gameDay: '', upcomingTest: null, accent, active: i === 0, overdue, daysLate,
+      symbol: (cls.name[0] || 'C').toUpperCase(), bannerBg: 'linear-gradient(135deg,#0a1024,#111a30)',
+      period: '', nextAssignment: a.title, nextDue, imageSrc: '',
+    };
   }
 
   componentDidUpdate() {
@@ -1264,7 +1334,7 @@ class Component extends DCLogic {
       Athletics: { courseId: 30140, assignmentId: 88266, dueAt: '2025-06-23T23:59:00-05:00', submissionState: 'graded',      score: 10,   pointsPossible: 10, letterGrade: 'A'  },
       Art:       { courseId: 30155, assignmentId: 88270, dueAt: '2025-06-27T23:59:00-05:00', submissionState: 'unsubmitted', score: null, pointsPossible: 15, letterGrade: null },
     };
-    const raw = [
+    const mock = [
       { name: 'Math',      pct: 64,  status: 'in_progress', estMin: 45, tookMin: 0,  studyLabel: "Ch. 4 flashcards",        gameDay: "",                               upcomingTest: { type: 'QUIZ', label: 'Ch. 4 Quiz',    date: 'FRI Jun 27', strip: 'FRI', daysAway: 2 }, accent: '#ff6a3d', active: true,  overdue: false, symbol: 'Σ∞',  bannerBg: 'linear-gradient(135deg,#1a1020,#2e1408)', period: '1st period · 8:00 AM',  nextAssignment: 'Finish Ch. 4 problems',   nextDue: 'FRI Jun 27', imageSrc: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?w=800&h=320&fit=crop&q=80&auto=format' },
       { name: 'English',   pct: 0,   status: 'not_started', estMin: 60, tookMin: 0,  studyLabel: "Vocab flashcards",         gameDay: "",                               upcomingTest: { type: 'QUIZ', label: 'Reading Quiz', date: 'THU Jun 26', strip: 'THU', daysAway: 1 }, accent: '#29d0ff', active: false, overdue: true,  daysLate: 2, symbol: 'Aa',  bannerBg: 'linear-gradient(135deg,#071828,#0a2038)', period: '2nd period · 9:15 AM',  nextAssignment: 'Read pages 40–60',        nextDue: 'OVERDUE',   imageSrc: 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800&h=320&fit=crop&q=80&auto=format' },
       { name: 'Science',   pct: 100, status: 'finished',    estMin: 0,  tookMin: 0,  studyLabel: "Lab concepts review",      gameDay: "",                               upcomingTest: null,                                                                               accent: '#36e07a', active: false, overdue: false, symbol: 'Hz',  bannerBg: 'linear-gradient(135deg,#071a12,#0a2a1c)', period: '3rd period · 10:30 AM', nextAssignment: 'Lab write-up',            nextDue: 'THU Jun 26', imageSrc: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=800&h=320&fit=crop&q=80&auto=format' },
@@ -1272,6 +1342,9 @@ class Component extends DCLogic {
       { name: 'Athletics', pct: 100, status: 'turned_in',   estMin: 0,  tookMin: 12, studyLabel: "",                         gameDay: "HOME vs Eagles · FRI 7:00 PM", upcomingTest: null,                                                                               accent: '#7e5cff', active: false, overdue: false, symbol: '#32', bannerBg: 'linear-gradient(135deg,#100818,#1c1030)', period: '5th period · 1:15 PM',  nextAssignment: 'Workout log',             nextDue: 'DONE ✓',    imageSrc: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&h=320&fit=crop&q=80&auto=format' },
       { name: 'Art',       pct: 55,  status: 'in_progress', estMin: 50, tookMin: 0,  studyLabel: "",                         gameDay: "",                               upcomingTest: null,                                                                               accent: '#f25fb0', active: false, overdue: false, symbol: '∿',   bannerBg: 'linear-gradient(135deg,#1a0818,#2e0e28)', period: '6th period · 2:30 PM',  nextAssignment: 'Sketchbook pg. 12–14',    nextDue: 'FRI Jun 27', imageSrc: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800&h=320&fit=crop&q=80&auto=format' },
     ];
+    // Real data, when signed in (see _bootstrapRealData) — falls back to the
+    // mock set above until it loads or if you're not logged in.
+    const raw = this.state.realClasses || mock;
     return raw.map((c, i) => {
       const status = this.state.statusOverrides[i] || c.status;
       const cx = CANVAS_SYNC[c.name] || {};

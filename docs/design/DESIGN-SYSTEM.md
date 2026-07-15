@@ -1,247 +1,141 @@
 # Diana Design System
 
-This document is the Phase 1c deliverable from the master BUILD-PLAN.md. It lists every component in the kit, its variants, states, tokens, and accessibility notes. If a component is not documented here, it does not exist — the next page must not reinvent it.
+This is the implementation contract for Diana's shared interface kit. New product surfaces must use these components and the tokens in `app/globals.css` before introducing page-specific styles.
 
-**Sources of truth:**
-- Token values: `tokens.css` (--gl-* aliases)
-- Visual reference: `Student Lobby.dc.html`
-- Written plan: `Dashboard Plan.md`
+## Foundations
 
----
-
-## Visual System Quick Reference
-
-| Element | Value |
-|---|---|
-| Page base | `var(--gl-bg-base)` — `#04060f` |
-| Hero zone | `var(--gl-bg-hero)` — `#0a1024` |
-| Top nav | `var(--gl-bg-nav)` — `rgba(2,5,14,.72)` + `var(--blur-nav)` |
-| Primary accent | `var(--gl-cyan)` — `#29d0ff` |
-| Display font | `var(--font-display)` — Saira Condensed |
-| Body font | `var(--font-body)` — Barlow Semi Condensed |
-| Card surface | `var(--gl-bg-card)` + `var(--blur-card)` + `var(--gl-border-neutral)` + `var(--radius-card)` |
-
-**Never invent new colors. Never use raw hex values. All values must resolve to a `var(--gl-*)` token.**
-
----
-
-## Component Catalogue
-
-### 1. Panel
-
-**File:** `components/ui/panel.tsx`
-**Props:** `tone?: 'default' | 'cyan'`, `className?`, `style?`, `children`
-
-The single shared container for all dashboard cards. 46 occurrences across 13 files collapsed to one import.
-
-| Tone | Background | Border |
+| Layer | Source | Purpose |
 |---|---|---|
-| `default` | `var(--gl-bg-card)` | `1px solid var(--gl-border-neutral)` |
-| `cyan` | `var(--gl-cyan-08)` | `1px solid var(--gl-cyan-22)` |
+| Primitive tokens | `app/globals.css` | Color, type, spacing, radius, shadow, blur, and layout values |
+| Component tokens | `--ds-*` variables in `app/globals.css` | Shared card, focus, disabled, and interaction behavior |
+| Components | `components/ui/` | Reusable structure, variants, and accessible states |
+| Product composition | `app/(app)/` | Page data and product-specific content |
 
-Both tones use `borderRadius: var(--radius-card)` and `backdropFilter: var(--blur-card)`.
+Rules:
 
-**Accessibility:** Panel is a layout container. Screen-reader meaning comes from its contents, not the panel itself. Do not add `role` unless the panel is a dialog or landmark.
+1. Use `var(--gl-*)` or `var(--ds-*)` for colors and shared effects. Do not add raw color values to product components.
+2. Use Saira Condensed through `var(--font-display)` for display headings and strong actions. Use Barlow Semi Condensed through `var(--font-body)` for body copy and labels.
+3. Attention states use the gold token family. Do not use red for due work, validation, or ordinary errors.
+4. Every interactive component needs a visible keyboard focus state, a disabled or waiting state when applicable, and a useful accessible name.
+5. Empty states are calm, brief, and actionable. They never imply blame.
 
----
+## Shared Components
 
-### 2. HUD Corner Brackets
+### Panel
 
-**File:** `components/ui/hud-corners.tsx`
-**Props:** `color?: string` (default `var(--gl-cyan-85)`), `size?: number` (default 16)
+- File: `components/ui/panel.tsx`
+- Props: `tone?: "default" | "cyan"`, `className?`, `style?`, `children`
+- Use: shared card and dashboard container.
+- Accessibility: add a landmark role only when the panel has a real semantic role.
 
-The named corner-bracket motif from the design system. Four absolute-positioned L-shaped spans at TL/TR/BL/BR. Parent must be `position: relative` with `overflow: visible`.
+### HUD Corners
 
-```tsx
-<div style={{ position: "relative" }}>
-  <HudCorners />
-  {/* panel content */}
-</div>
-```
+- File: `components/ui/hud-corners.tsx`
+- Props: `color?`, `size?`
+- Use: decorative corner treatment within a positioned parent.
+- Accessibility: decorative spans are hidden from assistive technology.
 
-For a custom color (e.g. gold accent panel): `<HudCorners color="var(--gl-gold-85)" />`
+### Dashboard Tab Shell and Tab Heading
 
-**Accessibility:** All four spans carry `aria-hidden="true"` — purely decorative.
+- Files: `components/ui/dashboard-tab-shell.tsx`, `components/ui/tab-heading.tsx`
+- Use: shared page width, background, padding, kicker, title, and subtitle structure.
+- Accessibility: `TabHeading` provides the page's single `h1`.
 
----
+### Status Pill
 
-### 3. Dashboard Tab Shell
+- File: `components/ui/status-pill.tsx`
+- Props: `label`, `tone?`, `showIcon?`, `className?`
+- Tones: `ready`, `in-progress`, `submitted`, `attention`, `graded`, `current`, `muted`
+- Helper: `assignmentStatusTone(status)` maps assignment lifecycle values to calm visual tones.
+- Accessibility: icons are decorative because the label carries the meaning. Color is never the only status signal.
 
-**File:** `components/ui/dashboard-tab-shell.tsx`
-**Props:** `children`
+### Hero CTA Button
 
-Shared outer wrapper for all WORK / THINK / PROOF / FUTURE tab pages. Provides the `bg-base` full-height background and the `max-width` centered inner container with standard padding.
+- File: `components/ui/hero-cta-button.tsx`
+- Props: `href`, `children`, `icon?`, `trailingIcon?`, `compact?`, `className?`
+- Use: the strongest page action, with cyan fill, display type, and a consistent focus state.
+- States: default, hover, active, focus-visible, compact.
 
-```tsx
-export default function WorkPage() {
-  return (
-    <DashboardTabShell>
-      <DashboardTabs />
-      <TabHeading ... />
-      {/* page content */}
-    </DashboardTabShell>
-  );
-}
-```
+### Metric Tile
 
-**Do not add padding or background to children** — the shell provides all layout context.
+- File: `components/ui/metric-tile.tsx`
+- Props: `label`, `value`, `detail`, `tone`
+- Tones: `cyan`, `pink`, `gold`, `blue`, `purple`
+- Use: short dashboard metrics with a tone bar and large value.
 
----
+### Assignment Lane
 
-### 4. Tab Heading
+- File: `components/ui/assignment-lane.tsx`
+- Props: `eyebrow`, `title`, `count`, `tone`, `children`
+- Use: a lane heading, item count, and responsive two-column card grid.
+- Accessibility: renders a semantic section with an `h2`.
 
-**File:** `components/ui/tab-heading.tsx`
-**Props:** `kicker: string`, `title: string`, `sub: string`, `accent?: string`
+### Mission Card and Mission Progress
 
-The kicker + H1 + subtitle heading block used on every dashboard tab page. The `accent` prop controls the kicker color token.
+- File: `components/ui/mission-card.tsx`
+- Mission Card props: `href`, `tone`, `children`
+- Mission Progress props: `percent`
+- Use: tokenized assignment cards and bounded progress from 0 to 100.
+- Accessibility: the whole card is one link. Progress includes an accessible percentage label.
 
-| Tab | accent value |
-|---|---|
-| WORK | `var(--gl-cyan)` |
-| THINK | `var(--gl-purple-light)` |
-| PROOF | `var(--gl-green)` |
-| FUTURE | `var(--gl-gold)` |
+### Class Card
 
-**Accessibility:** Renders a semantic `<header>` with an `<h1>`. Each tab page must have exactly one `<h1>`.
+- File: `components/ui/class-card.tsx`
+- Props: `card: ClassCardModel`
+- CTA variants: `cyanFilled`, `goldFilled`, `cyanOutline`, `dark`
+- Use: the shared My Classes card, including current class, event, task, progress, action, and optional study controls.
+- Accessibility: headings and links remain semantic. Status and progress have text labels.
 
----
+### Empty State
 
-### 5. AppTopNav
+- File: `components/ui/empty-state.tsx`
+- Props: `title`, `description`, `action?`, `compact?`
+- Use: calm empty and first-run states with one optional action.
 
-**File:** `app/(app)/app-top-nav.tsx`
+### Alert Strip
 
-The shared top navigation bar. Already the model component. Present on every authenticated page. Contains: left icon buttons (note, voice), center tab links (TODAY / WORK / THINK / PROOF / FUTURE), right Capture button + avatar.
+- File: `components/ui/alert-strip.tsx`
+- Props: `tone?`, `children`, `trailing?`, `onClick?`, `expanded?`, `label?`, `className?`
+- Tones: `info`, `warning`, `success`
+- Behavior: renders a button when clickable and a non-interactive container otherwise.
+- Accessibility: clickable strips expose `aria-expanded` and accept an explicit label.
 
-**States:** Active tab shows cyan underline bar. Inactive tabs use `var(--gl-text-nav-inactive)`.
+### Slanted Action Button
 
-**Token note:** The nav currently has some raw hex values that should be updated to `--gl-*` aliases. This does not affect behavior but creates drift risk. File a cleanup pass when touching the nav.
+- File: `components/ui/slanted-action-button.tsx`
+- Modes: link through `href`, or native button props.
+- Props: `children`, `compact?`, `className?`, plus link or button props.
+- Use: the lime Diana action convention.
+- States: default, hover, active, focus-visible, disabled or waiting.
 
----
+## Navigation Components
 
-### 6. Status Badge / Pill
+- Desktop and wide-screen navigation: `app/(app)/app-top-nav.tsx`
+- Phone navigation: `app/(app)/mobile-tab-bar.tsx`
+- Shared drawer: `app/(app)/more-menu.tsx`
+- Locked destinations: Today, Work, Classes, Calendar, More.
 
-**Not yet extracted.** 6 ad-hoc implementations across 4 files. Build target for Phase 1b continuation.
+The old side navigation is retired. Do not introduce another primary navigation pattern.
 
-Variants needed:
-- `ready` — neutral (muted bg + muted text)
-- `in-progress` — cyan tint
-- `submitted` — green tint
-- `past-due` — amber tint (NOT red — calm invariant)
-- `graded` — green
-- `current` — cyan solid
+## Figma source and code mapping
 
-**Rule:** Past-due uses amber (`var(--gl-gold)` family), never red. Red is reserved for recording and critical system errors.
+The editable design source is the [Diana Design System](https://www.figma.com/design/M7kvCycCFWJnKUgYmfKheZ/Diana-Design-System). It contains foundations, approved mobile flows, and reusable component pages. The `99 ScreenDesign reference` page preserves all 47 original ScreenDesign HTML exports in a named six-column grid. Those frames are visual references only. They are not production components and must not be copied into the app as generated markup.
 
----
-
-### 7. Hero CTA Button
-
-**Not yet extracted.** 4 ad-hoc implementations. Build target for Phase 1b continuation.
-
-Pattern: solid cyan fill, Saira Condensed italic uppercase, ArrowRight or Timer icon, `var(--shadow-hero-cta)` box-shadow.
-
-The `start-session-button.tsx` is a near-complete implementation — extract it to `components/ui/hero-cta-button.tsx` with a `href`, `label`, and optional `icon` prop.
-
----
-
-### 8. Lane (header + card grid)
-
-**Not yet extracted.** Present in assignments page. Build target for Phase 3.
-
-A section eyebrow label + title + count badge + card grid below. The BUILD-PLAN section on Phase 1b lists this as an extraction target.
-
----
-
-### 9. Empty State
-
-**Not yet extracted.** Several one-off implementations. Build target for Phase 3.
-
-Calm framing: no broken-icon imagery, no red. Short copy, one optional action.
-
----
-
-### 10. Alert Strip
-
-**Partially implemented.** `reminder-banner.tsx` exists but uses Tailwind classes instead of `--gl-*` tokens — must be reconciled before wiring into the alert slot. `time-bar.tsx` implements a red-border past-due variant (should use amber). Unify under one `<AlertStrip>` component with `tone: 'info' | 'warning'`.
-
-**Do not use red for past-due alerts.** Amber (`var(--gl-gold)` family) is the attention color.
-
----
-
-### 11. Slanted Action Button (Talk to Diana)
-
-**Not yet extracted.** Currently exists only in `lobby-audio-note.tsx`. Pattern: lime background (`var(--gl-lime)`), `skewX(-8deg)` transform, inner label counter-skewed `skewX(8deg)`.
-
----
-
-## Token Quick Reference (most-used)
-
-```css
-/* Backgrounds */
-var(--gl-bg-base)         /* #04060f — page */
-var(--gl-bg-hero)         /* #0a1024 — hero zone */
-var(--gl-bg-card)         /* rgba(4,8,20,.72) — cards */
-var(--gl-bg-nav)          /* rgba(2,5,14,.72) — top nav */
-var(--gl-bg-overlay)      /* rgba(4,8,20,.40) — upload/photo overlays */
-
-/* Cyan family (primary accent) */
-var(--gl-cyan)            /* #29d0ff — CTAs, active states */
-var(--gl-cyan-85)         /* .85 opacity — HUD bracket color */
-var(--gl-cyan-22)         /* .22 opacity — standard borders */
-var(--gl-cyan-08)         /* .08 opacity — info card background */
-var(--gl-text-on-cyan)    /* #04080f — text on cyan buttons */
-
-/* Status colors */
-var(--gl-green)           /* success / submitted */
-var(--gl-gold)            /* warning / past-due / not-submitted */
-var(--gl-red)             /* overdue dot / recording only */
-var(--gl-purple)          /* overwhelmed / focus-mode */
-
-/* Text */
-var(--gl-text-primary)    /* #ffffff */
-var(--gl-text-secondary)  /* #cdd6f2 */
-var(--gl-text-muted)      /* #aab8e0 */
-var(--gl-text-dim)        /* #7d88ad */
-var(--gl-text-nav-inactive) /* #8b96bd */
-
-/* Shadows */
-var(--shadow-hero-cta)    /* cyan glow + black lift — hero CTA buttons */
-var(--shadow-cta-green)   /* green glow — success CTAs */
-
-/* Radii */
-var(--radius-card)        /* 14px — cards and panels */
-var(--radius-pill)        /* 20px — chips and pills */
-var(--radius-hero)        /* 12px — hero CTA buttons */
-
-/* Layout */
-var(--layout-max-width)   /* 1760px — all pages */
-var(--layout-work-rail)   /* 380px — WORK tab sidebar */
-```
-
----
-
-## Subject Accent Colors
-
-These are the locked values from `tokens.css` section 8. Use these, not inline hex values.
-
-| Subject | Token | Value |
+| Figma component | Figma node | React implementation |
 |---|---|---|
-| Math | `var(--gl-subject-math)` | `#ff6a3d` |
-| English | `var(--gl-subject-english)` | `#29d0ff` |
-| Science | `var(--gl-subject-science)` | `#36e07a` |
-| History | `var(--gl-subject-history)` | `#ffd24a` |
-| Athletics | `var(--gl-subject-athletics)` | `#7e5cff` |
-| Art | `var(--gl-subject-art)` | `#f25fb0` |
+| Diana Button, primary emphasis | `8:8` | `components/ui/hero-cta-button.tsx` |
+| Diana Button, quiet emphasis | `8:10` | Page action styles must reuse the shared button tokens in `app/globals.css`; use `SlantedActionButton` only for the lime action convention. |
+| Assignment card | `9:7` | `components/ui/mission-card.tsx` and `MissionProgress` |
+| Mobile navigation | `11:245` | `app/(app)/mobile-tab-bar.tsx` |
 
-**Note:** `classTheme()` in `dashboard/page.tsx` has gradient values that diverge from the token doc comments. These need reconciliation in a follow-up pass before the Class Card component is built.
+Figma Code Connect is not available on the current Professional plan. It requires an Organization or Enterprise plan and published library components. Until the plan changes, this table is the design-to-code mapping contract.
 
----
+## Verification
 
-## Invariants (enforced across every page)
+- Component contract tests: `components/ui/design-system.test.tsx`
+- Class composition tests: `app/(app)/classes/my-classes-grid.test.tsx`
+- Copy invariant: `npm run tone-audit`
+- Type safety: `npm run typecheck`
+- Full test suite: `npm run test:run`
 
-1. **Calm framing** — No red on due dates or status. Past-due = amber. Red = recording/critical only.
-2. **Token-only colors** — All color values via `var(--gl-*)`. No raw hex.
-3. **Font system** — Display (Saira Condensed) for headings and CTAs; Body (Barlow Semi Condensed) for labels and text.
-4. **HUD motif** — Corner brackets are always `<HudCorners />` from `components/ui/hud-corners.tsx`. Never 4 raw spans.
-5. **Single top bar** — `AppTopNav` on every authenticated page. The old sidebar is fully retired.
-6. **Empty + populated states** — Every component must handle both. No half-built empty states.
+The shared kit is implemented and used by the Assignments page, My Classes grid, dashboard reminder, and dashboard audio-note action. Broader page migration remains incremental, but new work must start from this kit.

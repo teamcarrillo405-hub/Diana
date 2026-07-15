@@ -11,7 +11,7 @@ const BF = "var(--font-barlow), 'Barlow Semi Condensed', sans-serif";
 type ChatMessage = { role: "student" | "coach"; content: string };
 
 const OPENING_MESSAGE =
-  "Hey — what do you need? I can explain anything on this page, or point you at what to do next. If it's homework, everything happens in Work.";
+  "Hey, what do you need? I can explain anything on this page, or point you at what to do next. If it's homework, everything happens in Work.";
 
 const QUICK_CHIPS = [
   "What should I do next?",
@@ -38,8 +38,15 @@ function pageLabelFor(pathname: string): string {
   return PAGE_LABELS[base] ?? "";
 }
 
+// Lets other components (e.g. Homework Mission's "Ask Diana" pill) open the
+// one global drawer instead of building a second floating robot.
+const OPEN_EVENT = "diana:open-agent-fab";
+export function openAgentFab() {
+  window.dispatchEvent(new Event(OPEN_EVENT));
+}
+
 export function AgentFab() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([{ role: "coach", content: OPENING_MESSAGE }]);
@@ -51,6 +58,12 @@ export function AgentFab() {
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight });
   }, [messages, typing]);
+
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_EVENT, onOpen);
+  }, []);
 
   const bottomOffset = usesAppTopNav(pathname) ? 26 : 96;
 
@@ -81,10 +94,16 @@ export function AgentFab() {
         @keyframes af-pulse{0%,100%{box-shadow:0 0 0 0 rgba(41,208,255,.45),0 8px 26px rgba(0,0,0,.5)}50%{box-shadow:0 0 0 8px rgba(41,208,255,0),0 8px 26px rgba(0,0,0,.5)}}
         @keyframes af-in{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
         @keyframes af-dot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+        @media (max-width: 900px) {
+          .agent-fab-anchor {
+            right: 16px !important;
+            bottom: calc(5rem + env(safe-area-inset-bottom) + 12px) !important;
+          }
+        }
       `}</style>
 
       {!open && (
-        <div style={{ position: "fixed", right: 26, bottom: bottomOffset, zIndex: 999, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
+        <div className="agent-fab-anchor" style={{ position: "fixed", right: 26, bottom: bottomOffset, zIndex: 999, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 10 }}>
           {hover && (
             <div style={{ animation: "af-in .35s ease both", padding: "9px 14px", borderRadius: 11, background: "rgba(6,10,24,.92)", border: "1px solid rgba(41,208,255,.3)", backdropFilter: "blur(10px)", boxShadow: "0 10px 26px rgba(0,0,0,.45)", fontSize: 13, fontWeight: 600, color: "#eaf6ff", whiteSpace: "nowrap" }}>
               Ask Diana a question

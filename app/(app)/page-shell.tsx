@@ -39,14 +39,17 @@ export function PageShell({
       <div
         style={{
           maxWidth: "var(--layout-max-width)",
+          width: "100%",
+          minWidth: 0,
+          boxSizing: "border-box",
           margin: "0 auto",
           padding: "var(--space-17) var(--space-17) var(--space-24)",
           display: "grid",
           gap: "var(--space-17)",
         }}
       >
-        <header style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-12)", flexWrap: "wrap" }}>
-          <div style={{ display: "grid", gap: "var(--space-8)" }}>
+        <header style={{ display: "flex", minWidth: 0, alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-12)", flexWrap: "wrap" }}>
+          <div style={{ display: "grid", minWidth: 0, gap: "var(--space-8)" }}>
             <p
               style={{
                 fontFamily: BODY,
@@ -93,7 +96,7 @@ export function PageShell({
               </p>
             ) : null}
           </div>
-          {action ? <div style={{ flexShrink: 0 }}>{action}</div> : null}
+          {action ? <div style={{ minWidth: 0, maxWidth: "100%", flexShrink: 1 }}>{action}</div> : null}
         </header>
         {children}
       </div>

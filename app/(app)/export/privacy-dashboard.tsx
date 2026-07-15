@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Download, FileArchive, FileJson, ShieldCheck, Trash2 } from "lucide-react";
 import {
   categoryLabel,
+  formatHandoffTimestamp,
   PRIVACY_DELETE_CATEGORIES,
   type AiVerbosity,
   type DataInventoryRow,
@@ -29,11 +30,13 @@ export function PrivacyDashboard({
   inventory,
   classes,
   notificationPrefs,
+  timezone,
   handoff,
 }: {
   inventory: DataInventoryRow[];
   classes: ClassRow[];
   notificationPrefs: NotificationPreferences;
+  timezone: string;
   handoff: HandoffRow;
 }) {
   const router = useRouter();
@@ -99,7 +102,7 @@ export function PrivacyDashboard({
         const result = await importProfileBackup({ profile: parsed.profile });
         setMessage(result.ok ? "Profile backup imported." : result.error);
       } catch {
-        setMessage("Could not read that backup — check the file and passphrase.");
+        setMessage("Could not read that backup: check the file and passphrase.");
       }
     });
   }
@@ -259,7 +262,7 @@ export function PrivacyDashboard({
         <h2 className="text-sm font-semibold">Device handoff</h2>
         <div className="mt-3 flex items-center gap-2 text-sm text-muted">
           <ShieldCheck size={16} className="text-accent" />
-          {handoff ? `Last route: ${handoff.route} at ${new Date(handoff.updated_at).toLocaleString()}` : "No handoff saved yet."}
+          {handoff ? `Last route: ${handoff.route} at ${formatHandoffTimestamp(handoff.updated_at, timezone)}` : "No handoff saved yet."}
         </div>
       </section>
 

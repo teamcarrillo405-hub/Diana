@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   }
   if (!token) {
     return NextResponse.json(
-      { error: "Reconnect Google Classroom — connect via the Google button to enable background sync" },
+      { error: "Reconnect Google Classroom: connect via the Google button to enable background sync" },
       { status: 401 },
     );
   }

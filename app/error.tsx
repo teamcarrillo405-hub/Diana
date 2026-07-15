@@ -33,10 +33,10 @@ export default function RootError({
             Something needs attention
           </p>
           <h1 style={{ fontSize: "2rem", fontWeight: 800, lineHeight: 1.1, textTransform: "uppercase", color: "#e8e8f0", margin: 0 }}>
-            Something went wrong.
+            This page needs a refresh.
           </h1>
           <p style={{ fontSize: "0.9rem", lineHeight: 1.6, color: "#a0a0b8", margin: 0 }}>
-            Your work is safe. Try reloading — if it keeps happening, go back to the start.
+            Your work is safe. Try reloading. If it keeps happening, go back to the start.
           </p>
         </div>
         <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", flexWrap: "wrap" }}>

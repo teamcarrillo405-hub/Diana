@@ -2048,6 +2048,7 @@ export type Database = {
           submission_sync_status: string | null; // 0024 migration; manually annotated until supabase:types regen
           submitted_at: string | null;
           rubric_text: string | null; // 0024 migration; manually annotated until supabase:types regen
+          saved_work: Json; // 20260709 migration; manually annotated until supabase:types regen
           title: string;
           updated_at: string;
           writing_load: number;
@@ -2078,6 +2079,7 @@ export type Database = {
           submission_sync_status?: string | null; // 0024 migration; manually annotated until supabase:types regen
           submitted_at?: string | null;
           rubric_text?: string | null; // 0024 migration; manually annotated until supabase:types regen
+          saved_work?: Json; // 20260709 migration; manually annotated until supabase:types regen
           title: string;
           updated_at?: string;
           writing_load?: number;
@@ -2108,6 +2110,7 @@ export type Database = {
           submission_sync_status?: string | null; // 0024 migration; manually annotated until supabase:types regen
           submitted_at?: string | null;
           rubric_text?: string | null; // 0024 migration; manually annotated until supabase:types regen
+          saved_work?: Json; // 20260709 migration; manually annotated until supabase:types regen
           title?: string;
           updated_at?: string;
           writing_load?: number;
@@ -2132,6 +2135,53 @@ export type Database = {
             columns: ["rubric_id"];
             isOneToOne: false;
             referencedRelation: "rubrics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      assignment_problems: {
+        Row: {
+          id: string;
+          owner_id: string;
+          assignment_id: string;
+          problem_number: number;
+          problem_text: string;
+          source: string;
+          scaffold: Json | null;
+          student_work: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          assignment_id: string;
+          problem_number: number;
+          problem_text: string;
+          source?: string;
+          scaffold?: Json | null;
+          student_work?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          assignment_id?: string;
+          problem_number?: number;
+          problem_text?: string;
+          source?: string;
+          scaffold?: Json | null;
+          student_work?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assignment_problems_assignment_id_fkey";
+            columns: ["assignment_id"];
+            isOneToOne: false;
+            referencedRelation: "assignments";
             referencedColumns: ["id"];
           },
         ];

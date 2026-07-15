@@ -111,7 +111,7 @@ export async function ParentSharingView() {
             <li key={fact}>{fact}</li>
           ))}
         </ul>
-        <p className="text-xs text-muted">The last four weeks, from real activity — no streaks, no rankings.</p>
+        <p className="text-xs text-muted">The last four weeks, from real activity: no streaks, no rankings.</p>
       </section>
 
       <section className="grid gap-3 md:grid-cols-3">

@@ -109,6 +109,12 @@ describe("workloadBarClass", () => {
       expect(workloadBarClass(tier)).not.toMatch(/red/);
     }
   });
+
+  it("pairs every pale workload background with dark readable text", () => {
+    for (const tier of ["light", "moderate", "heavy", "overloaded"] as const) {
+      expect(workloadBarClass(tier)).toMatch(/text-slate-950/);
+    }
+  });
 });
 
 describe("adjustForUser export (smoke)", () => {

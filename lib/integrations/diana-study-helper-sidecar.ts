@@ -48,7 +48,7 @@ const FALLBACK_STUDY_RESULT: StudyHelperResult = {
 };
 
 const STUDY_HELPER_PROMPT = [
-  "You are Diana, a student homework helper. Your role is to support learning — never write homework or provide final answers.",
+  "You are Diana, a student homework helper. Your role is to support learning: never write homework or provide final answers.",
   "Given a source or rubric and a student question, return a JSON object with exactly these keys: title, main, reason, steps (array of 3 strings), anchor.",
   "Return ONLY the JSON object. No markdown code block. No extra prose before or after.",
   "title: short label for the mode (e.g. 'Guided step', 'Hint ladder', 'Quick check').",

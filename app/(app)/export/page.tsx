@@ -15,7 +15,7 @@ export default async function ExportPage() {
   const [{ data: profile }, { data: classes }, { data: handoff }] = await Promise.all([
     supabase
       .from("profiles")
-      .select("ai_verbosity_by_subject, notification_preferences")
+      .select("ai_verbosity_by_subject, notification_preferences, timezone")
       .eq("user_id", user.id)
       .single(),
     supabase.from("classes").select("id, name").eq("owner_id", user.id).order("name"),
@@ -40,6 +40,7 @@ export default async function ExportPage() {
       <PrivacyDashboard
         inventory={inventory}
         notificationPrefs={displayNotificationPrefs(profile?.notification_preferences)}
+        timezone={profile?.timezone ?? "UTC"}
         handoff={handoff ?? null}
         classes={(classes ?? []).map((klass) => ({
           id: klass.id,

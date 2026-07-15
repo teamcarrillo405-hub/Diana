@@ -84,7 +84,7 @@ export async function runPython(code: string): Promise<CodeRunResult> {
       return {
         ok: false,
         output: [],
-        error: "That run took too long — check for a loop that never ends, then try again.",
+        error: "That run took too long: check for a loop that never ends, then try again.",
       };
     }
     // CDN or wasm unavailable → quiet fallback to the lite runner.

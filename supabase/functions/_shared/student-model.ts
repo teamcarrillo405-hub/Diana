@@ -1,12 +1,17 @@
 type StudentModelQuality = "fast" | "quality";
 
+export type StudentModelPart =
+  | { type: "text"; text: string }
+  | { type: "image"; mediaType: string; data: string };
+
 export type StudentModelResult = {
   content: string;
   model: string;
   tokens: number;
 };
 
-const DEFAULT_TIMEOUT_MS = 3_500;
+const FAST_TIMEOUT_MS = 12_000;
+const QUALITY_TIMEOUT_MS = 20_000;
 
 export async function callStudentTextModel({
   system,
@@ -14,23 +19,39 @@ export async function callStudentTextModel({
   maxTokens,
   quality = "fast",
   json = false,
+  parts,
+  fallbackContent,
+  timeoutMs,
 }: {
   system: string;
   user: string;
   maxTokens: number;
   quality?: StudentModelQuality;
   json?: boolean;
+  parts?: StudentModelPart[];
+  fallbackContent?: string;
+  timeoutMs?: number;
 }): Promise<StudentModelResult> {
+  const requestTimeoutMs = timeoutMs ?? (quality === "quality" ? QUALITY_TIMEOUT_MS : FAST_TIMEOUT_MS);
   const preferredProvider = (Deno.env.get("STUDENT_AI_PROVIDER") ?? "openai").toLowerCase();
   if (preferredProvider !== "anthropic") {
-    return callOpenAiStudentModel({ system, user, maxTokens, quality, json });
+    return callOpenAiStudentModel({
+      system,
+      user,
+      maxTokens,
+      quality,
+      json,
+      parts,
+      fallbackContent,
+      timeoutMs: requestTimeoutMs,
+    });
   }
 
   const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
   if (anthropicKey) {
     const anthropicModel = quality === "quality" ? "claude-sonnet-4-6" : "claude-haiku-4-5";
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+    const timeout = setTimeout(() => controller.abort(), requestTimeoutMs);
     let anthropicRes: Response | null = null;
     try {
       anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
@@ -45,7 +66,7 @@ export async function callStudentTextModel({
           model: anthropicModel,
           max_tokens: maxTokens,
           system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-          messages: [{ role: "user", content: user }],
+          messages: [{ role: "user", content: parts ? toAnthropicParts(parts) : user }],
         }),
       });
     } catch (error) {
@@ -61,7 +82,7 @@ export async function callStudentTextModel({
       };
       const content = sanitizeStudentModelContent(data.content?.[0]?.text ?? "");
       return {
-        content: json ? normalizeJsonContent(content, user) : content,
+        content: json ? normalizeJsonContent(content, user, fallbackContent) : content,
         model: anthropicModel,
         tokens: Number(data.usage?.input_tokens ?? 0) + Number(data.usage?.output_tokens ?? 0),
       };
@@ -70,7 +91,16 @@ export async function callStudentTextModel({
     if (anthropicRes) console.error("student model Anthropic error:", await anthropicRes.text());
   }
 
-  return callOpenAiStudentModel({ system, user, maxTokens, quality, json });
+  return callOpenAiStudentModel({
+    system,
+    user,
+    maxTokens,
+    quality,
+    json,
+    parts,
+    fallbackContent,
+    timeoutMs: requestTimeoutMs,
+  });
 }
 
 async function callOpenAiStudentModel({
@@ -79,12 +109,18 @@ async function callOpenAiStudentModel({
   maxTokens,
   quality = "fast",
   json = false,
+  parts,
+  fallbackContent,
+  timeoutMs,
 }: {
   system: string;
   user: string;
   maxTokens: number;
   quality?: StudentModelQuality;
   json?: boolean;
+  parts?: StudentModelPart[];
+  fallbackContent?: string;
+  timeoutMs: number;
 }): Promise<StudentModelResult> {
   const openAiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
   if (!openAiKey) throw new Error("No configured student AI provider.");
@@ -92,7 +128,7 @@ async function callOpenAiStudentModel({
   const openAiModel = Deno.env.get("STUDENT_AI_OPENAI_MODEL") ??
     (quality === "quality" ? "gpt-4.1-mini" : "gpt-4.1-nano");
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let openAiRes: Response;
   try {
     openAiRes = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -108,14 +144,14 @@ async function callOpenAiStudentModel({
         ...(json ? { response_format: { type: "json_object" } } : {}),
         messages: [
           { role: "system", content: system },
-          { role: "user", content: user },
+          { role: "user", content: parts ? toOpenAiParts(parts) : user },
         ],
       }),
     });
   } catch (error) {
     console.error("student model OpenAI request error:", error);
     return {
-      content: fallbackStudentContent(user, json),
+      content: fallbackStudentContent(user, json, fallbackContent),
       model: `${openAiModel}:fallback`,
       tokens: 0,
     };
@@ -126,7 +162,7 @@ async function callOpenAiStudentModel({
   if (!openAiRes.ok) {
     console.error("student model OpenAI error:", await openAiRes.text());
     return {
-      content: fallbackStudentContent(user, json),
+      content: fallbackStudentContent(user, json, fallbackContent),
       model: `${openAiModel}:fallback`,
       tokens: 0,
     };
@@ -139,13 +175,13 @@ async function callOpenAiStudentModel({
 
   const content = sanitizeStudentModelContent(data.choices?.[0]?.message?.content ?? "");
   return {
-    content: json ? normalizeJsonContent(content, user) : content,
+    content: json ? normalizeJsonContent(content, user, fallbackContent) : content,
     model: openAiModel,
     tokens: Number(data.usage?.prompt_tokens ?? 0) + Number(data.usage?.completion_tokens ?? 0),
   };
 }
 
-function normalizeJsonContent(content: string, user: string): string {
+function normalizeJsonContent(content: string, user: string, fallbackContent?: string): string {
   const trimmed = content.trim();
   if (isJsonObject(trimmed)) return trimmed;
 
@@ -156,7 +192,7 @@ function normalizeJsonContent(content: string, user: string): string {
     if (isJsonObject(candidate)) return candidate;
   }
 
-  return fallbackStudentContent(user, true);
+  return fallbackStudentContent(user, true, fallbackContent);
 }
 
 function isJsonObject(value: string): boolean {
@@ -168,7 +204,8 @@ function isJsonObject(value: string): boolean {
   }
 }
 
-function fallbackStudentContent(user: string, json: boolean): string {
+function fallbackStudentContent(user: string, json: boolean, fallbackContent?: string): string {
+  if (fallbackContent) return fallbackContent;
   if (!json) {
     return [
       "One useful next move: name the exact part of the prompt you are working on.",
@@ -306,6 +343,28 @@ function fallbackStudentContent(user: string, json: boolean): string {
     prompts: ["What is the prompt asking you to do first?"],
     checkPrompt: "What is one source detail you can use before the next step?",
   });
+}
+
+function toAnthropicParts(parts: StudentModelPart[]) {
+  return parts.map((part) => part.type === "text"
+    ? { type: "text", text: part.text }
+    : {
+      type: "image",
+      source: {
+        type: "base64",
+        media_type: part.mediaType,
+        data: part.data,
+      },
+    });
+}
+
+function toOpenAiParts(parts: StudentModelPart[]) {
+  return parts.map((part) => part.type === "text"
+    ? { type: "text", text: part.text }
+    : {
+      type: "image_url",
+      image_url: { url: `data:${part.mediaType};base64,${part.data}`, detail: "high" },
+    });
 }
 
 function sanitizeStudentModelContent(content: string): string {

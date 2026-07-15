@@ -90,7 +90,7 @@ describe("scoreClassMatch", () => {
     expect(scoreClassMatch("civil war reconstruction primary source", candidates)).toBe("c2");
   });
 
-  it("Pitfall 5: does NOT eagerly stem — 'chemical' does not match 'Chemistry'", () => {
+  it("Pitfall 5: does NOT eagerly stem: 'chemical' does not match 'Chemistry'", () => {
     const candidates: ClassCandidate[] = [
       { id: "c1", name: "Chemistry", recentTitles: [] },
       { id: "c2", name: "English",   recentTitles: [] },

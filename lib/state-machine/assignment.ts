@@ -40,7 +40,7 @@ export const STATUS_HINT: Record<AssignmentStatus, string> = {
   exporting: "Running through the submit checklist.",
   submitted: "It's in. You're done.",
   graded: "Grade came back.",
-  abandoned: "Set aside for now — you can pick it back up.",
+  abandoned: "Set aside for now: you can pick it back up.",
 };
 
 /**

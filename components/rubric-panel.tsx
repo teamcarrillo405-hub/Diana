@@ -84,7 +84,7 @@ export function RubricPanel({
           </p>
           <Link
             href={`/study-buddy?${new URLSearchParams({
-              source: `Rubric criterion: ${check.next.title}${check.next.detail ? ` — ${check.next.detail}` : ""}`,
+              source: `Rubric criterion: ${check.next.title}${check.next.detail ? `: ${check.next.detail}` : ""}`,
               q: "Help me check my work against this criterion without writing it for me.",
             }).toString()}`}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-strong underline underline-offset-2 decoration-brand/50 hover:decoration-brand dark:text-brand"
@@ -130,7 +130,7 @@ export function RubricPanel({
       </ul>
 
       <p className="text-xs text-muted">
-        Your private self-check — teachers never see it. Checking a line means you looked at your
+        Your private self-check: teachers never see it. Checking a line means you looked at your
         work against it.
       </p>
     </section>

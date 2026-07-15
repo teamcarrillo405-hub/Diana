@@ -10,6 +10,7 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = new Set([
   "essay_scaffold",
@@ -101,7 +102,7 @@ Deno.serve(async (req: Request) => {
     await resetBudgetIfNewDay(ownerId, supabase);
     const { allowed } = await checkTokenBudget(ownerId, supabase);
     if (!allowed) {
-      return jsonResponse({ error: "You've used your AI quota for today — resets at midnight." }, 429);
+      return jsonResponse({ error: "You've used your AI quota for today. It resets at midnight." }, 429);
     }
 
     const { data: profile } = await supabase
@@ -128,31 +129,26 @@ Deno.serve(async (req: Request) => {
       evidenceContext ? `Available note/source context:\n${evidenceContext}` : "",
     ].filter(Boolean).join("\n\n");
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 900,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages: [{ role: "user", content: userMessage }],
-      }),
+    const fallbackContent = JSON.stringify({
+      title: "Next writing move",
+      suggestions: [{
+        label: "Use your source",
+        text: "Choose one detail from the prompt, notes, or draft before adding the next line.",
+        rationale: "This keeps the work anchored and student-led.",
+        action: "Write your version in one sentence.",
+      }],
+      authorshipNote: "Student wording stays primary.",
     });
-
-    if (!res.ok) {
-      console.error("writing-cowrite Anthropic error:", await res.text());
-      return jsonResponse({ error: "AI request failed" }, 502);
-    }
-    const data = await res.json() as {
-      content?: Array<{ type: string; text: string }>;
-      usage?: { input_tokens?: number; output_tokens?: number };
-    };
-    const content = data.content?.[0]?.text ?? "";
-    const tokens = Number(data.usage?.input_tokens ?? 0) + Number(data.usage?.output_tokens ?? 0);
+    const modelResult = await callStudentTextModel({
+      system: systemPrompt,
+      user: userMessage,
+      maxTokens: 900,
+      quality: "quality",
+      json: true,
+      fallbackContent,
+    });
+    const content = modelResult.content;
+    const tokens = modelResult.tokens;
 
     Promise.resolve()
       .then(async () => {
@@ -161,7 +157,7 @@ Deno.serve(async (req: Request) => {
             ownerId,
             assignmentId,
             feature: "writing_cowrite",
-            model: "claude-sonnet-4-6",
+            model: modelResult.model,
             promptSummary: `${mode}:${(prompt || draft).slice(0, 180)}`,
             tokensUsed: tokens,
           },

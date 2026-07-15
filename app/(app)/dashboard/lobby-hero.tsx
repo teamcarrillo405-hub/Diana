@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { ArrowRight, Search, Settings } from "lucide-react";
 
 import { AppTopNav } from "../app-top-nav";
 import { PlayerPhotoSlot } from "./player-photo-slot";
 import { LobbyBackgroundLayer } from "./lobby-background-layer";
+import styles from "../quiet-command.module.css";
 
 export type NextMove = {
   className: string | null;
@@ -22,9 +24,9 @@ type LobbyHeroProps = {
 };
 
 const ENERGY_META = {
-  low: { label: "LOW", value: "Low", adapt: "Shortest tasks first — you've got this" },
+  low: { label: "LOW", value: "Low", adapt: "Shortest tasks first: you've got this" },
   medium: { label: "OKAY", value: "Okay", adapt: "" },
-  high: { label: "LOCKED IN", value: "Locked in", adapt: "Priority tasks first — locked in" },
+  high: { label: "LOCKED IN", value: "Locked in", adapt: "Priority tasks first: locked in" },
 } as const;
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
@@ -32,14 +34,17 @@ const BF = "var(--font-barlow), 'Barlow Semi Condensed', sans-serif";
 
 export function LobbyHero({ studentName, focusHref, photoUrl = null, selectedEnergy = null, nextMove }: LobbyHeroProps) {
   const displayName = studentName.toUpperCase();
+  const firstName = studentName.trim().split(/\s+/)[0] || "there";
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const ctaLabel = nextMove?.className ? `▶ Start ${nextMove.className}` : "▶ Start Next Mission";
   const moveSub = nextMove
     ? [nextMove.className, nextMove.title].filter(Boolean).join(" · ")
-    : "All caught up — nice work today";
+    : "All caught up: nice work today";
   const finishBy = nextMove?.estMin ? `est. ${nextMove.estMin} min` : null;
 
   return (
-    <div style={{ width: "100%", fontFamily: BF, color: "#fff" }}>
+    <div className={styles.todaySurface} style={{ width: "100%", fontFamily: BF, color: "#fff" }}>
       <style>{`
         @keyframes gl-mic-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,55,55,.55)}65%{box-shadow:0 0 0 16px rgba(255,55,55,0)}}
         .gl-tab:hover{color:#fff !important;}
@@ -74,17 +79,90 @@ export function LobbyHero({ studentName, focusHref, photoUrl = null, selectedEne
         }
       `}</style>
 
+      <AppTopNav active="Today" />
+
+      <section className={styles.mobileOnly} aria-label="Today">
+        <header className={styles.mobileHeader}>
+          <Link href="/dashboard" className={styles.brand} aria-label="Diana Today">
+            <span className={styles.brandSignal} aria-hidden="true" />
+            Diana
+          </Link>
+          <div className={styles.headerActions}>
+            <Link href="/assignments" className={styles.iconButton} aria-label="Search work">
+              <Search size={18} strokeWidth={1.8} aria-hidden="true" />
+            </Link>
+            <Link href="/settings" className={styles.iconButton} aria-label="Settings">
+              <Settings size={18} strokeWidth={1.8} aria-hidden="true" />
+            </Link>
+          </div>
+        </header>
+
+        <main className={styles.todayMain}>
+          <div>
+            <p className={styles.eyebrow}>Today</p>
+            <h1 className={styles.greeting}>{greeting}, {firstName}.</h1>
+            <p className={styles.subhead}>One clear move. Then we reassess.</p>
+          </div>
+
+          <section className={styles.coachCard} aria-labelledby="coach-diana-label">
+            <div className={styles.coachLine}>
+              <div className={styles.coachAvatar} aria-hidden="true">D</div>
+              <div>
+                <div id="coach-diana-label" className={styles.coachLabel}>Coach Diana</div>
+                <p className={styles.coachMessage}>
+                  {nextMove
+                    ? `${nextMove.className ?? "Your next class"} is first. Open the assignment, read the first focus, and begin there.`
+                    : "Your current list is clear. Open Work whenever you are ready to plan the next move."}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section aria-labelledby="next-move-heading">
+            <div className={styles.sectionHeading}>
+              <div>
+                <div className={styles.sectionLabel}>Right now</div>
+                <h2 id="next-move-heading">Your next move</h2>
+              </div>
+              <Link href="/assignments">View all</Link>
+            </div>
+
+            {nextMove ? (
+              <Link href={focusHref} className={styles.assignmentCard}>
+                <div className={styles.assignmentMeta}>
+                  <span className={styles.courseName}>{nextMove.className ?? "Assignment"}</span>
+                  {nextMove.estMin ? <span>{nextMove.estMin} min</span> : null}
+                </div>
+                <div className={styles.assignmentTitle}>{nextMove.title}</div>
+                <div className={styles.assignmentDetails}>
+                  <span>Open the brief and find the first focus.</span>
+                  <span className={styles.cardAction}>Open <ArrowRight size={15} aria-hidden="true" /></span>
+                </div>
+              </Link>
+            ) : (
+              <div className={styles.emptyCard}>
+                <h2>Your list is clear.</h2>
+                <p>New work will appear here when it is ready.</p>
+              </div>
+            )}
+
+            <Link href="/assignments" className={styles.afterCard}>
+              <span>After this</span>
+              <strong>See the rest of your work</strong>
+              <ArrowRight size={16} aria-hidden="true" />
+            </Link>
+          </section>
+        </main>
+      </section>
+
       {/* ═══ HERO ZONE — nav + hero share one swappable background ═══ */}
       {/* Full-bleed breakout: span the viewport even inside a constrained shell. */}
-      <div style={{ position: "relative", overflow: "hidden", background: "#0a1024", width: "100vw", marginLeft: "calc(50% - 50vw)" }}>
+      <div className={styles.desktopOnly} style={{ position: "relative", overflow: "hidden", background: "#0a1024", width: "100vw", marginLeft: "calc(50% - 50vw)" }}>
 
         {/* Hero background + tint — theme picked in Settings > Appearance */}
         <div className="gl-hero-bg" style={{ position: "absolute", inset: 0, width: "100%", height: 718, zIndex: 0 }}>
           <LobbyBackgroundLayer />
         </div>
-
-        {/* TOP NAV — shared component (see app/(app)/app-top-nav.tsx) */}
-        <AppTopNav active="Today" />
 
         {/* HERO ELEMENTS */}
         <div className="gl-hero-content" style={{ position: "relative", zIndex: 2, maxWidth: "var(--layout-max-width)", margin: "0 auto", height: 660 }}>

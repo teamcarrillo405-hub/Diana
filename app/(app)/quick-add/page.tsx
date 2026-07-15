@@ -20,7 +20,7 @@ export default async function QuickAddPage() {
       active="Work"
       eyebrow="Capture"
       title="Quick add."
-      subtitle="Snap a photo, talk it out, or jot a quick note — Diana routes it to the right class."
+      subtitle="Snap a photo, talk it out, or jot a quick note: Diana routes it to the right class."
       accent="var(--gl-cyan)"
       icon={Camera}
     >

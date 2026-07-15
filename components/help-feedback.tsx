@@ -28,7 +28,7 @@ export function HelpFeedback({
   if (state === "answered") {
     return (
       <p className={`text-xs text-muted ${className}`} role="status">
-        Noted — Diana adapts to what works for you.
+        Noted: Diana adapts to what works for you.
       </p>
     );
   }

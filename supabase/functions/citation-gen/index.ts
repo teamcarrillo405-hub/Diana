@@ -11,6 +11,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const CITATION_PROMPT = `You are a citation formatter. The student gives you
 source information; you return formatted citations.
@@ -104,7 +105,7 @@ Deno.serve(async (req: Request) => {
     if (!allowed) {
       return new Response(
         JSON.stringify({
-          error: "You've used your AI quota for today \u2014 resets at midnight.",
+          error: "You've used your AI quota for today. It resets at midnight.",
         }),
         {
           status: 429,
@@ -127,42 +128,17 @@ Requested formats: ${(formats as string[]).join(", ")}
 Source content:
 ${(sourceText as string).slice(0, 8000)}`;
 
-    const messages = [
-      { role: "user" as const, content: userMsg },
-    ];
-
-    // 7. Call Anthropic Haiku 4.5 — pure text-transform, no reasoning needed, cheap
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": Deno.env.get("ANTHROPIC_API_KEY") ?? "",
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 600,
-        system: [{ type: "text", text: systemPrompt, cache_control: { type: "ephemeral" } }],
-        messages,
-      }),
+    const modelResult = await callStudentTextModel({
+      system: systemPrompt,
+      user: userMsg,
+      maxTokens: 600,
+      json: true,
+      fallbackContent: "{}",
     });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("Anthropic error:", errText);
-      return new Response(JSON.stringify({ error: "AI request failed" }), {
-        status: 502,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const data = await res.json() as {
-      content: Array<{ type: string; text: string }>;
-      usage?: { input_tokens: number; output_tokens: number };
-    };
-    const rawContent = data.content?.[0]?.text ?? "{}";
-    const tokens =
-      (data.usage?.input_tokens ?? 0) + (data.usage?.output_tokens ?? 0);
+    // 7. Use the shared fast student model for this text-only transformation.
+    const rawContent = modelResult.content;
+    const tokens = modelResult.tokens;
 
     // 8. Parse citations JSON (graceful fallback on parse error)
     let citations: Record<string, string>;
@@ -184,7 +160,7 @@ ${(sourceText as string).slice(0, 8000)}`;
             ownerId,
             assignmentId: (assignmentId as string | null | undefined) ?? null,
             feature: "citation_gen",
-            model: "claude-haiku-4-5",
+            model: modelResult.model,
             promptSummary: (sourceText as string).slice(0, 200),
             tokensUsed: tokens,
           },

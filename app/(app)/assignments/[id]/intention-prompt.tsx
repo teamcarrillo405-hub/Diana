@@ -5,7 +5,7 @@ import { saveIntention } from "./actions";
 
 export function IntentionPrompt({ assignmentId }: { assignmentId: string }) {
   const router   = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname() ?? `/assignments/${assignmentId}`;
   const [pending, startTransition] = useTransition();
   const [cue, setCue]     = useState("");
   const [status, setStatus] = useState<"idle" | "saved">("idle");

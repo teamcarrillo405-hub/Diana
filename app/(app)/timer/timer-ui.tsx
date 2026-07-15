@@ -61,7 +61,7 @@ function formatMs(ms: number): string {
 function statusLabel(s: ReturnType<typeof useTimer>["state"]): string {
   if (s.status === "idle") return "Ready when you are";
   if (s.status === "paused") return "Paused";
-  if (s.status === "done") return "Done — enjoy your reward";
+  if (s.status === "done") return "Done: enjoy your reward";
   if (s.phase === "work") return "Working";
   return "Break time";
 }
@@ -232,7 +232,7 @@ export function TimerUi({
               />
             </label>
             <label className="block space-y-1 text-sm">
-              <span className="font-medium">Break: {settings.breakMin} min</span>
+              <span className="font-medium">Preferred break: {settings.breakMin} min</span>
               <input
                 type="range"
                 min={1}
@@ -246,7 +246,7 @@ export function TimerUi({
           </div>
           {adaptiveBreak !== settings.breakMin && (
             <p className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted">
-              Diana will use a {adaptiveBreak}-minute break for this session.
+              Diana adjusted this session break to {adaptiveBreak} minutes based on today&apos;s check-in and workload.
             </p>
           )}
 
@@ -290,7 +290,7 @@ export function TimerUi({
               Show countdown number
             </span>
             <span className="ml-1 text-xs text-muted">
-              (Off by default — fewer numbers = less anxiety.)
+              (Off by default: fewer numbers = less anxiety.)
             </span>
           </label>
         </div>

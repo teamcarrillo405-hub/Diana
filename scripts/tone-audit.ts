@@ -5,6 +5,7 @@
  */
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
+import ts from "typescript";
 
 const ROOT = process.cwd();
 
@@ -17,22 +18,33 @@ const SKIP_DIRS = new Set([
   ".next",
   "dist",
   ".planning",
+  "playwright-report",
+  "test-results",
   ".git",
   ".agents",                          // generated agent/tooling skills — not project source
   ".claude",                          // worktrees and Claude tooling — not project source
   ".claude-flow",                     // Claude workflow orchestration — not project source
   ".codex",                           // Codex tooling metadata — not project source
+  "export",                           // generated handoff copies — audited in their source project
   "supabase/functions/node_modules",
 ]);
 
 // Whole-path skip prefixes (research docs may quote banned words for analysis).
 const SKIP_PATH_PREFIXES = [
+  ".gstack/",              // generated QA reports may document detected violations
   "docs/",                  // all docs are design/architecture documents, not UI copy
   "supabase/functions/",    // Deno edge functions are server-side API code, not UI copy
+  "app/api/",               // route handlers contain machine status and logs, not UI copy
   "lib/ai/",                // AI system-prompt templates — server-side prompt engineering, not UI copy
+  "lib/competitive/",       // product score criteria, not student-facing UI copy
+  "lib/social/",            // copy validators and data rules, not rendered UI copy
+  "lib/syllabus/",          // parser vocabulary matches source documents, not UI copy
+  "lib/teen-testing/",      // internal QA scorecard language, not rendered UI copy
   "scripts/tone-audit.ts",  // the script itself names the banned words
   "AGENTS.md",              // project config/instructions — not student-facing UI copy
   "CLAUDE.md",              // project config/instructions — not student-facing UI copy
+  "PRODUCT.md",             // product analysis, not student-facing UI copy
+  "README.md",              // developer documentation, not student-facing UI copy
 ];
 
 // File-suffix skip patterns — test files may assert banned words are absent (meta-testing).
@@ -44,6 +56,7 @@ const SKIP_LINE_PATTERNS = [
   /^\s*\/\//,                           // single-line comment
   /^\s*\*[\s/]/,                        // JSDoc / block comment body or close
   /^\s*\/\*/,                           // block comment open
+  /^\s*\{\/\*/,                        // JSX comment line
   /console\.(error|warn|log|info|debug)\(/,  // developer log calls
   /^import\s+/,                         // import statements (component/identifier names)
   /^export\s+(function|class|const)\s/, // exported identifiers (component/function names)
@@ -61,6 +74,7 @@ const BANNED_PATTERNS: Array<{ pattern: RegExp; label: string; severity: "block"
   { pattern: /\bmissed\b/i,       label: "'missed'",       severity: "block" },
   { pattern: /\bwrong\b/i,        label: "'wrong'",        severity: "block" },
   { pattern: /\bincorrect\b/i,    label: "'incorrect'",    severity: "block" },
+  { pattern: /(?<!no )\bstreaks?\b/i, label: "'streak'",     severity: "block" },
   { pattern: /you[\u2019']re behind/i, label: "\"you're behind\"", severity: "block" },
   { pattern: /!!/,                label: "'!!' (double exclamation)", severity: "block" },
   { pattern: /\bdeadline\b/i,     label: "'deadline' (consider 'due')", severity: "warn" },
@@ -101,6 +115,47 @@ async function scanFile(file: string): Promise<Violation[]> {
       }
     }
   }
+
+  if (file.endsWith(".ts") || file.endsWith(".tsx")) {
+    const source = ts.createSourceFile(
+      file,
+      text,
+      ts.ScriptTarget.Latest,
+      true,
+      file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+
+    const visit = (node: ts.Node) => {
+      const isRenderedText =
+        ts.isStringLiteralLike(node) ||
+        ts.isJsxText(node) ||
+        node.kind === ts.SyntaxKind.TemplateHead ||
+        node.kind === ts.SyntaxKind.TemplateMiddle ||
+        node.kind === ts.SyntaxKind.TemplateTail;
+
+      if (isRenderedText) {
+        const raw = text.slice(node.getStart(source), node.getEnd());
+        const match = raw.match(/—|\\u2014/);
+        if (match && match.index !== undefined) {
+          const position = node.getStart(source) + match.index;
+          const location = source.getLineAndCharacterOfPosition(position);
+          out.push({
+            file: rel,
+            line: location.line + 1,
+            col: location.character + 1,
+            text: match[0],
+            label: "em dash (use a period, comma, or colon)",
+            severity: "block",
+          });
+        }
+      }
+
+      ts.forEachChild(node, visit);
+    };
+
+    visit(source);
+  }
+
   return out;
 }
 

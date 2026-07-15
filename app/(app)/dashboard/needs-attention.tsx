@@ -151,8 +151,8 @@ function categorySubLabel(key: NeedsAttentionCategory["key"]): string {
   switch (key) {
     case "tests":
       return "coming up";
-    case "overdue":
-      return "past the due date";
+    case "due_earlier":
+      return "due date passed";
     case "not_turned_in":
       return "done, not submitted";
     case "feedback":

@@ -175,7 +175,7 @@ export function DocUploadTab({
       )}
       {status.kind === "structuring" && (
         <p className="text-sm text-muted">
-          Got it. We&apos;re shaping the text into headings and bullets — refresh in a moment to see the outline.
+          Got it. We&apos;re shaping the text into headings and bullets: refresh in a moment to see the outline.
         </p>
       )}
       {status.kind === "done" && (

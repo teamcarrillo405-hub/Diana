@@ -85,9 +85,9 @@ function buildStackedGrid(operation: "add" | "subtract" | "multiply", a: number,
 
   const steps = isMultiply
     ? [
-        "Multiply by the ones digit first — one row, right-aligned.",
+        "Multiply by the ones digit first: one row, right-aligned.",
         "Next digit gets its own row, shifted one column left.",
-        "The shift is the place value — the grid holds it for you.",
+        "The shift is the place value: the grid holds it for you.",
         "Add the rows at the end. Carries go in the top row.",
       ]
     : operation === "add"
@@ -149,7 +149,7 @@ function buildDivisionGrid(dividend: number, divisor: number): GridLayout {
       "How many times does the divisor fit the first digit (or first two)? That digit goes in the top row, directly above where you stopped.",
       "Multiply and write it below, same columns.",
       "Subtract. The answer stays in those columns.",
-      "Bring the next digit straight down — same column, never sideways.",
+      "Bring the next digit straight down: same column, never sideways.",
       "Repeat until the digits run out. The columns are doing the organizing.",
     ],
   };

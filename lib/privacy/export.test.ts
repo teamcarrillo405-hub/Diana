@@ -5,6 +5,7 @@ import {
   buildPrivacyExportPdf,
   categoryLabel,
   deletionRequestPatch,
+  formatHandoffTimestamp,
   normalizeNotificationPrefs,
 } from "./export";
 
@@ -84,5 +85,12 @@ describe("privacy export helpers", () => {
     expect(categoryLabel("session_handoff")).toBe("Device handoff");
     expect(categoryLabel("learner_profile_snapshots")).toBe("Learner profile snapshots");
     expect(categoryLabel("learning_events")).toBe("Learning events");
+  });
+
+  it("formats handoff time in an explicit timezone for stable hydration", () => {
+    expect(formatHandoffTimestamp("2026-07-15T01:00:00.000Z", "America/Los_Angeles"))
+      .toBe("Jul 14, 2026, 6:00 PM");
+    expect(formatHandoffTimestamp("2026-07-15T01:00:00.000Z", "not-a-timezone"))
+      .toBe("Jul 15, 2026, 1:00 AM");
   });
 });

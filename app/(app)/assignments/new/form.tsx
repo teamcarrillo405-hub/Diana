@@ -92,7 +92,7 @@ export function NewAssignmentForm({
             }}
             className="input"
           >
-            <option value="">— No template —</option>
+            <option value="">No template</option>
             {templates.map((t) => (
               <option key={t.id} value={t.id}>{t.name}</option>
             ))}

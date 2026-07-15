@@ -5,7 +5,7 @@ import { rankAssignments, type Assignment, type RecentSignal } from "./next-five
  * Wave 1 scaffold: smoke tests only. Wave 2 (02-02) extends rankAssignments
  * with a `signals` parameter and adds the four GAP-08 unit cases.
  */
-describe("rankAssignments — smoke", () => {
+describe("rankAssignments: smoke", () => {
   it("returns an empty array when given no assignments", () => {
     const result = rankAssignments([], [], new Date());
     expect(result).toEqual([]);
@@ -46,7 +46,7 @@ function makeAssignment(overrides: Partial<Assignment> = {}): Assignment {
   };
 }
 
-describe("GAP-08 — signal recency + dyslexia weighting", () => {
+describe("GAP-08: signal recency + dyslexia weighting", () => {
   const now = new Date("2026-06-01T12:00:00Z");
 
   it("dyslexic + reading_load>=3 inflates effective_minutes by 1.6×", () => {
@@ -113,7 +113,7 @@ describe("GAP-08 — signal recency + dyslexia weighting", () => {
   });
 });
 
-describe("Phase 8 — interleaving de-promotion", () => {
+describe("Phase 8: interleaving de-promotion", () => {
   const now = new Date("2026-06-01T12:00:00Z");
 
   it("INTERLEAVE-01: applies -15 penalty when top assignment shares class_id with lastShownClassId and is NOT due within 24h", () => {

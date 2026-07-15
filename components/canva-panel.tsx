@@ -44,7 +44,7 @@ export function CanvaPanel({
         <div>
           <h2 className="text-sm font-semibold">This looks like a design project</h2>
           <p className="text-xs text-muted">
-            Diana can open a draft in your Canva account with a brief built from your rubric and notes —
+            Diana can open a draft in your Canva account with a brief built from your rubric and notes:
             you fill it with your own work.
           </p>
         </div>
@@ -98,7 +98,7 @@ export function CanvaPanel({
           </div>
           <div className="space-y-2 rounded-xl border border-border bg-surface p-3">
             <p className="text-xs font-medium uppercase tracking-wider text-muted">
-              Your design brief — one section per {result.brief.designType === "poster" ? "area" : "slide"}
+              Your design brief: one section per {result.brief.designType === "poster" ? "area" : "slide"}
             </p>
             <ul className="space-y-2">
               {result.brief.sections.map((section) => (
