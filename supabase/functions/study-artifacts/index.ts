@@ -162,10 +162,11 @@ Deno.serve(async (req: Request) => {
     const modelResult = await callStudentTextModel({
       system,
       user: userMessage,
-      maxTokens: artifactType === "practice_test" ? 1600 : 1300,
+      maxTokens: artifactType === "practice_test" ? 3000 : 2400,
       quality: "quality",
       json: true,
       fallbackContent: "{}",
+      timeoutMs: 30_000,
     });
     const content = modelResult.content;
     const tokens = modelResult.tokens;

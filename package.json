@@ -44,6 +44,7 @@
     "qa:visual-gate": "node scripts/qa-visual-gate.mjs",
     "qa:screenshot-worthy": "node scripts/screenshot-worthy-qa.mjs",
     "qa:responsive": "playwright test tests/responsive-qa.spec.ts --reporter=line --workers=1",
+    "qa:student-ai-live": "node scripts/student-ai-live-smoke.mjs",
     "test:e2e": "playwright test tests/e2e-flows.spec.ts --reporter=line --workers=1"
   },
   "dependencies": {
