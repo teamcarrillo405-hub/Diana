@@ -17,7 +17,7 @@ export type LobbyNextMove = Readonly<{
   title: string;
 }>;
 
-export type LobbyAttentionKey = "tests" | "overdue" | "not_submitted";
+export type LobbyAttentionKey = "tests" | "due_earlier" | "not_submitted";
 
 export type LobbyAttentionCard = Readonly<{
   key: LobbyAttentionKey;
@@ -122,7 +122,7 @@ export function buildLobbyDashboardView({
       (left, right) =>
         new Date(left.due_at!).getTime() - new Date(right.due_at!).getTime(),
     );
-  const overdue = reminders.filter((reminder) => reminder.is_past_due);
+  const dueEarlier = reminders.filter((reminder) => reminder.is_past_due);
   const notSubmitted = assignments.filter((assignment) => {
     const status = String(assignment.status);
     return status === "exporting" || status === "done";
@@ -147,16 +147,16 @@ export function buildLobbyDashboardView({
         tone: "purple",
       },
       {
-        key: "overdue",
-        label: "Overdue",
-        count: overdue.length,
+        key: "due_earlier",
+        label: "Due earlier",
+        count: dueEarlier.length,
         description: countLabel(
-          overdue.length,
+          dueEarlier.length,
           "past the due date",
           "past the due date",
           "Nothing past the due date",
         ),
-        href: assignmentHref(overdue[0]?.id),
+        href: assignmentHref(dueEarlier[0]?.id),
         tone: "orange",
       },
       {

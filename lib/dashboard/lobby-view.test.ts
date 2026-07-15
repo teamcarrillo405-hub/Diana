@@ -84,7 +84,7 @@ describe("buildLobbyDashboardView", () => {
         href: "/assignments/assignment-quiz",
       }),
       expect.objectContaining({
-        key: "overdue",
+        key: "due_earlier",
         count: 1,
         description: "1 past the due date",
         href: "/assignments/assignment-overdue",
