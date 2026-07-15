@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 
 import { cleanup, render, screen } from "@testing-library/react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { usePathname } from "next/navigation";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -17,6 +19,8 @@ import { StudentBottomNav } from "./student-bottom-nav";
 vi.mock("next/navigation", () => ({
   usePathname: vi.fn(),
 }));
+
+const sourceCss = readFileSync(join(process.cwd(), "app", "screendesign.css"), "utf8");
 
 afterEach(() => {
   cleanup();
@@ -98,6 +102,34 @@ describe("ScreenDesign source primitives", () => {
   });
 });
 
+describe("ScreenDesign responsive and calm contracts", () => {
+  it("locks source width without horizontal overflow and centers larger viewports", () => {
+    const viewportRule = sourceCss.match(/\.sd-source-viewport\s*\{[^}]+\}/u)?.[0];
+
+    expect(viewportRule).toContain("width: min(100%, 393px)");
+    expect(viewportRule).toContain("max-width: 100vw");
+    expect(viewportRule).toContain("min-height: max(100dvh, 852px)");
+    expect(viewportRule).toContain("margin-inline: auto");
+    expect(viewportRule).toContain("overflow-x: clip");
+    expect(viewportRule).toContain("env(safe-area-inset-bottom, 0)");
+  });
+
+  it("keeps keyboard focus visible and removes press motion when requested", () => {
+    expect(sourceCss).toMatch(/\.sd-source-action:focus-visible\s*\{[^}]*outline:/u);
+    expect(sourceCss).toMatch(
+      /\.sd-student-bottom-nav a:focus-visible\s*\{[^}]*outline:/u,
+    );
+    expect(sourceCss).toMatch(
+      /@media \(prefers-reduced-motion: reduce\)[\s\S]*\.sd-source-action:active,[\s\S]*\.sd-student-bottom-nav a:active\s*\{\s*transform: none;/u,
+    );
+  });
+
+  it("keeps the shared caution accent amber", () => {
+    expect(sourceCss).toContain("--sd-source-amber: #fbbf24");
+    expect(sourceCss).toContain("--danger: 251 191 36");
+  });
+});
+
 describe("StudentBottomNav", () => {
   it("renders the locked five destinations as links", () => {
     vi.mocked(usePathname).mockReturnValue("/dashboard");
@@ -115,6 +147,12 @@ describe("StudentBottomNav", () => {
       { label: "Calendar", href: "/calendar" },
       { label: "More", href: "/settings" },
     ]);
+    expect(screen.getByRole("navigation", { name: "Primary" })).toBeVisible();
+    expect(
+      screen
+        .getAllByRole("link")
+        .every((link) => link.querySelector("svg")?.getAttribute("aria-hidden") === "true"),
+    ).toBe(true);
   });
 
   it.each([

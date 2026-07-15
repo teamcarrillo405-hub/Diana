@@ -1319,11 +1319,13 @@ body.diana-app {
   position: relative;
   isolation: isolate;
   width: min(100%, 393px);
+  max-width: 100vw;
   min-width: 0;
   min-height: 852px;
   min-height: max(100dvh, 852px);
   margin-inline: auto;
   overflow-x: clip;
+  overscroll-behavior-x: none;
   background: #0f172a;
   color: #f8fafc;
   padding:
