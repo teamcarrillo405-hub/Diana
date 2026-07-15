@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 6
+current_plan: 7
 status: executing
-stopped_at: Completed 36-06-PLAN.md
-last_updated: "2026-07-15T21:37:03.270Z"
+stopped_at: Completed 36-03-PLAN.md
+last_updated: "2026-07-15T21:57:12.802Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-06 durable ScreenDesign onboarding preferences
+last_activity_desc: Completed 36-03 deterministic ScreenDesign visual and interaction evidence harness
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 6
-  percent: 20
+  completed_plans: 7
+  percent: 23
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 6
+**Current Plan:** 7
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [██░░░░░░░░] 20%
-**Last Activity:** 2026-07-15 - Completed 36-06 durable ScreenDesign onboarding preferences
+**Progress:** [██░░░░░░░░] 23%
+**Last Activity:** 2026-07-15 - Completed 36-03 deterministic ScreenDesign visual and interaction evidence harness
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T21:37:03.263Z
-**Stopped at:** Completed 36-06-PLAN.md
+**Last session:** 2026-07-15T21:57:12.794Z
+**Stopped at:** Completed 36-03-PLAN.md
 
 ---
 
@@ -697,6 +697,7 @@ total_plans_in_phase: 30
 | Phase 36 P27 | 24 min | 2 tasks | 4 files |
 | Phase 36 P28 | 3h 3m | 2 tasks | 4 files |
 | Phase 36 P06 | 10 min | 3 tasks | 5 files |
+| Phase 36 P03 | 18 min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -719,9 +720,12 @@ total_plans_in_phase: 30
 - [Phase 36]: Dedicated nullable preference fields preserve all legacy onboarding and profile values. — Challenge and schedule answers have distinct semantics and must never be coerced into existing fields.
 - [Phase 36]: Completion time is constructed only after both ScreenDesign selections validate. — The exact-key pure serializer prevents premature onboarding completion and accidental profile overwrites.
 - [Phase 36]: The completion action keeps auth and ownership at the existing Supabase server and profiles RLS boundary. — Authenticated user_id scoping and calm discriminated results preserve the established trust boundary.
+- [Phase 36]: Use the same deterministic Chromium environment for source and app evidence. — This makes the 393x852 visual comparison meaningful and reproducible.
+- [Phase 36]: Run ScreenDesign scenarios with one worker and owner-scoped resets. — The shared synthetic data graph must be deterministic before each capture.
+- [Phase 36]: Require explicit golden creation and never update visual baselines silently. — A visual mismatch must remain a visible review gate.
 
 ## Session
 
-**Last session:** 2026-07-15T21:37:03.263Z
-**Stopped at:** Completed 36-06-PLAN.md
+**Last session:** 2026-07-15T21:57:12.794Z
+**Stopped at:** Completed 36-03-PLAN.md
 **Resume file:** None
