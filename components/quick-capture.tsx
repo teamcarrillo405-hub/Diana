@@ -8,7 +8,7 @@ import { VoiceTextarea } from "@/components/voice-textarea";
 import { usesAppTopNav } from "@/lib/navigation";
 
 export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "inline" }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const [raw, setRaw] = useState("");
   const [status, setStatus] = useState<string | null>(null);

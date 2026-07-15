@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const SKIP_PREFIXES = ["/login", "/onboarding", "/offline"];
 
 export function SessionHandoffTracker() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
 
   useEffect(() => {
     if (!pathname || SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return;

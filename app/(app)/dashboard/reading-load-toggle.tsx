@@ -25,16 +25,16 @@ const segInactive: React.CSSProperties = {
 };
 
 export function ReadingLoadToggle({ active }: { active: boolean }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/dashboard";
   const params = useSearchParams();
 
-  const baseParams = new URLSearchParams(params.toString());
+  const baseParams = new URLSearchParams(params?.toString() ?? "");
   // Preserve ?energy=... but remove view
   baseParams.delete("view");
   const offQuery = baseParams.toString();
   const offHref = offQuery ? `${pathname}?${offQuery}` : pathname;
 
-  const onParams = new URLSearchParams(params.toString());
+  const onParams = new URLSearchParams(params?.toString() ?? "");
   onParams.set("view", "reading-load");
   const onQuery = onParams.toString();
   const onHref = onQuery ? `${pathname}?${onQuery}` : pathname;

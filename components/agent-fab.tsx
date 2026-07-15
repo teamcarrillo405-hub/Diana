@@ -46,7 +46,7 @@ export function openAgentFab() {
 }
 
 export function AgentFab() {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([{ role: "coach", content: OPENING_MESSAGE }]);

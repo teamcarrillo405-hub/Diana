@@ -8,7 +8,7 @@ import { recordOverwhelmed } from "./overwhelmed-actions";
 import { usesAppTopNav } from "@/lib/navigation";
 
 export function OverwhelmedButton({ placement = "fixed" }: { placement?: "fixed" | "inline" }) {
-  const pathname = usePathname();
+  const pathname = usePathname() ?? "/";
   const [open, setOpen] = useState(false);
   const [childId, setChildId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);

@@ -13,7 +13,7 @@ import { usesAppTopNav } from "@/lib/navigation";
  * migrate a page there and this follows automatically.
  */
 export function AppCommandFrame({ children }: { children: ReactNode }) {
-  const flush = usesAppTopNav(usePathname());
+  const flush = usesAppTopNav(usePathname() ?? "/");
   return (
     <div className={`app-command-frame min-w-0${flush ? " app-command-frame--flush" : ""}`}>
       {children}

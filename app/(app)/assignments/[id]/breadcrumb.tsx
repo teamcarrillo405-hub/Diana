@@ -26,7 +26,7 @@ export function Breadcrumb({
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (searchParams.get("focus") === "breadcrumb" && textareaRef.current) {
+    if (searchParams?.get("focus") === "breadcrumb" && textareaRef.current) {
       textareaRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
       textareaRef.current.focus();
     }

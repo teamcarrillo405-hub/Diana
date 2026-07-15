@@ -158,14 +158,14 @@ export function QuietCommandLanding() {
           </p>
 
           <h1 id="qc-hero-title" className="qc-hero-title">
-            <span data-pretext>The next</span>
-            <span data-pretext className="qc-title-signal">
+            <span>The next</span>
+            <span className="qc-title-signal">
               five minutes,
             </span>
-            <span data-pretext>made obvious.</span>
+            <span>made obvious.</span>
           </h1>
 
-          <p className="qc-hero-summary" data-pretext>
+          <p className="qc-hero-summary">
             Diana turns the pile into one private, doable move without taking over the work.
           </p>
 

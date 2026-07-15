@@ -1,0 +1,45 @@
+import type { AppProps } from "next/app";
+import { Barlow_Semi_Condensed, Saira_Condensed, Space_Grotesk, Space_Mono } from "next/font/google";
+import "@/styles/quiet-command.css";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-nexus-display",
+  weight: ["400", "600"],
+});
+
+const spaceMono = Space_Mono({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-nexus-mono",
+  weight: ["400", "700"],
+});
+
+const sairaCondensed = Saira_Condensed({
+  subsets: ["latin"],
+  display: "optional",
+  variable: "--font-saira-condensed",
+  weight: "800",
+  style: "normal",
+});
+
+const barlowSemiCondensed = Barlow_Semi_Condensed({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-barlow",
+  weight: ["400", "500"],
+});
+
+export default function DianaMarketingApp({ Component, pageProps }: AppProps) {
+  return (
+    <div
+      className={`nexus-app ${spaceGrotesk.variable} ${spaceMono.variable} ${sairaCondensed.variable} ${barlowSemiCondensed.variable}`}
+    >
+      <a href="#main-content" className="skip-link">
+        Skip to main
+      </a>
+      <Component {...pageProps} />
+    </div>
+  );
+}
