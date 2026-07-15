@@ -38,7 +38,7 @@ export interface ScreenDesignServedRequest {
 export type ScreenDesignBrowserRequestOutcome =
   | "pending"
   | "completed"
-  | "failed"
+  | "network_error"
   | "blocked";
 
 export interface ScreenDesignBrowserRequestRecord {
@@ -113,7 +113,7 @@ iconify-icon {
 `;
 
 const fail = (message: string): never => {
-  throw new Error(`ScreenDesign source server failed: ${message}`);
+  throw new Error(`ScreenDesign source server could not start: ${message}`);
 };
 
 const manifestPathFor = (publicRoot: string): string =>
@@ -308,8 +308,8 @@ export class ScreenDesignRequestEvidence {
     const index = this.#recordIndexByRequest.get(request);
     const record = index === undefined ? undefined : this.#records[index];
     if (record && record.outcome === "pending") {
-      record.outcome = "failed";
-      record.failureText = request.failure()?.errorText ?? "request failed";
+      record.outcome = "network_error";
+      record.failureText = request.failure()?.errorText ?? "request ended before response";
     }
   }
 
@@ -325,12 +325,12 @@ export class ScreenDesignRequestEvidence {
 
   assertIsolated(): void {
     this.assertNoRemoteRequests();
-    const deniedOrFailed = this.records.filter(
-      (record) => !record.allowed || record.outcome === "failed",
+    const deniedOrErrored = this.records.filter(
+      (record) => !record.allowed || record.outcome === "network_error",
     );
-    if (deniedOrFailed.length > 0) {
+    if (deniedOrErrored.length > 0) {
       throw new Error(
-        `ScreenDesign source ${this.#screenId} made denied or failed requests: ${deniedOrFailed
+        `ScreenDesign source ${this.#screenId} made denied or errored requests: ${deniedOrErrored
           .map((record) => record.url)
           .join(", ")}`,
       );

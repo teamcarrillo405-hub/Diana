@@ -29,7 +29,7 @@ const DASHBOARD_STADIUM_EXPORT_FRAGMENT = `url('${DASHBOARD_STADIUM_SOURCE_URL}'
 const DASHBOARD_STADIUM_REPAIRED_FRAGMENT = `url('${DASHBOARD_STADIUM_LOCAL_PATH}')`;
 
 const fail = (message: string): never => {
-  throw new Error(`ScreenDesign source normalization failed: ${message}`);
+  throw new Error(`ScreenDesign source could not be normalized: ${message}`);
 };
 
 const countOccurrences = (value: string, search: string): number =>
