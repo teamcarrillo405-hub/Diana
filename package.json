@@ -49,6 +49,7 @@
   "dependencies": {
     "@capacitor/core": "^8.4.0",
     "@capacitor/haptics": "^8.0.2",
+    "@chenglou/pretext": "^0.0.8",
     "@fontsource/atkinson-hyperlegible-next": "^5.2.7",
     "@fontsource/opendyslexic": "^5.2.5",
     "@imgly/background-removal": "^1.7.0",

@@ -5,7 +5,7 @@ import { Clock } from "lucide-react";
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 const BODY = "var(--font-body)";
 
-export type CtaVariant = "cyanFilled" | "redFilled" | "goldFilled" | "cyanOutline" | "dark";
+export type CtaVariant = "cyanFilled" | "goldFilled" | "cyanOutline" | "dark";
 
 export type ClassCardModel = {
   id: string;
@@ -15,7 +15,7 @@ export type ClassCardModel = {
   isNow: boolean;
   eventPill: string | null;
   taskTitle: string | null;
-  taskBadge: { text: string; tone: "neutral" | "overdue" | "done" } | null;
+  taskBadge: { text: string; tone: "neutral" | "dueEarlier" | "done" } | null;
   doneBar: boolean;
   timeLabel: string | null;
   progressPct: number;
@@ -44,8 +44,6 @@ function ctaStyle(variant: CtaVariant): CSSProperties {
   switch (variant) {
     case "cyanFilled":
       return { ...base, background: "#29d0ff", color: "#04080f", boxShadow: "0 0 22px rgba(41,208,255,.28)" };
-    case "redFilled":
-      return { ...base, background: "linear-gradient(180deg,#f2553f,#e0392b)", color: "#2a0606", boxShadow: "0 0 22px rgba(240,68,56,.30)" };
     case "goldFilled":
       return { ...base, background: "linear-gradient(180deg,#ffd86a,#f5b301)", color: "#3a2600", boxShadow: "0 0 24px rgba(255,210,74,.40)" };
     case "cyanOutline":
@@ -57,8 +55,8 @@ function ctaStyle(variant: CtaVariant): CSSProperties {
 
 function TaskBadge({ badge }: { badge: NonNullable<ClassCardModel["taskBadge"]> }) {
   const tone =
-    badge.tone === "overdue"
-      ? { bg: "rgba(240,68,56,.16)", color: "#ff6b6b" }
+    badge.tone === "dueEarlier"
+      ? { bg: "var(--gl-gold-12)", color: "var(--gl-gold)" }
       : { bg: "rgba(120,150,220,.14)", color: "var(--gl-text-muted)" };
   return (
     <span style={{ flexShrink: 0, borderRadius: 6, background: tone.bg, color: tone.color, padding: "3px 9px", fontFamily: BODY, fontSize: 11, fontWeight: 700, letterSpacing: ".08em", textTransform: "uppercase", whiteSpace: "nowrap" }}>
@@ -162,11 +160,11 @@ function ClassCardView({ card }: { card: ClassCardModel }) {
 
 export function MyClassesGrid({
   cards,
-  overdueCount,
+  dueEarlierCount,
   notTurnedInCount,
 }: {
   cards: ClassCardModel[];
-  overdueCount: number;
+  dueEarlierCount: number;
   notTurnedInCount: number;
 }) {
   return (
@@ -182,10 +180,10 @@ export function MyClassesGrid({
         <h1 style={{ margin: 0, fontFamily: SF, fontWeight: 800, fontSize: 30, letterSpacing: ".02em", textTransform: "uppercase", color: "var(--gl-text-primary)" }}>
           My Classes
         </h1>
-        {overdueCount > 0 && (
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 6, border: "1px solid rgba(240,68,56,.45)", background: "rgba(240,68,56,.10)", padding: "4px 10px", fontFamily: BODY, fontSize: 12, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", color: "#ff6b6b" }}>
-            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff6b6b" }} />
-            {overdueCount} overdue
+        {dueEarlierCount > 0 && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, borderRadius: 6, border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-12)", padding: "4px 10px", fontFamily: BODY, fontSize: 12, fontWeight: 700, letterSpacing: ".04em", textTransform: "uppercase", color: "var(--gl-gold)" }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--gl-gold)" }} />
+            {dueEarlierCount} need review
           </span>
         )}
         {notTurnedInCount > 0 && (

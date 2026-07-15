@@ -33,6 +33,7 @@ export function AppTopNav({ active }: { active: NavLabel }) {
         @media (hover:hover){.gl-capture:hover{background:rgba(41,208,255,.22);}}
         .gl-capture:active{transform:scale(.97);}
         @media (max-width: 900px) {
+          .gl-desktop-nav { display: none !important; }
           .gl-nav-tabs { display: none !important; }
           .gl-nav-extra { display: none !important; }
         }
@@ -40,6 +41,7 @@ export function AppTopNav({ active }: { active: NavLabel }) {
 
       {/* TOP NAV */}
       <div
+        className="gl-desktop-nav"
         style={{
           position: "relative",
           zIndex: 30,

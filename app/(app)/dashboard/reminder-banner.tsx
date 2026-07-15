@@ -56,7 +56,7 @@ export function ReminderBanner({ items }: { items: ReminderItem[] }) {
         flexDirection: "column",
         gap: "var(--space-4)",
       }}
-      aria-label="Overdue work"
+      aria-label="Work to review"
     >
       {/* Collapsed summary — one calm line; expands to the list on tap. */}
       <button
@@ -78,7 +78,7 @@ export function ReminderBanner({ items }: { items: ReminderItem[] }) {
       >
         <span style={{ width: 8, height: 8, borderRadius: "var(--radius-circle)", background: "var(--gl-gold)", flexShrink: 0 }} />
         <span style={{ fontFamily: "var(--font-display)", fontWeight: "var(--weight-800)", fontSize: "var(--text-16)", letterSpacing: "var(--tracking-04)", textTransform: "uppercase", color: "var(--gl-gold)" }}>
-          {visible.length} {visible.length === 1 ? "thing" : "things"} overdue
+          {visible.length} {visible.length === 1 ? "item" : "items"} to review
         </span>
         <span style={{ marginLeft: "auto", fontFamily: "var(--font-body)", fontSize: "var(--text-12)", fontWeight: "var(--weight-700)", color: "var(--gl-gold)" }}>
           {expanded ? "Hide" : "Review"}

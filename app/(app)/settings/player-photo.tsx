@@ -89,7 +89,7 @@ export function PlayerPhoto({
         );
       });
     } catch {
-      setMessage("Something went wrong uploading. Try again.");
+      setMessage("The upload did not finish. Try again.");
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = "";

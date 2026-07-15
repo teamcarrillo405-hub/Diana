@@ -65,20 +65,22 @@ export function MoreMenu({ active, variant = "tab" }: { active: boolean; variant
           aria-haspopup="dialog"
           aria-expanded={open}
           style={{
-            flex: 1,
             display: "flex",
+            minWidth: 0,
+            minHeight: "5rem",
             flexDirection: "column",
             alignItems: "center",
+            justifyContent: "center",
             gap: 3,
             background: "none",
             border: "none",
             cursor: "pointer",
-            padding: "6px 0",
-            color: active ? "#29d0ff" : "#8b96bd",
-            fontFamily: SF,
+            padding: "8px 3px",
+            color: active ? "#35ddf2" : "#78758d",
+            fontFamily: "var(--font-lexend), Lexend, sans-serif",
             fontWeight: 700,
-            fontSize: 11,
-            letterSpacing: ".04em",
+            fontSize: 10,
+            letterSpacing: ".05em",
             textTransform: "uppercase",
           }}
         >

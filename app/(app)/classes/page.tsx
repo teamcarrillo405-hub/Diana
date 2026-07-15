@@ -36,11 +36,11 @@ function deriveCard(
   assignments: AssignmentRow[],
   tookMin: Map<string, number>,
   now: Date,
-): { card: ClassCardModel; urgency: number; overdueCount: number; notTurnedInCount: number } {
+): { card: ClassCardModel; urgency: number; dueEarlierCount: number; notTurnedInCount: number } {
   const mine = assignments.filter((a) => a.class_id === cls.id);
   const open = mine.filter((a) => !CLOSED.includes(a.status));
   const byDue = [...open].sort((a, b) => dueMs(a.due_at) - dueMs(b.due_at));
-  const overdue = byDue.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
+  const dueEarlier = byDue.filter((a) => a.due_at && new Date(a.due_at).getTime() < now.getTime());
   const doneNotSubmitted = open.find((a) => a.status === "exporting") ?? null;
   const recentDone = [...mine.filter((a) => a.status === "submitted" || a.status === "graded")].sort(
     (a, b) => dueMs(b.due_at) - dueMs(a.due_at),
@@ -66,7 +66,7 @@ function deriveCard(
   if (open.length === 0 && !recentDone) {
     return {
       card: { ...base, statusLabel: "No work yet", statusTone: "muted", isNow: false, taskTitle: null, taskBadge: null, doneBar: false, timeLabel: null, progressPct: 0, cta: { label: "Open class", href: `/classes/${cls.id}`, variant: "cyanOutline" } },
-      urgency: 0, overdueCount: 0, notTurnedInCount: 0,
+      urgency: 0, dueEarlierCount: 0, notTurnedInCount: 0,
     };
   }
 
@@ -86,21 +86,21 @@ function deriveCard(
         progressPct: 100,
         cta: { label: "Turn in now", href: `/assignments/${doneNotSubmitted.id}/submit`, variant: "goldFilled" },
       },
-      urgency: 4, overdueCount: 0, notTurnedInCount: 1,
+      urgency: 4, dueEarlierCount: 0, notTurnedInCount: 1,
     };
   }
 
   // Has open work → in progress or not started.
   if (open.length > 0) {
-    const focus = overdue[0] ?? byDue[0];
-    const isOverdue = Boolean(focus.due_at && new Date(focus.due_at).getTime() < now.getTime());
+    const focus = dueEarlier[0] ?? byDue[0];
+    const dueDatePassed = Boolean(focus.due_at && new Date(focus.due_at).getTime() < now.getTime());
     const started = focus.status === "drafting" || focus.status === "checking";
     const dueSoon = Boolean(focus.due_at && (new Date(focus.due_at).getTime() - now.getTime()) / 86_400_000 <= 2);
     const cta = started
-      ? isOverdue || dueSoon
+      ? dueDatePassed || dueSoon
         ? { label: "Open now", href: `/assignments/${focus.id}?focus=next-step`, variant: "cyanFilled" as const }
         : { label: "Continue", href: `/assignments/${focus.id}?focus=next-step`, variant: "cyanOutline" as const }
-      : { label: "Start now", href: `/assignments/${focus.id}?focus=next-step`, variant: (isOverdue ? "redFilled" : "cyanFilled") as CtaVariant };
+      : { label: "Start now", href: `/assignments/${focus.id}?focus=next-step`, variant: (dueDatePassed ? "goldFilled" : "cyanFilled") as CtaVariant };
     return {
       card: {
         ...base,
@@ -108,14 +108,14 @@ function deriveCard(
         statusTone: "cyan",
         isNow: false,
         taskTitle: focus.title,
-        taskBadge: isOverdue ? { text: "Overdue", tone: "overdue" } : focus.due_at ? { text: dueShort(focus.due_at), tone: "neutral" } : null,
+        taskBadge: dueDatePassed ? { text: "Needs review", tone: "dueEarlier" } : focus.due_at ? { text: dueShort(focus.due_at), tone: "neutral" } : null,
         doneBar: false,
         timeLabel: focus.estimated_minutes ? `est. ${focus.estimated_minutes} min` : null,
         progressPct: started ? 55 : 0,
         cta,
       },
-      urgency: isOverdue ? 3 : dueSoon ? 2 : 1,
-      overdueCount: overdue.length,
+      urgency: dueDatePassed ? 3 : dueSoon ? 2 : 1,
+      dueEarlierCount: dueEarlier.length,
       notTurnedInCount: 0,
     };
   }
@@ -135,7 +135,7 @@ function deriveCard(
       progressPct: 100,
       cta: { label: "Review", href: recentDone ? `/assignments/${recentDone.id}` : `/classes/${cls.id}`, variant: "dark" },
     },
-    urgency: 0, overdueCount: 0, notTurnedInCount: 0,
+    urgency: 0, dueEarlierCount: 0, notTurnedInCount: 0,
   };
 }
 
@@ -177,7 +177,7 @@ export default async function ClassesPage() {
   if (nowIdx >= 0) derived[nowIdx].card.isNow = true;
 
   const cards = derived.map((d) => d.card);
-  const overdueCount = derived.reduce((s, d) => s + d.overdueCount, 0);
+  const dueEarlierCount = derived.reduce((s, d) => s + d.dueEarlierCount, 0);
   const notTurnedInCount = derived.reduce((s, d) => s + d.notTurnedInCount, 0);
 
   return (
@@ -193,7 +193,7 @@ export default async function ClassesPage() {
             </div>
           </div>
         ) : (
-          <MyClassesGrid cards={cards} overdueCount={overdueCount} notTurnedInCount={notTurnedInCount} />
+          <MyClassesGrid cards={cards} dueEarlierCount={dueEarlierCount} notTurnedInCount={notTurnedInCount} />
         )}
 
         {/* Add a class */}

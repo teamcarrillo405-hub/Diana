@@ -1,0 +1,897 @@
+.mobileOnly,
+.mobileMission {
+  display: none;
+}
+
+.desktopOnly,
+.desktopMission {
+  display: block;
+}
+
+.mobileNav {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  display: none;
+  min-height: calc(5rem + env(safe-area-inset-bottom));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: stretch;
+  padding: 0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  border-top: 1px solid rgb(248 243 255 / 0.12);
+  background: rgb(2 3 10 / 0.94);
+  backdrop-filter: blur(20px);
+}
+
+.navLink {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 5rem;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.32rem;
+  padding: 0.5rem 0.2rem;
+  color: #78758d;
+  font-family: var(--font-lexend), Lexend, sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.navLink::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 2rem;
+  height: 2px;
+  background: transparent;
+}
+
+.navActive {
+  color: #35ddf2;
+}
+
+.navActive::before {
+  background: #35ddf2;
+  box-shadow: 0 0 0.8rem rgb(53 221 242 / 0.5);
+}
+
+.navLink:focus-visible {
+  outline: 3px solid #e8b85d;
+  outline-offset: -4px;
+}
+
+.mobileNav :global(button) {
+  width: 100%;
+  min-height: 5rem;
+  padding: 0.5rem 0.2rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  clip-path: none;
+  transform: none;
+}
+
+.todaySurface,
+.missionRoot {
+  --qc-canvas: #02030a;
+  --qc-surface: #100a24;
+  --qc-raised: #171032;
+  --qc-text: #f8f3ff;
+  --qc-muted: #a9a1b8;
+  --qc-cyan: #35ddf2;
+  --qc-pink: #f45ba8;
+  --qc-gold: #e8b85d;
+  --qc-border: rgb(248 243 255 / 0.12);
+  --qc-border-strong: rgb(53 221 242 / 0.42);
+  --qc-display: var(--font-nexus-display), "Space Grotesk", sans-serif;
+  --qc-body: var(--font-lexend), Lexend, sans-serif;
+  --qc-reading: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", sans-serif;
+}
+
+.todaySurface *,
+.missionRoot * {
+  box-sizing: border-box;
+}
+
+.mobileHeader {
+  display: flex;
+  min-height: 6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: max(1rem, env(safe-area-inset-top)) 1.25rem 1rem;
+  border-bottom: 1px solid var(--qc-border);
+  background: rgb(2 3 10 / 0.92);
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--qc-text);
+  font-family: var(--qc-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.brandSignal {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, var(--qc-cyan), var(--qc-pink));
+  box-shadow: 0 0 1rem rgb(53 221 242 / 0.44);
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.iconButton,
+.backButton {
+  display: inline-flex;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--qc-border);
+  border-radius: 9999px;
+  background: var(--qc-raised);
+  color: var(--qc-text);
+  text-decoration: none;
+}
+
+.backButton {
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.todayMain,
+.missionContent {
+  width: min(100%, 32rem);
+  margin: 0 auto;
+  padding: 2rem 1.25rem calc(7rem + env(safe-area-inset-bottom));
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--qc-pink);
+  font-family: var(--qc-body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.greeting,
+.missionTitle,
+.workTitle {
+  margin: 0.55rem 0 0;
+  color: var(--qc-text);
+  font-family: var(--qc-display);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+}
+
+.greeting {
+  max-width: 20rem;
+  font-size: clamp(2.25rem, 11vw, 3.35rem);
+  line-height: 0.96;
+}
+
+.missionTitle {
+  font-size: clamp(2rem, 10vw, 3rem);
+  line-height: 0.98;
+}
+
+.workTitle {
+  font-size: clamp(1.85rem, 9vw, 2.7rem);
+  line-height: 1;
+}
+
+.subhead,
+.supportCopy,
+.helperNote,
+.authorshipNote {
+  color: var(--qc-muted);
+  font-family: var(--qc-reading);
+  line-height: 1.58;
+}
+
+.subhead {
+  max-width: 23rem;
+  margin: 0.8rem 0 0;
+  font-size: 1rem;
+}
+
+.coachCard,
+.assignmentCard,
+.briefCard,
+.guidedCard,
+.fieldCard,
+.emptyCard,
+.submittedCard,
+.addProblemCard {
+  position: relative;
+  border: 1px solid var(--qc-border);
+  border-radius: 2px;
+  background: linear-gradient(150deg, rgb(23 16 50 / 0.94), rgb(16 10 36 / 0.94));
+  color: var(--qc-text);
+}
+
+.coachCard,
+.guidedCard {
+  margin-top: 2rem;
+  padding: 1rem 1rem 1rem 1.25rem;
+  border-left: 3px solid var(--qc-cyan);
+}
+
+.coachLine {
+  display: grid;
+  grid-template-columns: 2.75rem 1fr;
+  align-items: start;
+  gap: 0.8rem;
+}
+
+.coachAvatar {
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  border: 1px solid rgb(53 221 242 / 0.34);
+  border-radius: 9999px;
+  background: rgb(53 221 242 / 0.08);
+  color: var(--qc-cyan);
+  font-family: var(--qc-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.coachLabel,
+.sectionLabel,
+.fieldLabel,
+.saveLabel {
+  color: var(--qc-muted);
+  font-family: var(--qc-body);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.coachMessage {
+  margin: 0.3rem 0 0;
+  color: var(--qc-text);
+  font-family: var(--qc-reading);
+  font-size: 0.94rem;
+  line-height: 1.5;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.sectionHeading h2 {
+  margin: 0.35rem 0 0;
+  color: var(--qc-text);
+  font-family: var(--qc-display);
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+}
+
+.sectionHeading a {
+  min-height: 2.75rem;
+  padding: 0.75rem 0;
+  color: var(--qc-cyan);
+  font-family: var(--qc-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.assignmentCard {
+  display: block;
+  margin-top: 0.8rem;
+  padding: 1.15rem 1rem 1rem 1.25rem;
+  border-left: 3px solid var(--qc-cyan);
+  text-decoration: none;
+}
+
+.assignmentMeta,
+.missionMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--qc-muted);
+  font-family: var(--qc-body);
+  font-size: 0.72rem;
+}
+
+.courseName {
+  color: var(--qc-cyan);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.assignmentTitle {
+  margin: 0.65rem 0 0;
+  color: var(--qc-text);
+  font-family: var(--qc-display);
+  font-size: 1.28rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.assignmentDetails {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+  color: var(--qc-muted);
+  font-family: var(--qc-reading);
+  font-size: 0.8rem;
+}
+
+.cardAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--qc-cyan);
+  font-family: var(--qc-body);
+  font-weight: 700;
+}
+
+.afterCard {
+  display: flex;
+  min-height: 4.4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--qc-border);
+  color: var(--qc-text);
+  text-decoration: none;
+}
+
+.afterCard span:first-child {
+  color: var(--qc-muted);
+  font-family: var(--qc-reading);
+  font-size: 0.86rem;
+}
+
+.afterCard strong {
+  color: var(--qc-text);
+  font-family: var(--qc-body);
+  font-size: 0.82rem;
+}
+
+.missionHeaderTitle {
+  min-width: 0;
+  flex: 1;
+}
+
+.missionHeaderTitle span,
+.missionHeaderTitle strong {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.missionHeaderTitle span {
+  color: var(--qc-muted);
+  font-family: var(--qc-body);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.missionHeaderTitle strong {
+  margin-top: 0.25rem;
+  color: var(--qc-text);
+  font-family: var(--qc-display);
+  font-size: 0.98rem;
+}
+
+.briefCard,
+.guidedCard,
+.fieldCard,
+.addProblemCard {
+  padding: 1.1rem;
+}
+
+.briefCard {
+  margin-top: 1.6rem;
+}
+
+.briefText {
+  margin: 0.65rem 0 0;
+  color: var(--qc-text);
+  font-family: var(--qc-reading);
+  font-size: 1rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.deliverables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1rem;
+}
+
+.deliverable {
+  padding: 0.42rem 0.6rem;
+  border: 1px solid var(--qc-border);
+  color: var(--qc-muted);
+  font-family: var(--qc-body);
+  font-size: 0.7rem;
+}
+
+.buttonStack {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.primaryButton,
+.quietButton,
+.utilityButton,
+.submitButton {
+  display: inline-flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  border-radius: 2px;
+  cursor: pointer;
+  font-family: var(--qc-body);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.missionRoot .primaryButton,
+.missionRoot .quietButton,
+.missionRoot .utilityButton,
+.missionRoot .submitButton,
+.missionRoot .timerButton,
+.missionRoot .stepChip,
+.missionRoot .problemChip,
+.missionRoot .backButton {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border-radius: 2px;
+  box-shadow: none;
+  clip-path: none;
+  font-family: var(--qc-body);
+  letter-spacing: 0;
+  text-transform: none;
+  transform: none;
+}
+
+.missionRoot .primaryButton,
+.missionRoot .submitButton {
+  border: 1px solid var(--qc-cyan);
+  background: var(--qc-cyan);
+  color: var(--qc-canvas);
+}
+
+.missionRoot .quietButton,
+.missionRoot .utilityButton,
+.missionRoot .timerButton,
+.missionRoot .stepChip,
+.missionRoot .problemChip,
+.missionRoot .backButton {
+  border: 1px solid var(--qc-border-strong);
+  background: rgb(53 221 242 / 0.06);
+  color: var(--qc-cyan);
+}
+
+.missionRoot .utilityButton,
+.missionRoot .timerButton,
+.missionRoot .submitButton,
+.missionRoot .stepChip,
+.missionRoot .problemChip,
+.missionRoot .backButton {
+  width: auto;
+}
+
+.primaryButton,
+.submitButton {
+  border: 1px solid var(--qc-cyan);
+  background: var(--qc-cyan);
+  color: var(--qc-canvas);
+}
+
+.quietButton,
+.utilityButton {
+  border: 1px solid var(--qc-border-strong);
+  background: rgb(53 221 242 / 0.06);
+  color: var(--qc-cyan);
+}
+
+.utilityButton {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.85rem;
+  font-size: 0.75rem;
+}
+
+.helperNote,
+.authorshipNote {
+  margin: 0.8rem 0 0;
+  font-size: 0.78rem;
+}
+
+.workControlBar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--qc-border);
+  background: rgb(16 10 36 / 0.72);
+}
+
+.saveState {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.saveDot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex: 0 0 auto;
+  border-radius: 9999px;
+  background: var(--qc-gold);
+}
+
+.saveDotSaved {
+  background: var(--qc-cyan);
+}
+
+.controlButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.timerButton {
+  display: inline-flex;
+  min-width: 4.6rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--qc-border);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--qc-muted);
+  cursor: pointer;
+  font-family: var(--qc-body);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.submitButton {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.75rem;
+}
+
+.guidedCard {
+  margin-top: 1.2rem;
+}
+
+.guidedPrompt {
+  margin: 0.55rem 0 0;
+  color: var(--qc-text);
+  font-family: var(--qc-reading);
+  font-size: 1.02rem;
+  line-height: 1.62;
+}
+
+.stepRow,
+.problemRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-bottom: 0.15rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.stepRow::-webkit-scrollbar,
+.problemRow::-webkit-scrollbar {
+  display: none;
+}
+
+.stepChip,
+.problemChip {
+  display: inline-flex;
+  min-height: 2.75rem;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--qc-border);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--qc-muted);
+  cursor: pointer;
+  font-family: var(--qc-body);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.stepChipActive,
+.problemChipActive {
+  border-color: var(--qc-cyan);
+  background: rgb(53 221 242 / 0.08);
+  color: var(--qc-cyan);
+}
+
+.fieldList {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.fieldCard {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.fieldHint {
+  color: var(--qc-muted);
+  font-family: var(--qc-reading);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.missionRoot .fieldCard > span.fieldLabel {
+  color: var(--qc-muted);
+  font-family: var(--qc-body);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.missionRoot .fieldCard > span.fieldHint {
+  color: var(--qc-muted);
+  font-family: var(--qc-reading);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+}
+
+.missionRoot .fieldInput,
+.missionRoot .problemInput {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--qc-border);
+  border-radius: 2px;
+  outline: none;
+  background: rgb(2 3 10 / 0.58);
+  color: var(--qc-text);
+  font-family: var(--qc-reading);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+textarea.fieldInput,
+.problemInput {
+  resize: vertical;
+}
+
+.missionRoot .fieldInput:focus,
+.missionRoot .problemInput:focus {
+  border-color: var(--qc-cyan);
+  box-shadow: 0 0 0 3px rgb(53 221 242 / 0.12);
+}
+
+.missionRoot .fieldInput::placeholder,
+.missionRoot .problemInput::placeholder {
+  color: rgb(169 161 184 / 0.7);
+}
+
+.addProblemCard {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.filePicker {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--qc-border);
+  color: var(--qc-muted);
+  cursor: pointer;
+  font-family: var(--qc-body);
+  font-size: 0.72rem;
+}
+
+.filePicker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.submittedCard,
+.emptyCard {
+  margin-top: 2rem;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+.submittedMark {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 1rem;
+  place-items: center;
+  border: 1px solid var(--qc-cyan);
+  border-radius: 9999px;
+  color: var(--qc-cyan);
+}
+
+.submittedCard h1,
+.emptyCard h2 {
+  margin: 0;
+  color: var(--qc-text);
+  font-family: var(--qc-display);
+  font-size: 1.75rem;
+}
+
+.submittedCard p,
+.emptyCard p {
+  margin: 0.75rem 0 0;
+  color: var(--qc-muted);
+  font-family: var(--qc-reading);
+  line-height: 1.55;
+}
+
+.submittedCard a {
+  margin-top: 1.25rem;
+  text-decoration: none;
+}
+
+.primaryButton:focus-visible,
+.quietButton:focus-visible,
+.utilityButton:focus-visible,
+.submitButton:focus-visible,
+.timerButton:focus-visible,
+.stepChip:focus-visible,
+.problemChip:focus-visible,
+.iconButton:focus-visible,
+.backButton:focus-visible,
+.assignmentCard:focus-visible,
+.afterCard:focus-visible,
+.sectionHeading a:focus-visible {
+  outline: 3px solid var(--qc-gold);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .missionRoot button.primaryButton:hover:not(:disabled),
+  .missionRoot button.submitButton:hover:not(:disabled) {
+    border-color: var(--qc-cyan);
+    background: var(--qc-cyan);
+    color: var(--qc-canvas);
+    transform: none;
+  }
+
+  .missionRoot button.quietButton:hover:not(:disabled),
+  .missionRoot button.utilityButton:hover:not(:disabled),
+  .missionRoot button.timerButton:hover:not(:disabled),
+  .missionRoot button.stepChip:hover:not(:disabled),
+  .missionRoot button.problemChip:hover:not(:disabled),
+  .missionRoot button.backButton:hover:not(:disabled) {
+    border-color: var(--qc-cyan);
+    background: rgb(53 221 242 / 0.1);
+    color: var(--qc-cyan);
+    transform: none;
+  }
+
+  .mobileNav :global(button:hover:not(:disabled)) {
+    border: 0;
+    background: transparent;
+    color: #35ddf2;
+    transform: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .mobileNav {
+    display: grid;
+  }
+
+  .mobileOnly,
+  .mobileMission {
+    display: block;
+  }
+
+  .desktopOnly,
+  .desktopMission {
+    display: none;
+  }
+
+  .todaySurface,
+  .missionRoot {
+    width: 100vw;
+    min-height: 100dvh;
+    margin-inline: calc(50% - 50vw);
+    background:
+      radial-gradient(46rem 22rem at 100% -10%, rgb(94 140 255 / 0.12), transparent 62%),
+      var(--qc-canvas);
+    color: var(--qc-text);
+    font-family: var(--qc-body);
+  }
+}
+
+@media (min-width: 901px) {
+  .missionRoot {
+    min-height: 100vh;
+    background: radial-gradient(1200px 600px at 80% -5%, rgb(41 208 255 / 0.05), transparent 60%), #04060f;
+    color: #fff;
+    font-family: var(--font-barlow), "Barlow Semi Condensed", sans-serif;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mobileHeader,
+  .todayMain > *,
+  .missionContent > * {
+    animation: quietSettle 240ms ease-out both;
+  }
+
+  .todayMain > *:nth-child(2),
+  .missionContent > *:nth-child(2) {
+    animation-delay: 45ms;
+  }
+
+  .todayMain > *:nth-child(3),
+  .missionContent > *:nth-child(3) {
+    animation-delay: 90ms;
+  }
+}
+
+@keyframes quietSettle {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
