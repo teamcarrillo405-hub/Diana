@@ -71,6 +71,11 @@ const assertKeyboardFocusStaysVisible = async (page: Page) => {
     expect(focus.left).toBeLessThan(focus.viewportWidth);
     expect(focus.top).toBeLessThan(focus.viewportHeight);
   }
+  await page.evaluate(() => {
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+  });
 };
 
 const snapshots = SELECTED_SCREEN_DESIGN_SCENARIOS.map(
