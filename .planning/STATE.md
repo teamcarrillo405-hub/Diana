@@ -665,6 +665,7 @@ progress:
 
 - Phase 8 added: Provider Wiring + Scorer Interleaving + Intentions Evening Trigger
 - Phase 11 added: Photo and PDF upload to notes — Claude Vision/PDF extraction → transcribe-note cleanup pipeline + auto-class routing
+- Phase 36 added: Faithfully implement all 47 Figma HTML screens and remove the Nexus design
 
 ## Repo pointers
 
