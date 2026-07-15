@@ -1524,3 +1524,331 @@ body.diana-app {
     transform: none;
   }
 }
+
+/* Canonical assignment_detail.html composition. */
+.sd-assignment-cockpit {
+  display: flex;
+  height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.sd-assignment-cockpit-header {
+  z-index: 20;
+  display: grid;
+  min-height: 7.25rem;
+  flex: 0 0 auto;
+  grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.05);
+  background: rgb(15 23 42 / 0.88);
+  padding: 2.65rem 1.5rem 1rem;
+  backdrop-filter: blur(12px);
+}
+
+.sd-assignment-circle-control {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+  color: #f8fafc;
+}
+
+.sd-assignment-cockpit-brand {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.sd-assignment-cockpit-brand .sd-source-wordmark {
+  height: 1.1rem;
+}
+
+.sd-assignment-cockpit-brand h1 {
+  overflow: hidden;
+  margin: 0;
+  color: #2dd4bf;
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.75rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-assignment-cockpit-scroll {
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 0 1.5rem 9.5rem;
+}
+
+.sd-assignment-timer-section {
+  display: grid;
+  justify-items: center;
+  padding: 2.2rem 0 1.35rem;
+  text-align: center;
+}
+
+.sd-assignment-timer {
+  position: relative;
+  display: grid;
+  width: 15.75rem;
+  height: 15.75rem;
+  place-items: center;
+  overflow: visible;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #f8fafc;
+  cursor: pointer;
+}
+
+.sd-assignment-timer::before {
+  position: absolute;
+  inset: -2.25rem;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgb(45 212 191 / 0.1), transparent 66%);
+  content: "";
+  filter: blur(20px);
+}
+
+.sd-assignment-timer-track {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(from 4deg, #54cbd1 0 23%, #8abdd5 23% 42%, #db7bd3 42% 70%, #29364c 70% 100%);
+  filter: drop-shadow(0 0 20px rgb(45 212 191 / 0.28));
+  mask: radial-gradient(circle, transparent 0 67%, #000 68% 74%, transparent 75%);
+}
+
+.sd-assignment-timer-copy {
+  z-index: 1;
+  display: grid;
+  gap: 0.2rem;
+}
+
+.sd-assignment-timer-copy strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 3.1rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.sd-assignment-timer-copy small {
+  color: #2dd4bf;
+  font-size: 0.62rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+}
+
+.sd-assignment-title,
+.sd-assignment-meta {
+  max-width: 20rem;
+  overflow: hidden;
+  margin: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-assignment-title {
+  margin-top: 0.8rem;
+  color: #f8fafc;
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sd-assignment-meta {
+  margin-top: 0.2rem;
+  color: #64748b;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.sd-assignment-drills {
+  display: grid;
+  gap: 1rem;
+}
+
+.sd-assignment-drills-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sd-assignment-drills-head h2,
+.sd-assignment-drills-head span {
+  margin: 0;
+  font-size: 0.65rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sd-assignment-drills-head h2 {
+  color: #cbd5e1;
+  letter-spacing: 0.2em;
+}
+
+.sd-assignment-drills-head span {
+  color: #2dd4bf;
+}
+
+.sd-assignment-drill-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sd-assignment-drill {
+  display: grid;
+  width: 100%;
+  min-height: 4rem;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 0.85rem 1rem;
+  color: #f8fafc;
+  text-align: left;
+  text-decoration: none;
+}
+
+.sd-assignment-drill[data-checked="true"] {
+  border-left: 4px solid #2dd4bf;
+}
+
+.sd-assignment-drill-check {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border: 2px solid rgb(255 255 255 / 0.2);
+  border-radius: 0.35rem;
+  color: #0f172a;
+}
+
+.sd-assignment-drill[data-checked="true"] .sd-assignment-drill-check {
+  border-color: #2dd4bf;
+  background: #2dd4bf;
+}
+
+.sd-assignment-drill-copy {
+  display: grid;
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.sd-assignment-drill-copy strong,
+.sd-assignment-drill-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sd-assignment-drill-copy strong {
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sd-assignment-drill-copy small {
+  color: #94a3b8;
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sd-assignment-drill[data-checked="true"] .sd-assignment-drill-copy strong {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.sd-assignment-state-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.sd-assignment-state-actions button,
+.sd-assignment-state-actions a {
+  display: inline-flex;
+  min-height: 2.35rem;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid rgb(116 192 255 / 0.24);
+  border-radius: 999px;
+  background: rgb(116 192 255 / 0.08);
+  padding: 0.55rem 0.8rem;
+  color: #74c0ff;
+  font-size: 0.63rem;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.sd-assignment-coach-help {
+  position: absolute;
+  z-index: 35;
+  right: 1.5rem;
+  bottom: 6.6rem;
+  display: grid;
+  justify-items: end;
+  gap: 0.75rem;
+}
+
+.sd-assignment-coach-bubble {
+  width: 12rem;
+  border-radius: 1rem 1rem 0 1rem;
+  background: white;
+  box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
+  padding: 0.9rem 1rem;
+  color: #0f172a;
+  font-size: 0.68rem;
+  font-style: italic;
+  font-weight: 750;
+  line-height: 1.5;
+  text-decoration: none;
+}
+
+.sd-assignment-coach-button {
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff79da, #74c0ff, #2dd4bf);
+  box-shadow: 0 10px 30px rgb(255 121 218 / 0.25);
+  color: #0f172a;
+}
+
+.sd-assignment-status {
+  position: absolute;
+  z-index: 60;
+  right: 1rem;
+  bottom: 6rem;
+  left: 1rem;
+  margin: 0;
+  border: 1px solid rgb(251 191 36 / 0.45);
+  border-radius: 0.75rem;
+  background: rgb(251 191 36 / 0.14);
+  padding: 0.65rem 0.8rem;
+  color: #fde68a;
+  font-size: 0.75rem;
+}

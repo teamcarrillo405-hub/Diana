@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -30,6 +30,8 @@ import { AssignmentCockpit } from "./assignment-cockpit";
 const assignmentId = "11111111-1111-4111-8111-111111111111";
 
 describe("AssignmentCockpit", () => {
+  afterEach(cleanup);
+
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.transitionAssignment.mockResolvedValue({ ok: true });
