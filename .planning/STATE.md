@@ -5,16 +5,16 @@ milestone_name: The Complete Academic Platform
 current_phase: 36
 current_plan: 4
 status: executing
-stopped_at: Completed 36-02-PLAN.md
-last_updated: "2026-07-15T17:51:34.363Z"
+stopped_at: Completed 36-27-PLAN.md
+last_updated: "2026-07-15T18:13:51.722Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-04 source-faithful visual primitives
+last_activity_desc: Completed 36-27 deterministic ScreenDesign fixtures and owner-scoped QA seed
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 3
-  percent: 10
+  completed_plans: 4
+  percent: 13
 total_plans_in_phase: 30
 ---
 
@@ -26,11 +26,11 @@ total_plans_in_phase: 30
 **Current Plan:** 4
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [█░░░░░░░░░] 10%
-**Last Activity:** 2026-07-15 - Completed 36-04 source-faithful visual primitives
+**Progress:** [█░░░░░░░░░] 13%
+**Last Activity:** 2026-07-15 - Completed 36-27 deterministic ScreenDesign fixtures and owner-scoped QA seed
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T17:51:34.355Z
-**Stopped at:** Completed 36-04-PLAN.md
+**Last session:** 2026-07-15T18:13:51.715Z
+**Stopped at:** Completed 36-27-PLAN.md
 
 ---
 
@@ -694,6 +694,7 @@ total_plans_in_phase: 30
 | Phase 36 P01 | 8 min | 3 tasks | 5 files |
 | Phase 36 P02 | 18 min | 2 tasks | 32 files |
 | Phase 36 P04 | 25 min | 3 tasks | 6 files |
+| Phase 36 P27 | 24 min | 2 tasks | 4 files |
 
 ## Decisions
 
@@ -707,9 +708,13 @@ total_plans_in_phase: 30
 - [Phase 36]: The source canvas is 393px wide and at least 852px tall, centered and viewport-height expanded on larger screens. — This preserves the locked mobile geometry while remaining safe outside the source viewport.
 - [Phase 36]: Student navigation derives one active owner from the pathname and falls back to More for unrelated routes. — Today, Work, Classes, and Calendar own their route prefixes without misclassifying supporting screens.
 - [Phase 36]: SourceMedia accepts only typed local asset ids plus explicit dimensions and image intent. — Arbitrary URLs and ambiguous decorative markup cannot enter shared screen rendering.
+- [Phase 36]: Every canonical screen receives one default fixture, with 11 guard variants covering policy, availability, membership, score, share-token, and accessibility states. — A stable 47-plus-guard catalog lets visual and interaction QA select deterministic real states without ad hoc setup.
+- [Phase 36]: Screen fixtures seed real Supabase tables with deterministic synthetic IDs and owner-scoped resets. — Idempotent real-schema data preserves honest application behavior while preventing cross-owner mutation.
+- [Phase 36]: The anonymous QA route accepts only the static QA account allowlist and canonical scenario IDs. — Callers cannot choose arbitrary user IDs or escalate the service-role boundary.
+- [Phase 36]: QA seed responses expose stable aliases and storage-state inputs, never credentials, owner UUIDs, or secrets. — Browser automation receives deterministic handles without leaking privileged identity data.
 
 ## Session
 
-**Last session:** 2026-07-15T17:36:17.023Z
-**Stopped at:** Completed 36-02-PLAN.md
+**Last session:** 2026-07-15T18:13:51.715Z
+**Stopped at:** Completed 36-27-PLAN.md
 **Resume file:** None

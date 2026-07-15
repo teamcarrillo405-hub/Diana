@@ -544,7 +544,7 @@ Plans:
 **Goal:** Replace Diana's old Nexus/Mission Control presentation with all 47 canonical ScreenDesign states, wired to the existing secure backend and proven source-faithful at 393 by 852 before launch.
 **Requirements:** P36-FIDELITY, P36-ASSETS, P36-OPERATIONS, P36-ONBOARDING, P36-QA, P36-REMOVAL
 **Depends on:** Phase 35
-**Plans:** 3/30 plans executed
+**Plans:** 4/30 plans executed
 
 Plans:
 
@@ -574,7 +574,7 @@ Plans:
 - [ ] 36-24-PLAN.md - Preview canary and final human visual approval
 - [ ] 36-25-PLAN.md - Real Smart Loading suspense treatment
 - [ ] 36-26-PLAN.md - Linked onboarding schema application and persistence proof
-- [ ] 36-27-PLAN.md - Typed 47-screen fixtures and owner-scoped QA seed
+- [x] 36-27-PLAN.md - Typed 47-screen fixtures and owner-scoped QA seed
 - [ ] 36-28-PLAN.md - Script-free local normalized source captures
 - [ ] 36-29-PLAN.md - Independent validation of the actual Plan 36-30 exactly-47 evidence
 - [ ] 36-30-PLAN.md - Reusable release validators and clean release-SHA-stamped 47-screen gallery producer
