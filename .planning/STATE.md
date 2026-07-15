@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 9
+current_plan: 10
 status: executing
-stopped_at: Completed 36-08-PLAN.md
-last_updated: "2026-07-15T23:05:20.498Z"
+stopped_at: Completed 36-09-PLAN.md
+last_updated: "2026-07-15T23:27:14.236Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-08 assignment lifecycle ScreenDesign rebuild
+last_activity_desc: Completed 36-09 capture and work-board ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 9
-  percent: 30
+  completed_plans: 10
+  percent: 33
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 9
+**Current Plan:** 10
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [███░░░░░░░] 30%
-**Last Activity:** 2026-07-15 - Completed 36-08 assignment lifecycle ScreenDesign rebuild
+**Progress:** [███░░░░░░░] 33%
+**Last Activity:** 2026-07-15 - Completed 36-09 capture and work-board ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T23:05:20.491Z
-**Stopped at:** Completed 36-08-PLAN.md
+**Last session:** 2026-07-15T23:27:14.229Z
+**Stopped at:** Completed 36-09-PLAN.md
 
 ---
 
@@ -700,8 +700,14 @@ total_plans_in_phase: 30
 | Phase 36 P03 | 18 min | 2 tasks | 5 files |
 | Phase 36 P05 | 70 min | 3 tasks | 9 files |
 | Phase 36 P08 | 45 min | 3 tasks | 17 files |
+| Phase 36 P09 | 55 min | 3 tasks | 13 files |
 
 ## Decisions
+
+- [Phase 36]: Inbox suggestion acceptance and assignment creation remain separate student actions. - Classification may confirm the suggested metadata, but conversion requires the editable selected-item review.
+- [Phase 36]: Quick Add keeps the canonical mode selector as its default state. - Operational QA enters a real capture mode and submits validated text before asserting the persisted triage route.
+- [Phase 36]: Mission Board renders owner-scoped ranked assignment lifecycle data in the ScreenDesign hierarchy. - Source fidelity does not justify restoring obsolete Nexus metric lanes or fabricated records.
+- [Phase 36]: Capture uploads must belong to the authenticated owner and pass photo mode, MIME, and size validation. - Storage references are untrusted inputs at the server-action boundary.
 
 - [Phase 36]: The attached dashboard exclusively owns /dashboard; the export-folder dashboard is excluded. — D-02 establishes source precedence and the registry test enforces it.
 - [Phase 36]: All 47 canonical states use stable typed route, state, action, auth, data, viewport, and snapshot metadata. — Downstream implementation and QA need one deterministic source contract.
@@ -732,6 +738,6 @@ total_plans_in_phase: 30
 
 ## Session
 
-**Last session:** 2026-07-15T21:57:12.794Z
-**Stopped at:** Completed 36-03-PLAN.md
+**Last session:** 2026-07-15T23:27:14.229Z
+**Stopped at:** Completed 36-09-PLAN.md
 **Resume file:** None
