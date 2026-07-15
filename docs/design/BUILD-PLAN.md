@@ -126,9 +126,9 @@ This is what separates a demo from a launch-ready product. For this app specific
 | Keyboard navigation and focus states across all interactive parts | A real accessibility requirement, not optional here |
 | Screen reader labels on every icon button, card, and control | Same |
 | Reading supports confirmed working after redesign | Bionic reading, pacing, line focus were in the old detail page, must survive |
-| Mobile and responsive pass across all redesigned pages | Complete: 89 public, authenticated, dark-mode, phone, tablet, and desktop checks pass |
+| Mobile and responsive pass across all redesigned pages | Complete: 94 public, authenticated, dark-mode, phone, tablet, and desktop checks pass |
 | The bottom nav versus top nav tradeoff on mobile | Complete: phones use the five-tab bottom bar; wider screens use the shared top navigation |
-| Apply the player_photo database migration | Complete: applied remotely as `20260715010901_player_photo` and verified through Settings |
+| Apply the player_photo database migration | Complete: linked history now matches local version `20260613000000_player_photo` and Settings verification passes |
 | Restrict privileged database RPCs and auth settings | Complete: worker and retention RPCs are service-only, student RPCs use RLS/private implementations, anonymous sign-in is off, and security advisors report zero warnings |
 | Remove dead CSS and dead computed code accumulated during redesign | Several flagged this session |
 | Error states and empty states on every page | Calm framing throughout, amber not red |
@@ -138,15 +138,19 @@ This is what separates a demo from a launch-ready product. For this app specific
 
 ## Phase 6 — Testing and launch
 
-| Item | Notes |
-|---|---|
-| Use the QA seed account to test every page with real populated data | The account exists and seeds demo data |
-| Test every page in both empty and populated states | Empty states have repeatedly looked broken when only the full state was designed |
-| Test the full assignment lifecycle end to end | To do, drafting, checking, submitting, submitted, the checklist gate |
-| Test the calm invariant holds everywhere | No red on due or status, past due reframed gently, amber for attention |
-| Cross browser check | At minimum the browsers students actually use |
-| Performance pass | Bundle size, load time, the service worker behavior in production |
-| Final accessibility sign off | The launch gate for this product specifically |
+Repository and production evidence was refreshed on 2026-07-14.
+
+| Item | Status | Evidence |
+|---|---|---|
+| Use the QA seed account to test every page with real populated data | Complete | 94 Playwright checks cover public and authenticated routes at five viewports, plus dark-mode coverage. |
+| Test every page in both empty and populated states | Complete for repository gates | Seeded visual QA covers populated states. Unit and component tests cover calm empty states. Physical-device sampling remains a human validation step. |
+| Test the full assignment lifecycle end to end | Complete for repository gates | The Homework Mission flow preserves the explicit status chain through submitted, and the state-machine and submission tests pass. |
+| Test the calm invariant holds everywhere | Complete | Tone audit reports 0 violations across 397 files, and responsive QA reports no blocked visible copy. |
+| Cross-browser check | Chromium complete, human matrix remains | Automated responsive, accessibility, and end-to-end checks pass in Chromium. iOS Safari, Android Chrome, and managed Chromebook checks remain in the human beta matrix. |
+| Performance pass | Complete | Live Lighthouse mobile scores 99 to 100 with LCP from 1.67 to 2.05 seconds. Desktop scores 100 with 0.43 second LCP. |
+| Final accessibility sign off | Complete for automated gates | Axe reports 0 serious or critical findings across 10 light and dark core-route checks. |
+| Production canary | Complete | Three authenticated passes across five critical routes produced 15 successful loads, no page failures, and no console errors. |
+| Database and deployment parity | Complete | Vercel deployment is Ready, linked migration history matches local files, and Supabase security advisors report no warnings. |
 
 ---
 
