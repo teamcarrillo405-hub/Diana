@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 import postcss from "postcss";
+import type { Page, Request, Route } from "@playwright/test";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -14,12 +15,17 @@ import {
   normalizeScreenDesignSource,
   type ScreenDesignSourceAsset,
 } from "@/tests/helpers/normalize-screendesign-source";
+import {
+  assertScreenDesignSourceAssetsExist,
+  startScreenDesignSourceServer,
+  type ScreenDesignSourceManifestEntry,
+} from "@/tests/fixtures/screendesign-source-server";
 
 interface ScreenDesignManifest {
   readonly assetCount: number;
   readonly screenDesignAssetCount: number;
   readonly avatarAssetCount: number;
-  readonly assets: readonly ScreenDesignSourceAsset[];
+  readonly assets: readonly ScreenDesignSourceManifestEntry[];
 }
 
 interface SourceDocument {
@@ -272,4 +278,164 @@ describe("normalizeScreenDesignSource", () => {
       }),
     ).toThrow(/unmapped remote URL/iu);
   });
+});
+
+describe("isolated ScreenDesign source server", () => {
+  it("serves all 47 normalized documents, compiled capture CSS, and all local assets", async () => {
+    const manifest = await readManifest();
+    const server = await startScreenDesignSourceServer();
+
+    try {
+      for (const screen of SCREEN_DESIGN_SCREENS) {
+        const response = await fetch(server.sourceUrl(screen.id));
+        const html = await response.text();
+        expect(response.status, screen.id).toBe(200);
+        expect(response.headers.get("content-type"), screen.id).toContain(
+          "text/html",
+        );
+        expect(response.headers.get("content-security-policy"), screen.id).toContain(
+          "script-src 'none'",
+        );
+        expect(html, screen.id).toContain(SCREENDESIGN_CAPTURE_STYLESHEET_PATH);
+        expect(html, screen.id).not.toMatch(/\bhttps?:\/\//iu);
+      }
+
+      const stylesheetResponse = await fetch(
+        new URL(SCREENDESIGN_CAPTURE_STYLESHEET_PATH, server.origin),
+      );
+      const stylesheet = await stylesheetResponse.text();
+      expect(stylesheetResponse.status).toBe(200);
+      expect(stylesheetResponse.headers.get("content-type")).toContain("text/css");
+      expect(stylesheet).toContain(".flex");
+      expect(stylesheet).toContain("width: 180px");
+      expect(stylesheet).toContain("body > .iphone-frame");
+
+      for (const asset of manifest.assets) {
+        const response = await fetch(new URL(asset.localPath, server.origin));
+        expect(response.status, asset.localPath).toBe(200);
+        expect(response.headers.get("content-type"), asset.localPath).toContain(
+          asset.mimeType,
+        );
+        expect((await response.arrayBuffer()).byteLength, asset.localPath).toBeGreaterThan(
+          0,
+        );
+      }
+
+      const unknown = await fetch(`${server.origin}/source/dashboard_personalized`);
+      expect(unknown.status).toBe(404);
+      expect(server.servedRequests.filter((request) => request.status === 200)).toHaveLength(
+        47 + 1 + 28,
+      );
+    } finally {
+      await server.close();
+    }
+  }, 30_000);
+
+  it("fails before listening when any checked-in manifest asset is missing", async () => {
+    const manifest = await readManifest();
+    await expect(
+      assertScreenDesignSourceAssetsExist(
+        manifest.assets,
+        path.join(process.cwd(), "tests", "fixtures", "missing-public-root"),
+      ),
+    ).rejects.toThrow(/missing local asset/iu);
+  });
+
+  it("aborts and records every remote browser request", async () => {
+    const manifest = await readManifest();
+    const server = await startScreenDesignSourceServer();
+    let routeHandler: ((route: Route) => Promise<void>) | undefined;
+    const listeners = new Map<string, (request: Request) => void>();
+    const page = {
+      on: (event: string, listener: (request: Request) => void) => {
+        listeners.set(event, listener);
+      },
+      off: (event: string) => {
+        listeners.delete(event);
+      },
+      route: async (_pattern: string, handler: (route: Route) => Promise<void>) => {
+        routeHandler = handler;
+      },
+      unroute: async () => {
+        routeHandler = undefined;
+      },
+    } as unknown as Page;
+
+    const makeRoute = (url: string) => {
+      const state = { aborted: false, continued: false };
+      const request = {
+        url: () => url,
+        method: () => "GET",
+        resourceType: () => "document",
+        failure: () => null,
+      } as unknown as Request;
+      const route = {
+        request: () => request,
+        continue: async () => {
+          state.continued = true;
+        },
+        abort: async () => {
+          state.aborted = true;
+        },
+      } as unknown as Route;
+      return { request, route, state };
+    };
+
+    try {
+      const installed = await server.installRequestPolicy(page, "dashboard-personalized");
+      expect(routeHandler).toBeDefined();
+
+      const allowedUrls = [
+        server.sourceUrl("dashboard-personalized"),
+        new URL(SCREENDESIGN_CAPTURE_STYLESHEET_PATH, server.origin).href,
+        new URL(manifest.assets[0]!.localPath, server.origin).href,
+      ];
+      for (const url of allowedUrls) {
+        const local = makeRoute(url);
+        await routeHandler!(local.route);
+        expect(local.state, url).toEqual({ aborted: false, continued: true });
+        listeners.get("requestfinished")?.(local.request);
+      }
+
+      const deniedUrls = [
+        "https://media.screensdesign.com/gasset/export.png",
+        "https://api.dicebear.com/9.x/thumbs/svg?seed=student",
+        "https://cdn.tailwindcss.com/runtime.js",
+        "https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js",
+        "https://fonts.googleapis.com/css2?family=Inter",
+        "https://example.test/other-internet-host",
+      ];
+      const remoteRoutes = deniedUrls.map(makeRoute);
+      for (const remote of remoteRoutes) {
+        await routeHandler!(remote.route);
+        expect(remote.state, remote.request.url()).toEqual({
+          aborted: true,
+          continued: false,
+        });
+      }
+
+      expect(installed.evidence.remoteAttempts).toHaveLength(deniedUrls.length);
+      expect(
+        installed.evidence.remoteAttempts.every(
+          (record) => !record.allowed && record.outcome === "blocked",
+        ),
+      ).toBe(true);
+      expect(() => installed.evidence.assertNoRemoteRequests()).toThrow(
+        /attempted remote requests/iu,
+      );
+      expect(installed.evidence.records).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            url: deniedUrls[0],
+            allowed: false,
+            outcome: "blocked",
+          }),
+        ]),
+      );
+
+      await installed.dispose();
+    } finally {
+      await server.close();
+    }
+  }, 30_000);
 });

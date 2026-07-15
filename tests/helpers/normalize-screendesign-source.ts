@@ -217,12 +217,12 @@ const rewriteRemoteUrls = (
 };
 
 const injectCaptureStylesheet = (html: string): string => {
-  if (!/<\/head\s*>/iu.test(html)) {
-    fail("source document is missing a closing head element");
+  if (!/<head\b[^>]*>/iu.test(html) || !/<\/head\s*>/iu.test(html)) {
+    fail("source document is missing a complete head element");
   }
 
   const stylesheet = `<link rel="stylesheet" href="${SCREENDESIGN_CAPTURE_STYLESHEET_PATH}" data-screendesign-capture-css="true">`;
-  return html.replace(/<\/head\s*>/iu, `${stylesheet}\n</head>`);
+  return html.replace(/<head\b[^>]*>/iu, (head) => `${head}\n${stylesheet}`);
 };
 
 export const normalizeScreenDesignSource = ({
