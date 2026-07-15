@@ -1,5 +1,5 @@
-// Nexus Diana Arcade -- the design language as importable truth.
-// Derived from the supplied Nexus Arcade design source and adapted for
+// Diana Diana Arcade -- the design language as importable truth.
+// Derived from the supplied Diana Arcade design source and adapted for
 // Diana's calm invariant.
 
 /** Optical type scale, tuned for dense arcade dashboards and calm reading. */
@@ -15,10 +15,10 @@ export const TYPE_SCALE = {
 /** Eight-pixel arcade grid. Tailwind: gap-tight / gap-group / gap-section. */
 export const GAPS = { tight: 8, group: 16, section: 32 } as const;
 
-/** Sharp Nexus geometry; circles are reserved for orbit/status cores. */
+/** Sharp Diana geometry; circles are reserved for orbit/status cores. */
 export const RADII = { control: 2, card: 2, panel: 2, pill: 2, orbit: 9999 } as const;
 
-export const NEXUS_COLORS = {
+export const DIANA_COLORS = {
   background: "#02030A",
   surface: "#100A24",
   surface2: "#171032",
@@ -48,7 +48,7 @@ export const MOTION = {
 /** One saturated hue per viewport besides brand -- review heuristic. */
 export const SATURATION_RULE = "max one subject color per viewport beyond brand";
 
-/** Diana Nexus primitives. Tailwind/CSS class names mirror these. */
+/** Diana Diana primitives. Tailwind/CSS class names mirror these. */
 export const SIGNAL_SURFACES = {
   stage: "signal-stage",
   field: "signal-stage-dark",
@@ -56,8 +56,8 @@ export const SIGNAL_SURFACES = {
   poster: "student-signal-poster",
   rightNow: "right-now-signal",
   commandDock: "mobile-command-dock-base",
-  nexusShell: "nexus-page-shell",
-  nexusPanel: "nexus-panel",
+  dianaShell: "diana-page-shell",
+  dianaPanel: "diana-panel",
 } as const;
 
 /** Screenshot-worthy acceptance heuristic for primary surfaces. */

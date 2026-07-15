@@ -90,7 +90,7 @@
   --qc-gold: #e8b85d;
   --qc-border: rgb(248 243 255 / 0.12);
   --qc-border-strong: rgb(53 221 242 / 0.42);
-  --qc-display: var(--font-nexus-display), "Space Grotesk", sans-serif;
+  --qc-display: var(--font-diana-display), "Space Grotesk", sans-serif;
   --qc-body: var(--font-lexend), Lexend, sans-serif;
   --qc-reading: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", sans-serif;
 }

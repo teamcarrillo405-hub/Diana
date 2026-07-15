@@ -230,7 +230,7 @@ export default async function AssignmentsPage({
       </header>
 
       <div className="assignment-command-grid">
-        {/* NexusPanel tone=cyan — Start now */}
+        {/* DianaPanel tone=cyan — Start now */}
         <Panel
           tone="cyan"
           style={{
@@ -245,7 +245,7 @@ export default async function AssignmentsPage({
         >
           <HudCorners />
 
-          {/* NexusKicker */}
+          {/* DianaKicker */}
           <p
             style={{
               display: "inline-flex",

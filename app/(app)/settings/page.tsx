@@ -47,10 +47,10 @@ export default async function SettingsPage() {
       accent="var(--gl-cyan)"
       icon={Cog}
     >
-      <div className="nexus-settings-page space-y-8">
-      <section className="nexus-settings-grid">
-        <section className="nexus-panel nexus-panel-dense space-y-3">
-          <span className="nexus-kicker">Student identity</span>
+      <div className="diana-settings-page space-y-8">
+      <section className="diana-settings-grid">
+        <section className="diana-panel diana-panel-dense space-y-3">
+          <span className="diana-kicker">Student identity</span>
           <h2 className="text-xl font-semibold">Profile basics</h2>
           <div className="space-y-1">
             <Row label="Signed in as" value={user?.email ?? ""} />
@@ -59,13 +59,16 @@ export default async function SettingsPage() {
             <Row label="School year" value={profile.school_year ? String(profile.school_year) : "-"} />
             <Row label="Timezone" value={profile.timezone} />
           </div>
-          <Link href="/onboarding" className="nexus-button nexus-button-ghost w-fit px-3 py-2 text-xs">
+          <Link href="/onboarding" className="diana-button diana-button-ghost w-fit px-3 py-2 text-xs">
             Re-run onboarding
+          </Link>
+          <Link href="/settings/goals" className="diana-button diana-button-ghost w-fit px-3 py-2 text-xs">
+            Study goals
           </Link>
         </section>
 
-        <section className="nexus-panel nexus-panel-dense space-y-3">
-          <span className="nexus-kicker">Learning support</span>
+        <section className="diana-panel diana-panel-dense space-y-3">
+          <span className="diana-kicker">Learning support</span>
           <h2 className="text-xl font-semibold">What Diana remembers</h2>
           <div className="space-y-1">
             <Row
@@ -90,10 +93,13 @@ export default async function SettingsPage() {
               }
             />
           </div>
+          <Link href="/settings/tutor" className="diana-button diana-button-ghost w-fit px-3 py-2 text-xs">
+            Open tutor settings
+          </Link>
         </section>
 
-        <section className="nexus-panel nexus-panel-dense space-y-4">
-          <span className="nexus-kicker">Appearance</span>
+        <section className="diana-panel diana-panel-dense space-y-4">
+          <span className="diana-kicker">Appearance</span>
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-semibold">Look and feel</h2>
             <ThemePicker />
@@ -109,7 +115,7 @@ export default async function SettingsPage() {
         />
       </section>
 
-      <section className="nexus-settings-stack">
+      <section className="diana-settings-stack">
         <SettingsDisclosure title="Reading controls" eyebrow="Accessibility">
           <AccessibilityPrefs initial={profile} />
         </SettingsDisclosure>
@@ -118,7 +124,7 @@ export default async function SettingsPage() {
           <AdaptationPanel />
         </SettingsDisclosure>
 
-        <SettingsDisclosure title="School connections" eyebrow="Imports and LMS">
+        <SettingsDisclosure id="connections" title="School connections" eyebrow="Imports and LMS">
           <div className="space-y-4">
             <IepImport />
             <CanvaSection />
@@ -135,7 +141,7 @@ export default async function SettingsPage() {
 
         <SettingsDisclosure title="Data, AI, and sharing" eyebrow="Privacy">
           <div className="grid gap-4 lg:grid-cols-2">
-            <section className="nexus-panel nexus-panel-dense space-y-2">
+            <section className="diana-panel diana-panel-dense space-y-2">
               <h2 className="text-sm font-semibold">Data and privacy</h2>
               <p className="text-sm text-muted">
                 Export your data, tune AI style by class, manage notifications, and review privacy controls.
@@ -145,7 +151,7 @@ export default async function SettingsPage() {
               </Link>
             </section>
 
-            <section className="nexus-panel nexus-panel-dense space-y-3">
+            <section className="diana-panel diana-panel-dense space-y-3">
               <h2 className="text-sm font-semibold">AI features</h2>
               <p className="text-sm text-muted">
                 {profile.age_bracket === "under_13"
@@ -165,9 +171,9 @@ export default async function SettingsPage() {
           <SharingSection />
         </SettingsDisclosure>
 
-        <section className="nexus-panel nexus-panel-dense flex flex-wrap items-center justify-between gap-4">
+        <section className="diana-panel diana-panel-dense flex flex-wrap items-center justify-between gap-4">
           <div>
-            <span className="nexus-kicker">Account</span>
+            <span className="diana-kicker">Account</span>
             <h2 className="mt-3 text-xl font-semibold">Session controls</h2>
           </div>
           <SignOutButton />
@@ -180,7 +186,7 @@ export default async function SettingsPage() {
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="nexus-settings-row">
+    <div className="diana-settings-row">
       <span className="text-muted">{label}</span>
       <span className="text-right">{value}</span>
     </div>
@@ -188,25 +194,27 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function SettingsDisclosure({
+  id,
   title,
   eyebrow,
   children,
   defaultOpen = false,
 }: {
+  id?: string;
   title: string;
   eyebrow: string;
   children: ReactNode;
   defaultOpen?: boolean;
 }) {
   return (
-    <details className="nexus-settings-disclosure" open={defaultOpen}>
+    <details id={id} className="diana-settings-disclosure" open={defaultOpen}>
       <summary>
         <span>
           <small>{eyebrow}</small>
           <strong>{title}</strong>
         </span>
       </summary>
-      <div className="nexus-settings-disclosure-body">{children}</div>
+      <div className="diana-settings-disclosure-body">{children}</div>
     </details>
   );
 }

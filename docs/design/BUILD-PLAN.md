@@ -12,7 +12,7 @@ This file records the live implementation path from the ScreenDesign reference t
 
 ## Working rules
 
-1. Current implementation branch: `codex/NewDesign`.
+1. Current implementation branch: `codex/figma-47-screen-rebuild`.
 2. Commit verified changes in coherent tranches.
 3. Keep the service worker disabled during local development.
 4. Run development and verification from `C:\Users\glcar\Diana`.
@@ -24,9 +24,9 @@ This file records the live implementation path from the ScreenDesign reference t
 | Phase | Status | Evidence |
 |---|---|---|
 | 0. Environment stabilization | Complete for this branch | Development, build, test, Supabase, and Vercel workflows are established. |
-| 1. Design system | Complete for the shared kit | `components/ui/` contains the documented shared components and component tests. The Figma source contains foundations, three approved flows, reusable components, and all 47 ScreenDesign references. |
+| 1. Design system | Complete for the ScreenDesign rebuild | `app/screendesign.css`, the shared shell, authentication, onboarding, and mapped production routes implement the ScreenDesign language. The 47 source exports remain in Figma Make and the local HTML folder; the live Figma Design reference page is currently empty. |
 | 2. Navigation structure | Complete | The five destinations are Today, Work, Classes, Calendar, and More on desktop and phone. |
-| 3. High-traffic page migration | In progress | Assignments, My Classes, reminder, and audio-note actions use the shared kit. Remaining pages migrate when touched. |
+| 3. Forty-seven-screen route and state pass | Complete on this branch | `SCREEN-MAP.md` maps all 47 exports to connected production routes, states, real Supabase data, server actions, LMS integrations, or truthful capability gates. |
 | 4. Student AI routing | Complete for the current student features | Twelve Edge Functions use the shared provider adapter and authenticated production smoke passes. |
 | 5. Hardening | Complete for automated release gates | Calm copy, type, tests, build, security, authenticated canary, and migration parity are verified. |
 | 6. Human launch validation | Pending | Physical devices, five-student protocol, PR merge approval, and operational ownership require people. |
@@ -56,7 +56,7 @@ The current extraction is used in:
 
 Future page work must reuse the kit. A page-specific component is acceptable when its product behavior is unique, but it should not duplicate a shared status, card, alert, button, lane, metric, or empty-state pattern.
 
-The Figma design-to-code contract is recorded in `DESIGN-SYSTEM.md`. Live Code Connect mappings are unavailable on the current Figma Professional plan, so the manual mapping table remains authoritative until the account moves to Organization or Enterprise and the component library is published.
+The Figma design-to-code contract is recorded in `DESIGN-SYSTEM.md`. `SCREEN-MAP.md` is the route and data contract for the 47 ScreenDesign exports. Live Code Connect mappings are unavailable on the current Figma Professional plan, so the manual mapping remains authoritative until the account moves to Organization or Enterprise and the component library is published.
 
 ## Navigation state
 

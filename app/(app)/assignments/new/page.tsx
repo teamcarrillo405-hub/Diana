@@ -54,7 +54,7 @@ export default async function NewAssignmentPage({
         icon={FilePlus2}
       >
         <div className="space-y-4">
-          <p className="nexus-panel rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
+          <p className="diana-panel rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
             You need a class first.{" "}
             <Link href="/classes" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
               Set one up

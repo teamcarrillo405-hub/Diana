@@ -52,7 +52,7 @@ export default async function ClassAiSettingsPage({
       {/* Form */}
       <form action={action}>
           <input type="hidden" name="classId" value={id} />
-          <div className="class-ai-mode-panel nexus-panel nexus-tone-gold nexus-panel-default">
+          <div className="class-ai-mode-panel diana-panel diana-tone-gold diana-panel-default">
             {[
               { value: "green", Icon: BookOpenCheck, label: "Full help", desc: "Study help, planning, citation support, and guided scaffolds are available for this class.", modeLabel: "Green" },
               { value: "yellow", Icon: PencilRuler, label: "Citations only", desc: "Diana can help with sources and citations, but not content-generating support.", modeLabel: "Yellow" },
@@ -74,7 +74,7 @@ export default async function ClassAiSettingsPage({
               </label>
             ))}
           </div>
-        <button type="submit" className="nexus-button nexus-button-primary class-settings-save">
+        <button type="submit" className="diana-button diana-button-primary class-settings-save">
           Save class rule
         </button>
       </form>

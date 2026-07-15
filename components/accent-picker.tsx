@@ -3,11 +3,11 @@
 import { useState, useEffect } from "react";
 
 const ACCENTS = [
-  { key: "sky",     label: "Nexus cyan",   hex: "#35DDF2" },
-  { key: "rose",    label: "Nexus pink",   hex: "#F45BA8" },
-  { key: "amber",   label: "Nexus gold",   hex: "#E8B85D" },
-  { key: "indigo",  label: "Nexus blue",   hex: "#5E8CFF" },
-  { key: "violet",  label: "Nexus purple", hex: "#A477FF" },
+  { key: "sky",     label: "Diana cyan",   hex: "#35DDF2" },
+  { key: "rose",    label: "Diana pink",   hex: "#F45BA8" },
+  { key: "amber",   label: "Diana gold",   hex: "#E8B85D" },
+  { key: "indigo",  label: "Diana blue",   hex: "#5E8CFF" },
+  { key: "violet",  label: "Diana purple", hex: "#A477FF" },
 ] as const;
 
 type AccentKey = typeof ACCENTS[number]["key"];
@@ -31,7 +31,7 @@ export function AccentPicker() {
 
   return (
     <div className="space-y-2">
-      <p className="nexus-kicker text-sm font-medium">Color</p>
+      <p className="diana-kicker text-sm font-medium">Color</p>
       <div className="flex gap-3 flex-wrap">
         {ACCENTS.map(({ key, label, hex }) => (
           <button

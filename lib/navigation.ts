@@ -22,6 +22,7 @@ export function usesAppTopNav(pathname: string): boolean {
     pathname.startsWith("/classes/") ||
     pathname === "/calendar" ||
     pathname === "/grades" ||
+    pathname.startsWith("/grades/") ||
     pathname === "/inbox" ||
     pathname.startsWith("/inbox/") ||
     pathname === "/proof" ||
@@ -32,6 +33,13 @@ export function usesAppTopNav(pathname: string): boolean {
     pathname === "/break-down" ||
     pathname === "/study-buddy" ||
     pathname === "/study-groups" ||
+    pathname === "/study-artifacts" ||
+    pathname.startsWith("/study-artifacts/") ||
+    pathname === "/search" ||
+    pathname === "/notifications" ||
+    pathname === "/knowledge-graph" ||
+    pathname.startsWith("/concepts/") ||
+    pathname === "/upgrade" ||
     pathname === "/voice" ||
     pathname === "/quick-add" ||
     pathname === "/portfolio" ||

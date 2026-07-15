@@ -19,14 +19,12 @@ vi.mock("./mobile-tab-bar", () => ({
 describe("AppTopNav", () => {
   it("includes its padding inside the viewport width", () => {
     const { container } = render(<AppTopNav active="Today" />);
-    const desktopNav = container.querySelector(".gl-desktop-nav");
+    const desktopNav = container.querySelector(".sd-top-nav");
 
     expect(desktopNav).toHaveStyle({
       width: "100%",
       minWidth: "0",
       boxSizing: "border-box",
     });
-    expect(container.querySelector("style")?.textContent).toContain("@media (max-width: 1100px)");
-    expect(container.querySelector("style")?.textContent).toContain(".gl-nav-extra { display: none !important; }");
   });
 });

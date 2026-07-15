@@ -145,19 +145,19 @@ export function BreakDownClient() {
           </button>
         </div>
 
-        <div className="nexus-panel nexus-panel-dense flex min-h-full flex-col justify-between gap-6">
+        <div className="diana-panel diana-panel-dense flex min-h-full flex-col justify-between gap-6">
           <div className="space-y-3">
-            <p className="nexus-kicker">Next move</p>
+            <p className="diana-kicker">Next move</p>
             <h2 className="max-w-2xl text-3xl font-semibold leading-tight">
               {nextStep?.action ?? "Add a prompt to start."}
             </h2>
             <p className="text-sm text-muted">One academic action first. More choices stay below.</p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs text-muted">
-            <span className="nexus-chip rounded-full border px-3 py-1">{doneCount} of {steps.length} marked</span>
-            <span className="nexus-chip rounded-full border px-3 py-1">{nextStep?.minutes ?? 2} min</span>
+            <span className="diana-chip rounded-full border px-3 py-1">{doneCount} of {steps.length} marked</span>
+            <span className="diana-chip rounded-full border px-3 py-1">{nextStep?.minutes ?? 2} min</span>
             {aiSteps ? (
-              <span className="nexus-chip rounded-full border border-brand/30 px-3 py-1 text-brand">Diana plan</span>
+              <span className="diana-chip rounded-full border border-brand/30 px-3 py-1 text-brand">Diana plan</span>
             ) : null}
           </div>
         </div>

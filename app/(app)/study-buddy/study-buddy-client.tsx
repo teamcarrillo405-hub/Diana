@@ -35,9 +35,17 @@ const BOUNDARY_RESPONSE: DianaResponse = {
 export function StudyBuddyClient({
   initialSource,
   initialQuestion,
+  initialMode = "guide",
+  tutorName = "Coach Diana",
+  tutorStyle = "socratic",
+  complexity = "balanced",
 }: {
   initialSource?: string;
   initialQuestion?: string;
+  initialMode?: Mode;
+  tutorName?: string;
+  tutorStyle?: "socratic" | "supportive" | "direct";
+  complexity?: "simple" | "balanced" | "advanced";
 } = {}) {
   const [source, setSource] = useState(
     initialSource?.trim() || "Rubric: use one quote, explain the evidence, and connect it to the claim.",
@@ -45,7 +53,7 @@ export function StudyBuddyClient({
   const [question, setQuestion] = useState(
     initialQuestion?.trim() || "I have evidence but do not know how to start the paragraph.",
   );
-  const [mode, setMode] = useState<Mode>("guide");
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [response, setResponse] = useState<DianaResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -87,8 +95,8 @@ export function StudyBuddyClient({
             <Brain size={18} />
           </span>
           <div>
-            <h2 className="text-base font-semibold">Bring your source</h2>
-            <p className="text-sm text-muted">The helper works best with a prompt, rubric, note, or passage.</p>
+            <h2 className="text-base font-semibold">Bring your source to {tutorName}</h2>
+            <p className="text-sm text-muted">The helper works best with a prompt, rubric, note, or passage. Style: {tutorStyle}. Complexity: {complexity}.</p>
           </div>
         </div>
         <label className="mt-4 block text-sm font-medium">
@@ -133,14 +141,14 @@ export function StudyBuddyClient({
           className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
         >
           {loading ? <Loader2 size={15} className="animate-spin" /> : null}
-          {loading ? "Asking Diana…" : "Ask Diana"}
+          {loading ? `Asking ${tutorName}...` : `Ask ${tutorName}`}
         </button>
       </section>
 
       <aside className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
         <div className="flex items-center gap-2">
           <ShieldCheck size={17} className="text-brand" />
-          <h2 className="text-base font-semibold">Diana response</h2>
+          <h2 className="text-base font-semibold">{tutorName} response</h2>
         </div>
 
         {error ? (
@@ -179,7 +187,7 @@ export function StudyBuddyClient({
         ) : (
           <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
             <p className="text-sm text-muted">
-              Add your source and question, choose a mode, then click Ask Diana.
+              Add your source and question, choose a mode, then ask {tutorName}.
             </p>
           </div>
         )}

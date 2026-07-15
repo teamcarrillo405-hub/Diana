@@ -59,6 +59,7 @@ export async function logActivity(
   });
 
   revalidatePath("/wellness");
+  revalidatePath("/settings/goals");
   return { ok: true };
 }
 

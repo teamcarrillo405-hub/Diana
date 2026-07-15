@@ -17,7 +17,7 @@ export function ParentSummaryView({ summary }: { summary: ParentSummary }) {
     <main id="main-content" className="app-field min-h-dvh">
       <div className="diana-page max-w-xl space-y-6 p-6 sm:p-8">
       <header className="space-y-1">
-        <p className="nexus-kicker text-xs uppercase tracking-wider text-muted">Weekly summary</p>
+        <p className="diana-kicker text-xs uppercase tracking-wider text-muted">Weekly summary</p>
         <h1 className="text-xl font-semibold">This week so far</h1>
         <p className="text-xs text-muted">Since {weekStartLabel}</p>
       </header>
@@ -83,7 +83,7 @@ export function ParentSummaryView({ summary }: { summary: ParentSummary }) {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="nexus-metric rounded-xl border border-border bg-card p-4">
+    <div className="diana-metric rounded-xl border border-border bg-card p-4">
       <p className="text-3xl font-semibold tabular-nums">{value}</p>
       <p className="mt-1 text-xs text-muted">{label}</p>
     </div>

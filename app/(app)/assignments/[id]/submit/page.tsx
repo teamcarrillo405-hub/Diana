@@ -40,7 +40,7 @@ export default async function SubmitPage({
       <div className="space-y-6">
       <Link
         href={`/assignments/${id}`}
-        className="nexus-kicker text-xs text-muted hover:underline"
+        className="diana-kicker text-xs text-muted hover:underline"
       >
         ← {a.title}
       </Link>

@@ -61,9 +61,22 @@ export async function POST(request: Request) {
     );
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("tutor_persona, tutor_style, tutor_complexity")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  const configuredInput: StudyHelperInput = {
+    ...input,
+    tutorPersona: profile?.tutor_persona ?? "diana",
+    tutorStyle: profile?.tutor_style ?? "socratic",
+    complexity: profile?.tutor_complexity ?? "balanced",
+  };
+
   try {
     const config = resolveDianaStudyHelperConfig();
-    const result = await createDianaStudyHelperResponse({ input, config });
+    const result = await createDianaStudyHelperResponse({ input: configuredInput, config });
 
     await supabase.from("authorship_log").insert({
       owner_id: user.id,
@@ -71,6 +84,9 @@ export async function POST(request: Request) {
       event_type: "study_buddy_response",
       payload: {
         mode: input.mode,
+        tutorPersona: configuredInput.tutorPersona,
+        tutorStyle: configuredInput.tutorStyle,
+        complexity: configuredInput.complexity,
         sourceChars: input.source.length,
         questionChars: input.question.length,
         responseChars: JSON.stringify(result).length,

@@ -119,7 +119,7 @@ The old side navigation is retired. Do not introduce another primary navigation 
 
 ## Figma source and code mapping
 
-The editable design source is the [Diana Design System](https://www.figma.com/design/M7kvCycCFWJnKUgYmfKheZ/Diana-Design-System). It contains foundations, approved mobile flows, and reusable component pages. The `99 ScreenDesign reference` page preserves all 47 original ScreenDesign HTML exports in a named six-column grid. Those frames are visual references only. They are not production components and must not be copied into the app as generated markup.
+The editable design source is the [Diana Design System](https://www.figma.com/design/M7kvCycCFWJnKUgYmfKheZ/Diana-Design-System). It contains foundations, approved mobile flows, and reusable component pages. As verified on 2026-07-14, the live `99 ScreenDesign reference` page is empty. The 47 original ScreenDesign HTML exports remain available in the Figma Make project and the local HTML source folder. `SCREEN-MAP.md` is the authoritative production mapping until those references are restored to the Design file. The exports are visual references, not production markup.
 
 | Figma component | Figma node | React implementation |
 |---|---|---|

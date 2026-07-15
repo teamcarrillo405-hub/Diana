@@ -23,7 +23,7 @@ export function LobbyBackgroundPicker() {
 
   return (
     <div className="space-y-2">
-      <p className="nexus-kicker text-sm font-medium">Lobby background</p>
+      <p className="diana-kicker text-sm font-medium">Lobby background</p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {LOBBY_BG_OPTIONS.map(({ key, label, thumb }) => (
           <button

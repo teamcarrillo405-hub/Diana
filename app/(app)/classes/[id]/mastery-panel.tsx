@@ -43,13 +43,13 @@ export function MasteryPanel({
   return (
     <section className="class-mastery-section">
       <div className="class-section-head">
-        <p className="nexus-kicker nexus-tone-pink">
+        <p className="diana-kicker diana-tone-pink">
           <Radar size={14} />
           Mastery map
         </p>
         <Link
           href={`/classes/${classId}/mastery/export`}
-          className="nexus-button nexus-button-secondary"
+          className="diana-button diana-button-secondary"
         >
           <FileDown size={13} />
           Export PDF
@@ -57,7 +57,7 @@ export function MasteryPanel({
       </div>
 
       {reviewNext && (
-        <section className="class-review-next nexus-panel nexus-tone-pink nexus-panel-default">
+        <section className="class-review-next diana-panel diana-tone-pink diana-panel-default">
           <span>Review next</span>
           <strong>{reviewLabel}</strong>
           <p>{bridge}</p>

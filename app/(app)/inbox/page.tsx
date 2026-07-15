@@ -104,7 +104,7 @@ export default async function InboxPage() {
                   When something lands here, Diana shows the likely class, work type, and next review move.
                 </p>
               </div>
-              <div className="nexus-list inbox-triage-list">
+              <div className="diana-list inbox-triage-list">
                 <ul className="inbox-triage-grid">
                   <PreviewCaptureCard mode="voice" title="Teacher said the cell diagram needs labels, function notes, and one mitochondria sentence." capturedAt="Voice capture" className="Biology" kind="Lab" due="Due Fri" status="Ready" />
                   <PreviewCaptureCard mode="photo" title="Board photo: quote response needs page number, claim, evidence, and reasoning." capturedAt="Photo capture" className="English 9" kind="Essay" due="Due tomorrow" status="Ready" />
@@ -124,7 +124,7 @@ export default async function InboxPage() {
                 {rows.length} capture{rows.length === 1 ? "" : "s"} waiting for you to confirm.
               </p>
             </div>
-            <div className="nexus-list inbox-triage-list">
+            <div className="diana-list inbox-triage-list">
               <ul className="inbox-triage-grid">
                 {rows.map((item) => (
                   <li key={item.id}>

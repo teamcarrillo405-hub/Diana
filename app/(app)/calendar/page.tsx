@@ -158,7 +158,7 @@ export default async function CalendarWeekPage({ searchParams }: PageProps) {
           return (
             <section
               key={key}
-              className="nexus-panel flex flex-col rounded-lg border border-border bg-card"
+              className="diana-panel flex flex-col rounded-lg border border-border bg-card"
             >
               <header className="border-b border-border px-3 py-2">
                 <div className="text-xs uppercase tracking-wide text-muted">
