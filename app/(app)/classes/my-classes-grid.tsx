@@ -40,6 +40,7 @@ function ctaStyle(variant: CtaVariant): CSSProperties {
     textTransform: "uppercase",
     textDecoration: "none",
     border: "1px solid transparent",
+    boxSizing: "border-box",
   };
   switch (variant) {
     case "cyanFilled":
@@ -77,6 +78,7 @@ function ClassCardView({ card }: { card: ClassCardModel }) {
         background: "var(--gl-bg-card)",
         boxShadow: card.isNow ? "0 0 0 1px rgba(41,208,255,.35), 0 0 34px rgba(41,208,255,.16)" : "none",
         padding: 22,
+        minWidth: 0,
       }}
     >
       {/* Status eyebrow + optional NOW badge */}
@@ -93,7 +95,7 @@ function ClassCardView({ card }: { card: ClassCardModel }) {
 
       {/* Class name */}
       <Link href={card.href} style={{ textDecoration: "none" }}>
-        <h2 style={{ margin: 0, fontFamily: SF, fontWeight: 800, fontSize: 40, lineHeight: 1, letterSpacing: ".01em", textTransform: "uppercase", color: "var(--gl-text-primary)" }}>
+        <h2 style={{ margin: 0, maxWidth: "100%", overflowWrap: "anywhere", fontFamily: SF, fontWeight: 800, fontSize: "clamp(30px, 10vw, 40px)", lineHeight: 1, letterSpacing: ".01em", textTransform: "uppercase", color: "var(--gl-text-primary)" }}>
           {card.name}
         </h2>
       </Link>
@@ -107,7 +109,7 @@ function ClassCardView({ card }: { card: ClassCardModel }) {
 
       {/* Task row */}
       {card.taskTitle && (
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, borderRadius: 9, border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-base)", padding: "12px 14px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", minWidth: 0, borderRadius: 9, border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-base)", padding: "12px 14px" }}>
           <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: BODY, fontSize: 14, fontWeight: 500, color: "var(--gl-text-card-body, #e8f0ff)" }}>
             {card.taskTitle}
           </span>
@@ -170,9 +172,9 @@ export function MyClassesGrid({
   return (
     <section aria-label="My classes" style={{ display: "grid", gap: 22 }}>
       <style>{`
-        .myc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
-        @media (max-width: 1100px) { .myc-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 680px) { .myc-grid { grid-template-columns: 1fr; } }
+        .myc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; min-width: 0; }
+        @media (max-width: 1100px) { .myc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 680px) { .myc-grid { grid-template-columns: minmax(0, 1fr); } }
       `}</style>
 
       {/* Header */}
