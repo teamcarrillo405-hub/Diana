@@ -2,12 +2,52 @@ import { describe, expect, it } from "vitest";
 
 import { SCREEN_DESIGN_SCREENS } from "@/lib/screendesign/screens";
 import {
+  buildScreenDesignSeedPlan,
+  resetScreenDesignOwnerWithStore,
+  seedScreenDesignScenarioWithStore,
+  type ScreenDesignPreparedSeedRow,
+  type ScreenDesignSeedStore,
+  type ScreenDesignSeedTable,
+  type ScreenDesignOwnerColumn,
+} from "./grayson-demo";
+import {
   SCREEN_DESIGN_FIXED_CLOCK,
   SCREEN_DESIGN_FIXTURE_SCENARIOS,
   SCREEN_DESIGN_GUARDED_STATES,
   SCREEN_DESIGN_OWNER_ALIASES,
   SCREEN_DESIGN_RECORD_KINDS,
 } from "./screendesign-fixtures";
+
+const PRIMARY_OWNER_ID = "11111111-1111-4111-8111-111111111111";
+const SECONDARY_OWNER_ID = "22222222-2222-4222-8222-222222222222";
+
+class MemoryScreenDesignSeedStore implements ScreenDesignSeedStore {
+  rows: ScreenDesignPreparedSeedRow[] = [];
+
+  async clearOwned(
+    table: ScreenDesignSeedTable,
+    ownerColumn: ScreenDesignOwnerColumn,
+    ownerId: string,
+  ) {
+    this.rows = this.rows.filter(
+      (row) =>
+        !(
+          row.table === table &&
+          row.ownerColumn === ownerColumn &&
+          row.ownerId === ownerId
+        ),
+    );
+  }
+
+  async insert(row: ScreenDesignPreparedSeedRow) {
+    expect(row.values[row.ownerColumn]).toBe(row.ownerId);
+    this.rows.push(row);
+  }
+
+  rowsFor(ownerId: string) {
+    return this.rows.filter((row) => row.ownerId === ownerId);
+  }
+}
 
 const REQUIRED_GUARDED_STATES = [
   "honest-empty",
@@ -135,5 +175,173 @@ describe("SCREEN_DESIGN_FIXTURE_SCENARIOS", () => {
         expect(result.reason.trim(), scenario.id).not.toBe("");
       }
     }
+  });
+});
+
+describe("ScreenDesign owner-scoped seed contract", () => {
+  it("builds real table rows for every declared factory with the selected owner on every row", () => {
+    for (const scenario of SCREEN_DESIGN_FIXTURE_SCENARIOS) {
+      const rows = buildScreenDesignSeedPlan(scenario, PRIMARY_OWNER_ID);
+      expect(rows.length, scenario.id).toBeGreaterThanOrEqual(
+        scenario.records.length,
+      );
+
+      for (const row of rows) {
+        expect(row.ownerId, `${scenario.id}:${row.alias}`).toBe(PRIMARY_OWNER_ID);
+        expect(row.values[row.ownerColumn], `${scenario.id}:${row.alias}`).toBe(
+          PRIMARY_OWNER_ID,
+        );
+        expect(JSON.stringify(row.values), `${scenario.id}:${row.alias}`).not.toMatch(
+          /password|service[_-]?role|secret|bearer|@[a-z0-9.-]+\.[a-z]{2,}/i,
+        );
+      }
+    }
+  });
+
+  it("normalizes seeded rows to live database constraints and required relationships", () => {
+    const allowedSignals = new Set([
+      "energy",
+      "completed",
+      "dismissed",
+      "started",
+      "context_switch",
+      "overwhelmed",
+      "mood_checkin",
+      "activity_log",
+      "sleep_log",
+    ]);
+    const allowedLmsProviders = new Set([
+      "canvas",
+      "google_classroom",
+      "ics",
+      "clever",
+    ]);
+    const relationByTable: Partial<Record<ScreenDesignSeedTable, string>> = {
+      assignments: "class_id",
+      assignment_steps: "assignment_id",
+      assignment_checklists: "assignment_id",
+      submission_checklist: "assignment_id",
+      task_signals: "assignment_id",
+      assignment_time_log: "assignment_id",
+      flashcard_reviews: "card_id",
+      study_artifacts: "source_id",
+      mastery_concepts: "class_id",
+      mastery_events: "concept_id",
+      ap_practice_attempts: "plan_id",
+      portfolio_items: "portfolio_id",
+      study_group_members: "group_id",
+      study_group_sessions: "group_id",
+    };
+
+    for (const scenario of SCREEN_DESIGN_FIXTURE_SCENARIOS) {
+      for (const row of buildScreenDesignSeedPlan(scenario, PRIMARY_OWNER_ID)) {
+        const relation = relationByTable[row.table];
+        if (relation) expect(row.values[relation], `${scenario.id}:${row.alias}`).toBeTruthy();
+        if (row.table === "assignments") {
+          expect(["canvas", "google_classroom", "ics", "clever"]).toContain(
+            row.values.external_source,
+          );
+        }
+        if (row.table === "task_signals") {
+          expect(allowedSignals).toContain(row.values.kind);
+        }
+        if (row.table === "lms_connections") {
+          expect(allowedLmsProviders).toContain(row.values.provider);
+        }
+        if (row.table === "sleep_logs") {
+          expect(["rested", "ok", "rough"]).toContain(row.values.sleep_quality);
+        }
+        if (row.table === "study_group_sessions") {
+          expect(["planned", "active", "done"]).toContain(row.values.status);
+        }
+      }
+    }
+  });
+
+  it("is idempotent for one owner and returns aliases without auth ids or secrets", async () => {
+    const store = new MemoryScreenDesignSeedStore();
+    const first = await seedScreenDesignScenarioWithStore(
+      store,
+      PRIMARY_OWNER_ID,
+      "qa-primary",
+      "assignment-detail:default",
+    );
+    const firstCount = store.rowsFor(PRIMARY_OWNER_ID).length;
+    const second = await seedScreenDesignScenarioWithStore(
+      store,
+      PRIMARY_OWNER_ID,
+      "qa-primary",
+      "assignment-detail:default",
+    );
+
+    expect(store.rowsFor(PRIMARY_OWNER_ID)).toHaveLength(firstCount);
+    expect(second).toEqual(first);
+    expect(second.aliases.map((record) => record.alias)).toContain(
+      "assignment-main",
+    );
+    expect(JSON.stringify(second)).not.toContain(PRIMARY_OWNER_ID);
+    expect(JSON.stringify(second)).not.toMatch(
+      /password|email|service[_-]?role|secret|bearer/i,
+    );
+  });
+
+  it("cannot observe or reset a second synthetic owner's rows", async () => {
+    const store = new MemoryScreenDesignSeedStore();
+    await seedScreenDesignScenarioWithStore(
+      store,
+      PRIMARY_OWNER_ID,
+      "qa-primary",
+      "assignment-detail:default",
+    );
+    await seedScreenDesignScenarioWithStore(
+      store,
+      SECONDARY_OWNER_ID,
+      "qa-secondary",
+      "assignment-detail:default",
+    );
+    const secondaryRows = [...store.rowsFor(SECONDARY_OWNER_ID)];
+
+    await resetScreenDesignOwnerWithStore(
+      store,
+      PRIMARY_OWNER_ID,
+      "qa-primary",
+    );
+
+    expect(store.rowsFor(PRIMARY_OWNER_ID)).toHaveLength(0);
+    expect(store.rowsFor(SECONDARY_OWNER_ID)).toEqual(secondaryRows);
+    expect(
+      store.rowsFor(SECONDARY_OWNER_ID).every((row) =>
+        Object.values(row.values).every((value) => value !== PRIMARY_OWNER_ID),
+      ),
+    ).toBe(true);
+  });
+
+  it("rejects unknown scenarios, non-synthetic owner ids, and mismatched public owner aliases", async () => {
+    const store = new MemoryScreenDesignSeedStore();
+
+    await expect(
+      seedScreenDesignScenarioWithStore(
+        store,
+        PRIMARY_OWNER_ID,
+        "qa-primary",
+        "not-a-screen:default",
+      ),
+    ).rejects.toThrow("Unknown ScreenDesign fixture scenario");
+    await expect(
+      seedScreenDesignScenarioWithStore(
+        store,
+        "production-user",
+        "qa-primary",
+        "assignment-detail:default",
+      ),
+    ).rejects.toThrow("synthetic auth UUID");
+    await expect(
+      seedScreenDesignScenarioWithStore(
+        store,
+        PRIMARY_OWNER_ID,
+        "qa-primary",
+        "external-scout-view:default",
+      ),
+    ).rejects.toThrow("not assigned to this QA owner alias");
   });
 });
