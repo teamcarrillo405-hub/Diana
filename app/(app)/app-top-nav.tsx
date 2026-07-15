@@ -32,10 +32,12 @@ export function AppTopNav({ active }: { active: NavLabel }) {
         .gl-capture{transition:transform 160ms cubic-bezier(.23,1,.32,1),background .2s;}
         @media (hover:hover){.gl-capture:hover{background:rgba(41,208,255,.22);}}
         .gl-capture:active{transform:scale(.97);}
+        @media (max-width: 1100px) {
+          .gl-nav-extra { display: none !important; }
+        }
         @media (max-width: 900px) {
           .gl-desktop-nav { display: none !important; }
           .gl-nav-tabs { display: none !important; }
-          .gl-nav-extra { display: none !important; }
         }
       `}</style>
 
@@ -46,6 +48,9 @@ export function AppTopNav({ active }: { active: NavLabel }) {
           position: "relative",
           zIndex: 30,
           maxWidth: "var(--layout-max-width)",
+          width: "100%",
+          minWidth: 0,
+          boxSizing: "border-box",
           margin: "0 auto",
           height: 58,
           display: "flex",
