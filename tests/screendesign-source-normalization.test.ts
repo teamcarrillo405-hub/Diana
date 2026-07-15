@@ -96,7 +96,7 @@ describe("normalizeScreenDesignSource", () => {
         /<(?:script|module|iframe|object|embed|base)\b/iu,
       );
       expect(normalized, screen.id).not.toMatch(
-        /<link\b[^>]*\brel\s*=\s*["'][^"']*(?:stylesheet|preload|modulepreload)/iu,
+        /<link\b[^>]*\bhref\s*=\s*["']https?:\/\//iu,
       );
       expect(normalized, screen.id).not.toMatch(
         /\son[a-z][a-z0-9:_-]*\s*=/iu,
