@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 
 import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { usePathname } from "next/navigation";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   AccentChip,
@@ -11,8 +12,16 @@ import {
 } from "./primitives";
 import { ScreenDesignViewport } from "./screen-design-viewport";
 import { SourceMedia } from "./source-media";
+import { StudentBottomNav } from "./student-bottom-nav";
 
-afterEach(() => cleanup());
+vi.mock("next/navigation", () => ({
+  usePathname: vi.fn(),
+}));
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
 
 describe("ScreenDesign source primitives", () => {
   it("keeps the 393 by 852 canvas separate from screen-specific hierarchy", () => {
@@ -86,5 +95,43 @@ describe("ScreenDesign source primitives", () => {
       "src",
       expect.stringContaining("screendesign"),
     );
+  });
+});
+
+describe("StudentBottomNav", () => {
+  it("renders the locked five destinations as links", () => {
+    vi.mocked(usePathname).mockReturnValue("/dashboard");
+    render(<StudentBottomNav />);
+
+    expect(
+      screen.getAllByRole("link").map((link) => ({
+        label: link.textContent,
+        href: link.getAttribute("href"),
+      })),
+    ).toEqual([
+      { label: "Today", href: "/dashboard" },
+      { label: "Work", href: "/assignments" },
+      { label: "Classes", href: "/classes" },
+      { label: "Calendar", href: "/calendar" },
+      { label: "More", href: "/settings" },
+    ]);
+  });
+
+  it.each([
+    ["/dashboard/lobby", "Today"],
+    ["/assignments/assignment-1", "Work"],
+    ["/classes/class-1", "Classes"],
+    ["/calendar", "Calendar"],
+    ["/settings/tutor", "More"],
+    ["/study-buddy", "More"],
+  ])("derives exactly one active destination for %s", (pathname, label) => {
+    vi.mocked(usePathname).mockReturnValue(pathname);
+    render(<StudentBottomNav />);
+
+    const current = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("aria-current") === "page");
+    expect(current).toHaveLength(1);
+    expect(current[0]).toHaveAccessibleName(label);
   });
 });
