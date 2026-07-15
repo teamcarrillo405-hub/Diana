@@ -35,21 +35,21 @@ export function SyllabusForm({ classId }: { classId: string }) {
         placeholder="Syllabus title (e.g. Biology 9: Fall syllabus)"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="nexus-input"
+        className="diana-input"
       />
       <textarea
         placeholder="Paste the syllabus text: Diana pulls out key dates and policies..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={8}
-        className="nexus-input font-mono text-sm"
+        className="diana-input font-mono text-sm"
       />
       <p>
         Diana scans for due dates, grading, late-work, and integrity policies so the important parts stay visible.
       </p>
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex justify-end">
-        <button type="submit" disabled={pending} className="nexus-button nexus-button-primary disabled:opacity-50">
+        <button type="submit" disabled={pending} className="diana-button diana-button-primary disabled:opacity-50">
           {pending ? "Saving..." : "Save syllabus"}
         </button>
       </div>

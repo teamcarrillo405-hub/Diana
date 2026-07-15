@@ -50,7 +50,7 @@ body {
   overflow: clip;
   background: var(--qc-ink);
   color: var(--qc-paper);
-  font-family: var(--font-nexus-display), "Space Grotesk", sans-serif;
+  font-family: var(--font-diana-display), "Space Grotesk", sans-serif;
 }
 
 .qc-page *,
@@ -94,7 +94,7 @@ body {
   gap: 0.75rem;
   width: max-content;
   color: var(--qc-paper);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.24em;
@@ -164,7 +164,7 @@ body {
   gap: 0.65rem;
   border-bottom: 1px solid var(--qc-cyan);
   color: var(--qc-paper);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -254,7 +254,7 @@ body {
   gap: 0.85rem;
   margin: 0 0 1.4rem;
   color: rgb(244 240 231 / 0.56);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: clamp(0.61rem, 0.75vw, 0.72rem);
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -335,7 +335,7 @@ body {
   padding: 0.9rem 1.35rem;
   border: 1px solid transparent;
   border-radius: 2px;
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -419,7 +419,7 @@ body {
   align-items: center;
   gap: 0.8rem;
   color: rgb(244 240 231 / 0.34);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -483,7 +483,7 @@ body {
 .qc-noise-note span {
   margin-bottom: 0.55rem;
   color: var(--qc-cyan);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -652,7 +652,7 @@ body {
   justify-content: space-between;
   padding-bottom: 1rem;
   border-bottom: 1px solid rgb(7 9 13 / 0.18);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.13em;
@@ -685,7 +685,7 @@ body {
   position: relative;
   margin: auto 0 0.8rem;
   color: #48717a;
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -728,7 +728,7 @@ body {
 
 .qc-start-line span {
   color: #37656d;
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -759,7 +759,7 @@ body {
   bottom: 2.5rem;
   margin: 0;
   color: rgb(244 240 231 / 0.42);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.58rem;
   letter-spacing: 0.12em;
   opacity: 0;
@@ -777,7 +777,7 @@ body {
   align-items: center;
   gap: 0.8rem;
   color: rgb(244 240 231 / 0.44);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.56rem;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -834,7 +834,7 @@ body {
   align-self: start;
   margin: 0;
   color: #4c6870 !important;
-  font-family: var(--font-nexus-mono), monospace !important;
+  font-family: var(--font-diana-mono), monospace !important;
   font-size: 0.62rem !important;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -899,7 +899,7 @@ body {
 }
 
 .qc-workspace-header strong {
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.65rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -915,7 +915,7 @@ body {
 .qc-workspace-private {
   justify-self: end;
   color: var(--qc-gold);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.55rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -942,7 +942,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -968,7 +968,7 @@ body {
 
 .qc-source-panel > article > span {
   color: rgb(244 240 231 / 0.58);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.57rem;
   font-weight: 700;
 }
@@ -1116,7 +1116,7 @@ body {
   gap: 1rem 1.5rem;
   margin-top: 1rem;
   color: rgb(7 9 13 / 0.46);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.57rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -1186,7 +1186,7 @@ body {
   padding: 0.5rem 0.25rem;
   border-bottom: 1px solid rgb(7 9 13 / 0.3);
   color: rgb(7 9 13 / 0.7) !important;
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.11em;
@@ -1224,7 +1224,7 @@ body {
   justify-self: end;
   gap: 0.55rem;
   color: var(--qc-gold);
-  font-family: var(--font-nexus-mono), monospace;
+  font-family: var(--font-diana-mono), monospace;
   font-size: 0.61rem;
   font-weight: 700;
   letter-spacing: 0.13em;
@@ -1236,13 +1236,13 @@ body {
   outline-offset: 4px;
 }
 
-/* The authenticated Nexus shell sets global heading and paragraph colors. */
-.nexus-app .qc-page .qc-overline {
+/* The authenticated Diana shell sets global heading and paragraph colors. */
+.diana-app .qc-page .qc-overline {
   color: rgb(244 240 231 / 0.56);
 }
 
-.nexus-app .qc-page .qc-hero-title,
-.nexus-app .qc-page .qc-hero-title > span {
+.diana-app .qc-page .qc-hero-title,
+.diana-app .qc-page .qc-hero-title > span {
   color: var(--qc-paper);
   font-family: var(--font-saira-condensed), "Saira Condensed", sans-serif;
   letter-spacing: -0.055em;
@@ -1250,75 +1250,75 @@ body {
   text-shadow: none;
 }
 
-.nexus-app .qc-page .qc-hero-title > .qc-title-signal {
+.diana-app .qc-page .qc-hero-title > .qc-title-signal {
   color: var(--qc-cyan);
   text-shadow: 0 0 2.6rem rgb(var(--qc-cyan-rgb) / 0.12);
 }
 
-.nexus-app .qc-page .qc-hero-summary {
+.diana-app .qc-page .qc-hero-summary {
   color: rgb(244 240 231 / 0.72);
 }
 
-.nexus-app .qc-page .qc-stage-caption {
+.diana-app .qc-page .qc-stage-caption {
   color: rgb(244 240 231 / 0.42);
 }
 
-.nexus-app .qc-page .qc-action-sheet h2,
-.nexus-app .qc-page .qc-start-line strong,
-.nexus-app .qc-page .qc-product-intro h2,
-.nexus-app .qc-page .qc-writing-panel h3 {
+.diana-app .qc-page .qc-action-sheet h2,
+.diana-app .qc-page .qc-start-line strong,
+.diana-app .qc-page .qc-product-intro h2,
+.diana-app .qc-page .qc-writing-panel h3 {
   color: var(--qc-ink);
   font-family: var(--font-saira-condensed), "Saira Condensed", sans-serif;
   text-shadow: none;
 }
 
-.nexus-app .qc-page .qc-action-copy {
+.diana-app .qc-page .qc-action-copy {
   color: rgb(7 9 13 / 0.66);
 }
 
-.nexus-app .qc-page .qc-action-kicker {
+.diana-app .qc-page .qc-action-kicker {
   color: #48717a;
 }
 
-.nexus-app .qc-page .qc-action-source {
+.diana-app .qc-page .qc-action-source {
   color: rgb(7 9 13 / 0.5);
 }
 
-.nexus-app .qc-page .qc-product-overline {
+.diana-app .qc-page .qc-product-overline {
   color: #4c6870 !important;
 }
 
-.nexus-app .qc-page .qc-product-intro > p:last-child,
-.nexus-app .qc-page .qc-writing-prompt,
-.nexus-app .qc-page .qc-product-close > div:first-child span {
+.diana-app .qc-page .qc-product-intro > p:last-child,
+.diana-app .qc-page .qc-writing-prompt,
+.diana-app .qc-page .qc-product-close > div:first-child span {
   color: rgb(7 9 13 / 0.58);
 }
 
-.nexus-app .qc-page .qc-source-panel article p,
-.nexus-app .qc-page .qc-source-policy p {
+.diana-app .qc-page .qc-source-panel article p,
+.diana-app .qc-page .qc-source-policy p {
   color: rgb(244 240 231 / 0.48);
 }
 
-.nexus-app .qc-page .qc-source-policy strong,
-.nexus-app .qc-page .qc-source-panel article strong {
+.diana-app .qc-page .qc-source-policy strong,
+.diana-app .qc-page .qc-source-panel article strong {
   color: var(--qc-paper);
 }
 
-.nexus-app .qc-page .qc-source-active strong {
+.diana-app .qc-page .qc-source-active strong {
   color: var(--qc-cyan);
 }
 
-.nexus-app .qc-page .qc-draft-line p {
+.diana-app .qc-page .qc-draft-line p {
   color: rgb(7 9 13 / 0.78);
 }
 
-.nexus-app .qc-page .qc-product-close > div:first-child p {
+.diana-app .qc-page .qc-product-close > div:first-child p {
   color: var(--qc-ink);
   font-family: var(--font-saira-condensed), "Saira Condensed", sans-serif;
   text-shadow: none;
 }
 
-.nexus-app .qc-page .qc-footer p {
+.diana-app .qc-page .qc-footer p {
   color: rgb(244 240 231 / 0.56);
 }
 

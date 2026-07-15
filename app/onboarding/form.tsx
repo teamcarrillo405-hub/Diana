@@ -4,8 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { saveOnboarding } from "./actions";
 import { AccentPicker } from "@/components/accent-picker";
-import { FutureModeToggle } from "@/components/future-mode-toggle";
-import { SparkConstellation } from "@/components/spark/spark-constellation";
 import { ThemePicker } from "@/components/theme-picker";
 import type { ProfilePrefs } from "@/lib/profile";
 import type { Diagnosis, Accommodation } from "@/lib/supabase/types";
@@ -120,7 +118,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
             </span>
             <span>{stepLabel(step)}</span>
           </div>
-          <div className="nexus-status-meter-track h-1.5 overflow-hidden rounded-full bg-surface-soft">
+          <div className="diana-status-meter-track h-1.5 overflow-hidden rounded-full bg-surface-soft">
             <div
               className="h-full rounded-full bg-brand transition-all"
               style={{ width: `${Math.round((stepIndex / questionSteps) * 100)}%` }}
@@ -130,14 +128,9 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
       )}
 
       {step === "welcome" && (
-        <div className="future-card relative overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
-          <SparkConstellation
-            seed="onboarding-identity"
-            stars={11}
-            className="pointer-events-none absolute right-[-5rem] top-[-6rem] h-64 w-64 text-brand/30"
-          />
+        <div className="sd-panel sd-panel-pad relative overflow-hidden">
           <div className="relative space-y-5 text-center">
-            <span aria-hidden="true" className="nexus-logo-mark mx-auto flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+            <span aria-hidden="true" className="diana-logo-mark mx-auto flex size-12 items-center justify-center rounded-2xl bg-brand/10 text-brand">
               D
             </span>
             <div>
@@ -149,17 +142,10 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
             </div>
 
             <div className="rounded-2xl border border-border bg-surface/70 p-3 text-left">
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">How Diana should feel</p>
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Look and reading comfort</p>
               <div className="space-y-4">
                 <ThemePicker />
                 <AccentPicker />
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-surface-raised p-3">
-                  <div>
-                    <p className="text-sm font-semibold">Diana OS preview</p>
-                    <p className="text-xs text-muted">A darker visual field for voice, focus, and Future Path screens.</p>
-                  </div>
-                  <FutureModeToggle compact />
-                </div>
               </div>
             </div>
           </div>
@@ -167,7 +153,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
             <button
               type="button"
               onClick={next}
-              className="nexus-button nexus-button-primary press-scale touch-target rounded-2xl px-6 py-3 text-sm font-semibold"
+              className="diana-button diana-button-primary press-scale touch-target rounded-2xl px-6 py-3 text-sm font-semibold"
             >
               Start setup
             </button>
@@ -321,7 +307,7 @@ export function OnboardingForm({ initial }: { initial: ProfilePrefs }) {
               type="button"
               onClick={commit}
               disabled={pending}
-              className="nexus-button nexus-button-primary press-scale touch-target rounded-2xl px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
+              className="diana-button diana-button-primary press-scale touch-target rounded-2xl px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
             >
               {pending ? "Saving..." : "Finish setup"}
             </button>
@@ -347,7 +333,7 @@ function stepLabel(step: Step): string {
 
 function StepCard({ title, hint, children }: { title: string; hint: string; children: React.ReactNode }) {
   return (
-    <div className="nexus-panel animate-slide-up space-y-3 rounded-2xl border border-border bg-card p-5">
+    <div className="diana-panel animate-slide-up space-y-3 rounded-2xl border border-border bg-card p-5">
       <h2 className="text-lg font-semibold">{title}</h2>
       {hint && <p className="text-xs text-muted">{hint}</p>}
       {children}
@@ -377,7 +363,7 @@ function StepNav({
           type="button"
           onClick={onNext}
           disabled={nextDisabled}
-          className="nexus-button nexus-button-primary press-scale touch-target rounded-2xl px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
+          className="diana-button diana-button-primary press-scale touch-target rounded-2xl px-5 py-2.5 text-sm font-semibold disabled:opacity-50"
         >
           Next
         </button>
@@ -400,7 +386,7 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`nexus-chip rounded-lg border px-3 py-2 text-left text-sm transition ${
+      className={`diana-chip rounded-lg border px-3 py-2 text-left text-sm transition ${
         active
           ? "border-accent bg-accent/10 text-accent"
           : "border-border bg-transparent hover:bg-border/30"

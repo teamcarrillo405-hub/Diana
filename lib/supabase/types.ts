@@ -2464,6 +2464,9 @@ export type Database = {
           timezone: string;
           token_reset_date: string;
           tokens_used_today: number;
+          tutor_complexity: "simple" | "balanced" | "advanced"; // 20260715040000 migration
+          tutor_persona: "diana" | "xavier" | "maya"; // 20260715040000 migration
+          tutor_style: "socratic" | "supportive" | "direct"; // 20260715040000 migration
           tts_enabled: boolean;
           tts_pitch: number; // 0021 migration; manually annotated until supabase:types regen
           tts_provider: TtsProvider;
@@ -2515,6 +2518,9 @@ export type Database = {
           timezone?: string;
           token_reset_date?: string;
           tokens_used_today?: number;
+          tutor_complexity?: "simple" | "balanced" | "advanced"; // 20260715040000 migration
+          tutor_persona?: "diana" | "xavier" | "maya"; // 20260715040000 migration
+          tutor_style?: "socratic" | "supportive" | "direct"; // 20260715040000 migration
           tts_enabled?: boolean;
           tts_pitch?: number; // 0021 migration; manually annotated until supabase:types regen
           tts_provider?: TtsProvider;
@@ -2566,6 +2572,9 @@ export type Database = {
           timezone?: string;
           token_reset_date?: string;
           tokens_used_today?: number;
+          tutor_complexity?: "simple" | "balanced" | "advanced"; // 20260715040000 migration
+          tutor_persona?: "diana" | "xavier" | "maya"; // 20260715040000 migration
+          tutor_style?: "socratic" | "supportive" | "direct"; // 20260715040000 migration
           tts_enabled?: boolean;
           tts_pitch?: number; // 0021 migration; manually annotated until supabase:types regen
           tts_provider?: TtsProvider;

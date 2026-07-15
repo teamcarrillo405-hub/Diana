@@ -7,7 +7,7 @@ import { PageShell } from "../page-shell";
 export default async function StudyGroupsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ group?: string }>;
+  searchParams?: Promise<{ group?: string; view?: string }>;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -99,6 +99,17 @@ export default async function StudyGroupsPage({
       accent="var(--gl-blue)"
       icon={UsersRound}
     >
+      {params?.view === "community" ? (
+        <section className="sd-panel sd-panel-pad sd-grid" style={{ marginBottom: "1rem" }}>
+          <div className="sd-section-head"><h2 className="sd-section-title">Community activity</h2><span className="sd-chip">Opt-in groups only</span></div>
+          <p className="sd-subtitle">Diana does not publish a global student ranking. This view shows activity inside groups the student chose to join.</p>
+          <div className="sd-grid sd-grid-3">
+            <div className="sd-panel sd-metric"><span className="sd-metric-label">Groups</span><strong className="sd-metric-value">{groupRows.length}</strong></div>
+            <div className="sd-panel sd-metric"><span className="sd-metric-label">Members here</span><strong className="sd-metric-value">{workspace?.memberCount ?? 0}</strong></div>
+            <div className="sd-panel sd-metric"><span className="sd-metric-label">Shared sessions</span><strong className="sd-metric-value">{workspace?.sessions.length ?? 0}</strong></div>
+          </div>
+        </section>
+      ) : null}
       <StudyGroupsClient
         groups={groupRows}
         selectedGroupId={selectedGroup?.id ?? null}

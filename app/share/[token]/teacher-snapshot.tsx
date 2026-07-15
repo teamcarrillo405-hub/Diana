@@ -12,7 +12,7 @@ export function TeacherSnapshotView({ snapshot }: { snapshot: TeacherSnapshot })
     <main id="main-content" className="app-field min-h-dvh">
       <div className="diana-page max-w-xl space-y-6 p-6 sm:p-8">
       <header className="space-y-1">
-        <p className="nexus-kicker text-xs uppercase tracking-wider text-muted">Accommodation snapshot</p>
+        <p className="diana-kicker text-xs uppercase tracking-wider text-muted">Accommodation snapshot</p>
         <h1 className="text-xl font-semibold">How this student is set up to work</h1>
       </header>
 

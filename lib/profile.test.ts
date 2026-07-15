@@ -49,6 +49,9 @@ const BASE: ProfilePrefs = {
   photo_url: null,
   photo_offset_x: 50,
   photo_offset_y: 50,
+  tutor_persona: "diana",
+  tutor_style: "socratic",
+  tutor_complexity: "balanced",
 };
 
 describe("profileBodyClass reading_font", () => {

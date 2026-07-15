@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { AudioLines, BookOpenCheck, LockKeyhole } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { ageBracket, yearsBetween } from "@/lib/age";
 
@@ -54,14 +53,14 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="auth-command-card future-card mobile-safe-width min-w-0">
-      <header className="auth-card-header">
-        <p className="nexus-kicker">Student-owned support</p>
-        <h2>Create your Diana</h2>
-        <p>Start with the private space for classes, next moves, proof, and Future Path.</p>
+    <div>
+      <header className="sd-auth-card-header">
+        <p className="sd-kicker">Get started</p>
+        <h2>Create your account</h2>
+        <p>Set up your private space for classes, study tools, and visible sources.</p>
       </header>
 
-      <form onSubmit={onSubmit} className="auth-primary-form">
+      <form onSubmit={onSubmit} className="sd-auth-form">
         <Field label="Email" htmlFor="email">
           <input
             id="email"
@@ -70,7 +69,7 @@ export default function SignupPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="input"
+            className="sd-input"
           />
         </Field>
         <Field label="Password" htmlFor="password" hint="8+ characters.">
@@ -82,7 +81,7 @@ export default function SignupPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="input"
+            className="sd-input"
           />
         </Field>
         <Field label="Name" htmlFor="display_name" hint="Optional display name.">
@@ -92,7 +91,7 @@ export default function SignupPage() {
             autoComplete="given-name"
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            className="input"
+            className="sd-input"
           />
         </Field>
         <Field label="Date of birth" htmlFor="dob" hint="Required for age defaults.">
@@ -102,12 +101,12 @@ export default function SignupPage() {
             required
             value={dob}
             onChange={(e) => setDob(e.target.value)}
-            className="input"
+            className="sd-input"
           />
         </Field>
 
         {error && (
-          <div className="auth-error" role="status">
+          <div className="sd-auth-error" role="status">
             {error}
           </div>
         )}
@@ -115,41 +114,20 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={pending}
-          className="nexus-button nexus-button-primary touch-target w-full px-4 py-3 font-medium transition disabled:opacity-50"
+          className="sd-button sd-button-primary sd-auth-submit"
         >
           {pending ? "Creating account..." : "Create account"}
         </button>
       </form>
 
-      <p className="auth-link-row">
+      <p className="sd-auth-link-row">
         Already have an account?{" "}
-        <Link href="/login" className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
+        <Link href="/login">
           Log in
         </Link>
       </p>
 
-      <div className="auth-cue-strip">
-        <AuthCue icon={AudioLines} label="Talk it out" />
-        <AuthCue icon={BookOpenCheck} label="Use class sources" />
-        <AuthCue icon={LockKeyhole} label="Keep it yours" />
-      </div>
-
-      <div className="auth-preview-tile" data-visual="auth-after-login-preview">
-        <div>
-          <span>Starts with</span>
-          <strong>Classes, sources, voice, and proof.</strong>
-        </div>
-        <small>Sources / Cards / Voice</small>
-      </div>
-    </div>
-  );
-}
-
-function AuthCue({ icon: Icon, label }: { icon: typeof AudioLines; label: string }) {
-  return (
-    <div className="auth-cue">
-      <Icon size={14} className="shrink-0 text-brand" />
-      <span className="min-w-0 truncate">{label}</span>
+      <p className="sd-auth-assurance">Diana supports students age 13 and older. Your information stays private by default.</p>
     </div>
   );
 }
@@ -166,7 +144,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className="auth-field">
+    <div className="sd-field">
       <label htmlFor={htmlFor}>
         {label}
       </label>

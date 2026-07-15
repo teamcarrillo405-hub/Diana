@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { LobbyHero, type NextMove } from "./lobby-hero";
+import { TodayGamePlan, type NextMove, type TodayClass } from "./today-game-plan";
 import { ReminderBanner } from "./reminder-banner";
 import { NeedsAttention } from "./needs-attention";
 import { createClient } from "@/lib/supabase/server";
@@ -34,8 +34,6 @@ export default async function DashboardPage({
   const search = await searchParams;
   const now = new Date();
 
-  // Cross-device lobby photo, read from the owner's profile (RLS-scoped).
-  const playerPhotoUrl: string | null = profile?.photo_url ?? null;
   const learnerProfile = profile
     ? await getLearnerProfile({ supabase, ownerId: profile.user_id })
     : null;
@@ -59,6 +57,9 @@ export default async function DashboardPage({
     { data: latestSleep },
     { data: feedbackNotes },
     reminderItems,
+    { data: activeClasses },
+    { data: assignmentStatuses },
+    { data: focusLogs },
   ] = await Promise.all([
     supabase
       .from("assignments")
@@ -93,6 +94,19 @@ export default async function DashboardPage({
       .gte("created_at", sevenDaysAgoIso)
       .order("created_at", { ascending: false }),
     getReminderItems(),
+    supabase
+      .from("classes")
+      .select("id, name, color")
+      .is("archived_at", null)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("assignments")
+      .select("class_id, status, updated_at"),
+    supabase
+      .from("assignment_time_log")
+      .select("elapsed_minutes")
+      .gte("started_at", sevenDaysAgoIso)
+      .not("ended_at", "is", null),
   ]);
 
   const recentSignals = (signals ?? [])
@@ -125,21 +139,44 @@ export default async function DashboardPage({
   const top = ranked[0];
   const taskHref = top ? `/assignments/${top.id}?focus=next-step` : "/assignments/new";
   const nextMove: NextMove | null = top
-    ? { className: classNameOf(top), title: top.title, estMin: top.effective_minutes }
+    ? { className: classNameOf(top), title: top.title, estMin: top.effective_minutes ?? top.estimated_minutes ?? 5 }
     : null;
 
   const needsAttention = buildNeedsAttention(assignments ?? [], (feedbackNotes ?? []) as FeedbackNote[], now);
+  const completedStatuses = new Set(["done", "submitted", "graded"]);
+  const classTones: TodayClass["tone"][] = ["blue", "pink", "teal", "amber"];
+  const classCards: TodayClass[] = (activeClasses ?? []).map((classItem, index) => {
+    const rows = (assignmentStatuses ?? []).filter((assignment) => assignment.class_id === classItem.id);
+    const completed = rows.filter((assignment) => completedStatuses.has(assignment.status)).length;
+    const activeCount = Math.max(0, rows.length - completed);
+    return {
+      id: classItem.id,
+      name: classItem.name,
+      activeCount,
+      completionPercent: rows.length ? Math.round((completed / rows.length) * 100) : 0,
+      tone: classTones[index % classTones.length],
+    };
+  });
+  const completedTasks = (assignmentStatuses ?? []).filter((assignment) =>
+    completedStatuses.has(assignment.status) && new Date(assignment.updated_at).getTime() >= new Date(sevenDaysAgoIso).getTime(),
+  ).length;
+  const focusMinutes = Math.round((focusLogs ?? []).reduce((total, log) => total + Number(log.elapsed_minutes ?? 0), 0));
 
   return (
     <div className="student-portal-page">
       <LastShownClassCookie classId={top?.class_id ?? null} />
 
-      <LobbyHero
+      <TodayGamePlan
         studentName={profile?.display_name || "Player"}
         focusHref={taskHref}
-        photoUrl={playerPhotoUrl}
-        selectedEnergy={search.energy ?? null}
         nextMove={nextMove}
+        metrics={{
+          focusMinutes,
+          activeTasks: (assignments ?? []).length,
+          completedTasks,
+          classCount: classCards.length,
+        }}
+        classes={classCards}
       />
       <ReminderBanner items={reminderItems} />
       <NeedsAttention categories={needsAttention} />

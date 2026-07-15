@@ -38,7 +38,7 @@ export default async function ReviewPage({
         icon={Brain}
       >
         <div className="space-y-6">
-          <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="diana-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
             <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
             <Link
               href="/flashcards"
@@ -69,7 +69,7 @@ export default async function ReviewPage({
       icon={Brain}
     >
       <div className="space-y-4">
-        <Link href="/flashcards" className="nexus-kicker text-xs text-muted hover:underline">
+        <Link href="/flashcards" className="diana-kicker text-xs text-muted hover:underline">
           ← Study
         </Link>
         <ReviewSession

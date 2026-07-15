@@ -76,9 +76,9 @@ export function ApClient({
 
   return (
     <div className="ap-command-page">
-      <header className="ap-command-hero nexus-panel nexus-panel-hero">
+      <header className="ap-command-hero diana-panel diana-panel-hero">
         <div className="ap-command-hero-copy">
-          <p className="nexus-kicker">AP command</p>
+          <p className="diana-kicker">AP command</p>
           <h1>One exam. One next review.</h1>
           <p>Keep the page light: save the target, read the next milestones, log one practice result.</p>
         </div>
@@ -147,7 +147,7 @@ export function ApClient({
             <span>Current focus</span>
             <textarea value={currentFocus} onChange={(e) => setCurrentFocus(e.target.value)} rows={3} placeholder="Unit, skill, or format." />
           </label>
-          <button disabled={pending} className="nexus-button nexus-button-primary">Save AP plan</button>
+          <button disabled={pending} className="diana-button diana-button-primary">Save AP plan</button>
         </form>
 
         <section className="ap-panel ap-milestone-console">
@@ -246,7 +246,7 @@ export function ApClient({
             <span>Next review focus</span>
             <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
           </label>
-          <button disabled={pending} className="nexus-button nexus-button-primary">Save practice</button>
+          <button disabled={pending} className="diana-button diana-button-primary">Save practice</button>
         </form>
       </section>
 

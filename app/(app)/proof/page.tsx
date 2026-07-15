@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { Activity, FileText, Images, LockKeyhole, ShieldCheck, TrendingDown, TrendingUp, Zap } from "lucide-react";
+import { Activity, FileText, Images, LockKeyhole, ShieldCheck, Trophy, TrendingDown, TrendingUp, Zap } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { computeXp } from "@/lib/gamification/xp";
 import { weekOverWeek } from "@/lib/insights/week-over-week";
@@ -40,7 +40,8 @@ type PortfolioRow = {
   portfolio_items?: Array<{ id: string; title: string; reflection_text: string | null; created_at: string }> | null;
 };
 
-export default async function ProofPage() {
+export default async function ProofPage({ searchParams }: { searchParams: Promise<{ celebrate?: string }> }) {
+  const { celebrate } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -114,6 +115,14 @@ export default async function ProofPage() {
         @media (min-width: 1024px) { .pf-bottom { grid-template-columns: 1fr 1fr; } }
       `}</style>
       <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
+
+        {celebrate === "latest" && winRows.length > 0 ? (
+          <section className="sd-panel sd-panel-raised sd-celebration" aria-labelledby="milestone-title">
+            <Trophy size={30} aria-hidden="true" />
+            <div><p className="sd-kicker">Milestone recorded</p><h2 id="milestone-title">Done, with dignity</h2><p>{winTitle(winRows[0])} is now part of your private proof folder.</p></div>
+            <Link href="/portfolio" className="sd-button">Add to portfolio</Link>
+          </section>
+        ) : null}
 
         {/* Hero */}
         <section className="pf-stage">
@@ -278,6 +287,11 @@ export default async function ProofPage() {
       </div>
     </div>
   );
+}
+
+function winTitle(win: WinRow): string {
+  const assignment = Array.isArray(win.assignments) ? win.assignments[0] : win.assignments;
+  return assignment?.title || "Completed work";
 }
 
 function ProofColumn({ icon: Icon, title, lines }: { icon: typeof FileText; title: string; lines: string[] }) {

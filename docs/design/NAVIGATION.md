@@ -76,11 +76,23 @@ Evidence and growth:
 
 - Proof: `/proof`
 - Grades: `/grades`
+- Transcript: `/grades/transcript`
 - Portfolio: `/portfolio`
 - Future Path: `/future-path`
+- AP exam prep: `/ap`
+
+Learn and review:
+
+- Search: `/search`
+- Study artifacts: `/study-artifacts`
+- Tutor: `/study-buddy`
+- Knowledge graph: `/knowledge-graph`
 
 Profile and support:
 
+- Notifications: `/notifications`
+- Tutor settings: `/settings/tutor`
+- Study goals: `/settings/goals`
 - Me: `/me`
 - Wellness: `/wellness`
 - Settings and accessibility controls: `/settings`
