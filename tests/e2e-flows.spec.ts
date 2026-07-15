@@ -10,7 +10,7 @@ test.describe.configure({ mode: "serial" });
 test("new student completes the step-by-step onboarding wizard", async ({ page }) => {
   test.setTimeout(120_000);
 
-  // QA bootstrap: anonymous session, then clear onboarded_at so the app
+  // QA bootstrap: fixed test-user session, then clear onboarded_at so the app
   // routes us into the wizard like a brand-new student.
   const session = await page.goto(`${baseUrl}/api/qa/anonymous-session`, { waitUntil: "networkidle" });
   expect(session?.ok()).toBe(true);

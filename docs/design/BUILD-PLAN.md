@@ -126,9 +126,10 @@ This is what separates a demo from a launch-ready product. For this app specific
 | Keyboard navigation and focus states across all interactive parts | A real accessibility requirement, not optional here |
 | Screen reader labels on every icon button, card, and control | Same |
 | Reading supports confirmed working after redesign | Bionic reading, pacing, line focus were in the old detail page, must survive |
-| Mobile and responsive pass across all redesigned pages | We have only viewed desktop this entire build, phones are untested |
-| The bottom nav versus top nav tradeoff on mobile | Flagged but never decided, belongs here |
-| Apply the pending player_photo database migration | Committed but never run, the photo feature is incomplete until it is |
+| Mobile and responsive pass across all redesigned pages | Complete: 89 public, authenticated, dark-mode, phone, tablet, and desktop checks pass |
+| The bottom nav versus top nav tradeoff on mobile | Complete: phones use the five-tab bottom bar; wider screens use the shared top navigation |
+| Apply the player_photo database migration | Complete: applied remotely as `20260715010901_player_photo` and verified through Settings |
+| Restrict privileged database RPCs and auth settings | Complete: worker and retention RPCs are service-only, student RPCs use RLS/private implementations, anonymous sign-in is off, and security advisors report zero warnings |
 | Remove dead CSS and dead computed code accumulated during redesign | Several flagged this session |
 | Error states and empty states on every page | Calm framing throughout, amber not red |
 | Loading states where data fetches | Currently many pages just pop in |

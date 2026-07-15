@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 
 /**
  * Dev QA bootstrap: clear onboarded_at for the signed-in QA user so E2E can
- * exercise the onboarding wizard. Same gating as the anonymous-session
+ * exercise the onboarding wizard. Same gating as the QA session
  * route — never available in production.
  */
 export async function GET() {

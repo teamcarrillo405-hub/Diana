@@ -155,8 +155,8 @@ async function ensureSignedInForQa(page: import("@playwright/test").Page) {
   }
 
   if (createQaUser) {
-    const anonymousSessionCreated = await createAnonymousQaSession(page);
-    if (!anonymousSessionCreated) {
+    const qaSessionCreated = await createQaSession(page);
+    if (!qaSessionCreated) {
       await signUpAndOnboardForQa(page);
     }
     return;
@@ -251,7 +251,7 @@ async function signInForQa(page: import("@playwright/test").Page, email: string,
   await page.waitForLoadState("networkidle", { timeout: 7_000 }).catch(() => undefined);
 }
 
-async function createAnonymousQaSession(page: import("@playwright/test").Page) {
+async function createQaSession(page: import("@playwright/test").Page) {
   const response = await page.goto(new URL("/api/qa/anonymous-session", baseUrl).toString(), {
     waitUntil: "networkidle",
     timeout: 15_000,
@@ -289,7 +289,7 @@ async function expectAuthenticatedForQa(page: import("@playwright/test").Page, s
     throw new Error(
       `${source} did not create an authenticated Diana session. ` +
         "Set QA_USER_EMAIL and QA_USER_PASSWORD for an already-onboarded test student, " +
-        "or run the dev server with QA_CREATE_USER=true and Supabase anonymous auth enabled.",
+        "or run the dev server with QA_CREATE_USER=true and a Supabase service-role key.",
     );
   }
 }

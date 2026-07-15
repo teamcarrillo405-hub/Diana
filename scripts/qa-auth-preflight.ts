@@ -35,7 +35,7 @@ async function main() {
     const body = tryParseJson(text);
 
     if (response.ok) {
-      pass("dev-only anonymous QA session route is available. Run npm run qa:responsive with QA_CREATE_USER=true.");
+      pass("dev-only QA session route is available. Run npm run qa:responsive with QA_CREATE_USER=true.");
       process.exit(0);
     }
 

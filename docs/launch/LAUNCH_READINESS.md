@@ -32,7 +32,7 @@
 
 ## Launch Checklist
 
-- Confirm linked migrations are current through `0034`.
+- Confirm linked migrations are current through `study_group_rpc_boundary`.
 - Run the release gates above.
 - Run authenticated browser smoke on dashboard, assignments, notes, flashcards, settings, export/privacy, groups, and insights.
 - Confirm Edge Function secrets for AI/TTS providers before enabling green AI modes in production.

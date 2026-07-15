@@ -60,65 +60,52 @@ async function handleQaSession(request: Request) {
   const activeQaUser = resolveQaUser(request);
   const supabase = await createClient();
   const found = await findQaUser(activeQaUser.email);
-  let userId: string | null = null;
+  if (!found?.admin || found.error) {
+    return NextResponse.json(
+      { error: found?.error?.message ?? "QA service client is unavailable." },
+      { status: 503 },
+    );
+  }
 
-  if (found?.admin && !found.error) {
-    if (found.user) {
-      const { data: updated, error: updateError } = await found.admin.auth.admin.updateUserById(found.user.id, {
-        password: activeQaUser.password,
-        email_confirm: true,
-        user_metadata: {
-          display_name: activeQaUser.displayName,
-          date_of_birth: "2009-09-01",
-          timezone,
-        },
-      });
-      if (updateError || !updated.user) {
-        return NextResponse.json({ error: updateError?.message ?? "QA user update could not finish." }, { status: 500 });
-      }
-      userId = updated.user.id;
-    } else {
-      const { data: created, error: createError } = await found.admin.auth.admin.createUser({
-        email: activeQaUser.email,
-        password: activeQaUser.password,
-        email_confirm: true,
-        user_metadata: {
-          display_name: activeQaUser.displayName,
-          date_of_birth: "2009-09-01",
-          timezone,
-        },
-      });
-      if (createError || !created.user) {
-        return NextResponse.json({ error: createError?.message ?? "QA user creation could not finish." }, { status: 500 });
-      }
-      userId = created.user.id;
-    }
+  const admin = found.admin;
+  let userId: string;
 
-    const { error: signinError } = await supabase.auth.signInWithPassword({
-      email: activeQaUser.email,
+  if (found.user) {
+    const { data: updated, error: updateError } = await admin.auth.admin.updateUserById(found.user.id, {
       password: activeQaUser.password,
-    });
-    if (signinError) return NextResponse.json({ error: signinError.message }, { status: 403 });
-  } else {
-    const { data, error } = await supabase.auth.signInAnonymously({
-      options: {
-        data: {
-          display_name: activeQaUser.displayName,
-          date_of_birth: "2009-09-01",
-          timezone,
-        },
+      email_confirm: true,
+      user_metadata: {
+        display_name: activeQaUser.displayName,
+        date_of_birth: "2009-09-01",
+        timezone,
       },
     });
-
-    if (error || !data.user) {
-      return NextResponse.json(
-        { error: error?.message ?? "Anonymous QA sign-in did not return a user." },
-        { status: 403 },
-      );
+    if (updateError || !updated.user) {
+      return NextResponse.json({ error: updateError?.message ?? "QA user update could not finish." }, { status: 500 });
     }
-
-    userId = data.user.id;
+    userId = updated.user.id;
+  } else {
+    const { data: created, error: createError } = await admin.auth.admin.createUser({
+      email: activeQaUser.email,
+      password: activeQaUser.password,
+      email_confirm: true,
+      user_metadata: {
+        display_name: activeQaUser.displayName,
+        date_of_birth: "2009-09-01",
+        timezone,
+      },
+    });
+    if (createError || !created.user) {
+      return NextResponse.json({ error: createError?.message ?? "QA user creation could not finish." }, { status: 500 });
+    }
+    userId = created.user.id;
   }
+
+  const { error: signinError } = await supabase.auth.signInWithPassword({
+    email: activeQaUser.email,
+    password: activeQaUser.password,
+  });
+  if (signinError) return NextResponse.json({ error: signinError.message }, { status: 403 });
 
   const { error: profileError } = await supabase
     .from("profiles")
@@ -141,10 +128,7 @@ async function handleQaSession(request: Request) {
 
   const seeded =
     activeQaUser.demo === "grayson"
-      ? await seedGraysonFreshmanDemo(
-          found?.admin && !found.error ? found.admin : supabase,
-          userId,
-        )
+      ? await seedGraysonFreshmanDemo(admin, userId)
       : null;
 
   return NextResponse.json({ ok: true, profile: activeQaUser.demo, seeded });
