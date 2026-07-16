@@ -18,20 +18,27 @@ export default async function ReviewPage({
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [profile, queueResult] = await Promise.all([
+  const cardFields = "id, front, back, state, stability, difficulty, due_at, reps, lapses, last_review_at, source_anchor, student_required_action" as const;
+  const [profile, requestedResult, queueResult] = await Promise.all([
     loadProfile(),
     supabase
       .from("flashcards")
-      .select("id, front, back, state, stability, difficulty, due_at, reps, lapses, last_review_at, source_anchor, student_required_action")
+      .select(cardFields)
+      .eq("id", id)
+      .eq("owner_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("flashcards")
+      .select(cardFields)
       .eq("owner_id", user.id)
       .lte("due_at", new Date().toISOString())
       .order("due_at", { ascending: true }),
   ]);
 
   const fullQueue = queueResult.data ?? [];
-  const startIdx = fullQueue.findIndex((card) => card.id === id);
-  const ordered = startIdx >= 0
-    ? [...fullQueue.slice(startIdx), ...fullQueue.slice(0, startIdx)]
+  const requested = requestedResult.data;
+  const ordered = requested
+    ? [requested, ...fullQueue.filter((card) => card.id !== requested.id)]
     : fullQueue;
 
   if (ordered.length === 0) {
