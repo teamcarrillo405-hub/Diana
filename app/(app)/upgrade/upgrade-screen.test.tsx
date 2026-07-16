@@ -38,4 +38,21 @@ describe("UpgradeScreen", () => {
     expect(unavailable).toContain('href="/settings"');
     expect(unavailable).not.toContain('href="/api/billing/checkout"');
   });
+
+  it("renders community confidence without fabricating people or outcomes", () => {
+    const html = renderToStaticMarkup(
+      <UpgradeScreen view="community" billingEnabled={false} />,
+    );
+
+    expect(html).toContain("STUDY WITH YOUR TEAM");
+    expect(html).toContain("Membership-scoped");
+    expect(html).toContain("Private by default");
+    expect(html).toContain('aria-label="Review access options"');
+    expect(html).toContain('href="/settings"');
+    expect(html).not.toContain("10,000+");
+    expect(html).not.toContain("Marcus T.");
+    expect(html).not.toContain("Stanford");
+    expect(html).not.toContain("98%");
+    expect(html).not.toContain("$9.99");
+  });
 });
