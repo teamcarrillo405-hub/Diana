@@ -43,9 +43,13 @@ const RATINGS = [
   { value: 4 as const, label: "Easy", tone: "teal" },
 ] as const;
 
-function intervalLabel(card: QueueCard, rating: 1 | 2 | 3 | 4): string {
+function intervalLabel(
+  card: QueueCard,
+  rating: 1 | 2 | 3 | 4,
+  nowIso: string,
+): string {
   try {
-    const now = new Date();
+    const now = new Date(nowIso);
     const result = schedule(
       {
         state: card.state as FsrsState,
@@ -78,12 +82,14 @@ export function ReviewSession({
   ttsSpeed,
   ttsPitch,
   ttsVoice,
+  nowIso,
 }: {
   queue: QueueCard[];
   ttsProvider: TtsProvider;
   ttsSpeed: number;
   ttsPitch: number;
   ttsVoice: string;
+  nowIso: string;
 }) {
   const router = useRouter();
   const [isRating, startTransition] = useTransition();
@@ -98,10 +104,13 @@ export function ReviewSession({
     () =>
       card
         ? Object.fromEntries(
-            RATINGS.map((rating) => [rating.value, intervalLabel(card, rating.value)]),
+            RATINGS.map((rating) => [
+              rating.value,
+              intervalLabel(card, rating.value, nowIso),
+            ]),
           )
         : {},
-    [card],
+    [card, nowIso],
   );
 
   useEffect(() => {

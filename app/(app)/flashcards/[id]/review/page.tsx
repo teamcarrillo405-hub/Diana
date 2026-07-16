@@ -60,6 +60,7 @@ export default async function ReviewPage({
       ttsSpeed={Number(profile?.tts_speed ?? 1)}
       ttsPitch={Number(profile?.tts_pitch ?? 1)}
       ttsVoice={profile?.tts_voice ?? "nova"}
+      nowIso={new Date().toISOString()}
     />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { usesAppTopNav } from "@/lib/navigation";
 
@@ -13,7 +13,13 @@ import { usesAppTopNav } from "@/lib/navigation";
  * migrate a page there and this follows automatically.
  */
 export function AppCommandFrame({ children }: { children: ReactNode }) {
-  const flush = usesAppTopNav(usePathname() ?? "/");
+  const pathname = usePathname();
+  const [flush, setFlush] = useState(false);
+
+  useEffect(() => {
+    setFlush(usesAppTopNav(pathname ?? "/"));
+  }, [pathname]);
+
   return (
     <div className={`app-command-frame min-w-0${flush ? " app-command-frame--flush" : ""}`}>
       {children}
