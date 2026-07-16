@@ -1522,10 +1522,24 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 }
 
 /* Phase 36 source-faithful four-state onboarding. */
+.diana-app:has(.sd-source-onboarding) .skip-link {
+  transition: none;
+}
+
+.diana-app:has(.sd-source-onboarding) .skip-link:focus {
+  transform: translateY(0);
+}
+
 .sd-source-onboarding {
   height: max(100dvh, 852px);
   overflow: hidden;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.diana-app .sd-source-onboarding :is(h1, h2, h3) {
+  font-family: inherit;
+  text-shadow: none;
+  text-wrap: wrap;
 }
 
 .sd-onboarding-state {
@@ -1570,12 +1584,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 }
 
 .sd-onboarding-welcome::after {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background: linear-gradient(to bottom, rgb(15 23 42 / 0.04) 28%, rgb(15 23 42 / 0.5) 70%, rgb(15 23 42 / 0.88));
-  content: "";
-  pointer-events: none;
+  content: none;
 }
 
 .sd-onboarding-welcome-header {
@@ -1628,7 +1637,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   padding: 0 2rem 3rem;
 }
 
-.sd-onboarding-primary {
+.diana-app .sd-onboarding-primary {
   display: flex;
   width: 100%;
   min-height: 64px;
@@ -1639,6 +1648,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   border-radius: 12px;
   background: linear-gradient(to right, #ff79da, #74c0ff);
   box-shadow: 0 0 20px rgb(255 121 218 / 0.3);
+  clip-path: none;
   color: #0f172a;
   cursor: pointer;
   font-size: 1.125rem;
@@ -1649,25 +1659,32 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   transition: opacity 150ms ease, transform 150ms ease;
 }
 
-.sd-onboarding-welcome .sd-onboarding-primary {
+.diana-app .sd-onboarding-welcome .sd-onboarding-primary {
   font-size: 1.25rem;
   letter-spacing: 0.05em;
 }
 
-.sd-onboarding-primary:active {
+.diana-app .sd-onboarding-primary:active {
   transform: scale(0.98);
 }
 
-.sd-onboarding-primary:disabled {
+.diana-app .sd-onboarding-primary:hover:not(:disabled) {
+  border: 0;
+  background: linear-gradient(to right, #ff79da, #74c0ff);
+  color: #0f172a;
+  transform: none;
+}
+
+.diana-app .sd-onboarding-primary:disabled {
   cursor: not-allowed;
   opacity: 0.52;
   transform: none;
 }
 
-.sd-onboarding-primary:focus-visible,
-.sd-onboarding-back:focus-visible,
-.sd-onboarding-challenge-option:focus-visible,
-.sd-onboarding-schedule-option:focus-visible {
+.diana-app .sd-onboarding-primary:focus-visible,
+.diana-app .sd-onboarding-back:focus-visible,
+.diana-app .sd-onboarding-challenge-option:focus-visible,
+.diana-app .sd-onboarding-schedule-option:focus-visible {
   outline: 2px solid #74c0ff;
   outline-offset: 3px;
 }
@@ -1687,7 +1704,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   height: 2.5rem;
 }
 
-.sd-onboarding-back {
+.diana-app .sd-onboarding-back {
   display: inline-flex;
   width: 2.5rem;
   height: 2.5rem;
@@ -1702,13 +1719,20 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   transition: transform 150ms ease;
 }
 
-.sd-onboarding-back svg {
+.diana-app .sd-onboarding-back svg {
   width: 1.5rem;
   height: 1.5rem;
 }
 
-.sd-onboarding-back:active {
+.diana-app .sd-onboarding-back:active {
   transform: scale(0.9);
+}
+
+.diana-app .sd-onboarding-back:hover:not(:disabled) {
+  border: 0;
+  background: rgb(255 255 255 / 0.1);
+  color: white;
+  transform: none;
 }
 
 .sd-onboarding-scroll {
@@ -1926,7 +1950,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   gap: 1rem;
 }
 
-.sd-onboarding-challenge-option {
+.diana-app .sd-onboarding-challenge-option {
   display: flex;
   width: 100%;
   min-height: 112px;
@@ -1938,18 +1962,35 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   padding: 1.5rem;
   color: white;
   cursor: pointer;
+  clip-path: none;
+  font-family: inherit;
+  letter-spacing: normal;
   text-align: left;
+  text-transform: none;
   transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
 
-.sd-onboarding-challenge-option:active {
+.diana-app .sd-onboarding-challenge-option:active {
   transform: scale(0.97);
 }
 
-.sd-onboarding-challenge-option[data-active="true"] {
+.diana-app .sd-onboarding-challenge-option:hover:not(:disabled) {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.05);
+  color: white;
+  transform: none;
+}
+
+.diana-app .sd-onboarding-challenge-option[data-active="true"] {
   border-color: #ff79da;
   background: white;
   box-shadow: 0 0 20px rgb(255 121 218 / 0.4);
+  color: #0f172a;
+}
+
+.diana-app .sd-onboarding-challenge-option[data-active="true"]:hover:not(:disabled) {
+  border-color: #ff79da;
+  background: white;
   color: #0f172a;
 }
 
@@ -2021,7 +2062,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   gap: 1.5rem;
 }
 
-.sd-onboarding-schedule-option {
+.diana-app .sd-onboarding-schedule-option {
   position: relative;
   display: flex;
   width: 100%;
@@ -2035,18 +2076,35 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   padding: 1.5rem;
   color: white;
   cursor: pointer;
+  clip-path: none;
+  font-family: inherit;
+  letter-spacing: normal;
   text-align: center;
+  text-transform: none;
   transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
 
-.sd-onboarding-schedule-option:active {
+.diana-app .sd-onboarding-schedule-option:active {
   transform: scale(0.98);
 }
 
-.sd-onboarding-schedule-option[data-active="true"] {
+.diana-app .sd-onboarding-schedule-option:hover:not(:disabled) {
+  border-color: rgb(255 255 255 / 0.1);
+  background: rgb(255 255 255 / 0.05);
+  color: white;
+  transform: none;
+}
+
+.diana-app .sd-onboarding-schedule-option[data-active="true"] {
   border-color: #74c0ff;
   background: white;
   box-shadow: 0 0 25px rgb(116 192 255 / 0.4);
+  color: #0f172a;
+}
+
+.diana-app .sd-onboarding-schedule-option[data-active="true"]:hover:not(:disabled) {
+  border-color: #74c0ff;
+  background: white;
   color: #0f172a;
 }
 

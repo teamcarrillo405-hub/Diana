@@ -4,6 +4,7 @@ import "@testing-library/jest-dom/vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { resolveScreenDesignOnboardingStep } from "@/lib/onboarding/screendesign-step";
 import { completeScreenDesignOnboarding } from "./actions";
 import { ScreenDesignOnboarding } from "./screendesign-onboarding";
 
@@ -26,6 +27,15 @@ describe("ScreenDesignOnboarding", () => {
   });
 
   afterEach(cleanup);
+
+  it("maps only the four canonical evidence selectors to onboarding states", () => {
+    expect(resolveScreenDesignOnboardingStep("welcome")).toBe("welcome");
+    expect(resolveScreenDesignOnboardingStep("education")).toBe("educational");
+    expect(resolveScreenDesignOnboardingStep("challenge=1/4")).toBe("challenge");
+    expect(resolveScreenDesignOnboardingStep("schedule=2/4")).toBe("schedule");
+    expect(resolveScreenDesignOnboardingStep("schedule=4/4")).toBe("welcome");
+    expect(resolveScreenDesignOnboardingStep(["schedule=2/4"])).toBe("welcome");
+  });
 
   it("renders the local welcome source and advances to the educational source", () => {
     render(<ScreenDesignOnboarding />);
@@ -143,7 +153,7 @@ describe("ScreenDesignOnboarding", () => {
       studySchedulePreference: "morning",
     });
     expect(push).toHaveBeenCalledWith("/dashboard");
-    expect(refresh).toHaveBeenCalledOnce();
+    expect(refresh).not.toHaveBeenCalled();
   });
 
   it("keeps the schedule choice and route in place after a calm persistence error", async () => {

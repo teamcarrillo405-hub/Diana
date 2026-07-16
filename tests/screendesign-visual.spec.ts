@@ -45,6 +45,18 @@ const assertNoHorizontalOverflow = async (page: Page) => {
 };
 
 const assertKeyboardFocusStaysVisible = async (page: Page) => {
+  await page
+    .getByRole("button", { name: "Open Next.js Dev Tools" })
+    .evaluateAll((buttons) => {
+      buttons.forEach((button) => {
+        button.setAttribute("tabindex", "-1");
+        (button as HTMLElement).style.display = "none";
+        const root = button.getRootNode();
+        if (root instanceof ShadowRoot && root.host instanceof HTMLElement) {
+          root.host.style.display = "none";
+        }
+      });
+    });
   const focusableCount = await page
     .locator(
       'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',

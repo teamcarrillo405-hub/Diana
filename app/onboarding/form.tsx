@@ -1,9 +1,7 @@
 import type { ProfilePrefs } from "@/lib/profile";
+import type { ScreenDesignOnboardingStep } from "@/lib/onboarding/screendesign-step";
 
-import {
-  ScreenDesignOnboarding,
-  type ScreenDesignOnboardingStep,
-} from "./screendesign-onboarding";
+import { ScreenDesignOnboarding } from "./screendesign-onboarding";
 
 export function OnboardingForm({
   initial,

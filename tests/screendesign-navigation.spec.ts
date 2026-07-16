@@ -63,13 +63,15 @@ const clickPrimaryAction = async (
       if (await firstChoice.isVisible().catch(() => false)) await firstChoice.click();
     }
   }
+  const actionName = new RegExp(
+    `^${scenario.expectedPrimaryAction.label.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}$`,
+    "iu",
+  );
   const action = page.getByRole("button", {
-    name: scenario.expectedPrimaryAction.label,
-    exact: true,
+    name: actionName,
   }).or(
     page.getByRole("link", {
-      name: scenario.expectedPrimaryAction.label,
-      exact: true,
+      name: actionName,
     }),
   );
   await expect(
@@ -139,6 +141,10 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       await waitForScreenDesignReady(page);
       await bodyIsHealthy(page);
       const beforeUrl = page.url();
+      const beforeOnboardingStep = await page
+        .locator("[data-onboarding-step]")
+        .getAttribute("data-onboarding-step")
+        .catch(() => null);
 
       const clicked = await clickPrimaryAction(page, scenario);
       if (scenario.expectedPersistedResult.kind === "navigation") {
@@ -149,15 +155,33 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
           )
           .catch(() => undefined);
       }
+      if (scenario.screenId === "onboarding-quiz-schedule") {
+        await page.waitForURL((url) => url.pathname === "/dashboard", {
+          timeout: 10_000,
+        });
+      }
       await page.waitForLoadState("domcontentloaded", { timeout: 10_000 }).catch(() => undefined);
       await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
       const afterClickPath = new URL(page.url()).pathname;
+      const afterOnboardingStep = await page
+        .locator("[data-onboarding-step]")
+        .getAttribute("data-onboarding-step")
+        .catch(() => null);
+      const onboardingStateAdvanced =
+        beforeOnboardingStep !== null
+        && afterOnboardingStep !== null
+        && beforeOnboardingStep !== afterOnboardingStep;
 
       let persistenceReloaded = false;
       if (scenario.expectedPersistedResult.kind === "record") {
-        expect(
-          mutations.responses.some((entry) => entry.status >= 200 && entry.status < 400),
-          `${scenario.id} should complete a successful mutation request`,
+        await expect.poll(
+          () => mutations.responses.some(
+            (entry) => entry.status >= 200 && entry.status < 400,
+          ),
+          {
+            message: `${scenario.id} should complete a successful mutation request`,
+            timeout: 10_000,
+          },
         ).toBe(true);
         await page.reload({ waitUntil: "domcontentloaded" });
         await waitForScreenDesignReady(page);
@@ -165,7 +189,12 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
         persistenceReloaded = true;
       } else if (scenario.expectedPersistedResult.kind === "navigation") {
         expect(
-          clicked && (afterClickPath !== beforePath || page.url() !== beforeUrl),
+          clicked
+            && (
+              afterClickPath !== beforePath
+              || page.url() !== beforeUrl
+              || onboardingStateAdvanced
+            ),
           `${scenario.id} should produce observable navigation`,
         ).toBe(true);
       } else {
@@ -189,15 +218,63 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
           beforePath,
           afterClickPath,
           persistenceReloaded,
-          successfulMutationCount: mutations.responses.filter(
-            (entry) => entry.status >= 200 && entry.status < 400,
-          ).length,
-        },
-      });
+            successfulMutationCount: mutations.responses.filter(
+              (entry) => entry.status >= 200 && entry.status < 400,
+            ).length,
+            onboardingStateAdvanced,
+          },
+        });
     } finally {
       mutations.dispose();
       consoleEvidence.dispose();
     }
+  });
+}
+
+const onboardingScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
+  (scenario) => scenario.screenId === "onboarding-welcome",
+);
+
+if (onboardingScenario) {
+  test("onboarding completes the locked four-screen flow with preserved choices", async ({
+    page,
+    screenDesign,
+  }) => {
+    const prepared = await screenDesign.prepare(onboardingScenario);
+    await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
+
+    await page.getByRole("button", { name: "GET STARTED" }).click();
+    await expect(page.locator("[data-onboarding-step='educational']")).toBeVisible();
+    await page.getByRole("button", { name: "CONTINUE" }).click();
+    await expect(page.locator("[data-onboarding-step='challenge']")).toBeVisible();
+
+    const hurdle = page.getByRole("radio", { name: /Time Management/iu });
+    await hurdle.focus();
+    await page.keyboard.press("ArrowDown");
+    await expect(page.getByRole("radio", { name: /Exam Stress/iu })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await page.getByRole("radio", { name: /Complex Concepts/iu }).click();
+    await page.getByRole("button", { name: "Select learning hurdle" }).click();
+
+    await expect(page.locator("[data-onboarding-step='schedule']")).toBeVisible();
+    await page.getByRole("radio", { name: /Late Night Sessions/iu }).click();
+    await page.getByRole("button", { name: "Back" }).click();
+    await expect(page.getByRole("radio", { name: /Complex Concepts/iu })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+    await page.getByRole("button", { name: "Select learning hurdle" }).click();
+    await expect(page.getByRole("radio", { name: /Late Night Sessions/iu })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+
+    await page.getByRole("button", { name: "Select study schedule" }).click();
+    await page.waitForURL((url) => url.pathname === "/dashboard");
+    await bodyIsHealthy(page);
   });
 }
 

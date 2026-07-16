@@ -26,18 +26,9 @@ import type {
   LearningHurdle,
   StudySchedulePreference,
 } from "@/lib/onboarding/screendesign";
+import type { ScreenDesignOnboardingStep } from "@/lib/onboarding/screendesign-step";
 
 import { completeScreenDesignOnboarding } from "./actions";
-
-export const SCREEN_DESIGN_ONBOARDING_STEPS = [
-  "welcome",
-  "educational",
-  "challenge",
-  "schedule",
-] as const;
-
-export type ScreenDesignOnboardingStep =
-  (typeof SCREEN_DESIGN_ONBOARDING_STEPS)[number];
 
 const HURDLE_OPTIONS: readonly {
   id: LearningHurdle;
@@ -159,7 +150,6 @@ export function ScreenDesignOnboarding({
         }
 
         router.push("/dashboard");
-        router.refresh();
       } catch {
         submittingRef.current = false;
         setFeedback("Those choices are still selected. Try saving again when you are ready.");

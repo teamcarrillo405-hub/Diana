@@ -1393,6 +1393,16 @@ function buildRowsForFactory(
             tutor_persona: stringValue(values, "tutorPersona", "diana"),
             tutor_style: stringValue(values, "tutorStyle", "socratic"),
             tutor_complexity: stringValue(values, "tutorComplexity", "balanced"),
+            learning_hurdle: nullableStringValue(
+              values,
+              "learningHurdle",
+              null,
+            ),
+            study_schedule_preference: nullableStringValue(
+              values,
+              "studySchedulePreference",
+              null,
+            ),
           },
           "user_id",
         ),
