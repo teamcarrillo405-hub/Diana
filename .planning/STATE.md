@@ -6,14 +6,14 @@ current_phase: 36
 current_plan: 21
 status: executing
 stopped_at: Completed 36-20-PLAN.md
-last_updated: "2026-07-16T04:28:49.485Z"
+last_updated: "2026-07-16T04:55:24.766Z"
 last_activity: 2026-07-15
 last_activity_desc: Completed 36-20 private social activity and tutor preference ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 21
+  completed_plans: 22
   percent: 0
 total_plans_in_phase: 30
 ---
@@ -712,6 +712,7 @@ total_plans_in_phase: 30
 | Phase 36 P19 | 22 min | 3 tasks | 12 files |
 | Phase 36 P20 | 24 min | 2 tasks | 11 files |
 | Phase 36 P21 | 12 min | 2 tasks | 5 files |
+| Phase 36 P25 | 25 min | 2 tasks | 12 files |
 
 ## Decisions
 
@@ -777,6 +778,8 @@ total_plans_in_phase: 30
 - [Phase 36]: Both upgrade compositions use the same server-resolved checkout authority and authenticated billing endpoint. — One authority prevents client-spoofed capability or checkout URLs.
 - [Phase 36]: Unsupported pricing, trial, testimonial, member-count, score, and time-saved claims are not rendered. — Source fidelity cannot fabricate billing or social proof unsupported by product data.
 - [Phase 36]: Community upgrade accepts both view=community and the exact QA sdState=view=community selector. — Production and deterministic visual evidence must select the same canonical composition.
+- [Phase 36]: Smart Loading duration is owned only by the active Server Component request. — No client timer, timeout, polling, percentage, or private record context may control or enter the suspense fallback.
+- [Phase 36]: Deterministic Smart Loading QA uses an authenticated QA-only Server Component gate. — A request-controlled gate proves fallback and immediate resolution without adding a production delay.
 
 ## Session
 
