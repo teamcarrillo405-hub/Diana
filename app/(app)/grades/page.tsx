@@ -68,6 +68,7 @@ const MASTERY_STYLES = `
   .sd-mastery-empty p { margin:0; color:#94a3b8; font-size:11px; line-height:1.5; }
   .sd-mastery-empty a { color:var(--mt-teal); font-size:10px; font-weight:900; text-transform:uppercase; }
   .sd-mastery-note { margin:15px 0 0; color:#64748b; font-size:9px; line-height:1.45; }
+  .sd-mastery-note a { color:var(--mt-teal); font-weight:900; }
   .sd-mastery-tracker > .sd-student-bottom-nav { position:relative; z-index:60; min-height:94px; flex:none; }
   .diana-app-shell:has(.sd-mastery-tracker) .agent-fab-anchor,.app-command-frame:has(.sd-mastery-tracker) .diana-mobile-command { display:none!important; }
   .app-command-frame:has(.sd-mastery-tracker) { padding:0!important; }

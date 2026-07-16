@@ -622,6 +622,34 @@ const dashboardScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
 );
 
 if (IS_FULL_MATRIX && dashboardScenario) {
+  test("the Connect Canvas action keeps its computed WCAG AA contrast", async ({
+    page,
+    screenDesign,
+  }) => {
+    await screenDesign.prepare(dashboardScenario);
+    await page.goto("/grades", { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
+    await bodyIsHealthy(page);
+
+    const action = page.getByRole("link", { name: "Connect Canvas", exact: true });
+    await expect(action).toBeVisible();
+    const color = await action.evaluate((element) => {
+      const tracker = element.closest(".sd-mastery-tracker");
+      if (!tracker) throw new Error("Connect Canvas is outside the Mastery Tracker.");
+      return {
+        foreground: getComputedStyle(element).color,
+        background: getComputedStyle(tracker).backgroundColor,
+        label: element.textContent?.trim() ?? "",
+      };
+    });
+
+    expect(color.background).toBe("rgb(15, 23, 42)");
+    expect(
+      computedContrastRatio(color),
+      `${color.label} contrast: ${color.foreground} on ${color.background}`,
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
   test("assignment quick-action metadata keeps its computed WCAG AA contrast", async ({
     page,
     screenDesign,
