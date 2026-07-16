@@ -1,335 +1,206 @@
+import { BookOpenCheck, CalendarDays, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, BarChart3, BookOpen, LineChart, Sparkles, Target } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
+
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import { gradeInsights, type CourseGradeSnapshot } from "@/lib/grades/insights";
 import { fetchCanvasCourseScores, fetchCanvasGrades } from "@/lib/lms/canvas";
-import { gradeInsights, type GradeInsights } from "@/lib/grades/insights";
-import { AppTopNav } from "../app-top-nav";
+import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-const SF = "var(--font-display)";
-const BODY = "var(--font-body)";
+type CanvasConfig = { base_url: string; token: string; synthetic?: boolean };
+type ClassRow = { id: string; name: string; color: string };
+type ConceptRow = {
+  id: string;
+  class_id: string;
+  name: string;
+  mastery_level: number;
+  self_confidence: number | null;
+};
 
-type CanvasConfig = { base_url: string; token: string };
+type MasteryCard = {
+  id: string;
+  name: string;
+  concepts: ConceptRow[];
+  masteryPct: number | null;
+  masteredCount: number;
+  confidencePct: number | null;
+  canvas: CourseGradeSnapshot | null;
+};
 
-const gradePreviewSignals = [
-  {
-    course: "Biology",
-    score: 84,
-    tone: "cyan" as const,
-    accent: "var(--gl-cyan)",
-    borderColor: "var(--gl-border-cyan)",
-    bg: "var(--gl-cyan-10)",
-    signal: "Lab concepts are the fastest lift.",
-    nextMove: "Review the cell transport notes before the quiz check.",
-    proof: "Recent quiz pattern + one open lab concept",
-    bars: [82, 76, 84, 88],
-  },
-  {
-    course: "English 9",
-    score: 91,
-    tone: "gold" as const,
-    accent: "var(--gl-gold)",
-    borderColor: "var(--gl-gold-28)",
-    bg: "var(--gl-gold-10)",
-    signal: "Strong base. Add one clean quote.",
-    nextMove: "Finish the essay evidence pass after Biology.",
-    proof: "Writing scores are stable; evidence is the lever",
-    bars: [88, 92, 90, 91],
-  },
-  {
-    course: "Algebra I",
-    score: 87,
-    tone: "pink" as const,
-    accent: "#f25fb0",
-    borderColor: "rgba(242,95,176,.28)",
-    bg: "rgba(242,95,176,.08)",
-    signal: "Keep the practice rhythm steady.",
-    nextMove: "Do six graphing problems before the test prep set.",
-    proof: "Practice scores predict the next assessment",
-    bars: [81, 86, 83, 87],
-  },
-] as const;
+const MASTERY_STYLES = `
+  .sd-mastery-tracker { --mt-navy:#0f172a; --mt-pink:#ff79da; --mt-teal:#2dd4bf; display:flex; height:max(100dvh,852px); max-height:max(100dvh,852px); flex-direction:column; overflow:hidden; background:var(--mt-navy); color:#fff; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .sd-mastery-tracker * { box-sizing:border-box; }
+  .sd-mastery-header { position:relative; z-index:20; flex:none; padding:54px 24px 16px; border-bottom:1px solid rgb(255 255 255 / .05); background:rgb(15 23 42 / .84); backdrop-filter:blur(12px); }
+  .sd-mastery-header-main,.sd-mastery-header-meta,.sd-mastery-card-head,.sd-mastery-card-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .sd-mastery-wordmark { width:auto; height:22px; margin-bottom:8px; opacity:.92; }
+  .sd-mastery-title { margin:0; font-size:25px; font-style:italic; font-weight:950; letter-spacing:-.05em; line-height:.88; text-transform:uppercase; }
+  .sd-mastery-title span { color:var(--mt-pink); }
+  .sd-mastery-transcript { display:grid; width:40px; height:40px; place-items:center; border:1px solid rgb(255 255 255 / .1); border-radius:999px; background:rgb(255 255 255 / .05); color:#fff; text-decoration:none; }
+  .sd-mastery-header-meta { margin-top:15px; color:#94a3b8; font-size:9px; font-weight:900; letter-spacing:.14em; text-transform:uppercase; }
+  .sd-mastery-header-meta strong { color:var(--mt-teal); font-size:10px; letter-spacing:.08em; }
+  .sd-mastery-scroll { min-height:0; flex:1; overflow-y:auto; padding:24px 24px 128px; scrollbar-width:none; }
+  .sd-mastery-scroll::-webkit-scrollbar { display:none; }
+  .sd-mastery-list { display:grid; gap:16px; }
+  .sd-mastery-card { --accent:var(--mt-teal); display:grid; gap:13px; border:1px solid rgb(255 255 255 / .1); border-left:4px solid var(--accent); border-radius:18px; padding:18px 17px; background:rgb(255 255 255 / .05); backdrop-filter:blur(8px); }
+  .sd-mastery-card[data-tone="pink"] { --accent:var(--mt-pink); }
+  .sd-mastery-card[data-tone="slate"] { --accent:#64748b; }
+  .sd-mastery-card h2 { margin:0; font-size:17px; font-style:italic; font-weight:950; letter-spacing:-.02em; line-height:1; text-transform:uppercase; }
+  .sd-mastery-concepts { max-width:235px; margin:5px 0 0; overflow:hidden; color:#94a3b8; font-size:9px; font-weight:800; line-height:1.35; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+  .sd-mastery-badge { border-radius:5px; padding:5px 8px; background:#fff; box-shadow:0 0 15px rgb(255 255 255 / .22); color:var(--mt-navy); font-size:8px; font-weight:950; letter-spacing:.1em; text-transform:uppercase; }
+  .sd-mastery-bars { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  .sd-mastery-bars span { height:6px; border-radius:2px; background:rgb(255 255 255 / .08); }
+  .sd-mastery-bars span[data-filled="true"] { background:var(--accent); box-shadow:0 0 8px color-mix(in srgb,var(--accent) 55%,transparent); }
+  .sd-mastery-card-foot { color:#64748b; font-size:8px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+  .sd-mastery-card-foot strong { color:var(--accent); font-size:10px; }
+  .sd-mastery-canvas { margin:0; color:#94a3b8; font-size:9px; font-weight:750; }
+  .sd-mastery-detail { display:flex; min-height:40px; align-items:center; justify-content:center; gap:7px; border:1px solid rgb(255 255 255 / .09); border-radius:12px; background:rgb(15 23 42 / .45); color:#fff; font-size:9px; font-style:italic; font-weight:950; letter-spacing:.1em; text-decoration:none; text-transform:uppercase; }
+  .sd-mastery-stats { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
+  .sd-mastery-stat { border:1px solid rgb(255 255 255 / .1); border-radius:18px; padding:15px; background:rgb(255 255 255 / .05); text-align:center; }
+  .sd-mastery-stat svg { margin-bottom:5px; color:var(--mt-teal); }
+  .sd-mastery-stat h2 { margin:0; color:#94a3b8; font-size:8px; font-weight:950; letter-spacing:.14em; text-transform:uppercase; }
+  .sd-mastery-stat p { margin:3px 0 0; font-size:20px; font-style:italic; font-weight:950; text-transform:uppercase; }
+  .sd-mastery-empty { display:grid; gap:13px; border:1px dashed rgb(255 255 255 / .16); border-radius:22px; padding:24px 20px; background:rgb(255 255 255 / .035); text-align:center; }
+  .sd-mastery-empty h2 { margin:0; font-size:19px; font-style:italic; font-weight:950; text-transform:uppercase; }
+  .sd-mastery-empty p { margin:0; color:#94a3b8; font-size:11px; line-height:1.5; }
+  .sd-mastery-empty a { color:var(--mt-teal); font-size:10px; font-weight:900; text-transform:uppercase; }
+  .sd-mastery-note { margin:15px 0 0; color:#64748b; font-size:9px; line-height:1.45; }
+  .sd-mastery-tracker > .sd-student-bottom-nav { position:relative; z-index:60; min-height:94px; flex:none; }
+  .diana-app-shell:has(.sd-mastery-tracker) .agent-fab-anchor,.app-command-frame:has(.sd-mastery-tracker) .diana-mobile-command { display:none!important; }
+  .app-command-frame:has(.sd-mastery-tracker) { padding:0!important; }
+  .diana-app:has(.sd-mastery-tracker) nextjs-portal { display:none!important; }
+  .diana-app:has(.sd-mastery-tracker) .skip-link { transition:none; }
+  .diana-app:has(.sd-mastery-tracker) .skip-link:focus { transform:translateY(0)!important; }
+`;
 
 export default async function GradesPage() {
   const supabase = await createClient();
-  const { data: connections } = await supabase
-    .from("lms_connections")
-    .select("id, provider, config")
-    .eq("provider", "canvas")
-    .order("created_at", { ascending: false })
-    .limit(1);
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  const config = (connections?.[0]?.config ?? null) as CanvasConfig | null;
+  const [classesResult, conceptsResult, eventsResult, connectionResult] = await Promise.all([
+    supabase.from("classes").select("id, name, color").eq("owner_id", user.id).is("archived_at", null).order("name"),
+    supabase.from("mastery_concepts").select("id, class_id, name, mastery_level, self_confidence").eq("owner_id", user.id).order("updated_at", { ascending: false }),
+    supabase.from("mastery_events").select("id, concept_id").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(500),
+    supabase.from("lms_connections").select("config, last_synced_at").eq("owner_id", user.id).eq("provider", "canvas").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+  ]);
 
-  if (!config?.base_url || !config?.token) {
-    return (
-      <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-        <AppTopNav active="More" />
-        <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
-          <GradeHero />
-          <DisconnectedGrades />
-        </div>
-      </div>
-    );
+  const classes = (classesResult.data ?? []) as ClassRow[];
+  const concepts = (conceptsResult.data ?? []) as ConceptRow[];
+  const config = canvasConfig(connectionResult.data?.config);
+  let canvasCourses: CourseGradeSnapshot[] = [];
+  let canvasIssue = false;
+  if (config) {
+    try {
+      const [records, scores] = await Promise.all([
+        fetchCanvasGrades(config),
+        fetchCanvasCourseScores(config),
+      ]);
+      canvasCourses = gradeInsights(records, scores).courses;
+    } catch {
+      canvasIssue = true;
+    }
   }
 
-  let insights: GradeInsights | null = null;
-  let loadIssue = false;
-  try {
-    const [records, courseScores] = await Promise.all([
-      fetchCanvasGrades(config),
-      fetchCanvasCourseScores(config),
-    ]);
-    insights = gradeInsights(records, courseScores);
-  } catch {
-    loadIssue = true;
-  }
+  const canvasByName = new Map(canvasCourses.map((course) => [normalizeName(course.courseName), course]));
+  const cards: MasteryCard[] = classes
+    .map((classRow) => {
+      const classConcepts = concepts.filter((concept) => concept.class_id === classRow.id);
+      const masteryPct = classConcepts.length ? percent(classConcepts.map((concept) => concept.mastery_level), 4) : null;
+      const confidence = classConcepts.flatMap((concept) => concept.self_confidence === null ? [] : [concept.self_confidence]);
+      return {
+        id: classRow.id,
+        name: classRow.name,
+        concepts: classConcepts,
+        masteryPct,
+        masteredCount: classConcepts.filter((concept) => concept.mastery_level >= 3.5).length,
+        confidencePct: confidence.length ? percent(confidence, 4) : null,
+        canvas: canvasByName.get(normalizeName(classRow.name)) ?? null,
+      };
+    })
+    .filter((card) => card.concepts.length > 0 || card.canvas);
 
-  if (loadIssue || !insights) {
-    return (
-      <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-        <AppTopNav active="More" />
-        <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
-          <GradeHero />
-          <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-10)", padding: "var(--space-14)" }}>
-            <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>
-              Canvas did not answer just now. Your grades are safe. Try again in a bit, or check the connection in{" "}
-              <Link href="/settings" style={{ color: "var(--gl-gold)", textDecoration: "underline" }}>
-                Imports
-              </Link>
-              .
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const topRecovery = insights.recovery[0] ?? null;
-
+  const hasEvidence = cards.length > 0;
   return (
-    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="More" />
-      <style>{`
-        .gr-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-9); }
-        @media (max-width: 640px) { .gr-metrics { grid-template-columns: 1fr; } }
-        .gr-top { display: grid; gap: var(--space-9); }
-        @media (min-width: 1024px) { .gr-top { grid-template-columns: 1fr 1fr; } }
-        .gr-courses { display: grid; gap: var(--space-9); grid-template-columns: 1fr 1fr; }
-        @media (max-width: 640px) { .gr-courses { grid-template-columns: 1fr; } }
-      `}</style>
-      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
-        <GradeHero />
-
-        {/* Metrics */}
-        <div className="gr-metrics">
-          {[
-            { label: "Classes", value: insights.courses.length, detail: "from Canvas" },
-            { label: "Wins", value: insights.wins.length, detail: "already working" },
-            { label: "Moves", value: insights.recovery.length, detail: "can help most" },
-          ].map((m) => (
-            <div key={m.label} style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12)" }}>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: "0 0 var(--space-4)" }}>{m.label}</p>
-              <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: "0 0 var(--space-2)" }}>{m.value}</p>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>{m.detail}</p>
-            </div>
-          ))}
+    <ScreenDesignViewport className="sd-mastery-tracker" aria-label="Mastery tracker">
+      <style>{MASTERY_STYLES}</style>
+      <header className="sd-mastery-header">
+        <div className="sd-mastery-header-main">
+          <div>
+            <DianaWordmark className="sd-mastery-wordmark" />
+            <h1 className="sd-mastery-title">Academic<br /><span>Mastery</span></h1>
+          </div>
+          <Link className="sd-mastery-transcript" href="/grades/transcript" aria-label="Open mastery transcript"><CalendarDays size={20} aria-hidden="true" /></Link>
         </div>
+        <div className="sd-mastery-header-meta"><span>Overall performance</span><strong>Evidence overview</strong></div>
+      </header>
 
-        {/* Top panels */}
-        <div className="gr-top">
-          {topRecovery && (
-            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-cyan)", background: "var(--gl-cyan-10)", padding: "var(--space-14)", display: "grid", gap: "var(--space-8)" }}>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                <Target size={13} />
-                Best grade move
-              </p>
-              <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>{topRecovery.title}</h2>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-muted)", margin: 0 }}>{topRecovery.courseName}</p>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", margin: 0 }}>{topRecovery.reason}</p>
-            </div>
-          )}
-          {insights.wins.length > 0 && (
-            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-gold-28)", background: "var(--gl-gold-10)", padding: "var(--space-14)", display: "grid", gap: "var(--space-8)" }}>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-gold)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-                <Sparkles size={13} />
-                Already going well
-              </p>
-              <ul style={{ display: "grid", gap: "var(--space-5)", margin: 0, padding: 0, listStyle: "none" }}>
-                {insights.wins.map((win) => (
-                  <li key={win} style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", paddingLeft: "var(--space-8)", borderLeft: "2px solid var(--gl-gold-28)" }}>{win}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {/* Recovery moves */}
-        {insights.recovery.length > 0 && (
-          <section style={{ display: "grid", gap: "var(--space-9)" }}>
-            <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-              <Target size={13} />
-              Moves that help most
-            </p>
-            <ol style={{ display: "grid", gap: "var(--space-4)", margin: 0, padding: 0, listStyle: "none" }}>
-              {insights.recovery.map((move) => (
-                <li key={`${move.courseName}-${move.title}`} style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-10) var(--space-12)" }}>
-                  <p style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", margin: 0 }}>
-                    {move.title} <span style={{ fontWeight: 400, color: "var(--gl-text-muted)" }}>/ {move.courseName}</span>
-                  </p>
-                  <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: "var(--space-2) 0 0" }}>{move.reason}</p>
-                </li>
-              ))}
-            </ol>
+      <main className="sd-mastery-scroll">
+        {hasEvidence ? (
+          <div className="sd-mastery-list">
+            {cards.map((card, index) => {
+              const filled = card.masteryPct === null ? 0 : Math.round(card.masteryPct / 25);
+              const tone = index % 3 === 0 ? "teal" : index % 3 === 1 ? "pink" : "slate";
+              return (
+                <article className="sd-mastery-card" data-tone={tone} key={card.id}>
+                  <div className="sd-mastery-card-head">
+                    <div>
+                      <h2>{card.name}</h2>
+                      <p className="sd-mastery-concepts">{card.concepts.length ? card.concepts.slice(0, 3).map((concept) => concept.name).join(", ") : "Canvas grade evidence"}</p>
+                    </div>
+                    {card.concepts.length > 0 && card.masteredCount === card.concepts.length ? <span className="sd-mastery-badge">Mastered</span> : null}
+                  </div>
+                  <div className="sd-mastery-bars" aria-label={card.masteryPct === null ? "No mastery evidence yet" : `${card.masteryPct}% mastery evidence`}>
+                    {[1, 2, 3, 4].map((segment) => <span data-filled={segment <= filled} key={segment} />)}
+                  </div>
+                  <div className="sd-mastery-card-foot">
+                    <span>{card.masteredCount} of {card.concepts.length} concepts mastered</span>
+                    <strong>{card.masteryPct === null ? "No level" : `${card.masteryPct}%`}</strong>
+                  </div>
+                  {card.confidencePct !== null ? <p className="sd-mastery-canvas">Self-confidence: {card.confidencePct}%</p> : null}
+                  {card.canvas?.currentScorePct !== null && card.canvas?.currentScorePct !== undefined ? <p className="sd-mastery-canvas">Canvas current grade: {Math.round(card.canvas.currentScorePct)}%</p> : null}
+                  <Link className="sd-mastery-detail" href={`/classes/${card.id}`}><BookOpenCheck size={14} aria-hidden="true" />Open mastery detail</Link>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <section className="sd-mastery-empty">
+            <Sparkles size={26} aria-hidden="true" />
+            <h2>Your evidence starts here</h2>
+            <p>No mastery concepts or Canvas grades are available yet. Practice and class evidence will appear without inventing a score.</p>
+            <Link href="/classes">Open classes</Link>
           </section>
         )}
 
-        {/* By class */}
-        <section style={{ display: "grid", gap: "var(--space-9)" }}>
-          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>By class</p>
-          <div className="gr-courses">
-            {insights.courses.map((course) => (
-              <div key={course.courseId} style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-12)" }}>
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-6)", marginBottom: "var(--space-6)" }}>
-                  <p style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", minWidth: 0 }}>{course.courseName}</p>
-                  {course.currentScorePct != null && (
-                    <span style={{ flexShrink: 0, borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-border-neutral)", padding: "2px var(--space-8)", fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-14)", color: "var(--gl-cyan)" }}>
-                      {Math.round(course.currentScorePct)}%
-                    </span>
-                  )}
-                </div>
-                <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", lineHeight: "var(--leading-body)", color: "var(--gl-text-muted)", margin: 0 }}>
-                  {course.gradedCount} graded
-                  {course.notTurnedInCount > 0 && <> / {course.notTurnedInCount} still open</>}
-                  {course.trend === "rising" && <> / trending up <ArrowUpRight size={11} style={{ display: "inline" }} /></>}
-                  {course.trend === "steady" && <> / holding steady</>}
-                  {course.trend === "settling" && <> / recent scores dipped, one good turn-in can reset it</>}
-                </p>
-              </div>
-            ))}
-            {insights.courses.length === 0 && (
-              <div style={{ borderRadius: "var(--radius-card)", border: "1px dashed var(--gl-border-neutral)", padding: "var(--space-16)", display: "grid", gap: "var(--space-5)", textAlign: "center" }}>
-                <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0 }}>No Canvas grades yet</p>
-                <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", margin: 0 }}>Once your teachers post graded work in Canvas, your real scores show up here after the next sync.</p>
-              </div>
-            )}
-          </div>
+        <section className="sd-mastery-stats" aria-label="Evidence summary">
+          <div className="sd-mastery-stat"><Sparkles size={23} aria-hidden="true" /><h2>Evidence events</h2><p>{eventsResult.data?.length ?? 0}</p></div>
+          <div className="sd-mastery-stat"><BookOpenCheck size={23} aria-hidden="true" /><h2>Concepts</h2><p>{concepts.length}</p></div>
         </section>
-
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: 0 }}>
-          Read-only and private: Diana pulls your own scores from Canvas to suggest next moves. Nothing here is shared, ranked, or sent anywhere.
-        </p>
-      </div>
-    </div>
+        {canvasIssue ? <p className="sd-mastery-note">Canvas did not answer just now. Your saved mastery evidence is still shown.</p> : null}
+        {!config ? <p className="sd-mastery-note">Mastery evidence is private and owner scoped. <Link href="/settings#connections">Connect Canvas</Link> when useful.</p> : null}
+      </main>
+      <StudentBottomNav />
+    </ScreenDesignViewport>
   );
 }
 
-function GradeHero() {
-  return (
-    <header style={{ display: "grid", gap: "var(--space-8)" }}>
-      <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "#f25fb0", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-        <BarChart3 size={13} aria-hidden="true" />
-        Grade signal
-      </p>
-      <h1 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, maxWidth: "22ch" }}>
-        Scores should point to the next move.
-      </h1>
-      <p style={{ fontFamily: BODY, fontSize: "var(--text-16)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", maxWidth: "44ch", margin: 0 }}>
-        Not a scoreboard. Diana reads Canvas grades and finds the move that helps most.
-      </p>
-    </header>
-  );
+function canvasConfig(value: unknown): CanvasConfig | null {
+  if (!value || typeof value !== "object") return null;
+  const candidate = value as Partial<CanvasConfig>;
+  if (candidate.synthetic || typeof candidate.base_url !== "string" || typeof candidate.token !== "string") return null;
+  return candidate as CanvasConfig;
 }
 
-function DisconnectedGrades() {
-  return (
-    <div style={{ display: "grid", gap: "var(--space-17)" }}>
-      <div style={{ borderRadius: "var(--radius-card)", border: "1px dashed var(--gl-border-neutral)", padding: "var(--space-20)", display: "grid", gap: "var(--space-8)", textAlign: "center" }}>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-gold)", margin: 0 }}>No grade source</p>
-        <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>Connect Canvas when you are ready.</p>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>Diana turns scores into one clear move. It does not rank, shame, or turn grades into a scoreboard.</p>
-        <div>
-          <Link
-            href="/settings"
-            style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-cyan)", color: "#04080f", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}
-          >
-            Connect Canvas
-          </Link>
-        </div>
-      </div>
-      <GradeSignalPreview mode="disconnected" />
-    </div>
-  );
+function percent(values: number[], maximum: number): number {
+  if (!values.length) return 0;
+  const average = values.reduce((sum, value) => sum + Math.max(0, Math.min(maximum, value)), 0) / values.length;
+  return Math.round((average / maximum) * 100);
 }
 
-function GradeSignalPreview({ mode }: { mode: "disconnected" | "connected-empty" }) {
-  return (
-    <section style={{ display: "grid", gap: "var(--space-14)" }}>
-      <div style={{ display: "grid", gap: "var(--space-8)" }}>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "#f25fb0", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-          <LineChart size={13} />
-          Grade signal preview
-        </p>
-        <h2 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>
-          {mode === "disconnected" ? "What Diana will watch for" : "No Canvas grades yet"}
-        </h2>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>
-          The goal is not more data on screen. The goal is the one class move that can change the week.
-        </p>
-      </div>
-
-      <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-cyan)", background: "var(--gl-cyan-10)", padding: "var(--space-14)", display: "grid", gap: "var(--space-8)" }}>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-cyan)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-          <Target size={13} />
-          Diana pick
-        </p>
-        <h3 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>Biology first, then English evidence.</h3>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-secondary)", margin: 0 }}>
-          Biology has the best score movement from a short study block. English stays strong with one quote pass.
-        </p>
-        <Link
-          href="/assignments"
-          style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-cyan)", color: "#04080f", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none", width: "fit-content" }}
-        >
-          Open next moves <ArrowRight size={13} />
-        </Link>
-      </div>
-
-      <div style={{ display: "grid", gap: "var(--space-9)" }}>
-        {gradePreviewSignals.map((signal) => (
-          <GradePreviewCard key={signal.course} signal={signal} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function GradePreviewCard({ signal }: { signal: (typeof gradePreviewSignals)[number] }) {
-  return (
-    <article style={{ borderRadius: "var(--radius-card)", border: `1px solid ${signal.borderColor}`, background: signal.bg, padding: "var(--space-14)", display: "grid", gap: "var(--space-9)" }}>
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-8)" }}>
-        <div>
-          <p style={{ fontFamily: BODY, fontSize: "var(--text-10)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: "0 0 var(--space-2)" }}>Class signal</p>
-          <strong style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-22)", textTransform: "uppercase", color: "var(--gl-text-primary)" }}>{signal.course}</strong>
-        </div>
-        <span style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-28)", color: signal.accent }}>{signal.score}%</span>
-      </div>
-
-      <div style={{ display: "flex", alignItems: "flex-end", gap: "var(--space-3)", height: 40 }} aria-hidden="true">
-        {signal.bars.map((bar, i) => (
-          <div key={i} style={{ flex: 1, height: `${bar}%`, borderRadius: 2, background: signal.accent, opacity: 0.6 }} />
-        ))}
-      </div>
-
-      <p style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", margin: 0 }}>{signal.signal}</p>
-      <div style={{ display: "grid", gap: "var(--space-4)", borderTop: "1px solid var(--gl-border-neutral)", paddingTop: "var(--space-8)" }}>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-10)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-12)", textTransform: "uppercase", color: "var(--gl-text-muted)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
-          <BookOpen size={11} /> Next move
-        </p>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-13)", color: "var(--gl-text-secondary)", margin: 0 }}>{signal.nextMove}</p>
-      </div>
-      <small style={{ fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)", margin: 0 }}>{signal.proof}</small>
-    </article>
-  );
+function normalizeName(value: string): string {
+  return value.trim().toLocaleLowerCase("en-US").replace(/\s+/gu, " ");
 }
