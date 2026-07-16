@@ -18,4 +18,24 @@ describe("UpgradeScreen", () => {
     expect(html).not.toContain("92%");
     expect(html).not.toContain("START FREE TRIAL");
   });
+
+  it("exposes the server checkout endpoint only for a configured capability", () => {
+    const configured = renderToStaticMarkup(
+      <UpgradeScreen view="standard" billingEnabled />,
+    );
+    const unavailable = renderToStaticMarkup(
+      <UpgradeScreen
+        view="standard"
+        billingEnabled={false}
+        billingUnavailable
+      />,
+    );
+
+    expect(configured).toContain('href="/api/billing/checkout"');
+    expect(configured).toContain("Continue to secure checkout");
+    expect(configured).not.toContain("purchase complete");
+    expect(unavailable).toContain("Secure checkout is not configured");
+    expect(unavailable).toContain('href="/settings"');
+    expect(unavailable).not.toContain('href="/api/billing/checkout"');
+  });
 });
