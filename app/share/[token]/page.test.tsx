@@ -195,22 +195,25 @@ describe("public ScreenDesign share boundary", () => {
     expect(html).not.toContain("private note");
   });
 
-  it("requires an exact active token before reading owner data", async () => {
-    resultsByTable.set("share_links", { data: null, error: null });
+  it.each(["expired-token", "revoked-token"])(
+    "requires an exact active token before reading owner data for %s",
+    async (inactiveToken) => {
+      resultsByTable.set("share_links", { data: null, error: null });
 
-    const html = await renderShare("expired-or-revoked-token");
+      const html = await renderShare(inactiveToken);
 
-    expect(html).toContain("Shared link unavailable");
-    expect(html).not.toContain("Freshman portfolio");
-    expect(queryCalls.filter((call) => call.method === "from")).toHaveLength(1);
-    expect(callsFor("share_links", "eq")).toContainEqual(
-      expect.objectContaining({ args: ["token", "expired-or-revoked-token"] }),
-    );
-    expect(callsFor("share_links", "is")).toContainEqual(
-      expect.objectContaining({ args: ["revoked_at", null] }),
-    );
-    expect(callsFor("share_links", "gt")).toContainEqual(
-      expect.objectContaining({ args: ["expires_at", expect.any(String)] }),
-    );
-  });
+      expect(html).toContain("Shared link unavailable");
+      expect(html).not.toContain("Freshman portfolio");
+      expect(queryCalls.filter((call) => call.method === "from")).toHaveLength(1);
+      expect(callsFor("share_links", "eq")).toContainEqual(
+        expect.objectContaining({ args: ["token", inactiveToken] }),
+      );
+      expect(callsFor("share_links", "is")).toContainEqual(
+        expect.objectContaining({ args: ["revoked_at", null] }),
+      );
+      expect(callsFor("share_links", "gt")).toContainEqual(
+        expect.objectContaining({ args: ["expires_at", expect.any(String)] }),
+      );
+    },
+  );
 });
