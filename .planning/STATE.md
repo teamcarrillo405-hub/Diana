@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 14
+current_plan: 15
 status: executing
-stopped_at: Completed 36-14-PLAN.md
-last_updated: "2026-07-16T01:05:00.725Z"
+stopped_at: Completed 36-15-PLAN.md
+last_updated: "2026-07-16T01:30:04.242Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-14 focus, calendar, and goal-planning ScreenDesign rebuild
+last_activity_desc: Completed 36-15 concept, knowledge graph, and progress insights ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 14
-  percent: 47
+  completed_plans: 15
+  percent: 50
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 14
+**Current Plan:** 15
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [█████░░░░░] 47%
-**Last Activity:** 2026-07-15 - Completed 36-14 focus, calendar, and goal-planning ScreenDesign rebuild
+**Progress:** [█████░░░░░] 50%
+**Last Activity:** 2026-07-15 - Completed 36-15 concept, knowledge graph, and progress insights ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T01:05:00.717Z
-**Stopped at:** Completed 36-14-PLAN.md
+**Last session:** 2026-07-16T01:30:04.235Z
+**Stopped at:** Completed 36-15-PLAN.md
 
 ---
 
@@ -705,6 +705,7 @@ total_plans_in_phase: 30
 | Phase 36 P11 | 35 min | 2 tasks | 11 files |
 | Phase 36 P13 | 22 min | 3 tasks | 14 files |
 | Phase 36 P14 | 30 min | 3 tasks | 13 files |
+| Phase 36 P15 | 64 min | 3 tasks | 8 files |
 
 ## Decisions
 
@@ -751,6 +752,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Focus persistence uses authenticated time logs while useTimer remains the sole timer-state authority. — Keeps the calm state union and server ownership boundary aligned.
 - [Phase 36]: Calendar workload is derived from owner assignments and profile accommodations. — Preserves real student data and avoids fabricated schedule metrics.
 - [Phase 36]: Goal submission preserves selections until the authenticated write succeeds. — Calm errors must not discard student choices or display false success.
+- [Phase 36]: Mastery evidence, student confidence, and grades remain separate — Each measure has distinct provenance and must not be presented as one score
+- [Phase 36]: Knowledge Graph edges use authenticated class context only — The app must not invent semantic relationships absent from stored evidence
+- [Phase 36]: Progress evidence mix is a private activity aggregate, not a grade — Assignment, focus, and activity inputs support calm trends without fabricating academic outcomes
 
 ## Session
 
