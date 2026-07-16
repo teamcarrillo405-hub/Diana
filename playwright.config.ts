@@ -51,7 +51,8 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: /screendesign-(?:source-capture|visual|navigation)\.spec\.ts/,
+      testIgnore:
+        /screendesign-(?:source-capture|visual|navigation|onboarding-persistence)\.spec\.ts/,
       use: chromium,
     },
     {
@@ -65,7 +66,8 @@ export default defineConfig({
     },
     {
       name: "screendesign-mobile",
-      testMatch: /screendesign-(?:visual|navigation)\.spec\.ts/,
+      testMatch:
+        /screendesign-(?:visual|navigation|onboarding-persistence)\.spec\.ts/,
       workers: 1,
       use: {
         ...chromium,
