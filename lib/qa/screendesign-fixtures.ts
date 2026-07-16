@@ -712,7 +712,9 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
       }),
     ],
     guardedStates: ["populated"],
-    result: mutation("data-deletion-request", "deletion-main", "status", "requested"),
+    result: noWrite(
+      "Export downloads a private owner-scoped copy and does not change stored records.",
+    ),
   },
   {
     screenId: "progress-insights",
