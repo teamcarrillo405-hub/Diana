@@ -4,6 +4,7 @@ import {
   csvCell,
   mergeAiHistoryEntries,
   sanitizeLmsConnections,
+  summarizeSyncAll,
 } from "./source-models";
 
 describe("ScreenDesign settings source models", () => {
@@ -80,5 +81,32 @@ describe("ScreenDesign settings source models", () => {
     ]);
     expect(JSON.stringify(views)).not.toContain("private-token");
     expect(JSON.stringify(views)).not.toContain("refresh_token");
+  });
+
+  it("does not report sync success when any provider returns an error", () => {
+    expect(
+      summarizeSyncAll({
+        imported: 4,
+        skipped: 1,
+        results: [
+          { source: "canvas", imported: 4, skipped: 0 },
+          { source: "ics", error: "Calendar access needs attention" },
+        ],
+      }),
+    ).toEqual({
+      tone: "warn",
+      message: "One connection needs attention. Imported 4 assignments; 1 item was skipped.",
+    });
+
+    expect(
+      summarizeSyncAll({
+        imported: 4,
+        skipped: 0,
+        results: [{ source: "canvas", imported: 4, skipped: 0 }],
+      }),
+    ).toEqual({
+      tone: "ok",
+      message: "Sync complete. Imported 4 assignments.",
+    });
   });
 });
