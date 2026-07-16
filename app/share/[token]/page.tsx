@@ -15,10 +15,20 @@ type ServiceClient = NonNullable<ReturnType<typeof createServiceClient>>;
 
 export default async function SharePage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { token } = await params;
+  const query = (await searchParams) ?? {};
+  const scenario = typeof query.sdScenario === "string" ? query.sdScenario : null;
+  const nowIso =
+    process.env.NODE_ENV !== "production" &&
+    process.env.QA_CREATE_USER === "true" &&
+    scenario
+      ? "2026-09-14T16:30:00.000Z"
+      : new Date().toISOString();
   const supabase = createServiceClient();
   if (!supabase) return <NotActive />;
 
@@ -27,7 +37,7 @@ export default async function SharePage({
     .select("id, token, owner_id, share_type, expires_at, revoked_at, created_at")
     .eq("token", token)
     .is("revoked_at", null)
-    .gt("expires_at", new Date().toISOString())
+    .gt("expires_at", nowIso)
     .maybeSingle();
 
   if (error || !link) return <NotActive />;
@@ -36,7 +46,12 @@ export default async function SharePage({
   const ownerId = typedLink.owner_id;
 
   if (typedLink.share_type === "parent_summary") {
-    const summary = await buildParentSummary(supabase, ownerId, typedLink.expires_at);
+    const summary = await buildParentSummary(
+      supabase,
+      ownerId,
+      typedLink.expires_at,
+      nowIso,
+    );
     return <ParentSummaryView summary={summary} />;
   }
 
@@ -76,8 +91,9 @@ async function buildParentSummary(
   supabase: ServiceClient,
   ownerId: string,
   expiresAt: string,
+  nowIso: string,
 ): Promise<ParentSummary> {
-  const now = new Date();
+  const now = new Date(nowIso);
   const day = now.getUTCDay();
   const daysFromMonday = (day + 6) % 7;
   const weekStart = new Date(
@@ -88,7 +104,6 @@ async function buildParentSummary(
     ),
   );
   const weekStartIso = weekStart.toISOString();
-  const nowIso = now.toISOString();
   const next7Iso = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   const { count: completedThisWeek } = await supabase
