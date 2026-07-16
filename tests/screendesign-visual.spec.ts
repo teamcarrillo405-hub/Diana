@@ -44,6 +44,25 @@ const assertNoHorizontalOverflow = async (page: Page) => {
   ).toBeLessThanOrEqual(overflow.clientWidth + 2);
 };
 
+const assertNoBrowserDefaultLinkColors = async (page: Page) => {
+  const offenders = await page.locator("a:visible").evaluateAll((links) =>
+    links.flatMap((link) => {
+      const color = getComputedStyle(link).color;
+      return ["rgb(0, 0, 238)", "rgb(85, 26, 139)"].includes(color)
+        ? [{
+            color,
+            href: link.getAttribute("href"),
+            label: link.textContent?.trim() || link.getAttribute("aria-label"),
+          }]
+        : [];
+    }),
+  );
+  expect(
+    offenders,
+    "Visible canonical app links must not use browser-default blue or visited purple",
+  ).toEqual([]);
+};
+
 const assertKeyboardFocusStaysVisible = async (page: Page) => {
   await page
     .getByRole("button", { name: "Open Next.js Dev Tools" })
@@ -188,6 +207,7 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       expect(response?.status() ?? 200).toBeLessThan(500);
       await waitForScreenDesignReady(page);
       await assertNoHorizontalOverflow(page);
+      await assertNoBrowserDefaultLinkColors(page);
       await assertKeyboardFocusStaysVisible(page);
 
       const visibleText = await page.locator("body").innerText();
