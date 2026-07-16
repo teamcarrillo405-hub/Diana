@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 19
+current_plan: 20
 status: executing
-stopped_at: Completed 36-19-PLAN.md
-last_updated: "2026-07-16T03:44:30.594Z"
+stopped_at: Completed 36-20-PLAN.md
+last_updated: "2026-07-16T04:10:43.446Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-19 notification, search, and wellness ScreenDesign rebuild
+last_activity_desc: Completed 36-20 private social activity and tutor preference ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 19
-  percent: 63
+  completed_plans: 20
+  percent: 67
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 19
+**Current Plan:** 20
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [██████░░░░] 63%
-**Last Activity:** 2026-07-15 - Completed 36-19 notification, search, and wellness ScreenDesign rebuild
+**Progress:** [███████░░░] 67%
+**Last Activity:** 2026-07-15 - Completed 36-20 private social activity and tutor preference ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T03:44:20.465Z
-**Stopped at:** Completed 36-19-PLAN.md
+**Last session:** 2026-07-16T04:10:43.439Z
+**Stopped at:** Completed 36-20-PLAN.md
 
 ---
 
@@ -710,6 +710,7 @@ total_plans_in_phase: 30
 | Phase 36 P17 | 19 min | 2 tasks | 9 files |
 | Phase 36 P18 | 27 min | 3 tasks | 20 files |
 | Phase 36 P19 | 22 min | 3 tasks | 12 files |
+| Phase 36 P20 | 24 min | 2 tasks | 11 files |
 
 ## Decisions
 
@@ -769,6 +770,9 @@ total_plans_in_phase: 30
 - [Phase 36]: /settings owns profile mutation while /me reuses Profile Center read-only. — A single validated mutation surface preserves profile, onboarding, accessibility, privacy, and personalization values without duplicate writes.
 - [Phase 36]: Support screens use explicit owner filters and supported persisted evidence only. — Notification, search, and wellness fidelity must not widen private records or invent missing state.
 - [Phase 36]: Wellness replaces medical forecast claims with study-readiness recovery guidance. — Health-adjacent copy remains capability-focused and saves only validated private choices.
+- [Phase 36]: Community activity stays private to authenticated owners and members. — The canonical leaderboard energy must not expose public or cross-group minor ranking.
+- [Phase 36]: Community avatars decorate real member rows only. — Source art may shape presentation but must not fabricate friends, memberships, or activity.
+- [Phase 36]: Tutor persona and style are profile preferences only. — Portrait selection must not change AI provider, class policy, authorship controls, or safety enforcement.
 
 ## Session
 
