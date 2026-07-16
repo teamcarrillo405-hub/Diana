@@ -49,7 +49,7 @@ describe("ScreenDesign settings source models", () => {
 
   it("prevents spreadsheet formulas in CSV exports", () => {
     expect(csvCell("=HYPERLINK(\"https://example.com\")")).toBe(
-      "'=HYPERLINK(\"\"https://example.com\"\")",
+      '"\'=HYPERLINK(""https://example.com"")"',
     );
   });
 
