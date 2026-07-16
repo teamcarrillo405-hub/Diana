@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 17
+current_plan: 18
 status: executing
-stopped_at: Completed 36-17-PLAN.md
-last_updated: "2026-07-16T02:34:16.103Z"
+stopped_at: Completed 36-18-PLAN.md
+last_updated: "2026-07-16T03:12:49.063Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-17 public share ScreenDesign rebuild
+last_activity_desc: Completed 36-18 account and settings ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 17
-  percent: 57
+  completed_plans: 18
+  percent: 60
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 17
+**Current Plan:** 18
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [██████░░░░] 57%
-**Last Activity:** 2026-07-15 - Completed 36-17 public share ScreenDesign rebuild
+**Progress:** [██████░░░░] 60%
+**Last Activity:** 2026-07-15 - Completed 36-18 account and settings ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T02:34:16.091Z
-**Stopped at:** Completed 36-17-PLAN.md
+**Last session:** 2026-07-16T03:12:49.055Z
+**Stopped at:** Completed 36-18-PLAN.md
 
 ---
 
@@ -708,6 +708,7 @@ total_plans_in_phase: 30
 | Phase 36 P15 | 64 min | 3 tasks | 8 files |
 | Phase 36 P16 | 29 min | 3 tasks | 16 files |
 | Phase 36 P17 | 19 min | 2 tasks | 9 files |
+| Phase 36 P18 | 27 min | 3 tasks | 20 files |
 
 ## Decisions
 
@@ -762,6 +763,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Privacy success follows the complete server result — Exports, backups, and destructive controls must not show success until authenticated owner-scoped operations finish, and every deletion write is checked.
 - [Phase 36]: Public share loaders authorize exact active tokens before querying owner-scoped evidence. — This keeps unauthenticated access narrowly scoped and prevents token, owner, or report-type widening.
 - [Phase 36]: Public portfolio and report payloads omit private profile and class fields. — Canonical source hierarchy is preserved with approved evidence and aggregate progress rather than exposing minor data.
+- [Phase 36]: AI History combines owner-scoped interactions and authorship evidence into one minimized client model. — Raw prompt and authorship payloads stay server-side while student and Diana work retain distinct provenance.
+- [Phase 36]: LMS client props contain only server-derived safe state, never provider config. — Credential material stays behind the authenticated server boundary and sync success requires persisted evidence.
+- [Phase 36]: /settings owns profile mutation while /me reuses Profile Center read-only. — A single validated mutation surface preserves profile, onboarding, accessibility, privacy, and personalization values without duplicate writes.
 
 ## Session
 
