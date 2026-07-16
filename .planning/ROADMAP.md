@@ -544,7 +544,7 @@ Plans:
 **Goal:** Replace Diana's old Nexus/Mission Control presentation with all 47 canonical ScreenDesign states, wired to the existing secure backend and proven source-faithful at 393 by 852 before launch.
 **Requirements:** P36-FIDELITY, P36-ASSETS, P36-OPERATIONS, P36-ONBOARDING, P36-QA, P36-REMOVAL
 **Depends on:** Phase 35
-**Plans:** 12/30 plans executed
+**Plans:** 13/30 plans executed
 
 Plans:
 
@@ -560,7 +560,7 @@ Plans:
 - [x] 36-10-PLAN.md - Class library empty/filled states and rubric scout
 - [x] 36-11-PLAN.md - AP command center and mastery views
 - [ ] 36-12-PLAN.md - Writing coach, note surface, and tutor chat
-- [ ] 36-13-PLAN.md - Flashcard review and study artifact states
+- [x] 36-13-PLAN.md - Flashcard review and study artifact states
 - [ ] 36-14-PLAN.md - Focus session, calendar, and study goals
 - [ ] 36-15-PLAN.md - Concept, knowledge graph, and progress insights
 - [ ] 36-16-PLAN.md - Milestone, portfolio, and privacy export
