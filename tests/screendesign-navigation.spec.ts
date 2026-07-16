@@ -1,4 +1,4 @@
-import type { Page, Response } from "@playwright/test";
+import type { Locator, Page, Response } from "@playwright/test";
 
 import {
   emitScreenDesignActionEvidence,
@@ -7,13 +7,55 @@ import {
   SELECTED_SCREEN_DESIGN_SCENARIOS,
   waitForScreenDesignReady,
 } from "@/tests/fixtures/screendesign";
-import type { ScreenDesignFixtureScenario } from "@/lib/qa/screendesign-fixtures";
+import {
+  SCREEN_DESIGN_FIXTURE_SCENARIOS,
+  type ScreenDesignFixtureScenario,
+} from "@/lib/qa/screendesign-fixtures";
+import { STUDENT_NAV_DESTINATIONS } from "@/lib/navigation";
 
 interface MutationObservation {
   readonly method: string;
   readonly pathname: string;
   readonly status: number;
 }
+
+interface PrimaryActionObservation {
+  readonly action: Locator | null;
+  readonly clicked: boolean;
+  readonly targetUrl: string | null;
+}
+
+interface VisibleControl {
+  readonly disabled: boolean;
+  readonly href: string | null;
+  readonly name: string;
+  readonly tag: string;
+}
+
+const IS_FULL_MATRIX = !process.env.SCREEN_IDS?.trim();
+const IGNORED_BACKGROUND_MUTATIONS = [
+  "/api/monitoring/event",
+  "/api/monitoring/vitals",
+  "/api/profile/handoff",
+] as const;
+
+const comparableLocation = (value: string): string => {
+  const url = new URL(value, "http://diana.local");
+  return `${url.pathname}${url.search}${url.hash}`;
+};
+
+const escapeRegex = (value: string): string =>
+  value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+
+const operationalMutations = (
+  responses: readonly MutationObservation[],
+): readonly MutationObservation[] =>
+  responses.filter(
+    ({ pathname }) =>
+      !IGNORED_BACKGROUND_MUTATIONS.some(
+        (ignored) => pathname === ignored || pathname.startsWith(`${ignored}/`),
+      ),
+  );
 
 const observeMutations = (page: Page) => {
   const responses: MutationObservation[] = [];
@@ -40,13 +82,99 @@ const bodyIsHealthy = async (page: Page) => {
   expect(page.url()).not.toContain("/login");
 };
 
+const assertVisibleControlInventory = async (
+  page: Page,
+  scenario: ScreenDesignFixtureScenario,
+) => {
+  if (scenario.expectedPrimaryAction.kind === "system") return;
+
+  const controls = await page
+    .locator("a[href]:visible, button:visible, input[type='submit']:visible")
+    .evaluateAll((elements): VisibleControl[] =>
+      elements.map((element) => {
+        const labelledBy = element.getAttribute("aria-labelledby");
+        const labelledText = labelledBy
+          ?.split(/\s+/u)
+          .map((id) => document.getElementById(id)?.textContent?.trim() ?? "")
+          .filter(Boolean)
+          .join(" ");
+        const inputValue =
+          element instanceof HTMLInputElement ? element.value.trim() : "";
+        return {
+          disabled:
+            (element instanceof HTMLButtonElement ||
+              element instanceof HTMLInputElement) &&
+            element.disabled,
+          href: element instanceof HTMLAnchorElement ? element.getAttribute("href") : null,
+          name:
+            [
+              element.getAttribute("aria-label")?.trim(),
+              labelledText?.trim(),
+              inputValue,
+              element.getAttribute("title")?.trim(),
+              element.textContent?.trim(),
+            ].find((candidate) => Boolean(candidate)) ?? "",
+          tag: element.tagName.toLowerCase(),
+        };
+      }),
+    );
+
+  expect(controls.length, `${scenario.id} should expose a real control`).toBeGreaterThan(0);
+  for (const [index, control] of controls.entries()) {
+    expect(
+      control.name,
+      `${scenario.id} visible ${control.tag} #${index + 1} should have an accessible name`,
+    ).not.toBe("");
+    if (control.href !== null) {
+      expect(
+        control.href,
+        `${scenario.id} link ${control.name} should not use a prototype href`,
+      ).not.toMatch(/^\s*(?:#\s*$|javascript:|$)/iu);
+    }
+  }
+};
+
+const primaryActionLocator = (
+  page: Page,
+  scenario: ScreenDesignFixtureScenario,
+): Locator => {
+  const actionName = new RegExp(
+    `^${escapeRegex(scenario.expectedPrimaryAction.label)}$`,
+    "iu",
+  );
+  return page
+    .getByRole("button", { name: actionName })
+    .or(page.getByRole("link", { name: actionName }))
+    .first();
+};
+
+const assertDisabledActionReason = async (
+  action: Locator,
+  scenario: ScreenDesignFixtureScenario,
+) => {
+  const reason = await action.evaluate((element) => {
+    const describedBy = element.getAttribute("aria-describedby");
+    const description = describedBy
+      ?.split(/\s+/u)
+      .map((id) => document.getElementById(id)?.textContent?.trim() ?? "")
+      .filter(Boolean)
+      .join(" ");
+    const owner = element.closest("form, section, main") ?? element.parentElement;
+    return description || owner?.textContent?.trim() || "";
+  });
+  expect(
+    reason.length,
+    `${scenario.id} disabled primary action should explain what is needed`,
+  ).toBeGreaterThan(scenario.expectedPrimaryAction.label.length);
+};
+
 const clickPrimaryAction = async (
   page: Page,
   scenario: ScreenDesignFixtureScenario,
-): Promise<boolean> => {
+): Promise<PrimaryActionObservation> => {
   if (scenario.expectedPrimaryAction.kind === "system") {
     await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
-    return false;
+    return { action: null, clicked: false, targetUrl: null };
   }
   if (scenario.screenId === "quick-add") {
     await page.getByRole("button", { name: /type task/iu }).click();
@@ -63,23 +191,98 @@ const clickPrimaryAction = async (
       if (await firstChoice.isVisible().catch(() => false)) await firstChoice.click();
     }
   }
-  const actionName = new RegExp(
-    `^${scenario.expectedPrimaryAction.label.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&")}$`,
-    "iu",
-  );
-  const action = page.getByRole("button", {
-    name: actionName,
-  }).or(
-    page.getByRole("link", {
-      name: actionName,
-    }),
-  );
+  if (scenario.screenId === "smart-search") {
+    await page.getByRole("textbox", { name: "Search Diana" }).fill("Identity");
+  }
+
+  const action = primaryActionLocator(page, scenario);
   await expect(
-    action.first(),
+    action,
     `${scenario.id} should expose its declared primary action`,
   ).toBeVisible();
-  await action.first().click();
-  return true;
+  const targetUrl = await action.getAttribute("href");
+  if (await action.isDisabled()) {
+    await assertDisabledActionReason(action, scenario);
+    return { action, clicked: false, targetUrl };
+  }
+  await action.click();
+  return { action, clicked: true, targetUrl };
+};
+
+const assertExactNavigation = async (
+  page: Page,
+  scenario: ScreenDesignFixtureScenario,
+  beforeUrl: string,
+  observation: PrimaryActionObservation,
+): Promise<{ afterClickPath: string; browserBackRestored: boolean }> => {
+  if (observation.targetUrl) {
+    const target = new URL(observation.targetUrl, beforeUrl);
+    const expected = comparableLocation(target.toString());
+    await expect
+      .poll(() => comparableLocation(page.url()), {
+        message: `${scenario.id} should land on its declared link destination`,
+      })
+      .toBe(expected);
+    const afterClickPath = new URL(page.url()).pathname;
+
+    if (expected !== comparableLocation(beforeUrl)) {
+      await page.goBack({ waitUntil: "domcontentloaded" });
+      await expect
+        .poll(() => comparableLocation(page.url()), {
+          message: `${scenario.id} browser back should restore its exact source state`,
+        })
+        .toBe(comparableLocation(beforeUrl));
+      await bodyIsHealthy(page);
+      return { afterClickPath, browserBackRestored: true };
+    }
+    return { afterClickPath, browserBackRestored: false };
+  }
+
+  const onboardingDestination: Partial<Record<string, string>> = {
+    "onboarding-welcome": "educational",
+    "onboarding-educational": "challenge",
+  };
+  const step = onboardingDestination[scenario.screenId];
+  if (step) {
+    await expect(page.locator(`[data-onboarding-step='${step}']`)).toBeVisible();
+    return {
+      afterClickPath: new URL(page.url()).pathname,
+      browserBackRestored: false,
+    };
+  }
+
+  if (scenario.screenId === "portfolio-gallery") {
+    await expect(page.getByRole("dialog")).toBeVisible();
+    return {
+      afterClickPath: new URL(page.url()).pathname,
+      browserBackRestored: false,
+    };
+  }
+
+  throw new Error(
+    `${scenario.id} declares navigation but exposes neither a destination nor a named state transition.`,
+  );
+};
+
+const assertPublicTokenScope = async (
+  page: Page,
+  scenario: ScreenDesignFixtureScenario,
+) => {
+  if (scenario.authClass !== "public-token") return;
+  expect(await page.context().cookies()).toEqual([]);
+  expect(page.url()).toMatch(/\/share\/sdqa-[a-f0-9]{32}/iu);
+  const body = await page.locator("body").innerText();
+  expect(body).not.toMatch(
+    /grayson-qa-student@local\.test|diana-screendesign-share-owner@local\.test/iu,
+  );
+
+  if (scenario.screenId === "external-scout-view") {
+    expect(body).toMatch(/Identity quote response/iu);
+    expect(body).not.toMatch(/Claim evidence reasoning/iu);
+  } else {
+    expect(body).toMatch(/Claim evidence reasoning/iu);
+    expect(body).not.toMatch(/Identity quote response/iu);
+  }
 };
 
 for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
@@ -140,29 +343,40 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       expect(response?.status() ?? 200).toBeLessThan(500);
       await waitForScreenDesignReady(page);
       await bodyIsHealthy(page);
+      await assertVisibleControlInventory(page, scenario);
+      await assertPublicTokenScope(page, scenario);
       const beforeUrl = page.url();
       const beforeOnboardingStep = await page
         .locator("[data-onboarding-step]")
         .getAttribute("data-onboarding-step")
         .catch(() => null);
 
-      const clicked = await clickPrimaryAction(page, scenario);
-      if (scenario.expectedPersistedResult.kind === "navigation") {
-        await page
-          .waitForURL(
-            (url) => url.pathname !== beforePath || url.toString() !== beforeUrl,
-            { timeout: 10_000 },
-          )
-          .catch(() => undefined);
-      }
+      const action = await clickPrimaryAction(page, scenario);
       if (scenario.screenId === "onboarding-quiz-schedule") {
         await page.waitForURL((url) => url.pathname === "/dashboard", {
           timeout: 10_000,
         });
       }
+      if (scenario.screenId === "smart-search") {
+        await expect
+          .poll(() => {
+            const url = new URL(page.url());
+            return `${url.pathname}?q=${url.searchParams.get("q") ?? ""}`;
+          })
+          .toBe("/search?q=Identity");
+        await expect(
+          page.getByRole("link", { name: /Identity quote response/iu }),
+        ).toBeVisible();
+      }
       await page.waitForLoadState("domcontentloaded", { timeout: 10_000 }).catch(() => undefined);
       await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
-      const afterClickPath = new URL(page.url()).pathname;
+      let afterClickPath = new URL(page.url()).pathname;
+      let browserBackRestored = false;
+      if (scenario.expectedPrimaryAction.kind === "navigate" && action.clicked) {
+        const exact = await assertExactNavigation(page, scenario, beforeUrl, action);
+        afterClickPath = exact.afterClickPath;
+        browserBackRestored = exact.browserBackRestored;
+      }
       const afterOnboardingStep = await page
         .locator("[data-onboarding-step]")
         .getAttribute("data-onboarding-step")
@@ -175,11 +389,11 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       let persistenceReloaded = false;
       if (scenario.expectedPersistedResult.kind === "record") {
         await expect.poll(
-          () => mutations.responses.some(
+          () => operationalMutations(mutations.responses).some(
             (entry) => entry.status >= 200 && entry.status < 400,
           ),
           {
-            message: `${scenario.id} should complete a successful mutation request`,
+            message: `${scenario.id} should complete a successful app mutation, not only monitoring traffic`,
             timeout: 10_000,
           },
         ).toBe(true);
@@ -188,18 +402,14 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
         await bodyIsHealthy(page);
         persistenceReloaded = true;
       } else if (scenario.expectedPersistedResult.kind === "navigation") {
+        expect(action.clicked, `${scenario.id} should execute its navigation`).toBe(true);
         expect(
-          clicked
-            && (
-              afterClickPath !== beforePath
-              || page.url() !== beforeUrl
-              || onboardingStateAdvanced
-            ),
-          `${scenario.id} should produce observable navigation`,
+          action.targetUrl !== null || onboardingStateAdvanced || scenario.screenId === "portfolio-gallery",
+          `${scenario.id} should declare an exact route or named state transition`,
         ).toBe(true);
       } else {
         expect(
-          mutations.responses.filter((entry) => entry.status >= 400),
+          operationalMutations(mutations.responses).filter((entry) => entry.status >= 400),
           `${scenario.id} should not produce an errored write`,
         ).toEqual([]);
       }
@@ -214,14 +424,15 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
         primaryAction: scenario.expectedPrimaryAction,
         expectedResult: scenario.expectedPersistedResult,
         observed: {
-          clicked,
+          clicked: action.clicked,
           beforePath,
           afterClickPath,
           persistenceReloaded,
-            successfulMutationCount: mutations.responses.filter(
+            successfulMutationCount: operationalMutations(mutations.responses).filter(
               (entry) => entry.status >= 200 && entry.status < 400,
             ).length,
             onboardingStateAdvanced,
+            browserBackRestored,
           },
         });
     } finally {
@@ -310,5 +521,138 @@ if (smartSearchScenario) {
     await expect(page.getByRole("link", { name: /Identity quote response/iu })).toHaveCount(1);
     await expect(page.getByRole("link", { name: /Identity reading notes/iu })).toHaveCount(1);
     await expect(page.getByRole("link", { name: /Identity study guide/iu })).toHaveCount(1);
+  });
+}
+
+const dashboardScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
+  (scenario) => scenario.screenId === "dashboard-personalized",
+);
+
+if (IS_FULL_MATRIX && dashboardScenario) {
+  test("the locked five-item navigation works from every primary hub and supports browser back", async ({
+    page,
+    screenDesign,
+  }) => {
+    test.setTimeout(240_000);
+    const prepared = await screenDesign.prepare(dashboardScenario);
+    await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
+
+    for (const source of STUDENT_NAV_DESTINATIONS) {
+      await page.goto(source.href, { waitUntil: "domcontentloaded" });
+      await waitForScreenDesignReady(page);
+      await bodyIsHealthy(page);
+
+      for (const destination of STUDENT_NAV_DESTINATIONS) {
+        const nav = page.getByRole("navigation", { name: "Primary" });
+        await expect(nav).toBeVisible();
+        const target = nav.getByRole("link", {
+          name: destination.label,
+          exact: true,
+        });
+        await expect(target).toHaveAttribute("href", destination.href);
+        await target.click();
+        await expect.poll(() => new URL(page.url()).pathname).toBe(destination.href);
+        await expect(
+          page
+            .getByRole("navigation", { name: "Primary" })
+            .getByRole("link", { name: destination.label, exact: true }),
+        ).toHaveAttribute("aria-current", "page");
+
+        if (destination.href !== source.href) {
+          await page.goBack({ waitUntil: "domcontentloaded" });
+          await expect.poll(() => new URL(page.url()).pathname).toBe(source.href);
+        }
+      }
+    }
+  });
+}
+
+const guardedScenario = (id: string): ScreenDesignFixtureScenario => {
+  const scenario = SCREEN_DESIGN_FIXTURE_SCENARIOS.find(
+    (candidate) => candidate.id === id,
+  );
+  if (!scenario) throw new Error(`Missing guarded ScreenDesign scenario ${id}.`);
+  return scenario;
+};
+
+if (IS_FULL_MATRIX) {
+  test("protected routes reject unauthenticated access at the route boundary", async ({
+    page,
+  }) => {
+    await page.context().clearCookies();
+    await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+    await expect.poll(() => new URL(page.url()).pathname).toBe("/login");
+    await expect(page.getByRole("textbox", { name: /email/iu })).toBeVisible();
+  });
+
+  test("guarded AI, billing, empty-data, and public-share states stay truthful and calm", async ({
+    page,
+    screenDesign,
+  }) => {
+    test.setTimeout(420_000);
+
+    for (const id of [
+      "ai-writing-coach:ai-red-blocked",
+      "ai-writing-coach:ai-yellow-blocked",
+    ]) {
+      const scenario = guardedScenario(id);
+      const prepared = await screenDesign.prepare(scenario);
+      await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+      await waitForScreenDesignReady(page);
+      await bodyIsHealthy(page);
+      const action = primaryActionLocator(page, scenario);
+      await expect(action).toBeVisible();
+      await expect(action).toBeDisabled();
+      await assertDisabledActionReason(action, scenario);
+      const body = (await page.locator("body").innerText()).toLowerCase();
+      expect(body).toMatch(/class|policy|available|limited/iu);
+      expect(body).not.toMatch(/you failed|you were wrong|you missed/iu);
+    }
+
+    for (const id of ["paywall-standard:default", "paywall-social-proof:default"]) {
+      const scenario = guardedScenario(id);
+      const prepared = await screenDesign.prepare(scenario);
+      await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+      await waitForScreenDesignReady(page);
+      await bodyIsHealthy(page);
+      await expect(page.locator("body")).toContainText(
+        /Secure checkout is not configured|checkout is unavailable|Checkout appears only when/iu,
+      );
+      const action = primaryActionLocator(page, scenario);
+      await expect(action).toHaveAttribute("href", "/settings");
+      await expect(page.locator("a[href*='/api/billing/checkout']")).toHaveCount(0);
+    }
+
+    {
+      const scenario = guardedScenario("library-empty-state:default");
+      const prepared = await screenDesign.prepare(scenario);
+      await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+      await waitForScreenDesignReady(page);
+      await bodyIsHealthy(page);
+      await expect(page.locator("body")).toContainText(
+        /Empty playbook|not drafted a subject yet/iu,
+      );
+      const actionHref = await primaryActionLocator(page, scenario).getAttribute("href");
+      expect(actionHref).not.toBeNull();
+      const actionUrl = new URL(actionHref ?? "/", "http://diana.local");
+      expect(actionUrl.pathname).toBe("/classes");
+      expect(actionUrl.searchParams.get("create")).toBe("1");
+    }
+
+    for (const id of [
+      "external-scout-view:share-expired",
+      "external-scout-view:share-revoked",
+    ]) {
+      const scenario = guardedScenario(id);
+      const prepared = await screenDesign.prepare(scenario);
+      await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+      await waitForScreenDesignReady(page);
+      const body = await page.locator("body").innerText();
+      expect(body).toMatch(/Shared link unavailable|expired|turned off/iu);
+      expect(body).not.toMatch(/Identity quote response/iu);
+      await expect(page.getByRole("link", { name: "Open shared evidence" })).toHaveCount(0);
+      expect(await page.context().cookies()).toEqual([]);
+    }
   });
 }

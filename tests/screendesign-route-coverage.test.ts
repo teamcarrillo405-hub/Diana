@@ -9,6 +9,7 @@ import {
   getStudentNavOwner,
   screenDesignStateKey,
 } from "@/lib/navigation";
+import { SCREEN_DESIGN_FIXTURE_SCENARIOS } from "@/lib/qa/screendesign-fixtures";
 import { SCREEN_DESIGN_SCREENS } from "@/lib/screendesign/screens";
 
 const root = process.cwd();
@@ -70,6 +71,56 @@ describe("ScreenDesign canonical route and state coverage", () => {
       expect(source, ownerFile).not.toMatch(
         /(?:TodayGamePlan|NexusArcade|Nexus|MissionControl|PageShell|AppTopNav)/u,
       );
+    }
+  });
+
+  it("pairs every visible primary action with an executable or truthfully guarded fixture contract", () => {
+    const defaultScenarios = SCREEN_DESIGN_FIXTURE_SCENARIOS.filter(
+      (scenario) => scenario.isDefault,
+    );
+
+    expect(defaultScenarios).toHaveLength(47);
+
+    for (const screen of SCREEN_DESIGN_SCREENS) {
+      expect(
+        screen.primaryAction.label.trim(),
+        `${screen.id} should expose a named primary action`,
+      ).not.toBe("");
+      expect(
+        screen.primaryAction.contract.trim(),
+        `${screen.id} should document its primary action contract`,
+      ).not.toBe("");
+      expect(
+        screen.primaryAction.contract,
+        `${screen.id} should not ship a placeholder action contract`,
+      ).not.toMatch(/\b(?:todo|placeholder|prototype only|coming soon)\b/iu);
+
+      const scenario = defaultScenarios.find(
+        (candidate) => candidate.screenId === screen.id,
+      );
+      expect(
+        scenario,
+        `${screen.id} should have one default executable fixture scenario`,
+      ).toBeDefined();
+      expect(scenario?.expectedPrimaryAction).toEqual({
+        label: screen.primaryAction.label,
+        kind: screen.primaryAction.kind,
+      });
+      expect(
+        scenario?.guardedStates.length,
+        `${screen.id} should declare at least one guarded state`,
+      ).toBeGreaterThan(0);
+
+      if (screen.authClass === "public-token") {
+        expect(
+          scenario?.ownerAlias,
+          `${screen.id} should use the isolated public owner fixture`,
+        ).toBe("qa-public-owner");
+        expect(
+          scenario?.route.params.token,
+          `${screen.id} should resolve through a scoped token route`,
+        ).toBe("share-active");
+      }
     }
   });
 });
