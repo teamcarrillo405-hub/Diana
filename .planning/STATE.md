@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 21
+current_plan: 22
 status: executing
-stopped_at: Completed 36-26-PLAN.md
-last_updated: "2026-07-16T05:26:49.210Z"
+stopped_at: Completed 36-07-PLAN.md
+last_updated: "2026-07-16T06:08:55.020Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-26 linked onboarding schema and two-owner persistence proof
+last_activity_desc: Completed 36-07 four-screen source-faithful onboarding flow
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 23
-  percent: 0
+  completed_plans: 24
+  percent: 80
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 21
+**Current Plan:** 22
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [████████░░] 77%
-**Last Activity:** 2026-07-15 - Completed 36-26 linked onboarding schema and two-owner persistence proof
+**Progress:** [████████░░] 80%
+**Last Activity:** 2026-07-15 - Completed 36-07 four-screen source-faithful onboarding flow
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T05:26:35.450Z
-**Stopped at:** Completed 36-26-PLAN.md
+**Last session:** 2026-07-16T06:08:55.012Z
+**Stopped at:** Completed 36-07-PLAN.md
 
 ---
 
@@ -714,6 +714,7 @@ total_plans_in_phase: 30
 | Phase 36 P21 | 12 min | 2 tasks | 5 files |
 | Phase 36 P25 | 25 min | 2 tasks | 12 files |
 | Phase 36 P26 | 30 min | 2 tasks | 5 files |
+| Phase 36 P07 | 36 min | 3 tasks | 15 files |
 
 ## Decisions
 
@@ -784,9 +785,11 @@ total_plans_in_phase: 30
 - [Phase 36]: Linked schema writes require matching CLI, local app, and Vercel Preview Supabase project refs. A single intended pending migration may be applied only after identity equality and a dry run.
 - [Phase 36]: Live onboarding schema proof uses ephemeral in-memory CLI credentials and read-only pg_catalog inspection. Docker is unavailable, so local psql preserves exact live verification without persisting or printing secrets.
 - [Phase 36]: The onboarding persistence QA seam remains development-only and caller-owned. It accepts no owner id and delegates auth, validation, mutation, and RLS to completeScreenDesignOnboarding.
+- [Phase 36]: Live onboarding contains only the four attached source states; the obsolete done composition redirects to the real dashboard. — D-04 locks the first-run order and excludes alternate legacy designs.
+- [Phase 36]: Canonical onboarding selectors outrank broad application theme rules. — Old command styling must not leak into reviewed ScreenDesign compositions.
 
 ## Session
 
-**Last session:** 2026-07-16T03:44:20.465Z
-**Stopped at:** Completed 36-19-PLAN.md
+**Last session:** 2026-07-16T06:08:55.012Z
+**Stopped at:** Completed 36-07-PLAN.md
 **Resume file:** None

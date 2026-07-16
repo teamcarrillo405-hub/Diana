@@ -544,7 +544,7 @@ Plans:
 **Goal:** Replace Diana's old Nexus/Mission Control presentation with all 47 canonical ScreenDesign states, wired to the existing secure backend and proven source-faithful at 393 by 852 before launch.
 **Requirements:** P36-FIDELITY, P36-ASSETS, P36-OPERATIONS, P36-ONBOARDING, P36-QA, P36-REMOVAL
 **Depends on:** Phase 35
-**Plans:** 23/30 plans executed
+**Plans:** 24/30 plans executed
 
 Plans:
 
@@ -554,7 +554,7 @@ Plans:
 - [x] 36-04-PLAN.md - Source-faithful viewport, media, card, and five-nav primitives
 - [x] 36-05-PLAN.md - Attached stadium Lobby dashboard replacement
 - [x] 36-06-PLAN.md - Durable onboarding hurdle and schedule fields
-- [ ] 36-07-PLAN.md - Four attached onboarding screens in locked order
+- [x] 36-07-PLAN.md - Four attached onboarding screens in locked order
 - [x] 36-08-PLAN.md - Assignment detail, submit checkpoint, and task breakdown
 - [x] 36-09-PLAN.md - Inbox triage, mission board, and quick add
 - [x] 36-10-PLAN.md - Class library empty/filled states and rubric scout
