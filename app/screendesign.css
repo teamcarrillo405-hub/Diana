@@ -3888,3 +3888,392 @@ body.diana-app {
     min-height: max(100dvh, 852px);
   }
 }
+
+/* Flashcard review */
+.diana-app .sd-flashcard-review {
+  position: relative;
+  display: flex;
+  min-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 48%, rgb(116 192 255 / 0.07), transparent 16rem),
+    #0f172a;
+  color: #fff;
+}
+
+.diana-app .sd-flashcard-review-header {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3.5rem 1.5rem 1rem;
+  background: rgb(15 23 42 / 0.82);
+  backdrop-filter: blur(14px);
+}
+
+.diana-app .sd-flashcard-review-header > a {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+  color: #fff;
+}
+
+.diana-app .sd-flashcard-review-header > a svg {
+  width: 1.35rem;
+}
+
+.diana-app .sd-flashcard-review-header > div:nth-child(2) {
+  min-width: 0;
+  text-align: center;
+}
+
+.diana-app .sd-flashcard-review-header h1,
+.diana-app .sd-flashcard-review-header p {
+  overflow: hidden;
+  margin: 0;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.diana-app .sd-flashcard-review-header h1 {
+  color: #74c0ff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.72rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.diana-app .sd-flashcard-review-header p {
+  margin-top: 0.25rem;
+  color: #94a3b8;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.diana-app .sd-flashcard-progress {
+  --sd-review-progress: 0deg;
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, #0f172a 57%, transparent 59%),
+    conic-gradient(#ff79da var(--sd-review-progress), rgb(255 255 255 / 0.1) 0);
+}
+
+.diana-app .sd-flashcard-progress span {
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.52rem;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.diana-app .sd-flashcard-review-main {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0.6rem 1.5rem 0.9rem;
+}
+
+.diana-app .sd-flashcard-face {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-height: 28.5rem;
+  aspect-ratio: 3 / 4;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 2rem;
+  background: #fff;
+  padding: 2rem;
+  color: #0f172a;
+  text-align: center;
+  box-shadow: 0 20px 40px rgb(0 0 0 / 0.4), 0 0 20px rgb(116 192 255 / 0.1);
+}
+
+.diana-app .sd-flashcard-face-letter {
+  position: absolute;
+  top: 1.4rem;
+  left: 1.5rem;
+  color: rgb(15 23 42 / 0.1);
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 2.25rem;
+  font-style: italic;
+  font-weight: 900;
+}
+
+.diana-app .sd-flashcard-face h2 {
+  margin: 0;
+  color: #0f172a;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: clamp(1.45rem, 6.1vw, 1.8rem);
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-flashcard-source-action {
+  margin: 1rem 0 0;
+  color: #64748b;
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.diana-app .sd-flashcard-audio {
+  position: absolute;
+  top: 1.35rem;
+  right: 1.35rem;
+  min-height: auto;
+  border-color: rgb(15 23 42 / 0.12);
+  background: rgb(15 23 42 / 0.04);
+  color: #334155;
+}
+
+.diana-app .sd-flashcard-reveal {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 2.25rem;
+  border: 2px solid #74c0ff;
+  border-radius: 999px;
+  background: transparent;
+  padding: 0.55rem 1.15rem;
+  color: #0f172a;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-flashcard-reveal svg {
+  width: 0.9rem;
+}
+
+.diana-app .sd-flashcard-support {
+  position: absolute;
+  z-index: 10;
+  right: 1.5rem;
+  bottom: 1rem;
+  left: 1.5rem;
+  border: 1px solid rgb(251 191 36 / 0.4);
+  border-radius: 1rem;
+  background: rgb(30 41 59 / 0.98);
+  padding: 0.85rem;
+  color: #fde68a;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.3);
+}
+
+.diana-app .sd-flashcard-support p {
+  margin: 0.25rem 0 0.65rem;
+  color: #cbd5e1;
+  font-size: 0.7rem;
+}
+
+.diana-app .sd-flashcard-support button {
+  min-height: auto;
+  border: 1px solid rgb(251 191 36 / 0.35);
+  border-radius: 0.5rem;
+  background: transparent;
+  padding: 0.4rem 0.65rem;
+  color: #fde68a;
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.diana-app .sd-flashcard-quick-add {
+  position: absolute;
+  z-index: 30;
+  right: 1.5rem;
+  bottom: 11.9rem;
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #74c0ff, #ff79da);
+  color: #0f172a;
+  box-shadow: 0 10px 30px rgb(45 212 191 / 0.3);
+}
+
+.diana-app .sd-flashcard-quick-add svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.diana-app .sd-flashcard-review-footer {
+  flex: 0 0 auto;
+  border-top: 1px solid rgb(255 255 255 / 0.05);
+  background: rgb(15 23 42 / 0.95);
+  padding: 0.65rem 1rem 1.5rem;
+  backdrop-filter: blur(18px);
+}
+
+.diana-app .sd-flashcard-tip {
+  display: flex;
+  min-height: 3.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-right: 0.5rem;
+}
+
+.diana-app .sd-flashcard-tip strong {
+  color: #74c0ff;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-flashcard-tip p {
+  width: 13rem;
+  margin: 0.2rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.64rem;
+  font-style: italic;
+  line-height: 1.35;
+}
+
+.diana-app .sd-flashcard-tip .sd-source-mascot {
+  width: 4.5rem;
+  height: 4.5rem;
+  margin-top: -1.2rem;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgb(116 192 255 / 0.35));
+}
+
+.diana-app .sd-flashcard-ratings {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.diana-app .sd-flashcard-ratings button {
+  display: grid;
+  min-width: 0;
+  min-height: 3.5rem;
+  place-items: center;
+  gap: 0.1rem;
+  border: 1px solid rgb(251 191 36 / 0.34);
+  border-radius: 0.85rem;
+  background: rgb(251 191 36 / 0.08);
+  color: #fbbf24;
+}
+
+.diana-app .sd-flashcard-ratings button[data-tone="orange"] {
+  border-color: rgb(249 115 22 / 0.35);
+  background: rgb(249 115 22 / 0.08);
+  color: #fb923c;
+}
+
+.diana-app .sd-flashcard-ratings button[data-tone="blue"] {
+  border-color: rgb(116 192 255 / 0.35);
+  background: rgb(116 192 255 / 0.08);
+  color: #74c0ff;
+}
+
+.diana-app .sd-flashcard-ratings button[data-tone="teal"] {
+  border-color: rgb(45 212 191 / 0.35);
+  background: rgb(45 212 191 / 0.08);
+  color: #2dd4bf;
+}
+
+.diana-app .sd-flashcard-ratings button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.diana-app .sd-flashcard-ratings strong {
+  overflow: hidden;
+  max-width: 100%;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.66rem;
+  font-style: italic;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-flashcard-ratings span {
+  font-size: 0.48rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-flashcard-status {
+  min-height: 0.9rem;
+  margin: 0.4rem 0 0;
+  color: #94a3b8;
+  font-size: 0.58rem;
+  text-align: center;
+}
+
+.diana-app .sd-flashcard-review-complete {
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.diana-app .sd-flashcard-review-complete .sd-flashcard-complete-mascot {
+  width: 8rem;
+  height: 8rem;
+  object-fit: contain;
+}
+
+.diana-app .sd-flashcard-review-complete :is(p, h1, span) {
+  margin: 0;
+}
+
+.diana-app .sd-flashcard-review-complete p {
+  color: #74c0ff;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-flashcard-review-complete h1 {
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 2rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-flashcard-review-complete span {
+  max-width: 19rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.diana-app .sd-flashcard-review-complete a {
+  border-radius: 0.8rem;
+  background: linear-gradient(100deg, #74c0ff, #ff79da);
+  padding: 0.8rem 1rem;
+  color: #0f172a;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+}

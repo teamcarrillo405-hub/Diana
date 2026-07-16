@@ -1,21 +1,30 @@
 "use client";
-import { useEffect, useState, useTransition } from "react";
+
+import Link from "next/link";
+import { useEffect, useMemo, useState, useTransition, type CSSProperties } from "react";
+import { ChevronLeft, Eye, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+import { DianaMascotMark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { TtsButton } from "@/components/tts-button";
+import { schedule, type FsrsCard } from "@/lib/fsrs/fsrs";
 import { hapticTap } from "@/lib/native/haptics";
-import { shouldOfferDifferentApproach } from "@/lib/emotional/session";
-import type { TtsProvider } from "@/lib/supabase/types";
 import {
   cacheOfflineFlashcards,
   queueOfflineFlashcardReview,
   registerOfflineSync,
 } from "@/lib/offline/store";
+import { shouldOfferDifferentApproach } from "@/lib/emotional/session";
+import type { FsrsState } from "@/lib/notes/types";
+import type { TtsProvider } from "@/lib/supabase/types";
+
 import { rateCard } from "../actions";
 
 export type QueueCard = {
-  id:    string;
+  id: string;
   front: string;
-  back:  string;
+  back: string;
   state: string;
   stability: number;
   difficulty: number;
@@ -28,11 +37,40 @@ export type QueueCard = {
 };
 
 const RATINGS = [
-  { value: 1 as const, label: "Again",  hint: "Forgot it" },
-  { value: 2 as const, label: "Hard",   hint: "Took a while" },
-  { value: 3 as const, label: "Good",   hint: "Got it" },
-  { value: 4 as const, label: "Easy",   hint: "Knew it cold" },
-];
+  { value: 1 as const, label: "Again", tone: "amber" },
+  { value: 2 as const, label: "Hard", tone: "orange" },
+  { value: 3 as const, label: "Good", tone: "blue" },
+  { value: 4 as const, label: "Easy", tone: "teal" },
+] as const;
+
+function intervalLabel(card: QueueCard, rating: 1 | 2 | 3 | 4): string {
+  try {
+    const now = new Date();
+    const result = schedule(
+      {
+        state: card.state as FsrsState,
+        stability: Number(card.stability),
+        difficulty: Number(card.difficulty),
+        dueAt: card.due_at,
+        reps: card.reps,
+        lapses: card.lapses,
+        lastReviewAt: card.last_review_at,
+      } satisfies FsrsCard,
+      rating,
+      now,
+    );
+    const minutes = Math.max(
+      1,
+      Math.round((new Date(result.card.dueAt).getTime() - now.getTime()) / 60_000),
+    );
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 48) return `${hours}h`;
+    return `${Math.round(hours / 24)}d`;
+  } catch {
+    return "later";
+  }
+}
 
 export function ReviewSession({
   queue,
@@ -48,14 +86,23 @@ export function ReviewSession({
   ttsVoice: string;
 }) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
+  const [isRating, startTransition] = useTransition();
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [rating, setRating] = useState(false);
   const [needsSupportCount, setNeedsSupportCount] = useState(0);
   const [showSupport, setShowSupport] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   const card = queue[idx];
+  const intervalLabels = useMemo(
+    () =>
+      card
+        ? Object.fromEntries(
+            RATINGS.map((rating) => [rating.value, intervalLabel(card, rating.value)]),
+          )
+        : {},
+    [card],
+  );
 
   useEffect(() => {
     void cacheOfflineFlashcards(
@@ -77,152 +124,165 @@ export function ReviewSession({
 
   if (!card) {
     return (
-      <div className="rounded-2xl border border-dashed border-border bg-card p-8 text-center">
-        <p className="text-lg font-medium">Done for now.</p>
-        <p className="mt-1 text-sm text-muted">
-          Nice work. The next batch will be ready when it&apos;s ready.
-        </p>
-        <button
-          type="button"
-          onClick={() => router.push("/flashcards")}
-          className="mt-4 rounded-md bg-accent px-4 py-2 text-sm text-white"
-        >
-          Back to Study
-        </button>
-      </div>
+      <ScreenDesignViewport className="sd-flashcard-review sd-flashcard-review-complete">
+        <DianaMascotMark decorative className="sd-flashcard-complete-mascot" />
+        <p>Review session</p>
+        <h1>Done for now.</h1>
+        <span>Your next cards will appear when the scheduler brings them back.</span>
+        <Link href="/flashcards">Back to study</Link>
+      </ScreenDesignViewport>
     );
   }
 
+  function advance() {
+    setFlipped(false);
+    setStatusMessage("");
+    setIdx((current) => current + 1);
+  }
+
   function handleRate(value: 1 | 2 | 3 | 4) {
-    setRating(true);
+    if (isRating) return;
+    setStatusMessage("Saving your review…");
     const nextNeedsSupport = value === 1 ? needsSupportCount + 1 : needsSupportCount;
     setNeedsSupportCount(nextNeedsSupport);
     if (shouldOfferDifferentApproach({ needsSupportCount: nextNeedsSupport })) {
       setShowSupport(true);
     }
+
     startTransition(async () => {
       try {
         const result = await rateCard({ id: card.id, rating: value });
-        if (!result.ok && !navigator.onLine) {
-          await queueOfflineFlashcardReview({
-            tempId: `${card.id}-${Date.now()}`,
-            cardId: card.id,
-            rating: value,
-            queuedAt: new Date().toISOString(),
-          });
-          await registerOfflineSync();
+        if (result.ok) {
+          advance();
+          return;
         }
+        if (navigator.onLine) {
+          setStatusMessage(result.error || "Your card is still here. Try saving again.");
+          return;
+        }
+        await queueOfflineFlashcardReview({
+          tempId: `${card.id}-${Date.now()}`,
+          cardId: card.id,
+          rating: value,
+          queuedAt: new Date().toISOString(),
+        });
+        await registerOfflineSync();
+        advance();
       } catch {
-        if (!navigator.onLine) {
-          await queueOfflineFlashcardReview({
-            tempId: `${card.id}-${Date.now()}`,
-            cardId: card.id,
-            rating: value,
-            queuedAt: new Date().toISOString(),
-          });
-          await registerOfflineSync();
+        if (navigator.onLine) {
+          setStatusMessage("Your card is still here. Try saving again.");
+          return;
         }
+        await queueOfflineFlashcardReview({
+          tempId: `${card.id}-${Date.now()}`,
+          cardId: card.id,
+          rating: value,
+          queuedAt: new Date().toISOString(),
+        });
+        await registerOfflineSync();
+        advance();
       }
-      // Advance to next card; reset flip state.
-      setFlipped(false);
-      setRating(false);
-      setIdx((i) => i + 1);
     });
   }
 
+  const progress = Math.round(((idx + 1) / queue.length) * 100);
+
   return (
-    <div className="space-y-6">
-      <p className="text-xs text-muted">
-        Card {idx + 1} of {queue.length}
-      </p>
+    <ScreenDesignViewport className="sd-flashcard-review">
+      <header className="sd-flashcard-review-header">
+        <Link href="/flashcards" aria-label="Back to study">
+          <ChevronLeft aria-hidden="true" />
+        </Link>
+        <div>
+          <h1>Review session</h1>
+          <p>{card.source_anchor || "Your study deck"}</p>
+        </div>
+        <div
+          className="sd-flashcard-progress"
+          style={{ "--sd-review-progress": `${progress * 3.6}deg` } as CSSProperties}
+          aria-label={`Card ${idx + 1} of ${queue.length}`}
+        >
+          <span>{idx + 1}/{queue.length}</span>
+        </div>
+      </header>
 
-      {showSupport && (
-        <section className="rounded-xl border border-amber-400/40 bg-amber-50 p-4 text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
-          <p className="text-sm font-medium">Try a different path?</p>
-          <p className="mt-1 text-sm">
-            Switch to audio, look at one note line, or say the answer out loud before the next card.
-          </p>
-          <button
-            type="button"
-            onClick={() => setShowSupport(false)}
-            className="mt-3 rounded-md border border-amber-500/40 px-3 py-2 text-sm hover:bg-amber-100/60 dark:hover:bg-amber-900/40"
-          >
-            Keep reviewing
-          </button>
-        </section>
-      )}
+      <main className="sd-flashcard-review-main">
+        {showSupport ? (
+          <section className="sd-flashcard-support" aria-live="polite">
+            <strong>Try a different path?</strong>
+            <p>Use audio, look at one source line, or say the answer out loud.</p>
+            <button type="button" onClick={() => setShowSupport(false)}>
+              Keep reviewing
+            </button>
+          </section>
+        ) : null}
 
-      {/* Front + (optional) back */}
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <div className="flex items-center justify-between gap-2">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted">
-            Front
-          </p>
+        <article className="sd-flashcard-face" data-flipped={flipped}>
+          <span className="sd-flashcard-face-letter" aria-hidden="true">
+            {flipped ? "A" : "Q"}
+          </span>
           <TtsButton
-            text={card.front}
-            label="Audio"
+            text={flipped ? card.back : card.front}
+            label={flipped ? "Read answer" : "Read question"}
             provider={ttsProvider}
             speed={ttsSpeed}
             pitch={ttsPitch}
             voice={ttsVoice}
+            className="sd-flashcard-audio"
           />
-        </div>
-        <p className="mt-2 whitespace-pre-wrap text-base">{card.front}</p>
-        {(card.source_anchor || card.student_required_action) && (
-          <div className="mt-4 rounded-xl border border-border bg-surface-soft p-3 text-xs text-muted">
-            {card.source_anchor && <p><span className="font-medium text-fg">Source:</span> {card.source_anchor}</p>}
-            {card.student_required_action && <p className="mt-1">{card.student_required_action}</p>}
-          </div>
-        )}
-
-        {flipped && (
-          <div className="animate-card-reveal">
-            <hr className="my-4 border-border" />
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted">
-                Back
-              </p>
-              <TtsButton
-                text={card.back}
-                label="Audio"
-                provider={ttsProvider}
-                speed={ttsSpeed}
-                pitch={ttsPitch}
-                voice={ttsVoice}
-              />
-            </div>
-            <p className="mt-2 whitespace-pre-wrap text-base">{card.back}</p>
-          </div>
-        )}
-      </div>
-
-      {!flipped ? (
-        <button
-          type="button"
-          onClick={() => {
-            void hapticTap();
-            setFlipped(true);
-          }}
-          className="press-scale w-full rounded-lg bg-accent px-4 py-3 text-sm font-medium text-white"
-        >
-          Show answer
-        </button>
-      ) : (
-        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-          {RATINGS.map((r) => (
+          <h2>{flipped ? card.back : card.front}</h2>
+          {card.student_required_action ? (
+            <p className="sd-flashcard-source-action">{card.student_required_action}</p>
+          ) : null}
+          {!flipped ? (
             <button
-              key={r.value}
               type="button"
-              onClick={() => handleRate(r.value)}
-              disabled={rating}
-              className="rounded-lg border border-border bg-card px-3 py-3 text-sm hover:bg-border/30 disabled:opacity-50"
+              onClick={() => {
+                void hapticTap();
+                setFlipped(true);
+              }}
+              className="sd-flashcard-reveal"
             >
-              <span className="block font-medium">{r.label}</span>
-              <span className="block text-xs text-muted">{r.hint}</span>
+              <Eye aria-hidden="true" />
+              Reveal answer
+            </button>
+          ) : (
+            <button type="button" onClick={() => setFlipped(false)} className="sd-flashcard-reveal">
+              Show question
+            </button>
+          )}
+        </article>
+      </main>
+
+      <Link href="/capture" className="sd-flashcard-quick-add" aria-label="Quick add">
+        <Plus aria-hidden="true" />
+      </Link>
+
+      <footer className="sd-flashcard-review-footer">
+        <div className="sd-flashcard-tip">
+          <div>
+            <strong>Diana tip</strong>
+            <p>{flipped ? "Choose the rating that matches your recall." : "Answer once before you reveal the back."}</p>
+          </div>
+          <DianaMascotMark decorative />
+        </div>
+        <div className="sd-flashcard-ratings" aria-label="Recall rating">
+          {RATINGS.map((rating) => (
+            <button
+              key={rating.value}
+              type="button"
+              data-tone={rating.tone}
+              onClick={() => handleRate(rating.value)}
+              disabled={isRating}
+              aria-label={rating.value === 3 ? "Rate this card" : `Rate ${rating.label}`}
+            >
+              <strong>{rating.label}</strong>
+              <span>{intervalLabels[rating.value] || "later"}</span>
             </button>
           ))}
         </div>
-      )}
-    </div>
+        <p className="sd-flashcard-status" aria-live="polite">{statusMessage}</p>
+      </footer>
+    </ScreenDesignViewport>
   );
 }
