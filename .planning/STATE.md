@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 15
+current_plan: 16
 status: executing
-stopped_at: Completed 36-15-PLAN.md
-last_updated: "2026-07-16T01:30:04.242Z"
+stopped_at: Completed 36-16-PLAN.md
+last_updated: "2026-07-16T02:08:10.023Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-15 concept, knowledge graph, and progress insights ScreenDesign rebuild
+last_activity_desc: Completed 36-16 proof, portfolio, and privacy ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 15
-  percent: 50
+  completed_plans: 16
+  percent: 53
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 15
+**Current Plan:** 16
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [█████░░░░░] 50%
-**Last Activity:** 2026-07-15 - Completed 36-15 concept, knowledge graph, and progress insights ScreenDesign rebuild
+**Progress:** [█████░░░░░] 53%
+**Last Activity:** 2026-07-15 - Completed 36-16 proof, portfolio, and privacy ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T01:30:04.235Z
-**Stopped at:** Completed 36-15-PLAN.md
+**Last session:** 2026-07-16T02:08:10.012Z
+**Stopped at:** Completed 36-16-PLAN.md
 
 ---
 
@@ -706,6 +706,7 @@ total_plans_in_phase: 30
 | Phase 36 P13 | 22 min | 3 tasks | 14 files |
 | Phase 36 P14 | 30 min | 3 tasks | 13 files |
 | Phase 36 P15 | 64 min | 3 tasks | 8 files |
+| Phase 36 P16 | 29 min | 3 tasks | 16 files |
 
 ## Decisions
 
@@ -755,6 +756,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Mastery evidence, student confidence, and grades remain separate — Each measure has distinct provenance and must not be presented as one score
 - [Phase 36]: Knowledge Graph edges use authenticated class context only — The app must not invent semantic relationships absent from stored evidence
 - [Phase 36]: Progress evidence mix is a private activity aggregate, not a grade — Assignment, focus, and activity inputs support calm trends without fabricating academic outcomes
+- [Phase 36]: Milestone celebration requires a real completed proof relation — Source fidelity cannot fabricate an achievement when no owner-scoped completed assignment signal exists.
+- [Phase 36]: Portfolio artwork stays local while item facts remain owner-scoped — Canonical thumbnails may shape presentation but never replace real titles, reflections, file state, or portfolio membership.
+- [Phase 36]: Privacy success follows the complete server result — Exports, backups, and destructive controls must not show success until authenticated owner-scoped operations finish, and every deletion write is checked.
 
 ## Session
 
