@@ -22,7 +22,13 @@ const EXPECTED_VALUES = Object.freeze({
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const REPO_ROOT = resolve(SCRIPT_PATH, "..", "..");
-const NPX = process.platform === "win32" ? "npx.cmd" : "npx";
+const NPX_CLI = join(
+  resolve(process.execPath, ".."),
+  "node_modules",
+  "npm",
+  "bin",
+  "npx-cli.js",
+);
 const PSQL = process.platform === "win32" ? "psql.exe" : "psql";
 
 function fail(message) {
@@ -46,9 +52,17 @@ function run(command, args, options = {}) {
   return result.stdout ?? "";
 }
 
+function runNpx(args, options = {}) {
+  if (!existsSync(NPX_CLI)) fail("the installed npm runtime cannot locate npx-cli.js.");
+  return run(process.execPath, [NPX_CLI, ...args], options);
+}
+
 function parseJsonOutput(output, label) {
-  const start = output.indexOf("{");
-  const end = output.lastIndexOf("}");
+  const objectStart = output.indexOf("{");
+  const arrayStart = output.indexOf("[");
+  const starts = [objectStart, arrayStart].filter((index) => index >= 0);
+  const start = starts.length > 0 ? Math.min(...starts) : -1;
+  const end = start === arrayStart ? output.lastIndexOf("]") : output.lastIndexOf("}");
   if (start < 0 || end < start) fail(`${label} did not return JSON.`);
 
   try {
@@ -76,11 +90,15 @@ function parseEnvFile(contents) {
 }
 
 export function parseSupabaseProjectRef(value) {
-  const match = String(value ?? "").match(
-    /^https:\/\/([a-z]{20})\.supabase\.co\/?$/iu,
-  );
-  if (!match) fail("NEXT_PUBLIC_SUPABASE_URL does not contain a valid project ref.");
-  return match[1].toLowerCase();
+  const matches = [
+    ...String(value ?? "").matchAll(
+      /https:\/\/([a-z]{20})\.supabase\.co\/?/giu,
+    ),
+  ];
+  if (matches.length !== 1) {
+    fail("NEXT_PUBLIC_SUPABASE_URL does not contain a valid project ref.");
+  }
+  return matches[0][1].toLowerCase();
 }
 
 export function assertProjectIdentity({
@@ -226,8 +244,7 @@ function readLocalAppProjectRef() {
 function pullPreviewProjectRef(tempFiles) {
   const path = join(tmpdir(), `diana-phase36-preview-${randomUUID()}.env`);
   tempFiles.add(path);
-  run(
-    NPX,
+  runNpx(
     [
       "vercel",
       "env",
@@ -244,9 +261,8 @@ function pullPreviewProjectRef(tempFiles) {
 }
 
 function readCliProjectState() {
-  const output = run(
-    NPX,
-    ["supabase", "projects", "list", "--output", "json"],
+  const output = runNpx(
+    ["supabase", "projects", "list", "--output-format", "json"],
     { label: "Supabase project identity lookup" },
   );
   const payload = parseJsonOutput(output, "Supabase project identity lookup");
@@ -256,9 +272,8 @@ function readCliProjectState() {
 }
 
 function readMigrationHistory() {
-  const output = run(
-    NPX,
-    ["supabase", "migration", "list", "--linked", "--output", "json"],
+  const output = runNpx(
+    ["supabase", "migration", "list", "--linked", "--output-format", "json"],
     { label: "Supabase linked migration lookup" },
   );
   const payload = parseJsonOutput(output, "Supabase linked migration lookup");
@@ -284,8 +299,7 @@ function dumpLiveSchema(tempFiles) {
   // The CLI's normal schema dump requires Docker. This read-only fallback asks
   // the authenticated CLI for an ephemeral linked login, keeps it in memory,
   // and uses local psql to dump only public.profiles metadata.
-  const dryRun = run(
-    NPX,
+  const dryRun = runNpx(
     ["supabase", "db", "dump", "--linked", "--schema", "public", "--dry-run"],
     { label: "Supabase temporary linked database login" },
   );
@@ -296,12 +310,17 @@ select json_build_object(
   'table', 'profiles',
   'columns', (
     select coalesce(json_agg(json_build_object(
-      'name', column_name,
-      'data_type', data_type,
-      'is_nullable', is_nullable
-    ) order by ordinal_position), '[]'::json)
-    from information_schema.columns
-    where table_schema = 'public' and table_name = 'profiles'
+      'name', column_row.attname,
+      'data_type', format_type(column_row.atttypid, column_row.atttypmod),
+      'is_nullable', case when column_row.attnotnull then 'NO' else 'YES' end
+    ) order by column_row.attnum), '[]'::json)
+    from pg_attribute column_row
+    join pg_class table_row on table_row.oid = column_row.attrelid
+    join pg_namespace schema_row on schema_row.oid = table_row.relnamespace
+    where schema_row.nspname = 'public'
+      and table_row.relname = 'profiles'
+      and column_row.attnum > 0
+      and not column_row.attisdropped
   ),
   'constraints', (
     select coalesce(json_agg(json_build_object(
