@@ -544,7 +544,7 @@ Plans:
 **Goal:** Replace Diana's old Nexus/Mission Control presentation with all 47 canonical ScreenDesign states, wired to the existing secure backend and proven source-faithful at 393 by 852 before launch.
 **Requirements:** P36-FIDELITY, P36-ASSETS, P36-OPERATIONS, P36-ONBOARDING, P36-QA, P36-REMOVAL
 **Depends on:** Phase 35
-**Plans:** 26/30 plans executed
+**Plans:** 27/30 plans executed
 
 Plans:
 
@@ -570,7 +570,7 @@ Plans:
 - [x] 36-20-PLAN.md - Community, leaderboard, and tutor preferences
 - [x] 36-21-PLAN.md - Standard and community paywall states
 - [x] 36-22-PLAN.md - Full primary-action and navigation matrix
-- [ ] 36-23-PLAN.md - Remove obsolete visual system and pass clean build gates
+- [x] 36-23-PLAN.md - Remove obsolete visual system and pass clean build gates
 - [ ] 36-24-PLAN.md - Preview canary and final human visual approval
 - [x] 36-25-PLAN.md - Real Smart Loading suspense treatment
 - [x] 36-26-PLAN.md - Linked onboarding schema application and persistence proof

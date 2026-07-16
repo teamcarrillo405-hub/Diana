@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 23
+current_plan: 24
 status: executing
-stopped_at: Completed 36-22-PLAN.md
-last_updated: "2026-07-16T08:56:51.960Z"
+stopped_at: Completed 36-23-PLAN.md
+last_updated: "2026-07-16T10:51:04.379Z"
 last_activity: 2026-07-16
-last_activity_desc: Completed 36-22 full primary-action and navigation matrix
+last_activity_desc: Completed 36-23 obsolete presentation removal and clean build gates
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 26
-  percent: 87
+  completed_plans: 27
+  percent: 90
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-16
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 23
+**Current Plan:** 24
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [█████████░] 87%
-**Last Activity:** 2026-07-16 - Completed 36-22 full primary-action and navigation matrix
+**Progress:** [█████████░] 90%
+**Last Activity:** 2026-07-16 - Completed 36-23 obsolete presentation removal and clean build gates
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T08:56:07.083Z
-**Stopped at:** Completed 36-22-PLAN.md
+**Last session:** 2026-07-16T10:50:50.297Z
+**Stopped at:** Completed 36-23-PLAN.md
 
 ---
 
@@ -716,6 +716,7 @@ total_plans_in_phase: 30
 | Phase 36 P26 | 30 min | 2 tasks | 5 files |
 | Phase 36 P07 | 36 min | 3 tasks | 15 files |
 | Phase 36 P22 | 2h 1m | 3 tasks | 11 files |
+| Phase 36 P23 | 107m | 3 tasks | 55 files |
 
 ## Decisions
 
@@ -791,6 +792,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Every authenticated canonical state maps to exactly one locked primary destination. — Query and modal states inherit their route owner instead of creating duplicate navigation destinations.
 - [Phase 36]: Browser mutation evidence excludes monitoring traffic and requires a successful application write plus reload. — Click completion and background requests are not durable proof of an operational primary action.
 - [Phase 36]: Authenticated route templates remain DOM-transparent around streamed segments. — A stable layout tree prevents hydration mismatches between the server response and client segment boundary.
+- [Phase 36]: Delete presentation consumers only and preserve operational business, safety, state, and owner-scoped data modules. — Legacy removal must not delete backend capability or user data.
+- [Phase 36]: The App Router root owns the ScreenDesign onboarding welcome composition; no parallel Pages Router or Quiet Command landing remains. — The public entry point must use the same canonical ScreenDesign system and cannot be shadowed by the old design.
+- [Phase 36]: Visual evidence uses one screenshot buffer and browser reduced motion instead of global zero-duration CSS overrides. — Global duration overrides changed Chromium compositing and made evidence less faithful.
 
 ## Session
 
