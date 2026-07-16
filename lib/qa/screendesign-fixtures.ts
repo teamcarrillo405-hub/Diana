@@ -817,6 +817,12 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
         { name: "Claim evidence reasoning", masteryLevel: 1.8 },
         ["class-main"],
       ),
+      record(
+        "study-artifact",
+        "artifact-main",
+        { artifactType: "study_guide", title: "Identity study guide" },
+        ["class-main", "assignment-main"],
+      ),
     ],
     guardedStates: ["populated"],
     result: noWrite("Search is RLS-scoped and does not mutate student data."),

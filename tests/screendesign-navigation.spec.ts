@@ -154,3 +154,38 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
     }
   });
 }
+
+const smartSearchScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
+  (scenario) => scenario.screenId === "smart-search",
+);
+
+if (smartSearchScenario) {
+  test("smart-search excludes a second synthetic owner's matching records", async ({
+    page,
+    screenDesign,
+  }) => {
+    const prepared = await screenDesign.prepare(smartSearchScenario);
+    const secondary = await page.goto(
+      `/api/qa/anonymous-session?scenario=${encodeURIComponent(smartSearchScenario.id)}&owner=secondary`,
+      { waitUntil: "networkidle" },
+    );
+    expect(secondary?.ok()).toBe(true);
+    const primary = await page.goto(
+      `/api/qa/anonymous-session?scenario=${encodeURIComponent(smartSearchScenario.id)}`,
+      { waitUntil: "networkidle" },
+    );
+    expect(primary?.ok()).toBe(true);
+
+    const target = new URL(prepared.route, "http://diana.local");
+    target.searchParams.set("q", "Identity");
+    await page.goto(`${target.pathname}${target.search}`, {
+      waitUntil: "domcontentloaded",
+    });
+    await waitForScreenDesignReady(page);
+    await bodyIsHealthy(page);
+
+    await expect(page.getByRole("link", { name: /Identity quote response/iu })).toHaveCount(1);
+    await expect(page.getByRole("link", { name: /Identity reading notes/iu })).toHaveCount(1);
+    await expect(page.getByRole("link", { name: /Identity study guide/iu })).toHaveCount(1);
+  });
+}
