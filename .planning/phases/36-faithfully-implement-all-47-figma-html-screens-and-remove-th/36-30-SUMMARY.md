@@ -189,7 +189,8 @@ Each task was committed atomically:
 - Launch contrast commit `7497a7e` changed the shared inactive navigation token from `#64748b` to `#94a3b8` on `#0f172a`, establishing a 6.96:1 contrast ratio.
 - Only `practice-test-session.png` was intentionally refreshed and reviewed in commit `2e23654`; strict targeted practice and isolated review-submit checks then passed without update mode.
 - The complete 47-screen visual suite passed with retries and snapshot updates disabled, proving no other baseline drift.
-- The prior Plan 36-29 receipt predates the contrast correction and is not accepted as current release evidence. Plan 36-29 must independently replace it after the refreshed Plan 36-30 producer completes.
+- Assignment metadata contrast commit `15c2004` replaced the Mission Board quick-action metadata color with `var(--diana-muted)` and added a computed WCAG AA check against the composited card background; tracked goldens remained unchanged and strict Mission Board visual verification passed without update mode.
+- Any Plan 36-29 receipt whose release SHA or index predates the latest contrast correction is not accepted as current release evidence. Plan 36-29 must independently replace it after the refreshed Plan 36-30 producer completes.
 
 ## User Setup Required
 
