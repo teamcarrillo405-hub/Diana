@@ -63,9 +63,23 @@ export async function saveApPractice(
     ? scoreBand(parsed.data.correctCount, parsed.data.totalCount)
     : { band: null, message: "Practice saved. Add MCQ counts anytime for a band estimate." };
 
+  let ownedPlanId: string | null = null;
+  if (parsed.data.planId) {
+    const { data: ownedPlan, error: planError } = await supabase
+      .from("ap_exam_plans")
+      .select("id, subject")
+      .eq("id", parsed.data.planId)
+      .eq("owner_id", user.id)
+      .maybeSingle();
+    if (planError || !ownedPlan || ownedPlan.subject !== parsed.data.subject) {
+      return { ok: false, error: "Choose one of your saved AP plans." };
+    }
+    ownedPlanId = ownedPlan.id;
+  }
+
   const { error } = await supabase.from("ap_practice_attempts").insert({
     owner_id: user.id,
-    plan_id: parsed.data.planId ?? null,
+    plan_id: ownedPlanId,
     subject: parsed.data.subject,
     practice_type: parsed.data.practiceType,
     correct_count: parsed.data.correctCount,

@@ -1668,8 +1668,14 @@ function buildRowsForFactory(
           plan_id: dependencyId("ap-exam-plan"),
           subject: "english_language",
           practice_type: stringValue(values, "practiceType", "frq"),
-          correct_count: numberValue(values, "correctCount", 0),
-          total_count: numberValue(values, "totalCount", 0),
+          correct_count:
+            numberValue(values, "totalCount", 0) > 0
+              ? numberValue(values, "correctCount", 0)
+              : null,
+          total_count:
+            numberValue(values, "totalCount", 0) > 0
+              ? numberValue(values, "totalCount", 0)
+              : null,
           score_band: nullableStringValue(values, "scoreBand", null),
           notes: "Synthetic no-score practice evidence.",
           practiced_at: SCREEN_DESIGN_FIXED_CLOCK,
