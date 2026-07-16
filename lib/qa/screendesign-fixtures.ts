@@ -558,9 +558,15 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
   },
   {
     screenId: "milestone-celebration",
-    heading: "A quiet milestone",
+    heading: "Learning milestone",
     records: [
-      ...academicCore(),
+      ...academicCore("green", { status: "done" }),
+      record(
+        "assignment-signal",
+        "signal-completed",
+        { kind: "completed", occurredAt: SCREEN_DESIGN_FIXED_CLOCK },
+        ["assignment-main"],
+      ),
       record(
         "authorship-log",
         "authorship-main",
@@ -1021,7 +1027,7 @@ const GUARDED_SCENARIOS: readonly ScenarioDefinition[] = [
   {
     screenId: "milestone-celebration",
     variant: "reduced-motion",
-    heading: "A quiet milestone",
+    heading: "Proof folder",
     records: [profile({ reducedMotion: true })],
     guardedStates: ["reduced-motion"],
     result: navigation("/proof"),
