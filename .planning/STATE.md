@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 13
+current_plan: 14
 status: executing
-stopped_at: Completed 36-13-PLAN.md
-last_updated: "2026-07-16T00:40:14.364Z"
+stopped_at: Completed 36-14-PLAN.md
+last_updated: "2026-07-16T01:05:00.725Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-13 flashcard and study artifact ScreenDesign rebuild
+last_activity_desc: Completed 36-14 focus, calendar, and goal-planning ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 13
-  percent: 43
+  completed_plans: 14
+  percent: 47
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 13
+**Current Plan:** 14
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [████░░░░░░] 43%
-**Last Activity:** 2026-07-15 - Completed 36-13 flashcard and study artifact ScreenDesign rebuild
+**Progress:** [█████░░░░░] 47%
+**Last Activity:** 2026-07-15 - Completed 36-14 focus, calendar, and goal-planning ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T00:40:14.356Z
-**Stopped at:** Completed 36-13-PLAN.md
+**Last session:** 2026-07-16T01:05:00.717Z
+**Stopped at:** Completed 36-14-PLAN.md
 
 ---
 
@@ -704,6 +704,7 @@ total_plans_in_phase: 30
 | Phase 36 P10 | 50 min | 2 tasks | 12 files |
 | Phase 36 P11 | 35 min | 2 tasks | 11 files |
 | Phase 36 P13 | 22 min | 3 tasks | 14 files |
+| Phase 36 P14 | 30 min | 3 tasks | 13 files |
 
 ## Decisions
 
@@ -747,6 +748,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Direct owner-card review routes honor the requested card while the remaining queue stays due-only. — A direct student choice should not render a false empty state, but normal FSRS due behavior must remain intact.
 - [Phase 36]: Practice responses merge into the existing artifact payload without inventing a score. — This preserves generated material, durable progress, and truthful evidence without a schema migration.
 - [Phase 36]: Study artifact creation remains on the existing authenticated AI policy action. — One server path preserves traffic-light, token-budget, safety, authorship, and task-signal enforcement.
+- [Phase 36]: Focus persistence uses authenticated time logs while useTimer remains the sole timer-state authority. — Keeps the calm state union and server ownership boundary aligned.
+- [Phase 36]: Calendar workload is derived from owner assignments and profile accommodations. — Preserves real student data and avoids fabricated schedule metrics.
+- [Phase 36]: Goal submission preserves selections until the authenticated write succeeds. — Calm errors must not discard student choices or display false success.
 
 ## Session
 
