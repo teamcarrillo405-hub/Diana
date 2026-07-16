@@ -170,6 +170,7 @@ const runPlaywrightSuite = async (input: {
         input.file,
         `--project=${input.project}`,
         "--workers=1",
+        "--retries=0",
         "--reporter=line",
       ],
       {
