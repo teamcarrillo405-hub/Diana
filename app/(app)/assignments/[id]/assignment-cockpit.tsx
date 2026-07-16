@@ -41,9 +41,8 @@ type AssignmentCockpitProps = {
   status: AssignmentStatus;
   classAiMode: "red" | "yellow" | "green";
   drills: readonly AssignmentCockpitDrill[];
+  startRequested?: boolean;
 };
-
-const WORKSPACE_QUERY = "?workspace=1&start=1";
 
 export function AssignmentCockpit({
   assignmentId,
@@ -55,6 +54,7 @@ export function AssignmentCockpit({
   status: initialStatus,
   classAiMode,
   drills: initialDrills,
+  startRequested = false,
 }: AssignmentCockpitProps) {
   const router = useRouter();
   const [status, setStatus] = useState<AssignmentStatus>(initialStatus);
@@ -89,12 +89,9 @@ export function AssignmentCockpit({
   }
 
   function startOrContinue() {
+    const focusDestination = `/timer?assignment=${encodeURIComponent(assignmentId)}`;
     if (status === "todo") {
-      move(
-        "todo",
-        "drafting",
-        `/assignments/${assignmentId}${WORKSPACE_QUERY}`,
-      );
+      move("todo", "drafting", focusDestination);
       return;
     }
     if (status === "abandoned") {
@@ -113,7 +110,7 @@ export function AssignmentCockpit({
       router.push("/assignments");
       return;
     }
-    router.push(`/assignments/${assignmentId}${WORKSPACE_QUERY}`);
+    router.push(focusDestination);
   }
 
   function toggleDrill(drill: AssignmentCockpitDrill) {
@@ -168,9 +165,9 @@ export function AssignmentCockpit({
           <h1>COCKPIT: {cockpitLabel}</h1>
         </div>
         <Link
-          href={`/assignments/${assignmentId}${WORKSPACE_QUERY}`}
+          href={`/break-down?assignmentId=${encodeURIComponent(assignmentId)}`}
           className="sd-assignment-circle-control"
-          aria-label="Open full assignment workspace"
+          aria-label="Open assignment planning tools"
         >
           <MoreVertical size={21} aria-hidden="true" />
         </Link>
@@ -227,7 +224,7 @@ export function AssignmentCockpit({
               </button>
             )) : (
               <Link
-                href={`/assignments/${assignmentId}${WORKSPACE_QUERY}`}
+                href={`/break-down?assignmentId=${encodeURIComponent(assignmentId)}`}
                 className="sd-assignment-drill sd-assignment-drill-empty"
               >
                 <span className="sd-assignment-drill-check" aria-hidden="true">
@@ -271,8 +268,8 @@ export function AssignmentCockpit({
               </button>
             ) : null}
             {status === "todo" ? (
-              <Link href={`/assignments/${assignmentId}${WORKSPACE_QUERY}`}>
-                <Play size={15} aria-hidden="true" /> Open workspace
+              <Link href={`/timer?assignment=${encodeURIComponent(assignmentId)}`}>
+                <Play size={15} aria-hidden="true" /> Open focus session
               </Link>
             ) : null}
           </div>
@@ -304,6 +301,11 @@ export function AssignmentCockpit({
       </div>
 
       {message ? <p className="sd-assignment-status" role="status">{message}</p> : null}
+      {startRequested ? (
+        <p className="sr-only" aria-live="polite">
+          Assignment ready. Start the focus session when you choose.
+        </p>
+      ) : null}
       <StudentBottomNav />
     </ScreenDesignViewport>
   );

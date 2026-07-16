@@ -101,7 +101,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   mask-image: linear-gradient(to bottom, black, transparent 72%);
 }
 
-.diana-app > *:not(.skip-link):not(.sd-drawer-scrim) {
+.diana-app > *:not(.skip-link) {
   position: relative;
   z-index: 1;
 }
@@ -319,27 +319,6 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   .sd-onboarding-intro .sd-title { font-size: clamp(2.75rem, 14vw, 5rem); }
 }
 
-.sd-page {
-  min-height: 100dvh;
-  background: transparent;
-  color: var(--diana-text);
-}
-
-.sd-top-nav {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  display: flex;
-  width: 100%;
-  min-height: 4.15rem;
-  align-items: center;
-  gap: 1.25rem;
-  border-bottom: 1px solid var(--diana-border);
-  background: rgb(15 23 42 / 0.88);
-  padding: 0.7rem clamp(1rem, 3vw, 2rem);
-  backdrop-filter: blur(18px);
-}
-
 .sd-brand {
   display: inline-flex;
   align-items: center;
@@ -365,178 +344,71 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   font-weight: 900;
 }
 
-.sd-nav-links {
-  display: flex;
-  align-items: stretch;
-  align-self: stretch;
-  gap: 0.15rem;
-}
-
-.sd-nav-link,
-.sd-nav-more {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  border: 0;
-  background: transparent;
-  padding: 0.45rem 0.8rem;
-  color: var(--diana-muted);
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.sd-nav-link:hover,
-.sd-nav-more:hover,
-.sd-nav-link[aria-current="page"],
-.sd-nav-more[aria-expanded="true"] {
-  color: var(--diana-text);
-}
-
-.sd-nav-link[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  right: 0.75rem;
-  bottom: -0.7rem;
-  left: 0.75rem;
-  height: 0.18rem;
-  border-radius: 999px;
-  background: var(--diana-pink);
-}
-
-.sd-nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-left: auto;
-}
-
-.sd-nav-icon {
-  display: grid;
-  width: 2.45rem;
-  height: 2.45rem;
-  place-items: center;
-  border: 1px solid var(--diana-border);
-  border-radius: 0.8rem;
-  background: rgb(255 255 255 / 0.045);
-  color: var(--diana-muted);
-}
-
-.sd-mobile-nav {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 55;
-  display: none;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  border-top: 1px solid var(--diana-border);
-  background: rgb(15 23 42 / 0.95);
-  padding: 0.3rem max(0.35rem, env(safe-area-inset-right)) max(0.45rem, env(safe-area-inset-bottom)) max(0.35rem, env(safe-area-inset-left));
-  backdrop-filter: blur(18px);
-}
-
-.sd-mobile-nav a,
-.sd-mobile-nav button {
-  display: flex;
-  min-width: 0;
-  min-height: 4rem;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.25rem;
-  border: 0;
-  background: transparent;
-  padding: 0.35rem 0.1rem;
-  color: var(--diana-muted);
-  font-size: 0.58rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-decoration: none;
-  text-transform: uppercase;
-}
-
-.sd-mobile-nav a[aria-current="page"],
-.sd-mobile-nav button[aria-expanded="true"] {
-  color: var(--diana-pink);
-}
-
-.sd-drawer-scrim {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-  display: flex;
-  justify-content: flex-end;
-  background: rgb(2 6 23 / 0.7);
-  backdrop-filter: blur(6px);
-}
-
-.sd-drawer {
-  display: grid;
-  width: min(28rem, 94vw);
-  height: 100%;
-  align-content: start;
-  gap: 1.4rem;
-  overflow-y: auto;
-  border-left: 1px solid var(--diana-border-strong);
-  background: var(--diana-navy);
-  padding: 1.25rem;
-}
-
-.sd-drawer-head,
-.sd-drawer-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.sd-drawer-group {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.sd-drawer-link {
-  border: 1px solid var(--diana-border);
-  border-radius: 0.9rem;
-  background: rgb(255 255 255 / 0.035);
-  padding: 0.8rem 0.9rem;
-  color: var(--diana-text);
-  text-decoration: none;
-}
-
-.sd-drawer-link strong {
-  font-family: var(--font-display), sans-serif;
-  font-style: italic;
-  text-transform: uppercase;
-}
-
-.sd-drawer-link small {
-  color: var(--diana-muted);
-  text-align: right;
-}
-
-.sd-container {
-  width: min(100%, var(--layout-max-width, 1180px));
+.sd-support-screen {
+  width: min(100%, 48rem);
+  min-height: 100dvh;
   margin-inline: auto;
-  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) 7rem;
+  padding: clamp(1rem, 4vw, 2rem) clamp(1rem, 4vw, 2rem)
+    calc(7rem + env(safe-area-inset-bottom));
+  display: grid;
+  align-content: start;
+  gap: 1.25rem;
+  box-sizing: border-box;
+  color: var(--diana-text);
 }
 
-.sd-page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-bottom: clamp(1.5rem, 4vw, 2.75rem);
-}
-
-.sd-heading-group {
+.sd-support-header {
   display: grid;
   gap: 0.5rem;
-  max-width: 48rem;
+}
+
+.sd-support-header .sd-brand {
+  margin-bottom: 0.5rem;
+}
+
+.sd-support-header > p {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--diana-blue);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.sd-support-header > h1 {
+  margin: 0;
+  color: var(--diana-text);
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2rem, 8vw, 3.6rem);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.sd-support-header > span {
+  max-width: 54ch;
+  color: var(--diana-muted);
+  line-height: 1.55;
+}
+
+.sd-support-header-with-action {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.sd-support-header-with-action > :not(a) {
+  grid-column: 1;
+}
+
+.sd-support-header-with-action > a {
+  grid-column: 2;
+  grid-row: 2 / 5;
+  align-self: end;
 }
 
 .sd-eyebrow,
@@ -1257,20 +1129,6 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 }
 
 @media (max-width: 780px) {
-  .sd-top-nav {
-    min-height: 3.65rem;
-    justify-content: space-between;
-  }
-
-  .sd-nav-links,
-  .sd-nav-actions {
-    display: none;
-  }
-
-  .sd-mobile-nav {
-    display: grid;
-  }
-
   .sd-grid-2,
   .sd-grid-3,
   .sd-grid-4 {
@@ -1306,8 +1164,14 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
     width: 100%;
   }
 
-  .sd-container {
-    padding-top: 1rem;
+  .sd-support-header-with-action {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sd-support-header-with-action > a {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
   }
 }
 

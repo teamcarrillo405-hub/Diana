@@ -13,7 +13,7 @@ export default function FuturePathLoading() {
         }
       `}</style>
 
-      {/* AppTopNav stub */}
+      {/* Navigation placeholder */}
       <div style={{ height: "3.25rem", background: "var(--gl-bg-card)", borderBottom: "1px solid var(--gl-border-neutral)" }} />
 
       <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>

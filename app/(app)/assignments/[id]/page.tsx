@@ -2,14 +2,11 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatDueAt } from "@/lib/format";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
-import { resolveSubjectMode, SUBJECT_FIELDS } from "@/lib/homework-mission/subjects";
-import { HomeworkMission, type AssignmentProblem } from "./homework-mission";
 import {
   AssignmentCockpit,
   type AssignmentCockpitDrill,
 } from "./assignment-cockpit";
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
-import type { MathScaffoldResult } from "@/lib/math/scaffold";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 import { AiWritingCoach } from "@/components/screen-design/ai-writing-coach";
 
@@ -22,7 +19,6 @@ export default async function AssignmentDetailPage({
     focus?: string;
     start?: string;
     steps?: string;
-    workspace?: string;
     sdState?: string;
     sdScenario?: string;
   }>;
@@ -32,7 +28,6 @@ export default async function AssignmentDetailPage({
     focus,
     start,
     steps: stepsParam,
-    workspace,
     sdState,
     sdScenario,
   } = await searchParams;
@@ -67,8 +62,6 @@ export default async function AssignmentDetailPage({
       : null;
   const classAiMode = effectiveAiMode(classMode, assignmentOverride);
 
-  const subject = resolveSubjectMode({ kind: a.kind }, a.classes?.name ?? null);
-
   const [{ data: stepsRow }, { data: checklistRows }] = await Promise.all([
     supabase
       .from("assignment_steps")
@@ -85,27 +78,10 @@ export default async function AssignmentDetailPage({
   ]);
   const steps = (stepsRow?.steps as BreakdownStep[] | undefined) ?? [];
 
-  let problems: AssignmentProblem[] = [];
-  if (subject === "math") {
-    const { data: problemRows } = await supabase
-      .from("assignment_problems")
-      .select("id, problem_number, problem_text, scaffold, student_work")
-      .eq("assignment_id", id)
-      .order("problem_number", { ascending: true });
-    problems = (problemRows ?? []).map((p) => ({
-      id: p.id,
-      problem_number: p.problem_number,
-      problem_text: p.problem_text,
-      scaffold: (p.scaffold as MathScaffoldResult | null) ?? null,
-      student_work: (p.student_work as Record<string, string>) ?? {},
-    }));
-  }
-
   const courseLabel = a.classes?.name ?? "Assignment";
   const dueLine = a.due_at ? formatDueAt(a.due_at) : "No due date";
   const estimate = a.estimated_minutes ? `${a.estimated_minutes} min` : null;
   const briefText = a.description?.trim() || "No instructions yet: check with your teacher.";
-  const deliverables = SUBJECT_FIELDS[subject].map((f) => f.label);
   const savedWork = a.saved_work && typeof a.saved_work === "object" && !Array.isArray(a.saved_work)
     ? a.saved_work
     : {};
@@ -118,29 +94,6 @@ export default async function AssignmentDetailPage({
         courseLabel={courseLabel}
         initialDraft={typeof savedWork.draft === "string" ? savedWork.draft : ""}
         classAiMode={classAiMode}
-      />
-    );
-  }
-
-  if (workspace === "1") {
-    return (
-      <HomeworkMission
-        assignmentId={a.id}
-        subject={subject}
-        title={a.title}
-        courseLabel={courseLabel}
-        dueLine={dueLine}
-        estimate={estimate}
-        briefText={briefText}
-        rubricText={a.rubric_text?.trim() || null}
-        deliverables={deliverables}
-        classAiMode={classAiMode}
-        status={a.status}
-        savedWork={(a.saved_work as Record<string, string>) ?? {}}
-        steps={steps}
-        problems={problems}
-        startInWork={focus === "next-step" || start === "1" || stepsParam === "1"}
-        startWithSteps={stepsParam === "1"}
       />
     );
   }
@@ -174,6 +127,7 @@ export default async function AssignmentDetailPage({
       classAiMode={classAiMode}
       status={a.status as AssignmentStatus}
       drills={[...stepDrills, ...checklistDrills].slice(0, 4)}
+      startRequested={focus === "next-step" || start === "1" || stepsParam === "1"}
     />
   );
 }

@@ -52,18 +52,15 @@ export function getScreenDesignRouteOwnerFile(
 }
 
 /**
- * Single source of truth for "does this page render the shared <AppTopNav>?".
+ * Keeps floating utilities clear of routes that own ScreenDesign navigation.
  *
- * Pages that show AppTopNav (or the interim DashboardTabs strip) replace the
- * left sidebar AND the floating Capture / I'm Stuck buttons with their own top
- * nav. components/nav.tsx (SideNav + BottomNav), components/quick-capture.tsx,
- * and components/overwhelmed-button.tsx all read THIS helper, so the rule can't
- * drift across files.
+ * These routes render their own canonical controls, so shared floating actions
+ * remain hidden and cannot cover route-owned controls.
  *
- * When a new page is migrated to AppTopNav going forward, add it HERE — and
+ * When a route begins owning ScreenDesign navigation, add it here and
  * nowhere else. Do not re-check the pathname independently in those components.
  */
-export function usesAppTopNav(pathname: string): boolean {
+export function ownsScreenDesignNavigation(pathname: string): boolean {
   return (
     pathname === "/dashboard" ||
     pathname.startsWith("/dashboard/") ||

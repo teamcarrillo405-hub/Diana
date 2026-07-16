@@ -4,7 +4,8 @@ import { NewAssignmentForm } from "./form";
 import type { CalibrationStats } from "@/lib/time-budget/calibration";
 import { parseTemplateRow, type AssignmentTemplate } from "@/lib/templates/templates";
 import { FilePlus2 } from "lucide-react";
-import { PageShell } from "../../page-shell";
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 
 export default async function NewAssignmentPage({
   searchParams,
@@ -45,14 +46,13 @@ export default async function NewAssignmentPage({
 
   if (!classes || classes.length === 0) {
     return (
-      <PageShell
-        active="Work"
-        eyebrow="Schoolwork"
-        title="Add an assignment."
-        subtitle="You need a class first."
-        accent="var(--gl-cyan)"
-        icon={FilePlus2}
-      >
+      <div className="sd-support-screen">
+        <header className="sd-support-header">
+          <DianaWordmark />
+          <p><FilePlus2 size={14} aria-hidden="true" /> Schoolwork</p>
+          <h1>Add an assignment.</h1>
+          <span>You need a class first.</span>
+        </header>
         <div className="space-y-4">
           <p className="diana-panel rounded-lg border border-dashed border-border bg-card p-4 text-sm text-muted">
             You need a class first.{" "}
@@ -62,18 +62,18 @@ export default async function NewAssignmentPage({
             .
           </p>
         </div>
-      </PageShell>
+        <StudentBottomNav />
+      </div>
     );
   }
 
   return (
-    <PageShell
-      active="Work"
-      eyebrow="Schoolwork"
-      title="Add an assignment."
-      accent="var(--gl-cyan)"
-      icon={FilePlus2}
-    >
+    <div className="sd-support-screen">
+      <header className="sd-support-header">
+        <DianaWordmark />
+        <p><FilePlus2 size={14} aria-hidden="true" /> Schoolwork</p>
+        <h1>Add an assignment.</h1>
+      </header>
       <div className="space-y-6">
         <Link
           href="/assignments"
@@ -88,6 +88,7 @@ export default async function NewAssignmentPage({
           initialTemplateId={initialTemplateId ?? ""}
         />
       </div>
-    </PageShell>
+      <StudentBottomNav />
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname } from "next/navigation";
 import { requestAgentCoach } from "@/app/(app)/agent-fab-actions";
-import { usesAppTopNav } from "@/lib/navigation";
+import { ownsScreenDesignNavigation } from "@/lib/navigation";
 
 const SF = "var(--font-saira-condensed), 'Saira Condensed', sans-serif";
 const BF = "var(--font-barlow), 'Barlow Semi Condensed', sans-serif";
@@ -38,8 +38,7 @@ function pageLabelFor(pathname: string): string {
   return PAGE_LABELS[base] ?? "";
 }
 
-// Lets other components (e.g. Homework Mission's "Ask Diana" pill) open the
-// one global drawer instead of building a second floating robot.
+// Lets screen-specific components open the one global coaching drawer.
 const OPEN_EVENT = "diana:open-agent-fab";
 export function openAgentFab() {
   window.dispatchEvent(new Event(OPEN_EVENT));
@@ -65,7 +64,7 @@ export function AgentFab() {
     return () => window.removeEventListener(OPEN_EVENT, onOpen);
   }, []);
 
-  const bottomOffset = usesAppTopNav(pathname) ? 26 : 96;
+  const bottomOffset = ownsScreenDesignNavigation(pathname) ? 26 : 96;
 
   function send(text: string) {
     const trimmed = text.trim();

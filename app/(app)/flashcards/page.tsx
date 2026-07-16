@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { Brain, ListChecks } from "lucide-react";
 import { EmptyStateMark } from "@/components/empty-state-mark";
-import { PageShell } from "../page-shell";
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 
 export default async function FlashcardsPage() {
   const supabase = await createClient();
@@ -23,14 +24,12 @@ export default async function FlashcardsPage() {
   const upcoming = (all ?? []).filter((c) => c.due_at > nowIso);
 
   return (
-    <PageShell
-      active="Work"
-      eyebrow="Flashcards"
-      title="Study."
-      subtitle="Review what's due, then build new cards from your notes."
-      accent="var(--gl-cyan)"
-      icon={Brain}
-      action={
+    <div className="sd-support-screen">
+      <header className="sd-support-header sd-support-header-with-action">
+        <DianaWordmark />
+        <p><Brain size={14} aria-hidden="true" /> Flashcards</p>
+        <h1>Study.</h1>
+        <span>Review what is due, then build new cards from your notes.</span>
         <Link
           href="/flashcards/new"
           style={{
@@ -49,8 +48,7 @@ export default async function FlashcardsPage() {
         >
           + New card
         </Link>
-      }
-    >
+      </header>
       <div className="space-y-6">
       <section className="diana-panel rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
         <p className="diana-kicker text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
@@ -132,6 +130,7 @@ export default async function FlashcardsPage() {
         </div>
       )}
       </div>
-    </PageShell>
+      <StudentBottomNav />
+    </div>
   );
 }

@@ -11,7 +11,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           <div className="sd-auth-copy">
             <p className="sd-kicker"><LockKeyhole size={14} aria-hidden="true" /> Private student space</p>
-            <h1 className="sd-title">Your game plan is waiting.</h1>
+            <h1 className="sd-title">Your next move is waiting.</h1>
             <p className="sd-subtitle">
               Come back to one clear next move, your class sources, and work that stays yours.
             </p>
