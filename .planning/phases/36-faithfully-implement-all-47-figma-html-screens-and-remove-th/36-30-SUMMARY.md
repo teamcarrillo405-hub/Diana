@@ -114,7 +114,7 @@ status: complete
 - Added reusable gallery, receipt, release identity, and preview SHA validators before evidence production.
 - Built one clean producer that captures all 47 normalized sources, app renders, visual comparison results, and combined primary-action plus navigation records on one stable QA server.
 - Preserved Playwright as the visual pass authority while generating a separate Sharp difference visualization for every canonical pair.
-- Verified the entire repository with production build, source and compiled legacy-removal audits, calm-tone audit, and 910 passing tests across 161 files.
+- Verified the entire repository with production build, source and compiled legacy-removal audits, calm-tone audit, and 911 passing tests across 161 files after the launch contrast correction.
 
 ## Task Commits
 
@@ -122,7 +122,7 @@ Each task was committed atomically:
 
 1. **Task 1: Define the safe deterministic review-gallery producer contract** - `733507b`, `4fe570d`
 2. **Task 2: Create reusable release-evidence and preview-identity validators** - `d7ce405`, `e4b06c5`
-3. **Task 3: Generate and self-check one clean exactly-47 review gallery** - `2b58390`, `568e91a`, `818349a`, `8f09809`, `d312db8`, `33c9321`
+3. **Task 3: Generate and self-check one clean exactly-47 review gallery** - `2b58390`, `568e91a`, `818349a`, `8f09809`, `d312db8`, `33c9321`, `2e23654`
 
 ## Files Created/Modified
 
@@ -183,6 +183,13 @@ Each task was committed atomically:
 
 - A final long evidence pass was interrupted after 46 action receipts by the command host. The missing `tutor-personalization` contract then passed independently in 33.4 seconds, confirming a runner interruption rather than an application failure.
 - The calm-tone audit reported three nonblocking advisory uses of `deadline`; zero blocking tone findings remain.
+
+## Release Evidence Refresh
+
+- Launch contrast commit `7497a7e` changed the shared inactive navigation token from `#64748b` to `#94a3b8` on `#0f172a`, establishing a 6.96:1 contrast ratio.
+- Only `practice-test-session.png` was intentionally refreshed and reviewed in commit `2e23654`; strict targeted practice and isolated review-submit checks then passed without update mode.
+- The complete 47-screen visual suite passed with retries and snapshot updates disabled, proving no other baseline drift.
+- The prior Plan 36-29 receipt predates the contrast correction and is not accepted as current release evidence. Plan 36-29 must independently replace it after the refreshed Plan 36-30 producer completes.
 
 ## User Setup Required
 
