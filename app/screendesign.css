@@ -1521,6 +1521,606 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   outline-offset: 2px;
 }
 
+/* Phase 36 source-faithful four-state onboarding. */
+.sd-source-onboarding {
+  height: max(100dvh, 852px);
+  overflow: hidden;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.sd-onboarding-state {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 852px;
+  flex-direction: column;
+  overflow: hidden;
+  background: #0f172a;
+  color: white;
+}
+
+.sd-onboarding-logo {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: auto;
+  object-fit: contain;
+}
+
+.sd-onboarding-logo-hero {
+  width: 6rem;
+  filter: drop-shadow(0 0 15px rgb(255 121 218 / 0.5));
+}
+
+.sd-onboarding-logo-header {
+  width: 3.5rem;
+  filter: drop-shadow(0 0 10px rgb(255 121 218 / 0.3));
+}
+
+.sd-onboarding-welcome-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.6;
+}
+
+.sd-onboarding-welcome::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(to bottom, rgb(15 23 42 / 0.04) 28%, rgb(15 23 42 / 0.5) 70%, rgb(15 23 42 / 0.88));
+  content: "";
+  pointer-events: none;
+}
+
+.sd-onboarding-welcome-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-shrink: 0;
+  justify-content: center;
+  padding: 4rem 2rem 0;
+}
+
+.sd-onboarding-welcome-copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2.5rem 2rem 3rem;
+  text-align: center;
+}
+
+.sd-onboarding-welcome-copy h1 {
+  margin: 0;
+  color: white;
+  font-size: 3.75rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
+}
+
+.sd-onboarding-welcome-copy h1 span {
+  display: block;
+  color: #ff79da;
+}
+
+.sd-onboarding-welcome-copy p {
+  margin: 1rem 0 0;
+  color: #e2e8f0;
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.sd-onboarding-footer {
+  position: relative;
+  z-index: 3;
+  flex-shrink: 0;
+  padding: 0 2rem 3rem;
+}
+
+.sd-onboarding-primary {
+  display: flex;
+  width: 100%;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(to right, #ff79da, #74c0ff);
+  box-shadow: 0 0 20px rgb(255 121 218 / 0.3);
+  color: #0f172a;
+  cursor: pointer;
+  font-size: 1.125rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.sd-onboarding-welcome .sd-onboarding-primary {
+  font-size: 1.25rem;
+  letter-spacing: 0.05em;
+}
+
+.sd-onboarding-primary:active {
+  transform: scale(0.98);
+}
+
+.sd-onboarding-primary:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+  transform: none;
+}
+
+.sd-onboarding-primary:focus-visible,
+.sd-onboarding-back:focus-visible,
+.sd-onboarding-challenge-option:focus-visible,
+.sd-onboarding-schedule-option:focus-visible {
+  outline: 2px solid #74c0ff;
+  outline-offset: 3px;
+}
+
+.sd-onboarding-header {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3.5rem 1.5rem 1rem;
+}
+
+.sd-onboarding-header-spacer {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.sd-onboarding-back {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+  color: white;
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+
+.sd-onboarding-back svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.sd-onboarding-back:active {
+  transform: scale(0.9);
+}
+
+.sd-onboarding-scroll {
+  position: relative;
+  z-index: 1;
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.sd-onboarding-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.sd-onboarding-education-scroll {
+  padding: 1rem 2rem 2rem;
+}
+
+.sd-onboarding-section-title {
+  margin-bottom: 1.5rem;
+}
+
+.sd-onboarding-section-title > span {
+  color: #74c0ff;
+  font-size: 0.875rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-section-title h1 {
+  margin: 0.25rem 0 0;
+  color: white;
+  font-size: 2.25rem;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-stat-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1.5rem;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.45);
+  padding: 2rem;
+  backdrop-filter: blur(8px);
+}
+
+.sd-onboarding-stat-watermark {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 8rem;
+  height: 8rem;
+  color: white;
+  opacity: 0.1;
+}
+
+.sd-onboarding-gpa-chart {
+  position: relative;
+  width: 14rem;
+  height: 14rem;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 20px rgb(255 121 218 / 0.4));
+}
+
+.sd-onboarding-stat-copy {
+  text-align: center;
+}
+
+.sd-onboarding-stat-copy > strong {
+  display: block;
+  background: linear-gradient(to right, #ff79da, #74c0ff);
+  background-clip: text;
+  color: transparent;
+  font-size: 3rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1;
+}
+
+.sd-onboarding-stat-copy p {
+  margin: 0.75rem 0 0;
+  color: #f1f5f9;
+  font-size: 1.125rem;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-stat-copy p span {
+  color: #ff79da;
+}
+
+.sd-onboarding-stat-copy p b {
+  color: #74c0ff;
+}
+
+.sd-onboarding-benefits {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.sd-onboarding-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.sd-onboarding-benefit-icon {
+  display: flex;
+  width: 3rem;
+  height: 3rem;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.sd-onboarding-benefit-icon[data-tone="blue"] {
+  color: #74c0ff;
+}
+
+.sd-onboarding-benefit-icon[data-tone="pink"] {
+  color: #ff79da;
+}
+
+.sd-onboarding-benefit-icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.sd-onboarding-benefit h2 {
+  margin: 0;
+  color: white;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-benefit p {
+  margin: 0.25rem 0 0;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.sd-onboarding-quiz-header {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding: 3.5rem 1.5rem 1rem;
+}
+
+.sd-onboarding-quiz-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.sd-onboarding-quiz-nav > span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-progress {
+  height: 0.375rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.1);
+}
+
+.sd-onboarding-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(to right, #ff79da, #74c0ff);
+}
+
+.sd-onboarding-quiz-header h1 {
+  margin: 0;
+  color: white;
+  font-size: 1.875rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-challenge-scroll {
+  padding: 1rem 1.5rem;
+}
+
+.sd-onboarding-challenge-options {
+  display: grid;
+  gap: 1rem;
+}
+
+.sd-onboarding-challenge-option {
+  display: flex;
+  width: 100%;
+  min-height: 112px;
+  align-items: center;
+  gap: 1.25rem;
+  border: 2px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 1.5rem;
+  color: white;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.sd-onboarding-challenge-option:active {
+  transform: scale(0.97);
+}
+
+.sd-onboarding-challenge-option[data-active="true"] {
+  border-color: #ff79da;
+  background: white;
+  box-shadow: 0 0 20px rgb(255 121 218 / 0.4);
+  color: #0f172a;
+}
+
+.sd-onboarding-challenge-icon {
+  display: flex;
+  width: 3.5rem;
+  height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  border-radius: 0.75rem;
+  background: rgb(255 255 255 / 0.05);
+  color: currentColor;
+}
+
+.sd-onboarding-challenge-option[data-active="true"] .sd-onboarding-challenge-icon {
+  background: rgb(255 121 218 / 0.1);
+  color: #ff79da;
+}
+
+.sd-onboarding-challenge-icon svg {
+  width: 1.875rem;
+  height: 1.875rem;
+}
+
+.sd-onboarding-option-copy {
+  display: block;
+  min-width: 0;
+  flex: 1;
+}
+
+.sd-onboarding-option-copy strong {
+  display: block;
+  color: inherit;
+  font-size: 1.125rem;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-option-copy small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #cbd5e1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.sd-onboarding-challenge-option[data-active="true"] .sd-onboarding-option-copy small,
+.sd-onboarding-schedule-option[data-active="true"] .sd-onboarding-option-copy small {
+  color: #475569;
+}
+
+.sd-onboarding-check {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: 0 0 auto;
+  color: #ff79da;
+}
+
+.sd-onboarding-schedule-scroll {
+  padding: 1.5rem;
+}
+
+.sd-onboarding-schedule-options {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.sd-onboarding-schedule-option {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 168px;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  border: 2px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: rgb(255 255 255 / 0.05);
+  padding: 1.5rem;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.sd-onboarding-schedule-option:active {
+  transform: scale(0.98);
+}
+
+.sd-onboarding-schedule-option[data-active="true"] {
+  border-color: #74c0ff;
+  background: white;
+  box-shadow: 0 0 25px rgb(116 192 255 / 0.4);
+  color: #0f172a;
+}
+
+.sd-onboarding-choice-badge {
+  position: absolute;
+  top: -0.75rem;
+  right: 1.5rem;
+  border-radius: 999px;
+  background: linear-gradient(to right, #ff79da, #74c0ff);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.25);
+  padding: 0.25rem 0.75rem;
+  color: #0f172a;
+  font-size: 0.625rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+}
+
+.sd-onboarding-schedule-icon {
+  display: flex;
+  width: 4rem;
+  height: 4rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.sd-onboarding-schedule-option[data-tone="morning"] .sd-onboarding-schedule-icon {
+  color: #fb923c;
+}
+
+.sd-onboarding-schedule-option[data-tone="practice"] .sd-onboarding-schedule-icon {
+  color: #74c0ff;
+}
+
+.sd-onboarding-schedule-option[data-tone="night"] .sd-onboarding-schedule-icon {
+  color: #c084fc;
+}
+
+.sd-onboarding-schedule-option[data-active="true"] .sd-onboarding-schedule-icon {
+  background: rgb(116 192 255 / 0.1);
+}
+
+.sd-onboarding-schedule-icon svg {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.sd-onboarding-schedule-option .sd-onboarding-option-copy strong {
+  font-size: 1.25rem;
+}
+
+.sd-onboarding-feedback {
+  margin: 1rem 0 0;
+  border: 1px solid rgb(251 191 36 / 0.45);
+  border-radius: 0.75rem;
+  background: rgb(251 191 36 / 0.12);
+  padding: 0.75rem;
+  color: #fde68a;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-onboarding-primary,
+  .sd-onboarding-back,
+  .sd-onboarding-challenge-option,
+  .sd-onboarding-schedule-option {
+    transition: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sd-source-action,
   .sd-student-bottom-nav a {
