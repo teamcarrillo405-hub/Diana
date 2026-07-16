@@ -5,15 +5,15 @@ milestone_name: The Complete Academic Platform
 current_phase: 36
 current_plan: 21
 status: executing
-stopped_at: Completed 36-20-PLAN.md
-last_updated: "2026-07-16T04:55:24.766Z"
+stopped_at: Completed 36-26-PLAN.md
+last_updated: "2026-07-16T05:26:49.210Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-20 private social activity and tutor preference ScreenDesign rebuild
+last_activity_desc: Completed 36-26 linked onboarding schema and two-owner persistence proof
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 22
+  completed_plans: 23
   percent: 0
 total_plans_in_phase: 30
 ---
@@ -26,11 +26,11 @@ total_plans_in_phase: 30
 **Current Plan:** 21
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [███████░░░] 70%
-**Last Activity:** 2026-07-15 - Completed 36-20 private social activity and tutor preference ScreenDesign rebuild
+**Progress:** [████████░░] 77%
+**Last Activity:** 2026-07-15 - Completed 36-26 linked onboarding schema and two-owner persistence proof
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T04:28:49.478Z
-**Stopped at:** Completed 36-21-PLAN.md
+**Last session:** 2026-07-16T05:26:35.450Z
+**Stopped at:** Completed 36-26-PLAN.md
 
 ---
 
@@ -713,6 +713,7 @@ total_plans_in_phase: 30
 | Phase 36 P20 | 24 min | 2 tasks | 11 files |
 | Phase 36 P21 | 12 min | 2 tasks | 5 files |
 | Phase 36 P25 | 25 min | 2 tasks | 12 files |
+| Phase 36 P26 | 30 min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -780,6 +781,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Community upgrade accepts both view=community and the exact QA sdState=view=community selector. — Production and deterministic visual evidence must select the same canonical composition.
 - [Phase 36]: Smart Loading duration is owned only by the active Server Component request. — No client timer, timeout, polling, percentage, or private record context may control or enter the suspense fallback.
 - [Phase 36]: Deterministic Smart Loading QA uses an authenticated QA-only Server Component gate. — A request-controlled gate proves fallback and immediate resolution without adding a production delay.
+- [Phase 36]: Linked schema writes require matching CLI, local app, and Vercel Preview Supabase project refs. A single intended pending migration may be applied only after identity equality and a dry run.
+- [Phase 36]: Live onboarding schema proof uses ephemeral in-memory CLI credentials and read-only pg_catalog inspection. Docker is unavailable, so local psql preserves exact live verification without persisting or printing secrets.
+- [Phase 36]: The onboarding persistence QA seam remains development-only and caller-owned. It accepts no owner id and delegates auth, validation, mutation, and RLS to completeScreenDesignOnboarding.
 
 ## Session
 
