@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-// @ts-expect-error The executable verifier is an ESM script without a declaration file.
 import {
   assertMigrationHistory,
   assertProfilesOnboardingSchema,
