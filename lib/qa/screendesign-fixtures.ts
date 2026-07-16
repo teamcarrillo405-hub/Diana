@@ -660,9 +660,20 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
   {
     screenId: "portfolio-gallery",
     heading: "Portfolio",
-    records: shareRecords("active", "portfolio").filter(
-      (item) => item.kind !== "share-token",
-    ),
+    records: [
+      ...shareRecords("active", "portfolio").filter(
+        (item) => item.kind !== "share-token",
+      ),
+      record(
+        "portfolio-item",
+        "portfolio-item-secondary",
+        {
+          title: "Biology cycle guide",
+          reflection: "I organized each stage so the cycle is easier to follow.",
+        },
+        ["portfolio-main"],
+      ),
+    ],
     guardedStates: ["populated"],
   },
   {
