@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   csvCell,
   mergeAiHistoryEntries,
+  profileSchoolYearLabel,
   sanitizeLmsConnections,
   summarizeSyncAll,
 } from "./source-models";
@@ -108,5 +109,11 @@ describe("ScreenDesign settings source models", () => {
       tone: "ok",
       message: "Sync complete. Imported 4 assignments.",
     });
+  });
+
+  it("maps persisted school years without inventing a senior label", () => {
+    expect(profileSchoolYearLabel(9)).toBe("Freshman");
+    expect(profileSchoolYearLabel(12)).toBe("Senior");
+    expect(profileSchoolYearLabel(null)).toBe("Student");
   });
 });
