@@ -82,6 +82,14 @@ body.diana-app {
   font-family: var(--font-body), system-ui, sans-serif;
 }
 
+body.diana-app:has(.sd-public-share-screen) > .skip-link:focus {
+  transform: translateY(0) !important;
+}
+
+body.diana-app:has(.sd-public-share-screen) > .skip-link {
+  transition: none !important;
+}
+
 .diana-app::before {
   content: "";
   position: fixed;

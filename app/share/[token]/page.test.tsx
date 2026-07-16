@@ -118,15 +118,18 @@ describe("public ScreenDesign share boundary", () => {
           id: "33333333-3333-4333-8333-333333333333",
           title: "Freshman portfolio",
           description: null,
-          portfolio_items: [
-            {
-              id: "44444444-4444-4444-8444-444444444444",
-              title: "Identity quote response",
-              reflection_text: "I revised the explanation.",
-              position: 0,
-              created_at: "2026-09-11T16:30:00.000Z",
-            },
-          ],
+        },
+      ],
+      error: null,
+    });
+    resultsByTable.set("portfolio_items", {
+      data: [
+        {
+          id: "44444444-4444-4444-8444-444444444444",
+          title: "Identity quote response",
+          reflection_text: "I revised the explanation.",
+          position: 0,
+          created_at: "2026-09-11T16:30:00.000Z",
         },
       ],
       error: null,
@@ -142,6 +145,9 @@ describe("public ScreenDesign share boundary", () => {
     expect(html).not.toContain("diagnos");
     expect(html).not.toContain("general student profile");
     expect(callsFor("portfolios", "eq")).toContainEqual(
+      expect.objectContaining({ args: ["owner_id", activeLink("teacher_snapshot").owner_id] }),
+    );
+    expect(callsFor("portfolio_items", "eq")).toContainEqual(
       expect.objectContaining({ args: ["owner_id", activeLink("teacher_snapshot").owner_id] }),
     );
   });
