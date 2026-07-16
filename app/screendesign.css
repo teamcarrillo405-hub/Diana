@@ -3889,6 +3889,54 @@ body.diana-app {
   }
 }
 
+/* Phase 36-13: let the three source-owned study compositions fill the mobile
+   viewport without inheriting the legacy command chrome. Keep the skip link
+   available and pin its focused state on-screen for keyboard review. */
+.diana-app:has(.sd-flashcard-review) .skip-link,
+.diana-app:has(.sd-study-lab) .skip-link,
+.diana-app:has(.sd-practice-session) .skip-link,
+.diana-app:has(.sd-artifact-detail) .skip-link {
+  transition: none;
+}
+
+.diana-app:has(.sd-flashcard-review) .skip-link:focus,
+.diana-app:has(.sd-study-lab) .skip-link:focus,
+.diana-app:has(.sd-practice-session) .skip-link:focus,
+.diana-app:has(.sd-artifact-detail) .skip-link:focus {
+  transform: translateY(0) !important;
+}
+
+.diana-authenticated-field:has(.sd-flashcard-review),
+.diana-authenticated-field:has(.sd-study-lab),
+.diana-authenticated-field:has(.sd-practice-session),
+.diana-authenticated-field:has(.sd-artifact-detail) {
+  padding-bottom: 0 !important;
+}
+
+.diana-app .app-command-frame:has(.sd-flashcard-review),
+.diana-app .app-command-frame:has(.sd-study-lab),
+.diana-app .app-command-frame:has(.sd-practice-session),
+.diana-app .app-command-frame:has(.sd-artifact-detail) {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 0 !important;
+}
+
+.diana-authenticated-field:has(.sd-flashcard-review) .diana-mobile-command,
+.diana-authenticated-field:has(.sd-study-lab) .diana-mobile-command,
+.diana-authenticated-field:has(.sd-practice-session) .diana-mobile-command,
+.diana-authenticated-field:has(.sd-artifact-detail) .diana-mobile-command,
+.diana-app-shell:has(.sd-flashcard-review) .agent-fab-anchor,
+.diana-app-shell:has(.sd-study-lab) .agent-fab-anchor,
+.diana-app-shell:has(.sd-practice-session) .agent-fab-anchor,
+.diana-app-shell:has(.sd-artifact-detail) .agent-fab-anchor,
+.diana-app:has(.sd-flashcard-review) nextjs-portal,
+.diana-app:has(.sd-study-lab) nextjs-portal,
+.diana-app:has(.sd-practice-session) nextjs-portal,
+.diana-app:has(.sd-artifact-detail) nextjs-portal {
+  display: none !important;
+}
+
 /* Flashcard review */
 .diana-app .sd-flashcard-review {
   position: relative;

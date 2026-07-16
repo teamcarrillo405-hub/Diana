@@ -72,9 +72,16 @@ const assertKeyboardFocusStaysVisible = async (page: Page) => {
     expect(focus.top).toBeLessThan(focus.viewportHeight);
   }
   await page.evaluate(() => {
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      let ancestor: HTMLElement | null = activeElement;
+      while (ancestor) {
+        ancestor.scrollTo({ left: 0, top: 0, behavior: "instant" });
+        ancestor = ancestor.parentElement;
+      }
+      activeElement.blur();
     }
+    window.scrollTo({ left: 0, top: 0, behavior: "instant" });
   });
 };
 
