@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 11
+current_plan: 12
 status: executing
-stopped_at: Completed 36-09-PLAN.md
-last_updated: "2026-07-15T23:51:00.288Z"
+stopped_at: Completed 36-11-PLAN.md
+last_updated: "2026-07-16T00:12:02.159Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-09 capture and work-board ScreenDesign rebuild
+last_activity_desc: Completed 36-11 AP and mastery ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 11
+  completed_plans: 12
   percent: 0
 total_plans_in_phase: 30
 ---
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 11
+**Current Plan:** 12
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [████░░░░░░] 37%
-**Last Activity:** 2026-07-15 - Completed 36-09 capture and work-board ScreenDesign rebuild
+**Progress:** [████░░░░░░] 40%
+**Last Activity:** 2026-07-15 - Completed 36-11 AP and mastery ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-15T23:51:00.281Z
-**Stopped at:** Completed 36-10-PLAN.md
+**Last session:** 2026-07-16T00:12:02.151Z
+**Stopped at:** Completed 36-11-PLAN.md
 
 ---
 
@@ -702,6 +702,7 @@ total_plans_in_phase: 30
 | Phase 36 P08 | 45 min | 3 tasks | 17 files |
 | Phase 36 P09 | 55 min | 3 tasks | 13 files |
 | Phase 36 P10 | 50 min | 2 tasks | 12 files |
+| Phase 36 P11 | 35 min | 2 tasks | 11 files |
 
 ## Decisions
 
@@ -739,6 +740,9 @@ total_plans_in_phase: 30
 - [Phase 36]: The authenticated classes result alone selects the honest empty or populated library composition. — URL query flags cannot spoof a roster state that is derived from owner-scoped server data.
 - [Phase 36]: Rubric Scout exposes only owner-scoped rubric, syllabus, class, and assignment context, with Diana help available only under green class policy. — The route preserves RLS and explicit owner filters while the UI respects the existing AI traffic-light seam.
 - [Phase 36]: Canonical class QA seeds a real class_syllabi row so source evidence never fabricates course policies. — Deterministic evidence should exercise the same persistent table and semantics as the live route.
+- [Phase 36]: AP percentages render only from valid owner-scoped saved practice counts. — Unscored attempts must not become invented progress.
+- [Phase 36]: Mastery, self-confidence, and Canvas grades remain separate evidence labels. — Each measure has a distinct provenance and should not be collapsed into one score.
+- [Phase 36]: Transcript export uses the existing owner-scoped privacy export center. — Navigation is operational without claiming a PDF exists before the student chooses an export.
 
 ## Session
 
