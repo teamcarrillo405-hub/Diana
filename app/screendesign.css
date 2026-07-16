@@ -4138,7 +4138,7 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 
 .diana-app .sd-mission-quick-list small {
   align-self: start;
-  color: #64748b;
+  color: var(--diana-muted);
   font-size: 0.55rem;
   text-transform: uppercase;
 }

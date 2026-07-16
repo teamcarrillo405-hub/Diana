@@ -622,6 +622,55 @@ const dashboardScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
 );
 
 if (IS_FULL_MATRIX && dashboardScenario) {
+  test("assignment quick-action metadata keeps its computed WCAG AA contrast", async ({
+    page,
+    screenDesign,
+  }) => {
+    await screenDesign.prepare(dashboardScenario);
+    await page.goto("/assignments", { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
+    await bodyIsHealthy(page);
+
+    for (const label of ["0 waiting · Logistics", "Manual entry · Work"]) {
+      const metadata = page.getByText(label, { exact: true });
+      await expect(metadata).toBeVisible();
+      const color = await metadata.evaluate((element) => {
+        const parse = (value: string) => {
+          const channels = value.match(/[\d.]+/gu)?.map(Number) ?? [];
+          return {
+            red: channels[0] ?? 0,
+            green: channels[1] ?? 0,
+            blue: channels[2] ?? 0,
+            alpha: channels[3] ?? 1,
+          };
+        };
+        const card = element.closest("a");
+        const board = element.closest(".sd-mission-board");
+        if (!card || !board) {
+          throw new Error(`Missing assignment card for ${element.textContent}.`);
+        }
+        const overlay = parse(getComputedStyle(card).backgroundColor);
+        const base = parse(getComputedStyle(board).backgroundColor);
+        const composite = (foreground: number, background: number) =>
+          Math.round(foreground * overlay.alpha + background * (1 - overlay.alpha));
+        return {
+          foreground: getComputedStyle(element).color,
+          background: `rgb(${composite(overlay.red, base.red)}, ${composite(
+            overlay.green,
+            base.green,
+          )}, ${composite(overlay.blue, base.blue)})`,
+          label: element.textContent?.trim() ?? "",
+        };
+      });
+
+      expect(color.background).toBe("rgb(22, 30, 48)");
+      expect(
+        computedContrastRatio(color),
+        `${color.label} contrast: ${color.foreground} on ${color.background}`,
+      ).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
   test("the actual five-item navigation colors meet WCAG AA on every primary hub", async ({
     page,
     screenDesign,
