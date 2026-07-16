@@ -180,6 +180,7 @@ export async function generateStudyArtifact(
   });
 
   revalidatePath(source.revalidatePath);
+  revalidatePath("/study-artifacts");
   revalidatePath("/flashcards");
   return { ok: true, id: row.id, artifact };
 }

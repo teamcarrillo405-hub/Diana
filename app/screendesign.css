@@ -4277,3 +4277,445 @@ body.diana-app {
   text-decoration: none;
   text-transform: uppercase;
 }
+
+/* Study artifacts hub */
+.diana-app .sd-study-lab {
+  position: relative;
+  display: flex;
+  min-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% 10%, rgb(116 192 255 / 0.08), transparent 18rem),
+    #0f172a;
+  color: #fff;
+}
+
+.diana-app .sd-study-lab-header {
+  flex: 0 0 auto;
+  padding: 3.5rem 1.5rem 1.25rem;
+}
+
+.diana-app .sd-study-lab-header > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.diana-app .sd-study-lab-header .sd-source-wordmark {
+  width: auto;
+  height: 1.25rem;
+}
+
+.diana-app .sd-study-lab-header a {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.06);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.05);
+  color: #fff;
+}
+
+.diana-app .sd-study-lab-header a svg {
+  width: 1.2rem;
+}
+
+.diana-app .sd-study-lab-header h1,
+.diana-app .sd-study-lab-header p {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-study-lab-header h1 {
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 2rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.85;
+}
+
+.diana-app .sd-study-lab-header h1 span {
+  color: #74c0ff;
+}
+
+.diana-app .sd-study-lab-header p {
+  margin-top: 0.7rem;
+  color: #94a3b8;
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+}
+
+.diana-app .sd-study-lab-scroll {
+  display: grid;
+  flex: 1 1 auto;
+  align-content: start;
+  gap: 1.25rem;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 1.5rem 8.5rem;
+  scroll-behavior: smooth;
+}
+
+.diana-app .sd-study-lab-notice {
+  margin: 0;
+  border: 1px solid rgb(251 191 36 / 0.35);
+  border-radius: 0.75rem;
+  background: rgb(251 191 36 / 0.08);
+  padding: 0.75rem;
+  color: #fde68a;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.diana-app .sd-study-lab-generator {
+  display: grid;
+  gap: 1rem;
+}
+
+.diana-app .sd-study-lab-source {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.85rem;
+  background: rgb(255 255 255 / 0.04);
+  padding: 0.65rem 0.75rem;
+}
+
+.diana-app .sd-study-lab-source > span {
+  color: #74c0ff;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-study-lab-source select {
+  min-width: 0;
+  border: 0;
+  background: #111c32;
+  padding: 0.55rem;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.diana-app .sd-study-lab-types {
+  display: grid;
+  gap: 1rem;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.diana-app .sd-study-lab-types > legend {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.diana-app .sd-study-lab-type {
+  position: relative;
+  display: block;
+  min-height: 9.2rem;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 1rem;
+  background: linear-gradient(135deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.02));
+  backdrop-filter: blur(12px);
+}
+
+.diana-app .sd-study-lab-type > input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+}
+
+.diana-app .sd-study-lab-type:has(input:checked) {
+  border-color: rgb(116 192 255 / 0.65);
+  box-shadow: 0 0 22px rgb(116 192 255 / 0.12);
+}
+
+.diana-app .sd-study-lab-type:has(input:focus-visible) {
+  outline: 2px solid #74c0ff;
+  outline-offset: 3px;
+}
+
+.diana-app .sd-study-lab-type-copy {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  width: 73%;
+  gap: 0.35rem;
+  padding: 1.25rem;
+}
+
+.diana-app .sd-study-lab-type-icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.35rem;
+  place-items: center;
+  border-radius: 0.7rem;
+  background: rgb(116 192 255 / 0.16);
+  color: #74c0ff;
+}
+
+.diana-app .sd-study-lab-type[data-tone="pink"] .sd-study-lab-type-icon {
+  background: rgb(255 121 218 / 0.16);
+  color: #ff79da;
+}
+
+.diana-app .sd-study-lab-type[data-tone="neutral"] .sd-study-lab-type-icon {
+  background: rgb(255 255 255 / 0.08);
+  color: #fff;
+}
+
+.diana-app .sd-study-lab-type-icon svg {
+  width: 1.4rem;
+}
+
+.diana-app .sd-study-lab-type strong {
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1.12rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-study-lab-type small {
+  color: #94a3b8;
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.diana-app .sd-study-lab-type-image {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  width: 35%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.42;
+  mask-image: linear-gradient(to right, transparent, #000 35%);
+}
+
+.diana-app .sd-study-lab-create {
+  position: sticky;
+  z-index: 40;
+  bottom: -0.1rem;
+  width: 100%;
+  min-height: 4.2rem;
+  border: 0;
+  border-radius: 1rem;
+  background: linear-gradient(100deg, #74c0ff, #ff79da);
+  padding: 2px;
+  box-shadow: 0 0 20px rgb(116 192 255 / 0.3);
+}
+
+.diana-app .sd-study-lab-create > span {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  border-radius: calc(1rem - 2px);
+  background: #0f172a;
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.72rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-study-lab-create svg {
+  width: 1.1rem;
+  color: #74c0ff;
+}
+
+.diana-app .sd-study-lab-quick-add {
+  position: absolute;
+  z-index: 50;
+  right: 1.5rem;
+  bottom: 7.5rem;
+  display: grid;
+  width: 4rem;
+  height: 4rem;
+  place-items: center;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #74c0ff, #ff79da);
+  color: #0f172a;
+  box-shadow: 0 10px 30px rgb(45 212 191 / 0.3);
+}
+
+.diana-app .sd-study-lab-quick-add svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.diana-app .sd-study-lab-saved {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+}
+
+.diana-app .sd-study-lab-saved > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.diana-app .sd-study-lab-saved h2,
+.diana-app .sd-study-lab-saved h3,
+.diana-app .sd-study-lab-saved p {
+  margin: 0;
+}
+
+.diana-app .sd-study-lab-saved h2 {
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.8rem;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-study-lab-saved > div:first-child > span {
+  display: grid;
+  min-width: 1.8rem;
+  height: 1.5rem;
+  place-items: center;
+  border-radius: 999px;
+  background: rgb(116 192 255 / 0.12);
+  color: #74c0ff;
+  font-size: 0.6rem;
+  font-weight: 900;
+}
+
+.diana-app .sd-study-lab-saved-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.diana-app .sd-study-lab-saved-list > a {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr) 1rem;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.85rem;
+  background: rgb(255 255 255 / 0.04);
+  padding: 0.75rem;
+  color: #fff;
+  text-decoration: none;
+}
+
+.diana-app .sd-study-lab-saved-list > a > span:first-child {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  border-radius: 0.7rem;
+  background: rgb(116 192 255 / 0.12);
+  color: #74c0ff;
+}
+
+.diana-app .sd-study-lab-saved-list > a > span:first-child[data-tone="pink"] {
+  background: rgb(255 121 218 / 0.12);
+  color: #ff79da;
+}
+
+.diana-app .sd-study-lab-saved-list > a > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.diana-app .sd-study-lab-saved-list small {
+  color: #64748b;
+  font-size: 0.52rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-study-lab-saved-list strong {
+  overflow: hidden;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 0.78rem;
+  font-style: italic;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.diana-app .sd-study-lab-saved-list time {
+  color: #94a3b8;
+  font-size: 0.55rem;
+}
+
+.diana-app .sd-study-lab-saved-list > a > svg {
+  width: 1rem;
+  color: #64748b;
+}
+
+.diana-app .sd-study-lab-honest-empty,
+.diana-app .sd-study-lab-empty-source {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  border: 1px dashed rgb(116 192 255 / 0.35);
+  border-radius: 1rem;
+  background: rgb(116 192 255 / 0.04);
+  padding: 1.25rem;
+  text-align: center;
+}
+
+.diana-app .sd-study-lab-honest-empty h3,
+.diana-app .sd-study-lab-empty-source h2 {
+  color: #fff;
+  font-family: var(--font-display), Arial, sans-serif;
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-study-lab-honest-empty p,
+.diana-app .sd-study-lab-empty-source p {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.diana-app .sd-study-lab-empty-source a {
+  border-radius: 0.7rem;
+  background: linear-gradient(100deg, #74c0ff, #ff79da);
+  padding: 0.7rem 0.9rem;
+  color: #0f172a;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-decoration: none;
+  text-transform: uppercase;
+}
