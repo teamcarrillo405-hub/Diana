@@ -85,6 +85,38 @@ const assertKeyboardFocusStaysVisible = async (page: Page) => {
   });
 };
 
+const captureSmartLoadingDuringNavigation = async (
+  page: Page,
+  snapshotName: string,
+): Promise<void> => {
+  const reset = await page.request.delete("/api/qa/suspense-gate");
+  expect(reset.ok()).toBe(true);
+
+  const response = await page.goto("/qa/smart-loading-probe", { waitUntil: "commit" });
+  expect(response?.status() ?? 200).toBeLessThan(500);
+
+  const status = page.getByRole("status");
+  try {
+    await expect(status).toBeVisible();
+    await expect(status).toHaveText("Getting your next view ready");
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      await Promise.all(
+        Array.from(document.images).map((image) => image.decode().catch(() => undefined)),
+      );
+    });
+    await assertNoHorizontalOverflow(page);
+    await expect(page).toHaveScreenshot(snapshotName, { fullPage: false });
+  } finally {
+    const release = await page.request.post("/api/qa/suspense-gate");
+    expect(release.ok()).toBe(true);
+  }
+
+  await expect(page.getByRole("main", { name: "Smart loading resolved" })).toBeVisible();
+  await expect(status).toBeHidden();
+  await waitForScreenDesignReady(page);
+};
+
 const snapshots = SELECTED_SCREEN_DESIGN_SCENARIOS.map(
   (scenario) => `${scenario.screenId}.png`,
 );
@@ -106,6 +138,18 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
     );
 
     try {
+      if (scenario.screenId === "smart-loading") {
+        expect(page.viewportSize()).toEqual(prepared.screen.sourceViewport);
+        await captureSmartLoadingDuringNavigation(
+          page,
+          prepared.screen.visualSnapshot,
+        );
+        expect(localRequests.remote).toEqual([]);
+        expect(consoleEvidence.consoleErrors).toEqual([]);
+        expect(consoleEvidence.pageErrors).toEqual([]);
+        return;
+      }
+
       const response = await page.goto(prepared.route, {
         waitUntil: "domcontentloaded",
       });

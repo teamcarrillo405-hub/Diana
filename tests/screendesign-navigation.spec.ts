@@ -88,6 +88,52 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
     const beforePath = new URL(prepared.route, "http://diana.local").pathname;
 
     try {
+      if (scenario.screenId === "smart-loading") {
+        const reset = await page.request.delete("/api/qa/suspense-gate");
+        expect(reset.ok()).toBe(true);
+
+        const response = await page.goto("/qa/smart-loading-probe", {
+          waitUntil: "commit",
+        });
+        expect(response?.status() ?? 200).toBeLessThan(500);
+
+        const status = page.getByRole("status");
+        try {
+          await expect(status).toBeVisible();
+          await expect(status).toHaveText("Getting your next view ready");
+        } finally {
+          const release = await page.request.post("/api/qa/suspense-gate");
+          expect(release.ok()).toBe(true);
+        }
+
+        await expect(
+          page.getByRole("main", { name: "Smart loading resolved" }),
+        ).toBeVisible();
+        await expect(status).toBeHidden();
+        await bodyIsHealthy(page);
+        expect(mutations.responses).toEqual([]);
+        expect(consoleEvidence.consoleErrors).toEqual([]);
+        expect(consoleEvidence.pageErrors).toEqual([]);
+        await emitScreenDesignActionEvidence(scenario.screenId, {
+          schemaVersion: 1,
+          status: "pass",
+          screenId: scenario.screenId,
+          scenarioId: scenario.id,
+          primaryAction: scenario.expectedPrimaryAction,
+          expectedResult: scenario.expectedPersistedResult,
+          observed: {
+            clicked: false,
+            beforePath,
+            afterClickPath: "/qa/smart-loading-probe",
+            persistenceReloaded: false,
+            successfulMutationCount: 0,
+            suspenseVisibleBeforeResolution: true,
+            suspenseHiddenAfterResolution: true,
+          },
+        });
+        return;
+      }
+
       const response = await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
       expect(response?.status() ?? 200).toBeLessThan(500);
       await waitForScreenDesignReady(page);
