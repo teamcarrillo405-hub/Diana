@@ -1,51 +1,35 @@
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+
 export default function ProofLoading() {
   return (
-    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)" }}>
+    <ScreenDesignViewport className="sd-proof-loading" aria-label="Loading proof folder">
       <style>{`
-        @keyframes gl-pulse {
-          0%, 100% { opacity: 0.35; }
-          50% { opacity: 0.6; }
+        .diana-app-shell:has(.sd-proof-loading) .agent-fab-anchor,
+        .app-command-frame:has(.sd-proof-loading) .diana-mobile-command { display: none !important; }
+        .app-command-frame:has(.sd-proof-loading) { padding: 0 !important; }
+        .diana-app:has(.sd-proof-loading) nextjs-portal { display: none !important; }
+        .sd-proof-loading { min-height: max(100dvh, 852px); background: #0b1428; padding: 30px 22px; }
+        .sd-proof-loading .sd-source-wordmark { height: 18px; }
+        .sd-proof-loading-title { width: 12rem; height: 4.2rem; margin-top: 34px; }
+        .sd-proof-loading-line { width: 17rem; height: .8rem; margin-top: 15px; }
+        .sd-proof-loading-card { height: 72px; margin-top: 12px; border-radius: 16px; }
+        .sd-proof-loading-title, .sd-proof-loading-line, .sd-proof-loading-card {
+          background: linear-gradient(105deg, #151f35 25%, #1d2a45 42%, #151f35 58%);
+          background-size: 220% 100%;
+          animation: sd-proof-loading-pulse 1.4s ease-in-out infinite;
         }
-        .gl-skel {
-          background: var(--gl-bg-card);
-          border-radius: var(--radius-card);
-          animation: gl-pulse 1.6s ease-in-out infinite;
+        @keyframes sd-proof-loading-pulse { 0%, 100% { background-position: 100% 0; } 50% { background-position: 0 0; } }
+        @media (prefers-reduced-motion: reduce) {
+          .sd-proof-loading-title, .sd-proof-loading-line, .sd-proof-loading-card { animation: none; }
         }
       `}</style>
-
-      {/* AppTopNav stub */}
-      <div style={{ height: "3.25rem", background: "var(--gl-bg-card)", borderBottom: "1px solid var(--gl-border-neutral)" }} />
-
-      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
-        {/* Hero two-col */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-13)" }}>
-          <div style={{ display: "grid", gap: "var(--space-8)" }}>
-            <div className="gl-skel" style={{ height: "0.75rem", width: "5rem" }} />
-            <div className="gl-skel" style={{ height: "3rem", width: "min(18rem, 85%)" }} />
-            <div className="gl-skel" style={{ height: "1rem", width: "min(15rem, 75%)" }} />
-            <div style={{ display: "flex", gap: "var(--space-6)" }}>
-              <div className="gl-skel" style={{ height: "2.5rem", width: "8rem", borderRadius: "var(--radius-pill)" }} />
-              <div className="gl-skel" style={{ height: "2.5rem", width: "7rem", borderRadius: "var(--radius-pill)" }} />
-            </div>
-          </div>
-          <div className="gl-skel" style={{ height: "12rem" }} />
-        </div>
-
-        {/* Authorship trail */}
-        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 0.9fr", gap: "var(--space-9)" }}>
-          <div className="gl-skel" style={{ height: "16rem" }} />
-          <div style={{ display: "grid", gap: "var(--space-9)" }}>
-            <div className="gl-skel" style={{ height: "7.5rem" }} />
-            <div className="gl-skel" style={{ height: "7.5rem" }} />
-          </div>
-        </div>
-
-        {/* Wins + artifacts */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-9)" }}>
-          <div className="gl-skel" style={{ height: "10rem" }} />
-          <div className="gl-skel" style={{ height: "10rem" }} />
-        </div>
-      </div>
-    </div>
+      <DianaWordmark />
+      <div className="sd-proof-loading-title" aria-hidden="true" />
+      <div className="sd-proof-loading-line" aria-hidden="true" />
+      <div className="sd-proof-loading-card" aria-hidden="true" />
+      <div className="sd-proof-loading-card" aria-hidden="true" />
+      <div className="sd-proof-loading-card" aria-hidden="true" />
+    </ScreenDesignViewport>
   );
 }
