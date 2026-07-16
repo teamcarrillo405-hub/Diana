@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 16
+current_plan: 17
 status: executing
-stopped_at: Completed 36-16-PLAN.md
-last_updated: "2026-07-16T02:08:10.023Z"
+stopped_at: Completed 36-17-PLAN.md
+last_updated: "2026-07-16T02:34:16.103Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-16 proof, portfolio, and privacy ScreenDesign rebuild
+last_activity_desc: Completed 36-17 public share ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 16
-  percent: 53
+  completed_plans: 17
+  percent: 57
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 16
+**Current Plan:** 17
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [█████░░░░░] 53%
-**Last Activity:** 2026-07-15 - Completed 36-16 proof, portfolio, and privacy ScreenDesign rebuild
+**Progress:** [██████░░░░] 57%
+**Last Activity:** 2026-07-15 - Completed 36-17 public share ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T02:08:10.012Z
-**Stopped at:** Completed 36-16-PLAN.md
+**Last session:** 2026-07-16T02:34:16.091Z
+**Stopped at:** Completed 36-17-PLAN.md
 
 ---
 
@@ -707,6 +707,7 @@ total_plans_in_phase: 30
 | Phase 36 P14 | 30 min | 3 tasks | 13 files |
 | Phase 36 P15 | 64 min | 3 tasks | 8 files |
 | Phase 36 P16 | 29 min | 3 tasks | 16 files |
+| Phase 36 P17 | 19 min | 2 tasks | 9 files |
 
 ## Decisions
 
@@ -759,6 +760,8 @@ total_plans_in_phase: 30
 - [Phase 36]: Milestone celebration requires a real completed proof relation — Source fidelity cannot fabricate an achievement when no owner-scoped completed assignment signal exists.
 - [Phase 36]: Portfolio artwork stays local while item facts remain owner-scoped — Canonical thumbnails may shape presentation but never replace real titles, reflections, file state, or portfolio membership.
 - [Phase 36]: Privacy success follows the complete server result — Exports, backups, and destructive controls must not show success until authenticated owner-scoped operations finish, and every deletion write is checked.
+- [Phase 36]: Public share loaders authorize exact active tokens before querying owner-scoped evidence. — This keeps unauthenticated access narrowly scoped and prevents token, owner, or report-type widening.
+- [Phase 36]: Public portfolio and report payloads omit private profile and class fields. — Canonical source hierarchy is preserved with approved evidence and aggregate progress rather than exposing minor data.
 
 ## Session
 
