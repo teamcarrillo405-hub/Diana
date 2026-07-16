@@ -13,7 +13,12 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import {
+  useRef,
+  useState,
+  useTransition,
+  type KeyboardEvent,
+} from "react";
 
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { SourceMedia } from "@/components/screen-design/source-media";
@@ -115,6 +120,7 @@ export function ScreenDesignOnboarding({
     useState<StudySchedulePreference | null>(initialStudySchedulePreference);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const submittingRef = useRef(false);
 
   const goTo = (nextStep: ScreenDesignOnboardingStep) => {
     setFeedback(null);
@@ -122,30 +128,42 @@ export function ScreenDesignOnboarding({
   };
 
   const complete = () => {
-    if (!learningHurdle || !studySchedulePreference || pending) return;
+    if (
+      !learningHurdle
+      || !studySchedulePreference
+      || pending
+      || submittingRef.current
+    ) return;
 
     setFeedback(null);
+    submittingRef.current = true;
     startTransition(async () => {
-      const result = await completeScreenDesignOnboarding({
-        learningHurdle,
-        studySchedulePreference,
-      });
+      try {
+        const result = await completeScreenDesignOnboarding({
+          learningHurdle,
+          studySchedulePreference,
+        });
 
-      if (!result.ok) {
-        if (result.reason === "validation") {
-          setFeedback(
-            result.fieldErrors.studySchedulePreference
-              ?? result.fieldErrors.learningHurdle
-              ?? "Choose the options that feel closest today.",
-          );
+        if (!result.ok) {
+          submittingRef.current = false;
+          if (result.reason === "validation") {
+            setFeedback(
+              result.fieldErrors.studySchedulePreference
+                ?? result.fieldErrors.learningHurdle
+                ?? "Choose the options that feel closest today.",
+            );
+            return;
+          }
+          setFeedback(result.error);
           return;
         }
-        setFeedback(result.error);
-        return;
-      }
 
-      router.push("/dashboard");
-      router.refresh();
+        router.push("/dashboard");
+        router.refresh();
+      } catch {
+        submittingRef.current = false;
+        setFeedback("Those choices are still selected. Try saving again when you are ready.");
+      }
     });
   };
 
@@ -361,7 +379,7 @@ function ChallengeScreen({
       <QuizHeader current={1} onBack={onBack} title="WHAT'S YOUR BIGGEST HURDLE RIGHT NOW?" />
       <div className="sd-onboarding-scroll sd-onboarding-challenge-scroll">
         <div className="sd-onboarding-challenge-options" role="radiogroup" aria-label="Learning hurdle">
-          {HURDLE_OPTIONS.map((option) => {
+          {HURDLE_OPTIONS.map((option, index) => {
             const Icon = option.icon;
             const active = option.id === selected;
             return (
@@ -371,6 +389,11 @@ function ChallengeScreen({
                 role="radio"
                 aria-checked={active}
                 onClick={() => onSelect(option.id)}
+                onKeyDown={(event) =>
+                  handleRadioKey(event, HURDLE_OPTIONS, index, onSelect)
+                }
+                tabIndex={active || (!selected && index === 0) ? 0 : -1}
+                data-option-id={option.id}
                 className="sd-onboarding-challenge-option"
                 data-active={active}
               >
@@ -432,7 +455,7 @@ function ScheduleScreen({
       />
       <div className="sd-onboarding-scroll sd-onboarding-schedule-scroll">
         <div className="sd-onboarding-schedule-options" role="radiogroup" aria-label="Study schedule">
-          {SCHEDULE_OPTIONS.map((option) => {
+          {SCHEDULE_OPTIONS.map((option, index) => {
             const Icon = option.icon;
             const active = option.id === selected;
             return (
@@ -442,6 +465,11 @@ function ScheduleScreen({
                 role="radio"
                 aria-checked={active}
                 onClick={() => onSelect(option.id)}
+                onKeyDown={(event) =>
+                  handleRadioKey(event, SCHEDULE_OPTIONS, index, onSelect)
+                }
+                tabIndex={active || (!selected && index === 0) ? 0 : -1}
+                data-option-id={option.id}
                 className="sd-onboarding-schedule-option"
                 data-active={active}
                 data-tone={option.tone}
@@ -472,6 +500,7 @@ function ScheduleScreen({
           aria-label="Select study schedule"
           onClick={onContinue}
           disabled={!selected || pending}
+          aria-busy={pending}
           className="sd-onboarding-primary"
         >
           {pending ? "SAVING CHOICES" : "CONTINUE CHALLENGE"}
@@ -479,4 +508,37 @@ function ScheduleScreen({
       </footer>
     </main>
   );
+}
+
+function handleRadioKey<T extends string>(
+  event: KeyboardEvent<HTMLButtonElement>,
+  options: readonly { readonly id: T }[],
+  currentIndex: number,
+  onSelect: (value: T) => void,
+) {
+  const forward = event.key === "ArrowDown" || event.key === "ArrowRight";
+  const backward = event.key === "ArrowUp" || event.key === "ArrowLeft";
+  const first = event.key === "Home";
+  const last = event.key === "End";
+  if (!forward && !backward && !first && !last) return;
+
+  event.preventDefault();
+  const nextIndex = first
+    ? 0
+    : last
+      ? options.length - 1
+      : forward
+        ? (currentIndex + 1) % options.length
+        : (currentIndex - 1 + options.length) % options.length;
+  const next = options[nextIndex];
+  if (!next) return;
+
+  onSelect(next.id);
+  const group = event.currentTarget.closest('[role="radiogroup"]');
+  window.requestAnimationFrame(() => {
+    const nextControl = group?.querySelector<HTMLButtonElement>(
+      `[data-option-id="${next.id}"]`,
+    );
+    nextControl?.focus();
+  });
 }

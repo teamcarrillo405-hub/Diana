@@ -135,6 +135,7 @@ describe("ScreenDesignOnboarding", () => {
 
     fireEvent.click(screen.getByRole("radio", { name: /Morning Hustle/iu }));
     fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
+    fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
 
     await waitFor(() => expect(completeScreenDesignOnboarding).toHaveBeenCalledOnce());
     expect(completeScreenDesignOnboarding).toHaveBeenCalledWith({
