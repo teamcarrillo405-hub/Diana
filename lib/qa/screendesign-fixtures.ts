@@ -394,7 +394,12 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     heading: "Writing Coach",
     params: { id: "assignment-main" },
     records: [
-      ...academicCore(),
+      ...academicCore("green", {
+        title: "The Hero's Journey",
+        savedWork: {
+          draft: "Odysseus learns that endurance matters because every challenge asks him to choose who he will become.",
+        },
+      }),
       record(
         "ai-interaction",
         "ai-interaction-main",

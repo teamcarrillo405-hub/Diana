@@ -1480,6 +1480,7 @@ function buildRowsForFactory(
           external_id: `${scenario.id}:${factory.alias}`,
           last_synced_at: SCREEN_DESIGN_FIXED_CLOCK,
           submission_sync_status: "not_started",
+          saved_work: values?.savedWork ?? {},
         }),
       ];
     case "assignment-step":

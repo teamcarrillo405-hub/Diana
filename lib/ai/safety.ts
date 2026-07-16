@@ -37,6 +37,7 @@ export interface LogParams {
     | "health_scaffold"
     | "ap_scaffold"
     | "study_artifacts"
+    | "study_buddy"
     | "agent_coach";
   model: string;
   promptSummary: string;
@@ -90,6 +91,25 @@ export async function resetBudgetIfNewDay(
       .update({ tokens_used_today: 0, token_reset_date: today })
       .eq("user_id", userId);
   }
+}
+
+/** Best-effort soft-budget increment for authenticated server routes. */
+export async function incrementTokens(
+  userId: string,
+  delta: number,
+  supabase: SupabaseClient<Database>,
+): Promise<void> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("tokens_used_today")
+    .eq("user_id", userId)
+    .single();
+  if (!data) return;
+  const next = Number(data.tokens_used_today ?? 0) + Math.max(0, delta);
+  await supabase
+    .from("profiles")
+    .update({ tokens_used_today: next })
+    .eq("user_id", userId);
 }
 
 /**

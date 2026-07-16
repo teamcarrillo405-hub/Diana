@@ -2,17 +2,21 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Brain, Plus, Sparkles, Tags, Trash2, X } from "lucide-react";
+import { ArrowLeft, BookOpen, Brain, Plus, Save, Search, Sparkles, Tags, Trash2, X } from "lucide-react";
 import { AccessibleReadingText, type ReadingPrefs } from "@/components/accessible-reading-text";
 import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import { ReadingAnnotationControl } from "@/components/reading-annotation-control";
 import { ReadingLevelAdapter } from "@/components/reading-level-adapter";
 import { StudyArtifactPanel } from "@/components/study-artifact-panel";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { SourceMedia } from "@/components/screen-design/source-media";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 import type { RelatedNote } from "@/lib/notes/related";
 import type { TtsProvider } from "@/lib/supabase/types";
 import type { OutlineNode } from "@/lib/notes/types";
 import { VisualLearningPanel } from "./visual-learning-panel";
+import { saveNote } from "../actions";
 import {
   createFlashcardFromSelection,
   deleteNote,
@@ -24,6 +28,7 @@ import {
 
 export function NoteDetail({
   id,
+  title,
   bodyText,
   transcriptText,
   outline,
@@ -44,6 +49,7 @@ export function NoteDetail({
   classes,
 }: {
   id: string;
+  title: string;
   bodyText: string;
   transcriptText: string | null;
   outline: OutlineNode[] | null;
@@ -74,6 +80,22 @@ export function NoteDetail({
   const [selectedText, setSelectedText] = useState("");
   const [cardStatus, setCardStatus] = useState<string | null>(null);
   const [tagStatus, setTagStatus] = useState<string | null>(null);
+  const [body, setBody] = useState(bodyText);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+
+  function handleSave() {
+    setSaveStatus("Saving...");
+    startTransition(async () => {
+      const result = await saveNote({
+        id,
+        title,
+        bodyText: body,
+        classId,
+        source: normalizeNoteSource(source),
+      });
+      setSaveStatus(result.ok ? "Saved" : result.error);
+    });
+  }
 
   function handleClassChange(newId: string | null) {
     setClassId(newId);
@@ -159,7 +181,53 @@ export function NoteDetail({
   }
 
   return (
-    <div className="notes-detail-workspace">
+    <ScreenDesignViewport className="sd-notes-surface" aria-label="Notes surface">
+      <header className="sd-notes-header">
+        <Link href="/notes" aria-label="Back to notes"><ArrowLeft size={18} aria-hidden="true" /></Link>
+        <div>
+          <strong>{title}</strong>
+          <span>{classes.find((item) => item.id === classId)?.name ?? "Study guide"}</span>
+        </div>
+        <button type="button" aria-label="Search notes"><Search size={18} aria-hidden="true" /></button>
+      </header>
+
+      <main className="sd-notes-scroll">
+        <section className="sd-notes-overview" aria-labelledby="notes-overview-title">
+          <div className="sd-notes-kicker">Core concepts</div>
+          <h1 id="notes-overview-title">{title}</h1>
+          <textarea
+            aria-label="Note body"
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            placeholder="Add the ideas you want to remember..."
+          />
+          <div className="sd-notes-save-row">
+            <button type="button" onClick={handleSave} aria-label="Save note">
+              <Save size={14} aria-hidden="true" /> Save note
+            </button>
+            {saveStatus ? <span role="status" aria-live="polite">{saveStatus}</span> : null}
+          </div>
+        </section>
+
+        <section className="sd-notes-tutor-insight">
+          <span>Coach Diana insight</span>
+          <p>Connect the main idea to one example, then turn that connection into a recall prompt.</p>
+        </section>
+
+        <section className="sd-notes-diagram" aria-labelledby="notes-diagram-title">
+          <div>
+            <span>Key diagram</span>
+            <h2 id="notes-diagram-title">Supply and demand</h2>
+          </div>
+          <SourceMedia
+            assetId="supply-demand-graph"
+            width={520}
+            height={300}
+            alt="Supply and demand graph"
+          />
+        </section>
+
+        <div className="notes-detail-workspace sd-notes-connected-tools">
       {/* Class picker — always visible if student has classes */}
       {classes.length > 0 && (
         <label className="notes-detail-class-picker">
@@ -281,10 +349,10 @@ export function NoteDetail({
             onMouseUp={captureSelection}
             onKeyUp={captureSelection}
           >
-            {ttsOn && bodyText.trim().length > 0 && (
+            {ttsOn && body.trim().length > 0 && (
               <div className="mb-3">
                 <TtsHighlightButton
-                  text={bodyText}
+                  text={body}
                   provider={ttsProvider}
                   speed={ttsSpeed}
                   pitch={ttsPitch}
@@ -292,14 +360,14 @@ export function NoteDetail({
                 />
               </div>
             )}
-            {bodyText.trim().length > 0 ? (
-              <AccessibleReadingText text={bodyText} prefs={readingPrefs} />
+            {body.trim().length > 0 ? (
+              <AccessibleReadingText text={body} prefs={readingPrefs} />
             ) : (
               <p className="text-sm text-muted">(empty)</p>
             )}
           </div>
         </VocabHoverProvider>
-        <ReadingLevelAdapter text={bodyText} aiMode={classAiMode} />
+        <ReadingLevelAdapter text={body} aiMode={classAiMode} />
         <SelectionCardControl
           selectedText={selectedText}
           cardStatus={cardStatus}
@@ -360,7 +428,7 @@ export function NoteDetail({
           <button
             type="button"
             onClick={handleTranscribe}
-            disabled={transcribing || !bodyText.trim()}
+            disabled={transcribing || !body.trim()}
             className="notes-support-button"
           >
             <Sparkles size={14} />
@@ -391,7 +459,7 @@ export function NoteDetail({
       <VisualLearningPanel
         noteId={id}
         title="Visual learning"
-        text={[bodyText, transcriptText ?? ""].join("\n")}
+        text={[body, transcriptText ?? ""].join("\n")}
         outline={outline}
       />
 
@@ -444,7 +512,14 @@ export function NoteDetail({
           </div>
         )}
       </section>
-    </div>
+        </div>
+      </main>
+
+      <button type="button" className="sd-notes-floating-save" onClick={handleSave} aria-label="Save note changes">
+        <Plus size={22} aria-hidden="true" />
+      </button>
+      <StudentBottomNav />
+    </ScreenDesignViewport>
   );
 }
 
@@ -476,4 +551,18 @@ function SelectionCardControl({
       {cardStatus && <span className="text-xs text-muted">{cardStatus}</span>}
     </div>
   );
+}
+
+function normalizeNoteSource(
+  source: string,
+): "manual" | "voice" | "audio_upload" | "doc_upload" | "lecture" {
+  if (
+    source === "voice"
+    || source === "audio_upload"
+    || source === "doc_upload"
+    || source === "lecture"
+  ) {
+    return source;
+  }
+  return "manual";
 }

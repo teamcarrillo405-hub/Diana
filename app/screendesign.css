@@ -6303,3 +6303,427 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 .diana-app .sd-artifact-detail-sections details p {
   color: #fff;
 }
+
+/* Phase 36 Plan 12: source-faithful AI Writing Coach. */
+.diana-app .sd-writing-coach {
+  height: max(100dvh, 852px);
+  min-height: 852px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% 24%, rgb(116 192 255 / 0.09), transparent 15rem),
+    #0f172a;
+}
+
+.diana-app .sd-writing-coach-header {
+  display: grid;
+  height: 64px;
+  grid-template-columns: auto 1px 1fr auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  padding: 0 1rem;
+}
+
+.diana-app .sd-writing-coach-header > span {
+  width: 1px;
+  height: 20px;
+  background: rgb(255 255 255 / 0.14);
+}
+
+.diana-app .sd-writing-coach-header strong {
+  color: #cbd5e1;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-writing-coach-header button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 999px;
+  background: #1b263b;
+  color: #f8fafc;
+}
+
+.diana-app .sd-writing-coach-main {
+  position: absolute;
+  inset: 64px 0 88px;
+  display: grid;
+  grid-template-rows: 55% 45%;
+  overflow: hidden;
+}
+
+.diana-app .sd-writing-editor {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  border-bottom: 1px solid rgb(116 192 255 / 0.22);
+  padding: 1.2rem 1.1rem 0.75rem;
+}
+
+.diana-app .sd-writing-editor-heading,
+.diana-app .sd-writing-feedback-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.diana-app .sd-writing-editor-heading span,
+.diana-app .sd-writing-feedback-title span,
+.diana-app .sd-writing-mini-grid span {
+  color: #74c0ff;
+  font-size: 0.54rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-writing-editor-heading h1,
+.diana-app .sd-writing-feedback-title h2 {
+  margin: 0.2rem 0 0;
+  color: #f8fafc;
+  font-family: var(--font-diana-display);
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-writing-editor-heading small {
+  color: #64748b;
+  font-family: var(--font-diana-mono);
+  font-size: 0.56rem;
+}
+
+.diana-app .sd-writing-editor textarea {
+  min-height: 0;
+  flex: 1;
+  resize: none;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 1.05rem 0 0;
+  color: #e2e8f0;
+  font-family: Georgia, serif;
+  font-size: 0.9rem;
+  line-height: 1.72;
+}
+
+.diana-app .sd-writing-editor textarea::placeholder { color: #64748b; }
+
+.diana-app .sd-writing-inline-suggestion {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.7rem;
+  left: 1rem;
+  z-index: 2;
+  border: 1px solid rgb(255 121 218 / 0.42);
+  border-radius: 0.8rem;
+  background: rgb(27 38 59 / 0.98);
+  padding: 0.75rem;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.34);
+}
+
+.diana-app .sd-writing-inline-suggestion > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: #ff79da;
+  font-size: 0.55rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-writing-inline-suggestion p {
+  margin: 0.5rem 0 0.25rem;
+  color: #f8fafc;
+  font-size: 0.72rem;
+  line-height: 1.42;
+}
+
+.diana-app .sd-writing-inline-suggestion small { color: #94a3b8; font-size: 0.58rem; }
+.diana-app .sd-writing-suggestion-actions { display: flex; gap: 0.5rem; margin-top: 0.65rem; }
+.diana-app .sd-writing-suggestion-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid rgb(116 192 255 / 0.3);
+  border-radius: 0.55rem;
+  background: rgb(116 192 255 / 0.1);
+  padding: 0.45rem 0.55rem;
+  color: #74c0ff;
+  font-size: 0.57rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.diana-app .sd-writing-feedback {
+  min-height: 0;
+  overflow: hidden;
+  padding: 0.9rem 1.1rem 3.5rem;
+}
+
+.diana-app .sd-writing-feedback-title { justify-content: flex-start; }
+.diana-app .sd-writing-feedback-title .sd-source-mascot { width: 42px; height: 42px; }
+.diana-app .sd-writing-feedback-title h2 { font-size: 0.92rem; }
+
+.diana-app .sd-writing-insight-card {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 0.7rem;
+  border: 1px solid rgb(45 212 191 / 0.28);
+  border-left: 3px solid #2dd4bf;
+  border-radius: 0.75rem;
+  background: #1b263b;
+  padding: 0.7rem;
+  color: #2dd4bf;
+}
+
+.diana-app .sd-writing-insight-card strong { display: block; color: #f8fafc; font-size: 0.68rem; }
+.diana-app .sd-writing-insight-card p { margin: 0.2rem 0 0; color: #94a3b8; font-size: 0.6rem; line-height: 1.35; }
+.diana-app .sd-writing-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 0.6rem; }
+.diana-app .sd-writing-mini-grid article { border: 1px solid rgb(255 255 255 / 0.08); border-radius: 0.65rem; background: rgb(255 255 255 / 0.035); padding: 0.65rem; }
+.diana-app .sd-writing-mini-grid strong { display: block; margin-top: 0.3rem; color: #cbd5e1; font-size: 0.58rem; line-height: 1.3; }
+
+.diana-app .sd-writing-primary-action {
+  position: absolute;
+  z-index: 55;
+  right: 1.2rem;
+  bottom: 102px;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  border-radius: 15px;
+  background: linear-gradient(135deg, #74c0ff, #ff79da);
+  color: #0f172a;
+  box-shadow: 0 10px 28px rgb(255 121 218 / 0.28);
+}
+
+.diana-app .sd-writing-primary-action:disabled { filter: grayscale(0.75); opacity: 0.55; }
+.diana-app .sd-writing-status { position: absolute; z-index: 54; right: 4.9rem; bottom: 112px; max-width: 240px; margin: 0; color: #94a3b8; font-size: 0.57rem; text-align: right; }
+.diana-app .sd-writing-coach .sd-student-bottom-nav { position: absolute; right: 0; bottom: 0; left: 0; min-height: 88px; }
+.diana-app .sd-writing-coach .sd-student-bottom-nav a[aria-current="page"] { color: #ff79da; }
+
+/* Phase 36 Plan 12: source-faithful Notes Surface. */
+.diana-app .sd-notes-surface {
+  height: max(100dvh, 852px);
+  min-height: 852px;
+  overflow: hidden;
+  background:
+    linear-gradient(rgb(116 192 255 / 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(116 192 255 / 0.025) 1px, transparent 1px),
+    #0f172a;
+  background-size: 22px 22px;
+}
+
+.diana-app .sd-notes-header {
+  position: absolute;
+  z-index: 4;
+  inset: 0 0 auto;
+  display: grid;
+  height: 72px;
+  grid-template-columns: 38px 1fr 38px;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.07);
+  background: rgb(15 23 42 / 0.94);
+  padding: 0 1rem;
+  backdrop-filter: blur(18px);
+}
+
+.diana-app .sd-notes-header > a,
+.diana-app .sd-notes-header > button {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 12px;
+  background: #1b263b;
+  color: #f8fafc;
+}
+
+.diana-app .sd-notes-header div { min-width: 0; text-align: center; }
+.diana-app .sd-notes-header strong,
+.diana-app .sd-notes-header span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.diana-app .sd-notes-header strong { color: #f8fafc; font-family: var(--font-diana-display); font-size: 0.82rem; font-style: italic; font-weight: 950; text-transform: uppercase; }
+.diana-app .sd-notes-header span { margin-top: 0.15rem; color: #74c0ff; font-size: 0.5rem; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
+
+.diana-app .sd-notes-scroll {
+  position: absolute;
+  inset: 72px 0 88px;
+  overflow-y: auto;
+  padding: 1rem 1rem 6rem;
+  scrollbar-width: none;
+}
+
+.diana-app .sd-notes-scroll::-webkit-scrollbar { display: none; }
+.diana-app .sd-notes-overview {
+  border: 1px solid rgb(116 192 255 / 0.18);
+  border-radius: 1rem;
+  background: rgb(27 38 59 / 0.82);
+  padding: 1rem;
+  box-shadow: 0 16px 38px rgb(0 0 0 / 0.16);
+}
+.diana-app .sd-notes-kicker,
+.diana-app .sd-notes-tutor-insight span,
+.diana-app .sd-notes-diagram span {
+  color: #ff79da;
+  font-size: 0.52rem;
+  font-weight: 950;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+}
+.diana-app .sd-notes-overview h1,
+.diana-app .sd-notes-diagram h2 {
+  margin: 0.32rem 0 0;
+  color: #f8fafc;
+  font-family: var(--font-diana-display);
+  font-size: 1.15rem;
+  font-style: italic;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+.diana-app .sd-notes-overview textarea {
+  width: 100%;
+  min-height: 130px;
+  resize: vertical;
+  margin-top: 0.75rem;
+  border: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.08);
+  outline: 0;
+  background: transparent;
+  padding: 0.8rem 0 0;
+  color: #cbd5e1;
+  font-family: Georgia, serif;
+  font-size: 0.76rem;
+  line-height: 1.65;
+}
+.diana-app .sd-notes-save-row { display: flex; min-height: 30px; align-items: center; justify-content: space-between; gap: 0.6rem; margin-top: 0.6rem; }
+.diana-app .sd-notes-save-row button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid rgb(45 212 191 / 0.35);
+  border-radius: 0.6rem;
+  background: rgb(45 212 191 / 0.12);
+  padding: 0.45rem 0.65rem;
+  color: #2dd4bf;
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.diana-app .sd-notes-save-row span { color: #94a3b8; font-size: 0.58rem; }
+.diana-app .sd-notes-tutor-insight { margin-top: 0.75rem; border: 1px solid rgb(45 212 191 / 0.25); border-left: 3px solid #2dd4bf; border-radius: 0.8rem; background: rgb(45 212 191 / 0.07); padding: 0.85rem; }
+.diana-app .sd-notes-tutor-insight span { color: #2dd4bf; }
+.diana-app .sd-notes-tutor-insight p { margin: 0.4rem 0 0; color: #cbd5e1; font-size: 0.66rem; line-height: 1.5; }
+.diana-app .sd-notes-diagram { margin-top: 0.75rem; overflow: hidden; border: 1px solid rgb(255 255 255 / 0.09); border-radius: 0.9rem; background: #1b263b; }
+.diana-app .sd-notes-diagram > div { padding: 0.8rem 0.9rem; }
+.diana-app .sd-notes-diagram h2 { font-size: 0.88rem; }
+.diana-app .sd-notes-diagram .sd-source-media { width: 100%; height: 135px; object-fit: cover; opacity: 0.82; }
+
+.diana-app .sd-notes-connected-tools { display: grid; gap: 0.75rem; margin-top: 0.8rem; }
+.diana-app .sd-notes-connected-tools > section,
+.diana-app .sd-notes-connected-tools > label { border-radius: 0.8rem; }
+.diana-app .sd-notes-floating-save {
+  position: absolute;
+  z-index: 55;
+  right: 1.15rem;
+  bottom: 102px;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.28);
+  border-radius: 15px;
+  background: linear-gradient(135deg, #74c0ff, #ff79da);
+  color: #0f172a;
+  box-shadow: 0 10px 28px rgb(255 121 218 / 0.28);
+}
+.diana-app .sd-notes-surface .sd-student-bottom-nav { position: absolute; right: 0; bottom: 0; left: 0; min-height: 88px; }
+.diana-app .sd-notes-surface .sd-student-bottom-nav a[aria-current="page"] { color: #74c0ff; }
+
+/* Phase 36 Plan 12: source-faithful Tutor Chat. */
+.diana-app .sd-tutor-chat {
+  height: max(100dvh, 852px);
+  min-height: 852px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 12% 12%, rgb(45 212 191 / 0.08), transparent 14rem),
+    #0f172a;
+}
+.diana-app .sd-tutor-chat-header {
+  position: absolute;
+  z-index: 5;
+  inset: 0 0 auto;
+  display: grid;
+  height: 70px;
+  grid-template-columns: auto 1fr 38px;
+  align-items: center;
+  gap: 0.8rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+  background: rgb(15 23 42 / 0.96);
+  padding: 0 1rem;
+  backdrop-filter: blur(18px);
+}
+.diana-app .sd-tutor-chat-header > div { min-width: 0; border-left: 1px solid rgb(255 255 255 / 0.12); padding-left: 0.8rem; }
+.diana-app .sd-tutor-chat-header strong { display: block; color: #f8fafc; font-family: var(--font-diana-display); font-size: 0.72rem; font-style: italic; font-weight: 950; letter-spacing: 0.08em; text-transform: uppercase; }
+.diana-app .sd-tutor-chat-header span { display: flex; align-items: center; gap: 0.32rem; margin-top: 0.15rem; color: #94a3b8; font-size: 0.52rem; text-transform: uppercase; }
+.diana-app .sd-tutor-chat-header i { width: 6px; height: 6px; border-radius: 999px; background: #2dd4bf; box-shadow: 0 0 10px rgb(45 212 191 / 0.8); }
+.diana-app .sd-tutor-chat-header button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgb(255 255 255 / 0.1); border-radius: 12px; background: #1b263b; color: #f8fafc; }
+
+.diana-app .sd-tutor-chat-feed {
+  position: absolute;
+  inset: 70px 0 181px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  overflow-y: auto;
+  padding: 1rem;
+  scrollbar-width: none;
+}
+.diana-app .sd-tutor-chat-feed::-webkit-scrollbar { display: none; }
+.diana-app .sd-tutor-source { border: 1px solid rgb(116 192 255 / 0.16); border-radius: 0.75rem; background: rgb(27 38 59 / 0.7); }
+.diana-app .sd-tutor-source summary { display: flex; align-items: center; gap: 0.4rem; padding: 0.65rem 0.75rem; color: #74c0ff; font-size: 0.56rem; font-weight: 900; letter-spacing: 0.1em; list-style: none; text-transform: uppercase; }
+.diana-app .sd-tutor-source summary svg:last-child { margin-left: auto; }
+.diana-app .sd-tutor-source textarea { width: calc(100% - 1.2rem); min-height: 76px; resize: vertical; margin: 0 0.6rem 0.6rem; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 0.6rem; outline: 0; background: #0f172a; padding: 0.6rem; color: #cbd5e1; font-size: 0.62rem; line-height: 1.45; }
+.diana-app .sd-tutor-bubble { width: fit-content; max-width: 84%; border-radius: 1rem; padding: 0.8rem 0.9rem; box-shadow: 0 9px 26px rgb(0 0 0 / 0.14); }
+.diana-app .sd-tutor-bubble span { display: block; margin-bottom: 0.3rem; font-size: 0.5rem; font-weight: 950; letter-spacing: 0.14em; text-transform: uppercase; }
+.diana-app .sd-tutor-bubble p { margin: 0; font-size: 0.72rem; line-height: 1.5; }
+.diana-app .sd-tutor-bubble small { display: block; margin-top: 0.45rem; font-size: 0.57rem; line-height: 1.4; opacity: 0.78; }
+.diana-app .sd-tutor-bubble ol { display: grid; gap: 0.3rem; margin: 0.6rem 0 0; padding-left: 1rem; font-size: 0.58rem; line-height: 1.35; }
+.diana-app .sd-tutor-bubble-coach { align-self: flex-start; border: 1px solid rgb(255 255 255 / 0.2); border-bottom-left-radius: 0.25rem; background: #f8fafc; color: #0f172a; }
+.diana-app .sd-tutor-bubble-coach span { color: #52627a; }
+.diana-app .sd-tutor-bubble-student { align-self: flex-end; border: 1px solid rgb(45 212 191 / 0.4); border-bottom-right-radius: 0.25rem; background: linear-gradient(145deg, #2dd4bf, #1ea996); color: #07131f; }
+.diana-app .sd-tutor-bubble-student span { color: rgb(7 19 31 / 0.65); }
+.diana-app .sd-tutor-thinking,
+.diana-app .sd-tutor-error { display: flex; align-items: center; gap: 0.4rem; width: fit-content; margin: 0; border-radius: 0.65rem; background: #1b263b; padding: 0.6rem 0.75rem; color: #94a3b8; font-size: 0.6rem; }
+
+.diana-app .sd-tutor-composer {
+  position: absolute;
+  z-index: 6;
+  inset: auto 0 88px;
+  min-height: 93px;
+  border-top: 1px solid rgb(255 255 255 / 0.07);
+  background: rgb(15 23 42 / 0.98);
+  padding: 0.55rem 0.85rem;
+}
+.diana-app .sd-tutor-modes { display: flex; gap: 0.35rem; margin-bottom: 0.45rem; }
+.diana-app .sd-tutor-modes button { border: 1px solid rgb(255 255 255 / 0.1); border-radius: 999px; background: #1b263b; padding: 0.28rem 0.55rem; color: #94a3b8; font-size: 0.5rem; font-weight: 900; text-transform: uppercase; }
+.diana-app .sd-tutor-modes button[aria-pressed="true"] { border-color: rgb(45 212 191 / 0.5); background: rgb(45 212 191 / 0.12); color: #2dd4bf; }
+.diana-app .sd-tutor-input-row { display: grid; min-height: 40px; grid-template-columns: 20px 1fr 35px; align-items: center; gap: 0.4rem; border: 1px solid rgb(255 255 255 / 0.12); border-radius: 0.85rem; background: #1b263b; padding: 0.25rem 0.3rem 0.25rem 0.65rem; color: #ff79da; }
+.diana-app .sd-tutor-input-row textarea { max-height: 54px; resize: none; border: 0; outline: 0; background: transparent; padding: 0.4rem 0; color: #f8fafc; font-size: 0.66rem; line-height: 1.35; }
+.diana-app .sd-tutor-input-row textarea::placeholder { color: #64748b; }
+.diana-app .sd-tutor-input-row button { display: grid; width: 35px; height: 35px; place-items: center; border: 0; border-radius: 10px; background: linear-gradient(135deg, #74c0ff, #2dd4bf); color: #0f172a; }
+.diana-app .sd-tutor-input-row button:disabled { opacity: 0.5; }
+.diana-app .sd-tutor-composer > small { display: block; margin-top: 0.3rem; color: #64748b; font-size: 0.46rem; text-align: center; text-transform: capitalize; }
+.diana-app .sd-tutor-chat .sd-student-bottom-nav { position: absolute; right: 0; bottom: 0; left: 0; min-height: 88px; }
+.diana-app .sd-tutor-chat .sd-student-bottom-nav a[aria-current="page"] { color: #2dd4bf; }

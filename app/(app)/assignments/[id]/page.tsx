@@ -11,6 +11,7 @@ import {
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
 import type { MathScaffoldResult } from "@/lib/math/scaffold";
 import type { AssignmentStatus } from "@/lib/supabase/types";
+import { AiWritingCoach } from "@/components/screen-design/ai-writing-coach";
 
 export default async function AssignmentDetailPage({
   params,
@@ -105,6 +106,21 @@ export default async function AssignmentDetailPage({
   const estimate = a.estimated_minutes ? `${a.estimated_minutes} min` : null;
   const briefText = a.description?.trim() || "No instructions yet: check with your teacher.";
   const deliverables = SUBJECT_FIELDS[subject].map((f) => f.label);
+  const savedWork = a.saved_work && typeof a.saved_work === "object" && !Array.isArray(a.saved_work)
+    ? a.saved_work
+    : {};
+
+  if (sdState?.startsWith("writing-coach")) {
+    return (
+      <AiWritingCoach
+        assignmentId={a.id}
+        assignmentTitle={a.title}
+        courseLabel={courseLabel}
+        initialDraft={typeof savedWork.draft === "string" ? savedWork.draft : ""}
+        classAiMode={classAiMode}
+      />
+    );
+  }
 
   if (workspace === "1") {
     return (

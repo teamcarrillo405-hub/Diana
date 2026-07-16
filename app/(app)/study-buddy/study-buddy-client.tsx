@@ -1,7 +1,11 @@
 "use client";
 
+import { BookOpen, ChevronDown, Loader2, MoreHorizontal, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
-import { Brain, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
+
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 import { isRefusalNeeded } from "@/lib/ai/refuse-redirect";
 
 type Mode = "guide" | "hint" | "quiz";
@@ -13,6 +17,10 @@ type DianaResponse = {
   steps: string[];
   anchor: string;
 };
+
+type ChatMessage =
+  | { id: string; role: "student"; text: string }
+  | { id: string; role: "coach"; response: DianaResponse };
 
 const MODES: Array<{ id: Mode; label: string }> = [
   { id: "guide", label: "Guide me" },
@@ -39,6 +47,8 @@ export function StudyBuddyClient({
   tutorName = "Coach Diana",
   tutorStyle = "socratic",
   complexity = "balanced",
+  classId,
+  qaScenario,
 }: {
   initialSource?: string;
   initialQuestion?: string;
@@ -46,6 +56,8 @@ export function StudyBuddyClient({
   tutorName?: string;
   tutorStyle?: "socratic" | "supportive" | "direct";
   complexity?: "simple" | "balanced" | "advanced";
+  classId?: string;
+  qaScenario?: string;
 } = {}) {
   const [source, setSource] = useState(
     initialSource?.trim() || "Rubric: use one quote, explain the evidence, and connect it to the claim.",
@@ -54,31 +66,45 @@ export function StudyBuddyClient({
     initialQuestion?.trim() || "I have evidence but do not know how to start the paragraph.",
   );
   const [mode, setMode] = useState<Mode>(initialMode);
-  const [response, setResponse] = useState<DianaResponse | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  function appendResponse(response: DianaResponse) {
+    setMessages((current) => [
+      ...current,
+      { id: `coach-${Date.now()}-${current.length}`, role: "coach", response },
+    ]);
+  }
+
   async function handleAsk() {
-    if (isRefusalNeeded(question)) {
-      setResponse(BOUNDARY_RESPONSE);
-      setError(null);
+    const studentQuestion = question.trim();
+    if (studentQuestion.length < 2) return;
+
+    setMessages((current) => [
+      ...current,
+      { id: `student-${Date.now()}-${current.length}`, role: "student", text: studentQuestion },
+    ]);
+    setQuestion("");
+    setError(null);
+
+    if (isRefusalNeeded(studentQuestion)) {
+      appendResponse(BOUNDARY_RESPONSE);
       return;
     }
 
     setLoading(true);
-    setError(null);
-
     try {
       const res = await fetch("/api/diana/study-buddy", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ source, question, mode }),
+        body: JSON.stringify({ source, question: studentQuestion, mode, classId, qaScenario }),
       });
       const data = (await res.json()) as { ok: boolean; response?: DianaResponse; error?: string };
       if (!data.ok || !data.response) {
         setError(data.error ?? "Diana study help is unavailable right now.");
       } else {
-        setResponse(data.response);
+        appendResponse(data.response);
       }
     } catch {
       setError("Could not reach Diana. Check your connection and try again.");
@@ -88,110 +114,85 @@ export function StudyBuddyClient({
   }
 
   return (
-    <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
-      <section className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <span className="flex size-10 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-            <Brain size={18} />
-          </span>
-          <div>
-            <h2 className="text-base font-semibold">Bring your source to {tutorName}</h2>
-            <p className="text-sm text-muted">The helper works best with a prompt, rubric, note, or passage. Style: {tutorStyle}. Complexity: {complexity}.</p>
-          </div>
+    <ScreenDesignViewport className="sd-tutor-chat" aria-label="Tutor chat">
+      <header className="sd-tutor-chat-header">
+        <DianaWordmark />
+        <div>
+          <strong>{tutorName}</strong>
+          <span><i aria-hidden="true" /> Active now</span>
         </div>
-        <label className="mt-4 block text-sm font-medium">
-          Source or class material
-          <textarea
-            value={source}
-            onChange={(event) => setSource(event.target.value)}
-            rows={4}
-            className="mt-1 w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
-          />
-        </label>
-        <label className="mt-4 block text-sm font-medium">
-          What do you want help with?
-          <textarea
-            value={question}
-            onChange={(event) => setQuestion(event.target.value)}
-            rows={4}
-            className="mt-1 w-full rounded-2xl border border-border bg-surface px-3 py-3 text-sm leading-6"
-          />
-        </label>
-        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+        <button type="button" aria-label="More tutor options"><MoreHorizontal size={19} aria-hidden="true" /></button>
+      </header>
+
+      <main className="sd-tutor-chat-feed" aria-live="polite">
+        <details className="sd-tutor-source">
+          <summary><BookOpen size={14} aria-hidden="true" /> Source context <ChevronDown size={14} aria-hidden="true" /></summary>
+          <textarea aria-label="Source or class material" value={source} onChange={(event) => setSource(event.target.value)} />
+        </details>
+
+        <article className="sd-tutor-bubble sd-tutor-bubble-coach">
+          <span>{tutorName}</span>
+          <p>What are you working through? Share where you feel stuck, and we will find the next move together.</p>
+        </article>
+
+        {messages.map((message) => message.role === "student" ? (
+          <article key={message.id} className="sd-tutor-bubble sd-tutor-bubble-student">
+            <span>You</span>
+            <p>{message.text}</p>
+          </article>
+        ) : (
+          <article key={message.id} className="sd-tutor-bubble sd-tutor-bubble-coach">
+            <span>{message.response.title}</span>
+            <p>{message.response.main}</p>
+            <small>{message.response.reason}</small>
+            {message.response.steps.length > 0 ? (
+              <ol>{message.response.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+            ) : null}
+            {message.response.anchor ? <small>{message.response.anchor}</small> : null}
+          </article>
+        ))}
+
+        {loading ? (
+          <div className="sd-tutor-thinking"><Loader2 size={15} className="animate-spin" aria-hidden="true" /> {tutorName} is thinking...</div>
+        ) : null}
+        {error ? <p className="sd-tutor-error" role="status">{error}</p> : null}
+      </main>
+
+      <section className="sd-tutor-composer" aria-label="Tutor message composer">
+        <div className="sd-tutor-modes" aria-label="Tutor mode">
           {MODES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => setMode(item.id)}
-              aria-pressed={mode === item.id}
-              className={`touch-target rounded-2xl border px-3 py-2 text-sm font-semibold ${
-                mode === item.id
-                  ? "border-brand bg-brand text-white"
-                  : "border-border bg-surface text-muted hover:bg-surface-soft"
-              }`}
-            >
+            <button key={item.id} type="button" onClick={() => setMode(item.id)} aria-pressed={mode === item.id}>
               {item.label}
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={handleAsk}
-          disabled={loading || question.trim().length < 2}
-          className="mt-4 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
-        >
-          {loading ? <Loader2 size={15} className="animate-spin" /> : null}
-          {loading ? `Asking ${tutorName}...` : `Ask ${tutorName}`}
-        </button>
-      </section>
-
-      <aside className="rounded-3xl border border-border bg-surface-raised p-4 shadow-sm">
-        <div className="flex items-center gap-2">
-          <ShieldCheck size={17} className="text-brand" />
-          <h2 className="text-base font-semibold">{tutorName} response</h2>
+        <div className="sd-tutor-input-row">
+          <Sparkles size={16} aria-hidden="true" />
+          <textarea
+            aria-label="Tutor message"
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                void handleAsk();
+              }
+            }}
+            placeholder={`Message ${tutorName}`}
+            rows={1}
+          />
+          <button
+            type="button"
+            onClick={() => void handleAsk()}
+            disabled={loading || question.trim().length < 2}
+            aria-label="Send tutor message"
+          >
+            {loading ? <Loader2 size={17} className="animate-spin" aria-hidden="true" /> : <Send size={17} aria-hidden="true" />}
+          </button>
         </div>
-
-        {error ? (
-          <div className="mt-4 rounded-2xl border border-border bg-surface p-3">
-            <p className="text-sm text-muted">{error}</p>
-          </div>
-        ) : loading ? (
-          <div className="mt-4 flex items-center gap-2 rounded-2xl border border-brand/20 bg-brand/10 p-3">
-            <Loader2 size={15} className="animate-spin text-brand" />
-            <p className="text-sm text-muted">Diana is thinking…</p>
-          </div>
-        ) : response ? (
-          <>
-            <div className="mt-4 rounded-2xl border border-brand/20 bg-brand/10 p-3">
-              <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
-                {response.title}
-              </p>
-              <p className="mt-2 text-sm font-medium">{response.main}</p>
-              <p className="mt-2 text-sm text-muted">{response.reason}</p>
-            </div>
-            <div className="mt-4 space-y-2">
-              {response.steps.map((step) => (
-                <div key={step} className="flex gap-2 rounded-2xl border border-border bg-surface p-3 text-sm">
-                  <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-brand" />
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
-            {response.anchor ? (
-              <div className="mt-4 rounded-2xl border border-border bg-surface p-3">
-                <p className="text-xs font-semibold uppercase tracking-wider text-muted">Source anchor</p>
-                <p className="mt-1 text-sm text-muted">{response.anchor}</p>
-              </div>
-            ) : null}
-          </>
-        ) : (
-          <div className="mt-4 rounded-2xl border border-border bg-surface p-4">
-            <p className="text-sm text-muted">
-              Add your source and question, choose a mode, then ask {tutorName}.
-            </p>
-          </div>
-        )}
-      </aside>
-    </div>
+        <small>{tutorStyle} guidance · {complexity} detail</small>
+      </section>
+      <StudentBottomNav />
+    </ScreenDesignViewport>
   );
 }

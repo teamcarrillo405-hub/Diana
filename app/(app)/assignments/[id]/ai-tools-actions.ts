@@ -35,6 +35,7 @@ import { parseScienceScaffoldResponse, type ScienceScaffoldMode, type ScienceSca
 import { parseWritingCoauthorResponse, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/supabase/types";
 
 const HistoryItem = z.object({
   role: z.enum(["user", "assistant"]),
@@ -62,6 +63,12 @@ const WritingCoauthorInput = z.object({
   mode: z.enum(["essay_scaffold", "cowrite", "transition", "evidence", "argument", "readability", "tone"]),
   draft: z.string().max(8000).default(""),
   prompt: z.string().max(1500).default(""),
+});
+
+const AcceptWritingSuggestionInput = z.object({
+  assignmentId: z.string().uuid(),
+  currentDraft: z.string().max(8000),
+  suggestionText: z.string().min(1).max(800),
 });
 
 const ScienceScaffoldInput = z.object({
@@ -141,6 +148,31 @@ async function getOwnerId(): Promise<string | null> {
     data: { user },
   } = await supabase.auth.getUser();
   return user?.id ?? null;
+}
+
+async function loadAssignmentAiMode(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ownerId: string,
+  assignmentId: string,
+): Promise<AiMode | null> {
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("ai_mode_override, classes(ai_mode)")
+    .eq("id", assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return null;
+
+  const classMode: AiMode = assignment.classes?.ai_mode === "red"
+    || assignment.classes?.ai_mode === "yellow"
+    ? assignment.classes.ai_mode
+    : "green";
+  const override: AiMode | null = assignment.ai_mode_override === "red"
+    || assignment.ai_mode_override === "yellow"
+    || assignment.ai_mode_override === "green"
+    ? assignment.ai_mode_override
+    : null;
+  return effectiveAiMode(classMode, override);
 }
 
 // Map an Edge-Function error message to calm, student-facing copy.
@@ -407,8 +439,12 @@ export async function requestWritingAid(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = parsed.data.assignmentId
+    ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
+    : parsed.data.aiMode;
+  if (!aiMode) return { error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("writing-aid", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
   return { content: (data as { content: string }).content ?? "" };
@@ -423,12 +459,14 @@ export async function requestWritingCoauthor(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const evidenceContext = parsed.data.mode === "evidence"
     ? await loadWritingEvidenceContext(supabase, ownerId, parsed.data.assignmentId)
     : "";
 
   const { data, error } = await supabase.functions.invoke("writing-cowrite", {
-    body: { ownerId, ...parsed.data, evidenceContext },
+    body: { ownerId, ...parsed.data, aiMode, evidenceContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -440,6 +478,61 @@ export async function requestWritingCoauthor(
       parsed.data.mode as WritingCoauthorMode,
     ),
   };
+}
+
+export async function acceptWritingSuggestion(
+  input: z.infer<typeof AcceptWritingSuggestionInput>,
+): Promise<{ ok: true; draft: string } | { ok: false; error: string }> {
+  const parsed = AcceptWritingSuggestionInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid suggestion." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { ok: false, error: "Not signed in." };
+
+  const supabase = await createClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("saved_work")
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return { ok: false, error: "Assignment not found." };
+
+  const suggestionText = parsed.data.suggestionText.trim();
+  const draft = [parsed.data.currentDraft.trimEnd(), suggestionText]
+    .filter(Boolean)
+    .join("\n\n");
+  const savedWork = assignment.saved_work && typeof assignment.saved_work === "object"
+    && !Array.isArray(assignment.saved_work)
+    ? assignment.saved_work
+    : {};
+  const previousAcceptedChars = typeof savedWork.writingAcceptedAiChars === "number"
+    ? savedWork.writingAcceptedAiChars
+    : 0;
+  const nextSavedWork: Json = {
+    ...savedWork,
+    draft,
+    writingAcceptedAiChars: previousAcceptedChars + suggestionText.length,
+  };
+
+  const { error } = await supabase
+    .from("assignments")
+    .update({ saved_work: nextSavedWork })
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId);
+  if (error) return { ok: false, error: "The draft could not be saved. Try again." };
+
+  await supabase.from("authorship_log").insert({
+    owner_id: ownerId,
+    assignment_id: parsed.data.assignmentId,
+    actor: "student",
+    event_type: "writing_suggestion_accepted",
+    payload: {
+      acceptedAiChars: suggestionText.length,
+      studentConfirmed: true,
+    },
+  });
+
+  return { ok: true, draft };
 }
 
 export async function requestScienceScaffold(
