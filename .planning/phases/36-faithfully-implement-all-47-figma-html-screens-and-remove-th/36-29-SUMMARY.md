@@ -68,20 +68,20 @@ coverage:
         status: pass
     human_judgment: false
 
-duration: 5 min
+duration: 8 min active
 completed: 2026-07-16
 status: complete
 ---
 
 # Phase 36 Plan 29: Independent Review Evidence Validation Summary
 
-**The unchanged 47-screen review gallery now has an independent, tamper-evident validation receipt bound to its producer run, release commit, index, validator, and canonical ordered id set.**
+**The refreshed 47-screen review gallery now has an independent, tamper-evident validation receipt bound to its producer run, release commit, index, validator, and canonical ordered id set.**
 
 ## Performance
 
-- **Duration:** 5 min
+- **Duration:** 8 min active across the initial and refreshed validation runs
 - **Started:** 2026-07-16T14:55:52Z
-- **Completed:** 2026-07-16T15:00:54Z
+- **Completed:** 2026-07-16T16:57:28Z
 - **Tasks:** 2
 - **Files modified:** 1 generated receipt plus planning metadata
 
@@ -90,8 +90,8 @@ status: complete
 - Re-ran 22 corruption and producer-contract tests, including dirty-golden and non-ancestor review rejection, before accepting actual output.
 - Independently recomputed the actual source, app, diff, action, baseline, filesystem-hash, run-id, release-SHA, and canonical-order evidence for all 47 screens.
 - Wrote one receipt at `test-results/screendesign-review/validation.json` only after the complete immutable output passed.
-- Proved the 191 producer files were unchanged before and after validation with tree hash `3a3901169cddf0384172b41953f8cf92b050024b4068aeecb56804663cf9eb21`.
-- Revalidated source and compiled legacy removal, TypeScript, calm tone, and all 910 tests across 161 files.
+- Proved the 191 refreshed producer files were unchanged before and after validation with tree hash `2727a50fc219291825e57f229f19eabcc55a3725e13f33c8180934eb3761f38b`.
+- Revalidated source and compiled legacy removal, TypeScript, calm tone, and all 911 tests across 161 files after the contrast evidence refresh.
 
 ## Task Commits
 
@@ -102,7 +102,7 @@ Both tasks were verification-only and intentionally preserved the release commit
 
 ## Files Created/Modified
 
-- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `838a178b4a7c47b04752c2c1a2cc09b8359943034041eec70b87a6743b5a89a1`.
+- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `79f88fb1617eaaf5243608df0a6311aa44169c88d3f1fadf8318af1caa121caf`.
 - `.planning/phases/36-faithfully-implement-all-47-figma-html-screens-and-remove-th/36-29-SUMMARY.md` - Plan result and immutable evidence identities.
 
 ## Bound Evidence
@@ -110,12 +110,12 @@ Both tasks were verification-only and intentionally preserved the release commit
 | Identity | Verified value |
 |---|---|
 | Producer run | `phase36-plan30` |
-| Release SHA | `8dafa2757fc68c5cfe356485a9df84b679797fad` |
-| Index SHA-256 | `1cc78d1edb4aa07c00e7a257ad9d94d4f5d17147dcb968c977ce7ff727c2acc2` |
+| Release SHA | `8d991421f63ab5a5fcf2ad872a009874bbed898f` |
+| Index SHA-256 | `c03519d378861ce60ced8bde3a9cd3544d59585a5acb552126edad9a86103bfb` |
 | Validator SHA-256 | `194a04d169be44828c6440da0382825e30a118cca1a99dac5558f9a224ad5ee2` |
-| Receipt SHA-256 | `838a178b4a7c47b04752c2c1a2cc09b8359943034041eec70b87a6743b5a89a1` |
-| Producer tree SHA-256 before | `3a3901169cddf0384172b41953f8cf92b050024b4068aeecb56804663cf9eb21` |
-| Producer tree SHA-256 after | `3a3901169cddf0384172b41953f8cf92b050024b4068aeecb56804663cf9eb21` |
+| Receipt SHA-256 | `79f88fb1617eaaf5243608df0a6311aa44169c88d3f1fadf8318af1caa121caf` |
+| Producer tree SHA-256 before | `2727a50fc219291825e57f229f19eabcc55a3725e13f33c8180934eb3761f38b` |
+| Producer tree SHA-256 after | `2727a50fc219291825e57f229f19eabcc55a3725e13f33c8180934eb3761f38b` |
 | Canonical evidence counts | `47 source / 47 app / 47 diff / 47 action` |
 
 The output contains 47 unique ordered ids, no missing or extra artifact files, no duplicates, no staging entries, and no prohibited Nexus, `TodayGamePlan`, `PageShell`, `AppTopNav`, or remote URL references in review text artifacts.
