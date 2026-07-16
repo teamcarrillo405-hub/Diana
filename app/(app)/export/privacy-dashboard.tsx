@@ -197,8 +197,10 @@ export function PrivacyDashboard({
             <span className="sd-privacy-export-icon">
               <FileJson size={20} aria-hidden="true" />
             </span>
-            <h2>JSON file</h2>
-            <p>Portable copy of your Diana records.</p>
+            <span className="sd-privacy-export-copy">
+              <h2>JSON file</h2>
+              <p>Portable copy of your Diana records.</p>
+            </span>
             <button
               type="button"
               onClick={downloadJson}
@@ -212,8 +214,10 @@ export function PrivacyDashboard({
             <span className="sd-privacy-export-icon">
               <FileText size={20} aria-hidden="true" />
             </span>
-            <h2>PDF summary</h2>
-            <p>Readable count summary for your records.</p>
+            <span className="sd-privacy-export-copy">
+              <h2>PDF summary</h2>
+              <p>Readable count summary for your records.</p>
+            </span>
             <button type="button" onClick={downloadPdf} disabled={pending}>
               <Download size={14} aria-hidden="true" /> Download PDF
             </button>

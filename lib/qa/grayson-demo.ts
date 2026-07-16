@@ -1717,7 +1717,7 @@ function buildRowsForFactory(
           title: stringValue(values, "title", "Identity quote response"),
           reflection_text: stringValue(values, "reflection", "I revised the explanation."),
           metadata: { source: "screendesign-qa" },
-          position: 0,
+          position: numberValue(values, "position", 0),
         }),
       ];
     case "analytics-event":

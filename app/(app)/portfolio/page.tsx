@@ -12,6 +12,8 @@ const PORTFOLIO_STYLES = `
   .app-command-frame:has(.sd-portfolio-gallery) .diana-mobile-command { display: none !important; }
   .app-command-frame:has(.sd-portfolio-gallery) { padding: 0 !important; }
   .diana-app:has(.sd-portfolio-gallery) nextjs-portal { display: none !important; }
+  .diana-app:has(.sd-portfolio-gallery) .skip-link { transition: none; }
+  .diana-app:has(.sd-portfolio-gallery) .skip-link:focus { transform: translateY(0) !important; }
   .sd-portfolio-gallery { min-height: max(100dvh, 852px); font-family: var(--font-body); background: #0b1428; }
   .sd-portfolio-shell { display: flex; min-height: max(100dvh, 852px); flex-direction: column; }
   .sd-portfolio-scroll { flex: 1; padding: 27px 20px 28px; background: radial-gradient(circle at 95% 3%, rgb(255 121 218 / .12), transparent 27%), #0b1428; }

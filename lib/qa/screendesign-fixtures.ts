@@ -296,7 +296,11 @@ const shareRecords = (
         record(
           "portfolio-item",
           "portfolio-item-main",
-          { title: "Identity quote response", reflection: "I revised the explanation." },
+          {
+            title: "Identity quote response",
+            reflection: "I revised the explanation.",
+            position: 0,
+          },
           ["portfolio-main"],
         ),
       ]
@@ -560,7 +564,7 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     screenId: "milestone-celebration",
     heading: "Learning milestone",
     records: [
-      ...academicCore("green", { status: "done" }),
+      ...academicCore("green", { status: "graded" }),
       record(
         "assignment-signal",
         "signal-completed",
@@ -670,6 +674,7 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
         {
           title: "Biology cycle guide",
           reflection: "I organized each stage so the cycle is easier to follow.",
+          position: 1,
         },
         ["portfolio-main"],
       ),

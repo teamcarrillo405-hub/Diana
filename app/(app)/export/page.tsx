@@ -16,6 +16,8 @@ const PRIVACY_STYLES = `
   .app-command-frame:has(.sd-privacy-export) .diana-mobile-command { display: none !important; }
   .app-command-frame:has(.sd-privacy-export) { padding: 0 !important; }
   .diana-app:has(.sd-privacy-export) nextjs-portal { display: none !important; }
+  .diana-app:has(.sd-privacy-export) .skip-link { transition: none; }
+  .diana-app:has(.sd-privacy-export) .skip-link:focus { transform: translateY(0) !important; }
   .sd-privacy-export { min-height: max(100dvh, 852px); font-family: var(--font-body); background: #0b1428; }
   .sd-privacy-shell { display: flex; min-height: max(100dvh, 852px); flex-direction: column; }
   .sd-privacy-scroll { flex: 1; padding: 25px 20px 30px; background: radial-gradient(circle at 92% 2%, rgb(116 192 255 / .11), transparent 27%), #0b1428; }
@@ -27,12 +29,13 @@ const PRIVACY_STYLES = `
   .sd-privacy-subtitle { margin: 11px 0 22px; color: #71809c; font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
   .sd-privacy-message { margin: 0 0 12px; border: 1px solid rgb(251 191 36 / .28); border-radius: 12px; background: rgb(251 191 36 / .08); padding: 10px 12px; color: #fbbf24; font-size: 11px; line-height: 1.4; }
   .sd-privacy-section-label { margin: 0 0 10px; color: #ff79da; font-size: 9px; font-weight: 950; letter-spacing: .17em; text-transform: uppercase; }
-  .sd-privacy-export-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .sd-privacy-export-card { border: 1px solid rgb(255 255 255 / .11); border-radius: 17px; background: #151f35; padding: 14px; }
+  .sd-privacy-export-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .sd-privacy-export-card { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 1px solid rgb(255 255 255 / .11); border-radius: 17px; background: #151f35; padding: 14px; }
   .sd-privacy-export-icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: rgb(116 192 255 / .1); color: #74c0ff; }
-  .sd-privacy-export-card h2 { margin: 12px 0 4px; font-family: var(--font-display); font-size: 15px; font-style: italic; font-weight: 900; text-transform: uppercase; }
-  .sd-privacy-export-card p { min-height: 30px; margin: 0 0 12px; color: #71809c; font-size: 9px; line-height: 1.45; }
-  .sd-privacy-export-card button { display: inline-flex; width: 100%; min-height: 36px; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 11px; background: #74c0ff; color: #0b1428; font: inherit; font-size: 9px; font-style: italic; font-weight: 950; text-transform: uppercase; }
+  .sd-privacy-export-copy { min-width: 0; }
+  .sd-privacy-export-card h2 { margin: 0 0 4px; font-family: var(--font-display); font-size: 14px; font-style: italic; font-weight: 900; text-transform: uppercase; }
+  .sd-privacy-export-card p { margin: 0; color: #71809c; font-size: 8px; line-height: 1.4; }
+  .sd-privacy-export-card button { display: inline-flex; min-height: 36px; align-items: center; justify-content: center; gap: 6px; border: 0; border-radius: 11px; background: #74c0ff; padding: 0 12px; color: #0b1428; font: inherit; font-size: 8px; font-style: italic; font-weight: 950; white-space: nowrap; text-transform: uppercase; }
   .sd-privacy-export-card button:disabled { opacity: .5; }
   .sd-privacy-panel { margin-top: 17px; border: 1px solid rgb(45 212 191 / .22); border-radius: 18px; background: rgb(45 212 191 / .055); padding: 15px; }
   .sd-privacy-panel-title { display: flex; align-items: center; gap: 8px; margin: 0 0 13px; color: #2dd4bf; font-size: 9px; font-weight: 950; letter-spacing: .15em; text-transform: uppercase; }
