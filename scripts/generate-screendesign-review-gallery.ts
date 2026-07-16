@@ -137,11 +137,81 @@ const resolveReleaseSha = async (projectRoot: string): Promise<string> => {
   return releaseSha;
 };
 
-const runPlaywrightSuites = async (input: {
+interface ReviewQaServer {
+  readonly stop: () => Promise<void>;
+}
+
+const serverIsReady = async (): Promise<boolean> => {
+  try {
+    const response = await fetch("http://127.0.0.1:3005/login", {
+      redirect: "manual",
+      signal: AbortSignal.timeout(2_000),
+    });
+    return response.status < 500;
+  } catch {
+    return false;
+  }
+};
+
+const startReviewQaServer = async (projectRoot: string): Promise<ReviewQaServer> => {
+  invariant(!(await serverIsReady()), "port 3005 is already serving another process");
+  const nextCli = path.join(
+    projectRoot,
+    "node_modules",
+    "next",
+    "dist",
+    "bin",
+    "next",
+  );
+  const child = spawn(
+    process.execPath,
+    [nextCli, "dev", "-p", "3005"],
+    {
+      cwd: projectRoot,
+      env: { ...process.env, QA_CREATE_USER: "true" },
+      shell: false,
+      windowsHide: true,
+      stdio: "inherit",
+    },
+  );
+  let exitStatus: number | null | undefined;
+  child.on("exit", (status) => {
+    exitStatus = status;
+  });
+  const deadline = Date.now() + 120_000;
+  while (Date.now() < deadline && !(await serverIsReady())) {
+    invariant(exitStatus === undefined, `QA server exited early with ${String(exitStatus)}`);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  invariant(await serverIsReady(), "QA server did not become ready within 120 seconds");
+
+  return {
+    stop: async () => {
+      if (exitStatus !== undefined || child.pid === undefined) return;
+      if (process.platform === "win32") {
+        await new Promise<void>((resolve) => {
+          const stop = spawn(
+            "taskkill",
+            ["/PID", String(child.pid), "/T", "/F"],
+            { shell: false, windowsHide: true, stdio: "ignore" },
+          );
+          stop.on("error", () => resolve());
+          stop.on("close", () => resolve());
+        });
+      } else {
+        child.kill("SIGTERM");
+      }
+    },
+  };
+};
+
+const runPlaywrightSuite = async (input: {
   readonly projectRoot: string;
   readonly reviewStagingRoot: string;
   readonly runId: string;
   readonly releaseSha: string;
+  readonly file: string;
+  readonly project: "screendesign-source" | "screendesign-mobile";
 }): Promise<void> => {
   const cli = path.join(
     input.projectRoot,
@@ -150,17 +220,13 @@ const runPlaywrightSuites = async (input: {
     "test",
     "cli.js",
   );
-  const files = [
-    "tests/screendesign-source-capture.spec.ts",
-    "tests/screendesign-visual.spec.ts",
-    "tests/screendesign-navigation.spec.ts",
-  ];
   process.stdout.write(
-    "\n[review-gallery] Running normalized source, visual, and navigation suites\n",
+    `\n[review-gallery] Running ${input.file} (${input.project})\n`,
   );
   const env: NodeJS.ProcessEnv = {
     ...process.env,
-    CI: "1",
+    CI: "",
+    QA_CREATE_USER: "true",
     SCREENDESIGN_REVIEW_DIR: input.reviewStagingRoot,
     SCREENDESIGN_REVIEW_RUN_ID: input.runId,
     SCREENDESIGN_REVIEW_RELEASE_SHA: input.releaseSha,
@@ -172,9 +238,8 @@ const runPlaywrightSuites = async (input: {
       [
         cli,
         "test",
-        ...files,
-        "--project=screendesign-source",
-        "--project=screendesign-mobile",
+        input.file,
+        `--project=${input.project}`,
         "--workers=1",
         "--retries=0",
         "--reporter=line",
@@ -192,7 +257,7 @@ const runPlaywrightSuites = async (input: {
   });
   invariant(
     status === 0,
-    `source, visual, or navigation suite stopped with exit code ${String(status)}`,
+    `${input.file} stopped with exit code ${String(status)}`,
   );
 };
 
@@ -346,12 +411,32 @@ export const main = async (
   const stagingRoot = path.join(reviewRoot, ".producer-staging");
   await mkdir(stagingRoot, { recursive: true });
 
-  await runPlaywrightSuites({
-    projectRoot,
-    reviewStagingRoot: stagingRoot,
-    runId: args.runId,
-    releaseSha,
-  });
+  const server = await startReviewQaServer(projectRoot);
+  try {
+    const suiteInput = {
+      projectRoot,
+      reviewStagingRoot: stagingRoot,
+      runId: args.runId,
+      releaseSha,
+    };
+    await runPlaywrightSuite({
+      ...suiteInput,
+      file: "tests/screendesign-source-capture.spec.ts",
+      project: "screendesign-source",
+    });
+    await runPlaywrightSuite({
+      ...suiteInput,
+      file: "tests/screendesign-visual.spec.ts",
+      project: "screendesign-mobile",
+    });
+    await runPlaywrightSuite({
+      ...suiteInput,
+      file: "tests/screendesign-navigation.spec.ts",
+      project: "screendesign-mobile",
+    });
+  } finally {
+    await server.stop();
+  }
 
   const runRoot = path.join(stagingRoot, args.runId);
   await Promise.all([
