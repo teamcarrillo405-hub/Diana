@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 20
+current_plan: 21
 status: executing
 stopped_at: Completed 36-20-PLAN.md
-last_updated: "2026-07-16T04:10:43.446Z"
+last_updated: "2026-07-16T04:28:49.485Z"
 last_activity: 2026-07-15
 last_activity_desc: Completed 36-20 private social activity and tutor preference ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 20
-  percent: 67
+  completed_plans: 21
+  percent: 0
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 20
+**Current Plan:** 21
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [███████░░░] 67%
+**Progress:** [███████░░░] 70%
 **Last Activity:** 2026-07-15 - Completed 36-20 private social activity and tutor preference ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T04:10:43.439Z
-**Stopped at:** Completed 36-20-PLAN.md
+**Last session:** 2026-07-16T04:28:49.478Z
+**Stopped at:** Completed 36-21-PLAN.md
 
 ---
 
@@ -711,6 +711,7 @@ total_plans_in_phase: 30
 | Phase 36 P18 | 27 min | 3 tasks | 20 files |
 | Phase 36 P19 | 22 min | 3 tasks | 12 files |
 | Phase 36 P20 | 24 min | 2 tasks | 11 files |
+| Phase 36 P21 | 12 min | 2 tasks | 5 files |
 
 ## Decisions
 
@@ -773,6 +774,9 @@ total_plans_in_phase: 30
 - [Phase 36]: Community activity stays private to authenticated owners and members. — The canonical leaderboard energy must not expose public or cross-group minor ranking.
 - [Phase 36]: Community avatars decorate real member rows only. — Source art may shape presentation but must not fabricate friends, memberships, or activity.
 - [Phase 36]: Tutor persona and style are profile preferences only. — Portrait selection must not change AI provider, class policy, authorship controls, or safety enforcement.
+- [Phase 36]: Both upgrade compositions use the same server-resolved checkout authority and authenticated billing endpoint. — One authority prevents client-spoofed capability or checkout URLs.
+- [Phase 36]: Unsupported pricing, trial, testimonial, member-count, score, and time-saved claims are not rendered. — Source fidelity cannot fabricate billing or social proof unsupported by product data.
+- [Phase 36]: Community upgrade accepts both view=community and the exact QA sdState=view=community selector. — Production and deterministic visual evidence must select the same canonical composition.
 
 ## Session
 
