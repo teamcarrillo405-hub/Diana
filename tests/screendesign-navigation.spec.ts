@@ -621,6 +621,48 @@ const dashboardScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
   (scenario) => scenario.screenId === "dashboard-personalized",
 );
 
+const practiceSessionScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
+  (scenario) => scenario.screenId === "practice-test-session",
+);
+
+if (practiceSessionScenario) {
+  test("the practice session tutor action keeps the canonical gradient treatment", async ({
+    page,
+    screenDesign,
+  }) => {
+    const prepared = await screenDesign.prepare(practiceSessionScenario);
+    await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
+    await bodyIsHealthy(page);
+
+    const action = page.getByRole("button", { name: "Ask tutor", exact: true });
+    await expect(action).toBeVisible();
+    const style = await action.evaluate((element) => {
+      const computed = getComputedStyle(element);
+      return {
+        backgroundColor: computed.backgroundColor,
+        backgroundImage: computed.backgroundImage,
+        borderRadius: computed.borderRadius,
+        boxShadow: computed.boxShadow,
+        clipPath: computed.clipPath,
+        color: computed.color,
+        hovered: element.matches(":hover"),
+      };
+    });
+
+    expect(style).toEqual({
+      backgroundColor: "rgba(0, 0, 0, 0)",
+      backgroundImage:
+        "linear-gradient(100deg, rgb(255, 121, 218), rgb(116, 192, 255))",
+      borderRadius: "12px",
+      boxShadow: "rgba(255, 121, 218, 0.3) 0px 0px 20px 0px",
+      clipPath: "none",
+      color: "rgb(15, 23, 42)",
+      hovered: false,
+    });
+  });
+}
+
 if (IS_FULL_MATRIX && dashboardScenario) {
   test("the Connect Canvas action keeps its computed WCAG AA contrast", async ({
     page,

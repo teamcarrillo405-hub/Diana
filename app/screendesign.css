@@ -5736,8 +5736,10 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   backdrop-filter: blur(18px);
 }
 
-.diana-app .sd-practice-footer :is(a, button) {
+.diana-app .sd-practice-footer a,
+.diana-app .sd-practice-footer button {
   display: flex;
+  width: 100%;
   min-height: 3.5rem;
   align-items: center;
   justify-content: center;
@@ -5751,6 +5753,8 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   font-style: italic;
   font-weight: 900;
   letter-spacing: 0.1em;
+  box-shadow: none;
+  clip-path: none;
   text-decoration: none;
   text-transform: uppercase;
 }
@@ -5758,7 +5762,19 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 .diana-app .sd-practice-footer button {
   border: 0;
   background: linear-gradient(100deg, #ff79da, #74c0ff);
+  box-shadow: 0 0 20px rgb(255 121 218 / 0.3);
   color: #0f172a;
+}
+
+.diana-app .sd-practice-footer button:hover:not(:disabled) {
+  border: 0;
+  background: linear-gradient(100deg, #ff79da, #74c0ff);
+  color: #0f172a;
+  transform: none;
+}
+
+.diana-app .sd-practice-footer button:active:not(:disabled) {
+  transform: scale(0.95);
 }
 
 .diana-app .sd-practice-footer svg {
