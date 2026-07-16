@@ -73,7 +73,7 @@ describe("AssignmentCockpit", () => {
         to: "drafting",
       });
       expect(mocks.push).toHaveBeenCalledWith(
-        `/assignments/${assignmentId}?workspace=1&start=1`,
+        `/timer?assignment=${assignmentId}`,
       );
     });
   });

@@ -36,9 +36,9 @@ interface SourceDocument {
 
 const MANIFEST_PATH = path.join(
   process.cwd(),
-  "public",
-  "screendesign",
-  "manifest.json",
+  "docs",
+  "design",
+  "screendesign-asset-provenance.json",
 );
 
 const readManifest = async (): Promise<ScreenDesignManifest> =>

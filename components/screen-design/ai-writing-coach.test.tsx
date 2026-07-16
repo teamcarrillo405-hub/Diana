@@ -61,7 +61,9 @@ describe("AiWritingCoach", () => {
     expect(draft).toHaveValue("Odysseus learns that endurance matters.");
     expect(mocks.acceptWritingSuggestion).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Accept suggestion" }));
+    const acceptButton = screen.getByRole("button", { name: "Accept suggestion" });
+    await waitFor(() => expect(acceptButton).toBeEnabled());
+    fireEvent.click(acceptButton);
 
     await waitFor(() => {
       expect(mocks.acceptWritingSuggestion).toHaveBeenCalledWith({

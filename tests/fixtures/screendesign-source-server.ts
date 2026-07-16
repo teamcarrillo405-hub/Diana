@@ -70,6 +70,7 @@ export interface InstalledScreenDesignRequestPolicy {
 
 export interface StartScreenDesignSourceServerOptions {
   readonly host?: string;
+  readonly manifestPath?: string;
   readonly port?: number;
   readonly projectRoot?: string;
   readonly publicRoot?: string;
@@ -116,9 +117,6 @@ const fail = (message: string): never => {
   throw new Error(`ScreenDesign source server could not start: ${message}`);
 };
 
-const manifestPathFor = (publicRoot: string): string =>
-  path.join(publicRoot, "screendesign", "manifest.json");
-
 const localAssetFile = (publicRoot: string, localPath: string): string => {
   const normalizedSegments = localPath.slice(1).split("/");
   const resolved = path.resolve(publicRoot, ...normalizedSegments);
@@ -129,11 +127,11 @@ const localAssetFile = (publicRoot: string, localPath: string): string => {
   return resolved;
 };
 
-const loadManifest = async (publicRoot: string): Promise<SourceManifest> => {
+const loadManifest = async (manifestPath: string): Promise<SourceManifest> => {
   let manifest: SourceManifest;
   try {
     manifest = JSON.parse(
-      await readFile(manifestPathFor(publicRoot), "utf8"),
+      await readFile(manifestPath, "utf8"),
     ) as SourceManifest;
   } catch (error) {
     return fail(
@@ -385,7 +383,16 @@ export const startScreenDesignSourceServer = async (
   const publicRoot = path.resolve(
     options.publicRoot ?? path.join(projectRoot, "public"),
   );
-  const manifest = await loadManifest(publicRoot);
+  const manifestPath = path.resolve(
+    options.manifestPath ??
+      path.join(
+        projectRoot,
+        "docs",
+        "design",
+        "screendesign-asset-provenance.json",
+      ),
+  );
+  const manifest = await loadManifest(manifestPath);
   await assertScreenDesignSourceAssetsExist(manifest.assets, publicRoot);
 
   const normalizedDocuments = new Map<string, string>();

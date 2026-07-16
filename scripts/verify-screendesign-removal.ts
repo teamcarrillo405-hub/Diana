@@ -65,7 +65,7 @@ const RULES: readonly RemovalRule[] = [
   {
     ruleId: "legacy-copy",
     pattern:
-      /(?:\bNexus(?:\s+Arcade)?\b|\bMission Control\b|Today(?:'|’|&apos;)s game plan)/iu,
+      /(?:\bNexus Arcade\b|\bMission Control\b|Today(?:'|’|&apos;)s game plan)/iu,
   },
 ];
 
