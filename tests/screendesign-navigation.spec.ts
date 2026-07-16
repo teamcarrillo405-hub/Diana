@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import type { Locator, Page, Response } from "@playwright/test";
 
 import {
@@ -39,6 +40,12 @@ interface NavigationObservation {
   readonly hasBackControl: boolean;
 }
 
+interface ComputedNavigationColor {
+  readonly background: string;
+  readonly foreground: string;
+  readonly label: string;
+}
+
 const IS_FULL_MATRIX = !process.env.SCREEN_IDS?.trim();
 const IGNORED_BACKGROUND_MUTATIONS = [
   "/api/monitoring/event",
@@ -49,6 +56,36 @@ const IGNORED_BACKGROUND_MUTATIONS = [
 const comparableLocation = (value: string): string => {
   const url = new URL(value, "http://diana.local");
   return `${url.pathname}${url.search}${url.hash}`;
+};
+
+const computedColorChannels = (value: string): readonly number[] => {
+  const channels = value.match(/[\d.]+/gu)?.slice(0, 3).map(Number);
+  if (!channels || channels.length !== 3 || channels.some(Number.isNaN)) {
+    throw new Error(`Expected a computed RGB color, received ${value}.`);
+  }
+  return channels;
+};
+
+const computedRelativeLuminance = (value: string): number => {
+  const [red, green, blue] = computedColorChannels(value).map((channel) => {
+    const normalized = channel / 255;
+    return normalized <= 0.04045
+      ? normalized / 12.92
+      : ((normalized + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+};
+
+const computedContrastRatio = ({
+  background,
+  foreground,
+}: ComputedNavigationColor): number => {
+  const backgroundLuminance = computedRelativeLuminance(background);
+  const foregroundLuminance = computedRelativeLuminance(foreground);
+  return (
+    (Math.max(backgroundLuminance, foregroundLuminance) + 0.05) /
+    (Math.min(backgroundLuminance, foregroundLuminance) + 0.05)
+  );
 };
 
 const escapeRegex = (value: string): string =>
@@ -585,6 +622,54 @@ const dashboardScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
 );
 
 if (IS_FULL_MATRIX && dashboardScenario) {
+  test("the actual five-item navigation colors meet WCAG AA on every primary hub", async ({
+    page,
+    screenDesign,
+  }) => {
+    test.setTimeout(180_000);
+    await screenDesign.prepare(dashboardScenario);
+
+    for (const destination of STUDENT_NAV_DESTINATIONS) {
+      await page.goto(destination.href, { waitUntil: "domcontentloaded" });
+      await waitForScreenDesignReady(page);
+      await bodyIsHealthy(page);
+
+      const nav = page.getByRole("navigation", { name: "Primary" });
+      const colors = await nav.getByRole("link").evaluateAll((links) => {
+        const background = getComputedStyle(links[0]?.parentElement ?? document.body)
+          .backgroundColor;
+        return links.map((link) => ({
+          background,
+          foreground: getComputedStyle(link).color,
+          label: link.textContent?.trim() ?? "",
+        }));
+      });
+
+      expect(colors.map(({ label }) => label)).toEqual(
+        STUDENT_NAV_DESTINATIONS.map(({ label }) => label),
+      );
+      for (const color of colors) {
+        expect(
+          computedContrastRatio(color),
+          `${color.label} contrast on ${destination.href}: ${color.foreground} on ${color.background}`,
+        ).toBeGreaterThanOrEqual(4.5);
+      }
+
+      if (destination.href === "/settings") {
+        const results = await new AxeBuilder({ page })
+          .include('nav[aria-label="Primary"]')
+          .withRules(["color-contrast"])
+          .analyze();
+        expect(
+          results.violations.map((violation) => ({
+            id: violation.id,
+            nodes: violation.nodes.length,
+          })),
+        ).toEqual([]);
+      }
+    }
+  });
+
   test("the locked five-item navigation works from every primary hub and supports browser back", async ({
     page,
     screenDesign,

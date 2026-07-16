@@ -14,13 +14,45 @@ import {
 } from "./primitives";
 import { ScreenDesignViewport } from "./screen-design-viewport";
 import { SourceMedia } from "./source-media";
-import { StudentBottomNav } from "./student-bottom-nav";
+import {
+  STUDENT_BOTTOM_NAV_ITEMS,
+  StudentBottomNav,
+} from "./student-bottom-nav";
 
 vi.mock("next/navigation", () => ({
   usePathname: vi.fn(),
 }));
 
 const sourceCss = readFileSync(join(process.cwd(), "app", "screendesign.css"), "utf8");
+
+const relativeLuminance = (hex: string): number => {
+  const channels = hex
+    .slice(1)
+    .match(/.{2}/gu)
+    ?.map((channel) => Number.parseInt(channel, 16) / 255);
+  if (!channels || channels.length !== 3) throw new Error(`Invalid color ${hex}.`);
+  const [red, green, blue] = channels.map((channel) =>
+    channel <= 0.04045
+      ? channel / 12.92
+      : ((channel + 0.055) / 1.055) ** 2.4,
+  );
+  return 0.2126 * red + 0.7152 * green + 0.0722 * blue;
+};
+
+const contrastRatio = (foreground: string, background: string): number => {
+  const foregroundLuminance = relativeLuminance(foreground);
+  const backgroundLuminance = relativeLuminance(background);
+  return (
+    (Math.max(foregroundLuminance, backgroundLuminance) + 0.05) /
+    (Math.min(foregroundLuminance, backgroundLuminance) + 0.05)
+  );
+};
+
+const cssHexVariable = (name: string): string => {
+  const value = sourceCss.match(new RegExp(`${name}:\\s*(#[0-9a-f]{6})`, "iu"))?.[1];
+  if (!value) throw new Error(`Missing ${name} color token.`);
+  return value;
+};
 
 afterEach(() => {
   cleanup();
@@ -131,6 +163,24 @@ describe("ScreenDesign responsive and calm contracts", () => {
 });
 
 describe("StudentBottomNav", () => {
+  it("keeps every inactive label at WCAG AA contrast on the shared background", () => {
+    vi.mocked(usePathname).mockReturnValue("/settings");
+    render(<StudentBottomNav />);
+
+    const foreground = cssHexVariable("--sd-bottom-nav-inactive");
+    const background = cssHexVariable("--sd-bottom-nav-background");
+    const inactiveLinks = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("aria-current") !== "page");
+
+    expect(STUDENT_BOTTOM_NAV_ITEMS).toHaveLength(5);
+    expect(inactiveLinks).toHaveLength(4);
+    expect(contrastRatio(foreground, background)).toBeGreaterThanOrEqual(4.5);
+    expect(sourceCss).toMatch(
+      /\.sd-student-bottom-nav a\s*\{[^}]*color:\s*var\(--sd-bottom-nav-inactive\)/u,
+    );
+  });
+
   it("renders the locked five destinations as links", () => {
     vi.mocked(usePathname).mockReturnValue("/dashboard");
     render(<StudentBottomNav />);
