@@ -54,6 +54,15 @@ const clickPrimaryAction = async (
       .getByRole("textbox", { name: "Type task", exact: true })
       .fill("Bring the biology diagram tomorrow.");
   }
+  if (scenario.screenId === "practice-test-session") {
+    const writtenResponse = page.getByRole("textbox", { name: "Practice response" });
+    if (await writtenResponse.isVisible().catch(() => false)) {
+      await writtenResponse.fill("The source evidence supports the claim through its explanation.");
+    } else {
+      const firstChoice = page.getByRole("button", { name: /^Choose /u }).first();
+      if (await firstChoice.isVisible().catch(() => false)) await firstChoice.click();
+    }
+  }
   const action = page.getByRole("button", {
     name: scenario.expectedPrimaryAction.label,
     exact: true,

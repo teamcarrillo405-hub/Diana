@@ -17,6 +17,11 @@ import {
   type StudyArtifactSourceType,
   type StudyArtifactType,
 } from "@/lib/study-helper/artifacts";
+import {
+  mergePracticeProgress,
+  normalizePracticeProgress,
+  type PracticeProgress,
+} from "@/lib/study-helper/practice-progress";
 import type { StudyHelperMode } from "@/lib/study-helper/modes";
 import { coverageWindowStart, looksLikeTest, previousTestDueAt } from "@/lib/test-prep/plan";
 import type { Json } from "@/lib/supabase/types";
@@ -36,6 +41,16 @@ const SaveArtifactCardsInput = z.object({
     sourceAnchor: z.string().trim().max(120).default("Source material"),
     studentRequiredAction: z.string().trim().max(140).optional(),
   })).max(12).optional(),
+});
+
+const SavePracticeProgressInput = z.object({
+  artifactId: z.string().uuid(),
+  currentQuestion: z.number().int().min(0).max(19),
+  responses: z.array(z.object({
+    questionIndex: z.number().int().min(0).max(19),
+    response: z.string().trim().min(1).max(2_000),
+  })).max(20),
+  completed: z.boolean(),
 });
 
 type StudySource = {
@@ -298,6 +313,108 @@ export async function saveArtifactFlashcards(
   return { ok: true, count: cards.length };
 }
 
+export async function savePracticeTestProgress(
+  input: z.input<typeof SavePracticeProgressInput>,
+): Promise<
+  | { ok: true; progress: PracticeProgress }
+  | { ok: false; error: string }
+> {
+  const parsed = SavePracticeProgressInput.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Add a response before saving this practice step." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const { data: artifact, error } = await supabase
+    .from("study_artifacts")
+    .select("id, owner_id, source_type, source_id, artifact_type, study_mode, payload")
+    .eq("id", parsed.data.artifactId)
+    .eq("owner_id", user.id)
+    .single();
+  if (error || !artifact || artifact.artifact_type !== "practice_test") {
+    return { ok: false, error: "Practice set was not found." };
+  }
+
+  const rawPayload =
+    artifact.payload && typeof artifact.payload === "object" && !Array.isArray(artifact.payload)
+      ? artifact.payload as Record<string, unknown>
+      : {};
+  const previous = normalizePracticeProgress(rawPayload.practiceProgress);
+  const responses = { ...previous.responses };
+  for (const response of parsed.data.responses) {
+    responses[String(response.questionIndex)] = response.response;
+  }
+  const completed = previous.completed || parsed.data.completed;
+  const nowIso = new Date().toISOString();
+  const progress = normalizePracticeProgress({
+    currentQuestion: parsed.data.currentQuestion,
+    completed,
+    completedAt: completed ? previous.completedAt ?? nowIso : null,
+    responses,
+  });
+  const nextPayload = mergePracticeProgress(rawPayload, progress);
+
+  const { error: updateError } = await supabase
+    .from("study_artifacts")
+    .update({
+      payload: nextPayload as unknown as Json,
+      loop_state: "reviewing",
+      last_reviewed_at: nowIso,
+      updated_at: nowIso,
+    })
+    .eq("id", artifact.id)
+    .eq("owner_id", user.id);
+  if (updateError) {
+    return { ok: false, error: "Your response is still here. Try saving again." };
+  }
+
+  const assignmentId = artifact.source_type === "assignment"
+    ? artifact.source_id
+    : await loadAssignmentIdForNote(supabase, user.id, artifact.source_id);
+  await recordStudyArtifactSignal({
+    supabase,
+    ownerId: user.id,
+    assignmentId,
+    source: {
+      sourceType: artifact.source_type,
+      sourceId: artifact.source_id,
+    },
+    artifactId: artifact.id,
+    artifactType: artifact.artifact_type,
+    studyMode: artifact.study_mode,
+    event: completed ? "practice_completed" : "practice_response_saved",
+    count: Object.keys(progress.responses).length,
+  });
+  await recordAuthorshipEvent({
+    supabase,
+    ownerId: user.id,
+    assignmentId,
+    artifactId: artifact.id,
+    actor: "student",
+    eventType: completed ? "practice_session_completed" : "practice_response_saved",
+    payload: {
+      currentQuestion: progress.currentQuestion,
+      responseCount: Object.keys(progress.responses).length,
+      completed: progress.completed,
+      scoreRecorded: false,
+    } as Json,
+  });
+  await recordStudentStateSnapshot({
+    supabase,
+    ownerId: user.id,
+    assignmentId,
+    trigger: completed ? "practice_session_completed" : "practice_response_saved",
+  });
+
+  revalidatePath(`/study-artifacts/${artifact.id}`);
+  revalidatePath("/study-artifacts");
+  revalidatePath("/dashboard");
+  return { ok: true, progress };
+}
+
 async function loadAssignmentIdForNote(
   supabase: Awaited<ReturnType<typeof createClient>>,
   ownerId: string,
@@ -489,7 +606,7 @@ async function recordStudyArtifactSignal({
   artifactId: string;
   artifactType: StudyArtifactType;
   studyMode: StudyHelperMode;
-  event: "artifact_generated" | "cards_saved";
+  event: "artifact_generated" | "cards_saved" | "practice_response_saved" | "practice_completed";
   count?: number;
 }) {
   await supabase.from("task_signals").insert({
@@ -514,20 +631,26 @@ async function recordAuthorshipEvent({
   assignmentId,
   artifactId,
   eventType,
+  actor = "diana",
   payload,
 }: {
   supabase: Awaited<ReturnType<typeof createClient>>;
   ownerId: string;
   assignmentId: string | null;
   artifactId: string;
-  eventType: "study_artifact_generated" | "artifact_cards_saved";
+  eventType:
+    | "study_artifact_generated"
+    | "artifact_cards_saved"
+    | "practice_response_saved"
+    | "practice_session_completed";
+  actor?: "diana" | "student";
   payload: Json;
 }) {
   await supabase.from("authorship_log").insert({
     owner_id: ownerId,
     assignment_id: assignmentId,
     source_artifact_id: artifactId,
-    actor: "diana",
+    actor,
     event_type: eventType,
     payload,
   });
