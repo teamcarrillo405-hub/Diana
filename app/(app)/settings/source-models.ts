@@ -217,3 +217,15 @@ export function summarizeSyncAll(body: SyncAllResultBody): SyncBanner {
     message: `Sync complete. Imported ${importedLabel}${skipped > 0 ? `; ${skippedLabel}` : ""}.`,
   };
 }
+
+const SCHOOL_YEAR_LABELS: Readonly<Record<number, string>> = Object.freeze({
+  9: "Freshman",
+  10: "Sophomore",
+  11: "Junior",
+  12: "Senior",
+});
+
+export function profileSchoolYearLabel(schoolYear: number | null): string {
+  if (schoolYear === null) return "Student";
+  return SCHOOL_YEAR_LABELS[schoolYear] ?? `Year ${schoolYear}`;
+}
