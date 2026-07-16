@@ -59,7 +59,7 @@ const assertKeyboardFocusStaysVisible = async (page: Page) => {
     });
   const focusableCount = await page
     .locator(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"]), input:not([disabled]):not([tabindex="-1"]), select:not([disabled]):not([tabindex="-1"]), textarea:not([disabled]):not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
     )
     .count();
   for (let index = 0; index < Math.min(focusableCount, 6); index += 1) {
