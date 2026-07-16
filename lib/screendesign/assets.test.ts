@@ -47,7 +47,12 @@ type SharpFactory = (
 const sharp = createRequire(import.meta.url)("sharp") as SharpFactory;
 
 const PUBLIC_ROOT = path.resolve(process.cwd(), "public");
-const MANIFEST_PATH = path.join(PUBLIC_ROOT, "screendesign", "manifest.json");
+const MANIFEST_PATH = path.resolve(
+  process.cwd(),
+  "docs",
+  "design",
+  "screendesign-asset-provenance.json",
+);
 
 const loadManifest = async (): Promise<AssetManifest> =>
   JSON.parse(await readFile(MANIFEST_PATH, "utf8")) as AssetManifest;

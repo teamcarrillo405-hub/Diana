@@ -53,17 +53,12 @@ export interface ScreenDesignAsset {
 }
 
 interface ManifestEntry extends ScreenDesignAsset {
-  readonly sourceUrl: string;
   readonly sha256: string;
 }
 
 const EXPECTED_ASSET_COUNT = 28;
 const EXPECTED_SCREENDESIGN_COUNT = 24;
 const EXPECTED_AVATAR_COUNT = 4;
-const ALLOWED_SOURCE_HOSTS = new Set([
-  "media.screensdesign.com",
-  "api.dicebear.com",
-]);
 const MIME_TYPES = new Set<ScreenDesignAssetMimeType>([
   "image/jpeg",
   "image/png",
@@ -92,7 +87,6 @@ const validateEntry = (value: unknown, index: number): ManifestEntry => {
 
   const {
     id,
-    sourceUrl,
     localPath,
     sha256,
     mimeType,
@@ -108,25 +102,6 @@ const validateEntry = (value: unknown, index: number): ManifestEntry => {
     typeof id === "string" && ID_SET.has(id)
       ? (id as ScreenDesignAssetId)
       : manifestError(`asset ${index} has an unknown id`);
-  const validatedSourceUrl =
-    typeof sourceUrl === "string"
-      ? sourceUrl
-      : manifestError(`${validatedId} is missing its source URL`);
-
-  const parsedSource = (() => {
-    try {
-      return new URL(validatedSourceUrl);
-    } catch {
-      return manifestError(`${validatedId} has an invalid source URL`);
-    }
-  })();
-  if (
-    parsedSource.protocol !== "https:" ||
-    !ALLOWED_SOURCE_HOSTS.has(parsedSource.hostname)
-  ) {
-    manifestError(`${validatedId} has a non-allowlisted source URL`);
-  }
-
   const validatedLocalPath =
     typeof localPath !== "string" ||
     !localPath.startsWith("/screendesign/") ||
@@ -176,7 +151,6 @@ const validateEntry = (value: unknown, index: number): ManifestEntry => {
 
   return {
     id: validatedId,
-    sourceUrl: validatedSourceUrl,
     localPath: validatedLocalPath,
     sha256: validatedSha256,
     mimeType: validatedMimeType,
@@ -212,27 +186,15 @@ const loadManifest = (value: unknown): readonly ManifestEntry[] => {
 
   const entries = assetValues.map(validateEntry);
   const ids = entries.map((entry) => entry.id);
-  const sourceUrls = entries.map((entry) => entry.sourceUrl);
   const localPaths = entries.map((entry) => entry.localPath);
   if (new Set(ids).size !== EXPECTED_ASSET_COUNT) {
     manifestError("asset ids are not unique");
   }
-  if (new Set(sourceUrls).size !== EXPECTED_ASSET_COUNT) {
-    manifestError("source URLs are not unique");
-  }
   if (new Set(localPaths).size !== EXPECTED_ASSET_COUNT) {
     manifestError("local paths are not unique");
   }
-  if (
-    SCREEN_DESIGN_ASSET_IDS.some((id) => !ids.includes(id)) ||
-    entries.filter(
-      (entry) => new URL(entry.sourceUrl).hostname === "media.screensdesign.com",
-    ).length !== EXPECTED_SCREENDESIGN_COUNT ||
-    entries.filter(
-      (entry) => new URL(entry.sourceUrl).hostname === "api.dicebear.com",
-    ).length !== EXPECTED_AVATAR_COUNT
-  ) {
-    manifestError("canonical ids or source-host counts do not match");
+  if (SCREEN_DESIGN_ASSET_IDS.some((id) => !ids.includes(id))) {
+    manifestError("canonical ids do not match");
   }
 
   return Object.freeze(entries);

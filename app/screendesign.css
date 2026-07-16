@@ -560,30 +560,6 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   font-weight: 700;
 }
 
-.sd-metric {
-  display: grid;
-  gap: 0.35rem;
-  min-height: 6.25rem;
-  padding: 1rem;
-}
-
-.sd-metric-label {
-  color: var(--diana-muted);
-  font-size: 0.65rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.sd-metric-value {
-  color: var(--diana-blue);
-  font-family: var(--font-display), sans-serif;
-  font-size: 1.75rem;
-  font-style: italic;
-  font-weight: 800;
-  line-height: 1;
-}
-
 .sd-section-title {
   margin: 0;
   color: var(--diana-pink);
@@ -607,73 +583,11 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   background: linear-gradient(90deg, var(--diana-blue), var(--diana-pink));
 }
 
-.sd-today-layout {
-  display: grid;
-  gap: 1.15rem;
-}
-
-.sd-today-head,
 .sd-section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-}
-
-.sd-today-head .sd-title {
-  max-width: 9ch;
-}
-
-.sd-coach-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.1rem;
-  border-left: 3px solid var(--diana-blue);
-}
-
-.sd-coach-icon,
-.sd-class-icon,
-.sd-metric-icon {
-  display: grid;
-  place-items: center;
-  color: var(--diana-blue);
-}
-
-.sd-coach-icon,
-.sd-class-icon {
-  width: 2.9rem;
-  height: 2.9rem;
-  border: 1px solid rgb(116 192 255 / 0.24);
-  border-radius: 0.9rem;
-  background: rgb(116 192 255 / 0.1);
-}
-
-.sd-coach-copy {
-  max-width: 62ch;
-  margin: 0.3rem 0 0;
-  color: #dbeafe;
-  font-size: 0.95rem;
-  font-style: italic;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
-.sd-metric {
-  border-top: 2px solid var(--sd-metric-tone);
-}
-
-.sd-metric-icon {
-  width: 1.8rem;
-  height: 1.8rem;
-  border-radius: 0.55rem;
-  background: color-mix(in srgb, var(--sd-metric-tone) 13%, transparent);
-  color: var(--sd-metric-tone);
-}
-
-.sd-metric-value {
-  color: var(--sd-metric-tone);
 }
 
 .sd-section-head a {
@@ -682,60 +596,6 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   font-weight: 800;
   text-decoration: none;
   text-transform: uppercase;
-}
-
-.sd-class-card {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 1rem;
-  min-height: 8.25rem;
-  border-left: 3px solid var(--sd-class-tone);
-  padding: 1.1rem;
-  color: inherit;
-  text-decoration: none;
-  transition: border-color 160ms ease, transform 160ms ease, background 160ms ease;
-}
-
-.sd-class-card:hover {
-  border-color: var(--sd-class-tone);
-  background: rgb(255 255 255 / 0.075);
-  transform: translateY(-2px);
-}
-
-.sd-class-card .sd-class-icon {
-  border-color: color-mix(in srgb, var(--sd-class-tone) 28%, transparent);
-  background: color-mix(in srgb, var(--sd-class-tone) 12%, transparent);
-  color: var(--sd-class-tone);
-}
-
-.sd-class-body {
-  display: grid;
-  gap: 0.45rem;
-}
-
-.sd-class-body h3,
-.sd-class-body p {
-  margin: 0;
-}
-
-.sd-class-body h3 {
-  font-family: var(--font-display), sans-serif;
-  font-size: 1.25rem;
-  font-style: italic;
-  text-transform: uppercase;
-}
-
-.sd-class-body p {
-  color: var(--diana-muted);
-  font-size: 0.78rem;
-}
-
-.sd-class-card > strong {
-  color: var(--sd-class-tone);
-  font-family: var(--font-display), sans-serif;
-  font-size: 1.35rem;
-  font-style: italic;
 }
 
 .sd-search-form {
@@ -1135,10 +995,6 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
     grid-template-columns: 1fr;
   }
 
-  .sd-coach-card {
-    grid-template-columns: auto minmax(0, 1fr);
-  }
-
   .sd-search-form {
     grid-template-columns: auto minmax(0, 1fr);
   }
@@ -1157,11 +1013,6 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 
   .sd-search-form .sd-button {
     grid-column: 1 / -1;
-  }
-
-  .sd-coach-card .sd-button {
-    grid-column: 1 / -1;
-    width: 100%;
   }
 
   .sd-support-header-with-action {
