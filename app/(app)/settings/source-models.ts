@@ -184,3 +184,36 @@ export function sanitizeLmsConnections(
     }),
   );
 }
+
+interface SyncAllResultBody {
+  readonly imported?: number;
+  readonly skipped?: number;
+  readonly results?: readonly Record<string, unknown>[];
+}
+
+export type SyncBanner = {
+  readonly tone: "ok" | "warn";
+  readonly message: string;
+};
+
+export function summarizeSyncAll(body: SyncAllResultBody): SyncBanner {
+  const imported = typeof body.imported === "number" ? body.imported : 0;
+  const skipped = typeof body.skipped === "number" ? body.skipped : 0;
+  const needsAttention = (body.results ?? []).some(
+    (result) => typeof result.error === "string" && result.error.length > 0,
+  );
+  const importedLabel = `${imported} assignment${imported === 1 ? "" : "s"}`;
+  const skippedLabel = `${skipped} item${skipped === 1 ? "" : "s"} ${skipped === 1 ? "was" : "were"} skipped`;
+
+  if (needsAttention) {
+    return {
+      tone: "warn",
+      message: `One connection needs attention. Imported ${importedLabel}${skipped > 0 ? `; ${skippedLabel}` : ""}.`,
+    };
+  }
+
+  return {
+    tone: "ok",
+    message: `Sync complete. Imported ${importedLabel}${skipped > 0 ? `; ${skippedLabel}` : ""}.`,
+  };
+}

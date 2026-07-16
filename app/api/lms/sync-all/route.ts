@@ -60,6 +60,7 @@ export async function POST() {
   const { data: rows, error } = await supabase
     .from("lms_connections")
     .select("id, provider, config")
+    .eq("owner_id", user.id)
     .in("provider", ["canvas", "google_classroom", "ics", "gitlab"]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -83,7 +84,8 @@ export async function POST() {
           await supabase
             .from("lms_connections")
             .update({ config: { ...cfg, token: valid.refreshed.token, expires_at: valid.refreshed.expires_at } })
-            .eq("id", connection.id);
+            .eq("id", connection.id)
+            .eq("owner_id", user.id);
         }
         fetched = await fetchCanvasAssignments({ base_url: cfg.base_url, token: valid.token });
       } else if (connection.provider === "ics") {
@@ -100,7 +102,8 @@ export async function POST() {
             await supabase
               .from("lms_connections")
               .update({ config: { ...cfg, ...valid.refreshed } })
-              .eq("id", connection.id);
+              .eq("id", connection.id)
+              .eq("owner_id", user.id);
           }
         } else {
           token = session?.provider_token ?? null;
@@ -130,7 +133,8 @@ export async function POST() {
       await supabase
         .from("lms_connections")
         .update({ last_synced_at: new Date().toISOString() })
-        .eq("id", connection.id);
+        .eq("id", connection.id)
+        .eq("owner_id", user.id);
       results.push({ ...result, connectionId: connection.id });
     } catch (err) {
       results.push({

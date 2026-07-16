@@ -11,6 +11,10 @@ import { PlayerPhoto } from "./player-photo";
 import { AdaptationPanel } from "./adaptation-panel";
 import { CanvaSection } from "./canva-section";
 import { LmsConnections } from "./lms-connections";
+import {
+  sanitizeLmsConnections,
+  type PersistedLmsConnectionRow,
+} from "./source-models";
 import { SharingSection } from "./sharing-section";
 import { PwaSettings } from "@/components/pwa-settings";
 import { PushSettings } from "@/components/push-settings";
@@ -20,7 +24,14 @@ import { labelsForInterests } from "@/lib/student-identity/interests";
 import { Settings as Cog } from "lucide-react";
 import { PageShell } from "../page-shell";
 
-export default async function SettingsPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
+  const params = await searchParams;
   const profile = await loadProfile();
   if (!profile) redirect("/login");
 
@@ -28,10 +39,31 @@ export default async function SettingsPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
   const { data: lmsConnections } = await supabase
     .from("lms_connections")
     .select("id, provider, config, last_synced_at")
+    .eq("owner_id", user.id)
     .order("created_at", { ascending: false });
+  const { data: classes } = await supabase
+    .from("classes")
+    .select("id, name, color")
+    .eq("owner_id", user.id)
+    .order("name", { ascending: true });
+
+  const section = stringParam(params.section);
+  const state = stringParam(params.sdState);
+  if (section === "connections" || section === "connect" || state === "connections") {
+    return (
+      <LmsConnections
+        initial={sanitizeLmsConnections(
+          (lmsConnections ?? []) as PersistedLmsConnectionRow[],
+        )}
+        courses={classes ?? []}
+        connectOpen={section === "connect"}
+      />
+    );
+  }
 
   // Cross-device lobby photo, read from the owner's profile (RLS-scoped).
   const playerPhotoUrl: string | null = profile.photo_url ?? null;
@@ -128,7 +160,12 @@ export default async function SettingsPage() {
           <div className="space-y-4">
             <IepImport />
             <CanvaSection />
-            <LmsConnections initial={(lmsConnections ?? []) as never} />
+            <LmsConnections
+              initial={sanitizeLmsConnections(
+                (lmsConnections ?? []) as PersistedLmsConnectionRow[],
+              )}
+              courses={classes ?? []}
+            />
           </div>
         </SettingsDisclosure>
 
@@ -182,6 +219,10 @@ export default async function SettingsPage() {
       </div>
     </PageShell>
   );
+}
+
+function stringParam(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? value[0] ?? "" : value ?? "";
 }
 
 function Row({ label, value }: { label: string; value: string }) {
