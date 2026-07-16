@@ -3,34 +3,34 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 22
+current_plan: 23
 status: executing
-stopped_at: Completed 36-07-PLAN.md
-last_updated: "2026-07-16T06:48:12.770Z"
-last_activity: 2026-07-15
-last_activity_desc: Completed 36-07 four-screen source-faithful onboarding flow
+stopped_at: Completed 36-22-PLAN.md
+last_updated: "2026-07-16T08:56:51.960Z"
+last_activity: 2026-07-16
+last_activity_desc: Completed 36-22 full primary-action and navigation matrix
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 25
-  percent: 83
+  completed_plans: 26
+  percent: 87
 total_plans_in_phase: 30
 ---
 
 # Diana — Project State
 
-**Last updated:** 2026-07-15
+**Last updated:** 2026-07-16
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 22
+**Current Plan:** 23
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [████████░░] 83%
-**Last Activity:** 2026-07-15 - Completed 36-07 four-screen source-faithful onboarding flow
+**Progress:** [█████████░] 87%
+**Last Activity:** 2026-07-16 - Completed 36-22 full primary-action and navigation matrix
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T06:08:55.012Z
-**Stopped at:** Completed 36-07-PLAN.md
+**Last session:** 2026-07-16T08:56:07.083Z
+**Stopped at:** Completed 36-22-PLAN.md
 
 ---
 
@@ -715,6 +715,7 @@ total_plans_in_phase: 30
 | Phase 36 P25 | 25 min | 2 tasks | 12 files |
 | Phase 36 P26 | 30 min | 2 tasks | 5 files |
 | Phase 36 P07 | 36 min | 3 tasks | 15 files |
+| Phase 36 P22 | 2h 1m | 3 tasks | 11 files |
 
 ## Decisions
 
@@ -787,6 +788,9 @@ total_plans_in_phase: 30
 - [Phase 36]: The onboarding persistence QA seam remains development-only and caller-owned. It accepts no owner id and delegates auth, validation, mutation, and RLS to completeScreenDesignOnboarding.
 - [Phase 36]: Live onboarding contains only the four attached source states; the obsolete done composition redirects to the real dashboard. — D-04 locks the first-run order and excludes alternate legacy designs.
 - [Phase 36]: Canonical onboarding selectors outrank broad application theme rules. — Old command styling must not leak into reviewed ScreenDesign compositions.
+- [Phase 36]: Every authenticated canonical state maps to exactly one locked primary destination. — Query and modal states inherit their route owner instead of creating duplicate navigation destinations.
+- [Phase 36]: Browser mutation evidence excludes monitoring traffic and requires a successful application write plus reload. — Click completion and background requests are not durable proof of an operational primary action.
+- [Phase 36]: Authenticated route templates remain DOM-transparent around streamed segments. — A stable layout tree prevents hydration mismatches between the server response and client segment boundary.
 
 ## Session
 
