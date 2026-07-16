@@ -81,6 +81,7 @@ const actionEvidenceFor = (
         status: "pass",
         screenId: row.id,
         scenarioId: row.fixtureScenario,
+        producer: { runId: RUN_ID, releaseSha: RELEASE_SHA },
         primaryAction: { status: "pass" },
         navigation: { status: "pass" },
       },
@@ -172,6 +173,7 @@ describe("release evidence validator", () => {
       status: "pass",
       screenId: "ai-history-log",
       scenarioId: "ai-history-log:default",
+      producer: { runId: RUN_ID, releaseSha: RELEASE_SHA },
       primaryAction: { status: "pass" },
       navigation: { status: "skipped" },
     });

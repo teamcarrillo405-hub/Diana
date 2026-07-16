@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
 import {
   REVIEW_GALLERY_SCHEMA_VERSION,
   REVIEW_OUTPUT_RELATIVE_ROOT,
+  SCREEN_DESIGN_IMPLEMENTATION_PLAN_BY_ID,
   assertCompleteReviewIndex,
   assertSafeReviewOutputRoot,
   buildReviewCapturePlan,
@@ -78,6 +79,17 @@ const git = (root: string, ...args: string[]): string => {
 };
 
 describe("review gallery producer contract", () => {
+  it("maps every canonical screen to its reviewed implementation plan", () => {
+    expect(Object.keys(SCREEN_DESIGN_IMPLEMENTATION_PLAN_BY_ID)).toEqual(
+      SCREEN_DESIGN_CANONICAL_SCREEN_IDS,
+    );
+    expect(
+      Object.values(SCREEN_DESIGN_IMPLEMENTATION_PLAN_BY_ID).every((plan) =>
+        /^36-\d{2}$/u.test(plan),
+      ),
+    ).toBe(true);
+  });
+
   it("derives one canonical source, app, diff, and action path in registry order", () => {
     const plan = buildReviewCapturePlan();
 

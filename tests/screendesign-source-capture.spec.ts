@@ -81,7 +81,7 @@ for (const screen of SELECTED_SCREEN_DESIGN_SCREENS) {
         animations: "disabled",
       });
       expect(screenshot.byteLength).toBeGreaterThan(0);
-      await emitScreenDesignReviewImage(page, "source", screen.id);
+      await emitScreenDesignReviewImage(page, "source", screen.id, screenshot);
 
       requestPolicy.evidence.assertIsolated();
       expect(requestPolicy.evidence.remoteAttempts).toEqual([]);

@@ -105,7 +105,7 @@ const assertKeyboardFocusStaysVisible = async (page: Page) => {
 const captureSmartLoadingDuringNavigation = async (
   page: Page,
   snapshotName: string,
-): Promise<void> => {
+): Promise<Buffer> => {
   const reset = await page.request.delete("/api/qa/suspense-gate");
   expect(reset.ok()).toBe(true);
 
@@ -113,6 +113,7 @@ const captureSmartLoadingDuringNavigation = async (
   expect(response?.status() ?? 200).toBeLessThan(500);
 
   const status = page.getByRole("status");
+  let currentImage: Buffer | null = null;
   try {
     await expect(status).toBeVisible();
     await expect(status).toHaveText("Getting your next view ready");
@@ -123,7 +124,13 @@ const captureSmartLoadingDuringNavigation = async (
       );
     });
     await assertNoHorizontalOverflow(page);
-    await expect(page).toHaveScreenshot(snapshotName, { fullPage: false });
+    currentImage = await page.screenshot({
+      animations: "disabled",
+      fullPage: false,
+    });
+    expect(currentImage).toMatchSnapshot(snapshotName, {
+      maxDiffPixelRatio: 0.005,
+    });
   } finally {
     const release = await page.request.post("/api/qa/suspense-gate");
     expect(release.ok()).toBe(true);
@@ -132,6 +139,8 @@ const captureSmartLoadingDuringNavigation = async (
   await expect(page.getByRole("main", { name: "Smart loading resolved" })).toBeVisible();
   await expect(status).toBeHidden();
   await waitForScreenDesignReady(page);
+  if (!currentImage) throw new Error("Smart Loading capture was not created.");
+  return currentImage;
 };
 
 const snapshots = SELECTED_SCREEN_DESIGN_SCENARIOS.map(
@@ -157,9 +166,15 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
     try {
       if (scenario.screenId === "smart-loading") {
         expect(page.viewportSize()).toEqual(prepared.screen.sourceViewport);
-        await captureSmartLoadingDuringNavigation(
+        const currentImage = await captureSmartLoadingDuringNavigation(
           page,
           prepared.screen.visualSnapshot,
+        );
+        await emitScreenDesignReviewImage(
+          page,
+          "app",
+          prepared.screen.id,
+          currentImage,
         );
         expect(localRequests.remote).toEqual([]);
         expect(consoleEvidence.consoleErrors).toEqual([]);
@@ -190,13 +205,18 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
           await waitForScreenDesignReady(page);
         }
         expect(page.viewportSize()).toEqual(prepared.screen.sourceViewport);
-        await emitScreenDesignReviewImage(page, "app", prepared.screen.id);
         const currentImage = await page.screenshot({
           animations: "allow",
           fullPage: false,
         });
+        await emitScreenDesignReviewImage(
+          page,
+          "app",
+          prepared.screen.id,
+          currentImage,
+        );
         expect(currentImage).toMatchSnapshot(prepared.screen.visualSnapshot, {
-          maxDiffPixelRatio: 0.02,
+          maxDiffPixelRatio: 0.005,
         });
       }
     } finally {

@@ -3,7 +3,10 @@ import { lstat, readFile, realpath } from "node:fs/promises";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-import { SCREEN_DESIGN_CANONICAL_SCREEN_IDS } from "@/lib/qa/screendesign-fixtures";
+import {
+  SCREEN_DESIGN_CANONICAL_SCREEN_IDS,
+  type ScreenDesignScreenId,
+} from "@/lib/qa/screendesign-fixtures";
 
 export const REVIEW_GALLERY_SCHEMA_VERSION = 1 as const;
 export const REVIEW_OUTPUT_RELATIVE_ROOT =
@@ -15,6 +18,58 @@ export const REVIEW_ARTIFACT_KINDS = [
   "diff",
   "actions",
 ] as const;
+
+export const SCREEN_DESIGN_IMPLEMENTATION_PLAN_BY_ID: Readonly<
+  Record<ScreenDesignScreenId, `36-${string}`>
+> = Object.freeze({
+  "ai-history-log": "36-18",
+  "ai-writing-coach": "36-12",
+  "ap-command-center": "36-11",
+  "assignment-detail": "36-08",
+  "concept-deep-dive": "36-15",
+  "dashboard-personalized": "36-05",
+  "external-scout-view": "36-17",
+  "flashcards-review": "36-13",
+  "focus-session-immersive": "36-14",
+  "global-leaderboard": "36-20",
+  "inbox-triage": "36-09",
+  "knowledge-graph": "36-15",
+  "library-empty-state": "36-10",
+  "lms-sync-center": "36-18",
+  "mastery-tracker": "36-11",
+  "mastery-transcript-view": "36-11",
+  "milestone-celebration": "36-16",
+  "mission-board": "36-09",
+  "notes-surface": "36-12",
+  "notification-center": "36-19",
+  "onboarding-welcome": "36-07",
+  "onboarding-educational": "36-07",
+  "onboarding-quiz-challenge": "36-07",
+  "onboarding-quiz-schedule": "36-07",
+  "paywall-social-proof": "36-21",
+  "paywall-standard": "36-21",
+  "portfolio-gallery": "36-16",
+  "practice-test-session": "36-13",
+  "privacy-export-hub": "36-16",
+  "progress-insights": "36-15",
+  "quick-add": "36-09",
+  "review-submit-checkpoint": "36-08",
+  "rubric-scout": "36-10",
+  "scout-share-view": "36-17",
+  "settings-profile-center": "36-18",
+  "smart-loading": "36-25",
+  "smart-search": "36-19",
+  "study-artifacts-hub": "36-13",
+  "study-calendar": "36-14",
+  "study-goal-wizard": "36-14",
+  "study-room-social": "36-20",
+  "subject-library": "36-10",
+  "task-breakdown-modal": "36-08",
+  "tutor-chat": "36-12",
+  "tutor-gallery": "36-20",
+  "tutor-personalization": "36-20",
+  "wellness-recovery-log": "36-19",
+});
 
 export type ReviewArtifactKind = (typeof REVIEW_ARTIFACT_KINDS)[number];
 export type ReviewComparisonStatus = "pass" | "fail" | "skipped";

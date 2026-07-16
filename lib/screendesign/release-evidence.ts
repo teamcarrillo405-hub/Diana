@@ -119,6 +119,12 @@ export const validateReleaseEvidenceDocument = (
       evidence.scenarioId === row.fixtureScenario,
       `${row.id} action record fixture scenario is stale`,
     );
+    const producer = recordValue(evidence, "producer");
+    invariant(
+      producer?.runId === input.expectedRunId &&
+        producer?.releaseSha === expectedSha,
+      `${row.id} action producer run or release identity is stale`,
+    );
     invariant(
       recordValue(evidence, "primaryAction")?.status === "pass",
       `${row.id} primary action evidence is not passing`,

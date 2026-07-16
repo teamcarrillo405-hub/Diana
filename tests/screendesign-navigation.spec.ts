@@ -32,6 +32,13 @@ interface VisibleControl {
   readonly tag: string;
 }
 
+interface NavigationObservation {
+  readonly status: "pass";
+  readonly primaryOwner: string | null;
+  readonly destinations: readonly string[];
+  readonly hasBackControl: boolean;
+}
+
 const IS_FULL_MATRIX = !process.env.SCREEN_IDS?.trim();
 const IGNORED_BACKGROUND_MUTATIONS = [
   "/api/monitoring/event",
@@ -285,6 +292,36 @@ const assertPublicTokenScope = async (
   }
 };
 
+const observeNavigationState = async (
+  page: Page,
+): Promise<NavigationObservation> => {
+  const nav = page.getByRole("navigation", { name: "Primary" });
+  const navVisible = await nav.isVisible().catch(() => false);
+  const destinations = navVisible
+    ? await nav.locator("a[href]").evaluateAll((links) =>
+        links.map((link) => link.getAttribute("href") ?? "").filter(Boolean),
+      )
+    : [];
+  const primaryOwner = navVisible
+    ? await nav
+        .locator('a[aria-current="page"]')
+        .first()
+        .getAttribute("aria-label")
+        .catch(() => null)
+    : null;
+  const hasBackControl =
+    (await page
+      .getByRole("link", { name: /back/iu })
+      .or(page.getByRole("button", { name: /back/iu }))
+      .count()) > 0;
+  return {
+    status: "pass",
+    primaryOwner,
+    destinations,
+    hasBackControl,
+  };
+};
+
 for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
   test(`${scenario.screenId} primary action contract`, async ({ page, screenDesign }) => {
     const consoleEvidence = screenDesign.consoleEvidence();
@@ -324,7 +361,17 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
           status: "pass",
           screenId: scenario.screenId,
           scenarioId: scenario.id,
-          primaryAction: scenario.expectedPrimaryAction,
+          primaryAction: {
+            status: "pass",
+            ...scenario.expectedPrimaryAction,
+          },
+          navigation: {
+            status: "pass",
+            primaryOwner: null,
+            destinations: [],
+            hasBackControl: false,
+            browserBackRestored: false,
+          },
           expectedResult: scenario.expectedPersistedResult,
           observed: {
             clicked: false,
@@ -345,6 +392,7 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       await bodyIsHealthy(page);
       await assertVisibleControlInventory(page, scenario);
       await assertPublicTokenScope(page, scenario);
+      const navigationBeforeAction = await observeNavigationState(page);
       const beforeUrl = page.url();
       const beforeOnboardingStep = await page
         .locator("[data-onboarding-step]")
@@ -421,7 +469,15 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
         status: "pass",
         screenId: scenario.screenId,
         scenarioId: scenario.id,
-        primaryAction: scenario.expectedPrimaryAction,
+        primaryAction: {
+          status: "pass",
+          ...scenario.expectedPrimaryAction,
+        },
+        navigation: {
+          ...navigationBeforeAction,
+          browserBackRestored,
+          afterClickPath,
+        },
         expectedResult: scenario.expectedPersistedResult,
         observed: {
           clicked: action.clicked,

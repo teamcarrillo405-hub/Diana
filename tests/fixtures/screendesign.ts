@@ -321,11 +321,20 @@ export const emitScreenDesignReviewImage = async (
   page: Page,
   kind: "source" | "app",
   screenId: string,
+  capturedImage?: Buffer,
 ): Promise<string | null> => {
   const output = reviewArtifactPath(kind, screenId, "png");
   if (!output) return null;
   await mkdir(path.dirname(output), { recursive: true });
-  await page.screenshot({ path: output, fullPage: false, animations: "disabled" });
+  if (capturedImage) {
+    await writeFile(output, capturedImage, { flag: "wx" });
+  } else {
+    await page.screenshot({
+      path: output,
+      fullPage: false,
+      animations: "disabled",
+    });
+  }
   return output;
 };
 
@@ -335,7 +344,28 @@ export const emitScreenDesignActionEvidence = async (
 ): Promise<string | null> => {
   const output = reviewArtifactPath("actions", screenId, "json");
   if (!output) return null;
-  const serialized = scrubGeneratedIdentifiers(JSON.stringify(evidence, null, 2));
+  const runId = process.env.SCREENDESIGN_REVIEW_RUN_ID;
+  const releaseSha = process.env.SCREENDESIGN_REVIEW_RELEASE_SHA;
+  if (
+    !runId ||
+    !REVIEW_RUN_PATTERN.test(runId) ||
+    !releaseSha ||
+    !/^[a-f0-9]{40}(?:[a-f0-9]{24})?$/u.test(releaseSha)
+  ) {
+    throw new Error(
+      "Action review evidence requires a safe run id and full release SHA.",
+    );
+  }
+  const serialized = scrubGeneratedIdentifiers(
+    JSON.stringify(
+      {
+        ...evidence,
+        producer: { runId, releaseSha },
+      },
+      null,
+      2,
+    ),
+  );
   await mkdir(path.dirname(output), { recursive: true });
   await writeFile(output, `${serialized}\n`, { encoding: "utf8", flag: "wx" });
   return output;
