@@ -1,204 +1,161 @@
 import Link from "next/link";
-import { addDays, format, parseISO, subDays } from "date-fns";
-import { CalendarDays } from "lucide-react";
+import {
+  addMonths,
+  eachDayOfInterval,
+  endOfMonth,
+  endOfWeek,
+  format,
+  isSameMonth,
+  isValid,
+  parseISO,
+  startOfMonth,
+  startOfWeek,
+  subMonths,
+} from "date-fns";
+import { ChevronLeft, ChevronRight, Plus, Settings2 } from "lucide-react";
+
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import { adjustForUser, type Assignment } from "@/lib/scoring/next-five-minutes";
 import { createClient } from "@/lib/supabase/server";
-import { PageShell } from "../page-shell";
-import {
-  buildWeek,
-  groupByDay,
-  workloadTier,
-  workloadBarClass,
-} from "@/lib/calendar/week";
-import {
-  adjustForUser,
-  type Assignment,
-} from "@/lib/scoring/next-five-minutes";
 
-// Calendar groups assignments by UTC date to stay consistent with how
-// due_at is stored in Postgres. A midnight-UTC due date appears on its
-// UTC calendar day, which may differ from the student's local day —
-// documented design decision.
-
-type PageProps = {
-  searchParams: Promise<{ week?: string }>;
+type CalendarAssignment = Assignment & {
+  external_source: string | null;
+  external_url: string | null;
 };
 
-export default async function CalendarWeekPage({ searchParams }: PageProps) {
-  const { week: weekParam } = await searchParams;
-  const anchor = weekParam ? parseISO(weekParam) : new Date();
-  const week = buildWeek(anchor);
-  const weekStart = week[0];
-  const weekEnd = week[6];
+type PageProps = {
+  searchParams: Promise<{ day?: string; month?: string; week?: string }>;
+};
 
-  const prevAnchor = format(subDays(weekStart, 7), "yyyy-MM-dd");
-  const nextAnchor = format(addDays(weekStart, 7), "yyyy-MM-dd");
-  const todayAnchor = format(new Date(), "yyyy-MM-dd");
+const safeMonth = (value: string | undefined): Date | null => {
+  if (!value || !/^\d{4}-\d{2}$/u.test(value)) return null;
+  const parsed = parseISO(`${value}-01T12:00:00.000Z`);
+  return isValid(parsed) ? parsed : null;
+};
 
+export default async function StudyCalendarPage({ searchParams }: PageProps) {
+  const params = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  let assignments: Assignment[] = [];
+  let assignments: CalendarAssignment[] = [];
   let profile = { diagnoses: [] as string[], extra_time_pct: 0 };
-
   if (user) {
-    // Window is [Mon 00:00 UTC, Sun 23:59 UTC]
-    const windowStart = new Date(
-      Date.UTC(
-        weekStart.getUTCFullYear(),
-        weekStart.getUTCMonth(),
-        weekStart.getUTCDate(),
-        0,
-        0,
-        0,
-      ),
-    ).toISOString();
-    const windowEnd = new Date(
-      Date.UTC(
-        weekEnd.getUTCFullYear(),
-        weekEnd.getUTCMonth(),
-        weekEnd.getUTCDate(),
-        23,
-        59,
-        59,
-      ),
-    ).toISOString();
-
-    const { data: assignmentRows } = await supabase
-      .from("assignments")
-      .select(
-        "id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load",
-      )
-      .eq("owner_id", user.id)
-      .gte("due_at", windowStart)
-      .lte("due_at", windowEnd)
-      .not("status", "in", "(submitted,graded,abandoned)");
-
-    assignments = (assignmentRows ?? []) as Assignment[];
-
-    const { data: profileRow } = await supabase
-      .from("profiles")
-      .select("diagnoses, extra_time_pct")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
+    const [{ data: assignmentRows }, { data: profileRow }] = await Promise.all([
+      supabase
+        .from("assignments")
+        .select("id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, external_source, external_url")
+        .eq("owner_id", user.id)
+        .not("status", "in", "(submitted,graded,abandoned)")
+        .not("due_at", "is", null)
+        .order("due_at", { ascending: true })
+        .limit(100),
+      supabase
+        .from("profiles")
+        .select("diagnoses, extra_time_pct")
+        .eq("user_id", user.id)
+        .maybeSingle(),
+    ]);
+    assignments = (assignmentRows ?? []) as CalendarAssignment[];
     if (profileRow) {
       profile = {
         diagnoses: (profileRow.diagnoses as string[] | null) ?? [],
-        extra_time_pct:
-          (profileRow.extra_time_pct as number | null) ?? 0,
+        extra_time_pct: profileRow.extra_time_pct ?? 0,
       };
     }
   }
 
-  const buckets = groupByDay(assignments, week);
+  const explicitMonth = safeMonth(params.month ?? (params.week ? params.week.slice(0, 7) : undefined));
+  const nextScheduledDate = assignments.find((assignment) => assignment.due_at)?.due_at;
+  const anchor = explicitMonth ?? (nextScheduledDate ? parseISO(nextScheduledDate) : new Date());
+  const monthStart = startOfMonth(anchor);
+  const gridStart = startOfWeek(monthStart, { weekStartsOn: 0 });
+  const gridEnd = endOfWeek(endOfMonth(anchor), { weekStartsOn: 0 });
+  const days = eachDayOfInterval({ start: gridStart, end: gridEnd });
+  const monthKey = format(monthStart, "yyyy-MM");
 
-  // Per-day total effective minutes, using the same accommodations math
-  // as the scorer + nightly time budget for consistency.
-  const dayTotals = new Map<string, number>();
-  for (const [key, dayAssignments] of buckets.entries()) {
-    const total = dayAssignments.reduce((sum, a) => {
-      const m = adjustForUser(a, profile);
-      return sum + (m ?? 0);
-    }, 0);
-    dayTotals.set(key, total);
+  const byDay = new Map<string, CalendarAssignment[]>();
+  for (const day of days) byDay.set(format(day, "yyyy-MM-dd"), []);
+  for (const assignment of assignments) {
+    if (!assignment.due_at) continue;
+    const key = format(parseISO(assignment.due_at), "yyyy-MM-dd");
+    byDay.get(key)?.push(assignment);
   }
 
-  const weekLabel = `Week of ${format(weekStart, "MMM d")} – ${format(weekEnd, "MMM d, yyyy")}`;
-
-  const pillStyle: React.CSSProperties = {
-    border: "1px solid var(--gl-border-neutral)",
-    color: "var(--gl-text-secondary)",
-    borderRadius: "var(--radius-pill)",
-    padding: "var(--space-5) var(--space-10)",
-    fontFamily: "var(--font-body)",
-    fontSize: "var(--text-12)",
-    textDecoration: "none",
-  };
+  const firstPopulatedDay = days.find((day) => (byDay.get(format(day, "yyyy-MM-dd"))?.length ?? 0) > 0);
+  const selectedKey = /^\d{4}-\d{2}-\d{2}$/u.test(params.day ?? "")
+    ? params.day!
+    : format(firstPopulatedDay ?? monthStart, "yyyy-MM-dd");
+  const selectedAssignments = byDay.get(selectedKey) ?? [];
+  const monthAssignments = assignments.filter((assignment) =>
+    assignment.due_at ? isSameMonth(parseISO(assignment.due_at), monthStart) : false,
+  );
+  const upcoming = selectedAssignments.length > 0 ? selectedAssignments : monthAssignments.slice(0, 4);
 
   return (
-    <PageShell
-      active="Calendar"
-      eyebrow="Calendar deck"
-      title="Calendar"
-      subtitle={weekLabel}
-      accent="var(--gl-cyan)"
-      icon={CalendarDays}
-      action={
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-8)" }}>
-          <Link href={`/calendar?week=${prevAnchor}`} style={pillStyle}>
-            Prev
-          </Link>
-          <Link href={`/calendar?week=${todayAnchor}`} style={pillStyle}>
-            This week
-          </Link>
-          <Link href={`/calendar?week=${nextAnchor}`} style={pillStyle}>
-            Next
-          </Link>
+    <ScreenDesignViewport className="sd-study-calendar">
+      <header className="sd-calendar-header">
+        <div className="sd-calendar-title-row">
+          <div><DianaWordmark alt="Diana" /><h1>Study<br /><span>Calendar</span></h1></div>
+          <Link href="/settings" aria-label="Calendar settings"><Settings2 aria-hidden="true" /></Link>
         </div>
-      }
-    >
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-7">
-        {week.map((day) => {
-          const key = format(day, "yyyy-MM-dd");
-          const dayAssignments = buckets.get(key) ?? [];
-          const total = dayTotals.get(key) ?? 0;
-          const tier = workloadTier(total);
-          const barClass = workloadBarClass(tier);
-          const tierLabel =
-            tier === "light"
-              ? "Light"
-              : tier === "moderate"
-                ? "Moderate"
-                : tier === "heavy"
-                  ? "Heavy"
-                  : "Heavy day";
+        <nav aria-label="Calendar month">
+          <Link href={`/calendar?month=${format(subMonths(monthStart, 1), "yyyy-MM")}`} aria-label="Previous month"><ChevronLeft aria-hidden="true" /></Link>
+          <strong>{format(monthStart, "MMMM yyyy")}</strong>
+          <Link href={`/calendar?month=${format(addMonths(monthStart, 1), "yyyy-MM")}`} aria-label="Next month"><ChevronRight aria-hidden="true" /></Link>
+        </nav>
+      </header>
 
-          return (
-            <section
-              key={key}
-              className="diana-panel flex flex-col rounded-lg border border-border bg-card"
-            >
-              <header className="border-b border-border px-3 py-2">
-                <div className="text-xs uppercase tracking-wide text-muted">
-                  {format(day, "EEE")}
-                </div>
-                <div className="text-lg font-semibold text-fg">
-                  {format(day, "MMM d")}
-                </div>
-              </header>
-              <div
-                className={`px-3 py-2 text-xs ${barClass}`}
-                aria-label={`Workload ${tierLabel}, ${total} minutes`}
-              >
-                {total > 0 ? (
-                  <>
-                    {tierLabel} · {total} min
-                  </>
-                ) : (
-                  <span className="text-muted">&nbsp;</span>
-                )}
-              </div>
-              <ul className="flex-1 space-y-1 px-3 py-2">
-                {dayAssignments.map((a) => (
-                  <li
-                    key={a.id}
-                    className="rounded-md border border-border/60 bg-bg px-2 py-1.5 text-sm text-fg"
-                  >
-                    <Link
-                      href={`/assignments/${a.id}`}
-                      className="block hover:text-accent"
-                    >
-                      {a.title}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          );
-        })}
-      </div>
-    </PageShell>
+      <main className="sd-calendar-scroll">
+        <section className="sd-calendar-month" aria-label={format(monthStart, "MMMM yyyy")}>
+          <div className="sd-calendar-weekdays" aria-hidden="true">{["S", "M", "T", "W", "T", "F", "S"].map((label, index) => <span key={`${label}-${index}`}>{label}</span>)}</div>
+          <div className="sd-calendar-days">
+            {days.map((day) => {
+              const key = format(day, "yyyy-MM-dd");
+              const items = byDay.get(key) ?? [];
+              const totalMinutes = items.reduce((sum, assignment) => sum + (adjustForUser(assignment, profile) ?? 0), 0);
+              return (
+                <Link
+                  key={key}
+                  href={`/calendar?month=${monthKey}&day=${key}`}
+                  aria-label={`${format(day, "MMMM d")}${items.length ? `, ${items.length} item${items.length === 1 ? "" : "s"}, ${totalMinutes} minutes` : ", no scheduled work"}`}
+                  data-selected={key === selectedKey || undefined}
+                  data-outside={!isSameMonth(day, monthStart) || undefined}
+                  data-has-items={items.length > 0 || undefined}
+                >
+                  <span>{format(day, "d")}</span>
+                  {items.length > 0 ? <i aria-hidden="true" data-count={Math.min(items.length, 2)} /> : null}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="sd-calendar-events">
+          <h2>{upcoming.length ? "Upcoming events" : "Selected day"}</h2>
+          <div>
+            {upcoming.length ? upcoming.map((assignment, index) => {
+              const effectiveMinutes = adjustForUser(assignment, profile) ?? assignment.estimated_minutes ?? 0;
+              return (
+                <Link key={assignment.id} href={`/assignments/${assignment.id}`} aria-label={index === 0 ? "Open calendar item" : `Open ${assignment.title}`} data-tone={index % 2 === 0 ? "pink" : "blue"}>
+                  <div>
+                    <h3>{assignment.title}</h3>
+                    <p>{assignment.external_source ? `${assignment.external_source} import` : assignment.kind} · {assignment.due_at ? format(parseISO(assignment.due_at), "h:mm a") : "Time open"}</p>
+                  </div>
+                  <strong>{effectiveMinutes ? `${effectiveMinutes} min` : "Open"}</strong>
+                </Link>
+              );
+            }) : (
+              <p>No scheduled work for {format(parseISO(`${selectedKey}T12:00:00.000Z`), "MMMM d")}. Choose another day whenever you&apos;re ready.</p>
+            )}
+          </div>
+        </section>
+      </main>
+
+      <Link className="sd-calendar-quick-add" href="/inbox" aria-label="Quick capture"><Plus aria-hidden="true" /></Link>
+      <StudentBottomNav />
+    </ScreenDesignViewport>
   );
 }

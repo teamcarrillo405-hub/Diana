@@ -1645,6 +1645,61 @@ body.diana-app {
   .diana-app .sd-focus-coach i { animation: none; height: 0.85rem; }
 }
 
+/* Canonical study_calendar.html composition. */
+.diana-app .sd-study-calendar {
+  display: flex;
+  height: max(100dvh, 852px);
+  min-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+  background: #0f172a;
+  color: #fff;
+}
+
+.diana-app .sd-calendar-header { z-index: 10; display: grid; flex: 0 0 auto; gap: 1rem; padding: 3.5rem 1.5rem 0; background: rgb(15 23 42 / 0.86); backdrop-filter: blur(14px); }
+.diana-app .sd-calendar-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.diana-app .sd-calendar-title-row > div { display: grid; gap: 0.6rem; }
+.diana-app .sd-calendar-title-row .sd-source-wordmark { width: auto; height: 1.2rem; opacity: 0.9; }
+.diana-app .sd-calendar-title-row h1 { margin: 0; color: #fff; font-family: var(--font-display), Arial, sans-serif; font-size: 2rem; font-style: italic; font-weight: 900; letter-spacing: -0.06em; line-height: 0.9; text-transform: uppercase; }
+.diana-app .sd-calendar-title-row h1 span { color: #ff79da; }
+.diana-app .sd-calendar-title-row > a { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 999px; background: rgb(255 255 255 / 0.03); color: #94a3b8; }
+.diana-app .sd-calendar-title-row > a svg { width: 1.2rem; }
+.diana-app .sd-calendar-header > nav { display: grid; grid-template-columns: 2.5rem 1fr 2.5rem; align-items: center; border-block: 1px solid rgb(255 255 255 / 0.05); }
+.diana-app .sd-calendar-header > nav a { display: grid; min-height: 2.55rem; place-items: center; color: #64748b; }
+.diana-app .sd-calendar-header > nav svg { width: 1rem; }
+.diana-app .sd-calendar-header > nav strong { color: #fff; font-size: 0.66rem; font-weight: 900; letter-spacing: 0.12em; text-align: center; text-transform: uppercase; }
+
+.diana-app .sd-calendar-scroll { display: grid; flex: 1 1 auto; align-content: start; gap: 1.8rem; min-height: 0; overflow-y: auto; padding: 1.5rem 1.5rem 8.2rem; }
+.diana-app .sd-calendar-month { display: grid; gap: 0.75rem; }
+.diana-app .sd-calendar-weekdays,
+.diana-app .sd-calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 0.25rem; }
+.diana-app .sd-calendar-weekdays span { color: #52617b; font-size: 0.55rem; font-weight: 900; text-align: center; text-transform: uppercase; }
+.diana-app .sd-calendar-days a { display: flex; min-width: 0; min-height: 3rem; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; border: 1px solid rgb(255 255 255 / 0.06); border-radius: 0.55rem; background: rgb(255 255 255 / 0.025); color: #fff; font-size: 0.7rem; font-weight: 800; text-decoration: none; }
+.diana-app .sd-calendar-days a[data-outside="true"] { opacity: 0.2; }
+.diana-app .sd-calendar-days a[data-selected="true"] { border-color: #ff79da; background: rgb(255 121 218 / 0.05); font-style: italic; font-weight: 900; }
+.diana-app .sd-calendar-days a[data-has-items="true"]:not([data-selected="true"]) { border-color: rgb(116 192 255 / 0.36); }
+.diana-app .sd-calendar-days i { position: relative; width: 0.24rem; height: 0.24rem; border-radius: 999px; background: #74c0ff; }
+.diana-app .sd-calendar-days a[data-selected="true"] i { background: #ff79da; }
+.diana-app .sd-calendar-days i[data-count="2"]::after { position: absolute; left: 0.38rem; width: 0.24rem; height: 0.24rem; border-radius: inherit; background: inherit; content: ""; }
+
+.diana-app .sd-calendar-events { display: grid; gap: 0.9rem; }
+.diana-app .sd-calendar-events h2 { margin: 0; color: #74c0ff; font-family: var(--font-display), Arial, sans-serif; font-size: 0.72rem; font-style: italic; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; }
+.diana-app .sd-calendar-events > div { display: grid; gap: 0.7rem; }
+.diana-app .sd-calendar-events a { position: relative; display: flex; min-height: 4.2rem; align-items: center; justify-content: space-between; gap: 0.75rem; overflow: hidden; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 1rem; background: rgb(255 255 255 / 0.03); padding: 0.9rem 1rem; color: #fff; text-decoration: none; }
+.diana-app .sd-calendar-events a::before { position: absolute; inset-block: 0; left: 0; width: 0.22rem; background: #ff79da; content: ""; }
+.diana-app .sd-calendar-events a[data-tone="blue"]::before { background: #74c0ff; }
+.diana-app .sd-calendar-events a > div { display: grid; min-width: 0; gap: 0.3rem; }
+.diana-app .sd-calendar-events :is(h3, p) { margin: 0; }
+.diana-app .sd-calendar-events h3 { overflow: hidden; font-family: var(--font-display), Arial, sans-serif; font-size: 0.82rem; font-style: italic; font-weight: 900; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.diana-app .sd-calendar-events p { color: #64748b; font-size: 0.54rem; font-weight: 800; text-transform: uppercase; }
+.diana-app .sd-calendar-events a > strong { flex: 0 0 auto; font-family: var(--font-display), Arial, sans-serif; font-size: 1rem; font-style: italic; font-weight: 900; text-transform: uppercase; }
+.diana-app .sd-calendar-events > div > p { margin: 0; border: 1px dashed rgb(116 192 255 / 0.25); border-radius: 1rem; padding: 1rem; color: #94a3b8; font-size: 0.72rem; line-height: 1.5; }
+
+.diana-app .sd-calendar-quick-add { position: absolute; z-index: 55; right: 1.5rem; bottom: 7rem; display: grid; width: 4rem; height: 4rem; place-items: center; border-radius: 1rem; background: linear-gradient(135deg, #74c0ff, #ff79da); color: #0f172a; box-shadow: 0 10px 30px rgb(45 212 191 / 0.3); }
+.diana-app .sd-calendar-quick-add svg { width: 2rem; }
+.diana-app .sd-study-calendar .sd-student-bottom-nav { position: absolute; right: 0; bottom: 0; left: 0; }
+.diana-app .sd-study-calendar .sd-student-bottom-nav a[aria-current="page"] { color: #ff79da; }
+
 /* Canonical assignment_detail.html composition. */
 .sd-assignment-cockpit {
   display: flex;
