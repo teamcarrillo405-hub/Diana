@@ -4,13 +4,16 @@ import {
   CalendarRange,
   FileCheck2,
   LockKeyhole,
+  Quote,
   ShieldCheck,
   Sparkles,
+  UsersRound,
   X,
 } from "lucide-react";
 
 import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { SourceMedia } from "@/components/screen-design/source-media";
 
 export type UpgradeScreenView = "standard" | "community";
 
@@ -53,6 +56,29 @@ const UPGRADE_STYLES = `
   .sd-upgrade-footer { flex:none; padding:14px 32px max(25px,env(safe-area-inset-bottom)); text-align:center; }
   .sd-upgrade-primary { display:flex; width:100%; min-height:59px; align-items:center; justify-content:center; gap:9px; border-radius:12px; background:linear-gradient(90deg,#ff79da,#74c0ff); color:#0f172a!important; font-size:12px; font-style:italic; font-weight:950; letter-spacing:.12em; text-decoration:none; text-transform:uppercase; box-shadow:0 10px 30px rgb(255 121 218 / .2); }
   .sd-upgrade-footer p { margin:10px 0 0; color:#64748b!important; font-size:7px; font-style:italic; font-weight:850; letter-spacing:.12em; line-height:1.45; text-transform:uppercase; }
+  .sd-upgrade-community .sd-upgrade-scroll { padding-top:17px; }
+  .sd-upgrade-community-hero { margin-bottom:24px; text-align:center; }
+  .sd-upgrade-community-hero h1 { margin:0; color:#fff; font-family:var(--font-display),Arial,sans-serif; font-size:35px; font-style:italic; font-weight:950; letter-spacing:-.055em; line-height:.9; text-transform:uppercase; }
+  .sd-upgrade-community-hero h1 span { display:block; color:#ff79da; }
+  .sd-upgrade-community-hero p { margin:13px auto 0; color:#cbd5e1!important; font-size:9px; font-style:italic; font-weight:800; letter-spacing:.1em; line-height:1.45; text-transform:uppercase; }
+  .sd-upgrade-proof { position:relative; overflow:hidden; margin-bottom:18px; border-radius:17px; background:#fff; padding:21px; color:#0f172a; box-shadow:0 4px 20px rgb(0 0 0 / .1); }
+  .sd-upgrade-proof > svg { position:absolute; top:13px; left:13px; width:31px; height:31px; color:rgb(15 23 42 / .06); }
+  .sd-upgrade-proof > p { position:relative; z-index:1; margin:0; color:#0f172a!important; font-size:14px; font-style:italic; font-weight:950; letter-spacing:-.02em; line-height:1.22; text-transform:uppercase; }
+  .sd-upgrade-proof-person { display:flex; align-items:center; gap:11px; margin-top:17px; }
+  .sd-upgrade-proof-person .sd-source-media { width:46px; height:46px; border:2px solid #74c0ff; border-radius:999px; object-fit:cover; }
+  .sd-upgrade-proof-person strong { display:block; color:#0f172a; font-size:11px; font-style:italic; font-weight:950; text-transform:uppercase; }
+  .sd-upgrade-proof-person small { display:block; margin-top:3px; color:#64748b; font-size:7px; font-weight:900; letter-spacing:.11em; text-transform:uppercase; }
+  .sd-upgrade-community-facts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+  .sd-upgrade-community-fact { display:grid; min-height:69px; place-content:center; border:1px solid rgb(255 255 255 / .1); border-radius:15px; background:rgb(255 255 255 / .05); padding:10px; text-align:center; }
+  .sd-upgrade-community-fact strong { color:#fff; font-size:15px; font-style:italic; font-weight:950; text-transform:uppercase; }
+  .sd-upgrade-community-fact span { margin-top:4px; color:#74c0ff; font-size:7px; font-style:italic; font-weight:950; letter-spacing:.1em; text-transform:uppercase; }
+  .sd-upgrade-community-plan { display:grid; gap:12px; }
+  .sd-upgrade-community-plan-label { display:flex; align-items:center; gap:7px; color:#74c0ff; font-size:8px; font-style:italic; font-weight:950; letter-spacing:.14em; text-transform:uppercase; }
+  .sd-upgrade-community-plan-row { display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
+  .sd-upgrade-community-plan h2 { margin:0; color:#fff; font-size:17px; font-style:italic; font-weight:950; text-transform:uppercase; }
+  .sd-upgrade-community-plan p { margin:4px 0 0; color:#cbd5e1!important; font-size:8px; font-weight:750; line-height:1.35; }
+  .sd-upgrade-community-state { flex:none; color:#fff; font-size:10px; font-style:italic; font-weight:950; text-align:right; text-transform:uppercase; }
+  .sd-upgrade-community-state small { display:block; margin-top:2px; color:#94a3b8; font-size:6px; letter-spacing:.08em; }
   @media (prefers-reduced-motion:reduce) { .sd-upgrade-screen * { scroll-behavior:auto!important; transition:none!important; } }
 `;
 
@@ -65,14 +91,107 @@ export function UpgradeScreen({
   billingEnabled: boolean;
   billingUnavailable?: boolean;
 }) {
-  if (view === "community") {
-    return <div data-upgrade-view="community" />;
-  }
-
   const actionHref = billingEnabled ? "/api/billing/checkout" : "/settings";
   const actionLabel = billingEnabled
     ? "Continue to secure checkout"
     : "Manage access settings";
+
+  if (view === "community") {
+    return (
+      <ScreenDesignViewport
+        className="sd-upgrade-screen sd-upgrade-community"
+        aria-label="Diana community access"
+      >
+        <style>{UPGRADE_STYLES}</style>
+        <header className="sd-upgrade-header">
+          <DianaWordmark />
+          <Link href="/settings" className="sd-upgrade-close" aria-label="Close access options">
+            <X aria-hidden="true" />
+          </Link>
+        </header>
+
+        <main className="sd-upgrade-scroll">
+          <section className="sd-upgrade-community-hero">
+            <h1>
+              STUDY WITH YOUR TEAM
+              <span>WITHOUT PUBLIC RANKINGS</span>
+            </h1>
+            <p>Academic support with private, account-scoped community controls.</p>
+          </section>
+
+          <section className="sd-upgrade-proof" aria-label="Community privacy promise">
+            <Quote aria-hidden="true" />
+            <p>
+              Community spaces show only real groups and members your signed-in account is allowed to access.
+            </p>
+            <div className="sd-upgrade-proof-person">
+              <SourceMedia
+                assetId="social-proof-marcus-avatar"
+                width={1024}
+                height={1024}
+                alt="Student-athlete illustration"
+              />
+              <span>
+                <strong>Membership-scoped</strong>
+                <small>No invented student profiles</small>
+              </span>
+            </div>
+          </section>
+
+          <section className="sd-upgrade-community-facts" aria-label="Community safeguards">
+            <div className="sd-upgrade-community-fact">
+              <strong>Real members</strong>
+              <span>Membership-scoped</span>
+            </div>
+            <div className="sd-upgrade-community-fact">
+              <strong>Private by default</strong>
+              <span>Owner-controlled</span>
+            </div>
+          </section>
+
+          {billingUnavailable ? (
+            <p className="sd-upgrade-unavailable" role="status">
+              <ShieldCheck size={16} aria-hidden="true" />
+              Secure checkout is not configured. Your current access has not changed.
+            </p>
+          ) : null}
+
+          <section className="sd-upgrade-community-plan" aria-label="Diana access status">
+            <div className="sd-upgrade-community-plan-label">
+              <UsersRound size={16} aria-hidden="true" />
+              Supported Diana capabilities
+            </div>
+            <div className="sd-upgrade-community-plan-row">
+              <div>
+                <h2>Diana access</h2>
+                <p>
+                  {billingEnabled
+                    ? "The server has confirmed a secure checkout provider."
+                    : "Current learning tools remain available while checkout is unavailable."}
+                </p>
+              </div>
+              <span className="sd-upgrade-community-state">
+                {billingEnabled ? "Ready" : "Preview"}
+                <small>{billingEnabled ? "Server verified" : "No purchase claimed"}</small>
+              </span>
+            </div>
+          </section>
+        </main>
+
+        <footer className="sd-upgrade-footer">
+          <Link
+            href={actionHref}
+            className="sd-upgrade-primary"
+            aria-label="Review access options"
+          >
+            <ShieldCheck size={18} aria-hidden="true" />
+            {actionLabel}
+          </Link>
+          <p>Billing authority stays on the server and community access stays private.</p>
+        </footer>
+      </ScreenDesignViewport>
+    );
+  }
 
   return (
     <ScreenDesignViewport
