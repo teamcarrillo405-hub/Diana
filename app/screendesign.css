@@ -1700,6 +1700,79 @@ body.diana-app {
 .diana-app .sd-study-calendar .sd-student-bottom-nav { position: absolute; right: 0; bottom: 0; left: 0; }
 .diana-app .sd-study-calendar .sd-student-bottom-nav a[aria-current="page"] { color: #ff79da; }
 
+/* Canonical study_goal_wizard.html composition. */
+.diana-app .sd-goal-wizard-screen {
+  display: flex;
+  height: max(100dvh, 852px);
+  min-height: max(100dvh, 852px);
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+  color: #0f172a;
+}
+
+.diana-app .sd-goal-header { flex: 0 0 auto; padding: 3.5rem 1.5rem 0.5rem; }
+.diana-app .sd-goal-header-row { display: grid; grid-template-columns: 2.5rem 1fr 2.5rem; align-items: center; }
+.diana-app .sd-goal-header-row > a { display: grid; width: 2.5rem; height: 2.5rem; place-items: center; border: 1px solid #e2e8f0; border-radius: 999px; color: #0f172a; }
+.diana-app .sd-goal-header-row > a svg { width: 1.15rem; }
+.diana-app .sd-goal-header-row .sd-source-wordmark { justify-self: center; width: auto; height: 1.4rem; }
+
+.diana-app .sd-goal-form { display: flex; flex: 1 1 auto; min-height: 0; flex-direction: column; }
+.diana-app .sd-goal-progress { display: grid; gap: 0.65rem; padding: 0 1.5rem; }
+.diana-app .sd-goal-progress > div { display: flex; align-items: center; justify-content: space-between; font-size: 0.58rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
+.diana-app .sd-goal-progress > div span { color: #ff79da; }
+.diana-app .sd-goal-progress > div strong { color: #8b9bb7; }
+.diana-app .sd-goal-progress > i { display: block; height: 0.28rem; overflow: hidden; border-radius: 999px; background: #eef2f7; }
+.diana-app .sd-goal-progress > i b { display: block; width: 33.333%; height: 100%; background: linear-gradient(90deg, #ff79da, #74c0ff); }
+.diana-app .sd-goal-form > h1 { margin: 1.5rem 1.5rem 0; color: #d5dce8; font-family: var(--font-display), Arial, sans-serif; font-size: 2rem; font-style: italic; font-weight: 900; letter-spacing: -0.06em; line-height: 0.9; text-transform: uppercase; }
+.diana-app .sd-goal-form > h1 span { color: #74c0ff; }
+
+.diana-app .sd-goal-scroll { display: grid; flex: 1 1 auto; align-content: start; gap: 1.7rem; min-height: 0; overflow-y: auto; padding: 1.8rem 1.5rem 7.5rem; }
+.diana-app .sd-goal-grade { display: grid; gap: 1rem; min-width: 0; margin: 0; border: 0; padding: 0; }
+.diana-app .sd-goal-grade legend,
+.diana-app .sd-goal-date > span { color: #91a2bf; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.18em; text-transform: uppercase; }
+.diana-app .sd-goal-grade > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.diana-app .sd-goal-grade label { position: relative; display: flex; min-height: 6.7rem; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; border: 1px solid #edf0f5; border-radius: 1rem; background: #fff; }
+.diana-app .sd-goal-grade label[data-selected="true"] { border: 2px solid #ff79da; background: rgb(255 121 218 / 0.1); box-shadow: 0 0 15px rgb(255 121 218 / 0.18); }
+.diana-app .sd-goal-grade input { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.diana-app .sd-goal-grade label:has(input:focus-visible) { outline: 2px solid #74c0ff; outline-offset: 3px; }
+.diana-app .sd-goal-grade label strong { color: #dbe2ed; font-family: var(--font-display), Arial, sans-serif; font-size: 2rem; font-style: italic; font-weight: 900; }
+.diana-app .sd-goal-grade label[data-selected="true"] strong { color: #fff; text-shadow: 0 1px 0 rgb(15 23 42 / 0.08); }
+.diana-app .sd-goal-grade label span { color: #657591; font-size: 0.55rem; font-weight: 900; text-transform: uppercase; }
+.diana-app .sd-goal-grade label[data-selected="true"] span { color: #ff79da; }
+
+.diana-app .sd-goal-date { display: grid; gap: 1rem; }
+.diana-app .sd-goal-date > div { display: grid; grid-template-columns: 3rem minmax(0, 1fr); gap: 0.75rem; align-items: center; border: 1px solid #edf0f5; border-radius: 1rem; padding: 1rem; }
+.diana-app .sd-goal-date i { display: grid; width: 3rem; height: 3rem; place-items: center; border-radius: 0.8rem; background: rgb(116 192 255 / 0.13); color: #74c0ff; }
+.diana-app .sd-goal-date i svg { width: 1.4rem; }
+.diana-app .sd-goal-date strong { color: #d4dbe7; font-family: var(--font-display), Arial, sans-serif; font-size: 0.8rem; font-style: italic; font-weight: 900; text-transform: uppercase; }
+.diana-app .sd-goal-date input { grid-column: 2; min-width: 0; border: 0; background: transparent; color: #8293b0; font-size: 0.7rem; }
+
+.diana-app .sd-goal-hours { display: grid; gap: 1rem; }
+.diana-app .sd-goal-hours > span { display: flex; align-items: center; justify-content: space-between; color: #91a2bf; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.16em; text-transform: uppercase; }
+.diana-app .sd-goal-hours > span strong { color: #74c0ff; font-family: var(--font-display), Arial, sans-serif; font-size: 1.1rem; font-style: italic; }
+.diana-app .sd-goal-hours input { accent-color: #ff79da; }
+.diana-app .sd-goal-hours small { display: flex; justify-content: space-between; color: #526586; font-size: 0.55rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; }
+.diana-app .sd-goal-review { display: flex; align-items: flex-start; gap: 0.7rem; border: 1px solid #e6ebf2; border-radius: 0.75rem; padding: 0.85rem; color: #526586; }
+.diana-app .sd-goal-review svg { width: 1rem; flex: 0 0 auto; color: #74c0ff; }
+.diana-app .sd-goal-review p { margin: 0; font-size: 0.62rem; line-height: 1.45; }
+.diana-app .sd-goal-latest { border-top: 1px solid #e2e8f0; padding-top: 0.75rem; color: #64748b; font-size: 0.65rem; }
+.diana-app .sd-goal-latest summary { cursor: pointer; font-weight: 900; text-transform: uppercase; }
+.diana-app .sd-goal-message { min-height: 1rem; margin: 0; color: #b45309; font-size: 0.68rem; text-align: center; }
+
+.diana-app .sd-goal-form > footer { position: absolute; z-index: 20; right: 0; bottom: 0; left: 0; padding: 1rem 1.5rem 1.8rem; background: rgb(255 255 255 / 0.92); backdrop-filter: blur(12px); }
+.diana-app .sd-goal-form > footer button { width: 100%; min-height: 3.6rem; border: 0; border-radius: 0.75rem; background: linear-gradient(100deg, #ff79da, #74c0ff); color: #0f172a; font-family: var(--font-display), Arial, sans-serif; font-size: 0.74rem; font-weight: 900; letter-spacing: 0.12em; text-transform: uppercase; }
+.diana-app .sd-goal-form > footer button:disabled { cursor: not-allowed; opacity: 0.58; }
+
+.diana-app .sd-goal-complete { display: grid; flex: 1 1 auto; place-content: center; justify-items: center; gap: 0.85rem; padding: 2rem; text-align: center; }
+.diana-app .sd-goal-complete > svg { width: 4.5rem; height: 4.5rem; color: #74c0ff; filter: drop-shadow(0 0 18px rgb(116 192 255 / 0.2)); }
+.diana-app .sd-goal-complete > span { color: #ff79da; font-size: 0.6rem; font-weight: 900; letter-spacing: 0.15em; text-transform: uppercase; }
+.diana-app .sd-goal-complete h1 { margin: 0; color: #0f172a; font-family: var(--font-display), Arial, sans-serif; font-size: 2.2rem; font-style: italic; font-weight: 900; line-height: 0.95; text-transform: uppercase; }
+.diana-app .sd-goal-complete h1 strong { color: #74c0ff; }
+.diana-app .sd-goal-complete :is(p, small) { max-width: 20rem; margin: 0; color: #64748b; font-size: 0.75rem; line-height: 1.45; }
+.diana-app .sd-goal-complete button { display: flex; align-items: center; gap: 0.45rem; border: 0; border-radius: 0.75rem; background: linear-gradient(100deg, #ff79da, #74c0ff); padding: 0.85rem 1rem; color: #0f172a; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; }
+.diana-app .sd-goal-complete button svg { width: 1rem; }
+
 /* Canonical assignment_detail.html composition. */
 .sd-assignment-cockpit {
   display: flex;

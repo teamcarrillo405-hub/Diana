@@ -86,6 +86,7 @@ export async function saveWellnessGoal(
   if (error) return { ok: false, error: error.message };
 
   revalidatePath("/wellness");
+  revalidatePath("/settings/goals");
   return { ok: true };
 }
 
