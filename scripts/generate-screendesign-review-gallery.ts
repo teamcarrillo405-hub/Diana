@@ -231,6 +231,7 @@ const runPlaywrightSuite = async (input: {
     SCREENDESIGN_REVIEW_RUN_ID: input.runId,
     SCREENDESIGN_REVIEW_RELEASE_SHA: input.releaseSha,
   };
+  delete env.SCREENDESIGN_WARMUP_ONLY;
   delete env.SCREEN_IDS;
   const status = await new Promise<number | null>((resolve, reject) => {
     const child = spawn(

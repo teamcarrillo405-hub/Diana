@@ -86,12 +86,12 @@ const assertKeyboardFocusStaysVisible = async (page: Page) => {
   await page.evaluate(() => {
     const activeElement = document.activeElement;
     if (activeElement instanceof HTMLElement) {
-      let ancestor: HTMLElement | null = activeElement;
-      while (ancestor) {
-        ancestor.scrollTo({ left: 0, top: 0, behavior: "instant" });
-        ancestor = ancestor.parentElement;
-      }
       activeElement.blur();
+    }
+    for (const element of document.querySelectorAll<HTMLElement>("*")) {
+      if (element.scrollLeft !== 0 || element.scrollTop !== 0) {
+        element.scrollTo({ left: 0, top: 0, behavior: "instant" });
+      }
     }
     window.scrollTo({ left: 0, top: 0, behavior: "instant" });
   });
