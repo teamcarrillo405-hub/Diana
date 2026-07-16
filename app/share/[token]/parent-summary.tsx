@@ -124,7 +124,7 @@ export function ParentSummaryView({ summary }: { summary: ParentSummary }) {
             />
             <StatCard
               label="Mastery"
-              value={mastery === null ? "—" : `${mastery}%`}
+              value={mastery === null ? "N/A" : `${mastery}%`}
               detail="Concept confidence"
               tone="blue"
             />
