@@ -1,65 +1,258 @@
 "use client";
 
+import {
+  ArrowRight,
+  Brain,
+  CheckCircle2,
+  ChevronLeft,
+  HeartHandshake,
+  HelpCircle,
+  Info,
+  Target,
+} from "lucide-react";
 import { useState, useTransition } from "react";
-import Link from "next/link";
-import { ArrowRight, Atom, Brain, CheckCircle2, HeartHandshake, Sigma, Target } from "lucide-react";
 
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { SourceMedia } from "@/components/screen-design/source-media";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import type { ScreenDesignAssetId } from "@/lib/screendesign/assets";
 import { saveTutorPreferences } from "./actions";
 
-const TUTORS = [
-  { id: "diana", name: "Coach Diana", specialty: "All-subject guide", description: "Calm, source-first help that keeps the work yours.", Icon: Brain },
-  { id: "xavier", name: "Tutor Xavier", specialty: "Mathematics", description: "Analytical walkthroughs for math, statistics, and problem setup.", Icon: Sigma },
-  { id: "maya", name: "Tutor Maya", specialty: "Science", description: "Concept maps and evidence checks for biology, chemistry, and physics.", Icon: Atom },
-] as const;
+type Persona = "diana" | "xavier" | "maya";
+type TutorStyle = "socratic" | "supportive" | "direct";
+type Complexity = "simple" | "balanced" | "advanced";
+type TutorView = "gallery" | "personalization";
+
+const TUTORS: ReadonlyArray<Readonly<{
+  id: Persona;
+  name: string;
+  specialty: string;
+  description: string;
+  assetId: ScreenDesignAssetId;
+}>> = [
+  {
+    id: "diana",
+    name: "Coach Diana",
+    specialty: "All-subject guide",
+    description: "Calm, source-first guidance that keeps the work and decisions yours.",
+    assetId: "diana-mascot",
+  },
+  {
+    id: "xavier",
+    name: "Tutor Xavier",
+    specialty: "Mathematics expert",
+    description: "Analytical sessions for calculus, statistics, and problem setup.",
+    assetId: "tutor-math-expert",
+  },
+  {
+    id: "maya",
+    name: "Tutor Maya",
+    specialty: "STEM specialist",
+    description: "Structured support for biology, chemistry, and concept mapping.",
+    assetId: "tutor-science-expert",
+  },
+];
 
 const STYLES = [
-  { id: "socratic", name: "Socratic", description: "Questions lead you toward the next step.", Icon: Brain },
-  { id: "supportive", name: "Supportive", description: "More encouragement and confidence checks.", Icon: HeartHandshake },
-  { id: "direct", name: "Direct", description: "Brief explanations and concrete next actions.", Icon: Target },
+  {
+    id: "socratic",
+    name: "Socratic Method",
+    description: "Questions lead you toward the next step and deeper conceptual learning.",
+    Icon: HelpCircle,
+  },
+  {
+    id: "supportive",
+    name: "Supportive Coach",
+    description: "More encouragement and confidence checks while the work stays yours.",
+    Icon: HeartHandshake,
+  },
+  {
+    id: "direct",
+    name: "Direct",
+    description: "Brief explanations and concrete next actions for a focused review.",
+    Icon: Target,
+  },
 ] as const;
 
-export function TutorPreferences({ initial }: { initial: { persona: "diana" | "xavier" | "maya"; style: "socratic" | "supportive" | "direct"; complexity: "simple" | "balanced" | "advanced" } }) {
-  const [persona, setPersona] = useState(initial.persona);
-  const [style, setStyle] = useState(initial.style);
-  const [complexity, setComplexity] = useState(initial.complexity);
+const COMPLEXITIES: readonly Complexity[] = ["simple", "balanced", "advanced"];
+const COMPLEXITY_LABELS: Record<Complexity, string> = {
+  simple: "Varsity level",
+  balanced: "Starter level",
+  advanced: "All-pro level",
+};
+
+export function TutorPreferences({
+  initial,
+  initialView,
+}: {
+  initial: { persona: Persona; style: TutorStyle; complexity: Complexity };
+  initialView: TutorView;
+}) {
+  const [view, setView] = useState<TutorView>(initialView);
+  const [persona, setPersona] = useState<Persona>(initial.persona);
+  const [style, setStyle] = useState<TutorStyle>(initial.style);
+  const [complexity, setComplexity] = useState<Complexity>(initial.complexity);
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
 
-  function save() {
+  const persist = (onSuccess?: () => void) => {
     setMessage(null);
     startTransition(async () => {
       const result = await saveTutorPreferences({ persona, style, complexity });
-      setMessage(result.ok ? "Tutor preferences saved." : result.error);
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      setMessage("Tutor preferences saved.");
+      onSuccess?.();
     });
+  };
+
+  if (view === "gallery") {
+    return (
+      <>
+        <header className="sd-tutor-header">
+          <div className="sd-tutor-header-row">
+            <div>
+              <DianaWordmark />
+              <h1 aria-label="Select tutor">Select<br /><span>tutor</span></h1>
+            </div>
+            <button
+              type="button"
+              className="sd-tutor-icon-button"
+              aria-label="About tutor presentation"
+              title="Tutor selection changes presentation only."
+            >
+              <Info size={19} aria-hidden="true" />
+            </button>
+          </div>
+          <p>Who is helping you study today?</p>
+        </header>
+
+        <main className="sd-tutor-scroll">
+          {message ? <p className="sd-tutor-status" role="status">{message}</p> : null}
+          <section className="sd-tutor-gallery" aria-label="Supported tutor presentations">
+            {TUTORS.map((tutor) => (
+              <button
+                type="button"
+                key={tutor.id}
+                className="sd-tutor-portrait-card"
+                data-persona={tutor.id}
+                aria-label={`Select ${tutor.name}`}
+                aria-pressed={persona === tutor.id}
+                onClick={() => setPersona(tutor.id)}
+              >
+                <SourceMedia
+                  assetId={tutor.assetId}
+                  width={720}
+                  height={420}
+                  alt={`${tutor.name} tutor portrait`}
+                  priority={tutor.id === "diana"}
+                />
+                {persona === tutor.id ? (
+                  <span className="sd-tutor-selected"><CheckCircle2 size={11} aria-hidden="true" /> Selected</span>
+                ) : null}
+                <span className="sd-tutor-portrait-copy">
+                  <strong>{tutor.name}</strong>
+                  <em>{tutor.specialty}</em>
+                  <small>{tutor.description}</small>
+                </span>
+              </button>
+            ))}
+          </section>
+        </main>
+
+        <div className="sd-tutor-primary-footer">
+          <button
+            type="button"
+            className="sd-tutor-primary"
+            disabled={pending}
+            onClick={() => persist(() => setView("personalization"))}
+          >
+            {pending ? "Saving tutor" : "Choose tutor"} <ArrowRight size={15} aria-hidden="true" />
+          </button>
+        </div>
+        <StudentBottomNav />
+      </>
+    );
   }
 
+  const complexityIndex = COMPLEXITIES.indexOf(complexity);
+  const complexityFill = `${complexityIndex * 50}%`;
+
   return (
-    <div className="sd-grid">
-      <section className="sd-grid">
-        <div className="sd-section-head"><h2 className="sd-section-title">Choose your tutor</h2><span className="sd-chip">Presentation preference</span></div>
-        <div className="sd-grid sd-grid-3">
-          {TUTORS.map((tutor) => <button type="button" key={tutor.id} className={`sd-panel sd-tutor-card ${persona === tutor.id ? "is-selected" : ""}`} onClick={() => setPersona(tutor.id)} aria-pressed={persona === tutor.id}><tutor.Icon size={28} aria-hidden="true" /><span className="sd-kicker">{tutor.specialty}</span><strong>{tutor.name}</strong><small>{tutor.description}</small>{persona === tutor.id ? <CheckCircle2 size={18} aria-hidden="true" /> : null}</button>)}
+    <>
+      <header className="sd-tutor-header">
+        <div className="sd-tutor-header-title">
+          <button
+            type="button"
+            className="sd-tutor-icon-button"
+            aria-label="Back to tutor gallery"
+            onClick={() => setView("gallery")}
+          >
+            <ChevronLeft size={20} aria-hidden="true" />
+          </button>
+          <div>
+            <DianaWordmark />
+            <h1>Coach settings</h1>
+          </div>
         </div>
-      </section>
+      </header>
 
-      <section className="sd-grid">
-        <h2 className="sd-section-title">Teaching playbook</h2>
-        <div className="sd-grid sd-grid-3">
-          {STYLES.map((item) => <button type="button" key={item.id} className={`sd-panel sd-tutor-style ${style === item.id ? "is-selected" : ""}`} onClick={() => setStyle(item.id)} aria-pressed={style === item.id}><item.Icon size={20} aria-hidden="true" /><strong>{item.name}</strong><small>{item.description}</small></button>)}
-        </div>
-      </section>
+      <main className="sd-tutor-scroll">
+        {message ? <p className="sd-tutor-status" role="status">{message}</p> : null}
+        <section className="sd-tutor-playbook" aria-labelledby="teaching-playbook-title">
+          <h2 className="sd-tutor-section-title" id="teaching-playbook-title">Teaching playbook</h2>
+          <div className="sd-tutor-style-list">
+            {STYLES.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                className="sd-tutor-style-card"
+                aria-label={item.name}
+                aria-pressed={style === item.id}
+                onClick={() => setStyle(item.id)}
+              >
+                <span className="sd-tutor-style-icon"><item.Icon size={21} aria-hidden="true" /></span>
+                <span className="sd-tutor-style-copy"><strong>{item.name}</strong><small>{item.description}</small></span>
+                {style === item.id ? <CheckCircle2 className="sd-tutor-style-check" size={18} aria-hidden="true" /> : <span />}
+              </button>
+            ))}
+          </div>
+        </section>
 
-      <section className="sd-panel sd-panel-pad sd-grid">
-        <div className="sd-section-head"><h2 className="sd-section-title">Preferred complexity</h2><span className="sd-chip">{complexity}</span></div>
-        <input type="range" min={0} max={2} step={1} value={["simple", "balanced", "advanced"].indexOf(complexity)} onChange={(event) => setComplexity((["simple", "balanced", "advanced"] as const)[Number(event.target.value)])} aria-label="Preferred explanation complexity" />
-        <div className="sd-section-head"><small>Simple</small><small>Balanced</small><small>Advanced</small></div>
-      </section>
+        <section className="sd-tutor-complexity" aria-labelledby="complexity-title">
+          <div className="sd-tutor-complexity-head">
+            <h2 id="complexity-title">Preferred complexity</h2>
+            <output htmlFor="tutor-complexity">{COMPLEXITY_LABELS[complexity]}</output>
+          </div>
+          <div className="sd-tutor-range" style={{ "--complexity-fill": complexityFill } as React.CSSProperties}>
+            <div className="sd-tutor-range-track">
+              <input
+                id="tutor-complexity"
+                type="range"
+                min={0}
+                max={2}
+                step={1}
+                value={complexityIndex}
+                onChange={(event) => setComplexity(COMPLEXITIES[Number(event.target.value)])}
+                aria-label="Preferred complexity"
+              />
+              <span className="sd-tutor-range-thumb" aria-hidden="true" />
+            </div>
+            <div className="sd-tutor-range-labels"><span>Simple</span><span>Balanced</span><span>Advanced</span></div>
+          </div>
+        </section>
 
-      <div className="sd-section-head">
-        <button type="button" onClick={save} disabled={pending} className="sd-button sd-button-primary">{pending ? "Saving..." : "Save preferences"}</button>
-        <Link href="/study-buddy" className="sd-button">Open tutor <ArrowRight size={16} aria-hidden="true" /></Link>
+        <p className="sd-tutor-safety">Class AI rules and authorship controls stay the same.</p>
+      </main>
+
+      <div className="sd-tutor-primary-footer">
+        <button type="button" className="sd-tutor-primary" disabled={pending} onClick={() => persist()}>
+          {pending ? "Saving style" : "Save tutor style"} <Brain size={15} aria-hidden="true" />
+        </button>
       </div>
-      {message ? <p role="status" className="sd-subtitle">{message}</p> : null}
-    </div>
+      <StudentBottomNav />
+    </>
   );
 }

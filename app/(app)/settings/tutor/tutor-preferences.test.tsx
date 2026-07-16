@@ -63,7 +63,7 @@ describe("TutorPreferences", () => {
         style: "supportive",
         complexity: "advanced",
       });
-      expect(screen.getByRole("status").textContent).toContain("saved");
+      expect(screen.getByText("Tutor preferences saved.")).toBeTruthy();
     });
   });
 
