@@ -707,7 +707,7 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
       }),
     ],
     guardedStates: ["populated"],
-    result: mutation("data-deletion-request", "deletion-main", "status", "pending"),
+    result: mutation("data-deletion-request", "deletion-main", "status", "requested"),
   },
   {
     screenId: "progress-insights",

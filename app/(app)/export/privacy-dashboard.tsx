@@ -1,8 +1,19 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import {
+  ArchiveRestore,
+  Download,
+  FileArchive,
+  FileJson,
+  FileText,
+  LockKeyhole,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Download, FileArchive, FileJson, ShieldCheck, Trash2 } from "lucide-react";
+import { useState, useTransition } from "react";
+
 import {
   categoryLabel,
   formatHandoffTimestamp,
@@ -12,6 +23,7 @@ import {
   type NotificationPreferences,
   type PrivacyDeleteCategory,
 } from "@/lib/privacy/export";
+
 import {
   deleteDataCategory,
   exportProfileBackup,
@@ -32,39 +44,59 @@ export function PrivacyDashboard({
   notificationPrefs,
   timezone,
   handoff,
+  activeShareCount,
+  deletionStatus,
 }: {
-  inventory: DataInventoryRow[];
-  classes: ClassRow[];
+  inventory: readonly DataInventoryRow[];
+  classes: readonly ClassRow[];
   notificationPrefs: NotificationPreferences;
   timezone: string;
   handoff: HandoffRow;
+  activeShareCount: number;
+  deletionStatus: string | null;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [prefs, setPrefs] = useState(notificationPrefs);
   const [deleteCategory, setDeleteCategory] = useState<PrivacyDeleteCategory | "">("");
+  const [categoryConfirmed, setCategoryConfirmed] = useState(false);
+  const [deletionConfirmed, setDeletionConfirmed] = useState(false);
   const [passphrase, setPassphrase] = useState("");
+  const deletionActive = deletionStatus === "requested" || deletionStatus === "processing";
 
   function downloadJson() {
+    setMessage(null);
     startTransition(async () => {
-      downloadText("diana-data-export.json", await exportUserDataJson(), "application/json");
+      const result = await exportUserDataJson();
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      downloadText("diana-data-export.json", result.data, "application/json");
       setMessage("JSON export ready.");
     });
   }
 
   function downloadPdf() {
+    setMessage(null);
     startTransition(async () => {
-      const base64 = await exportUserDataPdf();
-      downloadBytes("diana-data-export.pdf", base64, "application/pdf");
+      const result = await exportUserDataPdf();
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      downloadBytes("diana-data-export.pdf", result.data, "application/pdf");
       setMessage("PDF export ready.");
     });
   }
 
   function savePrefs(next: NotificationPreferences) {
+    const previous = prefs;
     setPrefs(next);
     startTransition(async () => {
       const result = await saveNotificationPreferences(next);
+      if (!result.ok) setPrefs(previous);
       setMessage(result.ok ? "Notification preferences saved." : result.error);
     });
   }
@@ -83,8 +115,16 @@ export function PrivacyDashboard({
         return;
       }
       const backup = await exportProfileBackup();
-      const encrypted = await encryptText(backup, passphrase);
-      downloadText("diana-profile-backup.json", JSON.stringify(encrypted, null, 2), "application/json");
+      if (!backup.ok) {
+        setMessage(backup.error);
+        return;
+      }
+      const encrypted = await encryptText(backup.data, passphrase);
+      downloadText(
+        "diana-profile-backup.json",
+        JSON.stringify(encrypted, null, 2),
+        "application/json",
+      );
       setMessage("Encrypted backup ready.");
     });
   }
@@ -102,7 +142,7 @@ export function PrivacyDashboard({
         const result = await importProfileBackup({ profile: parsed.profile });
         setMessage(result.ok ? "Profile backup imported." : result.error);
       } catch {
-        setMessage("Could not read that backup: check the file and passphrase.");
+        setMessage("That backup could not be opened. Check the file and passphrase.");
       }
     });
   }
@@ -110,19 +150,26 @@ export function PrivacyDashboard({
   function requestDeletion() {
     startTransition(async () => {
       const result = await requestAccountDeletion();
-      setMessage(result.ok ? "Deletion request saved. AI features are off now." : result.error);
+      if (result.ok) {
+        setMessage("Deletion request saved. AI features are off now.");
+        setDeletionConfirmed(false);
+        router.refresh();
+        return;
+      }
+      setMessage(result.error);
     });
   }
 
   function clearCategory() {
-    if (!deleteCategory) {
-      setMessage("Choose a data category.");
+    if (!deleteCategory || !categoryConfirmed) {
+      setMessage("Choose a category and confirm the request.");
       return;
     }
     startTransition(async () => {
       const result = await deleteDataCategory({ category: deleteCategory });
       if (result.ok) {
         setDeleteCategory("");
+        setCategoryConfirmed(false);
         router.refresh();
         setMessage(`${result.label} cleared.`);
         return;
@@ -134,148 +181,213 @@ export function PrivacyDashboard({
   const notificationKeys = Object.keys(prefs) as Array<keyof NotificationPreferences>;
 
   return (
-    <div className="space-y-6">
+    <div>
       {message ? (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+        <p className="sd-privacy-message" role="status" aria-live="polite">
           {message}
-        </div>
+        </p>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {inventory.map((row) => (
-          <div key={row.label} className="rounded-lg border border-border bg-card p-4">
-            <p className="text-xs text-muted">{row.label}</p>
-            <p className="mt-2 text-2xl font-semibold">{row.count}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">AI context</h2>
-        <div className="mt-3 grid gap-2 text-sm text-muted sm:grid-cols-2">
-          <p>Current assignment or note text for the active tool.</p>
-          <p>Class AI policy, rubric context, and selected AI style.</p>
-          <p>Profile accessibility settings and accommodation context.</p>
-          <p>AI interaction logs used for budget and authorship history.</p>
-          <p>Saved study artifacts created from notes or assignments.</p>
+      <section aria-labelledby="privacy-export-title">
+        <p id="privacy-export-title" className="sd-privacy-section-label">
+          Master file export
+        </p>
+        <div className="sd-privacy-export-grid">
+          <article className="sd-privacy-export-card">
+            <span className="sd-privacy-export-icon">
+              <FileJson size={20} aria-hidden="true" />
+            </span>
+            <h2>JSON file</h2>
+            <p>Portable copy of your Diana records.</p>
+            <button
+              type="button"
+              onClick={downloadJson}
+              disabled={pending}
+              aria-label="Export my data"
+            >
+              <Download size={14} aria-hidden="true" /> Download
+            </button>
+          </article>
+          <article className="sd-privacy-export-card">
+            <span className="sd-privacy-export-icon">
+              <FileText size={20} aria-hidden="true" />
+            </span>
+            <h2>PDF summary</h2>
+            <p>Readable count summary for your records.</p>
+            <button type="button" onClick={downloadPdf} disabled={pending}>
+              <Download size={14} aria-hidden="true" /> Download PDF
+            </button>
+          </article>
         </div>
       </section>
 
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Data export</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button onClick={downloadJson} disabled={pending} className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
-            <FileJson size={16} />
-            Download JSON
-          </button>
-          <button onClick={downloadPdf} disabled={pending} className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
-            <Download size={16} />
-            Download PDF
-          </button>
+      <section className="sd-privacy-panel" aria-labelledby="privacy-status-title">
+        <p id="privacy-status-title" className="sd-privacy-panel-title">
+          <ShieldCheck size={15} aria-hidden="true" /> Privacy status
+        </p>
+        <div className="sd-privacy-status">
+          <span>
+            <strong>COPPA protection</strong>
+            Student data remains owner-scoped.
+          </span>
+          <span className="sd-privacy-pill">Active</span>
+        </div>
+        <div className="sd-privacy-status">
+          <span>
+            <strong>Scout visibility</strong>
+            {activeShareCount} active private link{activeShareCount === 1 ? "" : "s"}.
+          </span>
+          <Link href="/sharing" className="sd-privacy-pill">
+            Manage
+          </Link>
         </div>
       </section>
 
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">AI style by class</h2>
-        <div className="mt-3 space-y-2">
-          {classes.map((klass) => (
-            <label key={klass.id} className="flex items-center justify-between gap-3 text-sm">
-              <span>{klass.name}</span>
-              <select
-                defaultValue={klass.verbosity}
-                onChange={(event) => saveVerbosity(klass.id, event.target.value as AiVerbosity)}
-                className="rounded-md border border-border bg-bg px-2 py-1"
-              >
-                <option value="minimal">Minimal</option>
-                <option value="balanced">Balanced</option>
-                <option value="detailed">Detailed</option>
-              </select>
+      <details className="sd-privacy-advanced">
+        <summary>Advanced controls and inventory</summary>
+        <div className="sd-privacy-controls">
+          <section className="sd-privacy-control">
+            <h2>Data inventory</h2>
+            <div className="sd-privacy-inventory">
+              {inventory.map((row) => (
+                <div key={row.label}>
+                  <span>{row.label}</span>
+                  <strong>{row.count}</strong>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="sd-privacy-control">
+            <h2>AI style by class</h2>
+            {classes.length === 0 ? <p>No classes to configure.</p> : null}
+            {classes.map((klass) => (
+              <label key={klass.id}>
+                <span>{klass.name}</span>
+                <select
+                  defaultValue={klass.verbosity}
+                  onChange={(event) =>
+                    saveVerbosity(klass.id, event.target.value as AiVerbosity)
+                  }
+                >
+                  <option value="minimal">Minimal</option>
+                  <option value="balanced">Balanced</option>
+                  <option value="detailed">Detailed</option>
+                </select>
+              </label>
+            ))}
+          </section>
+
+          <section className="sd-privacy-control">
+            <h2>Notification preferences</h2>
+            {notificationKeys.map((key) => (
+              <label key={key}>
+                <input
+                  type="checkbox"
+                  checked={prefs[key]}
+                  onChange={(event) => savePrefs({ ...prefs, [key]: event.target.checked })}
+                />
+                {labelize(key)}
+              </label>
+            ))}
+          </section>
+
+          <section className="sd-privacy-control">
+            <h2>Encrypted profile backup</h2>
+            <label>
+              <span className="sr-only">Backup passphrase</span>
+              <input
+                type="password"
+                value={passphrase}
+                onChange={(event) => setPassphrase(event.target.value)}
+                placeholder="Backup passphrase"
+              />
             </label>
-          ))}
-        </div>
-      </section>
+            <button type="button" onClick={downloadBackup} disabled={pending}>
+              <FileArchive size={15} aria-hidden="true" /> Export backup
+            </button>
+            <label className="sd-privacy-file">
+              <ArchiveRestore size={15} aria-hidden="true" /> Import backup
+              <input
+                type="file"
+                accept="application/json"
+                className="sr-only"
+                onChange={(event) => importBackup(event.target.files?.[0] ?? null)}
+              />
+            </label>
+          </section>
 
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Notification preferences</h2>
-        <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {notificationKeys.map((key) => (
-            <label key={key} className="flex items-center gap-2 text-sm">
+          <section className="sd-privacy-control">
+            <h2>Device handoff</h2>
+            <p>
+              <LockKeyhole size={14} aria-hidden="true" />{" "}
+              {handoff
+                ? `Last route: ${handoff.route} at ${formatHandoffTimestamp(handoff.updated_at, timezone)}`
+                : "No handoff saved yet."}
+            </p>
+          </section>
+
+          <section className="sd-privacy-control sd-privacy-delete">
+            <h2>Clear a data category</h2>
+            <select
+              aria-label="Data category"
+              value={deleteCategory}
+              onChange={(event) => {
+                setDeleteCategory(event.target.value as PrivacyDeleteCategory | "");
+                setCategoryConfirmed(false);
+              }}
+            >
+              <option value="">Choose category</option>
+              {PRIVACY_DELETE_CATEGORIES.map((category) => (
+                <option key={category} value={category}>
+                  {categoryLabel(category)}
+                </option>
+              ))}
+            </select>
+            <label>
               <input
                 type="checkbox"
-                checked={prefs[key]}
-                onChange={(event) => savePrefs({ ...prefs, [key]: event.target.checked })}
+                checked={categoryConfirmed}
+                onChange={(event) => setCategoryConfirmed(event.target.checked)}
               />
-              {labelize(key)}
+              I understand this permanently clears the selected category
             </label>
-          ))}
-        </div>
-      </section>
+            <button
+              type="button"
+              onClick={clearCategory}
+              disabled={pending || !deleteCategory || !categoryConfirmed}
+            >
+              <Trash2 size={15} aria-hidden="true" /> Clear selected data
+            </button>
+          </section>
 
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Profile backup</h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
-          <input
-            type="password"
-            value={passphrase}
-            onChange={(event) => setPassphrase(event.target.value)}
-            placeholder="Backup passphrase"
-            className="rounded-md border border-border bg-bg px-3 py-2 text-sm"
-          />
-          <button onClick={downloadBackup} disabled={pending} className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
-            <FileArchive size={16} />
-            Export backup
-          </button>
+          <section className="sd-privacy-control sd-privacy-delete">
+            <h2>Account deletion request</h2>
+            <p>
+              This turns off AI immediately and starts the COPPA deletion workflow.
+            </p>
+            {deletionStatus ? <p>Current request status: {deletionStatus}.</p> : null}
+            <label>
+              <input
+                type="checkbox"
+                checked={deletionConfirmed}
+                disabled={deletionActive}
+                onChange={(event) => setDeletionConfirmed(event.target.checked)}
+              />
+              I understand this turns off AI now and starts the deletion request
+            </label>
+            <button
+              type="button"
+              onClick={requestDeletion}
+              disabled={pending || deletionActive || !deletionConfirmed}
+              aria-label="Request account deletion"
+            >
+              <Trash2 size={15} aria-hidden="true" />
+              {deletionActive ? "Request in progress" : "Request account deletion"}
+            </button>
+          </section>
         </div>
-        <label className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-md border border-border px-3 py-2 text-sm">
-          <input type="file" accept="application/json" className="sr-only" onChange={(event) => importBackup(event.target.files?.[0] ?? null)} />
-          Import backup
-        </label>
-      </section>
-
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Clear data by category</h2>
-        <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-          <select
-            value={deleteCategory}
-            onChange={(event) => setDeleteCategory(event.target.value as PrivacyDeleteCategory | "")}
-            className="rounded-md border border-border bg-bg px-3 py-2 text-sm"
-          >
-            <option value="">Choose category</option>
-            {PRIVACY_DELETE_CATEGORIES.map((category) => (
-              <option key={category} value={category}>
-                {categoryLabel(category)}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={clearCategory}
-            disabled={pending || !deleteCategory}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm"
-          >
-            <Trash2 size={16} />
-            Clear selected data
-          </button>
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-border bg-card p-4">
-        <h2 className="text-sm font-semibold">Device handoff</h2>
-        <div className="mt-3 flex items-center gap-2 text-sm text-muted">
-          <ShieldCheck size={16} className="text-accent" />
-          {handoff ? `Last route: ${handoff.route} at ${formatHandoffTimestamp(handoff.updated_at, timezone)}` : "No handoff saved yet."}
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-        <h2 className="text-sm font-semibold">Account deletion request</h2>
-        <p className="mt-1 text-sm">
-          This saves a deletion request and turns off AI features immediately.
-        </p>
-        <button onClick={requestDeletion} disabled={pending} className="mt-3 inline-flex items-center gap-2 rounded-md bg-amber-600 px-3 py-2 text-sm font-semibold text-white">
-          <Trash2 size={16} />
-          Request deletion
-        </button>
-      </section>
+      </details>
     </div>
   );
 }
