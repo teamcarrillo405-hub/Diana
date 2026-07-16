@@ -137,13 +137,11 @@ const resolveReleaseSha = async (projectRoot: string): Promise<string> => {
   return releaseSha;
 };
 
-const runPlaywrightSuite = async (input: {
+const runPlaywrightSuites = async (input: {
   readonly projectRoot: string;
   readonly reviewStagingRoot: string;
   readonly runId: string;
   readonly releaseSha: string;
-  readonly file: string;
-  readonly project: string;
 }): Promise<void> => {
   const cli = path.join(
     input.projectRoot,
@@ -152,7 +150,14 @@ const runPlaywrightSuite = async (input: {
     "test",
     "cli.js",
   );
-  process.stdout.write(`\n[review-gallery] Running ${input.file} (${input.project})\n`);
+  const files = [
+    "tests/screendesign-source-capture.spec.ts",
+    "tests/screendesign-visual.spec.ts",
+    "tests/screendesign-navigation.spec.ts",
+  ];
+  process.stdout.write(
+    "\n[review-gallery] Running normalized source, visual, and navigation suites\n",
+  );
   const env: NodeJS.ProcessEnv = {
     ...process.env,
     CI: "1",
@@ -167,8 +172,9 @@ const runPlaywrightSuite = async (input: {
       [
         cli,
         "test",
-        input.file,
-        `--project=${input.project}`,
+        ...files,
+        "--project=screendesign-source",
+        "--project=screendesign-mobile",
         "--workers=1",
         "--retries=0",
         "--reporter=line",
@@ -184,7 +190,10 @@ const runPlaywrightSuite = async (input: {
     child.on("error", reject);
     child.on("close", resolve);
   });
-  invariant(status === 0, `${input.file} stopped with exit code ${String(status)}`);
+  invariant(
+    status === 0,
+    `source, visual, or navigation suite stopped with exit code ${String(status)}`,
+  );
 };
 
 const listFilesOnly = async (directory: string): Promise<readonly string[]> => {
@@ -337,26 +346,11 @@ export const main = async (
   const stagingRoot = path.join(reviewRoot, ".producer-staging");
   await mkdir(stagingRoot, { recursive: true });
 
-  const suiteInput = {
+  await runPlaywrightSuites({
     projectRoot,
     reviewStagingRoot: stagingRoot,
     runId: args.runId,
     releaseSha,
-  };
-  await runPlaywrightSuite({
-    ...suiteInput,
-    file: "tests/screendesign-source-capture.spec.ts",
-    project: "screendesign-source",
-  });
-  await runPlaywrightSuite({
-    ...suiteInput,
-    file: "tests/screendesign-visual.spec.ts",
-    project: "screendesign-mobile",
-  });
-  await runPlaywrightSuite({
-    ...suiteInput,
-    file: "tests/screendesign-navigation.spec.ts",
-    project: "screendesign-mobile",
   });
 
   const runRoot = path.join(stagingRoot, args.runId);
