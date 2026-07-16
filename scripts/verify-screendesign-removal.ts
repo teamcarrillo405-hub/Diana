@@ -45,18 +45,23 @@ const DELETED_PRESENTATION_FILES = [
   "app/(app)/assignments/[id]/homework-mission.tsx",
   "app/(app)/dashboard/today-game-plan.tsx",
   "app/(app)/quiet-command.module.css",
+  "components/landing/quiet-command-landing.tsx",
+  "pages/_app.tsx",
+  "pages/_document.tsx",
+  "pages/index.tsx",
+  "styles/quiet-command.css",
 ] as const;
 
 const RULES: readonly RemovalRule[] = [
   {
     ruleId: "deleted-module",
     pattern:
-      /(?:PageShell|AppTopNav|TodayGamePlan|quiet-command\.module\.css|homework-mission\.tsx|(?:app\/\(app\)\/)?(?:page-shell|app-top-nav|mobile-tab-bar|more-menu|dashboard\/today-game-plan))(?:["'/.]|\b)/u,
+      /(?:PageShell|AppTopNav|TodayGamePlan|QuietCommandLanding|quiet-command(?:\.module)?\.css|homework-mission\.tsx|(?:app\/\(app\)\/)?(?:page-shell|app-top-nav|mobile-tab-bar|more-menu|dashboard\/today-game-plan)|components\/landing\/quiet-command-landing)(?:["'/.]|\b)/u,
   },
   {
     ruleId: "legacy-selector",
     pattern:
-      /(?:\bpm-[a-z0-9-]+\b|\bstudent-(?:today|command)-[a-z0-9-]+\b|\bsd-(?:today-layout|today-head|coach-card|metric(?:-[a-z0-9-]+)?|nav-icon|drawer(?:-[a-z0-9-]+)?)\b)/iu,
+      /(?:\bpm-[a-z0-9-]+\b|\bqc-[a-z0-9-]+\b|\bstudent-(?:today|command)-[a-z0-9-]+\b|\bsd-(?:today-layout|today-head|coach-card|metric(?:-[a-z0-9-]+)?|nav-icon|drawer(?:-[a-z0-9-]+)?)\b)/iu,
   },
   {
     ruleId: "remote-media-host",
@@ -252,7 +257,7 @@ const report = (findings: readonly RemovalFinding[], errors: readonly string[]) 
 };
 
 const runSourceAudit = (): number => {
-  const roots = ["app", "components", "lib", "public/screendesign"].map(
+  const roots = ["app", "components", "lib", "pages", "public/screendesign", "styles"].map(
     (directory) => path.join(ROOT, directory),
   );
   const files = roots

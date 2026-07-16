@@ -7,9 +7,11 @@ describe("ScreenDesign removal audit", () => {
     const source = `
       import { PageShell } from "@/app/(app)/page-shell";
       import "@/app/(app)/quiet-command.module.css";
+      import { QuietCommandLanding } from "@/components/landing/quiet-command-landing";
+      import "@/styles/quiet-command.css";
       const remote = "https://media.screensdesign.com/legacy/coach.png";
       export function Legacy() {
-        return <main className="pm-dashboard student-today-command">Mission Control</main>;
+        return <main className="pm-dashboard qc-page student-today-command">Mission Control</main>;
       }
     `;
 

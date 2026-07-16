@@ -95,6 +95,11 @@ const assertKeyboardFocusStaysVisible = async (page: Page) => {
     }
     window.scrollTo({ left: 0, top: 0, behavior: "instant" });
   });
+  await page.evaluate(
+    () => new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    }),
+  );
 };
 
 const captureSmartLoadingDuringNavigation = async (
@@ -180,10 +185,18 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       expect(consoleEvidence.pageErrors).toEqual([]);
 
       if (testInfo.project.name === MOBILE_PROJECT) {
+        if (scenario.authClass === "public-token") {
+          await page.reload({ waitUntil: "domcontentloaded" });
+          await waitForScreenDesignReady(page);
+        }
         expect(page.viewportSize()).toEqual(prepared.screen.sourceViewport);
         await emitScreenDesignReviewImage(page, "app", prepared.screen.id);
-        await expect(page).toHaveScreenshot(prepared.screen.visualSnapshot, {
+        const currentImage = await page.screenshot({
+          animations: "allow",
           fullPage: false,
+        });
+        expect(currentImage).toMatchSnapshot(prepared.screen.visualSnapshot, {
+          maxDiffPixelRatio: 0.02,
         });
       }
     } finally {

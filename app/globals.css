@@ -109,6 +109,7 @@ html {
   overflow-x: hidden;
 }
 body {
+  margin: 0;
   min-height: 100%;
   max-width: 100%;
   overflow-x: clip;
@@ -2174,7 +2175,7 @@ button, [role="button"], a {
    (template.tsx applies Settle per navigation; shared-element Carry
    arrives with the native build). Nothing bounces, nothing moves >12px.
    ------------------------------------------------------------------ */
-@keyframes qc-settle {
+@keyframes diana-settle {
   from { transform: translateY(8px); opacity: 0; }
   60%  { opacity: 1; }
   to   { transform: translateY(0); opacity: 1; }
@@ -2182,40 +2183,40 @@ button, [role="button"], a {
 .motion-settle {
   /* Do not retain the final transform. A transformed route wrapper becomes
      the containing block for every fixed mobile nav, drawer, and dialog. */
-  animation: qc-settle 240ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation: diana-settle 240ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
-@keyframes qc-breathe {
+@keyframes diana-breathe {
   0%, 100% { opacity: 0.94; transform: scale(1); }
   50%      { opacity: 1; transform: scale(1.02); }
 }
 .motion-breathe {
-  animation: qc-breathe 2400ms ease-in-out infinite;
+  animation: diana-breathe 2400ms ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) {
-  .motion-settle { animation: qc-fade 180ms ease-out both; }
+  .motion-settle { animation: diana-fade 180ms ease-out both; }
   .motion-breathe { animation: none; }
 }
-@keyframes qc-fade {
+@keyframes diana-fade {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
 /* Signature moment: the grid solve — when the last cell fills, the columns
    acknowledge once. A single quiet pulse, never a fanfare. */
-@keyframes qc-align-glow {
+@keyframes diana-align-glow {
   0%   { box-shadow: 0 0 0 0 rgb(var(--subject-math) / 0); }
   35%  { box-shadow: 0 0 0 3px rgb(var(--subject-math) / 0.35), 0 0 24px rgb(var(--subject-math) / 0.25); }
   100% { box-shadow: 0 0 0 0 rgb(var(--subject-math) / 0); }
 }
 .grid-aligned-glow {
-  animation: qc-align-glow 900ms ease-out 1;
+  animation: diana-align-glow 900ms ease-out 1;
 }
 
 /* Signature moment: the focused learning field powers on. */
 html[data-experience-mode="future"] .future-field {
-  animation: qc-field-power-on 700ms ease-out 1;
+  animation: diana-field-power-on 700ms ease-out 1;
 }
-@keyframes qc-field-power-on {
+@keyframes diana-field-power-on {
   from { filter: brightness(0.6) saturate(0.6); }
   to   { filter: brightness(1) saturate(1); }
 }
