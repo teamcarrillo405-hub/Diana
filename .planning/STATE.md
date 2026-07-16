@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
 current_phase: 36
-current_plan: 18
+current_plan: 19
 status: executing
-stopped_at: Completed 36-18-PLAN.md
-last_updated: "2026-07-16T03:12:49.063Z"
+stopped_at: Completed 36-19-PLAN.md
+last_updated: "2026-07-16T03:44:30.594Z"
 last_activity: 2026-07-15
-last_activity_desc: Completed 36-18 account and settings ScreenDesign rebuild
+last_activity_desc: Completed 36-19 notification, search, and wellness ScreenDesign rebuild
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 30
-  completed_plans: 18
-  percent: 60
+  completed_plans: 19
+  percent: 63
 total_plans_in_phase: 30
 ---
 
@@ -23,14 +23,14 @@ total_plans_in_phase: 30
 **Last updated:** 2026-07-15
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
-**Current Plan:** 18
+**Current Plan:** 19
 **Total Plans in Phase:** 30
 **Status:** Ready to execute
-**Progress:** [██████░░░░] 60%
-**Last Activity:** 2026-07-15 - Completed 36-18 account and settings ScreenDesign rebuild
+**Progress:** [██████░░░░] 63%
+**Last Activity:** 2026-07-15 - Completed 36-19 notification, search, and wellness ScreenDesign rebuild
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T03:12:49.055Z
-**Stopped at:** Completed 36-18-PLAN.md
+**Last session:** 2026-07-16T03:44:20.465Z
+**Stopped at:** Completed 36-19-PLAN.md
 
 ---
 
@@ -709,6 +709,7 @@ total_plans_in_phase: 30
 | Phase 36 P16 | 29 min | 3 tasks | 16 files |
 | Phase 36 P17 | 19 min | 2 tasks | 9 files |
 | Phase 36 P18 | 27 min | 3 tasks | 20 files |
+| Phase 36 P19 | 22 min | 3 tasks | 12 files |
 
 ## Decisions
 
@@ -766,9 +767,11 @@ total_plans_in_phase: 30
 - [Phase 36]: AI History combines owner-scoped interactions and authorship evidence into one minimized client model. — Raw prompt and authorship payloads stay server-side while student and Diana work retain distinct provenance.
 - [Phase 36]: LMS client props contain only server-derived safe state, never provider config. — Credential material stays behind the authenticated server boundary and sync success requires persisted evidence.
 - [Phase 36]: /settings owns profile mutation while /me reuses Profile Center read-only. — A single validated mutation surface preserves profile, onboarding, accessibility, privacy, and personalization values without duplicate writes.
+- [Phase 36]: Support screens use explicit owner filters and supported persisted evidence only. — Notification, search, and wellness fidelity must not widen private records or invent missing state.
+- [Phase 36]: Wellness replaces medical forecast claims with study-readiness recovery guidance. — Health-adjacent copy remains capability-focused and saves only validated private choices.
 
 ## Session
 
-**Last session:** 2026-07-16T00:40:14.356Z
-**Stopped at:** Completed 36-13-PLAN.md
+**Last session:** 2026-07-16T03:44:20.465Z
+**Stopped at:** Completed 36-19-PLAN.md
 **Resume file:** None
