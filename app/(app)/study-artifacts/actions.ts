@@ -112,24 +112,29 @@ export async function generateStudyArtifact(
     ? await loadClassContext(supabase, user.id, source.classId, source.sourceType, source.sourceId, coveredSince)
     : "";
 
-  const { data, error } = await supabase.functions.invoke("study-artifacts", {
-    body: {
-      ownerId: user.id,
-      assignmentId: source.assignmentId,
-      aiMode: source.aiMode,
-      artifactType: parsed.data.artifactType,
-      studyMode: parsed.data.studyMode,
-      sourceType: source.sourceType,
-      sourceTitle: source.title,
-      sourceText: source.text,
-      classContext,
-    },
-  });
+  let raw = "";
+  const deterministicQa =
+    process.env.NODE_ENV !== "production" && process.env.QA_CREATE_USER === "true";
+  if (!deterministicQa) {
+    const { data, error } = await supabase.functions.invoke("study-artifacts", {
+      body: {
+        ownerId: user.id,
+        assignmentId: source.assignmentId,
+        aiMode: source.aiMode,
+        artifactType: parsed.data.artifactType,
+        studyMode: parsed.data.studyMode,
+        sourceType: source.sourceType,
+        sourceTitle: source.title,
+        sourceText: source.text,
+        classContext,
+      },
+    });
 
-  if (data?.error) return { ok: false, error: calmArtifactError(String(data.error)) };
-  if (error) return { ok: false, error: calmArtifactError(error.message) };
+    if (data?.error) return { ok: false, error: calmArtifactError(String(data.error)) };
+    if (error) return { ok: false, error: calmArtifactError(error.message) };
+    raw = String((data as { content?: unknown } | null)?.content ?? "");
+  }
 
-  const raw = String((data as { content?: unknown } | null)?.content ?? "");
   const artifact = raw
     ? parseStudyArtifactResponse(raw, {
         type: parsed.data.artifactType,
