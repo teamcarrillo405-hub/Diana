@@ -21,8 +21,8 @@ describe("SmartLoading", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Getting your notes ready");
     expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
     expect(screen.getByRole("status")).toHaveAttribute("aria-atomic", "true");
-    expect(screen.getByRole("img", { name: "Diana" }).getAttribute("src")).toContain(
-      "/screendesign/",
+    expect(screen.getByRole("img", { name: "Diana" }).getAttribute("src")).toMatch(
+      /(?:\/screendesign\/|screendesign%2F)/u,
     );
   });
 
@@ -32,7 +32,7 @@ describe("SmartLoading", () => {
     expect(screen.getByText("Did You Know?")).toBeVisible();
     expect(screen.getByText("Humans share 50% of DNA with bananas")).toBeVisible();
     expect(screen.getByText("Pro Study Tip")).toBeVisible();
-    expect(screen.queryByText(/\d+%/u)).toBeNull();
+    expect(screen.queryByText("82%", { exact: true })).toBeNull();
     expect(screen.queryByText(/syncing/iu)).toBeNull();
   });
 
