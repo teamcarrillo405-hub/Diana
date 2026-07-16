@@ -68,7 +68,7 @@ coverage:
         status: pass
     human_judgment: false
 
-duration: 8 min active
+duration: 11 min active
 completed: 2026-07-16
 status: complete
 ---
@@ -79,9 +79,9 @@ status: complete
 
 ## Performance
 
-- **Duration:** 8 min active across the initial and refreshed validation runs
+- **Duration:** 11 min active across the initial and final refreshed validation runs
 - **Started:** 2026-07-16T14:55:52Z
-- **Completed:** 2026-07-16T16:57:28Z
+- **Completed:** 2026-07-16T17:53:43Z
 - **Tasks:** 2
 - **Files modified:** 1 generated receipt plus planning metadata
 
@@ -90,7 +90,7 @@ status: complete
 - Re-ran 22 corruption and producer-contract tests, including dirty-golden and non-ancestor review rejection, before accepting actual output.
 - Independently recomputed the actual source, app, diff, action, baseline, filesystem-hash, run-id, release-SHA, and canonical-order evidence for all 47 screens.
 - Wrote one receipt at `test-results/screendesign-review/validation.json` only after the complete immutable output passed.
-- Proved the 191 refreshed producer files were unchanged before and after validation with tree hash `2727a50fc219291825e57f229f19eabcc55a3725e13f33c8180934eb3761f38b`.
+- Proved the 191 final producer files were unchanged before and after validation with tree hash `965106d9c363a61936d10cb5c4f4794933d2bd7f68693f07d3d42c13d9186ccb`.
 - Revalidated source and compiled legacy removal, TypeScript, calm tone, and all 911 tests across 161 files after the contrast evidence refresh.
 
 ## Task Commits
@@ -102,7 +102,7 @@ Both tasks were verification-only and intentionally preserved the release commit
 
 ## Files Created/Modified
 
-- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `79f88fb1617eaaf5243608df0a6311aa44169c88d3f1fadf8318af1caa121caf`.
+- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `684fd835540ebec17ac68258a4598ab44b753fa9b59ed9484ed32bdbe8ef3a70`.
 - `.planning/phases/36-faithfully-implement-all-47-figma-html-screens-and-remove-th/36-29-SUMMARY.md` - Plan result and immutable evidence identities.
 
 ## Bound Evidence
@@ -110,12 +110,12 @@ Both tasks were verification-only and intentionally preserved the release commit
 | Identity | Verified value |
 |---|---|
 | Producer run | `phase36-plan30` |
-| Release SHA | `8d991421f63ab5a5fcf2ad872a009874bbed898f` |
-| Index SHA-256 | `c03519d378861ce60ced8bde3a9cd3544d59585a5acb552126edad9a86103bfb` |
+| Release SHA | `c4e26595de808a4c792e41b82186dd7b4eb4c34d` |
+| Index SHA-256 | `b8ea9731fdcea6acef1ccfdecdea72fa14e2384bd59dbfe8300c3f0bcd2c70e8` |
 | Validator SHA-256 | `194a04d169be44828c6440da0382825e30a118cca1a99dac5558f9a224ad5ee2` |
-| Receipt SHA-256 | `79f88fb1617eaaf5243608df0a6311aa44169c88d3f1fadf8318af1caa121caf` |
-| Producer tree SHA-256 before | `2727a50fc219291825e57f229f19eabcc55a3725e13f33c8180934eb3761f38b` |
-| Producer tree SHA-256 after | `2727a50fc219291825e57f229f19eabcc55a3725e13f33c8180934eb3761f38b` |
+| Receipt SHA-256 | `684fd835540ebec17ac68258a4598ab44b753fa9b59ed9484ed32bdbe8ef3a70` |
+| Producer tree SHA-256 before | `965106d9c363a61936d10cb5c4f4794933d2bd7f68693f07d3d42c13d9186ccb` |
+| Producer tree SHA-256 after | `965106d9c363a61936d10cb5c4f4794933d2bd7f68693f07d3d42c13d9186ccb` |
 | Canonical evidence counts | `47 source / 47 app / 47 diff / 47 action` |
 
 The output contains 47 unique ordered ids, no missing or extra artifact files, no duplicates, no staging entries, and no prohibited Nexus, `TodayGamePlan`, `PageShell`, `AppTopNav`, or remote URL references in review text artifacts.
