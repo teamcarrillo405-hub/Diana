@@ -4,30 +4,33 @@ import {
   BookOpen,
   CalendarDays,
   LayoutGrid,
+  type LucideIcon,
   MoreHorizontal,
   Swords,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export const STUDENT_BOTTOM_NAV_ITEMS = [
-  { label: "Today", href: "/dashboard", Icon: LayoutGrid },
-  { label: "Work", href: "/assignments", Icon: Swords },
-  { label: "Classes", href: "/classes", Icon: BookOpen },
-  { label: "Calendar", href: "/calendar", Icon: CalendarDays },
-  { label: "More", href: "/settings", Icon: MoreHorizontal },
-] as const;
+import {
+  STUDENT_NAV_DESTINATIONS,
+  getStudentNavOwner,
+  type StudentNavLabel,
+} from "@/lib/navigation";
 
-export type StudentNavLabel = (typeof STUDENT_BOTTOM_NAV_ITEMS)[number]["label"];
+const STUDENT_NAV_ICONS: Readonly<Record<StudentNavLabel, LucideIcon>> = {
+  Today: LayoutGrid,
+  Work: Swords,
+  Classes: BookOpen,
+  Calendar: CalendarDays,
+  More: MoreHorizontal,
+};
 
-export function getStudentNavOwner(pathname: string): StudentNavLabel {
-  const route = pathname.split(/[?#]/u, 1)[0] || "/settings";
-  const owner = STUDENT_BOTTOM_NAV_ITEMS.slice(0, -1).find(
-    ({ href }) => route === href || route.startsWith(`${href}/`),
-  );
+export const STUDENT_BOTTOM_NAV_ITEMS = STUDENT_NAV_DESTINATIONS.map(
+  ({ label, href }) => ({ label, href, Icon: STUDENT_NAV_ICONS[label] }),
+);
 
-  return owner?.label ?? "More";
-}
+export { getStudentNavOwner } from "@/lib/navigation";
+export type { StudentNavLabel } from "@/lib/navigation";
 
 export function StudentBottomNav() {
   const pathname = usePathname() ?? "/settings";

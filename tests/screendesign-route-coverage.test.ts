@@ -18,7 +18,7 @@ describe("ScreenDesign canonical route and state coverage", () => {
     expect(SCREEN_DESIGN_SCREENS).toHaveLength(47);
 
     const stateKeys = SCREEN_DESIGN_SCREENS.map(screenDesignStateKey);
-    expect(new Set(stateKeys)).toHaveSize(47);
+    expect(new Set(stateKeys).size).toBe(47);
 
     for (const screen of SCREEN_DESIGN_SCREENS) {
       const ownerFile = getScreenDesignRouteOwnerFile(screen);
