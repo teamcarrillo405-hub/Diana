@@ -131,10 +131,18 @@ export function ScreenDesignOnboarding({
 
     setFeedback(null);
     if (onComplete) {
-      onComplete({
-        learningHurdle,
-        studySchedulePreference,
-      });
+      submittingRef.current = true;
+      try {
+        onComplete({
+          learningHurdle,
+          studySchedulePreference,
+        });
+      } catch {
+        submittingRef.current = false;
+        setFeedback(
+          "Those choices are still selected. Continue again when you are ready.",
+        );
+      }
       return;
     }
 

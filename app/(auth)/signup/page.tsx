@@ -9,6 +9,7 @@ import {
   clearPublicOnboardingDraft,
   readPublicOnboardingDraft,
 } from "@/lib/onboarding/public-draft";
+import type { ScreenDesignOnboardingAnswers } from "@/lib/onboarding/screendesign";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -36,7 +37,12 @@ export default function SignupPage() {
     }
 
     setPending(true);
-    const onboardingDraft = readPublicOnboardingDraft(window.sessionStorage);
+    let onboardingDraft: ScreenDesignOnboardingAnswers | null = null;
+    try {
+      onboardingDraft = readPublicOnboardingDraft(window.sessionStorage);
+    } catch {
+      // Some privacy modes block the storage getter. Direct signup still works.
+    }
     const supabase = createClient();
     const { error: signupError } = await supabase.auth.signUp({
       email,
@@ -60,7 +66,11 @@ export default function SignupPage() {
     setPending(false);
 
     if (signupError) return setError(signupError.message);
-    clearPublicOnboardingDraft(window.sessionStorage);
+    try {
+      clearPublicOnboardingDraft(window.sessionStorage);
+    } catch {
+      // Account creation succeeded, so unavailable browser storage is non-blocking.
+    }
     router.push("/dashboard");
     router.refresh();
   }

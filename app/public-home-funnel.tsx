@@ -18,7 +18,11 @@ export function PublicHomeFunnel() {
 
   const completeOnboarding = (nextAnswers: ScreenDesignOnboardingAnswers) => {
     setAnswers(nextAnswers);
-    writePublicOnboardingDraft(window.sessionStorage, nextAnswers);
+    try {
+      writePublicOnboardingDraft(window.sessionStorage, nextAnswers);
+    } catch {
+      // A blocked storage getter must not trap a visitor in the quiz.
+    }
     setStage("community");
   };
 
