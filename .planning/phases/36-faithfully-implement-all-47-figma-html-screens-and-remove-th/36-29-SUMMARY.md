@@ -69,7 +69,7 @@ coverage:
     human_judgment: false
 
 duration: 3 min active
-completed: 2026-07-16
+completed: 2026-07-17
 status: complete
 ---
 
@@ -80,8 +80,8 @@ status: complete
 ## Performance
 
 - **Duration:** 3 min active for the final immutable release validation
-- **Started:** 2026-07-17T06:47:35Z
-- **Completed:** 2026-07-17T06:50:25Z
+- **Started:** 2026-07-17T08:05:55Z
+- **Completed:** 2026-07-17T08:08:00Z
 - **Tasks:** 2
 - **Files modified:** 1 generated receipt plus planning metadata
 
@@ -90,9 +90,9 @@ status: complete
 - Re-ran 22 corruption and producer-contract tests, including dirty-golden and non-ancestor review rejection, before accepting actual output.
 - Independently recomputed the actual source, app, diff, action, baseline, filesystem-hash, run-id, release-SHA, and canonical-order evidence for all 47 screens.
 - Wrote one receipt at `test-results/screendesign-review/validation.json` only after the complete immutable output passed.
-- Proved the 191 final producer files were unchanged before and after validation with tree hash `d42578e68311cb69fbfa1cf2d6c336ce3960e914002ea3a2faebd6988b70a92f`.
+- Proved the 191 final producer files were unchanged before and after validation with tree hash `908dbdafac11cebf73c03dfb5ebba876c5dbd49f82539da623e6ae26c610adc9`.
 - Confirmed 141 source, app, and diff PNGs are all exactly `393x852`, and all 57 navigation contracts passed in the locked producer run.
-- Revalidated source and compiled legacy removal, TypeScript, calm tone, and all 911 tests across 161 files after the contrast evidence refresh.
+- Revalidated source and compiled legacy removal, TypeScript, lint, calm tone, the 79-route production build, and all 913 tests across 161 files after the final build-identity evidence refresh.
 
 ## Task Commits
 
@@ -103,7 +103,7 @@ Both tasks were verification-only and intentionally preserved the release commit
 
 ## Files Created/Modified
 
-- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `bbf633bdfc1734ac91cf40d02eec122e318d74829396134b679a44132e445946`.
+- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `031ac2ea0715504d380616f0e17a3f476b79e5e13eb7346cfef9781e6c72f605`.
 - `.planning/phases/36-faithfully-implement-all-47-figma-html-screens-and-remove-th/36-29-SUMMARY.md` - Plan result and immutable evidence identities.
 
 ## Bound Evidence
@@ -111,15 +111,17 @@ Both tasks were verification-only and intentionally preserved the release commit
 | Identity | Verified value |
 |---|---|
 | Producer run | `phase36-plan30` |
-| Release SHA | `0979c2d08d43320d1a17c48833ddb783b9517d43` |
-| Release Git tree | `61b974b9f0c4d0ef7a69acac111bc44e1990742a` |
-| Index SHA-256 | `04a2706362c66b8d2597f499a3b5d674f9740faebda328526459c21952b0cd90` |
+| Release SHA | `e00aec90bc8cbc5332e3aa81bf42fdf977328dbe` |
+| Release Git tree | `e84a04ecd697892f4bbfea50e8726bd4f083535c` |
+| Index SHA-256 | `0fcf744836d649f6cd3b6824ed62c16f310823002be41180eccbc76f297d67ff` |
 | Validator SHA-256 | `194a04d169be44828c6440da0382825e30a118cca1a99dac5558f9a224ad5ee2` |
-| Release manifest SHA-256 | `ded06bc0e7196ea13e13dc569391fdbbf178f63532f15d3803b4e7f66f246cd2` |
-| Producer log SHA-256 | `a83ac589c3cdd0ef91f2f8f2ac01ddf89479dd41f38090eebb3319a30251bf07` |
-| Receipt SHA-256 | `bbf633bdfc1734ac91cf40d02eec122e318d74829396134b679a44132e445946` |
-| Producer tree SHA-256 before | `d42578e68311cb69fbfa1cf2d6c336ce3960e914002ea3a2faebd6988b70a92f` |
-| Producer tree SHA-256 after | `d42578e68311cb69fbfa1cf2d6c336ce3960e914002ea3a2faebd6988b70a92f` |
+| Release manifest SHA-256 | `3b4857ff2fa368237429a68326820db163ba6ca76af943512431ef436d808863` |
+| Producer stdout SHA-256 | `416c92edb184cdbe47b84161e5e8b797cfb462f93a2782f5efc446fa0422fd04` |
+| Producer stderr SHA-256 | `2e13d8249a8444aa3c4408ad136f4769b31a7a5657683533e732afe66d7ea688` |
+| Receipt SHA-256 | `031ac2ea0715504d380616f0e17a3f476b79e5e13eb7346cfef9781e6c72f605` |
+| Producer tree SHA-256 before | `908dbdafac11cebf73c03dfb5ebba876c5dbd49f82539da623e6ae26c610adc9` |
+| Producer tree SHA-256 after | `908dbdafac11cebf73c03dfb5ebba876c5dbd49f82539da623e6ae26c610adc9` |
+| Producer tree SHA-256 post-summary | `908dbdafac11cebf73c03dfb5ebba876c5dbd49f82539da623e6ae26c610adc9` |
 | Canonical evidence counts | `47 source / 47 app / 47 diff / 47 action` |
 | Navigation contracts | `57 / 57 passing` |
 | PNG dimensions | `141 / 141 at 393x852` |
@@ -159,4 +161,4 @@ None - no external service configuration is required for independent local valid
 
 ---
 *Phase: 36-faithfully-implement-all-47-figma-html-screens-and-remove-th*
-*Completed: 2026-07-16*
+*Completed: 2026-07-17*
