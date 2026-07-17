@@ -544,9 +544,11 @@ Plans:
 **Goal:** Replace Diana's old Nexus/Mission Control presentation with all 47 canonical ScreenDesign states, wired to the existing secure backend and proven source-faithful at 393 by 852 before launch.
 **Requirements:** P36-FIDELITY, P36-ASSETS, P36-OPERATIONS, P36-ONBOARDING, P36-QA, P36-REMOVAL
 **Depends on:** Phase 35
-**Plans:** 29/30 plans executed
+**Plans:** 30/31 plans executed
 
 Plans:
+
+- [x] 36-31-PLAN.md
 
 - [x] 36-01-PLAN.md - Canonical 47-screen and route/state contract
 - [x] 36-02-PLAN.md - Localize 24 ScreenDesign assets and four avatars

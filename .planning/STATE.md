@@ -5,32 +5,32 @@ milestone_name: The Complete Academic Platform
 current_phase: 36
 current_plan: 24
 status: executing
-stopped_at: Completed 36-23-PLAN.md
-last_updated: "2026-07-16T15:01:47.683Z"
-last_activity: 2026-07-16
-last_activity_desc: Completed 36-23 obsolete presentation removal and clean build gates
+stopped_at: Completed 36-31-PLAN.md
+last_updated: "2026-07-17T22:23:00.382Z"
+last_activity: 2026-07-17
+last_activity_desc: Completed 36-31 public ScreenDesign home funnel correction and release gates
 progress:
   total_phases: 1
   completed_phases: 0
-  total_plans: 30
-  completed_plans: 29
-  percent: 0
-total_plans_in_phase: 30
+  total_plans: 31
+  completed_plans: 30
+  percent: 97
+total_plans_in_phase: 31
 ---
 
 # Diana — Project State
 
-**Last updated:** 2026-07-16
+**Last updated:** 2026-07-17
 **Current branch:** `codex/figma-47-screen-rebuild`
 **Current Phase:** 36
 **Current Plan:** 24
-**Total Plans in Phase:** 30
-**Status:** Ready to execute
+**Total Plans in Phase:** 31
+**Status:** Ready for refreshed exact-preview review
 **Progress:** [██████████] 97%
-**Last Activity:** 2026-07-16 - Completed 36-23 obsolete presentation removal and clean build gates
+**Last Activity:** 2026-07-17 - Completed 36-31 public ScreenDesign home funnel correction and release gates
 **Active phase:** Phase 36 - Faithful ScreenDesign rebuild
-**Last session:** 2026-07-16T15:01:47.675Z
-**Stopped at:** Completed 36-29-PLAN.md
+**Last session:** 2026-07-17T22:23:00.374Z
+**Stopped at:** Completed 36-31-PLAN.md
 
 ---
 
@@ -718,6 +718,7 @@ total_plans_in_phase: 30
 | Phase 36 P22 | 2h 1m | 3 tasks | 11 files |
 | Phase 36 P23 | 107m | 3 tasks | 55 files |
 | Phase 36 P29 | 5 min | 2 tasks | 1 files |
+| Phase 36 P31 | 45 min | 3 tasks | 10 files |
 
 ## Decisions
 
@@ -799,8 +800,12 @@ total_plans_in_phase: 30
 - [Phase 36]: Independent acceptance validated unchanged producer evidence before any metadata commit changed HEAD. — This preserves the release SHA binding and separates production from acceptance.
 - [Phase 36]: The Plan 36-29 receipt binds the exact phase36-plan30 run, release SHA, index hash, validator hash, and canonical ordered 47-id result. — Plan 36-24 must consume one immutable identity chain.
 
+- [Phase 36]: Anonymous public onboarding stores only two canonical preference values in a strict versioned session draft. Identity, credentials, billing, and owner data remain outside the anonymous storage boundary.
+- [Phase 36]: Public access layouts use local next and back callbacks while authenticated upgrade routes retain server-resolved billing authority. The requested sequence cannot choose checkout, price, entitlement, or subscription state.
+- [Phase 36]: Signup marks public onboarding complete only when both metadata values pass explicit SQL allowlists. Missing, partial, or invalid drafts continue through the authenticated onboarding path.
+
 ## Session
 
-**Last session:** 2026-07-16T06:08:55.012Z
-**Stopped at:** Completed 36-07-PLAN.md
+**Last session:** 2026-07-17T22:23:00.374Z
+**Stopped at:** Completed 36-31-PLAN.md
 **Resume file:** None
