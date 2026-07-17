@@ -114,7 +114,7 @@ status: complete
 - Added reusable gallery, receipt, release identity, and preview SHA validators before evidence production.
 - Built one clean producer that captures all 47 normalized sources, app renders, visual comparison results, and combined primary-action plus navigation records on one stable QA server.
 - Preserved Playwright as the visual pass authority while generating a separate Sharp difference visualization for every canonical pair.
-- Verified the entire repository with production build, source and compiled legacy-removal audits, calm-tone audit, and 911 passing tests across 161 files after the launch contrast correction.
+- Verified the entire repository with production build, source and compiled legacy-removal audits, calm-tone audit, and 913 passing tests across 161 files after the launch contrast and exact build-identity corrections.
 
 ## Task Commits
 
@@ -192,7 +192,8 @@ Each task was committed atomically:
 - Assignment metadata contrast commit `15c2004` replaced the Mission Board quick-action metadata color with `var(--diana-muted)` and added a computed WCAG AA check against the composited card background; tracked goldens remained unchanged and strict Mission Board visual verification passed without update mode.
 - Practice-tutor action commits `dbadf49` and `25a4324` restored the intended interaction and reviewed its single affected golden; the complete strict visual suite then passed 47/47 with updates disabled.
 - Review submission route-ownership commit `6bcb34d` made `/review-submit` a direct canonical owner and added fresh-hydration coverage without changing any reviewed visual baseline.
-- The final clean producer must lock the first metadata-complete HEAD after this note. Any earlier index or Plan 36-29 receipt is stale and must be replaced before preview approval.
+- Build-identity middleware commit `b191892` made `/api/build-info` an explicit public route while preserving redirect protection for private routes. It is UI-neutral, exposes only key-safe deployment identity fields, and increases the verified unit-test total to 913.
+- The final clean producer must lock the metadata-complete HEAD created by this summary update. Any earlier index or Plan 36-29 receipt is stale and must be replaced before preview approval.
 - Any Plan 36-29 receipt whose release SHA or index predates the latest contrast correction is not accepted as current release evidence. Plan 36-29 must independently replace it after the refreshed Plan 36-30 producer completes.
 
 ## User Setup Required
