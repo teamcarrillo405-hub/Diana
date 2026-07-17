@@ -190,6 +190,9 @@ Each task was committed atomically:
 - Only `practice-test-session.png` was intentionally refreshed and reviewed in commit `2e23654`; strict targeted practice and isolated review-submit checks then passed without update mode.
 - The complete 47-screen visual suite passed with retries and snapshot updates disabled, proving no other baseline drift.
 - Assignment metadata contrast commit `15c2004` replaced the Mission Board quick-action metadata color with `var(--diana-muted)` and added a computed WCAG AA check against the composited card background; tracked goldens remained unchanged and strict Mission Board visual verification passed without update mode.
+- Practice-tutor action commits `dbadf49` and `25a4324` restored the intended interaction and reviewed its single affected golden; the complete strict visual suite then passed 47/47 with updates disabled.
+- Review submission route-ownership commit `6bcb34d` made `/review-submit` a direct canonical owner and added fresh-hydration coverage without changing any reviewed visual baseline.
+- The final clean producer must lock the first metadata-complete HEAD after this note. Any earlier index or Plan 36-29 receipt is stale and must be replaced before preview approval.
 - Any Plan 36-29 receipt whose release SHA or index predates the latest contrast correction is not accepted as current release evidence. Plan 36-29 must independently replace it after the refreshed Plan 36-30 producer completes.
 
 ## User Setup Required
