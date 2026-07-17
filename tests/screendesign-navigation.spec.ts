@@ -535,6 +535,39 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
   });
 }
 
+if (IS_FULL_MATRIX) {
+  test("public home reaches every attached composition before signup", async ({
+    page,
+  }) => {
+    await page.context().clearCookies();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+
+    await expect(page.locator("[data-onboarding-step='welcome']")).toBeVisible();
+    await page.getByRole("button", { name: "GET STARTED" }).click();
+    await expect(page.locator("[data-onboarding-step='educational']")).toBeVisible();
+    await page.getByRole("button", { name: "CONTINUE" }).click();
+    await expect(page.locator("[data-onboarding-step='challenge']")).toBeVisible();
+    await page.getByRole("radio", { name: /Time Management/iu }).click();
+    await page.getByRole("button", { name: "Select learning hurdle" }).click();
+    await expect(page.locator("[data-onboarding-step='schedule']")).toBeVisible();
+    await page.getByRole("radio", { name: /Morning Hustle/iu }).click();
+    await page.getByRole("button", { name: "Select study schedule" }).click();
+
+    await expect(page.getByRole("main")).toContainText(
+      "STUDY WITH YOUR TEAM",
+    );
+    await page
+      .getByRole("button", { name: "Continue to access options" })
+      .click();
+    await expect(page.getByRole("main")).toContainText("GO FURTHER");
+    await page
+      .getByRole("button", { name: "Create your account", exact: true })
+      .click();
+
+    await expect.poll(() => new URL(page.url()).pathname).toBe("/signup");
+  });
+}
+
 const onboardingScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
   (scenario) => scenario.screenId === "onboarding-welcome",
 );
