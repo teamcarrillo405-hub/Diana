@@ -541,6 +541,7 @@ if (IS_FULL_MATRIX) {
   }) => {
     await page.context().clearCookies();
     await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
 
     await expect(page.locator("[data-onboarding-step='welcome']")).toBeVisible();
     await page.getByRole("button", { name: "GET STARTED" }).click();
