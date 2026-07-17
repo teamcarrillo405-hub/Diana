@@ -41,9 +41,6 @@ export function getScreenDesignRouteOwnerFile(
   screen: ScreenDesignScreen,
 ): string {
   if (screen.id === "smart-loading") return "app/(app)/loading.tsx";
-  if (screen.id === "review-submit-checkpoint") {
-    return "app/(app)/assignments/[id]/submit/page.tsx";
-  }
   if (screen.route === "/onboarding") return "app/onboarding/page.tsx";
   if (screen.authClass === "public-token") {
     return `app${screen.route}/page.tsx`;

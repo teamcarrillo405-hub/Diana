@@ -41,7 +41,7 @@ Every source targets a 393 by 852 mobile viewport. The exports are untrusted des
 | 29 | `privacy-export-hub` | `privacy_export_hub.html` | `/export` | Run an owner-scoped export or `data_deletion_requests` action. |
 | 30 | `progress-insights` | `progress_insights.html` | `/insights` | Explain a trend derived from assignments, time logs, or analytics events. |
 | 31 | `quick-add` | `quick_add.html` | `/quick-add` | Validate and insert a real `inbox_items` capture. |
-| 32 | `review-submit-checkpoint` | `review_submit_checkpoint.html` | `/assignments/[id]`, `submit` | Require student confirmation before the explicit `done` to `submitted` transition. |
+| 32 | `review-submit-checkpoint` | `review_submit_checkpoint.html` | `/assignments/[id]/submit` | Require student confirmation before the explicit `done` to `submitted` transition. |
 | 33 | `rubric-scout` | `rubric_scout.html` | `/classes/[id]`, `rubric` | Open the owning class or assignment from its real rubric data. |
 | 34 | `scout-share-view` | `scout_share_view.html` | `/share/[token]`, `report` | Open only report fields authorized by the exact, unexpired, unrevoked share token. |
 | 35 | `settings-profile-center` | `settings_profile_center.html` | `/settings`, `profile`; also `/me` | Validate and persist owner-scoped profile, accessibility, privacy, and personalization values. |

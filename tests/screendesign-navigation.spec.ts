@@ -625,6 +625,39 @@ const practiceSessionScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
   (scenario) => scenario.screenId === "practice-test-session",
 );
 
+const reviewSubmitScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
+  (scenario) => scenario.screenId === "review-submit-checkpoint",
+);
+
+if (reviewSubmitScenario) {
+  test("the review checkpoint hydrates cleanly on a fresh direct navigation", async ({
+    page,
+    screenDesign,
+  }) => {
+    const prepared = await screenDesign.prepare(reviewSubmitScenario);
+    const target = new URL(prepared.route, "http://diana.local");
+    expect(target.pathname).toMatch(/^\/assignments\/[^/]+\/submit$/u);
+    expect(target.searchParams.has("sdState")).toBe(false);
+
+    const evidence = screenDesign.consoleEvidence();
+    try {
+      const response = await page.goto(prepared.route, {
+        waitUntil: "domcontentloaded",
+      });
+      expect(response?.ok()).toBe(true);
+      await waitForScreenDesignReady(page);
+      await bodyIsHealthy(page);
+      await expect(
+        page.getByRole("heading", { name: "PRE-SUBMISSION REVIEW", exact: true }),
+      ).toBeVisible();
+      expect(evidence.consoleErrors).toEqual([]);
+      expect(evidence.pageErrors).toEqual([]);
+    } finally {
+      evidence.dispose();
+    }
+  });
+}
+
 if (practiceSessionScenario) {
   test("the practice session tutor action keeps the canonical gradient treatment", async ({
     page,

@@ -467,8 +467,8 @@ export const SCREEN_DESIGN_SCREENS: readonly ScreenDesignScreen[] =
     defineScreen({
       id: "review-submit-checkpoint",
       source: exportSource("review_submit_checkpoint.html"),
-      route: "/assignments/[id]",
-      stateSelector: "submit",
+      route: "/assignments/[id]/submit",
+      stateSelector: null,
       primaryAction: {
         label: "Confirm submission",
         kind: "submit",
