@@ -6,6 +6,8 @@ import type { Database } from "@/lib/supabase/types";
 const PUBLIC_EXACT = new Set([
   "/",
   "/manifest.webmanifest",
+  // Read-only, key-safe deployment identity used by the release SHA verifier.
+  "/api/build-info",
   "/api/qa/anonymous-session",
   // Handles its own feature flag, session check, and JSON response.
   "/api/diana/voice-candidate",
