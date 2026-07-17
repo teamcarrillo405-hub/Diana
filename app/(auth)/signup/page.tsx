@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { ageBracket, yearsBetween } from "@/lib/age";
+import {
+  clearPublicOnboardingDraft,
+  readPublicOnboardingDraft,
+} from "@/lib/onboarding/public-draft";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -32,6 +36,7 @@ export default function SignupPage() {
     }
 
     setPending(true);
+    const onboardingDraft = readPublicOnboardingDraft(window.sessionStorage);
     const supabase = createClient();
     const { error: signupError } = await supabase.auth.signUp({
       email,
@@ -41,6 +46,13 @@ export default function SignupPage() {
           display_name: displayName || null,
           date_of_birth: dob,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          ...(onboardingDraft
+            ? {
+                learning_hurdle: onboardingDraft.learningHurdle,
+                study_schedule_preference:
+                  onboardingDraft.studySchedulePreference,
+              }
+            : {}),
         },
         emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
@@ -48,6 +60,7 @@ export default function SignupPage() {
     setPending(false);
 
     if (signupError) return setError(signupError.message);
+    clearPublicOnboardingDraft(window.sessionStorage);
     router.push("/dashboard");
     router.refresh();
   }
