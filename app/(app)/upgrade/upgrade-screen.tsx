@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   ArrowRight,
@@ -27,10 +29,11 @@ const UPGRADE_STYLES = `
   .diana-app:has(.sd-upgrade-screen) .skip-link:focus { transform:translateY(0)!important; }
   .sd-upgrade-screen { display:flex; height:max(100dvh,852px); max-height:max(100dvh,852px); flex-direction:column; overflow:hidden; background:#0f172a; color:#fff; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
   .sd-upgrade-screen * { box-sizing:border-box; }
-  .sd-upgrade-screen a:focus-visible { outline:2px solid #74c0ff; outline-offset:3px; }
+  .sd-upgrade-screen a:focus-visible,
+  .sd-upgrade-screen button:focus-visible { outline:2px solid #74c0ff; outline-offset:3px; }
   .sd-upgrade-header { position:relative; z-index:20; display:flex; flex:none; align-items:center; justify-content:space-between; padding:52px 24px 10px; }
   .sd-upgrade-header .sd-source-wordmark { width:auto; height:17px; margin-left:8px; }
-  .sd-upgrade-close { display:grid; width:40px; height:40px; place-items:center; border-radius:999px; background:rgb(255 255 255 / .1); color:#fff; text-decoration:none; }
+  .sd-upgrade-close { display:grid; width:40px; height:40px; place-items:center; border:0; border-radius:999px; background:rgb(255 255 255 / .1); color:#fff; font:inherit; text-decoration:none; }
   .sd-upgrade-close svg { width:21px; height:21px; }
   .sd-upgrade-scroll { min-height:0; flex:1; overflow-y:auto; padding:15px 32px 26px; scrollbar-width:none; }
   .sd-upgrade-scroll::-webkit-scrollbar { display:none; }
@@ -46,7 +49,7 @@ const UPGRADE_STYLES = `
   .sd-upgrade-benefit h2 { margin:0; color:#fff; font-size:12px; font-style:italic; font-weight:950; letter-spacing:.01em; text-transform:uppercase; }
   .sd-upgrade-benefit p { margin:4px 0 0; color:#cbd5e1!important; font-size:10px; font-weight:650; line-height:1.35; }
   .sd-upgrade-options { display:grid; gap:10px; }
-  .sd-upgrade-option { position:relative; display:flex; min-height:83px; align-items:center; justify-content:space-between; gap:12px; overflow:hidden; border:1px solid rgb(15 23 42 / .08); border-radius:16px; background:#fff; padding:17px; color:#0f172a; text-decoration:none; box-shadow:0 4px 15px rgb(0 0 0 / .1); }
+  .sd-upgrade-option { position:relative; display:flex; width:100%; min-height:83px; align-items:center; justify-content:space-between; gap:12px; overflow:hidden; border:1px solid rgb(15 23 42 / .08); border-radius:16px; background:#fff; padding:17px; color:#0f172a; font:inherit; text-align:left; text-decoration:none; box-shadow:0 4px 15px rgb(0 0 0 / .1); }
   .sd-upgrade-option[data-featured="true"] { border:2px solid #ff79da; box-shadow:0 0 20px rgb(255 121 218 / .3); }
   .sd-upgrade-option-badge { position:absolute; top:0; right:0; border-radius:0 0 0 11px; background:linear-gradient(90deg,#ff79da,#74c0ff); padding:4px 11px; color:#0f172a; font-size:7px; font-style:italic; font-weight:950; letter-spacing:.08em; text-transform:uppercase; }
   .sd-upgrade-option h2 { margin:0; color:#0f172a; font-size:16px; font-style:italic; font-weight:950; text-transform:uppercase; }
@@ -54,7 +57,10 @@ const UPGRADE_STYLES = `
   .sd-upgrade-option-state { display:flex; flex:none; align-items:center; gap:6px; color:#0f172a; font-size:8px; font-style:italic; font-weight:950; letter-spacing:.06em; text-transform:uppercase; }
   .sd-upgrade-unavailable { display:flex; align-items:flex-start; gap:9px; margin:0 0 12px; border:1px solid rgb(251 191 36 / .3); border-radius:11px; background:rgb(251 191 36 / .08); padding:10px 11px; color:#fde68a; font-size:9px; font-weight:750; line-height:1.4; }
   .sd-upgrade-footer { flex:none; padding:14px 32px max(25px,env(safe-area-inset-bottom)); text-align:center; }
-  .sd-upgrade-primary { display:flex; width:100%; min-height:59px; align-items:center; justify-content:center; gap:9px; border-radius:12px; background:linear-gradient(90deg,#ff79da,#74c0ff); color:#0f172a!important; font-size:12px; font-style:italic; font-weight:950; letter-spacing:.12em; text-decoration:none; text-transform:uppercase; box-shadow:0 10px 30px rgb(255 121 218 / .2); }
+  .sd-upgrade-primary { display:flex; width:100%; min-height:59px; align-items:center; justify-content:center; gap:9px; border:0; border-radius:12px; background:linear-gradient(90deg,#ff79da,#74c0ff); color:#0f172a!important; font-family:inherit; font-size:12px; font-style:italic; font-weight:950; letter-spacing:.12em; text-decoration:none; text-transform:uppercase; box-shadow:0 10px 30px rgb(255 121 218 / .2); }
+  .sd-upgrade-screen button.sd-upgrade-close,
+  .sd-upgrade-screen button.sd-upgrade-option,
+  .sd-upgrade-screen button.sd-upgrade-primary { cursor:pointer; }
   .sd-upgrade-footer p { margin:10px 0 0; color:#64748b!important; font-size:7px; font-style:italic; font-weight:850; letter-spacing:.12em; line-height:1.45; text-transform:uppercase; }
   .sd-upgrade-community .sd-upgrade-scroll { padding-top:17px; }
   .sd-upgrade-community-hero { margin-bottom:24px; text-align:center; }
@@ -86,15 +92,39 @@ export function UpgradeScreen({
   view,
   billingEnabled,
   billingUnavailable = false,
+  onPrimaryAction,
+  primaryActionLabel,
+  onClose,
+  closeLabel = "Close access options",
 }: {
   view: UpgradeScreenView;
   billingEnabled: boolean;
   billingUnavailable?: boolean;
+  onPrimaryAction?: () => void;
+  primaryActionLabel?: string;
+  onClose?: () => void;
+  closeLabel?: string;
 }) {
   const actionHref = billingEnabled ? "/api/billing/checkout" : "/settings";
-  const actionLabel = billingEnabled
-    ? "Continue to secure checkout"
-    : "Manage access settings";
+  const actionLabel =
+    primaryActionLabel ??
+    (billingEnabled
+      ? "Continue to secure checkout"
+      : "Manage access settings");
+  const closeControl = onClose ? (
+    <button
+      type="button"
+      onClick={onClose}
+      className="sd-upgrade-close"
+      aria-label={closeLabel}
+    >
+      <X aria-hidden="true" />
+    </button>
+  ) : (
+    <Link href="/settings" className="sd-upgrade-close" aria-label={closeLabel}>
+      <X aria-hidden="true" />
+    </Link>
+  );
 
   if (view === "community") {
     return (
@@ -105,9 +135,7 @@ export function UpgradeScreen({
         <style>{UPGRADE_STYLES}</style>
         <header className="sd-upgrade-header">
           <DianaWordmark />
-          <Link href="/settings" className="sd-upgrade-close" aria-label="Close access options">
-            <X aria-hidden="true" />
-          </Link>
+          {closeControl}
         </header>
 
         <main className="sd-upgrade-scroll">
@@ -167,26 +195,42 @@ export function UpgradeScreen({
                 <p>
                   {billingEnabled
                     ? "The server has confirmed a secure checkout provider."
+                    : onPrimaryAction
+                      ? "Create an account to keep your private choices and continue."
                     : "Current learning tools remain available while checkout is unavailable."}
                 </p>
               </div>
               <span className="sd-upgrade-community-state">
-                {billingEnabled ? "Ready" : "Preview"}
-                <small>{billingEnabled ? "Server verified" : "No purchase claimed"}</small>
+                {billingEnabled ? "Ready" : onPrimaryAction ? "Account next" : "Preview"}
+                <small>
+                  {billingEnabled ? "Server verified" : "No purchase claimed"}
+                </small>
               </span>
             </div>
           </section>
         </main>
 
         <footer className="sd-upgrade-footer">
-          <Link
-            href={actionHref}
-            className="sd-upgrade-primary"
-            aria-label="Review access options"
-          >
-            <ShieldCheck size={18} aria-hidden="true" />
-            {actionLabel}
-          </Link>
+          {onPrimaryAction ? (
+            <button
+              type="button"
+              onClick={onPrimaryAction}
+              className="sd-upgrade-primary"
+              aria-label={actionLabel}
+            >
+              <ShieldCheck size={18} aria-hidden="true" />
+              {actionLabel}
+            </button>
+          ) : (
+            <Link
+              href={actionHref}
+              className="sd-upgrade-primary"
+              aria-label="Review access options"
+            >
+              <ShieldCheck size={18} aria-hidden="true" />
+              {actionLabel}
+            </Link>
+          )}
           <p>Billing authority stays on the server and community access stays private.</p>
         </footer>
       </ScreenDesignViewport>
@@ -201,9 +245,7 @@ export function UpgradeScreen({
       <style>{UPGRADE_STYLES}</style>
       <header className="sd-upgrade-header">
         <DianaWordmark />
-        <Link href="/settings" className="sd-upgrade-close" aria-label="Close access options">
-          <X aria-hidden="true" />
-        </Link>
+        {closeControl}
       </header>
 
       <main className="sd-upgrade-scroll">
@@ -254,53 +296,122 @@ export function UpgradeScreen({
         ) : null}
 
         <section className="sd-upgrade-options" aria-label="Access status">
-          <Link
-            href={actionHref}
-            className="sd-upgrade-option"
-            data-featured="true"
-            aria-label="Review access options"
-          >
-            <span className="sd-upgrade-option-badge">
-              {billingEnabled ? "Server verified" : "Current access"}
-            </span>
-            <span>
-              <h2>Diana access</h2>
-              <p>
-                {billingEnabled
-                  ? "Continue through the configured secure provider."
-                  : "Your current learning tools stay available."}
-              </p>
-            </span>
-            <span className="sd-upgrade-option-state">
-              {billingEnabled ? "Ready" : "Preview"}
-              <ArrowRight size={15} aria-hidden="true" />
-            </span>
-          </Link>
-          <Link href="/settings" className="sd-upgrade-option">
-            <span>
-              <h2>Account controls</h2>
-              <p>Review privacy, accessibility, AI history, and connection settings.</p>
-            </span>
-            <span className="sd-upgrade-option-state">
-              <LockKeyhole size={15} aria-hidden="true" /> Private
-            </span>
-          </Link>
+          {onPrimaryAction ? (
+            <button
+              type="button"
+              onClick={onPrimaryAction}
+              className="sd-upgrade-option"
+              data-featured="true"
+              aria-label="Choose Diana access"
+            >
+              <StandardAccessOption
+                billingEnabled={billingEnabled}
+                publicFlow
+              />
+            </button>
+          ) : (
+            <Link
+              href={actionHref}
+              className="sd-upgrade-option"
+              data-featured="true"
+              aria-label="Review access options"
+            >
+              <StandardAccessOption billingEnabled={billingEnabled} />
+            </Link>
+          )}
+          {onPrimaryAction ? (
+            <div className="sd-upgrade-option">
+              <AccountControlsOption publicFlow />
+            </div>
+          ) : (
+            <Link href="/settings" className="sd-upgrade-option">
+              <AccountControlsOption />
+            </Link>
+          )}
         </section>
       </main>
 
       <footer className="sd-upgrade-footer">
-        <Link
-          href={actionHref}
-          className="sd-upgrade-primary"
-          aria-label="Review access options"
-        >
-          {actionLabel}
-          <ArrowRight size={18} aria-hidden="true" />
-        </Link>
+        {onPrimaryAction ? (
+          <button
+            type="button"
+            onClick={onPrimaryAction}
+            className="sd-upgrade-primary"
+            aria-label={actionLabel}
+          >
+            {actionLabel}
+            <ArrowRight size={18} aria-hidden="true" />
+          </button>
+        ) : (
+          <Link
+            href={actionHref}
+            className="sd-upgrade-primary"
+            aria-label="Review access options"
+          >
+            {actionLabel}
+            <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+        )}
         <p>
           Checkout appears only when the server confirms a configured provider.
         </p>
       </footer>
     </ScreenDesignViewport>
+  );
+}
+
+function StandardAccessOption({
+  billingEnabled,
+  publicFlow = false,
+}: {
+  readonly billingEnabled: boolean;
+  readonly publicFlow?: boolean;
+}) {
+  return (
+    <>
+      <span className="sd-upgrade-option-badge">
+        {billingEnabled
+          ? "Server verified"
+          : publicFlow
+            ? "Account setup"
+            : "Current access"}
+      </span>
+      <span>
+        <h2>Diana access</h2>
+        <p>
+          {billingEnabled
+            ? "Continue through the configured secure provider."
+            : publicFlow
+              ? "Create a private account to continue. No purchase is claimed."
+              : "Your current learning tools stay available."}
+        </p>
+      </span>
+      <span className="sd-upgrade-option-state">
+        {billingEnabled ? "Ready" : publicFlow ? "Next" : "Preview"}
+        <ArrowRight size={15} aria-hidden="true" />
+      </span>
+    </>
+  );
+}
+
+function AccountControlsOption({
+  publicFlow = false,
+}: {
+  readonly publicFlow?: boolean;
+}) {
+  return (
+    <>
+      <span>
+        <h2>Account controls</h2>
+        <p>
+          {publicFlow
+            ? "Private controls become available after account creation."
+            : "Review privacy, accessibility, AI history, and connection settings."}
+        </p>
+      </span>
+      <span className="sd-upgrade-option-state">
+        <LockKeyhole size={15} aria-hidden="true" /> Private
+      </span>
+    </>
   );
 }

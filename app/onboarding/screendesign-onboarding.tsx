@@ -24,6 +24,7 @@ import { ScreenDesignViewport } from "@/components/screen-design/screen-design-v
 import { SourceMedia } from "@/components/screen-design/source-media";
 import type {
   LearningHurdle,
+  ScreenDesignOnboardingAnswers,
   StudySchedulePreference,
 } from "@/lib/onboarding/screendesign";
 import type { ScreenDesignOnboardingStep } from "@/lib/onboarding/screendesign-step";
@@ -96,12 +97,14 @@ interface ScreenDesignOnboardingProps {
   readonly initialStep?: ScreenDesignOnboardingStep;
   readonly initialLearningHurdle?: LearningHurdle | null;
   readonly initialStudySchedulePreference?: StudySchedulePreference | null;
+  readonly onComplete?: (answers: ScreenDesignOnboardingAnswers) => void;
 }
 
 export function ScreenDesignOnboarding({
   initialStep = "welcome",
   initialLearningHurdle = "exam_stress",
   initialStudySchedulePreference = "after_practice",
+  onComplete,
 }: ScreenDesignOnboardingProps) {
   const router = useRouter();
   const [step, setStep] = useState<ScreenDesignOnboardingStep>(initialStep);
@@ -127,6 +130,14 @@ export function ScreenDesignOnboarding({
     ) return;
 
     setFeedback(null);
+    if (onComplete) {
+      onComplete({
+        learningHurdle,
+        studySchedulePreference,
+      });
+      return;
+    }
+
     submittingRef.current = true;
     startTransition(async () => {
       try {
