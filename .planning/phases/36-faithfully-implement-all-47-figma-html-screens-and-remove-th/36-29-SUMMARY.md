@@ -68,7 +68,7 @@ coverage:
         status: pass
     human_judgment: false
 
-duration: 11 min active
+duration: 3 min active
 completed: 2026-07-16
 status: complete
 ---
@@ -79,9 +79,9 @@ status: complete
 
 ## Performance
 
-- **Duration:** 11 min active across the initial and final refreshed validation runs
-- **Started:** 2026-07-16T14:55:52Z
-- **Completed:** 2026-07-16T17:53:43Z
+- **Duration:** 3 min active for the final immutable release validation
+- **Started:** 2026-07-17T06:47:35Z
+- **Completed:** 2026-07-17T06:50:25Z
 - **Tasks:** 2
 - **Files modified:** 1 generated receipt plus planning metadata
 
@@ -90,7 +90,8 @@ status: complete
 - Re-ran 22 corruption and producer-contract tests, including dirty-golden and non-ancestor review rejection, before accepting actual output.
 - Independently recomputed the actual source, app, diff, action, baseline, filesystem-hash, run-id, release-SHA, and canonical-order evidence for all 47 screens.
 - Wrote one receipt at `test-results/screendesign-review/validation.json` only after the complete immutable output passed.
-- Proved the 191 final producer files were unchanged before and after validation with tree hash `965106d9c363a61936d10cb5c4f4794933d2bd7f68693f07d3d42c13d9186ccb`.
+- Proved the 191 final producer files were unchanged before and after validation with tree hash `d42578e68311cb69fbfa1cf2d6c336ce3960e914002ea3a2faebd6988b70a92f`.
+- Confirmed 141 source, app, and diff PNGs are all exactly `393x852`, and all 57 navigation contracts passed in the locked producer run.
 - Revalidated source and compiled legacy removal, TypeScript, calm tone, and all 911 tests across 161 files after the contrast evidence refresh.
 
 ## Task Commits
@@ -102,7 +103,7 @@ Both tasks were verification-only and intentionally preserved the release commit
 
 ## Files Created/Modified
 
-- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `684fd835540ebec17ac68258a4598ab44b753fa9b59ed9484ed32bdbe8ef3a70`.
+- `test-results/screendesign-review/validation.json` - Independent release validation receipt. SHA-256: `bbf633bdfc1734ac91cf40d02eec122e318d74829396134b679a44132e445946`.
 - `.planning/phases/36-faithfully-implement-all-47-figma-html-screens-and-remove-th/36-29-SUMMARY.md` - Plan result and immutable evidence identities.
 
 ## Bound Evidence
@@ -110,13 +111,18 @@ Both tasks were verification-only and intentionally preserved the release commit
 | Identity | Verified value |
 |---|---|
 | Producer run | `phase36-plan30` |
-| Release SHA | `c4e26595de808a4c792e41b82186dd7b4eb4c34d` |
-| Index SHA-256 | `b8ea9731fdcea6acef1ccfdecdea72fa14e2384bd59dbfe8300c3f0bcd2c70e8` |
+| Release SHA | `0979c2d08d43320d1a17c48833ddb783b9517d43` |
+| Release Git tree | `61b974b9f0c4d0ef7a69acac111bc44e1990742a` |
+| Index SHA-256 | `04a2706362c66b8d2597f499a3b5d674f9740faebda328526459c21952b0cd90` |
 | Validator SHA-256 | `194a04d169be44828c6440da0382825e30a118cca1a99dac5558f9a224ad5ee2` |
-| Receipt SHA-256 | `684fd835540ebec17ac68258a4598ab44b753fa9b59ed9484ed32bdbe8ef3a70` |
-| Producer tree SHA-256 before | `965106d9c363a61936d10cb5c4f4794933d2bd7f68693f07d3d42c13d9186ccb` |
-| Producer tree SHA-256 after | `965106d9c363a61936d10cb5c4f4794933d2bd7f68693f07d3d42c13d9186ccb` |
+| Release manifest SHA-256 | `ded06bc0e7196ea13e13dc569391fdbbf178f63532f15d3803b4e7f66f246cd2` |
+| Producer log SHA-256 | `a83ac589c3cdd0ef91f2f8f2ac01ddf89479dd41f38090eebb3319a30251bf07` |
+| Receipt SHA-256 | `bbf633bdfc1734ac91cf40d02eec122e318d74829396134b679a44132e445946` |
+| Producer tree SHA-256 before | `d42578e68311cb69fbfa1cf2d6c336ce3960e914002ea3a2faebd6988b70a92f` |
+| Producer tree SHA-256 after | `d42578e68311cb69fbfa1cf2d6c336ce3960e914002ea3a2faebd6988b70a92f` |
 | Canonical evidence counts | `47 source / 47 app / 47 diff / 47 action` |
+| Navigation contracts | `57 / 57 passing` |
+| PNG dimensions | `141 / 141 at 393x852` |
 
 The output contains 47 unique ordered ids, no missing or extra artifact files, no duplicates, no staging entries, and no prohibited Nexus, `TodayGamePlan`, `PageShell`, `AppTopNav`, or remote URL references in review text artifacts.
 
