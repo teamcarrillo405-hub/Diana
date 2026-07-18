@@ -536,31 +536,59 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
 }
 
 if (IS_FULL_MATRIX) {
-  test("public home reaches every attached composition before signup", async ({
+  test("public home scrolls through every attached composition before signup", async ({
     page,
   }) => {
     await page.context().clearCookies();
     await page.goto("/", { waitUntil: "domcontentloaded" });
     await waitForScreenDesignReady(page);
 
-    await expect(page.locator("[data-onboarding-step='welcome']")).toBeVisible();
+    await expect(page.locator(".sd-public-home-panel")).toHaveCount(6);
+    await expect(page.locator("[data-onboarding-step='welcome']")).toBeAttached();
+    await expect(page.locator("[data-onboarding-step='educational']")).toBeAttached();
+    await expect(page.locator("[data-onboarding-step='challenge']")).toBeAttached();
+    await expect(page.locator("[data-onboarding-step='schedule']")).toBeAttached();
     await page.getByRole("button", { name: "GET STARTED" }).click();
-    await expect(page.locator("[data-onboarding-step='educational']")).toBeVisible();
-    await page.getByRole("button", { name: "CONTINUE" }).click();
-    await expect(page.locator("[data-onboarding-step='challenge']")).toBeVisible();
+    await expect
+      .poll(() =>
+        page.locator("#public-home-educational").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
+    await page
+      .locator("#public-home-educational")
+      .getByRole("button", { name: "CONTINUE" })
+      .click();
+    await expect
+      .poll(() =>
+        page.locator("#public-home-challenge").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
     await page.getByRole("radio", { name: /Time Management/iu }).click();
     await page.getByRole("button", { name: "Select learning hurdle" }).click();
-    await expect(page.locator("[data-onboarding-step='schedule']")).toBeVisible();
     await page.getByRole("radio", { name: /Morning Hustle/iu }).click();
     await page.getByRole("button", { name: "Select study schedule" }).click();
 
-    await expect(page.getByRole("main")).toContainText(
-      "STUDY WITH YOUR TEAM",
-    );
+    await expect
+      .poll(() =>
+        page.locator("#public-home-community").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
     await page
       .getByRole("button", { name: "Continue to access options" })
       .click();
-    await expect(page.getByRole("main")).toContainText("GO FURTHER");
+    await expect
+      .poll(() =>
+        page.locator("#public-home-standard").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
     await page
       .getByRole("button", { name: "Create your account", exact: true })
       .click();

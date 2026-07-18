@@ -1239,6 +1239,34 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 }
 
 /* Phase 36 source-faithful four-state onboarding. */
+.sd-public-home-scroll {
+  width: 100%;
+  min-height: 100dvh;
+  overflow: visible;
+  background: #e2e8f0;
+}
+
+.sd-public-home-panel {
+  scroll-margin-top: 0;
+}
+
+.sd-public-home-scroll .sd-source-onboarding {
+  height: auto;
+  min-height: max(100dvh, 852px);
+  overflow: visible;
+}
+
+.sd-public-home-scroll .sd-onboarding-state {
+  height: auto;
+  min-height: max(100dvh, 852px);
+  overflow: visible;
+}
+
+.sd-public-home-scroll .sd-onboarding-scroll {
+  min-height: auto;
+  overflow: visible;
+}
+
 .diana-app:has(.sd-source-onboarding) .skip-link {
   transition: none;
 }
@@ -1888,6 +1916,10 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .sd-public-home-scroll {
+    scroll-behavior: auto;
+  }
+
   .sd-onboarding-primary,
   .sd-onboarding-back,
   .sd-onboarding-challenge-option,

@@ -18,6 +18,7 @@ import {
   useState,
   useTransition,
   type KeyboardEvent,
+  type ReactNode,
 } from "react";
 
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
@@ -98,6 +99,7 @@ interface ScreenDesignOnboardingProps {
   readonly initialLearningHurdle?: LearningHurdle | null;
   readonly initialStudySchedulePreference?: StudySchedulePreference | null;
   readonly onComplete?: (answers: ScreenDesignOnboardingAnswers) => void;
+  readonly presentation?: "wizard" | "scroll";
 }
 
 export function ScreenDesignOnboarding({
@@ -105,6 +107,7 @@ export function ScreenDesignOnboarding({
   initialLearningHurdle = "exam_stress",
   initialStudySchedulePreference = "after_practice",
   onComplete,
+  presentation = "wizard",
 }: ScreenDesignOnboardingProps) {
   const router = useRouter();
   const [step, setStep] = useState<ScreenDesignOnboardingStep>(initialStep);
@@ -118,6 +121,17 @@ export function ScreenDesignOnboarding({
 
   const goTo = (nextStep: ScreenDesignOnboardingStep) => {
     setFeedback(null);
+    if (presentation === "scroll") {
+      const target = document.getElementById(`public-home-${nextStep}`);
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      target?.scrollIntoView({
+        behavior: reducedMotion ? "auto" : "smooth",
+        block: "start",
+      });
+      return;
+    }
     setStep(nextStep);
   };
 
@@ -176,6 +190,70 @@ export function ScreenDesignOnboarding({
     });
   };
 
+  if (presentation === "scroll") {
+    return (
+      <>
+        <ScreenDesignViewport
+          id="public-home-welcome"
+          className="sd-source-onboarding sd-public-home-panel"
+          data-onboarding-step="welcome"
+          aria-label="Diana welcome"
+        >
+          <WelcomeScreen
+            asSection
+            surfaceId="public-home-welcome-content"
+            onContinue={() => goTo("educational")}
+          />
+        </ScreenDesignViewport>
+        <ScreenDesignViewport
+          id="public-home-educational"
+          className="sd-source-onboarding sd-public-home-panel"
+          data-onboarding-step="educational"
+          aria-label="Diana educational overview"
+        >
+          <EducationalScreen
+            asSection
+            surfaceId="public-home-educational-content"
+            onBack={() => goTo("welcome")}
+            onContinue={() => goTo("challenge")}
+          />
+        </ScreenDesignViewport>
+        <ScreenDesignViewport
+          id="public-home-challenge"
+          className="sd-source-onboarding sd-public-home-panel"
+          data-onboarding-step="challenge"
+          aria-label="Diana learning challenge"
+        >
+          <ChallengeScreen
+            asSection
+            surfaceId="public-home-challenge-content"
+            selected={learningHurdle}
+            onSelect={setLearningHurdle}
+            onBack={() => goTo("educational")}
+            onContinue={() => goTo("schedule")}
+          />
+        </ScreenDesignViewport>
+        <ScreenDesignViewport
+          id="public-home-schedule"
+          className="sd-source-onboarding sd-public-home-panel"
+          data-onboarding-step="schedule"
+          aria-label="Diana study schedule"
+        >
+          <ScheduleScreen
+            asSection
+            surfaceId="public-home-schedule-content"
+            selected={studySchedulePreference}
+            onSelect={setStudySchedulePreference}
+            onBack={() => goTo("challenge")}
+            onContinue={complete}
+            pending={pending}
+            feedback={feedback}
+          />
+        </ScreenDesignViewport>
+      </>
+    );
+  }
+
   return (
     <ScreenDesignViewport
       className="sd-source-onboarding"
@@ -213,6 +291,35 @@ export function ScreenDesignOnboarding({
   );
 }
 
+interface OnboardingSurfaceProps {
+  readonly asSection?: boolean;
+  readonly surfaceId?: string;
+}
+
+function OnboardingSurface({
+  asSection = false,
+  surfaceId,
+  className,
+  children,
+}: OnboardingSurfaceProps & {
+  readonly className: string;
+  readonly children: ReactNode;
+}) {
+  if (asSection) {
+    return (
+      <section id={surfaceId} className={className}>
+        {children}
+      </section>
+    );
+  }
+
+  return (
+    <main id="main-content" className={className}>
+      {children}
+    </main>
+  );
+}
+
 function DianaLogo({ size }: { readonly size: "hero" | "header" }) {
   return (
     <SourceMedia
@@ -229,9 +336,19 @@ function DianaLogo({ size }: { readonly size: "hero" | "header" }) {
   );
 }
 
-function WelcomeScreen({ onContinue }: { readonly onContinue: () => void }) {
+function WelcomeScreen({
+  onContinue,
+  asSection,
+  surfaceId,
+}: {
+  readonly onContinue: () => void;
+} & OnboardingSurfaceProps) {
   return (
-    <main id="main-content" className="sd-onboarding-state sd-onboarding-welcome">
+    <OnboardingSurface
+      asSection={asSection}
+      surfaceId={surfaceId}
+      className="sd-onboarding-state sd-onboarding-welcome"
+    >
       <SourceMedia
         assetId="onboarding-welcome-background"
         width={1586}
@@ -258,7 +375,7 @@ function WelcomeScreen({ onContinue }: { readonly onContinue: () => void }) {
           GET STARTED
         </button>
       </footer>
-    </main>
+    </OnboardingSurface>
   );
 }
 
@@ -273,12 +390,18 @@ function HeaderBack({ onBack }: { readonly onBack: () => void }) {
 function EducationalScreen({
   onBack,
   onContinue,
+  asSection,
+  surfaceId,
 }: {
   readonly onBack: () => void;
   readonly onContinue: () => void;
-}) {
+} & OnboardingSurfaceProps) {
   return (
-    <main id="main-content" className="sd-onboarding-state sd-onboarding-educational">
+    <OnboardingSurface
+      asSection={asSection}
+      surfaceId={surfaceId}
+      className="sd-onboarding-state sd-onboarding-educational"
+    >
       <header className="sd-onboarding-header sd-onboarding-header-centered">
         <HeaderBack onBack={onBack} />
         <DianaLogo size="header" />
@@ -320,7 +443,7 @@ function EducationalScreen({
           CONTINUE
         </button>
       </footer>
-    </main>
+    </OnboardingSurface>
   );
 }
 
@@ -377,14 +500,20 @@ function ChallengeScreen({
   onSelect,
   onBack,
   onContinue,
+  asSection,
+  surfaceId,
 }: {
   readonly selected: LearningHurdle | null;
   readonly onSelect: (value: LearningHurdle) => void;
   readonly onBack: () => void;
   readonly onContinue: () => void;
-}) {
+} & OnboardingSurfaceProps) {
   return (
-    <main id="main-content" className="sd-onboarding-state sd-onboarding-quiz">
+    <OnboardingSurface
+      asSection={asSection}
+      surfaceId={surfaceId}
+      className="sd-onboarding-state sd-onboarding-quiz"
+    >
       <QuizHeader current={1} onBack={onBack} title="WHAT'S YOUR BIGGEST HURDLE RIGHT NOW?" />
       <div className="sd-onboarding-scroll sd-onboarding-challenge-scroll">
         <div className="sd-onboarding-challenge-options" role="radiogroup" aria-label="Learning hurdle">
@@ -430,7 +559,7 @@ function ChallengeScreen({
           NEXT STEP
         </button>
       </footer>
-    </main>
+    </OnboardingSurface>
   );
 }
 
@@ -441,6 +570,8 @@ function ScheduleScreen({
   onContinue,
   pending,
   feedback,
+  asSection,
+  surfaceId,
 }: {
   readonly selected: StudySchedulePreference | null;
   readonly onSelect: (value: StudySchedulePreference) => void;
@@ -448,9 +579,13 @@ function ScheduleScreen({
   readonly onContinue: () => void;
   readonly pending: boolean;
   readonly feedback: string | null;
-}) {
+} & OnboardingSurfaceProps) {
   return (
-    <main id="main-content" className="sd-onboarding-state sd-onboarding-quiz">
+    <OnboardingSurface
+      asSection={asSection}
+      surfaceId={surfaceId}
+      className="sd-onboarding-state sd-onboarding-quiz"
+    >
       <QuizHeader
         current={2}
         onBack={onBack}
@@ -515,7 +650,7 @@ function ScheduleScreen({
           {pending ? "SAVING CHOICES" : "CONTINUE CHALLENGE"}
         </button>
       </footer>
-    </main>
+    </OnboardingSurface>
   );
 }
 

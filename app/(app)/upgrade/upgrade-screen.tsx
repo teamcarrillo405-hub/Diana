@@ -85,6 +85,8 @@ const UPGRADE_STYLES = `
   .sd-upgrade-community-plan p { margin:4px 0 0; color:#cbd5e1!important; font-size:8px; font-weight:750; line-height:1.35; }
   .sd-upgrade-community-state { flex:none; color:#fff; font-size:10px; font-style:italic; font-weight:950; text-align:right; text-transform:uppercase; }
   .sd-upgrade-community-state small { display:block; margin-top:2px; color:#94a3b8; font-size:6px; letter-spacing:.08em; }
+  .sd-upgrade-screen[data-public-scroll-section="true"] { height:auto; min-height:max(100dvh,852px); max-height:none; overflow:visible; }
+  .sd-upgrade-screen[data-public-scroll-section="true"] .sd-upgrade-scroll { min-height:auto; flex:0 0 auto; overflow:visible; }
   @media (prefers-reduced-motion:reduce) { .sd-upgrade-screen * { scroll-behavior:auto!important; transition:none!important; } }
 `;
 
@@ -96,6 +98,8 @@ export function UpgradeScreen({
   primaryActionLabel,
   onClose,
   closeLabel = "Close access options",
+  publicScrollSection = false,
+  sectionId,
 }: {
   view: UpgradeScreenView;
   billingEnabled: boolean;
@@ -104,6 +108,8 @@ export function UpgradeScreen({
   primaryActionLabel?: string;
   onClose?: () => void;
   closeLabel?: string;
+  publicScrollSection?: boolean;
+  sectionId?: string;
 }) {
   const actionHref = billingEnabled ? "/api/billing/checkout" : "/settings";
   const actionLabel =
@@ -125,11 +131,14 @@ export function UpgradeScreen({
       <X aria-hidden="true" />
     </Link>
   );
+  const ContentElement = publicScrollSection ? "div" : "main";
 
   if (view === "community") {
     return (
       <ScreenDesignViewport
-        className="sd-upgrade-screen sd-upgrade-community"
+        id={sectionId}
+        className={`sd-upgrade-screen sd-upgrade-community${publicScrollSection ? " sd-public-home-panel" : ""}`}
+        data-public-scroll-section={publicScrollSection}
         aria-label="Diana community access"
       >
         <style>{UPGRADE_STYLES}</style>
@@ -138,7 +147,7 @@ export function UpgradeScreen({
           {closeControl}
         </header>
 
-        <main className="sd-upgrade-scroll">
+        <ContentElement className="sd-upgrade-scroll">
           <section className="sd-upgrade-community-hero">
             <h1>
               STUDY WITH YOUR TEAM
@@ -208,7 +217,7 @@ export function UpgradeScreen({
               </span>
             </div>
           </section>
-        </main>
+        </ContentElement>
 
         <footer className="sd-upgrade-footer">
           {onPrimaryAction ? (
@@ -239,7 +248,9 @@ export function UpgradeScreen({
 
   return (
     <ScreenDesignViewport
-      className="sd-upgrade-screen sd-upgrade-standard"
+      id={sectionId}
+      className={`sd-upgrade-screen sd-upgrade-standard${publicScrollSection ? " sd-public-home-panel" : ""}`}
+      data-public-scroll-section={publicScrollSection}
       aria-label="Diana access options"
     >
       <style>{UPGRADE_STYLES}</style>
@@ -248,7 +259,7 @@ export function UpgradeScreen({
         {closeControl}
       </header>
 
-      <main className="sd-upgrade-scroll">
+      <ContentElement className="sd-upgrade-scroll">
         <section className="sd-upgrade-hero">
           <p className="sd-upgrade-kicker">Account upgrade</p>
           <h1>
@@ -329,7 +340,7 @@ export function UpgradeScreen({
             </Link>
           )}
         </section>
-      </main>
+      </ContentElement>
 
       <footer className="sd-upgrade-footer">
         {onPrimaryAction ? (

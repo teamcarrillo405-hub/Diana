@@ -1,63 +1,64 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
 import { UpgradeScreen } from "@/app/(app)/upgrade/upgrade-screen";
 import { ScreenDesignOnboarding } from "@/app/onboarding/screendesign-onboarding";
 import { writePublicOnboardingDraft } from "@/lib/onboarding/public-draft";
 import type { ScreenDesignOnboardingAnswers } from "@/lib/onboarding/screendesign";
 
-type PublicHomeStage = "onboarding" | "community" | "standard";
-
 export function PublicHomeFunnel() {
   const router = useRouter();
-  const [stage, setStage] = useState<PublicHomeStage>("onboarding");
-  const [answers, setAnswers] =
-    useState<ScreenDesignOnboardingAnswers | null>(null);
+
+  const scrollToSection = (sectionId: string) => {
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    document.getElementById(sectionId)?.scrollIntoView({
+      behavior: reducedMotion ? "auto" : "smooth",
+      block: "start",
+    });
+  };
 
   const completeOnboarding = (nextAnswers: ScreenDesignOnboardingAnswers) => {
-    setAnswers(nextAnswers);
     try {
       writePublicOnboardingDraft(window.sessionStorage, nextAnswers);
     } catch {
       // A blocked storage getter must not trap a visitor in the quiz.
     }
-    setStage("community");
+    scrollToSection("public-home-community");
   };
 
-  if (stage === "community") {
-    return (
+  return (
+    <main
+      id="main-content"
+      className="sd-public-home-scroll"
+      aria-label="Diana student introduction"
+    >
+      <ScreenDesignOnboarding
+        presentation="scroll"
+        onComplete={completeOnboarding}
+      />
       <UpgradeScreen
         view="community"
         billingEnabled={false}
-        onClose={() => setStage("onboarding")}
+        publicScrollSection
+        sectionId="public-home-community"
+        onClose={() => scrollToSection("public-home-schedule")}
         closeLabel="Back to schedule"
-        onPrimaryAction={() => setStage("standard")}
+        onPrimaryAction={() => scrollToSection("public-home-standard")}
         primaryActionLabel="Continue to access options"
       />
-    );
-  }
-
-  if (stage === "standard") {
-    return (
       <UpgradeScreen
         view="standard"
         billingEnabled={false}
-        onClose={() => setStage("community")}
+        publicScrollSection
+        sectionId="public-home-standard"
+        onClose={() => scrollToSection("public-home-community")}
         closeLabel="Back to community access"
         onPrimaryAction={() => router.push("/signup")}
         primaryActionLabel="Create your account"
       />
-    );
-  }
-
-  return (
-    <ScreenDesignOnboarding
-      initialStep={answers ? "schedule" : "welcome"}
-      initialLearningHurdle={answers?.learningHurdle}
-      initialStudySchedulePreference={answers?.studySchedulePreference}
-      onComplete={completeOnboarding}
-    />
+    </main>
   );
 }
