@@ -18,6 +18,7 @@ export function ScreenDesignViewport({
     <div
       className={classes}
       data-screen-design-viewport="393x852"
+      data-screen-design-responsive="mobile-desktop"
       {...props}
     >
       {children}

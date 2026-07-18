@@ -1904,6 +1904,30 @@ export function buildScreenDesignSeedPlan(
   );
 }
 
+const SCREEN_DESIGN_INSERT_RANK: Partial<Record<ScreenDesignSeedTable, number>> = {
+  profiles: 0,
+  classes: 1,
+  study_groups: 2,
+  mastery_concepts: 2,
+  assignments: 3,
+  notes: 4,
+  study_artifacts: 4,
+  flashcards: 5,
+};
+
+function orderScreenDesignSeedRows(
+  rows: readonly ScreenDesignPreparedSeedRow[],
+): readonly ScreenDesignPreparedSeedRow[] {
+  return rows
+    .map((row, index) => ({ row, index }))
+    .sort((left, right) => {
+      const leftRank = SCREEN_DESIGN_INSERT_RANK[left.row.table] ?? 10;
+      const rightRank = SCREEN_DESIGN_INSERT_RANK[right.row.table] ?? 10;
+      return leftRank - rightRank || left.index - right.index;
+    })
+    .map(({ row }) => row);
+}
+
 export async function resetScreenDesignOwnerWithStore(
   store: ScreenDesignSeedStore,
   ownerId: string,
@@ -1929,7 +1953,9 @@ export async function seedScreenDesignScenarioWithStore(
   }
 
   await resetScreenDesignOwnerWithStore(store, ownerId, ownerAlias);
-  const rows = buildScreenDesignSeedPlan(scenario, ownerId);
+  const rows = orderScreenDesignSeedRows(
+    buildScreenDesignSeedPlan(scenario, ownerId),
+  );
   for (const seedRow of rows) await store.insert(seedRow);
 
   return Object.freeze({
@@ -1962,6 +1988,10 @@ interface DynamicDeleteQuery {
 interface DynamicSeedTable {
   delete(): DynamicDeleteQuery;
   insert(values: Readonly<Record<string, unknown>>): PromiseLike<DynamicQueryResult>;
+  upsert(
+    values: Readonly<Record<string, unknown>>,
+    options: { onConflict: string },
+  ): PromiseLike<DynamicQueryResult>;
 }
 
 function createSupabaseScreenDesignStore(
@@ -1976,7 +2006,9 @@ function createSupabaseScreenDesignStore(
       expectNoError(error, `Reset ScreenDesign QA table ${tableName}`);
     },
     async insert(seedRow) {
-      const { error } = await table(seedRow.table).insert(seedRow.values);
+      const { error } = seedRow.table === "profiles"
+        ? await table(seedRow.table).upsert(seedRow.values, { onConflict: "user_id" })
+        : await table(seedRow.table).insert(seedRow.values);
       expectNoError(error, `Seed ScreenDesign QA table ${seedRow.table}`);
     },
   };

@@ -6,6 +6,9 @@ import type { Database } from "@/lib/supabase/types";
 const PUBLIC_EXACT = new Set([
   "/",
   "/manifest.webmanifest",
+  // Side-by-side responsive ScreenDesign proof gallery. It only serves static
+  // design captures and must be reviewable before sign-in.
+  "/design-proof",
   // Read-only, key-safe deployment identity used by the release SHA verifier.
   "/api/build-info",
   "/api/qa/anonymous-session",

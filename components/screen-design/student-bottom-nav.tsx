@@ -38,6 +38,10 @@ export function StudentBottomNav() {
 
   return (
     <nav className="sd-student-bottom-nav" aria-label="Primary">
+      <div className="sd-desktop-nav-brand" aria-hidden="true">
+        <strong>Diana</strong>
+        <span>Student workspace</span>
+      </div>
       {STUDENT_BOTTOM_NAV_ITEMS.map(({ label, href, Icon }) => (
         <Link
           key={label}
@@ -49,6 +53,9 @@ export function StudentBottomNav() {
           <span>{label}</span>
         </Link>
       ))}
+      <p className="sd-desktop-nav-note" aria-hidden="true">
+        Your work. Your pace.
+      </p>
     </nav>
   );
 }

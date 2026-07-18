@@ -280,16 +280,31 @@ export const waitForScreenDesignReady = async (page: Page): Promise<void> => {
   await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
   await page.evaluate(async () => {
     await document.fonts.ready;
-    await Promise.all(
-      Array.from(document.images).map(async (image) => {
-        if (image.complete) return image.decode().catch(() => undefined);
-        await new Promise<void>((resolve) => {
-          image.addEventListener("load", () => resolve(), { once: true });
-          image.addEventListener("error", () => resolve(), { once: true });
-        });
-        return image.decode().catch(() => undefined);
+    const relevantImages = Array.from(document.images).filter((image) => {
+      const rect = image.getBoundingClientRect();
+      const style = getComputedStyle(image);
+      const nearViewport = rect.bottom >= -200 && rect.top <= window.innerHeight + 600;
+      return (
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        (image.loading !== "lazy" || nearViewport)
+      );
+    });
+    const decodeImages = Promise.all(
+      relevantImages.map(async (image) => {
+        if (!image.complete) {
+          await new Promise<void>((resolve) => {
+            image.addEventListener("load", () => resolve(), { once: true });
+            image.addEventListener("error", () => resolve(), { once: true });
+          });
+        }
+        await image.decode().catch(() => undefined);
       }),
     );
+    await Promise.race([
+      decodeImages,
+      new Promise<void>((resolve) => setTimeout(resolve, 3_000)),
+    ]);
   });
   await page.addStyleTag({
     content: `

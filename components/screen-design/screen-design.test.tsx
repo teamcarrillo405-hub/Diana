@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { usePathname } from "next/navigation";
@@ -18,6 +18,7 @@ import {
   STUDENT_BOTTOM_NAV_ITEMS,
   StudentBottomNav,
 } from "./student-bottom-nav";
+import { ResponsiveProofGallery } from "./responsive-proof-gallery";
 
 vi.mock("next/navigation", () => ({
   usePathname: vi.fn(),
@@ -69,6 +70,10 @@ describe("ScreenDesign source primitives", () => {
 
     const viewport = screen.getByLabelText("Source canvas");
     expect(viewport).toHaveAttribute("data-screen-design-viewport", "393x852");
+    expect(viewport).toHaveAttribute(
+      "data-screen-design-responsive",
+      "mobile-desktop",
+    );
     expect(viewport).toHaveClass("sd-source-viewport");
     expect(screen.getByText("Source-specific composition")).toHaveClass(
       "sd-source-glass",
@@ -221,5 +226,40 @@ describe("StudentBottomNav", () => {
       .filter((link) => link.getAttribute("aria-current") === "page");
     expect(current).toHaveLength(1);
     expect(current[0]).toHaveAccessibleName(label);
+  });
+});
+
+describe("ResponsiveProofGallery", () => {
+  it("keeps mobile and desktop proofs paired for the selected screen", () => {
+    render(
+      <ResponsiveProofGallery
+        screens={[
+          { id: "dashboard-personalized", label: "Dashboard Personalized" },
+          { id: "onboarding-welcome", label: "Onboarding Welcome" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("1 / 2")).toBeVisible();
+    expect(screen.getByAltText("Dashboard Personalized mobile proof")).toHaveAttribute(
+      "src",
+      "/screendesign-proof/mobile/dashboard-personalized.webp",
+    );
+    expect(screen.getByAltText("Dashboard Personalized desktop proof")).toHaveAttribute(
+      "src",
+      "/screendesign-proof/desktop/dashboard-personalized.webp",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Next screen" }));
+
+    expect(screen.getByText("2 / 2")).toBeVisible();
+    expect(screen.getByAltText("Onboarding Welcome mobile proof")).toHaveAttribute(
+      "src",
+      "/screendesign-proof/mobile/onboarding-welcome.webp",
+    );
+    expect(screen.getByAltText("Onboarding Welcome desktop proof")).toHaveAttribute(
+      "src",
+      "/screendesign-proof/desktop/onboarding-welcome.webp",
+    );
   });
 });

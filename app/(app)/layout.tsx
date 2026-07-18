@@ -19,7 +19,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className={`diana-app-shell flex min-h-dvh ${profileBodyClass(profile)}`}>
       <div className="flex min-w-0 flex-1 flex-col">
-        <main id="main-content" className="app-field diana-authenticated-field flex-1 pb-24 md:pb-6">
+        <div id="main-content" className="app-field diana-authenticated-field flex-1 pb-24 md:pb-6">
           <div className="app-command-frame app-command-frame--flush min-w-0">
             {children}
             <div className="diana-mobile-command mt-8 border border-border bg-surface-raised/92 p-3 backdrop-blur md:hidden">
@@ -29,7 +29,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               </div>
             </div>
           </div>
-        </main>
+        </div>
         <div className="hidden md:block">
           <QuickCapture />
           <OverwhelmedButton />

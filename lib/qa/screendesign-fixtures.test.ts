@@ -286,6 +286,26 @@ describe("ScreenDesign owner-scoped seed contract", () => {
     );
   });
 
+  it("seeds assignment dependencies after their parent assignment rows", async () => {
+    const store = new MemoryScreenDesignSeedStore();
+    await seedScreenDesignScenarioWithStore(
+      store,
+      PRIMARY_OWNER_ID,
+      "qa-primary",
+      "focus-session-immersive:default",
+    );
+
+    const assignmentIndex = store.rows.findIndex(
+      (row) => row.table === "assignments",
+    );
+    const timeLogIndex = store.rows.findIndex(
+      (row) => row.table === "assignment_time_log",
+    );
+
+    expect(assignmentIndex).toBeGreaterThanOrEqual(0);
+    expect(timeLogIndex).toBeGreaterThan(assignmentIndex);
+  });
+
   it("cannot observe or reset a second synthetic owner's rows", async () => {
     const store = new MemoryScreenDesignSeedStore();
     await seedScreenDesignScenarioWithStore(
