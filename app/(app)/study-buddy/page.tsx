@@ -1,24 +1,32 @@
-import { MessagesSquare } from "lucide-react";
+import { loadProfile } from "@/lib/profile";
+
 import { StudyBuddyClient } from "./study-buddy-client";
-import { PageShell } from "../page-shell";
 
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ source?: string; q?: string }>;
+  searchParams: Promise<{ source?: string; q?: string; classId?: string; sdScenario?: string }>;
 }) {
-  const { source, q } = await searchParams;
+  const { source, q, classId, sdScenario } = await searchParams;
+  const profile = await loadProfile();
+  const tutorName = profile?.tutor_persona === "xavier"
+    ? "Tutor Xavier"
+    : profile?.tutor_persona === "maya"
+      ? "Tutor Maya"
+      : "Coach Diana";
+  const tutorStyle = profile?.tutor_style ?? "socratic";
+  const initialMode = tutorStyle === "direct" ? "hint" : "guide";
+
   return (
-    <PageShell
-      active="Classes"
-      eyebrow="Study buddy"
-      title="Ask for help without handing over the work."
-      subtitle="A quick Socratic helper for when you need a question, hint, or source-based next step."
-      accent="var(--gl-purple-light)"
-      icon={MessagesSquare}
-      titleMaxWidth="28ch"
-    >
-      <StudyBuddyClient initialSource={source} initialQuestion={q} />
-    </PageShell>
+    <StudyBuddyClient
+      initialSource={source}
+      initialQuestion={q}
+      initialMode={initialMode}
+      tutorName={tutorName}
+      tutorStyle={tutorStyle}
+      complexity={profile?.tutor_complexity ?? "balanced"}
+      classId={classId}
+      qaScenario={sdScenario === "tutor-chat:default" ? sdScenario : undefined}
+    />
   );
 }

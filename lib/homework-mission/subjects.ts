@@ -1,6 +1,5 @@
 // lib/homework-mission/subjects.ts
-// Subject-mode resolution + per-subject hand-in field schema for Homework
-// Mission (handoff_for_claude_code/designs/Homework Mission.dc.html). The
+// Subject-mode resolution and per-subject hand-in field schema. The
 // design defines exactly 6 modes sharing one shell — this maps a real
 // assignment (kind + class name) onto one of them, and defines each mode's
 // field labels/hints/placeholders per the locked design copy.
@@ -38,9 +37,8 @@ export type HmField = {
   rows?: number;
 };
 
-// Per-subject hand-in fields, copy adapted from the locked design (§ "RIGHT
-// (hand-in) fields" per subject). Math's fields apply per-problem, not once
-// per assignment — see homework-mission.tsx.
+// Per-subject hand-in fields. Math fields apply per problem rather than once
+// per assignment.
 export const SUBJECT_FIELDS: Record<HmSubject, HmField[]> = {
   reading: [
     { key: "main", label: "Main idea", hint: "one sentence: what is this mostly about?", placeholder: "The passage is about…", multi: false },

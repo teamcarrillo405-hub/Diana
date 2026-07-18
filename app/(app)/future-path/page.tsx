@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
 import { deriveFuturePath } from "@/lib/future-path/derive";
 import { FutureMapVisual } from "@/components/student-portal/future-map-visual";
-import { AppTopNav } from "../app-top-nav";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 import { EveningPlanning } from "../dashboard/evening-planning";
 import { QuestCarousel, type QuestItem } from "../dashboard/quest-carousel";
 import { getEventIntentions } from "../dashboard/actions";
@@ -84,7 +84,6 @@ export default async function FuturePathPage() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="More" />
       <style>{`
         .fp-stage, .fp-lanes, .fp-cards, .fp-essay, .fp-steps { min-width: 0; }
         .fp-stage { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-13); }
@@ -191,6 +190,7 @@ export default async function FuturePathPage() {
           )}
         </section>
       </div>
+      <StudentBottomNav />
     </div>
   );
 }

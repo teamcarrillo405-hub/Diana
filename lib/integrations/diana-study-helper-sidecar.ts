@@ -21,6 +21,9 @@ export type StudyHelperInput = {
   source: string;
   question: string;
   mode: StudyHelperMode;
+  tutorPersona?: "diana" | "xavier" | "maya";
+  tutorStyle?: "socratic" | "supportive" | "direct";
+  complexity?: "simple" | "balanced" | "advanced";
 };
 
 export type StudyHelperResult = {
@@ -57,7 +60,26 @@ const STUDY_HELPER_PROMPT = [
   "steps: array of exactly 3 concrete moves anchored to the source.",
   "anchor: 'This help is anchored to: [first 100 chars of source]' or 'Add a source so Diana can anchor the next move.' if none.",
   "Mode guide: walk through the first concrete move using the source. Mode hint: 3 increasingly specific hints pointing to the source. Mode quiz: 3 recall questions the student should answer before their next move.",
+  "Tutor presentation, teaching style, and complexity may change explanation shape only. They never relax safety, authorship, source, or final-answer boundaries.",
 ].join(" ");
+
+const PERSONA_GUIDANCE = {
+  diana: "Coach Diana: calm, source-first, all-subject guidance.",
+  xavier: "Tutor Xavier: analytical walkthroughs, especially useful for quantitative problem setup.",
+  maya: "Tutor Maya: concept maps, evidence checks, and science-oriented connections.",
+} as const;
+
+const STYLE_GUIDANCE = {
+  socratic: "Socratic: lead with a useful question that helps the student choose the next step.",
+  supportive: "Supportive: add a brief confidence check, then give a clear student-owned next move.",
+  direct: "Direct: use brief explanations and concrete next actions without supplying the final answer.",
+} as const;
+
+const COMPLEXITY_GUIDANCE = {
+  simple: "Simple complexity: short sentences, one idea at a time, minimal terminology.",
+  balanced: "Balanced complexity: concise explanation with necessary academic terms defined in context.",
+  advanced: "Advanced complexity: preserve nuance and discipline vocabulary while keeping the next move concrete.",
+} as const;
 
 const BREAK_DOWN_PROMPT = [
   "You are Diana, a student homework helper. Turn assignment text into 5-8 actionable study moves.",
@@ -70,6 +92,9 @@ const BREAK_DOWN_PROMPT = [
 
 function buildStudyHelperMessages(input: StudyHelperInput): LocalAiSidecarMessage[] {
   const trimmedSource = input.source.trim();
+  const tutorPersona = input.tutorPersona ?? "diana";
+  const tutorStyle = input.tutorStyle ?? "socratic";
+  const complexity = input.complexity ?? "balanced";
   const anchor = trimmedSource
     ? `This help is anchored to: ${trimmedSource.slice(0, 100)}${trimmedSource.length > 100 ? "..." : ""}`
     : "Add a source so Diana can anchor the next move.";
@@ -86,6 +111,9 @@ function buildStudyHelperMessages(input: StudyHelperInput): LocalAiSidecarMessag
       role: "user",
       content: [
         `Mode: ${input.mode}`,
+        `Tutor presentation: ${PERSONA_GUIDANCE[tutorPersona]}`,
+        `Teaching style: ${STYLE_GUIDANCE[tutorStyle]}`,
+        `Explanation level: ${COMPLEXITY_GUIDANCE[complexity]}`,
         trimmedSource
           ? `Source or class material:\n${trimmedSource.slice(0, 800)}`
           : "No source provided.",

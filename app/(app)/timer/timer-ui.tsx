@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useTimer } from "@/lib/timer/use-timer";
-import { Play, Pause, RotateCcw, Volume2, VolumeX, Eye, EyeOff } from "lucide-react";
-import type { TimerStatus } from "@/lib/timer/timer";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
+import { Eye, EyeOff, Pause, Play, Plus, RotateCcw } from "lucide-react";
+
 import { adaptiveBreakMinutes, type SessionMood } from "@/lib/executive/session";
+import type { TimerStatus } from "@/lib/timer/timer";
+import { useTimer } from "@/lib/timer/use-timer";
+import { finishFocusSession, startFocusSession } from "./actions";
 
 type AmbientSound = "silence" | "rain" | "white-noise";
-
 interface PersistedSettings {
   workMin: number;
   breakMin: number;
@@ -15,9 +16,14 @@ interface PersistedSettings {
   showCountdown: boolean;
   premackReward: string;
 }
+interface FocusAssignment {
+  id: string;
+  title: string;
+  kind: string;
+  estimatedMinutes: number | null;
+}
 
 const STORAGE_KEY = "diana:timer:settings";
-
 const DEFAULTS: PersistedSettings = {
   workMin: 25,
   breakMin: 5,
@@ -25,9 +31,8 @@ const DEFAULTS: PersistedSettings = {
   showCountdown: false,
   premackReward: "",
 };
-
 const AUDIO_SRC: Record<Exclude<AmbientSound, "silence">, string> = {
-  "rain": "/sounds/rain.mp3",
+  rain: "/sounds/rain.mp3",
   "white-noise": "/sounds/white-noise.mp3",
 };
 
@@ -35,42 +40,39 @@ function loadSettings(): PersistedSettings {
   if (typeof window === "undefined") return DEFAULTS;
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULTS;
-    const parsed = JSON.parse(raw) as Partial<PersistedSettings>;
-    return { ...DEFAULTS, ...parsed };
+    return raw ? { ...DEFAULTS, ...(JSON.parse(raw) as Partial<PersistedSettings>) } : DEFAULTS;
   } catch {
     return DEFAULTS;
   }
 }
 
-function saveSettings(s: PersistedSettings) {
+function saveSettings(settings: PersistedSettings) {
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-  } catch { /* ignore quota errors */ }
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  } catch {
+    // The timer remains usable when browser storage is unavailable.
+  }
 }
 
-/** Format ms as MM:SS — only used when showCountdown=true. */
 function formatMs(ms: number): string {
   const total = Math.max(0, Math.round(ms / 1000));
-  const mm = Math.floor(total / 60).toString().padStart(2, "0");
-  const ss = (total % 60).toString().padStart(2, "0");
-  return `${mm}:${ss}`;
+  return `${Math.floor(total / 60).toString().padStart(2, "0")}:${(total % 60).toString().padStart(2, "0")}`;
 }
 
-/** Human label for current status — NEVER "failed" or "missed". */
-function statusLabel(s: ReturnType<typeof useTimer>["state"]): string {
-  if (s.status === "idle") return "Ready when you are";
-  if (s.status === "paused") return "Paused";
-  if (s.status === "done") return "Done: enjoy your reward";
-  if (s.phase === "work") return "Working";
-  return "Break time";
+function statusLabel(state: ReturnType<typeof useTimer>["state"]): string {
+  if (state.status === "idle") return "Ready when you are";
+  if (state.status === "paused") return "Paused";
+  if (state.status === "done") return "Session complete";
+  return state.phase === "break" ? "Break time" : "Locked in";
 }
 
 export function TimerUi({
+  assignment,
   roughMode = false,
   sessionMood = null,
   difficulty = null,
 }: {
+  assignment: FocusAssignment | null;
   roughMode?: boolean;
   sessionMood?: SessionMood;
   difficulty?: number | null;
@@ -78,62 +80,50 @@ export function TimerUi({
   const { state, start, pause, resume, reset } = useTimer();
   const [settings, setSettings] = useState<PersistedSettings>(DEFAULTS);
   const [ritualCount, setRitualCount] = useState<number | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Hydrate from localStorage on mount.
   useEffect(() => {
     const loaded = loadSettings();
-    setSettings(
-      roughMode
-        ? {
-            ...loaded,
-            workMin: Math.min(loaded.workMin, 10),
-            breakMin: Math.max(loaded.breakMin, 5),
-            showCountdown: false,
-          }
-        : loaded,
-    );
+    setSettings(roughMode ? {
+      ...loaded,
+      workMin: Math.min(loaded.workMin, 10),
+      breakMin: Math.max(loaded.breakMin, 5),
+      showCountdown: false,
+    } : loaded);
   }, [roughMode]);
-
-  // Persist on every settings change (after hydration).
+  useEffect(() => saveSettings(settings), [settings]);
   useEffect(() => {
-    saveSettings(settings);
-  }, [settings]);
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (state.status === "running" && settings.ambient !== "silence") audio.play().catch(() => undefined);
+    else audio.pause();
+  }, [settings.ambient, state.status]);
 
-  // Ambient sound — play during running, pause otherwise.
-  useEffect(() => {
-    const a = audioRef.current;
-    if (!a) return;
-    const shouldPlay =
-      (state.status === "running" || state.status === "paused") &&
-      settings.ambient !== "silence";
-    if (shouldPlay && state.status === "running") {
-      a.play().catch(() => { /* user-gesture restrictions handled silently */ });
-    } else {
-      a.pause();
-    }
-  }, [state.status, settings.ambient]);
-
-  const totalPhaseMs =
-    state.phase === "work"
-      ? state.workMin * 60_000
-      : state.phase === "break"
-      ? state.breakMin * 60_000
-      : 0;
-  const progress = totalPhaseMs > 0 ? 1 - state.remainingMs / totalPhaseMs : 0;
-  // 0..1 — fraction COMPLETED of current phase.
-
-  const isIdleOrDone = state.status === "idle" || state.status === "done";
   const adaptiveBreak = adaptiveBreakMinutes({
     workMinutes: settings.workMin,
     baseBreakMinutes: settings.breakMin,
     mood: roughMode ? "rough" : sessionMood,
     difficulty,
   });
+  const totalPhaseMs = state.phase === "work"
+    ? state.workMin * 60_000
+    : state.phase === "break"
+      ? state.breakMin * 60_000
+      : settings.workMin * 60_000;
+  const remainingMs = state.status === "idle" ? totalPhaseMs : state.remainingMs;
+  const progress = totalPhaseMs > 0 ? 1 - remainingMs / totalPhaseMs : 0;
+  const isIdleOrDone = state.status === "idle" || state.status === "done";
 
-  function startWithRitual() {
-    if (ritualCount !== null) return;
-    setRitualCount(3);
+  function beginRitual() {
+    if (!assignment || ritualCount !== null || pending) return;
+    setMessage(null);
+    startTransition(async () => {
+      const result = await startFocusSession({ assignmentId: assignment.id });
+      if (!result.ok) return setMessage(result.error);
+      setRitualCount(3);
+    });
   }
 
   useEffect(() => {
@@ -147,225 +137,90 @@ export function TimerUi({
       });
       return;
     }
-    const id = window.setTimeout(() => setRitualCount((value) => (value === null ? null : value - 1)), 800);
-    return () => window.clearTimeout(id);
+    const timeout = window.setTimeout(() => {
+      setRitualCount((value) => value === null ? null : value - 1);
+    }, 800);
+    return () => window.clearTimeout(timeout);
   }, [adaptiveBreak, ritualCount, settings.premackReward, settings.workMin, start]);
 
+  function endSession() {
+    if (!assignment || pending) return;
+    setMessage(null);
+    startTransition(async () => {
+      const result = await finishFocusSession({ assignmentId: assignment.id });
+      if (!result.ok) return setMessage(result.error);
+      reset();
+      setMessage("Session saved. Take a breath before the next block.");
+    });
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Ring progress visualization */}
-      <div className="flex flex-col items-center gap-4 rounded-2xl border border-border bg-card p-6">
-        <RingProgress progress={progress} status={state.status} />
+    <div className="sd-focus-ui">
+      <main className="sd-focus-scroll">
+        <RingProgress progress={progress} status={state.status}>
+          {settings.showCountdown && !isIdleOrDone ? <strong>{formatMs(state.remainingMs)}</strong> : null}
+          <span>{statusLabel(state)}</span>
+        </RingProgress>
 
-        <p className="text-sm font-medium">{statusLabel(state)}</p>
+        <section className="sd-focus-coach" aria-label="Session guidance">
+          <div aria-hidden="true">{[0, 1, 2, 3, 4, 5].map((bar) => <i key={bar} />)}</div>
+          <p>{state.phase === "break"
+            ? "Let the last block settle. The next step can wait a moment."
+            : "Maintain this pace. One clear step is enough for this block."}</p>
+        </section>
 
-        {state.premackReward && state.status === "done" && (
-          <p className="rounded-full bg-accent/15 px-3 py-1 text-sm text-accent">
-            You earned: {state.premackReward}
-          </p>
+        <section className="sd-focus-progress">
+          <div><span>Task progress</span><strong>{assignment ? "Step 1 of 3" : "Choose a task"}</strong></div>
+          <div aria-hidden="true"><i /><i /><i /></div>
+          <h2>{assignment?.title ?? "No active task yet"}</h2>
+          <p>{assignment ? `${assignment.kind} · ${assignment.estimatedMinutes ?? settings.workMin} min plan` : "Open Work to choose what this session supports."}</p>
+        </section>
+
+        {isIdleOrDone ? (
+          <details className="sd-focus-settings">
+            <summary>Session settings</summary>
+            <label><span>Work block: {settings.workMin} min</span><input type="range" min={5} max={60} step={5} value={settings.workMin} onChange={(event) => setSettings({ ...settings, workMin: Number(event.target.value) })} /></label>
+            <label><span>Preferred break: {settings.breakMin} min</span><input type="range" min={1} max={30} value={settings.breakMin} onChange={(event) => setSettings({ ...settings, breakMin: Number(event.target.value) })} /></label>
+            <label><span>After this block</span><input type="text" maxLength={120} value={settings.premackReward} onChange={(event) => setSettings({ ...settings, premackReward: event.target.value })} placeholder="A calm reward" /></label>
+            <label><span>Ambient sound</span><select value={settings.ambient} onChange={(event) => setSettings({ ...settings, ambient: event.target.value as AmbientSound })}><option value="silence">Silence</option><option value="rain">Rain</option><option value="white-noise">White noise</option></select></label>
+            <label className="sd-focus-countdown-toggle"><input type="checkbox" checked={settings.showCountdown} onChange={(event) => setSettings({ ...settings, showCountdown: event.target.checked })} />{settings.showCountdown ? <Eye aria-hidden="true" /> : <EyeOff aria-hidden="true" />}Show countdown number</label>
+            {adaptiveBreak !== settings.breakMin ? <small>Today&apos;s break is {adaptiveBreak} minutes based on the current check-in.</small> : null}
+          </details>
+        ) : null}
+        <p className="sd-focus-status" role="status">{message}</p>
+      </main>
+
+      <button className="sd-focus-quick-add" type="button" aria-label="Quick capture"><Plus aria-hidden="true" /></button>
+      <footer className="sd-focus-footer">
+        {isIdleOrDone ? (
+          <button type="button" className="sd-focus-primary" onClick={beginRitual} disabled={!assignment || pending}>
+            <Play aria-hidden="true" />{pending ? "Starting session" : "Start focus session"}
+          </button>
+        ) : (
+          <>
+            <button type="button" onClick={state.status === "paused" ? resume : pause}>{state.status === "paused" ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}{state.status === "paused" ? "Resume" : "Pause"}</button>
+            <button type="button" className="sd-focus-primary" onClick={endSession} disabled={pending}><RotateCcw aria-hidden="true" />{pending ? "Saving" : "End session"}</button>
+          </>
         )}
+      </footer>
 
-        {settings.showCountdown && state.status !== "idle" && state.status !== "done" && (
-          <p className="font-mono text-3xl tabular-nums">
-            {formatMs(state.remainingMs)}
-          </p>
-        )}
-
-        <div className="flex items-center gap-2">
-          {state.status === "idle" || state.status === "done" ? (
-            <button
-              onClick={startWithRitual}
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-            >
-              <Play size={16} />
-              {ritualCount === null ? "Start session" : "Starting..."}
-            </button>
-          ) : state.status === "running" ? (
-            <button
-              onClick={pause}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm"
-            >
-              <Pause size={16} />
-              Pause
-            </button>
-          ) : (
-            // paused
-            <button
-              onClick={resume}
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white"
-            >
-              <Play size={16} />
-              Resume
-            </button>
-          )}
-
-          {!isIdleOrDone && (
-            <button
-              onClick={reset}
-              className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-4 py-2 text-sm text-muted"
-            >
-              <RotateCcw size={16} />
-              End session
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Settings panel — visible when idle or done */}
-      {isIdleOrDone && (
-        <div className="space-y-4 rounded-2xl border border-border bg-card p-5">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-muted">
-            Session settings
-          </h2>
-
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <label className="block space-y-1 text-sm">
-              <span className="font-medium">Work: {settings.workMin} min</span>
-              <input
-                type="range"
-                min={5}
-                max={60}
-                step={5}
-                value={settings.workMin}
-                onChange={(e) => setSettings({ ...settings, workMin: Number(e.target.value) })}
-                className="w-full"
-              />
-            </label>
-            <label className="block space-y-1 text-sm">
-              <span className="font-medium">Preferred break: {settings.breakMin} min</span>
-              <input
-                type="range"
-                min={1}
-                max={30}
-                step={1}
-                value={settings.breakMin}
-                onChange={(e) => setSettings({ ...settings, breakMin: Number(e.target.value) })}
-                className="w-full"
-              />
-            </label>
-          </div>
-          {adaptiveBreak !== settings.breakMin && (
-            <p className="rounded-md border border-border bg-background px-3 py-2 text-sm text-muted">
-              Diana adjusted this session break to {adaptiveBreak} minutes based on today&apos;s check-in and workload.
-            </p>
-          )}
-
-          <label className="block space-y-1 text-sm">
-            <span className="font-medium">After this block I get to…</span>
-            <input
-              type="text"
-              value={settings.premackReward}
-              onChange={(e) => setSettings({ ...settings, premackReward: e.target.value })}
-              className="w-full rounded-md border border-border bg-card px-3 py-2"
-              placeholder="e.g. play guitar for 10 min"
-              maxLength={120}
-            />
-          </label>
-
-          <label className="block space-y-1 text-sm">
-            <span className="font-medium">Ambient sound</span>
-            <select
-              value={settings.ambient}
-              onChange={(e) =>
-                setSettings({ ...settings, ambient: e.target.value as AmbientSound })
-              }
-              className="w-full rounded-md border border-border bg-card px-3 py-2"
-            >
-              <option value="silence">Silence</option>
-              <option value="rain">Rain</option>
-              <option value="white-noise">White noise</option>
-            </select>
-          </label>
-
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={settings.showCountdown}
-              onChange={(e) =>
-                setSettings({ ...settings, showCountdown: e.target.checked })
-              }
-            />
-            <span className="flex items-center gap-1">
-              {settings.showCountdown ? <Eye size={14} /> : <EyeOff size={14} />}
-              Show countdown number
-            </span>
-            <span className="ml-1 text-xs text-muted">
-              (Off by default: fewer numbers = less anxiety.)
-            </span>
-          </label>
-        </div>
-      )}
-
-      {/* Ambient audio element — hidden, controlled by useEffect */}
-      {settings.ambient !== "silence" && (
-        <audio
-          ref={audioRef}
-          src={AUDIO_SRC[settings.ambient]}
-          loop
-          preload="auto"
-          aria-hidden="true"
-        />
-      )}
-
-      {ritualCount !== null && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <div className="rounded-2xl border border-border bg-card px-10 py-8 text-center shadow-lg">
-            <p className="text-sm text-muted">Ready.</p>
-            <p className="mt-2 text-6xl font-bold tabular-nums">{ritualCount === 0 ? "Start" : ritualCount}</p>
-          </div>
-        </div>
-      )}
+      {settings.ambient !== "silence" ? <audio ref={audioRef} src={AUDIO_SRC[settings.ambient]} loop preload="none" aria-hidden="true" /> : null}
+      {ritualCount !== null ? <div className="sd-focus-ritual" role="status" aria-live="polite"><span>Ready</span><strong>{ritualCount === 0 ? "Start" : ritualCount}</strong></div> : null}
     </div>
   );
 }
 
-/** SVG ring progress — 0..1. Calm color: accent only, never red. */
-function RingProgress({
-  progress,
-  status,
-}: {
-  progress: number;
-  status: TimerStatus;
-}) {
-  const size = 220;
-  const stroke = 16;
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
+function RingProgress({ progress, status, children }: { progress: number; status: TimerStatus; children: ReactNode }) {
+  const circumference = 2 * Math.PI * 135;
   const safeProgress = Math.max(0, Math.min(1, progress));
-  const dashOffset = circumference * (1 - safeProgress);
-
-  const isDone = status === "done";
-  const indicatorIcon = status === "running" ? <Volume2 size={28} /> : <VolumeX size={28} />;
-
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} role="img" aria-label={`Session progress ${Math.round(safeProgress * 100)}%`}>
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="currentColor"
-          strokeOpacity={0.12}
-          strokeWidth={stroke}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="rgb(var(--accent))"
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={dashOffset}
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          style={{ transition: "stroke-dashoffset 1s linear" }}
-        />
+    <div className="sd-focus-ring">
+      <svg viewBox="0 0 288 288" role="img" aria-label={`Session progress ${Math.round(safeProgress * 100)}%`}>
+        <defs><linearGradient id="sd-focus-gradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#ff79da" /><stop offset="100%" stopColor="#74c0ff" /></linearGradient></defs>
+        <circle cx="144" cy="144" r="135" fill="none" stroke="currentColor" strokeOpacity="0.06" strokeWidth="10" />
+        <circle cx="144" cy="144" r="135" fill="none" stroke="url(#sd-focus-gradient)" strokeWidth="14" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - safeProgress)} transform="rotate(-90 144 144)" />
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center text-accent">
-        {isDone ? <span className="text-3xl">&#10003;</span> : indicatorIcon}
-      </div>
+      <div>{children}</div><span className="sr-only">{status}</span>
     </div>
   );
 }

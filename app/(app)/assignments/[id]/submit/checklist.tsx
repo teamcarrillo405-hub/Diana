@@ -2,13 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check } from "lucide-react";
+import { Check, Loader2, Send, Trash2 } from "lucide-react";
 import {
-  toggleChecklistItem,
-  setSubmissionUrl,
-  transitionAssignment,
   addChecklistItem,
   deleteChecklistItem,
+  setSubmissionUrl,
+  toggleChecklistItem,
+  transitionAssignment,
 } from "../actions";
 
 type Item = {
@@ -35,16 +35,17 @@ export function SubmitChecklist({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [newItemLabel, setNewItemLabel] = useState("");
-
-  const requiredOk = items.filter((i) => i.required).every((i) => i.checked);
+  const [confirmed, setConfirmed] = useState(false);
+  const requiredOk = items.filter((item) => item.required).every((item) => item.checked);
 
   function toggle(item: Item) {
-    const next = !item.checked;
-    setItems((xs) => xs.map((x) => (x.id === item.id ? { ...x, checked: next } : x)));
+    const checked = !item.checked;
+    setError(null);
+    setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, checked } : entry));
     startTransition(async () => {
-      const result = await toggleChecklistItem({ itemId: item.id, checked: next });
+      const result = await toggleChecklistItem({ itemId: item.id, checked });
       if (result?.error) {
-        setItems((xs) => xs.map((x) => (x.id === item.id ? { ...x, checked: !next } : x)));
+        setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, checked: !checked } : entry));
         setError(result.error);
       }
     });
@@ -53,42 +54,40 @@ export function SubmitChecklist({
   function addItem() {
     const label = newItemLabel.trim();
     if (!label) return;
+    setError(null);
     startTransition(async () => {
       const result = await addChecklistItem({ assignmentId, label });
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
+      if (result?.error) return setError(result.error);
       setNewItemLabel("");
       router.refresh();
     });
   }
 
   function removeItem(itemId: string) {
+    setError(null);
     startTransition(async () => {
       const result = await deleteChecklistItem({ itemId });
-      if (result?.error) {
-        setError(result.error);
-        return;
-      }
-      setItems((xs) => xs.filter((x) => x.id !== itemId));
+      if (result?.error) return setError(result.error);
+      setItems((current) => current.filter((item) => item.id !== itemId));
     });
   }
 
   function saveUrl() {
-    const trimmed = url.trim();
+    const value = url.trim();
     startTransition(async () => {
-      await setSubmissionUrl({
+      const result = await setSubmissionUrl({
         id: assignmentId,
-        url: trimmed.length > 0 ? trimmed : null,
+        url: value.length > 0 ? value : null,
       });
+      if (result?.error) setError(result.error);
     });
   }
 
-  function markSubmitted() {
+  function confirmSubmission() {
     setError(null);
+    if (confirmed) return;
     if (!requiredOk) {
-      setError("Some required boxes aren't checked yet.");
+      setError("Check each required item when you are ready.");
       return;
     }
     startTransition(async () => {
@@ -98,113 +97,81 @@ export function SubmitChecklist({
         to: "submitted",
       });
       if ("error" in result && result.error) return setError(result.error);
-      router.push(`/assignments/${assignmentId}`);
-      router.refresh();
+      setConfirmed(true);
     });
   }
 
   return (
-    <div className="space-y-6">
-      <ul className="divide-y divide-border rounded-xl border border-border bg-card">
-        {items.map((item) => (
-          <li key={item.id} className="flex items-stretch">
-            <button
-              type="button"
-              onClick={() => toggle(item)}
-              className="flex flex-1 items-start gap-3 px-4 py-3 text-left hover:bg-border/30"
-            >
-              <span
-                className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-md border ${
-                  item.checked
-                    ? "border-accent bg-accent text-white"
-                    : "border-border bg-transparent"
-                }`}
-              >
-                {item.checked && <Check size={14} />}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span
-                  className={`block font-medium ${
-                    item.checked ? "line-through opacity-60" : ""
-                  }`}
-                >
-                  {item.label}{" "}
-                  {item.required && (
-                    <span className="text-xs font-normal text-muted">(required)</span>
-                  )}
-                </span>
-                {item.detail && (
-                  <span className="block text-xs text-muted">{item.detail}</span>
-                )}
-              </span>
-            </button>
-            <button
-              type="button"
-              onClick={() => removeItem(item.id)}
-              aria-label={`Remove ${item.label}`}
-              className="px-3 text-xs text-muted hover:text-fg hover:bg-border/30"
-            >
-              Remove
-            </button>
-          </li>
-        ))}
-      </ul>
+    <div className="sd-submit-checklist-shell">
+      <section className="sd-submit-checklist" aria-labelledby="submission-checks-title">
+        <div className="sd-submit-checklist-heading">
+          <h2 id="submission-checks-title">FINAL CHECKS</h2>
+          <span>{items.filter((item) => item.checked).length}/{items.length}</span>
+        </div>
+        {items.length > 0 ? (
+          <ul>
+            {items.map((item) => (
+              <li key={item.id}>
+                <button type="button" onClick={() => toggle(item)} disabled={pending}>
+                  <span className="sd-submit-checkbox" data-checked={item.checked} aria-hidden="true">
+                    {item.checked ? <Check size={16} strokeWidth={3} /> : null}
+                  </span>
+                  <span>
+                    <strong>{item.label}</strong>
+                    {item.detail ? <small>{item.detail}</small> : null}
+                  </span>
+                  {item.required ? <em>REQUIRED</em> : null}
+                </button>
+                <button type="button" onClick={() => removeItem(item.id)} aria-label={`Remove ${item.label}`} disabled={pending}>
+                  <Trash2 size={14} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="sd-submit-empty">Add any checks you want to make before submitting.</p>
+        )}
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          addItem();
-        }}
-        className="flex gap-2 rounded-xl border border-dashed border-border bg-card p-3"
-      >
-        <input
-          type="text"
-          value={newItemLabel}
-          onChange={(e) => setNewItemLabel(e.target.value)}
-          placeholder="Add your own check (e.g. 'attach the rubric')"
-          maxLength={200}
-          className="flex-1 rounded-md border border-border bg-transparent px-3 py-2 text-sm"
-        />
-        <button
-          type="submit"
-          disabled={pending || !newItemLabel.trim()}
-          className="rounded-md border border-border bg-card px-3 py-2 text-sm hover:bg-border/30 disabled:opacity-50"
-        >
-          Add
-        </button>
-      </form>
-
-      <div className="space-y-2 rounded-xl border border-border bg-card p-4">
-        <label htmlFor="submission-url" className="block text-sm font-medium">
-          Where did you submit it? (optional)
-        </label>
-        <div className="flex gap-2">
+        <details className="sd-submit-options">
+          <summary>Customize review</summary>
+          <form onSubmit={(event) => { event.preventDefault(); addItem(); }}>
+            <label htmlFor="new-submission-check">Add a check</label>
+            <div>
+              <input
+                id="new-submission-check"
+                value={newItemLabel}
+                onChange={(event) => setNewItemLabel(event.target.value)}
+                maxLength={200}
+                placeholder="Attach the rubric"
+              />
+              <button type="submit" disabled={pending || !newItemLabel.trim()}>ADD</button>
+            </div>
+          </form>
+          <label htmlFor="submission-url">Submission link, optional</label>
           <input
             id="submission-url"
             type="url"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(event) => setUrl(event.target.value)}
             onBlur={saveUrl}
-            placeholder="https://classroom.google.com/…"
-            className="flex-1 rounded-md border border-border bg-transparent px-3 py-2 text-sm"
+            placeholder="https://classroom.google.com/..."
           />
-        </div>
-      </div>
+        </details>
 
-      {error && (
-        <div className="rounded-md border border-danger/40 bg-danger/10 px-3 py-2 text-sm text-danger">
-          {error}
-        </div>
-      )}
+        {error ? <p className="sd-source-calm-error" role="status">{error}</p> : null}
+      </section>
 
-      <button
-        type="button"
-        onClick={markSubmitted}
-        disabled={pending || !requiredOk}
-        className="w-full rounded-lg bg-accent px-4 py-3 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        {requiredOk ? "I clicked submit: mark it done" : "Finish the required boxes first"}
-      </button>
+      <footer className="sd-submit-footer">
+        <button
+          type="button"
+          onClick={confirmSubmission}
+          disabled={pending || !requiredOk || confirmed}
+          aria-label="Confirm submission"
+        >
+          {pending ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}
+          {pending ? "CONFIRMING" : confirmed ? "SUBMISSION CONFIRMED" : requiredOk ? "CONFIRM SUBMISSION" : "CHECK REQUIRED ITEMS"}
+        </button>
+      </footer>
     </div>
   );
 }

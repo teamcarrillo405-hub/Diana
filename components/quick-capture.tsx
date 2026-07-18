@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { MessageSquarePlus, X } from "lucide-react";
 import { saveQuickCapture } from "./quick-capture-actions";
 import { VoiceTextarea } from "@/components/voice-textarea";
-import { usesAppTopNav } from "@/lib/navigation";
+import { ownsScreenDesignNavigation } from "@/lib/navigation";
 
 export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "inline" }) {
   const pathname = usePathname() ?? "/";
@@ -51,8 +51,7 @@ export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "i
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
 
-  // Hidden on pages that own a top nav (rule centralized in usesAppTopNav).
-  if (placement === "fixed" && usesAppTopNav(pathname)) {
+  if (placement === "fixed" && ownsScreenDesignNavigation(pathname)) {
     return null;
   }
 
@@ -67,8 +66,8 @@ export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "i
         }}
         className={
           placement === "inline"
-            ? "nexus-button nexus-button-secondary inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold"
-            : "nexus-button nexus-button-secondary fixed bottom-6 left-6 z-40 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+            ? "diana-button diana-button-secondary inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold"
+            : "diana-button diana-button-secondary fixed bottom-6 left-6 z-40 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
         }
       >
         <MessageSquarePlus size={16} />
@@ -81,7 +80,7 @@ export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "i
             role="dialog"
             aria-modal="true"
             aria-labelledby="quick-capture-title"
-            className="nexus-panel w-full max-w-md space-y-3 rounded-2xl border border-border bg-card p-4 shadow-lg"
+            className="diana-panel w-full max-w-md space-y-3 rounded-2xl border border-border bg-card p-4 shadow-lg"
           >
             <div className="flex items-center justify-between gap-3">
               <h2 id="quick-capture-title" className="text-sm font-medium">Quick capture</h2>
@@ -103,7 +102,7 @@ export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "i
               <button type="button" onClick={close} className="touch-target rounded-xl border border-border px-3 py-2 text-sm">
                 Close
               </button>
-              <button type="button" onClick={save} disabled={pending} className="nexus-button nexus-button-primary press-scale touch-target rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50">
+              <button type="button" onClick={save} disabled={pending} className="diana-button diana-button-primary press-scale touch-target rounded-xl px-3 py-2 text-sm font-medium disabled:opacity-50">
                 Capture
               </button>
             </div>

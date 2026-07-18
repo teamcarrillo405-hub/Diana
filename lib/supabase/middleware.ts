@@ -6,6 +6,11 @@ import type { Database } from "@/lib/supabase/types";
 const PUBLIC_EXACT = new Set([
   "/",
   "/manifest.webmanifest",
+  // Side-by-side responsive ScreenDesign proof gallery. It only serves static
+  // design captures and must be reviewable before sign-in.
+  "/design-proof",
+  // Read-only, key-safe deployment identity used by the release SHA verifier.
+  "/api/build-info",
   "/api/qa/anonymous-session",
   // Handles its own feature flag, session check, and JSON response.
   "/api/diana/voice-candidate",
@@ -19,7 +24,7 @@ const PUBLIC_EXACT = new Set([
 ]);
 // "/share" is the account-less parent/teacher summary — it validates its own
 // token server-side (service role), so it must bypass the auth wall.
-const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d", "/share"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/landing-3d", "/share"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
 
 function isPublic(path: string): boolean {

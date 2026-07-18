@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { AudioLines, BookOpenCheck, LockKeyhole, Mic2, ShieldCheck } from "lucide-react";
-import { FutureModeToggle } from "@/components/future-mode-toggle";
 import { VoiceTextarea } from "@/components/voice-textarea";
 
 type VoicePlan = {
@@ -137,7 +136,7 @@ export function VoiceCommandSurface({ sidecarEnabled = false }: { sidecarEnabled
 
   return (
     <div className="space-y-5">
-      <header className="future-card future-command-surface rounded-3xl border border-brand/20 bg-surface-raised p-5 shadow-sm">
+      <header className="sd-panel sd-panel-pad">
         <div className="flex min-w-0 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-wider text-brand-strong dark:text-brand">
@@ -148,7 +147,6 @@ export function VoiceCommandSurface({ sidecarEnabled = false }: { sidecarEnabled
               Say what feels stuck. Diana turns it into one student-owned academic move and keeps the source as your voice note.
             </p>
           </div>
-          <FutureModeToggle />
         </div>
       </header>
 

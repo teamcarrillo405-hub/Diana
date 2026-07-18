@@ -42,7 +42,8 @@ export async function POST(req: Request) {
       await supabase
         .from("lms_connections")
         .update({ config: { ...cfg, token: valid.refreshed.token, expires_at: valid.refreshed.expires_at } })
-        .eq("id", conn.id);
+        .eq("id", conn.id)
+        .eq("owner_id", user.id);
     }
     const { items, skipped } = await fetchCanvasAssignments({
       base_url: cfg.base_url,
@@ -53,7 +54,8 @@ export async function POST(req: Request) {
     await supabase
       .from("lms_connections")
       .update({ last_synced_at: new Date().toISOString() })
-      .eq("id", connectionId);
+      .eq("id", connectionId)
+      .eq("owner_id", user.id);
 
     return NextResponse.json(result);
   } catch (e) {

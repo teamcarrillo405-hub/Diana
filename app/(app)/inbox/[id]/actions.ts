@@ -18,8 +18,38 @@ const KIND = z.enum([
 const ConfirmInput = z.object({
   classId: z.string().uuid(),
   kind: KIND,
-  dueAt: z.string().nullable(),
+  dueAt: z
+    .string()
+    .max(40)
+    .refine((value) => !Number.isNaN(Date.parse(value)), "Choose a valid date.")
+    .nullable(),
 });
+
+const InboxItemId = z.string().uuid();
+
+export async function markInboxItemClassified(
+  inboxItemId: string,
+  _formData: FormData,
+): Promise<void> {
+  const parsedId = InboxItemId.safeParse(inboxItemId);
+  if (!parsedId.success) return;
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return;
+
+  await supabase
+    .from("inbox_items")
+    .update({ status: "classified" })
+    .eq("id", parsedId.data)
+    .eq("owner_id", user.id)
+    .eq("status", "unclassified");
+
+  revalidatePath("/inbox");
+  revalidatePath(`/inbox/${parsedId.data}`);
+}
 
 export async function confirmInboxItem(
   inboxItemId: string,
@@ -43,6 +73,15 @@ export async function confirmInboxItem(
     .single();
 
   if (fetchError || !item) return { ok: false, error: "Item not found." };
+
+  const { data: ownedClass } = await supabase
+    .from("classes")
+    .select("id")
+    .eq("id", parsed.data.classId)
+    .eq("owner_id", user.id)
+    .is("archived_at", null)
+    .maybeSingle();
+  if (!ownedClass) return { ok: false, error: "Choose one of your classes." };
 
   // Create the assignment using the capture raw text as the title
   const assignmentResult = await createAssignment({

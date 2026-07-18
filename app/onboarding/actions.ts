@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import {
+  buildScreenDesignOnboardingUpdate,
+  type ScreenDesignOnboardingResult,
+} from "@/lib/onboarding/screendesign";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeInterestIds } from "@/lib/student-identity/interests";
 
@@ -13,6 +17,16 @@ const ACCOMMODATIONS = z.enum([
 ]);
 const FONT_SIZE = z.enum(["small","normal","large","xlarge"]);
 const LINE_SPACING = z.enum(["compact","normal","loose"]);
+
+type ScreenDesignFieldErrors = Extract<
+  ScreenDesignOnboardingResult,
+  { ok: false }
+>["fieldErrors"];
+
+export type CompleteScreenDesignOnboardingResult =
+  | { ok: true }
+  | { ok: false; reason: "validation"; fieldErrors: ScreenDesignFieldErrors }
+  | { ok: false; reason: "auth" | "persistence"; error: string };
 
 const Input = z.object({
   diagnoses: z.array(DIAGNOSES),
@@ -54,6 +68,45 @@ export async function saveOnboarding(input: z.infer<typeof Input>) {
     .update(patch)
     .eq("user_id", user.id);
   if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function completeScreenDesignOnboarding(
+  input: unknown,
+): Promise<CompleteScreenDesignOnboardingResult> {
+  const validated = buildScreenDesignOnboardingUpdate(input);
+  if (!validated.ok) {
+    return {
+      ok: false,
+      reason: "validation",
+      fieldErrors: validated.fieldErrors,
+    };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      ok: false,
+      reason: "auth",
+      error: "Please sign in to finish setup.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update(validated.update)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return {
+      ok: false,
+      reason: "persistence",
+      error: "Those choices did not save yet. Your other settings are still here.",
+    };
+  }
 
   revalidatePath("/", "layout");
   return { ok: true };

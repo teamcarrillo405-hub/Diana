@@ -1,84 +1,74 @@
 import Link from "next/link";
-import { TimerReset } from "lucide-react";
-import { TimerUi } from "./timer-ui";
-import { BodyDoubleUi } from "../body-double/body-double-ui";
-import { loadProfile } from "@/lib/profile";
-import type { SessionMood } from "@/lib/executive/session";
-import { PageShell } from "../page-shell";
+import { X } from "lucide-react";
 
-// Focus session — one surface, two modes. Solo = the timer; With others = the
-// body-double shared space. /body-double redirects here with ?with=others.
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { type SessionMood } from "@/lib/executive/session";
+import { loadProfile } from "@/lib/profile";
+import { createClient } from "@/lib/supabase/server";
+import { BodyDoubleUi } from "../body-double/body-double-ui";
+import { TimerUi } from "./timer-ui";
+
 export default async function FocusSessionPage({
   searchParams,
 }: {
   searchParams: Promise<{ mode?: string; difficulty?: string; with?: string }>;
 }) {
-  const [{ mode, difficulty, with: withParam }, profile] = await Promise.all([searchParams, loadProfile()]);
+  const [{ mode, difficulty, with: withParam }, profile, supabase] = await Promise.all([
+    searchParams,
+    loadProfile(),
+    createClient(),
+  ]);
   const roughMode = mode === "rough";
   const withOthers = withParam === "others";
   const parsedDifficulty = difficulty ? Number(difficulty) : null;
   const sessionMood: SessionMood =
-    profile?.session_mood === "good" || profile?.session_mood === "meh" || profile?.session_mood === "rough"
+    profile?.session_mood === "good" ||
+    profile?.session_mood === "meh" ||
+    profile?.session_mood === "rough"
       ? profile.session_mood
       : null;
 
-  const modes: { key: "solo" | "others"; label: string; href: string }[] = [
-    { key: "solo", label: "Solo", href: "/timer" },
-    { key: "others", label: "With others", href: "/timer?with=others" },
-  ];
-  const activeKey = withOthers ? "others" : "solo";
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: assignment } = user
+    ? await supabase
+        .from("assignments")
+        .select("id, title, kind, estimated_minutes, status")
+        .eq("owner_id", user.id)
+        .not("status", "in", "(submitted,graded,abandoned)")
+        .order("due_at", { ascending: true, nullsFirst: false })
+        .limit(1)
+        .maybeSingle()
+    : { data: null };
 
   return (
-    <PageShell
-      active="Work"
-      eyebrow="Focus session"
-      title={withOthers ? "Focus together." : "Your session."}
-      subtitle={
-        withOthers
-          ? "A calm shared space. Someone else is focusing right now too."
-          : roughMode
-            ? "A smaller block is ready."
-            : "Pick a block and a reward. Start when you're ready."
-      }
-      accent="var(--gl-cyan)"
-      icon={TimerReset}
-    >
-      {/* Solo / With-others toggle */}
-      <div role="tablist" aria-label="Focus mode" style={{ display: "flex", gap: "var(--space-4)", borderBottom: "1px solid var(--gl-border-neutral)" }}>
-        {modes.map(({ key, label, href }) => {
-          const isActive = key === activeKey;
-          return (
-            <Link
-              key={key}
-              role="tab"
-              aria-selected={isActive}
-              href={href}
-              style={{
-                marginBottom: -1,
-                borderBottom: `2px solid ${isActive ? "var(--gl-cyan)" : "transparent"}`,
-                padding: "var(--space-6) var(--space-10)",
-                fontFamily: "var(--font-body)",
-                fontSize: "var(--text-13)",
-                fontWeight: "var(--weight-700)",
-                color: isActive ? "var(--gl-text-primary)" : "var(--gl-text-muted)",
-                textDecoration: "none",
-              }}
-            >
-              {label}
-            </Link>
-          );
-        })}
-      </div>
+    <ScreenDesignViewport className="sd-focus-session">
+      <header className="sd-focus-header">
+        <div>
+          <DianaWordmark alt="Diana" />
+          <i aria-hidden="true" />
+          <h1>{withOthers ? "Focus together" : "Focus session"}</h1>
+        </div>
+        <Link href="/assignments" aria-label="Close focus session">
+          <X aria-hidden="true" />
+        </Link>
+      </header>
 
       {withOthers ? (
-        <BodyDoubleUi />
+        <div className="sd-focus-body-double"><BodyDoubleUi /></div>
       ) : (
         <TimerUi
+          assignment={assignment ? {
+            id: assignment.id,
+            title: assignment.title,
+            kind: assignment.kind,
+            estimatedMinutes: assignment.estimated_minutes,
+          } : null}
           roughMode={roughMode}
           sessionMood={sessionMood}
           difficulty={Number.isFinite(parsedDifficulty) ? parsedDifficulty : null}
         />
       )}
-    </PageShell>
+    </ScreenDesignViewport>
   );
 }

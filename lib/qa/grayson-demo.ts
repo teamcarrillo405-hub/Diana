@@ -1,5 +1,15 @@
+import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildChecklist } from "@/lib/checklists/templates";
+import {
+  getScreenDesignFixtureScenario,
+  SCREEN_DESIGN_FIXED_CLOCK,
+  SCREEN_DESIGN_OWNER_ALIASES,
+  type ScreenDesignFixtureRecordFactory,
+  type ScreenDesignFixtureScenario,
+  type ScreenDesignOwnerAlias,
+  type ScreenDesignRecordKind,
+} from "@/lib/qa/screendesign-fixtures";
 import { parseRubricText } from "@/lib/rubric/rubric";
 import type {
   AssignmentKind,
@@ -1147,4 +1157,885 @@ export async function seedGraysonFreshmanDemo(
     assignmentCount: Object.keys(assignmentIds).length,
     rubricCount: classRecords.length,
   };
+}
+
+export type ScreenDesignSeedTable =
+  | "profiles"
+  | "classes"
+  | "rubrics"
+  | "class_syllabi"
+  | "assignments"
+  | "assignment_steps"
+  | "assignment_checklists"
+  | "submission_checklist"
+  | "task_signals"
+  | "assignment_time_log"
+  | "inbox_items"
+  | "notes"
+  | "flashcards"
+  | "flashcard_reviews"
+  | "study_artifacts"
+  | "mastery_concepts"
+  | "mastery_events"
+  | "ap_exam_plans"
+  | "ap_practice_attempts"
+  | "lms_connections"
+  | "portfolios"
+  | "portfolio_items"
+  | "session_handoffs"
+  | "data_deletion_requests"
+  | "wellness_activity_logs"
+  | "wellness_goals"
+  | "sleep_logs"
+  | "study_groups"
+  | "study_group_members"
+  | "study_group_sessions"
+  | "analytics_events"
+  | "ai_interactions"
+  | "authorship_log"
+  | "share_links"
+  | "teacher_progress_notes"
+  | "accommodation_confirmations";
+
+export type ScreenDesignOwnerColumn = "owner_id" | "user_id";
+
+export interface ScreenDesignPreparedSeedRow {
+  readonly table: ScreenDesignSeedTable;
+  readonly ownerColumn: ScreenDesignOwnerColumn;
+  readonly ownerId: string;
+  readonly alias: string;
+  readonly recordKind: ScreenDesignRecordKind;
+  readonly values: Readonly<Record<string, unknown>>;
+}
+
+export interface ScreenDesignSeedStore {
+  clearOwned(
+    table: ScreenDesignSeedTable,
+    ownerColumn: ScreenDesignOwnerColumn,
+    ownerId: string,
+  ): Promise<void>;
+  insert(row: ScreenDesignPreparedSeedRow): Promise<void>;
+}
+
+export interface ScreenDesignScenarioSeedResult {
+  readonly scenarioId: string;
+  readonly ownerAlias: ScreenDesignOwnerAlias;
+  readonly aliases: readonly Readonly<{
+    alias: string;
+    kind: ScreenDesignRecordKind;
+  }>[];
+  readonly storageStateInputs: Readonly<{
+    authClass: "authenticated" | "public-token";
+    pathname: `/${string}`;
+    params: Readonly<Record<string, string>>;
+    stateSelector: string | null;
+    fixedClock: typeof SCREEN_DESIGN_FIXED_CLOCK;
+    guardedStates: readonly string[];
+  }>;
+}
+
+const SCREEN_DESIGN_RESET_TARGETS: readonly Readonly<{
+  table: ScreenDesignSeedTable;
+  ownerColumn: ScreenDesignOwnerColumn;
+}>[] = [
+  { table: "flashcard_reviews", ownerColumn: "owner_id" },
+  { table: "authorship_log", ownerColumn: "owner_id" },
+  { table: "ai_interactions", ownerColumn: "owner_id" },
+  { table: "mastery_events", ownerColumn: "owner_id" },
+  { table: "task_signals", ownerColumn: "owner_id" },
+  { table: "assignment_time_log", ownerColumn: "owner_id" },
+  { table: "submission_checklist", ownerColumn: "owner_id" },
+  { table: "assignment_checklists", ownerColumn: "owner_id" },
+  { table: "assignment_steps", ownerColumn: "owner_id" },
+  { table: "ap_practice_attempts", ownerColumn: "owner_id" },
+  { table: "portfolio_items", ownerColumn: "owner_id" },
+  { table: "study_group_sessions", ownerColumn: "owner_id" },
+  { table: "study_group_members", ownerColumn: "owner_id" },
+  { table: "flashcards", ownerColumn: "owner_id" },
+  { table: "study_artifacts", ownerColumn: "owner_id" },
+  { table: "notes", ownerColumn: "owner_id" },
+  { table: "inbox_items", ownerColumn: "owner_id" },
+  { table: "analytics_events", ownerColumn: "owner_id" },
+  { table: "share_links", ownerColumn: "owner_id" },
+  { table: "data_deletion_requests", ownerColumn: "owner_id" },
+  { table: "session_handoffs", ownerColumn: "owner_id" },
+  { table: "teacher_progress_notes", ownerColumn: "owner_id" },
+  { table: "accommodation_confirmations", ownerColumn: "owner_id" },
+  { table: "wellness_activity_logs", ownerColumn: "owner_id" },
+  { table: "wellness_goals", ownerColumn: "owner_id" },
+  { table: "sleep_logs", ownerColumn: "owner_id" },
+  { table: "assignments", ownerColumn: "owner_id" },
+  { table: "class_syllabi", ownerColumn: "owner_id" },
+  { table: "rubrics", ownerColumn: "owner_id" },
+  { table: "mastery_concepts", ownerColumn: "owner_id" },
+  { table: "ap_exam_plans", ownerColumn: "owner_id" },
+  { table: "lms_connections", ownerColumn: "owner_id" },
+  { table: "portfolios", ownerColumn: "owner_id" },
+  { table: "study_groups", ownerColumn: "owner_id" },
+  { table: "classes", ownerColumn: "owner_id" },
+  { table: "profiles", ownerColumn: "user_id" },
+];
+
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function assertSyntheticOwner(ownerId: string, ownerAlias: ScreenDesignOwnerAlias) {
+  if (!SCREEN_DESIGN_OWNER_ALIASES.includes(ownerAlias)) {
+    throw new Error("Unsupported ScreenDesign QA owner alias.");
+  }
+  if (!UUID_PATTERN.test(ownerId)) {
+    throw new Error("ScreenDesign QA owner must be a synthetic auth UUID.");
+  }
+}
+
+function stableUuid(ownerId: string, scenarioId: string, alias: string) {
+  const hex = createHash("sha256")
+    .update(`${ownerId}:${scenarioId}:${alias}`)
+    .digest("hex")
+    .slice(0, 32)
+    .split("");
+  hex[12] = "4";
+  hex[16] = ["8", "9", "a", "b"][Number.parseInt(hex[16] ?? "0", 16) % 4] ?? "8";
+  const value = hex.join("");
+  return `${value.slice(0, 8)}-${value.slice(8, 12)}-${value.slice(12, 16)}-${value.slice(16, 20)}-${value.slice(20)}`;
+}
+
+function stringValue(
+  values: Readonly<Record<string, unknown>> | undefined,
+  key: string,
+  fallback: string,
+) {
+  const value = values?.[key];
+  return typeof value === "string" ? value : fallback;
+}
+
+function nullableStringValue(
+  values: Readonly<Record<string, unknown>> | undefined,
+  key: string,
+  fallback: string | null,
+) {
+  const value = values?.[key];
+  return value === null || typeof value === "string" ? value : fallback;
+}
+
+function numberValue(
+  values: Readonly<Record<string, unknown>> | undefined,
+  key: string,
+  fallback: number,
+) {
+  const value = values?.[key];
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function booleanValue(
+  values: Readonly<Record<string, unknown>> | undefined,
+  key: string,
+  fallback: boolean,
+) {
+  const value = values?.[key];
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function dependencyAlias(
+  scenario: ScreenDesignFixtureScenario,
+  factory: ScreenDesignFixtureRecordFactory,
+  kind: ScreenDesignRecordKind,
+) {
+  const byAlias = new Map(scenario.records.map((recordFactory) => [recordFactory.alias, recordFactory]));
+  return factory.dependsOn?.find((alias) => byAlias.get(alias)?.kind === kind) ?? null;
+}
+
+function buildRowsForFactory(
+  scenario: ScreenDesignFixtureScenario,
+  ownerId: string,
+  factory: ScreenDesignFixtureRecordFactory,
+): readonly ScreenDesignPreparedSeedRow[] {
+  const values = factory.values;
+  const idFor = (alias: string) => stableUuid(ownerId, scenario.id, alias);
+  const dependencyId = (kind: ScreenDesignRecordKind) => {
+    const alias = dependencyAlias(scenario, factory, kind);
+    return alias ? idFor(alias) : null;
+  };
+  const row = (
+    table: ScreenDesignSeedTable,
+    seededValues: Readonly<Record<string, unknown>>,
+    ownerColumn: ScreenDesignOwnerColumn = "owner_id",
+    alias = factory.alias,
+  ): ScreenDesignPreparedSeedRow => ({
+    table,
+    ownerColumn,
+    ownerId,
+    alias,
+    recordKind: factory.kind,
+    values: Object.freeze(seededValues),
+  });
+
+  switch (factory.kind) {
+    case "profile":
+      return [
+        row(
+          "profiles",
+          {
+            user_id: ownerId,
+            display_name: "Grayson",
+            date_of_birth: "2011-09-01",
+            age_bracket: "13_to_17",
+            timezone: stringValue(values, "timezone", timezone),
+            onboarded_at:
+              values?.onboardedAt === null ? null : SCREEN_DESIGN_FIXED_CLOCK,
+            consent_ai: booleanValue(values, "consentAi", true),
+            school_year: numberValue(values, "schoolYear", 9),
+            diagnoses: DEMO_DIAGNOSES,
+            accommodations: ["extended_time", "breaks", "alternate_format"],
+            extra_time_pct: 50,
+            reduced_motion: booleanValue(values, "reducedMotion", false),
+            high_contrast: booleanValue(values, "highContrast", false),
+            tutor_persona: stringValue(values, "tutorPersona", "diana"),
+            tutor_style: stringValue(values, "tutorStyle", "socratic"),
+            tutor_complexity: stringValue(values, "tutorComplexity", "balanced"),
+            learning_hurdle: nullableStringValue(
+              values,
+              "learningHurdle",
+              null,
+            ),
+            study_schedule_preference: nullableStringValue(
+              values,
+              "studySchedulePreference",
+              null,
+            ),
+          },
+          "user_id",
+        ),
+      ];
+    case "class":
+      return [
+        row("classes", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          name: stringValue(values, "name", "English 9"),
+          teacher: stringValue(values, "teacher", "Ms. Rivera"),
+          color: "#35ddf2",
+          ai_mode: stringValue(values, "aiMode", "green"),
+          notes: "Synthetic ScreenDesign QA class.",
+        }),
+      ];
+    case "rubric": {
+      const classId = dependencyId("class");
+      return [
+        row("rubrics", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: classId,
+          title: stringValue(values, "title", "Identity response rubric"),
+          source_kind: "manual",
+          raw_text: "Claim - clear answer - 40 pts\nEvidence - source is attached - 30 pts\nExplanation - reasoning is visible - 30 pts",
+          parsed: { source: "screendesign-qa", scenarioId: scenario.id },
+          parse_status: "parsed",
+          parse_error: null,
+        }),
+      ];
+    }
+    case "class-syllabus": {
+      const classId = dependencyId("class");
+      return [
+        row("class_syllabi", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: classId,
+          title: stringValue(values, "title", "English 9 course guide"),
+          raw_text:
+            "Citations: Use APA formatting for the final submission.\nTiming: Upload the final response by the course due time.",
+          parsed: {
+            keyDates: [],
+            policies: [
+              {
+                kind: "Citations",
+                text: "Use APA formatting for the final submission.",
+              },
+              {
+                kind: "Timing",
+                text: "Upload the final response by the course due time.",
+              },
+            ],
+          },
+        }),
+      ];
+    }
+    case "assignment":
+      return [
+        row("assignments", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: dependencyId("class"),
+          title: stringValue(values, "title", "Identity quote response"),
+          description: "Choose one quote and explain how it supports the claim.",
+          kind: "essay",
+          status: stringValue(values, "status", "todo"),
+          due_at: stringValue(values, "dueAt", "2026-09-15T22:30:00.000Z"),
+          estimated_minutes: numberValue(values, "estimatedMinutes", 35),
+          difficulty: 3,
+          reading_load: 3,
+          writing_load: 4,
+          external_source: "clever",
+          external_id: `${scenario.id}:${factory.alias}`,
+          last_synced_at: SCREEN_DESIGN_FIXED_CLOCK,
+          submission_sync_status: "not_started",
+          saved_work: values?.savedWork ?? {},
+        }),
+      ];
+    case "assignment-step":
+      return [
+        row("assignment_steps", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          assignment_id: dependencyId("assignment"),
+          steps: values?.steps ?? [
+            { step: 1, action: "Pick the quote and page number.", minutes: 5, done: false },
+          ],
+          generated_at: SCREEN_DESIGN_FIXED_CLOCK,
+          updated_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "assignment-checklist": {
+      const assignmentId = dependencyId("assignment");
+      const label = stringValue(values, "label", "Quote and page number are attached");
+      const checked = booleanValue(values, "checked", false);
+      return [
+        row("assignment_checklists", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          assignment_id: assignmentId,
+          items: [{ label, checked, required: true }],
+          updated_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+        row(
+          "submission_checklist",
+          {
+            id: idFor(`${factory.alias}:item`),
+            owner_id: ownerId,
+            assignment_id: assignmentId,
+            label,
+            checked,
+            required: true,
+            position: 0,
+          },
+          "owner_id",
+          `${factory.alias}:item`,
+        ),
+      ];
+    }
+    case "assignment-signal":
+      {
+        const requestedKind = stringValue(values, "kind", "started");
+      return [
+        row("task_signals", {
+          owner_id: ownerId,
+          assignment_id: dependencyId("assignment"),
+          kind: requestedKind === "start" ? "started" : requestedKind,
+          occurred_at: stringValue(values, "occurredAt", SCREEN_DESIGN_FIXED_CLOCK),
+          value: { source: "screendesign-qa" },
+        }),
+      ];
+      }
+    case "assignment-time-log":
+      return [
+        row("assignment_time_log", {
+          owner_id: ownerId,
+          assignment_id: dependencyId("assignment"),
+          started_at: stringValue(values, "startedAt", "2026-09-14T16:20:00.000Z"),
+          ended_at: nullableStringValue(values, "endedAt", null),
+          elapsed_minutes: 10,
+          edited_by_student: false,
+        }),
+      ];
+    case "inbox-item":
+      return [
+        row("inbox_items", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          raw: stringValue(values, "raw", "Bring the biology diagram tomorrow."),
+          capture_mode: "text",
+          status: stringValue(values, "status", "unclassified"),
+          suggested_class_id: dependencyId("class"),
+          suggestion_confidence: 0.82,
+          created_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "note":
+      return [
+        row("notes", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: dependencyId("class"),
+          assignment_id: dependencyId("assignment"),
+          title: stringValue(values, "title", "Identity reading notes"),
+          body_text: stringValue(values, "bodyText", "Claim, quote, explanation."),
+          source: "manual",
+          tags: ["screendesign-qa"],
+        }),
+      ];
+    case "flashcard":
+      return [
+        row("flashcards", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          front: stringValue(values, "front", "What is the claim?"),
+          back: stringValue(values, "back", "Identity shapes choices."),
+          concept_id: dependencyId("mastery-concept"),
+          source_note_id: dependencyId("note"),
+          source_assignment_id: dependencyId("assignment"),
+          source_artifact_id: dependencyId("study-artifact"),
+          due_at: SCREEN_DESIGN_FIXED_CLOCK,
+          state: stringValue(values, "state", "review"),
+          stability: 2.5,
+          difficulty: 5,
+          reps: 1,
+          lapses: 0,
+        }),
+      ];
+    case "flashcard-review":
+      return [
+        row("flashcard_reviews", {
+          owner_id: ownerId,
+          card_id: dependencyId("flashcard"),
+          rating: numberValue(values, "rating", 3),
+          reviewed_at: stringValue(values, "reviewedAt", SCREEN_DESIGN_FIXED_CLOCK),
+          state: "review",
+          scheduled_for: "2026-09-17T16:30:00.000Z",
+          scheduled_days: 3,
+          elapsed_days: 1,
+          stability: 2.5,
+          difficulty: 5,
+          reps: 1,
+          lapses: 0,
+        }),
+      ];
+    case "study-artifact": {
+      const assignmentId = dependencyId("assignment");
+      const noteId = dependencyId("note");
+      return [
+        row("study_artifacts", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: dependencyId("class"),
+          source_type: noteId ? "note" : "assignment",
+          source_id: noteId ?? assignmentId,
+          artifact_type: stringValue(values, "artifactType", "study_guide"),
+          study_mode: "retrieval_quiz",
+          title: stringValue(values, "title", "Identity study guide"),
+          payload: {
+            completed: booleanValue(values, "completed", false),
+            score: values?.score ?? null,
+            source: "screendesign-qa",
+          },
+          ai_policy: "green",
+          practice_settings: { scoreMode: "none" },
+          authorship_receipt: { synthetic: true, ownerScoped: true },
+        }),
+      ];
+    }
+    case "mastery-concept":
+      return [
+        row("mastery_concepts", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: dependencyId("class"),
+          name: stringValue(values, "name", "Claim evidence reasoning"),
+          source: "seeded",
+          mastery_level: numberValue(values, "masteryLevel", 1.8),
+          self_confidence: 1.6,
+          last_practiced_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "mastery-event":
+      return [
+        row("mastery_events", {
+          owner_id: ownerId,
+          concept_id: dependencyId("mastery-concept"),
+          source: stringValue(values, "source", "flashcard_review"),
+          rating: 3,
+          delta: 0.2,
+          evidence_text: stringValue(values, "evidence", "one supported practice pass"),
+          created_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "ap-exam-plan":
+      return [
+        row("ap_exam_plans", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          subject: stringValue(values, "subject", "english_language"),
+          exam_date: stringValue(values, "examDate", "2027-05-11"),
+          goal_band: stringValue(values, "targetBand", "3-4"),
+          current_focus: "Evidence commentary",
+          active: true,
+        }),
+      ];
+    case "ap-practice-attempt":
+      return [
+        row("ap_practice_attempts", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          plan_id: dependencyId("ap-exam-plan"),
+          subject: "english_language",
+          practice_type: stringValue(values, "practiceType", "frq"),
+          correct_count:
+            numberValue(values, "totalCount", 0) > 0
+              ? numberValue(values, "correctCount", 0)
+              : null,
+          total_count:
+            numberValue(values, "totalCount", 0) > 0
+              ? numberValue(values, "totalCount", 0)
+              : null,
+          score_band: nullableStringValue(values, "scoreBand", null),
+          notes: "Synthetic no-score practice evidence.",
+          practiced_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "lms-connection":
+      return [
+        row("lms_connections", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          provider: stringValue(values, "provider", "canvas"),
+          config: {
+            synthetic: true,
+            status: stringValue(values, "status", "connected"),
+            lastSyncError: values?.lastSyncError ?? null,
+          },
+          last_synced_at:
+            stringValue(values, "status", "connected") === "connected"
+              ? SCREEN_DESIGN_FIXED_CLOCK
+              : null,
+        }),
+      ];
+    case "portfolio":
+      return [
+        row("portfolios", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          class_id: dependencyId("class"),
+          title: stringValue(values, "title", "Freshman portfolio"),
+          description: "Synthetic work chosen for QA review.",
+        }),
+      ];
+    case "portfolio-item":
+      return [
+        row("portfolio_items", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          portfolio_id: dependencyId("portfolio"),
+          title: stringValue(values, "title", "Identity quote response"),
+          reflection_text: stringValue(values, "reflection", "I revised the explanation."),
+          metadata: { source: "screendesign-qa" },
+          position: numberValue(values, "position", 0),
+        }),
+      ];
+    case "analytics-event":
+      return [
+        row("analytics_events", {
+          owner_id: ownerId,
+          event_name: stringValue(values, "eventName", "assignment_opened"),
+          feature: "screendesign_qa",
+          route: scenario.route.pathname,
+          metadata: { synthetic: true },
+          created_at: stringValue(values, "occurredAt", SCREEN_DESIGN_FIXED_CLOCK),
+        }),
+      ];
+    case "session-handoff":
+      return [
+        row("session_handoffs", {
+          owner_id: ownerId,
+          route: stringValue(values, "route", "/dashboard"),
+          context: { source: "screendesign-qa" },
+          updated_at: stringValue(values, "updatedAt", SCREEN_DESIGN_FIXED_CLOCK),
+        }),
+      ];
+    case "data-deletion-request":
+      return [
+        row("data_deletion_requests", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          status: stringValue(values, "status", "cancelled"),
+          requested_at: stringValue(values, "requestedAt", SCREEN_DESIGN_FIXED_CLOCK),
+          export_offered: true,
+          notes: "Synthetic QA privacy evidence.",
+        }),
+      ];
+    case "wellness-activity":
+      return [
+        row("wellness_activity_logs", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          logged_for: "2026-09-14",
+          activity_type: stringValue(values, "activityType", "walk"),
+          duration_minutes: numberValue(values, "durationMinutes", 20),
+          felt: stringValue(values, "felt", "steady"),
+          notes: "Synthetic private recovery log.",
+        }),
+      ];
+    case "wellness-goal":
+      return [
+        row("wellness_goals", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          title: stringValue(values, "title", "Take one screen break"),
+          category: stringValue(values, "category", "recovery"),
+          target_text: "One calm recovery break after school.",
+          next_step: "Set a 10 minute reminder.",
+          active: true,
+        }),
+      ];
+    case "sleep-log":
+      {
+        const requestedQuality = stringValue(values, "quality", "ok");
+      return [
+        row("sleep_logs", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          sleep_date: stringValue(values, "sleepDate", "2026-09-13"),
+          sleep_quality: requestedQuality === "okay" ? "ok" : requestedQuality,
+          sleep_hours: numberValue(values, "durationMinutes", 480) / 60,
+          focus_note: "Use a lighter first move today.",
+        }),
+      ];
+      }
+    case "study-group":
+      return [
+        row("study_groups", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          name: stringValue(values, "name", "Freshman study room"),
+          subject: "English 9",
+          join_code: `${stringValue(values, "inviteCode", "QA-STUDY").slice(0, 11)}-${createHash("sha256")
+            .update(ownerId)
+            .digest("hex")
+            .slice(0, 8)}`,
+          visibility: "invite_only",
+        }),
+      ];
+    case "study-group-membership":
+      return [
+        row("study_group_members", {
+          group_id: dependencyId("study-group"),
+          owner_id: ownerId,
+          display_name: "Grayson",
+          role: stringValue(values, "role", "member"),
+          joined_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "study-group-session":
+      {
+        const requestedStatus = stringValue(values, "status", "planned");
+      return [
+        row("study_group_sessions", {
+          id: idFor(factory.alias),
+          group_id: dependencyId("study-group"),
+          owner_id: ownerId,
+          title: "Freshman focus room",
+          work_minutes: numberValue(values, "durationMinutes", 25),
+          break_minutes: 5,
+          starts_at: SCREEN_DESIGN_FIXED_CLOCK,
+          status: requestedStatus === "scheduled" ? "planned" : requestedStatus,
+        }),
+      ];
+      }
+    case "ai-interaction":
+      return [
+        row("ai_interactions", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          assignment_id: dependencyId("assignment"),
+          feature: stringValue(values, "feature", "writing_aid"),
+          model: stringValue(values, "model", "claude-sonnet-4-6"),
+          prompt_summary: "Synthetic QA request with no student credentials.",
+          tokens_used: 120,
+          created_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "authorship-log":
+      return [
+        row("authorship_log", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          assignment_id: dependencyId("assignment"),
+          source_artifact_id: dependencyId("study-artifact"),
+          actor: "diana",
+          event_type: stringValue(values, "feature", "writing_aid"),
+          payload: { synthetic: true, studentConfirmed: values?.studentConfirmed ?? false },
+          created_at: SCREEN_DESIGN_FIXED_CLOCK,
+        }),
+      ];
+    case "share-token": {
+      const tokenState = stringValue(values, "tokenState", "active");
+      const token = `sdqa-${createHash("sha256")
+        .update(`${ownerId}:${scenario.id}:${factory.alias}`)
+        .digest("hex")
+        .slice(0, 32)}`;
+      return [
+        row("share_links", {
+          id: idFor(factory.alias),
+          owner_id: ownerId,
+          token,
+          share_type:
+            stringValue(values, "scope", "report") === "portfolio"
+              ? "teacher_snapshot"
+              : "parent_summary",
+          expires_at:
+            tokenState === "expired"
+              ? "2026-09-13T16:30:00.000Z"
+              : "2026-10-14T16:30:00.000Z",
+          revoked_at: tokenState === "revoked" ? SCREEN_DESIGN_FIXED_CLOCK : null,
+          created_at: "2026-09-01T16:30:00.000Z",
+        }),
+      ];
+    }
+  }
+}
+
+export function buildScreenDesignSeedPlan(
+  scenario: ScreenDesignFixtureScenario,
+  ownerId: string,
+): readonly ScreenDesignPreparedSeedRow[] {
+  return Object.freeze(
+    scenario.records.flatMap((factory) =>
+      buildRowsForFactory(scenario, ownerId, factory),
+    ),
+  );
+}
+
+const SCREEN_DESIGN_INSERT_RANK: Partial<Record<ScreenDesignSeedTable, number>> = {
+  profiles: 0,
+  classes: 1,
+  study_groups: 2,
+  mastery_concepts: 2,
+  assignments: 3,
+  notes: 4,
+  study_artifacts: 4,
+  flashcards: 5,
+};
+
+function orderScreenDesignSeedRows(
+  rows: readonly ScreenDesignPreparedSeedRow[],
+): readonly ScreenDesignPreparedSeedRow[] {
+  return rows
+    .map((row, index) => ({ row, index }))
+    .sort((left, right) => {
+      const leftRank = SCREEN_DESIGN_INSERT_RANK[left.row.table] ?? 10;
+      const rightRank = SCREEN_DESIGN_INSERT_RANK[right.row.table] ?? 10;
+      return leftRank - rightRank || left.index - right.index;
+    })
+    .map(({ row }) => row);
+}
+
+export async function resetScreenDesignOwnerWithStore(
+  store: ScreenDesignSeedStore,
+  ownerId: string,
+  ownerAlias: ScreenDesignOwnerAlias,
+) {
+  assertSyntheticOwner(ownerId, ownerAlias);
+  for (const target of SCREEN_DESIGN_RESET_TARGETS) {
+    await store.clearOwned(target.table, target.ownerColumn, ownerId);
+  }
+}
+
+export async function seedScreenDesignScenarioWithStore(
+  store: ScreenDesignSeedStore,
+  ownerId: string,
+  ownerAlias: ScreenDesignOwnerAlias,
+  scenarioId: string,
+): Promise<ScreenDesignScenarioSeedResult> {
+  assertSyntheticOwner(ownerId, ownerAlias);
+  const scenario = getScreenDesignFixtureScenario(scenarioId);
+  if (!scenario) throw new Error(`Unknown ScreenDesign fixture scenario: ${scenarioId}`);
+  if (ownerAlias !== scenario.ownerAlias && ownerAlias !== "qa-secondary") {
+    throw new Error("ScreenDesign fixture scenario is not assigned to this QA owner alias.");
+  }
+
+  await resetScreenDesignOwnerWithStore(store, ownerId, ownerAlias);
+  const rows = orderScreenDesignSeedRows(
+    buildScreenDesignSeedPlan(scenario, ownerId),
+  );
+  for (const seedRow of rows) await store.insert(seedRow);
+
+  return Object.freeze({
+    scenarioId: scenario.id,
+    ownerAlias,
+    aliases: Object.freeze(
+      scenario.records.map((factory) =>
+        Object.freeze({ alias: factory.alias, kind: factory.kind }),
+      ),
+    ),
+    storageStateInputs: Object.freeze({
+      authClass: scenario.authClass,
+      pathname: scenario.route.pathname,
+      params: scenario.route.params,
+      stateSelector: scenario.route.stateSelector,
+      fixedClock: scenario.fixedClock,
+      guardedStates: scenario.guardedStates,
+    }),
+  });
+}
+
+type DynamicQueryResult = Readonly<{
+  error: Readonly<{ message: string }> | null;
+}>;
+
+interface DynamicDeleteQuery {
+  eq(column: string, value: string): PromiseLike<DynamicQueryResult>;
+}
+
+interface DynamicSeedTable {
+  delete(): DynamicDeleteQuery;
+  insert(values: Readonly<Record<string, unknown>>): PromiseLike<DynamicQueryResult>;
+  upsert(
+    values: Readonly<Record<string, unknown>>,
+    options: { onConflict: string },
+  ): PromiseLike<DynamicQueryResult>;
+}
+
+function createSupabaseScreenDesignStore(
+  client: AppSupabaseClient,
+): ScreenDesignSeedStore {
+  const table = (name: ScreenDesignSeedTable) =>
+    client.from(name as never) as unknown as DynamicSeedTable;
+
+  return {
+    async clearOwned(tableName, ownerColumn, ownerId) {
+      const { error } = await table(tableName).delete().eq(ownerColumn, ownerId);
+      expectNoError(error, `Reset ScreenDesign QA table ${tableName}`);
+    },
+    async insert(seedRow) {
+      const { error } = seedRow.table === "profiles"
+        ? await table(seedRow.table).upsert(seedRow.values, { onConflict: "user_id" })
+        : await table(seedRow.table).insert(seedRow.values);
+      expectNoError(error, `Seed ScreenDesign QA table ${seedRow.table}`);
+    },
+  };
+}
+
+export async function resetScreenDesignOwner(
+  client: AppSupabaseClient,
+  ownerId: string,
+  ownerAlias: ScreenDesignOwnerAlias,
+) {
+  return resetScreenDesignOwnerWithStore(
+    createSupabaseScreenDesignStore(client),
+    ownerId,
+    ownerAlias,
+  );
+}
+
+export async function seedScreenDesignScenario(
+  client: AppSupabaseClient,
+  ownerId: string,
+  ownerAlias: ScreenDesignOwnerAlias,
+  scenarioId: string,
+) {
+  return seedScreenDesignScenarioWithStore(
+    createSupabaseScreenDesignStore(client),
+    ownerId,
+    ownerAlias,
+    scenarioId,
+  );
 }

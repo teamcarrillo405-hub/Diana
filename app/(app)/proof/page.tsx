@@ -1,28 +1,30 @@
-import { Suspense } from "react";
+import {
+  ArrowRight,
+  CheckCircle2,
+  FileCheck2,
+  FolderOpen,
+  ShieldCheck,
+} from "lucide-react";
 import Link from "next/link";
-import { Activity, FileText, Images, LockKeyhole, ShieldCheck, TrendingDown, TrendingUp, Zap } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
-import { computeXp } from "@/lib/gamification/xp";
-import { weekOverWeek } from "@/lib/insights/week-over-week";
-import { ProofConstellation, ProofReceiptVisual } from "@/components/student-portal/proof-receipt-visual";
-import { AppTopNav } from "../app-top-nav";
-import { DoneToday } from "../dashboard/done-today";
-import { GradeMoveCard } from "../dashboard/grade-move-card";
+import { redirect } from "next/navigation";
 
-const SF = "var(--font-display)";
-const BODY = "var(--font-body)";
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { SourceMedia } from "@/components/screen-design/source-media";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import { createClient } from "@/lib/supabase/server";
+
+import {
+  selectLatestProofMilestone,
+  type CompletedProofRow,
+} from "./proof-state";
 
 type AuthorshipRow = {
   id: string;
-  actor: "student" | "diana" | "system";
+  assignment_id: string | null;
+  actor: string;
   event_type: string;
   created_at: string;
-};
-
-type WinRow = {
-  id: string | number;
-  occurred_at: string;
-  assignments?: { title?: string | null; kind?: string | null } | Array<{ title?: string | null; kind?: string | null }> | null;
 };
 
 type ArtifactRow = {
@@ -33,301 +35,265 @@ type ArtifactRow = {
   created_at: string;
 };
 
-type PortfolioRow = {
-  id: string;
-  title: string;
-  description: string | null;
-  portfolio_items?: Array<{ id: string; title: string; reflection_text: string | null; created_at: string }> | null;
-};
+const PROOF_STYLES = `
+  .diana-app-shell:has(.sd-proof-screen) .agent-fab-anchor,
+  .app-command-frame:has(.sd-proof-screen) .diana-mobile-command { display: none !important; }
+  .app-command-frame:has(.sd-proof-screen) { padding: 0 !important; }
+  .diana-app:has(.sd-proof-screen) nextjs-portal { display: none !important; }
+  .diana-app:has(.sd-proof-screen) .skip-link { transition: none; }
+  .diana-app:has(.sd-proof-screen) .skip-link:focus { transform: translateY(0) !important; }
+  .sd-proof-screen { min-height: max(100dvh, 852px); font-family: var(--font-body); background: #0b1428; }
+  .sd-proof-screen a { color: inherit; }
+  .sd-proof-scroll { min-height: calc(852px - 88px); padding: 30px 22px 26px; background: radial-gradient(circle at 88% 6%, rgb(255 121 218 / .11), transparent 30%), #0b1428; }
+  .sd-proof-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .sd-proof-lock { display: inline-flex; align-items: center; gap: 7px; color: #94a3b8; font-size: 10px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; }
+  .sd-proof-title { margin: 29px 0 0; font-family: var(--font-display); font-size: 39px; font-style: italic; font-weight: 950; letter-spacing: -.055em; line-height: .91; text-transform: uppercase; }
+  .sd-proof-title span { color: #ff79da; }
+  .sd-proof-intro { max-width: 32ch; margin: 13px 0 23px; color: #94a3b8; font-size: 13px; line-height: 1.55; }
+  .sd-proof-section { margin-top: 25px; }
+  .sd-proof-section-title { margin: 0 0 11px; color: #74c0ff; font-size: 10px; font-weight: 950; letter-spacing: .18em; text-transform: uppercase; }
+  .sd-proof-card { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; border: 1px solid rgb(116 192 255 / .2); border-radius: 16px; background: #151f35; padding: 14px; text-decoration: none; }
+  .sd-proof-card-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 12px; background: rgb(116 192 255 / .1); color: #74c0ff; }
+  .sd-proof-card h2 { margin: 0; color: #f8fafc; font-family: var(--font-display); font-size: 15px; font-style: italic; font-weight: 900; letter-spacing: -.02em; text-transform: uppercase; }
+  .sd-proof-card p { margin: 4px 0 0; color: #71809c; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .sd-proof-empty { border: 1px dashed rgb(148 163 184 / .25); border-radius: 18px; background: rgb(255 255 255 / .025); padding: 22px; }
+  .sd-proof-empty h2 { margin: 0 0 7px; font-family: var(--font-display); font-size: 18px; font-style: italic; text-transform: uppercase; }
+  .sd-proof-empty p { margin: 0 0 16px; color: #94a3b8; font-size: 12px; line-height: 1.55; }
+  .sd-proof-empty a { display: inline-flex; align-items: center; gap: 8px; color: #74c0ff; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
+  .sd-proof-receipt { display: flex; align-items: center; justify-content: space-between; gap: 12px; border: 1px solid rgb(45 212 191 / .18); border-radius: 16px; background: rgb(45 212 191 / .06); padding: 14px; color: #cbd5e1; font-size: 11px; line-height: 1.45; }
+  .sd-proof-receipt strong { display: block; color: #2dd4bf; font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+  .sd-proof-screen .sd-student-bottom-nav { position: sticky; bottom: 0; }
 
-export default async function ProofPage() {
+  .sd-milestone-screen { display: flex; min-height: max(100dvh, 852px); flex-direction: column; overflow: hidden; font-family: var(--font-body); background: radial-gradient(circle at 50% 38%, rgb(255 121 218 / .13), transparent 34%), #0b1428; }
+  .sd-milestone-confetti { pointer-events: none; position: absolute; inset: 0; overflow: hidden; }
+  .sd-milestone-confetti i { position: absolute; width: 5px; height: 13px; border-radius: 4px; background: #74c0ff; transform: rotate(21deg); animation: sd-confetti-float 5s ease-in-out infinite; }
+  .sd-milestone-confetti i:nth-child(2n) { background: #ff79da; transform: rotate(-31deg); }
+  .sd-milestone-confetti i:nth-child(3n) { background: #2dd4bf; }
+  .sd-milestone-confetti i:nth-child(1) { top: 8%; left: 9%; } .sd-milestone-confetti i:nth-child(2) { top: 13%; right: 12%; animation-delay: -.7s; }
+  .sd-milestone-confetti i:nth-child(3) { top: 31%; left: 5%; animation-delay: -1.8s; } .sd-milestone-confetti i:nth-child(4) { top: 35%; right: 7%; animation-delay: -2.5s; }
+  .sd-milestone-confetti i:nth-child(5) { top: 57%; left: 12%; animation-delay: -3.2s; } .sd-milestone-confetti i:nth-child(6) { top: 61%; right: 10%; animation-delay: -4s; }
+  @keyframes sd-confetti-float { 0%,100% { translate: 0 -5px; opacity: .45; } 50% { translate: 0 8px; opacity: 1; } }
+  .sd-milestone-main { position: relative; z-index: 1; display: flex; flex: 1; flex-direction: column; align-items: center; padding: 24px 25px 18px; text-align: center; }
+  .sd-milestone-main .sd-source-wordmark { height: 18px; align-self: center; }
+  .sd-milestone-kicker { margin: 31px 0 6px; color: #74c0ff; font-size: 11px; font-weight: 950; letter-spacing: .32em; text-transform: uppercase; }
+  .sd-milestone-main h1 { max-width: 330px; margin: 0; font-family: var(--font-display); font-size: 35px; font-style: italic; font-weight: 950; letter-spacing: -.05em; line-height: .95; text-transform: uppercase; }
+  .sd-milestone-main h1 span { display: block; color: #ff79da; }
+  .sd-milestone-ring { width: 206px; height: 206px; margin: 16px auto 9px; object-fit: contain; filter: drop-shadow(0 0 24px rgb(116 192 255 / .18)); }
+  .sd-milestone-label { margin: 0 0 10px; color: #ff79da; font-size: 9px; font-weight: 950; letter-spacing: .2em; text-transform: uppercase; }
+  .sd-milestone-facts { display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sd-milestone-fact { min-width: 0; border: 1px solid rgb(255 255 255 / .11); border-radius: 14px; background: #162136; padding: 13px 12px; text-align: left; }
+  .sd-milestone-fact strong { display: block; overflow: hidden; color: #f8fafc; font-family: var(--font-display); font-size: 13px; font-style: italic; font-weight: 900; line-height: 1.15; text-overflow: ellipsis; text-transform: uppercase; }
+  .sd-milestone-fact span { display: block; margin-top: 5px; color: #71809c; font-size: 8px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
+  .sd-milestone-note { margin: 14px 12px 0; color: #94a3b8; font-size: 11px; font-style: italic; line-height: 1.45; }
+  .sd-milestone-footer { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr auto; gap: 10px; border-top: 1px solid rgb(255 255 255 / .07); background: rgb(8 15 31 / .96); padding: 15px 20px max(18px, env(safe-area-inset-bottom)); }
+  .sd-milestone-share, .sd-milestone-continue { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 8px; border-radius: 15px; font-size: 12px; font-style: italic; font-weight: 950; text-decoration: none; text-transform: uppercase; }
+  .sd-milestone-share { background: linear-gradient(120deg, #74c0ff, #ff79da); color: #0b1428 !important; }
+  .sd-milestone-continue { border: 1px solid rgb(255 255 255 / .15); padding-inline: 17px; color: #f8fafc !important; }
+  @media (prefers-reduced-motion: reduce) { .sd-milestone-confetti i { animation: none; } }
+  @media (min-width: 700px) { .sd-proof-screen, .sd-milestone-screen { min-height: max(100dvh, 852px); } }
+`;
+
+export default async function ProofPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ celebrate?: string; sdState?: string }>;
+}) {
+  const params = await searchParams;
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  if (!user) {
+  const [{ data: completed }, { data: authorship }, { data: artifacts }] =
+    await Promise.all([
+      supabase
+        .from("task_signals")
+        .select("id, occurred_at, assignments(id, title, kind)")
+        .eq("owner_id", user.id)
+        .eq("kind", "completed")
+        .order("occurred_at", { ascending: false })
+        .limit(8),
+      supabase
+        .from("authorship_log")
+        .select("id, assignment_id, actor, event_type, created_at")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(8),
+      supabase
+        .from("study_artifacts")
+        .select("id, title, artifact_type, source_anchor_count, created_at")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5),
+    ]);
+
+  const completedRows = (completed ?? []) as unknown as CompletedProofRow[];
+  const authorshipRows = (authorship ?? []) as AuthorshipRow[];
+  const artifactRows = (artifacts ?? []) as ArtifactRow[];
+  const requested =
+    params.celebrate === "latest" || params.sdState === "celebrate=latest";
+  const milestone = selectLatestProofMilestone({
+    requested,
+    completed: completedRows,
+    authorship: authorshipRows,
+  });
+
+  if (milestone) {
     return (
-      <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>Sign in to see your proof folder.</p>
-      </div>
+      <ScreenDesignViewport className="sd-proof-screen sd-milestone-screen">
+        <style>{PROOF_STYLES}</style>
+        <div className="sd-milestone-confetti" aria-hidden="true">
+          <i /><i /><i /><i /><i /><i />
+        </div>
+        <main className="sd-milestone-main">
+          <DianaWordmark />
+          <p className="sd-milestone-kicker">Mastered</p>
+          <h1>
+            Learning <span>milestone</span>
+          </h1>
+          <SourceMedia
+            assetId="academic-championship-ring"
+            width={256}
+            height={256}
+            alt="Academic milestone ring"
+            className="sd-milestone-ring"
+            priority
+          />
+          <p className="sd-milestone-label">Proof recorded</p>
+          <div className="sd-milestone-facts">
+            <div className="sd-milestone-fact">
+              <strong>{milestone.title}</strong>
+              <span>{formatKind(milestone.kind)}</span>
+            </div>
+            <div className="sd-milestone-fact">
+              <strong>
+                {milestone.hasAuthorshipReceipt ? "Authorship saved" : "Completion saved"}
+              </strong>
+              <span>{formatDate(milestone.occurredAt)}</span>
+            </div>
+          </div>
+          <p className="sd-milestone-note">
+            This completed work is now part of your private proof folder.
+          </p>
+        </main>
+        <footer className="sd-milestone-footer">
+          <Link href="/sharing" className="sd-milestone-share">
+            Share privately <ShieldCheck size={16} aria-hidden="true" />
+          </Link>
+          <Link href="/proof" className="sd-milestone-continue" aria-label="Continue">
+            Continue <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </footer>
+      </ScreenDesignViewport>
     );
   }
 
-  const now = new Date();
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const windowStartIso = new Date(now.getTime() - 120 * 86_400_000).toISOString();
-
-  const [
-    { data: authorship },
-    { data: artifacts },
-    { data: wins },
-    { data: portfolios },
-    { data: doneToday },
-    { data: completionsWindow },
-    { data: studyLogsWindow },
-    { count: reviewsWindow },
-    { count: notesWindow },
-  ] = await Promise.all([
-    supabase.from("authorship_log").select("id, actor, event_type, created_at").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(8),
-    supabase.from("study_artifacts").select("id, title, artifact_type, source_anchor_count, created_at").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(4),
-    supabase.from("task_signals").select("id, occurred_at, assignments(title, kind)").eq("owner_id", user.id).eq("kind", "completed").order("occurred_at", { ascending: false }).limit(5),
-    supabase.from("portfolios").select("id, title, description, portfolio_items(id, title, reflection_text, created_at)").eq("owner_id", user.id).order("updated_at", { ascending: false }).limit(3),
-    supabase.from("task_signals").select("id").eq("owner_id", user.id).eq("kind", "completed").gte("occurred_at", todayStart.toISOString()),
-    supabase.from("task_signals").select("occurred_at").eq("owner_id", user.id).eq("kind", "completed").gte("occurred_at", windowStartIso),
-    supabase.from("assignment_time_log").select("started_at").eq("owner_id", user.id).gte("started_at", windowStartIso),
-    supabase.from("flashcard_reviews").select("id", { count: "exact", head: true }).eq("owner_id", user.id).gte("reviewed_at", windowStartIso),
-    supabase.from("notes").select("id", { count: "exact", head: true }).eq("owner_id", user.id).gte("created_at", windowStartIso),
-  ]);
-
-  const completionDates = (completionsWindow ?? []).map((row) => row.occurred_at as string);
-  const studyDayKeys = [...new Set((studyLogsWindow ?? []).map((row) => String(row.started_at).slice(0, 10)))];
-  const xp = computeXp(
-    { completionDates, studyDayKeys, flashcardReviews: reviewsWindow ?? 0, notesCreated: notesWindow ?? 0 },
-    now,
-  );
-  const wow = weekOverWeek(completionDates, now);
-
-  const receiptRows = (authorship ?? []) as AuthorshipRow[];
-  const artifactRows = (artifacts ?? []) as ArtifactRow[];
-  const winRows = (wins ?? []) as WinRow[];
-  const portfolioRows = (portfolios ?? []) as PortfolioRow[];
-  const portfolioItemCount = portfolioRows.reduce((sum, p) => sum + (p.portfolio_items?.length ?? 0), 0);
-  const doneTodayCount = doneToday?.length ?? 0;
-
-  const actorColor: Record<string, string> = {
-    student: "var(--gl-cyan)",
-    diana: "var(--gl-purple-light)",
-    system: "var(--gl-text-muted)",
-  };
-
   return (
-    <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="More" />
-      <style>{`
-        .pf-stage { display: grid; gap: var(--space-13); }
-        @media (min-width: 1024px) { .pf-stage { grid-template-columns: 0.74fr 1.26fr; } }
-        .pf-receipt { display: grid; gap: var(--space-9); }
-        @media (min-width: 1280px) { .pf-receipt { grid-template-columns: 1.1fr 0.9fr; } }
-        .pf-mid { display: grid; gap: var(--space-9); }
-        @media (min-width: 1280px) { .pf-mid { grid-template-columns: 1.1fr 0.9fr; } }
-        .pf-bottom { display: grid; gap: var(--space-9); }
-        @media (min-width: 1024px) { .pf-bottom { grid-template-columns: 1fr 1fr; } }
-      `}</style>
-      <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
+    <ScreenDesignViewport className="sd-proof-screen">
+      <style>{PROOF_STYLES}</style>
+      <main className="sd-proof-scroll">
+        <header className="sd-proof-header">
+          <DianaWordmark />
+          <span className="sd-proof-lock">
+            <ShieldCheck size={14} aria-hidden="true" /> Private
+          </span>
+        </header>
+        <h1 className="sd-proof-title">
+          Proof <span>folder</span>
+        </h1>
+        <p className="sd-proof-intro">
+          Completed work, study artifacts, and authorship receipts stay together here.
+        </p>
 
-        {/* Hero */}
-        <section className="pf-stage">
-          <header style={{ display: "grid", gap: "var(--space-8)" }}>
-            <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-green)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-              <ShieldCheck size={13} aria-hidden="true" />
-              Proof Folder
-            </p>
-            <h1 style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-50)", lineHeight: "var(--leading-tight)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0, maxWidth: "18ch" }}>
-              Keep track of what is yours.
-            </h1>
-            <p style={{ fontFamily: BODY, fontSize: "var(--text-16)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", maxWidth: "44ch", margin: 0 }}>
-              Proof Folder collects rough thoughts, Diana help, source anchors, study artifacts, and wins so
-              students can explain their work without giving away their voice.
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-6)" }}>
-              <Link
-                href="/portfolio"
-                style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", background: "var(--gl-green)", color: "#06210f", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}
-              >
-                Add work sample
-                <Images size={15} />
-              </Link>
-              <Link
-                href="/settings/ai-history"
-                style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-5)", padding: "var(--space-9) var(--space-14)", borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-border-neutral)", background: "transparent", color: "var(--gl-text-secondary)", fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-13)", textDecoration: "none" }}
-              >
-                View AI receipts
-              </Link>
-            </div>
-          </header>
-
-          <div className="pf-receipt">
-            <ProofReceiptVisual receipts={receiptRows.length} artifacts={artifactRows.length} portfolioItems={portfolioItemCount} />
-            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-green-22)", background: "var(--gl-green-12)", padding: "var(--space-14)", display: "flex", flexDirection: "column", gap: "var(--space-6)" }}>
-              <ProofConstellation points={winRows.length + portfolioItemCount} />
-              <h2 style={{ fontFamily: SF, fontSize: "var(--text-22)", fontWeight: "var(--weight-800)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>
-                Private proof grows quietly.
-              </h2>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-secondary)", margin: 0 }}>
-                Every saved win becomes raw material for essays, teacher conversations, scholarships, and support plans.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* Momentum: real XP, level, recent activity, and week-over-week */}
-        <section style={{ display: "grid", gap: "var(--space-9)" }}>
-          <style>{`.pf-momentum{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-9);}@media(max-width:760px){.pf-momentum{grid-template-columns:1fr;}}`}</style>
-          <p style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: "var(--gl-green)", margin: 0, display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
-            <Zap size={13} />
-            Momentum
+        <section className="sd-proof-section" aria-labelledby="proof-completed-title">
+          <p id="proof-completed-title" className="sd-proof-section-title">
+            Recent completions
           </p>
-          <div className="pf-momentum">
-            {/* XP + level */}
-            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-green-22)", background: "var(--gl-green-12)", padding: "var(--space-14)", display: "grid", gap: "var(--space-6)" }}>
-              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "var(--space-6)" }}>
-                <span style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-text-muted)" }}>Level {xp.level}</span>
-                <span style={{ fontFamily: BODY, fontSize: "var(--text-11)", color: "var(--gl-text-muted)" }}>{xp.totalXp.toLocaleString()} XP</span>
-              </div>
-              <div style={{ position: "relative", height: 8, borderRadius: 4, background: "var(--gl-green-22)", overflow: "hidden" }}>
-                <span style={{ position: "absolute", inset: 0, width: `${xp.pctToNext}%`, background: "var(--gl-green)", borderRadius: 4 }} />
-              </div>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-secondary)", margin: 0 }}>
-                {xp.xpForNextLevel - xp.xpIntoLevel} XP to level {xp.level + 1}
-              </p>
+          {completedRows.length === 0 ? (
+            <div className="sd-proof-empty">
+              <h2>No completed proof yet.</h2>
+              <p>When you complete an assignment, its real record will appear here.</p>
+              <Link href="/assignments">
+                Open work <ArrowRight size={14} aria-hidden="true" />
+              </Link>
             </div>
-            {/* Neutral seven-day activity count */}
-            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-gold)" }}>
-                <Activity size={13} /> Recent activity
-              </span>
-              <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: 0 }}>
-                {xp.recentActiveDays} <span style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>day{xp.recentActiveDays === 1 ? "" : "s"}</span>
-              </p>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-secondary)", margin: 0 }}>
-                {xp.recentActiveDays === 0 ? "No recent activity yet. Start when you are ready." : "Days with study activity in the last week."}
-              </p>
-            </div>
-            {/* Week over week */}
-            <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)", display: "grid", gap: "var(--space-4)", alignContent: "start" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: "var(--space-3)", fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-16)", textTransform: "uppercase", color: "var(--gl-cyan)" }}>
-                {wow.direction === "down" ? <TrendingDown size={13} /> : <TrendingUp size={13} />} This week
-              </span>
-              <p style={{ fontFamily: SF, fontWeight: "var(--weight-800)", fontSize: "var(--text-36)", lineHeight: 1, color: "var(--gl-text-primary)", margin: 0 }}>
-                {wow.thisWeek} <span style={{ fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>vs {wow.lastWeek} last</span>
-              </p>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-secondary)", margin: 0 }}>{wow.label}</p>
-            </div>
-          </div>
+          ) : (
+            completedRows.map((row) => {
+              const assignment = Array.isArray(row.assignments)
+                ? row.assignments[0]
+                : row.assignments;
+              if (!assignment?.id || !assignment.title) return null;
+              return (
+                <Link
+                  href={`/assignments/${assignment.id}`}
+                  className="sd-proof-card"
+                  key={String(row.id)}
+                >
+                  <span className="sd-proof-card-icon">
+                    <CheckCircle2 size={20} aria-hidden="true" />
+                  </span>
+                  <span>
+                    <h2>{assignment.title}</h2>
+                    <p>{formatDate(row.occurred_at)}</p>
+                  </span>
+                  <ArrowRight size={16} aria-hidden="true" />
+                </Link>
+              );
+            })
+          )}
         </section>
 
-        {/* Today's proof — done count + grade move */}
-        <section style={{ display: "grid", gap: "var(--space-9)" }}>
-          <DoneToday count={doneTodayCount} />
-          <Suspense fallback={null}>
-            <GradeMoveCard />
-          </Suspense>
-        </section>
+        {artifactRows.length > 0 ? (
+          <section className="sd-proof-section" aria-labelledby="proof-artifacts-title">
+            <p id="proof-artifacts-title" className="sd-proof-section-title">
+              Study artifacts
+            </p>
+            {artifactRows.map((artifact) => (
+              <Link
+                href={`/study-artifacts/${artifact.id}`}
+                className="sd-proof-card"
+                key={artifact.id}
+              >
+                <span className="sd-proof-card-icon">
+                  <FolderOpen size={20} aria-hidden="true" />
+                </span>
+                <span>
+                  <h2>{artifact.title}</h2>
+                  <p>
+                    {formatKind(artifact.artifact_type)} · {artifact.source_anchor_count} source
+                    {artifact.source_anchor_count === 1 ? "" : "s"}
+                  </p>
+                </span>
+                <ArrowRight size={16} aria-hidden="true" />
+              </Link>
+            ))}
+          </section>
+        ) : null}
 
-        {/* Authorship trail + sidebar */}
-        <section className="pf-mid">
-          <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-8)", marginBottom: "var(--space-12)" }}>
-              <h2 style={{ fontFamily: SF, fontSize: "var(--text-22)", fontWeight: "var(--weight-800)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: 0 }}>
-                Recent authorship trail
-              </h2>
-              <span style={{ borderRadius: "var(--radius-pill)", border: "1px solid var(--gl-border-neutral)", padding: "var(--space-2) var(--space-8)", fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", color: "var(--gl-text-muted)", letterSpacing: "var(--tracking-12)", whiteSpace: "nowrap" }}>
-                Student-owned
-              </span>
-            </div>
-            <div style={{ display: "grid", gap: "var(--space-9)" }}>
-              {receiptRows.length === 0 ? (
-                <EmptyProofLine body="Use voice, study help, or assignment checks and Diana will start building receipts here." />
-              ) : (
-                receiptRows.map((row) => (
-                  <div key={row.id} style={{ display: "grid", gridTemplateColumns: "7rem 1fr", gap: "var(--space-8)", paddingBottom: "var(--space-9)", borderBottom: "1px solid var(--gl-border-neutral)" }}>
-                    <span style={{ fontFamily: BODY, fontSize: "var(--text-11)", fontWeight: "var(--weight-700)", letterSpacing: "var(--tracking-20)", textTransform: "uppercase", color: actorColor[row.actor] ?? "var(--gl-text-muted)" }}>
-                      {row.actor}
-                    </span>
-                    <div>
-                      <p style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", margin: 0 }}>{formatEvent(row.event_type)}</p>
-                      <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: "var(--space-2) 0 0" }}>{new Date(row.created_at).toLocaleString()}</p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-
-          <aside style={{ display: "grid", gap: "var(--space-9)", alignContent: "start" }}>
-            <ProofColumn icon={FileText} title="What Diana can show" lines={[
-              "Your original notes or voice capture",
-              "The structure Diana helped create",
-              "Rubric and source checks",
-              "The final choices the student confirmed",
-            ]} />
-            <ProofColumn icon={LockKeyhole} title="What stays protected" lines={[
-              "Private readiness details",
-              "Unshared support notes",
-              "Drafts until the student chooses to export",
-            ]} />
-          </aside>
+        <section className="sd-proof-section" aria-label="Authorship receipts">
+          <Link href="/settings/ai-history" className="sd-proof-receipt">
+            <span>
+              <strong>Authorship receipts</strong>
+              {authorshipRows.length} recent event{authorshipRows.length === 1 ? "" : "s"} recorded
+            </span>
+            <FileCheck2 size={20} aria-hidden="true" />
+          </Link>
         </section>
-
-        {/* Wins + artifacts */}
-        <section className="pf-bottom">
-          <ProofList
-            title="Recent wins"
-            empty="Completed work will appear here as proof points for essays, conferences, and support conversations."
-            items={winRows.map((win) => {
-              const assignment = Array.isArray(win.assignments) ? win.assignments[0] : win.assignments;
-              return { id: String(win.id), title: assignment?.title ?? "Completed schoolwork", meta: new Date(win.occurred_at).toLocaleDateString() };
-            })}
-          />
-          <ProofList
-            title="Source-backed study artifacts"
-            empty="Study guides, practice sets, and cards with source anchors will appear here."
-            items={artifactRows.map((a) => ({ id: a.id, title: a.title, meta: `${a.artifact_type.replace(/_/g, " ")} · ${a.source_anchor_count} sources` }))}
-          />
-        </section>
-      </div>
-    </div>
+      </main>
+      <StudentBottomNav />
+    </ScreenDesignViewport>
   );
 }
 
-function ProofColumn({ icon: Icon, title, lines }: { icon: typeof FileText; title: string; lines: string[] }) {
-  return (
-    <div style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)" }}>
-      <h2 style={{ fontFamily: "var(--font-display)", fontSize: "var(--text-18)", fontWeight: "var(--weight-800)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: "0 0 var(--space-9)", display: "flex", alignItems: "center", gap: "var(--space-6)" }}>
-        <Icon size={16} style={{ color: "var(--gl-green)" }} />
-        {title}
-      </h2>
-      <ul style={{ display: "grid", gap: "var(--space-5)", padding: 0, margin: 0, listStyle: "none" }}>
-        {lines.map((line) => (
-          <li key={line} style={{ fontFamily: "var(--font-body)", fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-muted)", paddingLeft: "var(--space-8)", borderLeft: "2px solid var(--gl-green-22)" }}>
-            {line}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
 }
 
-function ProofList({ title, items, empty }: { title: string; items: Array<{ id: string; title: string; meta: string }>; empty: string }) {
-  return (
-    <section style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-card)", padding: "var(--space-14)" }}>
-      <h2 style={{ fontFamily: SF, fontSize: "var(--text-22)", fontWeight: "var(--weight-800)", textTransform: "uppercase", color: "var(--gl-text-primary)", margin: "0 0 var(--space-10)" }}>
-        {title}
-      </h2>
-      <div style={{ display: "grid", gap: "var(--space-6)" }}>
-        {items.length === 0 ? (
-          <EmptyProofLine body={empty} />
-        ) : (
-          items.map((item) => (
-            <div key={item.id} style={{ borderRadius: "var(--radius-card)", border: "1px solid var(--gl-border-neutral)", background: "var(--gl-bg-base)", padding: "var(--space-10) var(--space-12)" }}>
-              <p style={{ fontFamily: BODY, fontWeight: "var(--weight-700)", fontSize: "var(--text-14)", color: "var(--gl-text-primary)", margin: 0 }}>{item.title}</p>
-              <p style={{ fontFamily: BODY, fontSize: "var(--text-12)", color: "var(--gl-text-muted)", margin: "var(--space-2) 0 0" }}>{item.meta}</p>
-            </div>
-          ))
-        )}
-      </div>
-    </section>
-  );
-}
-
-function EmptyProofLine({ body }: { body: string }) {
-  return (
-    <div style={{ borderRadius: "var(--radius-card)", border: "1px dashed var(--gl-border-neutral)", background: "transparent", padding: "var(--space-12)", fontFamily: BODY, fontSize: "var(--text-14)", lineHeight: "var(--leading-body)", color: "var(--gl-text-muted)" }}>
-      {body}
-    </div>
-  );
-}
-
-function formatEvent(eventType: string) {
-  return eventType.replace(/_/g, " ");
+function formatKind(value: string): string {
+  return value.replaceAll("_", " ");
 }

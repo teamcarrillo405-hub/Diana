@@ -26,7 +26,8 @@ export function CsvExportButton() {
       type="button"
       onClick={onClick}
       disabled={busy}
-      className="rounded-md border border-border bg-card px-3 py-1.5 text-xs hover:bg-border/30 disabled:opacity-50"
+      aria-label="Download AI history CSV"
+      className="border-0 bg-transparent p-0 disabled:opacity-50"
     >
       {busy ? "Preparing\u2026" : "Download CSV"}
     </button>

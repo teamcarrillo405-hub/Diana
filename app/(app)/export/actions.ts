@@ -44,6 +44,10 @@ const DeleteCategoryInput = z.object({
   category: z.enum(PRIVACY_DELETE_CATEGORIES),
 });
 
+export type DataExportResult =
+  | { ok: true; data: string }
+  | { ok: false; error: string };
+
 export async function saveNotificationPreferences(
   input: NotificationPreferences,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
@@ -90,10 +94,10 @@ export async function saveSubjectVerbosity(
   return { ok: true };
 }
 
-export async function exportUserDataJson(): Promise<string> {
+export async function exportUserDataJson(): Promise<DataExportResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return "{}";
+  if (!user) return { ok: false, error: "Sign in to export your data." };
 
   const [
     profile,
@@ -129,7 +133,28 @@ export async function exportUserDataJson(): Promise<string> {
     supabase.from("share_links").select("*").eq("owner_id", user.id),
   ]);
 
-  return JSON.stringify({
+  const exportQueries = [
+    profile,
+    classes,
+    assignments,
+    notes,
+    flashcards,
+    studyArtifacts,
+    studentStateSnapshots,
+    authorshipLog,
+    competitiveBenchmarks,
+    teenTestObservations,
+    aiInteractions,
+    masteryConcepts,
+    learnerProfileSnapshots,
+    learningEvents,
+    shareLinks,
+  ];
+  if (exportQueries.some((query) => query.error)) {
+    return { ok: false, error: "Your export could not be prepared yet. Please try again." };
+  }
+
+  return { ok: true, data: JSON.stringify({
     exportedAt: new Date().toISOString(),
     ownerId: user.id,
     profile: profile.data,
@@ -147,36 +172,41 @@ export async function exportUserDataJson(): Promise<string> {
     learnerProfileSnapshots: learnerProfileSnapshots.data ?? [],
     learningEvents: learningEvents.data ?? [],
     shareLinks: shareLinks.data ?? [],
-  }, null, 2);
+  }, null, 2) };
 }
 
-export async function exportUserDataPdf(): Promise<string> {
+export async function exportUserDataPdf(): Promise<DataExportResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return "";
+  if (!user) return { ok: false, error: "Sign in to export your data." };
   const inventory = await inventoryForUser(user.id);
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("display_name")
     .eq("user_id", user.id)
     .single();
+  if (error) return { ok: false, error: "Your PDF could not be prepared yet. Please try again." };
   const pdf = buildPrivacyExportPdf({
     displayName: profile?.display_name ?? "Student",
     inventory,
   });
-  return Buffer.from(pdf).toString("base64");
+  return { ok: true, data: Buffer.from(pdf).toString("base64") };
 }
 
-export async function exportProfileBackup(): Promise<string> {
+export async function exportProfileBackup(): Promise<DataExportResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return "{}";
-  const { data: profile } = await supabase
+  if (!user) return { ok: false, error: "Sign in to export your backup." };
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("ai_verbosity_by_subject, notification_preferences, privacy_preferences, tts_enabled, dyslexia_font, high_contrast, reduced_motion")
     .eq("user_id", user.id)
     .single();
-  return JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), profile }, null, 2);
+  if (error) return { ok: false, error: "Your backup could not be prepared yet. Please try again." };
+  return {
+    ok: true,
+    data: JSON.stringify({ version: 1, exportedAt: new Date().toISOString(), profile }, null, 2),
+  };
 }
 
 export async function importProfileBackup(
@@ -222,7 +252,7 @@ export async function requestAccountDeletion(): Promise<{ ok: true } | { ok: fal
     .eq("user_id", user.id);
   if (profileError) return { ok: false, error: profileError.message };
 
-  await Promise.all([
+  const results = await Promise.all([
     supabase.from("classes").update({ ai_mode: "red" }).eq("owner_id", user.id),
     supabase.from("assignments").update({ ai_mode_override: "red" }).eq("owner_id", user.id),
     supabase.from("data_deletion_requests").insert({
@@ -231,6 +261,12 @@ export async function requestAccountDeletion(): Promise<{ ok: true } | { ok: fal
       notes: "AI disabled immediately; export offered before account purge.",
     }),
   ]);
+  if (results.some((result) => result.error)) {
+    return {
+      ok: false,
+      error: "AI access was turned off, but the deletion request needs another try.",
+    };
+  }
 
   revalidatePath("/", "layout");
   revalidatePath("/export");

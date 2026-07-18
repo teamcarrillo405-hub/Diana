@@ -22,6 +22,13 @@ beforeEach(() => {
 });
 
 describe("Supabase middleware", () => {
+  it("lets the read-only build identity route return public JSON", async () => {
+    const response = await updateSession(requestFor("/api/build-info"));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
   it("lets the Diana voice status route return its own JSON auth response", async () => {
     const response = await updateSession(requestFor("/api/diana/voice-candidate/status?traceId=preflight"));
 
@@ -42,5 +49,13 @@ describe("Supabase middleware", () => {
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toContain("/login");
     expect(response.headers.get("location")).toContain("next=%2Fapi%2Fprivate-preflight");
+  });
+
+  it("keeps unauthenticated private pages behind the login wall", async () => {
+    const response = await updateSession(requestFor("/settings"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/login");
+    expect(response.headers.get("location")).toContain("next=%2Fsettings");
   });
 });

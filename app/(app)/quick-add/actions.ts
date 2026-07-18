@@ -6,10 +6,33 @@ import { createClient } from "@/lib/supabase/server";
 import { triggerClassification } from "../inbox/[id]/actions";
 
 const Input = z.object({
-  raw: z.string().min(1).max(5000),
+  raw: z.string().trim().min(1).max(5000),
   captureMode: z.enum(["voice", "photo", "text"]),
-  photoStorageKey: z.string().optional(),
+  photoStorageKey: z.string().max(500).optional(),
+}).superRefine((value, context) => {
+  if (value.captureMode === "photo" && !value.photoStorageKey) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["photoStorageKey"],
+      message: "Choose a photo first.",
+    });
+  }
+  if (value.captureMode !== "photo" && value.photoStorageKey) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["photoStorageKey"],
+      message: "Photo storage belongs only to photo captures.",
+    });
+  }
 });
+
+const ACCEPTED_PHOTO_TYPES = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"],
+  ["image/gif", "gif"],
+]);
+const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 
 export async function saveInboxItem(
   input: z.infer<typeof Input>
@@ -22,6 +45,13 @@ export async function saveInboxItem(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
+
+  if (
+    parsed.data.photoStorageKey &&
+    !parsed.data.photoStorageKey.startsWith(`${user.id}/`)
+  ) {
+    return { ok: false, error: "Choose a photo from this account." };
+  }
 
   const { data, error } = await supabase
     .from("inbox_items")
@@ -62,8 +92,15 @@ export async function uploadInboxPhoto(
   const file = formData.get("photo") as File | null;
   if (!file) return { ok: false, error: "No photo provided." };
 
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const storageKey = `${user.id}/${Date.now()}.${ext}`;
+  const extension = ACCEPTED_PHOTO_TYPES.get(file.type);
+  if (!extension) {
+    return { ok: false, error: "Choose a JPG, PNG, WebP, or GIF image." };
+  }
+  if (file.size <= 0 || file.size > MAX_PHOTO_BYTES) {
+    return { ok: false, error: "Choose an image smaller than 10 MB." };
+  }
+
+  const storageKey = `${user.id}/${crypto.randomUUID()}.${extension}`;
 
   const { error } = await supabase.storage
     .from("inbox-photos")

@@ -1,75 +1,100 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import type {
+  ExternalScoutPortfolio,
+  ParentSummary,
+  ShareLink,
+} from "@/lib/sharing/types";
+
 import { ParentSummaryView } from "./parent-summary";
 import { TeacherSnapshotView } from "./teacher-snapshot";
-import type {
-  ShareLink,
-  ParentSummary,
-  TeacherSnapshot,
-  TeacherClassRow,
-} from "@/lib/sharing/types";
 
 export const dynamic = "force-dynamic";
 
 type Params = { token: string };
+type ServiceClient = NonNullable<ReturnType<typeof createServiceClient>>;
 
 export default async function SharePage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { token } = await params;
+  const query = (await searchParams) ?? {};
+  const scenario = typeof query.sdScenario === "string" ? query.sdScenario : null;
+  const nowIso =
+    process.env.NODE_ENV !== "production" &&
+    process.env.QA_CREATE_USER === "true" &&
+    scenario
+      ? "2026-09-14T16:30:00.000Z"
+      : new Date().toISOString();
   const supabase = createServiceClient();
-
-  // D-15 — missing env → calm fallback (treat as not active)
   if (!supabase) return <NotActive />;
 
-  // D-06 — token lookup with ALL three conditions enforced server-side
   const { data: link, error } = await supabase
     .from("share_links")
     .select("id, token, owner_id, share_type, expires_at, revoked_at, created_at")
     .eq("token", token)
     .is("revoked_at", null)
-    .gt("expires_at", new Date().toISOString())
+    .gt("expires_at", nowIso)
     .maybeSingle();
 
   if (error || !link) return <NotActive />;
 
   const typedLink = link as ShareLink;
-  // D-07 — owner ID comes from the row, NEVER from query params
   const ownerId = typedLink.owner_id;
 
   if (typedLink.share_type === "parent_summary") {
-    const summary = await buildParentSummary(supabase, ownerId, typedLink.expires_at);
+    const summary = await buildParentSummary(
+      supabase,
+      ownerId,
+      typedLink.expires_at,
+      nowIso,
+    );
     return <ParentSummaryView summary={summary} />;
   }
 
-  const snapshot = await buildTeacherSnapshot(supabase, ownerId, typedLink.expires_at);
-  return <TeacherSnapshotView snapshot={snapshot} />;
+  const portfolio = await buildExternalScoutPortfolio(
+    supabase,
+    ownerId,
+    typedLink.expires_at,
+  );
+  return <TeacherSnapshotView portfolio={portfolio} />;
 }
 
 function NotActive() {
   return (
-    <main id="main-content" className="app-field grid min-h-dvh place-items-center p-8">
-      <div className="nexus-panel max-w-md p-6 text-center">
-        <h1 className="text-lg font-semibold">This link is no longer active</h1>
-        <p className="mt-2 text-sm text-muted">
-          The student who shared this with you may have revoked it, or it may have
-          reached the end of its 7-day window. Ask them for a new link if you need
-          one.
+    <main id="main-content" className="sd-share-inactive">
+      <div>
+        <span aria-hidden="true">D</span>
+        <p>Private student share</p>
+        <h1>Shared link unavailable</h1>
+        <p>
+          This link may have expired or been turned off. Ask the student for a new
+          link if they still want to share this information.
         </p>
       </div>
+      <style>{`
+        .sd-share-inactive { display:grid; min-height:max(100dvh,852px); place-items:center; overflow:hidden; background:radial-gradient(circle at 50% 22%,rgb(116 192 255 / .13),transparent 18rem),#0f172a; padding:32px; color:#f8fafc; }
+        .sd-share-inactive > div { display:grid; width:min(100%,340px); justify-items:center; gap:12px; border:1px solid rgb(255 255 255 / .1); border-radius:28px; background:rgb(255 255 255 / .045); padding:36px 24px; text-align:center; box-shadow:0 24px 70px rgb(0 0 0 / .34); }
+        .sd-share-inactive span { display:grid; width:58px; height:58px; place-items:center; border-radius:17px; background:linear-gradient(135deg,#74c0ff,#ff79da); color:#0f172a; font:italic 950 30px/1 var(--font-display),Arial,sans-serif; }
+        .sd-share-inactive p { margin:0; color:#94a3b8; font-size:11px; line-height:1.55; }
+        .sd-share-inactive p:first-of-type { color:#74c0ff; font-size:9px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
+        .sd-share-inactive h1 { margin:8px 0 0; font:italic 950 34px/.92 var(--font-display),Arial,sans-serif; letter-spacing:-.04em; text-transform:uppercase; }
+      `}</style>
     </main>
   );
 }
 
 async function buildParentSummary(
-  supabase: NonNullable<ReturnType<typeof createServiceClient>>,
+  supabase: ServiceClient,
   ownerId: string,
   expiresAt: string,
+  nowIso: string,
 ): Promise<ParentSummary> {
-  // D-08 — week start: Monday 00:00 UTC for simplicity (timezone refinement deferred)
-  const now = new Date();
-  const day = now.getUTCDay(); // 0=Sun .. 6=Sat
+  const now = new Date(nowIso);
+  const day = now.getUTCDay();
   const daysFromMonday = (day + 6) % 7;
   const weekStart = new Date(
     Date.UTC(
@@ -79,10 +104,8 @@ async function buildParentSummary(
     ),
   );
   const weekStartIso = weekStart.toISOString();
-  const nowIso = now.toISOString();
   const next7Iso = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-  // D-09 — completed this week from task_signals (uses occurred_at column)
   const { count: completedThisWeek } = await supabase
     .from("task_signals")
     .select("id", { count: "exact", head: true })
@@ -90,7 +113,6 @@ async function buildParentSummary(
     .eq("kind", "completed")
     .gte("occurred_at", weekStartIso);
 
-  // Upcoming next 7 days: assignments with due_at in the window AND not yet done/submitted/graded
   const { count: upcomingNext7Days } = await supabase
     .from("assignments")
     .select("id", { count: "exact", head: true })
@@ -99,7 +121,6 @@ async function buildParentSummary(
     .lte("due_at", next7Iso)
     .not("status", "in", "(done,submitted,graded)");
 
-  // D-10 — study time from assignment_time_log (closed sessions only, uses started_at/ended_at)
   const { data: logs } = await supabase
     .from("assignment_time_log")
     .select("started_at, ended_at")
@@ -107,10 +128,10 @@ async function buildParentSummary(
     .gte("started_at", weekStartIso)
     .not("ended_at", "is", null);
 
-  const totalMs = (logs ?? []).reduce((acc, l) => {
-    const o = l.started_at ? new Date(l.started_at).getTime() : 0;
-    const c = l.ended_at ? new Date(l.ended_at).getTime() : 0;
-    return c > o ? acc + (c - o) : acc;
+  const totalMs = (logs ?? []).reduce((acc, log) => {
+    const openedAt = log.started_at ? new Date(log.started_at).getTime() : 0;
+    const closedAt = log.ended_at ? new Date(log.ended_at).getTime() : 0;
+    return closedAt > openedAt ? acc + (closedAt - openedAt) : acc;
   }, 0);
 
   const { data: masteryRows } = await supabase
@@ -146,39 +167,45 @@ async function buildParentSummary(
   };
 }
 
-async function buildTeacherSnapshot(
-  supabase: NonNullable<ReturnType<typeof createServiceClient>>,
+async function buildExternalScoutPortfolio(
+  supabase: ServiceClient,
   ownerId: string,
   expiresAt: string,
-): Promise<TeacherSnapshot> {
-  const { data: classRows } = await supabase
-    .from("classes")
-    .select("name, ai_mode")
+): Promise<ExternalScoutPortfolio> {
+  const { data: portfolioRows } = await supabase
+    .from("portfolios")
+    .select("id, title, description")
     .eq("owner_id", ownerId)
-    .order("name");
+    .order("created_at", { ascending: false })
+    .limit(1);
 
-  // profiles uses user_id as the FK column (not id)
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("reading_font, diagnoses, extra_time_pct")
-    .eq("user_id", ownerId)
-    .maybeSingle();
+  const portfolio = portfolioRows?.[0] ?? null;
+  if (!portfolio) {
+    return {
+      title: "Shared portfolio",
+      description: null,
+      items: [],
+      expiresAt,
+    };
+  }
 
-  // D-11 — dyslexia derived from diagnoses array (not disability_flags)
-  const dyslexia = Array.isArray(profile?.diagnoses)
-    ? (profile?.diagnoses as string[]).includes("dyslexia")
-    : false;
-
-  const classes: TeacherClassRow[] = (classRows ?? []).map((c) => ({
-    name: c.name ?? "Class",
-    aiMode: (c.ai_mode as "red" | "yellow" | "green") ?? "green",
-  }));
+  const { data: itemRows } = await supabase
+    .from("portfolio_items")
+    .select("id, title, reflection_text, position, created_at")
+    .eq("owner_id", ownerId)
+    .eq("portfolio_id", portfolio.id)
+    .order("position")
+    .order("created_at", { ascending: false })
+    .limit(6);
 
   return {
-    classes,
-    readingFont: profile?.reading_font ?? "system",
-    extendedReadingTime: dyslexia,
-    extraTimePct: profile?.extra_time_pct ?? 0,
+    title: portfolio.title,
+    description: portfolio.description,
+    items: (itemRows ?? []).map((item) => ({
+      id: item.id,
+      title: item.title,
+      reflectionText: item.reflection_text,
+    })),
     expiresAt,
   };
 }

@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile, profileBodyClass } from "@/lib/profile";
-import { AppCommandFrame } from "@/components/app-command-frame";
 import { OverwhelmedButton } from "@/components/overwhelmed-button";
 import { QuickCapture } from "@/components/quick-capture";
 import { PlatformAnalyticsTracker } from "@/components/platform-analytics-tracker";
@@ -18,19 +17,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (profile && !profile.onboarded_at) redirect("/onboarding");
 
   return (
-    <div className={`nexus-app-shell flex min-h-dvh ${profileBodyClass(profile)}`}>
+    <div className={`diana-app-shell flex min-h-dvh ${profileBodyClass(profile)}`}>
       <div className="flex min-w-0 flex-1 flex-col">
-        <main id="main-content" className="app-field nexus-authenticated-field flex-1 pb-24 md:pb-6">
-          <AppCommandFrame>
+        <div id="main-content" className="app-field diana-authenticated-field flex-1 pb-24 md:pb-6">
+          <div className="app-command-frame app-command-frame--flush min-w-0">
             {children}
-            <div className="nexus-mobile-command mt-8 border border-border bg-surface-raised/92 p-3 backdrop-blur md:hidden">
+            <div className="diana-mobile-command mt-8 border border-border bg-surface-raised/92 p-3 backdrop-blur md:hidden">
               <div className="grid grid-cols-2 gap-2">
                 <QuickCapture placement="inline" />
                 <OverwhelmedButton placement="inline" />
               </div>
             </div>
-          </AppCommandFrame>
-        </main>
+          </div>
+        </div>
         <div className="hidden md:block">
           <QuickCapture />
           <OverwhelmedButton />

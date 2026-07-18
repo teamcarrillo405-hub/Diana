@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Barlow_Semi_Condensed, Lexend, Saira_Condensed, Space_Grotesk, Space_Mono, VT323 } from "next/font/google";
+import { Barlow_Semi_Condensed, Lexend, Saira_Condensed } from "next/font/google";
 import "@fontsource/atkinson-hyperlegible-next/400.css";
 import "@fontsource/atkinson-hyperlegible-next/700.css";
 import "@fontsource/opendyslexic"; // weight 400 only; Pitfall 7 guard (no all.css)
 import "./globals.css";
 import "../tokens.css";
+import "./screendesign.css";
 import { AccentProvider } from "@/components/accent-provider";
-import { FutureModeProvider } from "@/components/future-mode-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
 // GAP-01: Lexend is referenced in .dyslexia-font CSS but must be explicitly
@@ -17,27 +17,6 @@ const lexend = Lexend({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-lexend",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-nexus-display",
-  weight: ["400", "500", "600", "700"],
-});
-
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-nexus-mono",
-  weight: ["400", "700"],
-});
-
-const vt323 = VT323({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-nexus-arcade",
-  weight: "400",
 });
 
 const sairaCondensed = Saira_Condensed({
@@ -84,22 +63,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${lexend.variable} ${spaceGrotesk.variable} ${spaceMono.variable} ${vt323.variable} ${sairaCondensed.variable} ${barlowSemiCondensed.variable}`}
+      className={`${lexend.variable} ${sairaCondensed.variable} ${barlowSemiCondensed.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('diana_theme');var c=document.documentElement.classList;if(t==='dark'){c.add('dark');}else if(t==='light'){c.add('light');}var m=localStorage.getItem('diana_experience_mode');document.documentElement.dataset.experienceMode=m==='future'?'future':'calm';}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('diana_theme');var c=document.documentElement.classList;if(t==='dark'){c.add('dark');}else if(t==='light'){c.add('light');}}catch(e){}})();`,
           }}
         />
       </head>
-      <body className="nexus-app">
+      <body className="diana-app">
         <a href="#main-content" className="skip-link">
           Skip to main
         </a>
         <ThemeProvider>
-          <FutureModeProvider />
           <AccentProvider />
           {children}
         </ThemeProvider>

@@ -1,0 +1,450 @@
+{
+  "schemaVersion": 1,
+  "assetCount": 28,
+  "screenDesignAssetCount": 24,
+  "avatarAssetCount": 4,
+  "assets": [
+    {
+      "id": "diana-logo",
+      "localPath": "/screendesign/brand/diana-logo.png",
+      "sha256": "92917364406f6544879339a54799ab2344d724396498acda00f5e29dd26b8f0a",
+      "mimeType": "image/png",
+      "width": 1440,
+      "height": 440,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Diana wordmark",
+      "consumers": [
+        "ai-history-log",
+        "ai-writing-coach",
+        "ap-command-center",
+        "assignment-detail",
+        "concept-deep-dive",
+        "dashboard-personalized",
+        "external-scout-view",
+        "focus-session-immersive",
+        "global-leaderboard",
+        "inbox-triage",
+        "knowledge-graph",
+        "library-empty-state",
+        "mastery-tracker",
+        "mastery-transcript-view",
+        "milestone-celebration",
+        "mission-board",
+        "notification-center",
+        "onboarding-educational",
+        "onboarding-quiz-challenge",
+        "onboarding-quiz-schedule",
+        "onboarding-welcome",
+        "paywall-social-proof",
+        "paywall-standard",
+        "portfolio-gallery",
+        "practice-test-session",
+        "privacy-export-hub",
+        "progress-insights",
+        "quick-add",
+        "rubric-scout",
+        "settings-profile-center",
+        "smart-loading",
+        "smart-search",
+        "study-artifacts-hub",
+        "study-calendar",
+        "study-goal-wizard",
+        "study-room-social",
+        "subject-library",
+        "tutor-chat",
+        "tutor-gallery",
+        "tutor-personalization",
+        "wellness-recovery-log"
+      ]
+    },
+    {
+      "id": "diana-mascot",
+      "localPath": "/screendesign/brand/diana-mascot.png",
+      "sha256": "68c122dc0343cb2c445a596b0021cd8a4fc6bd2a0ab66305c7c4e2cd295392b5",
+      "mimeType": "image/png",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Diana assistant mascot",
+      "consumers": [
+        "ai-history-log",
+        "ai-writing-coach",
+        "flashcards-review",
+        "library-empty-state",
+        "quick-add",
+        "review-submit-checkpoint",
+        "scout-share-view",
+        "task-breakdown-modal"
+      ]
+    },
+    {
+      "id": "dashboard-stadium-background",
+      "localPath": "/screendesign/dashboard/stadium-background.jpg",
+      "sha256": "50f98ec6fe94c7ee8d60f67c8fef12530fc820e9487d35a9a2acf880be287b08",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Dashboard stadium backdrop",
+      "consumers": [
+        "dashboard-personalized"
+      ]
+    },
+    {
+      "id": "dashboard-athlete-cutout",
+      "localPath": "/screendesign/dashboard/athlete-cutout.png",
+      "sha256": "843d6401115c86a93225f93603cd4ca44d18bfa3107ae60ad8202c1ee1e96d22",
+      "mimeType": "image/png",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Dashboard student-athlete foreground",
+      "consumers": [
+        "dashboard-personalized"
+      ]
+    },
+    {
+      "id": "onboarding-welcome-background",
+      "localPath": "/screendesign/onboarding/welcome-background.png",
+      "sha256": "b73180fbc5027d9533d542388638ebb8f0111daae95e556135e4ef2a5caa5c08",
+      "mimeType": "image/png",
+      "width": 1586,
+      "height": 992,
+      "hasAlpha": false,
+      "alphaIntent": "preserve",
+      "semanticRole": "Onboarding welcome atmosphere",
+      "consumers": [
+        "onboarding-welcome"
+      ]
+    },
+    {
+      "id": "onboarding-gpa-progress-chart",
+      "localPath": "/screendesign/onboarding/gpa-progress-chart.png",
+      "sha256": "6fb4e01ce7d588399e3670cdae11e0da2fc93247a0f41feb4d4c9748817a6d04",
+      "mimeType": "image/png",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Onboarding GPA progress illustration",
+      "consumers": [
+        "onboarding-educational"
+      ]
+    },
+    {
+      "id": "academic-championship-ring",
+      "localPath": "/screendesign/instructional/academic-championship-ring.png",
+      "sha256": "1d433f1c50954c067f5b21274f197a892f350a75d699b3005383221d03f7c13b",
+      "mimeType": "image/png",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Academic achievement ring",
+      "consumers": [
+        "external-scout-view",
+        "milestone-celebration",
+        "portfolio-gallery"
+      ]
+    },
+    {
+      "id": "knowledge-graph-base",
+      "localPath": "/screendesign/instructional/knowledge-graph-base.png",
+      "sha256": "211a8717ad739044e0453e0f91bfd129202ab6170e7708b8226f96c095e5b331",
+      "mimeType": "image/png",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Knowledge graph instructional base",
+      "consumers": [
+        "knowledge-graph"
+      ]
+    },
+    {
+      "id": "krebs-cycle-visual",
+      "localPath": "/screendesign/instructional/krebs-cycle.jpg",
+      "sha256": "aec20555c63b029e3e2847ad89a0b368052426734931a27326e4588c53078e14",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Krebs cycle instructional visual",
+      "consumers": [
+        "concept-deep-dive"
+      ]
+    },
+    {
+      "id": "supply-demand-graph",
+      "localPath": "/screendesign/instructional/supply-demand-graph.jpg",
+      "sha256": "bf13bb5158ecf7d47584495f48a61ea29f1205637415d354f99d40be61e1365e",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Supply and demand instructional graph",
+      "consumers": [
+        "notes-surface"
+      ]
+    },
+    {
+      "id": "practice-test-visual",
+      "localPath": "/screendesign/instructional/practice-test.jpg",
+      "sha256": "55ba0ab90d01eb98950cb616b146a996969481884c9c6f8fdb817f4fe1f34e93",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Practice test artifact thumbnail",
+      "consumers": [
+        "study-artifacts-hub"
+      ]
+    },
+    {
+      "id": "study-guide-visual",
+      "localPath": "/screendesign/instructional/study-guide.jpg",
+      "sha256": "08f09d64b97168ee8eb6ac057589dfdca76f8acb58065ec2fc22aab5111bd6f5",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Study guide artifact thumbnail",
+      "consumers": [
+        "study-artifacts-hub"
+      ]
+    },
+    {
+      "id": "flashcard-batch-visual",
+      "localPath": "/screendesign/instructional/flashcard-batch.jpg",
+      "sha256": "da5873ba4f1a4efac1cdb54823071c92716961aba3c73a810f925406960185f2",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Flashcard batch artifact thumbnail",
+      "consumers": [
+        "study-artifacts-hub"
+      ]
+    },
+    {
+      "id": "search-biology-graphic",
+      "localPath": "/screendesign/instructional/search-biology.jpg",
+      "sha256": "dc3e0471a949297646947a3491bcc60fac36cf1d32b2151d1006a10ca6d10ce9",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Biology search result visual",
+      "consumers": [
+        "smart-search"
+      ]
+    },
+    {
+      "id": "search-economics-graphic",
+      "localPath": "/screendesign/instructional/search-economics.jpg",
+      "sha256": "57b6f402b7a982f908936b55cb0988fee64d1e314e2ff197c1a0abbedc91a520",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Economics search result visual",
+      "consumers": [
+        "smart-search"
+      ]
+    },
+    {
+      "id": "portfolio-calculus-project",
+      "localPath": "/screendesign/portfolio/calculus-project.jpg",
+      "sha256": "ca35325c2a753bbcba7c3eac021b9d62c887a8ce3399247c389c09ab5c342939",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Calculus portfolio project thumbnail",
+      "consumers": [
+        "portfolio-gallery"
+      ]
+    },
+    {
+      "id": "portfolio-biology-project",
+      "localPath": "/screendesign/portfolio/biology-project.jpg",
+      "sha256": "85a88c80e8800f34b79f8e5e52fb9c0b62ab41ea9e48a5971f4c80510ae21a95",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Biology portfolio project thumbnail",
+      "consumers": [
+        "portfolio-gallery"
+      ]
+    },
+    {
+      "id": "student-profile-avatar",
+      "localPath": "/screendesign/social/student-profile-avatar.jpg",
+      "sha256": "63771a6fb86c4adbbb55d463ca27ef7822f5115b991b0f567ead315a931ccf70",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Student profile avatar",
+      "consumers": [
+        "external-scout-view",
+        "settings-profile-center"
+      ]
+    },
+    {
+      "id": "search-student-avatar",
+      "localPath": "/screendesign/social/search-student-avatar.jpg",
+      "sha256": "37ca6afad84ee7c9543130e7f0bdf7f8062abc5e5dc62f5ded1f6f586af2f3f6",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Student search result avatar",
+      "consumers": [
+        "smart-search"
+      ]
+    },
+    {
+      "id": "study-room-background",
+      "localPath": "/screendesign/social/study-room-background.jpg",
+      "sha256": "aa7fb4a9ff67f748dccc008bc6dffecf894edf90978ba31918e9126a0f7d48eb",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Study room background texture",
+      "consumers": [
+        "study-room-social"
+      ]
+    },
+    {
+      "id": "study-room-jordan-avatar",
+      "localPath": "/screendesign/social/study-room-jordan-avatar.jpg",
+      "sha256": "7d34b895e441b3929c9b1d1e3309d30a1e1398850791d30670de26eaaa594904",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Study room Jordan avatar",
+      "consumers": [
+        "study-room-social"
+      ]
+    },
+    {
+      "id": "social-proof-marcus-avatar",
+      "localPath": "/screendesign/social/social-proof-marcus-avatar.jpg",
+      "sha256": "e78d43d61f0cea5c4d0a3df8967335542763a6dc2415cd16e049ba8ce91d1e25",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Community social proof avatar",
+      "consumers": [
+        "paywall-social-proof"
+      ]
+    },
+    {
+      "id": "community-sarah-avatar",
+      "localPath": "/screendesign/social/community-sarah.svg",
+      "sha256": "29b3724c765825df4d52aa217d0853c0d8e986bd2445580ba06417ec04f2d370",
+      "mimeType": "image/svg+xml",
+      "width": 280,
+      "height": 280,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Community Sarah avatar",
+      "consumers": [
+        "global-leaderboard"
+      ]
+    },
+    {
+      "id": "community-felix-avatar",
+      "localPath": "/screendesign/social/community-felix.svg",
+      "sha256": "50a7aeaa774ee90c1c63d66bf1ca11bacd72bcb806a8c611691bc2b080d94f60",
+      "mimeType": "image/svg+xml",
+      "width": 280,
+      "height": 280,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Community Felix avatar",
+      "consumers": [
+        "global-leaderboard"
+      ]
+    },
+    {
+      "id": "community-leo-avatar",
+      "localPath": "/screendesign/social/community-leo.svg",
+      "sha256": "addd94eea52e49a97ffe88e35426b8046991d91527b2d75df48d7e15ead2685f",
+      "mimeType": "image/svg+xml",
+      "width": 280,
+      "height": 280,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Community Leo avatar",
+      "consumers": [
+        "global-leaderboard"
+      ]
+    },
+    {
+      "id": "community-buster-avatar",
+      "localPath": "/screendesign/social/community-buster.svg",
+      "sha256": "bab33c6db7bfbb0662d3a8f97dd053668078c191f12da9c287ec9b74dc98a09c",
+      "mimeType": "image/svg+xml",
+      "width": 280,
+      "height": 280,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Community Buster avatar",
+      "consumers": [
+        "global-leaderboard"
+      ]
+    },
+    {
+      "id": "tutor-math-expert",
+      "localPath": "/screendesign/tutors/math-expert.jpg",
+      "sha256": "55f9ed0787897c6ccb2efa5f3b166a6f865a90167b2724cd65f230c6b3084e7d",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Math tutor portrait",
+      "consumers": [
+        "tutor-gallery"
+      ]
+    },
+    {
+      "id": "tutor-science-expert",
+      "localPath": "/screendesign/tutors/science-expert.jpg",
+      "sha256": "672deea5b550c9747cc10bb5e2733e2496e0423d102fc843acfb4e2e855514c3",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Science tutor portrait",
+      "consumers": [
+        "tutor-gallery"
+      ]
+    }
+  ]
+}

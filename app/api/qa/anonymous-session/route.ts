@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { seedGraysonFreshmanDemo } from "@/lib/qa/grayson-demo";
+import {
+  resetScreenDesignOwner,
+  seedGraysonFreshmanDemo,
+  seedScreenDesignScenario,
+} from "@/lib/qa/grayson-demo";
+import {
+  getScreenDesignFixtureScenario,
+  type ScreenDesignOwnerAlias,
+} from "@/lib/qa/screendesign-fixtures";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +19,53 @@ const qaUser = {
   password: process.env.QA_TEST_PASSWORD ?? "Diana-QA-Visual-Gate-2026!",
   displayName: "Diana QA Student",
   demo: null as "grayson" | null,
+  scenarioId: null as string | null,
+  ownerAlias: "qa-primary" as ScreenDesignOwnerAlias,
+  operation: "seed" as "seed" | "reset",
 };
 
 function resolveQaUser(request: Request) {
   const params = new URL(request.url).searchParams;
+  const scenarioId = params.get("scenario");
+  if (scenarioId) {
+    const scenario = getScreenDesignFixtureScenario(scenarioId);
+    if (!scenario) return null;
+    const ownerAlias =
+      params.get("owner") === "secondary"
+        ? "qa-secondary"
+        : scenario.ownerAlias;
+    const account =
+      ownerAlias === "qa-secondary"
+        ? {
+            email:
+              process.env.QA_SCREEN_DESIGN_SECONDARY_EMAIL ??
+              "diana-screendesign-secondary@local.test",
+            displayName: "Diana QA Student Two",
+          }
+        : ownerAlias === "qa-public-owner"
+          ? {
+              email:
+                process.env.QA_SCREEN_DESIGN_PUBLIC_EMAIL ??
+                "diana-screendesign-share-owner@local.test",
+              displayName: "Grayson",
+            }
+          : {
+              email:
+                process.env.QA_SCREEN_DESIGN_PRIMARY_EMAIL ??
+                process.env.QA_GRAYSON_TEST_EMAIL ??
+                "grayson-qa-student@local.test",
+              displayName: "Grayson",
+            };
+
+    return {
+      ...qaUser,
+      ...account,
+      scenarioId: scenario.id,
+      ownerAlias,
+      operation: params.get("operation") === "reset" ? "reset" : "seed",
+    };
+  }
+
   const variant = params.get("variant");
   const profile = params.get("profile");
   if (variant === "grayson" || profile === "grayson") {
@@ -23,6 +74,8 @@ function resolveQaUser(request: Request) {
       email: process.env.QA_GRAYSON_TEST_EMAIL ?? "grayson-qa-student@local.test",
       displayName: "Grayson",
       demo: "grayson" as const,
+      scenarioId: null,
+      ownerAlias: "qa-primary" as const,
     };
   }
 
@@ -58,6 +111,12 @@ async function handleQaSession(request: Request) {
   }
 
   const activeQaUser = resolveQaUser(request);
+  if (!activeQaUser) {
+    return NextResponse.json(
+      { error: "Unknown ScreenDesign QA fixture scenario." },
+      { status: 400 },
+    );
+  }
   const supabase = await createClient();
   const found = await findQaUser(activeQaUser.email);
   if (!found?.admin || found.error) {
@@ -126,12 +185,34 @@ async function handleQaSession(request: Request) {
     return NextResponse.json({ error: profileError.message }, { status: 500 });
   }
 
-  const seeded =
-    activeQaUser.demo === "grayson"
+  if (activeQaUser.scenarioId && activeQaUser.operation === "reset") {
+    await resetScreenDesignOwner(admin, userId, activeQaUser.ownerAlias);
+    return NextResponse.json({
+      ok: true,
+      reset: true,
+      ownerAlias: activeQaUser.ownerAlias,
+      scenarioId: activeQaUser.scenarioId,
+    });
+  }
+
+  const seeded = activeQaUser.scenarioId
+    ? await seedScreenDesignScenario(
+        admin,
+        userId,
+        activeQaUser.ownerAlias,
+        activeQaUser.scenarioId,
+      )
+    : activeQaUser.demo === "grayson"
       ? await seedGraysonFreshmanDemo(admin, userId)
       : null;
 
-  return NextResponse.json({ ok: true, profile: activeQaUser.demo, seeded });
+  return NextResponse.json({
+    ok: true,
+    profile: activeQaUser.demo,
+    ownerAlias: activeQaUser.scenarioId ? activeQaUser.ownerAlias : undefined,
+    scenarioId: activeQaUser.scenarioId ?? undefined,
+    seeded,
+  });
 }
 
 export async function GET(request: Request) {

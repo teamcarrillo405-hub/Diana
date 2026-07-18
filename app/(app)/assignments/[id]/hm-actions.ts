@@ -1,8 +1,6 @@
 // app/(app)/assignments/[id]/hm-actions.ts
-// Server actions for the rebuilt Homework Mission page (handoff_for_claude_code/
-// designs/Homework Mission.dc.html): hand-in field autosave, per-problem math
-// navigation (assignment_problems — a real model the design itself never
-// specified, see lib/homework-mission/subjects.ts), and the submit flow.
+// Server actions for assignment hand-in field autosave and per-problem math
+// navigation plus the submit flow.
 "use server";
 
 import { z } from "zod";

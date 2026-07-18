@@ -3,16 +3,16 @@ import { join } from "node:path";
 import { chromium } from "playwright";
 
 const baseUrl = process.env.QA_BASE_URL ?? "http://127.0.0.1:3028";
-const runName = process.env.QA_RUN_NAME ?? `screenshot-worthy-redesign-${new Date().toISOString().slice(0, 10)}`;
+const runName = process.env.QA_RUN_NAME ?? `screendesign-rebuild-${new Date().toISOString().slice(0, 10)}`;
 const outDir = join(process.cwd(), ".planning", "qa-screenshots", runName);
 mkdirSync(outDir, { recursive: true });
 
 const routes = [
-  { path: "/", name: "landing", auth: false, selector: ".nexus-hero-core" },
-  { path: "/login", name: "login", auth: false, selector: ".auth-dock" },
-  { path: "/signup", name: "signup", auth: false, selector: ".auth-dock" },
-  { path: "/onboarding", name: "onboarding", auth: true, selector: ".onboarding-signal-dock" },
-  { path: "/dashboard", name: "dashboard", auth: true, selector: ".student-today-command" },
+  { path: "/", name: "landing", auth: false, selector: ".diana-hero-core" },
+  { path: "/login", name: "login", auth: false, selector: ".sd-auth-card" },
+  { path: "/signup", name: "signup", auth: false, selector: ".sd-auth-card" },
+  { path: "/onboarding", name: "onboarding", auth: true, selector: ".sd-onboarding-shell" },
+  { path: "/dashboard", name: "dashboard", auth: true, selector: ".sd-today-layout" },
   { path: "/assignments", name: "assignments", auth: true, selector: ".diana-page" },
   { path: "/proof", name: "proof", auth: true, selector: ".diana-page" },
   { path: "/future-path", name: "future-path", auth: true, selector: ".diana-page" },
@@ -55,7 +55,7 @@ async function createAuthState({ resetOnboarding = false } = {}) {
 const onboardedState = await createAuthState();
 const onboardingState = await createAuthState({ resetOnboarding: true });
 
-for (const mode of ["light", "dark", "future"]) {
+for (const mode of ["screen-design"]) {
   for (const viewport of viewports) {
     for (const route of routes) {
       const storageState = route.auth
@@ -68,11 +68,6 @@ for (const mode of ["light", "dark", "future"]) {
         storageState,
       });
       const page = await context.newPage();
-      await page.addInitScript((nextMode) => {
-        if (nextMode === "dark" || nextMode === "future") localStorage.setItem("diana_theme", "dark");
-        if (nextMode === "future") localStorage.setItem("diana_experience_mode", "future");
-      }, mode);
-
       await page.goto(new URL(route.path, baseUrl).toString(), {
         waitUntil: "networkidle",
         timeout: 30_000,

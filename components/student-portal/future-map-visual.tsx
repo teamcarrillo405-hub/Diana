@@ -7,7 +7,7 @@ export function FutureMapVisual({ model }: { model: FuturePathModel }) {
   const steps = model.milestones.slice(0, 5);
 
   return (
-    <SpotlightSurface className="future-map-visual nexus-panel">
+    <SpotlightSurface className="future-map-visual diana-panel">
       <div className="future-map-orbit" aria-hidden="true">
         <span />
         <span />

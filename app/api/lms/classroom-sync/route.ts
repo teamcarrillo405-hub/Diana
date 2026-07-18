@@ -28,6 +28,7 @@ export async function POST(req: Request) {
     .select("id, owner_id, provider, config")
     .eq("id", connectionId)
     .eq("provider", "google_classroom")
+    .eq("owner_id", user.id)
     .single();
   if (connErr || !conn) {
     return NextResponse.json({ error: "Connection not found" }, { status: 404 });
@@ -44,7 +45,8 @@ export async function POST(req: Request) {
       await supabase
         .from("lms_connections")
         .update({ config: { ...cfg, ...valid.refreshed } })
-        .eq("id", conn.id);
+        .eq("id", conn.id)
+        .eq("owner_id", user.id);
     }
   } else {
     const { data: { session } } = await supabase.auth.getSession();
@@ -86,7 +88,8 @@ export async function POST(req: Request) {
     await supabase
       .from("lms_connections")
       .update({ last_synced_at: new Date().toISOString() })
-      .eq("id", connectionId);
+      .eq("id", connectionId)
+      .eq("owner_id", user.id);
     return NextResponse.json(result);
   } catch (e) {
     const message = e instanceof Error ? e.message : "Classroom import had a problem";

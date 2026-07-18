@@ -16,3 +16,6 @@ tests/
 *.log
 ruvector.db
 transcribe-note/
+
+# Canonical ScreenDesign runtime media must ship with every deployment.
+!public/screendesign/**

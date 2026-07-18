@@ -1,0 +1,298 @@
+import type { Page } from "@playwright/test";
+import { mkdir, writeFile } from "node:fs/promises";
+import path from "node:path";
+
+import {
+  emitScreenDesignReviewImage,
+  expect,
+  screenDesignTest as test,
+  SELECTED_SCREEN_DESIGN_SCENARIOS,
+  waitForScreenDesignReady,
+} from "@/tests/fixtures/screendesign";
+
+const MOBILE_PROJECT = "screendesign-mobile";
+const DESKTOP_PROJECT = "screendesign-responsive-desktop";
+const GENERATED_IDENTIFIER =
+  /\b(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|sdqa-[a-f0-9]{32})\b/iu;
+
+const installLocalRequestCheck = (page: Page, allowedOrigin: string) => {
+  const remote: string[] = [];
+  const listener = (request: import("@playwright/test").Request) => {
+    const url = request.url();
+    if (/^(?:data|blob|about):/iu.test(url)) return;
+    try {
+      if (new URL(url).origin !== allowedOrigin) remote.push(url);
+    } catch {
+      remote.push(url);
+    }
+  };
+  page.on("request", listener);
+  return {
+    remote,
+    dispose: () => page.off("request", listener),
+  };
+};
+
+const assertNoHorizontalOverflow = async (page: Page) => {
+  const overflow = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: Math.max(
+      document.documentElement.scrollWidth,
+      document.body?.scrollWidth ?? 0,
+    ),
+  }));
+  expect(
+    overflow.scrollWidth,
+    `Page should not overflow ${overflow.clientWidth}px viewport`,
+  ).toBeLessThanOrEqual(overflow.clientWidth + 2);
+};
+
+const assertNoBrowserDefaultLinkColors = async (page: Page) => {
+  const offenders = await page.locator("a:visible").evaluateAll((links) =>
+    links.flatMap((link) => {
+      if (link.classList.contains("skip-link")) return [];
+      const color = getComputedStyle(link).color;
+      return ["rgb(0, 0, 238)", "rgb(85, 26, 139)"].includes(color)
+        ? [{
+            color,
+            href: link.getAttribute("href"),
+            label: link.textContent?.trim() || link.getAttribute("aria-label"),
+          }]
+        : [];
+    }),
+  );
+  expect(
+    offenders,
+    "Visible canonical app links must not use browser-default blue or visited purple",
+  ).toEqual([]);
+};
+
+const emitResponsiveProofImage = async (
+  screenId: string,
+  variant: "mobile" | "desktop",
+  image: Buffer,
+): Promise<void> => {
+  const root = process.env.SCREENDESIGN_RESPONSIVE_PROOF_DIR;
+  if (!root) return;
+  const output = path.join(path.resolve(root), variant, `${screenId}.png`);
+  await mkdir(path.dirname(output), { recursive: true });
+  await writeFile(output, image);
+};
+
+const assertDesktopComposition = async (page: Page) => {
+  const viewport = page.locator("[data-screen-design-responsive='mobile-desktop']").first();
+  await expect(viewport).toBeVisible();
+  const box = await viewport.boundingBox();
+  expect(box, "Responsive ScreenDesign viewport should have a layout box").not.toBeNull();
+  expect(
+    box?.width ?? 0,
+    "Desktop screens must use the desktop canvas rather than a 393px phone frame",
+  ).toBeGreaterThanOrEqual(1180);
+};
+
+const assertKeyboardFocusStaysVisible = async (page: Page) => {
+  await page
+    .getByRole("button", { name: "Open Next.js Dev Tools" })
+    .evaluateAll((buttons) => {
+      buttons.forEach((button) => {
+        button.setAttribute("tabindex", "-1");
+        (button as HTMLElement).style.display = "none";
+        const root = button.getRootNode();
+        if (root instanceof ShadowRoot && root.host instanceof HTMLElement) {
+          root.host.style.display = "none";
+        }
+      });
+    });
+  const focusableCount = await page
+    .locator(
+      'a[href]:not([tabindex="-1"]), button:not([disabled]):not([tabindex="-1"]), input:not([disabled]):not([tabindex="-1"]), select:not([disabled]):not([tabindex="-1"]), textarea:not([disabled]):not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])',
+    )
+    .count();
+  for (let index = 0; index < Math.min(focusableCount, 6); index += 1) {
+    await page.keyboard.press("Tab");
+    const focus = await page.evaluate(() => {
+      const active = document.activeElement as HTMLElement | null;
+      if (!active || active === document.body) return null;
+      const rect = active.getBoundingClientRect();
+      return {
+        bottom: rect.bottom,
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        viewportHeight: window.innerHeight,
+        viewportWidth: window.innerWidth,
+      };
+    });
+    if (!focus) continue;
+    expect(focus.right).toBeGreaterThan(0);
+    expect(focus.bottom).toBeGreaterThan(0);
+    expect(focus.left).toBeLessThan(focus.viewportWidth);
+    expect(focus.top).toBeLessThan(focus.viewportHeight);
+  }
+  await page.evaluate(() => {
+    const activeElement = document.activeElement;
+    if (activeElement instanceof HTMLElement) {
+      activeElement.blur();
+    }
+    for (const element of document.querySelectorAll<HTMLElement>("*")) {
+      if (element.scrollLeft !== 0 || element.scrollTop !== 0) {
+        element.scrollTo({ left: 0, top: 0, behavior: "instant" });
+      }
+    }
+    window.scrollTo({ left: 0, top: 0, behavior: "instant" });
+  });
+  await page.evaluate(
+    () => new Promise<void>((resolve) => {
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+    }),
+  );
+};
+
+const captureSmartLoadingDuringNavigation = async (
+  page: Page,
+  snapshotName: string,
+  compareSnapshot: boolean,
+  assertDesktop: boolean,
+): Promise<Buffer> => {
+  const reset = await page.request.delete("/api/qa/suspense-gate");
+  expect(reset.ok()).toBe(true);
+
+  const response = await page.goto("/qa/smart-loading-probe", { waitUntil: "commit" });
+  expect(response?.status() ?? 200).toBeLessThan(500);
+
+  const status = page.getByRole("status");
+  let currentImage: Buffer | null = null;
+  try {
+    await expect(status).toBeVisible();
+    await expect(status).toHaveText("Getting your next view ready");
+    await page.evaluate(async () => {
+      await document.fonts.ready;
+      await Promise.all(
+        Array.from(document.images).map((image) => image.decode().catch(() => undefined)),
+      );
+    });
+    await assertNoHorizontalOverflow(page);
+    if (assertDesktop) {
+      await assertDesktopComposition(page);
+    }
+    currentImage = await page.screenshot({
+      animations: "disabled",
+      fullPage: false,
+    });
+    if (compareSnapshot) {
+      expect(currentImage).toMatchSnapshot(snapshotName, {
+        maxDiffPixelRatio: 0.005,
+      });
+    }
+  } finally {
+    const release = await page.request.post("/api/qa/suspense-gate");
+    expect(release.ok()).toBe(true);
+  }
+
+  await expect(page.getByRole("main", { name: "Smart loading resolved" })).toBeVisible();
+  await expect(status).toBeHidden();
+  await waitForScreenDesignReady(page);
+  if (!currentImage) throw new Error("Smart Loading capture was not created.");
+  return currentImage;
+};
+
+const snapshots = SELECTED_SCREEN_DESIGN_SCENARIOS.map(
+  (scenario) => `${scenario.screenId}.png`,
+);
+if (new Set(snapshots).size !== snapshots.length) {
+  throw new Error("ScreenDesign visual scenarios produced duplicate snapshot names.");
+}
+
+for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
+  test(`${scenario.screenId} current app evidence`, async ({ page, screenDesign }, testInfo) => {
+    const consoleEvidence = screenDesign.consoleEvidence();
+    const prepared = await screenDesign.prepare(scenario);
+    const configuredBaseUrl = testInfo.project.use.baseURL;
+    if (typeof configuredBaseUrl !== "string") {
+      throw new Error("ScreenDesign projects require a string baseURL.");
+    }
+    const localRequests = installLocalRequestCheck(
+      page,
+      new URL(configuredBaseUrl).origin,
+    );
+
+    try {
+      if (scenario.screenId === "smart-loading") {
+        if (testInfo.project.name === MOBILE_PROJECT) {
+          expect(page.viewportSize()).toEqual(prepared.screen.sourceViewport);
+        }
+        const currentImage = await captureSmartLoadingDuringNavigation(
+          page,
+          prepared.screen.visualSnapshot,
+          testInfo.project.name === MOBILE_PROJECT,
+          testInfo.project.name === DESKTOP_PROJECT,
+        );
+        if (testInfo.project.name === MOBILE_PROJECT) {
+          await emitScreenDesignReviewImage(
+            page,
+            "app",
+            prepared.screen.id,
+            currentImage,
+          );
+          await emitResponsiveProofImage(prepared.screen.id, "mobile", currentImage);
+        } else if (testInfo.project.name === DESKTOP_PROJECT) {
+          await emitResponsiveProofImage(prepared.screen.id, "desktop", currentImage);
+        }
+        expect(localRequests.remote).toEqual([]);
+        expect(consoleEvidence.consoleErrors).toEqual([]);
+        expect(consoleEvidence.pageErrors).toEqual([]);
+        return;
+      }
+
+      const response = await page.goto(prepared.route, {
+        waitUntil: "domcontentloaded",
+      });
+      expect(response?.status() ?? 200).toBeLessThan(500);
+      await waitForScreenDesignReady(page);
+      await assertNoHorizontalOverflow(page);
+      await assertNoBrowserDefaultLinkColors(page);
+      await assertKeyboardFocusStaysVisible(page);
+
+      const visibleText = await page.locator("body").innerText();
+      expect(
+        visibleText,
+        "Synthetic record ids and share tokens must not enter visual evidence",
+      ).not.toMatch(GENERATED_IDENTIFIER);
+      expect(localRequests.remote).toEqual([]);
+      expect(consoleEvidence.consoleErrors).toEqual([]);
+      expect(consoleEvidence.pageErrors).toEqual([]);
+
+      if (testInfo.project.name === MOBILE_PROJECT) {
+        if (scenario.authClass === "public-token") {
+          await page.reload({ waitUntil: "domcontentloaded" });
+          await waitForScreenDesignReady(page);
+        }
+        expect(page.viewportSize()).toEqual(prepared.screen.sourceViewport);
+        const currentImage = await page.screenshot({
+          animations: "allow",
+          fullPage: false,
+        });
+        await emitScreenDesignReviewImage(
+          page,
+          "app",
+          prepared.screen.id,
+          currentImage,
+        );
+        expect(currentImage).toMatchSnapshot(prepared.screen.visualSnapshot, {
+          maxDiffPixelRatio: 0.005,
+        });
+        await emitResponsiveProofImage(prepared.screen.id, "mobile", currentImage);
+      } else if (testInfo.project.name === DESKTOP_PROJECT) {
+        await assertDesktopComposition(page);
+        const currentImage = await page.screenshot({
+          animations: "disabled",
+          fullPage: false,
+        });
+        await emitResponsiveProofImage(prepared.screen.id, "desktop", currentImage);
+      }
+    } finally {
+      localRequests.dispose();
+      consoleEvidence.dispose();
+    }
+  });
+}
