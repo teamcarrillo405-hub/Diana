@@ -9,21 +9,24 @@ import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import type { StudyArtifactQuizItem } from "@/lib/study-helper/artifacts";
 import type { PracticeProgress } from "@/lib/study-helper/practice-progress";
+import type { PracticeScoreSummary } from "@/lib/study-helper/practice-scoring";
 
-import { savePracticeTestProgress } from "../actions";
+import { restartPracticeTest, savePracticeTestProgress } from "../actions";
 
 export function PracticeTestSession({
   artifactId,
   artifactTitle,
+  assignmentId,
   quiz,
   initialProgress,
-  score,
+  initialResult,
 }: {
   artifactId: string;
   artifactTitle: string;
+  assignmentId: string | null;
   quiz: StudyArtifactQuizItem[];
   initialProgress: PracticeProgress;
-  score: number | null;
+  initialResult: PracticeScoreSummary | null;
 }) {
   const router = useRouter();
   const [isSaving, startTransition] = useTransition();
@@ -34,6 +37,7 @@ export function PracticeTestSession({
     initialProgress.responses,
   );
   const [completed, setCompleted] = useState(initialProgress.completed);
+  const [result, setResult] = useState(initialResult);
   const [showHint, setShowHint] = useState(false);
   const [status, setStatus] = useState("");
 
@@ -43,6 +47,10 @@ export function PracticeTestSession({
   );
   const item = quiz[currentQuestion];
   const response = responses[String(currentQuestion)] ?? "";
+  const returnHref = assignmentId
+    ? `/assignments/${assignmentId}/workspace`
+    : "/study-artifacts";
+  const returnLabel = assignmentId ? "Back to assignment" : "Back to study lab";
 
   if (completed) {
     return (
@@ -54,12 +62,57 @@ export function PracticeTestSession({
         <p>Practice saved</p>
         <h1>{artifactTitle}</h1>
         <span>{answeredCount} response{answeredCount === 1 ? "" : "s"} saved as your work.</span>
-        {score === null ? (
-          <strong>No score was generated.</strong>
+        {result?.percentage === null || !result ? (
+          <strong>{result ? "Meaning-aware review ready." : "No score was generated."}</strong>
         ) : (
-          <strong>Recorded score: {score}%</strong>
+          <strong>{result.percentage}% on auto-checked questions</strong>
         )}
-        <Link href="/study-artifacts">Back to study lab</Link>
+        {result ? (
+          <div className="sd-practice-result-list" aria-label="Practice review">
+            {result.results.map((questionResult) => (
+              <article
+                key={questionResult.questionIndex}
+                data-result={questionResult.category}
+              >
+                <span>Question {questionResult.questionIndex + 1}</span>
+                <h2>{questionResult.question}</h2>
+                <p>{questionResult.explanation}</p>
+                {questionResult.category !== "matched" ? (
+                  <details>
+                    <summary>Review answer and source</summary>
+                    <p>{questionResult.expectedAnswer}</p>
+                    <small>{questionResult.sourceAnchor}</small>
+                  </details>
+                ) : (
+                  <small>{questionResult.sourceAnchor}</small>
+                )}
+              </article>
+            ))}
+          </div>
+        ) : null}
+        <button
+          type="button"
+          disabled={isSaving}
+          className="sd-practice-retry"
+          onClick={() => {
+            startTransition(async () => {
+              const restart = await restartPracticeTest(artifactId);
+              if (!restart.ok) {
+                setStatus(restart.error);
+                return;
+              }
+              setCurrentQuestion(0);
+              setResponses({});
+              setCompleted(false);
+              setResult(null);
+              setStatus("A new practice pass is ready.");
+              router.refresh();
+            });
+          }}
+        >
+          Try another pass
+        </button>
+        <Link href={returnHref}>{returnLabel}</Link>
       </ScreenDesignViewport>
     );
   }
@@ -71,7 +124,7 @@ export function PracticeTestSession({
         <p>Practice session</p>
         <h1>This set has no questions yet.</h1>
         <span>Open the source or create another practice set when you are ready.</span>
-        <Link href="/study-artifacts">Back to study lab</Link>
+        <Link href={returnHref}>{returnLabel}</Link>
       </ScreenDesignViewport>
     );
   }
@@ -107,6 +160,7 @@ export function PracticeTestSession({
       }
       setResponses(result.progress.responses);
       setCompleted(result.progress.completed);
+      setResult(result.result);
       if (!result.progress.completed) {
         setCurrentQuestion(nextQuestion);
         setShowHint(false);
@@ -123,7 +177,7 @@ export function PracticeTestSession({
       <header className="sd-practice-header">
         <div>
           <DianaWordmark />
-          <Link href="/study-artifacts" aria-label="Back to study lab">
+          <Link href={returnHref} aria-label={returnLabel}>
             <X aria-hidden="true" />
           </Link>
         </div>
@@ -194,20 +248,20 @@ export function PracticeTestSession({
           <i aria-hidden="true" />
           <div>
             <span>Result</span>
-            <strong>{score === null ? "No score yet" : `${score}%`}</strong>
+            <strong>{result?.percentage == null ? "Review after practice" : `${result.percentage}%`}</strong>
           </div>
         </section>
       </main>
 
-      <Link href="/capture" className="sd-practice-quick-add" aria-label="Quick add">
+      <Link href="/quick-add" className="sd-practice-quick-add" aria-label="Quick add">
         <Plus aria-hidden="true" />
       </Link>
 
       <footer className="sd-practice-footer">
-        <Link href="/study-artifacts">Pause</Link>
+        <Link href={returnHref}>Pause</Link>
         <button type="button" onClick={() => setShowHint((visible) => !visible)}>
           <Sparkles aria-hidden="true" />
-          {showHint ? "Hide hint" : "Ask tutor"}
+          {showHint ? "Hide hint" : "Ask Diana"}
         </button>
       </footer>
     </ScreenDesignViewport>

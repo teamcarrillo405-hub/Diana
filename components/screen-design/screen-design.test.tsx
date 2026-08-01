@@ -195,7 +195,7 @@ describe("StudentBottomNav", () => {
       { label: "Work", href: "/assignments" },
       { label: "Classes", href: "/classes" },
       { label: "Calendar", href: "/calendar" },
-      { label: "More", href: "/settings" },
+      { label: "More", href: "/more" },
     ]);
     expect(screen.getByRole("navigation", { name: "Primary" })).toBeVisible();
     expect(

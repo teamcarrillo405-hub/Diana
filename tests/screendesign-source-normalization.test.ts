@@ -25,6 +25,7 @@ interface ScreenDesignManifest {
   readonly assetCount: number;
   readonly screenDesignAssetCount: number;
   readonly avatarAssetCount: number;
+  readonly derivedAssetCount: number;
   readonly assets: readonly ScreenDesignSourceManifestEntry[];
 }
 
@@ -44,6 +45,14 @@ const MANIFEST_PATH = path.join(
 const readManifest = async (): Promise<ScreenDesignManifest> =>
   JSON.parse(await readFile(MANIFEST_PATH, "utf8")) as ScreenDesignManifest;
 
+const sourceAssetsFrom = (
+  assets: readonly ScreenDesignSourceManifestEntry[],
+): readonly ScreenDesignSourceAsset[] =>
+  assets.filter(
+    (asset): asset is ScreenDesignSourceManifestEntry & ScreenDesignSourceAsset =>
+      typeof asset.sourceUrl === "string",
+  );
+
 const countOccurrences = (value: string, search: string): number =>
   value.split(search).length - 1;
 
@@ -61,6 +70,7 @@ const readCorpus = async (): Promise<{
   readonly documents: readonly SourceDocument[];
 }> => {
   const manifest = await readManifest();
+  const remoteAssets = sourceAssetsFrom(manifest.assets);
   const documents = await Promise.all(
     SCREEN_DESIGN_SCREENS.map(async (screen): Promise<SourceDocument> => {
       const source = await readFile(screen.source, "utf8");
@@ -70,26 +80,30 @@ const readCorpus = async (): Promise<{
         normalized: normalizeScreenDesignSource({
           screen,
           html: source,
-          assets: manifest.assets,
+          assets: remoteAssets,
         }),
       };
     }),
   );
 
-  return { assets: manifest.assets, documents };
+  return {
+    assets: remoteAssets,
+    documents,
+  };
 };
 
 describe("normalizeScreenDesignSource", () => {
-  it("normalizes exactly the 47 canonical sources into inert local documents", async () => {
+  it("normalizes exactly the 46 canonical sources into inert local documents", async () => {
     const manifest = await readManifest();
     const { documents } = await readCorpus();
 
-    expect(SCREEN_DESIGN_SCREENS).toHaveLength(47);
-    expect(documents).toHaveLength(47);
+    expect(SCREEN_DESIGN_SCREENS).toHaveLength(46);
+    expect(documents).toHaveLength(46);
     expect(manifest).toMatchObject({
-      assetCount: 28,
+      assetCount: 29,
       screenDesignAssetCount: 24,
       avatarAssetCount: 4,
+      derivedAssetCount: 1,
     });
     expect(
       SCREEN_DESIGN_SCREENS.some((screen) =>
@@ -149,6 +163,7 @@ describe("normalizeScreenDesignSource", () => {
 
   it("repairs only the attached dashboard stadium declaration and preserves separate image layers", async () => {
     const manifest = await readManifest();
+    const sourceAssets = sourceAssetsFrom(manifest.assets);
     const dashboard = SCREEN_DESIGN_SCREENS.find(
       (screen) => screen.id === "dashboard-personalized",
     );
@@ -158,9 +173,9 @@ describe("normalizeScreenDesignSource", () => {
     const normalized = normalizeScreenDesignSource({
       screen: dashboard!,
       html: source,
-      assets: manifest.assets,
+      assets: sourceAssets,
     });
-    const stadium = manifest.assets.find(
+    const stadium = sourceAssets.find(
       (asset) => asset.localPath === "/screendesign/dashboard/stadium-background.jpg",
     );
     const athlete = manifest.assets.find(
@@ -196,8 +211,9 @@ describe("normalizeScreenDesignSource", () => {
 
   it("strips executable export markup and inline handlers without evaluating it", async () => {
     const manifest = await readManifest();
+    const sourceAssets = sourceAssetsFrom(manifest.assets);
     const screen = SCREEN_DESIGN_SCREENS[0];
-    const logo = manifest.assets.find((asset) => asset.localPath.includes("diana-logo"));
+    const logo = sourceAssets.find((asset) => asset.localPath.includes("diana-logo"));
     expect(screen).toBeDefined();
     expect(logo).toBeDefined();
 
@@ -226,7 +242,7 @@ describe("normalizeScreenDesignSource", () => {
     const normalized = normalizeScreenDesignSource({
       screen,
       html,
-      assets: manifest.assets,
+      assets: sourceAssets,
     });
 
     expect(normalized).toContain("Keep this button");
@@ -241,6 +257,7 @@ describe("normalizeScreenDesignSource", () => {
 
   it("rejects the excluded folder dashboard and any fuzzy or unmapped media URL", async () => {
     const manifest = await readManifest();
+    const sourceAssets = sourceAssetsFrom(manifest.assets);
     const dashboard = SCREEN_DESIGN_SCREENS.find(
       (screen) => screen.id === "dashboard-personalized",
     );
@@ -255,13 +272,13 @@ describe("normalizeScreenDesignSource", () => {
       normalizeScreenDesignSource({
         screen: { ...dashboard!, source: folderDashboard },
         html: folderDashboardHtml,
-        assets: manifest.assets,
+        assets: sourceAssets,
       }),
     ).toThrow(/canonical ScreenDesign registry/iu);
 
     const screen = SCREEN_DESIGN_SCREENS[0];
     const source = await readFile(screen.source, "utf8");
-    const referencedAsset = manifest.assets.find((asset) =>
+    const referencedAsset = sourceAssets.find((asset) =>
       source.includes(asset.sourceUrl),
     );
     expect(referencedAsset).toBeDefined();
@@ -274,14 +291,14 @@ describe("normalizeScreenDesignSource", () => {
       normalizeScreenDesignSource({
         screen,
         html: fuzzySource,
-        assets: manifest.assets,
+        assets: sourceAssets,
       }),
     ).toThrow(/unmapped remote URL/iu);
   });
 });
 
 describe("isolated ScreenDesign source server", () => {
-  it("serves all 47 normalized documents, compiled capture CSS, and all local assets", async () => {
+  it("serves all 46 normalized documents, compiled capture CSS, and all local assets", async () => {
     const manifest = await readManifest();
     const server = await startScreenDesignSourceServer();
 
@@ -324,7 +341,7 @@ describe("isolated ScreenDesign source server", () => {
       const unknown = await fetch(`${server.origin}/source/dashboard_personalized`);
       expect(unknown.status).toBe(404);
       expect(server.servedRequests.filter((request) => request.status === 200)).toHaveLength(
-        47 + 1 + 28,
+        46 + 1 + 29,
       );
     } finally {
       await server.close();

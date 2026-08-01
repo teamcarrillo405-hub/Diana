@@ -1,7 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
-import type { Tables } from "@/lib/supabase/types";
+import type {
+  AgeBracket,
+  FontSize,
+  LineSpacing,
+  ReadingSpacing,
+  Tables,
+  TtsProvider,
+  VisualPacing,
+} from "@/lib/supabase/types";
 
-export type ProfilePrefs = Pick<
+type ProfileRow = Pick<
   Tables<"profiles">,
   | "user_id"
   | "display_name"
@@ -55,6 +63,103 @@ export type ProfilePrefs = Pick<
   | "study_schedule_preference"
 >;
 
+export type TutorPersona = "diana" | "xavier" | "maya";
+export type TutorStyle = "socratic" | "supportive" | "direct";
+export type TutorComplexity = "simple" | "balanced" | "advanced";
+export type LearningHurdle =
+  | "time_management"
+  | "exam_stress"
+  | "complex_concepts"
+  | "staying_consistent";
+export type StudySchedulePreference = "morning" | "after_practice" | "late_night";
+
+type NarrowedProfileFields = {
+  age_bracket: AgeBracket;
+  font_size: FontSize;
+  line_spacing: LineSpacing;
+  visual_pacing: VisualPacing;
+  reading_letter_spacing: ReadingSpacing;
+  reading_word_spacing: ReadingSpacing;
+  tts_provider: TtsProvider;
+  tutor_persona: TutorPersona;
+  tutor_style: TutorStyle;
+  tutor_complexity: TutorComplexity;
+  learning_hurdle: LearningHurdle | null;
+  study_schedule_preference: StudySchedulePreference | null;
+};
+
+export type ProfilePrefs = Omit<ProfileRow, keyof NarrowedProfileFields> &
+  NarrowedProfileFields;
+
+const AGE_BRACKETS = ["under_13", "13_to_17", "adult"] as const;
+const FONT_SIZES = ["small", "normal", "large", "xlarge"] as const;
+const LINE_SPACINGS = ["compact", "normal", "loose"] as const;
+const VISUAL_PACING = ["off", "word", "line"] as const;
+const READING_SPACING = ["normal", "wide", "wider"] as const;
+const TTS_PROVIDERS = ["browser", "openai", "elevenlabs"] as const;
+const TUTOR_PERSONAS = ["diana", "xavier", "maya"] as const;
+const TUTOR_STYLES = ["socratic", "supportive", "direct"] as const;
+const TUTOR_COMPLEXITIES = ["simple", "balanced", "advanced"] as const;
+const LEARNING_HURDLES = [
+  "time_management",
+  "exam_stress",
+  "complex_concepts",
+  "staying_consistent",
+] as const;
+const STUDY_SCHEDULE_PREFERENCES = ["morning", "after_practice", "late_night"] as const;
+
+function enumValue<const Values extends readonly string[]>(
+  value: unknown,
+  values: Values,
+  fallback: Values[number],
+): Values[number] {
+  return typeof value === "string" && values.some((candidate) => candidate === value)
+    ? value as Values[number]
+    : fallback;
+}
+
+function nullableEnumValue<const Values extends readonly string[]>(
+  value: unknown,
+  values: Values,
+): Values[number] | null {
+  return typeof value === "string" && values.some((candidate) => candidate === value)
+    ? value as Values[number]
+    : null;
+}
+
+export function normalizeTutorPersona(value: unknown): TutorPersona {
+  return enumValue(value, TUTOR_PERSONAS, "diana");
+}
+
+export function normalizeTutorStyle(value: unknown): TutorStyle {
+  return enumValue(value, TUTOR_STYLES, "socratic");
+}
+
+export function normalizeTutorComplexity(value: unknown): TutorComplexity {
+  return enumValue(value, TUTOR_COMPLEXITIES, "balanced");
+}
+
+function normalizeProfile(row: ProfileRow): ProfilePrefs {
+  return {
+    ...row,
+    age_bracket: enumValue(row.age_bracket, AGE_BRACKETS, "adult"),
+    font_size: enumValue(row.font_size, FONT_SIZES, "normal"),
+    line_spacing: enumValue(row.line_spacing, LINE_SPACINGS, "normal"),
+    visual_pacing: enumValue(row.visual_pacing, VISUAL_PACING, "off"),
+    reading_letter_spacing: enumValue(row.reading_letter_spacing, READING_SPACING, "normal"),
+    reading_word_spacing: enumValue(row.reading_word_spacing, READING_SPACING, "normal"),
+    tts_provider: enumValue(row.tts_provider, TTS_PROVIDERS, "browser"),
+    tutor_persona: normalizeTutorPersona(row.tutor_persona),
+    tutor_style: normalizeTutorStyle(row.tutor_style),
+    tutor_complexity: normalizeTutorComplexity(row.tutor_complexity),
+    learning_hurdle: nullableEnumValue(row.learning_hurdle, LEARNING_HURDLES),
+    study_schedule_preference: nullableEnumValue(
+      row.study_schedule_preference,
+      STUDY_SCHEDULE_PREFERENCES,
+    ),
+  };
+}
+
 export async function loadProfile(): Promise<ProfilePrefs | null> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -66,7 +171,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
     )
     .eq("user_id", user.id)
     .single();
-  if (data) return data;
+  if (data) return normalizeProfile(data);
 
   // A checked-out app can briefly run ahead of its linked database while the
   // timestamped onboarding migration is being applied. Keep existing profile
@@ -83,7 +188,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
       .eq("user_id", user.id)
       .single();
     return legacy
-      ? { ...legacy, learning_hurdle: null, study_schedule_preference: null }
+      ? normalizeProfile({ ...legacy, learning_hurdle: null, study_schedule_preference: null })
       : null;
   }
 

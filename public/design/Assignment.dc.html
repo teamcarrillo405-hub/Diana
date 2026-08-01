@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
+<style>
+  :root { --navy:#0f172a; --ink:#0f172a; --cream:#f4efe6; --white:#fff; --line:#cbd5e1; --muted:#64748b; --cyan:#29d0ff; --pink:#f472b6; }
+  * { box-sizing:border-box; }
+  html,body { margin:0; background:var(--navy); }
+  a:focus-visible { outline:3px solid var(--cyan); outline-offset:3px; }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--navy);font-family:'Barlow Semi Condensed',sans-serif;color:#f8fafc">
+  <dc-import name="Student Desktop Header" active="work" hint-size="1440px,58px"></dc-import>
+
+  <main style="width:min(813px,calc(100% - 68px));margin-left:max(34px,calc((100% - 830px)/2));padding:42px 0 80px">
+    <a href="Work.dc.html" style="display:inline-flex;align-items:center;gap:7px;margin-bottom:28px;color:#cbd5e1;font-family:'Saira Condensed',sans-serif;font-size:14px;font-weight:800;letter-spacing:.06em;text-decoration:none;text-transform:uppercase">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>
+      Work
+    </a>
+
+    <header style="margin-bottom:26px">
+      <div>
+        <p style="margin:0 0 8px;color:#7dd3fc;font-family:'Saira Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;text-transform:uppercase">English</p>
+        <h1 style="max-width:620px;margin:0;color:#fff;font-family:'Saira Condensed',sans-serif;font-size:48px;font-style:italic;font-weight:800;letter-spacing:0;line-height:.95;text-transform:uppercase">Rhetorical analysis</h1>
+        <p style="margin:12px 0 0;color:#cbd5e1;font-size:17px;font-weight:600">Due tomorrow at 9:00 PM <span aria-hidden="true">&#183;</span> About 25 min</p>
+      </div>
+
+    </header>
+
+    <section aria-labelledby="brief-title" style="border:1px solid #d7d0c5;border-radius:8px;background:var(--cream);box-shadow:0 12px 30px rgb(0 0 0 / .14);padding:26px 28px;color:var(--ink)">
+      <p id="brief-title" style="margin:0 0 12px;font-family:'Saira Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.14em;text-transform:uppercase">Assignment brief</p>
+      <p style="max-width:650px;margin:0;font-size:18px;line-height:1.55">Read the speech excerpt, choose one rhetorical strategy, and explain how it supports the speaker&apos;s message in one short paragraph.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:20px">
+        <span style="border:1px solid #94a3b8;border-radius:5px;background:#fff;padding:6px 10px;font-size:14px;font-weight:700">One paragraph</span>
+        <span style="border:1px solid #94a3b8;border-radius:5px;background:#fff;padding:6px 10px;font-size:14px;font-weight:700">One cited quote</span>
+      </div>
+    </section>
+
+    <section aria-labelledby="move-title" style="margin-top:18px;border:1px dashed #94a3b8;border-radius:8px;background:#fff;padding:22px 24px;color:var(--ink)">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:18px">
+        <h2 id="move-title" style="margin:0;font-family:'Saira Condensed',sans-serif;font-size:18px;font-style:italic;font-weight:800;letter-spacing:.04em;text-transform:uppercase">First move</h2>
+        <span style="color:#475569;font-family:'Saira Condensed',sans-serif;font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase">5 min</span>
+      </div>
+      <p style="margin:10px 0 0;font-size:17px;line-height:1.45">Read the excerpt once. Highlight one sentence that feels important before you start writing.</p>
+    </section>
+
+    <details style="margin-top:20px">
+      <summary style="display:inline-flex;min-height:52px;cursor:pointer;align-items:center;justify-content:center;gap:8px;border:1px solid #2dd4bf;border-radius:8px;background:#2dd4bf;padding:0 18px;color:var(--ink);font-family:'Saira Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:.04em;text-transform:uppercase">Plan assignment</summary>
+      <section aria-label="Optional assignment plan" style="margin-top:14px;border:1px dashed #94a3b8;border-radius:8px;background:#fff;padding:20px;color:var(--ink)">
+        <p style="margin:0;font-family:'Saira Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:.1em;text-transform:uppercase">Break it into steps</p>
+        <p style="margin:6px 0 14px;color:#475569;font-size:16px;font-weight:600">Optional. Work directly, add your own first move, or ask Diana for a short plan.</p>
+        <ol style="display:grid;gap:10px;margin:0;padding-left:22px;font-size:16px;font-weight:600;line-height:1.4">
+          <li>Choose one sentence from the excerpt.</li>
+          <li>Name the rhetorical strategy it uses.</li>
+          <li>Write how that strategy supports the speaker's message.</li>
+        </ol>
+        <p style="margin:16px 0 0;color:#475569;font-size:14px;font-weight:600">In the live workspace, Diana can suggest or revise these steps when this class allows AI support.</p>
+      </section>
+    </details>
+  </main>
+</div>
+</x-dc>
+</body>
+</html>

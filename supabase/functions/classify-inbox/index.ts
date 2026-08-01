@@ -1,12 +1,16 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { requireOwnedStorageObject } from "../_shared/student-auth.ts";
+
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { callStudentTextModel, type StudentModelPart } from "../_shared/student-model.ts";
+import type { StudentModelPart } from "../_shared/student-model.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
@@ -52,7 +56,6 @@ type ClassifyResult = {
 };
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type, apikey",
 };
 
@@ -63,7 +66,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("classify-inbox", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
@@ -108,9 +111,16 @@ Deno.serve(async (req: Request) => {
     const parts: StudentModelPart[] = [];
 
     if (item.photo_storage_key) {
+      const ownedPhoto = requireOwnedStorageObject(
+        authData.user.id,
+        "inbox-photos",
+        item.photo_storage_key,
+        new Set(["inbox-photos"]),
+      );
+      if (ownedPhoto instanceof Response) return ownedPhoto;
       const { data: blob, error: downloadError } = await supabase.storage
-        .from("inbox-photos")
-        .download(item.photo_storage_key);
+        .from(ownedPhoto.bucket)
+        .download(ownedPhoto.storageKey);
       if (!downloadError && blob) {
         parts.push({
           type: "image",
@@ -139,7 +149,9 @@ Deno.serve(async (req: Request) => {
       includeFrustration: false,
       includeMinorSafety: true,
     });
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId: item.owner_id,
+      supabase,
       system,
       user: userText,
       parts,
@@ -180,10 +192,11 @@ Deno.serve(async (req: Request) => {
 
     return json({ ok: true, ...result });
   } catch (error) {
+    if (error instanceof Response) return error;
     console.error("classify-inbox error:", error);
     return json({ error: "Internal error" }, 500);
   }
-});
+}));
 
 function bytesToBase64(bytes: Uint8Array): string {
   let binary = "";

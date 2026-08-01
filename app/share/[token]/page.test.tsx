@@ -15,6 +15,7 @@ type QueryResult = {
 
 let queryCalls: QueryCall[] = [];
 let resultsByTable = new Map<string, QueryResult>();
+let shareLinkResults: QueryResult[] = [];
 
 function queryFor(table: string) {
   const builder = {
@@ -56,6 +57,9 @@ function queryFor(table: string) {
     },
     maybeSingle: async () => {
       queryCalls.push({ table, method: "maybeSingle", args: [] });
+      if (table === "share_links" && shareLinkResults.length > 0) {
+        return shareLinkResults.shift() as QueryResult;
+      }
       return resultsByTable.get(table) ?? { data: null, error: null };
     },
     then: (
@@ -85,7 +89,7 @@ import SharePage from "./page";
 
 const activeLink = (shareType: "parent_summary" | "teacher_snapshot") => ({
   id: "11111111-1111-4111-8111-111111111111",
-  token: "exact-active-token",
+  token_digest: "stored-token-digest",
   owner_id: "22222222-2222-4222-8222-222222222222",
   share_type: shareType,
   expires_at: "2026-10-14T16:30:00.000Z",
@@ -105,6 +109,7 @@ describe("public ScreenDesign share boundary", () => {
   beforeEach(() => {
     queryCalls = [];
     resultsByTable = new Map();
+    shareLinkResults = [];
   });
 
   it("renders only token-scoped portfolio evidence for the external scout state", async () => {
@@ -204,9 +209,11 @@ describe("public ScreenDesign share boundary", () => {
 
       expect(html).toContain("Shared link unavailable");
       expect(html).not.toContain("Freshman portfolio");
-      expect(queryCalls.filter((call) => call.method === "from")).toHaveLength(1);
+      expect(queryCalls.filter((call) => call.method === "from")).toHaveLength(2);
       expect(callsFor("share_links", "eq")).toContainEqual(
-        expect.objectContaining({ args: ["token", inactiveToken] }),
+        expect.objectContaining({
+          args: ["token_digest", expect.stringMatching(/^[a-f0-9]{64}$/u)],
+        }),
       );
       expect(callsFor("share_links", "is")).toContainEqual(
         expect.objectContaining({ args: ["revoked_at", null] }),
@@ -214,6 +221,27 @@ describe("public ScreenDesign share boundary", () => {
       expect(callsFor("share_links", "gt")).toContainEqual(
         expect.objectContaining({ args: ["expires_at", expect.any(String)] }),
       );
+      expect(callsFor("share_links", "eq")).toContainEqual(
+        expect.objectContaining({ args: ["token", inactiveToken] }),
+      );
     },
   );
+
+  it("falls back to the legacy token column before the digest migration", async () => {
+    shareLinkResults = [
+      {
+        data: null,
+        error: { code: "PGRST204", message: "Could not find the token_digest column" },
+      },
+      { data: activeLink("teacher_snapshot"), error: null },
+    ];
+    resultsByTable.set("portfolios", { data: [], error: null });
+
+    const html = await renderShare("legacy-active-token");
+
+    expect(html).toContain("Verified student share");
+    expect(callsFor("share_links", "eq")).toContainEqual(
+      expect.objectContaining({ args: ["token", "legacy-active-token"] }),
+    );
+  });
 });

@@ -1,8 +1,11 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/writing-cowrite/index.ts
 // Phase 18: student-first writing co-author engine.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -10,7 +13,6 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = new Set([
   "essay_scaffold",
@@ -53,7 +55,6 @@ Keep output short, calm, and specific. No shame/scolding words. No exclamation m
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -66,7 +67,7 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("writing-cowrite", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders() });
 
   try {
@@ -139,7 +140,9 @@ Deno.serve(async (req: Request) => {
       }],
       authorshipNote: "Student wording stays primary.",
     });
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMessage,
       maxTokens: 900,
@@ -169,7 +172,8 @@ Deno.serve(async (req: Request) => {
 
     return jsonResponse({ content });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("writing-cowrite error:", err);
     return jsonResponse({ error: "Internal error" }, 500);
   }
-});
+}));

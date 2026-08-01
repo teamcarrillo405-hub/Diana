@@ -15,12 +15,21 @@ const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(SCRIPT_DIR, "..");
 const PUBLIC_ROOT = path.join(REPOSITORY_ROOT, "public");
 const ASSET_ROOT = path.join(PUBLIC_ROOT, "screendesign");
-const MANIFEST_PATH = path.join(ASSET_ROOT, "manifest.json");
+const RUNTIME_MANIFEST_PATH = path.join(ASSET_ROOT, "manifest.json");
+const PROVENANCE_MANIFEST_PATH = path.join(
+  REPOSITORY_ROOT,
+  "docs",
+  "design",
+  "screendesign-asset-provenance.json",
+);
 
-const EXPECTED_SCREEN_COUNT = 47;
+const EXPECTED_SCREEN_COUNT = 46;
 const EXPECTED_SCREENDESIGN_COUNT = 24;
 const EXPECTED_AVATAR_COUNT = 4;
+const EXPECTED_DERIVED_COUNT = 1;
 const EXPECTED_ASSET_COUNT =
+  EXPECTED_SCREENDESIGN_COUNT + EXPECTED_AVATAR_COUNT + EXPECTED_DERIVED_COUNT;
+const EXPECTED_REMOTE_ASSET_COUNT =
   EXPECTED_SCREENDESIGN_COUNT + EXPECTED_AVATAR_COUNT;
 
 const ALLOWED_HOSTS = new Set([
@@ -257,6 +266,22 @@ const ASSET_SPECS = Object.freeze([
   },
 ]);
 
+const DERIVED_ASSET_SPECS = Object.freeze([
+  {
+    id: "diana-logo-tight",
+    derivedFrom: "diana-logo",
+    transformation: "sharp.trim().png() transparent-bounds crop",
+    localPath: "/screendesign/brand/diana-logo-tight.png",
+    semanticRole: "Compact Diana wordmark",
+    alphaIntent: "preserve",
+    consumers: [
+      "assignment-detail",
+      "dashboard-personalized",
+      "mission-board",
+    ],
+  },
+]);
+
 const normalizeMimeType = (value) =>
   value?.split(";", 1)[0]?.trim().toLowerCase() ?? "";
 
@@ -353,9 +378,14 @@ const extractRemoteUrls = (html) => {
 };
 
 const validateSpecs = () => {
-  if (ASSET_SPECS.length !== EXPECTED_ASSET_COUNT) {
+  if (ASSET_SPECS.length !== EXPECTED_REMOTE_ASSET_COUNT) {
     throw new Error(
-      `Asset specification count must be ${EXPECTED_ASSET_COUNT}; received ${ASSET_SPECS.length}`,
+      `Remote asset specification count must be ${EXPECTED_REMOTE_ASSET_COUNT}; received ${ASSET_SPECS.length}`,
+    );
+  }
+  if (DERIVED_ASSET_SPECS.length !== EXPECTED_DERIVED_COUNT) {
+    throw new Error(
+      `Derived asset specification count must be ${EXPECTED_DERIVED_COUNT}; received ${DERIVED_ASSET_SPECS.length}`,
     );
   }
 
@@ -378,6 +408,19 @@ const validateSpecs = () => {
     }
     ids.add(spec.id);
     urls.add(spec.sourceUrl);
+    localPaths.add(spec.localPath);
+    expectedMimeType(spec.localPath);
+    toFilesystemPath(spec.localPath);
+  }
+
+  for (const spec of DERIVED_ASSET_SPECS) {
+    if (ids.has(spec.id) || localPaths.has(spec.localPath)) {
+      throw new Error(`Duplicate derived asset id or path: ${spec.id}`);
+    }
+    if (!ids.has(spec.derivedFrom)) {
+      throw new Error(`Derived asset source is not canonical: ${spec.derivedFrom}`);
+    }
+    ids.add(spec.id);
     localPaths.add(spec.localPath);
     expectedMimeType(spec.localPath);
     toFilesystemPath(spec.localPath);
@@ -409,9 +452,9 @@ const inventoryCanonicalSources = async () => {
   const folderScreens = SCREEN_DESIGN_SCREENS.filter((screen) =>
     path.resolve(screen.source).startsWith(`${path.resolve(SCREEN_DESIGN_EXPORT_DIR)}${path.sep}`),
   );
-  if (folderScreens.length !== 46) {
+  if (folderScreens.length !== 45) {
     throw new Error(
-      `Expected 46 canonical folder exports; received ${folderScreens.length}`,
+      `Expected 45 canonical folder exports; received ${folderScreens.length}`,
     );
   }
 
@@ -433,7 +476,7 @@ const inventoryCanonicalSources = async () => {
   ).length;
 
   if (
-    consumersByUrl.size !== EXPECTED_ASSET_COUNT ||
+    consumersByUrl.size !== EXPECTED_REMOTE_ASSET_COUNT ||
     screenDesignCount !== EXPECTED_SCREENDESIGN_COUNT ||
     avatarCount !== EXPECTED_AVATAR_COUNT
   ) {
@@ -507,14 +550,15 @@ const fetchAsset = async (spec, consumers) => {
   };
 };
 
-const readManifest = async () => {
-  const raw = JSON.parse(await readFile(MANIFEST_PATH, "utf8"));
+const readManifest = async (manifestPath) => {
+  const raw = JSON.parse(await readFile(manifestPath, "utf8"));
   if (
     !raw ||
     raw.schemaVersion !== 1 ||
     raw.assetCount !== EXPECTED_ASSET_COUNT ||
     raw.screenDesignAssetCount !== EXPECTED_SCREENDESIGN_COUNT ||
     raw.avatarAssetCount !== EXPECTED_AVATAR_COUNT ||
+    raw.derivedAssetCount !== EXPECTED_DERIVED_COUNT ||
     !Array.isArray(raw.assets) ||
     raw.assets.length !== EXPECTED_ASSET_COUNT
   ) {
@@ -530,7 +574,7 @@ const listOwnedAssetFiles = async (directory = ASSET_ROOT) => {
     const resolved = path.join(directory, entry.name);
     if (entry.isDirectory()) {
       files.push(...(await listOwnedAssetFiles(resolved)));
-    } else if (entry.isFile() && resolved !== MANIFEST_PATH) {
+    } else if (entry.isFile() && resolved !== RUNTIME_MANIFEST_PATH) {
       files.push(path.resolve(resolved));
     }
   }
@@ -538,11 +582,19 @@ const listOwnedAssetFiles = async (directory = ASSET_ROOT) => {
 };
 
 const verifyLocalAssets = async (consumersByUrl) => {
-  const manifest = await readManifest();
+  const provenanceManifest = await readManifest(PROVENANCE_MANIFEST_PATH);
+  const runtimeManifest = await readManifest(RUNTIME_MANIFEST_PATH);
+  const runtimeEntries = provenanceManifest.assets.map(
+    ({ sourceUrl: _sourceUrl, ...entry }) => entry,
+  );
+  if (JSON.stringify(runtimeManifest.assets) !== JSON.stringify(runtimeEntries)) {
+    throw new Error("Runtime and provenance asset manifests have drifted");
+  }
+
   const entriesById = new Map();
   const localPaths = new Set();
 
-  for (const entry of manifest.assets) {
+  for (const entry of provenanceManifest.assets) {
     if (!entry || typeof entry !== "object" || typeof entry.id !== "string") {
       throw new Error("Manifest contains an invalid asset entry");
     }
@@ -556,26 +608,9 @@ const verifyLocalAssets = async (consumersByUrl) => {
     localPaths.add(entry.localPath);
   }
 
-  for (const spec of ASSET_SPECS) {
-    const entry = entriesById.get(spec.id);
-    if (!entry) {
-      throw new Error(`Manifest is missing required asset: ${spec.id}`);
-    }
-
-    const expectedConsumers = [...consumersByUrl.get(spec.sourceUrl)].sort();
-    const expectedMime = expectedMimeType(spec.localPath);
-    if (
-      entry.sourceUrl !== spec.sourceUrl ||
-      entry.localPath !== spec.localPath ||
-      entry.mimeType !== expectedMime ||
-      entry.alphaIntent !== spec.alphaIntent ||
-      entry.semanticRole !== spec.semanticRole ||
-      JSON.stringify(entry.consumers) !== JSON.stringify(expectedConsumers)
-    ) {
-      throw new Error(`Manifest metadata drift detected for ${spec.id}`);
-    }
+  const verifyEntryFile = async (entry) => {
     if (!/^[a-f0-9]{64}$/u.test(entry.sha256)) {
-      throw new Error(`Manifest checksum is invalid for ${spec.id}`);
+      throw new Error(`Manifest checksum is invalid for ${entry.id}`);
     }
     if (
       !Number.isInteger(entry.width) ||
@@ -584,7 +619,7 @@ const verifyLocalAssets = async (consumersByUrl) => {
       entry.height <= 0 ||
       typeof entry.hasAlpha !== "boolean"
     ) {
-      throw new Error(`Manifest dimensions or alpha metadata are invalid for ${spec.id}`);
+      throw new Error(`Manifest dimensions or alpha metadata are invalid for ${entry.id}`);
     }
 
     const localFile = toFilesystemPath(entry.localPath);
@@ -604,10 +639,60 @@ const verifyLocalAssets = async (consumersByUrl) => {
     ) {
       throw new Error(`Intrinsic image metadata mismatch: ${entry.localPath}`);
     }
+    return buffer;
+  };
+
+  for (const spec of ASSET_SPECS) {
+    const entry = entriesById.get(spec.id);
+    if (!entry) {
+      throw new Error(`Manifest is missing required asset: ${spec.id}`);
+    }
+
+    const expectedConsumers = [...consumersByUrl.get(spec.sourceUrl)].sort();
+    const expectedMime = expectedMimeType(spec.localPath);
+    if (
+      entry.sourceUrl !== spec.sourceUrl ||
+      entry.localPath !== spec.localPath ||
+      entry.mimeType !== expectedMime ||
+      entry.alphaIntent !== spec.alphaIntent ||
+      entry.semanticRole !== spec.semanticRole ||
+      JSON.stringify(entry.consumers) !== JSON.stringify(expectedConsumers)
+    ) {
+      throw new Error(`Manifest metadata drift detected for ${spec.id}`);
+    }
+    await verifyEntryFile(entry);
+  }
+
+  for (const spec of DERIVED_ASSET_SPECS) {
+    const entry = entriesById.get(spec.id);
+    const parentEntry = entriesById.get(spec.derivedFrom);
+    if (!entry || !parentEntry) {
+      throw new Error(`Manifest is missing derived asset metadata: ${spec.id}`);
+    }
+    if (
+      entry.sourceUrl !== undefined ||
+      entry.derivedFrom !== spec.derivedFrom ||
+      entry.transformation !== spec.transformation ||
+      entry.localPath !== spec.localPath ||
+      entry.mimeType !== expectedMimeType(spec.localPath) ||
+      entry.alphaIntent !== spec.alphaIntent ||
+      entry.semanticRole !== spec.semanticRole ||
+      JSON.stringify(entry.consumers) !== JSON.stringify(spec.consumers)
+    ) {
+      throw new Error(`Manifest derivation metadata drift detected for ${spec.id}`);
+    }
+    const parentBuffer = await readFile(toFilesystemPath(parentEntry.localPath));
+    const expectedBuffer = await sharp(parentBuffer).trim().png().toBuffer();
+    const actualBuffer = await verifyEntryFile(entry);
+    if (!actualBuffer.equals(expectedBuffer)) {
+      throw new Error(`Derived asset transform drift detected for ${spec.id}`);
+    }
   }
 
   const expectedFiles = new Set(
-    ASSET_SPECS.map((spec) => path.resolve(toFilesystemPath(spec.localPath))),
+    [...ASSET_SPECS, ...DERIVED_ASSET_SPECS].map((spec) =>
+      path.resolve(toFilesystemPath(spec.localPath)),
+    ),
   );
   const actualFiles = await listOwnedAssetFiles();
   const unexpectedFiles = actualFiles.filter((file) => !expectedFiles.has(file));
@@ -620,7 +705,7 @@ const verifyLocalAssets = async (consumersByUrl) => {
     );
   }
 
-  return manifest;
+  return provenanceManifest;
 };
 
 const acquireAssets = async (consumersByUrl) => {
@@ -637,15 +722,66 @@ const acquireAssets = async (consumersByUrl) => {
     await writeFile(localFile, downloads[index].buffer);
   }
 
-  const manifest = {
+  const derivedDownloads = [];
+  for (const spec of DERIVED_ASSET_SPECS) {
+    const parentIndex = ASSET_SPECS.findIndex(({ id }) => id === spec.derivedFrom);
+    const buffer = await sharp(downloads[parentIndex].buffer).trim().png().toBuffer();
+    const image = await inspectImage(
+      buffer,
+      expectedMimeType(spec.localPath),
+      spec.localPath,
+    );
+    const localFile = toFilesystemPath(spec.localPath);
+    await mkdir(path.dirname(localFile), { recursive: true });
+    await writeFile(localFile, buffer);
+    derivedDownloads.push({
+      buffer,
+      manifestEntry: {
+        id: spec.id,
+        derivedFrom: spec.derivedFrom,
+        transformation: spec.transformation,
+        localPath: spec.localPath,
+        sha256: sha256(buffer),
+        mimeType: expectedMimeType(spec.localPath),
+        width: image.width,
+        height: image.height,
+        hasAlpha: image.hasAlpha,
+        alphaIntent: spec.alphaIntent,
+        semanticRole: spec.semanticRole,
+        consumers: spec.consumers,
+      },
+    });
+  }
+
+  const provenanceManifest = {
     schemaVersion: 1,
     assetCount: EXPECTED_ASSET_COUNT,
     screenDesignAssetCount: EXPECTED_SCREENDESIGN_COUNT,
     avatarAssetCount: EXPECTED_AVATAR_COUNT,
-    assets: downloads.map((download) => download.manifestEntry),
+    derivedAssetCount: EXPECTED_DERIVED_COUNT,
+    assets: [
+      ...downloads.map((download) => download.manifestEntry),
+      ...derivedDownloads.map((download) => download.manifestEntry),
+    ],
+  };
+  const runtimeManifest = {
+    ...provenanceManifest,
+    assets: provenanceManifest.assets.map(
+      ({ sourceUrl: _sourceUrl, ...entry }) => entry,
+    ),
   };
   await mkdir(ASSET_ROOT, { recursive: true });
-  await writeFile(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  await mkdir(path.dirname(PROVENANCE_MANIFEST_PATH), { recursive: true });
+  await writeFile(
+    PROVENANCE_MANIFEST_PATH,
+    `${JSON.stringify(provenanceManifest, null, 2)}\n`,
+    "utf8",
+  );
+  await writeFile(
+    RUNTIME_MANIFEST_PATH,
+    `${JSON.stringify(runtimeManifest, null, 2)}\n`,
+    "utf8",
+  );
 };
 
 const main = async () => {

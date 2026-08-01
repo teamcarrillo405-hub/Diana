@@ -1,12 +1,14 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const SYNTHESIS_PROMPT = `You synthesize a student's own class notes.
@@ -20,7 +22,6 @@ Rules:
 {"summary":"...","audioOverviewScript":"...","citations":[{"label":"N1","noteId":"...","title":"...","reason":"..."}]}`;
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
 
@@ -143,7 +144,7 @@ function fallbackCitations(
   }));
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("note-synthesis", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -210,7 +211,9 @@ Deno.serve(async (req: Request) => {
       includeMinorSafety: true,
     });
 
-    const ai = await callStudentTextModel({
+    const ai = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system,
       user: `Query: ${query}\n\nSource notes:\n${excerpts}`,
       maxTokens: 700,
@@ -250,7 +253,8 @@ Deno.serve(async (req: Request) => {
       citations: sourceCitations,
     });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("note-synthesis error:", err);
     return json({ error: "Internal error" }, 500);
   }
-});
+}));

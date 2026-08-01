@@ -25,7 +25,7 @@ export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "i
       const result = await saveQuickCapture({ raw: text });
       if (result.ok) {
         setRaw("");
-        setStatus("Captured to inbox.");
+        setStatus("Captured. It will appear in Work shortly.");
         setOpen(false);
       } else {
         setStatus(result.error);

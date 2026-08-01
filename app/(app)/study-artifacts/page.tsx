@@ -13,6 +13,8 @@ import { redirect } from "next/navigation";
 import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { SourceMedia } from "@/components/screen-design/source-media";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
 import { createClient } from "@/lib/supabase/server";
 
 import { generateStudyArtifact } from "./actions";
@@ -79,13 +81,17 @@ async function createFromStudyLab(formData: FormData) {
 export default async function StudyArtifactsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ notice?: string }>;
+  searchParams: Promise<{
+    notice?: string;
+    source?: string;
+    type?: ArtifactType;
+  }>;
 }) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: artifacts }, { data: assignments }, { data: notes }, params] =
+  const [{ data: artifacts }, { data: assignments }, { data: notes }, { data: profile }, params] =
     await Promise.all([
       supabase
         .from("study_artifacts")
@@ -105,6 +111,11 @@ export default async function StudyArtifactsPage({
         .eq("owner_id", user.id)
         .order("updated_at", { ascending: false })
         .limit(30),
+      supabase
+        .from("profiles")
+        .select("display_name, photo_url, photo_offset_x, photo_offset_y")
+        .eq("user_id", user.id)
+        .maybeSingle(),
       searchParams,
     ]);
 
@@ -126,9 +137,21 @@ export default async function StudyArtifactsPage({
       : params.notice === "creation-paused"
         ? "The study artifact is still open to try again. Check the source and class AI setting."
         : null;
+  const selectedSource = sources.some((source) => source.value === params.source)
+    ? params.source
+    : sources[0]?.value;
+  const selectedType: ArtifactType =
+    params.type && params.type in ARTIFACT_META ? params.type : "practice_test";
 
   return (
     <ScreenDesignViewport className="sd-study-lab">
+      <StudentDesktopNav
+        active="More"
+        displayName={profile?.display_name}
+        photoUrl={profile?.photo_url}
+        photoOffsetX={profile?.photo_offset_x}
+        photoOffsetY={profile?.photo_offset_y}
+      />
       <header className="sd-study-lab-header">
         <div>
           <DianaWordmark />
@@ -150,7 +173,7 @@ export default async function StudyArtifactsPage({
           <form action={createFromStudyLab} className="sd-study-lab-generator">
             <label className="sd-study-lab-source">
               <span>Build from</span>
-              <select name="source" aria-label="Study source" defaultValue={sources[0]?.value}>
+              <select name="source" aria-label="Study source" defaultValue={selectedSource}>
                 {sources.map((source) => (
                   <option value={source.value} key={source.value}>
                     {source.kind}: {source.label}
@@ -161,13 +184,13 @@ export default async function StudyArtifactsPage({
 
             <fieldset className="sd-study-lab-types">
               <legend>Choose an artifact type</legend>
-              {Object.entries(ARTIFACT_META).map(([key, meta], index) => (
+              {Object.entries(ARTIFACT_META).map(([key, meta]) => (
                 <label className="sd-study-lab-type" data-tone={meta.tone} key={key}>
                   <input
                     type="radio"
                     name="artifactType"
                     value={key}
-                    defaultChecked={index === 0}
+                    defaultChecked={key === selectedType}
                   />
                   <span className="sd-study-lab-type-copy">
                     <span className="sd-study-lab-type-icon">
@@ -241,6 +264,7 @@ export default async function StudyArtifactsPage({
       <Link href="/assignments" className="sd-study-lab-quick-add" aria-label="Choose class material">
         <Plus aria-hidden="true" />
       </Link>
+      <StudentBottomNav />
     </ScreenDesignViewport>
   );
 }

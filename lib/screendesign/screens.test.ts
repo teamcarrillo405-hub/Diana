@@ -13,7 +13,6 @@ const EXPECTED_SOURCE_FILES = [
   "flashcards_review.html",
   "focus_session_immersive.html",
   "global_leaderboard.html",
-  "inbox_triage.html",
   "knowledge_graph.html",
   "library_empty_state.html",
   "lms_sync_center.html",
@@ -53,8 +52,8 @@ const EXPECTED_SOURCE_FILES = [
 ] as const;
 
 describe("SCREEN_DESIGN_SCREENS", () => {
-  it("contains exactly the 47 canonical ScreenDesign sources in approved order", () => {
-    expect(SCREEN_DESIGN_SCREENS).toHaveLength(47);
+  it("contains exactly the 46 canonical ScreenDesign sources in approved order", () => {
+    expect(SCREEN_DESIGN_SCREENS).toHaveLength(46);
     expect(
       SCREEN_DESIGN_SCREENS.map((screen) => screen.source.split("/").at(-1)),
     ).toEqual(EXPECTED_SOURCE_FILES);
@@ -66,7 +65,7 @@ describe("SCREEN_DESIGN_SCREENS", () => {
       SCREEN_DESIGN_SCREENS.map((screen) => screen.source),
       SCREEN_DESIGN_SCREENS.map((screen) => screen.visualSnapshot),
     ]) {
-      expect(new Set(values).size).toBe(47);
+      expect(new Set(values).size).toBe(46);
     }
 
     expect(

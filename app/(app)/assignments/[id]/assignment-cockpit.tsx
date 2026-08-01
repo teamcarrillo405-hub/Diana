@@ -5,8 +5,6 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
-  MessageCircle,
-  MoreVertical,
   Pause,
   Play,
   RotateCcw,
@@ -41,6 +39,7 @@ type AssignmentCockpitProps = {
   status: AssignmentStatus;
   classAiMode: "red" | "yellow" | "green";
   drills: readonly AssignmentCockpitDrill[];
+  hasApprovedPlan: boolean;
   startRequested?: boolean;
 };
 
@@ -54,6 +53,7 @@ export function AssignmentCockpit({
   status: initialStatus,
   classAiMode,
   drills: initialDrills,
+  hasApprovedPlan,
   startRequested = false,
 }: AssignmentCockpitProps) {
   const router = useRouter();
@@ -89,9 +89,9 @@ export function AssignmentCockpit({
   }
 
   function startOrContinue() {
-    const focusDestination = `/timer?assignment=${encodeURIComponent(assignmentId)}`;
+    const workspaceDestination = `/assignments/${assignmentId}/workspace`;
     if (status === "todo") {
-      move("todo", "drafting", focusDestination);
+      move("todo", "drafting", workspaceDestination);
       return;
     }
     if (status === "abandoned") {
@@ -110,7 +110,7 @@ export function AssignmentCockpit({
       router.push("/assignments");
       return;
     }
-    router.push(focusDestination);
+    router.push(workspaceDestination);
   }
 
   function toggleDrill(drill: AssignmentCockpitDrill) {
@@ -139,7 +139,7 @@ export function AssignmentCockpit({
   }
 
   const primaryLabel = status === "todo"
-    ? "Start assignment"
+    ? "Open workspace"
     : status === "drafting"
       ? "Continue assignment"
       : status === "checking"
@@ -164,36 +164,28 @@ export function AssignmentCockpit({
           <DianaWordmark />
           <h1>COCKPIT: {cockpitLabel}</h1>
         </div>
-        <Link
-          href={`/break-down?assignmentId=${encodeURIComponent(assignmentId)}`}
-          className="sd-assignment-circle-control"
-          aria-label="Open assignment planning tools"
-        >
-          <MoreVertical size={21} aria-hidden="true" />
-        </Link>
+        <span className="sd-assignment-circle-control" aria-hidden="true" />
+
       </header>
 
       <main className="sd-assignment-cockpit-scroll">
-        <section className="sd-assignment-timer-section" aria-label="Assignment focus">
+        <section className="sd-assignment-timer-section" aria-label="Assignment action">
+          <p className="m-0 font-display text-xs font-extrabold uppercase tracking-[0.16em] text-cyan-300">{courseLabel}</p>
+          <p className="sd-assignment-title" title={title}>{title}</p>
+          <p className="sd-assignment-meta">
+            {dueLine}{estimate ? ` | ${estimate}` : ""}
+          </p>
           <button
             type="button"
-            className="sd-assignment-timer"
+            className="sd-assignment-primary-action"
             aria-label={primaryLabel}
             onClick={startOrContinue}
             disabled={pending}
           >
-            <span className="sd-assignment-timer-track" aria-hidden="true" />
-            <span className="sd-assignment-timer-copy">
-              <strong>{pending ? "READY" : "25:00"}</strong>
-              <small>{status === "drafting" ? "IN THE ZONE" : "READY WHEN YOU ARE"}</small>
-            </span>
+            <Play size={18} fill="currentColor" aria-hidden="true" />
+            {pending ? "Opening" : primaryLabel}
           </button>
-          <p className="sd-assignment-title" title={title}>{title}</p>
-          <p className="sd-assignment-meta">
-            {dueLine}{estimate ? ` Â· ${estimate}` : ""}
-          </p>
         </section>
-
         <section className="sd-assignment-drills" aria-labelledby="training-drills-title">
           <div className="sd-assignment-drills-head">
             <h2 id="training-drills-title">Training drills</h2>
@@ -267,43 +259,15 @@ export function AssignmentCockpit({
                 <RotateCcw size={15} aria-hidden="true" /> Return to drafting
               </button>
             ) : null}
-            {status === "todo" ? (
-              <Link href={`/timer?assignment=${encodeURIComponent(assignmentId)}`}>
-                <Play size={15} aria-hidden="true" /> Open focus session
-              </Link>
-            ) : null}
+
           </div>
         </section>
       </main>
 
-      <div className="sd-assignment-coach-help">
-        {classAiMode === "green" ? (
-          <>
-            <Link
-              href={`/break-down?assignmentId=${encodeURIComponent(assignmentId)}`}
-              className="sd-assignment-coach-bubble"
-            >
-              Want a smaller move? I can break this assignment down.
-            </Link>
-            <Link
-              href={`/break-down?assignmentId=${encodeURIComponent(assignmentId)}`}
-              className="sd-assignment-coach-button"
-              aria-label="Break this assignment down"
-            >
-              <MessageCircle size={29} aria-hidden="true" />
-            </Link>
-          </>
-        ) : (
-          <div className="sd-assignment-coach-bubble" role="note">
-            AI planning is not enabled for this class. Your workspace still works.
-          </div>
-        )}
-      </div>
-
       {message ? <p className="sd-assignment-status" role="status">{message}</p> : null}
       {startRequested ? (
         <p className="sr-only" aria-live="polite">
-          Assignment ready. Start the focus session when you choose.
+          Assignment ready. Open the workspace when you choose.
         </p>
       ) : null}
       <StudentBottomNav />

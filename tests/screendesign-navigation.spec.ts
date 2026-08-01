@@ -828,7 +828,7 @@ if (IS_FULL_MATRIX && dashboardScenario) {
         };
       });
 
-      expect(color.background).toBe("rgb(22, 30, 48)");
+      expect(color.background).toBe("rgb(12, 13, 22)");
       expect(
         computedContrastRatio(color),
         `${color.label} contrast: ${color.foreground} on ${color.background}`,
@@ -869,7 +869,7 @@ if (IS_FULL_MATRIX && dashboardScenario) {
         ).toBeGreaterThanOrEqual(4.5);
       }
 
-      if (destination.href === "/settings") {
+      if (destination.href === "/more") {
         const results = await new AxeBuilder({ page })
           .include('nav[aria-label="Primary"]')
           .withRules(["color-contrast"])

@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { roughModeUntil } from "@/lib/emotional/session";
 import { createCard } from "@/lib/fsrs/fsrs";
 import { firstAidStudyCards, goalTextIsAllowed } from "@/lib/wellness/health";
 
@@ -43,25 +42,14 @@ export async function logActivity(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
-  const { error } = await supabase.from("wellness_activity_logs").insert({
-    owner_id: user.id,
-    logged_for: parsed.data.loggedFor,
-    activity_type: parsed.data.activityType,
-    duration_minutes: parsed.data.durationMinutes,
-    felt: parsed.data.felt,
-    notes: parsed.data.notes || null,
+  const { error } = await supabase.rpc("record_wellness_activity", {
+    p_logged_for: parsed.data.loggedFor,
+    p_activity_type: parsed.data.activityType,
+    p_duration_minutes: parsed.data.durationMinutes,
+    p_felt: parsed.data.felt,
+    p_notes: parsed.data.notes || "",
   });
   if (error) return { ok: false, error: "The activity could not be saved yet. Try again when you are ready." };
-
-  await supabase.from("task_signals").insert({
-    owner_id: user.id,
-    kind: "activity_log",
-    value: {
-      activityType: parsed.data.activityType,
-      durationMinutes: parsed.data.durationMinutes,
-      felt: parsed.data.felt,
-    },
-  });
 
   revalidatePath("/wellness");
   revalidatePath("/settings/goals");
@@ -105,27 +93,15 @@ export async function saveSleepLog(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
-  const { error } = await supabase.from("sleep_logs").upsert({
-    owner_id: user.id,
-    sleep_date: parsed.data.sleepDate,
-    sleep_quality: parsed.data.sleepQuality,
-    sleep_hours: parsed.data.sleepHours,
-    focus_note: parsed.data.focusNote || null,
-    updated_at: new Date().toISOString(),
-  }, {
-    onConflict: "owner_id,sleep_date",
+  const { error } = await supabase.rpc("record_wellness_sleep_log", {
+    p_sleep_date: parsed.data.sleepDate,
+    p_sleep_quality: parsed.data.sleepQuality,
+    // PostgreSQL accepts NULL here, though generated RPC argument metadata does
+    // not express parameter nullability.
+    p_sleep_hours: parsed.data.sleepHours as number,
+    p_focus_note: parsed.data.focusNote || "",
   });
   if (error) return { ok: false, error: "The sleep check-in could not be saved yet. Try again when you are ready." };
-
-  await supabase.from("task_signals").insert({
-    owner_id: user.id,
-    kind: "sleep_log",
-    value: {
-      sleepDate: parsed.data.sleepDate,
-      sleepQuality: parsed.data.sleepQuality,
-      sleepHours: parsed.data.sleepHours,
-    },
-  });
 
   revalidatePath("/wellness");
   revalidatePath("/dashboard");
@@ -142,49 +118,17 @@ export async function saveWellnessCheckIn(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Sign in to save this private check-in." };
 
-  const now = new Date();
-  const { error: profileError } = await supabase
-    .from("profiles")
-    .update({
-      session_mood: parsed.data.mood,
-      last_mood_checkin_at: now.toISOString(),
-      rough_mode_until: parsed.data.mood === "rough" ? roughModeUntil(now) : null,
-    })
-    .eq("user_id", user.id);
-  if (profileError) {
-    return { ok: false, error: "The check-in could not be saved yet. Try again when you are ready." };
-  }
-
-  const { error: sleepError } = await supabase.from("sleep_logs").upsert({
-    owner_id: user.id,
-    sleep_date: parsed.data.sleepDate,
-    sleep_quality: parsed.data.sleepQuality,
-    sleep_hours: parsed.data.sleepHours,
-    focus_note: parsed.data.focusNote || null,
-    updated_at: now.toISOString(),
-  }, {
-    onConflict: "owner_id,sleep_date",
+  const { error } = await supabase.rpc("record_daily_wellness_check_in", {
+    p_mood: parsed.data.mood,
+    p_sleep_date: parsed.data.sleepDate,
+    p_sleep_quality: parsed.data.sleepQuality,
+    p_sleep_hours: parsed.data.sleepHours as number,
+    p_focus_note: parsed.data.focusNote || "",
+    p_mood_metadata: undefined,
   });
-  if (sleepError) {
+  if (error) {
     return { ok: false, error: "The check-in could not be saved yet. Try again when you are ready." };
   }
-
-  await Promise.all([
-    supabase.from("task_signals").insert({
-      owner_id: user.id,
-      kind: "mood_checkin",
-      value: { mood: parsed.data.mood },
-    }),
-    supabase.from("task_signals").insert({
-      owner_id: user.id,
-      kind: "sleep_log",
-      value: {
-        sleepDate: parsed.data.sleepDate,
-        sleepQuality: parsed.data.sleepQuality,
-        sleepHours: parsed.data.sleepHours,
-      },
-    }),
-  ]);
 
   revalidatePath("/wellness");
   revalidatePath("/dashboard");

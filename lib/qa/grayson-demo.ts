@@ -1876,7 +1876,7 @@ function buildRowsForFactory(
         row("share_links", {
           id: idFor(factory.alias),
           owner_id: ownerId,
-          token,
+          token_digest: createHash("sha256").update(token).digest("hex"),
           share_type:
             stringValue(values, "scope", "report") === "portfolio"
               ? "teacher_snapshot"

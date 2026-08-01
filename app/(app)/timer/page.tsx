@@ -12,9 +12,9 @@ import { TimerUi } from "./timer-ui";
 export default async function FocusSessionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; difficulty?: string; with?: string }>;
+  searchParams: Promise<{ mode?: string; difficulty?: string; with?: string; assignment?: string }>;
 }) {
-  const [{ mode, difficulty, with: withParam }, profile, supabase] = await Promise.all([
+  const [{ mode, difficulty, with: withParam, assignment: assignmentId }, profile, supabase] = await Promise.all([
     searchParams,
     loadProfile(),
     createClient(),
@@ -30,16 +30,19 @@ export default async function FocusSessionPage({
       : null;
 
   const { data: { user } } = await supabase.auth.getUser();
-  const { data: assignment } = user
-    ? await supabase
-        .from("assignments")
-        .select("id, title, kind, estimated_minutes, status")
-        .eq("owner_id", user.id)
-        .not("status", "in", "(submitted,graded,abandoned)")
-        .order("due_at", { ascending: true, nullsFirst: false })
-        .limit(1)
-        .maybeSingle()
-    : { data: null };
+  let assignment = null;
+  if (user) {
+    let assignmentQuery = supabase
+      .from("assignments")
+      .select("id, title, kind, estimated_minutes, status")
+      .eq("owner_id", user.id)
+      .not("status", "in", "(submitted,graded,abandoned)");
+    assignmentQuery = assignmentId
+      ? assignmentQuery.eq("id", assignmentId)
+      : assignmentQuery.order("due_at", { ascending: true, nullsFirst: false }).limit(1);
+    const { data } = await assignmentQuery.maybeSingle();
+    assignment = data;
+  }
 
   return (
     <ScreenDesignViewport className="sd-focus-session">

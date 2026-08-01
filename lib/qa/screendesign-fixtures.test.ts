@@ -75,11 +75,11 @@ describe("SCREEN_DESIGN_FIXTURE_SCENARIOS", () => {
       (scenario) => scenario.isDefault,
     );
 
-    expect(defaults).toHaveLength(47);
+    expect(defaults).toHaveLength(46);
     expect(defaults.map((scenario) => scenario.screenId).sort()).toEqual(
       SCREEN_DESIGN_SCREENS.map((screen) => screen.id).sort(),
     );
-    expect(new Set(defaults.map((scenario) => scenario.screenId)).size).toBe(47);
+    expect(new Set(defaults.map((scenario) => scenario.screenId)).size).toBe(46);
   });
 
   it("uses unique scenario ids and matches registry auth, route, state, and action contracts", () => {

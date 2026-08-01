@@ -121,7 +121,7 @@ export function CaptureForm({
         });
         if (result.ok) {
           await removeQueuedItem(tempId);
-          router.push(`/inbox/${result.id}`);
+          router.push(`/assignments/captures/${result.id}`);
           return;
         }
         setStatus("offline");

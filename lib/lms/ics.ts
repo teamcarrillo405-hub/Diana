@@ -3,11 +3,18 @@
 
 import ical from "node-ical";
 import type { NormalizedAssignment } from "./types";
+import { fetchValidatedUrl, validateOutboundUrl } from "@/lib/security/outbound-url";
+
+export async function validateIcsUrl(url: string): Promise<string> {
+  return (await validateOutboundUrl(url)).toString();
+}
 
 export async function fetchIcsAssignments(
   url: string,
 ): Promise<{ items: NormalizedAssignment[]; skipped: number }> {
-  const data = await ical.async.fromURL(url);
+  const response = await fetchValidatedUrl(url, { headers: { Accept: "text/calendar" } });
+  if (!response.ok) throw new Error(`Calendar request returned ${response.status}`);
+  const data = await ical.async.parseICS(await response.text());
 
   const items: NormalizedAssignment[] = [];
   let skipped = 0;

@@ -2,16 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { syncLmsAssignments } from "@/lib/lms/sync";
 import { getValidGoogleToken, fetchClassroomAssignments, type GoogleClassroomConfig } from "@/lib/lms/google";
-
-type Announcement = { id: string; text?: string; alternateLink?: string };
-
-async function classroomGet<T>(url: string, token: string): Promise<T> {
-  const res = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
-  });
-  if (!res.ok) throw new Error(`Classroom request to ${url} returned ${res.status}`);
-  return (await res.json()) as T;
-}
+import {
+  hydrateLmsConnectionCredentials,
+  persistLmsTokenRefresh,
+} from "@/lib/integrations/credential-vault";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -36,17 +30,24 @@ export async function POST(req: Request) {
 
   // Prefer the stored OAuth token (refreshed via refresh_token); fall back to the
   // interactive Supabase Google session token for connections made the old way.
-  const cfg = (conn.config ?? {}) as GoogleClassroomConfig;
+  let securedConnection;
+  try {
+    securedConnection = await hydrateLmsConnectionCredentials(user.id, conn);
+  } catch {
+    return NextResponse.json({ error: "Connection credentials are not available" }, { status: 503 });
+  }
+  const cfg = securedConnection.config as GoogleClassroomConfig;
   let token: string | null = null;
   const valid = await getValidGoogleToken(cfg);
   if (valid) {
     token = valid.token;
     if (valid.refreshed) {
-      await supabase
-        .from("lms_connections")
-        .update({ config: { ...cfg, ...valid.refreshed } })
-        .eq("id", conn.id)
-        .eq("owner_id", user.id);
+      await persistLmsTokenRefresh(supabase as any, {
+        ownerId: user.id,
+        connection: securedConnection,
+        accessToken: valid.refreshed.access_token,
+        expiresAt: valid.refreshed.expires_at,
+      });
     }
   } else {
     const { data: { session } } = await supabase.auth.getSession();
@@ -60,29 +61,7 @@ export async function POST(req: Request) {
   }
 
   try {
-    const { items, skipped, courses } = await fetchClassroomAssignments(token);
-
-    for (const course of courses) {
-      const announcementsResp = await classroomGet<{ announcements?: Announcement[] }>(
-        `https://classroom.googleapis.com/v1/courses/${course.id}/announcements`,
-        token,
-      ).catch(() => ({ announcements: [] }));
-      const announcements = (announcementsResp.announcements ?? [])
-        .filter((announcement) => announcement.text?.trim())
-        .slice(0, 10);
-      if (announcements.length > 0) {
-        await supabase.from("inbox_items").insert(announcements.map((announcement) => ({
-          owner_id: user.id,
-          raw: [
-            `Google Classroom announcement from ${course.name}`,
-            announcement.text,
-            announcement.alternateLink ? `Link: ${announcement.alternateLink}` : "",
-          ].filter(Boolean).join("\n"),
-          capture_mode: "text",
-          status: "unclassified",
-        })));
-      }
-    }
+    const { items, skipped } = await fetchClassroomAssignments(token);
 
     const result = await syncLmsAssignments(supabase, user.id, "google_classroom", items, skipped);
     await supabase

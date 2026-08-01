@@ -7,6 +7,7 @@ import {
   FileJson,
   FileText,
   LockKeyhole,
+  Mail,
   ShieldCheck,
   Trash2,
 } from "lucide-react";
@@ -26,6 +27,7 @@ import {
 
 import {
   deleteDataCategory,
+  emailAiHistoryExport,
   exportProfileBackup,
   exportUserDataJson,
   exportUserDataPdf,
@@ -88,6 +90,18 @@ export function PrivacyDashboard({
       }
       downloadBytes("diana-data-export.pdf", result.data, "application/pdf");
       setMessage("PDF export ready.");
+    });
+  }
+
+  function emailAiHistory() {
+    setMessage(null);
+    startTransition(async () => {
+      const result = await emailAiHistoryExport();
+      setMessage(
+        result.ok
+          ? `Your last 45 days of AI activity (${result.recordCount} records) is on its way to your email.`
+          : result.error,
+      );
     });
   }
 
@@ -220,6 +234,23 @@ export function PrivacyDashboard({
             </span>
             <button type="button" onClick={downloadPdf} disabled={pending}>
               <Download size={14} aria-hidden="true" /> Download PDF
+            </button>
+          </article>
+          <article className="sd-privacy-export-card" id="ai-history-export">
+            <span className="sd-privacy-export-icon">
+              <Mail size={20} aria-hidden="true" />
+            </span>
+            <span className="sd-privacy-export-copy">
+              <h2>AI activity</h2>
+              <p>Send the last 45 days of AI activity to your email.</p>
+            </span>
+            <button
+              type="button"
+              onClick={emailAiHistory}
+              disabled={pending}
+              aria-label="Email my last 45 days of AI activity"
+            >
+              <Mail size={14} aria-hidden="true" /> Email me
             </button>
           </article>
         </div>

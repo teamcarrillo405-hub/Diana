@@ -52,7 +52,7 @@ export default async function InboxItemPage({
   return (
     <ScreenDesignViewport className="sd-capture-work-screen sd-inbox-review">
       <header className="sd-inbox-review-header">
-        <Link href="/inbox" aria-label="Back to inbox">
+        <Link href="/assignments" aria-label="Back to work">
           <ArrowLeft aria-hidden="true" />
         </Link>
         <DianaWordmark />
@@ -71,8 +71,8 @@ export default async function InboxItemPage({
           <section className="sd-inbox-terminal-state">
             <FileText aria-hidden="true" />
             <p>Capture set aside</p>
-            <h1>This item is no longer waiting in triage.</h1>
-            <Link href="/inbox">Return to scouts</Link>
+            <h1>This capture is no longer waiting for review.</h1>
+            <Link href="/assignments">Return to Work</Link>
           </section>
         ) : (
           <>

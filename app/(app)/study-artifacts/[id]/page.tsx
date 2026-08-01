@@ -6,9 +6,11 @@ import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { completeStudyArtifact } from "@/lib/study-helper/artifacts";
 import { normalizePracticeProgress } from "@/lib/study-helper/practice-progress";
+import { scorePracticeTest } from "@/lib/study-helper/practice-scoring";
 import { createClient } from "@/lib/supabase/server";
 
 import { PracticeTestSession } from "./practice-session";
+import { ArtifactFlashcards } from "./artifact-flashcards";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
@@ -48,17 +50,18 @@ export default async function StudyArtifactDetailPage({
   });
 
   if (row.artifact_type === "practice_test") {
-    const score =
-      typeof rawPayload.score === "number" && Number.isFinite(rawPayload.score)
-        ? rawPayload.score
-        : null;
+    const progress = normalizePracticeProgress(rawPayload.practiceProgress);
+    const result = Object.keys(progress.responses).length > 0
+      ? scorePracticeTest(artifact.quiz, progress.responses)
+      : null;
     return (
       <PracticeTestSession
         artifactId={row.id}
         artifactTitle={artifact.title}
+        assignmentId={row.source_type === "assignment" ? row.source_id : null}
         quiz={artifact.quiz}
-        initialProgress={normalizePracticeProgress(rawPayload.practiceProgress)}
-        score={score}
+        initialProgress={progress}
+        initialResult={result}
       />
     );
   }
@@ -97,21 +100,7 @@ export default async function StudyArtifactDetailPage({
               </article>
             ))}
           </section>
-        ) : (
-          <section className="sd-artifact-detail-sections" aria-label="Flashcard drafts">
-            {artifact.cards.map((card, index) => (
-              <article key={`${index}-${card.front}`}>
-                <span>Card {index + 1}</span>
-                <h2>{card.front}</h2>
-                <details>
-                  <summary>Reveal answer</summary>
-                  <p>{card.back}</p>
-                  <small>{card.sourceAnchor}</small>
-                </details>
-              </article>
-            ))}
-          </section>
-        )}
+        ) : <ArtifactFlashcards artifactId={row.id} cards={artifact.cards} />}
 
         <section className="sd-artifact-next-review">
           <BookOpenCheck aria-hidden="true" />

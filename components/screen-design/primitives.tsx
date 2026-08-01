@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -122,10 +123,26 @@ export function NeonAction(props: NeonActionProps) {
 export function DianaWordmark({
   className,
   alt = "Diana",
+  tight = false,
 }: {
   className?: string;
   alt?: string;
+  tight?: boolean;
 }) {
+  if (tight) {
+    return (
+      <Image
+        src="/screendesign/brand/diana-logo-tight.png"
+        width={110}
+        height={35}
+        alt={alt}
+        className={["sd-source-media", "sd-source-wordmark", className]
+          .filter(Boolean)
+          .join(" ")}
+      />
+    );
+  }
+
   return (
     <SourceMedia
       assetId="diana-logo"

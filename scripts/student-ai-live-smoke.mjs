@@ -176,12 +176,15 @@ try {
   const results = await Promise.all(cases.map((testCase) => runCase(testCase, accessToken)));
   const ownershipResult = await invoke("classify-inbox", { inboxItemId: outsiderItem.id }, accessToken);
   const ownershipBody = await readJson(ownershipResult);
+  const ownershipPayload = JSON.stringify(ownershipBody);
+  const ownershipHidden = ownershipResult.status === 404 &&
+    !ownershipPayload.toLowerCase().includes("private algebra capture");
   results.push({
     label: "inbox ownership boundary",
     status: ownershipResult.status,
-    ok: ownershipResult.status === 404 && ownershipBody.error === "Item not found",
+    ok: ownershipHidden,
     latencyMs: null,
-    note: ownershipResult.status === 404 ? "cross-student item hidden" : "ownership boundary not enforced",
+    note: ownershipHidden ? "cross-student item hidden" : "ownership boundary not enforced",
   });
 
   for (const result of results) {

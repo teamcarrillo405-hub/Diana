@@ -59,7 +59,7 @@ interface ActionEvidence {
 }
 
 const usage =
-  "Usage: npx tsx scripts/generate-screendesign-review-gallery.ts --clean --expected 47 --run-id phase36-plan30";
+  "Usage: npx tsx scripts/generate-screendesign-review-gallery.ts --clean --expected 46 --run-id phase36-plan30";
 const RUN_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/u;
 const SHA_PATTERN = /^[a-f0-9]{40}(?:[a-f0-9]{24})?$/u;
 
@@ -106,7 +106,7 @@ export const parseProducerArguments = (
   }
   if (!clean) throw new Error("--clean is required.");
   if (expected !== REVIEW_EXPECTED_COUNT) {
-    throw new Error("--expected must be exactly 47.");
+    throw new Error("--expected must be exactly 46.");
   }
   if (!RUN_ID_PATTERN.test(runId)) {
     throw new Error("--run-id must be a safe non-empty run id.");
@@ -355,7 +355,7 @@ const renderHtmlGallery = (input: {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Diana 47-screen release review</title>
+  <title>Diana 46-screen release review</title>
   <style>
     :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; background: #080d1a; color: #f8fafc; }
     body { margin: 0; padding: 32px; }
@@ -375,7 +375,7 @@ const renderHtmlGallery = (input: {
 </head>
 <body>
   <header>
-    <h1>Diana 47-screen release review</h1>
+    <h1>Diana 46-screen release review</h1>
     <p>Run ${escapeHtml(input.runId)} | Release ${escapeHtml(input.releaseSha)} | Generated ${escapeHtml(input.generatedAt)}</p>
   </header>
   <main>
@@ -537,7 +537,12 @@ export const main = async (
         releaseSha,
         generatedAt,
         index: { path: "index.json", sha256: indexSha256 },
-        artifacts: { source: 47, app: 47, diff: 47, actions: 47 },
+        artifacts: {
+          source: REVIEW_EXPECTED_COUNT,
+          app: REVIEW_EXPECTED_COUNT,
+          diff: REVIEW_EXPECTED_COUNT,
+          actions: REVIEW_EXPECTED_COUNT,
+        },
       },
       null,
       2,

@@ -2,6 +2,7 @@
 
 import {
   AlertTriangle,
+  Brain,
   Check,
   CheckCircle2,
   ChevronLeft,
@@ -35,6 +36,7 @@ export type RubricScoutSyllabus = {
 export type RubricScoutAssignment = {
   id: string;
   title: string;
+  kind?: string;
 };
 
 const RUBRIC_SCOUT_STYLES = `
@@ -305,6 +307,42 @@ const RUBRIC_SCOUT_STYLES = `
     line-height: 1.4;
   }
 
+  .sd-rubric-practice-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .sd-rubric-practice-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 12px;
+    background: #f4efe6;
+    padding: 12px 14px;
+    color: #0f172a;
+  }
+
+  .sd-rubric-practice-row strong {
+    font-size: 12px;
+  }
+
+  .sd-rubric-practice-row a {
+    display: inline-flex;
+    min-height: 38px;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    background: #fff;
+    padding: 8px 10px;
+    color: #0f172a;
+    font-size: 10px;
+    font-weight: 900;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
   .sd-rubric-scan-panel {
     display: grid;
     gap: 18px;
@@ -573,6 +611,25 @@ export function RubricPanel({
             </p>
           )}
         </section>
+
+        {assignments.length > 0 ? (
+          <section className="sd-rubric-section" aria-labelledby="rubric-practice-title">
+            <h2 id="rubric-practice-title" className="sd-rubric-section-heading">
+              <Brain size={18} aria-hidden="true" />
+              Practice and tests
+            </h2>
+            <div className="sd-rubric-practice-list">
+              {assignments.slice(0, 5).map((assignment) => (
+                <div className="sd-rubric-practice-row" key={assignment.id}>
+                  <strong>{assignment.title}</strong>
+                  <Link href={`/study-artifacts?source=assignment:${assignment.id}&type=practice_test`}>
+                    {assignment.kind === "test_prep" ? "Prepare" : "Practice"}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </main>
 
       <footer className="sd-rubric-footer">
@@ -582,7 +639,7 @@ export function RubricPanel({
           aria-label="Open rubric work"
         >
           <Plus size={18} aria-hidden="true" />
-          Save to study guide
+          Open next assignment
         </Link>
       </footer>
     </ScreenDesignViewport>

@@ -33,6 +33,7 @@ type SyllabusRow = {
 type AssignmentRow = {
   id: string;
   title: string;
+  kind: string;
 };
 
 export default async function ClassDetailPage({
@@ -74,7 +75,7 @@ export default async function ClassDetailPage({
       .limit(1),
     supabase
       .from("assignments")
-      .select("id, title")
+      .select("id, title, kind")
       .eq("owner_id", user.id)
       .eq("class_id", id)
       .not("status", "in", "(submitted,graded,abandoned)")
@@ -98,7 +99,7 @@ export default async function ClassDetailPage({
       }
     : null;
   const classAssignments: RubricScoutAssignment[] = ((assignments ?? []) as AssignmentRow[]).map(
-    (assignment) => ({ id: assignment.id, title: assignment.title }),
+    (assignment) => ({ id: assignment.id, title: assignment.title, kind: assignment.kind }),
   );
   const scanOpen = (await searchParams).rubric === "scan" || rubric === null;
 

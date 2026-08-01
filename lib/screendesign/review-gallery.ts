@@ -11,7 +11,7 @@ import {
 export const REVIEW_GALLERY_SCHEMA_VERSION = 1 as const;
 export const REVIEW_OUTPUT_RELATIVE_ROOT =
   "test-results/screendesign-review" as const;
-export const REVIEW_EXPECTED_COUNT = 47 as const;
+export const REVIEW_EXPECTED_COUNT = 46 as const;
 export const REVIEW_ARTIFACT_KINDS = [
   "source",
   "app",
@@ -32,7 +32,6 @@ export const SCREEN_DESIGN_IMPLEMENTATION_PLAN_BY_ID: Readonly<
   "flashcards-review": "36-13",
   "focus-session-immersive": "36-14",
   "global-leaderboard": "36-20",
-  "inbox-triage": "36-09",
   "knowledge-graph": "36-15",
   "library-empty-state": "36-10",
   "lms-sync-center": "36-18",
@@ -340,11 +339,11 @@ export const assertCompleteReviewIndex = (
 ): void => {
   invariant(index.schemaVersion === REVIEW_GALLERY_SCHEMA_VERSION, "unsupported schema version");
   invariant(index.complete === true, "index is not marked complete");
-  invariant(index.expectedCount === REVIEW_EXPECTED_COUNT, "index expected count must be 47");
+  invariant(index.expectedCount === REVIEW_EXPECTED_COUNT, "index expected count must be 46");
   invariant(RUN_ID_PATTERN.test(index.runId), "run id is invalid");
   invariant(SHA_PATTERN.test(index.releaseSha), "release SHA is invalid");
   invariant(!Number.isNaN(Date.parse(index.generatedAt)), "generated timestamp is invalid");
-  invariant(index.rows.length === REVIEW_EXPECTED_COUNT, "index must contain exactly 47 rows");
+  invariant(index.rows.length === REVIEW_EXPECTED_COUNT, "index must contain exactly 46 rows");
 
   const ids = index.rows.map((row) => row.id);
   invariant(new Set(ids).size === ids.length, "index contains duplicate screen ids");

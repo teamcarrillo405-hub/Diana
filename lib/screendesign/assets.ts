@@ -2,6 +2,7 @@ import manifestJson from "@/public/screendesign/manifest.json";
 
 const assetIds = [
   "diana-logo",
+  "diana-logo-tight",
   "diana-mascot",
   "dashboard-stadium-background",
   "dashboard-athlete-cutout",
@@ -50,15 +51,18 @@ export interface ScreenDesignAsset {
   readonly alphaIntent: ScreenDesignAlphaIntent;
   readonly semanticRole: string;
   readonly consumers: readonly string[];
+  readonly derivedFrom?: ScreenDesignAssetId;
+  readonly transformation?: string;
 }
 
 interface ManifestEntry extends ScreenDesignAsset {
   readonly sha256: string;
 }
 
-const EXPECTED_ASSET_COUNT = 28;
+const EXPECTED_ASSET_COUNT = 29;
 const EXPECTED_SCREENDESIGN_COUNT = 24;
 const EXPECTED_AVATAR_COUNT = 4;
+const EXPECTED_DERIVED_COUNT = 1;
 const MIME_TYPES = new Set<ScreenDesignAssetMimeType>([
   "image/jpeg",
   "image/png",
@@ -96,6 +100,8 @@ const validateEntry = (value: unknown, index: number): ManifestEntry => {
     alphaIntent,
     semanticRole,
     consumers,
+    derivedFrom,
+    transformation,
   } = entry;
 
   const validatedId =
@@ -148,6 +154,21 @@ const validateEntry = (value: unknown, index: number): ManifestEntry => {
   ) {
     manifestError(`${validatedId} has invalid consumers`);
   }
+  const validatedDerivedFrom =
+    derivedFrom === undefined
+      ? undefined
+      : typeof derivedFrom === "string" && ID_SET.has(derivedFrom)
+        ? (derivedFrom as ScreenDesignAssetId)
+        : manifestError(`${validatedId} has an invalid derived asset source`);
+  const validatedTransformation =
+    transformation === undefined
+      ? undefined
+      : typeof transformation === "string" && transformation.trim().length > 0
+        ? transformation
+        : manifestError(`${validatedId} has an invalid transformation`);
+  if ((validatedDerivedFrom === undefined) !== (validatedTransformation === undefined)) {
+    manifestError(`${validatedId} has incomplete derivation metadata`);
+  }
 
   return {
     id: validatedId,
@@ -160,6 +181,12 @@ const validateEntry = (value: unknown, index: number): ManifestEntry => {
     alphaIntent: validatedAlphaIntent,
     semanticRole: validatedSemanticRole,
     consumers: Object.freeze([...consumerList] as string[]),
+    ...(validatedDerivedFrom === undefined
+      ? {}
+      : {
+          derivedFrom: validatedDerivedFrom,
+          transformation: validatedTransformation,
+        }),
   };
 };
 
@@ -172,7 +199,8 @@ const loadManifest = (value: unknown): readonly ManifestEntry[] => {
     manifest.schemaVersion !== 1 ||
     manifest.assetCount !== EXPECTED_ASSET_COUNT ||
     manifest.screenDesignAssetCount !== EXPECTED_SCREENDESIGN_COUNT ||
-    manifest.avatarAssetCount !== EXPECTED_AVATAR_COUNT
+    manifest.avatarAssetCount !== EXPECTED_AVATAR_COUNT ||
+    manifest.derivedAssetCount !== EXPECTED_DERIVED_COUNT
   ) {
     manifestError("header or canonical counts do not match the asset contract");
   }
@@ -213,6 +241,12 @@ const safeAssets = manifestEntries.map((entry): ScreenDesignAsset =>
     alphaIntent: entry.alphaIntent,
     semanticRole: entry.semanticRole,
     consumers: entry.consumers,
+    ...(entry.derivedFrom === undefined
+      ? {}
+      : {
+          derivedFrom: entry.derivedFrom,
+          transformation: entry.transformation,
+        }),
   }),
 );
 

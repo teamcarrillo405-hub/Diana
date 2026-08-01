@@ -97,7 +97,7 @@ const validate = (
     directorySets: directorySets(),
     artifactHashes: hashesFor(index),
     actionEvidence: actionEvidenceFor(index),
-    expectedCount: 47,
+    expectedCount: 46,
     expectedRunId: RUN_ID,
     expectedReleaseSha: RELEASE_SHA,
     indexSha256: sha256Text(JSON.stringify(index)),
@@ -105,11 +105,11 @@ const validate = (
   });
 
 describe("release evidence validator", () => {
-  it("accepts only the exact complete 47-id producer document", () => {
+  it("accepts only the exact complete 46-id producer document", () => {
     const result = validate(makeIndex());
 
     expect(result.complete).toBe(true);
-    expect(result.count).toBe(47);
+    expect(result.count).toBe(46);
     expect(result.ids).toEqual(SCREEN_DESIGN_CANONICAL_SCREEN_IDS);
     expect(result.runId).toBe(RUN_ID);
     expect(result.releaseSha).toBe(RELEASE_SHA);
@@ -119,7 +119,7 @@ describe("release evidence validator", () => {
     const index = makeIndex();
     expect(() =>
       validate({ ...index, rows: index.rows.slice(1) }),
-    ).toThrow(/ai-history-log|47/iu);
+    ).toThrow(/ai-history-log|46/iu);
     expect(() =>
       validate(index, {
         directorySets: {

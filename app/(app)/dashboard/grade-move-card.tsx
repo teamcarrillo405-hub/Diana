@@ -3,6 +3,7 @@ import { Target } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { fetchCanvasGrades } from "@/lib/lms/canvas";
 import { recoveryMoves } from "@/lib/grades/insights";
+import { hydrateLmsConnectionCredentials } from "@/lib/integrations/credential-vault";
 
 const GRADE_FETCH_TIMEOUT_MS = 2500;
 
@@ -13,14 +14,20 @@ const GRADE_FETCH_TIMEOUT_MS = 2500;
  */
 export async function GradeMoveCard() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
   const { data } = await supabase
     .from("lms_connections")
-    .select("config")
+    .select("id, provider, config")
+    .eq("owner_id", user.id)
     .eq("provider", "canvas")
     .order("created_at", { ascending: false })
     .limit(1);
 
-  const config = (data?.[0]?.config ?? null) as { base_url?: string; token?: string } | null;
+  const securedConnection = data?.[0]
+    ? await hydrateLmsConnectionCredentials(user.id, data[0]).catch(() => null)
+    : null;
+  const config = securedConnection?.config as { base_url?: string; token?: string } | undefined;
   if (!config?.base_url || !config?.token) return null;
 
   try {

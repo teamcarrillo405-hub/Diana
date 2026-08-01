@@ -15,10 +15,12 @@ import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { SourceMedia } from "@/components/screen-design/source-media";
 import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
 
 export type SubjectLibraryCardModel = {
   id: string;
   name: string;
+  teacher: string | null;
   href: string;
   progressPct: number;
   openWorkCount: number;
@@ -27,6 +29,12 @@ export type SubjectLibraryCardModel = {
 type ClassLibrarySharedProps = {
   createForm: ReactNode;
   createOpen: boolean;
+  profile?: {
+    displayName?: string | null;
+    photoUrl?: string | null;
+    photoOffsetX?: number | null;
+    photoOffsetY?: number | null;
+  };
 };
 
 const CLASS_LIBRARY_STYLES = `
@@ -143,6 +151,28 @@ const CLASS_LIBRARY_STYLES = `
     font-weight: 900;
     letter-spacing: 0.12em;
     text-transform: uppercase;
+  }
+
+  .sd-class-library > .sd-student-desktop-nav,
+  .sd-class-library-desktop-header,
+  .sd-subject-card-eyebrow,
+  .sd-subject-completion,
+  .sd-subject-card-actions {
+    display: none;
+  }
+
+  .sd-subject-card-main {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 10px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .sd-subject-card-summary {
+    display: contents;
   }
 
   .sd-subject-grid {
@@ -379,6 +409,203 @@ const CLASS_LIBRARY_STYLES = `
     display: none !important;
   }
 
+  @media (min-width: 1100px) {
+    .sd-class-library {
+      min-height: 700px;
+      height: 100dvh;
+      max-height: 100dvh;
+      background:
+        radial-gradient(circle at 88% 6%, rgb(255 121 218 / 0.11), transparent 30%),
+        #0b1428;
+      font-family: var(--font-body), "Barlow Semi Condensed", sans-serif;
+    }
+
+    .sd-class-library > .sd-student-desktop-nav {
+      position: relative;
+      display: flex;
+      flex: none;
+    }
+
+    .sd-class-library > .sd-student-bottom-nav,
+    .sd-class-library-header,
+    .sd-class-add-fab {
+      display: none;
+    }
+
+    .sd-class-library-main {
+      width: min(100%, 1180px);
+      margin: 0 auto;
+      padding: 40px 48px 72px;
+    }
+
+    .sd-class-library-desktop-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .sd-class-library-term {
+      margin: 0 0 10px;
+      color: #29d0ff;
+      font-family: var(--font-display), "Saira Condensed", sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.34em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .sd-class-library-desktop-title {
+      margin: 0;
+      color: #fff;
+      font-family: var(--font-display), "Saira Condensed", sans-serif;
+      font-size: 56px;
+      font-style: italic;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 0.92;
+      text-transform: uppercase;
+    }
+
+    .sd-class-library-desktop-add {
+      display: inline-flex;
+      min-height: 40px;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgb(41 208 255 / 0.28);
+      border-radius: 8px;
+      background: rgb(41 208 255 / 0.08);
+      padding: 8px 16px;
+      color: #29d0ff;
+      font-family: var(--font-display), "Saira Condensed", sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+
+    .sd-subject-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .sd-subject-card {
+      min-height: 196px;
+      gap: 0;
+      border: 1px solid #cbd5e1;
+      border-left-width: 1px;
+      border-radius: 8px;
+      background: #f4efe6;
+      padding: 22px;
+      color: #111827;
+      backdrop-filter: none;
+      box-shadow: 0 6px 22px rgb(2 6 23 / 0.1);
+    }
+
+    .sd-subject-card:first-child {
+      border-color: #38bdf8;
+    }
+
+    .sd-subject-card-main {
+      display: block;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .sd-subject-icon,
+    .sd-subject-card-meta,
+    .sd-subject-progress {
+      display: none;
+    }
+
+    .sd-subject-card-eyebrow {
+      display: flex;
+      min-height: 16px;
+      align-items: center;
+      margin-bottom: 14px;
+      color: #475569;
+      font-family: var(--font-display), "Saira Condensed", sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .sd-subject-card-summary {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .sd-subject-card h2 {
+      color: #111827;
+      font-family: var(--font-display), "Saira Condensed", sans-serif;
+      font-size: 38px;
+      font-style: normal;
+      font-weight: 800;
+      letter-spacing: 0;
+      line-height: 0.92;
+    }
+
+    .sd-subject-completion {
+      display: block;
+      flex: none;
+      color: #0f172a;
+      text-align: right;
+    }
+
+    .sd-subject-completion strong,
+    .sd-subject-completion span {
+      display: block;
+    }
+
+    .sd-class-library .sd-subject-completion strong {
+      color: #0f172a;
+      font-family: var(--font-display), "Saira Condensed", sans-serif;
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 0.9;
+    }
+
+    .sd-subject-completion span {
+      margin-top: 4px;
+      color: #475569;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .sd-subject-card-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: auto;
+      border-top: 1px solid #d9dee7;
+      padding-top: 16px;
+    }
+
+    .sd-subject-card-actions a {
+      display: inline-flex;
+      min-height: 38px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #94a3b8;
+      border-radius: 6px;
+      background: #fff;
+      color: #0f172a;
+      font-family: var(--font-display), "Saira Condensed", sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-decoration: none;
+      text-transform: uppercase;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .sd-class-library-round-action,
     .sd-subject-card,
@@ -388,6 +615,21 @@ const CLASS_LIBRARY_STYLES = `
     }
   }
 `;
+
+function DesktopClassHeader() {
+  return (
+    <header className="sd-class-library-desktop-header">
+      <div>
+        <p className="sd-class-library-term">Current term</p>
+        <h1 className="sd-class-library-desktop-title">Classes</h1>
+      </div>
+      <Link href="/classes?create=1" className="sd-class-library-desktop-add">
+        <Plus size={14} strokeWidth={2.6} aria-hidden="true" />
+        Add class
+      </Link>
+    </header>
+  );
+}
 
 function CreateClassPanel({ createForm }: { createForm: ReactNode }) {
   return (
@@ -419,10 +661,17 @@ function subjectTone(index: number): "blue" | "pink" | "slate" | "purple" {
   return (["blue", "pink", "slate", "purple"] as const)[index % 4] ?? "blue";
 }
 
-export function EmptyClassLibrary({ createForm, createOpen }: ClassLibrarySharedProps) {
+export function EmptyClassLibrary({ createForm, createOpen, profile }: ClassLibrarySharedProps) {
   return (
     <ScreenDesignViewport className="sd-class-library" aria-label="Academic roster">
       <style>{CLASS_LIBRARY_STYLES}</style>
+      <StudentDesktopNav
+        active="Classes"
+        displayName={profile?.displayName}
+        photoUrl={profile?.photoUrl}
+        photoOffsetX={profile?.photoOffsetX}
+        photoOffsetY={profile?.photoOffsetY}
+      />
       <header className="sd-class-library-header">
         <div>
           <DianaWordmark className="sd-class-library-wordmark" />
@@ -485,10 +734,18 @@ export function MyClassesGrid({
   cards,
   createForm,
   createOpen,
+  profile,
 }: ClassLibrarySharedProps & { cards: SubjectLibraryCardModel[] }) {
   return (
     <ScreenDesignViewport className="sd-class-library" aria-label="Subject library">
       <style>{CLASS_LIBRARY_STYLES}</style>
+      <StudentDesktopNav
+        active="Classes"
+        displayName={profile?.displayName}
+        photoUrl={profile?.photoUrl}
+        photoOffsetX={profile?.photoOffsetX}
+        photoOffsetY={profile?.photoOffsetY}
+      />
       <header className="sd-class-library-header">
         <div>
           <DianaWordmark className="sd-class-library-wordmark" />
@@ -507,30 +764,52 @@ export function MyClassesGrid({
       </header>
 
       <main className="sd-class-library-main">
+        <DesktopClassHeader />
         {createOpen && <CreateClassPanel createForm={createForm} />}
         <div className="sd-subject-grid">
           {cards.map((card, index) => (
-            <Link
+            <article
               key={card.id}
-              href={card.href}
               className="sd-subject-card"
               data-tone={subjectTone(index)}
-              aria-label="Open class"
             >
-              <span className="sd-subject-icon">
-                <SubjectIcon name={card.name} />
-              </span>
-              <h2>{card.name}</h2>
-              <div className="sd-subject-card-meta">
-                <span>{card.progressPct}% complete</span>
-                <span>
-                  {card.openWorkCount} open {card.openWorkCount === 1 ? "move" : "moves"}
+              <Link
+                href={card.href}
+                className="sd-subject-card-main"
+                aria-label={`Open ${card.name} class`}
+              >
+                <span className="sd-subject-icon">
+                  <SubjectIcon name={card.name} />
                 </span>
+                <div className="sd-subject-card-eyebrow">
+                  {card.teacher || "Teacher not added"}
+                </div>
+                <div className="sd-subject-card-summary">
+                  <h2>{card.name}</h2>
+                  <div className="sd-subject-completion" aria-label={`${card.progressPct}% complete`}>
+                    <strong>{card.progressPct}%</strong>
+                    <span>complete</span>
+                  </div>
+                </div>
+                <div className="sd-subject-card-meta">
+                  <span>{card.progressPct}% complete</span>
+                  <span>
+                    {card.openWorkCount} open {card.openWorkCount === 1 ? "move" : "moves"}
+                  </span>
+                </div>
+                <span className="sd-subject-progress" aria-hidden="true">
+                  <span style={{ width: `${card.progressPct}%` }} />
+                </span>
+              </Link>
+              <div className="sd-subject-card-actions">
+                <Link href="/notes" aria-label={`Open ${card.name} notes`}>
+                  Notes
+                </Link>
+                <Link href={card.href} aria-label={`Open ${card.name} class`}>
+                  Open class
+                </Link>
               </div>
-              <span className="sd-subject-progress" aria-hidden="true">
-                <span style={{ width: `${card.progressPct}%` }} />
-              </span>
-            </Link>
+            </article>
           ))}
         </div>
       </main>

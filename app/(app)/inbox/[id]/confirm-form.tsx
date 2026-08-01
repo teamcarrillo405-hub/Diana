@@ -84,7 +84,7 @@ export function ConfirmForm({
     startTransition(async () => {
       const result = await dismissInboxItem(inboxItemId);
       if (result.ok) {
-        router.push("/inbox");
+        router.push("/assignments");
         return;
       }
       setErrorMsg(result.error);
@@ -97,7 +97,7 @@ export function ConfirmForm({
       <section className="sd-inbox-no-class">
         <Library aria-hidden="true" />
         <h2>Add a class before confirming this play.</h2>
-        <button type="button" onClick={() => router.push("/classes/new")}>
+        <button type="button" onClick={() => router.push("/classes?create=1")}>
           Add class
         </button>
       </section>

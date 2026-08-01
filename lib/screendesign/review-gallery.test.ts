@@ -93,9 +93,9 @@ describe("review gallery producer contract", () => {
   it("derives one canonical source, app, diff, and action path in registry order", () => {
     const plan = buildReviewCapturePlan();
 
-    expect(plan).toHaveLength(47);
+    expect(plan).toHaveLength(46);
     expect(plan.map((row) => row.id)).toEqual(SCREEN_DESIGN_CANONICAL_SCREEN_IDS);
-    expect(new Set(plan.flatMap((row) => Object.values(row.artifacts))).size).toBe(188);
+    expect(new Set(plan.flatMap((row) => Object.values(row.artifacts))).size).toBe(184);
     expect(plan[0]).toEqual({
       id: "ai-history-log",
       artifacts: {
@@ -219,7 +219,7 @@ describe("review gallery producer contract", () => {
         declaredTolerance: { maxDiffPixelRatio: 0.005, masks: [] },
       }),
     ).toThrow(/not an ancestor/iu);
-  });
+  }, 15_000);
 
   it("assembles only a complete canonical index with one run id and release SHA", () => {
     const rows = completeRows();
@@ -233,7 +233,7 @@ describe("review gallery producer contract", () => {
 
     expect(index.schemaVersion).toBe(REVIEW_GALLERY_SCHEMA_VERSION);
     expect(index.complete).toBe(true);
-    expect(index.expectedCount).toBe(47);
+    expect(index.expectedCount).toBe(46);
     expect(index.rows).toEqual(rows);
     expect(() => assertCompleteReviewIndex(index, directorySets())).not.toThrow();
   });

@@ -263,7 +263,7 @@ export function ReviewSession({
         </article>
       </main>
 
-      <Link href="/capture" className="sd-flashcard-quick-add" aria-label="Quick add">
+      <Link href="/quick-add" className="sd-flashcard-quick-add" aria-label="Quick add">
         <Plus aria-hidden="true" />
       </Link>
 

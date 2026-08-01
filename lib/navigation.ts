@@ -8,7 +8,7 @@ export const STUDENT_NAV_DESTINATIONS = Object.freeze([
   Object.freeze({ label: "Work", href: "/assignments" }),
   Object.freeze({ label: "Classes", href: "/classes" }),
   Object.freeze({ label: "Calendar", href: "/calendar" }),
-  Object.freeze({ label: "More", href: "/settings" }),
+  Object.freeze({ label: "More", href: "/more" }),
 ] as const);
 
 export type StudentNavLabel =
@@ -19,6 +19,9 @@ const primaryRoute = (pathname: string): string =>
 
 export function getStudentNavOwner(pathname: string): StudentNavLabel {
   const route = primaryRoute(pathname);
+  if (route === "/course-mode" || route.startsWith("/course-mode/")) {
+    return "Classes";
+  }
   const owner = STUDENT_NAV_DESTINATIONS.slice(0, -1).find(
     ({ href }) => route === href || route.startsWith(`${href}/`),
   );
@@ -67,13 +70,14 @@ export function ownsScreenDesignNavigation(pathname: string): boolean {
     pathname.startsWith("/notes/") ||
     pathname === "/classes" ||
     pathname.startsWith("/classes/") ||
+    pathname === "/course-mode" ||
+    pathname.startsWith("/course-mode/") ||
     pathname === "/calendar" ||
     pathname === "/grades" ||
     pathname.startsWith("/grades/") ||
     pathname === "/inbox" ||
     pathname.startsWith("/inbox/") ||
     pathname === "/proof" ||
-    pathname === "/future-path" ||
     pathname === "/flashcards" ||
     pathname.startsWith("/flashcards/") ||
     pathname === "/timer" ||
@@ -96,6 +100,8 @@ export function ownsScreenDesignNavigation(pathname: string): boolean {
     pathname === "/ap" ||
     pathname === "/sharing" ||
     pathname === "/insights" ||
+    pathname === "/more" ||
+    pathname === "/design/compare" ||
     pathname === "/settings" ||
     pathname.startsWith("/settings/")
   );

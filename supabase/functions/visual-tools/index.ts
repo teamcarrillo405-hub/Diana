@@ -1,8 +1,11 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/visual-tools/index.ts
 // Phase 17: visual learning tools for notes and diagram photos.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -10,7 +13,6 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TEXT_MODES = new Set(["mind_map", "concept_graph", "timeline", "comparison_table"]);
 const MIME_BY_EXT: Record<string, string> = {
@@ -78,7 +80,6 @@ Label only visible, study-relevant parts. Do not invent details.`;
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -103,6 +104,7 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
 async function runDiagramAnnotation(
   // deno-lint-ignore no-explicit-any
   supabase: { storage: any },
+  ownerId: string,
   storageKey: string,
   bucket: string,
 ): Promise<{ content: string; tokens: number; model: string }> {
@@ -119,7 +121,11 @@ async function runDiagramAnnotation(
     includeFrustration: false,
     includeMinorSafety: true,
   });
-  const modelResult = await callStudentTextModel({
+  const modelResult = await callSafeStudentTextModel({
+    ownerId,
+    // The service client also provides the RPC surface used by the guard.
+    // deno-lint-ignore no-explicit-any
+    supabase: supabase as any,
     system,
     user: "Annotate the diagram for study. Do not invent unseen labels.",
     parts: [
@@ -142,7 +148,7 @@ async function runDiagramAnnotation(
   };
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("visual-tools", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders() });
   }
@@ -183,7 +189,7 @@ Deno.serve(async (req: Request) => {
     if (mode === "diagram_annotation") {
       const storageKey = typeof body.storageKey === "string" ? body.storageKey : "";
       const bucket = typeof body.bucket === "string" && body.bucket.length > 0 ? body.bucket : "note-docs";
-      const result = await runDiagramAnnotation(supabase, storageKey, bucket);
+      const result = await runDiagramAnnotation(supabase, ownerId, storageKey, bucket);
       content = result.content;
       tokens = result.tokens;
       model = result.model;
@@ -208,7 +214,9 @@ Deno.serve(async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const modelResult = await callStudentTextModel({
+      const modelResult = await callSafeStudentTextModel({
+        ownerId,
+        supabase,
         system: systemPrompt,
         user: `Mode: ${mode}\nTitle: ${noteTitle}\nNote text:\n${text}`,
         maxTokens: 1200,
@@ -239,8 +247,9 @@ Deno.serve(async (req: Request) => {
 
     return jsonResponse({ content });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("visual-tools error:", err);
     const message = err instanceof Error ? err.message : "Something went wrong. Try again.";
     return jsonResponse({ error: message }, 500);
   }
-});
+}));

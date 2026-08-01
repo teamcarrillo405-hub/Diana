@@ -188,7 +188,7 @@ export function NoteDetail({
           <strong>{title}</strong>
           <span>{classes.find((item) => item.id === classId)?.name ?? "Study guide"}</span>
         </div>
-        <button type="button" aria-label="Search notes"><Search size={18} aria-hidden="true" /></button>
+        <Link href={`/search?q=${encodeURIComponent(title)}`} aria-label="Search notes"><Search size={18} aria-hidden="true" /></Link>
       </header>
 
       <main className="sd-notes-scroll">
@@ -380,7 +380,7 @@ export function NoteDetail({
       {source === "lecture" && actionItems.length > 0 && (
         <section className="notes-transcript-action">
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-            Action items sent to inbox
+            Action items sent to Work
           </h2>
           <ul className="space-y-2 rounded-2xl border border-border bg-surface-raised p-4 text-sm">
             {actionItems.map((item) => (

@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
 import { buildLobbyDashboardView } from "@/lib/dashboard/lobby-view";
+import { lobbyCheckInFromSignalValue } from "@/lib/dashboard/lobby-check-in";
 import { loadProfile } from "@/lib/profile";
 import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { sessionAdaptationForMood } from "@/lib/emotional/session";
@@ -123,11 +124,24 @@ export default async function DashboardPage({
     reminders: reminderItems,
     now,
   });
+  const initialCheckIn = lobbyCheckInFromSignalValue(
+    latestReadinessSignal?.value,
+  );
 
   return (
     <>
       <LastShownClassCookie classId={ranked[0]?.class_id ?? null} />
-      <LobbyDashboard view={view} />
+      <LobbyDashboard
+        view={view}
+        profile={{
+          displayName: profile?.display_name,
+          photoUrl: profile?.photo_url,
+          photoOffsetX: profile?.photo_offset_x,
+          photoOffsetY: profile?.photo_offset_y,
+        }}
+        initialCheckIn={initialCheckIn}
+        today={now.toISOString().slice(0, 10)}
+      />
     </>
   );
 }

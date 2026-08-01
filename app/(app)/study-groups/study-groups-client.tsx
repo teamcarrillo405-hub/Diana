@@ -228,7 +228,7 @@ export function StudyGroupsClient({
               >
                 <span>
                   <strong>{group.name}</strong>
-                  <small>{group.subject || "General study"} Â· Invite only</small>
+                  <small>{group.subject || "General study"} | Invite only</small>
                 </span>
                 <span>Open <ArrowRight size={13} aria-hidden="true" /></span>
               </Link>
@@ -337,7 +337,7 @@ export function StudyGroupsClient({
             <summary>Rooms and membership</summary>
             <div className="sd-study-tool-body">
               {groups.map((group) => (
-                <Link href={`/study-groups?group=${group.id}`} key={group.id}>{group.name} Â· {group.subject || "General"}</Link>
+                <Link href={`/study-groups?group=${group.id}`} key={group.id}>{group.name} | {group.subject || "General"}</Link>
               ))}
               <label>Display name<input value={displayName} maxLength={80} onChange={(event) => setDisplayName(event.target.value)} /></label>
               <label>Another invite code<input value={joinCode} onChange={(event) => setJoinCode(normalizeJoinCode(event.target.value))} /></label>
@@ -393,7 +393,7 @@ export function StudyGroupsClient({
                       "Shared focus session started.",
                     )}
                   ><Clock3 size={14} aria-hidden="true" /> Start shared session</button>
-                  {workspace.sessions.map((item) => <p className="sd-study-tool-note" key={item.id}>{item.title} Â· {item.work_minutes}/{item.break_minutes} min Â· {item.status}</p>)}
+                  {workspace.sessions.map((item) => <p className="sd-study-tool-note" key={item.id}>{item.title} | {item.work_minutes}/{item.break_minutes} min | {item.status}</p>)}
                 </div>
               </details>
 
@@ -423,7 +423,7 @@ export function StudyGroupsClient({
                       "Shared review card added.",
                     )}
                   >Share review card</button>
-                  {workspace.decks.map((deck) => <p className="sd-study-tool-note" key={deck.id}>{deck.title} Â· {deck.cardCount} cards</p>)}
+                  {workspace.decks.map((deck) => <p className="sd-study-tool-note" key={deck.id}>{deck.title} | {deck.cardCount} cards</p>)}
                 </div>
               </details>
 

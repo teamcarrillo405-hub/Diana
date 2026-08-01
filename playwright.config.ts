@@ -1,6 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.QA_BASE_URL ?? "http://127.0.0.1:3005";
+const qaCreateUser = process.env.QA_CREATE_USER ?? "true";
+
+// Responsive tests read these values during module initialization. Keep the
+// test process and its isolated web server on the same URL and QA mode.
+process.env.QA_BASE_URL = baseURL;
+process.env.QA_CREATE_USER = qaCreateUser;
 
 const chromium = {
   ...devices["Desktop Chrome"],
@@ -17,6 +23,10 @@ export default defineConfig({
   testMatch: /.*\.spec\.ts/,
   outputDir: "test-results/playwright",
   fullyParallel: false,
+  // Browser scenarios intentionally reset a shared synthetic student. Running
+  // files concurrently can interleave delete/seed operations and create a
+  // state that no real student can reach.
+  workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [["line"], ["html", { open: "never" }]] : "line",
@@ -45,7 +55,7 @@ export default defineConfig({
     timeout: 120_000,
     env: {
       ...process.env,
-      QA_CREATE_USER: "true",
+      QA_CREATE_USER: qaCreateUser,
     },
   },
   projects: [

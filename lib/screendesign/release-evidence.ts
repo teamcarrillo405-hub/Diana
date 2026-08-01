@@ -100,7 +100,7 @@ export const normalizeGitSha = (value: string): string => {
 export const validateReleaseEvidenceDocument = (
   input: ReleaseEvidenceDocumentInput,
 ): ReleaseEvidenceValidationResult => {
-  invariant(input.expectedCount === REVIEW_EXPECTED_COUNT, "expected count must be exactly 47");
+  invariant(input.expectedCount === REVIEW_EXPECTED_COUNT, "expected count must be exactly 46");
   const expectedSha = normalizeGitSha(input.expectedReleaseSha);
   invariant(SHA256_PATTERN.test(input.indexSha256), "index hash is invalid");
   invariant(input.index.runId === input.expectedRunId, "producer run id does not match");
@@ -151,7 +151,7 @@ export const createValidationReceipt = (input: {
   readonly validatedAt: string;
 }): ReleaseEvidenceValidationReceipt => {
   invariant(input.result.complete, "a receipt requires a complete validation result");
-  invariant(input.result.count === REVIEW_EXPECTED_COUNT, "a receipt requires exactly 47 ids");
+  invariant(input.result.count === REVIEW_EXPECTED_COUNT, "a receipt requires exactly 46 ids");
   invariant(
     input.result.ids.every(
       (id, index) => id === SCREEN_DESIGN_CANONICAL_SCREEN_IDS[index],

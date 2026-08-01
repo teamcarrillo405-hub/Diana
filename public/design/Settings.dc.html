@@ -26,7 +26,7 @@
 <style>
   @keyframes gl-spin{to{transform:rotate(360deg)}}
   :root{
-    --gl-bg-base:#04060f; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-bg-base:#0b1428; --gl-bg-card:rgba(4,8,20,.72);
     --gl-cyan:#29d0ff; --gl-cyan-30:rgba(41,208,255,.3); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
     --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14); --gl-gold-08:rgba(255,210,74,.06);
     --gl-green:#36e07a; --gl-green-30:rgba(54,224,122,.3); --gl-green-14:rgba(54,224,122,.14);
@@ -40,70 +40,66 @@
   ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.3);border-radius:4px}
   input[type="range"]{accent-color:var(--gl-cyan)}
   .gl-tab:hover{color:#fff !important;}
+  /* Record pattern: cards carry the reading load, while the page shell stays calm. */
+  [style*="background:var(--gl-bg-card)"] { --gl-bg-card:#fff; --gl-border:#cbd5e1; --gl-border-neutral:#cbd5e1; --gl-text-primary:#0f172a; --gl-text-secondary:#334155; --gl-text-muted:#64748b; --gl-text-dim:#64748b; --gl-text-overlay-60:#64748b; background:#fff !important; color:#0f172a; box-shadow:0 6px 22px rgba(2,6,23,.1); }
+  [style*="border:1px dashed"] { --gl-border:#94a3b8; --gl-text-primary:#0f172a; --gl-text-secondary:#334155; --gl-text-muted:#64748b; --gl-text-dim:#64748b; --gl-text-overlay-60:#64748b; border-color:#94a3b8 !important; background:#fff !important; color:#0f172a; }
+  .settings-design-page{background:radial-gradient(circle at 88% 6%,rgba(255,121,218,.08),transparent 28%),var(--gl-bg-base);}
+  .settings-design-layout{width:1000px;margin:0 auto;padding:34px 0 70px;display:grid;grid-template-columns:190px minmax(0,1fr);gap:32px;align-items:start;}
+  .settings-context-rail{padding-top:28px;}
+  .settings-context-group{margin-bottom:18px;}
+  .settings-context-group-title{padding:0 10px;margin-bottom:7px;color:var(--gl-text-dim);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;}
+  .settings-context-item{min-height:36px;margin-bottom:4px;border:1px solid transparent;border-radius:8px;padding:9px 10px;cursor:pointer;font-size:14px;font-weight:650;line-height:1.1;}
+  .settings-context-item:hover{border-color:#74c0ff;background:#e0f2fe !important;color:#0f172a !important;}
+  .settings-workspace{min-width:0;}
+  .settings-page-title{margin:0 0 22px;color:#f8fafc;font-family:var(--font-body);font-size:52px;font-style:italic;font-weight:950;letter-spacing:-.045em;line-height:1;text-transform:uppercase;}
+  .settings-page-title--sr-only{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+  .settings-profile-card{border:1px dashed #94a3b8 !important;border-radius:8px !important;background:#f4efe6 !important;padding:28px !important;color:#0f172a !important;box-shadow:0 8px 22px rgba(2,6,23,.14) !important;}
+  .settings-panel-head{display:flex;align-items:start;justify-content:space-between;gap:20px;margin-bottom:24px;}
+  .settings-panel-title{margin:0 0 5px;font-family:var(--font-body);font-size:24px;font-style:italic;font-weight:950;letter-spacing:-.03em;line-height:1;text-transform:uppercase;}
+  .settings-panel-description{max-width:46ch;color:#475569;font-size:14px;line-height:1.45;}
+  .settings-save{display:inline-flex;min-height:42px;align-items:center;justify-content:center;border:1px solid #74c0ff;border-radius:10px;background:#e0f2fe;padding:0 16px;color:#0f172a;cursor:pointer;font-family:var(--font-display);font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap;}
+  .settings-profile-card input{border:1px solid #cbd5e1 !important;border-radius:8px !important;background:#fff !important;color:#0f172a !important;}
+  .settings-profile-card label{border-color:#74c0ff !important;border-radius:8px !important;background:#e0f2fe !important;}
+  .settings-profile-card label span{color:#0f172a !important;}
+  .settings-profile-card [style*="color:var(--gl-text-dim)"]{color:#475569 !important;}
+  .settings-workspace [style*="background:var(--gl-bg-card)"]{border-radius:8px !important;}
+  .settings-profile-card > div:nth-child(2){display:none;}
+  .settings-save-status{margin:10px 0 0;color:#0f766e;font-size:12px;font-weight:700;}
 </style>
 </helmet>
 
-<div style="width:1440px;min-height:900px;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -10%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)" data-screen-label="Settings">
+<div class="settings-design-page" style="width:1440px;min-height:900px;font-family:var(--font-body);color:var(--gl-text-primary)" data-screen-label="Settings">
 
-  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
-    <div style="display:flex;gap:8px">
-      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
-      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
-        <a href="Student Lobby.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
-        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
-        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
-        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
-        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
-    </div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
-      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
-      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
-      </div>
-      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
-        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
-          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
-            <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }}" alt="You">
-          </sc-if>
-        </sc-if>
-        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
-        </sc-if>
-        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
-        </sc-if>
-        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
-          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">{{ initials }}</span>
-        </sc-if>
-      </a>
-    </div>
-  </div>
+  <dc-import name="Student Desktop Header" active="more" hint-size="1440px,58px"></dc-import>
 
-  <div style="max-width:1440px;margin:0 auto;padding:34px 34px 70px;display:grid;grid-template-columns:220px 1fr;gap:28px">
+  <div class="settings-design-layout">
 
     <!-- LEFT RAIL -->
-    <div>
-      <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan);margin-bottom:14px">Settings</div>
+    <aside class="settings-context-rail" aria-label="Settings sections">
       <sc-for list="{{ railGroups }}" as="grp" hint-placeholder-count="3">
-        <div style="margin-bottom:14px">
-          <div style="font-size:10.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-dim);padding:0 14px;margin-bottom:6px">{{ grp.title }}</div>
+        <div class="settings-context-group">
+          <div class="settings-context-group-title">{{ grp.title }}</div>
           <sc-for list="{{ grp.items }}" as="sec" hint-placeholder-count="3">
-            <div onClick="{{ sec.onClick }}" style="padding:10px 14px;border-radius:9px;cursor:pointer;font-weight:600;font-size:13.5px;margin-bottom:3px;color:{{ sec.color }};background:{{ sec.bg }}">{{ sec.label }}</div>
+            <div class="settings-context-item" onClick="{{ sec.onClick }}" style="color:{{ sec.color }};background:{{ sec.bg }}">{{ sec.label }}</div>
           </sc-for>
         </div>
       </sc-for>
-    </div>
+    </aside>
 
     <!-- RIGHT CONTENT -->
-    <div style="display:flex;flex-direction:column;gap:20px">
+    <main class="settings-workspace" style="display:flex;flex-direction:column;gap:20px">
+      <h1 class="settings-page-title settings-page-title--sr-only">Settings</h1>
 
       <!-- PROFILE -->
       <sc-if value="{{ isProfile }}" hint-placeholder-val="{{ true }}">
-        <div style="border-radius:16px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:24px 26px">
-          <div style="font-family:var(--font-display);font-weight:700;font-size:17px;text-transform:uppercase;margin-bottom:4px">Profile</div>
+        <div class="settings-profile-card" style="border-radius:8px;border:1px dashed #94a3b8;background:#f4efe6;padding:28px">
+          <div class="settings-panel-head">
+            <div>
+              <div class="settings-panel-title">Profile</div>
+              <div class="settings-panel-description">Update the details Diana uses to recognize you.</div>
+            </div>
+            <div class="settings-save" onClick="{{ saveProfile }}">Save settings</div>
+          </div>
           <div style="font-size:12.5px;color:var(--gl-text-dim);margin-bottom:22px">Who you are across Diana — and the picture that sits in your lobby hero.</div>
           <div style="display:flex;gap:22px;align-items:flex-start">
             <!-- Live avatar (drag to reposition when it's your photo) -->
@@ -125,7 +121,7 @@
             </div>
 
             <div style="flex:1">
-              <div style="font-family:var(--font-display);font-weight:800;font-size:21px;color:#fff">{{ profileName }}</div>
+              <div style="font-family:var(--font-display);font-weight:800;font-size:21px;color:#0f172a">{{ profileName }}</div>
               <div style="font-size:12.5px;color:var(--gl-text-dim);margin-top:3px;margin-bottom:16px">grayson.m@northgate.edu</div>
 
               <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:9px">Choose avatar</div>
@@ -182,8 +178,11 @@
           </div>
 
           <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--gl-border)">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:7px">Display name</div>
-            <input type="text" value="{{ profileName }}" onChange="{{ setProfileName }}" style="max-width:320px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:9px;background:rgba(10,16,36,.85);border:1px solid var(--gl-border);color:#fff;font-size:14px;font-family:var(--font-body);outline:none">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#0f172a;margin-bottom:7px">Display name</div>
+            <input type="text" value="{{ profileName }}" onChange="{{ setProfileName }}" aria-label="Display name" style="max-width:320px;width:100%;box-sizing:border-box;padding:11px 14px;border-radius:8px;background:#fff;border:1px solid #cbd5e1;color:#0f172a;font-size:14px;font-family:var(--font-body);outline:none">
+            <sc-if value="{{ saveStatus }}" hint-placeholder-val="{{ false }}">
+              <div class="settings-save-status" role="status">{{ saveStatus }}</div>
+            </sc-if>
           </div>
         </div>
       </sc-if>
@@ -197,8 +196,8 @@
           <div style="font-family:var(--font-display);font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:14px">Lobby background</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">
             <div onClick="{{ setBgFootball }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgFootballBorder }};background:{{ bgFootballActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
-              <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Stadium">
-              <div style="padding:8px 10px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Stadium</div>
+              <img src="/images/today-high-school-clean.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="High school">
+              <div style="padding:8px 10px;font-family:var(--font-display);font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">High School</div>
             </div>
             <div onClick="{{ setBgScience }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgScienceBorder }};background:{{ bgScienceActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
               <img src="./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Sci lab">
@@ -364,6 +363,7 @@
               </div>
             </sc-for>
           </div>
+
         </div>
       </sc-if>
 
@@ -557,6 +557,14 @@
               </div>
             </sc-for>
           </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;padding-top:18px;border-top:1px solid var(--gl-border)">
+            <div>
+              <div style="font-size:13.5px;font-weight:700">AI activity export</div>
+              <div style="margin-top:3px;font-size:11.5px;color:var(--gl-text-dim)">Email yourself the last 45 days of AI activity.</div>
+            </div>
+            <a href="Export and Privacy.dc.html#ai-history-export" style="display:inline-flex;min-height:36px;align-items:center;justify-content:center;border:1px solid #74c0ff;border-radius:8px;background:#e0f2fe;padding:0 12px;color:#0f172a;font-family:var(--font-display);font-size:12px;font-weight:800;letter-spacing:.04em;text-decoration:none;text-transform:uppercase;white-space:nowrap">Email me</a>
+          </div>
         </div>
       </sc-if>
 
@@ -696,7 +704,7 @@
         </div>
       </sc-if>
 
-    </div>
+    </main>
   </div>
 </div>
 
@@ -718,6 +726,7 @@ class Component extends DCLogic {
     bgError: '',
     selectedBg: localStorage.getItem('diana-selected-bg') || 'football',
     profileName: 'Grayson M.',
+    saveStatus: '',
     notifRemind: true, notifDueSoon: true, notifTests: true, notifDianaNudge: true,
     quietStart: '21:00', quietEnd: '07:00',
     fontSize: 'normal', lineSpacing: 'normal',
@@ -789,6 +798,7 @@ class Component extends DCLogic {
     localStorage.setItem('diana-avatar-type', type);
     this.setState({ avatarType: type });
   };
+  saveProfile = () => this.setState({ saveStatus: 'Settings saved.' });
   setProfilePhoto = (e) => {
     const file = e.target.files ? e.target.files[0] : null;
     if (!file) return;
@@ -888,12 +898,11 @@ class Component extends DCLogic {
       onClick: () => { window.location.href = href; },
     });
     const railGroups = [
-      { title: 'You', items: [ mkItem('profile','Profile'), mkItem('appearance','Appearance'), mkItem('notifications','Notifications'), mkItem('accessibility','Accessibility'), mkItem('reading','Reading & Speech') ] },
-      { title: 'Tools', items: [ mkItem('work','Do the work'), mkItem('study','Study'), mkItem('ai','AI & integrity') ] },
-      { title: 'Data & privacy', items: [ mkItem('connections','Connections & IEP'), mkItem('learningloop','Learning loop') ] },
+      { title: 'Personal', items: [ mkItem('profile','Profile'), mkItem('appearance','Appearance'), mkItem('notifications','Notifications'), mkItem('accessibility','Accessibility'), mkItem('reading','Reading & speech') ] },
+      { title: 'Learning', items: [ mkItem('work','Work setup'), mkItem('study','Study setup'), mkItem('ai','AI & integrity') ] },
+      { title: 'School', items: [ mkItem('connections','Connections & IEP'), mkItem('learningloop','Learning loop') ] },
       { title: 'Account', items: [
         mkLinkItem('Sharing.dc.html', 'Sharing'),
-        mkLinkItem('AI History.dc.html', 'AI history'),
         mkLinkItem('Export and Privacy.dc.html', 'Export & privacy'),
         mkLinkItem('Diana - Landing + Sign In.dc.html', 'Sign out'),
       ] },
@@ -961,6 +970,8 @@ class Component extends DCLogic {
       // Avatar picker
       profileName: s.profileName,
       setProfileName: e => this.setState({ profileName: e.target.value }),
+      saveStatus: s.saveStatus,
+      saveProfile: this.saveProfile,
       initials: (s.profileName || 'G').trim().split(/\s+/).map(w => w[0]).join('').slice(0,2).toUpperCase(),
       avatarType: s.avatarType,
       isAvatarUpload: s.avatarType === 'upload', isAvatarBoy: s.avatarType === 'boy',

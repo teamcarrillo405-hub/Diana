@@ -1,13 +1,15 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TARGETS = ["simpler", "more_detail"] as const;
 type Target = (typeof TARGETS)[number];
@@ -22,7 +24,6 @@ Rules:
 - No preamble and no markdown heading.`;
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
 
@@ -33,7 +34,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("reading-level", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -78,7 +79,9 @@ Deno.serve(async (req: Request) => {
       `Accommodations: ${arrayText(profile?.accommodations)}`,
       `Text:\n${text}`,
     ].join("\n");
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system,
       user: userMessage,
       maxTokens: 900,
@@ -102,10 +105,11 @@ Deno.serve(async (req: Request) => {
 
     return json({ text: adapted, fallback: modelResult.model.endsWith(":fallback") });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("reading-level error:", err);
     return json({ error: "internal" }, 500);
   }
-});
+}));
 
 function arrayText(value: unknown): string {
   return Array.isArray(value)

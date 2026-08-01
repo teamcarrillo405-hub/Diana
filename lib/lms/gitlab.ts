@@ -1,4 +1,5 @@
 import type { NormalizedAssignment } from "./types";
+import { fetchValidatedUrl, validateOutboundUrl } from "@/lib/security/outbound-url";
 
 export type GitLabConfig = {
   project: string;
@@ -24,7 +25,7 @@ const DEFAULT_BASE_URL = "https://gitlab.com";
 export async function fetchGitLabAssignments(
   config: GitLabConfig,
 ): Promise<{ items: NormalizedAssignment[]; skipped: number }> {
-  const baseUrl = normalizeBaseUrl(config.base_url);
+  const baseUrl = await validateGitLabBaseUrl(config.base_url);
   const projectInput = config.project.trim();
   const project = encodeURIComponent(projectInput);
   if (!project || !config.token.trim()) throw new Error("GitLab connection is missing project or token");
@@ -70,12 +71,15 @@ export async function fetchGitLabAssignments(
 async function fetchAllPages<T>(firstUrl: string, token: string): Promise<T[]> {
   const out: T[] = [];
   let next: string | null = firstUrl;
+  const allowedOrigin = new URL(firstUrl).origin;
   for (let page = 0; next && page < 10; page += 1) {
-    const res = await fetch(next, {
+    const res = await fetchValidatedUrl(next, {
       headers: {
         "PRIVATE-TOKEN": token,
         Accept: "application/json",
       },
+    }, {
+      allowedOrigins: [allowedOrigin],
     });
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) {
@@ -87,7 +91,8 @@ async function fetchAllPages<T>(firstUrl: string, token: string): Promise<T[]> {
       throw new Error(`GitLab request returned ${res.status}`);
     }
     out.push(...((await res.json()) as T[]));
-    next = parseNextLink(res.headers.get("link"));
+    const parsedNext = parseNextLink(res.headers.get("link"));
+    next = parsedNext ? new URL(parsedNext, next).toString() : null;
   }
   return out;
 }
@@ -103,10 +108,10 @@ function parseNextLink(link: string | null): string | null {
   return match?.[1] ?? null;
 }
 
-function normalizeBaseUrl(value?: string): string {
+export async function validateGitLabBaseUrl(value?: string): Promise<string> {
   const raw = value?.trim() || DEFAULT_BASE_URL;
-  const url = new URL(raw);
-  return `${url.protocol}//${url.host}`;
+  const url = await validateOutboundUrl(raw);
+  return url.origin;
 }
 
 function formatGitLabDescription(issue: GitLabIssue): string | null {

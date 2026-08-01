@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, Lightbulb, MoreHorizontal, Save, Sparkles, X } from "lucide-react";
+import { Check, Lightbulb, Save, Sparkles, X } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
 
 import {
@@ -98,9 +98,6 @@ export function AiWritingCoach({
         <strong>Writing Coach</strong>
         <button type="button" onClick={saveDraft} disabled={isPending} aria-label="Save draft">
           <Save size={17} aria-hidden="true" />
-        </button>
-        <button type="button" aria-label="More writing tools">
-          <MoreHorizontal size={18} aria-hidden="true" />
         </button>
       </header>
 

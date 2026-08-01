@@ -1,13 +1,26 @@
 "use client";
 
+import { PencilRuler } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { UpgradeScreen } from "@/app/(app)/upgrade/upgrade-screen";
 import { ScreenDesignOnboarding } from "@/app/onboarding/screendesign-onboarding";
+import { LandingPageStyles } from "@/components/landing-page/landing-page-styles";
+import {
+  DEFAULT_LANDING_PAGE_CONFIG,
+  type LandingPageConfig,
+} from "@/lib/landing-page/config";
 import { writePublicOnboardingDraft } from "@/lib/onboarding/public-draft";
 import type { ScreenDesignOnboardingAnswers } from "@/lib/onboarding/screendesign";
 
-export function PublicHomeFunnel() {
+export function PublicHomeFunnel({
+  config = DEFAULT_LANDING_PAGE_CONFIG,
+  showEditorLink = false,
+}: {
+  readonly config?: LandingPageConfig;
+  readonly showEditorLink?: boolean;
+}) {
   const router = useRouter();
 
   const scrollToSection = (sectionId: string) => {
@@ -35,8 +48,20 @@ export function PublicHomeFunnel() {
       className="sd-public-home-scroll"
       aria-label="Diana student introduction"
     >
+      <LandingPageStyles config={config} />
+      {showEditorLink ? (
+        <Link
+          href="/design/landing"
+          className="sd-landing-editor-launch"
+          aria-label="Edit landing page"
+          title="Edit landing page"
+        >
+          <PencilRuler aria-hidden="true" />
+        </Link>
+      ) : null}
       <ScreenDesignOnboarding
         presentation="scroll"
+        landingConfig={config}
         onComplete={completeOnboarding}
       />
       <UpgradeScreen
@@ -47,7 +72,8 @@ export function PublicHomeFunnel() {
         onClose={() => scrollToSection("public-home-schedule")}
         closeLabel="Back to schedule"
         onPrimaryAction={() => scrollToSection("public-home-standard")}
-        primaryActionLabel="Continue to access options"
+        primaryActionLabel={config.community.cta}
+        landingConfig={config}
       />
       <UpgradeScreen
         view="standard"
@@ -57,7 +83,8 @@ export function PublicHomeFunnel() {
         onClose={() => scrollToSection("public-home-community")}
         closeLabel="Back to community access"
         onPrimaryAction={() => router.push("/signup")}
-        primaryActionLabel="Create your account"
+        primaryActionLabel={config.standard.cta}
+        landingConfig={config}
       />
     </main>
   );

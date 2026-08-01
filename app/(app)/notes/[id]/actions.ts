@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createCard } from "@/lib/fsrs/fsrs";
 import { normalizeNoteTags, suggestTagsFromText } from "@/lib/notes/tags";
+import { hasOwnerStoragePrefix, ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 import {
   parseDiagramAnnotationResponse,
   parseVisualToolResponse,
@@ -209,19 +210,16 @@ export async function uploadDiagramImage(
 
   const file = formData.get("diagram") as File | null;
   if (!file) return { ok: false, error: "No image provided." };
-  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-  const allowed = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-  if (!allowed.has(ext)) {
-    return { ok: false, error: "Pick a .jpg, .png, .webp, or .gif image." };
-  }
-  if (file.size >= 10 * 1024 * 1024) {
-    return { ok: false, error: "Images work best under 10 MB. Try a smaller crop." };
-  }
-
-  const storageKey = `${user.id}/diagram-${Date.now()}.${ext}`;
+  const noteId = typeof formData.get("noteId") === "string" ? String(formData.get("noteId")) : "";
+  if (!z.string().uuid().safeParse(noteId).success) return { ok: false, error: "Note not found." };
+  const { data: note } = await supabase.from("notes").select("id").eq("id", noteId).eq("owner_id", user.id).maybeSingle();
+  if (!note) return { ok: false, error: "Note not found." };
+  const validation = await validateFileUpload("diagramImage", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
+  const storageKey = ownerStorageKey(user.id, "notes", noteId, "diagrams", `${crypto.randomUUID()}.${validation.value.extension}`);
   const { error } = await supabase.storage
     .from("note-docs")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
 }
@@ -243,6 +241,9 @@ export async function annotateDiagram(
     .single();
   if (noteErr || !note || note.owner_id !== user.id) {
     return { ok: false, error: "Note not found." };
+  }
+  if (!hasOwnerStoragePrefix(user.id, parsed.data.storageKey)) {
+    return { ok: false, error: "Choose an image from this account." };
   }
 
   const aiMode = noteAiMode(note);

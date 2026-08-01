@@ -90,7 +90,6 @@ export const SCREEN_DESIGN_CANONICAL_SCREEN_IDS = [
   "flashcards-review",
   "focus-session-immersive",
   "global-leaderboard",
-  "inbox-triage",
   "knowledge-graph",
   "library-empty-state",
   "lms-sync-center",
@@ -512,22 +511,6 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     heading: "Community activity",
     records: groupRecords("member"),
     guardedStates: ["group-member"],
-  },
-  {
-    screenId: "inbox-triage",
-    heading: "Inbox",
-    records: [
-      profile(),
-      record("class", "class-main", { name: "Biology", aiMode: "green" }),
-      record(
-        "inbox-item",
-        "inbox-main",
-        { raw: "Cell diagram needs labels and function notes.", status: "unclassified" },
-        ["class-main"],
-      ),
-    ],
-    guardedStates: ["populated"],
-    result: mutation("inbox-item", "inbox-main", "status", "classified"),
   },
   {
     screenId: "knowledge-graph",
@@ -1056,7 +1039,7 @@ const GUARDED_SCENARIOS: readonly ScenarioDefinition[] = [
   {
     screenId: "milestone-celebration",
     variant: "reduced-motion",
-    heading: "Proof folder",
+    heading: "Record",
     records: [profile({ reducedMotion: true })],
     guardedStates: ["reduced-motion"],
     result: navigation("/proof"),

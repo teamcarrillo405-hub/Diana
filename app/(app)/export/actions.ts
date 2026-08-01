@@ -12,6 +12,7 @@ import {
   type NotificationPreferences,
   type PrivacyDeleteCategory,
 } from "@/lib/privacy/export";
+import { emailConfigured, sendEmail } from "@/lib/email/resend";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 
@@ -47,6 +48,13 @@ const DeleteCategoryInput = z.object({
 export type DataExportResult =
   | { ok: true; data: string }
   | { ok: false; error: string };
+
+export type AiHistoryEmailResult =
+  | { ok: true; recordCount: number }
+  | { ok: false; error: string };
+
+const AI_HISTORY_EXPORT_DAYS = 45;
+const MAX_EMAIL_ATTACHMENT_BYTES = 28 * 1024 * 1024;
 
 export async function saveNotificationPreferences(
   input: NotificationPreferences,
@@ -193,6 +201,72 @@ export async function exportUserDataPdf(): Promise<DataExportResult> {
   return { ok: true, data: Buffer.from(pdf).toString("base64") };
 }
 
+export async function emailAiHistoryExport(): Promise<AiHistoryEmailResult> {
+  if (!emailConfigured()) {
+    return { ok: false, error: "Email delivery is not available yet." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user?.email) return { ok: false, error: "Sign in with an email address to request this export." };
+
+  const cutoff = new Date(Date.now() - AI_HISTORY_EXPORT_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const [interactions, authorship] = await Promise.all([
+    supabase
+      .from("ai_interactions")
+      .select("created_at, feature, assignment_id, model, prompt_summary, tokens_used")
+      .eq("owner_id", user.id)
+      .gte("created_at", cutoff)
+      .order("created_at", { ascending: false })
+      .limit(10_000),
+    supabase
+      .from("authorship_log")
+      .select("created_at, actor, event_type, assignment_id")
+      .eq("owner_id", user.id)
+      .gte("created_at", cutoff)
+      .order("created_at", { ascending: false })
+      .limit(10_000),
+  ]);
+
+  if (interactions.error || authorship.error) {
+    return { ok: false, error: "Your AI activity export could not be prepared yet. Please try again." };
+  }
+
+  const rows = [
+    ...(interactions.data ?? []).map((row) => ({
+      createdAt: row.created_at,
+      values: ["AI interaction", row.feature, row.assignment_id, row.model, row.prompt_summary, row.tokens_used],
+    })),
+    ...(authorship.data ?? []).map((row) => ({
+      createdAt: row.created_at,
+      values: ["Authorship record", `${row.actor}: ${row.event_type}`, row.assignment_id, null, null, null],
+    })),
+  ].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+  const csv = [
+    "created_at,record_type,activity,assignment_id,model,summary,tokens_used",
+    ...rows.map((row) => [row.createdAt, ...row.values].map(aiHistoryCsvCell).join(",")),
+  ].join("\n");
+  if (Buffer.byteLength(csv, "utf8") > MAX_EMAIL_ATTACHMENT_BYTES) {
+    return { ok: false, error: "This 45-day export is too large to email. Please try the full data export instead." };
+  }
+
+  const endDate = new Date().toISOString().slice(0, 10);
+  const email = await sendEmail({
+    to: user.email,
+    subject: "Your Diana AI activity export",
+    html: `<p>Your AI activity from the last ${AI_HISTORY_EXPORT_DAYS} days is attached.</p>`,
+    text: `Your AI activity from the last ${AI_HISTORY_EXPORT_DAYS} days is attached.`,
+    attachments: [{
+      filename: `diana-ai-activity-${endDate}.csv`,
+      content: Buffer.from(csv, "utf8").toString("base64"),
+    }],
+  });
+  if (!email.ok) return { ok: false, error: "Your export could not be emailed yet. Please try again." };
+
+  return { ok: true, recordCount: rows.length };
+}
+
 export async function exportProfileBackup(): Promise<DataExportResult> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -296,10 +370,16 @@ export async function deleteDataCategory(
     revalidatePath("/flashcards");
   }
   if (category === "student_state_snapshots") revalidatePath("/dashboard");
-  if (category === "authorship_log") revalidatePath("/settings/ai-history");
+  if (category === "authorship_log") revalidatePath("/export");
   if (category === "competitive_benchmarks" || category === "teen_test_observations") revalidatePath("/proof");
   if (category === "mastery_concepts") revalidatePath("/classes");
   return { ok: true, label: categoryLabel(category) };
+}
+
+function aiHistoryCsvCell(value: string | number | null): string {
+  const raw = value === null ? "" : String(value);
+  const safe = /^[=+\-@]/u.test(raw) ? `'${raw}` : raw;
+  return `"${safe.replaceAll('"', '""')}"`;
 }
 
 export async function inventoryForUser(ownerId: string) {

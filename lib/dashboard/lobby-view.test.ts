@@ -64,12 +64,14 @@ describe("buildLobbyDashboardView", () => {
       rankedAssignments: [next],
       assignments: [next, quiz, readyToSubmit] as Assignment[],
       reminders: [reminder({ id: "assignment-overdue", title: "Vocabulary notes" })],
+      feedbackCount: 3,
       now,
     });
 
     expect(view.studentName).toBe("Grayson");
+    expect(view.hasNextMove).toBe(true);
     expect(view.nextMove).toEqual({
-      actionLabel: "Start English",
+      actionLabel: "English",
       ariaLabel: "Start your next move",
       className: "English",
       estimateLabel: "est. 60 min",
@@ -95,6 +97,12 @@ describe("buildLobbyDashboardView", () => {
         description: "1 done, not submitted",
         href: "/assignments/assignment-ready",
       }),
+      expect.objectContaining({
+        key: "feedback",
+        count: 3,
+        description: "3 new notes from teachers",
+        href: "/notifications",
+      }),
     ]);
     expect(() => JSON.stringify(view)).not.toThrow();
   });
@@ -109,20 +117,23 @@ describe("buildLobbyDashboardView", () => {
     });
 
     expect(view.studentName).toBe("Student");
+    expect(view.hasNextMove).toBe(false);
     expect(view.nextMove).toEqual({
-      actionLabel: "View work",
-      ariaLabel: "Review your work",
+      actionLabel: "Caught up",
+      ariaLabel: "You are caught up",
       className: "Your assignments are clear",
       estimateLabel: "Choose a class or add work",
       href: "/assignments",
       title: "Nothing needs an immediate start",
     });
-    expect(view.attention.map(({ count }) => count)).toEqual([0, 0, 0]);
+    expect(view.attention.map(({ count }) => count)).toEqual([0, 0, 0, 0]);
     expect(view.attention.map(({ description }) => description)).toEqual([
       "Nothing coming up this week",
       "Nothing past the due date",
       "Everything ready is submitted",
+      "No new teacher feedback",
     ]);
-    expect(view.attention.every(({ href }) => href === "/assignments")).toBe(true);
+    expect(view.attention.slice(0, 3).every(({ href }) => href === "/assignments")).toBe(true);
+    expect(view.attention[3].href).toBe("/notifications");
   });
 });

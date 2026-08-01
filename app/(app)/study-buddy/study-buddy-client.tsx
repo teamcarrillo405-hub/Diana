@@ -2,6 +2,7 @@
 
 import { BookOpen, ChevronDown, Loader2, MoreHorizontal, Send, Sparkles } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
@@ -121,7 +122,7 @@ export function StudyBuddyClient({
           <strong>{tutorName}</strong>
           <span><i aria-hidden="true" /> Active now</span>
         </div>
-        <button type="button" aria-label="More tutor options"><MoreHorizontal size={19} aria-hidden="true" /></button>
+        <Link href="/settings/tutor" aria-label="More tutor options"><MoreHorizontal size={19} aria-hidden="true" /></Link>
       </header>
 
       <main className="sd-tutor-chat-feed" aria-live="polite">

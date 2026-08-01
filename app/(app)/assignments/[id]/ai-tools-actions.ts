@@ -33,7 +33,12 @@ import {
 import { parseMathScaffoldResponse, type MathScaffoldResult, type MathSubject } from "@/lib/math/scaffold";
 import { parseScienceScaffoldResponse, type ScienceScaffoldMode, type ScienceScaffoldResult } from "@/lib/science/scaffold";
 import { parseWritingCoauthorResponse, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
+import {
+  parseAssignmentReviewResponse,
+  type AssignmentReviewTemplate,
+} from "@/lib/assignment-review";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import { ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 
@@ -140,6 +145,16 @@ const CitationInput = z.object({
   sourceType: z.enum(["url", "book", "paste"]),
   sourceText: z.string().min(1).max(8000),
   formats: z.array(z.enum(["mla", "apa", "chicago"])).min(1),
+});
+const AssignmentReviewInput = z.object({
+  assignmentId: z.string().uuid(),
+  template: z.enum(["writing", "math", "worksheet", "research", "history", "lab", "reading", "language", "coding", "art", "project", "handoff"]),
+  focus: z.string().trim().min(1).max(800),
+  question: z.string().max(1200).default(""),
+  fields: z.array(z.object({
+    label: z.string().trim().min(1).max(100),
+    value: z.string().max(8000),
+  })).min(1).max(8),
 });
 
 async function getOwnerId(): Promise<string | null> {
@@ -480,6 +495,33 @@ export async function requestWritingCoauthor(
   };
 }
 
+export async function requestAssignmentReview(
+  input: z.infer<typeof AssignmentReviewInput>,
+): Promise<{ ok: true; result: ReturnType<typeof parseAssignmentReviewResponse>; sourceAnchors: string[] } | { ok: false; error: string }> {
+  const parsed = AssignmentReviewInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Add a little of your work before asking Diana." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { ok: false, error: "Not signed in." };
+
+  const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
+  const { data, error } = await supabase.functions.invoke("assignment-review", {
+    body: { ownerId, ...parsed.data, aiMode },
+  });
+  if (error) return { ok: false, error: calmError(error.message) };
+  if (data?.error) return { ok: false, error: String(data.error) };
+  return {
+    ok: true,
+    result: parseAssignmentReviewResponse(
+      String(data?.content ?? ""),
+      parsed.data.template as AssignmentReviewTemplate,
+    ),
+    sourceAnchors: Array.isArray(data?.sourceAnchors)
+      ? data.sourceAnchors.filter((anchor: unknown): anchor is string => typeof anchor === "string").slice(0, 12)
+      : [],
+  };
+}
 export async function acceptWritingSuggestion(
   input: z.infer<typeof AcceptWritingSuggestionInput>,
 ): Promise<{ ok: true; draft: string } | { ok: false; error: string }> {
@@ -544,9 +586,11 @@ export async function requestScienceScaffold(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const classContext = await loadScienceClassContext(supabase, ownerId, parsed.data.assignmentId);
   const { data, error } = await supabase.functions.invoke("science-scaffold", {
-    body: { ownerId, ...parsed.data, classContext },
+    body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -593,19 +637,16 @@ export async function uploadHistoryMapImage(
   const file = formData.get("historyMap") as File | null;
   if (!file) return { ok: false, error: "No image provided." };
 
-  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-  const allowed = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-  if (!allowed.has(ext)) {
-    return { ok: false, error: "Pick a .jpg, .png, .webp, or .gif image." };
-  }
-  if (file.size >= 10 * 1024 * 1024) {
-    return { ok: false, error: "Images work best under 10 MB. Try a smaller crop." };
-  }
+  const validation = await validateFileUpload("aiToolImage", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
 
-  const storageKey = `${user.id}/history-map-${Date.now()}.${ext}`;
+  const storageKey = ownerStorageKey(
+    user.id,
+    `history-map-${Date.now()}.${validation.value.extension}`,
+  );
   const { error } = await supabase.storage
     .from("note-docs")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
@@ -941,19 +982,16 @@ export async function uploadMathPhoto(
   const file = formData.get("mathPhoto") as File | null;
   if (!file) return { ok: false, error: "No photo provided." };
 
-  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-  const allowed = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-  if (!allowed.has(ext)) {
-    return { ok: false, error: "Pick a .jpg, .png, .webp, or .gif photo." };
-  }
-  if (file.size >= 10 * 1024 * 1024) {
-    return { ok: false, error: "Photos work best under 10 MB. Try a smaller crop." };
-  }
+  const validation = await validateFileUpload("aiToolImage", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
 
-  const storageKey = `${user.id}/math-${Date.now()}.${ext}`;
+  const storageKey = ownerStorageKey(
+    user.id,
+    `math-${Date.now()}.${validation.value.extension}`,
+  );
   const { error } = await supabase.storage
     .from("note-docs")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
@@ -968,8 +1006,12 @@ export async function requestMathScaffold(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = parsed.data.assignmentId
+    ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
+    : parsed.data.aiMode;
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("math-scaffold", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -1008,14 +1050,49 @@ export async function toggleStepDone(
     .single();
   if (!row) return { error: "No breakdown to update." };
 
-  const steps = (row.steps as BreakdownStep[]).map((s, i) =>
-    i === parsed.data.stepIndex ? { ...s, done: parsed.data.done } : s,
-  );
+  if (!Array.isArray(row.steps)) {
+    return { error: "The saved breakdown needs to be regenerated." };
+  }
+  const storedSteps: BreakdownStep[] = [];
+  for (const value of row.steps) {
+    const storedStep = parseStoredBreakdownStep(value);
+    if (!storedStep) {
+      return { error: "The saved breakdown needs to be regenerated." };
+    }
+    storedSteps.push(storedStep);
+  }
+  const steps = storedSteps.map((storedStep, i) => {
+    return i === parsed.data.stepIndex
+      ? { ...storedStep, done: parsed.data.done }
+      : storedStep;
+  });
   await supabase
     .from("assignment_steps")
-    .update({ steps, updated_at: new Date().toISOString() })
+    .update({
+      steps: JSON.parse(JSON.stringify(steps)) as Json,
+      updated_at: new Date().toISOString(),
+    })
     .eq("assignment_id", parsed.data.assignmentId)
     .eq("owner_id", ownerId);
 
   return { ok: true };
+}
+
+function parseStoredBreakdownStep(value: unknown): BreakdownStep | null {
+  if (!value || typeof value !== "object") return null;
+  const step = value as Record<string, unknown>;
+  if (
+    typeof step.step !== "number"
+    || typeof step.action !== "string"
+    || typeof step.minutes !== "number"
+    || typeof step.done !== "boolean"
+  ) {
+    return null;
+  }
+  return {
+    step: step.step,
+    action: step.action,
+    minutes: step.minutes,
+    done: step.done,
+  };
 }

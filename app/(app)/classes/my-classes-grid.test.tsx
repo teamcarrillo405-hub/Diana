@@ -18,6 +18,7 @@ vi.mock("next/navigation", () => ({
 const CARD: SubjectLibraryCardModel = {
   id: "physics",
   name: "AP Physics",
+  teacher: "Dr. Rivera",
   href: "/classes/physics",
   progressPct: 88,
   openWorkCount: 1,
@@ -65,11 +66,13 @@ describe("ScreenDesign class library states", () => {
     expect(screen.getByRole("heading", { name: CARD.name })).toBeInTheDocument();
     expect(screen.getByText("88% complete")).toBeInTheDocument();
     expect(screen.getByText("1 open move")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open class" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: `Open ${CARD.name} class` })[0]).toHaveAttribute(
       "href",
       CARD.href,
     );
-    expect(screen.getByText("Real class form")).toBeInTheDocument();
+    expect(
+      document.querySelector('.sd-subject-card-actions a[href="/notes"]'),
+    ).toHaveAttribute("href", "/notes");
     expect(document.querySelector(".ds-class-card")).not.toBeInTheDocument();
   });
 });

@@ -15,7 +15,6 @@ const routes = [
   { path: "/dashboard", name: "dashboard", auth: true, selector: ".sd-today-layout" },
   { path: "/assignments", name: "assignments", auth: true, selector: ".diana-page" },
   { path: "/proof", name: "proof", auth: true, selector: ".diana-page" },
-  { path: "/future-path", name: "future-path", auth: true, selector: ".diana-page" },
   { path: "/me", name: "me", auth: true, selector: ".diana-page" },
   { path: "/voice", name: "voice", auth: true, selector: ".future-card, .diana-page" },
 ];

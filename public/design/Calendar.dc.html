@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
 <style>
   :root{
-    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-bg-base:#0b1428; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
     --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
     --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
     --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14);
@@ -31,72 +31,36 @@
   }
   html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
   ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+  /* Record pattern: cards carry the reading load, while the page shell stays calm. */
+  [style*="background:var(--gl-bg-card)"] { --gl-bg-card:#fff; --gl-border:#cbd5e1; --gl-border-neutral:#cbd5e1; --gl-text-primary:#0f172a; --gl-text-secondary:#334155; --gl-text-muted:#64748b; --gl-text-dim:#64748b; --gl-text-overlay-60:#64748b; background:#fff !important; color:#0f172a; box-shadow:0 6px 22px rgba(2,6,23,.1); }
+  [style*="border:1px dashed"] { --gl-border:#94a3b8; --gl-text-primary:#0f172a; --gl-text-secondary:#334155; --gl-text-muted:#64748b; --gl-text-dim:#64748b; --gl-text-overlay-60:#64748b; border-color:#94a3b8 !important; background:#fff !important; color:#0f172a; }
 </style>
 </helmet>
 
-<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)">
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(circle at 88% 6%,rgba(255,121,218,.11),transparent 30%),var(--gl-bg-base)">
 
   <!-- APP NAV -->
-  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
-    <div style="display:flex;gap:8px">
-      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
-      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
-      <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Today</a>
-      <a href="Work.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Work</a>
-      <a href="Classes.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
-      <a href="Calendar.dc.html" style="display:inline-block;text-decoration:none;position:relative;color:#fff;padding:18px 2px;cursor:pointer"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div>Calendar</a>
-      <a href="Messages.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
-    </div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
-      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
-      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
-      </div>
-      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
-        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
-          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
-            <div style="width:100%;height:100%;background-image:{{ avatarPhotoCss }};background-size:cover;background-position:{{ photoObjectPosition }}"></div>
-          </sc-if>
-        </sc-if>
-        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
-        </sc-if>
-        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
-        </sc-if>
-        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
-          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f">{{ initials }}</span>
-        </sc-if>
-      </a>
-      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      </a>
-    </div>
-  </div>
+  <dc-import name="Student Desktop Header" active="calendar" hint-size="1440px,58px"></dc-import>
 
-  <div style="max-width:1440px;margin:0 auto;padding:44px 34px 70px">
+  <div style="max-width:1180px;margin:0 auto;padding:40px 48px 72px">
 
-    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px">
+    <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px">
       <div>
-        <div style="font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:var(--gl-cyan);opacity:.85;margin-bottom:10px">{{ eyebrow }}</div>
         <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:56px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:#fff;text-wrap:balance">{{ headerLabel }}</h1>
       </div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div onClick="{{ openAdd }}" style="display:flex;align-items:center;gap:7px;padding:9px 18px;border-radius:9px;cursor:pointer;background:var(--gl-cyan);color:#04080f;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add
+        <div onClick="{{ openAdd }}" style="display:flex;align-items:center;gap:7px;padding:9px 16px;border-radius:8px;cursor:pointer;background:var(--gl-cyan);color:#04080f;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add event
         </div>
-        <div style="display:flex;border-radius:9px;overflow:hidden;border:1px solid var(--gl-cyan-25)">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
           <sc-for list="{{ viewTabs }}" as="t" hint-placeholder-count="3">
-            <div onClick="{{ t.onClick }}" style="padding:9px 16px;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</div>
+            <div onClick="{{ t.onClick }}" style="padding:9px 16px;border-radius:8px;border:1px solid {{ t.border }};cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;background:{{ t.bg }};color:{{ t.fg }}">{{ t.label }}</div>
           </sc-for>
         </div>
-        <div onClick="{{ goToday }}" style="padding:9px 14px;border-radius:9px;border:1px solid var(--gl-border);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-muted)">Today</div>
+        <div onClick="{{ goToday }}" style="padding:9px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#ffffff;cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.05em;text-transform:uppercase;color:#0f172a">Today</div>
         <div style="display:flex;gap:6px">
-          <div onClick="{{ goPrev }}" style="width:36px;height:36px;border-radius:9px;border:1px solid var(--gl-border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-text-muted)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
-          <div onClick="{{ goNext }}" style="width:36px;height:36px;border-radius:9px;border:1px solid var(--gl-border);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--gl-text-muted)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></div>
+          <div onClick="{{ goPrev }}" title="Previous period" style="width:36px;height:36px;border-radius:8px;border:1px solid #cbd5e1;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0f172a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+          <div onClick="{{ goNext }}" title="Next period" style="width:36px;height:36px;border-radius:8px;border:1px solid #cbd5e1;background:#ffffff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0f172a"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg></div>
         </div>
       </div>
     </header>
@@ -104,31 +68,29 @@
     <!-- legend -->
     <sc-if value="{{ showLegend }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;font-size:12.5px;color:var(--gl-text-overlay-60)">
-        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--gl-cyan)"></span>Classwork</span>
+        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--gl-cyan)"></span>Scheduled</span>
         <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:2px;background:var(--gl-gold)"></span>AP exam</span>
-        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--gl-green)"></span>Event</span>
-        <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--gl-purple-light)"></span>Task</span>
         <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--gl-pink)"></span>Reminder</span>
       </div>
     </sc-if>
 
     <!-- MONTH VIEW -->
     <sc-if value="{{ isMonth }}" hint-placeholder-val="{{ true }}">
-      <div style="border-radius:15px;border:1px solid var(--gl-border);background:var(--gl-bg-card);backdrop-filter:blur(10px);padding:16px;overflow:hidden">
+      <div style="border-radius:8px;border:1px solid #cbd5e1;background:#f4efe6;padding:16px;overflow:hidden">
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0;margin-bottom:6px">
           <sc-for list="{{ weekdays }}" as="w" hint-placeholder-count="7">
-            <div style="text-align:center;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim);padding:6px 0">{{ w }}</div>
+            <div style="text-align:center;font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#64748b;padding:6px 0">{{ w }}</div>
           </sc-for>
         </div>
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
           <sc-for list="{{ days }}" as="d" hint-placeholder-count="35">
-            <div style="position:relative;min-height:122px;border-radius:10px;padding:8px 8px 9px;border:1px solid {{ d.border }};background:{{ d.bg }};opacity:{{ d.opacity }};display:flex;flex-direction:column;min-width:0">
+            <div style="position:relative;min-height:122px;border-radius:6px;padding:8px 8px 9px;border:1px solid {{ d.border }};background:{{ d.bg }};opacity:{{ d.opacity }};display:flex;flex-direction:column;min-width:0">
               <span style="font-family:var(--font-display);font-weight:{{ d.todayWeight }};font-size:13px;color:{{ d.numColor }}">{{ d.num }}</span>
               <div style="display:flex;flex-direction:column;gap:3px;margin-top:6px;min-width:0">
                 <sc-for list="{{ d.chips }}" as="c" hint-placeholder-count="1">
                   <div style="display:flex;align-items:center;gap:6px;padding:3px 7px;border-radius:6px;background:{{ c.bg }};min-width:0">
                     <span style="width:6px;height:6px;border-radius:50%;background:{{ c.color }};flex-shrink:0"></span>
-                    <span style="font-size:12px;font-weight:600;color:var(--gl-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</span>
+                    <span style="font-size:12px;font-weight:600;color:#334155;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</span>
                   </div>
                 </sc-for>
                 <sc-if value="{{ d.hasMore }}" hint-placeholder-val="{{ false }}">
@@ -143,19 +105,19 @@
 
     <!-- WEEK VIEW -->
     <sc-if value="{{ isWeek }}" hint-placeholder-val="{{ false }}">
-      <div style="border-radius:15px;border:1px solid var(--gl-border);background:var(--gl-bg-card);backdrop-filter:blur(10px);padding:16px">
+      <div style="border-radius:8px;border:1px solid #cbd5e1;background:#f4efe6;padding:16px">
         <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:stretch">
           <sc-for list="{{ weekCols }}" as="wc" hint-placeholder-count="7">
             <div style="min-width:0;display:flex;flex-direction:column">
-              <div onClick="{{ wc.onOpen }}" style="cursor:pointer;text-align:center;padding:8px 4px 10px;border-radius:9px;border:1px solid {{ wc.border }};background:{{ wc.bg }};margin-bottom:8px">
-                <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim)">{{ wc.weekday }}</div>
+              <div onClick="{{ wc.onOpen }}" style="cursor:pointer;text-align:center;padding:8px 4px 10px;border-radius:6px;border:1px solid {{ wc.border }};background:{{ wc.bg }};margin-bottom:8px">
+                <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#64748b">{{ wc.weekday }}</div>
                 <div style="font-family:var(--font-display);font-weight:800;font-size:20px;color:{{ wc.numColor }}">{{ wc.num }}</div>
               </div>
               <div style="display:flex;flex-direction:column;gap:6px;min-height:220px">
                 <sc-for list="{{ wc.cards }}" as="c" hint-placeholder-count="1">
-                  <div style="border-radius:9px;border:1px solid var(--gl-border);border-left:3px solid {{ c.color }};background:rgba(255,255,255,.025);padding:8px 9px;min-width:0">
-                    <div style="font-size:10.5px;font-weight:600;color:var(--gl-text-dim)">{{ c.when }}</div>
-                    <div style="font-size:13px;font-weight:700;color:#fff;margin-top:1px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ c.title }}</div>
+                  <div style="border-radius:6px;border:1px solid #e2e8f0;border-left:3px solid {{ c.color }};background:#ffffff;padding:8px 9px;min-width:0">
+                    <div style="font-size:10.5px;font-weight:600;color:#64748b">{{ c.when }}</div>
+                    <div style="font-size:13px;font-weight:700;color:#0f172a;margin-top:1px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">{{ c.title }}</div>
                     <div style="font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:{{ c.color }};margin-top:3px">{{ c.tag }}</div>
                   </div>
                 </sc-for>
@@ -172,10 +134,10 @@
         <sc-if value="{{ dayHasItems }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;flex-direction:column;gap:10px">
             <sc-for list="{{ dayCards }}" as="c" hint-placeholder-count="3">
-              <div style="display:flex;align-items:center;gap:14px;border-radius:12px;border:1px solid var(--gl-border);border-left:3px solid {{ c.color }};background:var(--gl-bg-card);padding:14px 16px">
-                <div style="width:72px;flex-shrink:0;font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--gl-text-muted)">{{ c.when }}</div>
+              <div style="display:flex;align-items:center;gap:14px;border-radius:8px;border:1px solid #cbd5e1;border-left:3px solid {{ c.color }};background:#ffffff;padding:14px 16px">
+                <div style="width:72px;flex-shrink:0;font-family:var(--font-display);font-weight:700;font-size:13px;color:#64748b">{{ c.when }}</div>
                 <div style="flex:1;min-width:0">
-                  <div style="font-size:15.5px;font-weight:700;color:#fff">{{ c.title }}</div>
+                  <div style="font-size:15.5px;font-weight:700;color:#0f172a">{{ c.title }}</div>
                   <div style="font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:{{ c.color }};margin-top:2px">{{ c.tag }}</div>
                 </div>
                 <sc-if value="{{ c.personal }}" hint-placeholder-val="{{ false }}">
@@ -188,7 +150,7 @@
           </div>
         </sc-if>
         <sc-if value="{{ dayIsEmpty }}" hint-placeholder-val="{{ false }}">
-          <div style="border-radius:12px;border:1px dashed var(--gl-border);padding:34px;text-align:center;color:var(--gl-text-overlay-60);font-size:14px">Nothing scheduled. Tap Add to put something here.</div>
+          <div style="border-radius:8px;border:1px dashed var(--gl-border);padding:34px;text-align:center;color:var(--gl-text-overlay-60);font-size:14px">Nothing scheduled. Add an event when you need one.</div>
         </sc-if>
       </div>
     </sc-if>
@@ -261,8 +223,8 @@ class Component extends DCLogic {
     return {
       class: { color: 'var(--gl-cyan)', tag: 'Class' },
       ap: { color: 'var(--gl-gold)', tag: 'AP exam' },
-      event: { color: 'var(--gl-green)', tag: 'Event' },
-      task: { color: 'var(--gl-purple-light)', tag: 'Task' },
+      event: { color: 'var(--gl-cyan)', tag: 'Event' },
+      task: { color: 'var(--gl-cyan)', tag: 'Task' },
       reminder: { color: 'var(--gl-pink)', tag: 'Reminder' },
     };
   }
@@ -377,19 +339,19 @@ class Component extends DCLogic {
     for (let n = 1; n <= daysInMonth; n++) {
       const items = this.itemsFor(st.y, st.m, n);
       const tod = isToday(st.y, st.m, n);
-      const chips = items.slice(0, 3).map((it) => ({
+      const chips = items.slice(0, 2).map((it) => ({
         color: meta[it.type].color,
-        bg: it.type === 'ap' ? 'var(--gl-gold-14)' : 'rgba(255,255,255,.035)',
+        bg: it.type === 'ap' ? '#fff7df' : '#f8fafc',
         title: it.title,
       }));
       days.push({
         num: n, chips,
-        hasMore: items.length > 3, moreCount: items.length - 3,
+        hasMore: items.length > 2, moreCount: items.length - 2,
         onMore: () => this.setState({ view: 'day', d: n }),
-        border: tod ? 'var(--gl-gold-30)' : 'var(--gl-border)',
-        bg: tod ? 'var(--gl-gold-14)' : 'rgba(255,255,255,.015)',
+        border: tod ? 'rgba(242,95,176,.65)' : '#e2e8f0',
+        bg: tod ? '#fff1fa' : '#f8fafc',
         opacity: 1,
-        numColor: tod ? 'var(--gl-gold)' : 'var(--gl-text-secondary)',
+        numColor: tod ? '#be185d' : '#0f172a',
         todayWeight: tod ? 800 : 600,
       });
     }
@@ -407,9 +369,9 @@ class Component extends DCLogic {
       weekCols.push({
         weekday: ['SUN','MON','TUE','WED','THU','FRI','SAT'][i],
         num: wd,
-        border: tod ? 'var(--gl-gold-30)' : 'var(--gl-border)',
-        bg: tod ? 'var(--gl-gold-14)' : 'rgba(255,255,255,.015)',
-        numColor: tod ? 'var(--gl-gold)' : '#fff',
+        border: tod ? 'rgba(242,95,176,.65)' : '#e2e8f0',
+        bg: tod ? '#fff1fa' : '#f8fafc',
+        numColor: tod ? '#be185d' : '#0f172a',
         onOpen: () => this.setState({ view: 'day', y: wy, m: wm, d: wd }),
         cards: items.map((it) => ({
           when: it.time || 'All day',
@@ -432,22 +394,21 @@ class Component extends DCLogic {
     }));
 
     // ----- header -----
-    let eyebrow = 'Your schedule', headerLabel = monthNames[st.m] + ' ' + st.y;
+    let headerLabel = monthNames[st.m] + ' ' + st.y;
     if (isWeek) {
       const wEnd = new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() + 6);
-      eyebrow = 'Week of ' + weekStart.getFullYear();
       headerLabel = shortMonths[weekStart.getMonth()] + ' ' + weekStart.getDate() + ' – ' +
         (wEnd.getMonth() === weekStart.getMonth() ? '' : shortMonths[wEnd.getMonth()] + ' ') + wEnd.getDate();
     } else if (isDay) {
-      eyebrow = weekdayNames[anchor.getDay()];
       headerLabel = monthNames[st.m] + ' ' + st.d;
     }
 
     // ----- view tabs / modal -----
     const viewTabs = ['month', 'week', 'day'].map((v) => ({
       label: v.charAt(0).toUpperCase() + v.slice(1),
-      bg: view === v ? 'var(--gl-cyan)' : 'transparent',
-      fg: view === v ? '#04080f' : 'var(--gl-text-secondary)',
+      bg: view === v ? 'var(--gl-cyan)' : '#ffffff',
+      fg: '#04080f',
+      border: view === v ? 'var(--gl-cyan)' : '#cbd5e1',
       onClick: () => this.setView(v),
     }));
     const typeOptions = ['event', 'task', 'reminder'].map((v) => {
@@ -463,7 +424,7 @@ class Component extends DCLogic {
     const placeholders = { event: 'e.g. Soccer practice', task: 'e.g. Return library book', reminder: 'e.g. Bring PE uniform' };
 
     return {
-      eyebrow, headerLabel,
+      headerLabel,
       isMonth, isWeek, isDay,
       showLegend: this.props.showLegend ?? true,
       weekdays: ['SUN','MON','TUE','WED','THU','FRI','SAT'],

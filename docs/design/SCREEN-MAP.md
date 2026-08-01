@@ -1,10 +1,10 @@
 # ScreenDesign production map
 
-This map is the human-readable mirror of `SCREEN_DESIGN_SCREENS` in `lib/screendesign/screens.ts`. Its 47 rows are ordered identically to the registry and use the same stable id, canonical source, route/state owner, and primary action contract.
+This map is the human-readable mirror of `SCREEN_DESIGN_SCREENS` in `lib/screendesign/screens.ts`. Its 46 rows are ordered identically to the registry and use the same stable id, canonical source, route/state owner, and primary action contract.
 
 ## Source precedence
 
-The canonical set is exactly 47 states: 46 non-dashboard HTML files from `C:\Users\glcar\Downloads\ai-tutor-app-html-2026-07-14-15-18`, plus `C:\Users\glcar\Downloads\dashboard_personalized (1).html` as source 6. The export folder's conflicting `dashboard_personalized.html` is excluded. It must never own `/dashboard` or be counted as an additional screen.
+The canonical set is exactly 46 states: 45 non-dashboard HTML files from `C:\Users\glcar\Downloads\ai-tutor-app-html-2026-07-14-15-18`, plus `C:\Users\glcar\Downloads\dashboard_personalized (1).html` as source 6. The retired `inbox_triage.html` export and the export folder's conflicting `dashboard_personalized.html` are excluded. Neither may own a canonical ScreenDesign state or be counted as an additional screen.
 
 Every source targets a 393 by 852 mobile viewport. The exports are untrusted design inputs: production code may read their metadata, but must not import, execute, inject, or remotely host their HTML.
 
@@ -20,43 +20,42 @@ Every source targets a 393 by 852 mobile viewport. The exports are untrusted des
 | 8 | `flashcards-review` | `flashcards_review.html` | `/flashcards/[id]/review` | Persist an FSRS rating and advance through due `flashcards`. |
 | 9 | `focus-session-immersive` | `focus_session_immersive.html` | `/timer` | Start the existing timer state machine and `assignment_time_log` session. |
 | 10 | `global-leaderboard` | `global_leaderboard.html` | `/study-groups`, `view=community` | Open membership-scoped activity inside an opted-in study group. |
-| 11 | `inbox-triage` | `inbox_triage.html` | `/inbox` | Classify or confirm a real `inbox_items` record. |
-| 12 | `knowledge-graph` | `knowledge_graph.html` | `/knowledge-graph` | Navigate from a real `mastery_concepts` node to concept detail. |
-| 13 | `library-empty-state` | `library_empty_state.html` | `/classes`, `empty` | Open the supported class creation flow only when the classes result is empty. |
-| 14 | `lms-sync-center` | `lms_sync_center.html` | `/settings`, `connections` | Begin a supported `lms_connections` provider flow or real sync action. |
-| 15 | `mastery-tracker` | `mastery_tracker.html` | `/grades` | Open class or concept detail derived from mastery and Canvas grade reads. |
-| 16 | `mastery-transcript-view` | `mastery_transcript_view.html` | `/grades/transcript` | Use the supported owner-scoped transcript export or share flow. |
-| 17 | `milestone-celebration` | `milestone_celebration.html` | `/proof`, `celebrate=latest` | Dismiss the real latest-proof celebration and return to the proof gallery. |
-| 18 | `mission-board` | `mission_board.html` | `/assignments` | Open an owner-scoped ranked assignment and retain lifecycle actions. |
-| 19 | `notes-surface` | `notes_surface.html` | `/notes/[id]` | Persist the owner-scoped note and connect its tags, flashcards, and artifacts. |
-| 20 | `notification-center` | `notification_center.html` | `/notifications` | Mark a real due-work or LMS event read and follow its supported deep link. |
-| 21 | `onboarding-welcome` | `onboarding_welcome.html` | `/onboarding`, `welcome` | Advance the authenticated profile gate to the educational state. |
-| 22 | `onboarding-educational` | `onboarding_educational.html` | `/onboarding`, `education` | Continue to challenge selection without prematurely completing onboarding. |
-| 23 | `onboarding-quiz-challenge` | `onboarding_quiz_challenge.html` | `/onboarding`, `challenge=1/4` | Validate and persist the dedicated `profiles.learning_hurdle` selection. |
-| 24 | `onboarding-quiz-schedule` | `onboarding_quiz_schedule.html` | `/onboarding`, `schedule=2/4` | Validate and persist `profiles.study_schedule_preference`, then complete the locked flow. |
-| 25 | `paywall-social-proof` | `paywall_social_proof.html` | `/upgrade`, `view=community` | Open checkout only when a real server-resolved billing capability exists. |
-| 26 | `paywall-standard` | `paywall_standard.html` | `/upgrade`, `standard` | Open checkout only when a real server-resolved billing capability exists. |
-| 27 | `portfolio-gallery` | `portfolio_gallery.html` | `/portfolio` | Open a real owner-scoped `portfolio_items` artifact or share action. |
-| 28 | `practice-test-session` | `practice_test_session.html` | `/study-artifacts/[id]`, `practice` | Persist a practice response without inventing an unsupported score. |
-| 29 | `privacy-export-hub` | `privacy_export_hub.html` | `/export` | Run an owner-scoped export or `data_deletion_requests` action. |
-| 30 | `progress-insights` | `progress_insights.html` | `/insights` | Explain a trend derived from assignments, time logs, or analytics events. |
-| 31 | `quick-add` | `quick_add.html` | `/quick-add` | Validate and insert a real `inbox_items` capture. |
-| 32 | `review-submit-checkpoint` | `review_submit_checkpoint.html` | `/assignments/[id]/submit` | Require student confirmation before the explicit `done` to `submitted` transition. |
-| 33 | `rubric-scout` | `rubric_scout.html` | `/classes/[id]`, `rubric` | Open the owning class or assignment from its real rubric data. |
-| 34 | `scout-share-view` | `scout_share_view.html` | `/share/[token]`, `report` | Open only report fields authorized by the exact, unexpired, unrevoked share token. |
-| 35 | `settings-profile-center` | `settings_profile_center.html` | `/settings`, `profile`; also `/me` | Validate and persist owner-scoped profile, accessibility, privacy, and personalization values. |
-| 36 | `smart-loading` | `smart_loading.html` | `/(app)`, shared `loading.tsx` | Resolve from the owning route's real request without a fabricated delay. |
-| 37 | `smart-search` | `smart_search.html` | `/search` | Query RLS-scoped notes, assignments, classes, and concepts and route every result. |
-| 38 | `study-artifacts-hub` | `study_artifacts_hub.html` | `/study-artifacts` | Use the existing AI-policy-gated artifact generation and authorship action. |
-| 39 | `study-calendar` | `study_calendar.html` | `/calendar` | Open a real assignment from its accommodation-aware calendar item. |
-| 40 | `study-goal-wizard` | `study_goal_wizard.html` | `/settings/goals` | Validate and persist a student-owned study goal before showing success. |
-| 41 | `study-room-social` | `study_room_social.html` | `/study-groups`, `room` | Join or open an invite-only membership-scoped group and its shared resources. |
-| 42 | `subject-library` | `subject_library.html` | `/classes`, `populated` | Open an owner-scoped class with its real work and study progress. |
-| 43 | `task-breakdown-modal` | `task_breakdown_modal.html` | `/break-down`, assignment overlay | Generate under the effective AI policy and persist accepted `assignment_steps`. |
-| 44 | `tutor-chat` | `tutor_chat.html` | `/study-buddy` | Send through the authenticated backend with AI policy and authorship logging. |
-| 45 | `tutor-gallery` | `tutor_gallery.html` | `/settings/tutor`, `gallery` | Persist a supported tutor persona on the student profile. |
-| 46 | `tutor-personalization` | `tutor_personalization.html` | `/settings/tutor`, `personalization` | Persist supported tutor style and complexity preferences. |
-| 47 | `wellness-recovery-log` | `wellness_recovery_log.html` | `/wellness` | Validate and persist private owner-scoped wellness, goal, or sleep state. |
+| 11 | `knowledge-graph` | `knowledge_graph.html` | `/knowledge-graph` | Navigate from a real `mastery_concepts` node to concept detail. |
+| 12 | `library-empty-state` | `library_empty_state.html` | `/classes`, `empty` | Open the supported class creation flow only when the classes result is empty. |
+| 13 | `lms-sync-center` | `lms_sync_center.html` | `/settings`, `connections` | Begin a supported `lms_connections` provider flow or real sync action. |
+| 14 | `mastery-tracker` | `mastery_tracker.html` | `/grades` | Open class or concept detail derived from mastery and Canvas grade reads. |
+| 15 | `mastery-transcript-view` | `mastery_transcript_view.html` | `/grades/transcript` | Use the supported owner-scoped transcript export or share flow. |
+| 16 | `milestone-celebration` | `milestone_celebration.html` | `/proof`, `celebrate=latest` | Dismiss the real latest-proof celebration and return to the proof gallery. |
+| 17 | `mission-board` | `mission_board.html` | `/assignments` | Open an owner-scoped ranked assignment and retain lifecycle actions. |
+| 18 | `notes-surface` | `notes_surface.html` | `/notes/[id]` | Persist the owner-scoped note and connect its tags, flashcards, and artifacts. |
+| 19 | `notification-center` | `notification_center.html` | `/notifications` | Mark a real due-work or LMS event read and follow its supported deep link. |
+| 20 | `onboarding-welcome` | `onboarding_welcome.html` | `/onboarding`, `welcome` | Advance the authenticated profile gate to the educational state. |
+| 21 | `onboarding-educational` | `onboarding_educational.html` | `/onboarding`, `education` | Continue to challenge selection without prematurely completing onboarding. |
+| 22 | `onboarding-quiz-challenge` | `onboarding_quiz_challenge.html` | `/onboarding`, `challenge=1/4` | Validate and persist the dedicated `profiles.learning_hurdle` selection. |
+| 23 | `onboarding-quiz-schedule` | `onboarding_quiz_schedule.html` | `/onboarding`, `schedule=2/4` | Validate and persist `profiles.study_schedule_preference`, then complete the locked flow. |
+| 24 | `paywall-social-proof` | `paywall_social_proof.html` | `/upgrade`, `view=community` | Open checkout only when a real server-resolved billing capability exists. |
+| 25 | `paywall-standard` | `paywall_standard.html` | `/upgrade`, `standard` | Open checkout only when a real server-resolved billing capability exists. |
+| 26 | `portfolio-gallery` | `portfolio_gallery.html` | `/portfolio` | Open a real owner-scoped `portfolio_items` artifact or share action. |
+| 27 | `practice-test-session` | `practice_test_session.html` | `/study-artifacts/[id]`, `practice` | Persist a practice response without inventing an unsupported score. |
+| 28 | `privacy-export-hub` | `privacy_export_hub.html` | `/export` | Run an owner-scoped export or `data_deletion_requests` action. |
+| 29 | `progress-insights` | `progress_insights.html` | `/insights` | Explain a trend derived from assignments, time logs, or analytics events. |
+| 30 | `quick-add` | `quick_add.html` | `/quick-add` | Validate and insert a real `inbox_items` capture. |
+| 31 | `review-submit-checkpoint` | `review_submit_checkpoint.html` | `/assignments/[id]/submit` | Require student confirmation before the explicit `done` to `submitted` transition. |
+| 32 | `rubric-scout` | `rubric_scout.html` | `/classes/[id]`, `rubric` | Open the owning class or assignment from its real rubric data. |
+| 33 | `scout-share-view` | `scout_share_view.html` | `/share/[token]`, `report` | Open only report fields authorized by the exact, unexpired, unrevoked share token. |
+| 34 | `settings-profile-center` | `settings_profile_center.html` | `/settings`, `profile`; also `/me` | Validate and persist owner-scoped profile, accessibility, privacy, and personalization values. |
+| 35 | `smart-loading` | `smart_loading.html` | `/(app)`, shared `loading.tsx` | Resolve from the owning route's real request without a fabricated delay. |
+| 36 | `smart-search` | `smart_search.html` | `/search` | Query RLS-scoped notes, assignments, classes, and concepts and route every result. |
+| 37 | `study-artifacts-hub` | `study_artifacts_hub.html` | `/study-artifacts` | Use the existing AI-policy-gated artifact generation and authorship action. |
+| 38 | `study-calendar` | `study_calendar.html` | `/calendar` | Open a real assignment from its accommodation-aware calendar item. |
+| 39 | `study-goal-wizard` | `study_goal_wizard.html` | `/settings/goals` | Validate and persist a student-owned study goal before showing success. |
+| 40 | `study-room-social` | `study_room_social.html` | `/study-groups`, `room` | Join or open an invite-only membership-scoped group and its shared resources. |
+| 41 | `subject-library` | `subject_library.html` | `/classes`, `populated` | Open an owner-scoped class with its real work and study progress. |
+| 42 | `task-breakdown-modal` | `task_breakdown_modal.html` | `/break-down`, assignment overlay | Generate under the effective AI policy and persist accepted `assignment_steps`. |
+| 43 | `tutor-chat` | `tutor_chat.html` | `/study-buddy` | Send through the authenticated backend with AI policy and authorship logging. |
+| 44 | `tutor-gallery` | `tutor_gallery.html` | `/settings/tutor`, `gallery` | Persist a supported tutor persona on the student profile. |
+| 45 | `tutor-personalization` | `tutor_personalization.html` | `/settings/tutor`, `personalization` | Persist supported tutor style and complexity preferences. |
+| 46 | `wellness-recovery-log` | `wellness_recovery_log.html` | `/wellness` | Validate and persist private owner-scoped wellness, goal, or sleep state. |
 
 ## Security substitutions
 

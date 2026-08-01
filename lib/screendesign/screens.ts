@@ -187,19 +187,6 @@ export const SCREEN_DESIGN_SCREENS: readonly ScreenDesignScreen[] =
         "Opt-in group activity replaces a public global ranking of minors.",
     }),
     defineScreen({
-      id: "inbox-triage",
-      source: exportSource("inbox_triage.html"),
-      route: "/inbox",
-      stateSelector: null,
-      primaryAction: {
-        label: "Triage inbox item",
-        kind: "mutate",
-        contract: "Classify or confirm the selected inbox_items record.",
-      },
-      authClass: "authenticated",
-      dataOwner: "inbox_items and classify-inbox",
-    }),
-    defineScreen({
       id: "knowledge-graph",
       source: exportSource("knowledge_graph.html"),
       route: "/knowledge-graph",
@@ -272,7 +259,7 @@ export const SCREEN_DESIGN_SCREENS: readonly ScreenDesignScreen[] =
       primaryAction: {
         label: "Continue",
         kind: "navigate",
-        contract: "Dismiss the celebration and return to the real proof gallery.",
+        contract: "Dismiss the celebration and return to the real record.",
       },
       authClass: "authenticated",
       dataOwner: "completed work and authorship evidence",

@@ -39,7 +39,7 @@ describe("AssignmentCockpit", () => {
     mocks.toggleStepDone.mockResolvedValue({ ok: true });
   });
 
-  it("starts the real assignment lifecycle from the source timer control", async () => {
+  it("starts the assignment lifecycle before opening its workspace", async () => {
     render(
       <AssignmentCockpit
         assignmentId={assignmentId}
@@ -50,6 +50,7 @@ describe("AssignmentCockpit", () => {
         briefText="Attach one quote and explain its meaning."
         status="todo"
         classAiMode="green"
+        hasApprovedPlan
         drills={[
           {
             id: "22222222-2222-4222-8222-222222222222",
@@ -63,8 +64,8 @@ describe("AssignmentCockpit", () => {
     );
 
     expect(screen.getByText("COCKPIT: ENGLISH 9")).toBeTruthy();
-    expect(screen.getByText("25:00")).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: "Start assignment" }));
+    expect(screen.getByRole("button", { name: "Open workspace" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Open workspace" }));
 
     await waitFor(() => {
       expect(mocks.transitionAssignment).toHaveBeenCalledWith({
@@ -73,8 +74,32 @@ describe("AssignmentCockpit", () => {
         to: "drafting",
       });
       expect(mocks.push).toHaveBeenCalledWith(
-        `/timer?assignment=${assignmentId}`,
+        `/assignments/${assignmentId}/workspace`,
       );
+    });
+  });
+
+  it("opens an unplanned assignment directly in its workspace", async () => {
+    render(
+      <AssignmentCockpit
+        assignmentId={assignmentId}
+        title="Identity quote response"
+        courseLabel="English 9"
+        dueLine="Due tomorrow"
+        estimate="35 min"
+        briefText="Attach one quote and explain its meaning."
+        status="todo"
+        classAiMode="green"
+        hasApprovedPlan={false}
+        drills={[]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open workspace" }));
+
+    await waitFor(() => {
+      expect(mocks.transitionAssignment).toHaveBeenCalledWith({ id: assignmentId, from: "todo", to: "drafting" });
+      expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}/workspace`);
     });
   });
 
@@ -90,6 +115,7 @@ describe("AssignmentCockpit", () => {
         briefText="Attach one quote."
         status="drafting"
         classAiMode="red"
+        hasApprovedPlan
         drills={[
           {
             id: "22222222-2222-4222-8222-222222222222",

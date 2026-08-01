@@ -19,17 +19,26 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Dependency vulnerability audit
+        run: npm audit --audit-level=high
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Unit tests
         run: npm run test:run
+
+      - name: Worker deployment contract
+        run: npm run worker:deployment-check
+
+      - name: Recovery safety contract
+        run: npm run recovery:test
 
       - name: Tone audit (calm invariant)
         run: npm run tone-audit
@@ -39,3 +48,85 @@ jobs:
 
       - name: Production build
         run: npm run build
+
+  database-release-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ca-certificates curl
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl --fail --silent --show-error \
+            -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          . /etc/os-release
+          printf '%s\n' \
+            'Types: deb' \
+            'URIs: https://apt.postgresql.org/pub/repos/apt' \
+            "Suites: ${VERSION_CODENAME}-pgdg" \
+            'Components: main' \
+            'Signed-By: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc' |
+            sudo tee /etc/apt/sources.list.d/pgdg.sources > /dev/null
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client-17
+          psql --version | grep -E 'PostgreSQL\) 17\.'
+
+      - name: Prepare disposable Supabase baseline
+        shell: pwsh
+        run: |
+          $workdir = Join-Path $env:RUNNER_TEMP "diana-database-release-contract"
+          $migrationTarget = 20260731135000L
+          $migrationDirectory = Join-Path $workdir "supabase/migrations"
+          New-Item -ItemType Directory -Path $migrationDirectory -Force | Out-Null
+          @'
+          project_id = "diana-database-release-contract"
+
+          [db]
+          major_version = 17
+          '@ | Set-Content -LiteralPath (Join-Path $workdir "supabase/config.toml") -Encoding ascii
+          Get-ChildItem -LiteralPath "supabase/migrations" -Filter "*.sql" -File |
+            Where-Object {
+              [long](($_.BaseName -split "_", 2)[0]) -le $migrationTarget
+            } |
+            Copy-Item -Destination $migrationDirectory
+          "DATABASE_CONTRACT_WORKDIR=$workdir" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Run executable database release contract
+        shell: pwsh
+        run: |
+          & npx --yes supabase@2.111.0 start --workdir $env:DATABASE_CONTRACT_WORKDIR `
+            -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor
+          if ($LASTEXITCODE -ne 0) {
+            throw "Disposable Supabase baseline did not start."
+          }
+          try {
+            $status = (& npx --yes supabase@2.111.0 status `
+              --workdir $env:DATABASE_CONTRACT_WORKDIR -o env) -join "`n"
+            if ($LASTEXITCODE -ne 0) {
+              throw "Could not read disposable Supabase status."
+            }
+            $databaseUrlMatch = [Regex]::Match(
+              $status,
+              '(?m)^DB_URL="?([^"\r\n]+)"?$'
+            )
+            if (-not $databaseUrlMatch.Success) {
+              throw "Supabase status did not return DB_URL."
+            }
+            & ./supabase/tests/scripts/database-release-blockers.ps1 `
+              -DatabaseUrl $databaseUrlMatch.Groups[1].Value
+            if ($LASTEXITCODE -ne 0) {
+              throw "Database release contract did not pass."
+            }
+          }
+          finally {
+            & npx --yes supabase@2.111.0 stop `
+              --workdir $env:DATABASE_CONTRACT_WORKDIR --no-backup
+          }

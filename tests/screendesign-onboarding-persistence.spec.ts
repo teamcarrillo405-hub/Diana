@@ -142,6 +142,8 @@ test("persists valid onboarding answers for only the authenticated owner", async
         data: {
           learningHurdle: "time_management",
           studySchedulePreference: "after_practice",
+          sleepGoal: 8,
+          movementGoal: 4,
         },
       },
     );

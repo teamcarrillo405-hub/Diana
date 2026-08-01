@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { Eye, EyeOff, Pause, Play, Plus, RotateCcw } from "lucide-react";
+import Link from "next/link";
 
 import { adaptiveBreakMinutes, type SessionMood } from "@/lib/executive/session";
 import type { TimerStatus } from "@/lib/timer/timer";
@@ -190,7 +191,7 @@ export function TimerUi({
         <p className="sd-focus-status" role="status">{message}</p>
       </main>
 
-      <button className="sd-focus-quick-add" type="button" aria-label="Quick capture"><Plus aria-hidden="true" /></button>
+      <Link className="sd-focus-quick-add" href="/quick-add" aria-label="Quick capture"><Plus aria-hidden="true" /></Link>
       <footer className="sd-focus-footer">
         {isIdleOrDone ? (
           <button type="button" className="sd-focus-primary" onClick={beginRitual} disabled={!assignment || pending}>

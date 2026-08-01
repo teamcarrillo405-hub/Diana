@@ -15,11 +15,11 @@ import { SCREEN_DESIGN_SCREENS } from "@/lib/screendesign/screens";
 const root = process.cwd();
 
 describe("ScreenDesign canonical route and state coverage", () => {
-  it("resolves every one of the 47 canonical states to a real App Router owner", () => {
-    expect(SCREEN_DESIGN_SCREENS).toHaveLength(47);
+  it("resolves every one of the 46 canonical states to a real App Router owner", () => {
+    expect(SCREEN_DESIGN_SCREENS).toHaveLength(46);
 
     const stateKeys = SCREEN_DESIGN_SCREENS.map(screenDesignStateKey);
-    expect(new Set(stateKeys).size).toBe(47);
+    expect(new Set(stateKeys).size).toBe(46);
 
     for (const screen of SCREEN_DESIGN_SCREENS) {
       const ownerFile = getScreenDesignRouteOwnerFile(screen);
@@ -39,7 +39,7 @@ describe("ScreenDesign canonical route and state coverage", () => {
       { label: "Work", href: "/assignments" },
       { label: "Classes", href: "/classes" },
       { label: "Calendar", href: "/calendar" },
-      { label: "More", href: "/settings" },
+      { label: "More", href: "/more" },
     ]);
 
     const authenticated = SCREEN_DESIGN_SCREENS.filter(
@@ -79,7 +79,7 @@ describe("ScreenDesign canonical route and state coverage", () => {
       (scenario) => scenario.isDefault,
     );
 
-    expect(defaultScenarios).toHaveLength(47);
+    expect(defaultScenarios).toHaveLength(46);
 
     for (const screen of SCREEN_DESIGN_SCREENS) {
       expect(

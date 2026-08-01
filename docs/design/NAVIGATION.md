@@ -78,7 +78,6 @@ Evidence and growth:
 - Grades: `/grades`
 - Transcript: `/grades/transcript`
 - Portfolio: `/portfolio`
-- Future Path: `/future-path`
 - AP exam prep: `/ap`
 
 Learn and review:

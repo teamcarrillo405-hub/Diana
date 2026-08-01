@@ -38,6 +38,8 @@ const SOURCE_EXTENSIONS = new Set([
 const COMPILED_EXTENSIONS = new Set([".css", ".html", ".js", ".json"]);
 
 const DELETED_PRESENTATION_FILES = [
+  "app/(app)/future-path/loading.tsx",
+  "app/(app)/future-path/page.tsx",
   "app/(app)/app-top-nav.tsx",
   "app/(app)/mobile-tab-bar.tsx",
   "app/(app)/more-menu.tsx",
@@ -46,10 +48,15 @@ const DELETED_PRESENTATION_FILES = [
   "app/(app)/dashboard/today-game-plan.tsx",
   "app/(app)/quiet-command.module.css",
   "components/landing/quiet-command-landing.tsx",
+  "components/student-portal/future-map-visual.tsx",
+  "lib/future-path/derive.test.ts",
+  "lib/future-path/derive.ts",
   "pages/_app.tsx",
   "pages/_document.tsx",
   "pages/index.tsx",
   "styles/quiet-command.css",
+  "public/design/Future Phone.dc.html",
+  "public/design/Future.dc.html",
 ] as const;
 
 const RULES: readonly RemovalRule[] = [
@@ -160,9 +167,9 @@ const importSpecifiers = (source: string): string[] => {
 
 const verifyCanonicalOwnerGraphs = (): string[] => {
   const errors: string[] = [];
-  if (SCREEN_DESIGN_SCREENS.length !== 47) {
+  if (SCREEN_DESIGN_SCREENS.length !== 46) {
     errors.push(
-      `Expected 47 canonical ScreenDesign states, found ${SCREEN_DESIGN_SCREENS.length}.`,
+      `Expected 46 canonical ScreenDesign states, found ${SCREEN_DESIGN_SCREENS.length}.`,
     );
   }
 
@@ -226,8 +233,8 @@ const verifyRuntimeAssets = (): string[] => {
     assetCount?: unknown;
     assets?: RuntimeManifestEntry[];
   };
-  if (manifest.assetCount !== 28 || manifest.assets?.length !== 28) {
-    errors.push("Runtime asset manifest does not contain the 28 canonical assets.");
+  if (manifest.assetCount !== 29 || manifest.assets?.length !== 29) {
+    errors.push("Runtime asset manifest does not contain the 29 canonical assets.");
     return errors;
   }
 
@@ -277,7 +284,7 @@ const runSourceAudit = (): number => {
   report(findings, errors);
   if (findings.length > 0 || errors.length > 0) return 1;
   console.log(
-    `ScreenDesign source removal audit passed: ${files.length} production files, 47 canonical states, 28 local assets.`,
+    `ScreenDesign source removal audit passed: ${files.length} production files, 46 canonical states, 29 local assets.`,
   );
   return 0;
 };

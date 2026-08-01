@@ -144,6 +144,8 @@ describe("ScreenDesignOnboarding", () => {
     render(<ScreenDesignOnboarding initialStep="schedule" />);
 
     fireEvent.click(screen.getByRole("radio", { name: /Morning Hustle/iu }));
+    fireEvent.change(screen.getByLabelText("Sleep goal"), { target: { value: "9" } });
+    fireEvent.change(screen.getByLabelText("Movement goal"), { target: { value: "5" } });
     fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
     fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
 
@@ -151,6 +153,8 @@ describe("ScreenDesignOnboarding", () => {
     expect(completeScreenDesignOnboarding).toHaveBeenCalledWith({
       learningHurdle: "exam_stress",
       studySchedulePreference: "morning",
+      sleepGoal: 9,
+      movementGoal: 5,
     });
     expect(push).toHaveBeenCalledWith("/dashboard");
     expect(refresh).not.toHaveBeenCalled();
@@ -167,7 +171,7 @@ describe("ScreenDesignOnboarding", () => {
     fireEvent.click(screen.getByRole("radio", { name: /Late Night Sessions/iu }));
     fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
 
-    expect(await screen.findByRole("status")).toHaveTextContent("other settings are still here");
+    expect(await screen.findByText(/other settings are still here/iu)).toBeInTheDocument();
     expect(screen.getByRole("radio", { name: /Late Night Sessions/iu })).toHaveAttribute(
       "aria-checked",
       "true",

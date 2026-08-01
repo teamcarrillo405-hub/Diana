@@ -2,7 +2,6 @@ export type ShareType = "parent_summary" | "teacher_snapshot";
 
 export type ShareLink = {
   id: string;
-  token: string;
   owner_id: string;
   share_type: ShareType;
   expires_at: string; // ISO timestamp

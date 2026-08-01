@@ -11,6 +11,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("./actions", () => ({
   deleteDataCategory: vi.fn(),
+  emailAiHistoryExport: vi.fn(),
   exportProfileBackup: vi.fn(),
   exportUserDataJson: vi.fn(),
   exportUserDataPdf: vi.fn(),
@@ -43,6 +44,7 @@ describe("PrivacyDashboard", () => {
     render(<PrivacyDashboard {...props} />);
 
     expect(screen.getByRole("button", { name: "Export my data" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Email my last 45 days of AI activity" })).toBeEnabled();
   });
 
   it("requires explicit confirmation before an account deletion request", () => {

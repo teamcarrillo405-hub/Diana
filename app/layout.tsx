@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { Barlow_Semi_Condensed, Lexend, Saira_Condensed } from "next/font/google";
 import "@fontsource/atkinson-hyperlegible-next/400.css";
 import "@fontsource/atkinson-hyperlegible-next/700.css";
@@ -36,7 +37,7 @@ const barlowSemiCondensed = Barlow_Semi_Condensed({
 
 export const metadata: Metadata = {
   title: "Diana",
-  description: "Student-owned school support for next moves, original thinking, and future planning.",
+  description: "Student-owned school support for next moves, original thinking, and clear planning.",
   applicationName: "Diana",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -55,11 +56,12 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="en"
@@ -68,6 +70,7 @@ export default function RootLayout({
     >
       <head>
         <script
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('diana_theme');var c=document.documentElement.classList;if(t==='dark'){c.add('dark');}else if(t==='light'){c.add('light');}}catch(e){}})();`,
           }}

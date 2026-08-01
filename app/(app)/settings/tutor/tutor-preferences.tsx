@@ -122,6 +122,7 @@ export function TutorPreferences({
               className="sd-tutor-icon-button"
               aria-label="About tutor presentation"
               title="Tutor selection changes presentation only."
+              onClick={() => setMessage("Tutor selection changes presentation and study style. It does not change the class material or AI safety rules.")}
             >
               <Info size={19} aria-hidden="true" />
             </button>

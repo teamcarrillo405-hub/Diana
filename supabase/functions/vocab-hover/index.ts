@@ -1,13 +1,15 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const VOCAB_PROMPT = `You are Diana's vocabulary scaffold for a high-school student.
 Return ONLY JSON:
@@ -28,7 +30,6 @@ Rules:
 
 const WORD_RE = /^[a-zA-Z][a-zA-Z'-]{0,31}$/;
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
 
@@ -39,7 +40,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("vocab-hover", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
@@ -90,7 +91,9 @@ Deno.serve(async (req: Request) => {
       interests.length > 0 ? `Student interests: ${interests.join(", ")}` : "",
     ].filter(Boolean).join("\n");
 
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMessage,
       maxTokens: 300,
@@ -116,10 +119,11 @@ Deno.serve(async (req: Request) => {
 
     return json(support);
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("vocab-hover error:", err);
     return json({ error: "internal" }, 500);
   }
-});
+}));
 
 function normalizeSupport(raw: string, word: string, context: string) {
   try {

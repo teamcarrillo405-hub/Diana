@@ -47,7 +47,7 @@ export async function markInboxItemClassified(
     .eq("owner_id", user.id)
     .eq("status", "unclassified");
 
-  revalidatePath("/inbox");
+  revalidatePath("/assignments");
   revalidatePath(`/inbox/${parsedId.data}`);
 }
 
@@ -111,7 +111,7 @@ export async function confirmInboxItem(
 
   if (updateError) return { ok: false, error: updateError.message };
 
-  revalidatePath("/inbox");
+  revalidatePath("/assignments");
   return { ok: true, assignmentId: assignmentResult.id! };
 }
 
@@ -132,7 +132,7 @@ export async function dismissInboxItem(
 
   if (error) return { ok: false, error: error.message };
 
-  revalidatePath("/inbox");
+  revalidatePath("/assignments");
   return { ok: true };
 }
 

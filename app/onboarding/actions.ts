@@ -21,7 +21,12 @@ const LINE_SPACING = z.enum(["compact","normal","loose"]);
 type ScreenDesignFieldErrors = Extract<
   ScreenDesignOnboardingResult,
   { ok: false }
->["fieldErrors"];
+>["fieldErrors"] & { wellnessGoals?: string };
+
+const ScreenDesignWellnessTargetsInput = z.object({
+  sleepGoal: z.number().min(4).max(10),
+  movementGoal: z.number().int().min(1).max(7),
+});
 
 export type CompleteScreenDesignOnboardingResult =
   | { ok: true }
@@ -85,6 +90,17 @@ export async function completeScreenDesignOnboarding(
     };
   }
 
+  const wellnessTargets = ScreenDesignWellnessTargetsInput.safeParse(input);
+  if (!wellnessTargets.success) {
+    return {
+      ok: false,
+      reason: "validation",
+      fieldErrors: {
+        wellnessGoals: "Choose a sleep and movement target that feels workable.",
+      },
+    };
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
@@ -92,6 +108,27 @@ export async function completeScreenDesignOnboarding(
       ok: false,
       reason: "auth",
       error: "Please sign in to finish setup.",
+    };
+  }
+
+  const { error: wellnessTargetsError } = await supabase
+    .from("wellness_weekly_targets")
+    .upsert(
+      {
+        owner_id: user.id,
+        sleep_hours: wellnessTargets.data.sleepGoal,
+        check_in_days: 5,
+        movement_days: wellnessTargets.data.movementGoal,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "owner_id" },
+    );
+
+  if (wellnessTargetsError) {
+    return {
+      ok: false,
+      reason: "persistence",
+      error: "Your wellness targets did not save yet. Your other choices are still here.",
     };
   }
 

@@ -17,7 +17,11 @@ export type LobbyNextMove = Readonly<{
   title: string;
 }>;
 
-export type LobbyAttentionKey = "tests" | "due_earlier" | "not_submitted";
+export type LobbyAttentionKey =
+  | "tests"
+  | "due_earlier"
+  | "not_submitted"
+  | "feedback";
 
 export type LobbyAttentionCard = Readonly<{
   key: LobbyAttentionKey;
@@ -25,13 +29,15 @@ export type LobbyAttentionCard = Readonly<{
   count: number;
   description: string;
   href: string;
-  tone: "purple" | "orange" | "yellow";
+  tone: "purple" | "orange" | "yellow" | "green";
 }>;
 
 export type LobbyDashboardView = Readonly<{
   studentName: string;
+  hasNextMove: boolean;
   nextMove: LobbyNextMove;
   attention: readonly [
+    LobbyAttentionCard,
     LobbyAttentionCard,
     LobbyAttentionCard,
     LobbyAttentionCard,
@@ -43,6 +49,7 @@ export type LobbyDashboardViewInput = Readonly<{
   rankedAssignments: readonly ScoredAssignment[];
   assignments: readonly Assignment[];
   reminders: readonly LobbyReminder[];
+  feedbackCount?: number;
   now: Date;
 }>;
 
@@ -78,8 +85,8 @@ function nextMoveFor(
   const next = rankedAssignments[0];
   if (!next) {
     return {
-      actionLabel: "View work",
-      ariaLabel: "Review your work",
+      actionLabel: "Caught up",
+      ariaLabel: "You are caught up",
       className: "Your assignments are clear",
       estimateLabel: "Choose a class or add work",
       href: "/assignments",
@@ -94,7 +101,7 @@ function nextMoveFor(
   );
 
   return {
-    actionLabel: `Start ${firstWord(className)}`,
+    actionLabel: firstWord(className),
     ariaLabel: "Start your next move",
     className,
     estimateLabel: `est. ${estimate} min`,
@@ -108,6 +115,7 @@ export function buildLobbyDashboardView({
   rankedAssignments,
   assignments,
   reminders,
+  feedbackCount = 0,
   now,
 }: LobbyDashboardViewInput): LobbyDashboardView {
   const nowMs = now.getTime();
@@ -131,6 +139,7 @@ export function buildLobbyDashboardView({
 
   return {
     studentName: firstName,
+    hasNextMove: rankedAssignments.length > 0,
     nextMove: nextMoveFor(rankedAssignments),
     attention: [
       {
@@ -171,6 +180,19 @@ export function buildLobbyDashboardView({
         ),
         href: assignmentHref(notSubmitted[0]?.id),
         tone: "yellow",
+      },
+      {
+        key: "feedback",
+        label: "Feedback",
+        count: feedbackCount,
+        description: countLabel(
+          feedbackCount,
+          "new note from a teacher",
+          "new notes from teachers",
+          "No new teacher feedback",
+        ),
+        href: "/notifications",
+        tone: "green",
       },
     ],
   };

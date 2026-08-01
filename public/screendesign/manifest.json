@@ -1,8 +1,9 @@
 {
   "schemaVersion": 1,
-  "assetCount": 28,
+  "assetCount": 29,
   "screenDesignAssetCount": 24,
   "avatarAssetCount": 4,
+  "derivedAssetCount": 1,
   "assets": [
     {
       "id": "diana-logo",
@@ -24,7 +25,6 @@
         "external-scout-view",
         "focus-session-immersive",
         "global-leaderboard",
-        "inbox-triage",
         "knowledge-graph",
         "library-empty-state",
         "mastery-tracker",
@@ -56,6 +56,24 @@
         "tutor-gallery",
         "tutor-personalization",
         "wellness-recovery-log"
+      ]
+    },
+    {
+      "id": "diana-logo-tight",
+      "derivedFrom": "diana-logo",
+      "transformation": "sharp.trim().png() transparent-bounds crop",
+      "localPath": "/screendesign/brand/diana-logo-tight.png",
+      "sha256": "ece835a67141b4c4b0af1edd0730cc0336c2ea28a7b1e596e0fae38b1cc6cada",
+      "mimeType": "image/png",
+      "width": 950,
+      "height": 301,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Compact Diana wordmark",
+      "consumers": [
+        "assignment-detail",
+        "dashboard-personalized",
+        "mission-board"
       ]
     },
     {

@@ -1,5 +1,6 @@
 import { FileText, PlayCircle, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import {
   DianaWordmark,
@@ -59,6 +60,7 @@ export default async function AiHistoryPage({
 }: {
   searchParams: SearchParams;
 }) {
+  redirect("/export#ai-history-export");
   const params = await searchParams;
   const query = stringParam(params.q).trim().toLocaleLowerCase();
   const actor = stringParam(params.actor);

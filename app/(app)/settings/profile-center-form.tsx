@@ -6,7 +6,13 @@ import { useState, useTransition } from "react";
 import type { ProfilePrefs } from "@/lib/profile";
 import { saveProfileCenter } from "./actions";
 
-export function ProfileCenterForm({ profile }: { profile: ProfilePrefs }) {
+export function ProfileCenterForm({
+  profile,
+  formId = "profile-center-form",
+}: {
+  profile: ProfilePrefs;
+  formId?: string;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
@@ -14,7 +20,7 @@ export function ProfileCenterForm({ profile }: { profile: ProfilePrefs }) {
 
   return (
     <form
-      id="profile-center-form"
+      id={formId}
       className="sd-profile-form"
       onSubmit={(event) => {
         event.preventDefault();

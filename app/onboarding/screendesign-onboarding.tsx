@@ -23,6 +23,11 @@ import {
 
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { SourceMedia } from "@/components/screen-design/source-media";
+import {
+  DEFAULT_LANDING_PAGE_CONFIG,
+  type LandingPageConfig,
+  type LandingNodeId,
+} from "@/lib/landing-page/config";
 import type {
   LearningHurdle,
   ScreenDesignOnboardingAnswers,
@@ -100,6 +105,7 @@ interface ScreenDesignOnboardingProps {
   readonly initialStudySchedulePreference?: StudySchedulePreference | null;
   readonly onComplete?: (answers: ScreenDesignOnboardingAnswers) => void;
   readonly presentation?: "wizard" | "scroll";
+  readonly landingConfig?: LandingPageConfig;
 }
 
 export function ScreenDesignOnboarding({
@@ -108,6 +114,7 @@ export function ScreenDesignOnboarding({
   initialStudySchedulePreference = "after_practice",
   onComplete,
   presentation = "wizard",
+  landingConfig = DEFAULT_LANDING_PAGE_CONFIG,
 }: ScreenDesignOnboardingProps) {
   const router = useRouter();
   const [step, setStep] = useState<ScreenDesignOnboardingStep>(initialStep);
@@ -115,6 +122,8 @@ export function ScreenDesignOnboarding({
     useState<LearningHurdle | null>(initialLearningHurdle);
   const [studySchedulePreference, setStudySchedulePreference] =
     useState<StudySchedulePreference | null>(initialStudySchedulePreference);
+  const [sleepGoal, setSleepGoal] = useState(8);
+  const [movementGoal, setMovementGoal] = useState(4);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const submittingRef = useRef(false);
@@ -166,13 +175,16 @@ export function ScreenDesignOnboarding({
         const result = await completeScreenDesignOnboarding({
           learningHurdle,
           studySchedulePreference,
+          sleepGoal,
+          movementGoal,
         });
 
         if (!result.ok) {
           submittingRef.current = false;
           if (result.reason === "validation") {
             setFeedback(
-              result.fieldErrors.studySchedulePreference
+              result.fieldErrors.wellnessGoals
+                ?? result.fieldErrors.studySchedulePreference
                 ?? result.fieldErrors.learningHurdle
                 ?? "Choose the options that feel closest today.",
             );
@@ -202,6 +214,7 @@ export function ScreenDesignOnboarding({
           <WelcomeScreen
             asSection
             surfaceId="public-home-welcome-content"
+            content={landingConfig.onboarding.hero}
             onContinue={() => goTo("educational")}
           />
         </ScreenDesignViewport>
@@ -214,6 +227,7 @@ export function ScreenDesignOnboarding({
           <EducationalScreen
             asSection
             surfaceId="public-home-educational-content"
+            content={landingConfig.onboarding.education}
             onBack={() => goTo("welcome")}
             onContinue={() => goTo("challenge")}
           />
@@ -227,6 +241,7 @@ export function ScreenDesignOnboarding({
           <ChallengeScreen
             asSection
             surfaceId="public-home-challenge-content"
+            content={landingConfig.onboarding.challenge}
             selected={learningHurdle}
             onSelect={setLearningHurdle}
             onBack={() => goTo("educational")}
@@ -242,12 +257,18 @@ export function ScreenDesignOnboarding({
           <ScheduleScreen
             asSection
             surfaceId="public-home-schedule-content"
+            content={landingConfig.onboarding.schedule}
             selected={studySchedulePreference}
             onSelect={setStudySchedulePreference}
             onBack={() => goTo("challenge")}
             onContinue={complete}
             pending={pending}
             feedback={feedback}
+            showWellnessGoals={false}
+            sleepGoal={sleepGoal}
+            movementGoal={movementGoal}
+            onSleepGoalChange={setSleepGoal}
+            onMovementGoalChange={setMovementGoal}
           />
         </ScreenDesignViewport>
       </>
@@ -261,16 +282,21 @@ export function ScreenDesignOnboarding({
       aria-label="Diana onboarding"
     >
       {step === "welcome" ? (
-        <WelcomeScreen onContinue={() => goTo("educational")} />
+        <WelcomeScreen
+          content={landingConfig.onboarding.hero}
+          onContinue={() => goTo("educational")}
+        />
       ) : null}
       {step === "educational" ? (
         <EducationalScreen
+          content={landingConfig.onboarding.education}
           onBack={() => goTo("welcome")}
           onContinue={() => goTo("challenge")}
         />
       ) : null}
       {step === "challenge" ? (
         <ChallengeScreen
+          content={landingConfig.onboarding.challenge}
           selected={learningHurdle}
           onSelect={setLearningHurdle}
           onBack={() => goTo("educational")}
@@ -279,12 +305,18 @@ export function ScreenDesignOnboarding({
       ) : null}
       {step === "schedule" ? (
         <ScheduleScreen
+          content={landingConfig.onboarding.schedule}
           selected={studySchedulePreference}
           onSelect={setStudySchedulePreference}
           onBack={() => goTo("challenge")}
           onContinue={complete}
           pending={pending}
           feedback={feedback}
+          showWellnessGoals
+          sleepGoal={sleepGoal}
+          movementGoal={movementGoal}
+          onSleepGoalChange={setSleepGoal}
+          onMovementGoalChange={setMovementGoal}
         />
       ) : null}
     </ScreenDesignViewport>
@@ -320,19 +352,31 @@ function OnboardingSurface({
   );
 }
 
-function DianaLogo({ size }: { readonly size: "hero" | "header" }) {
+function DianaLogo({
+  size,
+  nodeId,
+}: {
+  readonly size: "hero" | "header";
+  readonly nodeId?: LandingNodeId;
+}) {
   return (
-    <SourceMedia
-      assetId="diana-logo"
-      width={size === "hero" ? 96 : 56}
-      height={size === "hero" ? 30 : 18}
-      alt="DIANA logo"
-      className={
-        size === "hero"
-          ? "sd-onboarding-logo sd-onboarding-logo-hero"
-          : "sd-onboarding-logo sd-onboarding-logo-header"
-      }
-    />
+    <span
+      className="sd-landing-logo-node"
+      data-landing-node={nodeId}
+      data-landing-movable="true"
+    >
+      <SourceMedia
+        assetId="diana-logo"
+        width={size === "hero" ? 96 : 56}
+        height={size === "hero" ? 30 : 18}
+        alt="DIANA logo"
+        className={
+          size === "hero"
+            ? "sd-onboarding-logo sd-onboarding-logo-hero"
+            : "sd-onboarding-logo sd-onboarding-logo-header"
+        }
+      />
+    </span>
   );
 }
 
@@ -340,8 +384,10 @@ function WelcomeScreen({
   onContinue,
   asSection,
   surfaceId,
+  content,
 }: {
   readonly onContinue: () => void;
+  readonly content: LandingPageConfig["onboarding"]["hero"];
 } & OnboardingSurfaceProps) {
   return (
     <OnboardingSurface
@@ -349,30 +395,41 @@ function WelcomeScreen({
       surfaceId={surfaceId}
       className="sd-onboarding-state sd-onboarding-welcome"
     >
-      <SourceMedia
-        assetId="onboarding-welcome-background"
+      <img
+        src={content.backgroundUrl}
+        alt=""
+        aria-hidden="true"
         width={1586}
         height={992}
-        decorative
+        fetchPriority="high"
         className="sd-onboarding-welcome-background"
+        data-landing-node="hero.background"
+        data-landing-movable="false"
       />
       <header className="sd-onboarding-welcome-header">
-        <DianaLogo size="hero" />
+        <DianaLogo size="hero" nodeId="hero.logo" />
       </header>
       <div className="sd-onboarding-welcome-copy">
-        <h1>
-          DIANA
-          <span>AI TUTOR</span>
+        <h1 data-landing-node="hero.title" data-landing-movable="true">
+          {content.title}
+          <span>{content.accentTitle}</span>
         </h1>
-        <p>
-          Your Academic Coach
-          <br />
-          for the Win.
+        <p
+          data-landing-node="hero.subtitle"
+          data-landing-movable="true"
+        >
+          {content.subtitle}
         </p>
       </div>
       <footer className="sd-onboarding-footer">
-        <button type="button" onClick={onContinue} className="sd-onboarding-primary">
-          GET STARTED
+        <button
+          type="button"
+          onClick={onContinue}
+          className="sd-onboarding-primary"
+          data-landing-node="hero.cta"
+          data-landing-movable="true"
+        >
+          {content.cta}
         </button>
       </footer>
     </OnboardingSurface>
@@ -392,9 +449,11 @@ function EducationalScreen({
   onContinue,
   asSection,
   surfaceId,
+  content,
 }: {
   readonly onBack: () => void;
   readonly onContinue: () => void;
+  readonly content: LandingPageConfig["onboarding"]["education"];
 } & OnboardingSurfaceProps) {
   return (
     <OnboardingSurface
@@ -404,15 +463,24 @@ function EducationalScreen({
     >
       <header className="sd-onboarding-header sd-onboarding-header-centered">
         <HeaderBack onBack={onBack} />
-        <DianaLogo size="header" />
+        <DianaLogo size="header" nodeId="education.logo" />
         <span aria-hidden="true" className="sd-onboarding-header-spacer" />
       </header>
       <div className="sd-onboarding-scroll sd-onboarding-education-scroll">
-        <div className="sd-onboarding-section-title">
-          <span>Stat Report</span>
-          <h1>DID YOU KNOW?</h1>
+        <div
+          className="sd-onboarding-section-title"
+          data-landing-node="education.heading"
+          data-landing-movable="true"
+        >
+          <span>{content.eyebrow}</span>
+          <h1>{content.title}</h1>
         </div>
-        <section className="sd-onboarding-stat-card" aria-labelledby="gpa-stat-heading">
+        <section
+          className="sd-onboarding-stat-card"
+          aria-labelledby="gpa-stat-heading"
+          data-landing-node="education.stat"
+          data-landing-movable="true"
+        >
           <TrendingUp aria-hidden="true" className="sd-onboarding-stat-watermark" />
           <SourceMedia
             assetId="onboarding-gpa-progress-chart"
@@ -422,25 +490,41 @@ function EducationalScreen({
             className="sd-onboarding-gpa-chart"
           />
           <div className="sd-onboarding-stat-copy">
-            <strong>+40%</strong>
+            <strong>{content.statValue}</strong>
             <p id="gpa-stat-heading">
-              Athletes who use <span>DIANA</span> see a <b>40% boost in GPA</b> within one
-              semester.
+              {content.statPrefix} <span>{content.statBrand}</span>{" "}
+              {content.statMiddle} <b>{content.statResult}</b>
             </p>
           </div>
         </section>
         <div className="sd-onboarding-benefits">
-          <Benefit icon={Clock3} tone="blue" title="Save 10+ Hours/Week">
-            Automate your note-taking and study summaries to focus on your sport.
+          <Benefit
+            icon={Clock3}
+            tone="blue"
+            title={content.benefits[0]!.title}
+            nodeId="education.benefit.time"
+          >
+            {content.benefits[0]!.body}
           </Benefit>
-          <Benefit icon={Target} tone="pink" title="Elite Precision">
-            Our AI focuses on exactly what you need to ace your next exam.
+          <Benefit
+            icon={Target}
+            tone="pink"
+            title={content.benefits[1]!.title}
+            nodeId="education.benefit.precision"
+          >
+            {content.benefits[1]!.body}
           </Benefit>
         </div>
       </div>
       <footer className="sd-onboarding-footer">
-        <button type="button" onClick={onContinue} className="sd-onboarding-primary">
-          CONTINUE
+        <button
+          type="button"
+          onClick={onContinue}
+          className="sd-onboarding-primary"
+          data-landing-node="education.cta"
+          data-landing-movable="true"
+        >
+          {content.cta}
         </button>
       </footer>
     </OnboardingSurface>
@@ -452,14 +536,20 @@ function Benefit({
   tone,
   title,
   children,
+  nodeId,
 }: {
   readonly icon: typeof Clock3;
   readonly tone: "blue" | "pink";
   readonly title: string;
   readonly children: string;
+  readonly nodeId: LandingNodeId;
 }) {
   return (
-    <div className="sd-onboarding-benefit">
+    <div
+      className="sd-onboarding-benefit"
+      data-landing-node={nodeId}
+      data-landing-movable="true"
+    >
       <span className="sd-onboarding-benefit-icon" data-tone={tone}>
         <Icon aria-hidden="true" />
       </span>
@@ -475,22 +565,28 @@ function QuizHeader({
   current,
   title,
   onBack,
+  headingNodeId,
+  logoNodeId,
 }: {
   readonly current: 1 | 2;
   readonly title: React.ReactNode;
   readonly onBack: () => void;
+  readonly headingNodeId: LandingNodeId;
+  readonly logoNodeId: LandingNodeId;
 }) {
   return (
     <header className="sd-onboarding-quiz-header">
       <div className="sd-onboarding-quiz-nav">
         <HeaderBack onBack={onBack} />
-        <DianaLogo size="header" />
+        <DianaLogo size="header" nodeId={logoNodeId} />
         <span>{current}/4</span>
       </div>
       <div className="sd-onboarding-progress" aria-label={`Step ${current} of 4`}>
         <span style={{ width: `${current * 25}%` }} />
       </div>
-      <h1>{title}</h1>
+      <h1 data-landing-node={headingNodeId} data-landing-movable="true">
+        {title}
+      </h1>
     </header>
   );
 }
@@ -502,22 +598,35 @@ function ChallengeScreen({
   onContinue,
   asSection,
   surfaceId,
+  content,
 }: {
   readonly selected: LearningHurdle | null;
   readonly onSelect: (value: LearningHurdle) => void;
   readonly onBack: () => void;
   readonly onContinue: () => void;
+  readonly content: LandingPageConfig["onboarding"]["challenge"];
 } & OnboardingSurfaceProps) {
+  const options = content.options.map((option) => ({
+    ...option,
+    icon: HURDLE_OPTIONS.find((candidate) => candidate.id === option.id)!.icon,
+  }));
+
   return (
     <OnboardingSurface
       asSection={asSection}
       surfaceId={surfaceId}
       className="sd-onboarding-state sd-onboarding-quiz"
     >
-      <QuizHeader current={1} onBack={onBack} title="WHAT'S YOUR BIGGEST HURDLE RIGHT NOW?" />
+      <QuizHeader
+        current={1}
+        onBack={onBack}
+        title={content.title}
+        headingNodeId="challenge.heading"
+        logoNodeId="challenge.logo"
+      />
       <div className="sd-onboarding-scroll sd-onboarding-challenge-scroll">
         <div className="sd-onboarding-challenge-options" role="radiogroup" aria-label="Learning hurdle">
-          {HURDLE_OPTIONS.map((option, index) => {
+          {options.map((option, index) => {
             const Icon = option.icon;
             const active = option.id === selected;
             return (
@@ -528,12 +637,14 @@ function ChallengeScreen({
                 aria-checked={active}
                 onClick={() => onSelect(option.id)}
                 onKeyDown={(event) =>
-                  handleRadioKey(event, HURDLE_OPTIONS, index, onSelect)
+                  handleRadioKey(event, options, index, onSelect)
                 }
                 tabIndex={active || (!selected && index === 0) ? 0 : -1}
                 data-option-id={option.id}
                 className="sd-onboarding-challenge-option"
                 data-active={active}
+                data-landing-node={`challenge.option.${option.id}`}
+                data-landing-movable="true"
               >
                 <span className="sd-onboarding-challenge-icon">
                   <Icon aria-hidden="true" />
@@ -555,8 +666,10 @@ function ChallengeScreen({
           onClick={onContinue}
           disabled={!selected}
           className="sd-onboarding-primary"
+          data-landing-node="challenge.cta"
+          data-landing-movable="true"
         >
-          NEXT STEP
+          {content.cta}
         </button>
       </footer>
     </OnboardingSurface>
@@ -570,8 +683,14 @@ function ScheduleScreen({
   onContinue,
   pending,
   feedback,
+  showWellnessGoals = false,
+  sleepGoal,
+  movementGoal,
+  onSleepGoalChange,
+  onMovementGoalChange,
   asSection,
   surfaceId,
+  content,
 }: {
   readonly selected: StudySchedulePreference | null;
   readonly onSelect: (value: StudySchedulePreference) => void;
@@ -579,7 +698,24 @@ function ScheduleScreen({
   readonly onContinue: () => void;
   readonly pending: boolean;
   readonly feedback: string | null;
+  readonly showWellnessGoals?: boolean;
+  readonly sleepGoal: number;
+  readonly movementGoal: number;
+  readonly onSleepGoalChange: (value: number) => void;
+  readonly onMovementGoalChange: (value: number) => void;
+  readonly content: LandingPageConfig["onboarding"]["schedule"];
 } & OnboardingSurfaceProps) {
+  const options = content.options.map((option) => {
+    const presentation = SCHEDULE_OPTIONS.find(
+      (candidate) => candidate.id === option.id,
+    )!;
+    return {
+      ...option,
+      icon: presentation.icon,
+      tone: presentation.tone,
+    };
+  });
+
   return (
     <OnboardingSurface
       asSection={asSection}
@@ -589,17 +725,13 @@ function ScheduleScreen({
       <QuizHeader
         current={2}
         onBack={onBack}
-        title={
-          <>
-            WHEN ARE YOU MOST
-            <br />
-            IN THE ZONE?
-          </>
-        }
+        title={content.title}
+        headingNodeId="schedule.heading"
+        logoNodeId="schedule.logo"
       />
       <div className="sd-onboarding-scroll sd-onboarding-schedule-scroll">
         <div className="sd-onboarding-schedule-options" role="radiogroup" aria-label="Study schedule">
-          {SCHEDULE_OPTIONS.map((option, index) => {
+          {options.map((option, index) => {
             const Icon = option.icon;
             const active = option.id === selected;
             return (
@@ -610,16 +742,20 @@ function ScheduleScreen({
                 aria-checked={active}
                 onClick={() => onSelect(option.id)}
                 onKeyDown={(event) =>
-                  handleRadioKey(event, SCHEDULE_OPTIONS, index, onSelect)
+                  handleRadioKey(event, options, index, onSelect)
                 }
                 tabIndex={active || (!selected && index === 0) ? 0 : -1}
                 data-option-id={option.id}
                 className="sd-onboarding-schedule-option"
                 data-active={active}
                 data-tone={option.tone}
+                data-landing-node={`schedule.option.${option.id}`}
+                data-landing-movable="true"
               >
                 {option.id === "after_practice" && active ? (
-                  <span className="sd-onboarding-choice-badge">Athletes Choice</span>
+                  <span className="sd-onboarding-choice-badge">
+                    {content.choiceBadge}
+                  </span>
                 ) : null}
                 <span className="sd-onboarding-schedule-icon">
                   <Icon aria-hidden="true" />
@@ -632,6 +768,44 @@ function ScheduleScreen({
             );
           })}
         </div>
+        {showWellnessGoals ? (
+          <section className="sd-onboarding-wellness-targets" aria-labelledby="wellness-targets-title">
+            <div className="sd-onboarding-wellness-targets-head">
+              <span>Wellness targets</span>
+              <p id="wellness-targets-title">Set a starting point. You can adjust it later.</p>
+            </div>
+            <label className="sd-onboarding-wellness-target">
+              <span>Sleep</span>
+              <output>{sleepGoal.toFixed(1)} hrs</output>
+              <input
+                type="range"
+                min="4"
+                max="10"
+                step="0.5"
+                value={sleepGoal}
+                aria-label="Sleep goal"
+                aria-valuetext={`${sleepGoal.toFixed(1)} hours each night`}
+                onChange={(event) => onSleepGoalChange(Number(event.target.value))}
+              />
+              <small>Hours each night</small>
+            </label>
+            <label className="sd-onboarding-wellness-target">
+              <span>Movement</span>
+              <output>{movementGoal} days</output>
+              <input
+                type="range"
+                min="1"
+                max="7"
+                step="1"
+                value={movementGoal}
+                aria-label="Movement goal"
+                aria-valuetext={`${movementGoal} days each week`}
+                onChange={(event) => onMovementGoalChange(Number(event.target.value))}
+              />
+              <small>Days each week</small>
+            </label>
+          </section>
+        ) : null}
         {feedback ? (
           <p role="status" className="sd-onboarding-feedback">
             {feedback}
@@ -646,8 +820,10 @@ function ScheduleScreen({
           disabled={!selected || pending}
           aria-busy={pending}
           className="sd-onboarding-primary"
+          data-landing-node="schedule.cta"
+          data-landing-movable="true"
         >
-          {pending ? "SAVING CHOICES" : "CONTINUE CHALLENGE"}
+          {pending ? "SAVING CHOICES" : content.cta}
         </button>
       </footer>
     </OnboardingSurface>

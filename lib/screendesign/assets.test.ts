@@ -13,7 +13,9 @@ import { SCREEN_DESIGN_SCREENS } from "@/lib/screendesign/screens";
 
 interface ManifestEntry {
   id: string;
-  sourceUrl: string;
+  sourceUrl?: string;
+  derivedFrom?: string;
+  transformation?: string;
   localPath: string;
   sha256: string;
   mimeType: string;
@@ -30,6 +32,7 @@ interface AssetManifest {
   assetCount: number;
   screenDesignAssetCount: number;
   avatarAssetCount: number;
+  derivedAssetCount: number;
   assets: ManifestEntry[];
 }
 
@@ -71,8 +74,8 @@ const localFileFor = (localPath: string): string =>
 
 describe("ScreenDesign asset integrity", () => {
   it("resolves every typed asset id to frozen local-only rendering metadata", () => {
-    expect(SCREEN_DESIGN_ASSET_IDS).toHaveLength(28);
-    expect(new Set(SCREEN_DESIGN_ASSET_IDS).size).toBe(28);
+    expect(SCREEN_DESIGN_ASSET_IDS).toHaveLength(29);
+    expect(new Set(SCREEN_DESIGN_ASSET_IDS).size).toBe(29);
 
     for (const id of SCREEN_DESIGN_ASSET_IDS) {
       const asset = getScreenDesignAsset(id);
@@ -92,6 +95,7 @@ describe("ScreenDesign asset integrity", () => {
       "dashboard-athlete-cutout",
       "onboarding-welcome-background",
       "diana-logo",
+      "diana-logo-tight",
       "diana-mascot",
       "tutor-math-expert",
       "tutor-science-expert",
@@ -124,11 +128,12 @@ describe("ScreenDesign asset integrity", () => {
     const manifest = await loadManifest();
     expect(manifest).toMatchObject({
       schemaVersion: 1,
-      assetCount: 28,
+      assetCount: 29,
       screenDesignAssetCount: 24,
       avatarAssetCount: 4,
+      derivedAssetCount: 1,
     });
-    expect(manifest.assets).toHaveLength(28);
+    expect(manifest.assets).toHaveLength(29);
 
     for (const entry of manifest.assets) {
       const buffer = await readFile(localFileFor(entry.localPath));
@@ -147,8 +152,12 @@ describe("ScreenDesign asset integrity", () => {
 
   it("maps the complete canonical remote URL inventory to local assets and consumers", async () => {
     const manifest = await loadManifest();
+    const remoteEntries = manifest.assets.filter(
+      (entry): entry is ManifestEntry & { sourceUrl: string } =>
+        typeof entry.sourceUrl === "string",
+    );
     const manifestBySourceUrl = new Map(
-      manifest.assets.map((entry) => [entry.sourceUrl, entry]),
+      remoteEntries.map((entry) => [entry.sourceUrl, entry]),
     );
     const consumersBySourceUrl = new Map<string, Set<string>>();
 
@@ -175,6 +184,14 @@ describe("ScreenDesign asset integrity", () => {
     expect([...manifestBySourceUrl.keys()].sort()).toEqual(
       [...consumersBySourceUrl.keys()].sort(),
     );
+    expect(manifest.assets.find((entry) => entry.id === "diana-logo-tight")).toMatchObject({
+      derivedFrom: "diana-logo",
+      transformation: "sharp.trim().png() transparent-bounds crop",
+      sha256: "ece835a67141b4c4b0af1edd0730cc0336c2ea28a7b1e596e0fae38b1cc6cada",
+      width: 950,
+      height: 301,
+      hasAlpha: true,
+    });
 
     for (const [sourceUrl, consumers] of consumersBySourceUrl) {
       const entry = manifestBySourceUrl.get(sourceUrl);

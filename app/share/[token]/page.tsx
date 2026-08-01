@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/service";
+import { digestShareToken } from "@/lib/sharing/token";
 import type {
   ExternalScoutPortfolio,
   ParentSummary,
@@ -32,13 +33,28 @@ export default async function SharePage({
   const supabase = createServiceClient();
   if (!supabase) return <NotActive />;
 
-  const { data: link, error } = await supabase
+  const tokenDigest = digestShareToken(token);
+
+  const digestResult = await supabase
     .from("share_links")
-    .select("id, token, owner_id, share_type, expires_at, revoked_at, created_at")
-    .eq("token", token)
+    .select("id, owner_id, share_type, expires_at, revoked_at, created_at")
+    .eq("token_digest", tokenDigest)
     .is("revoked_at", null)
     .gt("expires_at", nowIso)
     .maybeSingle();
+
+  const legacyResult = digestResult.data
+    ? null
+    : await supabase
+      .from("share_links")
+      .select("id, owner_id, share_type, expires_at, revoked_at, created_at")
+      .eq("token", token)
+      .is("revoked_at", null)
+      .gt("expires_at", nowIso)
+      .maybeSingle();
+
+  const link = digestResult.data ?? legacyResult?.data ?? null;
+  const error = link ? null : digestResult.error ?? legacyResult?.error ?? null;
 
   if (error || !link) return <NotActive />;
 

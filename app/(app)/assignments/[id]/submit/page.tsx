@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, FileText, Plus, Settings2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Plus, Settings2 } from "lucide-react";
 import { DianaMascotMark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { createClient } from "@/lib/supabase/server";
@@ -13,6 +13,113 @@ function formatMinutes(total: number): string {
   const hours = Math.floor(total / 60);
   const minutes = Math.round(total % 60);
   return minutes > 0 ? `${hours}H ${minutes}M` : `${hours}H`;
+}
+
+function submissionPageState(status: string): "review" | "receipt" | "workspace" {
+  if (status === "exporting") return "review";
+  if (status === "submitted" || status === "graded") return "receipt";
+  return "workspace";
+}
+
+function formatReceiptDate(value: string | null): string {
+  if (!value) return "Saved in Diana";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Saved in Diana";
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function SubmittedAssignmentReceipt({
+  assignmentId,
+  title,
+  className,
+  status,
+  submittedAt,
+  syncStatus,
+}: {
+  assignmentId: string;
+  title: string;
+  className: string;
+  status: string;
+  submittedAt: string | null;
+  syncStatus: string | null;
+}) {
+  const graded = status === "graded";
+  const handoffSaved = syncStatus === "marked_submitted";
+
+  return (
+    <ScreenDesignViewport className="sd-submit-screen">
+      <header className="sd-submit-header">
+        <Link href="/assignments" aria-label="Return to Work" className="sd-source-icon-button">
+          <ArrowLeft size={20} aria-hidden="true" />
+        </Link>
+        <h1>SUBMISSION RECEIPT</h1>
+        <Link href="/settings" aria-label="Open settings" className="sd-source-icon-button">
+          <Settings2 size={20} aria-hidden="true" />
+        </Link>
+      </header>
+
+      <main className="sd-submit-scroll">
+        <section className="sd-submit-scan" aria-label="Submission receipt summary">
+          <div className="sd-submit-document" aria-hidden="true">
+            <CheckCircle2 size={64} strokeWidth={1.5} />
+            <small>RECEIPT SAVED</small>
+          </div>
+          <div>
+            <h2>{graded ? "GRADE RECORDED" : "SUBMISSION SAVED"}</h2>
+            <p>{title} · {className}</p>
+          </div>
+        </section>
+
+        <section className="sd-submit-stats" aria-label="Receipt facts">
+          <div>
+            <span>STATUS</span>
+            <strong>{graded ? "GRADED" : "SUBMITTED"}</strong>
+            <small>WORKSPACE CLOSED</small>
+          </div>
+          <div>
+            <span>SAVED</span>
+            <strong>{formatReceiptDate(submittedAt)}</strong>
+            <small>COMPLETION RECEIPT</small>
+          </div>
+        </section>
+
+        <section className="sd-submit-coach">
+          <DianaMascotMark decorative />
+          <div>
+            <h2>YOUR WORK IS RECORDED</h2>
+            <p>
+              This assignment is closed for editing. {handoffSaved
+                ? "The school system handoff is marked submitted. "
+                : "Your submission confirmation is saved in Diana. "}
+              Open Record for the completed-work entry or return to Work for your next assignment.
+            </p>
+          </div>
+        </section>
+
+        <section className="mt-5 grid gap-3 sm:grid-cols-2" aria-label="Receipt destinations">
+          <Link
+            href="/proof"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg bg-[#74c0ff] px-4 py-3 font-bold text-[#0f172a] no-underline"
+          >
+            Open Record <ArrowRight size={18} aria-hidden="true" />
+          </Link>
+          <Link
+            href="/assignments"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-lg border border-white/20 bg-white/5 px-4 py-3 font-bold text-white no-underline"
+          >
+            Back to Work
+          </Link>
+        </section>
+        <p className="mt-4 text-center text-xs text-slate-400">
+          Receipt ID {assignmentId.slice(0, 8).toUpperCase()}
+        </p>
+      </main>
+    </ScreenDesignViewport>
+  );
 }
 
 export default async function SubmitPage({
@@ -29,12 +136,25 @@ export default async function SubmitPage({
 
   const { data: assignment } = await supabase
     .from("assignments")
-    .select("id, title, status, submission_url, external_source, external_url, submission_sync_status, classes(name)")
+    .select("id, title, status, submitted_at, submission_url, external_source, external_url, submission_sync_status, classes(name)")
     .eq("id", id)
     .eq("owner_id", user.id)
     .maybeSingle();
   if (!assignment) notFound();
-  if (assignment.status !== "exporting") redirect(`/assignments/${id}`);
+  const pageState = submissionPageState(assignment.status);
+  if (pageState === "workspace") redirect(`/assignments/${id}/workspace`);
+  if (pageState === "receipt") {
+    return (
+      <SubmittedAssignmentReceipt
+        assignmentId={id}
+        title={assignment.title}
+        className={assignment.classes?.name ?? "your class"}
+        status={assignment.status}
+        submittedAt={assignment.submitted_at}
+        syncStatus={assignment.submission_sync_status}
+      />
+    );
+  }
 
   const [{ data: items }, { data: timeLogs }] = await Promise.all([
     supabase
@@ -49,6 +169,9 @@ export default async function SubmitPage({
       .eq("assignment_id", id)
       .eq("owner_id", user.id),
   ]);
+
+  const deliveryStore = supabase as any;
+  const { data: deliveryFiles } = await deliveryStore.from("assignment_submission_files").select("id, filename").eq("assignment_id", id).eq("owner_id", user.id).order("created_at", { ascending: false }).limit(1);
 
   const checklist = items ?? [];
   const checkedCount = checklist.filter((item) => item.checked).length;
@@ -122,9 +245,11 @@ export default async function SubmitPage({
             <summary>Class system handoff</summary>
             <ExternalSubmissionSync
               assignmentId={id}
+              assignmentTitle={assignment.title}
               provider={assignment.external_source}
               externalUrl={assignment.external_url}
               initialStatus={assignment.submission_sync_status}
+              deliveryFile={deliveryFiles?.[0] ?? null}
             />
           </details>
         ) : null}

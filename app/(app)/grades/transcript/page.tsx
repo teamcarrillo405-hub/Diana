@@ -6,6 +6,7 @@ import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { fetchCanvasGrades } from "@/lib/lms/canvas";
 import { createClient } from "@/lib/supabase/server";
+import { hydrateLmsConnectionCredentials } from "@/lib/integrations/credential-vault";
 
 export const dynamic = "force-dynamic";
 
@@ -74,14 +75,17 @@ export default async function TranscriptPage() {
     supabase.from("classes").select("id, name").eq("owner_id", user.id).is("archived_at", null).order("name"),
     supabase.from("mastery_concepts").select("id, class_id, mastery_level").eq("owner_id", user.id).order("updated_at", { ascending: false }),
     supabase.from("mastery_events").select("id, concept_id").eq("owner_id", user.id).order("created_at", { ascending: false }).limit(500),
-    supabase.from("lms_connections").select("config").eq("owner_id", user.id).eq("provider", "canvas").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+    supabase.from("lms_connections").select("id, provider, config").eq("owner_id", user.id).eq("provider", "canvas").order("created_at", { ascending: false }).limit(1).maybeSingle(),
   ]);
 
   const classes = (classesResult.data ?? []) as ClassRow[];
   const concepts = (conceptsResult.data ?? []) as ConceptRow[];
-  const config = canvasConfig(connectionResult.data?.config);
+  const securedConnection = connectionResult.data
+    ? await hydrateLmsConnectionCredentials(user.id, connectionResult.data).catch(() => null)
+    : null;
+  const config = canvasConfig(securedConnection?.config);
   let records: Awaited<ReturnType<typeof fetchCanvasGrades>> = [];
-  let canvasIssue = false;
+  let canvasIssue = Boolean(connectionResult.data && !securedConnection);
   if (config) {
     try {
       records = await fetchCanvasGrades(config);

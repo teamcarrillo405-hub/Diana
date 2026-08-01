@@ -16,9 +16,11 @@ import {
   type ScreenDesignSourceAsset,
 } from "@/tests/helpers/normalize-screendesign-source";
 
-export interface ScreenDesignSourceManifestEntry extends ScreenDesignSourceAsset {
+export interface ScreenDesignSourceManifestEntry {
   readonly id: string;
   readonly mimeType: string;
+  readonly sourceUrl?: string;
+  readonly localPath: `/screendesign/${string}`;
 }
 
 interface SourceManifest {
@@ -26,6 +28,7 @@ interface SourceManifest {
   readonly assetCount: number;
   readonly screenDesignAssetCount: number;
   readonly avatarAssetCount: number;
+  readonly derivedAssetCount: number;
   readonly assets: readonly ScreenDesignSourceManifestEntry[];
 }
 
@@ -87,7 +90,7 @@ export interface ScreenDesignSourceServer {
   readonly close: () => Promise<void>;
 }
 
-const EXPECTED_ASSET_COUNT = 28;
+const EXPECTED_ASSET_COUNT = 29;
 const SOURCE_ROUTE_PREFIX = "/source/";
 const TAILWIND_INPUT =
   "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n";
@@ -144,10 +147,11 @@ const loadManifest = async (manifestPath: string): Promise<SourceManifest> => {
     manifest.assetCount !== EXPECTED_ASSET_COUNT ||
     manifest.screenDesignAssetCount !== 24 ||
     manifest.avatarAssetCount !== 4 ||
+    manifest.derivedAssetCount !== 1 ||
     !Array.isArray(manifest.assets) ||
     manifest.assets.length !== EXPECTED_ASSET_COUNT
   ) {
-    fail("manifest header does not match the canonical 24 plus four asset contract");
+    fail("manifest header does not match the canonical 24 plus four plus one asset contract");
   }
 
   return manifest;
@@ -394,6 +398,10 @@ export const startScreenDesignSourceServer = async (
   );
   const manifest = await loadManifest(manifestPath);
   await assertScreenDesignSourceAssetsExist(manifest.assets, publicRoot);
+  const remoteAssets = manifest.assets.filter(
+    (asset): asset is ScreenDesignSourceManifestEntry & ScreenDesignSourceAsset =>
+      typeof asset.sourceUrl === "string",
+  );
 
   const normalizedDocuments = new Map<string, string>();
   for (const screen of SCREEN_DESIGN_SCREENS) {
@@ -410,7 +418,7 @@ export const startScreenDesignSourceServer = async (
       normalizeScreenDesignSource({
         screen,
         html: source,
-        assets: manifest.assets,
+        assets: remoteAssets,
       }),
     );
   }

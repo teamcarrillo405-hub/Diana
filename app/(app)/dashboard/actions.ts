@@ -184,6 +184,63 @@ export async function saveMoodCheckIn(
   return { ok: true };
 }
 
+const LobbyCheckInInput = z.object({
+  energy: z.enum(["low", "okay", "good"]),
+  sleep: z.enum(["under_5", "five_to_six", "seven_to_nine"]),
+  meals: z.enum(["not_yet", "snack", "meal"]),
+  sleepDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+});
+
+export async function saveLobbyCheckIn(
+  input: z.infer<typeof LobbyCheckInInput>,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = LobbyCheckInInput.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Choose one option in each row." };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in to save this check-in." };
+
+  const body =
+    parsed.data.energy === "good" ? "ready" : parsed.data.energy;
+  const focus = "steady" as const;
+  const mood = moodFromReadiness({ body, focus });
+  const sleepDetails = {
+    under_5: { hours: 4, quality: "rough" as const },
+    five_to_six: { hours: 5.5, quality: "ok" as const },
+    seven_to_nine: { hours: 8, quality: "rested" as const },
+  }[parsed.data.sleep];
+
+  const { error } = await supabase.rpc("record_daily_wellness_check_in", {
+    p_mood: mood,
+    p_sleep_date: parsed.data.sleepDate,
+    p_sleep_quality: sleepDetails.quality,
+    p_sleep_hours: sleepDetails.hours,
+    p_focus_note: "",
+    p_mood_metadata: {
+      body,
+      focus,
+      energy: parsed.data.energy,
+      sleep: parsed.data.sleep,
+      meals: parsed.data.meals,
+    },
+  });
+  if (error) {
+    return {
+      ok: false,
+      error: "The check-in could not be saved yet. Try again when ready.",
+    };
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/wellness");
+  return { ok: true };
+}
+
 const ReflectionInput = z.object({
   body: z.string().trim().min(2).max(1500),
   mood: z.enum(["good", "meh", "rough"]).nullable().optional(),

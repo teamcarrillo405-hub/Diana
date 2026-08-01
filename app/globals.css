@@ -362,13 +362,11 @@ img, svg, video, canvas, input, textarea, select {
 }
 
 .today-stage,
-.future-path-stage,
 .proof-stage {
   position: relative;
 }
 
 .today-stage::after,
-.future-path-stage::after,
 .proof-stage::after {
   content: "";
   position: absolute;
@@ -1136,14 +1134,6 @@ img, svg, video, canvas, input, textarea, select {
   line-height: 1.08;
 }
 
-.future-path-line {
-  display: block;
-  width: 68%;
-  height: 0.22rem;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgb(var(--future-line)), rgb(var(--future-glow)));
-}
-
 .launch-sequence-heading {
   display: flex;
   align-items: end;
@@ -1531,7 +1521,6 @@ img, svg, video, canvas, input, textarea, select {
 }
 
 .portal-link-tile,
-.future-lane,
 .essay-rule-stage,
 .proof-ledger,
 .proof-memory-panel {
@@ -1541,184 +1530,6 @@ img, svg, video, canvas, input, textarea, select {
     linear-gradient(145deg, rgb(var(--surface-raised) / 0.92), rgb(var(--surface-soft) / 0.74)),
     rgb(var(--surface-raised));
   box-shadow: 0 18px 70px rgb(15 23 42 / 0.07), inset 0 1px 0 rgb(255 255 255 / 0.10);
-}
-
-.future-path-stage {
-  align-items: start;
-}
-
-.future-map-visual {
-  min-height: clamp(24rem, 50vw, 38rem);
-  border: 1px solid rgb(var(--border));
-  border-radius: clamp(1.5rem, 3vw, 2.8rem);
-  background:
-    radial-gradient(circle at 24% 18%, rgb(var(--brand) / 0.16), transparent 18rem),
-    radial-gradient(circle at 78% 72%, rgb(var(--future-glow) / 0.13), transparent 22rem),
-    rgb(var(--surface-raised) / 0.94);
-  padding: clamp(1.1rem, 2.4vw, 2rem);
-  box-shadow:
-    0 30px 110px rgb(15 23 42 / 0.10),
-    inset 0 1px 0 rgb(255 255 255 / 0.12);
-}
-
-.future-map-orbit {
-  position: absolute;
-  inset: 1rem;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.future-map-orbit span {
-  position: absolute;
-  border: 1px solid rgb(var(--brand) / 0.18);
-  border-radius: 999px;
-  transform: rotate(-10deg);
-}
-
-.future-map-orbit span:nth-child(1) {
-  inset: 12% 7% 18% 20%;
-}
-
-.future-map-orbit span:nth-child(2) {
-  inset: 26% 22% 14% 8%;
-}
-
-.future-map-orbit span:nth-child(3) {
-  inset: 8% 31% 36% 5%;
-}
-
-.future-map-head {
-  position: relative;
-  z-index: 1;
-  max-width: 44rem;
-}
-
-.future-map-head p,
-.future-map-head span {
-  color: rgb(var(--brand-strong));
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.dark .future-map-head p,
-.dark .future-map-head span {
-  color: rgb(var(--brand));
-}
-
-.future-map-head h2 {
-  margin-top: 0.75rem;
-  max-width: 17ch;
-  font-size: clamp(2rem, 3.6vw, 3.65rem);
-  line-height: 1.03;
-  font-weight: 790;
-}
-
-.future-map-head span {
-  margin-top: 1rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  border: 1px solid rgb(var(--border));
-  border-radius: 999px;
-  background: rgb(var(--surface-raised) / 0.72);
-  padding: 0.5rem 0.75rem;
-}
-
-.future-map-path {
-  position: relative;
-  z-index: 1;
-  margin-top: clamp(2rem, 5vw, 5rem);
-  display: grid;
-  gap: 0.85rem;
-  max-width: 46rem;
-  margin-left: auto;
-}
-
-.future-map-path::before {
-  content: "";
-  position: absolute;
-  left: 1rem;
-  top: 1rem;
-  bottom: 1rem;
-  width: 1px;
-  background: linear-gradient(rgb(var(--brand) / 0.12), rgb(var(--brand) / 0.5), rgb(var(--future-glow) / 0.18));
-}
-
-.future-map-node {
-  position: relative;
-  display: grid;
-  grid-template-columns: 2rem minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 0.85rem;
-  border: 1px solid rgb(var(--border));
-  border-radius: 1.35rem;
-  background: rgb(var(--surface-raised) / 0.76);
-  padding: 0.9rem;
-  backdrop-filter: blur(18px);
-}
-
-.future-node-pin {
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  aspect-ratio: 1;
-  border-radius: 999px;
-  background: rgb(var(--fg));
-  color: rgb(var(--bg));
-  font-size: 0.78rem;
-  font-weight: 900;
-  font-variant-numeric: tabular-nums;
-}
-
-.future-map-node p {
-  font-size: 0.92rem;
-  font-weight: 900;
-}
-
-.future-map-node small {
-  display: block;
-  margin-top: 0.2rem;
-  color: rgb(var(--muted));
-  line-height: 1.45;
-}
-
-.future-map-footer {
-  position: relative;
-  z-index: 1;
-  margin-top: 1.25rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-}
-
-.future-map-footer span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  border: 1px solid rgb(var(--border));
-  border-radius: 999px;
-  background: rgb(var(--surface-raised) / 0.65);
-  padding: 0.55rem 0.75rem;
-  color: rgb(var(--muted));
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.future-lane {
-  position: relative;
-  overflow: hidden;
-}
-
-.future-lane::after {
-  content: "";
-  position: absolute;
-  left: 1.25rem;
-  right: 1.25rem;
-  top: 0;
-  height: 1px;
-  background: linear-gradient(90deg, rgb(var(--brand) / 0.55), transparent);
 }
 
 .feature-lane {
@@ -3590,37 +3401,8 @@ body[data-experience-mode="future"] .future-wave-bar {
     display: none;
   }
 
-  .future-path-stage,
   .proof-stage {
     padding-bottom: 5.5rem;
-  }
-
-  .future-map-visual {
-    min-height: 0;
-    border-radius: 1.55rem;
-    padding: 1rem;
-  }
-
-  .future-map-head h2 {
-    max-width: 15ch;
-    font-size: clamp(1.65rem, 8.1vw, 2.5rem);
-    line-height: 1.04;
-  }
-
-  .future-map-path {
-    display: none;
-  }
-
-  .future-map-node {
-    grid-template-columns: 1.8rem minmax(0, 1fr);
-  }
-
-  .future-map-node svg {
-    display: none;
-  }
-
-  .future-map-footer {
-    display: none;
   }
 
   .proof-receipt-visual,
@@ -3875,7 +3657,6 @@ body[data-experience-mode="future"] .future-wave-bar {
 .right-now-signal,
 .next-move-shell,
 .brain-state-panel,
-.future-map-visual,
 .proof-receipt-visual,
 .proof-memory-panel,
 .mobile-command-dock-base,
@@ -6692,7 +6473,6 @@ body[data-experience-mode="future"] .future-wave-bar {
 .signal-display,
 .student-signal-poster h2,
 .diana-focus-pane h2,
-.future-map-head h2,
 .proof-stage h1,
 .diana-app h1 {
   color: var(--diana-text);
@@ -6917,8 +6697,8 @@ body[data-experience-mode="future"] .future-wave-bar {
 
 .diana-app [class*="orb"],
 .diana-app [class*="Orb"],
-.diana-app [class*="ring"],
-.diana-app [class*="Ring"],
+.diana-app [class*="-ring"],
+.diana-app [class*="-Ring"],
 .diana-app [class*="swatch"],
 .diana-app [class*="Swatch"],
 .diana-app [class*="level"],
@@ -8615,3 +8395,4 @@ button.ds-alert-strip:active {
     align-items: flex-start;
   }
 }
+@tailwind utilities;

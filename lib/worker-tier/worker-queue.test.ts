@@ -169,12 +169,21 @@ describe("worker queue runtime", () => {
     await markWorkerJobError({
       traceId: "dw-error",
       tenantId: "personal:student-1",
-      errorSummary: "x".repeat(600),
+      errorCode: "provider_http_error",
+      errorMetadata: {
+        phase: "provider",
+        httpStatus: 999,
+      },
       client: client as never,
     });
     expect(update).toHaveBeenLastCalledWith(expect.objectContaining({
       status: "error",
-      error_summary: "x".repeat(500),
+      error_summary: "provider_http_error",
+      result_payload: {
+        status: "error",
+        errorCode: "provider_http_error",
+        errorMetadata: { phase: "provider", httpStatus: 599 },
+      },
       locked_by: null,
     }));
   });
@@ -194,6 +203,33 @@ describe("worker queue runtime", () => {
     })).rejects.toThrow("tenant-scoped job");
   });
 
+  it("maps legacy internal error summaries to a fixed code without persisting text", async () => {
+    const secret = "provider trace with student content";
+    const maybeSingle = vi.fn().mockResolvedValue({ data: { trace_id: "dw-legacy" }, error: null });
+    const select = vi.fn().mockReturnValue({ maybeSingle });
+    const eq = vi.fn().mockReturnThis();
+    const update = vi.fn().mockReturnValue({ eq, select });
+    const client = { from: vi.fn().mockReturnValue({ update }) };
+
+    await markWorkerJobError({
+      traceId: "dw-legacy",
+      tenantId: "personal:student-1",
+      errorSummary: secret,
+      client: client as never,
+    });
+
+    const persisted = update.mock.calls[0]?.[0];
+    expect(persisted).toMatchObject({
+      error_summary: "worker_internal_error",
+      result_payload: {
+        status: "error",
+        errorCode: "worker_internal_error",
+        errorMetadata: {},
+      },
+    });
+    expect(JSON.stringify(persisted)).not.toContain(secret);
+  });
+
   it("keeps the database claim RPC recoverable for expired or missing worker leases", () => {
     const migration = readFileSync("supabase/migrations/0044_worker_claim_lease_recovery.sql", "utf8");
 
@@ -203,5 +239,28 @@ describe("worker queue runtime", () => {
     expect(migration).toContain("attempts < max_attempts");
     expect(migration).toContain("attempts >= max_attempts");
     expect(migration).toContain("Worker lease expired after maximum attempts.");
+  });
+
+  it("keeps reconciliation usage first-writer authoritative under enqueue races", () => {
+    const migration = readFileSync(
+      "supabase/migrations/20260731170000_ai_token_budget_reservations.sql",
+      "utf8",
+    );
+
+    expect(migration).toContain("on conflict (reservation_kind, reservation_id) do nothing");
+    expect(migration).toContain("if v_existing_actual <> p_actual_units then");
+    expect(migration).toContain("'usage_mismatch'::text");
+    expect(migration).not.toContain(
+      "on conflict (reservation_kind, reservation_id) do update\n  set last_error",
+    );
+    expect(migration).toContain(
+      "revoke execute on function public.reserve_ai_token_budget(uuid, text, integer)\n  from public, anon, authenticated",
+    );
+    expect(migration).toContain(
+      "grant execute on function public.reserve_ai_token_budget(uuid, text, integer)\n  to service_role",
+    );
+    expect(migration).not.toMatch(
+      /grant execute on function public\.(?:reserve|settle|release|mark|queue|process)_ai[^;]+\s+to authenticated/iu,
+    );
   });
 });
