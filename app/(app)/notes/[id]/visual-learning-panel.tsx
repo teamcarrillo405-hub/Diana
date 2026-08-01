@@ -64,6 +64,7 @@ export function VisualLearningPanel({
     setDiagramPreview(previewUrl);
     startTransition(async () => {
       const formData = new FormData();
+      formData.append("noteId", noteId);
       formData.append("diagram", file);
       const upload = await uploadDiagramImage(formData);
       if (!upload.ok) {

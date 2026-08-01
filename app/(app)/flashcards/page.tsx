@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { format } from "date-fns";
 import { Brain, ListChecks } from "lucide-react";
 import { EmptyStateMark } from "@/components/empty-state-mark";
-import { PageShell } from "../page-shell";
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 
 export default async function FlashcardsPage() {
   const supabase = await createClient();
@@ -23,14 +24,12 @@ export default async function FlashcardsPage() {
   const upcoming = (all ?? []).filter((c) => c.due_at > nowIso);
 
   return (
-    <PageShell
-      active="Work"
-      eyebrow="Flashcards"
-      title="Study."
-      subtitle="Review what's due, then build new cards from your notes."
-      accent="var(--gl-cyan)"
-      icon={Brain}
-      action={
+    <div className="sd-support-screen">
+      <header className="sd-support-header sd-support-header-with-action">
+        <DianaWordmark />
+        <p><Brain size={14} aria-hidden="true" /> Flashcards</p>
+        <h1>Study.</h1>
+        <span>Review what is due, then build new cards from your notes.</span>
         <Link
           href="/flashcards/new"
           style={{
@@ -49,11 +48,10 @@ export default async function FlashcardsPage() {
         >
           + New card
         </Link>
-      }
-    >
+      </header>
       <div className="space-y-6">
-      <section className="nexus-panel rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
-        <p className="nexus-kicker text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+      <section className="diana-panel rounded-2xl border border-subject-ap/25 bg-surface-raised p-4">
+        <p className="diana-kicker text-xs font-medium uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
           Remember bar
         </p>
         <h2 className="mt-1 text-base font-semibold">Quiz first, cards second</h2>
@@ -74,7 +72,7 @@ export default async function FlashcardsPage() {
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Due today
           </h2>
-          <div className="nexus-panel rounded-2xl border border-accent bg-accent/5 p-5">
+          <div className="diana-panel rounded-2xl border border-accent bg-accent/5 p-5">
             <p className="text-sm">
               {due.length === 1
                 ? "1 card to review today."
@@ -82,7 +80,7 @@ export default async function FlashcardsPage() {
             </p>
             <Link
               href={`/flashcards/${due[0].id}/review`}
-              className="nexus-button nexus-button-primary mt-3 inline-block rounded-md px-4 py-2 text-sm font-medium"
+              className="diana-button diana-button-primary mt-3 inline-block rounded-md px-4 py-2 text-sm font-medium"
             >
               Start review
             </Link>
@@ -90,7 +88,7 @@ export default async function FlashcardsPage() {
         </section>
       ) : (
         (all && all.length > 0) && (
-          <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-6 text-center">
+          <div className="diana-panel rounded-2xl border border-dashed border-border bg-card p-6 text-center">
             <p className="text-sm">Nothing due right now. Come back tomorrow.</p>
           </div>
         )
@@ -101,7 +99,7 @@ export default async function FlashcardsPage() {
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Coming up
           </h2>
-          <ul className="nexus-panel divide-y divide-border rounded-xl border border-border bg-card p-0">
+          <ul className="diana-panel divide-y divide-border rounded-xl border border-border bg-card p-0">
             {upcoming.slice(0, 25).map((c) => (
               <li key={c.id} className="px-4 py-3">
                 <p className="truncate text-sm">{c.front}</p>
@@ -115,7 +113,7 @@ export default async function FlashcardsPage() {
       )}
 
       {(!all || all.length === 0) && (
-        <div className="nexus-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
+        <div className="diana-panel rounded-2xl border border-dashed border-border bg-card p-8 text-center">
           <EmptyStateMark />
           <p className="text-lg font-medium">No cards yet.</p>
           <p className="mt-1 text-sm text-muted">
@@ -124,7 +122,7 @@ export default async function FlashcardsPage() {
           <div className="mt-4">
             <Link
               href="/flashcards/new"
-              className="nexus-button nexus-button-primary rounded-md px-3 py-2 text-sm"
+              className="diana-button diana-button-primary rounded-md px-3 py-2 text-sm"
             >
               Add a card
             </Link>
@@ -132,6 +130,7 @@ export default async function FlashcardsPage() {
         </div>
       )}
       </div>
-    </PageShell>
+      <StudentBottomNav />
+    </div>
   );
 }

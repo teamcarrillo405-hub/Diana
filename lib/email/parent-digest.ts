@@ -5,6 +5,8 @@
 // week, student-controlled (the student enters and can remove the address).
 
 import type { GrowthStory } from "@/lib/portal/growth";
+import { createHash } from "node:crypto";
+import { isSafeEmailRecipient } from "@/lib/email/resend";
 
 export type WeekStats = {
   completedThisWeek: number;
@@ -17,6 +19,43 @@ export type DigestEmail = {
   text: string;
   html: string;
 };
+
+type ParentDigestProfile = {
+  user_id: string;
+  display_name: string | null;
+  notification_preferences: unknown;
+};
+
+export type ParentDigestRecipient = {
+  ownerId: string;
+  studentName: string;
+  email: string;
+};
+
+export function parentDigestRecipient(profile: ParentDigestProfile): ParentDigestRecipient | null {
+  if (!profile.user_id) return null;
+  const preferences = profile.notification_preferences as {
+    parentDigest?: { email?: unknown; enabled?: unknown };
+  } | null;
+  const candidate = preferences?.parentDigest;
+  if (candidate?.enabled !== true || typeof candidate.email !== "string") return null;
+
+  const email = candidate.email.trim().toLowerCase();
+  if (!isSafeEmailRecipient(email)) return null;
+
+  return {
+    ownerId: profile.user_id,
+    studentName: profile.display_name?.trim() || "Your student",
+    email,
+  };
+}
+
+export function parentDigestIdempotencyKey(ownerId: string, now: Date): string {
+  const weekStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  weekStart.setUTCDate(weekStart.getUTCDate() - weekStart.getUTCDay());
+  const ownerDigest = createHash("sha256").update(ownerId).digest("hex").slice(0, 24);
+  return `parent-digest/${weekStart.toISOString().slice(0, 10)}/${ownerDigest}`;
+}
 
 export function buildParentDigestEmail(input: {
   studentName: string;

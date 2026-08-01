@@ -1,91 +1,108 @@
-﻿// End-to-end user flows - interaction tests, not screenshots.
-// Run: npm run test:e2e (dev server with QA_CREATE_USER=true must be up).
+// End-to-end user flows against the local deterministic QA bootstrap.
+// Run: npm run test:e2e
 
 import { expect, test } from "@playwright/test";
 
-const baseUrl = process.env.QA_BASE_URL ?? "http://localhost:3000";
+import {
+  openQaSession,
+  seedFormalAssessmentReleaseGate,
+} from "./helpers/qa";
 
 test.describe.configure({ mode: "serial" });
 
-test("new student completes the step-by-step onboarding wizard", async ({ page }) => {
+test("new student completes the current onboarding challenge", async ({ page }) => {
   test.setTimeout(120_000);
 
-  // QA bootstrap: fixed test-user session, then clear onboarded_at so the app
-  // routes us into the wizard like a brand-new student.
-  const session = await page.goto(`${baseUrl}/api/qa/anonymous-session`, { waitUntil: "networkidle" });
-  expect(session?.ok()).toBe(true);
-  const reset = await page.goto(`${baseUrl}/api/qa/reset-onboarding`, { waitUntil: "networkidle" });
-  expect(reset?.ok()).toBe(true);
-
-  await page.goto(`${baseUrl}/dashboard`, { waitUntil: "domcontentloaded" });
-  await page.waitForURL(/onboarding/, { timeout: 30_000 });
-
-  // Welcome step.
-  await expect(page.getByText("Diana sets up around you.")).toBeVisible();
-  await page.getByRole("button", { name: "Start setup" }).click();
-
-  // Step 1: brain - Next is gated until a choice is made.
-  await expect(page.getByText("How does your brain tend to work?")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
-  await page.getByRole("button", { name: "Reading takes more effort" }).click();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-
-  // Step 2: accommodations (optional).
-  await expect(page.getByText("Accommodations you have")).toBeVisible();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-
-  // Step 3: school year is required.
-  await expect(page.getByRole("button", { name: "Next", exact: true })).toBeDisabled();
-  await page.getByRole("button", { name: /10th/ }).click();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-
-  // Step 4: interests (optional).
-  await expect(page.getByText("Pick up to five interests")).toBeVisible();
-  await page.getByRole("button", { name: "Next", exact: true }).click();
-
-  // Step 5: AI literacy, then finish.
-  await expect(page.getByText("A quick word about the AI")).toBeVisible();
-  await page.getByRole("button", { name: /finish setup/i }).click();
-
-  // Done page: theme + accent personalization, then into the app.
-  await page.waitForURL(/onboarding\/done/, { timeout: 30_000 });
-  await expect(page.getByRole("heading", { name: "Your deck is ready." })).toBeVisible();
-  await expect(page.getByRole("group", { name: "Theme" })).toBeVisible();
-  await page.getByRole("link", { name: /open today/i }).click();
-
-  // Dashboard: onboarding lands in the current ScreenDesign lobby.
-  await page.waitForURL(/dashboard/, { timeout: 30_000 });
-  await expect(page.getByRole("heading", { name: "DIANA QA STUDENT" })).toBeVisible();
-  await expect(page.getByText("YOUR NEXT MOVE", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /start next mission/i })).toBeVisible();
-
-  // The dyslexia choice took effect as a smart default (body class).
-  const bodyClass = await page.evaluate(
-    () => document.querySelector(".dyslexia-font") !== null,
-  );
-  expect(bodyClass).toBe(true);
-});
-
-test("settings shows the adaptive and integration surfaces", async ({ page }) => {
-  test.setTimeout(60_000);
-  const session = await page.goto(`${baseUrl}/api/qa/anonymous-session`, {
+  await openQaSession(page, { variant: "onboarding" });
+  const reset = await page.goto("/api/qa/reset-onboarding", {
     waitUntil: "networkidle",
   });
-  expect(session?.ok()).toBe(true);
+  expect(reset?.ok()).toBe(true);
 
-  await page.goto(`${baseUrl}/settings`, { waitUntil: "domcontentloaded" });
-  await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => undefined);
+  await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
+  await page.waitForURL(/\/onboarding$/u, { timeout: 30_000 });
 
-  await expect(page.getByRole("heading", { name: "Settings" })).toBeVisible();
-  await expect(page.getByRole("group", { name: "Theme" })).toBeVisible();
-  await page.getByText("How Diana adapts").click();
-  await expect(page.getByText("How Diana is adapting to you")).toBeVisible();
-  await page.getByText("School connections", { exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Canva" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /DIANA AI TUTOR/i })).toBeVisible();
+  await page.getByRole("button", { name: "GET STARTED" }).click();
 
-  // Theme toggle actually pins the class.
-  await page.getByRole("button", { name: "Dark" }).click();
-  await expect
-    .poll(async () => page.evaluate(() => document.documentElement.classList.contains("dark")))
-    .toBe(true);
+  await expect(page.getByRole("heading", { name: "DID YOU KNOW?" })).toBeVisible();
+  await expect(page.getByText("Save 10+ Hours/Week")).toBeVisible();
+  await page.getByRole("button", { name: "CONTINUE" }).click();
+
+  await expect(
+    page.getByRole("heading", { name: "WHAT'S YOUR BIGGEST HURDLE RIGHT NOW?" }),
+  ).toBeVisible();
+  await page.getByRole("radio", { name: /Complex Concepts/ }).click();
+  await expect(page.getByRole("radio", { name: /Complex Concepts/ })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.getByRole("button", { name: "Select learning hurdle" }).click();
+
+  await expect(page.getByRole("heading", { name: /WHEN ARE YOU MOST IN THE ZONE/ })).toBeVisible();
+  await page.getByRole("radio", { name: /Morning Hustle/ }).click();
+  await page.getByRole("slider", { name: "Sleep goal" }).fill("8.5");
+  await page.getByRole("slider", { name: "Movement goal" }).fill("5");
+  await page.getByRole("button", { name: "Select study schedule" }).click();
+
+  await page.waitForURL(/\/dashboard$/u, { timeout: 30_000 });
+  await expect(
+    page.getByRole("heading", { name: /Next move|Caught up/ }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: "Work", exact: true }).first(),
+  ).toBeVisible();
+});
+
+test("settings exposes the current profile and accessibility workspace", async ({ page }) => {
+  test.setTimeout(60_000);
+  await openQaSession(page);
+
+  await page.goto("/settings", { waitUntil: "domcontentloaded" });
+  await expect(page.getByRole("heading", { name: "Profile" })).toBeVisible();
+
+  await page.getByRole("link", { name: "Appearance", exact: true }).click();
+  await expect(page).toHaveURL(/section=appearance/u);
+  await expect(page.getByRole("heading", { name: "Appearance" })).toBeVisible();
+  await expect(page.getByText("Personalize the lobby", { exact: false })).toBeVisible();
+
+  await page.getByRole("link", { name: "Accessibility", exact: true }).click();
+  await expect(page).toHaveURL(/section=accessibility/u);
+  await expect(
+    page.getByRole("heading", { name: "Accessibility", level: 1 }),
+  ).toBeVisible();
+  await expect(page.getByText("Adjust the reading experience", { exact: false })).toBeVisible();
+});
+
+test("formal assessment stays locked until its prerequisite is complete", async ({
+  page,
+}) => {
+  test.setTimeout(120_000);
+  const fixture = await seedFormalAssessmentReleaseGate(page);
+
+  try {
+    const assessmentPath = `/course-mode/assessments/${fixture.assessmentId}`;
+    await page.goto(assessmentPath, { waitUntil: "domcontentloaded" });
+    await expect(
+      page.getByRole("heading", { name: "Linear relationships check" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Start assessment" }).click();
+    await expect(page).toHaveURL(/status=not-started/u);
+    await expect(page.getByRole("status")).toHaveText(
+      "This assessment could not be started yet.",
+    );
+    await expect(page.getByRole("heading", { name: /Question 1 of/ })).toHaveCount(0);
+
+    await fixture.release();
+    await page.goto(assessmentPath, { waitUntil: "domcontentloaded" });
+    await page.getByRole("button", { name: "Start assessment" }).click();
+    await expect(page).toHaveURL(/status=started/u);
+    await expect(page.getByRole("status").first()).toHaveText(
+      "Your assessment is open. Responses save as you work.",
+    );
+    await expect(page.getByRole("heading", { name: "Question 1 of 1" })).toBeVisible();
+    await expect(page.getByText("Which value is the slope", { exact: false })).toBeVisible();
+  } finally {
+    await fixture.cleanup();
+  }
 });

@@ -259,7 +259,7 @@ const checks: Check[] = [
       "extractWorkerTimeoutMs(claimed.constraints)",
       "runWithWorkerTimeout",
       "AbortController",
-      "Worker execution timed out.",
+      'WorkerCycleFailure("provider_timeout"',
       "imageSha: config.imageSha",
     ]),
     "Worker runtime must honor claimed job budget timeout constraints, abort sidecar work, and record image provenance.",
@@ -284,8 +284,9 @@ const checks: Check[] = [
         ".eq(\"owner_id\", user.id)",
         "result_payload",
         "publicTrace",
-        "STUDENT_RUNTIME_READ_TOOLS",
+        "const supabase = await createClient()",
       ]) &&
+      includesAll(workerTier, ["STUDENT_RUNTIME_READ_TOOLS"]) &&
       includesAll(voiceCommandSurface, [
         "/api/diana/voice-candidate/status?traceId=",
         "pollQueuedCandidate",

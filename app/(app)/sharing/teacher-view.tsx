@@ -98,15 +98,15 @@ export async function TeacherSharingView() {
         }}
       />
 
-      <details className="nexus-settings-disclosure">
+      <details className="diana-settings-disclosure">
         <summary>
           <span>
             <small>Receipts</small>
             <strong>AI authorship detail</strong>
           </span>
         </summary>
-        <div className="nexus-settings-disclosure-body">
-          <section className="nexus-panel nexus-panel-dense space-y-3">
+        <div className="diana-settings-disclosure-body">
+          <section className="diana-panel diana-panel-dense space-y-3">
             <h3 className="text-sm font-semibold">AI authorship receipts</h3>
             <p className="text-sm text-muted">
               How AI help was used per assignment: Socratic hints and scaffolds, never written work. The
@@ -128,14 +128,14 @@ export async function TeacherSharingView() {
         </div>
       </details>
 
-      <details className="nexus-settings-disclosure">
+      <details className="diana-settings-disclosure">
         <summary>
           <span>
             <small>Documents</small>
             <strong>IEP / 504 import</strong>
           </span>
         </summary>
-        <div className="nexus-settings-disclosure-body">
+        <div className="diana-settings-disclosure-body">
           <IepImport />
         </div>
       </details>

@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/math-example/index.ts
 // F6 (AP Math depth): Worked example of an ANALOGOUS problem — never the student's actual problem.
 // ai_mode: 'red' and 'yellow' both return 403 (math AI gated same as math-step).
@@ -5,6 +7,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -12,7 +15,6 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const EXAMPLE_PROMPT = `You are a math tutor helping a high-school student see a worked example.
 
@@ -26,12 +28,11 @@ Strict rules:
 - Calm tone. No exclamation marks. Never say "you must", "wrong", or "behind".
 - Keep the entire response under 12 short lines.`;
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("math-example", async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, content-type",
       },
     });
@@ -113,7 +114,9 @@ Deno.serve(async (req: Request) => {
     const userMessage = `Subject: ${subject}\nProblem the student is stuck on:\n${(problem as string).slice(0, 2000)}`;
 
     // 7. Use the shared fast student model (D-06).
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMessage,
       maxTokens: 500,
@@ -145,14 +148,14 @@ Deno.serve(async (req: Request) => {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("math-example error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-});
+}));

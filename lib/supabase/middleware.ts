@@ -6,7 +6,14 @@ import type { Database } from "@/lib/supabase/types";
 const PUBLIC_EXACT = new Set([
   "/",
   "/manifest.webmanifest",
+  // Read-only, key-safe deployment identity used by the release SHA verifier.
+  "/api/build-info",
+  "/api/health",
+  "/api/readiness",
   "/api/qa/anonymous-session",
+  // Development-only QA login. The route itself returns 404 in production or
+  // when QA_CREATE_USER is disabled.
+  "/qa-session",
   // Handles its own feature flag, session check, and JSON response.
   "/api/diana/voice-candidate",
   "/api/diana/voice-candidate/status",
@@ -16,10 +23,11 @@ const PUBLIC_EXACT = new Set([
   "/api/workers/metrics",
   "/api/workers/metrics/prometheus",
   "/api/workers/version",
+  "/api/operations/metrics/prometheus",
 ]);
-// "/share" is the account-less parent/teacher summary — it validates its own
+// "/share" is the account-less parent/teacher summary - it validates its own
 // token server-side (service role), so it must bypass the auth wall.
-const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d", "/share"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/landing-3d", "/share"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
 
 function isPublic(path: string): boolean {
@@ -27,8 +35,11 @@ function isPublic(path: string): boolean {
   return PUBLIC_PREFIXES.some((p) => path === p || path.startsWith(p + "/"));
 }
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export async function updateSession(
+  request: NextRequest,
+  requestHeaders: Headers = new Headers(request.headers),
+) {
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,7 +53,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          response = NextResponse.next({ request });
+          response = NextResponse.next({ request: { headers: requestHeaders } });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );

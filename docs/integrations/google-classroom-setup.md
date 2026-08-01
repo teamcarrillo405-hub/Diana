@@ -14,10 +14,11 @@ Until both are set, the connect button returns `?classroom=not-configured`
 
 1. Pick/create a GCP project → **APIs & Services → Library** → enable **Google Classroom API**.
 2. **OAuth consent screen**: External; add app name, support email, developer email.
-   Add these scopes (read-only — matches `GOOGLE_CLASSROOM_SCOPES` in `lib/lms/google.ts`):
+   Add these student scopes (matches `GOOGLE_CLASSROOM_SCOPES` in `lib/lms/google.ts`):
    - `.../auth/classroom.courses.readonly`
-   - `.../auth/classroom.coursework.me.readonly`
-   - `.../auth/classroom.announcements.readonly`
+   - `.../auth/classroom.coursework.me`
+   - `.../auth/drive.readonly`
+   - `.../auth/drive.file`
    - `openid`, `email`
    While in "Testing", add each tester's Google account; publish to remove that limit.
 3. **Credentials → Create credentials → OAuth client ID → Web application.**
@@ -47,6 +48,8 @@ Never commit these. Set them where the app runs:
 2. The `google_classroom` row in `lms_connections.config` now has a `refresh_token`.
 3. Background sync (`/api/cron/lms-sync`, every 6h via `vercel.json`) will then
    refresh and sync Classroom automatically. Manual: the "Sync now" button.
+4. Run `npm run provider:canary` for the credential-free provider contract. See
+   `docs/integrations/provider-canary.md` before enabling real staging writes.
 
 ## Notes
 

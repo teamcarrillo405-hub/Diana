@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
 <style>
   :root{
-    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-bg-base:#0b1428; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
     --gl-cyan:#29d0ff; --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
     --gl-green:#29d0ff; --gl-green-light:#7fe0ff; --gl-green-28:rgba(41,208,255,.28); --gl-green-24:rgba(41,208,255,.24); --gl-green-16:rgba(41,208,255,.16); --gl-green-14:rgba(41,208,255,.14); --gl-green-08:rgba(41,208,255,.08);
     --gl-gold:#ffd24a;
@@ -36,29 +36,10 @@
 </style>
 </helmet>
 
-<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 620px at 82% -5%,rgba(41,208,255,.06),transparent 60%),var(--gl-bg-base)">
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(circle at 88% 6%,rgba(255,121,218,.11),transparent 30%),var(--gl-bg-base)">
 
   <!-- ════════ APP NAV (matches Student Lobby exactly, More active) ════════ -->
-  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
-    <div style="display:flex;gap:8px">
-      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
-      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
-      <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Today</a>
-      <a href="Work.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
-      <a href="Classes.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
-      <a href="Calendar.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
-      <a href="Messages.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
-    </div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
-      <div onClick="{{ goQuickAdd }}" style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</div>
-      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f;flex-shrink:0;cursor:pointer;border:2px solid rgba(41,208,255,.38)">G</a>
-      <div onClick="{{ goSettings }}" style="width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      </div>
-    </div>
-  </div>
+  <dc-import name="Student Desktop Header" hint-size="1440px,58px"></dc-import>
 
   <div style="max-width:1440px;margin:0 auto;padding:26px 34px 64px">
 
@@ -71,19 +52,14 @@
         Think
       </a>
       <a href="Proof.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-green-28);background:var(--gl-green-14);font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-green-light)">
-        <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-green);box-shadow:0 0 8px var(--gl-green)"></span>Proof
-      </a>
-      <a href="Future.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:9px;border:1px solid var(--gl-border-neutral);background:transparent;font-family:var(--font-display);font-weight:700;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-text-muted)">
-        Future
+        <span style="width:6px;height:6px;border-radius:50%;background:var(--gl-green);box-shadow:0 0 8px var(--gl-green)"></span>Record
       </a>
     </div>
 
     <!-- header -->
     <header style="display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:26px;align-items:center;margin-bottom:26px">
       <div>
-        <div style="font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:var(--gl-green-light);margin-bottom:9px">Proof · what I have shown</div>
-        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:var(--gl-text-primary)">Your<br>evidence.</h1>
-        <p style="margin:12px 0 0;max-width:540px;font-size:14.5px;line-height:1.55;color:var(--gl-text-overlay-60)">Progress signals and grade moves — the quiet payoff, kept off the landing so it never nags. Diana only shows what you have actually done, never a streak to protect.</p>
+        <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-weight:800;font-size:40px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:var(--gl-text-primary)">Record</h1>
       </div>
       <div style="position:relative;border-radius:14px;border:1px solid var(--gl-green-28);background:linear-gradient(135deg,rgba(8,12,26,.94),rgba(12,18,42,.92));overflow:hidden;padding:16px 18px">
         <div style="position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid var(--gl-green);border-top:2px solid var(--gl-green);border-radius:2px 0 0 0"></div>
@@ -152,10 +128,38 @@
         </div>
       </sc-if>
 
-      <!-- SCOPE NOTE -->
-      <div style="padding:18px 22px;border-radius:13px;border:1px dashed var(--gl-border-neutral);background:rgba(4,8,20,.3);font-size:13.5px;color:rgba(200,218,255,.5);line-height:1.6">
-        <span style="font-family:var(--font-display);font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:rgba(200,218,255,.6)">Also lives here →</span> portfolio, mastery progress, and submitted work. Out of scope for this build — listed so the tab reads as the evidence surface it will become.
-      </div>
+      <!-- SHOWCASE: the saved work students want to point to, grouped by the week it was added -->
+      <section aria-labelledby="showcase-title" style="display:flex;flex-direction:column;gap:10px">
+        <div id="showcase-title" style="font-family:var(--font-display);font-weight:800;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gl-text-subdued)">Showcase</div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-dim)">This week</div>
+          <a href="Portfolio.dc.html" style="display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;padding:14px;text-decoration:none;color:#0f172a">
+            <span style="display:grid;width:42px;height:42px;place-items:center;border-radius:10px;background:rgba(255,121,218,.13);color:#be185d">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"></path></svg>
+            </span>
+            <span style="min-width:0">
+              <span style="display:block;overflow:hidden;font-family:var(--font-display);font-weight:900;font-size:16px;font-style:italic;letter-spacing:.01em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap">Titration Lab Reflection</span>
+              <span style="display:block;overflow:hidden;margin-top:3px;color:#64748b;font-size:10px;font-weight:800;letter-spacing:.07em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap">Chemistry · Lab work</span>
+            </span>
+            <span style="font-family:var(--font-display);font-weight:900;font-size:16px;color:#475569">→</span>
+          </a>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:5px">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-dim)">Week of Jul 7</div>
+          <a href="Portfolio.dc.html" style="display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:12px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;padding:14px;text-decoration:none;color:#0f172a">
+            <span style="display:grid;width:42px;height:42px;place-items:center;border-radius:10px;background:rgba(116,192,255,.16);color:#0369a1">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"></path></svg>
+            </span>
+            <span style="min-width:0">
+              <span style="display:block;overflow:hidden;font-family:var(--font-display);font-weight:900;font-size:16px;font-style:italic;letter-spacing:.01em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap">Civil Rights Source Notes</span>
+              <span style="display:block;overflow:hidden;margin-top:3px;color:#64748b;font-size:10px;font-weight:800;letter-spacing:.07em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap">U.S. History · Research</span>
+            </span>
+            <span style="font-family:var(--font-display);font-weight:900;font-size:16px;color:#475569">→</span>
+          </a>
+        </div>
+      </section>
     </div>
   </div>
 </div>

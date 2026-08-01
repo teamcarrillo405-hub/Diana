@@ -70,6 +70,7 @@ export function AudioUploadTab({
 
         // 3. Upload to Supabase Storage via existing server action
         const formData = new FormData();
+        formData.append("noteId", noteId);
         formData.append("audio", file);
         const up = await uploadNoteAudio(formData);
         if (!up.ok) {

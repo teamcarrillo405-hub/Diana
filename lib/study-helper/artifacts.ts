@@ -5,6 +5,14 @@ import { buildVisualBreakdown, type VisualBreakdown } from "./visual-breakdown";
 export type StudyArtifactSourceType = "assignment" | "note";
 export type StudyArtifactType = "study_guide" | "practice_test" | "flashcard_set";
 
+export function isStudyArtifactSourceType(value: unknown): value is StudyArtifactSourceType {
+  return value === "assignment" || value === "note";
+}
+
+export function isStudyArtifactType(value: unknown): value is StudyArtifactType {
+  return value === "study_guide" || value === "practice_test" || value === "flashcard_set";
+}
+
 export type PracticeTestSettings = {
   questionCount: number;
   difficulty: "light" | "standard" | "challenge";

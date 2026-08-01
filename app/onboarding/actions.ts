@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import {
+  buildScreenDesignOnboardingUpdate,
+  type ScreenDesignOnboardingResult,
+} from "@/lib/onboarding/screendesign";
 import { createClient } from "@/lib/supabase/server";
 import { normalizeInterestIds } from "@/lib/student-identity/interests";
 
@@ -13,6 +17,21 @@ const ACCOMMODATIONS = z.enum([
 ]);
 const FONT_SIZE = z.enum(["small","normal","large","xlarge"]);
 const LINE_SPACING = z.enum(["compact","normal","loose"]);
+
+type ScreenDesignFieldErrors = Extract<
+  ScreenDesignOnboardingResult,
+  { ok: false }
+>["fieldErrors"] & { wellnessGoals?: string };
+
+const ScreenDesignWellnessTargetsInput = z.object({
+  sleepGoal: z.number().min(4).max(10),
+  movementGoal: z.number().int().min(1).max(7),
+});
+
+export type CompleteScreenDesignOnboardingResult =
+  | { ok: true }
+  | { ok: false; reason: "validation"; fieldErrors: ScreenDesignFieldErrors }
+  | { ok: false; reason: "auth" | "persistence"; error: string };
 
 const Input = z.object({
   diagnoses: z.array(DIAGNOSES),
@@ -54,6 +73,77 @@ export async function saveOnboarding(input: z.infer<typeof Input>) {
     .update(patch)
     .eq("user_id", user.id);
   if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
+
+export async function completeScreenDesignOnboarding(
+  input: unknown,
+): Promise<CompleteScreenDesignOnboardingResult> {
+  const validated = buildScreenDesignOnboardingUpdate(input);
+  if (!validated.ok) {
+    return {
+      ok: false,
+      reason: "validation",
+      fieldErrors: validated.fieldErrors,
+    };
+  }
+
+  const wellnessTargets = ScreenDesignWellnessTargetsInput.safeParse(input);
+  if (!wellnessTargets.success) {
+    return {
+      ok: false,
+      reason: "validation",
+      fieldErrors: {
+        wellnessGoals: "Choose a sleep and movement target that feels workable.",
+      },
+    };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      ok: false,
+      reason: "auth",
+      error: "Please sign in to finish setup.",
+    };
+  }
+
+  const { error: wellnessTargetsError } = await supabase
+    .from("wellness_weekly_targets")
+    .upsert(
+      {
+        owner_id: user.id,
+        sleep_hours: wellnessTargets.data.sleepGoal,
+        check_in_days: 5,
+        movement_days: wellnessTargets.data.movementGoal,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "owner_id" },
+    );
+
+  if (wellnessTargetsError) {
+    return {
+      ok: false,
+      reason: "persistence",
+      error: "Your wellness targets did not save yet. Your other choices are still here.",
+    };
+  }
+
+  const { error } = await supabase
+    .from("profiles")
+    .update(validated.update)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return {
+      ok: false,
+      reason: "persistence",
+      error: "Those choices did not save yet. Your other settings are still here.",
+    };
+  }
 
   revalidatePath("/", "layout");
   return { ok: true };

@@ -1,16 +1,21 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/history-scaffold/index.ts
 // Phase 20: history and social studies scaffold engine.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  aiGuardFailureResponse,
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
+  runSafeBudgetedAiCall,
+  type SafetyMediaInput,
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TEXT_MODES = new Set(["primary_source", "cause_effect", "happ", "dbq", "compare", "current_events"]);
 const MIME_BY_EXT: Record<string, string> = {
@@ -80,7 +85,6 @@ Do not invent unseen regions.`;
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -102,19 +106,28 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   return btoa(binary);
 }
 
-async function runMapAnnotation(
-  supabase: ReturnType<typeof createClient>,
+async function loadMapImage(
+  // deno-lint-ignore no-explicit-any
+  supabase: { storage: any },
   storageKey: string,
   bucket: string,
-): Promise<{ content: string; tokens: number }> {
+): Promise<SafetyMediaInput> {
   const ext = (storageKey.split(".").pop() ?? "").toLowerCase();
   const mimeType = MIME_BY_EXT[ext];
   if (!mimeType) throw new Error("Pick a .jpg, .png, .webp, or .gif image.");
 
   const { data: blob, error } = await supabase.storage.from(bucket).download(storageKey);
   if (error || !blob) throw new Error("Map image not found.");
-  const base64Data = uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer()));
+  return {
+    mediaType: mimeType,
+    data: uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer())),
+  };
+}
 
+async function runMapAnnotation(
+  image: SafetyMediaInput,
+  markProviderUsage: () => void,
+): Promise<{ content: string; tokens: number }> {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -130,7 +143,7 @@ async function runMapAnnotation(
         {
           role: "user",
           content: [
-            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" } },
+            { type: "image_url", image_url: { url: `data:${image.mediaType};base64,${image.data}`, detail: "high" } },
             { type: "text", text: "Annotate the map for a student label quiz. Use visible map details only." },
           ],
         },
@@ -138,20 +151,26 @@ async function runMapAnnotation(
     }),
   });
   if (!res.ok) {
-    console.error("history-scaffold map error:", await res.text());
+    console.error("history-scaffold map request did not complete", res.status);
     throw new Error("We couldn't annotate that map. Try a clearer crop.");
   }
-  const data = await res.json() as {
+  markProviderUsage();
+  let data: {
     choices?: Array<{ message?: { content?: string } }>;
     usage?: { prompt_tokens?: number; completion_tokens?: number };
   };
+  try {
+    data = await res.json() as typeof data;
+  } catch {
+    throw new Error("history_map_provider_invalid_json");
+  }
   return {
     content: data.choices?.[0]?.message?.content ?? "{}",
     tokens: Number(data.usage?.prompt_tokens ?? 0) + Number(data.usage?.completion_tokens ?? 0),
   };
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders() });
 
   try {
@@ -195,7 +214,19 @@ Deno.serve(async (req: Request) => {
       const storageKey = typeof body.storageKey === "string" ? body.storageKey : "";
       const bucket = typeof body.bucket === "string" && body.bucket.length > 0 ? body.bucket : "note-docs";
       if (!storageKey) return jsonResponse({ error: "storageKey required" }, 400);
-      const result = await runMapAnnotation(supabase, storageKey, bucket);
+      const image = await loadMapImage(supabase, storageKey, bucket);
+      const guardedMap = await runSafeBudgetedAiCall({
+        ownerId,
+        supabase,
+        input: "Annotate the map for a student label quiz. Use visible map details only.",
+        systemPrompt: MAP_PROMPT,
+        maxOutputTokens: 900,
+        mediaCount: 1,
+        media: [image],
+        invoke: ({ markProviderUsage }) => runMapAnnotation(image, markProviderUsage),
+      });
+      if (!guardedMap.ok) return aiGuardFailureResponse(guardedMap);
+      const result = guardedMap.value;
       content = result.content;
       tokens = result.tokens;
       model = "gpt-4o";
@@ -216,7 +247,9 @@ Deno.serve(async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const ai = await callStudentTextModel({
+      const ai = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
         system: systemPrompt,
         user: `Mode: ${mode}\nSource or prompt:\n${sourceText}\n\nClass context:\n${classContext}`,
         maxTokens: 650,
@@ -240,12 +273,12 @@ Deno.serve(async (req: Request) => {
         }, supabase);
         await incrementTokens(ownerId, tokens, supabase);
       })
-      .catch((e) => console.warn("post-response side effects failed", e));
+      .catch(() => console.warn("post-response side effects did not complete"));
 
     return jsonResponse({ content });
   } catch (err) {
-    console.error("history-scaffold error:", err);
-    const message = err instanceof Error ? err.message : "Internal error";
-    return jsonResponse({ error: message }, 500);
+    if (err instanceof Response) return err;
+    console.error("history-scaffold request did not complete");
+    return jsonResponse({ error: "History help is unavailable right now." }, 500);
   }
-});
+}));

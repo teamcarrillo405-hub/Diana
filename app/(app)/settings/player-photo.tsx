@@ -140,8 +140,8 @@ export function PlayerPhoto({
   }
 
   return (
-    <section className="nexus-panel nexus-panel-dense space-y-3">
-      <span className="nexus-kicker">Player photo</span>
+    <section className="diana-panel diana-panel-dense space-y-3">
+      <span className="diana-kicker">Player photo</span>
       <h2 className="text-xl font-semibold">Your lobby photo</h2>
       <p className="text-sm text-muted">
         Upload a photo and Diana removes the background so it sits cleanly in your lobby. This runs privately on your
@@ -188,7 +188,7 @@ export function PlayerPhoto({
             type="button"
             disabled={working}
             onClick={() => inputRef.current?.click()}
-            className="nexus-button nexus-button-primary w-fit px-3 py-2 text-sm disabled:opacity-50"
+            className="diana-button diana-button-primary w-fit px-3 py-2 text-sm disabled:opacity-50"
           >
             {working ? busyLabel : photo ? "Replace photo" : "Upload photo"}
           </button>
@@ -197,7 +197,7 @@ export function PlayerPhoto({
               type="button"
               disabled={working}
               onClick={removePhoto}
-              className="nexus-button nexus-button-ghost w-fit px-3 py-2 text-sm disabled:opacity-50"
+              className="diana-button diana-button-ghost w-fit px-3 py-2 text-sm disabled:opacity-50"
             >
               Remove
             </button>

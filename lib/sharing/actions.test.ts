@@ -25,16 +25,20 @@ beforeEach(() => {
 describe("createShareLink", () => {
   it("returns token and expiresAt on success", async () => {
     mockSingle.mockResolvedValue({
-      data: { token: "tok-abc", expires_at: "2026-06-05T00:00:00Z" },
+      data: { id: "link-1", expires_at: "2026-06-05T00:00:00Z" },
       error: null,
     });
     const result = await createShareLink("parent_summary");
-    expect(result).toEqual({ token: "tok-abc", expiresAt: "2026-06-05T00:00:00Z" });
+    expect(result).toEqual({
+      id: "link-1",
+      token: expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+      expiresAt: "2026-06-05T00:00:00Z",
+    });
   });
 
   it("calls supabase insert with correct owner_id and share_type", async () => {
     mockSingle.mockResolvedValue({
-      data: { token: "tok-xyz", expires_at: "2026-06-05T00:00:00Z" },
+      data: { id: "link-2", expires_at: "2026-06-05T00:00:00Z" },
       error: null,
     });
     await createShareLink("parent_summary");
@@ -42,6 +46,35 @@ describe("createShareLink", () => {
     expect(fromResult.insert).toHaveBeenCalledWith({
       owner_id: "user-123",
       share_type: "parent_summary",
+      token: expect.stringMatching(/^[A-Za-z0-9_-]{43}$/u),
+      token_digest: expect.stringMatching(/^[a-f0-9]{64}$/u),
+    });
+  });
+
+  it("retries with the legacy token shape before the digest migration", async () => {
+    mockSingle
+      .mockResolvedValueOnce({
+        data: null,
+        error: { code: "PGRST204", message: "Could not find the token_digest column" },
+      })
+      .mockResolvedValueOnce({
+        data: { id: "link-legacy", expires_at: "2026-06-05T00:00:00Z" },
+        error: null,
+      });
+
+    const result = await createShareLink("teacher_snapshot");
+
+    expect(result).toMatchObject({ id: "link-legacy" });
+    const firstInsert = mockFrom.mock.results[0].value.insert;
+    const secondInsert = mockFrom.mock.results[1].value.insert;
+    expect(firstInsert).toHaveBeenCalledWith(expect.objectContaining({
+      token: expect.any(String),
+      token_digest: expect.any(String),
+    }));
+    expect(secondInsert).toHaveBeenCalledWith({
+      owner_id: "user-123",
+      share_type: "teacher_snapshot",
+      token: expect.any(String),
     });
   });
 

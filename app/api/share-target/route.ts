@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -18,9 +19,15 @@ export async function POST(request: Request) {
 
   let storageKey: string | null = null;
   if (file) {
-    const ext = (file.name.split(".").pop() ?? "bin").toLowerCase();
-    storageKey = `${user.id}/share-${Date.now()}.${ext}`;
-    await supabase.storage.from("note-docs").upload(storageKey, file, { contentType: file.type || "application/octet-stream" });
+    const validation = await validateFileUpload("shareTarget", file);
+    if (!validation.ok) {
+      return NextResponse.redirect(new URL(`/notes/new?upload=${validation.code}`, url.origin), 303);
+    }
+    storageKey = ownerStorageKey(user.id, "share-target", `${crypto.randomUUID()}.${validation.value.extension}`);
+    const { error: uploadError } = await supabase.storage.from("note-docs").upload(storageKey, file, { contentType: validation.value.mimeType });
+    if (uploadError) {
+      return NextResponse.redirect(new URL("/notes/new?upload=retry", url.origin), 303);
+    }
   }
 
   const { data: note, error } = await supabase
@@ -36,6 +43,7 @@ export async function POST(request: Request) {
     .single();
 
   if (error || !note) {
+    if (storageKey) await supabase.storage.from("note-docs").remove([storageKey]);
     return NextResponse.redirect(new URL("/notes/new", url.origin), 303);
   }
 

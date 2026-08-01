@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 
-const baseUrl = process.env.QA_BASE_URL ?? "http://localhost:3000";
+const baseUrl = process.env.QA_BASE_URL ?? "http://127.0.0.1:3005";
 const runName = process.env.QA_RUN_NAME ?? `local-${new Date().toISOString().replace(/[:.]/g, "-")}`;
 const outDir = join(process.cwd(), ".planning", "qa-screenshots", runName);
 const authStatePath = join(outDir, "auth-storage-state.json");
@@ -20,7 +20,6 @@ const requiredRoutes = [
   "/login",
   "/signup",
   "/proof",
-  "/future-path",
   "/me",
   "/dashboard",
   "/assignments",
@@ -54,7 +53,6 @@ const bannedVisibleTerms = [
 
 const authenticatedRoutes = new Set([
   "/proof",
-  "/future-path",
   "/me",
   "/dashboard",
   "/assignments",

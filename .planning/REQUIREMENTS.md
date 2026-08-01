@@ -222,3 +222,25 @@ DBQ 7-point checklist, CER lab report, 5-paragraph essay, FRQ tagger.
 
 ### T2-03: Body-Doubling Mode ✓ COMPLETE (07-03)
 Silent peer-presence framing. Community, not surveillance.
+
+---
+
+## Phase 36 Requirements: Faithful ScreenDesign Rebuild
+
+### P36-FIDELITY: Canonical Screen Fidelity
+Implement exactly 47 canonical ScreenDesign states: the 46 non-dashboard exports from `C:\Users\glcar\Downloads\ai-tutor-app-html-2026-07-14-15-18` plus `C:\Users\glcar\Downloads\dashboard_personalized (1).html` as the replacement dashboard source. Match the source hierarchy, geometry, imagery, selected states, spacing, and mobile composition at 393 by 852. The attached dashboard must replace the conflicting folder dashboard. Nexus, Nexus Arcade, Mission Control, Today's Game Plan metric cards, and generic-shell reskins are not acceptable substitutes.
+
+### P36-ASSETS: Application-Owned Source Media
+Copy all 24 unique ScreenDesign media resources and all four DiceBear avatars used by the canonical sources into `public/screendesign`. Record source URL, local path, checksum, intrinsic dimensions, alpha intent, and consumer screens in an application-owned manifest. Production rendering must not request ScreenDesign, DiceBear, Tailwind CDN, or Iconify CDN resources.
+
+### P36-OPERATIONS: Real Data, Actions, and Navigation
+Preserve existing Next.js Server Component loaders, Supabase authorization and RLS, assignment state transitions, FSRS, timer, AI traffic-light, token budget, authorship logging, billing gate, sharing token scope, and wellness/privacy behavior. Adapt real records into source-shaped view models. Every primary CTA, selected state, back control, and the five-item Today/Work/Classes/Calendar/More navigation must reach the approved route or execute a supported mutation. Unsupported static-export claims must render an honest unavailable or empty state.
+
+### P36-ONBOARDING: Four-Screen Source Flow with Durable Answers
+Render onboarding welcome, educational, challenge, and schedule screens in that order. Preserve the source imagery, progress indicators, selected cards, and controls. Persist the selected learning hurdle and study schedule preference in dedicated validated profile fields without overwriting existing diagnoses, accommodations, school year, interests, or accessibility values, then set `onboarded_at` on completion. Existing optional personalization remains editable in Settings.
+
+### P36-QA: Visual, Interaction, Responsive, and Calm Verification
+Maintain a machine-readable 47-screen route/state manifest and a deterministic synthetic student fixture. Compare every screen with a reviewed Playwright golden at exactly 393 by 852, prove its primary interaction and route ownership, then check safe larger viewports, keyboard focus, accessibility, reduced motion, and calm-language rules. A route existing is not completion evidence.
+
+### P36-REMOVAL: Obsolete Visual Removal and Launch Readiness
+After every canonical replacement is wired and verified, remove obsolete Nexus/Mission Control/TodayGamePlan presentation consumers and stale visual CSS without deleting business logic or user data. Produce a clean production build, verify no prohibited composition is reachable or compiled, deploy a Vercel preview, confirm its commit SHA, and require final reviewed visual approval before production merge/deploy.

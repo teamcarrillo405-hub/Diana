@@ -1,8 +1,11 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/science-scaffold/index.ts
 // Phase 19: hypothesis-first science scaffold engine.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -10,7 +13,6 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = new Set(["hypothesis", "lab_report", "method", "formula", "chemistry_balance", "diagram", "frq"]);
 
@@ -44,7 +46,6 @@ Rules:
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -57,7 +58,7 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("science-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders() });
 
   try {
@@ -105,7 +106,9 @@ Deno.serve(async (req: Request) => {
       personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
-    const ai = await callStudentTextModel({
+    const ai = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: `Mode: ${mode}\nScience prompt or draft:\n${prompt}\n\nClass context:\n${classContext}`,
       maxTokens: 700,
@@ -130,7 +133,8 @@ Deno.serve(async (req: Request) => {
 
     return jsonResponse({ content });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("science-scaffold error:", err);
     return jsonResponse({ error: "Internal error" }, 500);
   }
-});
+}));

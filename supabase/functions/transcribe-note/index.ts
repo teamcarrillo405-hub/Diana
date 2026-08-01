@@ -1,8 +1,16 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { withStudentSecurity } from "../_shared/student-handler.ts";
 
-const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  callSafeStudentTextModel,
+  contentByteLength,
+  logInteraction,
+} from "../_shared/safety.ts";
+import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+  "";
 
 interface OutlineNode {
   heading: string;
@@ -15,7 +23,8 @@ interface AiPayload {
   actionItems?: string[];
 }
 
-const SYSTEM_PROMPT = `You are helping a high-school student with ADHD and dyslexia review their in-class notes.
+const SYSTEM_PROMPT =
+  `You are helping a high-school student with ADHD and dyslexia review their in-class notes.
 
 You will receive raw notes the student wrote or dictated during class. They may be fragmented, contain partial sentences, voice-to-text errors, or topical jumps.
 
@@ -38,19 +47,21 @@ Constraints:
   "actionItems": ["<task from the notes>"]
 }`;
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("transcribe-note", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, content-type",
       },
     });
   }
 
   try {
-    const { noteId } = await req.json() as { noteId: string };
-    if (!noteId) {
+    const { noteId, ownerId } = await req.json() as {
+      noteId: string;
+      ownerId: string;
+    };
+    if (!noteId || !ownerId) {
       return new Response(JSON.stringify({ error: "noteId required" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
@@ -64,6 +75,7 @@ Deno.serve(async (req: Request) => {
       .from("notes")
       .select("id, owner_id, body_text, source")
       .eq("id", noteId)
+      .eq("owner_id", ownerId)
       .single();
 
     if (noteError || !note) {
@@ -80,42 +92,25 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // 2. Call Claude Sonnet 4.6 (reasoning quality matters for outline structuring)
+    // 2. Moderate the complete note, generate, then moderate the complete result.
     const truncated = note.body_text.slice(0, 8000);
-
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1500,
-        system: [{ type: "text", text: SYSTEM_PROMPT, cache_control: { type: "ephemeral" } }],
-        messages: [
-          {
-            role: "user",
-            content: `Raw class notes:\n\n${truncated}`,
-          },
-        ],
-      }),
+    const userMessage = `Raw class notes:\n\n${truncated}`;
+    const systemPrompt = composeSystemPrompt(SYSTEM_PROMPT, {
+      includeRefuseRedirect: true,
+      includeFrustration: true,
+      includeMinorSafety: true,
     });
-
-    if (!anthropicRes.ok) {
-      const errText = await anthropicRes.text();
-      console.error("Anthropic error:", errText);
-      return new Response(JSON.stringify({ error: "AI transcription failed" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-
-    const anthropicData = await anthropicRes.json() as {
-      content: Array<{ type: string; text: string }>;
-    };
-    const rawText = anthropicData.content?.[0]?.text ?? "{}";
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
+      system: systemPrompt,
+      user: userMessage,
+      maxTokens: 1500,
+      quality: "quality",
+      json: true,
+      fallbackContent: "{}",
+    });
+    const rawText = modelResult.content;
 
     // 3. Parse JSON safely
     let parsed: AiPayload;
@@ -127,14 +122,21 @@ Deno.serve(async (req: Request) => {
         .replace(/\s*```\s*$/i, "")
         .trim();
       parsed = JSON.parse(cleaned) as AiPayload;
-      if (typeof parsed.transcript !== "string" || !Array.isArray(parsed.outline)) {
+      if (
+        typeof parsed.transcript !== "string" || !Array.isArray(parsed.outline)
+      ) {
         throw new Error("Schema mismatch");
       }
-      if (parsed.actionItems !== undefined && !Array.isArray(parsed.actionItems)) {
+      if (
+        parsed.actionItems !== undefined && !Array.isArray(parsed.actionItems)
+      ) {
         parsed.actionItems = [];
       }
-    } catch (e) {
-      console.error("Failed to parse AI response:", rawText, e);
+    } catch (error) {
+      console.error("transcribe-note response parse did not complete", {
+        responseBytes: contentByteLength(rawText),
+        errorName: error instanceof Error ? error.name : "unknown",
+      });
       return new Response(JSON.stringify({ error: "Parse error" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -151,12 +153,13 @@ Deno.serve(async (req: Request) => {
     const { error: updateError } = await supabase
       .from("notes")
       .update({
-        transcript_text:   parsed.transcript,
-        outline_json:      parsed.outline,
+        transcript_text: parsed.transcript,
+        outline_json: parsed.outline,
         action_items_json: actionItems,
-        updated_at:        new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       })
-      .eq("id", noteId);
+      .eq("id", noteId)
+      .eq("owner_id", note.owner_id);
 
     if (updateError) {
       console.error("Update error:", updateError);
@@ -184,6 +187,16 @@ Deno.serve(async (req: Request) => {
       }
     }
 
+    void logInteraction({
+      ownerId,
+      feature: "transcribe_note",
+      model: modelResult.model,
+      correlationId: crypto.randomUUID(),
+      inputBytes: contentByteLength(userMessage),
+      outputBytes: contentByteLength(rawText),
+      tokensUsed: modelResult.tokens,
+    }, supabase);
+
     return new Response(
       JSON.stringify({
         ok: true,
@@ -195,15 +208,15 @@ Deno.serve(async (req: Request) => {
         status: 200,
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
         },
       },
     );
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("transcribe-note error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-});
+}));

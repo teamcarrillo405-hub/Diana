@@ -3,6 +3,12 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { parseIepText } from "@/lib/iep/import";
+import { validateGitLabBaseUrl } from "@/lib/lms/gitlab";
+import { validateIcsUrl } from "@/lib/lms/ics";
+import { resolveCanvasInstitutionFromRequest } from "@/lib/security/canvas-institutions";
+import {
+  saveLmsConnectionWithCredential,
+} from "@/lib/integrations/credential-vault";
 import type { Json } from "@/lib/supabase/types";
 
 export async function connectCanvas(formData: FormData) {
@@ -14,10 +20,23 @@ export async function connectCanvas(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Sign in to continue" };
 
-  const { error } = await supabase
-    .from("lms_connections")
-    .insert({ owner_id: user.id, provider: "canvas", config: { base_url: baseUrl, token } });
-  if (error) return { ok: false, message: "Could not save the connection: try again in a moment" };
+  let institution;
+  try {
+    institution = await resolveCanvasInstitutionFromRequest(baseUrl);
+  } catch {
+    return { ok: false, message: "Use a Canvas institution configured by your school" };
+  }
+
+  try {
+    await saveLmsConnectionWithCredential(supabase, {
+      ownerId: user.id,
+      provider: "canvas",
+      config: { institution_id: institution.id, base_url: institution.origin },
+      accessToken: token,
+    });
+  } catch {
+    return { ok: false, message: "Could not save the connection: try again in a moment" };
+  }
 
   revalidatePath("/settings");
   return { ok: true, message: "Canvas connected" };
@@ -31,9 +50,16 @@ export async function connectIcs(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Sign in to continue" };
 
+  let validatedUrl: string;
+  try {
+    validatedUrl = await validateIcsUrl(url);
+  } catch {
+    return { ok: false, message: "Use a public HTTPS calendar URL on the default port" };
+  }
+
   const { error } = await supabase
     .from("lms_connections")
-    .insert({ owner_id: user.id, provider: "ics", config: { url } });
+    .insert({ owner_id: user.id, provider: "ics", config: { url: validatedUrl } });
   if (error) return { ok: false, message: "Could not save the connection: try again in a moment" };
 
   revalidatePath("/settings");
@@ -82,6 +108,13 @@ export async function connectGitLab(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Sign in to continue" };
 
+  let validatedBaseUrl: string;
+  try {
+    validatedBaseUrl = await validateGitLabBaseUrl(baseUrl || undefined);
+  } catch {
+    return { ok: false, message: "Use a public HTTPS GitLab URL on the default port" };
+  }
+
   const { error } = await supabase
     .from("lms_connections")
     .insert({
@@ -91,7 +124,7 @@ export async function connectGitLab(formData: FormData) {
         project,
         token,
         labels: labels || null,
-        base_url: baseUrl || "https://gitlab.com",
+        base_url: validatedBaseUrl,
       },
     });
   if (error) return { ok: false, message: "Could not save the GitLab connection" };

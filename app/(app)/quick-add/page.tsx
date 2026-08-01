@@ -1,9 +1,9 @@
-import { Camera } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { loadProfile } from "@/lib/profile";
+import { createClient } from "@/lib/supabase/server";
 import { CaptureForm } from "./capture-form";
-import { PageShell } from "../page-shell";
 
 export default async function QuickAddPage() {
   const supabase = await createClient();
@@ -16,15 +16,8 @@ export default async function QuickAddPage() {
   const ttsProvider = profile?.tts_provider === "openai" ? "openai" : "browser";
 
   return (
-    <PageShell
-      active="Work"
-      eyebrow="Capture"
-      title="Quick add."
-      subtitle="Snap a photo, talk it out, or jot a quick note: Diana routes it to the right class."
-      accent="var(--gl-cyan)"
-      icon={Camera}
-    >
+    <ScreenDesignViewport className="sd-capture-work-screen sd-quick-add">
       <CaptureForm ttsProvider={ttsProvider} />
-    </PageShell>
+    </ScreenDesignViewport>
   );
 }

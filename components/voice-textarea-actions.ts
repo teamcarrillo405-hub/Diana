@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 
 /**
  * Upload a recorded voice blob to Supabase Storage (note-audio bucket).
@@ -15,12 +16,13 @@ export async function uploadVoiceBlob(
 
   const file = formData.get("audio") as File | null;
   if (!file) return { ok: false, error: "No audio file provided." };
-
-  const storageKey = `${user.id}/voice-${Date.now()}.webm`;
+  const validation = await validateFileUpload("voiceAudio", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
+  const storageKey = ownerStorageKey(user.id, "voice", `${crypto.randomUUID()}.${validation.value.extension}`);
 
   const { error } = await supabase.storage
     .from("note-audio")
-    .upload(storageKey, file, { contentType: file.type || "audio/webm" });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };

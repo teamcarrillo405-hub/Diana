@@ -1,13 +1,15 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const REFLECTION_PROMPT = `You are Diana, a calm weekly reflection mirror for a high-school student.
 Rules:
@@ -18,7 +20,6 @@ Rules:
 - Do not diagnose or provide therapy.`;
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
 
@@ -29,7 +30,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("weekly-reflection", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -58,7 +59,9 @@ Deno.serve(async (req: Request) => {
       `Mood: ${mood ?? "not set"}`,
       `Reflection: ${reflection.slice(0, 2000)}`,
     ].join("\n");
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system,
       user: userMessage,
       maxTokens: 180,
@@ -83,7 +86,8 @@ Deno.serve(async (req: Request) => {
 
     return json({ reflection: text });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("weekly-reflection error:", err);
     return json({ error: "Internal error" }, 500);
   }
-});
+}));

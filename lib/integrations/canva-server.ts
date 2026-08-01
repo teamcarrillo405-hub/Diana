@@ -1,5 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { canvaEnv, refreshCanvaToken } from "./canva";
+import {
+  readCanvaCredential,
+  saveCanvaConnectionWithCredential,
+} from "./credential-vault";
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -14,27 +18,37 @@ export async function getValidCanvaToken(supabase: ServerClient): Promise<string
 
   const { data: connection } = await supabase
     .from("canva_connections")
-    .select("access_token, refresh_token, expires_at")
+    .select("expires_at, scope")
     .eq("owner_id", user.id)
     .maybeSingle();
   if (!connection) return null;
 
+  const vault = await readCanvaCredential(user.id);
+  let credential = vault.credential;
+  if (!vault.vaultReady) {
+    const { data: legacy } = await (supabase as any)
+      .from("canva_connections")
+      .select("access_token, refresh_token")
+      .eq("owner_id", user.id)
+      .maybeSingle();
+    credential = legacy ?? null;
+  }
+  if (!credential?.access_token) return null;
+
   const msLeft = new Date(connection.expires_at).getTime() - Date.now();
-  if (msLeft > 60_000) return connection.access_token;
+  if (msLeft > 60_000) return credential.access_token;
 
   const env = canvaEnv();
-  if (!env) return null;
+  if (!env || !credential.refresh_token) return null;
   try {
-    const tokens = await refreshCanvaToken(env, connection.refresh_token);
-    await supabase
-      .from("canva_connections")
-      .update({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("owner_id", user.id);
+    const tokens = await refreshCanvaToken(env, credential.refresh_token);
+    await saveCanvaConnectionWithCredential(supabase, {
+      ownerId: user.id,
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+      scope: tokens.scope ?? connection.scope,
+    });
     return tokens.access_token;
   } catch {
     return null;
@@ -42,6 +56,20 @@ export async function getValidCanvaToken(supabase: ServerClient): Promise<string
 }
 
 export async function isCanvaConnected(supabase: ServerClient): Promise<boolean> {
-  const { data } = await supabase.from("canva_connections").select("owner_id").maybeSingle();
-  return data != null;
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+  const { data } = await supabase
+    .from("canva_connections")
+    .select("owner_id")
+    .eq("owner_id", user.id)
+    .maybeSingle();
+  if (!data) return false;
+  try {
+    const vault = await readCanvaCredential(user.id);
+    return vault.vaultReady
+      ? Boolean(vault.credential?.access_token || vault.credential?.refresh_token)
+      : true;
+  } catch {
+    return false;
+  }
 }

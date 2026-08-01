@@ -130,14 +130,13 @@ A cross-cutting rule appears throughout: **per-class AI mode** (`classes.ai_mode
 **Data sources.** `assignments` (by `due_at`), `profiles` (accommodations adjust workload tiers), `lib/calendar/week`.
 
 **AI agent role.**
-- *Workload balancing / evening planning* — "tomorrow is heavy, start X tonight." (EveningPlanning component, currently on Future.)
+- *Workload balancing / evening planning* — "tomorrow is heavy, start X tonight."
 - *Content it needs:* assignments with estimates + due dates, accommodations, energy.
 - Lighter agent surface — mostly arranging existing data, optional proactive nudges.
 
 **Gaps / net-new.**
 - `/reminders` quiet-hours **rules** move to Settings; the **list** merges here — not done yet.
 - No true week-over-week comparison ("this week is heavier than last") — net-new if wanted.
-- EveningPlanning/QuestCarousel could move here from Future.
 
 ---
 
@@ -148,7 +147,7 @@ A cross-cutting rule appears throughout: **per-class AI mode** (`classes.ai_mode
 **The moment.** "I need settings / my profile / to share with a parent / see my proof." Intentional, not frequent.
 
 **Grouped contents.**
-- **Evidence & growth:** Proof (`/proof`, absorbs `/wins` + `/recap`), Grades (`/grades`), Portfolio (`/portfolio`), Future Path (`/future-path`, absorbs `/ap`)
+- **Evidence & growth:** Proof (`/proof`, absorbs `/wins` + `/recap`), Grades (`/grades`), Portfolio (`/portfolio`), AP exam prep (`/ap`)
 - **Profile & support:** Me (`/me`), Accessibility (`/accessibility`), Wellness (`/wellness`), Settings (`/settings`)
 - **Connections & sharing:** Imports (`/imports`), Export (`/export`), Parent share (`/parent-share`), Teacher share (`/teacher-share`), Study groups (`/study-groups`)
 - **Not student-facing:** Insights (`/insights`) = admin only, excluded from this drawer.
@@ -161,7 +160,7 @@ A cross-cutting rule appears throughout: **per-class AI mode** (`classes.ai_mode
 
 **Gaps / net-new.**
 - The drawer overlay itself doesn't exist yet (More currently just links to `/settings`).
-- Merges (wins/recap → Proof; ap → Future) not done.
+- The wins/recap merge into Proof is not done.
 - Onboarding-completion not enforced (a profile/support gap — see NAVIGATION.md §8).
 
 ---

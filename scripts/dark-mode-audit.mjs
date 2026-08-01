@@ -44,17 +44,6 @@ const run = async () => {
     console.log("captured dark mobile", route);
   }
 
-  // future mode (Diana OS) landing, desktop
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await context.addInitScript(() => {
-    localStorage.setItem("diana_experience_mode", "future");
-  });
-  await page.goto(new URL("/", baseUrl).toString(), { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => undefined);
-  await page.waitForTimeout(800);
-  await page.screenshot({ path: join(outDir, "future-1440-landing.png"), fullPage: true });
-  console.log("captured future landing");
-
   await browser.close();
   console.log("done:", outDir);
 };

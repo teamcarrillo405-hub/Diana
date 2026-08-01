@@ -30,12 +30,12 @@ export type TeenNativeUxEvidence = {
   authenticatedRoutesNoLoginRedirect: boolean;
   compactDesktopPrimaryNav: boolean;
   secondaryDestinationDrawer: boolean;
-  authCommandCenterShell: boolean;
+  authScreenDesignShell: boolean;
   authVisualSignals: boolean;
-  authFutureModeToggle: boolean;
-  authAfterLoginPreview: boolean;
-  futureModeProvider: boolean;
-  dianaOsCinematicMode: boolean;
+  authPrivateAssurance: boolean;
+  authDashboardPreview: boolean;
+  screenDesignAppShell: boolean;
+  screenDesignVisualLanguage: boolean;
   landingMobilePreviewAboveFold: boolean;
   voiceCommandSurface: boolean;
   globalVoiceCaptureMic: boolean;
@@ -88,7 +88,7 @@ export type TeenVisualConfidenceMetricId =
   | "app_shell_navigation"
   | "assignment_helper_visual_learning"
   | "study_artifacts_polish"
-  | "future_mode_cinematic_quality";
+  | "screendesign_visual_coherence";
 
 export type TeenVisualConfidenceMetric = {
   id: TeenVisualConfidenceMetricId;
@@ -187,11 +187,11 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
       "landingProductIdentity",
       "landingMobilePreviewAboveFold",
       "landingStudentEntryPath",
-      "authCommandCenterShell",
+      "authScreenDesignShell",
       "authVisualSignals",
-      "authAfterLoginPreview",
-      "futureModeProvider",
-      "dianaOsCinematicMode",
+      "authDashboardPreview",
+      "screenDesignAppShell",
+      "screenDesignVisualLanguage",
       "voiceCommandSurface",
       "globalVoiceCaptureMic",
       "authenticatedResponsiveQaClean",
@@ -210,7 +210,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
       "landingProductIdentity",
       "landingMobilePreviewAboveFold",
       "landingStudentEntryPath",
-      "futureModeProvider",
+      "screenDesignAppShell",
       "responsiveQaClean",
     ],
   },
@@ -223,11 +223,11 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     tenDefinition:
       "Auth pages feel like Diana: student-owned framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy.",
     repoCriteria: [
-      "authCommandCenterShell",
+      "authScreenDesignShell",
       "authVisualSignals",
-      "authFutureModeToggle",
-      "authAfterLoginPreview",
-      "futureModeProvider",
+      "authPrivateAssurance",
+      "authDashboardPreview",
+      "screenDesignAppShell",
       "responsiveQaClean",
     ],
   },
@@ -292,16 +292,16 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     ],
   },
   {
-    id: "future_mode_cinematic_quality",
-    label: "Diana OS cinematic quality",
+    id: "screendesign_visual_coherence",
+    label: "ScreenDesign visual coherence",
     baselineScore: 7.4,
     targetScore: 10,
-    currentConfidence: "Future Mode previously read as a surface effect; 10/10 requires a distinct visual system tied to voice, focus, proof, and Future Path.",
+    currentConfidence: "The ScreenDesign system should stay coherent across focus, voice, proof, and Future Path without a competing experience mode.",
     tenDefinition:
-      "Diana OS visibly changes the interaction layer with restrained depth, voice state, proof cues, and reduced-motion safety.",
+      "The ScreenDesign visual language is shared across the app shell, voice state, proof cues, and reduced-motion behavior.",
     repoCriteria: [
-      "futureModeProvider",
-      "dianaOsCinematicMode",
+      "screenDesignAppShell",
+      "screenDesignVisualLanguage",
       "voiceCommandSurface",
       "globalVoiceCaptureMic",
     ],
@@ -427,12 +427,12 @@ const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
   authenticatedRoutesNoLoginRedirect: "Prevent authenticated-route screenshots from silently capturing the login page.",
   compactDesktopPrimaryNav: "Keep core school moves in a compact desktop navigation.",
   secondaryDestinationDrawer: "Group secondary destinations in the More drawer.",
-  authCommandCenterShell: "Make login and signup feel like Diana's private student space, not generic forms.",
+  authScreenDesignShell: "Make login and signup feel like Diana's private student space, not generic forms.",
   authVisualSignals: "Show voice, source, privacy, and student-control cues on auth pages.",
-  authFutureModeToggle: "Expose Future Mode from login and signup.",
-  authAfterLoginPreview: "Show a small product preview inside login and signup on mobile.",
-  futureModeProvider: "Persist an optional Future Mode visual setting across the app.",
-  dianaOsCinematicMode: "Make Diana OS a distinct visual layer, not just shadows.",
+  authPrivateAssurance: "Show a clear private-by-default assurance on login and signup.",
+  authDashboardPreview: "Show a small Diana dashboard preview inside the authentication shell.",
+  screenDesignAppShell: "Apply the ScreenDesign shell consistently across authenticated routes.",
+  screenDesignVisualLanguage: "Use the ScreenDesign tokens and components as the single visual language.",
   landingMobilePreviewAboveFold: "Show the product preview inside the first mobile viewport.",
   voiceCommandSurface: "Replace the voice placeholder with a real voice command surface.",
   globalVoiceCaptureMic: "Make quick capture support speech input where the browser allows it.",

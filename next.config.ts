@@ -3,9 +3,18 @@ import type { NextConfig } from "next";
 const projectRoot = process.cwd();
 
 const config: NextConfig = {
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
+  // Keep disposable QA/build servers isolated from the developer's live
+  // `.next` directory so browser verification cannot corrupt an open session.
+  distDir: process.env.NEXT_DIST_DIR ?? ".next",
   // node-ical uses BigInt internally — exclude from webpack bundling
   serverExternalPackages: ["node-ical"],
   outputFileTracingRoot: projectRoot,
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
   turbopack: {
     root: projectRoot,
   },

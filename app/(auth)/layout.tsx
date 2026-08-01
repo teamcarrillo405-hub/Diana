@@ -1,45 +1,42 @@
-import Link from "next/link";
-import { ArrowLeft, LockKeyhole } from "lucide-react";
-import { FutureModeToggle } from "@/components/future-mode-toggle";
-import { SignalStage } from "@/components/signal/signal-stage";
+import { BookOpenCheck, LockKeyhole, Sparkles } from "lucide-react";
+
+import { AppMark } from "@/components/screen-design/app-mark";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main id="main-content" className="signal-page">
-      <SignalStage>
-        <div className="signal-shell grid min-h-dvh items-center gap-8 py-6 lg:grid-cols-[1fr_0.74fr]">
-          <section className="space-y-6 pt-16 lg:pt-0">
-            <div className="flex items-center justify-between gap-4">
-              <Link href="/" className="inline-flex items-center gap-2 text-sm font-black text-slate-200">
-                <ArrowLeft size={16} />
-                Diana
-              </Link>
-              <FutureModeToggle compact className="bg-white/[0.08] text-white" />
-            </div>
+    <main id="main-content" className="sd-auth-page">
+      <div className="sd-auth-shell">
+        <section className="sd-auth-story">
+          <AppMark href="/" />
 
-            <div className="space-y-4">
-              <p className="signal-eyebrow">
-                <LockKeyhole size={14} />
-                Private student space
-              </p>
-              <h1 className="max-w-[12ch] text-[clamp(2.8rem,6vw,5.8rem)] font-black leading-[0.96] tracking-normal text-white">
-                Open your command deck.
-              </h1>
-              <p className="max-w-2xl text-lg leading-8 text-slate-300">
-                Sign in to see what to do now, keep sources visible, and protect what is yours.
-              </p>
-            </div>
+          <div className="sd-auth-copy">
+            <p className="sd-kicker"><LockKeyhole size={14} aria-hidden="true" /> Private student space</p>
+            <h1 className="sd-title">Your next move is waiting.</h1>
+            <p className="sd-subtitle">
+              Come back to one clear next move, your class sources, and work that stays yours.
+            </p>
+          </div>
 
-            <div className="nexus-auth-preview">
-              <div className="min-h-[24rem]" aria-hidden="true" />
+          <div className="sd-auth-preview" aria-label="Diana dashboard preview">
+            <div className="sd-auth-coach">
+              <span className="sd-brand-mark" aria-hidden="true">D</span>
+              <div>
+                <p className="sd-kicker">Coach Diana</p>
+                <strong>Start small. I’ll keep the source and the next step together.</strong>
+              </div>
             </div>
-          </section>
+            <div className="sd-auth-preview-grid">
+              <div><BookOpenCheck size={18} aria-hidden="true" /><strong>Classes</strong><span>Organized</span></div>
+              <div><Sparkles size={18} aria-hidden="true" /><strong>Next move</strong><span>Ready</span></div>
+              <div><LockKeyhole size={18} aria-hidden="true" /><strong>Your work</strong><span>Private</span></div>
+            </div>
+          </div>
+        </section>
 
-          <section className="auth-dock w-full justify-self-end">
-            {children}
-          </section>
-        </div>
-      </SignalStage>
+        <section className="sd-auth-card">
+          {children}
+        </section>
+      </div>
     </main>
   );
 }

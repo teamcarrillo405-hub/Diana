@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.next-*/
 out/
 dist/
 .env
@@ -20,7 +21,19 @@ external/
 # Playwright session tokens must never land in the repo
 **/auth-storage-state.json
 .gstack/
-.planning/qa-screenshots/**/auth-storage-state.json
+.planning/qa-screenshots/
+
+# Local agent runtimes and machine state
+.agents/
+.claude/
+.claude-flow/
+.codex/
+.mcp.json
+.swarm/
+ruvector.db
+supabase/.temp/
+lib/supabase/types.ts.new
+.tmp/
 
 # ── Phantom junk files ────────────────────────────────────────────────────
 # Zero-byte files created when JS/TS/CSS fragments get executed in a shell and
