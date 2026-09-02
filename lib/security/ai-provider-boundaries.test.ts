@@ -21,44 +21,70 @@ describe("AI provider and logging boundaries", () => {
     expect(migration).toContain("release_ai_budget_known_not_consumed");
   });
 
-  it("keeps every direct image provider call inside the guarded invocation", () => {
-    const boundaries = [
-      {
-        path: "supabase/functions/extract-note-doc/index.ts",
-        invocation: "invoke: async",
-        provider: "fetch(\"https://api.openai.com/v1/chat/completions\"",
-      },
-      {
-        path: "supabase/functions/history-scaffold/index.ts",
-        invocation: "runMapAnnotation(image, markProviderUsage)",
-        provider: "fetch(\"https://api.openai.com/v1/chat/completions\"",
-      },
-      {
-        path: "supabase/functions/math-scaffold/index.ts",
-        invocation: "extractProblemFromPhoto(image, markProviderUsage)",
-        provider: "fetch(\"https://api.openai.com/v1/chat/completions\"",
-      },
-    ];
-
-    for (const boundary of boundaries) {
-      const provider = source(boundary.path);
-      expect(provider).toContain(boundary.invocation);
-      expect(provider).toContain(boundary.provider);
-    }
-  });
-
-  it("never logs provider or student parse errors in the three direct JSON handlers", () => {
-    for (const path of [
+  it("keeps file and image extraction behind the shared homework adapter", () => {
+    const featureRoutes = [
       "supabase/functions/extract-note-doc/index.ts",
+      "supabase/functions/extract-assignment-source/index.ts",
       "supabase/functions/history-scaffold/index.ts",
       "supabase/functions/math-scaffold/index.ts",
-    ]) {
-      const provider = source(path);
-      expect(provider).not.toMatch(/console\.(?:error|warn)\([^\n]*,\s*(?:err|error|e)\b/u);
-      expect(provider).toMatch(/provider_invalid_json|content_invalid_json/u);
+    ];
+
+    for (const path of featureRoutes) {
+      const feature = source(path);
+      expect(feature).toContain("runOpenAIHomeworkAdapter");
+      expect(feature).not.toContain('fetch("https://api.openai.com/v1/responses"');
+      expect(feature).not.toContain("runSafeBudgetedAiCall({");
     }
+
+    const adapter = source("supabase/functions/_shared/homework-adapter.ts");
+    const studentModel = source("supabase/functions/_shared/student-model.ts");
+    expect(adapter).toContain("callSafeStudentTextModel");
+    expect(studentModel).toContain('fetch("https://api.openai.com/v1/responses"');
+    expect(studentModel).not.toContain("api.anthropic.com/v1/messages");
+    expect(studentModel).not.toContain("ANTHROPIC_API_KEY");
+    expect(studentModel).toContain('type: "file"');
+    expect(studentModel).toContain("file_data");
+    expect(studentModel).toContain("markProviderUsage?.();");
   });
 
+  it("keeps provider parse and response failures sanitized in the shared student model", () => {
+    const studentModel = source("supabase/functions/_shared/student-model.ts");
+    expect(studentModel).not.toMatch(/console\.(?:error|warn)\([^\n]*,\s*(?:err|error|e)\b/u);
+    expect(studentModel).toContain("student_model_invalid_response");
+    expect(studentModel).toContain("responseBytes: new TextEncoder().encode(providerError).byteLength");
+    expect(studentModel).not.toContain("providerError,");
+  });
+
+  it("keeps break-down on the shared homework adapter instead of the legacy sidecar", () => {
+    const breakDown = source("app/api/diana/break-down/route.ts");
+
+    expect(breakDown).toContain("runOpenAIHomeworkJson");
+    expect(breakDown).toContain('task: "break_down"');
+    expect(breakDown).toContain("resolveDianaHomeworkTrust");
+    expect(breakDown).not.toContain("diana-study-helper-sidecar");
+    expect(breakDown).not.toContain("isDianaStudyHelperEnabled");
+    expect(breakDown).not.toContain("createDianaBreakDownProviderResult");
+  });
+
+  it("keeps assignment source extraction errors sanitized", () => {
+    const extraction = source("supabase/functions/extract-assignment-source/index.ts");
+
+    expect(extraction).not.toContain('console.error("extract-assignment-source", error)');
+    expect(extraction).toContain("messageBytes: new TextEncoder().encode");
+    expect(extraction).toContain('name: error instanceof Error ? error.name : "unknown"');
+  });
+  it("passes homework understanding into study artifact generation", () => {
+    const studyActions = source("app/(app)/study-artifacts/actions.ts");
+    const studyArtifacts = source("supabase/functions/study-artifacts/index.ts");
+
+    expect(studyActions).toContain("homework: source.homeworkMetadata ?? null");
+    expect(studyActions).toContain("homeworkAuthorshipMetadata(kernel, { route: \"study-artifacts\" })");
+    expect(studyArtifacts).toContain("homework?: unknown");
+    expect(studyArtifacts).toContain("safeHomeworkContext(body.homework)");
+    expect(studyArtifacts).toContain("Diana assignment understanding");
+    expect(studyArtifacts).toContain("subjectDomain");
+    expect(studyArtifacts).toContain("sourceState");
+  });
   it("persists metadata instead of raw study prompts or provider bodies", () => {
     const nextSafety = source("lib/ai/safety.ts");
     const studyBuddy = source("app/api/diana/study-buddy/route.ts");

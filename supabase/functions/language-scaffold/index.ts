@@ -5,12 +5,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -90,16 +90,13 @@ Deno.serve(withStudentSecurity("language-scaffold", async (req: Request) => {
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const assignmentId = typeof body.assignmentId === "string" ? body.assignmentId : null;
     const mode = typeof body.mode === "string" && MODES.has(body.mode) ? body.mode : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
     const targetLanguage = typeof body.targetLanguage === "string" ? body.targetLanguage.slice(0, 80) : "Spanish";
     const sourceText = typeof body.sourceText === "string" ? body.sourceText.slice(0, 7000) : "";
     const spokenText = typeof body.spokenText === "string" ? body.spokenText.slice(0, 2500) : "";
     const classContext = typeof body.classContext === "string" ? body.classContext.slice(0, 3000) : "";
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
     if (!mode) return jsonResponse({ error: "mode required" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
     if (`${sourceText}${spokenText}`.trim().length < 2) {
       return jsonResponse({ error: "Add a word, sentence, reading, or spoken transcript first." }, 400);
     }
@@ -128,7 +125,9 @@ Deno.serve(withStudentSecurity("language-scaffold", async (req: Request) => {
       personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
-    const ai = await callSafeStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+
+      task: "language_scaffold",
       ownerId,
       supabase,
       system: systemPrompt,

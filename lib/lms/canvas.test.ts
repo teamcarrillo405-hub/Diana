@@ -1,5 +1,10 @@
-import { afterAll, describe, it, expect, vi, beforeEach } from "vitest";
-import { fetchCanvasAssignments, normalizeCanvasSubmission } from "./canvas";
+import { afterAll, afterEach, describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  canvasOAuthScopes,
+  fetchCanvasAssignments,
+  getValidCanvasToken,
+  normalizeCanvasSubmission,
+} from "./canvas";
 
 const originalRegistry = process.env.CANVAS_INSTITUTIONS_JSON;
 const originalAllowlist = process.env.CANVAS_ALLOWED_ORIGINS;
@@ -9,6 +14,11 @@ afterAll(() => {
   else process.env.CANVAS_INSTITUTIONS_JSON = originalRegistry;
   if (originalAllowlist === undefined) delete process.env.CANVAS_ALLOWED_ORIGINS;
   else process.env.CANVAS_ALLOWED_ORIGINS = originalAllowlist;
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.unstubAllGlobals();
 });
 
 describe("normalizeCanvasSubmission", () => {
@@ -119,7 +129,7 @@ describe("fetchCanvasAssignments", () => {
     expect(fetchMock).toHaveBeenCalledTimes(100);
   });
 
-  it("filters out null due_at", async () => {
+  it("retains assignments without a due date", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(mockResponse([{ id: 10, name: "Math" }]))
       .mockResolvedValueOnce(mockResponse([
@@ -129,9 +139,10 @@ describe("fetchCanvasAssignments", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const r = await fetchCanvasAssignments({ base_url: "https://93.184.216.34", token: "t" });
-    expect(r.items).toHaveLength(1);
-    expect(r.items[0].external_id).toBe("1");
-    expect(r.skipped).toBe(1);
+    expect(r.items).toHaveLength(2);
+    expect(r.items.map((item) => item.external_id)).toEqual(["1", "2"]);
+    expect(r.items[1].due_at).toBeNull();
+    expect(r.skipped).toBe(0);
   });
 
   it("sends Authorization header", async () => {
@@ -186,5 +197,83 @@ describe("fetchCanvasAssignments", () => {
     expect(r.items[0].external_url).toBe("https://canvas.test/courses/1/assignments/42");
     expect(r.items[0].rubric_text).toContain("Reasoning - Show each step - 4 pts");
     expect(r.items[0].rubric_text).toContain("Units - 2 pts");
+  });
+});
+
+describe("Canvas OAuth hardening", () => {
+  it("requests endpoint scopes only for enabled operations", () => {
+    const importScopes = canvasOAuthScopes({ importEnabled: true, submissionEnabled: false });
+    const submissionScopes = canvasOAuthScopes({ importEnabled: false, submissionEnabled: true });
+
+    expect(importScopes).toContain("url:GET|/api/v1/courses/:course_id/assignments");
+    expect(importScopes.some((scope) => scope.startsWith("url:POST|"))).toBe(false);
+    expect(submissionScopes).toContain(
+      "url:POST|/api/v1/courses/:course_id/assignments/:assignment_id/submissions",
+    );
+    expect(submissionScopes).not.toContain("url:GET|/api/v1/courses");
+  });
+
+  it("uses the confirmed-grade endpoint scope for teacher submission delivery", () => {
+    expect(canvasOAuthScopes({
+      importEnabled: false,
+      submissionEnabled: true,
+      teacher: true,
+    })).toEqual([
+      "url:GET|/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id",
+      "url:PUT|/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id",
+    ]);
+  });
+
+  it("returns reconnect_required for an expired token without a refresh path", async () => {
+    await expect(getValidCanvasToken({
+      base_url: "https://93.184.216.34",
+      token: "expired-token",
+      oauth: true,
+      expires_at: "2000-01-01T00:00:00.000Z",
+    })).rejects.toMatchObject({ code: "reconnect_required", provider: "canvas" });
+  });
+
+  it("requires reconnect for a fresh OAuth token with no refresh path", async () => {
+    await expect(getValidCanvasToken({
+      base_url: "https://93.184.216.34",
+      token: "fresh-but-unrefreshable-token",
+      oauth: true,
+      expires_at: new Date(Date.now() + 3_600_000).toISOString(),
+    })).rejects.toMatchObject({ code: "reconnect_required", provider: "canvas" });
+  });
+
+  it("refreshes an OAuth connection that has only a refresh token", async () => {
+    vi.stubEnv("CANVAS_CLIENT_ID", "client");
+    vi.stubEnv("CANVAS_CLIENT_SECRET", "secret");
+    vi.stubGlobal("fetch", vi.fn(async () => mockResponse({
+      access_token: "new-access-token",
+      expires_in: 3600,
+    })));
+
+    await expect(getValidCanvasToken({
+      institution_id: "test",
+      base_url: "https://93.184.216.34",
+      oauth: true,
+      refresh_token: "refresh-token",
+      expires_at: "2000-01-01T00:00:00.000Z",
+    })).resolves.toMatchObject({
+      token: "new-access-token",
+      refreshed: { token: "new-access-token" },
+    });
+  });
+
+  it("does not reuse a stale token when Canvas rejects refresh", async () => {
+    vi.stubEnv("CANVAS_CLIENT_ID", "client");
+    vi.stubEnv("CANVAS_CLIENT_SECRET", "secret");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 401 })));
+
+    await expect(getValidCanvasToken({
+      institution_id: "test",
+      base_url: "https://93.184.216.34",
+      token: "expired-token",
+      oauth: true,
+      refresh_token: "refresh-token",
+      expires_at: "2000-01-01T00:00:00.000Z",
+    })).rejects.toMatchObject({ code: "reconnect_required", provider: "canvas" });
   });
 });

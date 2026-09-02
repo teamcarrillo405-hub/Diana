@@ -7,6 +7,7 @@ import { ScreenDesignViewport } from "@/components/screen-design/screen-design-v
 import { completeStudyArtifact } from "@/lib/study-helper/artifacts";
 import { normalizePracticeProgress } from "@/lib/study-helper/practice-progress";
 import { scorePracticeTest } from "@/lib/study-helper/practice-scoring";
+import { normalizeQuizSupportState } from "@/lib/study-helper/quiz-support-fading";
 import { createClient } from "@/lib/supabase/server";
 
 import { PracticeTestSession } from "./practice-session";
@@ -62,6 +63,7 @@ export default async function StudyArtifactDetailPage({
         quiz={artifact.quiz}
         initialProgress={progress}
         initialResult={result}
+        initialSupportState={normalizeQuizSupportState(rawPayload.quizSupportState)}
       />
     );
   }

@@ -37,7 +37,6 @@ type AssignmentCockpitProps = {
   estimate: string | null;
   briefText: string;
   status: AssignmentStatus;
-  classAiMode: "red" | "yellow" | "green";
   drills: readonly AssignmentCockpitDrill[];
   hasApprovedPlan: boolean;
   startRequested?: boolean;
@@ -51,9 +50,7 @@ export function AssignmentCockpit({
   estimate,
   briefText,
   status: initialStatus,
-  classAiMode,
   drills: initialDrills,
-  hasApprovedPlan,
   startRequested = false,
 }: AssignmentCockpitProps) {
   const router = useRouter();

@@ -1,23 +1,32 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { VoiceTextarea } from "@/components/voice-textarea";
 import { useAutoSaveNote } from "@/lib/notes/auto-save";
 import type { ClassCandidate } from "@/lib/notes/class-router";
 import { queueOfflineNoteSave, registerOfflineSync } from "@/lib/offline/store";
-import { createNote, saveNote, triggerNoteStructuring } from "../actions";
+import { createNote, saveNote } from "../actions";
 import { AudioUploadTab } from "./audio-upload-tab";
 import { DocUploadTab } from "./doc-upload-tab";
 
 type NoteSource = "manual" | "voice" | "audio_upload" | "doc_upload" | "lecture";
+type NoteCaptureMode = "text" | "voice" | "audio" | "photo-pdf";
+
+function sourceForTab(tab: NoteCaptureMode): NoteSource {
+  if (tab === "voice") return "voice";
+  if (tab === "audio") return "audio_upload";
+  if (tab === "photo-pdf") return "doc_upload";
+  return "manual";
+}
 
 export function NoteEditor({
   assignmentId,
-  ttsProvider = "browser",
+  initialClassId = null,
+  initialMode = "text",
   classCandidates = [],
 }: {
   assignmentId: string | null;
-  ttsProvider?: "browser" | "openai";
+  initialClassId?: string | null;
+  initialMode?: NoteCaptureMode;
   classCandidates?: ClassCandidate[];
 }) {
   const router = useRouter();
@@ -25,17 +34,10 @@ export function NoteEditor({
   const noteIdRef = useRef<string | null>(null);
   const [title, setTitle] = useState("Untitled note");
   const [body, setBody] = useState("");
-  const [tab, setTab] = useState<"text" | "voice" | "lecture" | "audio" | "photo-pdf">("text");
-  // classId is captured here; 10-03 wires it into saveNote + createNote payloads.
-  const [classId, setClassId] = useState<string | null>(null);
+  const [tab, setTab] = useState<NoteCaptureMode>(initialMode);
+  const [classId, setClassId] = useState<string | null>(initialClassId);
 
-  function sourceForCurrentTab(): NoteSource {
-    if (tab === "voice") return "voice";
-    if (tab === "lecture") return "lecture";
-    return "manual";
-  }
-
-  async function queueLocalDraft(targetNoteId: string | null, source: NoteSource) {
+  const queueLocalDraft = useCallback(async (targetNoteId: string | null, source: NoteSource) => {
     const tempId = targetNoteId ?? `new-${Date.now()}-${Math.random().toString(36).slice(2)}`;
     await queueOfflineNoteSave({
       tempId,
@@ -49,11 +51,11 @@ export function NoteEditor({
     });
     await registerOfflineSync();
     return { ok: true as const };
-  }
+  }, [assignmentId, body, classId, title]);
 
   // The saver closure uses the latest title/body/classId and creates the row on first call.
   const saver = useCallback(async () => {
-    const source = sourceForCurrentTab();
+    const source = sourceForTab(tab);
     try {
       if (!noteId) {
         const res = await createNote({ title, assignmentId, classId, source });
@@ -81,12 +83,12 @@ export function NoteEditor({
       if (!navigator.onLine) return queueLocalDraft(noteId, source);
       return { ok: false as const, error: error instanceof Error ? error.message : "Save paused." };
     }
-  }, [noteId, title, body, assignmentId, classId, tab]);
+  }, [assignmentId, body, classId, noteId, queueLocalDraft, tab, title]);
 
   const { status, save, flushNow } = useAutoSaveNote(saver);
 
   /** Called by upload tabs before upload. Creates the note row if it doesn't exist yet. */
-  const ensureNoteId = useCallback(async (source: NoteSource = sourceForCurrentTab()): Promise<string | null> => {
+  const ensureNoteId = useCallback(async (source: NoteSource = sourceForTab(tab)): Promise<string | null> => {
     if (noteId) return noteId;
     if (noteIdRef.current) return noteIdRef.current;
     if (!navigator.onLine) {
@@ -98,7 +100,7 @@ export function NoteEditor({
     setNoteId(res.id);
     noteIdRef.current = res.id;
     return res.id;
-  }, [noteId, title, assignmentId, classId, tab]);
+  }, [assignmentId, classId, noteId, queueLocalDraft, tab, title]);
 
   // Schedule a save whenever title or body changes (after first character).
   useEffect(() => {
@@ -110,9 +112,6 @@ export function NoteEditor({
     await flushNow();
     const id = noteId ?? noteIdRef.current;
     if (id) {
-      if (tab === "lecture" && body.trim().length >= 5) {
-        await triggerNoteStructuring({ noteId: id });
-      }
       router.push(`/notes/${id}`);
       return;
     }
@@ -121,19 +120,22 @@ export function NoteEditor({
 
   return (
     <div className="notes-editor-shell">
-      {/* Class dropdown — visible on all tabs; pre-selected by AudioUploadTab via scoreClassMatch */}
+      {/* Class follows the note everywhere. Course entry points preselect it. */}
       {classCandidates.length > 0 && (
         <label className="notes-editor-field">
-          <span>Class</span>
+          <span>Class <small>optional</small></span>
           <select
-            value={classId ?? ""}
-            onChange={(e) => setClassId(e.target.value || null)}
+            value={classId ?? "__choose_class__"}
+            onChange={(e) => {
+              if (e.target.value !== "__choose_class__") setClassId(e.target.value || null);
+            }}
             className="notes-editor-input"
           >
-            <option value="">No class</option>
+            <option value="__choose_class__" disabled>Choose a class</option>
             {classCandidates.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
+            <option value="">General note</option>
           </select>
         </label>
       )}
@@ -149,20 +151,19 @@ export function NoteEditor({
         />
       </label>
 
-      {/* Tab switcher — Text / Voice (browser Web Speech API) / Audio / Photo/PDF */}
+      {/* One capture surface: words, voice, and attached source material. */}
       <div className="notes-tab-control">
-        {(["text", "voice", "lecture", "audio", "photo-pdf"] as const).map((t) => (
+        {(["text", "voice", "photo-pdf", "audio"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
             className={tab === t ? "is-active" : undefined}
           >
-            {t === "text"      ? "Text"
-              : t === "voice"  ? "Voice"
-              : t === "lecture" ? "Lecture"
-              : t === "audio"  ? "Audio"
-              : "Photo/PDF"}
+            {t === "text" ? "Write"
+              : t === "voice" ? "Record"
+              : t === "photo-pdf" ? "Photo or PDF"
+              : "Audio file"}
           </button>
         ))}
       </div>
@@ -173,43 +174,22 @@ export function NoteEditor({
           onChange={(e) => setBody(e.target.value)}
           rows={12}
           className="notes-editor-textarea"
-          placeholder="Type what you're hearing in class."
+          placeholder="Write the thought, class note, or detail you want to keep."
           autoFocus
         />
       )}
       {tab === "voice" && (
-        <VoiceTextarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          onTranscript={(chunk) =>
-            setBody((prev) => (prev ? prev + " " + chunk : chunk))
-          }
-          rows={12}
-          className="notes-editor-textarea"
-          placeholder="Tap the mic to dictate, or type here."
-          provider={ttsProvider}
+        <AudioUploadTab
+          mode="record"
+          ensureNoteId={() => ensureNoteId("voice")}
+          onTranscriptReady={(text) => { setBody(text); setTab("text"); }}
+          onClassSuggested={(id) => { if (id) setClassId(id); }}
+          classCandidates={classCandidates}
         />
-      )}
-      {tab === "lecture" && (
-        <div className="notes-editor-tab-panel">
-          <VoiceTextarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            onTranscript={(chunk) =>
-              setBody((prev) => (prev ? prev + " " + chunk : chunk))
-            }
-            rows={14}
-            className="notes-editor-textarea"
-            placeholder="Start the mic, then let lecture notes land here."
-            provider={ttsProvider}
-          />
-          <p className="notes-editor-help">
-            Lecture notes are marked for action-item extraction when you generate an outline.
-          </p>
-        </div>
       )}
       {tab === "audio" && (
         <AudioUploadTab
+          mode="file"
           ensureNoteId={() => ensureNoteId("audio_upload")}
           onTranscriptReady={(text) => { setBody(text); setTab("text"); }}
           onClassSuggested={(id) => { if (id) setClassId(id); }}

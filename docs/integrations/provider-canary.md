@@ -18,7 +18,7 @@ exercises:
 - the exact Google student scope contract;
 - exact-origin and restricted Vercel preview CORS behavior;
 - Canvas and Google Classroom assignment import normalization;
-- Canvas text and integrity-bound file submission;
+- Canvas text, integrity-bound file submission, and exact grade delivery readback;
 - Google Drive upload, Classroom attachment, and turn-in;
 - expired Canvas and Google OAuth refresh;
 - missing Google scope and provider `403` handling;
@@ -51,7 +51,8 @@ canary does not mutate secrets or deploy functions.
 ## Real staging mode
 
 Staging mode refreshes real OAuth tokens, reads active provider assignments,
-and submits disposable text and files. It refuses all provider network calls
+and performs exactly four disposable writes: Canvas text, Canvas file, Canvas
+grade delivery, and Google file turn-in. It refuses all provider network calls
 unless every required value is present and the write acknowledgement is exact.
 
 ```powershell
@@ -88,11 +89,16 @@ to be registered separately.
 | `DIANA_CANARY_CANVAS_COURSE_ID` | Disposable course visible to the test student |
 | `DIANA_CANARY_CANVAS_TEXT_ASSIGNMENT_ID` | Open assignment allowing `online_text_entry` |
 | `DIANA_CANARY_CANVAS_FILE_ASSIGNMENT_ID` | Open assignment allowing `online_upload` and PDF |
+| `DIANA_CANARY_CANVAS_GRADE_ASSIGNMENT_ID` | Separate disposable assignment accepting teacher grade delivery |
+| `DIANA_CANARY_CANVAS_GRADE_STUDENT_ID` | Student ID enrolled in that disposable grade assignment |
+| `DIANA_CANARY_CANVAS_GRADE_SCORE` | Non-negative score that differs from the assignment's baseline score |
 
 The Canvas administrator must enable the developer key, approve the exact
 `/api/lms/canvas-oauth/callback` URL for the staging origin, and keep the
 institution on Diana's Canvas allowlist. The assignments must be unlocked and
-must accept new submissions from the test student.
+must accept new submissions from the test student. The grade assignment and
+student must be disposable, and the configured score must differ from the
+provider baseline or certification blocks without counting a write.
 
 ### Google credentials, scopes, and fixtures
 

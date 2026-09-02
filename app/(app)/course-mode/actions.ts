@@ -14,14 +14,18 @@ import { qtiItemToStorage, type QtiAssessmentItem } from "@/lib/course-mode/asse
 import { normalizeCasePackage } from "@/lib/course-mode/standards";
 import { subjectPackForDomain } from "@/lib/course-mode/subject-packs";
 import { getValidCanvasToken } from "@/lib/lms/canvas";
-import { GradeSyncDeliveryError, syncConfirmedGrade } from "@/lib/lms/grades";
-import { getValidGoogleToken, type GoogleClassroomConfig } from "@/lib/lms/google";
-import { createClient } from "@/lib/supabase/server";
-import type { Json } from "@/lib/supabase/types";
 import {
-  hydrateLmsConnectionCredentials,
-  persistLmsTokenRefresh,
-} from "@/lib/integrations/credential-vault";
+  hydrateLmsConnectionForRuntime,
+  persistLmsTokenRefreshForRuntime,
+} from "@/lib/lms/credential-policy";
+import { LmsReconnectRequiredError, lmsOperationErrorDetails } from "@/lib/lms/errors";
+import { reconcileConfirmedGrade } from "@/lib/lms/grade-reconciliation";
+import { GradeSyncDeliveryError, syncConfirmedGrade, type GradeSyncProvider } from "@/lib/lms/grades";
+import { getValidGoogleToken, type GoogleClassroomConfig } from "@/lib/lms/google";
+import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
+import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+import type { Json } from "@/lib/supabase/types";
 
 const uuid = z.string().uuid();
 type CourseModeStore = Awaited<ReturnType<typeof createClient>>;
@@ -41,8 +45,29 @@ const courseGradeCalculationSchema = z.object({
   ruleCount: z.number().int().nonnegative(),
 }).passthrough();
 
+const gradeSyncReceiptClaimSchema = z.object({
+  receipt_id: uuid,
+  receipt_status: z.enum(["syncing", "confirmation_pending", "synced"]),
+  claimed: z.boolean(),
+  provider: z.enum(["canvas", "google_classroom"]),
+  connection_id: uuid,
+  canvas_institution_id: z.string().trim().min(1).max(64).nullable(),
+  canvas_origin: z.string().url().max(300).nullable(),
+  external_course_id: z.string().trim().min(1).max(300),
+  external_assignment_id: z.string().trim().min(1).max(300),
+  external_student_id: z.string().trim().min(1).max(300),
+  score: z.coerce.number().finite(),
+  points_possible: z.coerce.number().finite().nullable(),
+  confirmed_by: uuid,
+  confirmed_at: z.string().datetime({ offset: true }),
+}).passthrough();
+
 function statusRedirect(status: string): never {
   redirect(`/course-mode?status=${encodeURIComponent(status)}`);
+}
+
+function providerCredentialRejection(error: unknown): boolean {
+  return error instanceof Error && /\b(?:401|403)\b/u.test(error.message);
 }
 
 async function authenticatedStore() {
@@ -1124,15 +1149,13 @@ export async function confirmCourseFinalGrade(formData: FormData) {
 export async function syncConfirmedAssessmentGrade(formData: FormData) {
   const parsed = z.object({
     attemptId: uuid,
-    externalStudentId: z.string().trim().min(1).max(300),
   }).safeParse({
     attemptId: formData.get("attemptId"),
-    externalStudentId: formData.get("externalStudentId"),
   });
   if (!parsed.success) statusRedirect("grade-sync-input");
   const { store, user } = await authenticatedStore();
   const { data: attempt } = await store.from("assessment_attempts")
-    .select("id, status, final_score, points_possible, confirmed_by, confirmed_at, blueprint_id")
+    .select("id, status, final_score, points_possible, confirmed_by, confirmed_at, blueprint_id, student_id")
     .eq("id", parsed.data.attemptId)
     .maybeSingle();
   if (!attempt || attempt.status !== "confirmed" || attempt.confirmed_by !== user.id || attempt.final_score === null) {
@@ -1144,37 +1167,89 @@ export async function syncConfirmedAssessmentGrade(formData: FormData) {
     .maybeSingle();
   if (!blueprint?.external_assignment_id) statusRedirect("grade-external-assignment-missing");
   const { data: link } = await store.from("course_mode_lms_links")
-    .select("provider, external_course_id, connection_id")
+    .select("provider")
     .eq("course_id", blueprint.course_id)
     .limit(1)
     .maybeSingle();
   if (!link) statusRedirect("grade-lms-link-missing");
-  const { data: connection } = await store.from("lms_connections")
-    .select("id, provider, config")
-    .eq("id", link.connection_id)
-    .eq("owner_id", user.id)
-    .maybeSingle();
-  if (!connection || connection.provider !== link.provider) statusRedirect("grade-lms-connection-missing");
-
   if (link.provider !== "canvas" && link.provider !== "google_classroom") {
     statusRedirect("grade-lms-link-missing");
   }
-  const confirmedAt = String(attempt.confirmed_at);
-  const securedConnection = await hydrateLmsConnectionCredentials(user.id, connection).catch(() => null);
-  if (!securedConnection) statusRedirect("grade-lms-connection-missing");
-  const config = securedConnection.config;
+  try {
+    assertLmsProviderFeatureEnabled(
+      link.provider === "canvas" ? "canvas_submission" : "google_submission",
+    );
+  } catch (error) {
+    const detail = lmsOperationErrorDetails(error);
+    if (detail) statusRedirect(detail.code);
+    statusRedirect("grade-sync-not-accepted");
+  }
+
+  const { data: claimData, error: claimError } = await store.rpc("claim_lms_grade_sync_receipt", {
+    p_attempt_id: attempt.id,
+    p_provider: link.provider,
+  });
+  const parsedClaim = gradeSyncReceiptClaimSchema.safeParse(
+    Array.isArray(claimData) ? claimData[0] : claimData,
+  );
+  if (claimError || !parsedClaim.success) statusRedirect("grade-receipt-not-created");
+  const receiptClaim = parsedClaim.data;
+  if (
+    (receiptClaim.provider === "canvas"
+      && (!receiptClaim.canvas_institution_id || !receiptClaim.canvas_origin))
+    || (receiptClaim.provider === "google_classroom"
+      && (receiptClaim.canvas_institution_id !== null || receiptClaim.canvas_origin !== null))
+  ) {
+    statusRedirect("grade-receipt-not-created");
+  }
+  if (receiptClaim.claimed !== true && receiptClaim.receipt_status === "synced") {
+    statusRedirect("grade-already-synced");
+  }
+
+  const authoritativeStore = createServiceClient();
+  if (!authoritativeStore) statusRedirect("grade-sync-confirmation-pending");
+  const { data: connection } = await store.from("lms_connections")
+    .select("id, provider, config")
+    .eq("id", receiptClaim.connection_id)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+  if (!connection || connection.provider !== receiptClaim.provider) {
+    if (receiptClaim.claimed === true) {
+      await authoritativeStore.rpc("complete_lms_grade_sync_receipt", {
+        p_receipt_id: receiptClaim.receipt_id,
+        p_final_status: "not_accepted",
+        p_provider_receipt_id: nullableRpcArg<string>(null),
+        p_provider_response: {},
+        p_error_detail: "The locked provider connection is no longer available. No provider write was attempted.",
+      });
+    }
+    statusRedirect("grade-lms-connection-missing");
+  }
+
+  const gradeProvider: GradeSyncProvider = receiptClaim.provider;
   let token = "";
   let canvasInstitutionId: string | null = null;
   let canvasBaseUrl: string | null = null;
   try {
-    if (link.provider === "canvas") {
-      canvasInstitutionId = typeof config.institution_id === "string"
+    const securedConnection = await hydrateLmsConnectionForRuntime(user.id, connection);
+    const config = securedConnection.config;
+    if (receiptClaim.provider === "canvas") {
+      const configuredInstitutionId = typeof config.institution_id === "string"
         ? config.institution_id.trim()
         : "";
-      canvasBaseUrl = typeof config.base_url === "string" ? config.base_url.trim() : "";
-      const storedToken = typeof config.token === "string" ? config.token : "";
-      if (!canvasInstitutionId || !canvasBaseUrl || !storedToken) {
-        throw new Error("Reconnect Canvas before syncing grades.");
+      const configuredBaseUrl = typeof config.base_url === "string"
+        ? config.base_url.trim().replace(/\/+$/u, "")
+        : "";
+      canvasInstitutionId = receiptClaim.canvas_institution_id;
+      canvasBaseUrl = receiptClaim.canvas_origin;
+      const storedToken = typeof config.token === "string" ? config.token : null;
+      if (
+        !canvasInstitutionId
+        || !canvasBaseUrl
+        || configuredInstitutionId !== canvasInstitutionId
+        || configuredBaseUrl !== canvasBaseUrl
+      ) {
+        throw new LmsReconnectRequiredError("canvas");
       }
       const valid = await getValidCanvasToken({
         institution_id: canvasInstitutionId,
@@ -1186,7 +1261,7 @@ export async function syncConfirmedAssessmentGrade(formData: FormData) {
       });
       token = valid.token;
       if (valid.refreshed) {
-        await persistLmsTokenRefresh(store, {
+        await persistLmsTokenRefreshForRuntime(store, {
           ownerId: user.id,
           connection: securedConnection,
           accessToken: valid.refreshed.token,
@@ -1195,10 +1270,9 @@ export async function syncConfirmedAssessmentGrade(formData: FormData) {
       }
     } else {
       const valid = await getValidGoogleToken(config as GoogleClassroomConfig);
-      if (!valid) throw new Error("Reconnect Google Classroom with teacher grade access.");
       token = valid.token;
       if (valid.refreshed) {
-        await persistLmsTokenRefresh(store, {
+        await persistLmsTokenRefreshForRuntime(store, {
           ownerId: user.id,
           connection: securedConnection,
           accessToken: valid.refreshed.access_token,
@@ -1206,20 +1280,78 @@ export async function syncConfirmedAssessmentGrade(formData: FormData) {
         });
       }
     }
-  } catch {
+  } catch (error) {
+    if (receiptClaim.claimed === true) {
+      const { data: completionData, error: completionError } = await authoritativeStore.rpc(
+        "complete_lms_grade_sync_receipt",
+        {
+          p_receipt_id: receiptClaim.receipt_id,
+          p_final_status: "not_accepted",
+          p_provider_receipt_id: nullableRpcArg<string>(null),
+          p_provider_response: {},
+          p_error_detail: "The locked provider credential was unavailable. No provider write was attempted.",
+        },
+      );
+      const completion = Array.isArray(completionData) ? completionData[0] : completionData;
+      if (completionError || completion?.completed !== true) {
+        statusRedirect("grade-sync-confirmation-pending");
+      }
+    }
+    const detail = lmsOperationErrorDetails(error);
+    if (detail) statusRedirect(detail.code);
+    if (providerCredentialRejection(error)) statusRedirect("reconnect_required");
     statusRedirect("grade-sync-not-accepted");
   }
 
-  const { data: claimData, error: claimError } = await store.rpc("claim_lms_grade_sync_receipt", {
-    p_attempt_id: attempt.id,
-    p_provider: link.provider,
-    p_external_student_id: parsed.data.externalStudentId,
-  });
-  const receiptClaim = Array.isArray(claimData) ? claimData[0] : claimData;
-  if (claimError || !receiptClaim?.receipt_id) statusRedirect("grade-receipt-not-created");
+  const gradeSyncInput = {
+    provider: gradeProvider,
+    providerConnectionId: receiptClaim.connection_id,
+    token,
+    canvasInstitutionId,
+    canvasBaseUrl,
+    externalCourseId: receiptClaim.external_course_id,
+    externalAssignmentId: receiptClaim.external_assignment_id,
+    externalStudentId: receiptClaim.external_student_id,
+    score: receiptClaim.score,
+    pointsPossible: receiptClaim.points_possible,
+    confirmedBy: receiptClaim.confirmed_by,
+    confirmedAt: receiptClaim.confirmed_at,
+  };
+
   if (receiptClaim.claimed !== true) {
-    if (receiptClaim.receipt_status === "synced") statusRedirect("grade-already-synced");
     if (receiptClaim.receipt_status === "syncing" || receiptClaim.receipt_status === "confirmation_pending") {
+      let reconciliation: Awaited<ReturnType<typeof reconcileConfirmedGrade>> | null = null;
+      try {
+        reconciliation = await reconcileConfirmedGrade(gradeSyncInput);
+      } catch (error) {
+        if (providerCredentialRejection(error)) statusRedirect("reconnect_required");
+      }
+      if (reconciliation?.status === "confirmed") {
+        if (reconciliation.status !== "confirmed" || !reconciliation.providerReceiptId) {
+          statusRedirect("grade-sync-confirmation-pending");
+        }
+        const { data: completionData, error: completionError } = await authoritativeStore.rpc(
+          "complete_lms_grade_sync_receipt",
+          {
+            p_receipt_id: receiptClaim.receipt_id,
+            p_final_status: "synced",
+            p_provider_receipt_id: reconciliation.providerReceiptId,
+            p_provider_response: {
+              ...reconciliation.providerResponse,
+              provider_state: reconciliation.providerState,
+              observed_score: reconciliation.observedScore,
+              observed_draft_score: reconciliation.observedDraftScore,
+            },
+            p_error_detail: nullableRpcArg<string>(null),
+          },
+        );
+        const completion = Array.isArray(completionData) ? completionData[0] : completionData;
+        if (completionError || completion?.completed !== true || completion.receipt_status !== "synced") {
+          statusRedirect("grade-sync-confirmation-pending");
+        }
+        revalidatePath("/course-mode");
+        statusRedirect("grade-already-synced");
+      }
       statusRedirect("grade-sync-confirmation-pending");
     }
     statusRedirect("grade-receipt-not-created");
@@ -1227,24 +1359,13 @@ export async function syncConfirmedAssessmentGrade(formData: FormData) {
 
   let result: Awaited<ReturnType<typeof syncConfirmedGrade>>;
   try {
-    result = await syncConfirmedGrade({
-      provider: link.provider,
-      token,
-      canvasInstitutionId,
-      canvasBaseUrl,
-      externalCourseId: link.external_course_id,
-      externalAssignmentId: blueprint.external_assignment_id,
-      externalStudentId: parsed.data.externalStudentId,
-      score: Number(attempt.final_score),
-      pointsPossible: attempt.points_possible === null ? null : Number(attempt.points_possible),
-      confirmedBy: user.id,
-      confirmedAt,
-    });
+    result = await syncConfirmedGrade(gradeSyncInput);
   } catch (error) {
+    const reconnectRequired = providerCredentialRejection(error);
     const receiptStatus = error instanceof GradeSyncDeliveryError
       ? error.receiptStatus
       : "not_accepted";
-    const { data: completionData, error: completionError } = await store.rpc("complete_lms_grade_sync_receipt", {
+    const { data: completionData, error: completionError } = await authoritativeStore.rpc("complete_lms_grade_sync_receipt", {
       p_receipt_id: receiptClaim.receipt_id,
       p_final_status: receiptStatus,
       p_provider_receipt_id: nullableRpcArg<string>(null),
@@ -1261,6 +1382,7 @@ export async function syncConfirmedAssessmentGrade(formData: FormData) {
     ) {
       statusRedirect("grade-sync-confirmation-pending");
     }
+    if (reconnectRequired) statusRedirect("reconnect_required");
     statusRedirect(
       receiptStatus === "confirmation_pending"
         ? "grade-sync-confirmation-pending"
@@ -1268,13 +1390,66 @@ export async function syncConfirmedAssessmentGrade(formData: FormData) {
     );
   }
 
-  const { data: completionData, error: completionError } = await store.rpc(
+  let providerReadback: Awaited<ReturnType<typeof reconcileConfirmedGrade>>;
+  try {
+    providerReadback = await reconcileConfirmedGrade(gradeSyncInput);
+  } catch (error) {
+    const reconnectRequired = providerCredentialRejection(error);
+    const { data: completionData, error: completionError } = await authoritativeStore.rpc(
+      "complete_lms_grade_sync_receipt",
+      {
+        p_receipt_id: receiptClaim.receipt_id,
+        p_final_status: "confirmation_pending",
+        p_provider_receipt_id: nullableRpcArg<string>(null),
+        p_provider_response: result,
+        p_error_detail: "The provider accepted the grade request, but Diana could not verify the grade read-back.",
+      },
+    );
+    const completion = Array.isArray(completionData) ? completionData[0] : completionData;
+    if (completionError || completion?.completed !== true) {
+      statusRedirect("grade-sync-confirmation-pending");
+    }
+    if (reconnectRequired) statusRedirect("reconnect_required");
+    statusRedirect("grade-sync-confirmation-pending");
+  }
+
+  if (providerReadback.status !== "confirmed" || !providerReadback.providerReceiptId) {
+    const { data: completionData, error: completionError } = await authoritativeStore.rpc(
+      "complete_lms_grade_sync_receipt",
+      {
+        p_receipt_id: receiptClaim.receipt_id,
+        p_final_status: "confirmation_pending",
+        p_provider_receipt_id: nullableRpcArg<string>(null),
+        p_provider_response: {
+          ...result,
+          ...providerReadback.providerResponse,
+          provider_state: providerReadback.providerState,
+          observed_score: providerReadback.observedScore,
+          observed_draft_score: providerReadback.observedDraftScore,
+        },
+        p_error_detail: "The provider response did not yet match the confirmed grade.",
+      },
+    );
+    const completion = Array.isArray(completionData) ? completionData[0] : completionData;
+    if (completionError || completion?.completed !== true) {
+      statusRedirect("grade-sync-confirmation-pending");
+    }
+    statusRedirect("grade-sync-confirmation-pending");
+  }
+
+  const { data: completionData, error: completionError } = await authoritativeStore.rpc(
     "complete_lms_grade_sync_receipt",
     {
       p_receipt_id: receiptClaim.receipt_id,
       p_final_status: "synced",
-      p_provider_receipt_id: result.providerReceiptId,
-      p_provider_response: result,
+      p_provider_receipt_id: providerReadback.providerReceiptId,
+      p_provider_response: {
+        ...result,
+        ...providerReadback.providerResponse,
+        provider_state: providerReadback.providerState,
+        observed_score: providerReadback.observedScore,
+        observed_draft_score: providerReadback.observedDraftScore,
+      },
       p_error_detail: nullableRpcArg<string>(null),
     },
   );

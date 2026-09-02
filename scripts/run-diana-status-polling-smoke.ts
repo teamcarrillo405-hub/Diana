@@ -80,7 +80,7 @@ async function main() {
     if (submit.status() !== 202 || submitJson?.ok !== true || submitJson?.queued !== true) {
       throw new Error(
         `Diana voice candidate did not enter the managed queue (${submit.status()}). ` +
-          "Launch the app with DIANA_VOICE_SIDECAR_ENABLED=true and DIANA_VOICE_QUEUE_MODE=managed_queue. " +
+          "Launch the app with DIANA_VOICE_SIDECAR_ENABLED=true, DIANA_MANAGED_VOICE_WORKER_ENABLED=true, and DIANA_VOICE_QUEUE_MODE=managed_queue. " +
           JSON.stringify(submitJson),
       );
     }

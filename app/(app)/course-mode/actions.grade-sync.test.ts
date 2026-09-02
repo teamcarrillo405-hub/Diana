@@ -2,10 +2,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
+  createServiceClient: vi.fn(),
   getValidCanvasToken: vi.fn(),
   getValidGoogleToken: vi.fn(),
-  hydrateLmsConnectionCredentials: vi.fn(),
-  persistLmsTokenRefresh: vi.fn(),
+  hydrateLmsConnectionForRuntime: vi.fn(),
+  persistLmsTokenRefreshForRuntime: vi.fn(),
+  reconcileConfirmedGrade: vi.fn(),
   revalidatePath: vi.fn(),
   redirect: vi.fn(),
   syncConfirmedGrade: vi.fn(),
@@ -14,11 +16,15 @@ const mocks = vi.hoisted(() => ({
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
 vi.mock("next/navigation", () => ({ redirect: mocks.redirect }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
+vi.mock("@/lib/supabase/service", () => ({ createServiceClient: mocks.createServiceClient }));
 vi.mock("@/lib/lms/canvas", () => ({ getValidCanvasToken: mocks.getValidCanvasToken }));
 vi.mock("@/lib/lms/google", () => ({ getValidGoogleToken: mocks.getValidGoogleToken }));
-vi.mock("@/lib/integrations/credential-vault", () => ({
-  hydrateLmsConnectionCredentials: mocks.hydrateLmsConnectionCredentials,
-  persistLmsTokenRefresh: mocks.persistLmsTokenRefresh,
+vi.mock("@/lib/lms/credential-policy", () => ({
+  hydrateLmsConnectionForRuntime: mocks.hydrateLmsConnectionForRuntime,
+  persistLmsTokenRefreshForRuntime: mocks.persistLmsTokenRefreshForRuntime,
+}));
+vi.mock("@/lib/lms/grade-reconciliation", () => ({
+  reconcileConfirmedGrade: mocks.reconcileConfirmedGrade,
 }));
 vi.mock("@/lib/lms/grades", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/lms/grades")>();
@@ -46,11 +52,15 @@ type ReceiptUpdate = { table: string; payload: Record<string, unknown> };
 function formData(): FormData {
   const form = new FormData();
   form.set("attemptId", attemptId);
-  form.set("externalStudentId", "student-1");
+  form.set("externalStudentId", "attacker-controlled-student");
   return form;
 }
 
-function setupStore(claim: ReturnType<typeof vi.fn>) {
+function setupStore(
+  claim: (
+    args: Record<string, unknown>,
+  ) => Promise<{ data: Array<Record<string, unknown>>; error: unknown }>,
+) {
   const updates: ReceiptUpdate[] = [];
   const completion = vi.fn(async (
     args: Record<string, unknown>,
@@ -71,6 +81,7 @@ function setupStore(claim: ReturnType<typeof vi.fn>) {
       confirmed_by: userId,
       confirmed_at: "2026-07-31T18:00:00.000Z",
       blueprint_id: blueprintId,
+      student_id: userId,
     },
     assessment_blueprints: {
       course_id: courseId,
@@ -86,9 +97,31 @@ function setupStore(claim: ReturnType<typeof vi.fn>) {
       provider: "canvas",
       config: { institution_id: "school", base_url: "https://93.184.216.34" },
     },
+    course_mode_lms_student_links: {
+      external_student_id: "student-1",
+    },
   };
-  const rpc = vi.fn((name: string, args: Record<string, unknown>) => {
-    if (name === "claim_lms_grade_sync_receipt") return claim(args);
+  const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
+    if (name === "claim_lms_grade_sync_receipt") {
+      const result = await claim(args) as { data: Array<Record<string, unknown>>; error: unknown };
+      return {
+        ...result,
+        data: result.data.map((row) => ({
+          provider: "canvas",
+          connection_id: connectionId,
+          canvas_institution_id: "school",
+          canvas_origin: "https://93.184.216.34",
+          external_course_id: "course-1",
+          external_assignment_id: "assignment-1",
+          external_student_id: "student-1",
+          score: 18,
+          points_possible: 20,
+          confirmed_by: userId,
+          confirmed_at: "2026-07-31T18:00:00.000Z",
+          ...row,
+        })),
+      };
+    }
     if (name === "complete_lms_grade_sync_receipt") return completion(args);
     throw new Error(`Unexpected RPC: ${name}`);
   });
@@ -116,6 +149,7 @@ function setupStore(claim: ReturnType<typeof vi.fn>) {
     }),
   };
   mocks.createClient.mockResolvedValue(store);
+  mocks.createServiceClient.mockReturnValue(store);
   return { store, updates, completion, rpc };
 }
 
@@ -124,7 +158,7 @@ beforeEach(() => {
   mocks.redirect.mockImplementation((url: string) => {
     throw new RedirectSignal(url);
   });
-  mocks.hydrateLmsConnectionCredentials.mockResolvedValue({
+  mocks.hydrateLmsConnectionForRuntime.mockResolvedValue({
     id: connectionId,
     provider: "canvas",
     config: {
@@ -134,6 +168,15 @@ beforeEach(() => {
     },
   });
   mocks.getValidCanvasToken.mockResolvedValue({ token: "grade-token" });
+  mocks.reconcileConfirmedGrade.mockResolvedValue({
+    status: "not_confirmed",
+    provider: "canvas",
+    providerReceiptId: "77",
+    providerState: "unsubmitted",
+    observedScore: null,
+    observedDraftScore: null,
+    providerResponse: { verification: "provider_readback" },
+  });
   mocks.syncConfirmedGrade.mockResolvedValue({
     provider: "canvas",
     providerReceiptId: "77",
@@ -143,21 +186,72 @@ beforeEach(() => {
 });
 
 describe("confirmed assessment grade delivery receipts", () => {
-  it.each(["syncing", "confirmation_pending"])(
-    "blocks retries while the atomic receipt claim is %s",
+  it("reconciles a concurrent syncing receipt without another provider write", async () => {
+    const claim = vi.fn(async () => ({
+      data: [{ receipt_id: receiptId, receipt_status: "syncing", claimed: false }],
+      error: null,
+    }));
+    setupStore(claim);
+
+    await expect(syncConfirmedAssessmentGrade(formData())).rejects.toMatchObject({
+      url: "/course-mode?status=grade-sync-confirmation-pending",
+    });
+    expect(claim).toHaveBeenCalledWith(expect.objectContaining({
+      p_attempt_id: attemptId,
+      p_provider: "canvas",
+    }));
+    expect(claim).not.toHaveBeenCalledWith(expect.objectContaining({
+      p_external_student_id: expect.anything(),
+    }));
+    expect(mocks.reconcileConfirmedGrade).toHaveBeenCalledTimes(1);
+    expect(mocks.syncConfirmedGrade).not.toHaveBeenCalled();
+  });
+
+  it.each(["syncing", "confirmation_pending"] as const)(
+    "recovers a %s receipt when provider read-back proves the grade",
     async (receiptStatus) => {
       const claim = vi.fn(async () => ({
         data: [{ receipt_id: receiptId, receipt_status: receiptStatus, claimed: false }],
         error: null,
       }));
       setupStore(claim);
+      mocks.reconcileConfirmedGrade.mockResolvedValueOnce({
+        status: "confirmed",
+        provider: "canvas",
+        providerReceiptId: "77",
+        providerState: "graded",
+        observedScore: 18,
+        observedDraftScore: null,
+        providerResponse: { verification: "provider_readback" },
+      });
 
       await expect(syncConfirmedAssessmentGrade(formData())).rejects.toMatchObject({
-        url: "/course-mode?status=grade-sync-confirmation-pending",
+        url: "/course-mode?status=grade-already-synced",
       });
+      expect(mocks.reconcileConfirmedGrade).toHaveBeenCalledWith(expect.objectContaining({
+        provider: "canvas",
+        externalStudentId: "student-1",
+        score: 18,
+      }));
       expect(mocks.syncConfirmedGrade).not.toHaveBeenCalled();
+      expect(mocks.revalidatePath).toHaveBeenCalledWith("/course-mode");
     },
   );
+
+  it("keeps a pending receipt non-successful when provider state does not match", async () => {
+    const claim = vi.fn(async () => ({
+      data: [{ receipt_id: receiptId, receipt_status: "confirmation_pending", claimed: false }],
+      error: null,
+    }));
+    setupStore(claim);
+
+    await expect(syncConfirmedAssessmentGrade(formData())).rejects.toMatchObject({
+      url: "/course-mode?status=grade-sync-confirmation-pending",
+    });
+    expect(mocks.reconcileConfirmedGrade).toHaveBeenCalledTimes(1);
+    expect(mocks.syncConfirmedGrade).not.toHaveBeenCalled();
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
 
   it.each([
     ["confirmation_pending", "grade-sync-confirmation-pending"],
@@ -197,6 +291,26 @@ describe("confirmed assessment grade delivery receipts", () => {
       };
     });
     const { completion, updates } = setupStore(claim);
+
+    mocks.reconcileConfirmedGrade
+      .mockResolvedValueOnce({
+        status: "not_confirmed",
+        provider: "canvas",
+        providerReceiptId: "77",
+        providerState: "unsubmitted",
+        observedScore: null,
+        observedDraftScore: null,
+        providerResponse: { verification: "provider_readback" },
+      })
+      .mockResolvedValueOnce({
+        status: "confirmed",
+        provider: "canvas",
+        providerReceiptId: "77",
+        providerState: "graded",
+        observedScore: 18,
+        observedDraftScore: null,
+        providerResponse: { verification: "provider_readback" },
+      });
 
     let resolveDelivery!: (value: {
       provider: "canvas";

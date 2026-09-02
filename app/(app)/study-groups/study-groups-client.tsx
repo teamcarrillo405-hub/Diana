@@ -3,7 +3,6 @@
 import {
   ArrowRight,
   Clock3,
-  Copy,
   LockKeyhole,
   Send,
   ShieldCheck,
@@ -91,7 +90,6 @@ const COMMUNITY_AVATARS: readonly ScreenDesignAssetId[] = [
 
 export function StudyGroupsClient({
   groups,
-  selectedGroupId,
   workspace,
   view,
 }: {

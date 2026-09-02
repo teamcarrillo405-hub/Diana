@@ -3,12 +3,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const SYNTHESIS_PROMPT = `You synthesize a student's own class notes.
@@ -152,28 +152,18 @@ Deno.serve(withStudentSecurity("note-synthesis", async (req: Request) => {
       ownerId?: unknown;
       query?: unknown;
       classId?: unknown;
+      generalOnly?: unknown;
     };
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const query = typeof body.query === "string" ? body.query.trim() : "";
     const classId = typeof body.classId === "string" ? body.classId : null;
+    const generalOnly = body.generalOnly === true;
     if (!ownerId || query.length < 3) return json({ error: "query required" }, 400);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
-
-    if (classId) {
-      const { data: klass } = await supabase
-        .from("classes")
-        .select("ai_mode")
-        .eq("id", classId)
-        .eq("owner_id", ownerId)
-        .single();
-      if (klass?.ai_mode === "red" || klass?.ai_mode === "yellow") {
-        return json({ error: "AI not available for this class" }, 403);
-      }
-    }
 
     await resetBudgetIfNewDay(ownerId, supabase);
     const { allowed } = await checkTokenBudget(ownerId, supabase);
@@ -186,6 +176,7 @@ Deno.serve(withStudentSecurity("note-synthesis", async (req: Request) => {
       .order("updated_at", { ascending: false })
       .limit(12);
     if (classId) notesQuery = notesQuery.eq("class_id", classId);
+    if (generalOnly) notesQuery = notesQuery.is("class_id", null);
     const { data: notes, error: notesErr } = await notesQuery;
     if (notesErr) return json({ error: "Could not load notes" }, 500);
     if (!notes || notes.length === 0) return json({ error: "No notes available" }, 404);
@@ -211,7 +202,9 @@ Deno.serve(withStudentSecurity("note-synthesis", async (req: Request) => {
       includeMinorSafety: true,
     });
 
-    const ai = await callSafeStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+
+      task: "note_synthesis",
       ownerId,
       supabase,
       system,

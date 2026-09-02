@@ -93,6 +93,11 @@ export function resolveVoiceCandidateQueueMode({
   tenantId?: string;
   env?: NodeJS.ProcessEnv;
 } = {}): WorkerQueueMode {
+  // The hosted beta uses the audited Supabase/OpenAI web path. The separate
+  // managed worker stays fail-closed until its deployment gate is certified.
+  if (env.DIANA_MANAGED_VOICE_WORKER_ENABLED !== "true") {
+    return "inline";
+  }
   if (tenantId && tenantListIncludes(env.DIANA_VOICE_INLINE_QUEUE_TENANTS, tenantId)) {
     return "inline";
   }

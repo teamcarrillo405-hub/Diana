@@ -1,7 +1,5 @@
 "use client";
 
-import { PencilRuler } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { UpgradeScreen } from "@/app/(app)/upgrade/upgrade-screen";
@@ -16,10 +14,8 @@ import type { ScreenDesignOnboardingAnswers } from "@/lib/onboarding/screendesig
 
 export function PublicHomeFunnel({
   config = DEFAULT_LANDING_PAGE_CONFIG,
-  showEditorLink = false,
 }: {
   readonly config?: LandingPageConfig;
-  readonly showEditorLink?: boolean;
 }) {
   const router = useRouter();
 
@@ -49,16 +45,6 @@ export function PublicHomeFunnel({
       aria-label="Diana student introduction"
     >
       <LandingPageStyles config={config} />
-      {showEditorLink ? (
-        <Link
-          href="/design/landing"
-          className="sd-landing-editor-launch"
-          aria-label="Edit landing page"
-          title="Edit landing page"
-        >
-          <PencilRuler aria-hidden="true" />
-        </Link>
-      ) : null}
       <ScreenDesignOnboarding
         presentation="scroll"
         landingConfig={config}

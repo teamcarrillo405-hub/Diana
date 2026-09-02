@@ -5,12 +5,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -77,9 +77,6 @@ Deno.serve(withStudentSecurity("science-scaffold", async (req: Request) => {
     const classContext = typeof body.classContext === "string" ? body.classContext.slice(0, 3000) : "";
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
     if (!mode) return jsonResponse({ error: "mode required" }, 400);
-    if (body.aiMode === "red" || body.aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
     if (prompt.trim().length < 5) return jsonResponse({ error: "Add the science prompt first." }, 400);
 
     const supabase = createClient(
@@ -106,7 +103,9 @@ Deno.serve(withStudentSecurity("science-scaffold", async (req: Request) => {
       personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
-    const ai = await callSafeStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+
+      task: "science_scaffold",
       ownerId,
       supabase,
       system: systemPrompt,

@@ -43,7 +43,7 @@ describe("ScreenDesignOnboarding", () => {
     expect(screen.getByRole("heading", { name: /diana\s*ai tutor/iu })).toBeInTheDocument();
     expect(
       decodeURIComponent(screen.getByAltText("DIANA logo").getAttribute("src") ?? ""),
-    ).toContain("/screendesign/brand/diana-logo.png");
+    ).toContain("/screendesign/brand/diana-logo-tight-no-shadow.png");
     expect(document.querySelector('[src*="media.screensdesign.com"]')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "GET STARTED" }));

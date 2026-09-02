@@ -8,6 +8,18 @@ import { DianaWordmark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 import { isRefusalNeeded } from "@/lib/ai/refuse-redirect";
+import {
+  createTutorResponseEvidence,
+  parseTutorResponseEvidence,
+  tutorResponseEvidenceLabel,
+  type TutorResponseEvidence,
+} from "@/lib/ai/tutor-response-evidence";
+import {
+  parseVisibleTutorProviderState,
+  resolveVisibleTutorProviderState,
+  type VisibleTutorProviderState,
+} from "@/lib/assignment-help/provider-state";
+import type { StudyBuddyRouteResponse } from "@/lib/assignment-workspace-contracts";
 
 type Mode = "guide" | "hint" | "quiz";
 
@@ -21,7 +33,13 @@ type DianaResponse = {
 
 type ChatMessage =
   | { id: string; role: "student"; text: string }
-  | { id: string; role: "coach"; response: DianaResponse };
+  | {
+      id: string;
+      role: "coach";
+      response: DianaResponse;
+      evidence: TutorResponseEvidence;
+      providerState: VisibleTutorProviderState;
+    };
 
 const MODES: Array<{ id: Mode; label: string }> = [
   { id: "guide", label: "Guide me" },
@@ -41,6 +59,14 @@ const BOUNDARY_RESPONSE: DianaResponse = {
   ],
 };
 
+const AVAILABLE_PROVIDER_STATE = resolveVisibleTutorProviderState({ availability: "available" });
+
+const BOUNDARY_EVIDENCE = createTutorResponseEvidence({
+  verificationLevel: "ai_guidance",
+  confidence: 0.7,
+  limitations: ["This response applies Diana's student-ownership rule rather than checking subject content."],
+});
+
 export function StudyBuddyClient({
   initialSource,
   initialQuestion,
@@ -49,6 +75,7 @@ export function StudyBuddyClient({
   tutorStyle = "socratic",
   complexity = "balanced",
   classId,
+  assignmentId,
   qaScenario,
 }: {
   initialSource?: string;
@@ -58,6 +85,7 @@ export function StudyBuddyClient({
   tutorStyle?: "socratic" | "supportive" | "direct";
   complexity?: "simple" | "balanced" | "advanced";
   classId?: string;
+  assignmentId?: string;
   qaScenario?: string;
 } = {}) {
   const [source, setSource] = useState(
@@ -70,11 +98,22 @@ export function StudyBuddyClient({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [providerNotice, setProviderNotice] = useState<VisibleTutorProviderState | null>(null);
 
-  function appendResponse(response: DianaResponse) {
+  function appendResponse(
+    response: DianaResponse,
+    evidence: TutorResponseEvidence,
+    providerState: VisibleTutorProviderState,
+  ) {
     setMessages((current) => [
       ...current,
-      { id: `coach-${Date.now()}-${current.length}`, role: "coach", response },
+      {
+        id: `coach-${Date.now()}-${current.length}`,
+        role: "coach",
+        response,
+        evidence,
+        providerState,
+      },
     ]);
   }
 
@@ -88,9 +127,10 @@ export function StudyBuddyClient({
     ]);
     setQuestion("");
     setError(null);
+    setProviderNotice(null);
 
     if (isRefusalNeeded(studentQuestion)) {
-      appendResponse(BOUNDARY_RESPONSE);
+      appendResponse(BOUNDARY_RESPONSE, BOUNDARY_EVIDENCE, AVAILABLE_PROVIDER_STATE);
       return;
     }
 
@@ -99,16 +139,33 @@ export function StudyBuddyClient({
       const res = await fetch("/api/diana/study-buddy", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ source, question: studentQuestion, mode, classId, qaScenario }),
+        body: JSON.stringify({ source, question: studentQuestion, mode, classId, assignmentId, qaScenario }),
       });
-      const data = (await res.json()) as { ok: boolean; response?: DianaResponse; error?: string };
-      if (!data.ok || !data.response) {
-        setError(data.error ?? "Diana study help is unavailable right now.");
+      const data = (await res.json()) as StudyBuddyRouteResponse;
+      if (!data.ok) {
+        const providerState = parseVisibleTutorProviderState(data.providerState);
+        setProviderNotice(providerState?.visible ? providerState : null);
+        setError(providerState?.visible ? null : data.error ?? "Diana study help is unavailable right now.");
       } else {
-        appendResponse(data.response);
+        const evidence = parseTutorResponseEvidence(data.evidence);
+        const providerState = parseVisibleTutorProviderState(data.providerState);
+        if (!data.response || !evidence || !providerState) {
+          setProviderNotice(resolveVisibleTutorProviderState({
+            availability: "unavailable",
+            reasonCode: "unknown",
+            retryable: true,
+          }));
+        } else {
+          appendResponse(data.response, evidence, providerState);
+        }
       }
     } catch {
-      setError("Could not reach Diana. Check your connection and try again.");
+      setProviderNotice(resolveVisibleTutorProviderState({
+        availability: "unavailable",
+        reasonCode: "network",
+        retryable: true,
+      }));
+      setError(null);
     } finally {
       setLoading(false);
     }
@@ -143,6 +200,12 @@ export function StudyBuddyClient({
           </article>
         ) : (
           <article key={message.id} className="sd-tutor-bubble sd-tutor-bubble-coach">
+            {message.providerState.visible ? (
+              <div className="sd-tutor-error" role="status" data-provider-availability={message.providerState.availability}>
+                <strong>{message.providerState.title}</strong>
+                <p>{message.providerState.message}</p>
+              </div>
+            ) : null}
             <span>{message.response.title}</span>
             <p>{message.response.main}</p>
             <small>{message.response.reason}</small>
@@ -150,11 +213,20 @@ export function StudyBuddyClient({
               <ol>{message.response.steps.map((step) => <li key={step}>{step}</li>)}</ol>
             ) : null}
             {message.response.anchor ? <small>{message.response.anchor}</small> : null}
+            <small data-verification-level={message.evidence.verificationLevel}>
+              {tutorResponseEvidenceLabel(message.evidence)}
+            </small>
           </article>
         ))}
 
         {loading ? (
           <div className="sd-tutor-thinking"><Loader2 size={15} className="animate-spin" aria-hidden="true" /> {tutorName} is thinking...</div>
+        ) : null}
+        {providerNotice?.visible ? (
+          <div className="sd-tutor-error" role="status" data-provider-availability={providerNotice.availability}>
+            <strong>{providerNotice.title}</strong>
+            <p>{providerNotice.message}</p>
+          </div>
         ) : null}
         {error ? <p className="sd-tutor-error" role="status">{error}</p> : null}
       </main>

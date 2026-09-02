@@ -118,6 +118,24 @@ const PROOF_STYLES = `
     .sd-proof-title { margin: 0; font-size: 56px; }
     .sd-proof-section { margin-top: 30px; }
   }
+
+  /* Current student visual system. This intentionally replaces the retired navy, neon, and condensed type treatment above. */
+  .sd-proof-screen:not(.sd-milestone-screen) { background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-scroll { background:transparent!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card h2,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty h2,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-week h3,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item h4 { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:620!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title { text-transform:uppercase!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title span,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-section-title { color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:16px!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-week,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46))!important; color:#182126!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card p,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty p,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item p { color:#53615c!important; font-size:14px!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card-icon,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item-icon { border-radius:8px!important; background:rgb(232 245 107 / .55)!important; color:#182126!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty a { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-weight:600!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-artifact-card { background:#fff!important; }
+  @media (min-width:1100px) {
+    .sd-proof-screen:not(.sd-milestone-screen) { background:linear-gradient(rgb(225 230 228 / .16),rgb(216 222 220 / .24)),#d9dcda url("/images/record-gamer-gallery-v2.png") center/cover fixed!important; }
+    .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-scroll { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 118px)!important; margin:22px auto 24px!important; border:7px solid #fff; border-radius:30px!important; padding:clamp(30px,3.2vw,48px) clamp(20px,3.2vw,54px) clamp(44px,5vw,78px)!important; }
+    .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-content { width:min(100%,920px)!important; max-width:920px!important; }
+    .sd-proof-screen:not(.sd-milestone-screen) > .sd-student-bottom-nav { display:none!important; }
+  }
 `;
 
 export default async function ProofPage({
@@ -181,7 +199,7 @@ export default async function ProofPage({
 
   if (milestone) {
     return (
-      <ScreenDesignViewport className="sd-proof-screen sd-milestone-screen">
+      <ScreenDesignViewport className="sd-proof-screen sd-milestone-screen diana-current-page">
         <style>{PROOF_STYLES}</style>
         <div className="sd-milestone-confetti" aria-hidden="true">
           <i /><i /><i /><i /><i /><i />
@@ -233,7 +251,7 @@ export default async function ProofPage({
   const profile = await loadProfile();
 
   return (
-    <ScreenDesignViewport className="sd-proof-screen">
+    <ScreenDesignViewport className="sd-proof-screen diana-current-page">
       <style>{PROOF_STYLES}</style>
       <StudentDesktopNav
         active="More"
@@ -250,7 +268,7 @@ export default async function ProofPage({
             <ShieldCheck size={14} aria-hidden="true" /> Private
           </span>
           </header>
-          <h1 className="sd-proof-title">Record</h1>
+          <h1 className="sd-proof-title">RECORD</h1>
           <section className="sd-proof-section" aria-labelledby="proof-completed-title">
           <p id="proof-completed-title" className="sd-proof-section-title">
             Completed work
@@ -297,7 +315,7 @@ export default async function ProofPage({
             {artifactRows.map((artifact) => (
               <Link
                 href={`/study-artifacts/${artifact.id}`}
-                className="sd-proof-card"
+                className="sd-proof-card sd-proof-artifact-card"
                 key={artifact.id}
               >
                 <span className="sd-proof-card-icon">
@@ -332,7 +350,7 @@ export default async function ProofPage({
                 {week.items.map((item) => (
                   <Link
                     className="sd-showcase-item"
-                    href={`/portfolio?item=${item.id}`}
+                    href="#showcase"
                     key={item.id}
                   >
                     <span className="sd-showcase-item-icon">

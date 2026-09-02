@@ -179,7 +179,7 @@ export async function resetLearnerProfile({
     supabase.from("learning_rollup_jobs").delete().eq("owner_id", ownerId),
   ]);
   revalidatePath("/settings");
-  revalidatePath("/export");
+  revalidatePath("/settings");
 }
 
 export async function setLearnerPersonalizationPaused({

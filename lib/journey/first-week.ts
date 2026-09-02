@@ -65,7 +65,7 @@ export function firstWeekJourney(inputs: JourneyInputs): FirstWeekJourney {
       key: "first-session",
       title: "Run one short focus session",
       detail: "Even 10 minutes counts. The timer has a calm start ritual.",
-      href: "/timer",
+      href: "/assignments",
       done: inputs.hasFocusSession,
     },
   ];

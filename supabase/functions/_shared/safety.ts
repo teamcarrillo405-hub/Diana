@@ -866,6 +866,7 @@ export async function callSafeStudentTextModel({
   fallbackContent,
   timeoutMs,
   moderator,
+  reservationUnits,
 }: {
   ownerId: string;
   supabase: SupabaseLike;
@@ -878,6 +879,7 @@ export async function callSafeStudentTextModel({
   fallbackContent?: string;
   timeoutMs?: number;
   moderator?: StructuredModerator;
+  reservationUnits?: number;
 }): Promise<StudentModelResult> {
   const textParts =
     parts?.filter((part) => part.type === "text").map((part) => part.text) ??
@@ -914,6 +916,7 @@ export async function callSafeStudentTextModel({
     getUsageState: (value) =>
       value.model.endsWith(":fallback") ? "not_consumed" : "consumed",
     moderator,
+    reservationUnits,
   });
 
   if (!guarded.ok) throw aiGuardFailureResponse(guarded);

@@ -137,7 +137,7 @@ export default async function InsightsPage() {
   const evidenceLinks = buildEvidenceLinks(assignments, timeLogs.length, analytics.length);
 
   return (
-    <ScreenDesignViewport className="sd-progress-insights" aria-label="Progress insights">
+    <ScreenDesignViewport className="sd-progress-insights diana-current-page" aria-label="Progress insights">
       <style>{INSIGHTS_STYLES}</style>
       <header className="sd-insights-header">
         <div className="sd-insights-header-main">
@@ -145,7 +145,7 @@ export default async function InsightsPage() {
             <DianaWordmark className="sd-insights-wordmark" />
             <h1>Season<br /><span>Stats</span></h1>
           </div>
-          <Link className="sd-insights-share" href="/portfolio" aria-label="Open portfolio"><Share2 size={18} aria-hidden="true" /></Link>
+          <Link className="sd-insights-share" href="/proof#showcase" aria-label="Open record showcase"><Share2 size={18} aria-hidden="true" /></Link>
         </div>
         <p className="sd-insights-kicker">Private learning analytics</p>
       </header>
@@ -227,7 +227,7 @@ function buildEvidenceLinks(
   return [
     ...assignmentLinks,
     {
-      href: "/timer",
+      href: "/assignments",
       title: "Focus sessions",
       detail: `${timeLogCount} saved time log${timeLogCount === 1 ? "" : "s"}`,
       primary: false,

@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
+import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
 import { findRelatedNotes, type RelatedNoteCandidate } from "@/lib/notes/related";
 import type { OutlineNode } from "@/lib/notes/types";
 import { loadProfile } from "@/lib/profile";
@@ -21,7 +22,7 @@ export default async function NoteDetailPage({
     loadProfile(),
     supabase
       .from("notes")
-      .select("id, title, body_text, transcript_text, outline_json, action_items_json, assignment_id, updated_at, class_id, source, tags, ai_suggested_tags, classes(id, name, ai_mode)")
+      .select("id, title, body_text, transcript_text, outline_json, action_items_json, assignment_id, updated_at, class_id, source, tags, ai_suggested_tags, classes(id, name)")
       .eq("id", id)
       .eq("owner_id", user.id)
       .single(),
@@ -87,18 +88,8 @@ export default async function NoteDetailPage({
       ttsVoice={profile?.tts_voice ?? "nova"}
       classId={note.class_id ?? null}
       ownerId={user.id}
-      classAiMode={noteAiMode(note)}
+      aiMode={resolveDianaHomeworkTrust().aiMode}
       classes={classes ?? []}
     />
   );
-}
-
-function noteAiMode(note: { classes?: unknown }): "red" | "yellow" | "green" {
-  const joined = note.classes;
-  const classroom = Array.isArray(joined) ? joined[0] : joined;
-  if (classroom && typeof classroom === "object" && "ai_mode" in classroom) {
-    const mode = (classroom as { ai_mode?: unknown }).ai_mode;
-    if (mode === "red" || mode === "yellow") return mode;
-  }
-  return "green";
 }

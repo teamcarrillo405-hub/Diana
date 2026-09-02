@@ -178,8 +178,8 @@ const startReviewQaServer = async (projectRoot: string): Promise<ReviewQaServer>
   child.on("exit", (status) => {
     exitStatus = status;
   });
-  const deadline = Date.now() + 120_000;
-  while (Date.now() < deadline && !(await serverIsReady())) {
+  const readyUntil = Date.now() + 120_000;
+  while (Date.now() < readyUntil && !(await serverIsReady())) {
     invariant(exitStatus === undefined, `QA server exited early with ${String(exitStatus)}`);
     await new Promise((resolve) => setTimeout(resolve, 500));
   }

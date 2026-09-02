@@ -2,14 +2,27 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { Search, Sparkles } from "lucide-react";
-import { SubjectToolShell } from "@/components/subject-tool-shell";
-import { TtsButton } from "@/components/tts-button";
+import { ArrowUp, Sparkles } from "lucide-react";
 import { synthesizeNotes, type NoteSynthesisResult } from "./actions";
 
-export function NoteSynthesisPanel() {
+type ChatTurn = {
+  role: "student" | "diana";
+  text: string;
+  citations?: NoteSynthesisResult["citations"];
+};
+
+export function NoteSynthesisPanel({
+  classId = null,
+  scopeLabel = "all notes",
+  generalOnly = false,
+}: {
+  classId?: string | null;
+  scopeLabel?: string;
+  generalOnly?: boolean;
+}) {
+  const subjectScoped = Boolean(classId || generalOnly);
   const [query, setQuery] = useState("");
-  const [result, setResult] = useState<NoteSynthesisResult | null>(null);
+  const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
@@ -20,83 +33,75 @@ export function NoteSynthesisPanel() {
       setError("Enter a note question.");
       return;
     }
+    const context = turns.slice(-6).map((turn) => `${turn.role === "student" ? "Student" : "Diana"}: ${turn.text}`).join("\n\n");
+    setTurns((current) => [...current, { role: "student", text: trimmed }]);
+    setQuery("");
     startTransition(async () => {
-      const res = await synthesizeNotes({ query: trimmed });
+      const res = await synthesizeNotes({
+        query: context ? `Conversation so far:\n${context}\n\nStudent: ${trimmed}` : trimmed,
+        classId,
+        generalOnly,
+      });
       if (res.ok) {
-        setResult(res.result);
+        setTurns((current) => [...current, {
+          role: "diana",
+          text: res.result.summary,
+          citations: res.result.citations,
+        }]);
       } else {
+        setTurns((current) => current.slice(0, -1));
         setError(res.error);
       }
     });
   }
 
   return (
-    <SubjectToolShell
-      theme="notes"
-      eyebrow="Notes studio"
-      title="Ask across notes"
-      subtitle="Pull a calm summary from the notes you already captured."
-      icon={Sparkles}
-    >
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <label className="min-w-0 flex-1">
-          <span className="sr-only">Question for notes</span>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") runSynthesis();
-            }}
-            className="touch-target w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
-            placeholder="What do my notes say about cells?"
-          />
-        </label>
-        <button
-          type="button"
-          onClick={runSynthesis}
-          disabled={pending}
-          className="touch-target inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-strong disabled:opacity-50"
-        >
-          <Search size={15} />
-          {pending ? "Reading..." : "Synthesize"}
-        </button>
+    <section className="sd-notes-chat" aria-labelledby="notes-chat-title">
+      <div className="sd-notes-chat-head">
+        <h2 id="notes-chat-title"><Sparkles size={18} aria-hidden="true" /> Ask Diana</h2>
+        <p>Diana uses {scopeLabel.toLowerCase()} as context for this conversation.</p>
       </div>
-
-      {error && <p className="rounded-md bg-border/40 px-3 py-2 text-sm text-muted">{error}</p>}
-
-      {result && (
-        <div className="space-y-3 rounded-xl border border-border bg-surface-raised p-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">{result.summary}</p>
-            {result.audioOverviewScript && (
-              <TtsButton
-                text={result.audioOverviewScript}
-                label="Audio overview"
-                provider="elevenlabs"
-                voice="EXAVITQu4vr4xnSDxMaL"
-                speed={0.95}
-                className="shrink-0 rounded-xl px-3 py-2"
-              />
-            )}
-          </div>
-          {result.citations.length > 0 && (
-            <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-wider text-muted">Source notes</p>
-              <ul className="space-y-1 text-sm">
-                {result.citations.map((citation) => (
+      <div className="sd-notes-chat-history" aria-live="polite">
+        {turns.map((turn, index) => (
+          <div className={`sd-notes-chat-turn sd-notes-chat-turn--${turn.role}`} key={`${turn.role}-${index}`}>
+            {turn.text}
+            {turn.citations && turn.citations.length > 0 ? (
+              <ul className="mt-3 grid gap-1 text-sm">
+                {turn.citations.map((citation) => (
                   <li key={`${citation.label}-${citation.noteId}`}>
-                    <Link href={`/notes/${citation.noteId}`} className="text-accent underline underline-offset-2 decoration-accent/50 hover:decoration-accent">
-                      {citation.label ? `[${citation.label}] ` : ""}
-                      {citation.title}
+                    <Link href={`/notes/${citation.noteId}`} className="underline underline-offset-2">
+                      {citation.label ? `[${citation.label}] ` : ""}{citation.title}
                     </Link>
-                    {citation.reason && <span className="text-muted"> - {citation.reason}</span>}
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
+            ) : null}
+          </div>
+        ))}
+        {turns.length === 0 ? <p>Ask a question about {subjectScoped ? "this subject's notes" : "your notes"}.</p> : null}
+      </div>
+      <div className="sd-notes-chat-composer">
+        <label>
+          <span className="sr-only">Message Diana</span>
+          <textarea
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                runSynthesis();
+              }
+            }}
+            placeholder="Message Diana about these notes"
+          />
+        </label>
+        <div className="sd-notes-chat-actions">
+          <button type="button" onClick={runSynthesis} disabled={pending} aria-label="Send message to Diana">
+            {pending ? "Thinking" : <ArrowUp size={18} aria-hidden="true" />}
+          </button>
         </div>
-      )}
-    </SubjectToolShell>
+      </div>
+      {error ? <p role="status">{error}</p> : null}
+    </section>
   );
 }

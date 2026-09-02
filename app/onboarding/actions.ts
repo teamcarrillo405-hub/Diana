@@ -36,7 +36,7 @@ export type CompleteScreenDesignOnboardingResult =
 const Input = z.object({
   diagnoses: z.array(DIAGNOSES),
   accommodations: z.array(ACCOMMODATIONS),
-  school_year: z.number().int().min(9).max(13).nullable(),
+  school_year: z.number().int().min(6).max(16).nullable(),
   extra_time_pct: z.number().int().min(0).max(100),
   class_count_hint: z.number().int().min(1).max(8).nullable(),
   interests: z.array(z.string()).max(5).optional(),

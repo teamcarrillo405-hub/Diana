@@ -3,6 +3,7 @@ import {
   type ScreenDesignActionKind,
   type ScreenDesignAuthClass,
 } from "@/lib/screendesign/screens";
+import { TEEN_GUARDIAN_PERMISSION_POLICY_VERSION } from "@/lib/learner-access-policy";
 
 export const SCREEN_DESIGN_FIXED_CLOCK = "2026-09-14T16:30:00.000Z" as const;
 
@@ -215,6 +216,10 @@ const profile = (
     schoolYear: 9,
     timezone: "America/Los_Angeles",
     consentAi: true,
+    teenGuardianPermissionAttestedAt: SCREEN_DESIGN_FIXED_CLOCK,
+    teenGuardianPermissionPolicyVersion: TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+    teenGuardianPermissionSource: "synthetic_qa_fixture",
+    teenGuardianPermissionWithdrawnAt: null,
     ...values,
   });
 
@@ -264,6 +269,73 @@ const assignmentSupport = (
     "time-log-main",
     { startedAt: "2026-09-14T16:20:00.000Z", endedAt: null },
     ["assignment-main"],
+  ),
+];
+
+const workQueuePreview = (): readonly ScreenDesignFixtureRecordFactory[] => [
+  profile(),
+  record("class", "class-algebra", { name: "Algebra I", teacher: "Mr. Chen", aiMode: "green" }),
+  record("class", "class-history", { name: "World History", teacher: "Ms. Johnson", aiMode: "green" }),
+  record("class", "class-chemistry", { name: "Chemistry", teacher: "Dr. Patel", aiMode: "green" }),
+  record(
+    "assignment",
+    "assignment-main",
+    {
+      title: "Linear equations practice set",
+      kind: "problem_set",
+      status: "todo",
+      dueAt: "2026-09-14T19:00:00.000Z",
+      estimatedMinutes: 30,
+    },
+    ["class-algebra"],
+  ),
+  record(
+    "assignment",
+    "assignment-graphing",
+    {
+      title: "Function graph practice",
+      kind: "problem_set",
+      status: "drafting",
+      dueAt: "2026-09-15T21:00:00.000Z",
+      estimatedMinutes: 25,
+    },
+    ["class-algebra"],
+  ),
+  record(
+    "assignment",
+    "assignment-nixon",
+    {
+      title: "Nixon research outline",
+      kind: "essay",
+      status: "todo",
+      dueAt: "2026-09-16T21:00:00.000Z",
+      estimatedMinutes: 40,
+    },
+    ["class-history"],
+  ),
+  record(
+    "assignment",
+    "assignment-chemistry",
+    {
+      title: "Balancing equations practice",
+      kind: "lab",
+      status: "todo",
+      dueAt: "2026-09-17T21:00:00.000Z",
+      estimatedMinutes: 30,
+    },
+    ["class-chemistry"],
+  ),
+  record(
+    "assignment",
+    "assignment-quiz",
+    {
+      title: "Quiz: slope and intercepts",
+      kind: "test_prep",
+      status: "checking",
+      dueAt: "2026-09-19T21:00:00.000Z",
+      estimatedMinutes: 35,
+    },
+    ["class-algebra"],
   ),
 ];
 
@@ -453,6 +525,15 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
         ["assignment-main"],
       ),
     ],
+    guardedStates: ["populated"],
+    result: mutation("assignment", "assignment-main", "status", "in_progress"),
+  },
+  {
+    screenId: "assignment-detail",
+    variant: "work-queue-five",
+    heading: "Five assignment work queue",
+    params: { id: "assignment-main" },
+    records: workQueuePreview(),
     guardedStates: ["populated"],
     result: mutation("assignment", "assignment-main", "status", "in_progress"),
   },
@@ -941,7 +1022,7 @@ const GUARDED_SCENARIOS: readonly ScenarioDefinition[] = [
   {
     screenId: "ai-writing-coach",
     variant: "ai-red-blocked",
-    heading: "Writing Coach unavailable for this class",
+    heading: "Writing Coach is unavailable right now",
     params: { id: "assignment-main" },
     records: academicCore("red"),
     guardedStates: ["ai-red"],

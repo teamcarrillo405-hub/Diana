@@ -80,6 +80,7 @@ export function publicLmsConfig(config: unknown): Record<string, unknown> {
   delete publicConfig.token;
   delete publicConfig.access_token;
   delete publicConfig.refresh_token;
+  delete publicConfig.client_secret;
   return publicConfig;
 }
 

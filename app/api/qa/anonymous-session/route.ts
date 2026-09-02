@@ -10,6 +10,8 @@ import {
   getScreenDesignFixtureScenario,
   type ScreenDesignOwnerAlias,
 } from "@/lib/qa/screendesign-fixtures";
+import type { AppProfileInsert } from "@/lib/profile";
+import type { TablesInsert } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
 
@@ -51,10 +53,11 @@ function resolveQaUser(request: Request) {
             }
           : {
               email:
+                process.env.QA_TEST_EMAIL ??
                 process.env.QA_SCREEN_DESIGN_PRIMARY_EMAIL ??
                 process.env.QA_GRAYSON_TEST_EMAIL ??
                 "grayson-qa-student@local.test",
-              displayName: "Grayson",
+              displayName: process.env.QA_TEST_EMAIL ? "Diana Beta Student" : "Grayson",
             };
 
     return {
@@ -166,18 +169,23 @@ async function handleQaSession(request: Request) {
   });
   if (signinError) return NextResponse.json({ error: signinError.message }, { status: 403 });
 
+  const qaProfile: AppProfileInsert = {
+    user_id: userId,
+    display_name: activeQaUser.displayName,
+    date_of_birth: "2009-09-01",
+    age_bracket: "13_to_17",
+    timezone,
+    onboarded_at: new Date().toISOString(),
+    consent_ai: true,
+    teen_guardian_permission_attested_at: new Date().toISOString(),
+    teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+    teen_guardian_permission_source: "synthetic_qa_fixture",
+    teen_guardian_permission_withdrawn_at: null,
+  };
   const { error: profileError } = await supabase
     .from("profiles")
     .upsert(
-      {
-        user_id: userId,
-        display_name: activeQaUser.displayName,
-        date_of_birth: "2009-09-01",
-        age_bracket: "13_to_17",
-        timezone,
-        onboarded_at: new Date().toISOString(),
-        consent_ai: true,
-      },
+      qaProfile as TablesInsert<"profiles">,
       { onConflict: "user_id" },
     );
 

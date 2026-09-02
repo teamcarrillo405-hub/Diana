@@ -196,6 +196,22 @@ function cleanText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+function compareText(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function compareArtifactBlockOrder(
+  left: Pick<AssignmentArtifactBlockInput, "id" | "key" | "label" | "position">,
+  right: Pick<AssignmentArtifactBlockInput, "id" | "key" | "label" | "position">,
+): number {
+  const position = (left.position ?? 0) - (right.position ?? 0);
+  if (position !== 0) return position;
+  const key = compareText(cleanText(left.key), cleanText(right.key));
+  if (key !== 0) return key;
+  const id = compareText(cleanText(left.id), cleanText(right.id));
+  return id !== 0 ? id : compareText(cleanText(left.label), cleanText(right.label));
+}
+
 export function parseStoredAssignmentArtifactBlocks(value: unknown): AssignmentArtifactBlockInput[] {
   if (!Array.isArray(value)) return [];
   return value.flatMap((raw) => {
@@ -232,7 +248,7 @@ export function parseStoredAssignmentArtifactBlocks(value: unknown): AssignmentA
       plainText: typeof row.plain_text === "string" ? row.plain_text : "",
       sourceAnchors: anchors,
     }];
-  }).sort((left, right) => (left.position ?? 0) - (right.position ?? 0));
+  }).sort(compareArtifactBlockOrder);
 }
 
 export function legacyArtifactBlocksForPatch(
@@ -265,10 +281,12 @@ export function assignmentProblemArtifactBlock(problem: AssignmentArtifactProble
   const problemText = cleanText(problem.problemText);
   const reasoning = cleanText(work.work);
   const answer = cleanText(work.answer);
+  const handwriting = cleanText(work.workInk);
+  const visibleWork = reasoning || answer;
   const plainText = [
     problemText ? `Problem: ${problemText}` : "",
-    reasoning ? `Work:\n${reasoning}` : "",
-    answer ? `Answer:\n${answer}` : "",
+    visibleWork ? `Work:\n${visibleWork}` : "",
+    handwriting ? "Handwritten work: attached" : "",
   ].filter(Boolean).join("\n\n");
   return {
     id: `problem-${problemNumber}`,
@@ -280,14 +298,14 @@ export function assignmentProblemArtifactBlock(problem: AssignmentArtifactProble
       problemText,
       reasoning,
       answer,
-      studentAuthoredText: [reasoning, answer].filter(Boolean).join("\n"),
+      handwriting,
+      studentAuthoredText: [visibleWork, handwriting ? "Handwritten work attached." : ""].filter(Boolean).join("\n"),
     },
     plainText,
     sourceAnchors: [],
     position: problemNumber - 1,
   };
 }
-
 function sectionsForSavedWork(
   mode: Exclude<AssignmentWorkspaceMode, "math">,
   savedWork: unknown,
@@ -311,10 +329,12 @@ function sectionsForProblems(
       const problemText = cleanText(problem.problemText);
       const reasoning = cleanText(work.work);
       const answer = cleanText(work.answer);
+      const handwriting = cleanText(work.workInk);
+      const visibleWork = reasoning || answer;
       const content = [
         problemText ? `Problem: ${problemText}` : "",
-        reasoning ? `Work:\n${reasoning}` : "",
-        answer ? `Answer:\n${answer}` : "",
+        visibleWork ? `Work:\n${visibleWork}` : "",
+        handwriting ? "Handwritten work: attached" : "",
       ].filter(Boolean).join("\n\n");
 
       return {
@@ -337,7 +357,6 @@ function sectionsForProblems(
     .sort((left, right) => left.number - right.number || left.index - right.index)
     .map((item) => item.section);
 }
-
 function artifactPlainText(
   title: string | null,
   sections: readonly AssignmentArtifactSection[],
@@ -381,7 +400,7 @@ function normalizeBlocks(
           ? [{ sourceId: anchor.sourceId.trim(), location: cleanText(anchor.location) || null }]
           : []),
     };
-  });
+  }).sort(compareArtifactBlockOrder);
 }
 
 function blocksForLegacySections(

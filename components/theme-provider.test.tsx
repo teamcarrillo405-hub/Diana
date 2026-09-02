@@ -17,11 +17,11 @@ function Harness() {
 }
 
 function mockMatchMedia(matches: boolean) {
-  vi.spyOn(window, 'matchMedia').mockReturnValue({
+  vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({
     matches,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-  } as any);
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
 }
 
 describe('ThemeProvider', () => {
@@ -33,6 +33,7 @@ describe('ThemeProvider', () => {
   afterEach(() => {
     cleanup();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('defaults to system with no stored value: no pinned class, resolved follows OS dark', () => {

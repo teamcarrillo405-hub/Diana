@@ -198,6 +198,23 @@ describe("ScreenDesign owner-scoped seed contract", () => {
     }
   });
 
+  it("marks every AI-enabled teen profile as an explicit synthetic permission fixture", () => {
+    for (const scenario of SCREEN_DESIGN_FIXTURE_SCENARIOS) {
+      const profiles = buildScreenDesignSeedPlan(scenario, PRIMARY_OWNER_ID)
+        .filter((row) => row.table === "profiles" && row.values.consent_ai === true);
+
+      for (const profile of profiles) {
+        expect(profile.values, scenario.id).toMatchObject({
+          age_bracket: "13_to_17",
+          teen_guardian_permission_attested_at: SCREEN_DESIGN_FIXED_CLOCK,
+          teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+          teen_guardian_permission_source: "synthetic_qa_fixture",
+          teen_guardian_permission_withdrawn_at: null,
+        });
+      }
+    }
+  });
+
   it("normalizes seeded rows to live database constraints and required relationships", () => {
     const allowedSignals = new Set([
       "energy",

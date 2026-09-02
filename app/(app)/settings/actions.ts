@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import {
+  hasCurrentTeenGuardianPermission,
+  TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+} from "@/lib/learner-access-policy";
 import { createClient } from "@/lib/supabase/server";
 
 const Prefs = z.object({
@@ -25,7 +29,7 @@ const Prefs = z.object({
 
 const ProfileCenterInput = z.object({
   display_name: z.string().trim().min(1).max(80),
-  school_year: z.number().int().min(1).max(16).nullable(),
+  school_year: z.number().int().min(6).max(16).nullable(),
   timezone: z.string().trim().min(1).max(80),
   learning_hurdle: z
     .enum(["time_management", "exam_stress", "complex_concepts", "staying_consistent"])
@@ -33,6 +37,7 @@ const ProfileCenterInput = z.object({
   study_schedule_preference: z
     .enum(["morning", "after_practice", "late_night"])
     .nullable(),
+  teen_guardian_permission_attested: z.boolean(),
   consent_ai: z.boolean(),
 });
 
@@ -68,17 +73,67 @@ export async function saveProfileCenter(
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Sign in again to save these settings." };
 
+  const { data: currentProfile, error: currentProfileError } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (currentProfileError || !currentProfile) {
+    return { ok: false, message: "Diana could not verify this profile yet. Try again in a moment." };
+  }
+  if (currentProfile.age_bracket === "under_13") {
+    return { ok: false, message: "Diana accounts are not available for students under 13." };
+  }
+
+  const {
+    teen_guardian_permission_attested: permissionAttested,
+    ...requestedProfileValues
+  } = parsed.data;
+  const profileValues = { ...requestedProfileValues };
+  const isTeen = currentProfile.age_bracket === "13_to_17";
+  const currentPermission = isTeen && hasCurrentTeenGuardianPermission(currentProfile);
+  const storedPermission = currentProfile as typeof currentProfile & {
+    teen_guardian_permission_attested_at?: unknown;
+    teen_guardian_permission_withdrawn_at?: unknown;
+  };
+  const hadStoredAttestation =
+    typeof storedPermission.teen_guardian_permission_attested_at === "string";
+  const now = new Date().toISOString();
+
+  if (isTeen && permissionAttested && !currentPermission) {
+    Object.assign(profileValues, {
+      teen_guardian_permission_attested_at: now,
+      teen_guardian_permission_policy_version: TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+      teen_guardian_permission_source: "profile_center_attestation",
+      teen_guardian_permission_withdrawn_at: null,
+    });
+  } else if (isTeen && !permissionAttested) {
+    profileValues.consent_ai = false;
+    if (
+      hadStoredAttestation
+      && storedPermission.teen_guardian_permission_withdrawn_at == null
+    ) {
+      Object.assign(profileValues, { teen_guardian_permission_withdrawn_at: now });
+    }
+  }
+
   const { error } = await supabase
     .from("profiles")
-    .update(parsed.data)
+    .update(profileValues)
     .eq("user_id", user.id);
   if (error) {
+    if (/teen_guardian_permission/iu.test(error.message)) {
+      return {
+        ok: false,
+        message: "Teen permission settings are not available until the database update is complete.",
+      };
+    }
     if (/learning_hurdle|study_schedule_preference/iu.test(error.message)) {
       const {
         learning_hurdle: _learningHurdle,
         study_schedule_preference: _studySchedule,
         ...legacyProfileValues
-      } = parsed.data;
+      } = profileValues;
       const { error: legacyError } = await supabase
         .from("profiles")
         .update(legacyProfileValues)
@@ -102,5 +157,14 @@ export async function saveProfileCenter(
   revalidatePath("/", "layout");
   revalidatePath("/settings");
   revalidatePath("/me");
+  if (isTeen && currentPermission && !permissionAttested) {
+    return { ok: true, message: "Permission withdrawn. AI is now off." };
+  }
+  if (isTeen && !currentPermission && permissionAttested) {
+    return { ok: true, message: "Permission attestation and settings saved." };
+  }
+  if (isTeen && !permissionAttested) {
+    return { ok: true, message: "Settings saved. AI remains off until permission is attested." };
+  }
   return { ok: true, message: "Settings saved." };
 }

@@ -5,6 +5,7 @@ type JsonBody = Record<string, unknown>;
 
 const STORAGE_RULES: Record<string, { bucket: string; keyField: string }> = {
   "extract-note-doc": { bucket: "note-docs", keyField: "storageKey" },
+  "extract-course-material": { bucket: "note-docs", keyField: "storageKey" },
   "history-scaffold": { bucket: "note-docs", keyField: "storageKey" },
   "math-scaffold": { bucket: "note-docs", keyField: "storageKey" },
   "transcribe-voice": { bucket: "note-audio", keyField: "audioStorageKey" },
@@ -64,7 +65,7 @@ export function withStudentSecurity(
       classId: body.classId,
       noteId: body.noteId,
       ownedResource: ownedResourceFor(functionName, body),
-      requireAiGreen: true,
+      requireAiGreen: Deno.env.get("DIANA_HOMEWORK_PRODUCT_TIER") === "school_tier",
     });
     if (auth instanceof Response) return auth;
 

@@ -67,7 +67,7 @@ export function ArtifactFlashcards({
         </button>
         {result && "count" in result ? (
           <p role="status">
-            {result.count} cards are ready. <Link href="/flashcards"><BookOpen size={14} aria-hidden="true" /> Review cards</Link>
+            {result.count} cards are ready. <Link href="/study"><BookOpen size={14} aria-hidden="true" /> Review cards</Link>
           </p>
         ) : null}
         {result && "error" in result ? <p role="status">{result.error}</p> : null}

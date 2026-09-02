@@ -25,7 +25,7 @@ export function DueCards({
         Study
       </h2>
       <Link
-        href={`/flashcards/${firstCardId}/review`}
+        href="/study"
         style={{
           display: "flex",
           alignItems: "center",

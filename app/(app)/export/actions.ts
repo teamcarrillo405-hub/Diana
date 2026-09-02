@@ -70,7 +70,7 @@ export async function saveNotificationPreferences(
     .update({ notification_preferences: parsed.data as Json })
     .eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/export");
+  revalidatePath("/settings");
   return { ok: true };
 }
 
@@ -98,7 +98,7 @@ export async function saveSubjectVerbosity(
     .update({ ai_verbosity_by_subject: next as Json })
     .eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/export");
+  revalidatePath("/settings");
   return { ok: true };
 }
 
@@ -304,7 +304,7 @@ export async function importProfileBackup(
   }).eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
   revalidatePath("/", "layout");
-  revalidatePath("/export");
+  revalidatePath("/settings");
   return { ok: true };
 }
 
@@ -343,7 +343,7 @@ export async function requestAccountDeletion(): Promise<{ ok: true } | { ok: fal
   }
 
   revalidatePath("/", "layout");
-  revalidatePath("/export");
+  revalidatePath("/settings");
   return { ok: true };
 }
 
@@ -361,16 +361,16 @@ export async function deleteDataCategory(
   const result = await deleteCategoryRows(supabase, user.id, category);
   if (result.error) return { ok: false, error: result.error.message };
 
-  revalidatePath("/export");
+  revalidatePath("/settings");
   if (category === "notes") revalidatePath("/notes");
-  if (category === "flashcards") revalidatePath("/flashcards");
+  if (category === "flashcards") revalidatePath("/study");
   if (category === "study_artifacts") {
     revalidatePath("/notes");
     revalidatePath("/assignments");
-    revalidatePath("/flashcards");
+    revalidatePath("/study");
   }
   if (category === "student_state_snapshots") revalidatePath("/dashboard");
-  if (category === "authorship_log") revalidatePath("/export");
+  if (category === "authorship_log") revalidatePath("/settings");
   if (category === "competitive_benchmarks" || category === "teen_test_observations") revalidatePath("/proof");
   if (category === "mastery_concepts") revalidatePath("/classes");
   return { ok: true, label: categoryLabel(category) };

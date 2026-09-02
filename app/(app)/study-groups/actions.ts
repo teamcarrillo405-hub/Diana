@@ -192,7 +192,7 @@ export async function createSharedDeck(
   if (installError) return { ok: false, error: installError.message };
 
   revalidatePath("/study-groups");
-  revalidatePath("/flashcards");
+  revalidatePath("/study");
   revalidatePath("/dashboard");
   return { ok: true, installedCards: installedCards ?? 0 };
 }

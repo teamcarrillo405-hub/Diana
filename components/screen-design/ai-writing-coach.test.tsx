@@ -50,7 +50,7 @@ describe("AiWritingCoach", () => {
         assignmentTitle="The Hero's Journey"
         courseLabel="English Lit"
         initialDraft="Odysseus learns that endurance matters."
-        classAiMode="green"
+        aiMode="green"
       />,
     );
 
@@ -84,11 +84,11 @@ describe("AiWritingCoach", () => {
         assignmentTitle="The Hero's Journey"
         courseLabel="English Lit"
         initialDraft="Student-owned draft."
-        classAiMode="red"
+        aiMode="red"
       />,
     );
 
     expect(screen.getByRole("button", { name: "Request writing guidance" })).toBeDisabled();
-    expect(screen.getByRole("status")).toHaveTextContent("Writing Coach unavailable for this class");
+    expect(screen.getByRole("status")).toHaveTextContent("Writing Coach is unavailable right now");
   });
 });

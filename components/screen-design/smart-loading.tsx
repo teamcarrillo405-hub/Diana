@@ -1,5 +1,4 @@
-import { ScreenDesignViewport } from "./screen-design-viewport";
-import { SourceMedia } from "./source-media";
+import { DianaWordmark } from "./primitives";
 
 interface SmartLoadingProps {
   readonly label: string;
@@ -7,215 +6,221 @@ interface SmartLoadingProps {
 
 export function SmartLoading({ label }: SmartLoadingProps) {
   return (
-    <ScreenDesignViewport className="sd-smart-loading" aria-label="Diana loading screen">
+    <div className="diana-cinematic-loading" aria-label="Diana loading screen">
       <style>{`
-        .diana-app-shell:has(.sd-smart-loading) .agent-fab-anchor,
-        .app-command-frame:has(.sd-smart-loading) .diana-mobile-command {
+        body:has(.diana-cinematic-loading) .diana-loading-quick-capture,
+        body:has(.diana-cinematic-loading) .diana-loading-overwhelmed,
+        .diana-app-shell:has(.diana-cinematic-loading) .agent-fab-anchor,
+        .app-command-frame:has(.diana-cinematic-loading) .diana-mobile-command {
           display: none !important;
         }
 
-        .app-command-frame:has(.sd-smart-loading) {
+        .app-command-frame:has(.diana-cinematic-loading) {
+          width: 100% !important;
+          max-width: none !important;
           padding: 0 !important;
         }
 
-        .sd-smart-loading {
-          display: flex;
-          min-height: max(100dvh, 852px);
-          flex-direction: column;
+        .diana-cinematic-loading {
+          --loading-yellow: #e8f56b;
+          min-height: 100dvh;
           overflow: hidden;
           background:
-            radial-gradient(circle at 50% 31%, rgb(116 192 255 / 0.08), transparent 31%),
-            #0f172a;
-          color: #f8fafc;
-          font-family: var(--font-body, Arial, sans-serif);
+            linear-gradient(rgb(214 218 214 / .12), rgb(214 218 214 / .2)),
+            #d6dad6 url("/images/diana-loading-empty-studio.png") center / cover fixed no-repeat;
+          color: #fff;
+          font-family: var(--font-lexend), Lexend, sans-serif;
         }
 
-        .sd-smart-loading-header {
-          display: flex;
-          min-height: 92px;
-          align-items: flex-start;
-          justify-content: center;
-          padding-top: 55px;
-        }
+        .diana-cinematic-loading *,
+        .diana-cinematic-loading *::before,
+        .diana-cinematic-loading *::after { box-sizing: border-box; }
 
-        .sd-smart-loading-logo {
-          width: 64px;
-          height: auto;
-        }
-
-        .sd-smart-loading-main {
-          display: flex;
-          flex: 1;
-          flex-direction: column;
-          align-items: center;
-          padding: 16px 26px 35px;
-          text-align: center;
-        }
-
-        .sd-smart-loading-orbit {
+        .diana-cinematic-loading-main {
           position: relative;
-          display: grid;
-          width: 192px;
-          height: 192px;
-          flex: 0 0 auto;
-          place-items: center;
-          margin-bottom: 40px;
+          width: calc(100% - (2 * clamp(12px, 1.6vw, 28px)));
+          max-width: 1800px;
+          min-height: calc(100dvh - 106px);
+          margin: 22px auto 24px;
+          isolation: isolate;
+          overflow: visible;
+          border: 7px solid #fff;
+          border-radius: 30px;
+          clip-path: polygon(0 0, calc(50% - 131px) 0, calc(50% - 61px) 49px, calc(50% + 61px) 49px, calc(50% + 131px) 0, 100% 0, 100% 100%, calc(50% + 131px) 100%, calc(50% + 61px) calc(100% - 49px), calc(50% - 61px) calc(100% - 49px), calc(50% - 131px) 100%, 0 100%);
+          background: rgb(220 224 222 / .3);
+          box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / .32),
+            0 22px 56px rgb(24 33 38 / .14);
+          -webkit-backdrop-filter: blur(24px) saturate(.82);
+          backdrop-filter: blur(24px) saturate(.82);
         }
 
-        .sd-smart-loading-orbit::after {
+        .diana-cinematic-loading-main::before {
           position: absolute;
-          width: 116px;
-          height: 116px;
-          border: 1px solid rgb(116 192 255 / 0.15);
-          border-radius: 999px;
-          background: rgb(15 23 42 / 0.72);
-          box-shadow: inset 0 0 28px rgb(116 192 255 / 0.05);
+          z-index: -1;
+          inset: 0;
+          background:
+            repeating-linear-gradient(90deg, rgb(255 255 255 / .025) 0 1px, transparent 1px 64px),
+            repeating-linear-gradient(0deg, rgb(255 255 255 / .02) 0 1px, transparent 1px 64px);
           content: "";
         }
 
-        .sd-smart-loading-ring {
-          width: 192px;
-          height: 192px;
-          transform-origin: center;
-          animation: sd-smart-loading-orbit 2.4s linear infinite;
-        }
-
-        .sd-smart-loading-mark {
+        .diana-cinematic-loading-notch {
           position: absolute;
-          z-index: 1;
-          width: 42px;
-          height: 42px;
-          color: #f8fafc;
-          filter: drop-shadow(0 0 12px rgb(255 121 218 / 0.28));
+          z-index: 3;
+          left: 50%;
+          width: 262px;
+          height: 56px;
+          transform: translateX(-50%);
+          background: transparent;
+          pointer-events: none;
         }
 
-        .sd-smart-loading-fact-label,
-        .sd-smart-loading-tip-label {
+        .diana-cinematic-loading-notch::after {
+          position: absolute;
+          inset: 0;
+          background: center / 100% 100% no-repeat;
+          content: "";
+        }
+
+        .diana-cinematic-loading-notch--top {
+          top: -7px;
+          clip-path: polygon(0 0, 100% 0, 73.3% 87.5%, 26.7% 87.5%);
+        }
+
+        .diana-cinematic-loading-notch--top::after {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 262 56'%3E%3Cpath d='M0 4 L70 49 H192 L262 4' fill='none' stroke='%23ffffff' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        .diana-cinematic-loading-notch--bottom {
+          bottom: -7px;
+          clip-path: polygon(26.7% 12.5%, 73.3% 12.5%, 100% 100%, 0 100%);
+        }
+
+        .diana-cinematic-loading-notch--bottom::after {
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 262 56'%3E%3Cpath d='M0 52 L70 7 H192 L262 52' fill='none' stroke='%23ffffff' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E");
+        }
+
+        .diana-cinematic-loading-stage {
+          display: grid;
+          min-height: calc(100dvh - 62px);
+          place-items: center;
+          padding: 64px 24px;
+        }
+
+        .diana-cinematic-loading-console {
+          display: grid;
+          justify-items: center;
+          width: min(100%, 520px);
+          padding: 28px;
+          text-align: center;
+        }
+
+        .diana-cinematic-loading-logo {
+          width: clamp(178px, 19vw, 270px) !important;
+          height: auto !important;
+          margin-bottom: 22px !important;
+          filter: drop-shadow(0 8px 24px rgb(0 0 0 / .32));
+        }
+
+        .diana-cinematic-loading-label {
+          max-width: 30ch;
           margin: 0;
-          color: #ff79da;
-          font-size: 0.68rem;
-          font-weight: 900;
-          letter-spacing: 0.19em;
-          line-height: 1.2;
-          text-transform: uppercase;
-        }
-
-        .sd-smart-loading-fact {
-          max-width: 295px;
-          margin: 12px 0 0;
-          color: #f8fafc;
-          font-size: 1.16rem;
-          font-weight: 800;
-          line-height: 1.45;
-        }
-
-        .sd-smart-loading-tip {
-          width: 100%;
-          margin-top: 64px;
-        }
-
-        .sd-smart-loading-tip-label {
-          color: #74c0ff;
-        }
-
-        .sd-smart-loading-tip-card {
-          margin-top: 13px;
-          border: 1px solid rgb(255 255 255 / 0.1);
-          border-radius: 14px;
-          background: rgb(255 255 255 / 0.05);
-          padding: 18px 20px;
-          color: #cbd5e1;
-          font-size: 0.82rem;
+          color: #fff !important;
+          font-size: clamp(18px, 2vw, 24px);
           font-weight: 600;
-          line-height: 1.55;
-          backdrop-filter: blur(12px);
+          line-height: 1.35;
+          text-shadow: 0 2px 16px rgb(0 0 0 / .72);
         }
 
-        .sd-smart-loading-status {
-          margin: auto 0 0;
-          padding-top: 32px;
-          color: #94a3b8;
-          font-size: 0.68rem;
-          font-weight: 800;
-          letter-spacing: 0.12em;
-          line-height: 1.4;
-          text-transform: uppercase;
+        .diana-cinematic-loading-progress {
+          display: grid;
+          width: min(100%, 310px);
+          grid-template-columns: 1fr auto;
+          align-items: center;
+          gap: 10px;
+          margin-top: 26px;
         }
 
-        @keyframes sd-smart-loading-orbit {
-          to { transform: rotate(360deg); }
+        .diana-cinematic-loading-progress-track {
+          height: 5px;
+          overflow: hidden;
+          border-radius: 999px;
+          background: rgb(255 255 255 / .3);
+        }
+
+        .diana-cinematic-loading-progress-track span {
+          display: block;
+          width: 0;
+          height: 100%;
+          border-radius: inherit;
+          background: var(--loading-yellow);
+          animation: loading-progress-forward 3.6s linear forwards;
+          will-change: width;
+        }
+
+        .diana-cinematic-loading-progress small {
+          color: rgb(255 255 255 / .92) !important;
+          font-size: 12px;
+          font-weight: 600;
+          text-shadow: 0 2px 16px rgb(0 0 0 / .72);
+        }
+
+        /* The loading page has no header, but its frame shares Today's visible desktop bounds. */
+        @media (min-width: 901px) {
+          .diana-cinematic-loading-main {
+            height: calc(100dvh - 106px);
+            min-height: calc(100dvh - 106px);
+            margin: 94px auto 24px;
+          }
+
+          .diana-cinematic-loading-stage {
+            min-height: 100%;
+          }
+        }
+
+        @keyframes loading-progress-forward {
+          from { width: 0; }
+          to { width: 90%; }
+        }
+
+        @media (max-width: 900px) {
+          .diana-cinematic-loading-main {
+            width: calc(100% - 24px);
+            min-height: calc(100dvh - 36px);
+            margin: 18px auto;
+            border-width: 5px;
+            border-radius: 20px;
+            clip-path: none;
+          }
+
+          .diana-cinematic-loading-notch { display: none; }
+
+          .diana-cinematic-loading-stage {
+            min-height: calc(100dvh - 46px);
+            padding: 38px 18px;
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .sd-smart-loading-ring {
-            animation: none;
-          }
+          .diana-cinematic-loading * { animation: none !important; }
+          .diana-cinematic-loading-progress-track span { width: 68%; }
         }
       `}</style>
-
-      <header className="sd-smart-loading-header">
-        <SourceMedia
-          assetId="diana-logo"
-          width={1440}
-          height={440}
-          alt="Diana"
-          className="sd-smart-loading-logo"
-          priority
-        />
-      </header>
-
-      <main className="sd-smart-loading-main">
-        <div className="sd-smart-loading-orbit" aria-hidden="true">
-          <svg className="sd-smart-loading-ring" viewBox="0 0 192 192">
-            <defs>
-              <linearGradient id="sd-smart-loading-gradient" x1="32" y1="28" x2="166" y2="164">
-                <stop offset="0" stopColor="#74c0ff" />
-                <stop offset="0.5" stopColor="#ff79da" />
-                <stop offset="1" stopColor="#2dd4bf" />
-              </linearGradient>
-            </defs>
-            <circle cx="96" cy="96" r="68" fill="none" stroke="#1e293b" strokeWidth="6" />
-            <circle
-              cx="96"
-              cy="96"
-              r="68"
-              fill="none"
-              stroke="url(#sd-smart-loading-gradient)"
-              strokeWidth="6"
-              strokeLinecap="round"
-            />
-            <circle cx="96" cy="28" r="5" fill="#f8fafc" />
-          </svg>
-          <svg className="sd-smart-loading-mark" viewBox="0 0 42 42">
-            <path
-              d="M21 3.5c1.5 9.7 7.1 15.3 16.8 17.5C28.1 23.2 22.5 28.8 21 38.5 19.5 28.8 13.9 23.2 4.2 21 13.9 18.8 19.5 13.2 21 3.5Z"
-              fill="currentColor"
-            />
-          </svg>
+      <main className="diana-cinematic-loading-main">
+        <span className="diana-cinematic-loading-notch diana-cinematic-loading-notch--top" aria-hidden="true" />
+        <span className="diana-cinematic-loading-notch diana-cinematic-loading-notch--bottom" aria-hidden="true" />
+        <div className="diana-cinematic-loading-stage">
+          <section className="diana-cinematic-loading-console" role="status" aria-live="polite" aria-atomic="true">
+            <DianaWordmark tight tone="light" className="diana-cinematic-loading-logo" />
+            <p className="diana-cinematic-loading-label">{label}</p>
+            <div className="diana-cinematic-loading-progress" aria-hidden="true">
+              <div className="diana-cinematic-loading-progress-track"><span /></div>
+              <small>Loading</small>
+            </div>
+          </section>
         </div>
-
-        <p className="sd-smart-loading-fact-label">Did You Know?</p>
-        <h1 className="sd-smart-loading-fact">Humans share 50% of DNA with bananas</h1>
-
-        <section className="sd-smart-loading-tip" aria-labelledby="sd-smart-loading-tip-title">
-          <h2 id="sd-smart-loading-tip-title" className="sd-smart-loading-tip-label">
-            Pro Study Tip
-          </h2>
-          <p className="sd-smart-loading-tip-card">
-            Hydrate like you are in the 4th quarter. Brain tissue is 75% water. Staying
-            fueled helps keep your recall sharp.
-          </p>
-        </section>
-
-        <p
-          className="sd-smart-loading-status"
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          {label}
-        </p>
       </main>
-    </ScreenDesignViewport>
+    </div>
   );
 }

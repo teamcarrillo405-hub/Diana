@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchClassroomAssignments } from "./google";
+import {
+  fetchClassroomAssignments,
+  getValidGoogleToken,
+  googleClassroomOAuthScopes,
+  GOOGLE_CLASSROOM_SCOPES,
+  missingGoogleScopes,
+} from "./google";
 
 function jsonResponse(body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -14,6 +20,7 @@ function dueDate(day: number) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 
@@ -140,5 +147,61 @@ describe("fetchClassroomAssignments", () => {
     await expect(fetchClassroomAssignments("token"))
       .rejects.toThrow("pagination exceeded 100 pages for courses");
     expect(fetchMock).toHaveBeenCalledTimes(100);
+  });
+});
+
+describe("Google Classroom OAuth scopes", () => {
+  it("detects a partial student grant before saving the connection", () => {
+    const partial = GOOGLE_CLASSROOM_SCOPES.filter((scope) => !scope.endsWith("/drive.file"));
+
+    expect(missingGoogleScopes(partial)).toEqual([
+      "https://www.googleapis.com/auth/drive.file",
+    ]);
+    expect(missingGoogleScopes(GOOGLE_CLASSROOM_SCOPES)).toEqual([]);
+  });
+
+  it("uses read-only coursework access when submission is disabled", () => {
+    const scopes = googleClassroomOAuthScopes({
+      importEnabled: true,
+      submissionEnabled: false,
+      teacher: false,
+    });
+
+    expect(scopes).toContain("https://www.googleapis.com/auth/classroom.coursework.me.readonly");
+    expect(scopes).not.toContain("https://www.googleapis.com/auth/classroom.coursework.me");
+    expect(scopes).not.toContain("https://www.googleapis.com/auth/drive.file");
+  });
+
+  it("requests write scopes only when submission is enabled", () => {
+    const scopes = googleClassroomOAuthScopes({
+      importEnabled: false,
+      submissionEnabled: true,
+      teacher: false,
+    });
+
+    expect(scopes).toContain("https://www.googleapis.com/auth/classroom.coursework.me");
+    expect(scopes).toContain("https://www.googleapis.com/auth/drive.file");
+    expect(scopes).not.toContain("https://www.googleapis.com/auth/drive.readonly");
+  });
+});
+
+describe("Google Classroom token refresh", () => {
+  it("returns reconnect_required when an OAuth token cannot be refreshed", async () => {
+    vi.stubEnv("GOOGLE_CLIENT_ID", "client");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "secret");
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 401 })));
+
+    await expect(getValidGoogleToken({
+      access_token: "expired-token",
+      refresh_token: "refresh-token",
+      expires_at: "2000-01-01T00:00:00.000Z",
+    })).rejects.toMatchObject({ code: "reconnect_required", provider: "google_classroom" });
+  });
+
+  it("requires reconnect for an access token with no refresh path", async () => {
+    await expect(getValidGoogleToken({
+      access_token: "access-token",
+      expires_at: new Date(Date.now() + 3_600_000).toISOString(),
+    })).rejects.toMatchObject({ code: "reconnect_required", provider: "google_classroom" });
   });
 });

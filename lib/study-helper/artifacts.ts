@@ -98,6 +98,7 @@ export function parseStudyArtifactResponse(
     sourceType: StudyArtifactSourceType;
     mode: StudyHelperMode;
     sourceText: string;
+    questionCount?: number;
   },
 ): StudyArtifact {
   const parsed = parseJson(raw);
@@ -131,6 +132,7 @@ export function buildFallbackStudyArtifact(input: {
   sourceType: StudyArtifactSourceType;
   mode: StudyHelperMode;
   sourceText: string;
+  questionCount?: number;
 }): StudyArtifact {
   const sourceTitle = input.sourceTitle.trim() || "Class material";
   const sentences = extractSentences(input.sourceText);
@@ -144,7 +146,11 @@ export function buildFallbackStudyArtifact(input: {
     sourceAnchor: anchorLabels[index % Math.max(anchorLabels.length, 1)] ?? anchorLabel(input.sourceType, index + 1),
   }));
 
-  const quiz = anchors.slice(0, 5).map((sentence, index) => {
+  const requestedQuizCount = input.type === "practice_test"
+    ? Math.max(3, Math.min(20, input.questionCount ?? 8))
+    : 5;
+  const quiz = Array.from({ length: Math.min(requestedQuizCount, 20) }, (_, index) => {
+    const sentence = anchors[index % Math.max(anchors.length, 1)] ?? `Review ${sourceTitle}.`;
     const term = terms[index % Math.max(terms.length, 1)] ?? "this idea";
     return {
       question: `What does the material say about ${term}?`,
@@ -184,7 +190,10 @@ export function buildFallbackStudyArtifact(input: {
     ],
     trustNote: "Diana used the provided class material and kept the output as study support.",
     authorshipReceipt: "Student source material stayed primary; Diana created practice prompts, not final assignment work.",
-    practiceSettings: defaultPracticeTestSettings(input.type),
+    practiceSettings: {
+      ...defaultPracticeTestSettings(input.type),
+      questionCount: input.type === "practice_test" ? requestedQuizCount : 4,
+    },
     editState: defaultArtifactEditState(),
     reviewLoop: buildArtifactReviewLoop({
       type: input.type,

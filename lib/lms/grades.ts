@@ -4,6 +4,13 @@ import {
   resolveCanvasConnectionDestination,
 } from "@/lib/security/canvas-institutions";
 import { OutboundUrlError } from "@/lib/security/outbound-url";
+import {
+  reconcileCanvasGradePayload,
+  reconcileConfirmedGrade,
+  reconcileGoogleClassroomGradePayload,
+  type GradeReconciliationResult,
+} from "@/lib/lms/grade-reconciliation";
+import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
 
 export type GradeSyncProvider = "canvas" | "google_classroom";
 
@@ -24,6 +31,7 @@ export type ConfirmedGradeSyncInput = {
   token: string;
   canvasInstitutionId?: string | null;
   canvasBaseUrl?: string | null;
+  providerConnectionId: string;
   externalCourseId: string;
   externalAssignmentId: string;
   externalStudentId: string;
@@ -44,6 +52,7 @@ export function validateConfirmedGradeSync(input: ConfirmedGradeSyncInput): stri
   return [
     !input.confirmedBy ? "A verified teacher confirmation is required." : "",
     !input.confirmedAt || Number.isNaN(Date.parse(input.confirmedAt)) ? "Teacher confirmation time is required." : "",
+    !input.providerConnectionId.trim() ? "Provider connection is required." : "",
     !input.externalCourseId.trim() ? "External course is required." : "",
     !input.externalAssignmentId.trim() ? "External assignment is required." : "",
     !input.externalStudentId.trim() ? "External student is required." : "",
@@ -62,7 +71,45 @@ async function responseDetail(response: Response): Promise<string> {
   return text.slice(0, 300).replace(/\s+/gu, " ").trim();
 }
 
+function confirmedResult(reconciliation: GradeReconciliationResult): GradeSyncResult | null {
+  if (reconciliation.status !== "confirmed") return null;
+  return {
+    provider: reconciliation.provider,
+    providerReceiptId: reconciliation.providerReceiptId,
+    providerState: reconciliation.providerState,
+    score: reconciliation.observedScore,
+  };
+}
+
+async function reconcileBeforeWrite(input: ConfirmedGradeSyncInput): Promise<GradeReconciliationResult> {
+  try {
+    return await reconcileConfirmedGrade(input);
+  } catch (error) {
+    const provider = input.provider === "canvas" ? "Canvas" : "Google Classroom";
+    const detail = error instanceof Error ? ` ${error.message}` : "";
+    throw new GradeSyncDeliveryError(
+      "not_accepted",
+      `${provider} current grade could not be verified before delivery.${detail}`,
+      { cause: error },
+    );
+  }
+}
+
+async function reconcileAfterAmbiguousWrite(
+  input: ConfirmedGradeSyncInput,
+  pendingError: GradeSyncDeliveryError,
+): Promise<GradeSyncResult> {
+  try {
+    const confirmed = confirmedResult(await reconcileConfirmedGrade(input));
+    if (confirmed) return confirmed;
+  } catch {
+    // The original ambiguous delivery remains authoritative when read-back is unavailable.
+  }
+  throw pendingError;
+}
+
 export async function syncCanvasConfirmedGrade(input: ConfirmedGradeSyncInput): Promise<GradeSyncResult> {
+  assertLmsProviderFeatureEnabled("canvas_submission");
   const issues = validateConfirmedGradeSync(input);
   if (issues.length > 0) {
     throw new GradeSyncDeliveryError("not_accepted", issues.join(" "));
@@ -73,6 +120,10 @@ export async function syncCanvasConfirmedGrade(input: ConfirmedGradeSyncInput): 
       "Canvas grade sync requires the connected Canvas base URL.",
     );
   }
+
+  const currentGrade = await reconcileBeforeWrite(input);
+  const alreadyConfirmed = confirmedResult(currentGrade);
+  if (alreadyConfirmed) return alreadyConfirmed;
 
   let institution;
   try {
@@ -101,41 +152,47 @@ export async function syncCanvasConfirmedGrade(input: ConfirmedGradeSyncInput): 
       signal: AbortSignal.timeout(15_000),
     });
   } catch (error) {
-    throw classifyCanvasTransportError(error);
+    const deliveryError = classifyCanvasTransportError(error);
+    if (deliveryError.receiptStatus === "not_accepted") throw deliveryError;
+    return reconcileAfterAmbiguousWrite(input, deliveryError);
   }
 
   if (!response.ok) {
     const detail = await responseDetail(response);
     const message = `Canvas did not accept the confirmed grade (${response.status})${detail ? `: ${detail}` : "."}`;
-    throw new GradeSyncDeliveryError(
+    const deliveryError = new GradeSyncDeliveryError(
       response.status >= 400 && response.status < 500 ? "not_accepted" : "confirmation_pending",
       message,
     );
+    if (deliveryError.receiptStatus === "not_accepted") throw deliveryError;
+    return reconcileAfterAmbiguousWrite(input, deliveryError);
   }
 
   let payload: unknown;
   try {
     payload = await response.json();
   } catch (error) {
-    throw new GradeSyncDeliveryError(
-      "confirmation_pending",
-      "Canvas returned a success response that could not be confirmed.",
-      { cause: error },
+    return reconcileAfterAmbiguousWrite(
+      input,
+      new GradeSyncDeliveryError(
+        "confirmation_pending",
+        "Canvas returned a success response that could not be confirmed.",
+        { cause: error },
+      ),
     );
   }
-  if (!isCanvasGradeReceipt(payload)) {
-    throw new GradeSyncDeliveryError(
-      "confirmation_pending",
-      "Canvas returned a success response without a valid grade receipt.",
-    );
+  const writeEvidence = reconcileCanvasGradePayload(payload, input.score, "write_response");
+  if (writeEvidence) {
+    const confirmed = confirmedResult(writeEvidence);
+    if (confirmed) return confirmed;
   }
-
-  return {
-    provider: "canvas",
-    providerReceiptId: String(payload.id),
-    providerState: payload.workflow_state,
-    score: input.score,
-  };
+  return reconcileAfterAmbiguousWrite(
+    input,
+    new GradeSyncDeliveryError(
+      "confirmation_pending",
+      "Canvas returned a success response without proof of the confirmed score.",
+    ),
+  );
 }
 
 function classifyCanvasDestinationError(error: unknown): GradeSyncDeliveryError {
@@ -187,52 +244,82 @@ function isTransientDestinationError(error: OutboundUrlError): boolean {
     || error.message === "The destination hostname has no address records";
 }
 
-function isCanvasGradeReceipt(payload: unknown): payload is { id: string | number; workflow_state: string } {
-  if (!payload || typeof payload !== "object") return false;
-  const record = payload as Record<string, unknown>;
-  const hasId = (typeof record.id === "string" && record.id.trim().length > 0)
-    || (typeof record.id === "number" && Number.isFinite(record.id));
-  return hasId && typeof record.workflow_state === "string" && record.workflow_state.trim().length > 0;
-}
-
 export async function syncGoogleClassroomConfirmedGrade(input: ConfirmedGradeSyncInput): Promise<GradeSyncResult> {
+  assertLmsProviderFeatureEnabled("google_submission");
   const issues = validateConfirmedGradeSync(input);
-  if (issues.length > 0) throw new Error(issues.join(" "));
-  const base = `https://classroom.googleapis.com/v1/courses/${encodeURIComponent(input.externalCourseId)}/courseWork/${encodeURIComponent(input.externalAssignmentId)}`;
-  const list = await fetch(
-    `${base}/studentSubmissions?userId=${encodeURIComponent(input.externalStudentId)}&fields=studentSubmissions(id,state)`,
-    { headers: { Authorization: `Bearer ${input.token}`, Accept: "application/json" } },
-  );
-  if (!list.ok) {
-    throw new Error(`Google Classroom could not locate the student submission (${list.status}).`);
+  if (issues.length > 0) {
+    throw new GradeSyncDeliveryError("not_accepted", issues.join(" "));
   }
-  const listPayload = await list.json() as { studentSubmissions?: Array<{ id?: string; state?: string }> };
-  const submission = listPayload.studentSubmissions?.find((item) => item.id);
-  if (!submission?.id) throw new Error("Google Classroom did not return a student submission for this assignment.");
+  const base = `https://classroom.googleapis.com/v1/courses/${encodeURIComponent(input.externalCourseId)}/courseWork/${encodeURIComponent(input.externalAssignmentId)}`;
+  const currentGrade = await reconcileBeforeWrite(input);
+  const alreadyConfirmed = confirmedResult(currentGrade);
+  if (alreadyConfirmed) return alreadyConfirmed;
+  if (currentGrade.writeCapability !== "client_owned") {
+    throw new GradeSyncDeliveryError(
+      "not_accepted",
+      "Google Classroom grade delivery is disabled because this OAuth client did not create the coursework and no Grade Sync authorization was proven.",
+    );
+  }
 
-  const grade = await fetch(
-    `${base}/studentSubmissions/${encodeURIComponent(submission.id)}?updateMask=draftGrade,assignedGrade`,
-    {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${input.token}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
+  let grade: Response;
+  try {
+    grade = await fetch(
+      `${base}/studentSubmissions/${encodeURIComponent(currentGrade.providerReceiptId)}?updateMask=draftGrade,assignedGrade`,
+      {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${input.token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ draftGrade: input.score, assignedGrade: input.score }),
+        signal: AbortSignal.timeout(15_000),
       },
-      body: JSON.stringify({ draftGrade: input.score, assignedGrade: input.score }),
-    },
-  );
+    );
+  } catch (error) {
+    return reconcileAfterAmbiguousWrite(
+      input,
+      new GradeSyncDeliveryError(
+        "confirmation_pending",
+        "Google Classroom grade delivery could not be confirmed after a network interruption or timeout.",
+        { cause: error },
+      ),
+    );
+  }
   if (!grade.ok) {
     const detail = await responseDetail(grade);
-    throw new Error(`Google Classroom did not accept the confirmed grade (${grade.status})${detail ? `: ${detail}` : "."}`);
+    const deliveryError = new GradeSyncDeliveryError(
+      grade.status >= 400 && grade.status < 500 ? "not_accepted" : "confirmation_pending",
+      `Google Classroom did not accept the confirmed grade (${grade.status})${detail ? `: ${detail}` : "."}`,
+    );
+    if (deliveryError.receiptStatus === "not_accepted") throw deliveryError;
+    return reconcileAfterAmbiguousWrite(input, deliveryError);
   }
-  const payload = await grade.json() as { id?: string; state?: string; assignedGrade?: number };
-  return {
-    provider: "google_classroom",
-    providerReceiptId: payload.id ?? submission.id,
-    providerState: payload.state ?? submission.state ?? "graded",
-    score: typeof payload.assignedGrade === "number" ? payload.assignedGrade : input.score,
-  };
+  let payload: unknown;
+  try {
+    payload = await grade.json();
+  } catch (error) {
+    return reconcileAfterAmbiguousWrite(
+      input,
+      new GradeSyncDeliveryError(
+        "confirmation_pending",
+        "Google Classroom returned a success response that could not be confirmed.",
+        { cause: error },
+      ),
+    );
+  }
+  const writeEvidence = reconcileGoogleClassroomGradePayload(payload, input.score, "write_response");
+  if (writeEvidence) {
+    const confirmed = confirmedResult(writeEvidence);
+    if (confirmed) return confirmed;
+  }
+  return reconcileAfterAmbiguousWrite(
+    input,
+    new GradeSyncDeliveryError(
+      "confirmation_pending",
+      "Google Classroom returned a success response without proof of the confirmed score.",
+    ),
+  );
 }
 
 export async function syncConfirmedGrade(input: ConfirmedGradeSyncInput): Promise<GradeSyncResult> {

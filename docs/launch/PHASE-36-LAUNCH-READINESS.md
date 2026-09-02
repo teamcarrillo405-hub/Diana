@@ -1,8 +1,10 @@
 # Phase 36 Launch Readiness
 
-## Current status
+## Historical snapshot
 
-The exact 47-screen release candidate is automated-gate ready and available in Vercel Preview. Production remains blocked on final human visual approval.
+This document records the Phase 36 candidate at release SHA `0780d6ae9f08c892dce9b1e6d108881814da4c98`. It is historical evidence, not the current beta-readiness status. Current release decisions must use `docs/launch/BETA_GATE.md` and a complete `artifacts/beta-gate/<run-id>` receipt set produced from the candidate SHA under review.
+
+At the time of this snapshot, the exact 47-screen candidate was automated-gate ready and available in Vercel Preview. Production remained blocked on final human visual approval.
 
 - Preview: [Diana Phase 36 release candidate](https://diana-7r5a3bjex-teamcarrillo405-hubs-projects.vercel.app)
 - Release SHA: `0780d6ae9f08c892dce9b1e6d108881814da4c98`

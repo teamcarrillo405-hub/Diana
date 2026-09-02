@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
   const router = useRouter();
-  const params = useSearchParams();
-  const next = params?.get("next") || "/dashboard";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
@@ -22,16 +20,15 @@ export function LoginForm() {
     const { error: signinError } = await supabase.auth.signInWithPassword({ email, password });
     setPending(false);
     if (signinError) return setError(signinError.message);
-    router.push(next);
+    router.push("/dashboard");
     router.refresh();
   }
 
   return (
     <div>
       <header className="sd-auth-card-header">
-        <p className="sd-kicker">Welcome back</p>
         <h2>Welcome back</h2>
-        <p>Sign in to open today’s plan.</p>
+        <p>Your classes, notes, and next step are ready.</p>
       </header>
 
       <form onSubmit={onSubmit} className="sd-auth-form">
@@ -41,6 +38,7 @@ export function LoginForm() {
             id="email"
             type="email"
             autoComplete="email"
+            placeholder="you@example.com"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -53,6 +51,7 @@ export function LoginForm() {
             id="password"
             type="password"
             autoComplete="current-password"
+            placeholder="Enter your password"
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -75,14 +74,12 @@ export function LoginForm() {
         </button>
       </form>
 
-      <p className="sd-auth-link-row">
-        New here?{" "}
-        <Link href="/signup">
-          Create an account
-        </Link>
-      </p>
+      <div className="sd-auth-account">
+        <span>New to Diana?</span>
+        <Link href="/signup">Create an account</Link>
+      </div>
 
-      <p className="sd-auth-assurance">Private by default. Your AI history and authorship record stay under your account.</p>
+      <p className="sd-auth-assurance">Private by default. Your work, AI history, and authorship record stay under your account.</p>
     </div>
   );
 }

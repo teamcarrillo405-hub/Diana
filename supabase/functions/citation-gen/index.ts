@@ -7,13 +7,13 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   contentByteLength,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const CITATION_PROMPT = `You are a citation formatter. The student gives you
@@ -47,7 +47,7 @@ Deno.serve(withStudentSecurity("citation-gen", async (req: Request) => {
       formats?: unknown;
     };
 
-    const { ownerId, assignmentId, aiMode, sourceType, sourceText, formats } = body;
+    const { ownerId, assignmentId, aiMode: _aiMode, sourceType, sourceText, formats } = body;
 
     if (typeof ownerId !== "string" || !ownerId) {
       return new Response(JSON.stringify({ error: "ownerId required" }), {
@@ -85,15 +85,6 @@ Deno.serve(withStudentSecurity("citation-gen", async (req: Request) => {
 
     // 2. aiMode check — only 'red' blocks citation-gen.
     //    'yellow' is ALLOWED (F16 traffic-light: yellow = citation-help only).
-    if (aiMode === "red") {
-      return new Response(
-        JSON.stringify({ error: "AI not available for this class" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
 
     // 3. Supabase service-role client
     const supabase = createClient(
@@ -130,7 +121,9 @@ Requested formats: ${(formats as string[]).join(", ")}
 Source content:
 ${(sourceText as string).slice(0, 8000)}`;
 
-    const modelResult = await callSafeStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+
+      task: "citation_gen",
       ownerId,
       supabase,
       system: systemPrompt,

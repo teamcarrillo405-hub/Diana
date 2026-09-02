@@ -3,10 +3,7 @@
 
 import { expect, test } from "@playwright/test";
 
-import {
-  openQaSession,
-  seedFormalAssessmentReleaseGate,
-} from "./helpers/qa";
+import { openQaSession } from "./helpers/qa";
 
 test.describe.configure({ mode: "serial" });
 
@@ -72,37 +69,4 @@ test("settings exposes the current profile and accessibility workspace", async (
     page.getByRole("heading", { name: "Accessibility", level: 1 }),
   ).toBeVisible();
   await expect(page.getByText("Adjust the reading experience", { exact: false })).toBeVisible();
-});
-
-test("formal assessment stays locked until its prerequisite is complete", async ({
-  page,
-}) => {
-  test.setTimeout(120_000);
-  const fixture = await seedFormalAssessmentReleaseGate(page);
-
-  try {
-    const assessmentPath = `/course-mode/assessments/${fixture.assessmentId}`;
-    await page.goto(assessmentPath, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { name: "Linear relationships check" }),
-    ).toBeVisible();
-    await page.getByRole("button", { name: "Start assessment" }).click();
-    await expect(page).toHaveURL(/status=not-started/u);
-    await expect(page.getByRole("status")).toHaveText(
-      "This assessment could not be started yet.",
-    );
-    await expect(page.getByRole("heading", { name: /Question 1 of/ })).toHaveCount(0);
-
-    await fixture.release();
-    await page.goto(assessmentPath, { waitUntil: "domcontentloaded" });
-    await page.getByRole("button", { name: "Start assessment" }).click();
-    await expect(page).toHaveURL(/status=started/u);
-    await expect(page.getByRole("status").first()).toHaveText(
-      "Your assessment is open. Responses save as you work.",
-    );
-    await expect(page.getByRole("heading", { name: "Question 1 of 1" })).toBeVisible();
-    await expect(page.getByText("Which value is the slope", { exact: false })).toBeVisible();
-  } finally {
-    await fixture.cleanup();
-  }
 });

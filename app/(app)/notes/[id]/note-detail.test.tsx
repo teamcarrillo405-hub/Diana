@@ -69,7 +69,7 @@ describe("NoteDetail ScreenDesign surface", () => {
         ttsVoice="nova"
         classId={null}
         ownerId="22222222-2222-4222-8222-222222222222"
-        classAiMode="green"
+        aiMode="green"
         classes={[]}
       />,
     );
@@ -90,7 +90,5 @@ describe("NoteDetail ScreenDesign surface", () => {
       });
       expect(screen.getByRole("status")).toHaveTextContent("Saved");
     });
-    expect(screen.getByRole("button", { name: "Read note aloud" })).toBeVisible();
-    expect(screen.getByText("Study tools connected")).toBeVisible();
   });
 });

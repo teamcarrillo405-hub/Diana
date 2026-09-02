@@ -1,286 +1,154 @@
 "use client";
 
-import { Check, ChevronDown, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { type CSSProperties, useEffect, useState, useTransition } from "react";
 
-import type {
-  LobbyCheckInValue,
-  LobbyEnergy,
-  LobbyMeals,
-  LobbySleep,
-} from "@/lib/dashboard/lobby-check-in";
+import type { LobbyCheckInValue, LobbyEnergy, LobbyMovement } from "@/lib/dashboard/lobby-check-in";
 import { saveLobbyCheckIn } from "./actions";
 
-const ENERGY_OPTIONS: ReadonlyArray<{
-  value: LobbyEnergy;
-  label: string;
-}> = [
+const ENERGY_OPTIONS: ReadonlyArray<{ value: LobbyEnergy; label: string }> = [
   { value: "low", label: "Low" },
   { value: "okay", label: "Okay" },
   { value: "good", label: "Good" },
 ];
 
-const SLEEP_OPTIONS: ReadonlyArray<{
-  value: LobbySleep;
-  label: string;
-}> = [
-  { value: "under_5", label: "3-4 hr" },
-  { value: "five_to_six", label: "4-6 hr" },
-  { value: "seven_to_nine", label: "7-9 hr" },
-];
-
-const MEAL_OPTIONS: ReadonlyArray<{
-  value: LobbyMeals;
-  label: string;
-}> = [
-  { value: "not_yet", label: "Not yet" },
-  { value: "snack", label: "Snack" },
-  { value: "meal", label: "Meal" },
+const MOVEMENT_OPTIONS: ReadonlyArray<{ value: LobbyMovement; label: string }> = [
+  { value: "walk", label: "Walk" },
+  { value: "run", label: "Run" },
+  { value: "bike", label: "Bike" },
+  { value: "team_sport", label: "Team sport" },
+  { value: "strength", label: "Strength" },
+  { value: "stretch", label: "Stretch" },
+  { value: "dance", label: "Dance" },
+  { value: "other", label: "Other" },
 ];
 
 type SaveState = "choosing" | "saving" | "saved" | "error";
 
-export function LobbyCheckIn({
-  initialValue,
-  sleepDate,
-  primary = false,
-}: {
+export function LobbyCheckIn({ initialValue, sleepDate, primary = false }: {
   initialValue: LobbyCheckInValue | null;
   sleepDate: string;
   primary?: boolean;
 }) {
   const router = useRouter();
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [energy, setEnergy] = useState<LobbyEnergy | null>(
-    initialValue?.energy ?? null,
-  );
-  const [sleep, setSleep] = useState<LobbySleep | null>(
-    initialValue?.sleep ?? null,
-  );
-  const [meals, setMeals] = useState<LobbyMeals | null>(
-    initialValue?.meals ?? null,
-  );
-  const [saveState, setSaveState] = useState<SaveState>(
-    initialValue ? "saved" : "choosing",
-  );
+  const [energy, setEnergy] = useState<LobbyEnergy | null>(initialValue?.energy ?? null);
+  const [sleepHours, setSleepHours] = useState(initialValue?.sleepHours ?? 8);
+  const [sleepLogged, setSleepLogged] = useState(initialValue !== null);
+  const [movementType, setMovementType] = useState<LobbyMovement | null>(initialValue?.movementType ?? null);
+  const [movementMinutes, setMovementMinutes] = useState(initialValue?.movementMinutes ?? 30);
+  const [saveState, setSaveState] = useState<SaveState>(initialValue ? "saved" : "choosing");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const allChosen = Boolean(energy && sleepLogged && movementType && movementMinutes > 0);
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    const animationFrame = window.requestAnimationFrame(() => {
-      panelRef.current
-        ?.querySelector<HTMLButtonElement>(
-          ".sd-lobby-checkin-row button, .sd-lobby-checkin-summary button",
-        )
-        ?.focus();
-    });
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== "Escape") return;
-      setIsOpen(false);
-      triggerRef.current?.focus();
-    };
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.cancelAnimationFrame(animationFrame);
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (!energy || !sleep || !meals || saveState !== "choosing") return;
+    if (!allChosen || saveState !== "choosing" || !energy || !movementType) return;
 
     const timer = window.setTimeout(() => {
       setSaveState("saving");
       setMessage(null);
       startTransition(async () => {
-        const result = await saveLobbyCheckIn({
-          energy,
-          sleep,
-          meals,
-          sleepDate,
-        });
+        const result = await saveLobbyCheckIn({ energy, sleepHours, movementType, movementMinutes, sleepDate });
         if (!result.ok) {
           setSaveState("error");
           setMessage(result.error);
-          setIsOpen(true);
           return;
         }
         setSaveState("saved");
-        setIsOpen(false);
         router.refresh();
       });
     }, 650);
-
     return () => window.clearTimeout(timer);
-  }, [energy, meals, router, saveState, sleep, sleepDate]);
+  }, [allChosen, energy, movementMinutes, movementType, router, saveState, sleepDate, sleepHours]);
 
-  function closeCheckIn() {
-    setIsOpen(false);
-    triggerRef.current?.focus();
-  }
-
-  function changeSelection() {
-    setEnergy(null);
-    setSleep(null);
-    setMeals(null);
-    setMessage(null);
-    setSaveState("choosing");
-    setIsOpen(true);
-  }
-
-  function choose<T>(setter: (value: T) => void, value: T) {
-    setter(value);
+  function choosing() {
     setMessage(null);
     setSaveState("choosing");
   }
 
-  const summary = [
-    ENERGY_OPTIONS.find((option) => option.value === energy)?.label,
-    SLEEP_OPTIONS.find((option) => option.value === sleep)?.label,
-    MEAL_OPTIONS.find((option) => option.value === meals)?.label,
-  ]
-    .filter(Boolean)
-    .join(" | ");
-  const showSummary = saveState === "saved" || saveState === "saving";
-  const triggerLabel =
-    saveState === "saving"
-      ? "Saving"
-      : saveState === "saved"
-        ? "Checked in"
-        : "Check-In";
+  const status = saveState === "saving" || pending ? "Saving" : saveState === "saved" ? "Saved for today" : "";
 
   return (
     <section className="sd-lobby-checkin" data-primary={primary || undefined}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className="sd-lobby-checkin-trigger"
-        aria-expanded={isOpen}
-        aria-haspopup="dialog"
-        aria-controls="lobby-checkin-panel"
-        onClick={() => setIsOpen((open) => !open)}
-      >
-        {saveState === "saved" ? (
-          <Check size={14} strokeWidth={3} aria-hidden="true" />
-        ) : null}
-        <span>{triggerLabel}</span>
-        <ChevronDown
-          size={14}
-          strokeWidth={2.4}
-          aria-hidden="true"
-          className={isOpen ? "is-open" : undefined}
-        />
-      </button>
-
-      {isOpen ? (
-        <div
-          ref={panelRef}
-          id="lobby-checkin-panel"
-          className="sd-lobby-checkin-panel"
-          role="dialog"
-          aria-modal="false"
-          aria-labelledby="lobby-checkin-title"
-        >
-          <div className="sd-lobby-checkin-header">
-            <h2 id="lobby-checkin-title">Check-In</h2>
-            <button
-              type="button"
-              className="sd-lobby-checkin-close"
-              aria-label="Close check-in"
-              onClick={closeCheckIn}
-            >
-              <X size={17} aria-hidden="true" />
-            </button>
-          </div>
-
-          {showSummary ? (
-            <div className="sd-lobby-checkin-summary" aria-live="polite">
-              <div>
-                <strong>{pending ? "Saving check-in" : "Check-in saved"}</strong>
-                <span>{summary}</span>
-              </div>
-              <button type="button" onClick={changeSelection} disabled={pending}>
-                Change
-              </button>
-            </div>
-          ) : (
-            <div className="sd-lobby-checkin-rows">
-              <CheckInRow
-                label="Energy"
-                options={ENERGY_OPTIONS}
-                selected={energy}
-                disabled={pending}
-                onSelect={(value) => choose(setEnergy, value)}
-              />
-              <CheckInRow
-                label="Sleep"
-                options={SLEEP_OPTIONS}
-                selected={sleep}
-                disabled={pending}
-                onSelect={(value) => choose(setSleep, value)}
-              />
-              <CheckInRow
-                label="Meals"
-                options={MEAL_OPTIONS}
-                selected={meals}
-                disabled={pending}
-                onSelect={(value) => choose(setMeals, value)}
-              />
-            </div>
-          )}
-
-          {message ? (
-            <p className="sd-lobby-checkin-message" role="status">
-              {message}
-            </p>
-          ) : null}
-        </div>
-      ) : null}
+      <div className="sd-lobby-checkin-sliders">
+        <EnergySlider energy={energy} disabled={pending} onSelect={(value) => { setEnergy(value); choosing(); }} />
+        <RangeSlider label="Sleep" value={sleepHours} min={0} max={12} step={0.5} valueLabel={`${sleepHours.toFixed(sleepHours % 1 ? 1 : 0)} hrs`} disabled={pending} onChange={(value) => { setSleepHours(value); setSleepLogged(true); choosing(); }} />
+        <MovementSlider activity={movementType} minutes={movementMinutes} disabled={pending} onActivityChange={(value) => { setMovementType(value); choosing(); }} onMinutesChange={(value) => { setMovementMinutes(value); choosing(); }} />
+      </div>
+      <div className="sd-lobby-checkin-status" data-state={saveState} aria-live="polite" hidden={!message && !status && saveState !== "error"}>
+        <span>{message ?? status}</span>
+        {saveState === "error" && allChosen ? <button type="button" onClick={() => setSaveState("choosing")}>Try again</button> : null}
+      </div>
+      <Link href="/wellness" className="sd-lobby-checkin-open">Log wellness</Link>
     </section>
   );
 }
 
-function CheckInRow<T extends string>({
-  label,
-  options,
-  selected,
-  disabled,
-  onSelect,
-}: {
-  label: string;
-  options: ReadonlyArray<Readonly<{ value: T; label: string }>>;
-  selected: T | null;
+function EnergySlider({ energy, disabled, onSelect }: {
+  energy: LobbyEnergy | null;
   disabled: boolean;
-  onSelect: (value: T) => void;
+  onSelect: (value: LobbyEnergy) => void;
+}) {
+  const selectedIndex = ENERGY_OPTIONS.findIndex((option) => option.value === energy);
+  const rangeValue = selectedIndex >= 0 ? selectedIndex : 1;
+  const style = { "--checkin-offset": `${Math.max(selectedIndex, 0) * (100 / ENERGY_OPTIONS.length)}%` } as CSSProperties;
+  return (
+    <div className="sd-lobby-checkin-slider-row" role="group" aria-label="Energy">
+      <span className="sd-lobby-checkin-slider-label">Energy</span>
+      <div className="sd-lobby-checkin-slider" style={style} data-selected={energy !== null || undefined}>
+        <input type="range" min={0} max={ENERGY_OPTIONS.length - 1} step={1} value={rangeValue} disabled={disabled} aria-label="Energy check-in" aria-valuetext={selectedIndex >= 0 ? ENERGY_OPTIONS[selectedIndex]?.label : "Not selected"} onChange={(event) => onSelect(ENERGY_OPTIONS[Number(event.currentTarget.value)]!.value)} />
+        <div className="sd-lobby-checkin-slider-labels" aria-hidden="true">
+          {ENERGY_OPTIONS.map((option, index) => <span key={option.value} data-active={selectedIndex === index || undefined}>{option.label}</span>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RangeSlider({ label, value, min, max, step, valueLabel, disabled, onChange }: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  valueLabel: string;
+  disabled: boolean;
+  onChange: (value: number) => void;
+}) {
+  const percentage = ((value - min) / (max - min)) * 100;
+  const style = { "--checkin-range-fill": `${percentage}%` } as CSSProperties;
+  return (
+    <div className="sd-lobby-checkin-slider-row" role="group" aria-label={label}>
+      <span className="sd-lobby-checkin-slider-label">{label}</span>
+      <label className="sd-lobby-checkin-range" style={style}>
+        <input type="range" min={min} max={max} step={step} value={value} disabled={disabled} aria-label={label} aria-valuetext={valueLabel} onChange={(event) => onChange(Number(event.currentTarget.value))} />
+        <output>{valueLabel}</output>
+      </label>
+    </div>
+  );
+}
+
+function MovementSlider({ activity, minutes, disabled, onActivityChange, onMinutesChange }: {
+  activity: LobbyMovement | null;
+  minutes: number;
+  disabled: boolean;
+  onActivityChange: (value: LobbyMovement) => void;
+  onMinutesChange: (value: number) => void;
 }) {
   return (
-    <fieldset className="sd-lobby-checkin-row">
-      <legend>{label}</legend>
-      <div>
-        {options.map((option) => {
-          const active = selected === option.value;
-          return (
-            <button
-              key={option.value}
-              type="button"
-              aria-pressed={active}
-              disabled={disabled}
-              onClick={() => onSelect(option.value)}
-            >
-              {active ? (
-                <Check size={13} strokeWidth={3} aria-hidden="true" />
-              ) : null}
-              <span>{option.label}</span>
-            </button>
-          );
-        })}
+    <div className="sd-lobby-checkin-slider-row sd-lobby-checkin-movement" role="group" aria-label="Movement">
+      <span className="sd-lobby-checkin-slider-label">Movement</span>
+      <div className="sd-lobby-checkin-movement-controls">
+        <label className="sd-lobby-checkin-activity-select">
+          <span className="sr-only">Movement type</span>
+          <select value={activity ?? ""} disabled={disabled} aria-label="Movement type" onChange={(event) => onActivityChange(event.currentTarget.value as LobbyMovement)}>
+            <option value="" disabled>Choose activity</option>
+            {MOVEMENT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          </select>
+        </label>
+        <RangeSlider label="Movement minutes" value={minutes} min={0} max={180} step={5} valueLabel={`${minutes} min`} disabled={disabled} onChange={onMinutesChange} />
       </div>
-    </fieldset>
+    </div>
   );
 }

@@ -111,6 +111,21 @@ const SEARCH_STYLES = `
     .sd-search-desktop-empty span { color:#64748b; font-size:13.5px; }
   }
   @media (prefers-reduced-motion:reduce) { .sd-smart-search * { scroll-behavior:auto!important; transition:none!important; } }
+
+  /* Current student visual system. This intentionally replaces the retired navy, neon, and condensed type treatment above. */
+  .sd-smart-search { background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
+  .sd-search-desktop h1,.sd-search-desktop-groups h2,.sd-search-desktop-empty strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:620!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-search-desktop > p,.sd-search-desktop-empty span,.sd-search-desktop-groups a > span { color:#53615c!important; }
+  .sd-search-desktop-form { border:1px solid rgb(255 255 255 / .76)!important; border-radius:12px!important; background:rgb(255 255 255 / .64)!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
+  .sd-search-desktop-form input { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:500!important; text-transform:none!important; }
+  .diana-app .sd-search-desktop-form button { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:600!important; text-transform:none!important; }
+  .sd-search-desktop-groups > section > header > span { background:rgb(24 33 38 / .18)!important; }
+  .sd-search-desktop-groups > section > div > a,.sd-search-desktop-empty { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46))!important; color:#182126!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
+  .sd-search-desktop-groups strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-weight:600!important; }
+  @media (min-width:1100px) {
+    .sd-smart-search { background:linear-gradient(rgb(214 218 214 / .84),rgb(214 218 214 / .9)),url("/images/classes-high-tech-classroom.png") center/cover fixed!important; }
+    .sd-search-desktop { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 118px); margin:22px auto 24px!important; border:7px solid #fff; border-radius:30px!important; padding:clamp(30px,3.2vw,48px) clamp(20px,3.2vw,54px) clamp(44px,5vw,78px)!important; }
+  }
 `;
 
 const FILTERS: ReadonlyArray<Readonly<{ value: SupportSearchKind; label: string }>> = [
@@ -138,7 +153,7 @@ const SEARCH_DIRECTORY: ReadonlyArray<DesktopSearchItem & { keywords: string }> 
   { key: "tool-capture", title: "Quick capture", detail: "Add work by text, photo, or voice", href: "/quick-add", keywords: "new assignment add capture photo voice" },
   { key: "tool-record", title: "Record", detail: "Completed work and showcase", href: "/proof", keywords: "proof evidence portfolio completed showcase" },
   { key: "tool-notes", title: "Notes", detail: "Class notes and study context", href: "/notes", keywords: "note write photograph" },
-  { key: "tool-flashcards", title: "Flashcards", detail: "Spaced practice decks", href: "/flashcards", keywords: "cards study review memorize" },
+  { key: "tool-study", title: "Study", detail: "Saved practice and review tools", href: "/study", keywords: "cards study review memorize" },
   { key: "tool-artifacts", title: "Study artifacts", detail: "Guides, tests, and study cards", href: "/study-artifacts", keywords: "study guide practice generate" },
   { key: "page-wellness", title: "Wellness", detail: "Energy, sleep, meals, and movement", href: "/wellness", keywords: "health mood exercise" },
   { key: "page-sharing", title: "Sharing", detail: "Weekly parent digest", href: "/sharing", keywords: "parent digest share" },
@@ -279,7 +294,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   };
 
   return (
-    <ScreenDesignViewport className="sd-smart-search" aria-label="Smart search">
+    <ScreenDesignViewport className="sd-smart-search diana-current-page" aria-label="Smart search">
       <style>{SEARCH_STYLES}</style>
       <StudentDesktopNav {...navProfile} />
       <section className="sd-search-desktop" aria-label="Search Diana">
@@ -324,7 +339,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
         {query && desktopResultCount === 0 ? (
           <div className="sd-search-desktop-empty">
-            <strong>No matches for "{query}"</strong>
+            <strong>No matches for &quot;{query}&quot;</strong>
             <span>Try a class name, assignment, note, or tool.</span>
           </div>
         ) : null}

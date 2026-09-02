@@ -2,8 +2,14 @@ import { cookies } from "next/headers";
 
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
-import { buildLobbyDashboardView } from "@/lib/dashboard/lobby-view";
-import { lobbyCheckInFromSignalValue } from "@/lib/dashboard/lobby-check-in";
+import {
+  buildLobbyDashboardView,
+  calculateWeeklyHomeworkProgress,
+} from "@/lib/dashboard/lobby-view";
+import {
+  lobbyCheckInDayKey,
+  lobbyCheckInFromSignalValue,
+} from "@/lib/dashboard/lobby-check-in";
 import { loadProfile } from "@/lib/profile";
 import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { sessionAdaptationForMood } from "@/lib/emotional/session";
@@ -22,6 +28,8 @@ export default async function DashboardPage({
   const profile = await loadProfile();
   const search = await searchParams;
   const now = new Date();
+  const timeZone = profile?.timezone || "America/Los_Angeles";
+  const checkInDay = lobbyCheckInDayKey(now, timeZone);
 
   const learnerProfile = profile
     ? await getLearnerProfile({ supabase, ownerId: profile.user_id })
@@ -36,6 +44,11 @@ export default async function DashboardPage({
   const lastShownClassId = cookieStore.get("diana_last_class")?.value ?? null;
   const todayStart = new Date(now);
   todayStart.setHours(0, 0, 0, 0);
+  const weekStart = new Date(todayStart);
+  const daysSinceMonday = (weekStart.getDay() + 6) % 7;
+  weekStart.setDate(weekStart.getDate() - daysSinceMonday);
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 7);
   const fourHoursAgoIso = new Date(
     now.getTime() - 4 * 60 * 60 * 1000,
   ).toISOString();
@@ -43,8 +56,9 @@ export default async function DashboardPage({
   const [
     { data: assignments },
     { data: signals },
-    { data: latestReadinessSignal },
+    { data: readinessSignals },
     { data: latestSleep },
+    { data: weeklyAssignments },
     reminderItems,
   ] = await Promise.all([
     supabase
@@ -66,16 +80,21 @@ export default async function DashboardPage({
       .from("task_signals")
       .select("value, occurred_at")
       .eq("kind", "mood_checkin")
-      .gte("occurred_at", todayStart.toISOString())
+      .gte("occurred_at", new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString())
       .order("occurred_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .limit(16),
     supabase
       .from("sleep_logs")
       .select("sleep_date, sleep_quality, sleep_hours")
       .order("sleep_date", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    supabase
+      .from("assignments")
+      .select("status")
+      .gte("due_at", weekStart.toISOString())
+      .lt("due_at", weekEnd.toISOString())
+      .neq("status", "abandoned"),
     getReminderItems(),
   ]);
 
@@ -84,6 +103,9 @@ export default async function DashboardPage({
       signal,
     ): signal is { assignment_id: string; occurred_at: string } =>
       signal.assignment_id !== null,
+  );
+  const latestReadinessSignal = (readinessSignals ?? []).find(
+    (signal) => lobbyCheckInDayKey(signal.occurred_at, timeZone) === checkInDay,
   );
   const sleepAdjustment = sleepRecoveryAdjustment(
     latestSleep
@@ -117,11 +139,17 @@ export default async function DashboardPage({
     lastShownClassId,
     learnerProfile,
   );
+  const weeklyHomeworkProgress = calculateWeeklyHomeworkProgress(
+    weeklyAssignments ?? [],
+  );
   const view = buildLobbyDashboardView({
     displayName: profile?.display_name,
     rankedAssignments: ranked,
     assignments: assignments ?? [],
     reminders: reminderItems,
+    weeklyHomeworkCompletionPercent: weeklyHomeworkProgress.percent,
+    weeklyHomeworkCompletedCount: weeklyHomeworkProgress.completed,
+    weeklyHomeworkTotalCount: weeklyHomeworkProgress.total,
     now,
   });
   const initialCheckIn = lobbyCheckInFromSignalValue(
@@ -140,7 +168,7 @@ export default async function DashboardPage({
           photoOffsetY: profile?.photo_offset_y,
         }}
         initialCheckIn={initialCheckIn}
-        today={now.toISOString().slice(0, 10)}
+        today={checkInDay}
       />
     </>
   );

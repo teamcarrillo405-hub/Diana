@@ -67,7 +67,7 @@ export function QuickCapture({ placement = "fixed" }: { placement?: "fixed" | "i
         className={
           placement === "inline"
             ? "diana-button diana-button-secondary inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-semibold"
-            : "diana-button diana-button-secondary fixed bottom-6 left-6 z-40 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
+            : "diana-loading-quick-capture diana-button diana-button-secondary fixed bottom-6 left-6 z-40 inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-semibold"
         }
       >
         <MessageSquarePlus size={16} />

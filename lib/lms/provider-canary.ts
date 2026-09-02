@@ -6,7 +6,13 @@ import {
   fetchClassroomAssignments,
   getValidGoogleToken,
   GOOGLE_CLASSROOM_SCOPES,
+  missingGoogleScopes,
 } from "@/lib/lms/google";
+import { reconcileConfirmedGrade } from "@/lib/lms/grade-reconciliation";
+import {
+  syncCanvasConfirmedGrade,
+  type ConfirmedGradeSyncInput,
+} from "@/lib/lms/grades";
 import {
   claimSubmissionReceipt,
   completeSubmissionReceipt,
@@ -22,7 +28,20 @@ import {
   type SubmissionFile,
 } from "@/lib/lms/submission";
 import { sha256Hex } from "@/lib/security/submission-file-integrity";
+import {
+  BETA_LMS_STAGING_WRITE_ACK,
+  digestBetaLmsStagingWriteValue,
+  executeDurableBetaLmsStagingWrite,
+  type BetaLmsStagingWriteBinding,
+  type BetaLmsStagingWriteObservation,
+  type BetaLmsStagingWriteOperation,
+  type BetaLmsStagingWriteProvider,
+  type BetaLmsStagingWriteResource,
+  type BetaLmsStagingWriteResourceKind,
+} from "@/lib/beta/lms-staging-write-records";
+import { getBetaQaResourceNamespace } from "@/lib/beta/qa-resources";
 import { isAllowedDianaOrigin } from "../../supabase/functions/_shared/cors";
+import { providerCanaryMockFixtures } from "./provider-canary-fixtures";
 
 export type ProviderCanaryMode = "mock" | "staging";
 
@@ -50,6 +69,15 @@ const CANARY_IDEMPOTENCY_KEY = "11111111-1111-4111-8111-111111111111";
 
 export const PROVIDER_CANARY_STAGING_ENV = [
   "DIANA_PROVIDER_CANARY_ALLOW_WRITES",
+  "DIANA_BETA_LMS_STAGING_ACK",
+  "DIANA_BETA_QA_RUN_ID",
+  "DIANA_BETA_RELEASE_SHA",
+  "DIANA_BETA_LMS_STAGING_URL",
+  "DIANA_BETA_LMS_RESOURCE_NAMESPACE",
+  "DIANA_LMS_CANVAS_IMPORT_ENABLED",
+  "DIANA_LMS_CANVAS_SUBMISSION_ENABLED",
+  "DIANA_LMS_GOOGLE_IMPORT_ENABLED",
+  "DIANA_LMS_GOOGLE_SUBMISSION_ENABLED",
   "DIANA_CANARY_PREVIEW_ORIGIN",
   "DIANA_CANARY_CANVAS_BASE_URL",
   "DIANA_CANARY_CANVAS_INSTITUTION_ID",
@@ -60,6 +88,9 @@ export const PROVIDER_CANARY_STAGING_ENV = [
   "DIANA_CANARY_CANVAS_COURSE_ID",
   "DIANA_CANARY_CANVAS_TEXT_ASSIGNMENT_ID",
   "DIANA_CANARY_CANVAS_FILE_ASSIGNMENT_ID",
+  "DIANA_CANARY_CANVAS_GRADE_ASSIGNMENT_ID",
+  "DIANA_CANARY_CANVAS_GRADE_STUDENT_ID",
+  "DIANA_CANARY_CANVAS_GRADE_SCORE",
   "DIANA_CANARY_GOOGLE_ACCESS_TOKEN",
   "DIANA_CANARY_GOOGLE_REFRESH_TOKEN",
   "DIANA_CANARY_GOOGLE_CLIENT_ID",
@@ -70,8 +101,7 @@ export const PROVIDER_CANARY_STAGING_ENV = [
 ] as const;
 
 export function missingGoogleCanaryScopes(grantedScopes: readonly string[]): string[] {
-  const granted = new Set(grantedScopes.map((scope) => scope.trim()).filter(Boolean));
-  return GOOGLE_CLASSROOM_SCOPES.filter((scope) => !granted.has(scope));
+  return missingGoogleScopes(grantedScopes, GOOGLE_CLASSROOM_SCOPES);
 }
 
 export function validatePreviewCors(env: Env): { ok: boolean; detail: string } {
@@ -459,12 +489,13 @@ async function mockDuplicateSubmitProtection(): Promise<string> {
     return claim;
   };
 
-  const first = await submit();
+  const [first, concurrent] = await Promise.all([submit(), submit()]);
   const replay = await submit();
-  assertCanary(first.claimed, "first receipt was not claimed");
+  assertCanary([first, concurrent].filter((claim) => claim.claimed).length === 1, "concurrent receipt claims were not exclusive");
+  assertCanary(!concurrent.claimed || !first.claimed, "both concurrent receipt attempts were claimed");
   assertCanary(!replay.claimed && replay.status === "submitted", "duplicate receipt did not replay submitted state");
   assertCanary(providerWrites === 1, "duplicate attempt reached the provider");
-  return "replayed the submitted receipt and kept provider writes at one";
+  return "serialized concurrent claims, replayed the terminal receipt, and kept provider writes at one";
 }
 
 async function mockAmbiguousReconciliation(): Promise<string> {
@@ -517,15 +548,281 @@ async function mockAmbiguousReconciliation(): Promise<string> {
     providerReceiptId: null,
     detail: "late conflicting result",
   });
+  const googlePending = resolveProviderSubmissionStatus({
+    provider: "google_classroom",
+    capabilities: ["open_external", "upload_file"],
+    note: "",
+    allowedExtensions: [],
+    providerSubmissionId: "google-receipt-1",
+    providerState: "CREATED",
+    providerCanSubmit: true,
+  });
+  const googleSubmitted = resolveProviderSubmissionStatus({
+    provider: "google_classroom",
+    capabilities: ["open_external"],
+    note: "",
+    allowedExtensions: [],
+    providerSubmissionId: "google-receipt-1",
+    providerState: "TURNED_IN",
+    providerCanSubmit: false,
+  });
+  const googleRejected = resolveProviderSubmissionStatus({
+    provider: "google_classroom",
+    capabilities: ["open_external"],
+    note: "",
+    allowedExtensions: [],
+    providerSubmissionId: null,
+    providerState: null,
+    providerCanSubmit: false,
+  });
   assertCanary(reconciled.status === "submitted" && reconciled.transitioned, "pending receipt was not reconciled to submitted");
   assertCanary(replay.status === "submitted" && !replay.transitioned, "terminal receipt was overwritten");
-  return "reconciled an ambiguous response once and preserved the terminal receipt";
+  assertCanary(googlePending.status === "confirmation_pending", "editable Google work was not held pending");
+  assertCanary(googleSubmitted.status === "submitted", "turned-in Google work was not confirmed");
+  assertCanary(googleRejected.status === "not_accepted", "absent Google work was not rejected honestly");
+  return "reconciled Canvas ambiguity once, preserved the terminal receipt, and classified Google pending/submitted/absent states";
 }
 
 function envValue(env: Env, name: typeof PROVIDER_CANARY_STAGING_ENV[number]): string {
   const value = env[name]?.trim();
   if (!value) throw new Error(`${name} is missing`);
   return value;
+}
+
+function stagingWriteBinding(env: Env, projectRoot: string): BetaLmsStagingWriteBinding {
+  const runId = envValue(env, "DIANA_BETA_QA_RUN_ID");
+  return {
+    projectRoot,
+    runId,
+    releaseSha: envValue(env, "DIANA_BETA_RELEASE_SHA"),
+    stagingUrl: envValue(env, "DIANA_BETA_LMS_STAGING_URL"),
+    resourceNamespace: envValue(env, "DIANA_BETA_LMS_RESOURCE_NAMESPACE"),
+    acknowledgement: env.DIANA_BETA_LMS_STAGING_ACK ?? null,
+  };
+}
+
+function writeObservation(
+  inspection: Awaited<ReturnType<typeof inspectCanvasSubmission>> | Awaited<ReturnType<typeof inspectGoogleClassroomSubmission>>,
+): BetaLmsStagingWriteObservation {
+  const observation = inspection.reconciliationObservation;
+  return {
+    state: observation ? "known" : "unknown",
+    providerSubmissionId: observation?.submissionId ?? null,
+    providerState: observation?.state ?? null,
+    attempt: observation?.provider === "canvas" ? observation.attempt : null,
+    submittedAt: observation?.provider === "canvas" ? observation.submittedAt : null,
+    attachmentIds: [...(observation?.attachmentIds ?? [])],
+  };
+}
+
+async function inspectCanvasGrade(
+  input: ConfirmedGradeSyncInput,
+): Promise<BetaLmsStagingWriteObservation> {
+  const result = await reconcileConfirmedGrade(input);
+  return {
+    state: "known",
+    providerSubmissionId: result.providerReceiptId,
+    providerState: result.providerState,
+    attempt: null,
+    submittedAt: null,
+    attachmentIds: [],
+    observedScore: result.observedScore,
+    observedDraftScore: result.observedDraftScore,
+  };
+}
+
+function stagingResource(input: {
+  provider: BetaLmsStagingWriteProvider;
+  operation: BetaLmsStagingWriteOperation;
+  kind: BetaLmsStagingWriteResourceKind;
+  providerResourceId: string;
+  parentResourceId: string | null;
+  resourceNamespace: string;
+}): BetaLmsStagingWriteResource {
+  return {
+    provider: input.provider,
+    providerResourceId: input.providerResourceId,
+    kind: input.kind,
+    resourceTag: input.resourceNamespace,
+    parentResourceId: input.parentResourceId,
+    bindingDigest: digestBetaLmsStagingWriteValue({
+      provider: input.provider,
+      operation: input.operation,
+      kind: input.kind,
+      providerResourceId: input.providerResourceId,
+      parentResourceId: input.parentResourceId,
+      resourceTag: input.resourceNamespace,
+    }),
+    disposable: true,
+  };
+}
+
+function observationChanged(
+  baseline: BetaLmsStagingWriteObservation,
+  current: BetaLmsStagingWriteObservation,
+): boolean {
+  const baselineAttachments = new Set(baseline.attachmentIds);
+  return (
+    baseline.providerSubmissionId !== current.providerSubmissionId ||
+    baseline.providerState !== current.providerState ||
+    baseline.attempt !== current.attempt ||
+    baseline.submittedAt !== current.submittedAt ||
+    current.attachmentIds.some((id) => !baselineAttachments.has(id))
+  );
+}
+
+function resourcesById(
+  resources: readonly BetaLmsStagingWriteResource[],
+): Map<string, BetaLmsStagingWriteResource> {
+  return new Map(resources.map((resource) => [resource.providerResourceId, resource]));
+}
+
+function canvasWriteDecision(input: {
+  operation: "canvas_text_submission" | "canvas_file_submission";
+  namespace: string;
+  baseline: BetaLmsStagingWriteObservation;
+  current: BetaLmsStagingWriteObservation;
+  discoveredResources: readonly BetaLmsStagingWriteResource[];
+}) {
+  const submissionId = input.current.providerSubmissionId;
+  const providerState = input.current.providerState?.toLowerCase() ?? null;
+  const submitted = Boolean(
+    submissionId && providerState && providerState !== "unsubmitted",
+  );
+  const discovered = resourcesById(input.discoveredResources);
+  const changed = observationChanged(input.baseline, input.current);
+  const baselineAttachments = new Set(input.baseline.attachmentIds);
+  const newAttachmentIds = input.current.attachmentIds.filter(
+    (id) => !baselineAttachments.has(id),
+  );
+  const receiptMatches = Boolean(submissionId && discovered.has(submissionId));
+  const confirmed = submitted && (
+    receiptMatches ||
+    changed ||
+    newAttachmentIds.some((id) => discovered.has(id))
+  );
+  if (!confirmed || !submissionId) {
+    return {
+      confirmed: false,
+      detail: "Canvas readback did not prove a new submission relative to the durable baseline.",
+      resources: [],
+    };
+  }
+  const resources = [stagingResource({
+    provider: "canvas",
+    operation: input.operation,
+    kind: "submission",
+    providerResourceId: submissionId,
+    parentResourceId: null,
+    resourceNamespace: input.namespace,
+  })];
+  if (input.operation === "canvas_file_submission") {
+    resources.push(...newAttachmentIds.map((providerResourceId) => stagingResource({
+      provider: "canvas",
+      operation: input.operation,
+      kind: "file",
+      providerResourceId,
+      parentResourceId: submissionId,
+      resourceNamespace: input.namespace,
+    })));
+    if (resources.length === 1) {
+      return {
+        confirmed: false,
+        detail: "Canvas readback did not bind a newly attached file to the submission.",
+        resources: [],
+      };
+    }
+  }
+  return {
+    confirmed: true,
+    detail: "Canvas provider readback matched the durable write intent.",
+    resources,
+  };
+}
+
+function canvasGradeWriteDecision(input: {
+  namespace: string;
+  expectedScore: number;
+  baseline: BetaLmsStagingWriteObservation;
+  current: BetaLmsStagingWriteObservation;
+}) {
+  const submissionId = input.current.providerSubmissionId;
+  if (
+    !submissionId
+    || input.current.observedScore !== input.expectedScore
+    || input.baseline.observedScore === input.expectedScore
+  ) {
+    return {
+      confirmed: false,
+      detail: "Canvas readback did not prove the configured grade changed from the durable baseline.",
+      resources: [],
+    };
+  }
+  return {
+    confirmed: true,
+    detail: "Canvas provider readback proved the disposable grade delivery.",
+    resources: [stagingResource({
+      provider: "canvas",
+      operation: "canvas_grade_delivery",
+      kind: "submission",
+      providerResourceId: submissionId,
+      parentResourceId: null,
+      resourceNamespace: input.namespace,
+    })],
+  };
+}
+
+function googleWriteDecision(input: {
+  namespace: string;
+  baseline: BetaLmsStagingWriteObservation;
+  current: BetaLmsStagingWriteObservation;
+  discoveredResources: readonly BetaLmsStagingWriteResource[];
+}) {
+  const submissionId = input.current.providerSubmissionId;
+  const baselineAttachments = new Set(input.baseline.attachmentIds);
+  const newAttachmentIds = input.current.attachmentIds.filter(
+    (id) => !baselineAttachments.has(id),
+  );
+  const discovered = resourcesById(input.discoveredResources);
+  const confirmed = Boolean(
+    submissionId &&
+    input.current.providerState?.toUpperCase() === "TURNED_IN" &&
+    (
+      observationChanged(input.baseline, input.current) ||
+      discovered.has(submissionId) ||
+      newAttachmentIds.some((id) => discovered.has(id))
+    ) &&
+    newAttachmentIds.length > 0,
+  );
+  if (!confirmed || !submissionId) {
+    return {
+      confirmed: false,
+      detail: "Google Classroom readback did not prove a newly attached, turned-in submission.",
+      resources: [],
+    };
+  }
+  return {
+    confirmed: true,
+    detail: "Google Classroom provider readback matched the durable write intent.",
+    resources: [
+      stagingResource({
+        provider: "google_classroom",
+        operation: "google_file_submission",
+        kind: "student_submission",
+        providerResourceId: submissionId,
+        parentResourceId: null,
+        resourceNamespace: input.namespace,
+      }),
+      ...newAttachmentIds.map((providerResourceId) => stagingResource({
+        provider: "google_classroom",
+        operation: "google_file_submission",
+        kind: "drive_file",
+        providerResourceId,
+        parentResourceId: submissionId,
+        resourceNamespace: input.namespace,
+      })),
+    ],
+  };
 }
 
 async function stagingExpiredTokens(env: Env): Promise<{ canvasToken: string; googleToken: string }> {
@@ -561,7 +858,11 @@ async function stagingExpiredTokens(env: Env): Promise<{ canvasToken: string; go
   });
 }
 
-async function runStagingChecks(checks: ProviderCanaryCheck[], env: Env): Promise<void> {
+async function runStagingChecks(
+  checks: ProviderCanaryCheck[],
+  env: Env,
+  projectRoot: string,
+): Promise<void> {
   let tokens: { canvasToken: string; googleToken: string };
   try {
     tokens = await stagingExpiredTokens(env);
@@ -594,6 +895,9 @@ async function runStagingChecks(checks: ProviderCanaryCheck[], env: Env): Promis
     courseId: envValue(env, "DIANA_CANARY_GOOGLE_COURSE_ID"),
     courseWorkId: envValue(env, "DIANA_CANARY_GOOGLE_FILE_COURSEWORK_ID"),
   };
+  const binding = stagingWriteBinding(env, projectRoot);
+  const namespace = binding.resourceNamespace;
+  const file = canaryFile();
 
   await withEnv(canvasEnv(canvasOrigin, institutionId), async () => {
     await recordCheck(checks, "canvas-import", "Canvas assignment import", async () => {
@@ -605,17 +909,150 @@ async function runStagingChecks(checks: ProviderCanaryCheck[], env: Env): Promis
       const assignmentId = envValue(env, "DIANA_CANARY_CANVAS_TEXT_ASSIGNMENT_ID");
       const capabilities = await inspectCanvasSubmission({ ...canvasDestination, assignmentId });
       assertCanary(capabilities.capabilities.includes("submit_text"), capabilities.note);
-      const result = await submitCanvasText({ ...canvasDestination, assignmentId, text: "Diana staging provider canary text submission." });
-      assertCanary(result.id, "Canvas did not return a text submission receipt");
-      return `Canvas receipt ${String(result.id)}`;
+      const text = `Diana staging provider canary text submission. ${namespace}`;
+      const record = await executeDurableBetaLmsStagingWrite({
+        binding,
+        provider: "canvas",
+        operation: "canvas_text_submission",
+        targetDigest: digestBetaLmsStagingWriteValue({
+          provider: "canvas",
+          courseId: canvasDestination.courseId,
+          assignmentId,
+          namespace,
+        }),
+        payloadDigest: digestBetaLmsStagingWriteValue({ text }),
+        inspect: async () => writeObservation(
+          await inspectCanvasSubmission({ ...canvasDestination, assignmentId }),
+        ),
+        async write({ recordResource }) {
+          const result = await submitCanvasText({ ...canvasDestination, assignmentId, text });
+          assertCanary(result.id, "Canvas did not return a text submission receipt");
+          recordResource(stagingResource({
+            provider: "canvas",
+            operation: "canvas_text_submission",
+            kind: "submission",
+            providerResourceId: String(result.id),
+            parentResourceId: null,
+            resourceNamespace: namespace,
+          }));
+        },
+        confirm: ({ baseline, current, discoveredResources }) => canvasWriteDecision({
+          operation: "canvas_text_submission",
+          namespace,
+          baseline,
+          current,
+          discoveredResources,
+        }),
+      });
+      return `provider readback confirmed durable record ${record.recordDigest.slice(0, 12)}`;
     });
     await recordCheck(checks, "canvas-file", "Canvas file submission", async () => {
       const assignmentId = envValue(env, "DIANA_CANARY_CANVAS_FILE_ASSIGNMENT_ID");
       const capabilities = await inspectCanvasSubmission({ ...canvasDestination, assignmentId });
       assertCanary(capabilities.capabilities.includes("upload_file"), capabilities.note);
-      const result = await submitCanvasFile({ ...canvasDestination, assignmentId, file: canaryFile() });
-      assertCanary(result.id, "Canvas did not return a file submission receipt");
-      return `Canvas receipt ${String(result.id)}`;
+      const record = await executeDurableBetaLmsStagingWrite({
+        binding,
+        provider: "canvas",
+        operation: "canvas_file_submission",
+        targetDigest: digestBetaLmsStagingWriteValue({
+          provider: "canvas",
+          courseId: canvasDestination.courseId,
+          assignmentId,
+          namespace,
+        }),
+        payloadDigest: digestBetaLmsStagingWriteValue({
+          name: file.name,
+          byteSize: file.byteSize,
+          sha256Digest: file.sha256Digest,
+        }),
+        inspect: async () => writeObservation(
+          await inspectCanvasSubmission({ ...canvasDestination, assignmentId }),
+        ),
+        async write({ recordResource }) {
+          const result = await submitCanvasFile({
+            ...canvasDestination,
+            assignmentId,
+            file,
+            onArtifactPrepared: async (artifact) => {
+              recordResource(stagingResource({
+                provider: "canvas",
+                operation: "canvas_file_submission",
+                kind: "file",
+                providerResourceId: artifact.providerArtifactId,
+                parentResourceId: capabilities.reconciliationObservation?.submissionId ?? null,
+                resourceNamespace: namespace,
+              }));
+            },
+          });
+          assertCanary(result.id, "Canvas did not return a file submission receipt");
+          recordResource(stagingResource({
+            provider: "canvas",
+            operation: "canvas_file_submission",
+            kind: "submission",
+            providerResourceId: String(result.id),
+            parentResourceId: null,
+            resourceNamespace: namespace,
+          }));
+        },
+        confirm: ({ baseline, current, discoveredResources }) => canvasWriteDecision({
+          operation: "canvas_file_submission",
+          namespace,
+          baseline,
+          current,
+          discoveredResources,
+        }),
+      });
+      return `provider readback confirmed durable record ${record.recordDigest.slice(0, 12)}`;
+    });
+    await recordCheck(checks, "canvas-grade", "Canvas grade delivery", async () => {
+      const score = Number(envValue(env, "DIANA_CANARY_CANVAS_GRADE_SCORE"));
+      assertCanary(Number.isFinite(score) && score >= 0, "Canvas staging grade score is invalid");
+      const gradeInput: ConfirmedGradeSyncInput = {
+        provider: "canvas",
+        providerConnectionId: `staging-${institutionId}`,
+        token: tokens.canvasToken,
+        canvasInstitutionId: institutionId,
+        canvasBaseUrl: canvasOrigin,
+        externalCourseId: canvasDestination.courseId,
+        externalAssignmentId: envValue(env, "DIANA_CANARY_CANVAS_GRADE_ASSIGNMENT_ID"),
+        externalStudentId: envValue(env, "DIANA_CANARY_CANVAS_GRADE_STUDENT_ID"),
+        score,
+        pointsPossible: null,
+        confirmedBy: "staging-provider-canary",
+        confirmedAt: "2026-01-01T00:00:00.000Z",
+      };
+      const record = await executeDurableBetaLmsStagingWrite({
+        binding,
+        provider: "canvas",
+        operation: "canvas_grade_delivery",
+        targetDigest: digestBetaLmsStagingWriteValue({
+          provider: "canvas",
+          courseId: gradeInput.externalCourseId,
+          assignmentId: gradeInput.externalAssignmentId,
+          studentId: gradeInput.externalStudentId,
+          namespace,
+        }),
+        payloadDigest: digestBetaLmsStagingWriteValue({ score }),
+        inspect: () => inspectCanvasGrade(gradeInput),
+        async write({ recordResource }) {
+          const result = await syncCanvasConfirmedGrade(gradeInput);
+          recordResource(stagingResource({
+            provider: "canvas",
+            operation: "canvas_grade_delivery",
+            kind: "submission",
+            providerResourceId: result.providerReceiptId,
+            parentResourceId: null,
+            resourceNamespace: namespace,
+          }));
+        },
+        confirm: ({ baseline, current }) => canvasGradeWriteDecision({
+          namespace,
+          expectedScore: score,
+          baseline,
+          current,
+        }),
+      });
+      return `provider readback confirmed durable record ${record.recordDigest.slice(0, 12)}`;
     });
   });
 
@@ -627,8 +1064,64 @@ async function runStagingChecks(checks: ProviderCanaryCheck[], env: Env): Promis
   await recordCheck(checks, "classroom-file", "Google Classroom file submission", async () => {
     const capabilities = await inspectGoogleClassroomSubmission(googleDestination);
     assertCanary(capabilities.capabilities.includes("upload_file"), capabilities.note);
-    const result = await submitGoogleClassroomFile({ ...googleDestination, file: canaryFile() });
-    return `Classroom receipt ${result.id}`;
+    const record = await executeDurableBetaLmsStagingWrite({
+      binding,
+      provider: "google_classroom",
+      operation: "google_file_submission",
+      targetDigest: digestBetaLmsStagingWriteValue({
+        provider: "google_classroom",
+        courseId: googleDestination.courseId,
+        courseWorkId: googleDestination.courseWorkId,
+        namespace,
+      }),
+      payloadDigest: digestBetaLmsStagingWriteValue({
+        name: file.name,
+        byteSize: file.byteSize,
+        sha256Digest: file.sha256Digest,
+      }),
+      inspect: async () => writeObservation(
+        await inspectGoogleClassroomSubmission(googleDestination),
+      ),
+      async write({ recordResource }) {
+        const result = await submitGoogleClassroomFile({
+          ...googleDestination,
+          file,
+          onArtifactPrepared: async (artifact) => {
+            recordResource(stagingResource({
+              provider: "google_classroom",
+              operation: "google_file_submission",
+              kind: "drive_file",
+              providerResourceId: artifact.providerArtifactId,
+              parentResourceId: capabilities.reconciliationObservation?.submissionId ?? null,
+              resourceNamespace: namespace,
+            }));
+          },
+        });
+        recordResource(stagingResource({
+          provider: "google_classroom",
+          operation: "google_file_submission",
+          kind: "student_submission",
+          providerResourceId: result.id,
+          parentResourceId: null,
+          resourceNamespace: namespace,
+        }));
+        recordResource(stagingResource({
+          provider: "google_classroom",
+          operation: "google_file_submission",
+          kind: "drive_file",
+          providerResourceId: result.driveFileId,
+          parentResourceId: result.id,
+          resourceNamespace: namespace,
+        }));
+      },
+      confirm: ({ baseline, current, discoveredResources }) => googleWriteDecision({
+        namespace,
+        baseline,
+        current,
+        discoveredResources,
+      }),
+    });
+    return `provider readback confirmed durable record ${record.recordDigest.slice(0, 12)}`;
   });
 
   await recordCheck(checks, "duplicate-submit", "Duplicate-submit protection", mockDuplicateSubmitProtection);
@@ -638,6 +1131,7 @@ async function runStagingChecks(checks: ProviderCanaryCheck[], env: Env): Promis
 export async function runProviderCanary(options: {
   mode?: ProviderCanaryMode;
   env?: Env;
+  projectRoot?: string;
 } = {}): Promise<ProviderCanaryReport> {
   const mode = options.mode ?? "mock";
   const env = options.env ?? process.env;
@@ -651,39 +1145,69 @@ export async function runProviderCanary(options: {
   });
 
   if (mode === "mock") {
-    await recordCheck(checks, "preview-cors", "Preview CORS contract", () => {
-      const exact = validatePreviewCors({
-        DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-preview.example",
-        DIANA_ALLOWED_ORIGINS: "https://diana.example,https://diana-canary-preview.example",
+    await withFetch(async (input) => {
+      throw new Error(`mock mode blocked an unhandled network request: ${String(input)}`);
+    }, () => withEnv({
+      DIANA_LMS_CANVAS_IMPORT_ENABLED: "true",
+      DIANA_LMS_CANVAS_SUBMISSION_ENABLED: "true",
+      DIANA_LMS_GOOGLE_IMPORT_ENABLED: "true",
+      DIANA_LMS_GOOGLE_SUBMISSION_ENABLED: "true",
+    }, async () => {
+      for (const fixture of providerCanaryMockFixtures()) {
+        await recordCheck(checks, fixture.id, fixture.name, fixture.run);
+      }
+      await recordCheck(checks, "preview-cors", "Preview CORS contract", () => {
+        const exact = validatePreviewCors({
+          DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-preview.example",
+          DIANA_ALLOWED_ORIGINS: "https://diana.example,https://diana-canary-preview.example",
+        });
+        const wildcard = validatePreviewCors({
+          DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-preview.example",
+          DIANA_ALLOWED_ORIGINS: "https://*.example",
+        });
+        const restrictedPreview = validatePreviewCors({
+          DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-git-main-teamcarrillo405-hubs-projects.vercel.app",
+          DIANA_ALLOWED_PREVIEW_HOST_SUFFIX: "-teamcarrillo405-hubs-projects.vercel.app",
+        });
+        const lookalike = validatePreviewCors({
+          DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-git-main-other-team.vercel.app",
+          DIANA_ALLOWED_PREVIEW_HOST_SUFFIX: "-teamcarrillo405-hubs-projects.vercel.app",
+        });
+        assertCanary(exact.ok && !wildcard.ok && restrictedPreview.ok && !lookalike.ok, "preview CORS policy was not restrictive");
+        return "accepted exact and restricted Diana preview origins; rejected wildcard and lookalike origins";
       });
-      const wildcard = validatePreviewCors({
-        DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-preview.example",
-        DIANA_ALLOWED_ORIGINS: "https://*.example",
-      });
-      const restrictedPreview = validatePreviewCors({
-        DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-git-main-teamcarrillo405-hubs-projects.vercel.app",
-        DIANA_ALLOWED_PREVIEW_HOST_SUFFIX: "-teamcarrillo405-hubs-projects.vercel.app",
-      });
-      const lookalike = validatePreviewCors({
-        DIANA_CANARY_PREVIEW_ORIGIN: "https://diana-canary-git-main-other-team.vercel.app",
-        DIANA_ALLOWED_PREVIEW_HOST_SUFFIX: "-teamcarrillo405-hubs-projects.vercel.app",
-      });
-      assertCanary(exact.ok && !wildcard.ok && restrictedPreview.ok && !lookalike.ok, "preview CORS policy was not restrictive");
-      return "accepted exact and restricted Diana preview origins; rejected wildcard and lookalike origins";
-    });
-    await recordCheck(checks, "canvas-import", "Canvas assignment import", mockCanvasImport);
-    await recordCheck(checks, "classroom-import", "Google Classroom assignment import", mockClassroomImport);
-    await recordCheck(checks, "canvas-submissions", "Canvas text and file submission", mockCanvasSubmissions);
-    await recordCheck(checks, "classroom-file", "Google Classroom file submission", mockClassroomFileSubmission);
-    await recordCheck(checks, "oauth-expired", "Expired OAuth refresh", mockExpiredOAuth);
-    await recordCheck(checks, "scope-denied", "Denied Google scope", mockDeniedScope);
-    await recordCheck(checks, "duplicate-submit", "Duplicate-submit protection", mockDuplicateSubmitProtection);
-    await recordCheck(checks, "ambiguous-reconciliation", "Ambiguous receipt reconciliation", mockAmbiguousReconciliation);
+      await recordCheck(checks, "canvas-import", "Canvas assignment import", mockCanvasImport);
+      await recordCheck(checks, "classroom-import", "Google Classroom assignment import", mockClassroomImport);
+      await recordCheck(checks, "canvas-submissions", "Canvas text and file submission", mockCanvasSubmissions);
+      await recordCheck(checks, "classroom-file", "Google Classroom file submission", mockClassroomFileSubmission);
+      await recordCheck(checks, "oauth-expired", "Expired OAuth refresh", mockExpiredOAuth);
+      await recordCheck(checks, "scope-denied", "Denied Google scope", mockDeniedScope);
+      await recordCheck(checks, "duplicate-submit", "Duplicate-submit protection", mockDuplicateSubmitProtection);
+      await recordCheck(checks, "ambiguous-reconciliation", "Ambiguous receipt reconciliation", mockAmbiguousReconciliation);
+    }));
   } else {
     await recordCheck(checks, "staging-config", "Staging credential contract", () => {
       const missing = missingStagingConfig(env);
       assertCanary(missing.length === 0, `missing staging configuration: ${missing.join(", ")}`);
       assertCanary(env.DIANA_PROVIDER_CANARY_ALLOW_WRITES === "true", "DIANA_PROVIDER_CANARY_ALLOW_WRITES must equal true");
+      assertCanary(
+        env.DIANA_BETA_LMS_STAGING_ACK === BETA_LMS_STAGING_WRITE_ACK,
+        `DIANA_BETA_LMS_STAGING_ACK must equal ${BETA_LMS_STAGING_WRITE_ACK}`,
+      );
+      assertCanary(
+        env.DIANA_BETA_LMS_RESOURCE_NAMESPACE === getBetaQaResourceNamespace(
+          envValue(env, "DIANA_BETA_QA_RUN_ID"),
+        ),
+        "DIANA_BETA_LMS_RESOURCE_NAMESPACE must match the exact QA run namespace",
+      );
+      for (const name of [
+        "DIANA_LMS_CANVAS_IMPORT_ENABLED",
+        "DIANA_LMS_CANVAS_SUBMISSION_ENABLED",
+        "DIANA_LMS_GOOGLE_IMPORT_ENABLED",
+        "DIANA_LMS_GOOGLE_SUBMISSION_ENABLED",
+      ]) {
+        assertCanary(env[name] === "true", `${name} must equal true`);
+      }
       return "dedicated staging credentials and disposable assignment IDs are present";
     });
     await recordCheck(checks, "preview-cors", "Preview CORS contract", () => {
@@ -699,7 +1223,7 @@ export async function runProviderCanary(options: {
 
     if (checks.every((check) => check.ok)) {
       stagingNetworkEnabled = true;
-      await runStagingChecks(checks, env);
+      await runStagingChecks(checks, env, options.projectRoot ?? process.cwd());
     }
   }
 

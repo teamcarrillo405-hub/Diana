@@ -49,7 +49,6 @@ describe("AssignmentCockpit", () => {
         estimate="35 min"
         briefText="Attach one quote and explain its meaning."
         status="todo"
-        classAiMode="green"
         hasApprovedPlan
         drills={[
           {
@@ -89,7 +88,6 @@ describe("AssignmentCockpit", () => {
         estimate="35 min"
         briefText="Attach one quote and explain its meaning."
         status="todo"
-        classAiMode="green"
         hasApprovedPlan={false}
         drills={[]}
       />,
@@ -114,7 +112,6 @@ describe("AssignmentCockpit", () => {
         estimate={null}
         briefText="Attach one quote."
         status="drafting"
-        classAiMode="red"
         hasApprovedPlan
         drills={[
           {

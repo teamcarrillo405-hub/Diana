@@ -179,7 +179,7 @@ export function buildHelpOwnershipMeter(input: {
       ? "Diana can guide, quiz, and organize, but final wording and final answers stay student-made."
       : input.aiPolicy === "yellow"
         ? "This class allows scaffolding only, so Diana keeps work as prompts, checks, and organization."
-        : "This class has content AI off, so Diana stays with organization, reading access, and student-authored work.",
+        : "Diana is staying with organization, reading access, and student-authored work.",
   };
 }
 

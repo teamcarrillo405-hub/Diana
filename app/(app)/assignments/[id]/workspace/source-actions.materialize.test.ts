@@ -7,7 +7,8 @@ const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
   materializeAssignmentMaterial: vi.fn(),
   getValidGoogleToken: vi.fn(),
-  hydrateLmsConnectionCredentials: vi.fn(),
+  hydrateLmsConnectionForRuntime: vi.fn(),
+  persistLmsTokenRefreshForRuntime: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -16,9 +17,9 @@ vi.mock("@/lib/supabase/service", () => ({ createServiceClient: vi.fn() }));
 vi.mock("@/lib/lms/canvas", () => ({ getValidCanvasToken: vi.fn() }));
 vi.mock("@/lib/lms/google", () => ({ getValidGoogleToken: mocks.getValidGoogleToken }));
 vi.mock("@/lib/lms/materials", () => ({ materializeAssignmentMaterial: mocks.materializeAssignmentMaterial }));
-vi.mock("@/lib/integrations/credential-vault", () => ({
-  hydrateLmsConnectionCredentials: mocks.hydrateLmsConnectionCredentials,
-  persistLmsTokenRefresh: vi.fn(),
+vi.mock("@/lib/lms/credential-policy", () => ({
+  hydrateLmsConnectionForRuntime: mocks.hydrateLmsConnectionForRuntime,
+  persistLmsTokenRefreshForRuntime: mocks.persistLmsTokenRefreshForRuntime,
 }));
 
 import { materializeConnectedAssignmentSources } from "./source-actions";
@@ -61,7 +62,7 @@ describe("connected assignment source materialization retries", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.getValidGoogleToken.mockResolvedValue({ token: "google-token", refreshed: null });
-    mocks.hydrateLmsConnectionCredentials.mockImplementation(async (_ownerId, connection) => connection);
+    mocks.hydrateLmsConnectionForRuntime.mockImplementation(async (_ownerId, connection) => connection);
   });
 
   it("moves ready to partial and imports it on the next retry", async () => {
@@ -112,7 +113,7 @@ describe("connected assignment source materialization retries", () => {
     expect(result).toEqual({ ok: true, imported: 1, partial: 0 });
     expect(harness.invoke).toHaveBeenCalledWith("extract-assignment-source", { body: { sourceId: SOURCE_ID } });
     expect(mocks.materializeAssignmentMaterial).not.toHaveBeenCalled();
-    expect(mocks.hydrateLmsConnectionCredentials).not.toHaveBeenCalled();
+    expect(mocks.hydrateLmsConnectionForRuntime).not.toHaveBeenCalled();
     expect(harness.upload).not.toHaveBeenCalled();
   });
 

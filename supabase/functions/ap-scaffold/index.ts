@@ -3,12 +3,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -61,12 +61,10 @@ Deno.serve(withStudentSecurity("ap-scaffold", async (req: Request) => {
     const subject = typeof body.subject === "string" ? body.subject : "us_history";
     const mode = MODES.includes(body.mode as ApMode) ? body.mode as ApMode : null;
     const prompt = typeof body.prompt === "string" ? body.prompt.trim() : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
     const classContext = typeof body.classContext === "string" ? body.classContext : "";
 
     if (!ownerId || !mode || prompt.length < 2) return json({ error: "Missing scaffold input" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") return json({ error: "AI not available for this class" }, 403);
-
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -83,7 +81,9 @@ Deno.serve(withStudentSecurity("ap-scaffold", async (req: Request) => {
       personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
-    const ai = await callSafeStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+
+      task: "ap_scaffold",
       ownerId,
       supabase,
       system,

@@ -78,6 +78,7 @@ function mockSignedInSupabase({
 describe("Diana voice candidate route", () => {
   beforeEach(() => {
     vi.stubEnv("DIANA_OPENJARVIS_SIDECAR_ENABLED", "true");
+    vi.stubEnv("DIANA_MANAGED_VOICE_WORKER_ENABLED", "true");
     safetyMocks.runSafe.mockImplementation(async (options: { invoke: () => Promise<unknown> }) => ({
       ok: true,
       value: await options.invoke(),

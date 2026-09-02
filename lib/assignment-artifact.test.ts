@@ -139,12 +139,12 @@ describe("buildAssignmentArtifact", () => {
       {
         key: "problem-1",
         label: "Problem 1",
-        content: "Problem: x + 3 = 7\n\nAnswer:\nx = 4",
+        content: "Problem: x + 3 = 7\n\nWork:\nx = 4",
       },
       {
         key: "problem-2",
         label: "Problem 2",
-        content: "Problem: 2x = 10\n\nWork:\nDivide both sides by 2.\n\nAnswer:\nx = 5",
+        content: "Problem: 2x = 10\n\nWork:\nDivide both sides by 2.",
       },
     ]);
     expect(artifact.blocks.every((block) => block.type === "equation")).toBe(true);
@@ -290,7 +290,7 @@ describe("buildAssignmentArtifact", () => {
       key: "problem-3",
       type: "equation",
       position: 2,
-      plainText: "Problem: 2x = 10\n\nWork:\nDivide by 2\n\nAnswer:\nx = 5",
+      plainText: "Problem: 2x = 10\n\nWork:\nDivide by 2",
     }));
   });
 

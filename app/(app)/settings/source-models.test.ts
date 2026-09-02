@@ -112,8 +112,10 @@ describe("ScreenDesign settings source models", () => {
   });
 
   it("maps persisted school years without inventing a senior label", () => {
+    expect(profileSchoolYearLabel(6)).toBe("Grade 6");
     expect(profileSchoolYearLabel(9)).toBe("Freshman");
     expect(profileSchoolYearLabel(12)).toBe("Senior");
+    expect(profileSchoolYearLabel(16)).toBe("College year 4");
     expect(profileSchoolYearLabel(null)).toBe("Student");
   });
 });

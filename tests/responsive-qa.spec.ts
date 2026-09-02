@@ -24,17 +24,14 @@ const requiredRoutes = [
   "/dashboard",
   "/assignments",
   "/notes",
-  "/flashcards",
-  "/settings/ai-history",
+  "/study",
+  "/settings",
   "/sharing",
 ] as const;
 
 const publicRoutes = ["/", "/login", "/signup"] as const;
 
-const extraRoutes = [
-  "/study-buddy",
-  "/break-down",
-] as const;
+const extraRoutes = [] as const;
 
 const bannedVisibleTerms = [
   "past due",
@@ -57,8 +54,8 @@ const authenticatedRoutes = new Set([
   "/dashboard",
   "/assignments",
   "/notes",
-  "/flashcards",
-  "/settings/ai-history",
+  "/study",
+  "/settings",
   "/sharing",
   ...extraRoutes,
 ]);

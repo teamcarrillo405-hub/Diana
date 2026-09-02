@@ -1,27 +1,18 @@
-import { loadEnvConfig } from "@next/env";
+import { runProviderCanary } from "../lib/lms/provider-canary";
+import { initializeProviderCanaryRuntime } from "../lib/lms/provider-canary-cli";
 
-import {
-  runProviderCanary,
-  type ProviderCanaryMode,
-} from "../lib/lms/provider-canary";
-
-loadEnvConfig(process.cwd());
-
-function argument(name: string): string | null {
-  const prefix = `--${name}=`;
-  return process.argv.find((value) => value.startsWith(prefix))?.slice(prefix.length) ?? null;
-}
-
-function mode(): ProviderCanaryMode {
-  const value = argument("mode") ?? process.env.DIANA_PROVIDER_CANARY_MODE ?? "mock";
-  if (value !== "mock" && value !== "staging") {
-    throw new Error("Provider canary mode must be mock or staging.");
-  }
-  return value;
+async function loadStagingEnvironment(): Promise<void> {
+  const { loadEnvConfig } = await import("@next/env");
+  loadEnvConfig(process.cwd());
 }
 
 async function main() {
-  const report = await runProviderCanary({ mode: mode() });
+  const mode = await initializeProviderCanaryRuntime({
+    argv: process.argv.slice(2),
+    env: process.env,
+    loadEnvironment: loadStagingEnvironment,
+  });
+  const report = await runProviderCanary({ mode });
   console.log(JSON.stringify(report, null, 2));
   if (!report.ok) process.exitCode = 1;
 }

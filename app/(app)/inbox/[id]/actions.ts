@@ -48,7 +48,7 @@ export async function markInboxItemClassified(
     .eq("status", "unclassified");
 
   revalidatePath("/assignments");
-  revalidatePath(`/inbox/${parsedId.data}`);
+  revalidatePath(`/assignments/captures/${parsedId.data}`);
 }
 
 export async function confirmInboxItem(

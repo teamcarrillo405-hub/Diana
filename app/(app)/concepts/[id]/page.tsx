@@ -130,7 +130,7 @@ export default async function ConceptDeepDivePage({
           <h1>{concept.name}</h1>
           <p>{className}</p>
         </div>
-        <Link href="/portfolio" aria-label="Open portfolio">
+        <Link href="/proof#showcase" aria-label="Open record showcase">
           <Share2 size={18} aria-hidden="true" />
         </Link>
       </header>

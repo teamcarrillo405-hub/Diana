@@ -1,6 +1,7 @@
 import { updateSession } from "@/lib/supabase/middleware";
 import { createNonce, securityHeaders } from "@/lib/security/response-headers";
-import type { NextRequest } from "next/server";
+import { isRetiredStudentRoute } from "@/lib/student-route-policy";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const nonce = createNonce();
@@ -14,6 +15,19 @@ export async function middleware(request: NextRequest) {
     "Content-Security-Policy",
     headersForResponse["Content-Security-Policy"],
   );
+
+  // The old routes are intentionally unavailable. Rewriting to the app's 404
+  // keeps them from reviving an obsolete UI while preserving any shared data
+  // adapters that canonical routes still use.
+  if (isRetiredStudentRoute(request.nextUrl.pathname)) {
+    const response = NextResponse.rewrite(new URL("/not-found", request.url), {
+      status: 404,
+    });
+    for (const [name, value] of Object.entries(headersForResponse)) {
+      response.headers.set(name, value);
+    }
+    return response;
+  }
 
   const response = await updateSession(request, requestHeaders);
   for (const [name, value] of Object.entries(headersForResponse)) {
@@ -29,7 +43,6 @@ export const config = {
   matcher: [
     // api/email, api/push/send-due, and cron endpoints have their own
     // CRON_SECRET bearer auth, so session middleware must not redirect them.
-    // design/ is the static mock-data reference used for side-by-side review.
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icons/|sw.js|design/|design$|api/email/|api/push/send-due|api/cron/lms-sync|api/cron/media-retention|api/cron/account-deletion|api/cron/ai-budget-reconciliation|api/cron/assignment-media-cleanup|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icons/|sw.js|api/email/|api/push/send-due|api/diana/openai-status|api/cron/lms-sync|api/cron/media-retention|api/cron/account-deletion|api/cron/ai-budget-reconciliation|api/cron/assignment-media-cleanup|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?|mp4|webm|html)).*)",
   ],
 };

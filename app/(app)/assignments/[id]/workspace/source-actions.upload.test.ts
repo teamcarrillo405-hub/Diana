@@ -13,10 +13,12 @@ vi.mock("@/lib/lms/google", () => ({ getValidGoogleToken: vi.fn() }));
 vi.mock("@/lib/lms/materials", () => ({ materializeAssignmentMaterial: vi.fn() }));
 
 import {
+  addAssignmentSourceFile,
   cancelAssignmentMediaUpload,
   deleteAssignmentMediaFile,
   finalizeAssignmentMediaUpload,
   initiateAssignmentMediaUpload,
+  retryAssignmentSourceExtraction,
 } from "./source-actions";
 
 const OWNER_ID = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";
@@ -77,6 +79,36 @@ describe("signed assignment media upload authorization", () => {
 
   afterEach(() => {
     vi.useRealTimers();
+  });
+
+  it("retains a failed extraction source and retries that same source without another upload", async () => {
+    const sourceId = "88888888-8888-4888-8888-888888888888";
+    const invoke = vi.fn()
+      .mockResolvedValueOnce({ data: { error: "Diana could not read that file yet." }, error: null })
+      .mockResolvedValueOnce({ data: { ok: true, status: "partial" }, error: null });
+    const clients = attachmentSourceClient({ sourceId, invoke });
+    const formData = new FormData();
+    formData.set("assignmentId", ASSIGNMENT_ID);
+    formData.set("file", new File([Buffer.from("%PDF-1.7\nworksheet")], "worksheet.pdf", { type: "application/pdf" }));
+
+    const added = await addAssignmentSourceFile(formData);
+    const retried = await retryAssignmentSourceExtraction({ assignmentId: ASSIGNMENT_ID, sourceId });
+
+    expect(added).toEqual({
+      ok: false,
+      error: "Diana could not read that file yet.",
+      source: { id: sourceId, title: "worksheet.pdf", mimeType: "application/pdf" },
+      extractionStatus: "failed",
+    });
+    expect(retried).toEqual({
+      ok: true,
+      source: { id: sourceId, title: "worksheet.pdf", mimeType: "application/pdf" },
+      extractionStatus: "partial",
+    });
+    expect(clients.upload).toHaveBeenCalledTimes(1);
+    expect(clients.insert).toHaveBeenCalledTimes(1);
+    expect(invoke).toHaveBeenCalledTimes(2);
+    expect(invoke).toHaveBeenNthCalledWith(2, "extract-assignment-source", { body: { sourceId } });
   });
 
   it("rejects a spoofed recording before loading the signed-in user", async () => {
@@ -758,7 +790,7 @@ function finalizeClients({
   copy = vi.fn().mockResolvedValue({ error: null }),
 }: {
   object?: { size: number; contentType: string };
-  rpc: ReturnType<typeof vi.fn>;
+  rpc: (name: string, args: Record<string, unknown>) => unknown;
   remove: ReturnType<typeof vi.fn>;
   serviceFrom: ReturnType<typeof vi.fn>;
   claimResult?: unknown;
@@ -884,6 +916,37 @@ function queryFor(data: unknown) {
     delete?: ReturnType<typeof vi.fn>;
     not?: ReturnType<typeof vi.fn>;
   };
+}
+
+function attachmentSourceClient({ sourceId, invoke }: { sourceId: string; invoke: ReturnType<typeof vi.fn> }) {
+  const assignmentQuery = queryFor({ id: ASSIGNMENT_ID });
+  assignmentQuery.update = vi.fn().mockReturnValue(assignmentQuery);
+  const sourceLookup = queryFor({
+    id: sourceId,
+    title: "worksheet.pdf",
+    mime_type: "application/pdf",
+    storage_key: `${OWNER_ID}/assignments/${ASSIGNMENT_ID}/worksheet.pdf`,
+  });
+  const insert = vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      single: vi.fn().mockResolvedValue({ data: { id: sourceId }, error: null }),
+    }),
+  });
+  const update = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
+  const sourceTable = {
+    insert,
+    update,
+    select: vi.fn().mockReturnValue(sourceLookup),
+  };
+  const upload = vi.fn().mockResolvedValue({ error: null });
+  const client = {
+    auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: OWNER_ID } } }) },
+    from: vi.fn((table: string) => table === "assignments" ? assignmentQuery : sourceTable),
+    storage: { from: vi.fn(() => ({ upload, remove: vi.fn().mockResolvedValue({ error: null }) })) },
+    functions: { invoke },
+  };
+  mocks.createClient.mockResolvedValue(client);
+  return { client, upload, insert, update };
 }
 
 function deferred<T>() {

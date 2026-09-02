@@ -57,7 +57,7 @@ describe("Rubric Scout", () => {
     );
     expect(screen.getByRole("link", { name: "Work on Quantitative precision with Diana" })).toHaveAttribute(
       "href",
-      expect.stringContaining("/study-buddy?"),
+      "/study",
     );
 
     const criterion = screen.getByRole("button", { name: /quantitative precision/iu });

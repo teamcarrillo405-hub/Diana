@@ -67,11 +67,14 @@ afterEach(() => {
 
 describe("browser Python sandbox", () => {
   it("returns worker output", async () => {
-    await expect(runPython("print(2 + 3)")).resolves.toEqual({
+    await expect(runPython("print(2 + 3)")).resolves.toMatchObject({
       ok: true,
       output: ["5"],
       error: null,
+      outputTruncated: false,
+      runtime: "pyodide",
     });
+    expect(FakeWorker.instances[0]?.terminate).toHaveBeenCalledTimes(1);
   });
 
   it("terminates the worker when student code exceeds the hard timeout", async () => {

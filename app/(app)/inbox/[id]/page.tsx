@@ -7,7 +7,7 @@ import { ScreenDesignViewport } from "@/components/screen-design/screen-design-v
 import { createClient } from "@/lib/supabase/server";
 import { ConfirmForm } from "./confirm-form";
 
-export default async function InboxItemPage({
+export async function CaptureReviewPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -50,7 +50,7 @@ export default async function InboxItemPage({
     item.suggestion_confidence >= 0.7;
 
   return (
-    <ScreenDesignViewport className="sd-capture-work-screen sd-inbox-review">
+    <ScreenDesignViewport className="sd-capture-work-screen sd-inbox-review diana-current-page">
       <header className="sd-inbox-review-header">
         <Link href="/assignments" aria-label="Back to work">
           <ArrowLeft aria-hidden="true" />
@@ -91,7 +91,6 @@ export default async function InboxItemPage({
 
             {signedPhotoUrl ? (
               // Captured student media remains owner-scoped through a short signed URL.
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 className="sd-inbox-photo"
                 src={signedPhotoUrl}
@@ -124,3 +123,5 @@ export default async function InboxItemPage({
     </ScreenDesignViewport>
   );
 }
+
+export default CaptureReviewPage;

@@ -376,7 +376,7 @@ Diana's day-1 model — student-installed, parent-verified, 14–18 year olds wi
 
 COPPA applies to operators of online services "directed to children under 13" or with "actual knowledge" they're collecting personal info from under-13s. The 2025 amendments — published April 22, 2025, effective **June 23, 2025**, compliance deadline **April 22, 2026** — shifted default from opt-out to opt-in for third-party sharing and added new verifiable parental consent (VPC) methods including knowledge-based authentication, facial recognition against a government ID, and text-plus ([FTC Jan 2025](https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-finalizes-changes-childrens-privacy-rule-limiting-companies-ability-monetize-kids-data); [Securiti](https://securiti.ai/ftc-coppa-final-rule-amendments/); [White & Case](https://www.whitecase.com/insight-alert/unpacking-ftcs-coppa-amendments-what-you-need-know)).
 
-*Implication for Diana*: Set the gate at 13+. For 13-year-old freshmen, require VPC before account creation (signed form via email, knowledge-based auth, or text-plus). For 14–17, still get parent attestation (legally distinct but expected by parents and some state laws). Block under-13 until the full COPPA workflow is built. Track proposed COPPA 2.0 — if it raises to under-17, the entire user base becomes COPPA-covered overnight.
+*Implication for Diana*: Set the direct-account gate at 13+. COPPA verifiable parental consent applies to covered collection from users under 13, not automatically to a 13-year-old. OpenAI's current business terms separately require parent or guardian consent for every minor user, so Diana needs a documented permission flow for ages 13-17. Block under-13 access until the full verified guardian workflow is built. Recheck federal and state requirements with counsel before each launch.
 
 ### 6.2 FERPA — does it apply?
 
@@ -579,7 +579,7 @@ The research above converges on a clear feature spine. Items are ranked by evide
 
 ### Compliance gates that block public launch
 
-- COPPA gate at 13+ with documented VPC method for 13-year-olds.
+- Direct-account gate at 13+, documented parent or guardian permission for ages 13-17, and no under-13 access until a counsel-approved COPPA VPC workflow is enabled.
 - Parent attestation flow for 14–17.
 - Anthropic no-training default; documented age verification, content moderation, monitoring.
 - One-click data export (JSON/CSV) and one-click account deletion.

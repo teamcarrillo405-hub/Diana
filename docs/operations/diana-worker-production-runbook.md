@@ -65,10 +65,16 @@ Set these on the Diana app:
 
 ```bash
 WORKER_API_TOKEN=<strong shared worker token>
+DIANA_MANAGED_VOICE_WORKER_ENABLED=false
 DIANA_VOICE_QUEUE_MODE=inline
 DIANA_VOICE_MANAGED_QUEUE_TENANTS=
 DIANA_VOICE_INLINE_QUEUE_TENANTS=
 ```
+
+`DIANA_MANAGED_VOICE_WORKER_ENABLED` is the fail-closed release switch. Keep it
+`false` for the hosted web beta. Set it to `true` only after the managed-worker
+staging certification gate has passed; queue and tenant settings are ignored
+while it is false.
 
 Use `DIANA_VOICE_MANAGED_QUEUE_TENANTS` for cohort rollout while the default
 stays inline. It accepts comma- or whitespace-separated tenant ids, for example

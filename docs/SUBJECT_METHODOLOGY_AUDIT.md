@@ -1,5 +1,7 @@
 # Subject Methodology Audit (P9-A, 2026-06-10)
 
+> Historical methodology snapshot. The current 21-domain implementation and its verified limitations are documented in `UNIVERSAL_HOMEWORK_AUDIT.md`. That audit supersedes open implementation notes in this file.
+
 Every high-school subject helper audited against three criteria:
 **(1) Discipline method** — does the scaffold match the subject's
 evidence-based way of thinking? **(2) Memory** — does work feed spaced

@@ -8,17 +8,56 @@ import {
 } from "../../supabase/functions/_shared/auth-policy";
 import { configuredDianaOrigins, withStudentCors } from "../../supabase/functions/_shared/cors";
 
+const CURRENT_PERMISSION = {
+  teen_guardian_permission_attested_at: "2020-01-01T00:00:00.000Z",
+  teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+  teen_guardian_permission_source: "profile_center_attestation",
+  teen_guardian_permission_withdrawn_at: null,
+};
+
 describe("shared Edge Function authorization policy", () => {
   it("blocks ineligible profiles before AI use", () => {
     expect(evaluateProfileEligibility({ age_bracket: "under_13", consent_ai: false })).toEqual({
       allowed: false,
       code: "under_13",
     });
-    expect(evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: false })).toEqual({
+    expect(evaluateProfileEligibility({ age_bracket: undefined, consent_ai: true })).toEqual({
+      allowed: false,
+      code: "age_bracket_invalid",
+    });
+    expect(evaluateProfileEligibility({ age_bracket: "unknown", consent_ai: true })).toEqual({
+      allowed: false,
+      code: "age_bracket_invalid",
+    });
+    expect(evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: true })).toEqual({
+      allowed: false,
+      code: "guardian_permission_required",
+    });
+    expect(evaluateProfileEligibility({
+      age_bracket: "13_to_17",
+      consent_ai: false,
+      ...CURRENT_PERMISSION,
+    })).toEqual({
       allowed: false,
       code: "ai_consent_required",
     });
-    expect(evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: true })).toEqual({
+    expect(evaluateProfileEligibility({
+      age_bracket: "13_to_17",
+      consent_ai: true,
+      ...CURRENT_PERMISSION,
+    })).toEqual({
+      allowed: true,
+    });
+    expect(evaluateProfileEligibility({
+      age_bracket: "13_to_17",
+      consent_ai: true,
+      ...CURRENT_PERMISSION,
+      teen_guardian_permission_policy_version: "teen_openai_beta_v0",
+    })).toEqual({
+      allowed: false,
+      code: "guardian_permission_required",
+    });
+    expect(evaluateProfileEligibility({ age_bracket: "adult", consent_ai: true })).toEqual({
       allowed: true,
     });
     expect(isDeletionActive("requested")).toBe(true);

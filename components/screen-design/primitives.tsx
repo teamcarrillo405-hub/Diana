@@ -124,32 +124,26 @@ export function DianaWordmark({
   className,
   alt = "Diana",
   tight = false,
+  tone = "light",
 }: {
   className?: string;
   alt?: string;
   tight?: boolean;
+  tone?: "light" | "dark";
 }) {
-  if (tight) {
-    return (
-      <Image
-        src="/screendesign/brand/diana-logo-tight.png"
-        width={110}
-        height={35}
-        alt={alt}
-        className={["sd-source-media", "sd-source-wordmark", className]
-          .filter(Boolean)
-          .join(" ")}
-      />
-    );
-  }
-
   return (
-    <SourceMedia
-      assetId="diana-logo"
-      width={79}
-      height={24}
+    <Image
+      src={tone === "dark"
+        ? "/screendesign/brand/diana-logo-tight-dark-wordmark.png"
+        : "/screendesign/brand/diana-logo-tight-no-shadow.png"}
+      width={950}
+      height={301}
       alt={alt}
-      className={["sd-source-wordmark", className].filter(Boolean).join(" ")}
+      className={["sd-source-media", "sd-source-wordmark", className]
+        .filter(Boolean)
+        .join(" ")}
+      priority={tight}
+      unoptimized
     />
   );
 }

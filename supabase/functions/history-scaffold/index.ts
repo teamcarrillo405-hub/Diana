@@ -5,15 +5,13 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  aiGuardFailureResponse,
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
-  runSafeBudgetedAiCall,
   type SafetyMediaInput,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -125,51 +123,32 @@ async function loadMapImage(
 }
 
 async function runMapAnnotation(
+  ownerId: string,
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
   image: SafetyMediaInput,
-  markProviderUsage: () => void,
-): Promise<{ content: string; tokens: number }> {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${Deno.env.get("OPENAI_API_KEY") ?? ""}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      max_tokens: 900,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: MAP_PROMPT },
-        {
-          role: "user",
-          content: [
-            { type: "image_url", image_url: { url: `data:${image.mediaType};base64,${image.data}`, detail: "high" } },
-            { type: "text", text: "Annotate the map for a student label quiz. Use visible map details only." },
-          ],
-        },
-      ],
-    }),
+): Promise<{ content: string; tokens: number; model: string }> {
+  const ai = await runOpenAIHomeworkAdapter({
+    task: "visual_tool",
+    ownerId,
+    supabase,
+    system: MAP_PROMPT,
+    user: "Annotate the map for a student label quiz. Use visible map details only.",
+    maxTokens: 900,
+    json: true,
+    quality: "quality",
+    parts: [
+      { type: "text", text: "Annotate the map for a student label quiz. Use visible map details only." },
+      { type: "image", mediaType: image.mediaType, data: image.data },
+    ],
+    fallbackContent: JSON.stringify({ title: "Map study", annotations: [], quizPrompt: "Name one visible detail from the map." }),
   });
-  if (!res.ok) {
-    console.error("history-scaffold map request did not complete", res.status);
-    throw new Error("We couldn't annotate that map. Try a clearer crop.");
-  }
-  markProviderUsage();
-  let data: {
-    choices?: Array<{ message?: { content?: string } }>;
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
-  };
-  try {
-    data = await res.json() as typeof data;
-  } catch {
-    throw new Error("history_map_provider_invalid_json");
-  }
   return {
-    content: data.choices?.[0]?.message?.content ?? "{}",
-    tokens: Number(data.usage?.prompt_tokens ?? 0) + Number(data.usage?.completion_tokens ?? 0),
+    content: ai.content,
+    tokens: ai.tokens,
+    model: ai.model,
   };
 }
-
 Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders() });
 
@@ -187,13 +166,10 @@ Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const assignmentId = typeof body.assignmentId === "string" ? body.assignmentId : null;
     const mode = typeof body.mode === "string" ? body.mode : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
     const sourceText = typeof body.sourceText === "string" ? body.sourceText.slice(0, 10000) : "";
     const classContext = typeof body.classContext === "string" ? body.classContext.slice(0, 3000) : "";
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
     if (!TEXT_MODES.has(mode) && mode !== "map_annotation") {
       return jsonResponse({ error: "mode required" }, 400);
     }
@@ -208,28 +184,17 @@ Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
 
     let content = "";
     let tokens = 0;
-    let model = "claude-haiku-4-5";
+    let model = "gpt-5-mini";
 
     if (mode === "map_annotation") {
       const storageKey = typeof body.storageKey === "string" ? body.storageKey : "";
       const bucket = typeof body.bucket === "string" && body.bucket.length > 0 ? body.bucket : "note-docs";
       if (!storageKey) return jsonResponse({ error: "storageKey required" }, 400);
       const image = await loadMapImage(supabase, storageKey, bucket);
-      const guardedMap = await runSafeBudgetedAiCall({
-        ownerId,
-        supabase,
-        input: "Annotate the map for a student label quiz. Use visible map details only.",
-        systemPrompt: MAP_PROMPT,
-        maxOutputTokens: 900,
-        mediaCount: 1,
-        media: [image],
-        invoke: ({ markProviderUsage }) => runMapAnnotation(image, markProviderUsage),
-      });
-      if (!guardedMap.ok) return aiGuardFailureResponse(guardedMap);
-      const result = guardedMap.value;
+      const result = await runMapAnnotation(ownerId, supabase, image);
       content = result.content;
       tokens = result.tokens;
-      model = "gpt-4o";
+      model = result.model;
     } else {
       if (sourceText.trim().length < 5) return jsonResponse({ error: "Add the source or prompt first." }, 400);
       const { data: profile } = await supabase
@@ -247,9 +212,10 @@ Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const ai = await callSafeStudentTextModel({
-      ownerId,
-      supabase,
+      const ai = await runOpenAIHomeworkAdapter({
+        task: "history_scaffold",
+        ownerId,
+        supabase,
         system: systemPrompt,
         user: `Mode: ${mode}\nSource or prompt:\n${sourceText}\n\nClass context:\n${classContext}`,
         maxTokens: 650,

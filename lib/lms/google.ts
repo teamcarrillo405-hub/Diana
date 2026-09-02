@@ -7,6 +7,8 @@
 // from the background cron too, not just while a student is signed in.
 
 import type { NormalizedAssignment } from "./types";
+import { LmsReconnectRequiredError } from "./errors";
+import { assertLmsProviderFeatureEnabled } from "./provider-features";
 
 export type GoogleClassroomConfig = {
   access_token?: string | null;
@@ -23,50 +25,106 @@ export type ValidGoogleToken = {
 };
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-// Classroom and Drive scopes required to import material and turn in a supported submission.
-export const GOOGLE_CLASSROOM_SCOPES = [
+const GOOGLE_IDENTITY_SCOPES = ["openid", "email"] as const;
+export const GOOGLE_CLASSROOM_IMPORT_SCOPES = [
   "https://www.googleapis.com/auth/classroom.courses.readonly",
-  "https://www.googleapis.com/auth/classroom.coursework.me",
+  "https://www.googleapis.com/auth/classroom.coursework.me.readonly",
   "https://www.googleapis.com/auth/drive.readonly",
+] as const;
+export const GOOGLE_CLASSROOM_SUBMISSION_SCOPES = [
+  "https://www.googleapis.com/auth/classroom.coursework.me",
   "https://www.googleapis.com/auth/drive.file",
-  "openid",
-  "email",
-];
-
-export const GOOGLE_CLASSROOM_TEACHER_SCOPES = [
-  ...GOOGLE_CLASSROOM_SCOPES.filter(
-    (scope) => scope !== "https://www.googleapis.com/auth/classroom.coursework.me",
-  ),
+] as const;
+export const GOOGLE_CLASSROOM_TEACHER_IMPORT_SCOPES = [
+  "https://www.googleapis.com/auth/classroom.courses.readonly",
+  "https://www.googleapis.com/auth/classroom.coursework.students.readonly",
+  "https://www.googleapis.com/auth/drive.readonly",
+] as const;
+export const GOOGLE_CLASSROOM_TEACHER_SUBMISSION_SCOPES = [
   "https://www.googleapis.com/auth/classroom.coursework.students",
-];
+  "https://www.googleapis.com/auth/drive.file",
+] as const;
+
+// Calendar stays read-only. Diana can place a student's personal schedule next
+// to school work, but it never creates, edits, or deletes Google events.
+export const GOOGLE_CALENDAR_READONLY_SCOPE =
+  "https://www.googleapis.com/auth/calendar.readonly";
+
+export function googleClassroomOAuthScopes(input: {
+  calendarEnabled?: boolean;
+  importEnabled: boolean;
+  submissionEnabled: boolean;
+  teacher: boolean;
+}): string[] {
+  const importScopes = input.teacher
+    ? GOOGLE_CLASSROOM_TEACHER_IMPORT_SCOPES
+    : GOOGLE_CLASSROOM_IMPORT_SCOPES;
+  const submissionScopes = input.teacher
+    ? GOOGLE_CLASSROOM_TEACHER_SUBMISSION_SCOPES
+    : GOOGLE_CLASSROOM_SUBMISSION_SCOPES;
+  const scopes = new Set<string>(GOOGLE_IDENTITY_SCOPES);
+  if (input.importEnabled || input.submissionEnabled) {
+    scopes.add("https://www.googleapis.com/auth/classroom.courses.readonly");
+  }
+  if (input.importEnabled) {
+    for (const scope of importScopes) scopes.add(scope);
+  }
+  if (input.submissionEnabled) {
+    const readOnlyCoursework = input.teacher
+      ? "https://www.googleapis.com/auth/classroom.coursework.students.readonly"
+      : "https://www.googleapis.com/auth/classroom.coursework.me.readonly";
+    scopes.delete(readOnlyCoursework);
+    for (const scope of submissionScopes) scopes.add(scope);
+  }
+  if (input.calendarEnabled) scopes.add(GOOGLE_CALENDAR_READONLY_SCOPE);
+  return [...scopes];
+}
+
+// Full student and teacher contracts remain exported for canaries and grant audits.
+export const GOOGLE_CLASSROOM_SCOPES = googleClassroomOAuthScopes({
+  importEnabled: true,
+  submissionEnabled: true,
+  teacher: false,
+});
+
+export const GOOGLE_CLASSROOM_TEACHER_SCOPES = googleClassroomOAuthScopes({
+  importEnabled: true,
+  submissionEnabled: true,
+  teacher: true,
+});
+
+export function missingGoogleScopes(
+  grantedScopes: readonly string[],
+  requiredScopes: readonly string[] = GOOGLE_CLASSROOM_SCOPES,
+): string[] {
+  const granted = new Set(grantedScopes.map((scope) => scope.trim()).filter(Boolean));
+  return requiredScopes.filter((scope) => !granted.has(scope));
+}
 
 /**
  * Return a usable Google access token for a stored Classroom connection.
  * Refreshes via the stored refresh_token when the access token is missing/expired.
- * Returns null only when there is no way to get a token (no refresh_token and no
- * usable access token, or refresh failed with no fallback).
+ * A stale or unrefreshable OAuth connection requires an explicit reconnect.
  */
 export async function getValidGoogleToken(
   config: GoogleClassroomConfig,
-): Promise<ValidGoogleToken | null> {
+): Promise<ValidGoogleToken> {
   const now = Date.now();
   const expiresMs = config.expires_at ? Date.parse(config.expires_at) : 0;
 
   // Still valid (90s safety buffer).
-  if (config.access_token && expiresMs - now > 90_000) {
+  if (config.access_token && config.refresh_token && Number.isFinite(expiresMs) && expiresMs - now > 90_000) {
     return { token: config.access_token };
   }
 
   if (!config.refresh_token) {
-    // No refresh path; use the access token only if we don't know it's expired.
-    if (config.access_token && !config.expires_at) return { token: config.access_token };
-    return null;
+    throw new LmsReconnectRequiredError("google_classroom");
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
-    return config.access_token ? { token: config.access_token } : null;
+    throw new LmsReconnectRequiredError("google_classroom");
   }
 
   const res = await fetch(GOOGLE_TOKEN_URL, {
@@ -78,14 +136,19 @@ export async function getValidGoogleToken(
       refresh_token: config.refresh_token,
       grant_type: "refresh_token",
     }),
-  }).catch(() => null);
+  }).catch((error) => {
+    throw new LmsReconnectRequiredError("google_classroom", undefined, { cause: error });
+  });
 
-  if (!res || !res.ok) {
-    return config.access_token ? { token: config.access_token } : null;
+  if (!res.ok) throw new LmsReconnectRequiredError("google_classroom");
+  let body: { access_token?: string; expires_in?: number };
+  try {
+    body = (await res.json()) as { access_token?: string; expires_in?: number };
+  } catch (error) {
+    throw new LmsReconnectRequiredError("google_classroom", undefined, { cause: error });
   }
-  const body = (await res.json()) as { access_token?: string; expires_in?: number };
   if (!body.access_token) {
-    return config.access_token ? { token: config.access_token } : null;
+    throw new LmsReconnectRequiredError("google_classroom");
   }
   const expires_at =
     typeof body.expires_in === "number"
@@ -202,6 +265,7 @@ export function googleClassroomAssignmentKey(courseId: string, courseWorkId: str
 export async function fetchClassroomAssignments(
   token: string,
 ): Promise<{ items: NormalizedAssignment[]; skipped: number; courses: Course[] }> {
+  assertLmsProviderFeatureEnabled("google_import");
   const courses = await classroomListAll<Course, "courses">(
     `https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=${CLASSROOM_PAGE_SIZE}`,
     token,

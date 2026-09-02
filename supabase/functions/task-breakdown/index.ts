@@ -8,12 +8,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -48,7 +48,7 @@ Deno.serve(withStudentSecurity("task-breakdown", async (req: Request) => {
       aiMode?: unknown;
     };
 
-    const { ownerId, assignmentId, title, description, kind, estimatedMinutes, aiMode } = body;
+    const { ownerId, assignmentId, title, description, kind, estimatedMinutes, aiMode: _aiMode } = body;
 
     if (typeof ownerId !== "string" || !ownerId) {
       return new Response(JSON.stringify({ error: "ownerId required" }), {
@@ -70,15 +70,6 @@ Deno.serve(withStudentSecurity("task-breakdown", async (req: Request) => {
     }
 
     // 2. aiMode check — only 'red' blocks (yellow allowed for task breakdown)
-    if (aiMode === "red") {
-      return new Response(
-        JSON.stringify({ error: "AI not available for this class" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
 
     // 3. Supabase service-role client
     const supabase = createClient(
@@ -118,7 +109,8 @@ Deno.serve(withStudentSecurity("task-breakdown", async (req: Request) => {
     ].filter(Boolean).join("\n");
 
     // 7. Use the shared fast student model.
-    const modelResult = await callSafeStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+      task: "task_breakdown",
       ownerId,
       supabase,
       system: systemPrompt,

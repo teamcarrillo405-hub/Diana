@@ -17,6 +17,15 @@ export const WORKSPACE_MODES = [
 
 export type AssignmentWorkspaceMode = (typeof WORKSPACE_MODES)[number];
 
+const QUESTION_COUNT_SUFFIX = /\s*(?:(?::|-|\u2013)\s*|\(\s*)?(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)\s+questions?\s*\)?\s*$/iu;
+
+/** Keeps problem counts in the Problems panel instead of repeating them in the assignment title. */
+export function displayAssignmentWorkspaceTitle(title: string): string {
+  const normalized = title.trim();
+  const displayTitle = normalized.replace(QUESTION_COUNT_SUFFIX, "").replace(/\s*[:\-\u2013]\s*$/u, "").trim();
+  return displayTitle || normalized;
+}
+
 export type WorkspaceInput = {
   kind: AssignmentKind;
   className?: string | null;

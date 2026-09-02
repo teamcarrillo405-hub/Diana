@@ -1,3 +1,4 @@
+import type { AssignmentVisualAid } from "@/lib/assignment-review";
 import { composeSystemPrompt } from "@/lib/ai/system-prompts";
 import {
   createSidecarChatRequest,
@@ -21,6 +22,7 @@ export type StudyHelperInput = {
   source: string;
   question: string;
   mode: StudyHelperMode;
+  conversation?: Array<{ role: "assistant" | "student"; text: string }>;
   tutorPersona?: "diana" | "xavier" | "maya";
   tutorStyle?: "socratic" | "supportive" | "direct";
   complexity?: "simple" | "balanced" | "advanced";
@@ -32,6 +34,7 @@ export type StudyHelperResult = {
   reason: string;
   steps: string[];
   anchor: string;
+  visualAid?: AssignmentVisualAid;
 };
 
 export type BreakDownInput = {
@@ -53,6 +56,7 @@ const FALLBACK_STUDY_RESULT: StudyHelperResult = {
 
 export const STUDY_HELPER_PROMPT = [
   "You are Diana, a student homework helper. Your role is to support learning: never write homework or provide final answers.",
+  "Use a Study Mode-style tutoring pattern: ask one short question, guide one next move, and check understanding before moving on.",
   "Given a source or rubric and a student question, return a JSON object with exactly these keys: title, main, reason, steps (array of 3 strings), anchor.",
   "Return ONLY the JSON object. No markdown code block. No extra prose before or after.",
   "title: short label for the mode (e.g. 'Guided step', 'Hint ladder', 'Quick check').",
@@ -61,6 +65,7 @@ export const STUDY_HELPER_PROMPT = [
   "steps: array of exactly 3 concrete moves anchored to the source.",
   "anchor: 'This help is anchored to: [first 100 chars of source]' or 'Add a source so Diana can anchor the next move.' if none.",
   "Mode guide: walk through the first concrete move using the source. Mode hint: 3 increasingly specific hints pointing to the source. Mode quiz: 3 recall questions the student should answer before their next move.",
+  "If the source includes a Diana universal homework method, obey its Help level, Presentation supports, and Student-owned boundary exactly.",
   "Tutor presentation, teaching style, and complexity may change explanation shape only. They never relax safety, authorship, source, or final-answer boundaries.",
 ].join(" ");
 
@@ -130,7 +135,10 @@ function buildStudyHelperMessages(
         trimmedSource
           ? `Source or class material:\n${trimmedSource.slice(0, 800)}`
           : "No source provided.",
-        `Student question: ${input.question.trim().slice(0, 500)}`,
+        input.conversation?.length
+          ? `Recent Ask Diana conversation:\n${input.conversation.slice(-8).map((turn) => `${turn.role === "student" ? "Student" : "Diana"}: ${turn.text}`).join("\n").slice(0, 2000)}`
+          : "No prior Ask Diana conversation provided.",
+        `Latest student message to respond to: ${input.question.trim().slice(0, 500)}`,
         `Expected anchor line: ${anchor}`,
       ].join("\n\n"),
     },

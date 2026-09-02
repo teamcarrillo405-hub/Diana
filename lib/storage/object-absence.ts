@@ -1,4 +1,6 @@
 type StorageErrorLike = {
+  name?: unknown;
+  message?: unknown;
   status?: unknown;
   statusCode?: unknown;
   code?: unknown;
@@ -27,7 +29,7 @@ const NOT_FOUND_CODES = new Set([
 
 export function isConfirmedStorageAbsence(result: StorageExistenceResult): boolean {
   if (result.data !== false) return false;
-  return isExpectedStorageNotFound(result.error);
+  return isExpectedStorageNotFound(result.error) || isSupabaseHeadAbsence(result.error);
 }
 
 export async function removeAndConfirmStorageObjectAbsent(
@@ -62,6 +64,18 @@ function isExpectedStorageNotFound(error: unknown): boolean {
     if (codes.some((code) => NOT_FOUND_CODES.has(code))) return true;
   }
   return false;
+}
+
+// StorageFileApi.exists() maps a successful post-delete HEAD check to
+// { data: false } for both 404 and the Storage API's generic 400 response.
+// The latter has no not-found code, so recognize only that exact response.
+function isSupabaseHeadAbsence(error: unknown): boolean {
+  return errorChain(error).some((candidate) => (
+    String(candidate.name) === "StorageApiError"
+    && numericStatus(candidate.status) === 400
+    && numericStatus(candidate.statusCode) === 400
+    && String(candidate.message).trim().toLowerCase() === "bad request"
+  ));
 }
 
 function errorChain(error: unknown): StorageErrorLike[] {

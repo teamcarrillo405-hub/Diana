@@ -2,7 +2,12 @@
 /// <reference types="@testing-library/jest-dom" />
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+
 import { VoiceCommandSurface } from "./voice-command-surface";
+
+const mocks = vi.hoisted(() => ({
+  saveInboxItem: vi.fn(),
+}));
 
 vi.mock("@/components/voice-textarea", () => ({
   VoiceTextarea: ({ value, onChange, placeholder }: {
@@ -11,7 +16,7 @@ vi.mock("@/components/voice-textarea", () => ({
     placeholder?: string;
   }) => (
     <textarea
-      aria-label="Voice capture"
+      aria-label="Voice note"
       placeholder={placeholder}
       value={value}
       onChange={(event) => onChange(event)}
@@ -19,120 +24,68 @@ vi.mock("@/components/voice-textarea", () => ({
   ),
 }));
 
-describe("VoiceCommandSurface sidecar candidate", () => {
+vi.mock("../quick-add/actions", () => ({ saveInboxItem: mocks.saveInboxItem }));
+
+describe("VoiceCommandSurface", () => {
   afterEach(() => {
     cleanup();
-    vi.unstubAllGlobals();
+    mocks.saveInboxItem.mockReset();
   });
 
-  it("keeps the candidate action hidden when the server flag is off", () => {
-    render(<VoiceCommandSurface />);
+  it("keeps save disabled until the note has words", () => {
+    render(<VoiceCommandSurface classes={[]} />);
 
-    expect(screen.queryByRole("button", { name: "Ask Diana" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Save note" })).toBeDisabled();
   });
 
-  it("asks Diana through the Diana API route when enabled", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        ok: true,
-        response: "Name the assignment and choose the first source line.",
-        trace: {
-          readOnly: true,
-          policyMode: "student_runtime",
-        },
-      }),
-    });
-    vi.stubGlobal("fetch", fetchMock);
+  it("saves a general note without assuming a subject", async () => {
+    mocks.saveInboxItem.mockResolvedValue({ ok: true, id: "voice-note-1" });
+    render(<VoiceCommandSurface classes={[{ id: "11111111-1111-4111-8111-111111111111", name: "Chemistry" }]} />);
 
-    render(<VoiceCommandSurface sidecarEnabled />);
-    fireEvent.change(screen.getByLabelText("Voice capture"), {
-      target: { value: "I do not know where to start this paragraph." },
+    fireEvent.change(screen.getByLabelText("Voice note"), {
+      target: { value: "Ask Mr. Chen about the chemistry lab diagram." },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Ask Diana" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save note" }));
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        "/api/diana/voice-candidate",
-        expect.objectContaining({
-          method: "POST",
-        }),
-      );
-      expect(screen.getByText("Name the assignment and choose the first source line.")).toBeInTheDocument();
-    });
-  });
-
-  it("shows a queued state when Diana moves the request to the worker pool", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 202,
-        json: async () => ({
-          ok: true,
-          queued: true,
-          trace: {
-            traceId: "dw-queued",
-            readOnly: true,
-            policyMode: "student_runtime",
-          },
-        }),
-      })
-      .mockImplementationOnce(() => new Promise(() => undefined));
-    vi.stubGlobal("fetch", fetchMock);
-
-    render(<VoiceCommandSurface sidecarEnabled />);
-    fireEvent.change(screen.getByLabelText("Voice capture"), {
-      target: { value: "I need a first step for this essay." },
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Ask Diana" }));
-
-    await waitFor(() => {
-      expect(screen.getByText("Diana is preparing that request.")).toBeInTheDocument();
-    });
-  });
-
-  it("polls Diana for a completed queued candidate", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 202,
-        json: async () => ({
-          ok: true,
-          queued: true,
-          trace: {
-            traceId: "dw-done",
-            readOnly: true,
-            policyMode: "student_runtime",
-          },
-        }),
-      })
-      .mockResolvedValueOnce({
-        ok: true,
-        status: 200,
-        json: async () => ({
-          ok: true,
-          status: "succeeded",
-          response: "Open the rubric and name the first target.",
-          trace: {
-            traceId: "dw-done",
-            readOnly: true,
-            policyMode: "student_runtime",
-          },
-        }),
+      expect(mocks.saveInboxItem).toHaveBeenCalledWith({
+        raw: "Ask Mr. Chen about the chemistry lab diagram.",
+        captureMode: "voice",
       });
-    vi.stubGlobal("fetch", fetchMock);
-
-    render(<VoiceCommandSurface sidecarEnabled />);
-    fireEvent.change(screen.getByLabelText("Voice capture"), {
-      target: { value: "I need a first step for this essay." },
+      expect(screen.getByText("Saved as a general note. Diana will suggest a class when the words make it clear.")).toBeInTheDocument();
     });
-    fireEvent.click(screen.getByRole("button", { name: "Ask Diana" }));
+  });
+
+  it("keeps the class chosen by the student", async () => {
+    const chemistryId = "11111111-1111-4111-8111-111111111111";
+    mocks.saveInboxItem.mockResolvedValue({ ok: true, id: "voice-note-2" });
+    render(<VoiceCommandSurface classes={[{ id: chemistryId, name: "Chemistry" }]} />);
+
+    fireEvent.change(screen.getByRole("combobox", { name: /class/i }), { target: { value: chemistryId } });
+    fireEvent.change(screen.getByLabelText("Voice note"), {
+      target: { value: "I need help understanding the lab setup." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save note" }));
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith("/api/diana/voice-candidate/status?traceId=dw-done");
-      expect(screen.getByText("Open the rubric and name the first target.")).toBeInTheDocument();
+      expect(mocks.saveInboxItem).toHaveBeenCalledWith({
+        raw: "I need help understanding the lab setup.",
+        captureMode: "voice",
+        classId: chemistryId,
+      });
+      expect(screen.getByText("Saved to Chemistry notes.")).toBeInTheDocument();
     });
+  });
+
+  it("lets the student clear a note before saving", () => {
+    render(<VoiceCommandSurface classes={[]} />);
+
+    fireEvent.change(screen.getByLabelText("Voice note"), {
+      target: { value: "Remember to bring the rubric." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Clear" }));
+
+    expect(screen.getByLabelText("Voice note")).toHaveValue("");
+    expect(screen.getByRole("button", { name: "Save note" })).toBeDisabled();
   });
 });

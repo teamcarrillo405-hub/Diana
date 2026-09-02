@@ -5,12 +5,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -89,9 +89,6 @@ Deno.serve(withStudentSecurity("writing-cowrite", async (req: Request) => {
 
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
     if (!mode) return jsonResponse({ error: "mode required" }, 400);
-    if (body.aiMode === "red" || body.aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
     if (mode !== "essay_scaffold" && draft.trim().length < 10) {
       return jsonResponse({ error: "Add a little of your draft first." }, 400);
     }
@@ -140,7 +137,8 @@ Deno.serve(withStudentSecurity("writing-cowrite", async (req: Request) => {
       }],
       authorshipNote: "Student wording stays primary.",
     });
-    const modelResult = await callSafeStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+      task: "writing_cowrite",
       ownerId,
       supabase,
       system: systemPrompt,

@@ -4,7 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { ageBracket, yearsBetween } from "@/lib/age";
+import { validateDateOfBirth } from "@/lib/age";
+import {
+  learnerAccessForAgeBracket,
+  TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+} from "@/lib/learner-access-policy";
 import {
   clearPublicOnboardingDraft,
   readPublicOnboardingDraft,
@@ -17,23 +21,32 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [dob, setDob] = useState("");
+  const [teenGuardianPermissionAttested, setTeenGuardianPermissionAttested] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const selectedDob = validateDateOfBirth(dob);
+  const selectedBracket = selectedDob.valid ? selectedDob.bracket : null;
+  const isTeenSignup = selectedBracket === "13_to_17";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
 
-    if (!dob) return setError("Please enter your date of birth.");
-    const dobDate = new Date(dob + "T00:00:00");
-    if (Number.isNaN(dobDate.getTime())) return setError("That date of birth doesn't look right.");
+    const validatedDob = validateDateOfBirth(dob);
+    if (!validatedDob.valid) {
+      if (validatedDob.reason === "required") {
+        return setError("Please enter your date of birth.");
+      }
+      return setError("That date of birth doesn't look right.");
+    }
 
-    const years = yearsBetween(dobDate);
-    if (years < 0 || years > 120) return setError("That date of birth doesn't look right.");
-
-    const bracket = ageBracket(dobDate);
-    if (bracket === "under_13") {
-      return setError("Diana isn't available for users under 13 yet. Ask a parent or guardian to reach out.");
+    const bracket = validatedDob.bracket;
+    const access = learnerAccessForAgeBracket(bracket);
+    if (access.accountAccess !== "allowed") {
+      return setError("Diana isn't available for users under 13 yet. A verified parent or guardian process is still required.");
+    }
+    if (bracket === "13_to_17" && !teenGuardianPermissionAttested) {
+      return setError("Confirm that your parent or guardian has given permission before creating a teen account.");
     }
 
     setPending(true);
@@ -52,6 +65,14 @@ export default function SignupPage() {
           display_name: displayName || null,
           date_of_birth: dob,
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          ...(bracket === "13_to_17"
+            ? {
+                teen_guardian_permission_attested: true,
+                teen_guardian_permission_policy_version:
+                  TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+                teen_guardian_permission_source: "signup_attestation",
+              }
+            : {}),
           ...(onboardingDraft
             ? {
                 learning_hurdle: onboardingDraft.learningHurdle,
@@ -123,10 +144,41 @@ export default function SignupPage() {
             type="date"
             required
             value={dob}
-            onChange={(e) => setDob(e.target.value)}
+            onChange={(e) => {
+              const nextDob = e.target.value;
+              setDob(nextDob);
+              const nextValidation = validateDateOfBirth(nextDob);
+              if (!nextValidation.valid || nextValidation.bracket !== "13_to_17") {
+                setTeenGuardianPermissionAttested(false);
+              }
+            }}
             className="sd-input"
           />
         </Field>
+
+        {isTeenSignup ? (
+          <fieldset className="sd-field" aria-describedby="teen-guardian-permission-help">
+            <legend>Parent or guardian permission</legend>
+            <label htmlFor="teen_guardian_permission_attested">
+              <input
+                id="teen_guardian_permission_attested"
+                name="teen_guardian_permission_attested"
+                type="checkbox"
+                required
+                checked={teenGuardianPermissionAttested}
+                onChange={(event) => setTeenGuardianPermissionAttested(event.target.checked)}
+              />
+              <span>
+                I confirm that my parent or guardian has given me permission to create this
+                account and use Diana&apos;s AI-powered study features.
+              </span>
+            </label>
+            <p id="teen-guardian-permission-help">
+              This records your attestation only. Diana does not collect identity documents
+              here, and this is not the verified consent process required for children under 13.
+            </p>
+          </fieldset>
+        ) : null}
 
         {error && (
           <div className="sd-auth-error" role="status">

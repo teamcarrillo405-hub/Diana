@@ -105,10 +105,17 @@ describe("production worker tier", () => {
     expect(isAllowedWorkerQueueName("student-ai-candidate-smoke-")).toBe(false);
   });
 
-  it("keeps inline mode by default and enables managed queue by flag", () => {
+  it("keeps managed voice fail-closed until both beta flags are enabled", () => {
     expect(resolveVoiceCandidateQueueMode({ env: {} as unknown as NodeJS.ProcessEnv })).toBe("inline");
     expect(resolveVoiceCandidateQueueMode({
       env: {
+        DIANA_VOICE_QUEUE_MODE: "managed_queue",
+      } as unknown as NodeJS.ProcessEnv,
+    }))
+      .toBe("inline");
+    expect(resolveVoiceCandidateQueueMode({
+      env: {
+        DIANA_MANAGED_VOICE_WORKER_ENABLED: "true",
         DIANA_VOICE_QUEUE_MODE: "managed_queue",
       } as unknown as NodeJS.ProcessEnv,
     }))
@@ -119,6 +126,7 @@ describe("production worker tier", () => {
     expect(resolveVoiceCandidateQueueMode({
       tenantId: "personal:student-1",
       env: {
+        DIANA_MANAGED_VOICE_WORKER_ENABLED: "true",
         DIANA_VOICE_MANAGED_QUEUE_TENANTS: "personal:student-1, personal:student-2",
       } as unknown as NodeJS.ProcessEnv,
     })).toBe("managed_queue");
@@ -126,6 +134,7 @@ describe("production worker tier", () => {
     expect(resolveVoiceCandidateQueueMode({
       tenantId: "personal:student-3",
       env: {
+        DIANA_MANAGED_VOICE_WORKER_ENABLED: "true",
         DIANA_VOICE_MANAGED_QUEUE_TENANTS: "personal:student-1, personal:student-2",
       } as unknown as NodeJS.ProcessEnv,
     })).toBe("inline");
@@ -133,6 +142,7 @@ describe("production worker tier", () => {
     expect(resolveVoiceCandidateQueueMode({
       tenantId: "personal:student-2",
       env: {
+        DIANA_MANAGED_VOICE_WORKER_ENABLED: "true",
         DIANA_VOICE_QUEUE_MODE: "managed_queue",
         DIANA_VOICE_INLINE_QUEUE_TENANTS: "personal:student-2",
       } as unknown as NodeJS.ProcessEnv,

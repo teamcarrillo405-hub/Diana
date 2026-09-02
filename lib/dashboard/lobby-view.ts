@@ -6,15 +6,27 @@ import type {
 type LobbyReminder = Readonly<{
   id: string;
   is_past_due: boolean;
+  title?: string;
+  due_at?: string | null;
+  class_name?: string | null;
+}>;
+
+type LobbyWeeklyAssignment = Readonly<{
+  status: string;
 }>;
 
 export type LobbyNextMove = Readonly<{
   actionLabel: string;
   ariaLabel: string;
   className: string;
+  completionPercent: number;
+  dueLabel: string;
   estimateLabel: string;
   href: string;
   title: string;
+  fullTitle: string;
+  weeklyCompletedCount: number;
+  weeklyTotalCount: number;
 }>;
 
 export type LobbyAttentionKey =
@@ -30,6 +42,11 @@ export type LobbyAttentionCard = Readonly<{
   description: string;
   href: string;
   tone: "purple" | "orange" | "yellow" | "green";
+  assignmentTitle: string;
+  className: string;
+  contextLabel: string;
+  actionLabel: string;
+  additionalItemCount: number;
 }>;
 
 export type LobbyDashboardView = Readonly<{
@@ -50,7 +67,16 @@ export type LobbyDashboardViewInput = Readonly<{
   assignments: readonly Assignment[];
   reminders: readonly LobbyReminder[];
   feedbackCount?: number;
+  weeklyHomeworkCompletionPercent?: number;
+  weeklyHomeworkCompletedCount?: number;
+  weeklyHomeworkTotalCount?: number;
   now: Date;
+}>;
+
+export type LobbyWeeklyHomeworkProgress = Readonly<{
+  completed: number;
+  total: number;
+  percent: number;
 }>;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -79,8 +105,81 @@ function countLabel(
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
+function formatEstimate(minutes: number): string {
+  if (minutes < 90) return `est. ${minutes} min`;
+
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
+  return remainingMinutes === 0
+    ? `est. ${hours} hr`
+    : `est. ${hours} hr ${remainingMinutes} min`;
+}
+
+export function calculateWeeklyHomeworkCompletion(
+  assignments: readonly LobbyWeeklyAssignment[],
+): number {
+  return calculateWeeklyHomeworkProgress(assignments).percent;
+}
+
+export function calculateWeeklyHomeworkProgress(
+  assignments: readonly LobbyWeeklyAssignment[],
+): LobbyWeeklyHomeworkProgress {
+  if (assignments.length === 0) {
+    return { completed: 0, total: 0, percent: 0 };
+  }
+
+  const completedStatuses = new Set([
+    "done",
+    "exporting",
+    "submitted",
+    "graded",
+  ]);
+  const completed = assignments.filter((assignment) =>
+    completedStatuses.has(String(assignment.status)),
+  ).length;
+
+  return {
+    completed,
+    total: assignments.length,
+    percent: Math.round((completed / assignments.length) * 100),
+  };
+}
+
+const QUESTION_COUNT_WORDS =
+  "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve";
+
+export function normalizeDashboardAssignmentTitle(title: string): string {
+  const normalized = title
+    .replace(
+      new RegExp(
+        String.raw`\s*(?:[-:|]\s*)?(?:\(|\[)?(?:\d+|${QUESTION_COUNT_WORDS})\s+questions?(?:\)|\])?\s*$`,
+        "iu",
+      ),
+      "",
+    )
+    .replace(/\s{2,}/gu, " ")
+    .trim();
+
+  return normalized || title.trim();
+}
+
+function timingContext(dueAt: string | null | undefined, now: Date): string {
+  if (!dueAt) return "No due time listed";
+  const dueMs = new Date(dueAt).getTime();
+  if (!Number.isFinite(dueMs)) return "Due date available in assignment";
+
+  const deltaDays = Math.ceil((dueMs - now.getTime()) / DAY_MS);
+  if (deltaDays < -1) return `Due ${Math.abs(deltaDays)} days ago`;
+  if (deltaDays === -1) return "Due yesterday";
+  if (deltaDays === 0) return "Due today";
+  if (deltaDays === 1) return "Due tomorrow";
+  return `Due in ${deltaDays} days`;
+}
+
 function nextMoveFor(
   rankedAssignments: readonly ScoredAssignment[],
+  weeklyProgress: LobbyWeeklyHomeworkProgress,
+  now: Date,
 ): LobbyNextMove {
   const next = rankedAssignments[0];
   if (!next) {
@@ -88,9 +187,14 @@ function nextMoveFor(
       actionLabel: "Caught up",
       ariaLabel: "You are caught up",
       className: "Your assignments are clear",
+      completionPercent: weeklyProgress.total === 0 ? 100 : weeklyProgress.percent,
+      dueLabel: "Nothing is due now",
       estimateLabel: "Choose a class or add work",
       href: "/assignments",
       title: "Nothing needs an immediate start",
+      fullTitle: "Nothing needs an immediate start",
+      weeklyCompletedCount: weeklyProgress.completed,
+      weeklyTotalCount: weeklyProgress.total,
     };
   }
 
@@ -104,9 +208,14 @@ function nextMoveFor(
     actionLabel: firstWord(className),
     ariaLabel: "Start your next move",
     className,
-    estimateLabel: `est. ${estimate} min`,
+    completionPercent: Math.max(0, Math.min(100, Math.round(weeklyProgress.percent))),
+    dueLabel: timingContext(next.due_at, now),
+    estimateLabel: formatEstimate(estimate),
     href: `${assignmentHref(next.id)}?focus=next-step`,
-    title: next.title,
+    title: normalizeDashboardAssignmentTitle(next.title),
+    fullTitle: next.title,
+    weeklyCompletedCount: weeklyProgress.completed,
+    weeklyTotalCount: weeklyProgress.total,
   };
 }
 
@@ -116,6 +225,9 @@ export function buildLobbyDashboardView({
   assignments,
   reminders,
   feedbackCount = 0,
+  weeklyHomeworkCompletionPercent = 0,
+  weeklyHomeworkCompletedCount = 0,
+  weeklyHomeworkTotalCount = 0,
   now,
 }: LobbyDashboardViewInput): LobbyDashboardView {
   const nowMs = now.getTime();
@@ -136,15 +248,25 @@ export function buildLobbyDashboardView({
     return status === "exporting" || status === "done";
   });
   const firstName = displayName?.trim().split(/\s+/u)[0] || "Student";
+  const assignmentsById = new Map(assignments.map((assignment) => [assignment.id, assignment]));
+  const firstDueEarlier = dueEarlier[0];
+  const dueEarlierAssignment = firstDueEarlier
+    ? assignmentsById.get(firstDueEarlier.id)
+    : undefined;
+  const weeklyProgress = {
+    completed: Math.max(0, Math.round(weeklyHomeworkCompletedCount)),
+    total: Math.max(0, Math.round(weeklyHomeworkTotalCount)),
+    percent: Math.max(0, Math.min(100, Math.round(weeklyHomeworkCompletionPercent))),
+  } satisfies LobbyWeeklyHomeworkProgress;
 
   return {
     studentName: firstName,
     hasNextMove: rankedAssignments.length > 0,
-    nextMove: nextMoveFor(rankedAssignments),
+    nextMove: nextMoveFor(rankedAssignments, weeklyProgress, now),
     attention: [
       {
         key: "tests",
-        label: "Quizzes & tests",
+        label: "Quizzes & Tests",
         count: tests.length,
         description: countLabel(
           tests.length,
@@ -154,10 +276,17 @@ export function buildLobbyDashboardView({
         ),
         href: assignmentHref(tests[0]?.id),
         tone: "purple",
+        assignmentTitle: tests[0]
+          ? normalizeDashboardAssignmentTitle(tests[0].title)
+          : "No quiz or test selected",
+        className: tests[0] ? assignmentClassName(tests[0]) : "Classes",
+        contextLabel: timingContext(tests[0]?.due_at, now),
+        actionLabel: "Open",
+        additionalItemCount: Math.max(0, tests.length - 1),
       },
       {
         key: "due_earlier",
-        label: "Due earlier",
+        label: "Due Earlier",
         count: dueEarlier.length,
         description: countLabel(
           dueEarlier.length,
@@ -167,10 +296,22 @@ export function buildLobbyDashboardView({
         ),
         href: assignmentHref(dueEarlier[0]?.id),
         tone: "orange",
+        assignmentTitle: normalizeDashboardAssignmentTitle(
+          dueEarlierAssignment?.title ?? firstDueEarlier?.title ?? "Assignment due earlier",
+        ),
+        className: dueEarlierAssignment
+          ? assignmentClassName(dueEarlierAssignment)
+          : firstDueEarlier?.class_name?.trim() || "Class work",
+        contextLabel: timingContext(
+          dueEarlierAssignment?.due_at ?? firstDueEarlier?.due_at,
+          now,
+        ),
+        actionLabel: "Open",
+        additionalItemCount: Math.max(0, dueEarlier.length - 1),
       },
       {
         key: "not_submitted",
-        label: "Not turned in",
+        label: "Not Turned In",
         count: notSubmitted.length,
         description: countLabel(
           notSubmitted.length,
@@ -180,6 +321,15 @@ export function buildLobbyDashboardView({
         ),
         href: assignmentHref(notSubmitted[0]?.id),
         tone: "yellow",
+        assignmentTitle: notSubmitted[0]
+          ? normalizeDashboardAssignmentTitle(notSubmitted[0].title)
+          : "No assignment ready to submit",
+        className: notSubmitted[0]
+          ? assignmentClassName(notSubmitted[0])
+          : "Classes",
+        contextLabel: notSubmitted[0] ? "Ready to submit" : "Nothing waiting",
+        actionLabel: "Open",
+        additionalItemCount: Math.max(0, notSubmitted.length - 1),
       },
       {
         key: "feedback",
@@ -193,6 +343,11 @@ export function buildLobbyDashboardView({
         ),
         href: "/notifications",
         tone: "green",
+        assignmentTitle: "Teacher feedback",
+        className: "Notifications",
+        contextLabel: feedbackCount > 0 ? "New feedback available" : "No new feedback",
+        actionLabel: "Open",
+        additionalItemCount: Math.max(0, feedbackCount - 1),
       },
     ],
   };

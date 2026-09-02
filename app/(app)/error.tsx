@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { reportClientError } from "@/lib/monitoring/client";
+import { retryErrorBoundary } from "@/lib/error-recovery";
 
 export default function AppError({
   error,
@@ -11,6 +13,16 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
+  const retry = () => {
+    retryErrorBoundary({
+      reset,
+      refresh: router.refresh,
+      reload: () => window.location.reload(),
+    });
+  };
+
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") console.error(error);
     reportClientError(error, window.location.pathname);
@@ -76,7 +88,7 @@ export default function AppError({
         <div style={{ display: "flex", gap: "var(--space-8)", justifyContent: "center", flexWrap: "wrap" }}>
           <button
             type="button"
-            onClick={reset}
+            onClick={retry}
             style={{
               display: "inline-flex",
               alignItems: "center",

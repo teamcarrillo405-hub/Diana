@@ -1,21 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  selectHomeworkModelTier,
+  type HomeworkModelRouting,
+} from "@/lib/ai/homework-model-tier";
 
 const mocks = vi.hoisted(() => ({
-  runSafe: vi.fn(),
-  log: vi.fn(),
-  provider: vi.fn(),
+  runOpenAIHomeworkJson: vi.fn(),
   createAiServiceClient: vi.fn(),
 }));
 
-vi.mock("@/lib/ai/safety", () => ({
-  runSafeBudgetedAiCall: mocks.runSafe,
-  logInteraction: mocks.log,
+vi.mock("@/lib/ai/openai-homework-adapter", () => ({
+  runOpenAIHomeworkJson: mocks.runOpenAIHomeworkJson,
 }));
-
-vi.mock("@/lib/integrations/diana-study-helper-sidecar", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/integrations/diana-study-helper-sidecar")>();
-  return { ...actual, createDianaBreakDownProviderResult: mocks.provider };
-});
 
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => makeSupabase() }));
 vi.mock("@/lib/supabase/ai-service", () => ({
@@ -38,26 +34,20 @@ function makeSupabase() {
   };
 }
 
-describe("break-down AI guard", () => {
+describe("break-down homework route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.stubEnv("DIANA_OPENJARVIS_SIDECAR_ENABLED", "true");
-    mocks.provider.mockResolvedValue({
-      value: [{ step: 1, action: "Circle the deliverable.", minutes: 3, done: false }],
-      moderationContent: "provider raw output",
-      tokens: 31,
-      malformed: false,
-    });
-    mocks.runSafe.mockImplementation(async (options: { invoke: () => Promise<unknown> }) => ({
+    mocks.runOpenAIHomeworkJson.mockResolvedValue({
       ok: true,
-      value: await options.invoke(),
-      reservationId: "reservation-1",
-    }));
-    mocks.log.mockResolvedValue(undefined);
+      value: { steps: [{ step: 1, action: "Circle the deliverable.", minutes: 3, done: false }] },
+      model: "gpt-homework-test",
+      tokens: 31,
+      rawContent: "{}",
+    });
     mocks.createAiServiceClient.mockReturnValue(makeSupabase());
   });
 
-  it("uses the atomic guard and moderates the raw provider body", async () => {
+  it("uses the shared OpenAI homework adapter and authorship receipt", async () => {
     const response = await POST(new Request("http://diana.test/api/diana/break-down", {
       method: "POST",
       headers: { "content-type": "application/json", "x-idempotency-key": "break-1" },
@@ -65,17 +55,47 @@ describe("break-down AI guard", () => {
     }));
 
     expect(response.status).toBe(200);
-    expect(mocks.runSafe).toHaveBeenCalledWith(expect.objectContaining({
+    expect(await response.json()).toEqual({
+      ok: true,
+      steps: [{ step: 1, action: "Circle the deliverable.", minutes: 3, done: false }],
+    });
+    expect(mocks.runOpenAIHomeworkJson).toHaveBeenCalledWith(expect.objectContaining({
       ownerId: "student-1",
-      supabase: mocks.createAiServiceClient.mock.results[0]?.value,
+      accounting: mocks.createAiServiceClient.mock.results[0]?.value,
+      task: "break_down",
       idempotencyKey: "break-1",
-      getOutput: expect.any(Function),
-      getTokens: expect.any(Function),
+      validate: expect.any(Function),
     }));
-    expect(mocks.provider).toHaveBeenCalledOnce();
-    expect(mocks.log).toHaveBeenCalledWith(
-      expect.any(Object),
-      mocks.createAiServiceClient.mock.results[0]?.value,
-    );
+    const args = mocks.runOpenAIHomeworkJson.mock.calls[0]?.[0];
+    expect(args.messages[0].content).toContain("student-owned homework planning helper");
+    expect(args.messages[1].content).toContain("Write a source-based paragraph.");
   });
+
+  it.each([
+    ["AP Calculus: use derivatives to analyze the function.", "mathematics", "high_advanced"],
+    ["AP Chemistry: plan the stoichiometry calculation for this reaction.", "science", "high_advanced"],
+    ["Complete a DBQ using evidence from the provided primary sources.", "social_studies", null],
+    ["Plan a research paper that synthesizes five sources.", "interdisciplinary", null],
+    ["Debug this Python recursion exercise and document the smallest test.", "computer_science", null],
+    ["Interpret this unfamiliar engineering technical specification.", "engineering", null],
+  ] as const)(
+    "passes complex routing signals for %s",
+    async (assignment, subjectDomain, academicBand) => {
+      const response = await POST(new Request("http://diana.test/api/diana/break-down", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ assignment }),
+      }));
+
+      expect(response.status).toBe(200);
+      const routing = mocks.runOpenAIHomeworkJson.mock.calls[0]?.[0]?.routing as HomeworkModelRouting;
+      expect(routing).toEqual(expect.objectContaining({
+        subjectDomain,
+        academicBand,
+        sourceChars: assignment.length,
+        signals: assignment,
+      }));
+      expect(selectHomeworkModelTier({ task: "break_down", ...routing })).toBe("complex");
+    },
+  );
 });

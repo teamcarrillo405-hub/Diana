@@ -23,14 +23,13 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
-  aiGuardFailureResponse,
   checkTokenBudget,
   resetBudgetIfNewDay,
   logInteraction,
-  runSafeBudgetedAiCall,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import type { StudentModelPart } from "../_shared/student-model.ts";
 
-const OPENAI_API_KEY      = Deno.env.get("OPENAI_API_KEY") ?? "";
 const SUPABASE_URL        = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
@@ -144,16 +143,9 @@ Deno.serve(withStudentSecurity("extract-note-doc", async (req: Request) => {
     const arrayBuf    = await blob.arrayBuffer();
     const base64Data  = uint8ArrayToBase64(new Uint8Array(arrayBuf));
 
-    // Build GPT-4o content block — image_url for photos, file for PDFs.
-    const fileBlock = isPdf
-      ? {
-          type: "file" as const,
-          file: { file_data: `data:${mimeType};base64,${base64Data}`, filename: "document.pdf" },
-        }
-      : {
-          type: "image_url" as const,
-          image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" as const },
-        };
+    const sourcePart: StudentModelPart = isPdf
+      ? { type: "file", mediaType: mimeType, data: base64Data, filename: "document.pdf" }
+      : { type: "image", mediaType: mimeType, data: base64Data };
 
     const systemPrompt = isPdf ? PDF_EXTRACT_PROMPT : IMAGE_EXTRACT_PROMPT;
     const userText     = isPdf
@@ -161,57 +153,27 @@ Deno.serve(withStudentSecurity("extract-note-doc", async (req: Request) => {
       : "Extract all visible text from this photo of student class notes.";
     const maxTokens    = isPdf ? 4000 : 2000;
 
-    const guardedExtraction = await runSafeBudgetedAiCall({
+    const extraction = await runOpenAIHomeworkAdapter({
+      task: "source_extraction",
       ownerId,
       supabase,
-      input: userText,
-      systemPrompt,
-      maxOutputTokens: maxTokens,
-      mediaCount: 1,
-      media: isPdf ? [] : [{ mediaType: mimeType, data: base64Data }],
-      invoke: async ({ markProviderUsage }) => {
-        const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${OPENAI_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "gpt-4o",
-            max_tokens: maxTokens,
-            messages: [
-              { role: "system", content: systemPrompt },
-              {
-                role: "user",
-                content: [fileBlock, { type: "text", text: userText }],
-              },
-            ],
-          }),
-        });
-        if (!openaiRes.ok) {
-          console.error("openai extract-note-doc request did not complete", openaiRes.status);
-          throw new Error("The document reader could not process this file");
-        }
-        markProviderUsage();
-        let openaiData: {
-          choices?: Array<{ message?: { content?: string } }>;
-          usage?: { prompt_tokens?: number; completion_tokens?: number };
-        };
-        try {
-          openaiData = await openaiRes.json() as typeof openaiData;
-        } catch {
-          throw new Error("extract_note_provider_invalid_json");
-        }
-        return {
-          content: (openaiData.choices?.[0]?.message?.content ?? "").trim(),
-          tokens: Number(openaiData.usage?.prompt_tokens ?? 0) + Number(openaiData.usage?.completion_tokens ?? 0),
-        };
-      },
+      system: systemPrompt,
+      user: userText,
+      maxTokens,
+      quality: "fast",
+      parts: [
+        sourcePart,
+        { type: "text", text: userText },
+      ],
+      timeoutMs: 45000,
+      reservationUnits: Math.min(
+        1_000_000,
+        maxTokens + 8192 + Math.ceil(blob.size / 64),
+      ),
     });
-    if (!guardedExtraction.ok) return aiGuardFailureResponse(guardedExtraction);
-    const extracted = guardedExtraction.value.content;
-    const totalTokens = guardedExtraction.value.tokens;
-
+    const extracted = extraction.content.trim();
+    const totalTokens = extraction.tokens;
+    const extractionModel = extraction.model;
     // Pitfall 5: very short text -> save storageKey + tiny body, skip cleanup.
     if (extracted.length < MIN_EXTRACT_CHARS) {
       await supabase
@@ -228,7 +190,7 @@ Deno.serve(withStudentSecurity("extract-note-doc", async (req: Request) => {
         {
           ownerId,
           feature: "doc_extract",
-          model:   "gpt-4o",
+          model:   extractionModel,
           promptSummary: isPdf ? "doc_extract:pdf:short" : "doc_extract:image:short",
           tokensUsed: totalTokens,
         },
@@ -271,7 +233,7 @@ Deno.serve(withStudentSecurity("extract-note-doc", async (req: Request) => {
       {
         ownerId,
         feature: "doc_extract",
-        model:   "gpt-4o",
+        model:   extractionModel,
         promptSummary: isPdf ? "doc_extract:pdf" : "doc_extract:image",
         tokensUsed: totalTokens,
       },

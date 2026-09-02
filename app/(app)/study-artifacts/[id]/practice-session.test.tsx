@@ -78,9 +78,42 @@ describe("PracticeTestSession journey continuity", () => {
       "href",
       "/study-artifacts",
     );
-    expect(screen.getByRole("link", { name: "Pause" })).toHaveAttribute(
-      "href",
-      "/study-artifacts",
+    expect(screen.getByRole("complementary", { name: "Quiz questions" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Ask Diana about this quiz")).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Pause" })).not.toBeInTheDocument();
+  });
+
+  it("offers Diana chat after a below-passing quiz result", () => {
+    render(
+      <PracticeTestSession
+        artifactId="22222222-2222-4222-8222-222222222222"
+        artifactTitle="Algebra practice"
+        assignmentId="11111111-1111-4111-8111-111111111111"
+        quiz={quiz}
+        initialProgress={{
+          currentQuestion: 0,
+          completed: true,
+          completedAt: "2026-07-31T12:00:00.000Z",
+          responses: { "0": "A different detail" },
+        }}
+        initialResult={{
+          results: [],
+          questionCount: 1,
+          answeredCount: 1,
+          scoredCount: 1,
+          unscoredCount: 0,
+          matchedCount: 0,
+          checkAgainCount: 1,
+          reviewTogetherCount: 0,
+          notAnsweredCount: 0,
+          pointsEarned: 0,
+          pointsPossible: 1,
+          percentage: 0,
+        }}
+      />,
     );
+
+    expect(screen.getByLabelText("Ask Diana about this quiz")).toBeInTheDocument();
+    expect(screen.getByLabelText("Message Diana about this quiz")).toBeInTheDocument();
   });
 });

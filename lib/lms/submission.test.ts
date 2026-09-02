@@ -1,8 +1,13 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  canReleaseCanvasTextReceiptAfterRejection,
+  canReleaseProviderArtifactLock,
   claimSubmissionReceipt,
   inspectCanvasSubmission,
+  inspectGoogleClassroomSubmission,
   ProviderSubmissionError,
+  providerArtifactFailureResponse,
+  providerArtifactRiskResponse,
   providerSubmissionReceiptStatus,
   reconcileSubmissionReceipt,
   resolveProviderSubmissionStatus,
@@ -11,6 +16,12 @@ import {
   submitCanvasText,
   submitGoogleClassroomFile,
 } from "./submission";
+import {
+  bindSubmissionProviderArtifact,
+  createSubmissionReconciliationRecord,
+  providerSubmissionObservationResponse,
+  submissionReconciliationProviderResponse,
+} from "./reconciliation";
 import { sha256Hex } from "@/lib/security/submission-file-integrity";
 
 function response(body: unknown, ok = true, status = 200) {
@@ -78,6 +89,19 @@ describe("submissionCapabilities", () => {
 
     expect(resolveProviderSubmissionStatus({
       provider: "google_classroom",
+      capabilities: ["open_external", "upload_file"],
+      note: "",
+      allowedExtensions: [],
+      providerSubmissionId: "google-submission-returned",
+      providerState: "RETURNED",
+      providerCanSubmit: true,
+    })).toMatchObject({
+      status: "confirmation_pending",
+      providerReceiptId: "google-submission-returned",
+    });
+
+    expect(resolveProviderSubmissionStatus({
+      provider: "google_classroom",
       capabilities: ["open_external"],
       note: "",
       allowedExtensions: [],
@@ -127,7 +151,13 @@ describe("Canvas submission", () => {
       submission_types: ["online_text_entry"],
       can_submit: true,
       locked_for_user: false,
-      submission: { workflow_state: "unsubmitted" },
+      submission: {
+        id: 17,
+        workflow_state: "submitted",
+        attempt: 2,
+        submitted_at: "2026-09-01T18:00:00Z",
+        attachments: [{ id: 91 }],
+      },
     }));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -139,6 +169,14 @@ describe("Canvas submission", () => {
     });
 
     expect(result.capabilities).toEqual(["open_external", "submit_text"]);
+    expect(result.reconciliationObservation).toEqual({
+      provider: "canvas",
+      submissionId: "17",
+      state: "submitted",
+      attempt: 2,
+      submittedAt: "2026-09-01T18:00:00Z",
+      attachmentIds: ["91"],
+    });
     expect(String(fetchMock.mock.calls[0][0])).toContain("include[]=can_submit");
   });
 
@@ -167,6 +205,9 @@ describe("Canvas submission", () => {
       .mockResolvedValueOnce(response({ id: 91 }))
       .mockResolvedValueOnce(response({ id: 42, workflow_state: "submitted" }));
     vi.stubGlobal("fetch", fetchMock);
+    const onArtifactPrepared = vi.fn(async () => {
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
 
     const result = await submitCanvasFile({
       ...canvasDestination,
@@ -174,6 +215,7 @@ describe("Canvas submission", () => {
       courseId: "course",
       assignmentId: "assignment",
       file: submissionFile(),
+      onArtifactPrepared,
     });
 
     expect(result).toEqual({ id: 42, workflow_state: "submitted" });
@@ -183,6 +225,129 @@ describe("Canvas submission", () => {
     });
     expect((fetchMock.mock.calls[1][1] as RequestInit).headers).toBeUndefined();
     expect(String(fetchMock.mock.calls[2][1]?.body)).toContain("online_upload");
+    expect(onArtifactPrepared).toHaveBeenCalledWith({
+      provider: "canvas",
+      providerArtifactId: "91",
+    });
+  });
+
+  it("recovers a lost Canvas upload response from exact provider inventory", async () => {
+    const providerFilename = "diana-receipt-canvas.pdf";
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        upload_url: "https://93.184.216.35/file",
+        upload_params: { token: "upload-token" },
+      }))
+      .mockRejectedValueOnce(new TypeError("socket closed after upload"))
+      .mockResolvedValueOnce(response([{ id: 91, filename: providerFilename }]))
+      .mockResolvedValueOnce(response({ id: 42, workflow_state: "submitted" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(submitCanvasFile({
+      ...canvasDestination,
+      token: "token",
+      courseId: "course",
+      assignmentId: "assignment",
+      file: submissionFile(),
+      artifactOperationId: "receipt-canvas",
+    })).resolves.toEqual({ id: 42, workflow_state: "submitted" });
+    expect(String(fetchMock.mock.calls[2][0])).toContain("/api/v1/users/self/files?");
+    expect(String(fetchMock.mock.calls[3][1]?.body)).toContain("91");
+  });
+
+  it("returns scrubbed Canvas inventory when a lost upload cannot be reconciled", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        upload_url: "https://93.184.216.35/file",
+        upload_params: { token: "upload-token" },
+      }))
+      .mockRejectedValueOnce(new TypeError("socket closed after upload"))
+      .mockResolvedValueOnce(response([]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await submitCanvasFile({
+      ...canvasDestination,
+      token: "secret-token",
+      courseId: "course",
+      assignmentId: "assignment",
+      file: submissionFile(),
+      artifactOperationId: "receipt-canvas",
+    }).catch((caught) => caught);
+    expect(error).toMatchObject({
+      outcome: "ambiguous",
+      providerArtifactInventory: {
+        operationId: "receipt-canvas",
+        lookup: "canvas_user_files_exact_name",
+      },
+    });
+    const failure = providerArtifactFailureResponse(error, {
+      provider: "canvas",
+      operationId: "receipt-canvas",
+    });
+    expect(failure).toMatchObject({
+      diana_provider_artifact_inventory: {
+        provider: "canvas",
+        operation_id: "receipt-canvas",
+        provider_filename: "diana-receipt-canvas.pdf",
+      },
+    });
+    expect(JSON.stringify(failure)).not.toContain("secret-token");
+  });
+
+  it("keeps Canvas confirmation pending and does not submit when provider artifact binding cannot be saved", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        upload_url: "https://93.184.216.35/file",
+        upload_params: { token: "upload-token" },
+      }))
+      .mockResolvedValueOnce(response({ id: 91 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await submitCanvasFile({
+      ...canvasDestination,
+      token: "token",
+      courseId: "course",
+      assignmentId: "assignment",
+      file: submissionFile(),
+      onArtifactPrepared: async () => {
+        throw new Error("receipt unavailable");
+      },
+    }).catch((caught) => caught);
+
+    expect(error).toMatchObject({ outcome: "ambiguous" });
+    expect(providerSubmissionReceiptStatus(error)).toBe("confirmation_pending");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the duplicate lock after Canvas creates a file and rejects the later submission call", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        upload_url: "https://93.184.216.35/file",
+        upload_params: { token: "upload-token" },
+      }))
+      .mockResolvedValueOnce(response({ id: 91 }))
+      .mockResolvedValueOnce(response({}, false, 422));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await submitCanvasFile({
+      ...canvasDestination,
+      token: "token",
+      courseId: "course",
+      assignmentId: "assignment",
+      file: submissionFile(),
+      onArtifactPrepared: vi.fn(async () => undefined),
+    }).catch((caught) => caught);
+
+    expect(error).toMatchObject({
+      outcome: "ambiguous",
+      providerArtifactRisk: {
+        provider: "canvas",
+        state: "created",
+        providerArtifactId: "91",
+      },
+    });
+    expect(providerSubmissionReceiptStatus(error)).toBe("confirmation_pending");
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
   it.each([
@@ -216,7 +381,8 @@ describe("Canvas submission", () => {
       .mockResolvedValueOnce(new Response(null, {
         status: 302,
         headers: { Location: "https://93.184.216.36/collect" },
-      }));
+      }))
+      .mockResolvedValueOnce(response([]));
     vi.stubGlobal("fetch", fetchMock);
 
     await expect(submitCanvasFile({
@@ -225,9 +391,12 @@ describe("Canvas submission", () => {
       courseId: "course",
       assignmentId: "assignment",
       file: submissionFile(),
-    })).rejects.toThrow("Redirects are not allowed");
+    })).rejects.toMatchObject({
+      outcome: "ambiguous",
+      providerArtifactInventory: { lookup: "canvas_user_files_exact_name" },
+    });
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
     expect((fetchMock.mock.calls[1][1] as RequestInit).redirect).toBe("manual");
     expect((fetchMock.mock.calls[1][1] as RequestInit).headers).toBeUndefined();
   });
@@ -273,6 +442,68 @@ describe("Canvas submission", () => {
     expect(providerSubmissionReceiptStatus(error)).toBe("not_accepted");
   });
 
+  it.each([408, 409, 429])("keeps Canvas text HTTP %s confirmation pending", async (status) => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({}, false, status)));
+
+    const error = await submitCanvasText({
+      ...canvasDestination,
+      token: "token",
+      courseId: "course",
+      assignmentId: "assignment",
+      text: "Finished response",
+    }).catch((caught) => caught);
+
+    expect(error).toMatchObject({ outcome: "ambiguous" });
+    expect(providerSubmissionReceiptStatus(error)).toBe("confirmation_pending");
+  });
+
+  it("releases a definitive Canvas text rejection only after an unchanged provider readback", () => {
+    const baseline = {
+      provider: "canvas" as const,
+      submissionId: "submission-1",
+      state: "unsubmitted",
+      attempt: 0,
+      submittedAt: null,
+      attachmentIds: [],
+    };
+
+    expect(canReleaseCanvasTextReceiptAfterRejection(baseline, baseline)).toBe(true);
+    expect(canReleaseCanvasTextReceiptAfterRejection(baseline, null)).toBe(false);
+    expect(canReleaseCanvasTextReceiptAfterRejection(baseline, {
+      ...baseline,
+      state: "submitted",
+      attempt: 1,
+    })).toBe(false);
+  });
+
+  it("keeps a potentially post-commit Canvas 4xx locked when readback changed or is unavailable", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({}, false, 422)));
+    const baseline = {
+      provider: "canvas" as const,
+      submissionId: "submission-1",
+      state: "unsubmitted",
+      attempt: 0,
+      submittedAt: null,
+      attachmentIds: [],
+    };
+
+    const error = await submitCanvasText({
+      ...canvasDestination,
+      token: "token",
+      courseId: "course",
+      assignmentId: "assignment",
+      text: "Finished response",
+    }).catch((caught) => caught);
+
+    expect(providerSubmissionReceiptStatus(error)).toBe("not_accepted");
+    expect(canReleaseCanvasTextReceiptAfterRejection(baseline, null)).toBe(false);
+    expect(canReleaseCanvasTextReceiptAfterRejection(baseline, {
+      ...baseline,
+      state: "submitted",
+      attempt: 1,
+    })).toBe(false);
+  });
+
   it("does not contact Canvas when the in-memory bytes do not match the bound digest", async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal("fetch", fetchMock);
@@ -292,6 +523,34 @@ describe("Canvas submission", () => {
 
 describe("Google Classroom file submission", () => {
   beforeEach(() => vi.restoreAllMocks());
+
+  it("reads the exact Classroom state and attached Drive file identifiers", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(response({
+      studentSubmissions: [{
+        id: "submission-1",
+        state: "RETURNED",
+        courseWorkType: "ASSIGNMENT",
+        associatedWithDeveloper: true,
+        assignmentSubmission: {
+          attachments: [{ driveFile: { id: "drive-file-old" } }],
+        },
+      }],
+    })));
+
+    const result = await inspectGoogleClassroomSubmission({
+      token: "token",
+      courseId: "course",
+      courseWorkId: "work",
+    });
+
+    expect(result.reconciliationObservation).toEqual({
+      provider: "google_classroom",
+      submissionId: "submission-1",
+      state: "RETURNED",
+      attachmentIds: ["drive-file-old"],
+    });
+    expect(resolveProviderSubmissionStatus(result).status).toBe("confirmation_pending");
+  });
 
   it("stops before uploading or turning in when Diana cannot modify the assignment", async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
@@ -328,17 +587,86 @@ describe("Google Classroom file submission", () => {
       .mockResolvedValueOnce(response({ id: "submission-1" }))
       .mockResolvedValueOnce(response({}));
     vi.stubGlobal("fetch", fetchMock);
+    const onArtifactPrepared = vi.fn(async () => {
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    });
 
     const result = await submitGoogleClassroomFile({
       token: "token",
       courseId: "course",
       courseWorkId: "work",
       file: submissionFile(),
+      onArtifactPrepared,
     });
 
     expect(result).toEqual({ id: "submission-1", driveFileId: "drive-file-1" });
     expect(String(fetchMock.mock.calls[2][0])).toContain(":modifyAttachments");
     expect(String(fetchMock.mock.calls[3][0])).toContain(":turnIn");
+    expect(onArtifactPrepared).toHaveBeenCalledWith({
+      provider: "google_classroom",
+      providerArtifactId: "drive-file-1",
+    });
+  });
+
+  it("recovers a lost Drive upload response through its operation app property", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        studentSubmissions: [{
+          id: "submission-1",
+          state: "CREATED",
+          courseWorkType: "ASSIGNMENT",
+          associatedWithDeveloper: true,
+        }],
+      }))
+      .mockRejectedValueOnce(new TypeError("socket closed after upload"))
+      .mockResolvedValueOnce(response({
+        files: [{
+          id: "drive-file-1",
+          name: "diana-receipt-google.pdf",
+          appProperties: { dianaOperationId: "receipt-google" },
+        }],
+      }))
+      .mockResolvedValueOnce(response({ id: "submission-1" }))
+      .mockResolvedValueOnce(response({}));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(submitGoogleClassroomFile({
+      token: "token",
+      courseId: "course",
+      courseWorkId: "work",
+      file: submissionFile(),
+      artifactOperationId: "receipt-google",
+    })).resolves.toEqual({ id: "submission-1", driveFileId: "drive-file-1" });
+    expect(String(fetchMock.mock.calls[2][0])).toContain("drive/v3/files?");
+    expect(String(fetchMock.mock.calls[3][0])).toContain(":modifyAttachments");
+  });
+
+  it("keeps Drive confirmation pending and does not attach or turn in when provider artifact binding cannot be saved", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        studentSubmissions: [{
+          id: "submission-1",
+          state: "CREATED",
+          courseWorkType: "ASSIGNMENT",
+          associatedWithDeveloper: true,
+        }],
+      }))
+      .mockResolvedValueOnce(response({ id: "drive-file-1" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await submitGoogleClassroomFile({
+      token: "token",
+      courseId: "course",
+      courseWorkId: "work",
+      file: submissionFile(),
+      onArtifactPrepared: async () => {
+        throw new Error("receipt unavailable");
+      },
+    }).catch((caught) => caught);
+
+    expect(error).toMatchObject({ outcome: "ambiguous" });
+    expect(providerSubmissionReceiptStatus(error)).toBe("confirmation_pending");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
   });
 
   it.each([
@@ -371,6 +699,47 @@ describe("Google Classroom file submission", () => {
     }).catch((caught) => caught);
 
     expect(error).toMatchObject({ outcome: "ambiguous" });
+    expect(providerSubmissionReceiptStatus(error)).toBe("confirmation_pending");
+  });
+
+  it.each([
+    ["attachment", response({}, false, 409), null],
+    ["turn-in", response({ id: "submission-1" }), response({}, false, 403)],
+  ])("keeps the duplicate lock after Drive creation and a later %s 4xx", async (
+    _stage,
+    attachmentResponse,
+    turnInResponse,
+  ) => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        studentSubmissions: [{
+          id: "submission-1",
+          state: "CREATED",
+          courseWorkType: "ASSIGNMENT",
+          associatedWithDeveloper: true,
+        }],
+      }))
+      .mockResolvedValueOnce(response({ id: "drive-file-1" }))
+      .mockResolvedValueOnce(attachmentResponse);
+    if (turnInResponse) fetchMock.mockResolvedValueOnce(turnInResponse);
+    vi.stubGlobal("fetch", fetchMock);
+
+    const error = await submitGoogleClassroomFile({
+      token: "token",
+      courseId: "course",
+      courseWorkId: "work",
+      file: submissionFile(),
+      onArtifactPrepared: vi.fn(async () => undefined),
+    }).catch((caught) => caught);
+
+    expect(error).toMatchObject({
+      outcome: "ambiguous",
+      providerArtifactRisk: {
+        provider: "google_classroom",
+        state: "created",
+        providerArtifactId: "drive-file-1",
+      },
+    });
     expect(providerSubmissionReceiptStatus(error)).toBe("confirmation_pending");
   });
 
@@ -425,5 +794,248 @@ describe("submission receipts", () => {
       p_detail: "Canvas shows this assignment as submitted.",
       p_provider_response: { provider_state: "submitted" },
     });
+  });
+
+  it("does not accept a provider observation when the uncertain receipt has no baseline", async () => {
+    const rpc = vi.fn(async (_functionName: string, args: Record<string, unknown>) => ({
+      data: {
+        receipt_id: "receipt-1",
+        status: args.p_status,
+        transitioned: false,
+        detail: args.p_detail,
+      },
+      error: null,
+    }));
+    const query = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      maybeSingle: vi.fn(async () => ({
+        data: { provider_response: {}, submission_file_id: null },
+        error: null,
+      })),
+    };
+    query.select.mockReturnValue(query);
+    query.eq.mockReturnValue(query);
+
+    const result = await reconcileSubmissionReceipt({ rpc, from: vi.fn(() => query) }, {
+      receiptId: "receipt-1",
+      status: "submitted",
+      providerReceiptId: "canvas-submission-1",
+      detail: "Canvas shows a submitted state.",
+      providerResponse: {
+        provider_state: "submitted",
+        ...providerSubmissionObservationResponse({
+          provider: "canvas",
+          submissionId: "canvas-submission-1",
+          state: "submitted",
+          attempt: 1,
+          submittedAt: "2026-09-01T18:05:00Z",
+          attachmentIds: ["canvas-file-new"],
+        }),
+      },
+    });
+
+    expect(result.status).toBe("confirmation_pending");
+    expect(rpc).toHaveBeenCalledWith("reconcile_assignment_submission_receipt", expect.objectContaining({
+      p_status: "confirmation_pending",
+      p_provider_receipt_id: null,
+    }));
+  });
+
+  it("keeps an older Canvas submission pending instead of accepting it for an ambiguous receipt", async () => {
+    const baseline = {
+      provider: "canvas" as const,
+      submissionId: "canvas-submission-1",
+      state: "submitted",
+      attempt: 4,
+      submittedAt: "2026-09-01T18:00:00Z",
+      attachmentIds: ["canvas-file-old"],
+    };
+    const record = bindSubmissionProviderArtifact(createSubmissionReconciliationRecord({
+      baseline,
+      localFileId: "file-1",
+      payloadDigest: "a".repeat(64),
+      sha256Digest: "b".repeat(64),
+    }), "canvas-file-new");
+    const rpc = vi.fn(async (_functionName: string, args: Record<string, unknown>) => ({
+      data: {
+        receipt_id: "receipt-1",
+        status: args.p_status,
+        transitioned: false,
+        detail: args.p_detail,
+      },
+      error: null,
+    }));
+    const query = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      maybeSingle: vi.fn(async () => ({
+        data: {
+          provider_response: submissionReconciliationProviderResponse(record),
+          submission_file_id: "file-1",
+        },
+        error: null,
+      })),
+    };
+    query.select.mockReturnValue(query);
+    query.eq.mockReturnValue(query);
+
+    const result = await reconcileSubmissionReceipt({ rpc, from: vi.fn(() => query) }, {
+      receiptId: "receipt-1",
+      status: "submitted",
+      providerReceiptId: "canvas-submission-1",
+      detail: "Canvas shows a submitted state.",
+      providerResponse: {
+        provider_state: "submitted",
+        ...providerSubmissionObservationResponse(baseline),
+      },
+    });
+
+    expect(result.status).toBe("confirmation_pending");
+    expect(rpc).toHaveBeenCalledWith("reconcile_assignment_submission_receipt", expect.objectContaining({
+      p_status: "confirmation_pending",
+      p_provider_receipt_id: null,
+    }));
+  });
+
+  it("does not release a pending receipt when the exact provider artifact lacks cleanup evidence", async () => {
+    const baseline = {
+      provider: "canvas" as const,
+      submissionId: "canvas-submission-1",
+      state: "unsubmitted",
+      attempt: 0,
+      submittedAt: null,
+      attachmentIds: [],
+    };
+    const record = bindSubmissionProviderArtifact(createSubmissionReconciliationRecord({
+      baseline,
+      localFileId: "file-1",
+      payloadDigest: "a".repeat(64),
+      sha256Digest: "b".repeat(64),
+    }), "canvas-file-1");
+    const storedProviderResponse = {
+      ...submissionReconciliationProviderResponse(record),
+      ...providerArtifactRiskResponse({
+        provider: "canvas",
+        operationId: "receipt-1",
+        providerArtifactId: "canvas-file-1",
+      }),
+    };
+    const providerResponse = providerSubmissionObservationResponse({
+      ...baseline,
+      state: "unsubmitted",
+      attachmentIds: [],
+    });
+    expect(canReleaseProviderArtifactLock(storedProviderResponse, providerResponse)).toBe(false);
+    expect(canReleaseProviderArtifactLock(storedProviderResponse, {
+      diana_provider_artifact_resolution: {
+        provider: "canvas",
+        operation_id: "receipt-1",
+        provider_artifact_id: "canvas-file-1",
+        disposition: "deleted",
+        verification: "provider_delete",
+      },
+    })).toBe(true);
+
+    const rpc = vi.fn(async (_functionName: string, args: Record<string, unknown>) => ({
+      data: {
+        receipt_id: "receipt-1",
+        status: args.p_status,
+        transitioned: false,
+        detail: args.p_detail,
+      },
+      error: null,
+    }));
+    const query = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      maybeSingle: vi.fn(async () => ({
+        data: {
+          provider_response: storedProviderResponse,
+          submission_file_id: "file-1",
+        },
+        error: null,
+      })),
+    };
+    query.select.mockReturnValue(query);
+    query.eq.mockReturnValue(query);
+
+    const result = await reconcileSubmissionReceipt({ rpc, from: vi.fn(() => query) }, {
+      receiptId: "receipt-1",
+      status: "not_accepted",
+      providerReceiptId: null,
+      detail: "Canvas does not show a completed submission.",
+      providerResponse,
+    });
+
+    expect(result.status).toBe("confirmation_pending");
+    expect(rpc).toHaveBeenCalledWith(
+      "reconcile_assignment_submission_receipt",
+      expect.objectContaining({
+        p_status: "confirmation_pending",
+        p_provider_receipt_id: null,
+      }),
+    );
+  });
+
+  it("settles Canvas only when the receipt proves the exact next attempt and uploaded file", async () => {
+    const baseline = {
+      provider: "canvas" as const,
+      submissionId: "canvas-submission-1",
+      state: "submitted",
+      attempt: 4,
+      submittedAt: "2026-09-01T18:00:00Z",
+      attachmentIds: ["canvas-file-old"],
+    };
+    const record = bindSubmissionProviderArtifact(createSubmissionReconciliationRecord({
+      baseline,
+      localFileId: "file-1",
+      payloadDigest: "a".repeat(64),
+      sha256Digest: "b".repeat(64),
+    }), "canvas-file-new");
+    const rpc = vi.fn(async (_functionName: string, args: Record<string, unknown>) => ({
+      data: {
+        receipt_id: "receipt-1",
+        status: args.p_status,
+        transitioned: true,
+        detail: args.p_detail,
+      },
+      error: null,
+    }));
+    const query = {
+      select: vi.fn(),
+      eq: vi.fn(),
+      maybeSingle: vi.fn(async () => ({
+        data: {
+          provider_response: submissionReconciliationProviderResponse(record),
+          submission_file_id: "file-1",
+        },
+        error: null,
+      })),
+    };
+    query.select.mockReturnValue(query);
+    query.eq.mockReturnValue(query);
+
+    const result = await reconcileSubmissionReceipt({ rpc, from: vi.fn(() => query) }, {
+      receiptId: "receipt-1",
+      status: "submitted",
+      providerReceiptId: "canvas-submission-1",
+      detail: "Canvas shows a submitted state.",
+      providerResponse: {
+        provider_state: "submitted",
+        ...providerSubmissionObservationResponse({
+          ...baseline,
+          attempt: 5,
+          submittedAt: "2026-09-01T18:05:00Z",
+          attachmentIds: ["canvas-file-new"],
+        }),
+      },
+    });
+
+    expect(result).toMatchObject({ status: "submitted", transitioned: true });
+    expect(rpc).toHaveBeenCalledWith("reconcile_assignment_submission_receipt", expect.objectContaining({
+      p_status: "submitted",
+      p_provider_receipt_id: "canvas-submission-1",
+    }));
   });
 });

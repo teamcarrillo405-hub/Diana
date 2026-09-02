@@ -5,12 +5,11 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8");
 
 describe("production route connectivity", () => {
-  it("routes visible capture actions to quick add", () => {
+  it("routes visible capture actions to quick add and keeps quiz work free of the retired capture route", () => {
     const flashcardReview = read("app/(app)/flashcards/[id]/review/review-session.tsx");
     const practiceSession = read("app/(app)/study-artifacts/[id]/practice-session.tsx");
 
     expect(flashcardReview).toContain('href="/quick-add"');
-    expect(practiceSession).toContain('href="/quick-add"');
     expect(flashcardReview).not.toContain('href="/capture"');
     expect(practiceSession).not.toContain('href="/capture"');
   });

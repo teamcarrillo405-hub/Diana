@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition, type CSSProperties } from "react";
 import { ChevronLeft, Eye, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 import { DianaMascotMark } from "@/components/screen-design/primitives";
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
@@ -91,7 +90,6 @@ export function ReviewSession({
   ttsVoice: string;
   nowIso: string;
 }) {
-  const router = useRouter();
   const [isRating, startTransition] = useTransition();
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);

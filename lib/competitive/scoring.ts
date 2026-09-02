@@ -79,10 +79,6 @@ export type CompetitiveScoreEvidence = {
   competitiveScoreCommand: boolean;
 };
 
-type CriterionInput = Omit<CompetitiveScoreCriterion, "repoVerifiable"> & {
-  repoVerifiable?: boolean;
-};
-
 export function scoreCompetitiveSystem(
   evidence: CompetitiveScoreEvidence,
   generatedAt = new Date().toISOString(),

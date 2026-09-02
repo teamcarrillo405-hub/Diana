@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildChecklist } from "@/lib/checklists/templates";
+import { TEEN_GUARDIAN_PERMISSION_POLICY_VERSION } from "@/lib/learner-access-policy";
+import type { AppProfileInsert } from "@/lib/profile";
 import {
   getScreenDesignFixtureScenario,
   SCREEN_DESIGN_FIXED_CLOCK,
@@ -64,6 +66,15 @@ const DEMO_EXTERNAL_SOURCE = "clever";
 const DEMO_EXTERNAL_ID_PREFIX = "grayson-demo";
 const DEMO_DIAGNOSES: Diagnosis[] = ["adhd", "dyslexia"];
 const timezone = "America/Los_Angeles";
+
+function syntheticTeenGuardianPermission(attestedAt: string) {
+  return {
+    teen_guardian_permission_attested_at: attestedAt,
+    teen_guardian_permission_policy_version: TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+    teen_guardian_permission_source: "synthetic_qa_fixture" as const,
+    teen_guardian_permission_withdrawn_at: null,
+  };
+}
 
 function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * 86_400_000);
@@ -843,57 +854,59 @@ async function seedAssignmentSupport(
 }
 
 async function seedProfile(client: AppSupabaseClient, ownerId: string, now: Date) {
+  const profile: AppProfileInsert = {
+    user_id: ownerId,
+    display_name: "Grayson",
+    date_of_birth: "2011-09-01",
+    age_bracket: "13_to_17",
+    timezone,
+    onboarded_at: now.toISOString(),
+    consent_ai: true,
+    ...syntheticTeenGuardianPermission(now.toISOString()),
+    school_year: 9,
+    class_count_hint: freshmanClasses.length,
+    diagnoses: DEMO_DIAGNOSES,
+    accommodations: ["extended_time", "breaks", "alternate_format", "quiet_setting"],
+    extra_time_pct: 50,
+    dyslexia_font: true,
+    line_focus: true,
+    bionic_reading: true,
+    tts_enabled: true,
+    tts_provider: "browser",
+    tts_voice: "nova",
+    tts_speed: 0.95,
+    tts_pitch: 1,
+    font_size: "normal",
+    line_spacing: "loose",
+    reading_letter_spacing: "wide",
+    reading_word_spacing: "wide",
+    visual_pacing: "line",
+    interests: ["basketball", "music", "digital_art", "technology"],
+    session_mood: "meh",
+    mastery_signals: {
+      source: "grayson-demo",
+      goal: "freshman readiness",
+      strongestModes: ["visual", "short practice", "read aloud"],
+    } as Json,
+    ai_verbosity_by_subject: {
+      default: "short",
+      English: "guided",
+      Algebra: "steps",
+      Biology: "visual",
+    } as Json,
+    notification_preferences: {
+      homeworkDigest: "evening",
+      quizPrepNudge: true,
+      quietHours: "21:30-07:00",
+    } as Json,
+    privacy_preferences: {
+      teacherSharesNeedReview: true,
+      parentSummary: "weekly",
+      showProofReceipts: true,
+    } as Json,
+  };
   const { error } = await client.from("profiles").upsert(
-    {
-      user_id: ownerId,
-      display_name: "Grayson",
-      date_of_birth: "2011-09-01",
-      age_bracket: "13_to_17",
-      timezone,
-      onboarded_at: now.toISOString(),
-      consent_ai: true,
-      school_year: 9,
-      class_count_hint: freshmanClasses.length,
-      diagnoses: DEMO_DIAGNOSES,
-      accommodations: ["extended_time", "breaks", "alternate_format", "quiet_setting"],
-      extra_time_pct: 50,
-      dyslexia_font: true,
-      line_focus: true,
-      bionic_reading: true,
-      tts_enabled: true,
-      tts_provider: "browser",
-      tts_voice: "nova",
-      tts_speed: 0.95,
-      tts_pitch: 1,
-      font_size: "normal",
-      line_spacing: "loose",
-      reading_letter_spacing: "wide",
-      reading_word_spacing: "wide",
-      visual_pacing: "line",
-      interests: ["basketball", "music", "digital_art", "technology"],
-      session_mood: "meh",
-      mastery_signals: {
-        source: "grayson-demo",
-        goal: "freshman readiness",
-        strongestModes: ["visual", "short practice", "read aloud"],
-      } as Json,
-      ai_verbosity_by_subject: {
-        default: "short",
-        English: "guided",
-        Algebra: "steps",
-        Biology: "visual",
-      } as Json,
-      notification_preferences: {
-        homeworkDigest: "evening",
-        quizPrepNudge: true,
-        quietHours: "21:30-07:00",
-      } as Json,
-      privacy_preferences: {
-        teacherSharesNeedReview: true,
-        parentSummary: "weekly",
-        showProofReceipts: true,
-      } as Json,
-    },
+    profile as TablesInsert<"profiles">,
     { onConflict: "user_id" },
   );
   expectNoError(error, "Seed Grayson profile");
@@ -1384,6 +1397,26 @@ function buildRowsForFactory(
             onboarded_at:
               values?.onboardedAt === null ? null : SCREEN_DESIGN_FIXED_CLOCK,
             consent_ai: booleanValue(values, "consentAi", true),
+            teen_guardian_permission_attested_at: stringValue(
+              values,
+              "teenGuardianPermissionAttestedAt",
+              SCREEN_DESIGN_FIXED_CLOCK,
+            ),
+            teen_guardian_permission_policy_version: stringValue(
+              values,
+              "teenGuardianPermissionPolicyVersion",
+              TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+            ),
+            teen_guardian_permission_source: stringValue(
+              values,
+              "teenGuardianPermissionSource",
+              "synthetic_qa_fixture",
+            ),
+            teen_guardian_permission_withdrawn_at: nullableStringValue(
+              values,
+              "teenGuardianPermissionWithdrawnAt",
+              null,
+            ),
             school_year: numberValue(values, "schoolYear", 9),
             diagnoses: DEMO_DIAGNOSES,
             accommodations: ["extended_time", "breaks", "alternate_format"],
@@ -1468,8 +1501,12 @@ function buildRowsForFactory(
           owner_id: ownerId,
           class_id: dependencyId("class"),
           title: stringValue(values, "title", "Identity quote response"),
-          description: "Choose one quote and explain how it supports the claim.",
-          kind: "essay",
+          description: stringValue(
+            values,
+            "description",
+            "Choose one quote and explain how it supports the claim.",
+          ),
+          kind: stringValue(values, "kind", "essay"),
           status: stringValue(values, "status", "todo"),
           due_at: stringValue(values, "dueAt", "2026-09-15T22:30:00.000Z"),
           estimated_minutes: numberValue(values, "estimatedMinutes", 35),

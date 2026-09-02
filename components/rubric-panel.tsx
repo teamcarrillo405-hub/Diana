@@ -536,10 +536,6 @@ export function RubricPanel({
             <div className="sd-rubric-card-stack">
               {resolved.criteria.map((criterion, index) => {
                 const isChecked = checked.includes(criterion.id);
-                const helpQuery = new URLSearchParams({
-                  source: `Rubric criterion for ${className}: ${criterion.title}${criterion.detail ? `: ${criterion.detail}` : ""}`,
-                  q: "Help me check my work against this criterion without writing it for me.",
-                });
                 return (
                   <div key={criterion.id}>
                     <button
@@ -562,7 +558,7 @@ export function RubricPanel({
                     </button>
                     {aiMode === "green" && !isChecked && (
                       <Link
-                        href={`/study-buddy?${helpQuery.toString()}`}
+                        href="/study"
                         className="sd-rubric-help"
                         aria-label={`Work on ${criterion.title} with Diana`}
                       >

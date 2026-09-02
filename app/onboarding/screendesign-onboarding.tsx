@@ -22,6 +22,7 @@ import {
 } from "react";
 
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { DianaWordmark } from "@/components/screen-design/primitives";
 import { SourceMedia } from "@/components/screen-design/source-media";
 import {
   DEFAULT_LANDING_PAGE_CONFIG,
@@ -365,10 +366,8 @@ function DianaLogo({
       data-landing-node={nodeId}
       data-landing-movable="true"
     >
-      <SourceMedia
-        assetId="diana-logo"
-        width={size === "hero" ? 96 : 56}
-        height={size === "hero" ? 30 : 18}
+      <DianaWordmark
+        tight
         alt="DIANA logo"
         className={
           size === "hero"

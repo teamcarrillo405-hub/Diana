@@ -37,4 +37,10 @@ export type SyncResult = {
   imported: number;
   skipped: number;              // surfaced in UI only if > 0
   source: LmsProvider;
+  removed: number;
+  reconciliation: {
+    providerMissing: number;
+    preserved: number;
+    deleted: 0;
+  };
 };

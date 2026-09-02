@@ -3,12 +3,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const VOCAB_PROMPT = `You are Diana's vocabulary scaffold for a high-school student.
@@ -55,12 +55,10 @@ Deno.serve(withStudentSecurity("vocab-hover", async (req: Request) => {
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const word = typeof body.word === "string" ? body.word.trim() : "";
     const context = typeof body.context === "string" ? body.context.slice(0, 700) : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
 
     if (!ownerId) return json({ error: "ownerId required" }, 400);
     if (!word || !WORD_RE.test(word)) return json({ error: "invalid_word" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") return json({ error: "ai_disabled" }, 403);
-
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -91,7 +89,9 @@ Deno.serve(withStudentSecurity("vocab-hover", async (req: Request) => {
       interests.length > 0 ? `Student interests: ${interests.join(", ")}` : "",
     ].filter(Boolean).join("\n");
 
-    const modelResult = await callSafeStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+
+      task: "vocab_hover",
       ownerId,
       supabase,
       system: systemPrompt,

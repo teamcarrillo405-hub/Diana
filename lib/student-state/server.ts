@@ -4,7 +4,7 @@ import {
   normalizeAssignmentKind,
   normalizeAssignmentStatus,
 } from "@/lib/assignment-kind";
-import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
 import {
   buildStudentStateModel,
   sourceAnchorsFromAssignment,
@@ -31,7 +31,7 @@ export async function recordStudentStateSnapshot({
 
   const { data: assignment } = await supabase
     .from("assignments")
-    .select("id, owner_id, title, description, status, kind, reading_load, writing_load, difficulty, estimated_minutes, class_id, rubric_text, ai_mode_override, classes(ai_mode)")
+    .select("id, owner_id, title, description, status, kind, reading_load, writing_load, difficulty, estimated_minutes, class_id, rubric_text")
     .eq("id", assignmentId)
     .eq("owner_id", ownerId)
     .maybeSingle();
@@ -64,9 +64,8 @@ export async function recordStudentStateSnapshot({
     .map((signal) => readinessFromSignalValue(signal.value))
     .find(Boolean) ?? null;
 
-  const classMode: AiMode = classAiMode(assignment.classes);
-  const override = isAiMode(assignment.ai_mode_override) ? assignment.ai_mode_override : null;
-  const aiPolicy = effectiveAiMode(classMode, override);
+  const aiPolicy = resolveDianaHomeworkTrust().aiMode;
+
   const model = buildStudentStateModel({
     assignment: {
       id: assignment.id,
@@ -142,16 +141,4 @@ async function loadMasterySummary(
     averageMastery: Math.round((total / rows.length) * 10) / 10,
     weakestConcept: rows[0]?.name ?? null,
   };
-}
-
-function classAiMode(classes: unknown): AiMode {
-  const cls = Array.isArray(classes) ? classes[0] : classes;
-  if (cls && typeof cls === "object" && "ai_mode" in cls && isAiMode((cls as { ai_mode?: unknown }).ai_mode)) {
-    return (cls as { ai_mode: AiMode }).ai_mode;
-  }
-  return "green";
-}
-
-function isAiMode(value: unknown): value is AiMode {
-  return value === "red" || value === "yellow" || value === "green";
 }

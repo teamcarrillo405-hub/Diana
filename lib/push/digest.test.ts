@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildDailyDigest, type DigestAssignment } from "./digest";
+import { buildDailyDigest } from "./digest";
 
 const NOW = new Date("2026-06-10T13:00:00");
 

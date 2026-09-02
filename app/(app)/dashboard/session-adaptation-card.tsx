@@ -23,7 +23,7 @@ export function SessionAdaptationCard({ adaptation }: { adaptation: SessionAdapt
           <p style={{ marginTop: "var(--space-3)", fontSize: "var(--text-14)", color: "var(--gl-text-muted)" }}>{adaptation.nextStep}</p>
         </div>
         <Link
-          href={adaptation.mood === "rough" ? "/timer?mode=rough" : "/timer"}
+          href="/assignments"
           style={{
             flexShrink: 0,
             borderRadius: "var(--radius-button)",

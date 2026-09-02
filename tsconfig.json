@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -13,9 +17,39 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./*"] }
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "supabase/functions", "vendor", "export"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next-beta-000000000000/types/**/*.ts",
+    ".next-beta-111111111111/types/**/*.ts",
+    ".next-beta-222222222222/types/**/*.ts",
+    ".next-beta-5b68831b94a6/types/**/*.ts",
+    ".next-beta-9c59d1cb25e6/types/**/*.ts",
+    ".next-dev-3000/types/**/*.ts",
+    ".next-dev-3001/types/**/*.ts",
+    ".next-dev-3002/types/**/*.ts",
+    ".next-dev-3006/types/**/*.ts",
+    ".next-playwright-3005/types/**/*.ts",
+    ".next-playwright-3010/types/**/*.ts",
+    ".next/types/**/*.ts",
+    "next-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "supabase/functions",
+    "vendor",
+    "artifacts",
+    "export"
+  ]
 }

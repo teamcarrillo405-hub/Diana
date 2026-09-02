@@ -2,6 +2,18 @@
 
 This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
 
+## Higgsfield Credit Safety
+
+Higgsfield credits are reserved for a user-approved final render. This is a hard production constraint.
+
+- Never call a Higgsfield generation connector, batch generation connector, Supercomputer generation, CLI generation, Canvas generation, or MCP generation for drafts, tests, variants, retries, reviews, storyboards, or intermediate clips. These surfaces deduct credits even when the same model has web-only Unlimited access.
+- Use Higgsfield free or Unlimited features only through the signed-in `higgsfield.ai` website with computer/browser mode. Recheck eligibility in the visible UI every session because plan coverage can expire or change.
+- Before any no-cost web generation, verify all three conditions: the selected model is listed as active in Manage Account > Subscription, Unlimited mode is visibly enabled when required, and the final Generate control shows zero credits or explicitly says Unlimited. A credit number, credit icon, upgrade prompt, bundle offer, or purchase dialog means stop without generating.
+- Current observed Plus Monthly entitlement on 2026-08-29: 3,000 free Soul 2.0 image generations. Do not infer free video access from plan marketing, an available Unlimited toggle, or connector metadata.
+- Use local ComfyUI for all video iteration and Remotion for compositing, timing, sound, text, review masters, and final assembly. Free Higgsfield images may support storyboards or source plates when the visible zero-credit checks pass.
+- A paid Higgsfield final render requires explicit approval for that exact call after reporting the model, duration, resolution, reference inputs, number of outputs, and total credit cost. Approval for the project or an earlier render does not carry forward. Never submit parallel paid variants.
+- Read-only balance, pricing, model, job-status, and usage-history checks are allowed. They must not be followed by a paid generation without the exact final-render approval above.
+
 ## Commands
 
 ```bash

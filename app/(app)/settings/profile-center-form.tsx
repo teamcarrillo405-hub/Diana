@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
+import { hasCurrentTeenGuardianPermission } from "@/lib/learner-access-policy";
 import type { ProfilePrefs } from "@/lib/profile";
 import { saveProfileCenter } from "./actions";
+import { profileSchoolYearLabel } from "./source-models";
 
 export function ProfileCenterForm({
   profile,
@@ -17,6 +19,15 @@ export function ProfileCenterForm({
   const [pending, startTransition] = useTransition();
   const [message, setMessage] = useState<string | null>(null);
   const [tone, setTone] = useState<"ok" | "warn">("ok");
+  const isTeen = profile.age_bracket === "13_to_17";
+  const isUnder13 = profile.age_bracket === "under_13";
+  const currentTeenPermission = isTeen && hasCurrentTeenGuardianPermission(profile);
+  const [teenGuardianPermissionAttested, setTeenGuardianPermissionAttested] = useState(
+    currentTeenPermission,
+  );
+  const [aiConsent, setAiConsent] = useState(
+    profile.consent_ai && !isUnder13 && (!isTeen || currentTeenPermission),
+  );
 
   return (
     <form
@@ -33,7 +44,8 @@ export function ProfileCenterForm({
             timezone: String(formData.get("timezone") ?? ""),
             learning_hurdle: nullableValue(formData.get("learning_hurdle")) as ProfilePrefs["learning_hurdle"],
             study_schedule_preference: nullableValue(formData.get("study_schedule_preference")) as ProfilePrefs["study_schedule_preference"],
-            consent_ai: formData.get("consent_ai") === "on",
+            teen_guardian_permission_attested: teenGuardianPermissionAttested,
+            consent_ai: aiConsent,
           });
           setTone(result.ok ? "ok" : "warn");
           setMessage(result.message);
@@ -50,8 +62,8 @@ export function ProfileCenterForm({
           <span>School year</span>
           <select name="school_year" defaultValue={profile.school_year ?? ""}>
             <option value="">Not set</option>
-            {Array.from({ length: 12 }, (_, index) => index + 1).map((year) => (
-              <option key={year} value={year}>Year {year}</option>
+            {Array.from({ length: 11 }, (_, index) => index + 6).map((year) => (
+              <option key={year} value={year}>{profileSchoolYearLabel(year)}</option>
             ))}
           </select>
         </label>
@@ -78,8 +90,39 @@ export function ProfileCenterForm({
             <option value="late_night">Late night</option>
           </select>
         </label>
+        {isTeen ? (
+          <div className="sd-profile-permission-group">
+            <label className="sd-profile-check">
+              <input
+                name="teen_guardian_permission_attested"
+                type="checkbox"
+                checked={teenGuardianPermissionAttested}
+                onChange={(event) => {
+                  const checked = event.target.checked;
+                  setTeenGuardianPermissionAttested(checked);
+                  if (!checked) setAiConsent(false);
+                }}
+              />
+              <span>
+                I confirm that my parent or guardian has given permission for me to use the
+                13+ Diana AI beta.
+              </span>
+            </label>
+            <p>
+              This is your attestation, not identity verification or verified COPPA consent.
+              Diana does not collect identity documents here. Clearing it turns off AI when
+              these settings are saved.
+            </p>
+          </div>
+        ) : null}
         <label className="sd-profile-check">
-          <input name="consent_ai" type="checkbox" defaultChecked={profile.consent_ai} />
+          <input
+            name="consent_ai"
+            type="checkbox"
+            checked={aiConsent}
+            disabled={isUnder13 || (isTeen && !teenGuardianPermissionAttested)}
+            onChange={(event) => setAiConsent(event.target.checked)}
+          />
           <span>Allow age-appropriate AI coaching</span>
         </label>
       </fieldset>

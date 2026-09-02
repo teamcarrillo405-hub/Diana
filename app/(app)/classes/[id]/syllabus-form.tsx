@@ -3,8 +3,15 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addSyllabus } from "./actions";
+import { CourseMaterialUpload } from "./course-material-upload";
 
-export function SyllabusForm({ classId }: { classId: string }) {
+export function SyllabusForm({
+  classId,
+  document,
+}: {
+  classId: string;
+  document?: { id: string; name: string; href: string | null } | null;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [title, setTitle] = useState("");
@@ -47,6 +54,7 @@ export function SyllabusForm({ classId }: { classId: string }) {
       <p>
         Diana scans for due dates, grading, late-work, and integrity policies so the important parts stay visible.
       </p>
+      <CourseMaterialUpload classId={classId} kind="syllabus" document={document} />
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex justify-end">
         <button type="submit" disabled={pending} className="diana-button diana-button-primary disabled:opacity-50">

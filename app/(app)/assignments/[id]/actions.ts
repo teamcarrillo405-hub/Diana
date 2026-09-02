@@ -3,29 +3,29 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { canTransition } from "@/lib/state-machine/assignment";
 import { buildChecklist } from "@/lib/checklists/templates";
-import {
-  buildAssignmentArtifact,
-  parseStoredAssignmentArtifactBlocks,
-  type AssignmentArtifactBlockInput,
-} from "@/lib/assignment-artifact";
-import { resolveAssignmentProfile } from "@/lib/assignment-profile";
-import { parseWorkspaceMode } from "@/lib/assignment-workspace";
 import type { AssignmentKind } from "@/lib/supabase/types";
 import { openTimeLog, recordElapsedTime } from "@/lib/time-budget/calibration";
 import { recordStudentStateSnapshot } from "@/lib/student-state/server";
+import { loadAssignmentHomeworkKernel } from "@/lib/assignment-help/server-understanding";
+import { loadAssignmentSubmissionBundle } from "@/lib/assignment-submission-server";
+import { canonicalSubmissionPayloadForTarget } from "@/lib/assignment-submission";
 import { getValidCanvasToken } from "@/lib/lms/canvas";
+import {
+  hydrateLmsConnectionForRuntime,
+  persistLmsTokenRefreshForRuntime,
+} from "@/lib/lms/credential-policy";
+import { LmsReconnectRequiredError, lmsOperationErrorDetails } from "@/lib/lms/errors";
 import { getValidGoogleToken, type GoogleClassroomConfig } from "@/lib/lms/google";
+import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
 import {
-  hydrateLmsConnectionCredentials,
-  persistLmsTokenRefresh,
-} from "@/lib/integrations/credential-vault";
-import {
+  canReleaseProviderArtifactLock,
   claimSubmissionReceipt,
-  completeSubmissionReceipt,
   inspectCanvasSubmission,
   inspectGoogleClassroomSubmission,
+  canReleaseCanvasTextReceiptAfterRejection,
   providerSubmissionReceiptStatus,
   reconcileSubmissionReceipt,
   resolveProviderSubmissionStatus,
@@ -36,8 +36,14 @@ import {
   type SubmissionClaim,
   type SubmissionReceiptStatus,
 } from "@/lib/lms/submission";
+import {
+  createSubmissionTextReconciliationRecord,
+  providerSubmissionObservationResponse,
+  submissionReconciliationProviderResponse,
+} from "@/lib/lms/reconciliation";
 
 const STATUSES = ["todo","drafting","checking","exporting","submitted","graded","abandoned"] as const;
+const DIRECT_LMS_PROVIDERS = new Set(["canvas", "google_classroom"]);
 
 const Input = z.object({
   id: z.string().uuid(),
@@ -55,6 +61,23 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
+
+  const { data: current, error: currentError } = await supabase
+    .from("assignments")
+    .select("status, external_source")
+    .eq("id", id)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+  if (currentError) return { error: currentError.message };
+  if (!current) return { error: "Assignment not found." };
+  if (current.status !== from) {
+    return { error: "Assignment state changed. Refresh and try again." };
+  }
+  if (to === "submitted" && DIRECT_LMS_PROVIDERS.has(current.external_source ?? "")) {
+    return {
+      error: "Use the school-system submission review so Diana can verify the provider receipt.",
+    };
+  }
 
   const patch: { status: typeof to; submitted_at?: string } = { status: to };
   if (to === "submitted") patch.submitted_at = new Date().toISOString();
@@ -211,6 +234,23 @@ export async function markExternalSubmission(input: z.infer<typeof ExternalSubmi
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
 
+  const { data: assignment, error: assignmentError } = await supabase
+    .from("assignments")
+    .select("external_source")
+    .eq("id", parsed.data.id)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+  if (assignmentError) return { error: assignmentError.message };
+  if (!assignment) return { error: "Assignment not found." };
+  if (
+    parsed.data.status === "marked_submitted"
+    && DIRECT_LMS_PROVIDERS.has(assignment.external_source ?? "")
+  ) {
+    return {
+      error: "Check the school-system submission status so Diana can verify the receipt.",
+    };
+  }
+
   const { error } = await supabase
     .from("assignments")
     .update({
@@ -232,10 +272,13 @@ export async function saveBreadcrumb(input: z.infer<typeof Breadcrumb>) {
   if (!parsed.success) return { error: "Invalid input." };
 
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { error: "Not signed in." };
   const { error } = await supabase
     .from("assignments")
     .update({ last_thought: parsed.data.text || null })
-    .eq("id", parsed.data.id);
+    .eq("id", parsed.data.id)
+    .eq("owner_id", user.id);
   if (error) return { error: error.message };
   revalidatePath(`/assignments/${parsed.data.id}`);
   return { ok: true };
@@ -449,6 +492,7 @@ const DirectProviderSubmission = z.object({
   assignmentId: z.string().uuid(),
   confirmed: z.literal(true),
   idempotencyKey: z.string().uuid(),
+  payloadDigest: z.string().regex(/^[a-f0-9]{64}$/u),
 });
 
 const ProviderAvailabilityInput = z.object({ assignmentId: z.string().uuid() });
@@ -459,35 +503,23 @@ function providerAssignmentId(assignment: ProviderAssignment): string | null {
     : assignment.external_id;
 }
 
-function canonicalSubmissionText(
-  assignment: Pick<ProviderAssignment, "title" | "saved_work" | "work_profile" | "assignment_profile">,
-  problems: Array<{ problem_number: number; problem_text: string; student_work: unknown; scaffold: unknown }>,
-  blocks: readonly AssignmentArtifactBlockInput[] = [],
-): string {
-  const savedWork = assignment.saved_work && typeof assignment.saved_work === "object" && !Array.isArray(assignment.saved_work)
-    ? assignment.saved_work as Record<string, unknown>
-    : {};
-  const mode = parseWorkspaceMode(savedWork.workspaceMode) ?? parseWorkspaceMode(assignment.work_profile) ?? "handoff";
-  const profile = resolveAssignmentProfile({
-    kind: "other",
-    title: assignment.title,
-    profile: assignment.assignment_profile,
-    workProfile: mode,
-  });
-  const artifact = buildAssignmentArtifact({
-    mode,
-    artifactType: profile.artifactType,
-    title: assignment.title,
-    savedWork,
-    problems: problems.map((problem) => ({
-      problemNumber: problem.problem_number,
-      problemText: problem.problem_text,
-      studentWork: problem.student_work,
-      scaffold: problem.scaffold,
-    })),
-    blocks,
-  });
-  return artifact.isEmpty ? "" : artifact.plainText.slice(0, 50000);
+type ConnectedSubmissionProvider = "canvas" | "google_classroom";
+
+function connectedSubmissionProvider(value: string): ConnectedSubmissionProvider | null {
+  return value === "canvas" || value === "google_classroom" ? value : null;
+}
+
+function assertProviderSubmissionEnabled(provider: ConnectedSubmissionProvider): void {
+  assertLmsProviderFeatureEnabled(
+    provider === "canvas" ? "canvas_submission" : "google_submission",
+  );
+}
+
+function providerCredentialFailure(error: unknown, provider: ConnectedSubmissionProvider) {
+  const normalized = error instanceof Error && /\b(?:401|403)\b/u.test(error.message)
+    ? new LmsReconnectRequiredError(provider)
+    : error;
+  return lmsOperationErrorDetails(normalized);
 }
 
 async function loadProviderContext(
@@ -501,16 +533,12 @@ async function loadProviderContext(
     store.from("lms_connections").select("id, provider, config").eq("owner_id", ownerId).eq("provider", assignment.external_source).maybeSingle(),
   ]);
   if (!classLink?.external_id || !connection?.config) return null;
-  try {
-    const securedConnection = await hydrateLmsConnectionCredentials(ownerId, connection);
-    return {
-      classExternalId: classLink.external_id,
-      connection: securedConnection,
-      config: securedConnection.config,
-    };
-  } catch {
-    return null;
-  }
+  const securedConnection = await hydrateLmsConnectionForRuntime(ownerId, connection);
+  return {
+    classExternalId: classLink.external_id,
+    connection: securedConnection,
+    config: securedConnection.config,
+  };
 }
 
 function replayResult(claim: SubmissionClaim) {
@@ -545,14 +573,21 @@ async function latestReceiptStatus(
 ) {
   const { data } = await (supabase as any)
     .from("assignment_submission_receipts")
-    .select("id, status, detail, provider")
+    .select("id, status, detail, provider, provider_response")
     .eq("assignment_id", assignmentId)
     .eq("owner_id", ownerId)
     .eq("provider", provider)
     .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  return data as { id: string; status: SubmissionReceiptStatus; detail: string | null; provider: string } | null;
+  if (!data) return null;
+  return {
+    id: data.id as string,
+    status: data.status as SubmissionReceiptStatus,
+    detail: typeof data.detail === "string" ? data.detail : null,
+    provider: data.provider as string,
+    providerResponse: data.provider_response,
+  };
 }
 
 export async function getConnectedProviderSubmissionState(input: z.infer<typeof ProviderAvailabilityInput>) {
@@ -575,7 +610,38 @@ export async function getConnectedProviderSubmissionState(input: z.infer<typeof 
   }
 
   const receipt = await latestReceiptStatus(supabase, assignment.id, user.id, assignment.external_source);
-  const context = await loadProviderContext(supabase, assignment, user.id);
+  const provider = connectedSubmissionProvider(assignment.external_source);
+  try {
+    if (provider) assertProviderSubmissionEnabled(provider);
+  } catch (error) {
+    const detail = provider ? providerCredentialFailure(error, provider) : null;
+    return {
+      ok: true as const,
+      capabilities: submissionCapabilities(assignment.external_source),
+      receiptStatus: receipt?.status ?? null,
+      receiptDetail: receipt?.detail ?? null,
+      connectionReady: false,
+      ...(detail ? { code: detail.code } : {}),
+    };
+  }
+
+  let context: ProviderContext | null;
+  try {
+    context = await loadProviderContext(supabase, assignment, user.id);
+  } catch (error) {
+    const detail = provider ? providerCredentialFailure(error, provider) : null;
+    return {
+      ok: true as const,
+      capabilities: {
+        ...submissionCapabilities(assignment.external_source),
+        note: detail?.error ?? "Reconnect the school system before submitting.",
+      },
+      receiptStatus: receipt?.status ?? null,
+      receiptDetail: receipt?.detail ?? null,
+      connectionReady: false,
+      ...(detail ? { code: detail.code } : {}),
+    };
+  }
   if (!context) {
     return {
       ok: true as const,
@@ -583,6 +649,7 @@ export async function getConnectedProviderSubmissionState(input: z.infer<typeof 
       receiptStatus: receipt?.status ?? null,
       receiptDetail: receipt?.detail ?? null,
       connectionReady: false,
+      ...(provider ? { code: "reconnect_required" as const } : {}),
     };
   }
 
@@ -590,10 +657,10 @@ export async function getConnectedProviderSubmissionState(input: z.infer<typeof 
     let capabilities: ProviderSubmissionCapabilities;
     if (assignment.external_source === "canvas") {
       const config = context.config as { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
-      if (!config.institution_id || !config.base_url || !config.token) throw new Error("Reconnect Canvas before submitting.");
+      if (!config.institution_id || !config.base_url) throw new LmsReconnectRequiredError("canvas");
       const valid = await getValidCanvasToken({ institution_id: config.institution_id, base_url: config.base_url, token: config.token, oauth: config.oauth, refresh_token: config.refresh_token, expires_at: config.expires_at });
       if (valid.refreshed) {
-        await persistLmsTokenRefresh(supabase as any, {
+        await persistLmsTokenRefreshForRuntime(supabase as any, {
           ownerId: user.id,
           connection: context.connection,
           accessToken: valid.refreshed.token,
@@ -603,9 +670,8 @@ export async function getConnectedProviderSubmissionState(input: z.infer<typeof 
       capabilities = await inspectCanvasSubmission({ institutionId: config.institution_id, baseUrl: config.base_url, token: valid.token, courseId: context.classExternalId, assignmentId: assignmentProviderId });
     } else if (assignment.external_source === "google_classroom") {
       const valid = await getValidGoogleToken(context.config as GoogleClassroomConfig);
-      if (!valid) throw new Error("Reconnect Google Classroom before submitting.");
       if (valid.refreshed) {
-        await persistLmsTokenRefresh(supabase as any, {
+        await persistLmsTokenRefreshForRuntime(supabase as any, {
           ownerId: user.id,
           connection: context.connection,
           accessToken: valid.refreshed.access_token,
@@ -625,15 +691,17 @@ export async function getConnectedProviderSubmissionState(input: z.infer<typeof 
     };
   } catch (error) {
     const capabilities = submissionCapabilities(assignment.external_source);
+    const detail = provider ? providerCredentialFailure(error, provider) : null;
     return {
       ok: true as const,
       capabilities: {
         ...capabilities,
-        note: error instanceof Error ? error.message : "Open the school system to submit this assignment.",
+        note: detail?.error ?? (error instanceof Error ? error.message : "Open the school system to submit this assignment."),
       },
       receiptStatus: receipt?.status ?? null,
       receiptDetail: receipt?.detail ?? null,
       connectionReady: false,
+      ...(detail ? { code: detail.code } : {}),
     };
   }
 }
@@ -675,11 +743,25 @@ export async function checkConnectedProviderSubmissionStatus(input: z.infer<type
     };
   }
 
-  const context = await loadProviderContext(supabase, assignment, user.id);
+  const provider = connectedSubmissionProvider(assignment.external_source);
+  let context: ProviderContext | null;
+  try {
+    if (provider) assertProviderSubmissionEnabled(provider);
+    context = await loadProviderContext(supabase, assignment, user.id);
+  } catch (error) {
+    const detail = provider ? providerCredentialFailure(error, provider) : null;
+    return {
+      ok: false as const,
+      receiptStatus: "confirmation_pending" as const,
+      ...(detail ? { code: detail.code } : {}),
+      error: detail?.error ?? "Reconnect the school system, then check the submission status again. Diana has not sent the work again.",
+    };
+  }
   if (!context) {
     return {
       ok: false as const,
       receiptStatus: "confirmation_pending" as const,
+      ...(provider ? { code: "reconnect_required" as const } : {}),
       error: "Reconnect the school system, then check the submission status again. Diana has not sent the work again.",
     };
   }
@@ -689,10 +771,10 @@ export async function checkConnectedProviderSubmissionStatus(input: z.infer<type
     let inspection: ProviderSubmissionCapabilities;
     if (assignment.external_source === "canvas") {
       const config = context.config as { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
-      if (!config.institution_id || !config.base_url || !config.token) throw new Error("Reconnect Canvas before checking.");
+      if (!config.institution_id || !config.base_url) throw new LmsReconnectRequiredError("canvas");
       const valid = await getValidCanvasToken({ institution_id: config.institution_id, base_url: config.base_url, token: config.token, oauth: config.oauth, refresh_token: config.refresh_token, expires_at: config.expires_at });
       if (valid.refreshed) {
-        await persistLmsTokenRefresh(supabase as any, {
+        await persistLmsTokenRefreshForRuntime(supabase as any, {
           ownerId: user.id,
           connection: context.connection,
           accessToken: valid.refreshed.token,
@@ -702,9 +784,8 @@ export async function checkConnectedProviderSubmissionStatus(input: z.infer<type
       inspection = await inspectCanvasSubmission({ institutionId: config.institution_id, baseUrl: config.base_url, token: valid.token, courseId: context.classExternalId, assignmentId: assignmentProviderId });
     } else if (assignment.external_source === "google_classroom") {
       const valid = await getValidGoogleToken(context.config as GoogleClassroomConfig);
-      if (!valid) throw new Error("Reconnect Google Classroom before checking.");
       if (valid.refreshed) {
-        await persistLmsTokenRefresh(supabase as any, {
+        await persistLmsTokenRefreshForRuntime(supabase as any, {
           ownerId: user.id,
           connection: context.connection,
           accessToken: valid.refreshed.access_token,
@@ -716,7 +797,16 @@ export async function checkConnectedProviderSubmissionStatus(input: z.infer<type
       return { ok: false as const, receiptStatus: "confirmation_pending" as const, error: "Open the school system to check this submission." };
     }
     resolution = resolveProviderSubmissionStatus(inspection);
-  } catch {
+  } catch (error) {
+    const detail = provider ? providerCredentialFailure(error, provider) : null;
+    if (detail) {
+      return {
+        ok: false as const,
+        code: detail.code,
+        receiptStatus: "confirmation_pending" as const,
+        error: detail.error,
+      };
+    }
     resolution = {
       status: "confirmation_pending" as const,
       detail: "The school system could not confirm the submission status yet. You can check again, and Diana will not send the work again.",
@@ -725,8 +815,36 @@ export async function checkConnectedProviderSubmissionStatus(input: z.infer<type
     };
   }
 
+  if (
+    receipt.status === "confirmation_pending"
+    && resolution.status === "not_accepted"
+    && !canReleaseProviderArtifactLock(
+      receipt.providerResponse,
+      resolution.providerResponse,
+    )
+  ) {
+    resolution = {
+      status: "confirmation_pending" as const,
+      detail: "Diana cannot prove that the exact provider file is absent or cleaned up yet. The existing confirmation lock will stay in place.",
+      providerReceiptId: null,
+      providerResponse: {
+        ...resolution.providerResponse,
+        diana_provider_artifact_release_verified: false,
+      },
+    };
+  }
+
+  const authoritativeClient = createServiceClient();
+  if (!authoritativeClient) {
+    return {
+      ok: false as const,
+      receiptStatus: "confirmation_pending" as const,
+      error: "Diana cannot safely record the school-system status right now. The work was not sent again.",
+    };
+  }
+
   try {
-    const reconciled = await reconcileSubmissionReceipt(supabase as any, {
+    const reconciled = await reconcileSubmissionReceipt(authoritativeClient as any, {
       receiptId: receipt.id,
       status: resolution.status,
       providerReceiptId: resolution.providerReceiptId,
@@ -783,45 +901,106 @@ export async function submitToConnectedProvider(input: z.infer<typeof DirectProv
     return { ok: false as const, error: "Attach a finished Diana file before submitting to Google Classroom." };
   }
   if (assignment.external_source !== "canvas") return { ok: false as const, error: "This school system needs a guided handoff." };
-
-  const [{ data: problems, error: problemError }, { data: artifactRows, error: artifactError }] = await Promise.all([
-    supabase
-      .from("assignment_problems")
-      .select("problem_number, problem_text, student_work, scaffold")
-      .eq("assignment_id", assignment.id)
-      .eq("owner_id", user.id)
-      .order("problem_number", { ascending: true }),
-    (supabase as any)
-      .from("artifact_blocks")
-      .select("id, block_key, block_type, capability, label, position, content, plain_text, source_anchors")
-      .eq("assignment_id", assignment.id)
-      .eq("owner_id", user.id)
-      .order("position", { ascending: true }),
-  ]);
-  if (problemError) return { ok: false as const, error: "Diana could not prepare the finished work." };
-  if (artifactError) return { ok: false as const, error: "Diana could not prepare the finished work." };
-  const text = canonicalSubmissionText(
-    assignment,
-    problems ?? [],
-    parseStoredAssignmentArtifactBlocks(artifactRows),
-  );
-  if (!text.trim()) return { ok: false as const, error: "Add your work in Diana before submitting." };
-  const context = await loadProviderContext(supabase, assignment, user.id);
-  if (!context) return { ok: false as const, error: "Reconnect Canvas before submitting." };
-  const config = context.config as { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
-  if (!config.institution_id || !config.base_url || !config.token) return { ok: false as const, error: "Reconnect Canvas before submitting." };
-
-  const valid = await getValidCanvasToken({ institution_id: config.institution_id, base_url: config.base_url, token: config.token, oauth: config.oauth, refresh_token: config.refresh_token, expires_at: config.expires_at });
-  if (valid.refreshed) {
-    await persistLmsTokenRefresh(supabase as any, {
-      ownerId: user.id,
-      connection: context.connection,
-      accessToken: valid.refreshed.token,
-      expiresAt: valid.refreshed.expires_at,
-    });
+  try {
+    assertProviderSubmissionEnabled("canvas");
+  } catch (error) {
+    const detail = providerCredentialFailure(error, "canvas");
+    return {
+      ok: false as const,
+      ...(detail ? { code: detail.code } : {}),
+      error: detail?.error ?? "Canvas submission is not enabled.",
+    };
   }
-  const capabilities = await inspectCanvasSubmission({ institutionId: config.institution_id, baseUrl: config.base_url, token: valid.token, courseId: context.classExternalId, assignmentId: assignmentProviderId });
+
+  const kernel = await loadAssignmentHomeworkKernel({
+    supabase: supabase as any,
+    ownerId: user.id,
+    assignmentId: assignment.id,
+    eventSource: "provider_submission_text",
+  });
+  if (!kernel) return { ok: false as const, error: "Assignment not found." };
+
+  const bundle = await loadAssignmentSubmissionBundle({
+    supabase: supabase as any,
+    ownerId: user.id,
+    assignmentId: assignment.id,
+    profile: kernel.profile,
+    kernel,
+  });
+  if (!bundle) return { ok: false as const, error: "Assignment not found." };
+  if (bundle.preview.payloadDigest !== parsed.data.payloadDigest) {
+    return { ok: false as const, error: "Your work changed after this review opened. Refresh the review before sending." };
+  }
+  const lmsPayload = canonicalSubmissionPayloadForTarget(bundle.preview, "lms");
+  if (lmsPayload.specialistDelivery.externalHandoffRequired) {
+    return {
+      ok: false as const,
+      error: "This work references an original CAD or media source file that is not embedded in Diana's PDF. Open Canvas and attach the source file there.",
+    };
+  }
+  if (lmsPayload.specialistDelivery.visibleSummaryIncluded) {
+    return {
+      ok: false as const,
+      error: "This work includes a specialist artifact. Submit the canonical PDF so Canvas receives its visible summary and attached machine-readable artifact.",
+    };
+  }
+  const text = lmsPayload.textPayload;
+  if (!text.trim()) return { ok: false as const, error: "Add your work in Diana before submitting." };
+  let context: ProviderContext;
+  let config: { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
+  let valid: Awaited<ReturnType<typeof getValidCanvasToken>>;
+  let capabilities: Awaited<ReturnType<typeof inspectCanvasSubmission>>;
+  try {
+    const loadedContext = await loadProviderContext(supabase, assignment, user.id);
+    if (!loadedContext) throw new LmsReconnectRequiredError("canvas");
+    context = loadedContext;
+    config = context.config as typeof config;
+    if (!config.institution_id || !config.base_url) throw new LmsReconnectRequiredError("canvas");
+    valid = await getValidCanvasToken({ institution_id: config.institution_id, base_url: config.base_url, token: config.token, oauth: config.oauth, refresh_token: config.refresh_token, expires_at: config.expires_at });
+    if (valid.refreshed) {
+      await persistLmsTokenRefreshForRuntime(supabase as any, {
+        ownerId: user.id,
+        connection: context.connection,
+        accessToken: valid.refreshed.token,
+        expiresAt: valid.refreshed.expires_at,
+      });
+    }
+    capabilities = await inspectCanvasSubmission({ institutionId: config.institution_id, baseUrl: config.base_url, token: valid.token, courseId: context.classExternalId, assignmentId: assignmentProviderId });
+  } catch (error) {
+    const detail = providerCredentialFailure(error, "canvas");
+    return {
+      ok: false as const,
+      ...(detail ? { code: detail.code } : {}),
+      error: detail?.error ?? (error instanceof Error ? error.message : "Reconnect Canvas before submitting."),
+    };
+  }
   if (!capabilities.capabilities.includes("submit_text")) return { ok: false as const, error: capabilities.note };
+
+  const baseline = capabilities.reconciliationObservation;
+  if (
+    !baseline
+    || baseline.provider !== "canvas"
+    || baseline.attempt === null
+    || !Number.isInteger(baseline.attempt)
+  ) {
+    return {
+      ok: false as const,
+      error: "Canvas did not provide enough submission history to send this response safely. Open the assignment in Canvas to review it.",
+    };
+  }
+
+  let reconciliationRecord;
+  try {
+    reconciliationRecord = createSubmissionTextReconciliationRecord({
+      baseline,
+      payloadDigest: bundle.preview.payloadDigest,
+    });
+  } catch (error) {
+    return {
+      ok: false as const,
+      error: error instanceof Error ? error.message : "The Canvas text binding is incomplete.",
+    };
+  }
 
   const rpcClient = supabase as any;
   let claim: SubmissionClaim;
@@ -838,25 +1017,116 @@ export async function submitToConnectedProvider(input: z.infer<typeof DirectProv
   const replay = replayResult(claim);
   if (replay) return replay;
 
+  const authoritativeClient = createServiceClient();
+  if (!authoritativeClient) {
+    return {
+      ok: false as const,
+      error: "Diana cannot safely record a Canvas receipt right now. The response was not sent.",
+    };
+  }
+  const authoritativeRpcClient = authoritativeClient as any;
+
+  try {
+    const prepared = await reconcileSubmissionReceipt(authoritativeRpcClient, {
+      receiptId: claim.receiptId,
+      status: "confirmation_pending",
+      providerReceiptId: null,
+      detail: "Diana recorded the Canvas state before text delivery. The response has not been submitted yet.",
+      providerResponse: submissionReconciliationProviderResponse(reconciliationRecord),
+    });
+    if (prepared.status !== "confirmation_pending") {
+      const settledReplay = replayResult({
+        receiptId: prepared.receiptId,
+        status: prepared.status,
+        claimed: false,
+        detail: prepared.detail,
+      });
+      if (settledReplay) return settledReplay;
+      return {
+        ok: false as const,
+        receiptStatus: "confirmation_pending" as const,
+        error: "The Canvas receipt changed before delivery. Diana did not send the response.",
+      };
+    }
+  } catch {
+    return {
+      ok: false as const,
+      receiptStatus: "confirmation_pending" as const,
+      error: "Diana could not save the Canvas baseline, so it did not send the response. Check Canvas before trying again.",
+    };
+  }
+
   let providerReceipt: { id?: number | string; workflow_state?: string };
   try {
     providerReceipt = await submitCanvasText({ institutionId: config.institution_id, baseUrl: config.base_url, token: valid.token, courseId: context.classExternalId, assignmentId: assignmentProviderId, text });
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Canvas did not accept the submission.";
-    const status = providerSubmissionReceiptStatus(error);
+    let status: "not_accepted" | "confirmation_pending" = "confirmation_pending";
+    if (providerSubmissionReceiptStatus(error) === "not_accepted") {
+      try {
+        const readback = await inspectCanvasSubmission({
+          institutionId: config.institution_id,
+          baseUrl: config.base_url,
+          token: valid.token,
+          courseId: context.classExternalId,
+          assignmentId: assignmentProviderId,
+        });
+        if (canReleaseCanvasTextReceiptAfterRejection(baseline, readback.reconciliationObservation)) {
+          status = "not_accepted";
+        }
+      } catch {
+        status = "confirmation_pending";
+      }
+    }
     await updateSubmissionReceiptStatus(rpcClient, { receiptId: claim.receiptId, status, detail }).catch(() => undefined);
-    return { ok: false as const, receiptStatus: status, error: detail };
+    const credentialFailure = providerCredentialFailure(error, "canvas");
+    return {
+      ok: false as const,
+      receiptStatus: status,
+      ...(credentialFailure ? { code: credentialFailure.code } : {}),
+      error: credentialFailure?.error ?? detail,
+    };
+  }
+
+  let currentObservation;
+  try {
+    const inspection = await inspectCanvasSubmission({
+      institutionId: config.institution_id,
+      baseUrl: config.base_url,
+      token: valid.token,
+      courseId: context.classExternalId,
+      assignmentId: assignmentProviderId,
+    });
+    currentObservation = inspection.reconciliationObservation;
+  } catch {
+    const detail = "Canvas received the request, but Diana could not verify the new submission attempt. Check Canvas before trying again.";
+    await updateSubmissionReceiptStatus(rpcClient, { receiptId: claim.receiptId, status: "confirmation_pending", detail }).catch(() => undefined);
+    return { ok: false as const, receiptStatus: "confirmation_pending" as const, error: detail };
   }
 
   try {
-    await completeSubmissionReceipt(rpcClient, {
+    const reconciled = await reconcileSubmissionReceipt(authoritativeRpcClient, {
       receiptId: claim.receiptId,
-      providerReceiptId: providerReceipt.id ? String(providerReceipt.id) : null,
-      detail: "Canvas text submission accepted after student confirmation.",
-      providerResponse: { workflow_state: providerReceipt.workflow_state ?? null },
+      status: "submitted",
+      providerReceiptId: providerReceipt.id
+        ? String(providerReceipt.id)
+        : currentObservation.submissionId,
+      detail: "Diana verified the new Canvas text submission attempt after student confirmation.",
+      providerResponse: {
+        workflow_state: providerReceipt.workflow_state ?? null,
+        payload_digest: bundle.preview.payloadDigest,
+        ...providerSubmissionObservationResponse(currentObservation),
+      },
     });
+    if (reconciled.status !== "submitted") {
+      return {
+        ok: false as const,
+        receiptStatus: "confirmation_pending" as const,
+        error: reconciled.detail ?? "Canvas received the request, but Diana could not match it to the new submission attempt.",
+      };
+    }
   } catch {
-    const detail = "Canvas accepted the submission, but Diana is still confirming the receipt. Check Canvas before trying again.";
+    const detail = "Canvas received the request, but Diana could not record verified provider proof. Check Canvas before trying again.";
     await updateSubmissionReceiptStatus(rpcClient, { receiptId: claim.receiptId, status: "confirmation_pending", detail }).catch(() => undefined);
     return { ok: false as const, receiptStatus: "confirmation_pending" as const, error: detail };
   }
