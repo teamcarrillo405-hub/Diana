@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 2,
+  "kind": "diana-beta-release-manifest",
+  "profile": "web-pwa-13-plus",
+  "ageBoundary": {
+    "minimumAccountAge": 13,
+    "under13AccountsEnabled": false,
+    "under13DirectAiEnabled": false,
+    "guardianFoundation": "disabled",
+    "under13ReleaseGateContractVersion": 1
+  },
+  "gitleaks": {
+    "version": "8.30.1",
+    "allowedBinaries": [
+      {
+        "platform": "win32",
+        "arch": "x64",
+        "sha256": "17157e2ee8b76fc8b1d8bee607a250e34b8a8023c8bc81822d4b5ee4d78fcb7c"
+      },
+      {
+        "platform": "linux",
+        "arch": "x64",
+        "sha256": "88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509"
+      }
+    ]
+  },
+  "restoreFromHead": [
+    ".planning",
+    "app/landing-3d",
+    "components/cinematic-logo-mask-hero.tsx",
+    "diana-logo.png",
+    "public/landing-3d",
+    "public/assets/candidates",
+    "public/assets/comfyui-i2v",
+    "public/assets/final",
+    "public/assets/hero",
+    ":(glob)public/assets/dashboard/diana-dashboard-desktop-*.webp",
+    ":(glob)public/assets/dashboard/diana-dashboard-mobile-*.webp",
+    ":(glob)public/assets/dashboard/diana-students-*.png",
+    "public/assets/fonts/outfit-latin.woff2",
+    ":(glob)public/assets/help-fit/*.png",
+    "public/assets/help-modes",
+    "public/assets/homework",
+    "public/assets/video",
+    "public/images/classes-classroom.jpg",
+    "public/images/diana-loading-atrium.png",
+    "public/images/diana-loading-studio.png",
+    "public/images/record-gamer-gallery.png",
+    "public/images/today-future-academy-4k.webp",
+    "public/images/today-future-academy.jpg",
+    "public/images/today-high-school.jpg",
+    "public/images/today-open-academy.jpg",
+    "public/images/today-student-academy.jpg",
+    "public/trust.html"
+  ],
+  "includeFromWorktree": [
+    "public/assets/help-modes/make-the-game-poster.webp",
+    "public/assets/help-modes/make-the-game.mp4",
+    "public/assets/help-modes/make-the-game.webm",
+    "public/assets/help-modes/show-up-for-your-club-poster.webp",
+    "public/assets/help-modes/show-up-for-your-club.mp4",
+    "public/assets/help-modes/show-up-for-your-club.webm",
+    "public/assets/homework/connect-school-accounts-video-still-clean.png",
+    "public/assets/homework/diana-homework-workspace-demo-poster.jpg",
+    "public/assets/homework/diana-homework-workspace-demo.mp4",
+    "public/assets/homework/diana-homework-workspace.png",
+    "public/assets/homework/diana-ownership-decide-latina-student.png",
+    "public/assets/homework/diana-workspace-source-analysis-today.png",
+    "public/assets/video/diana-work-stays-yours-film-poster-v2.webp"
+  ]
+}
