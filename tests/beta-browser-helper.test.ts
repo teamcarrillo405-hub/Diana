@@ -37,4 +37,20 @@ describe("beta browser warning allowlist", () => {
       ),
     ).toBe(false);
   });
+
+  it("allows only the known local Next font-preload warning", () => {
+    const preloadWarning =
+      "The resource http://127.0.0.1:3005/_next/static/media/lexend.woff2 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally.";
+
+    expect(isBrowserIssueAllowed("console-warning", preloadWarning)).toBe(true);
+    expect(
+      isBrowserIssueAllowed(
+        "console-warning",
+        preloadWarning.replace("127.0.0.1:3005", "example.com"),
+      ),
+    ).toBe(false);
+    expect(
+      isBrowserIssueAllowed("console-warning", preloadWarning.replace(".woff2", ".js")),
+    ).toBe(false);
+  });
 });

@@ -545,9 +545,10 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(helper).toContain('page.on("response"');
     expect(helper).toContain('"hydration-error"');
     expect(helper).toContain('"same-origin-subresource"');
-    expect(allowlist.match(/\bpattern:/gu) ?? []).toHaveLength(2);
+    expect(allowlist.match(/\bpattern:/gu) ?? []).toHaveLength(3);
     expect(allowlist).toContain("GL Driver Message");
     expect(allowlist).toContain("GPU stall due to ReadPixels");
+    expect(allowlist).toContain("preloaded using link preload");
     expect(accessibilityGate).toContain(
       '.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])',
     );
@@ -561,7 +562,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(spec).toContain('getByRole("textbox", STUDENT_WORK_TEXTBOX)');
     expect(spec).toContain('locator(".sd-assignment-inline-save")).toHaveText("Saved"');
     expect(spec).toContain("await context.clearCookies()");
-    expect(spec).toContain('"Recovered unsaved math work"');
+    expect(spec).toContain('"Recovered unsaved work"');
     expect(spec).not.toMatch(/test\.(?:skip|fixme)|\.skip\(/u);
   });
 
