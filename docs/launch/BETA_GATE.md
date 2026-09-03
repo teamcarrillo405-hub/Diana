@@ -212,6 +212,11 @@ lockfile identity, lifecycle policy, and installed dependency tree produced by
 12. `npm run launch-audit`
 13. `npm run build`
 
+The dependency audit uses the pinned npm CLI, produces a machine-readable
+report, and retries one unavailable or malformed registry response. A reported
+high or critical vulnerability fails immediately; a retry cannot turn a known
+vulnerability into a pass.
+
 The secret scan uses official Gitleaks against full Git history and a temporary
 mirror of every tracked or nonignored source file. It never copies ignored
 local environment, secret, or browser-session files. Those local files must be

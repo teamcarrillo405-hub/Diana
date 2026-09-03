@@ -127,7 +127,7 @@ export const BETA_LOCAL_GATE_DEFINITIONS = [
     id: "dependency-audit",
     label: "High-severity dependency audit",
     command: ["npm", "run", "security:audit"],
-    packageScript: "npm audit --audit-level=high",
+    packageScript: "node scripts/beta/security-audit.mjs",
   },
   {
     id: "secret-scan",

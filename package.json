@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run --testTimeout 120000 --hookTimeout 120000",
-    "security:audit": "npm audit --audit-level=high",
+    "security:audit": "node scripts/beta/security-audit.mjs",
     "security:secrets": "node scripts/secret-scan.mjs",
     "guardian:gate": "tsx scripts/guardian/verify-under-13-boundary.ts",
     "supabase:types:check": "node scripts/check-supabase-types.mjs",

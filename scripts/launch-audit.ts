@@ -22,7 +22,7 @@ const gates = [
   {
     id: "dependency-audit",
     label: "Production dependency audit",
-    args: ["audit", "--audit-level=high"],
+    args: ["run", "security:audit"],
   },
   {
     id: "typecheck",
