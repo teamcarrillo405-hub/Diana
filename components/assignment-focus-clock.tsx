@@ -618,7 +618,16 @@ export function AssignmentFocusClock({
     return () => {
       cancelled = true;
     };
-  }, [adaptiveFocusMs, applySnapshot, assignmentId, key, reconcileWithServer, requestStart, requestStop]);
+  }, [
+    adaptiveFocusMs,
+    applyReconciledServerState,
+    applySnapshot,
+    assignmentId,
+    key,
+    reconcileWithServer,
+    requestStart,
+    requestStop,
+  ]);
 
   useEffect(() => {
     if (!hydrated) return;
