@@ -824,6 +824,7 @@ function HelpModesPreview() {
           {helpModes.map((mode, index) => {
             const slot = index - activeIndex
             const active = slot === 0
+            const loadVideo = sectionVisible && active
             const railOffset = active ? 0 : Math.sign(slot) * (360 + (Math.abs(slot) - 1) * 178)
 
             return (
@@ -877,8 +878,12 @@ function HelpModesPreview() {
                         preload="metadata"
                         aria-label={mode.alt}
                       >
-                        <source src={mode.src.replace(/\.mp4$/, ".webm")} type="video/webm" />
-                        <source src={mode.src} type="video/mp4" />
+                        {loadVideo ? (
+                          <>
+                            <source src={mode.src.replace(/\.mp4$/, ".webm")} type="video/webm" />
+                            <source src={mode.src} type="video/mp4" />
+                          </>
+                        ) : null}
                       </video>
                       <img
                         className="dpl-help-video-poster"

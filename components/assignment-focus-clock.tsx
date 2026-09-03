@@ -220,7 +220,9 @@ function visibleMessage(snapshot: FocusTimerSnapshot) {
     case "starting":
       return "Starting focus block...";
     case "running":
-      return "Focus block started.";
+      // The screen-reader announcement remains available below. A persistent
+      // visual toast obscures the active assignment content while the timer runs.
+      return "";
     case "stopping":
       return snapshot.completion === "elapsed" ? "Completing focus block..." : "Stopping focus block...";
     case "completed":

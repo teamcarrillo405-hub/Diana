@@ -6,7 +6,7 @@ type QaSessionOptions = {
   scenario?: string;
   variant?: "grayson" | "onboarding";
   owner?: "secondary";
-  operation?: "reset";
+  operation?: "reset" | "resume";
 };
 
 const QA_STUDENT_EMAIL = "diana-qa-student@local.test";

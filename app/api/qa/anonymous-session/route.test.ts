@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   seedGraysonFreshmanDemo: vi.fn(),
   seedScreenDesignScenario: vi.fn(),
   resetScreenDesignOwner: vi.fn(),
+  getScreenDesignFixtureScenario: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/service", () => ({
@@ -37,7 +38,7 @@ vi.mock("@/lib/qa/grayson-demo", () => ({
 }));
 
 vi.mock("@/lib/qa/screendesign-fixtures", () => ({
-  getScreenDesignFixtureScenario: () => null,
+  getScreenDesignFixtureScenario: mocks.getScreenDesignFixtureScenario,
 }));
 
 import { GET } from "./route";
@@ -51,6 +52,7 @@ describe("anonymous QA session bootstrap", () => {
     mocks.updateUserById.mockResolvedValue({ data: { user: { id: "qa-user" } }, error: null });
     mocks.signInWithPassword.mockResolvedValue({ error: null });
     mocks.profileUpsert.mockResolvedValue({ error: null });
+    mocks.getScreenDesignFixtureScenario.mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -83,5 +85,26 @@ describe("anonymous QA session bootstrap", () => {
         teen_guardian_permission_source: "signup_attestation",
       }),
     }));
+  });
+
+  it("resumes an existing scenario without replacing its fixture records", async () => {
+    mocks.users = [{ id: "qa-user", email: "diana-qa-student@local.test" }];
+    mocks.getScreenDesignFixtureScenario.mockReturnValue({
+      id: "assignment-detail:default",
+      ownerAlias: "qa-primary",
+    });
+
+    const response = await GET(new Request(
+      "http://diana.test/api/qa/anonymous-session?scenario=assignment-detail%3Adefault&operation=resume",
+    ));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      resumed: true,
+      scenarioId: "assignment-detail:default",
+    });
+    expect(mocks.seedScreenDesignScenario).not.toHaveBeenCalled();
+    expect(mocks.resetScreenDesignOwner).not.toHaveBeenCalled();
   });
 });

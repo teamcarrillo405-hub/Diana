@@ -16,6 +16,8 @@ import type { TablesInsert } from "@/lib/supabase/types";
 export const dynamic = "force-dynamic";
 
 const timezone = "America/Los_Angeles";
+type QaOperation = "seed" | "reset" | "resume";
+
 const qaUser = {
   email: process.env.QA_TEST_EMAIL ?? "diana-qa-student@local.test",
   password: process.env.QA_TEST_PASSWORD ?? "Diana-QA-Visual-Gate-2026!",
@@ -23,7 +25,7 @@ const qaUser = {
   demo: null as "grayson" | null,
   scenarioId: null as string | null,
   ownerAlias: "qa-primary" as ScreenDesignOwnerAlias,
-  operation: "seed" as "seed" | "reset",
+  operation: "seed" as QaOperation,
 };
 
 function qaSignupMetadata(activeQaUser: Pick<typeof qaUser, "displayName">) {
@@ -72,12 +74,19 @@ function resolveQaUser(request: Request) {
               displayName: process.env.QA_TEST_EMAIL ? "Diana Beta Student" : "Grayson",
             };
 
+    const requestedOperation = params.get("operation");
+    const operation: QaOperation = requestedOperation === "reset"
+      ? "reset"
+      : requestedOperation === "resume"
+        ? "resume"
+        : "seed";
+
     return {
       ...qaUser,
       ...account,
       scenarioId: scenario.id,
       ownerAlias,
-      operation: params.get("operation") === "reset" ? "reset" : "seed",
+      operation,
     };
   }
 
@@ -202,6 +211,17 @@ async function handleQaSession(request: Request) {
     return NextResponse.json({
       ok: true,
       reset: true,
+      ownerAlias: activeQaUser.ownerAlias,
+      scenarioId: activeQaUser.scenarioId,
+    });
+  }
+
+  // A recovery check must authenticate the same synthetic student without
+  // rebuilding its assignment and changing the local draft's problem IDs.
+  if (activeQaUser.scenarioId && activeQaUser.operation === "resume") {
+    return NextResponse.json({
+      ok: true,
+      resumed: true,
       ownerAlias: activeQaUser.ownerAlias,
       scenarioId: activeQaUser.scenarioId,
     });

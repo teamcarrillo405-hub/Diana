@@ -320,9 +320,17 @@ export async function expectNoWcagAaAccessibilityViolations(page: Page, label: s
   ).toEqual([]);
 }
 
+export type LocalQaStudentSessionOptions = {
+  scenario?: string;
+  operation?: "seed" | "resume";
+};
+
 export async function openLocalQaStudentSession(
   page: Page,
-  scenario = "assignment-detail:default",
+  {
+    scenario = "assignment-detail:default",
+    operation = "seed",
+  }: LocalQaStudentSessionOptions = {},
 ): Promise<void> {
   expect(process.env.QA_CREATE_USER, "The beta QA auth bootstrap must be enabled").toBe("true");
   const supabaseTarget = requireUrl(
@@ -331,17 +339,22 @@ export async function openLocalQaStudentSession(
   );
   expect(isLoopback(supabaseTarget), "The beta QA bootstrap requires loopback Supabase").toBe(true);
 
+  const params = new URLSearchParams({ scenario });
+  if (operation === "resume") params.set("operation", operation);
   const response = await page.goto(
-    `/api/qa/anonymous-session?scenario=${encodeURIComponent(scenario)}`,
+    `/api/qa/anonymous-session?${params.toString()}`,
     { waitUntil: "domcontentloaded" },
   );
   expect(response, "The real local QA session endpoint must respond").not.toBeNull();
   expect(response!.status(), "The real local QA session bootstrap must succeed").toBe(200);
-  const payload = (await response!.json()) as { ok?: boolean; scenarioId?: string };
-  expect(payload, "The real local QA session must seed the requested scenario").toMatchObject({
+  const payload = (await response!.json()) as { ok?: boolean; resumed?: boolean; scenarioId?: string };
+  expect(payload, "The real local QA session must authenticate the requested scenario").toMatchObject({
     ok: true,
     scenarioId: scenario,
   });
+  if (operation === "resume") {
+    expect(payload.resumed, "The QA recovery session must preserve its existing fixture").toBe(true);
+  }
 
   await openHealthyPage(page, "/assignments", "authenticated assignment index");
   expect(new URL(page.url()).pathname, "The real local session must pass the auth boundary").toBe(

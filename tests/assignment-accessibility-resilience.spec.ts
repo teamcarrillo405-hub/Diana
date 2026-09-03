@@ -194,7 +194,7 @@ test.describe("assignment accessibility and resilience", () => {
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/login\?next=/u);
 
-    await openQaSession(page, { scenario: "assignment-detail:default" });
+    await openQaSession(page, { scenario: "assignment-detail:default", operation: "resume" });
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX)).toHaveValue(expiredSessionDraft);
     await expect(page.locator(".sd-assignment-workspace-status-line")).toHaveText("Recovered unsaved math work", {

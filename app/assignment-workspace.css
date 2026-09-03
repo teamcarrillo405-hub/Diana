@@ -1935,7 +1935,7 @@ body.diana-app:has(.sd-assignment-submit-screen) .agent-fab-anchor {
     z-index: 120;
     top: 0;
     right: 0;
-    display: flex;
+    display: none;
     width: min(360px, 92vw);
     max-height: 100dvh;
     height: 100dvh;
@@ -1949,6 +1949,7 @@ body.diana-app:has(.sd-assignment-submit-screen) .agent-fab-anchor {
   }
 
   .diana-app .sd-assignment-workspace[data-version="11"] .sd-assignment-math-right[data-open="true"] {
+    display: flex;
     transform: translateX(0);
     visibility: visible;
     pointer-events: auto;

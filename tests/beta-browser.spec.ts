@@ -152,9 +152,14 @@ test.describe("deterministic beta browser surface", () => {
 
       await page.getByRole("link", { name: /Identity quote response/iu }).first().click();
       await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
-      await expect(
-        page.getByRole("heading", { name: "Identity quote response" }),
-      ).toBeVisible();
+      if (viewport.width > 900) {
+        await expect(
+          page.getByRole("heading", { name: "Identity quote response" }),
+        ).toBeVisible();
+      } else {
+        await expect(page.getByRole("region", { name: "Current section" }))
+          .toContainText("State the main idea you will support.");
+      }
       await expect(page.locator('.sd-assignment-workspace[data-version="11"]')).toBeVisible();
       await expect(page.locator("body")).not.toContainText(
         /application error|internal server error/iu,
@@ -168,7 +173,12 @@ test.describe("deterministic beta browser surface", () => {
       const draft = page.getByRole("textbox", STUDENT_WORK_TEXTBOX);
       const persistedDraft = `Beta ${viewport.name} draft ${process.env.QA_RUN_ID}`;
       await expect(draft).toBeVisible();
+      const saveResponse = page.waitForResponse((response) => (
+        response.request().method() === "POST"
+        && /\/assignments\/[0-9a-f-]+\/workspace$/u.test(new URL(response.url()).pathname)
+      ));
       await draft.fill(persistedDraft);
+      expect((await saveResponse).status()).toBeLessThan(400);
       await expect(page.locator(".sd-assignment-inline-save")).toHaveText("Saved", {
         timeout: 20_000,
       });
@@ -210,7 +220,7 @@ test.describe("deterministic beta browser surface", () => {
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/login\?next=/u);
 
-    await openLocalQaStudentSession(page);
+    await openLocalQaStudentSession(page, { operation: "resume" });
     await openHealthyPage(page, workspacePath, "recovered assignment workspace");
     await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
       .toHaveValue(recoveryText);
