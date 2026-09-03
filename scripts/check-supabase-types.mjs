@@ -142,6 +142,11 @@ const commandArgs = isWindows
   ? ["/d", "/s", "/c", `npx ${cliArgs.join(" ")}`]
   : cliArgs;
 const connectorSnapshot = await readConnectorSnapshot();
+if (!connectorSnapshot && betaRunId) {
+  throw new Error(
+    "Beta Supabase type parity requires a run-bound staging snapshot. Set DIANA_SUPABASE_TYPES_PROJECT_REF and DIANA_SUPABASE_TYPES_SNAPSHOT; beta runs never fall back to a linked project.",
+  );
+}
 let generatedSource;
 let sourceLabel;
 if (connectorSnapshot) {

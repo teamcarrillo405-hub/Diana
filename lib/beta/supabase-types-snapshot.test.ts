@@ -62,11 +62,31 @@ function runCheck(root: string, snapshotPath: string) {
   });
 }
 
+function runBetaCheckWithoutSnapshot(root: string) {
+  return spawnSync(process.execPath, [scriptPath], {
+    cwd: root,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      DIANA_BETA_RUN_ID: runId,
+    },
+  });
+}
+
 afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
 describe("Supabase connector type snapshots", () => {
+  it("requires a run-bound snapshot instead of using a developer-linked project", () => {
+    const { root } = createProject();
+    const result = runBetaCheckWithoutSnapshot(root);
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("requires a run-bound staging snapshot");
+    expect(result.stderr).toContain("never fall back to a linked project");
+  });
+
   it("accepts an exact, current, run-bound snapshot", () => {
     const { root, snapshotPath } = createProject();
     const result = runCheck(root, snapshotPath);
