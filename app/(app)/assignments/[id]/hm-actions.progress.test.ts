@@ -9,7 +9,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
 vi.mock("@/lib/assignment-help/server-understanding", () => ({ loadAssignmentHomeworkKernel: vi.fn() }));
 vi.mock("./actions", () => ({ transitionAssignment: vi.fn() }));
 
-import { markProblemDone, markProblemReviewed } from "./hm-actions";
+import { markProblemDone, markProblemReviewed, startAssignmentWorkspace } from "./hm-actions";
 
 const problemId = "11111111-1111-4111-8111-111111111111";
 const assignmentId = "22222222-2222-4222-8222-222222222222";
@@ -47,8 +47,39 @@ function clientForRows(rows: unknown[]) {
   return { client, authorshipInsert, queries };
 }
 
+function clientForAssignmentStatus(status: string | null) {
+  const assignmentQuery = fluentResult(status ? { status } : null);
+  const client = {
+    auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "student-1" } } }) },
+    from: vi.fn((table: string) => {
+      if (table === "assignments") return assignmentQuery;
+      throw new Error(`Unexpected table ${table}`);
+    }),
+  };
+  mocks.createClient.mockResolvedValue(client);
+  return { assignmentQuery, client };
+}
+
 describe("assignment problem progress actions", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("moves a new workspace from to do to drafting", async () => {
+    const { assignmentQuery } = clientForAssignmentStatus("todo");
+    const transitionAssignment = vi.mocked(await import("./actions")).transitionAssignment;
+    transitionAssignment.mockResolvedValue({ ok: true });
+
+    await expect(startAssignmentWorkspace({ assignmentId })).resolves.toEqual({ ok: true });
+    expect(assignmentQuery.eq).toHaveBeenCalledWith("owner_id", "student-1");
+    expect(transitionAssignment).toHaveBeenCalledWith({ id: assignmentId, from: "todo", to: "drafting" });
+  });
+
+  it("does not reopen an assignment that is already in progress", async () => {
+    clientForAssignmentStatus("drafting");
+    const transitionAssignment = vi.mocked(await import("./actions")).transitionAssignment;
+
+    await expect(startAssignmentWorkspace({ assignmentId })).resolves.toEqual({ ok: true });
+    expect(transitionAssignment).not.toHaveBeenCalled();
+  });
 
   it("records a Diana review without completing the problem", async () => {
     const reviewedAt = "2026-08-11T12:00:00.000Z";

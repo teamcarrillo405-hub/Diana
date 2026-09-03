@@ -526,6 +526,11 @@ export async function saveProblemWorkPatch(input: z.infer<typeof SaveProblemPatc
     })],
   );
   if (!blockResult.ok) return blockResult;
+
+  // Opening a workspace alone must not change the assignment lifecycle. The
+  // first durable student save is the point at which work has actually begun.
+  const lifecycleResult = await startAssignmentWorkspace({ assignmentId: problem.assignment_id });
+  if (!lifecycleResult.ok) return lifecycleResult;
   return { ok: true };
 }
 

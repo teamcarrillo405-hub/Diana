@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, type Page } from "@playwright/test";
+import { expect, type Page, type Request } from "@playwright/test";
 import { Buffer } from "node:buffer";
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
@@ -44,6 +44,13 @@ type BrowserIssueAllowance = {
 };
 
 const BROWSER_ISSUE_ALLOWLIST: readonly BrowserIssueAllowance[] = [
+  // Next development mode may replace this disposable HMR bundle while the
+  // browser moves between independent public routes. Production has no HMR.
+  {
+    kind: "request-error",
+    pattern:
+      /^net::ERR_ABORTED \[script\] GET http:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?\/_next\/static\/webpack\/webpack\.[a-f0-9]+\.hot-update\.js$/u,
+  },
   {
     kind: "console-warning",
     pattern:
@@ -65,6 +72,10 @@ export function isBrowserIssueAllowed(kind: BrowserIssueKind, value: string): bo
 
 export type BrowserIssueMonitor = {
   expectClean(label: string): void;
+};
+
+export type BrowserIssueMonitorOptions = {
+  allowRequestFailure?(request: Request): boolean;
 };
 
 export type LocalNetworkGuard = {
@@ -198,7 +209,11 @@ export async function installLocalNetworkGuard(
   };
 }
 
-export function observeBrowserIssues(page: Page, allowedOrigin: string): BrowserIssueMonitor {
+export function observeBrowserIssues(
+  page: Page,
+  allowedOrigin: string,
+  options: BrowserIssueMonitorOptions = {},
+): BrowserIssueMonitor {
   const unexpectedIssues: BrowserIssue[] = [];
   const expectedOrigin = new URL(allowedOrigin).origin;
   const monitoredOrigins = new Set([
@@ -230,6 +245,7 @@ export function observeBrowserIssues(page: Page, allowedOrigin: string): Browser
   });
   page.on("pageerror", (error) => record("page-error", error.message));
   page.on("requestfailed", (request) => {
+    if (options.allowRequestFailure?.(request)) return;
     record(
       "request-error",
       `${request.failure()?.errorText ?? "unknown failure"} ` +

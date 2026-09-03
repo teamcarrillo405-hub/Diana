@@ -16,7 +16,7 @@ import {
   workProfilePersistencePatch,
 } from "@/lib/assignment-workspace";
 import { createClient } from "@/lib/supabase/server";
-import type { AssignmentKind, AssignmentStatus, Json } from "@/lib/supabase/types";
+import type { AssignmentKind, Json } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
 import type {
   AssignmentPaperStyle,
@@ -212,7 +212,6 @@ export default async function AssignmentWorkspacePage({
       title={assignment.title}
       courseLabel={className}
       kind={assignment.kind as AssignmentKind}
-      status={assignment.status as AssignmentStatus}
       description={assignment.description ?? ""}
       sourcePacket={sourcePacket}
       assignmentUnderstanding={assignmentUnderstanding}

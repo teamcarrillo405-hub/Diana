@@ -9,7 +9,6 @@ const mocks = vi.hoisted(() => ({
   saveHandInPatch: vi.fn(),
   saveProblemWorkPatch: vi.fn(),
   prepareAssignmentReview: vi.fn(),
-  startAssignmentWorkspace: vi.fn(),
   selectAssignmentWorkspaceMode: vi.fn(),
   startStudentStudy: vi.fn(),
   previewProblemsFromAssignmentSources: vi.fn(),
@@ -38,7 +37,6 @@ vi.mock("@/app/(app)/assignments/[id]/hm-actions", () => ({
   markProblemReviewed: mocks.markProblemReviewed,
   markProblemDone: mocks.markProblemDone,
   selectAssignmentWorkspaceMode: mocks.selectAssignmentWorkspaceMode,
-  startAssignmentWorkspace: mocks.startAssignmentWorkspace,
 }));
 vi.mock("@/app/(app)/assignments/[id]/ai-tools-actions", () => ({ requestMathScaffold: vi.fn(), requestScienceScaffold: vi.fn() }));
 vi.mock("@/components/assignment-focus-clock", () => ({ AssignmentFocusClock: () => <section aria-label="Focus clock">Start focus 30-min</section> }));
@@ -69,7 +67,6 @@ const baseProps = {
   title: "Rhetorical analysis",
   courseLabel: "English 9",
   kind: "essay" as const,
-  status: "todo" as const,
   description: "Write a rhetorical analysis.",
   sourcePacket: baseSourcePacket,
   assignmentUnderstanding: buildAssignmentUnderstanding({
@@ -281,7 +278,6 @@ describe("AssignmentWorkspace reliability", () => {
       completedAt: "2026-08-11T12:05:00.000Z",
     });
     mocks.prepareAssignmentReview.mockResolvedValue({ ok: true });
-    mocks.startAssignmentWorkspace.mockResolvedValue({ ok: true });
     mocks.selectAssignmentWorkspaceMode.mockResolvedValue({ ok: true });
     mocks.previewProblemsFromAssignmentSources.mockResolvedValue({
       ok: true,
@@ -322,7 +318,7 @@ describe("AssignmentWorkspace reliability", () => {
     expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}/submit`);
   });
 
-  it("recovers a pending unit patch and saves it", async () => {
+  it("recovers a pending unit patch without a mount-time network write", async () => {
     const problemId = "22222222-2222-4222-8222-222222222222";
     window.localStorage.setItem(`diana:assignment:${assignmentId}:problem:${problemId}`, JSON.stringify({ work: "Recovered draft" }));
     render(<AssignmentWorkspace {...baseProps} initialProblems={[{
@@ -334,10 +330,9 @@ describe("AssignmentWorkspace reliability", () => {
     }]} />);
 
     expect((screen.getByLabelText("Show your work") as HTMLTextAreaElement).value).toBe("Recovered draft");
-    await waitFor(() => expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({
-      problemId,
-      patch: { work: "Recovered draft" },
-    }));
+    await waitFor(() => expect(screen.getByText("Saved on this device")).toBeTruthy());
+    expect(mocks.saveProblemWorkPatch).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(`diana:assignment:${assignmentId}:problem:${problemId}`)).toContain("Recovered draft");
   });
   it("flushes recoverable math work before submission review", async () => {
     const problemId = "22222222-2222-4222-8222-222222222222";
@@ -550,7 +545,7 @@ describe("AssignmentWorkspace reliability", () => {
     expect(window.localStorage.getItem(`diana:assignment:${assignmentId}:problem:${problemId}`)).toContain("Subtract 4.");
   });
 
-  it("stops multi-problem recovery on the first save pause and retries every pending draft", async () => {
+  it("keeps recovery local until reconnect, then retries every pending draft", async () => {
     const firstProblemId = "33333333-3333-4333-8333-333333333333";
     const secondProblemId = "44444444-4444-4444-8444-444444444444";
     window.localStorage.setItem(`diana:assignment:${assignmentId}:problem:${firstProblemId}`, JSON.stringify({ work: "First recovered step" }));
@@ -571,6 +566,8 @@ describe("AssignmentWorkspace reliability", () => {
       studentWork: {},
     }]} />);
 
+    expect(mocks.saveProblemWorkPatch).not.toHaveBeenCalled();
+    await act(async () => window.dispatchEvent(new Event("online")));
     await waitFor(() => expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({ problemId: firstProblemId, patch: { work: "First recovered step" } }));
     expect(mocks.saveProblemWorkPatch).not.toHaveBeenCalledWith({ problemId: secondProblemId, patch: expect.anything() });
     expect(screen.getByText("Save needs attention")).toHaveAttribute("title", "The save paused. Try again.");
@@ -581,6 +578,27 @@ describe("AssignmentWorkspace reliability", () => {
     await waitFor(() => expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({ problemId: secondProblemId, patch: { work: "Second recovered step" } }));
     expect(window.localStorage.getItem(`diana:assignment:${assignmentId}:problem:${firstProblemId}`)).toBeNull();
     expect(window.localStorage.getItem(`diana:assignment:${assignmentId}:problem:${secondProblemId}`)).toBeNull();
+  });
+
+  it("keeps a queued draft on the device when the page is hidden", async () => {
+    vi.useFakeTimers();
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: true });
+    const problemId = "55555555-5555-4555-8555-555555555555";
+    render(<AssignmentWorkspace {...baseProps} initialProblems={[{
+      id: problemId,
+      problemNumber: 1,
+      problemText: "Draft the central claim.",
+      scaffold: { unitLabel: "Claim", unitType: "section" },
+      studentWork: {},
+    }]} />);
+
+    fireEvent.change(screen.getByLabelText("Show your work"), { target: { value: "Keep this local before leaving." } });
+    await act(async () => window.dispatchEvent(new Event("pagehide")));
+    await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+
+    expect(mocks.saveProblemWorkPatch).not.toHaveBeenCalled();
+    expect(screen.getByText("Saved on this device")).toBeTruthy();
+    expect(window.localStorage.getItem(`diana:assignment:${assignmentId}:problem:${problemId}`)).toContain("Keep this local before leaving.");
   });
 
   it("opens and closes the accessible tools drawer without losing keyboard focus", () => {

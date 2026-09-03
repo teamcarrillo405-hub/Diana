@@ -27,7 +27,6 @@ import {
   prepareAssignmentReview,
   previewProblemsFromAssignmentSources,
   saveProblemWorkPatch,
-  startAssignmentWorkspace,
 } from "@/app/(app)/assignments/[id]/hm-actions";
 import { AssignmentFocusClock } from "@/components/assignment-focus-clock";
 import { MathWorkSurface } from "@/components/assignment-math-work-surface";
@@ -57,7 +56,7 @@ import type {
   AssignmentWorkspacePreference,
 } from "@/lib/assignment-workspace-contracts";
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
-import type { AssignmentKind, AssignmentStatus } from "@/lib/supabase/types";
+import type { AssignmentKind } from "@/lib/supabase/types";
 
 const AssignmentNativeTools = dynamic(
   () => import("@/components/assignment-native-tools").then((module) => module.AssignmentNativeTools),
@@ -94,7 +93,6 @@ type AssignmentWorkspaceProps = {
   title: string;
   courseLabel: string;
   kind: AssignmentKind;
-  status: AssignmentStatus;
   description: string;
   sourcePacket: AssignmentSourcePacket;
   assignmentUnderstanding: AssignmentUnderstanding;
@@ -170,10 +168,6 @@ export function AssignmentWorkspace({
     assignmentUnderstanding.needsStudentConfirmation
     || sources.some((source) => source.import_status === "partial" || source.import_status === "extracting")
   ), [assignmentUnderstanding.needsStudentConfirmation, sources]);
-
-  useEffect(() => {
-    void startAssignmentWorkspace({ assignmentId }).catch(() => undefined);
-  }, [assignmentId]);
 
   function reviewSubmission() {
     startTransition(async () => {
@@ -433,6 +427,15 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
     return true;
   }, [draftCoordinator, flushProblem, onMessage]);
 
+  const preservePendingDrafts = useCallback(() => {
+    for (const problemId of draftCoordinator.problemIds()) {
+      const patch = draftCoordinator.get(problemId);
+      if (patch && Object.keys(patch).length > 0) {
+        window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(patch));
+      }
+    }
+  }, [draftCoordinator, recoveryKey]);
+
   useEffect(() => {
     const recovered = normalizedInitialProblems.map((problem) => {
       const raw = window.localStorage.getItem(recoveryKey(problem.id));
@@ -456,29 +459,52 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
     setWork(visibleMathWork(first?.studentWork));
     setWorkInk(savedText(first?.studentWork.workInk));
     if (draftCoordinator.hasPending()) {
-      onMessage("Recovered unsaved math work");
-      saveTimer.current = setTimeout(() => void flushAllProblems(), 100);
+      onMessage("Recovered unsaved work");
     }
-  }, [assignmentId, draftCoordinator, flushAllProblems, normalizedInitialProblems, onMessage, onProblemsChange, recoveryKey]);
+  }, [assignmentId, draftCoordinator, normalizedInitialProblems, onMessage, onProblemsChange, recoveryKey]);
 
   useEffect(() => {
     registerFlush(flushAllProblems);
     const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") void flushAllProblems();
+      if (document.visibilityState === "hidden") {
+        if (saveTimer.current) {
+          clearTimeout(saveTimer.current);
+          saveTimer.current = null;
+        }
+        preservePendingDrafts();
+        if (draftCoordinator.hasPending()) draftCoordinator.localOnly();
+        return;
+      }
+      if (window.navigator.onLine && draftCoordinator.hasPending()) void flushAllProblems();
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
-    const onOnline = () => void flushAllProblems();
-    const onOffline = () => draftCoordinator.localOnly();
+    const onPageHide = () => {
+      if (saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        saveTimer.current = null;
+      }
+      preservePendingDrafts();
+      if (draftCoordinator.hasPending()) draftCoordinator.localOnly();
+    };
+    const onOnline = () => {
+      if (draftCoordinator.hasPending()) void flushAllProblems();
+    };
+    const onOffline = () => {
+      preservePendingDrafts();
+      draftCoordinator.localOnly();
+    };
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
+    window.addEventListener("pagehide", onPageHide);
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
       if (clearUndoTimer.current) clearTimeout(clearUndoTimer.current);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("online", onOnline);
       window.removeEventListener("offline", onOffline);
+      window.removeEventListener("pagehide", onPageHide);
     };
-  }, [draftCoordinator, flushAllProblems, registerFlush]);
+  }, [draftCoordinator, flushAllProblems, preservePendingDrafts, registerFlush]);
 
   useEffect(() => {
     if (!toolsOpen) return;

@@ -164,6 +164,7 @@ test.describe("deterministic beta browser surface", () => {
       await expect(page.locator("body")).not.toContainText(
         /application error|internal server error/iu,
       );
+      await page.waitForLoadState("networkidle", { timeout: 10_000 });
       await expectNoHorizontalOverflow(page, `${viewport.name} assignment workspace`);
       await expectNoWcagAaAccessibilityViolations(
         page,
@@ -200,39 +201,63 @@ test.describe("deterministic beta browser surface", () => {
     test.setTimeout(180_000);
     const target = expectSafeBetaBrowserEnvironment(baseURL);
     const network = await installLocalNetworkGuard(page, target.origin);
-    const issues = observeBrowserIssues(page, target.origin);
+    let workspacePath = "";
+    let resettingSession = false;
+    const issues = observeBrowserIssues(page, target.origin, {
+      allowRequestFailure(request) {
+        if (!resettingSession || request.failure()?.errorText !== "net::ERR_ABORTED") return false;
+        if (request.resourceType() !== "fetch") return false;
+        if (request.method() !== "GET" && request.method() !== "POST") return false;
+        const url = new URL(request.url());
+        return url.origin === target.origin && (
+          url.pathname === workspacePath
+          || (url.pathname === "/login" && request.method() === "POST")
+        );
+      },
+    });
     await page.setViewportSize({ width: 1366, height: 768 });
 
     await openLocalQaStudentSession(page);
     await openHealthyPage(page, "/assignments", "session recovery assignment index");
     await page.getByRole("link", { name: /Identity quote response/iu }).first().click();
     await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
-    const workspacePath = new URL(page.url()).pathname;
+    await page.waitForLoadState("networkidle", { timeout: 10_000 });
+    workspacePath = new URL(page.url()).pathname;
     const assignmentId = workspacePath.split("/")[2];
     expect(assignmentId).toMatch(/^[0-9a-f-]{36}$/u);
 
     const draft = page.getByRole("textbox", STUDENT_WORK_TEXTBOX);
     const recoveryText = `Recovered beta draft ${process.env.QA_RUN_ID}`;
+    await expect(draft).toBeVisible();
     await draft.fill(recoveryText);
     await expectPendingProblemWork(page, assignmentId, recoveryText);
 
+    // This deliberately interrupts any in-flight server save after the local
+    // recovery copy is proven. The request cancellation is expected here; the
+    // assertions below still require the student work to be restored.
+    resettingSession = true;
     await context.clearCookies();
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/login\?next=/u);
 
     await openLocalQaStudentSession(page, { operation: "resume" });
+    // Re-authentication must not erase the device-local draft before the
+    // workspace has a chance to hydrate and sync it.
+    await expectPendingProblemWork(page, assignmentId, recoveryText);
     await openHealthyPage(page, workspacePath, "recovered assignment workspace");
     await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
       .toHaveValue(recoveryText);
     await expect(page.locator(".sd-assignment-workspace-status-line")).toHaveText(
-      "Recovered unsaved math work",
+      "Recovered unsaved work",
       {
       timeout: 20_000,
       },
     );
     await page.reload({ waitUntil: "domcontentloaded" });
+    await page.waitForLoadState("networkidle", { timeout: 10_000 });
     await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
       .toHaveValue(recoveryText);
+    resettingSession = false;
 
     network.expectLocalOnly("session-expiry draft recovery");
     issues.expectClean("session-expiry draft recovery");
