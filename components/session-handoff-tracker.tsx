@@ -2,14 +2,22 @@
 
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { isIsolatedBetaBrowserRuntime } from "@/lib/beta/browser-runtime";
 
 const SKIP_PREFIXES = ["/login", "/onboarding", "/offline"];
 
 export function SessionHandoffTracker() {
   const pathname = usePathname() ?? "/";
+  const suppressHandoff = isIsolatedBetaBrowserRuntime();
 
   useEffect(() => {
-    if (!pathname || SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix))) return;
+    if (
+      suppressHandoff ||
+      !pathname ||
+      SKIP_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+    ) {
+      return;
+    }
 
     const timeout = window.setTimeout(() => {
       const route = `${pathname}${window.location.search}`.slice(0, 240);
@@ -28,7 +36,7 @@ export function SessionHandoffTracker() {
     }, 750);
 
     return () => window.clearTimeout(timeout);
-  }, [pathname]);
+  }, [pathname, suppressHandoff]);
 
   return null;
 }

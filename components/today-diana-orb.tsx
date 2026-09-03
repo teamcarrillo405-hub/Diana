@@ -172,7 +172,8 @@ export function TodayDianaOrb({
 
     let frame = 0;
     let visible = !document.hidden;
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
+    timer.connect(document);
     const resize = () => {
       const box = host.getBoundingClientRect();
       const size = Math.max(1, Math.min(box.width, box.height));
@@ -181,7 +182,8 @@ export function TodayDianaOrb({
     const render = () => {
       const values = valuesRef.current;
       const level = values.phase === "speaking" ? values.outputLevel : values.inputLevel;
-      material.uniforms.uTime.value += Math.min(clock.getDelta(), 0.05);
+      timer.update();
+      material.uniforms.uTime.value += Math.min(timer.getDelta(), 0.05);
       material.uniforms.uLevel.value += (Math.min(1, level) - material.uniforms.uLevel.value) * 0.16;
       material.uniforms.uPhase.value = phaseNumber(values.phase);
       renderer.render(scene, camera);
@@ -195,7 +197,7 @@ export function TodayDianaOrb({
       visible = !document.hidden;
       if (visible) {
         window.cancelAnimationFrame(frame);
-        clock.start();
+        timer.reset();
         render();
       }
     };
@@ -212,6 +214,7 @@ export function TodayDianaOrb({
       document.removeEventListener("visibilitychange", onVisibility);
       geometry.dispose();
       material.dispose();
+      timer.dispose();
       renderer.dispose();
       renderer.domElement.remove();
       renderCurrentFrameRef.current = () => undefined;

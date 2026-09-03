@@ -14,6 +14,34 @@ import {
 
 const RUN_ID_PATTERN = /^(?=.{8,64}$)[a-z0-9]+(?:-[a-z0-9]+)*$/u;
 const PUBLIC_ENTRY_ROUTES = ["/", "/login", "/signup"] as const;
+const STUDENT_WORK_TEXTBOX = { name: "Show your work" } as const;
+
+async function expectPendingProblemWork(
+  page: import("@playwright/test").Page,
+  assignmentId: string,
+  expectedText: string,
+) {
+  await expect.poll(() => page.evaluate(
+    ({ id, text }) => Object.entries(window.localStorage).some(
+      ([key, value]) => key.startsWith(`diana:assignment:${id}:problem:`) && value.includes(text),
+    ),
+    { id: assignmentId, text: expectedText },
+  )).toBe(true);
+}
+
+async function expectTodayLabelAboveNextMove(page: import("@playwright/test").Page) {
+  const relationship = await page.evaluate(() => {
+    const label = document.querySelector<HTMLElement>(".today-section-label");
+    const nextMove = document.querySelector<HTMLElement>(".today-next-card");
+    if (!label || !nextMove) return null;
+    return {
+      labelBottom: label.getBoundingClientRect().bottom,
+      nextMoveTop: nextMove.getBoundingClientRect().top,
+    };
+  });
+  expect(relationship).not.toBeNull();
+  expect(relationship!.labelBottom).toBeLessThanOrEqual(relationship!.nextMoveTop + 1);
+}
 
 test.use({
   trace: "retain-on-failure",
@@ -106,6 +134,7 @@ test.describe("deterministic beta browser surface", () => {
       await openHealthyPage(page, "/dashboard", `${viewport.name} authenticated dashboard`);
       await expectNoHorizontalOverflow(page, `${viewport.name} dashboard`);
       await expectNoWcagAaAccessibilityViolations(page, `${viewport.name} dashboard`);
+      if (viewport.width >= 1200) await expectTodayLabelAboveNextMove(page);
       network.expectLocalOnly(`${viewport.name} dashboard`);
       issues.expectClean(`${viewport.name} dashboard`);
 
@@ -136,16 +165,16 @@ test.describe("deterministic beta browser surface", () => {
         `${viewport.name} assignment workspace`,
       );
 
-      const draft = page.getByRole("textbox", { name: "Student draft" });
+      const draft = page.getByRole("textbox", STUDENT_WORK_TEXTBOX);
       const persistedDraft = `Beta ${viewport.name} draft ${process.env.QA_RUN_ID}`;
       await expect(draft).toBeVisible();
       await draft.fill(persistedDraft);
-      await expect(page.getByRole("status")).toHaveText("Draft saved", {
+      await expect(page.locator(".sd-assignment-inline-save")).toHaveText("Saved", {
         timeout: 20_000,
       });
       await page.reload({ waitUntil: "domcontentloaded" });
       await page.waitForLoadState("networkidle", { timeout: 10_000 });
-      await expect(page.getByRole("textbox", { name: "Student draft" }))
+      await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
         .toHaveValue(persistedDraft);
 
       network.expectLocalOnly(`${viewport.name} Work to assignment workspace`);
@@ -172,13 +201,10 @@ test.describe("deterministic beta browser surface", () => {
     const assignmentId = workspacePath.split("/")[2];
     expect(assignmentId).toMatch(/^[0-9a-f-]{36}$/u);
 
-    const draft = page.getByRole("textbox", { name: "Student draft" });
+    const draft = page.getByRole("textbox", STUDENT_WORK_TEXTBOX);
     const recoveryText = `Recovered beta draft ${process.env.QA_RUN_ID}`;
     await draft.fill(recoveryText);
-    await expect.poll(() => page.evaluate(
-      (key) => window.localStorage.getItem(key),
-      `diana:assignment:${assignmentId}:pending-work`,
-    )).toContain(recoveryText);
+    await expectPendingProblemWork(page, assignmentId, recoveryText);
 
     await context.clearCookies();
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
@@ -186,13 +212,16 @@ test.describe("deterministic beta browser surface", () => {
 
     await openLocalQaStudentSession(page);
     await openHealthyPage(page, workspacePath, "recovered assignment workspace");
-    await expect(page.getByRole("textbox", { name: "Student draft" }))
+    await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
       .toHaveValue(recoveryText);
-    await expect(page.getByRole("status")).toHaveText("Recovered work saved", {
+    await expect(page.locator(".sd-assignment-workspace-status-line")).toHaveText(
+      "Recovered unsaved math work",
+      {
       timeout: 20_000,
-    });
+      },
+    );
     await page.reload({ waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("textbox", { name: "Student draft" }))
+    await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
       .toHaveValue(recoveryText);
 
     network.expectLocalOnly("session-expiry draft recovery");

@@ -3,6 +3,7 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { openQaSession } from "./helpers/qa";
 
 const assignmentName = /Identity quote response/u;
+const STUDENT_WORK_TEXTBOX = { name: "Show your work" } as const;
 
 async function openWork(page: Page) {
   await openQaSession(page, { scenario: "assignment-detail:default" });
@@ -15,7 +16,7 @@ async function openWorkspace(page: Page) {
   await openWork(page);
   await page.getByRole("link", { name: assignmentName }).click();
   await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
-  await expect(page.getByRole("textbox", { name: "Student draft" })).toBeVisible();
+  await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX)).toBeVisible();
   return new URL(page.url()).pathname;
 }
 
@@ -106,7 +107,7 @@ test.describe("assignment accessibility and resilience", () => {
 
     await page.getByRole("link", { name: assignmentName }).click();
     await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
-    await expect(page.getByRole("textbox", { name: "Student draft" })).toBeVisible();
+    await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX)).toBeVisible();
     await expectNoDocumentOverflow(page, "Assignment workspace");
   });
 
@@ -129,7 +130,7 @@ test.describe("assignment accessibility and resilience", () => {
     await page.keyboard.press("Enter");
 
     await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
-    await expect(page.getByRole("textbox", { name: "Student draft" })).toBeVisible();
+    await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX)).toBeVisible();
   });
 
   test("honors reduced motion on the core assignment journey", async ({ page }) => {
@@ -161,31 +162,33 @@ test.describe("assignment accessibility and resilience", () => {
   test("keeps offline edits locally and autosaves them after reconnect", async ({ page, context }) => {
     test.setTimeout(120_000);
     await openWorkspace(page);
-    const draft = page.getByRole("textbox", { name: "Student draft" });
+    const draft = page.getByRole("textbox", STUDENT_WORK_TEXTBOX);
     const offlineDraft = "Offline draft preserved locally, then synced after reconnect.";
 
     await context.setOffline(true);
     await expect.poll(() => page.evaluate(() => window.navigator.onLine)).toBe(false);
     await draft.fill(offlineDraft);
-    await expect(page.getByRole("status")).toHaveText("Offline. Work is saved on this device.");
+    await expect(page.locator(".sd-assignment-inline-save")).toHaveText("Saved on this device");
 
     await context.setOffline(false);
-    await expect(page.getByRole("status")).toHaveText("Draft saved", { timeout: 20_000 });
+    await expect(page.locator(".sd-assignment-inline-save")).toHaveText("Saved", { timeout: 20_000 });
     await page.reload({ waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("textbox", { name: "Student draft" })).toHaveValue(offlineDraft);
+    await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX)).toHaveValue(offlineDraft);
   });
 
   test("preserves edits and provides recovery when the session expires", async ({ page, context }) => {
     test.setTimeout(120_000);
     const workspacePath = await openWorkspace(page);
-    const draft = page.getByRole("textbox", { name: "Student draft" });
+    const draft = page.getByRole("textbox", STUDENT_WORK_TEXTBOX);
     const expiredSessionDraft = "This edit survives an expired session and syncs after sign-in.";
 
     await draft.fill(expiredSessionDraft);
     await expect.poll(() => page.evaluate(
-      (key) => window.localStorage.getItem(key),
-      `diana:assignment:${assignmentIdFromPath(workspacePath)}:pending-work`,
-    )).toContain(expiredSessionDraft);
+      ({ id, text }) => Object.entries(window.localStorage).some(
+        ([key, value]) => key.startsWith(`diana:assignment:${id}:problem:`) && value.includes(text),
+      ),
+      { id: assignmentIdFromPath(workspacePath), text: expiredSessionDraft },
+    )).toBe(true);
 
     await context.clearCookies();
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
@@ -193,13 +196,13 @@ test.describe("assignment accessibility and resilience", () => {
 
     await openQaSession(page, { scenario: "assignment-detail:default" });
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("textbox", { name: "Student draft" })).toHaveValue(expiredSessionDraft);
-    await expect(page.getByRole("status")).toHaveText("Recovered work saved", {
+    await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX)).toHaveValue(expiredSessionDraft);
+    await expect(page.locator(".sd-assignment-workspace-status-line")).toHaveText("Recovered unsaved math work", {
       timeout: 20_000,
     });
 
     await page.reload({ waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("textbox", { name: "Student draft" })).toHaveValue(expiredSessionDraft);
+    await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX)).toHaveValue(expiredSessionDraft);
   });
 });
 

@@ -216,6 +216,7 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
           QA_TSCONFIG_PATH: runtime.typeScriptConfig,
           QA_REUSE_EXISTING_SERVER: "false",
           QA_TEST_EMAIL: runtime.localStudentEmail,
+          NEXT_PUBLIC_DIANA_BETA_BROWSER_QA: "true",
           ...supabaseEnvironment,
         },
       );

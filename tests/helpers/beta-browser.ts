@@ -49,7 +49,19 @@ const BROWSER_ISSUE_ALLOWLIST: readonly BrowserIssueAllowance[] = [
     pattern:
       /^The resource http:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?\/_next\/static\/media\/\S+\.woff2(?:\?\S+)? was preloaded using link preload but not used within a few seconds from the window's load event\. Please make sure it has an appropriate `as` value and it is preloaded intentionally\.$/u,
   },
+  // Chromium's headless screenshot path can emit this after a successful WebGL frame.
+  {
+    kind: "console-warning",
+    pattern:
+      /^\[\.WebGL-0x[0-9a-f]+\]GL Driver Message \(OpenGL, Performance, GL_CLOSE_PATH_NV, High\): GPU stall due to ReadPixels(?: \(this message will no longer repeat\))?$/u,
+  },
 ];
+
+export function isBrowserIssueAllowed(kind: BrowserIssueKind, value: string): boolean {
+  return BROWSER_ISSUE_ALLOWLIST.some(
+    (entry) => entry.kind === kind && entry.pattern.test(value),
+  );
+}
 
 export type BrowserIssueMonitor = {
   expectClean(label: string): void;
@@ -195,9 +207,7 @@ export function observeBrowserIssues(page: Page, allowedOrigin: string): Browser
   ]);
 
   const record = (kind: BrowserIssueKind, detail: string, allowlistValue = detail) => {
-    const allowed = BROWSER_ISSUE_ALLOWLIST.some(
-      (entry) => entry.kind === kind && entry.pattern.test(allowlistValue),
-    );
+    const allowed = isBrowserIssueAllowed(kind, allowlistValue);
     if (!allowed) unexpectedIssues.push({ kind, detail });
   };
 

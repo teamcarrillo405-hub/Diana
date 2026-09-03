@@ -159,19 +159,19 @@ test.describe("Work assignment flow", () => {
     await expect(
       page.getByRole("heading", { name: "Identity quote response" }),
     ).toBeVisible();
-    await expect(page.getByText("Current move", { exact: true })).toBeVisible();
+    await expect(page.locator(".sd-assignment-problem-card")).toBeVisible();
 
-    const draft = page.getByRole("textbox", { name: "Student draft" });
+    const draft = page.getByRole("textbox", { name: "Show your work" });
     const savedDraft =
       "The quote supports the claim because the character chooses honesty even when it costs them.";
     await draft.fill(savedDraft);
-    await expect(page.locator(".sd-assignment-workspace-save-state")).toHaveText(
-      "Draft saved",
+    await expect(page.locator(".sd-assignment-inline-save")).toHaveText(
+      "Saved",
       { timeout: 20_000 },
     );
 
     await page.reload({ waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("textbox", { name: "Student draft" })).toHaveValue(
+    await expect(page.getByRole("textbox", { name: "Show your work" })).toHaveValue(
       savedDraft,
     );
 

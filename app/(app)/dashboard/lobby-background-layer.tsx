@@ -17,7 +17,11 @@ export function isLobbyBgKey(value: string | null): value is LobbyBgKey {
 
 export function LobbyPageBackground() {
   return (
-    <div className="today-page-background" aria-hidden="true">
+    <div
+      className="today-page-background"
+      aria-hidden="true"
+      style={{ position: "absolute", inset: 0 }}
+    >
       <Image
         src="/images/today-gamer-high-school.png"
         fill
@@ -25,7 +29,7 @@ export function LobbyPageBackground() {
         aria-hidden="true"
         priority
         className="today-page-background-image"
-        sizes="100vw"
+        sizes="(max-width: 900px) 100vw, 1px"
       />
       <div className="today-page-background-wash" />
     </div>

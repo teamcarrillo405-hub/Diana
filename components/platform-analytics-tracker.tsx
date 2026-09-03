@@ -3,17 +3,20 @@
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { useReportWebVitals } from "next/web-vitals";
+import { isIsolatedBetaBrowserRuntime } from "@/lib/beta/browser-runtime";
 import { WEB_VITAL_BUDGETS, type WebVitalName } from "@/lib/platform/analytics";
 
 export function PlatformAnalyticsTracker() {
   const pathname = usePathname() ?? "/";
   const pathRef = useRef(pathname);
+  const suppressMonitoring = isIsolatedBetaBrowserRuntime();
 
   useEffect(() => {
     pathRef.current = pathname;
   }, [pathname]);
 
   useEffect(() => {
+    if (suppressMonitoring) return;
     const start = performance.now();
     let sentDuration = false;
     const feature = routeToFeature(pathname);
@@ -46,9 +49,10 @@ export function PlatformAnalyticsTracker() {
       window.removeEventListener("pagehide", flushDuration);
       flushDuration();
     };
-  }, [pathname]);
+  }, [pathname, suppressMonitoring]);
 
   useReportWebVitals((metric) => {
+    if (suppressMonitoring) return;
     const metricName = metric.name.toUpperCase();
     postJson("/api/monitoring/vitals", {
       route: pathRef.current,

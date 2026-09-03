@@ -422,6 +422,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
         );
         expect(context.environment.QA_CREATE_USER).toBe("true");
         expect(context.environment.QA_REUSE_EXISTING_SERVER).toBe("false");
+        expect(context.environment.NEXT_PUBLIC_DIANA_BETA_BROWSER_QA).toBe("true");
         expect(context.environment.QA_TEST_EMAIL).toMatch(
           /^diana-beta-[a-f0-9]{16}@local\.test$/u,
         );
@@ -544,7 +545,9 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(helper).toContain('page.on("response"');
     expect(helper).toContain('"hydration-error"');
     expect(helper).toContain('"same-origin-subresource"');
-    expect(allowlist.match(/\bpattern:/gu) ?? []).toHaveLength(1);
+    expect(allowlist.match(/\bpattern:/gu) ?? []).toHaveLength(2);
+    expect(allowlist).toContain("GL Driver Message");
+    expect(allowlist).toContain("GPU stall due to ReadPixels");
     expect(accessibilityGate).toContain(
       '.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])',
     );
@@ -555,10 +558,10 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(spec).toContain('screenshot: { mode: "only-on-failure", fullPage: true }');
     expect(spec).toContain("for (const viewport of BETA_AUTHENTICATED_VIEWPORTS)");
     expect(spec).toContain("await openLocalQaStudentSession(page)");
-    expect(spec).toContain('getByRole("textbox", { name: "Student draft" })');
-    expect(spec).toContain('toHaveText("Draft saved"');
+    expect(spec).toContain('getByRole("textbox", STUDENT_WORK_TEXTBOX)');
+    expect(spec).toContain('locator(".sd-assignment-inline-save")).toHaveText("Saved"');
     expect(spec).toContain("await context.clearCookies()");
-    expect(spec).toContain('toHaveText("Recovered work saved"');
+    expect(spec).toContain('"Recovered unsaved math work"');
     expect(spec).not.toMatch(/test\.(?:skip|fixme)|\.skip\(/u);
   });
 

@@ -1883,16 +1883,19 @@ const TODAY_CANONICAL_STYLES = `
       padding: 18px 0 26px;
     }
     .today-left-rail {
+      position: relative;
+      box-sizing: border-box;
       height: 100%;
       align-self: stretch;
       grid-template-rows: minmax(0, 1fr);
       align-content: stretch;
+      padding-top: 42px;
     }
     .today-section-label {
       position: absolute;
       z-index: 4;
-      top: calc(clamp(20px, 3.2vw, 54px) + 7px);
-      left: clamp(20px, 3.2vw, 54px);
+      top: 4px;
+      left: 0;
       margin: 0;
     }
     .today-next-card { height: 100%; min-height: 0; }
