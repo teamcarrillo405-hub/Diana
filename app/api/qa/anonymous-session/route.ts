@@ -26,6 +26,18 @@ const qaUser = {
   operation: "seed" as "seed" | "reset",
 };
 
+function qaSignupMetadata(activeQaUser: Pick<typeof qaUser, "displayName">) {
+  return {
+    display_name: activeQaUser.displayName,
+    date_of_birth: "2009-09-01",
+    timezone,
+    // The local QA user goes through the same teen-access gate as a real signup.
+    teen_guardian_permission_attested: true,
+    teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+    teen_guardian_permission_source: "signup_attestation",
+  };
+}
+
 function resolveQaUser(request: Request) {
   const params = new URL(request.url).searchParams;
   const scenarioId = params.get("scenario");
@@ -136,11 +148,7 @@ async function handleQaSession(request: Request) {
     const { data: updated, error: updateError } = await admin.auth.admin.updateUserById(found.user.id, {
       password: activeQaUser.password,
       email_confirm: true,
-      user_metadata: {
-        display_name: activeQaUser.displayName,
-        date_of_birth: "2009-09-01",
-        timezone,
-      },
+      user_metadata: qaSignupMetadata(activeQaUser),
     });
     if (updateError || !updated.user) {
       return NextResponse.json({ error: updateError?.message ?? "QA user update could not finish." }, { status: 500 });
@@ -151,11 +159,7 @@ async function handleQaSession(request: Request) {
       email: activeQaUser.email,
       password: activeQaUser.password,
       email_confirm: true,
-      user_metadata: {
-        display_name: activeQaUser.displayName,
-        date_of_birth: "2009-09-01",
-        timezone,
-      },
+      user_metadata: qaSignupMetadata(activeQaUser),
     });
     if (createError || !created.user) {
       return NextResponse.json({ error: createError?.message ?? "QA user creation could not finish." }, { status: 500 });
