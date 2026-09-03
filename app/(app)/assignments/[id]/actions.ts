@@ -49,12 +49,16 @@ const Input = z.object({
   id: z.string().uuid(),
   from: z.enum(STATUSES),
   to: z.enum(STATUSES),
+  // The first durable workspace save already returns the authoritative work
+  // state to the student. Avoid starting a competing router refresh while that
+  // server action is still completing.
+  skipCacheRevalidation: z.boolean().optional(),
 });
 
 export async function transitionAssignment(input: z.infer<typeof Input>) {
   const parsed = Input.safeParse(input);
   if (!parsed.success) return { error: "Invalid input." };
-  const { id, from, to } = parsed.data;
+  const { id, from, to, skipCacheRevalidation = false } = parsed.data;
 
   if (!canTransition(from, to)) return { error: "Not allowed from here." };
 
@@ -176,9 +180,11 @@ export async function transitionAssignment(input: z.infer<typeof Input>) {
     }
   }
 
-  revalidatePath(`/assignments/${id}`);
-  revalidatePath("/assignments");
-  revalidatePath("/dashboard");
+  if (!skipCacheRevalidation) {
+    revalidatePath(`/assignments/${id}`);
+    revalidatePath("/assignments");
+    revalidatePath("/dashboard");
+  }
 
   if (to === "exporting") {
     return { redirect: `/assignments/${id}/submit` as const };

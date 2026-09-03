@@ -23,6 +23,7 @@ type AssignmentFocusClockProps = {
   assignmentId: string;
   title: string;
   estimatedMinutes: number | null;
+  initialServerState?: AssignmentFocusServerState;
 };
 
 type RetryAction = "start" | "stop";
@@ -252,6 +253,7 @@ export function AssignmentFocusClock({
   assignmentId,
   title,
   estimatedMinutes,
+  initialServerState,
 }: AssignmentFocusClockProps) {
   const key = storageKey(assignmentId);
   const adaptiveFocusMinutes = assignmentFocusDurationMinutes(estimatedMinutes);
@@ -266,6 +268,12 @@ export function AssignmentFocusClock({
   const operationRef = useRef<PendingOperation | null>(null);
   const reconciliationRef = useRef<PendingReconciliation | null>(null);
   const lastReconcileAtRef = useRef(0);
+  // The workspace already loaded this state on the server. Keeping it in a
+  // ref makes it an initial snapshot, not a new timer reset after an RSC refresh.
+  const hasInitialServerStateRef = useRef(initialServerState !== undefined);
+  const initialServerStateRef = useRef<AssignmentFocusServerState>(
+    initialServerState ?? { session: null, endedSession: null },
+  );
   assignmentRef.current = assignmentId;
 
   const applySnapshot = useCallback((
@@ -585,9 +593,18 @@ export function AssignmentFocusClock({
       announcement: "",
     });
 
+    if (hasInitialServerStateRef.current) {
+      applyReconciledServerState(initialServerStateRef.current);
+    }
+
     void (async () => {
-      await reconcileWithServer({ force: true });
-      if (cancelled || assignmentRef.current !== assignmentId) return;
+      // A workspace page supplies a server-authoritative snapshot. Re-reading
+      // the same session from the client adds a second server action during
+      // hydration and can race with a student's first autosave.
+      if (!hasInitialServerStateRef.current) {
+        await reconcileWithServer({ force: true });
+        if (cancelled || assignmentRef.current !== assignmentId) return;
+      }
 
       setHydrated(true);
       const current = snapshotRef.current;

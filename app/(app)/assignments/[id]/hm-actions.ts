@@ -246,7 +246,12 @@ export async function startAssignmentWorkspace(input: z.infer<typeof WorkspaceLi
     .maybeSingle();
   if (!assignment) return { ok: false, error: "Assignment not found." };
   if (assignment.status !== "todo") return { ok: true };
-  const result = await transitionAssignment({ id: parsed.data.assignmentId, from: "todo", to: "drafting" });
+  const result = await transitionAssignment({
+    id: parsed.data.assignmentId,
+    from: "todo",
+    to: "drafting",
+    skipCacheRevalidation: true,
+  });
   return "error" in result && typeof result.error === "string" ? { ok: false, error: result.error } : { ok: true };
 }
 

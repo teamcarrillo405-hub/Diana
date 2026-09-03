@@ -447,8 +447,10 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
         );
         expect(existsSync(generatedTypeScriptConfig)).toBe(true);
         const generated = JSON.parse(readFileSync(generatedTypeScriptConfig, "utf8")) as {
+          compilerOptions: { strict?: boolean };
           include: string[];
         };
+        expect(generated.compilerOptions.strict).toBe(true);
         expect(generated.include).toContain(
           `${context.environment.QA_NEXT_DIST_DIR}/types/**/*.ts`,
         );

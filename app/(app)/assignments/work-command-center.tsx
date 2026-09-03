@@ -117,6 +117,7 @@ export function WorkCommandCenter({
               <Link
                 className="sd-work-feature-action"
                 href={workHref(next)}
+                prefetch={false}
                 aria-label={`${primaryActionLabel(next)} ${next.title}`}
               >
                 <span>{primaryActionLabel(next)}</span>
@@ -212,6 +213,7 @@ function AssignmentRow({ assignment, now }: { assignment: WorkCommandItem; now: 
     <Link
       className="sd-work-queue-row"
       href={workHref(assignment)}
+      prefetch={false}
       data-tone={state.tone}
       aria-label={`${displayTitle}, ${assignment.className}, ${state.label}`}
     >

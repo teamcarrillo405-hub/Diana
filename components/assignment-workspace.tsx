@@ -57,6 +57,7 @@ import type {
 } from "@/lib/assignment-workspace-contracts";
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
 import type { AssignmentKind } from "@/lib/supabase/types";
+import type { AssignmentFocusServerState } from "@/lib/timer/assignment-focus-actions";
 
 const AssignmentNativeTools = dynamic(
   () => import("@/components/assignment-native-tools").then((module) => module.AssignmentNativeTools),
@@ -107,6 +108,7 @@ type AssignmentWorkspaceProps = {
   initialProblems: Problem[];
   initialProblemMessages?: AssignmentProblemMessage[];
   initialWorkspacePreferences?: AssignmentWorkspacePreference[];
+  initialFocusServerState?: AssignmentFocusServerState;
   externalUrl: string | null;
   externalSource: string | null;
   estimatedMinutes: number | null;
@@ -150,6 +152,7 @@ export function AssignmentWorkspace({
   initialProblems,
   initialProblemMessages = [],
   initialWorkspacePreferences = [],
+  initialFocusServerState,
   estimatedMinutes,
 }: AssignmentWorkspaceProps) {
   const displayTitle = displayAssignmentWorkspaceTitle(title);
@@ -228,6 +231,7 @@ export function AssignmentWorkspace({
       assignmentId={assignmentId}
       title={displayTitle}
       estimatedMinutes={estimatedMinutes}
+      initialServerState={initialFocusServerState}
     />
   );
   return (

@@ -102,25 +102,37 @@ function prepareBetaBrowserTypeScriptConfig(
   typeScriptConfig: string,
   distDirectory: string,
 ): () => void {
-  const rootConfig = path.resolve(projectRoot, "tsconfig.json");
+  const rootConfigPath = path.resolve(projectRoot, "tsconfig.json");
   const generatedConfig = path.resolve(projectRoot, typeScriptConfig);
   if (path.dirname(generatedConfig) !== projectRoot) {
     throw new Error("Generated beta TypeScript config escaped the project root.");
   }
-  const rootStats = lstatSync(rootConfig);
+  const rootStats = lstatSync(rootConfigPath);
   if (rootStats.isSymbolicLink() || !rootStats.isFile()) {
     throw new Error("The root TypeScript config must be a regular file.");
   }
 
+  let rootConfig: Record<string, unknown>;
+  try {
+    rootConfig = JSON.parse(readFileSync(rootConfigPath, "utf8")) as Record<string, unknown>;
+  } catch {
+    throw new Error("The root TypeScript config must be valid JSON for isolated browser verification.");
+  }
+  if (!rootConfig || Array.isArray(rootConfig)) {
+    throw new Error("The root TypeScript config must contain a JSON object.");
+  }
+
+  const rootInclude = Array.isArray(rootConfig.include)
+    ? rootConfig.include.filter((entry): entry is string => typeof entry === "string")
+    : ["**/*.ts", "**/*.tsx"];
+  const include = [
+    "next-env.d.ts",
+    `${distDirectory}/types/**/*.ts`,
+    ...rootInclude.filter((entry) => !entry.startsWith(".next")),
+  ];
   const content = `${JSON.stringify({
-    extends: "./tsconfig.json",
-    include: [
-      "next-env.d.ts",
-      `${distDirectory}/types/**/*.ts`,
-      "**/*.ts",
-      "**/*.tsx",
-    ],
-    exclude: ["node_modules"],
+    ...rootConfig,
+    include: [...new Set(include)],
   }, null, 2)}\n`;
 
   if (existsSync(generatedConfig)) {

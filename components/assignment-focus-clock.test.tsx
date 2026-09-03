@@ -45,12 +45,19 @@ function deferred<T>() {
   return { promise, resolve };
 }
 
-function renderClock(estimatedMinutes: number | null = 45) {
+function renderClock(
+  estimatedMinutes: number | null = 45,
+  initialServerState?: {
+    session: { sessionId: number; clientSessionId: string | null; startedAt: string; targetAt: string } | null;
+    endedSession: { sessionId: number; endedAt: string } | null;
+  },
+) {
   return render(
     <AssignmentFocusClock
       assignmentId={assignmentId}
       title="Biology review"
       estimatedMinutes={estimatedMinutes}
+      initialServerState={initialServerState}
     />,
   );
 }
@@ -70,6 +77,20 @@ describe("AssignmentFocusClock", () => {
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
+  });
+
+  it("does not start an idle reconciliation request when server state is already loaded", async () => {
+    renderClock(45, { session: null, endedSession: null });
+
+    expect(await screen.findByRole("button", { name: "Start a 30 minute focus session" })).toBeEnabled();
+    expect(mocks.reconcileFocusSession).not.toHaveBeenCalled();
+  });
+
+  it("uses a server-provided active session without a duplicate reconciliation", async () => {
+    renderClock(45, openSession(63));
+
+    expect(await screen.findByRole("button", { name: "Stop focus session" })).toBeEnabled();
+    expect(mocks.reconcileFocusSession).not.toHaveBeenCalled();
   });
 
   it("uses a 15 minute focus block for a short assignment", async () => {

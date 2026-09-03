@@ -18,6 +18,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import type { AssignmentKind, Json } from "@/lib/supabase/types";
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
+import { assignmentFocusSessionMetadata } from "@/lib/timer/assignment-focus-actions";
 import type {
   AssignmentPaperStyle,
   AssignmentProblemMessage,
@@ -38,6 +39,12 @@ type ArtifactRow = {
   content: Json;
   plain_text: string;
   source_anchors: Json;
+};
+type FocusSessionRow = {
+  id: number;
+  started_at: string;
+  target_ends_at: string | null;
+  client_session_id: string | null;
 };
 type ArtifactQuery = {
   eq(column: string, value: string): ArtifactQuery;
@@ -98,7 +105,7 @@ export default async function AssignmentWorkspacePage({
 
   const artifactStore = supabase as unknown as ArtifactClient;
   const safetyStore = supabase as unknown as SafetyRpcClient;
-  const [homeworkKernel, { data: stepsRow }, { data: problems }, { data: artifactRows }, { data: practicalGateData }, { data: problemMessages }, { data: workspacePreferences }] = await Promise.all([
+  const [homeworkKernel, { data: stepsRow }, { data: problems }, { data: artifactRows }, { data: practicalGateData }, { data: problemMessages }, { data: workspacePreferences }, { data: openFocusSession }] = await Promise.all([
     loadAssignmentHomeworkKernel({
       supabase,
       ownerId: user.id,
@@ -136,6 +143,15 @@ export default async function AssignmentWorkspacePage({
       .select("problem_id, paper_style, work_height")
       .eq("assignment_id", id)
       .eq("owner_id", user.id),
+    supabase
+      .from("assignment_time_log")
+      .select("id, started_at, target_ends_at, client_session_id")
+      .eq("assignment_id", id)
+      .eq("owner_id", user.id)
+      .is("ended_at", null)
+      .order("started_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
   ]);
 
   if (!homeworkKernel) notFound();
@@ -261,6 +277,12 @@ export default async function AssignmentWorkspacePage({
         paperStyle: (preference.paper_style === "blank" || preference.paper_style === "graph" ? preference.paper_style : "lined") as AssignmentPaperStyle,
         workHeight: Math.max(220, Math.min(1_200, preference.work_height)),
       }))}
+      initialFocusServerState={{
+        session: openFocusSession
+          ? assignmentFocusSessionMetadata(openFocusSession as FocusSessionRow)
+          : null,
+        endedSession: null,
+      }}
       externalUrl={assignment.external_url}
       externalSource={assignment.external_source}
       estimatedMinutes={assignment.estimated_minutes}

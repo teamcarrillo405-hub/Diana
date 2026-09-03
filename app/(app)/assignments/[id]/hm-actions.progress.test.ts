@@ -70,7 +70,12 @@ describe("assignment problem progress actions", () => {
 
     await expect(startAssignmentWorkspace({ assignmentId })).resolves.toEqual({ ok: true });
     expect(assignmentQuery.eq).toHaveBeenCalledWith("owner_id", "student-1");
-    expect(transitionAssignment).toHaveBeenCalledWith({ id: assignmentId, from: "todo", to: "drafting" });
+    expect(transitionAssignment).toHaveBeenCalledWith({
+      id: assignmentId,
+      from: "todo",
+      to: "drafting",
+      skipCacheRevalidation: true,
+    });
   });
 
   it("does not reopen an assignment that is already in progress", async () => {
