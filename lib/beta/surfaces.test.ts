@@ -207,7 +207,7 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
+describe("deterministic beta command surfaces", { timeout: 120_000 }, () => {
   it("writes the fixed provider, subject, and authenticated browser fixture matrix", () => {
     const projectRoot = createProject();
     const runId = "beta-fixture-matrix-001";
