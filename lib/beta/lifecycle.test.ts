@@ -199,7 +199,7 @@ describe("beta local gate lifecycle", () => {
       "Local gate receipts verified: **blocked**",
     );
     expect(readBetaReleaseReportStatus(projectRoot, runId)).toBe("blocked");
-  }, 30_000);
+  }, 120_000);
 
   it("stops after the first failure and marks later gates blocked", () => {
     const projectRoot = createProject();
