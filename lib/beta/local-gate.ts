@@ -114,10 +114,14 @@ export function sanitizeBetaLocalGateChildEnvironment(
   environment: BetaProcessEnvironment,
   gateId: string,
 ): BetaProcessEnvironment {
-  return sanitizeBetaChildEnvironment(
+  const sanitized = sanitizeBetaChildEnvironment(
     environment,
     LOCAL_GATE_ENVIRONMENT_KEYS[gateId] ?? [],
   );
+  // Dependency installation must not trigger an implicit audit, but the
+  // explicit security gate must be able to call `npm audit` itself.
+  if (gateId === "dependency-audit") sanitized.NPM_CONFIG_AUDIT = "true";
+  return sanitized;
 }
 
 export function sanitizeBetaChildEnvironment(

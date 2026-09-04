@@ -54,4 +54,16 @@ describe("trusted npm execution", () => {
     expect(sanitizeBetaChildEnvironment(environment, ["NPM_EXECPATH"]))
       .not.toHaveProperty("NPM_EXECPATH");
   });
+
+  it("enables npm audit only for the explicit dependency-audit gate", () => {
+    const environment = {
+      PATH: process.env.PATH,
+      NPM_CONFIG_AUDIT: "false",
+    };
+
+    expect(sanitizeBetaLocalGateChildEnvironment(environment, "dependency-install"))
+      .toMatchObject({ NPM_CONFIG_AUDIT: "false" });
+    expect(sanitizeBetaLocalGateChildEnvironment(environment, "dependency-audit"))
+      .toMatchObject({ NPM_CONFIG_AUDIT: "true" });
+  });
 });
