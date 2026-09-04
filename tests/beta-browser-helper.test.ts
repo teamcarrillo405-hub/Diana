@@ -21,9 +21,15 @@ describe("beta browser warning allowlist", () => {
     expect(isBrowserIssueAllowed("console-error", warning)).toBe(false);
   });
 
-  it("allows only the disposable Next development HMR bundle cancellation", () => {
+  it("allows only the disposable Next development HMR bundle cancellations", () => {
     const hmrAbort = "net::ERR_ABORTED [script] GET http://127.0.0.1:3005/_next/static/webpack/webpack.cac24af971fde713.hot-update.js";
     expect(isBrowserIssueAllowed("request-error", hmrAbort)).toBe(true);
+    expect(
+      isBrowserIssueAllowed(
+        "request-error",
+        "net::ERR_ABORTED [script] GET http://127.0.0.1:3005/_next/static/chunks/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js",
+      ),
+    ).toBe(true);
     expect(
       isBrowserIssueAllowed(
         "request-error",

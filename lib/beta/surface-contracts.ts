@@ -95,6 +95,7 @@ export function getBetaSubjectGateCommand(
 }
 
 export const BETA_BROWSER_SPEC_PATH = "tests/beta-browser.spec.ts" as const;
+export const BETA_BROWSER_BUILD_COMMAND = ["npx", "next", "build"] as const;
 export const BETA_BROWSER_COMMAND = [
   "npx",
   "playwright",
@@ -104,7 +105,7 @@ export const BETA_BROWSER_COMMAND = [
   "--reporter=line",
   "--workers=1",
   "--retries=0",
-  "--trace=retain-on-failure",
+  "--trace=off",
 ] as const;
 
 export const BETA_LMS_MOCK_COMMAND = ["provider-canary", "mock"] as const;

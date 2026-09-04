@@ -49,6 +49,7 @@ import { runBetaLocalGate } from "./local-gate";
 import { getBetaQaResourceNamespace } from "./qa-resources";
 import { runBetaPreflight } from "./preflight";
 import {
+  BETA_BROWSER_BUILD_COMMAND,
   BETA_BROWSER_COMMAND,
   getBetaSubjectGateCommand,
 } from "./surface-contracts";
@@ -401,6 +402,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     completedRun(projectRoot, runId);
     const rootTypeScriptConfig = readFileSync(path.join(projectRoot, "tsconfig.json"), "utf8");
     let generatedTypeScriptConfig = "";
+    const commands: string[][] = [];
 
     const receipt = runBetaBrowser({
       projectRoot,
@@ -413,7 +415,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
         DIANA_BETA_LOCAL_SUPABASE_SERVICE_ROLE_KEY: "service-local-test-key-1234567890",
       },
       runCommand(command, context) {
-        expect(command).toEqual(BETA_BROWSER_COMMAND);
+        commands.push([...command]);
         expect(context.captureOutput).toBe(false);
         expect(context.environment.QA_RUN_ID).toBe(runId);
         expect(context.environment.QA_BASE_URL).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/u);
@@ -422,6 +424,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
         );
         expect(context.environment.QA_CREATE_USER).toBe("true");
         expect(context.environment.QA_REUSE_EXISTING_SERVER).toBe("false");
+        expect(context.environment.QA_SERVER_MODE).toBe("production");
         expect(context.environment.NEXT_PUBLIC_DIANA_BETA_BROWSER_QA).toBe("true");
         expect(context.environment.QA_TEST_EMAIL).toMatch(
           /^diana-beta-[a-f0-9]{16}@local\.test$/u,
@@ -441,6 +444,9 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
         expect(context.environment.QA_TSCONFIG_PATH).toMatch(
           /^\.tsconfig-beta-[a-f0-9]{12}\.json$/u,
         );
+        expect(context.environment.NEXT_TYPESCRIPT_CONFIG).toBe(
+          context.environment.QA_TSCONFIG_PATH,
+        );
         generatedTypeScriptConfig = path.join(
           projectRoot,
           context.environment.QA_TSCONFIG_PATH!,
@@ -455,17 +461,58 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
           `${context.environment.QA_NEXT_DIST_DIR}/types/**/*.ts`,
         );
         expect(context.environment.PRIVATE_TOKEN).toBeUndefined();
+        if (command[1] === "next") {
+          expect(command).toEqual(BETA_BROWSER_BUILD_COMMAND);
+          return { status: 0, signal: null, stdout: null, stderr: null };
+        }
+        expect(command).toEqual(BETA_BROWSER_COMMAND);
         return { status: 0, signal: null, stdout: null, stderr: null };
       },
     });
 
     expect(receipt.status).toBe("pass");
     expect(receipt.command).toEqual(BETA_BROWSER_COMMAND);
+    expect(commands).toEqual([BETA_BROWSER_BUILD_COMMAND, BETA_BROWSER_COMMAND]);
+    expect(receipt.checks.find((check) => check.id === "browser-production-build"))
+      .toMatchObject({ status: "pass" });
     expect(readFileSync(path.join(projectRoot, "tsconfig.json"), "utf8")).toBe(
       rootTypeScriptConfig,
     );
     expect(existsSync(generatedTypeScriptConfig)).toBe(false);
     expect(readBetaSurfaceReceipt(projectRoot, runId, "browser")).toEqual(receipt);
+  });
+
+  it("does not launch browser checks when the isolated production build fails", () => {
+    const projectRoot = createProject({ browserSpec: true });
+    const runId = "beta-browser-build-failure-001";
+    completedRun(projectRoot, runId);
+    const commands: string[][] = [];
+
+    const receipt = runBetaBrowser({
+      projectRoot,
+      runId,
+      environment: {
+        PATH: process.env.PATH,
+        DIANA_BETA_LOCAL_SUPABASE_URL: "http://127.0.0.1:54321",
+        DIANA_BETA_LOCAL_SUPABASE_PUBLISHABLE_KEY: "publishable-local-test-key-123456",
+        DIANA_BETA_LOCAL_SUPABASE_SERVICE_ROLE_KEY: "service-local-test-key-1234567890",
+      },
+      runCommand(command) {
+        commands.push([...command]);
+        expect(command).toEqual(BETA_BROWSER_BUILD_COMMAND);
+        return { status: 1, signal: null, stdout: null, stderr: null };
+      },
+    });
+
+    expect(commands).toEqual([BETA_BROWSER_BUILD_COMMAND]);
+    expect(receipt.status).toBe("blocked");
+    expect(receipt.command).toEqual(BETA_BROWSER_BUILD_COMMAND);
+    expect(receipt.network).toBe("not-run");
+    expect(receipt.writes).toBe("none");
+    expect(receipt.checks.find((check) => check.id === "browser-production-build"))
+      .toMatchObject({ status: "block" });
+    expect(receipt.checks.find((check) => check.id === "browser-result"))
+      .toMatchObject({ status: "block" });
   });
 
   it("fails closed before launch without a distinct dedicated loopback Supabase project", () => {
@@ -531,6 +578,10 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
       path.join(process.cwd(), "tests", "beta-browser.spec.ts"),
       "utf8",
     );
+    const playwrightConfig = readFileSync(
+      path.join(process.cwd(), "playwright.config.ts"),
+      "utf8",
+    );
     const allowlist = helper.match(
       /const BROWSER_ISSUE_ALLOWLIST:[\s\S]*?^\];/mu,
     )?.[0] ?? "";
@@ -557,7 +608,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(accessibilityGate).toContain("results.violations.map");
     expect(accessibilityGate).not.toContain("results.violations.filter");
 
-    expect(spec).toContain('trace: "retain-on-failure"');
+    expect(spec).toContain('trace: "off"');
     expect(spec).toContain('screenshot: { mode: "only-on-failure", fullPage: true }');
     expect(spec).toContain("for (const viewport of BETA_AUTHENTICATED_VIEWPORTS)");
     expect(spec).toContain("await openLocalQaStudentSession(page)");
@@ -566,6 +617,8 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(spec).toContain("await context.clearCookies()");
     expect(spec).toContain('"Recovered unsaved work"');
     expect(spec).not.toMatch(/test\.(?:skip|fixme)|\.skip\(/u);
+    expect(playwrightConfig).toContain('QA_SERVER_MODE must be development or production.');
+    expect(playwrightConfig).toContain('npm run start -- -p ${qaPort}');
   });
 
   it("keeps the shipping browser wrapper bound to dedicated local Supabase inputs", () => {

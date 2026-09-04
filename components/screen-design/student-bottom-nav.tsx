@@ -42,6 +42,7 @@ export function StudentBottomNav() {
         <Link
           key={label}
           href={href}
+          prefetch={label === "Work" ? false : undefined}
           aria-current={label === active ? "page" : undefined}
           data-active={label === active || undefined}
         >

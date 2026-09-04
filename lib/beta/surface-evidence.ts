@@ -12,6 +12,7 @@ import {
 import { getBetaQaRunId } from "./qa-resources";
 import { redactForEvidence } from "./redaction";
 import {
+  BETA_BROWSER_BUILD_COMMAND,
   BETA_FIXED_SURFACE_COMMANDS,
   BETA_SURFACE_NAMES,
   BETA_SURFACE_RECEIPT_KIND,
@@ -117,8 +118,23 @@ function assertFixedCommand(receipt: Record<string, unknown>): void {
   const expected = surface === "subjects"
     ? getBetaSubjectGateCommand(String(receipt.runId))
     : BETA_FIXED_SURFACE_COMMANDS[surface];
-  if (!expected || JSON.stringify(receipt.command) !== JSON.stringify(expected)) {
+  const isBlockedBrowserBuild = surface === "browser"
+    && JSON.stringify(receipt.command) === JSON.stringify(BETA_BROWSER_BUILD_COMMAND);
+  if (!expected || (
+    JSON.stringify(receipt.command) !== JSON.stringify(expected)
+    && !isBlockedBrowserBuild
+  )) {
     throw new Error("Beta surface receipt does not match its fixed command boundary.");
+  }
+  if (
+    isBlockedBrowserBuild
+    && (
+      receipt.status !== "blocked"
+      || receipt.network !== "not-run"
+      || receipt.writes !== "none"
+    )
+  ) {
+    throw new Error("A blocked browser production build cannot report browser activity.");
   }
 }
 

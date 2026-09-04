@@ -44,7 +44,10 @@ async function expectTodayLabelAboveNextMove(page: import("@playwright/test").Pa
 }
 
 test.use({
-  trace: "retain-on-failure",
+  // Playwright traces preserve request headers, including short-lived local
+  // session cookies. Failure screenshots and redacted assertions are retained
+  // instead, so beta evidence never keeps authentication material.
+  trace: "off",
   screenshot: { mode: "only-on-failure", fullPage: true },
 });
 
@@ -183,6 +186,10 @@ test.describe("deterministic beta browser surface", () => {
       await expect(page.locator(".sd-assignment-inline-save")).toHaveText("Saved", {
         timeout: 20_000,
       });
+      // A server action can still be committing its RSC refresh when the
+      // visible save state changes. Let that navigation settle before the
+      // deliberate reload below, so the test does not create its own abort.
+      await page.waitForLoadState("networkidle", { timeout: 10_000 });
       await page.reload({ waitUntil: "domcontentloaded" });
       await page.waitForLoadState("networkidle", { timeout: 10_000 });
       await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
@@ -202,17 +209,16 @@ test.describe("deterministic beta browser surface", () => {
     const target = expectSafeBetaBrowserEnvironment(baseURL);
     const network = await installLocalNetworkGuard(page, target.origin);
     let workspacePath = "";
-    let resettingSession = false;
+    let expectedWorkspaceResetAborts = 0;
     const issues = observeBrowserIssues(page, target.origin, {
       allowRequestFailure(request) {
-        if (!resettingSession || request.failure()?.errorText !== "net::ERR_ABORTED") return false;
+        if (expectedWorkspaceResetAborts === 0 || request.failure()?.errorText !== "net::ERR_ABORTED") return false;
         if (request.resourceType() !== "fetch") return false;
-        if (request.method() !== "GET" && request.method() !== "POST") return false;
+        if (request.method() !== "GET") return false;
         const url = new URL(request.url());
-        return url.origin === target.origin && (
-          url.pathname === workspacePath
-          || (url.pathname === "/login" && request.method() === "POST")
-        );
+        if (url.origin !== target.origin || url.pathname !== workspacePath) return false;
+        expectedWorkspaceResetAborts -= 1;
+        return true;
       },
     });
     await page.setViewportSize({ width: 1366, height: 768 });
@@ -235,7 +241,7 @@ test.describe("deterministic beta browser surface", () => {
     // This deliberately interrupts any in-flight server save after the local
     // recovery copy is proven. The request cancellation is expected here; the
     // assertions below still require the student work to be restored.
-    resettingSession = true;
+    expectedWorkspaceResetAborts = 1;
     await context.clearCookies();
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/login\?next=/u);
@@ -257,7 +263,6 @@ test.describe("deterministic beta browser surface", () => {
     await page.waitForLoadState("networkidle", { timeout: 10_000 });
     await expect(page.getByRole("textbox", STUDENT_WORK_TEXTBOX))
       .toHaveValue(recoveryText);
-    resettingSession = false;
 
     network.expectLocalOnly("session-expiry draft recovery");
     issues.expectClean("session-expiry draft recovery");

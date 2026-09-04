@@ -45,11 +45,11 @@ type BrowserIssueAllowance = {
 
 const BROWSER_ISSUE_ALLOWLIST: readonly BrowserIssueAllowance[] = [
   // Next development mode may replace this disposable HMR bundle while the
-  // browser moves between independent public routes. Production has no HMR.
+  // browser moves between independent routes. Production has no HMR.
   {
     kind: "request-error",
     pattern:
-      /^net::ERR_ABORTED \[script\] GET http:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?\/_next\/static\/webpack\/webpack\.[a-f0-9]+\.hot-update\.js$/u,
+      /^net::ERR_ABORTED \[script\] GET http:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?\/_next\/static\/(?:webpack\/webpack\.[a-f0-9]+\.hot-update\.js|chunks\/_app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js\.js)$/u,
   },
   {
     kind: "console-warning",

@@ -5,8 +5,15 @@ const qaCreateUser = process.env.QA_CREATE_USER ?? "true";
 const qaPort = new URL(baseURL).port || "3005";
 const qaDistDir = process.env.QA_NEXT_DIST_DIR ?? `.next-playwright-${qaPort}`;
 const qaTypeScriptConfig = process.env.QA_TSCONFIG_PATH;
+const qaServerMode = process.env.QA_SERVER_MODE ?? "development";
+if (qaServerMode !== "development" && qaServerMode !== "production") {
+  throw new Error("QA_SERVER_MODE must be development or production.");
+}
 const reuseExistingServer =
   process.env.QA_REUSE_EXISTING_SERVER === "true" || !process.env.CI;
+const qaServerCommand = qaServerMode === "production"
+  ? `npm run start -- -p ${qaPort}`
+  : `npm run dev -- -p ${qaPort}`;
 
 // Responsive tests read these values during module initialization. Keep the
 // test process and its isolated web server on the same URL and QA mode.
@@ -51,16 +58,19 @@ export default defineConfig({
     actionTimeout: 10_000,
     navigationTimeout: 30_000,
     serviceWorkers: "block",
-    trace: "retain-on-failure",
+    // Browser traces include HTTP request headers. The beta run retains
+    // screenshots and redacted assertions, but never session cookies.
+    trace: "off",
   },
   webServer: {
-    command: `npm run dev -- -p ${qaPort}`,
+    command: qaServerCommand,
     url: `${baseURL}/login`,
     reuseExistingServer,
     timeout: 120_000,
     env: {
       ...process.env,
       QA_CREATE_USER: qaCreateUser,
+      QA_SERVER_MODE: qaServerMode,
       NEXT_DIST_DIR: qaDistDir,
       ...(qaTypeScriptConfig
         ? { NEXT_TYPESCRIPT_CONFIG: qaTypeScriptConfig }

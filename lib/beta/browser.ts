@@ -14,6 +14,7 @@ import {
   type BetaSurfaceCommandRunner,
 } from "./surface-command";
 import {
+  BETA_BROWSER_BUILD_COMMAND,
   BETA_BROWSER_COMMAND,
   BETA_BROWSER_SPEC_PATH,
   type BetaSurfaceCheck,
@@ -205,6 +206,7 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
   let exitCode: number | null = null;
   let signal: string | null = null;
   let error: Error | null = null;
+  let browserCommandRan = false;
   if (prerequisites.canRun && spec.available) {
     try {
       const qaRunId = getBetaQaRunId(options.runId);
@@ -226,7 +228,9 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
           QA_CREATE_USER: "true",
           QA_NEXT_DIST_DIR: runtime.distDirectory,
           QA_TSCONFIG_PATH: runtime.typeScriptConfig,
+          NEXT_TYPESCRIPT_CONFIG: runtime.typeScriptConfig,
           QA_REUSE_EXISTING_SERVER: "false",
+          QA_SERVER_MODE: "production",
           QA_TEST_EMAIL: runtime.localStudentEmail,
           NEXT_PUBLIC_DIANA_BETA_BROWSER_QA: "true",
           ...supabaseEnvironment,
@@ -239,12 +243,39 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
       );
       let result: ReturnType<BetaSurfaceCommandRunner>;
       try {
-        command = BETA_BROWSER_COMMAND;
-        result = (options.runCommand ?? runBetaSurfaceCommand)(BETA_BROWSER_COMMAND, {
+        const runCommand = options.runCommand ?? runBetaSurfaceCommand;
+        const buildResult = runCommand(BETA_BROWSER_BUILD_COMMAND, {
           cwd: projectRoot,
           environment,
           captureOutput: false,
         });
+        const buildPassed = !buildResult.error
+          && buildResult.signal === null
+          && buildResult.status === 0;
+        checks.push({
+          id: "browser-production-build",
+          label: "Isolated production browser build",
+          status: buildPassed ? "pass" : "block",
+          detail: buildPassed
+            ? "The isolated production build completed with code 0."
+            : buildResult.error
+              ? buildResult.error.message
+              : buildResult.signal
+                ? `The production build ended from signal ${buildResult.signal}.`
+                : `The production build exited with code ${buildResult.status ?? "unknown"}.`,
+        });
+        if (!buildPassed) {
+          command = BETA_BROWSER_BUILD_COMMAND;
+          result = buildResult;
+        } else {
+          command = BETA_BROWSER_COMMAND;
+          browserCommandRan = true;
+          result = runCommand(BETA_BROWSER_COMMAND, {
+            cwd: projectRoot,
+            environment,
+            captureOutput: false,
+          });
+        }
       } finally {
         cleanupTypeScriptConfig();
       }
@@ -297,8 +328,8 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
     command,
     exitCode,
     signal,
-    network: command ? "local-browser" : "not-run",
-    writes: command ? "disposable-local" : "none",
+    network: browserCommandRan ? "local-browser" : "not-run",
+    writes: browserCommandRan ? "disposable-local" : "none",
     error,
     checks,
   });

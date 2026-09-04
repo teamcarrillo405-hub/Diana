@@ -85,6 +85,7 @@ export function StudentDesktopNav({
             <Link
               key={label}
               href={href}
+              prefetch={label === "Work" ? false : undefined}
               aria-current={label === active ? "page" : undefined}
             >
               {label}
