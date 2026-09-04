@@ -3,7 +3,9 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 
 export const DEPENDENCY_AUDIT_MAX_ATTEMPTS = 2;
-export const DEPENDENCY_AUDIT_TIMEOUT_MS = 240_000;
+// npm's advisory endpoint can take several minutes to return a complete
+// lockfile report on Windows. Keep the bounded retry but allow that response.
+export const DEPENDENCY_AUDIT_TIMEOUT_MS = 360_000;
 
 export class DependencyAuditError extends Error {
   constructor(code, message) {
