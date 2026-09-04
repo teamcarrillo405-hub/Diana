@@ -102,6 +102,19 @@ describe("Supabase connector type snapshots", () => {
     expect(result.stderr).toContain("receipt does not match");
   });
 
+  it("rejects a connector JSON envelope instead of raw TypeScript", () => {
+    const { root, snapshotPath, receiptPath } = createProject();
+    const envelope = JSON.stringify({ types: generatedTypes });
+    writeFileSync(snapshotPath, envelope);
+    writeReceipt(receiptPath, envelope);
+
+    const result = runCheck(root, snapshotPath);
+
+    expect(result.status).not.toBe(0);
+    expect(result.stderr).toContain("raw TypeScript");
+    expect(result.stderr).toContain("connector JSON envelope");
+  });
+
   it("rejects a snapshot outside the exact beta-run input path", () => {
     const { root } = createProject();
     const escaped = path.join(root, "types.ts");

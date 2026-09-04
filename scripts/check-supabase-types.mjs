@@ -41,6 +41,20 @@ function assertExactKeys(value, expected, label) {
   }
 }
 
+function isConnectorTypeEnvelope(value) {
+  try {
+    const parsed = JSON.parse(value);
+    return (
+      typeof parsed === "object"
+      && parsed !== null
+      && !Array.isArray(parsed)
+      && typeof parsed.types === "string"
+    );
+  } catch {
+    return false;
+  }
+}
+
 async function readConnectorSnapshot() {
   if (!snapshotPathInput) return null;
   if (shouldWrite) {
@@ -78,6 +92,11 @@ async function readConnectorSnapshot() {
     readFile(snapshotPath, "utf8"),
     readFile(receiptPath, "utf8"),
   ]);
+  if (isConnectorTypeEnvelope(snapshot)) {
+    throw new Error(
+      "Supabase type snapshot must contain raw TypeScript, not the connector JSON envelope.",
+    );
+  }
   let receipt;
   try {
     receipt = JSON.parse(receiptText);
