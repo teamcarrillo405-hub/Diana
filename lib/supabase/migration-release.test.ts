@@ -18,7 +18,7 @@ const correctiveMigrationName =
   "20260831110000_assignment_problem_progress_contract.sql";
 const stagingHead = "20260902215000";
 const releaseHead = "20260902215000";
-const expectedPendingVersions: readonly string[] = [];
+const expectedPendingVersions: readonly string[] = ["20260903090000"];
 const sequentialTypeMigrations = [
   "20260901200000_assignment_provider_missing_tombstone.sql",
   "20260901210000_authoritative_lms_transition_service_boundary.sql",
