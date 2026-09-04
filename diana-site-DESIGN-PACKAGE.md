@@ -28,7 +28,7 @@ Said out loud: this is a dark canvas, and dark is the AI-default reach the skill
 
 - **Display: Saira Condensed, 800 italic and 700.** The face the product already uses inside the app, so a visitor lands in the same voice they will meet after signup. Condensed and italic reads as motion, which suits a page about settling.
 - **Body: Lexend, 300 and 400.** Named in Diana's research as the evidence-backed dyslexia-friendly default (findings.md, item 8). A subject-specific reason no other brand has.
-- **Mono: IBM Plex Mono, 400 and 500.** Due times, counters, the 9:47 readout. Deadline data reads as system output.
+- **Mono: IBM Plex Mono, 400 and 500.** Due times, counters, the 9:47 readout. Due-date data reads as system output.
 
 ## 4. The storyboard (three segments, one continuous descending shot, ~18 seconds, 1000vh hero)
 
@@ -67,7 +67,7 @@ Mobile decision, made consciously: static hero. The joined video will exceed 8 M
 **A. What just happened.** Ending frame reused full-bleed at left on a diagonal ink cut, copy at right.
 Kicker: WHAT JUST HAPPENED
 Headline: It picks the one you can actually finish.
-Body: Diana pulls your assignments straight from Canvas and Google Classroom, so it already knows the proofs are two days late and the biology set is due at midnight. It does not sort by deadline. It sorts by what you can get through tonight, at 9:47, tired. Then it shrinks that one to a first step small enough to start without deciding anything.
+Body: Diana pulls your assignments straight from Canvas and Google Classroom, so it already knows the proofs are two days late and the biology set is due at midnight. It does not sort by what is due first. It sorts by what you can get through tonight, at 9:47, tired. Then it shrinks that one to a first step small enough to start without deciding anything.
 
 **B. The refusal, with the interactive moment.** Centered dialogue thread on a panel, the hold control beneath.
 Headline: Ask it to write the essay. It says no.
