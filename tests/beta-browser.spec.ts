@@ -6,6 +6,7 @@ import {
   expectNoHorizontalOverflow,
   expectNoWcagAaAccessibilityViolations,
   expectSafeBetaBrowserEnvironment,
+  createExpectedNextRouterAbortAllowance,
   installLocalNetworkGuard,
   observeBrowserIssues,
   openLocalQaStudentSession,
@@ -127,7 +128,10 @@ test.describe("deterministic beta browser surface", () => {
       test.setTimeout(180_000);
       const target = expectSafeBetaBrowserEnvironment(baseURL);
       const network = await installLocalNetworkGuard(page, target.origin);
-      const issues = observeBrowserIssues(page, target.origin);
+      const expectedRouterAborts = createExpectedNextRouterAbortAllowance(target.origin);
+      const issues = observeBrowserIssues(page, target.origin, {
+        allowRequestFailure: expectedRouterAborts.allowRequestFailure,
+      });
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
 
       await openLocalQaStudentSession(page);
@@ -143,6 +147,7 @@ test.describe("deterministic beta browser surface", () => {
 
       const workLink = page.locator("a:visible").filter({ hasText: /^Work$/u }).first();
       await expect(workLink).toBeVisible();
+      expectedRouterAborts.expectAbort({ kind: "flight", pathname: "/assignments" });
       await workLink.click();
       await expect(page).toHaveURL(/\/assignments$/u);
       await expect(
@@ -153,7 +158,14 @@ test.describe("deterministic beta browser surface", () => {
       network.expectLocalOnly(`${viewport.name} assignment index`);
       issues.expectClean(`${viewport.name} assignment index`);
 
-      await page.getByRole("link", { name: /Identity quote response/iu }).first().click();
+      const assignmentLink = page.getByRole("link", { name: /Identity quote response/iu }).first();
+      const assignmentHref = await assignmentLink.getAttribute("href");
+      expect(assignmentHref).toBeTruthy();
+      expectedRouterAborts.expectAbort({
+        kind: "flight",
+        pathname: new URL(assignmentHref!, target.origin).pathname,
+      });
+      await assignmentLink.click();
       await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
       if (viewport.width > 900) {
         await expect(
@@ -209,23 +221,24 @@ test.describe("deterministic beta browser surface", () => {
     const target = expectSafeBetaBrowserEnvironment(baseURL);
     const network = await installLocalNetworkGuard(page, target.origin);
     let workspacePath = "";
-    let expectedWorkspaceResetAborts = 0;
+    const expectedRouterAborts = createExpectedNextRouterAbortAllowance(target.origin);
     const issues = observeBrowserIssues(page, target.origin, {
       allowRequestFailure(request) {
-        if (expectedWorkspaceResetAborts === 0 || request.failure()?.errorText !== "net::ERR_ABORTED") return false;
-        if (request.resourceType() !== "fetch") return false;
-        if (request.method() !== "GET") return false;
-        const url = new URL(request.url());
-        if (url.origin !== target.origin || url.pathname !== workspacePath) return false;
-        expectedWorkspaceResetAborts -= 1;
-        return true;
+        return expectedRouterAborts.allowRequestFailure(request);
       },
     });
     await page.setViewportSize({ width: 1366, height: 768 });
 
     await openLocalQaStudentSession(page);
     await openHealthyPage(page, "/assignments", "session recovery assignment index");
-    await page.getByRole("link", { name: /Identity quote response/iu }).first().click();
+    const assignmentLink = page.getByRole("link", { name: /Identity quote response/iu }).first();
+    const assignmentHref = await assignmentLink.getAttribute("href");
+    expect(assignmentHref).toBeTruthy();
+    expectedRouterAborts.expectAbort({
+      kind: "flight",
+      pathname: new URL(assignmentHref!, target.origin).pathname,
+    });
+    await assignmentLink.click();
     await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
     await page.waitForLoadState("networkidle", { timeout: 10_000 });
     workspacePath = new URL(page.url()).pathname;
@@ -241,7 +254,7 @@ test.describe("deterministic beta browser surface", () => {
     // This deliberately interrupts any in-flight server save after the local
     // recovery copy is proven. The request cancellation is expected here; the
     // assertions below still require the student work to be restored.
-    expectedWorkspaceResetAborts = 1;
+    expectedRouterAborts.expectAbort({ kind: "server-action", pathname: workspacePath });
     await context.clearCookies();
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/login\?next=/u);

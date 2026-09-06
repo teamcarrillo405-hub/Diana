@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   isBrowserIssueAllowed,
+  isExpectedNextRouterAbort,
   isExpectedNextRouterPrefetchAbort,
 } from "./helpers/beta-browser";
 
@@ -84,6 +85,46 @@ describe("beta browser warning allowlist", () => {
     expect(isExpectedNextRouterPrefetchAbort(
       { ...expected, errorText: "net::ERR_CONNECTION_REFUSED" },
       "http://127.0.0.1:3005",
+    )).toBe(false);
+  });
+
+  it("allows only a test-declared App Router transition cancellation", () => {
+    const flight = {
+      errorText: "net::ERR_ABORTED",
+      headers: { rsc: "1", "next-router-state-tree": "%5B%22%22%5D" },
+      method: "GET",
+      resourceType: "fetch",
+      url: "http://127.0.0.1:3005/assignments?_rsc=abc",
+    };
+    const target = "http://127.0.0.1:3005";
+
+    expect(isExpectedNextRouterAbort(flight, target, {
+      kind: "flight",
+      pathname: "/assignments",
+    })).toBe(true);
+    expect(isExpectedNextRouterAbort(flight, target, {
+      kind: "flight",
+      pathname: "/classes",
+    })).toBe(false);
+    expect(isExpectedNextRouterAbort(
+      { ...flight, headers: { rsc: "1" } },
+      target,
+      { kind: "flight", pathname: "/assignments" },
+    )).toBe(false);
+
+    const serverAction = {
+      ...flight,
+      headers: { rsc: "1", "next-action": "abc123" },
+      method: "POST",
+    };
+    expect(isExpectedNextRouterAbort(serverAction, target, {
+      kind: "server-action",
+      pathname: "/assignments",
+    })).toBe(true);
+    expect(isExpectedNextRouterAbort(
+      { ...serverAction, headers: { rsc: "1" } },
+      target,
+      { kind: "server-action", pathname: "/assignments" },
     )).toBe(false);
   });
 

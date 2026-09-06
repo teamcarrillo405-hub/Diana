@@ -43,12 +43,17 @@ type BrowserIssueAllowance = {
   pattern: RegExp;
 };
 
-type RequestFailureSnapshot = {
+export type RequestFailureSnapshot = {
   errorText: string | undefined;
   headers: Record<string, string>;
   method: string;
   resourceType: string;
   url: string;
+};
+
+export type ExpectedNextRouterAbort = {
+  kind: "flight" | "server-action";
+  pathname: string;
 };
 
 const BROWSER_ISSUE_ALLOWLIST: readonly BrowserIssueAllowance[] = [
@@ -109,6 +114,65 @@ export function isExpectedNextRouterPrefetchAbort(
     Object.entries(request.headers).map(([key, value]) => [key.toLowerCase(), value]),
   );
   return headers.rsc === "1" && headers["next-router-prefetch"] === "1";
+}
+
+/**
+ * A test can opt into one known App Router cancellation while it deliberately
+ * changes routes or clears a session. It must name the exact path and request
+ * shape; any other canceled request remains beta-blocking evidence.
+ */
+export function isExpectedNextRouterAbort(
+  request: RequestFailureSnapshot,
+  allowedOrigin: string,
+  expected: ExpectedNextRouterAbort,
+): boolean {
+  if (request.errorText !== "net::ERR_ABORTED" || request.resourceType !== "fetch") {
+    return false;
+  }
+
+  let target: URL;
+  try {
+    target = new URL(request.url);
+  } catch {
+    return false;
+  }
+  if (target.origin !== allowedOrigin || target.pathname !== expected.pathname) return false;
+
+  const headers = Object.fromEntries(
+    Object.entries(request.headers).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  if (headers.rsc !== "1") return false;
+
+  if (expected.kind === "flight") {
+    return request.method === "GET" && Boolean(headers["next-router-state-tree"]);
+  }
+
+  return request.method === "POST" && Boolean(headers["next-action"]);
+}
+
+export function createExpectedNextRouterAbortAllowance(allowedOrigin: string) {
+  const expected: ExpectedNextRouterAbort[] = [];
+
+  return {
+    expectAbort(next: ExpectedNextRouterAbort) {
+      expected.push(next);
+    },
+    allowRequestFailure(request: Request): boolean {
+      const snapshot: RequestFailureSnapshot = {
+        errorText: request.failure()?.errorText,
+        headers: request.headers(),
+        method: request.method(),
+        resourceType: request.resourceType(),
+        url: request.url(),
+      };
+      const index = expected.findIndex((next) => (
+        isExpectedNextRouterAbort(snapshot, allowedOrigin, next)
+      ));
+      if (index < 0) return false;
+      expected.splice(index, 1);
+      return true;
+    },
+  };
 }
 
 export type BrowserIssueMonitor = {
