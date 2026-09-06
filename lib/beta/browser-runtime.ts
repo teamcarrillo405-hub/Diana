@@ -23,6 +23,12 @@ function loopbackHttpUrl(value: string | undefined): URL | null {
   }
 }
 
+function sameLoopbackEndpoint(left: URL, right: URL): boolean {
+  // Next's production server can normalize 127.0.0.1 to localhost while
+  // preserving the port. Both have already passed loopbackHttpUrl above.
+  return left.protocol === right.protocol && left.port === right.port;
+}
+
 /**
  * Allows the synthetic auth bootstrap during a production-mode browser gate,
  * but only for the command-owned loopback server and its dedicated Supabase
@@ -55,8 +61,8 @@ export function isQaSessionBootstrapEnabled(
   if (!requestUrl || !baseUrl || !appUrl || !supabaseUrl) return false;
 
   return (
-    requestUrl.origin === baseUrl.origin &&
-    appUrl.origin === baseUrl.origin &&
-    supabaseUrl.origin !== baseUrl.origin
+    sameLoopbackEndpoint(requestUrl, baseUrl) &&
+    sameLoopbackEndpoint(appUrl, baseUrl) &&
+    !sameLoopbackEndpoint(supabaseUrl, baseUrl)
   );
 }

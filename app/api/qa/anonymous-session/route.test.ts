@@ -108,7 +108,7 @@ describe("anonymous QA session bootstrap", () => {
     expect(mocks.resetScreenDesignOwner).not.toHaveBeenCalled();
   });
 
-  it("permits the signed loopback browser gate in production mode", async () => {
+  it("permits Next's localhost-normalized signed browser gate in production mode", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("QA_SERVER_MODE", "production");
     vi.stubEnv("QA_LOCAL_BROWSER_GATE", "true");
@@ -118,7 +118,7 @@ describe("anonymous QA session bootstrap", () => {
     vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://127.0.0.1:4317");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321");
 
-    const response = await GET(new Request("http://127.0.0.1:4317/api/qa/anonymous-session", {
+    const response = await GET(new Request("http://localhost:4317/api/qa/anonymous-session", {
       headers: { "x-diana-beta-qa-session": "local-only-beta-bootstrap-token-12345" },
     }));
 

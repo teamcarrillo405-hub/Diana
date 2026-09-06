@@ -37,6 +37,22 @@ describe("isQaSessionBootstrapEnabled", () => {
     expect(isQaSessionBootstrapEnabled(request, productionEnvironment)).toBe(true);
   });
 
+  it("accepts Next's localhost alias only when it resolves to the same loopback port", () => {
+    const localhostRequest = new Request("http://localhost:4317/api/qa/anonymous-session", {
+      headers: {
+        "x-diana-beta-qa-session": productionEnvironment.QA_BROWSER_SESSION_TOKEN,
+      },
+    });
+    const otherPortRequest = new Request("http://localhost:4318/api/qa/anonymous-session", {
+      headers: {
+        "x-diana-beta-qa-session": productionEnvironment.QA_BROWSER_SESSION_TOKEN,
+      },
+    });
+
+    expect(isQaSessionBootstrapEnabled(localhostRequest, productionEnvironment)).toBe(true);
+    expect(isQaSessionBootstrapEnabled(otherPortRequest, productionEnvironment)).toBe(false);
+  });
+
   it("keeps a production deployment closed when the host or one-run token is not valid", () => {
     const publicRequest = new Request("https://diana.example/api/qa/anonymous-session", {
       headers: {
