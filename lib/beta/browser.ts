@@ -32,6 +32,22 @@ export interface BetaBrowserOptions extends BetaSurfaceBaseOptions {
 }
 
 const LOOPBACK_HOSTS = new Set(["127.0.0.1", "localhost", "::1", "[::1]"]);
+// Next.js rejects this IANA-reserved service port before the browser server starts.
+// Keep the QA allocation deterministic while advancing to the next candidate.
+const RESERVED_NEXT_BROWSER_PORTS = new Set([3659]);
+
+function betaBrowserPort(digest: string): number {
+  const firstCandidateOffset = Number.parseInt(digest.slice(0, 4), 16) % 700;
+
+  for (let offset = 0; offset < 700; offset += 1) {
+    const port = 3100 + ((firstCandidateOffset + offset) % 700);
+    if (!RESERVED_NEXT_BROWSER_PORTS.has(port)) {
+      return port;
+    }
+  }
+
+  throw new Error("No supported loopback browser port is available for this beta run.");
+}
 
 function environmentValue(
   environment: Record<string, string | undefined>,
@@ -89,7 +105,7 @@ export function betaBrowserRuntime(runId: string): {
   typeScriptConfig: string;
 } {
   const digest = createHash("sha256").update(getBetaQaRunId(runId)).digest("hex");
-  const port = 3100 + (Number.parseInt(digest.slice(0, 4), 16) % 700);
+  const port = betaBrowserPort(digest);
   return {
     baseUrl: `http://127.0.0.1:${port}`,
     distDirectory: `.next-beta-${digest.slice(0, 12)}`,

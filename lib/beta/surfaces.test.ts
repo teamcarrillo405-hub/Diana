@@ -489,6 +489,13 @@ describe("deterministic beta command surfaces", { timeout: 120_000 }, () => {
     expect(readBetaSurfaceReceipt(projectRoot, runId, "browser")).toEqual(receipt);
   });
 
+  it("skips a Next.js-reserved deterministic browser port", () => {
+    // This run ID hashes to port 3659 before reserved-port handling.
+    const runtime = betaBrowserRuntime("beta-reserved-port-137");
+
+    expect(runtime.baseUrl).toBe("http://127.0.0.1:3660");
+  });
+
   it("does not launch browser checks when the isolated production build fails", () => {
     const projectRoot = createProject({ browserSpec: true });
     const runId = "beta-browser-build-failure-001";
