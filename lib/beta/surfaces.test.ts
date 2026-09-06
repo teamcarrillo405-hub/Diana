@@ -605,10 +605,13 @@ describe("deterministic beta command surfaces", { timeout: 120_000 }, () => {
     expect(helper).toContain('page.on("response"');
     expect(helper).toContain('"hydration-error"');
     expect(helper).toContain('"same-origin-subresource"');
-    expect(allowlist.match(/\bpattern:/gu) ?? []).toHaveLength(3);
+    expect(allowlist.match(/\bpattern:/gu) ?? []).toHaveLength(4);
     expect(allowlist).toContain("GL Driver Message");
     expect(allowlist).toContain("GPU stall due to ReadPixels");
     expect(allowlist).toContain("preloaded using link preload");
+    expect(allowlist).toContain("Service Worker registration blocked by Playwright");
+    expect(helper).toContain("isExpectedNextRouterPrefetchAbort");
+    expect(helper).toContain('headers["next-router-prefetch"] === "1"');
     expect(accessibilityGate).toContain(
       '.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])',
     );
