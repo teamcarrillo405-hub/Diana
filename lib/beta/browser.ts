@@ -227,6 +227,10 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
           QA_BASE_URL: runtime.baseUrl,
           QA_CREATE_USER: "true",
           QA_NEXT_DIST_DIR: runtime.distDirectory,
+          // The production build and the Playwright web server must use the
+          // same disposable output directory. Without this, the build writes
+          // into .next while the test server looks for the isolated directory.
+          NEXT_DIST_DIR: runtime.distDirectory,
           QA_TSCONFIG_PATH: runtime.typeScriptConfig,
           NEXT_TYPESCRIPT_CONFIG: runtime.typeScriptConfig,
           QA_REUSE_EXISTING_SERVER: "false",

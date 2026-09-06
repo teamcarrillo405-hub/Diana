@@ -441,6 +441,9 @@ describe("deterministic beta command surfaces", { timeout: 120_000 }, () => {
           "service-local-test-key-1234567890",
         );
         expect(context.environment.QA_NEXT_DIST_DIR).toMatch(/^\.next-beta-[a-f0-9]{12}$/u);
+        expect(context.environment.NEXT_DIST_DIR).toBe(
+          context.environment.QA_NEXT_DIST_DIR,
+        );
         expect(context.environment.QA_TSCONFIG_PATH).toMatch(
           /^\.tsconfig-beta-[a-f0-9]{12}\.json$/u,
         );
