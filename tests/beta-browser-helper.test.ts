@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { isBrowserIssueAllowed } from "./helpers/beta-browser";
+import {
+  isBrowserIssueAllowed,
+  isExpectedNextRouterPrefetchAbort,
+} from "./helpers/beta-browser";
 
 describe("beta browser warning allowlist", () => {
   const warning =
@@ -58,5 +61,40 @@ describe("beta browser warning allowlist", () => {
     expect(
       isBrowserIssueAllowed("console-warning", preloadWarning.replace(".woff2", ".js")),
     ).toBe(false);
+  });
+
+  it("allows only canceled same-origin Next router prefetches", () => {
+    const expected = {
+      errorText: "net::ERR_ABORTED",
+      headers: { rsc: "1", "next-router-prefetch": "1" },
+      method: "GET",
+      resourceType: "fetch",
+      url: "http://127.0.0.1:3005/classes",
+    };
+
+    expect(isExpectedNextRouterPrefetchAbort(expected, "http://127.0.0.1:3005")).toBe(true);
+    expect(isExpectedNextRouterPrefetchAbort(
+      { ...expected, headers: { rsc: "1" } },
+      "http://127.0.0.1:3005",
+    )).toBe(false);
+    expect(isExpectedNextRouterPrefetchAbort(
+      { ...expected, url: "http://127.0.0.1:3006/classes" },
+      "http://127.0.0.1:3005",
+    )).toBe(false);
+    expect(isExpectedNextRouterPrefetchAbort(
+      { ...expected, errorText: "net::ERR_CONNECTION_REFUSED" },
+      "http://127.0.0.1:3005",
+    )).toBe(false);
+  });
+
+  it("allows the exact Playwright service-worker isolation warning", () => {
+    expect(isBrowserIssueAllowed(
+      "console-warning",
+      "Service Worker registration blocked by Playwright",
+    )).toBe(true);
+    expect(isBrowserIssueAllowed(
+      "console-warning",
+      "Service Worker registration blocked by an extension",
+    )).toBe(false);
   });
 });

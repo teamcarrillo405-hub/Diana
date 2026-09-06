@@ -43,6 +43,14 @@ type BrowserIssueAllowance = {
   pattern: RegExp;
 };
 
+type RequestFailureSnapshot = {
+  errorText: string | undefined;
+  headers: Record<string, string>;
+  method: string;
+  resourceType: string;
+  url: string;
+};
+
 const BROWSER_ISSUE_ALLOWLIST: readonly BrowserIssueAllowance[] = [
   // Next development mode may replace this disposable HMR bundle while the
   // browser moves between independent routes. Production has no HMR.
@@ -56,6 +64,12 @@ const BROWSER_ISSUE_ALLOWLIST: readonly BrowserIssueAllowance[] = [
     pattern:
       /^The resource http:\/\/(?:127\.0\.0\.1|localhost|\[::1\])(?::\d+)?\/_next\/static\/media\/\S+\.woff2(?:\?\S+)? was preloaded using link preload but not used within a few seconds from the window's load event\. Please make sure it has an appropriate `as` value and it is preloaded intentionally\.$/u,
   },
+  // Playwright intentionally blocks service workers for this isolated browser
+  // run so a previous local cache cannot affect the student flow under test.
+  {
+    kind: "console-warning",
+    pattern: /^Service Worker registration blocked by Playwright$/u,
+  },
   // Chromium's headless screenshot path can emit this after a successful WebGL frame.
   {
     kind: "console-warning",
@@ -68,6 +82,33 @@ export function isBrowserIssueAllowed(kind: BrowserIssueKind, value: string): bo
   return BROWSER_ISSUE_ALLOWLIST.some(
     (entry) => entry.kind === kind && entry.pattern.test(value),
   );
+}
+
+/**
+ * Next's App Router starts same-origin RSC prefetches for visible links. Chromium
+ * cancels those speculative requests when a test navigates before they complete.
+ * That is expected browser behavior, but only the explicit router-prefetch shape
+ * is ignored. All other aborted fetches remain release-blocking evidence.
+ */
+export function isExpectedNextRouterPrefetchAbort(
+  request: RequestFailureSnapshot,
+  allowedOrigin: string,
+): boolean {
+  if (request.errorText !== "net::ERR_ABORTED") return false;
+  if (request.resourceType !== "fetch" || request.method !== "GET") return false;
+
+  let target: URL;
+  try {
+    target = new URL(request.url);
+  } catch {
+    return false;
+  }
+  if (target.origin !== allowedOrigin) return false;
+
+  const headers = Object.fromEntries(
+    Object.entries(request.headers).map(([key, value]) => [key.toLowerCase(), value]),
+  );
+  return headers.rsc === "1" && headers["next-router-prefetch"] === "1";
 }
 
 export type BrowserIssueMonitor = {
@@ -250,6 +291,13 @@ export function observeBrowserIssues(
   page.on("pageerror", (error) => record("page-error", error.message));
   page.on("requestfailed", (request) => {
     if (options.allowRequestFailure?.(request)) return;
+    if (isExpectedNextRouterPrefetchAbort({
+      errorText: request.failure()?.errorText,
+      headers: request.headers(),
+      method: request.method(),
+      resourceType: request.resourceType(),
+      url: request.url(),
+    }, expectedOrigin)) return;
     record(
       "request-error",
       `${request.failure()?.errorText ?? "unknown failure"} ` +
