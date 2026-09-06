@@ -19,8 +19,8 @@ const PUBLIC_EXACT = new Set([
   "/api/health",
   "/api/readiness",
   "/api/qa/anonymous-session",
-  // Development-only QA login. The route itself returns 404 in production or
-  // when QA_CREATE_USER is disabled.
+  // Local QA login. The route owns its loopback-only production gate and
+  // otherwise returns 404 when the explicit QA flag is disabled.
   "/qa-session",
   // Handles its own feature flag, session check, and JSON response.
   "/api/diana/voice-candidate",

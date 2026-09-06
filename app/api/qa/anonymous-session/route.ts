@@ -12,6 +12,7 @@ import {
 } from "@/lib/qa/screendesign-fixtures";
 import type { AppProfileInsert } from "@/lib/profile";
 import type { TablesInsert } from "@/lib/supabase/types";
+import { isQaSessionBootstrapEnabled } from "@/lib/beta/browser-runtime";
 
 export const dynamic = "force-dynamic";
 
@@ -130,7 +131,7 @@ async function findQaUser(email: string) {
 }
 
 async function handleQaSession(request: Request) {
-  if (process.env.NODE_ENV === "production" || process.env.QA_CREATE_USER !== "true") {
+  if (!isQaSessionBootstrapEnabled(request)) {
     return NextResponse.json({ error: "QA auth bootstrap is disabled." }, { status: 404 });
   }
 

@@ -107,4 +107,39 @@ describe("anonymous QA session bootstrap", () => {
     expect(mocks.seedScreenDesignScenario).not.toHaveBeenCalled();
     expect(mocks.resetScreenDesignOwner).not.toHaveBeenCalled();
   });
+
+  it("permits the signed loopback browser gate in production mode", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("QA_SERVER_MODE", "production");
+    vi.stubEnv("QA_LOCAL_BROWSER_GATE", "true");
+    vi.stubEnv("NEXT_PUBLIC_DIANA_BETA_BROWSER_QA", "true");
+    vi.stubEnv("QA_BROWSER_SESSION_TOKEN", "local-only-beta-bootstrap-token-12345");
+    vi.stubEnv("QA_BASE_URL", "http://127.0.0.1:4317");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://127.0.0.1:4317");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321");
+
+    const response = await GET(new Request("http://127.0.0.1:4317/api/qa/anonymous-session", {
+      headers: { "x-diana-beta-qa-session": "local-only-beta-bootstrap-token-12345" },
+    }));
+
+    expect(response.status).toBe(200);
+  });
+
+  it("does not expose the bootstrap to a public production host", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("QA_SERVER_MODE", "production");
+    vi.stubEnv("QA_LOCAL_BROWSER_GATE", "true");
+    vi.stubEnv("NEXT_PUBLIC_DIANA_BETA_BROWSER_QA", "true");
+    vi.stubEnv("QA_BROWSER_SESSION_TOKEN", "local-only-beta-bootstrap-token-12345");
+    vi.stubEnv("QA_BASE_URL", "http://127.0.0.1:4317");
+    vi.stubEnv("NEXT_PUBLIC_APP_URL", "http://127.0.0.1:4317");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://127.0.0.1:54321");
+
+    const response = await GET(new Request("https://diana.example/api/qa/anonymous-session", {
+      headers: { "x-diana-beta-qa-session": "local-only-beta-bootstrap-token-12345" },
+    }));
+
+    expect(response.status).toBe(404);
+    expect(mocks.createUser).not.toHaveBeenCalled();
+  });
 });

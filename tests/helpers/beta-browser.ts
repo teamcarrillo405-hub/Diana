@@ -116,6 +116,10 @@ export function expectSafeBetaBrowserEnvironment(baseURL: string | undefined): U
   expect(isLoopback(supabaseTarget), "Supabase must be loopback-only for beta browser QA").toBe(true);
   expect(supabaseTarget.origin, "Supabase must use a dedicated origin").not.toBe(target.origin);
   expect(process.env.QA_CREATE_USER).toBe("true");
+  expect(process.env.QA_LOCAL_BROWSER_GATE).toBe("true");
+  expect(process.env.QA_BROWSER_SESSION_TOKEN).toMatch(
+    /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/u,
+  );
   expect(process.env.QA_REUSE_EXISTING_SERVER).toBe("false");
   expect(process.env.QA_USER_EMAIL).toBeUndefined();
   expect(process.env.QA_USER_PASSWORD).toBeUndefined();
@@ -349,6 +353,10 @@ export async function openLocalQaStudentSession(
   }: LocalQaStudentSessionOptions = {},
 ): Promise<void> {
   expect(process.env.QA_CREATE_USER, "The beta QA auth bootstrap must be enabled").toBe("true");
+  const sessionToken = process.env.QA_BROWSER_SESSION_TOKEN;
+  expect(sessionToken, "The beta QA auth bootstrap must have a one-run session token").toMatch(
+    /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/u,
+  );
   const supabaseTarget = requireUrl(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
     "NEXT_PUBLIC_SUPABASE_URL",
@@ -357,10 +365,16 @@ export async function openLocalQaStudentSession(
 
   const params = new URLSearchParams({ scenario });
   if (operation === "resume") params.set("operation", operation);
-  const response = await page.goto(
-    `/api/qa/anonymous-session?${params.toString()}`,
-    { waitUntil: "domcontentloaded" },
-  );
+  await page.setExtraHTTPHeaders({ "x-diana-beta-qa-session": sessionToken! });
+  let response;
+  try {
+    response = await page.goto(
+      `/api/qa/anonymous-session?${params.toString()}`,
+      { waitUntil: "domcontentloaded" },
+    );
+  } finally {
+    await page.setExtraHTTPHeaders({});
+  }
   expect(response, "The real local QA session endpoint must respond").not.toBeNull();
   expect(response!.status(), "The real local QA session bootstrap must succeed").toBe(200);
   const payload = (await response!.json()) as { ok?: boolean; resumed?: boolean; scenarioId?: string };

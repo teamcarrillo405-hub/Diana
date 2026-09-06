@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   existsSync,
   lstatSync,
@@ -211,6 +211,7 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
     try {
       const qaRunId = getBetaQaRunId(options.runId);
       const runtime = betaBrowserRuntime(qaRunId);
+      const qaBrowserSessionToken = randomUUID();
       const sourceEnvironment = options.environment ?? process.env;
       const supabaseEnvironment = betaBrowserSupabaseEnvironment(
         sourceEnvironment,
@@ -226,6 +227,8 @@ export function runBetaBrowser(options: BetaBrowserOptions) {
           VITE_DIANA_SIGNUP_URL: `${runtime.baseUrl}/signup`,
           QA_BASE_URL: runtime.baseUrl,
           QA_CREATE_USER: "true",
+          QA_LOCAL_BROWSER_GATE: "true",
+          QA_BROWSER_SESSION_TOKEN: qaBrowserSessionToken,
           QA_NEXT_DIST_DIR: runtime.distDirectory,
           // The production build and the Playwright web server must use the
           // same disposable output directory. Without this, the build writes

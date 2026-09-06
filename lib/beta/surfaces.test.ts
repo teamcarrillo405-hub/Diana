@@ -423,6 +423,10 @@ describe("deterministic beta command surfaces", { timeout: 120_000 }, () => {
           context.environment.QA_BASE_URL,
         );
         expect(context.environment.QA_CREATE_USER).toBe("true");
+        expect(context.environment.QA_LOCAL_BROWSER_GATE).toBe("true");
+        expect(context.environment.QA_BROWSER_SESSION_TOKEN).toMatch(
+          /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/u,
+        );
         expect(context.environment.QA_REUSE_EXISTING_SERVER).toBe("false");
         expect(context.environment.QA_SERVER_MODE).toBe("production");
         expect(context.environment.NEXT_PUBLIC_DIANA_BETA_BROWSER_QA).toBe("true");
