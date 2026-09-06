@@ -254,7 +254,7 @@ test.describe("deterministic beta browser surface", () => {
     // This deliberately interrupts any in-flight server save after the local
     // recovery copy is proven. The request cancellation is expected here; the
     // assertions below still require the student work to be restored.
-    expectedRouterAborts.expectAbort({ kind: "server-action", pathname: workspacePath });
+    expectedRouterAborts.expectAbort({ kind: "work-save", pathname: workspacePath });
     await context.clearCookies();
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/login\?next=/u);

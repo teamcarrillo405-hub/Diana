@@ -52,7 +52,7 @@ export type RequestFailureSnapshot = {
 };
 
 export type ExpectedNextRouterAbort = {
-  kind: "flight" | "server-action";
+  kind: "flight" | "server-action" | "work-save";
   pathname: string;
 };
 
@@ -141,13 +141,22 @@ export function isExpectedNextRouterAbort(
   const headers = Object.fromEntries(
     Object.entries(request.headers).map(([key, value]) => [key.toLowerCase(), value]),
   );
-  if (headers.rsc !== "1") return false;
-
   if (expected.kind === "flight") {
-    return request.method === "GET" && Boolean(headers["next-router-state-tree"]);
+    return request.method === "GET"
+      && headers.rsc === "1"
+      && Boolean(headers["next-router-state-tree"]);
   }
 
-  return request.method === "POST" && Boolean(headers["next-action"]);
+  if (expected.kind === "server-action") {
+    return request.method === "POST"
+      && headers.rsc === "1"
+      && Boolean(headers["next-action"]);
+  }
+
+  // Session expiry can interrupt the work-save request after its local recovery
+  // copy is confirmed but before Next attaches App Router headers. This shape is
+  // intentionally usable only by a test-declared, exact workspace POST.
+  return request.method === "POST" && target.search === "";
 }
 
 export function createExpectedNextRouterAbortAllowance(allowedOrigin: string) {

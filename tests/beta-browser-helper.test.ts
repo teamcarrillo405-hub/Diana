@@ -126,6 +126,33 @@ describe("beta browser warning allowlist", () => {
       target,
       { kind: "server-action", pathname: "/assignments" },
     )).toBe(false);
+
+    const interruptedWorkSave = {
+      errorText: "net::ERR_ABORTED",
+      headers: {},
+      method: "POST",
+      resourceType: "fetch",
+      url: "http://127.0.0.1:3005/assignments/123/workspace",
+    };
+    expect(isExpectedNextRouterAbort(interruptedWorkSave, target, {
+      kind: "work-save",
+      pathname: "/assignments/123/workspace",
+    })).toBe(true);
+    expect(isExpectedNextRouterAbort(
+      { ...interruptedWorkSave, method: "GET" },
+      target,
+      { kind: "work-save", pathname: "/assignments/123/workspace" },
+    )).toBe(false);
+    expect(isExpectedNextRouterAbort(
+      { ...interruptedWorkSave, url: "http://127.0.0.1:3005/assignments/456/workspace" },
+      target,
+      { kind: "work-save", pathname: "/assignments/123/workspace" },
+    )).toBe(false);
+    expect(isExpectedNextRouterAbort(
+      { ...interruptedWorkSave, url: "http://127.0.0.1:3005/assignments/123/workspace?retry=1" },
+      target,
+      { kind: "work-save", pathname: "/assignments/123/workspace" },
+    )).toBe(false);
   });
 
   it("allows the exact Playwright service-worker isolation warning", () => {
