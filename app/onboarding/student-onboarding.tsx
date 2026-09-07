@@ -13,7 +13,6 @@ import {
   Sun,
   type LucideIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   useRef,
   useState,
@@ -99,6 +98,7 @@ interface StudentOnboardingProps {
   readonly initialLearningHurdle?: LearningHurdle | null;
   readonly initialStudySchedulePreference?: StudySchedulePreference | null;
   readonly onComplete?: (answers: ScreenDesignOnboardingAnswers) => void;
+  readonly onNavigate?: (path: "/dashboard") => void;
 }
 
 export function StudentOnboarding({
@@ -106,8 +106,8 @@ export function StudentOnboarding({
   initialLearningHurdle = null,
   initialStudySchedulePreference = null,
   onComplete,
+  onNavigate,
 }: StudentOnboardingProps) {
-  const router = useRouter();
   const [view, setView] = useState<StudentOnboardingView>(() =>
     resolveStudentOnboardingView(initialStep),
   );
@@ -184,7 +184,13 @@ export function StudentOnboarding({
           return;
         }
 
-        router.push("/dashboard");
+        // Setup completion changes the route guard itself. A document navigation
+        // avoids competing App Router refreshes while the profile update settles.
+        if (onNavigate) {
+          onNavigate("/dashboard");
+        } else {
+          window.location.replace("/dashboard");
+        }
       } catch {
         submittingRef.current = false;
         setFeedback("Your choices are still here. Finish setup again when you are ready.");

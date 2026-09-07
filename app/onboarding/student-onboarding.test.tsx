@@ -10,11 +10,7 @@ import {
   StudentOnboarding,
 } from "./student-onboarding";
 
-const push = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
-}));
+const replace = vi.fn();
 
 vi.mock("./actions", () => ({
   completeScreenDesignOnboarding: vi.fn(),
@@ -22,11 +18,13 @@ vi.mock("./actions", () => ({
 
 describe("StudentOnboarding", () => {
   beforeEach(() => {
-    push.mockReset();
+    replace.mockReset();
     vi.mocked(completeScreenDesignOnboarding).mockReset();
   });
 
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+  });
 
   it("maps legacy links to one of the two current setup steps", () => {
     expect(resolveStudentOnboardingView("welcome")).toBe("support");
@@ -73,7 +71,7 @@ describe("StudentOnboarding", () => {
 
   it("saves the existing onboarding data contract once and then opens Today", async () => {
     vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({ ok: true });
-    render(<StudentOnboarding />);
+    render(<StudentOnboarding onNavigate={replace} />);
 
     fireEvent.click(screen.getByRole("radio", { name: /preparing for a quiz/i }));
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
@@ -91,7 +89,7 @@ describe("StudentOnboarding", () => {
       sleepGoal: 9,
       movementGoal: 5,
     });
-    expect(push).toHaveBeenCalledWith("/dashboard");
+    expect(replace).toHaveBeenCalledWith("/dashboard");
   });
 
   it("keeps choices visible after a persistence issue", async () => {
@@ -100,7 +98,7 @@ describe("StudentOnboarding", () => {
       reason: "persistence",
       error: "Your choices did not save yet. Your other settings are still here.",
     });
-    render(<StudentOnboarding />);
+    render(<StudentOnboarding onNavigate={replace} />);
 
     fireEvent.click(screen.getByRole("radio", { name: /getting organized/i }));
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
@@ -112,6 +110,6 @@ describe("StudentOnboarding", () => {
       "aria-checked",
       "true",
     );
-    expect(push).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
   });
 });
