@@ -147,11 +147,18 @@ test.describe("deterministic beta browser surface", () => {
       await page.getByLabel("Sleep goal").selectOption("8");
       await page.getByLabel("Movement goal").selectOption("4");
       expectedRouterAborts.expectAbort({
-        kind: "server-action",
+        kind: "onboarding-save",
         pathname: "/onboarding",
+      });
+      expectedRouterAborts.expectAbort({
+        kind: "route-transition",
+        pathname: "/dashboard",
       });
       await page.getByRole("button", { name: "Finish setup" }).click();
       await expect(page).toHaveURL(/\/dashboard$/u);
+      await expect(page.getByRole("main", { name: "Today" })).toBeVisible({
+        timeout: 20_000,
+      });
       await expect(page.locator("body")).not.toContainText(/application error|internal server error/iu);
 
       network.expectLocalOnly(`${viewport.name} first-time setup`);

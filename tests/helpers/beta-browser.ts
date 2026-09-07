@@ -52,7 +52,12 @@ export type RequestFailureSnapshot = {
 };
 
 export type ExpectedNextRouterAbort = {
-  kind: "flight" | "server-action" | "work-save";
+  kind:
+    | "flight"
+    | "server-action"
+    | "work-save"
+    | "onboarding-save"
+    | "route-transition";
   pathname: string;
 };
 
@@ -151,6 +156,20 @@ export function isExpectedNextRouterAbort(
     return request.method === "POST"
       && headers.rsc === "1"
       && Boolean(headers["next-action"]);
+  }
+
+  // The setup screen invokes an async server action and immediately changes
+  // routes. In production, Next can cancel the exact request before attaching
+  // its App Router headers. This is safe only for the declared setup endpoint.
+  if (expected.kind === "onboarding-save") {
+    return request.method === "POST" && target.search === "";
+  }
+
+  // The route that follows a declared setup transition can also be canceled
+  // while the final document navigation takes over. Keep this exact to avoid
+  // hiding unrelated dashboard fetch failures.
+  if (expected.kind === "route-transition") {
+    return request.method === "GET" && target.search === "";
   }
 
   // Session expiry can interrupt the work-save request after its local recovery

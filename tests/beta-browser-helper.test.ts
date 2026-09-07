@@ -153,6 +153,45 @@ describe("beta browser warning allowlist", () => {
       target,
       { kind: "work-save", pathname: "/assignments/123/workspace" },
     )).toBe(false);
+
+    const onboardingSave = {
+      ...interruptedWorkSave,
+      url: "http://127.0.0.1:3005/onboarding",
+    };
+    expect(isExpectedNextRouterAbort(onboardingSave, target, {
+      kind: "onboarding-save",
+      pathname: "/onboarding",
+    })).toBe(true);
+    expect(isExpectedNextRouterAbort(
+      { ...onboardingSave, method: "GET" },
+      target,
+      { kind: "onboarding-save", pathname: "/onboarding" },
+    )).toBe(false);
+    expect(isExpectedNextRouterAbort(
+      { ...onboardingSave, url: "http://127.0.0.1:3005/onboarding?retry=1" },
+      target,
+      { kind: "onboarding-save", pathname: "/onboarding" },
+    )).toBe(false);
+
+    const dashboardTransition = {
+      ...flight,
+      headers: {},
+      url: "http://127.0.0.1:3005/dashboard",
+    };
+    expect(isExpectedNextRouterAbort(dashboardTransition, target, {
+      kind: "route-transition",
+      pathname: "/dashboard",
+    })).toBe(true);
+    expect(isExpectedNextRouterAbort(
+      { ...dashboardTransition, method: "POST" },
+      target,
+      { kind: "route-transition", pathname: "/dashboard" },
+    )).toBe(false);
+    expect(isExpectedNextRouterAbort(
+      { ...dashboardTransition, url: "http://127.0.0.1:3005/dashboard?retry=1" },
+      target,
+      { kind: "route-transition", pathname: "/dashboard" },
+    )).toBe(false);
   });
 
   it("allows the exact Playwright service-worker isolation warning", () => {
