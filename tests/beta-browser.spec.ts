@@ -126,7 +126,10 @@ test.describe("deterministic beta browser surface", () => {
   }) => {
     const target = expectSafeBetaBrowserEnvironment(baseURL);
     const network = await installLocalNetworkGuard(page, target.origin);
-    const issues = observeBrowserIssues(page, target.origin);
+    const expectedRouterAborts = createExpectedNextRouterAbortAllowance(target.origin);
+    const issues = observeBrowserIssues(page, target.origin, {
+      allowRequestFailure: expectedRouterAborts.allowRequestFailure,
+    });
 
     for (const viewport of [BETA_AUTHENTICATED_VIEWPORTS[0], BETA_AUTHENTICATED_VIEWPORTS[3]]) {
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
@@ -143,6 +146,10 @@ test.describe("deterministic beta browser surface", () => {
       await page.getByRole("radio", { name: /after school/i }).click();
       await page.getByLabel("Sleep goal").selectOption("8");
       await page.getByLabel("Movement goal").selectOption("4");
+      expectedRouterAborts.expectAbort({
+        kind: "server-action",
+        pathname: "/onboarding",
+      });
       await page.getByRole("button", { name: "Finish setup" }).click();
       await expect(page).toHaveURL(/\/dashboard$/u);
       await expect(page.locator("body")).not.toContainText(/application error|internal server error/iu);
@@ -280,13 +287,15 @@ test.describe("deterministic beta browser surface", () => {
     const draft = page.getByRole("textbox", STUDENT_WORK_TEXTBOX);
     const recoveryText = `Recovered beta draft ${process.env.QA_RUN_ID}`;
     await expect(draft).toBeVisible();
+    // The delayed work save may be canceled as soon as session state changes.
+    // Register its exact expected route before input can trigger the request.
+    expectedRouterAborts.expectAbort({ kind: "work-save", pathname: workspacePath });
     await draft.fill(recoveryText);
     await expectPendingProblemWork(page, assignmentId, recoveryText);
 
     // This deliberately interrupts any in-flight server save after the local
     // recovery copy is proven. The request cancellation is expected here; the
     // assertions below still require the student work to be restored.
-    expectedRouterAborts.expectAbort({ kind: "work-save", pathname: workspacePath });
     await context.clearCookies();
     await page.goto(workspacePath, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/login\?next=/u);
