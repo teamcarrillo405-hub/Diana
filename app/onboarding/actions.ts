@@ -74,7 +74,7 @@ export async function saveOnboarding(input: z.infer<typeof Input>) {
     .eq("user_id", user.id);
   if (error) return { error: error.message };
 
-  revalidatePath("/onboarding");
+  revalidatePath("/", "layout");
   return { ok: true };
 }
 
@@ -145,8 +145,5 @@ export async function completeScreenDesignOnboarding(
     };
   }
 
-  // The client navigates to Dashboard immediately after this succeeds. Limiting
-  // invalidation to onboarding avoids a second competing dashboard transition.
-  revalidatePath("/onboarding");
   return { ok: true };
 }
