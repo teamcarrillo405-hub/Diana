@@ -300,6 +300,524 @@ body.diana-app:has(.sd-public-share-screen) > .skip-link {
   .sd-auth-card-header h2 { font-size: 36px; }
 }
 
+/* Authenticated setup uses the same frame as sign-in, not the archived mobile ScreenDesign flow. */
+.sd-student-onboarding-page {
+  overflow-x: clip;
+  overflow-y: auto;
+}
+
+.sd-student-onboarding-frame {
+  display: grid;
+  min-height: calc(100dvh - (2 * clamp(12px, 1.6vw, 28px)));
+}
+
+.sd-student-onboarding-header {
+  position: absolute;
+  z-index: 5;
+  top: clamp(28px, 3.8vw, 52px);
+  right: clamp(28px, 5vw, 90px);
+  left: clamp(28px, 5vw, 90px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sd-student-onboarding-header .sd-source-wordmark {
+  display: block;
+  width: auto;
+  height: clamp(38px, 3vw, 48px);
+}
+
+.sd-student-onboarding-step-count {
+  color: rgb(255 255 255 / 0.92);
+  font: 600 14px / 1.2 var(--font-lexend), Lexend, sans-serif;
+  text-shadow: 0 1px 10px rgb(7 10 15 / 0.5);
+}
+
+.sd-student-onboarding-layout {
+  display: grid;
+  width: min(100%, 1320px);
+  min-height: inherit;
+  margin: 0 auto;
+  grid-template-columns: minmax(260px, 0.78fr) minmax(0, 1.12fr);
+  gap: clamp(44px, 7vw, 112px);
+  align-items: center;
+  padding: clamp(118px, 12vw, 148px) clamp(30px, 5.8vw, 92px) clamp(42px, 5vw, 78px);
+}
+
+.sd-student-onboarding-story {
+  display: grid;
+  gap: 18px;
+  align-content: center;
+  max-width: 32rem;
+}
+
+.sd-student-onboarding-kicker,
+.sd-student-onboarding-panel-head > p,
+.sd-student-onboarding-targets > legend {
+  margin: 0;
+  color: rgb(255 255 255 / 0.82);
+  font: 600 13px / 1.2 var(--font-lexend), Lexend, sans-serif;
+  letter-spacing: 0;
+}
+
+.sd-student-onboarding-story h1 {
+  margin: 0;
+  color: #fff;
+  font: 620 clamp(42px, 4.7vw, 70px) / 1.02 var(--font-lexend), Lexend, sans-serif;
+  letter-spacing: 0;
+  text-wrap: balance;
+  text-shadow: 0 3px 20px rgb(8 13 17 / 0.44);
+}
+
+.sd-student-onboarding-story > p:not(.sd-student-onboarding-kicker) {
+  max-width: 36ch;
+  margin: 0;
+  color: rgb(255 255 255 / 0.92);
+  font: 400 17px / 1.6 var(--font-lexend), Lexend, sans-serif;
+  text-shadow: 0 2px 14px rgb(8 13 17 / 0.42);
+}
+
+.sd-student-onboarding-steps {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sd-student-onboarding-steps li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+  color: rgb(255 255 255 / 0.64);
+}
+
+.sd-student-onboarding-steps li > span {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgb(255 255 255 / 0.36);
+  border-radius: 50%;
+  background: rgb(15 22 28 / 0.26);
+  color: rgb(255 255 255 / 0.9);
+  font: 600 13px / 1 var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-steps li[aria-current="step"] {
+  color: #fff;
+}
+
+.sd-student-onboarding-steps li[aria-current="step"] > span,
+.sd-student-onboarding-steps li[data-complete="true"] > span {
+  border-color: #d3df4c;
+  background: #e8f56b;
+  color: #172126;
+}
+
+.sd-student-onboarding-steps strong,
+.sd-student-onboarding-steps small {
+  display: block;
+  font-family: var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-steps strong {
+  color: currentcolor;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sd-student-onboarding-steps small {
+  margin-top: 2px;
+  color: rgb(255 255 255 / 0.64);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.sd-student-onboarding-panel {
+  display: grid;
+  min-width: 0;
+  gap: clamp(20px, 2.5vw, 30px);
+  border: 1px solid rgb(255 255 255 / 0.72);
+  border-radius: 14px 30px 14px 30px;
+  background: linear-gradient(145deg, rgb(249 251 249 / 0.74), rgb(220 226 222 / 0.48));
+  padding: clamp(28px, 4vw, 48px);
+  color: #182126;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.74), 0 22px 52px rgb(19 30 32 / 0.2);
+  backdrop-filter: blur(28px) saturate(0.9);
+  -webkit-backdrop-filter: blur(28px) saturate(0.9);
+}
+
+.sd-student-onboarding-progress {
+  height: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(24 33 38 / 0.16);
+}
+
+.sd-student-onboarding-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #182126;
+  transition: width 220ms ease;
+}
+
+.sd-student-onboarding-panel-head {
+  display: grid;
+  gap: 10px;
+}
+
+.sd-student-onboarding-panel-head > p,
+.sd-student-onboarding-targets > legend {
+  color: #53615c;
+}
+
+.sd-student-onboarding-panel-head h2 {
+  margin: 0;
+  color: #182126;
+  font: 620 clamp(28px, 3.15vw, 42px) / 1.08 var(--font-lexend), Lexend, sans-serif;
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.sd-student-onboarding-panel-head > span {
+  max-width: 42ch;
+  color: #40504b;
+  font: 400 16px / 1.55 var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sd-student-onboarding-choice-grid[data-compact="true"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sd-student-onboarding-choice-grid > button {
+  position: relative;
+  display: grid;
+  min-height: 136px;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  border: 1px solid rgb(24 33 38 / 0.2);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.44);
+  padding: 16px;
+  color: #182126;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.64);
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.sd-student-onboarding-choice-grid[data-compact="true"] > button {
+  min-height: 122px;
+  grid-template-columns: 32px minmax(0, 1fr);
+  padding: 14px;
+}
+
+.sd-student-onboarding-choice-grid > button:hover {
+  border-color: rgb(24 33 38 / 0.48);
+  background: rgb(255 255 255 / 0.68);
+}
+
+.sd-student-onboarding-choice-grid > button:active {
+  transform: translateY(1px);
+}
+
+.sd-student-onboarding-choice-grid > button[data-active="true"] {
+  border-color: #aebc2f;
+  background: rgb(232 245 107 / 0.48);
+}
+
+.sd-student-onboarding-choice-icon {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgb(24 33 38 / 0.18);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 0.54);
+  color: #182126;
+}
+
+.sd-student-onboarding-choice-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+}
+
+.sd-student-onboarding-choice-grid > button > span:nth-child(2) {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+}
+
+.sd-student-onboarding-choice-grid strong,
+.sd-student-onboarding-choice-grid small {
+  display: block;
+  font-family: var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-choice-grid strong {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.sd-student-onboarding-choice-grid small {
+  color: #53615c;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.sd-student-onboarding-choice-check {
+  width: 18px;
+  height: 18px;
+  color: #172126;
+  stroke-width: 2.2;
+}
+
+.sd-student-onboarding-targets {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.sd-student-onboarding-targets > legend {
+  padding: 0;
+  color: #53615c;
+}
+
+.sd-student-onboarding-targets > p {
+  margin: -4px 0 0;
+  color: #53615c;
+  font: 400 14px / 1.45 var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-targets > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.sd-student-onboarding-targets label {
+  display: grid;
+  gap: 7px;
+  color: #2c3935;
+  font: 600 14px / 1.25 var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-targets select {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid rgb(24 33 38 / 0.24);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 0.68);
+  padding: 10px 12px;
+  color: #182126;
+  font: 400 16px / 1.35 var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-feedback {
+  min-height: 1.4em;
+  margin: -4px 0 0;
+  color: #674604;
+  font: 400 14px / 1.4 var(--font-lexend), Lexend, sans-serif;
+}
+
+.sd-student-onboarding-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.sd-student-onboarding-primary {
+  width: auto;
+  min-width: 148px;
+  margin-top: 0;
+  gap: 8px;
+}
+
+.sd-student-onboarding-primary svg,
+.sd-student-onboarding-back svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.9;
+}
+
+.sd-student-onboarding-back {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 48px;
+  align-items: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  padding: 0 4px;
+  color: #2c3935;
+  font: 600 15px / 1 var(--font-lexend), Lexend, sans-serif;
+  cursor: pointer;
+}
+
+.sd-student-onboarding-back:hover {
+  color: #182126;
+}
+
+.sd-student-onboarding-page :is(button, select):focus-visible {
+  outline: 3px solid rgb(232 245 107 / 0.7);
+  outline-offset: 3px;
+}
+
+@media (max-width: 920px) {
+  .sd-student-onboarding-frame {
+    min-height: calc(100dvh - 24px);
+  }
+
+  .sd-student-onboarding-header {
+    top: 28px;
+    right: 28px;
+    left: 28px;
+  }
+
+  .sd-student-onboarding-layout {
+    min-height: calc(100dvh - 34px);
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 106px 26px 42px;
+  }
+
+  .sd-student-onboarding-story {
+    max-width: 680px;
+  }
+
+  .sd-student-onboarding-story h1 {
+    max-width: 15ch;
+    font-size: clamp(38px, 7vw, 54px);
+  }
+
+  .sd-student-onboarding-panel {
+    width: min(100%, 680px);
+    justify-self: center;
+  }
+}
+
+@media (max-width: 620px) {
+  .sd-student-onboarding-page {
+    padding: 8px;
+  }
+
+  .sd-student-onboarding-frame {
+    min-height: calc(100dvh - 16px);
+  }
+
+  .sd-student-onboarding-header {
+    top: 22px;
+    right: 22px;
+    left: 22px;
+  }
+
+  .sd-student-onboarding-header .sd-source-wordmark {
+    height: 38px;
+  }
+
+  .sd-student-onboarding-step-count {
+    font-size: 13px;
+  }
+
+  .sd-student-onboarding-layout {
+    gap: 24px;
+    padding: 82px 18px 30px;
+  }
+
+  .sd-student-onboarding-story {
+    gap: 13px;
+  }
+
+  .sd-student-onboarding-story h1 {
+    font-size: clamp(33px, 10vw, 46px);
+  }
+
+  .sd-student-onboarding-story > p:not(.sd-student-onboarding-kicker) {
+    font-size: 16px;
+  }
+
+  .sd-student-onboarding-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  .sd-student-onboarding-steps li {
+    grid-template-columns: 26px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .sd-student-onboarding-steps li > span {
+    width: 25px;
+    height: 25px;
+    font-size: 12px;
+  }
+
+  .sd-student-onboarding-steps strong,
+  .sd-student-onboarding-steps small {
+    font-size: 12px;
+  }
+
+  .sd-student-onboarding-panel {
+    gap: 20px;
+    border-radius: 12px 24px 12px 24px;
+    padding: 24px 18px;
+  }
+
+  .sd-student-onboarding-panel-head h2 {
+    font-size: 28px;
+  }
+
+  .sd-student-onboarding-choice-grid,
+  .sd-student-onboarding-choice-grid[data-compact="true"],
+  .sd-student-onboarding-targets > div {
+    grid-template-columns: 1fr;
+  }
+
+  .sd-student-onboarding-choice-grid > button,
+  .sd-student-onboarding-choice-grid[data-compact="true"] > button {
+    min-height: 88px;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    padding: 13px;
+  }
+
+  .sd-student-onboarding-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .sd-student-onboarding-actions > span {
+    display: none;
+  }
+
+  .sd-student-onboarding-back {
+    order: 2;
+    min-height: 44px;
+    justify-self: start;
+  }
+
+  .sd-student-onboarding-primary {
+    width: 100%;
+  }
+}
+
 .sd-onboarding-page {
   min-height: 100dvh;
   display: grid;

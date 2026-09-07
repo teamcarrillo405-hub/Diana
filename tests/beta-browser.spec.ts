@@ -120,6 +120,38 @@ test.describe("deterministic beta browser surface", () => {
     }
   });
 
+  test("runs the first-time setup flow in the production browser runtime", async ({
+    page,
+    baseURL,
+  }) => {
+    const target = expectSafeBetaBrowserEnvironment(baseURL);
+    const network = await installLocalNetworkGuard(page, target.origin);
+    const issues = observeBrowserIssues(page, target.origin);
+
+    for (const viewport of [BETA_AUTHENTICATED_VIEWPORTS[0], BETA_AUTHENTICATED_VIEWPORTS[3]]) {
+      await page.setViewportSize({ width: viewport.width, height: viewport.height });
+      await openLocalQaStudentSession(page, { variant: "onboarding" });
+
+      await expect(page.getByRole("heading", { name: /set up your study space/i })).toBeVisible();
+      await expect(page.locator("body")).not.toContainText(/athletes who use|gpa progress|clutch performance/iu);
+      await expectNoHorizontalOverflow(page, `${viewport.name} first-time setup`);
+      await expectNoWcagAaAccessibilityViolations(page, `${viewport.name} first-time setup`);
+
+      await page.getByRole("radio", { name: /getting started/i }).click();
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page.getByRole("heading", { name: /when does focused work/i })).toBeVisible();
+      await page.getByRole("radio", { name: /after school/i }).click();
+      await page.getByLabel("Sleep goal").selectOption("8");
+      await page.getByLabel("Movement goal").selectOption("4");
+      await page.getByRole("button", { name: "Finish setup" }).click();
+      await expect(page).toHaveURL(/\/dashboard$/u);
+      await expect(page.locator("body")).not.toContainText(/application error|internal server error/iu);
+
+      network.expectLocalOnly(`${viewport.name} first-time setup`);
+      issues.expectClean(`${viewport.name} first-time setup`);
+    }
+  });
+
   for (const viewport of BETA_AUTHENTICATED_VIEWPORTS) {
     test(`runs the authenticated core flow at ${viewport.name} width`, async ({
       page,

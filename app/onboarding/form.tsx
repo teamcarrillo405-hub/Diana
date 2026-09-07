@@ -1,7 +1,7 @@
 import type { ProfilePrefs } from "@/lib/profile";
 import type { ScreenDesignOnboardingStep } from "@/lib/onboarding/screendesign-step";
 
-import { ScreenDesignOnboarding } from "./screendesign-onboarding";
+import { StudentOnboarding } from "./student-onboarding";
 
 export function OnboardingForm({
   initial,
@@ -11,12 +11,10 @@ export function OnboardingForm({
   readonly initialStep?: ScreenDesignOnboardingStep;
 }) {
   return (
-    <ScreenDesignOnboarding
+    <StudentOnboarding
       initialStep={initialStep}
-      initialLearningHurdle={initial.learning_hurdle ?? "exam_stress"}
-      initialStudySchedulePreference={
-        initial.study_schedule_preference ?? "after_practice"
-      }
+      initialLearningHurdle={initial.learning_hurdle}
+      initialStudySchedulePreference={initial.study_schedule_preference}
     />
   );
 }

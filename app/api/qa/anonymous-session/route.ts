@@ -27,6 +27,7 @@ const qaUser = {
   scenarioId: null as string | null,
   ownerAlias: "qa-primary" as ScreenDesignOwnerAlias,
   operation: "seed" as QaOperation,
+  onboarding: false,
 };
 
 function qaSignupMetadata(activeQaUser: Pick<typeof qaUser, "displayName">) {
@@ -111,6 +112,7 @@ function resolveQaUser(request: Request) {
     email: process.env.QA_ONBOARDING_TEST_EMAIL ?? "diana-qa-onboarding@local.test",
     displayName: "Diana QA Onboarding",
     demo: null,
+    onboarding: true,
   };
 }
 
@@ -189,7 +191,9 @@ async function handleQaSession(request: Request) {
     date_of_birth: "2009-09-01",
     age_bracket: "13_to_17",
     timezone,
-    onboarded_at: new Date().toISOString(),
+    // This distinct fixture lets the production-browser gate exercise the
+    // actual first-time setup route without a reset endpoint in production.
+    onboarded_at: activeQaUser.onboarding ? null : new Date().toISOString(),
     consent_ai: true,
     teen_guardian_permission_attested_at: new Date().toISOString(),
     teen_guardian_permission_policy_version: "teen_openai_beta_v1",
@@ -242,6 +246,7 @@ async function handleQaSession(request: Request) {
   return NextResponse.json({
     ok: true,
     profile: activeQaUser.demo,
+    onboarding: activeQaUser.onboarding || undefined,
     ownerAlias: activeQaUser.scenarioId ? activeQaUser.ownerAlias : undefined,
     scenarioId: activeQaUser.scenarioId ?? undefined,
     seeded,

@@ -301,11 +301,12 @@ accepts an operator-provided path or partial mode.
 `beta:browser` invokes only:
 
 ```text
-npx playwright test tests/beta-browser.spec.ts --project=chromium --reporter=line --workers=1 --retries=0 --trace=retain-on-failure
+npx playwright test tests/beta-browser.spec.ts --project=chromium --reporter=line --workers=1 --retries=0 --trace=off
 ```
 
 It uses a run-derived localhost port and Next directory,
-`QA_CREATE_USER=false`, and no hosted target.
+`QA_CREATE_USER=true`, and no hosted target. The synthetic student and its
+browser session are created only inside the dedicated local Supabase project.
 
 `beta:lms:mock` runs the existing provider canary with intercepted traffic.
 It performs no external provider writes.

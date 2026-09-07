@@ -464,13 +464,15 @@ export async function expectNoWcagAaAccessibilityViolations(page: Page, label: s
 export type LocalQaStudentSessionOptions = {
   scenario?: string;
   operation?: "seed" | "resume";
+  variant?: "onboarding";
 };
 
 export async function openLocalQaStudentSession(
   page: Page,
   {
-    scenario = "assignment-detail:default",
+    scenario,
     operation = "seed",
+    variant,
   }: LocalQaStudentSessionOptions = {},
 ): Promise<void> {
   expect(process.env.QA_CREATE_USER, "The beta QA auth bootstrap must be enabled").toBe("true");
@@ -484,7 +486,10 @@ export async function openLocalQaStudentSession(
   );
   expect(isLoopback(supabaseTarget), "The beta QA bootstrap requires loopback Supabase").toBe(true);
 
-  const params = new URLSearchParams({ scenario });
+  const resolvedScenario = scenario ?? (variant ? undefined : "assignment-detail:default");
+  const params = new URLSearchParams();
+  if (resolvedScenario) params.set("scenario", resolvedScenario);
+  if (variant) params.set("variant", variant);
   if (operation === "resume") params.set("operation", operation);
   await page.setExtraHTTPHeaders({ "x-diana-beta-qa-session": sessionToken! });
   let response;
@@ -498,17 +503,25 @@ export async function openLocalQaStudentSession(
   }
   expect(response, "The real local QA session endpoint must respond").not.toBeNull();
   expect(response!.status(), "The real local QA session bootstrap must succeed").toBe(200);
-  const payload = (await response!.json()) as { ok?: boolean; resumed?: boolean; scenarioId?: string };
-  expect(payload, "The real local QA session must authenticate the requested scenario").toMatchObject({
-    ok: true,
-    scenarioId: scenario,
-  });
+  const payload = (await response!.json()) as {
+    ok?: boolean;
+    resumed?: boolean;
+    scenarioId?: string;
+    onboarding?: boolean;
+  };
+  expect(payload, "The real local QA session must authenticate the requested student").toMatchObject(
+    resolvedScenario ? { ok: true, scenarioId: resolvedScenario } : { ok: true },
+  );
+  if (variant === "onboarding") {
+    expect(payload.onboarding, "The QA onboarding session must remain unfinished").toBe(true);
+  }
   if (operation === "resume") {
     expect(payload.resumed, "The QA recovery session must preserve its existing fixture").toBe(true);
   }
 
-  await openHealthyPage(page, "/assignments", "authenticated assignment index");
+  const expectedPath = variant === "onboarding" ? "/onboarding" : "/assignments";
+  await openHealthyPage(page, expectedPath, "authenticated QA destination");
   expect(new URL(page.url()).pathname, "The real local session must pass the auth boundary").toBe(
-    "/assignments",
+    expectedPath,
   );
 }
