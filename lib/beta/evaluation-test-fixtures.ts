@@ -132,34 +132,32 @@ export function writeSignedEducationalEvaluationTestFixture(input: {
   );
   bundle.runId = input.runId;
   bundle.expertReview.producer.id = expertProducerId;
-  if (input.referenceTime !== undefined) {
-    const referenceTime = input.referenceTime.getTime();
-    if (Number.isNaN(referenceTime)) {
-      throw new Error("The test-only evaluation fixture reference time is invalid.");
-    }
-    const at = (offsetMs: number) => new Date(referenceTime + offsetMs).toISOString();
-    bundle.modelExecution.startedAt = at(-4 * 60 * 60 * 1000);
-    bundle.modelExecution.completedAt = at(-3 * 60 * 60 * 1000);
-    bundle.modelExecution.attestedAt = at(-3 * 60 * 60 * 1000 + 60 * 1000);
-    bundle.caseResults.forEach((result, index) => {
-      const offset = index % 3_000;
-      result.execution.startedAt = at(-4 * 60 * 60 * 1000 + offset);
-      result.execution.completedAt = at(-4 * 60 * 60 * 1000 + offset + 1_000);
-    });
-    bundle.expertReview.startedAt = at(-2 * 60 * 60 * 1000);
-    bundle.expertReview.completedAt = at(-2 * 60 * 1000);
-    bundle.expertReview.attestedAt = at(-60 * 1000);
-    bundle.expertReviews.forEach((review, index) => {
-      review.reviewedAt = at(-2 * 60 * 60 * 1000 + index * 1_000);
-    });
-    const caseResultsSha256 = calculateBetaEducationalEvaluationRecordSha256(
-      bundle.caseResults,
-    );
-    bundle.modelExecution.caseResultsSha256 = caseResultsSha256;
-    bundle.expertReview.modelCaseResultsSha256 = caseResultsSha256;
-    bundle.expertReview.expertReviewsSha256 =
-      calculateBetaEducationalEvaluationRecordSha256(bundle.expertReviews);
+  const referenceTime = (input.referenceTime ?? new Date()).getTime();
+  if (Number.isNaN(referenceTime)) {
+    throw new Error("The test-only evaluation fixture reference time is invalid.");
   }
+  const at = (offsetMs: number) => new Date(referenceTime + offsetMs).toISOString();
+  bundle.modelExecution.startedAt = at(-4 * 60 * 60 * 1000);
+  bundle.modelExecution.completedAt = at(-3 * 60 * 60 * 1000);
+  bundle.modelExecution.attestedAt = at(-3 * 60 * 60 * 1000 + 60 * 1000);
+  bundle.caseResults.forEach((result, index) => {
+    const offset = index % 3_000;
+    result.execution.startedAt = at(-4 * 60 * 60 * 1000 + offset);
+    result.execution.completedAt = at(-4 * 60 * 60 * 1000 + offset + 1_000);
+  });
+  bundle.expertReview.startedAt = at(-2 * 60 * 60 * 1000);
+  bundle.expertReview.completedAt = at(-2 * 60 * 1000);
+  bundle.expertReview.attestedAt = at(-60 * 1000);
+  bundle.expertReviews.forEach((review, index) => {
+    review.reviewedAt = at(-2 * 60 * 60 * 1000 + index * 1_000);
+  });
+  const caseResultsSha256 = calculateBetaEducationalEvaluationRecordSha256(
+    bundle.caseResults,
+  );
+  bundle.modelExecution.caseResultsSha256 = caseResultsSha256;
+  bundle.expertReview.modelCaseResultsSha256 = caseResultsSha256;
+  bundle.expertReview.expertReviewsSha256 =
+    calculateBetaEducationalEvaluationRecordSha256(bundle.expertReviews);
   const modelEvidenceBytes = Buffer.from(
     `${bundle.caseResults.map((result) => JSON.stringify({
       schemaVersion: 1,

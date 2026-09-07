@@ -24,6 +24,7 @@ import { writeSignedEducationalEvaluationTestFixture } from "./evaluation-test-f
 const roots: string[] = [];
 const trustRegistryRestores: Array<() => void> = [];
 const EVIDENCE_NOW = new Date("2026-09-01T12:00:00.000Z");
+const FIXTURE_REFERENCE_TIME = new Date("2026-08-30T15:01:00.000Z");
 
 afterEach(() => {
   while (trustRegistryRestores.length > 0) {
@@ -41,7 +42,10 @@ function createRoot(): string {
 }
 
 function createSignedFixture(input: { projectRoot: string; runId: string }) {
-  const fixture = writeSignedEducationalEvaluationTestFixture(input);
+  const fixture = writeSignedEducationalEvaluationTestFixture({
+    ...input,
+    referenceTime: FIXTURE_REFERENCE_TIME,
+  });
   trustRegistryRestores.push(fixture.restoreTrustRegistryEnvironment);
   return fixture;
 }
