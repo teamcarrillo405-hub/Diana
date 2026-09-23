@@ -8,7 +8,7 @@ on:
 jobs:
   gates:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     env:
       # Build-time placeholders — real values live in Vercel. Client pages
       # only embed these; no network calls happen during build.

@@ -5,6 +5,7 @@ export default defineConfig({
   testMatch: "landing-production.spec.ts",
   outputDir: "test-results/landing-production",
   workers: 1,
+  reporter: "list",
   timeout: process.env.CI ? 180_000 : 60_000,
   expect: { timeout: process.env.CI ? 60_000 : 20_000 },
   use: {
@@ -16,7 +17,9 @@ export default defineConfig({
     } : undefined,
     contextOptions: { reducedMotion: "no-preference" },
     serviceWorkers: "block",
-    trace: "retain-on-failure",
+    // Keep DOM/network diagnostics; explicit screenshots below cover visual states.
+    // Continuous WebGL screencasting makes CPU-rendered CI dramatically slower.
+    trace: {mode: "retain-on-failure", screenshots: false, snapshots: true},
   },
   webServer: {
     command: "npm run start -- -p 3098",

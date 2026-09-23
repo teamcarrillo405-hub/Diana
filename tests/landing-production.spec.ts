@@ -89,16 +89,17 @@ test("reading stops and both real videos stay framed until their holds finish", 
     await positionBefore(stop.point);
     // Record at the rendered hold, not after several slow remote-browser round trips.
     const observedHold = page.evaluate(id => new Promise<{timeline: number; opacity: string; transform: string; blocked: boolean}>(resolve => {
-      const observe = () => {
+      const observe = (event: Event) => {
         const composition = (window as AnimatedWindow).__dianaComposition;
-        if (composition.readingHold !== id) { requestAnimationFrame(observe); return; }
+        if ((event as CustomEvent<{id: string}>).detail.id !== id) return;
+        window.removeEventListener("diana:reading-hold", observe);
         const phrase = document.querySelectorAll(".vision-sequence > *")[Number(id.split("-")[1])];
         const style = getComputedStyle(phrase);
         const wheel = new WheelEvent("wheel", {deltaY: 1400, cancelable: true});
         window.dispatchEvent(wheel);
         resolve({timeline: composition.timelinePixels, opacity: style.opacity, transform: style.transform, blocked: wheel.defaultPrevented});
       };
-      requestAnimationFrame(observe);
+      window.addEventListener("diana:reading-hold", observe);
     }), stop.id);
     await page.mouse.wheel(0, 600);
     const held = await observedHold;
@@ -138,11 +139,12 @@ test("reading stops and both real videos stay framed until their holds finish", 
   const titleStop = stops.find((item: {id: string}) => item.id === "control-title");
   await positionBefore(titleStop!.point);
   const observedTitle = page.evaluate(() => new Promise<string>(resolve => {
-    const observe = () => {
-      if ((window as AnimatedWindow).__dianaComposition.readingHold !== "control-title") { requestAnimationFrame(observe); return; }
+    const observe = (event: Event) => {
+      if ((event as CustomEvent<{id: string}>).detail.id !== "control-title") return;
+      window.removeEventListener("diana:reading-hold", observe);
       resolve(getComputedStyle(document.querySelector(".hero .control-title")!).opacity);
     };
-    requestAnimationFrame(observe);
+    window.addEventListener("diana:reading-hold", observe);
   }));
   await page.mouse.wheel(0, 500);
   expect(await observedTitle).toBe("1");

@@ -104,7 +104,7 @@ async function initialize() {
   const tutorBeat = {active: false, complete: false, departed: false, startedAt: 0, lockedY: 0, duration: 6200, progress: 0};
   const dayVideoBeat = {active: false, index: -1, lockedY: 0, lockedTimeline: 0};
   const readingHolds = createReadingHolds();
-  let previousTimelinePixels = 0, readingLockedY = 0;
+  let previousTimelinePixels = 0, readingLockedY = 0, announcedReadingHold = null;
   const timings = [];
   const blockingKeys = new Set(['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' ']);
 
@@ -383,6 +383,10 @@ async function initialize() {
     Object.assign(state, {renders: state.renders + 1, yaw: symbol.rotation.y, scrollPixels, timelinePixels, scrollRange, growth: motion.growth, wave: motion.wave, vision: motion.vision, draw: motion.draw, gridTravel: motion.gridTravel, visionStops: choreography.visionStops, visionStart: choreography.visionStart, visionEnd: choreography.visionEnd, finaleStops: choreography.finaleStops, waveStart: choreography.waveStart, waveEnd: choreography.waveEnd, exitEnd: choreography.exitEnd, wordmarkOpacity: motion.opening, tutorOpacity: motion.tutor, tutorOverlayOpacity, tutorOverlayY, tutorOverlayScale, tutorOffset: wall.uniforms.uTutorOffset.value.toArray(), tutorSequenceProgress: tutorBeat.progress, tutorSequenceActive: tutorBeat.active, carousel: motion.stage, carouselIndex: motion.index, activeSlide: currentSlide, checkInOpacity: carousel.panels[0].detailMesh?.material.opacity ?? 0, lobbyOpacity: carousel.panels[0].mesh.material.opacity, textExit: choreography.textExit, carouselStart: choreography.carouselStart, stops: choreography.stops, textRightEdge: motion.x + choreography.tutorWidth / 2, width: canvas.clientWidth, height: canvas.clientHeight, triangles: renderer.info.render.triangles});
     previousStoryScrollPixels = storyScrollPixels;
     previousTimelinePixels = timelinePixels;
+    if (state.readingHold !== announcedReadingHold) {
+      announcedReadingHold = state.readingHold;
+      window.dispatchEvent(new CustomEvent('diana:reading-hold', {detail: {id: state.readingHold, timelinePixels}}));
+    }
   }
   function updateControl() {
     motionButton.innerHTML = document.querySelector(state.playing ? '#pause-icon' : '#play-icon').innerHTML;
