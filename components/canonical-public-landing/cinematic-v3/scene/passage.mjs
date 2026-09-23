@@ -124,12 +124,13 @@ export async function makePassage(renderer, environment) {
       video.addEventListener('loadeddata', () => { image.material.map = videoTexture; image.material.needsUpdate = true; });
       video.addEventListener('error', () => { image.material.map = texture; image.material.needsUpdate = true; });
     }
-    return {group, image, frame, texture, video, playing: false, started: false, finished: false, lastProgressAt: 0, lastTime: 0};
+    return {group, image, frame, texture, video, playing: false, started: false, finished: false, playAttempt: 0, lastProgressAt: 0, lastTime: 0};
   }));
   const light = new THREE.DirectionalLight('#e5f6ff', 2); light.position.set(3, 4, 7); room.add(light);
   let centerX = -2, centerY = 0, radius = 9, playback = false;
   let onVideoStart = () => {}, onVideoEnd = () => {};
   function finishVideo(panel, index) {
+    panel.playAttempt++;
     panel.video?.pause();
     panel.playing = false;
     panel.finished = true;
@@ -140,9 +141,15 @@ export async function makePassage(renderer, environment) {
     panel.video?.addEventListener('error', () => finishVideo(panel, index));
   });
   function playVideo(panel, index) {
+    const attempt = ++panel.playAttempt;
     panel.playing = true;
     panel.lastProgressAt = performance.now();
-    panel.video.play().catch(() => finishVideo(panel, index));
+    panel.video.play().catch(error => {
+      if (attempt !== panel.playAttempt) return;
+      panel.playing = false;
+      // A deliberate pause may abort a pending play request without ending the video.
+      if (playback && error.name !== 'AbortError') finishVideo(panel, index);
+    });
   }
   return {
     setVideoCallbacks({onStart, onEnd}) {
@@ -165,7 +172,7 @@ export async function makePassage(renderer, environment) {
       playback = enabled;
       panels.forEach((panel, index) => {
         if (!panel.started || panel.finished) return;
-        if (!enabled) { panel.video.pause(); panel.playing = false; }
+        if (!enabled) { panel.playAttempt++; panel.video.pause(); panel.playing = false; }
         else if (!panel.playing) playVideo(panel, index);
       });
     },

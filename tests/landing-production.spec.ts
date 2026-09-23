@@ -87,14 +87,25 @@ test("reading stops and both real videos stay framed until their holds finish", 
   const stops = await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingStops);
   for (const stop of stops.filter((item: {id: string}) => item.id.startsWith("vision"))) {
     await positionBefore(stop.point);
+    // Record at the rendered hold, not after several slow remote-browser round trips.
+    const observedHold = page.evaluate(id => new Promise<{timeline: number; opacity: string; transform: string; blocked: boolean}>(resolve => {
+      const observe = () => {
+        const composition = (window as AnimatedWindow).__dianaComposition;
+        if (composition.readingHold !== id) { requestAnimationFrame(observe); return; }
+        const phrase = document.querySelectorAll(".vision-sequence > *")[Number(id.split("-")[1])];
+        const style = getComputedStyle(phrase);
+        const wheel = new WheelEvent("wheel", {deltaY: 1400, cancelable: true});
+        window.dispatchEvent(wheel);
+        resolve({timeline: composition.timelinePixels, opacity: style.opacity, transform: style.transform, blocked: wheel.defaultPrevented});
+      };
+      requestAnimationFrame(observe);
+    }), stop.id);
     await page.mouse.wheel(0, 600);
-    await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBe(stop.id);
-    const phrase = page.locator(".vision-sequence > *").nth(Number(stop.id.split("-")[1]));
-    await expect(phrase).toHaveCSS("opacity", "1");
-    await expect(phrase).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
-    await page.mouse.wheel(0, 1400);
-    await page.waitForTimeout(350);
-    expect(await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.timelinePixels)).toBeCloseTo(stop.point, 0);
+    const held = await observedHold;
+    expect(held.timeline).toBeCloseTo(stop.point, 0);
+    expect(held.opacity).toBe("1");
+    expect(held.transform).toBe("matrix(1, 0, 0, 1, 0, 0)");
+    expect(held.blocked).toBe(true);
     if (stop.id === "vision-0") await page.screenshot({path: testInfo.outputPath("chatbot-reading-hold.png")});
     await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBeNull();
   }
@@ -126,9 +137,15 @@ test("reading stops and both real videos stay framed until their holds finish", 
   }
   const titleStop = stops.find((item: {id: string}) => item.id === "control-title");
   await positionBefore(titleStop!.point);
+  const observedTitle = page.evaluate(() => new Promise<string>(resolve => {
+    const observe = () => {
+      if ((window as AnimatedWindow).__dianaComposition.readingHold !== "control-title") { requestAnimationFrame(observe); return; }
+      resolve(getComputedStyle(document.querySelector(".hero .control-title")!).opacity);
+    };
+    requestAnimationFrame(observe);
+  }));
   await page.mouse.wheel(0, 500);
-  await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBe("control-title");
-  await expect(page.locator(".hero .control-title")).toHaveCSS("opacity", "1");
+  expect(await observedTitle).toBe("1");
   await page.screenshot({path: testInfo.outputPath("control-title-hold.png")});
   await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBeNull();
   expect(await page.locator(".hero .control-atmosphere").evaluate(element => getComputedStyle(element, "::before").content)).toBe("none");

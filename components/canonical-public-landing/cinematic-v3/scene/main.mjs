@@ -373,7 +373,7 @@ async function initialize() {
     const m = brandProjection.elements;
     wall.uniforms.uBrandScreenToLocal.value.set(m[0], m[4], m[12], m[1], m[5], m[13], m[3], m[7], m[15]).invert();
     motion.timelinePixels = timelinePixels;
-    passage.setPlayback(state.playing && inView && scrollSettled && !document.hidden && !dialog.open);
+    passage.setPlayback(state.playing && inView && (dayVideoBeat.active || scrollSettled) && !document.hidden && !dialog.open);
     // The opaque control chapter does not need the expensive transmission passes underneath.
     if (motion.control < 1) passage.render(renderer, () => finale.render(renderer, scene, camera, motion.wave), motion, state.time);
     Object.assign(state, {dive: motion.dive, day: motion.day, dayCopy: motion.dayCopy, dayStops: choreography.dayStops, diveStart: choreography.diveStart, diveEnd: choreography.diveEnd, dayStart: choreography.dayStart, daySettled: choreography.daySettled, cameraPosition: camera.position.toArray()});
