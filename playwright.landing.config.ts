@@ -5,11 +5,15 @@ export default defineConfig({
   testMatch: "landing-production.spec.ts",
   outputDir: "test-results/landing-production",
   workers: 1,
-  timeout: 60_000,
-  expect: { timeout: 20_000 },
+  timeout: process.env.CI ? 180_000 : 60_000,
+  expect: { timeout: process.env.CI ? 60_000 : 20_000 },
   use: {
     baseURL: "http://127.0.0.1:3098",
     browserName: "chromium",
+    // GitHub runners compile and render WebGL on the CPU, without a hardware GPU.
+    launchOptions: process.env.CI ? {
+      args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
+    } : undefined,
     contextOptions: { reducedMotion: "no-preference" },
     serviceWorkers: "block",
     trace: "retain-on-failure",
