@@ -94,12 +94,17 @@ img { display: block; max-width: 100%; }
 .light-chapter .header { color: #273136; }
 .light-chapter .motion { color: #273136; border-color: #7d898d; background: #d7dcdd; }
 .light-chapter .motion:hover { border-color: #273136; background: #edf0f0; }
+.diana-app .cinematic-landing-root #motion { width: 46px; height: 46px; min-width: 46px; padding: 0; border: 1px solid #fff; border-radius: 4px; background: #fff; color: #111; clip-path: none; box-shadow: none; text-shadow: none; transform: none; }
+.diana-app .cinematic-landing-root #motion:hover { background: #eef0f2; border-color: #eef0f2; }
+.diana-app .cinematic-landing-root #motion::before, .diana-app .cinematic-landing-root #motion::after { content: none; }
+.diana-app .cinematic-landing-root #motion svg { color: #111; width: 18px; height: 18px; }
 .vision-copy { position: absolute; inset: 0; color: #151a1d; pointer-events: none; visibility: hidden; }
 .vision-copy h2 { position: absolute; top: 17%; left: calc(var(--gutter) + 4.5vw); margin: 0; }
 .outline-title { display: block; width: 420px; height: auto; }
 .outline-title path { stroke: #151a1d; stroke-width: 1.05; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; vector-effect: non-scaling-stroke; }
 .vision-copy p { position: absolute; right: clamp(36px, 5vw, 96px); top: 40%; bottom: auto; width: min(430px, 30vw); margin: 0; font-size: 40px; line-height: 1.22; text-wrap: pretty; opacity: 0; }
 .vision-sequence { min-height: 300px; }
+.diana-app .cinematic-landing-root .vision-sequence, .diana-app .cinematic-landing-root .vision-sequence > * { color: #000; text-shadow: none; }
 .vision-sequence span, .vision-sequence strong { position: absolute; inset: 0 0 auto auto; width: min(520px, 100%); opacity: 0; transform: translateY(18px); will-change: opacity, transform; }
 .vision-sequence span { display: block; }
 .vision-sequence strong { display: block; font-family: Outfit, sans-serif; font-size: clamp(64px, 6.4vw, 112px); font-weight: 800; line-height: .86; text-transform: uppercase; letter-spacing: 0; }
@@ -124,10 +129,7 @@ img { display: block; max-width: 100%; }
 .control-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center; transform: scale(1.025); opacity: calc(1 - var(--control-dim)); }
 .control-photo::after { content: ""; position: absolute; inset: 0; background: rgb(4 7 10 / calc(var(--control-dim) * .52 + var(--control-title) * .34)); }
 .control-atmosphere { position: absolute; inset: 0; overflow: hidden; background: #7347bd; opacity: var(--control-dim); }
-.control-atmosphere::before,
-.control-atmosphere::after { content: ""; position: absolute; inset: auto auto auto -8%; width: 118%; height: 38%; border-radius: 999px; opacity: .42; filter: blur(0.5px); background: linear-gradient(90deg, transparent 0%, rgb(216 188 255 / 72%) 24%, rgb(180 129 255 / 44%) 50%, rgb(232 204 255 / 68%) 76%, transparent 100%); transform: translateY(calc(var(--control-travel, 0px) * .45)) rotate(-7deg); will-change: transform; }
-.control-atmosphere::before { top: 28%; }
-.control-atmosphere::after { top: 58%; opacity: .32; transform: translateY(calc(var(--control-travel, 0px) * .62)) rotate(6deg); }
+.control-atmosphere::before, .control-atmosphere::after { content: none; }
 .control-atmosphere i { position: absolute; left: -20%; top: 26%; width: 76%; aspect-ratio: 1; background: linear-gradient(135deg, #f7d4ff 0%, #a274de 46%, #82e5f2 100%); opacity: .29; filter: blur(1px); -webkit-mask: url('symbol.svg') center / contain no-repeat; mask: url('symbol.svg') center / contain no-repeat; transform: translateY(var(--control-travel, 0px)) rotate(-21deg); will-change: transform; }
 .control-atmosphere i:nth-child(2) { top: 100%; left: 46%; width: 64%; opacity: .19; transform: translateY(calc(var(--control-travel, 0px) * 1.25)) rotate(17deg); }
 .control-atmosphere i:nth-child(3) { top: 158%; left: -8%; width: 92%; opacity: .22; transform: translateY(calc(var(--control-travel, 0px) * 1.5)) rotate(-12deg); }
@@ -238,6 +240,7 @@ dialog.zoomed picture img { width: 1500px; min-width: 1500px; max-width: none; }
 .questions { position: relative; padding: 112px var(--gutter) 120px; color: #181320; background: #fff; display: grid; grid-template-columns: minmax(260px, .75fr) minmax(0, 1.25fr); gap: 88px; }
 .questions-heading > p { font-size: 18px; line-height: 1.5; margin: 0 0 20px; color: #62586a; }
 .questions-heading h2 { font-size: 64px; font-weight: 600; line-height: 1.03; margin: 0 0 28px; }
+.diana-app .cinematic-landing-root .questions-heading h2 { color: #000; text-shadow: none; }
 .questions-list { border-top: 1px solid #dcd6e2; }
 .questions details { border-bottom: 1px solid #dcd6e2; }
 .questions summary { list-style: none; cursor: pointer; min-height: 86px; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 26px 0; font-size: 24px; line-height: 1.3; font-weight: 500; }
@@ -361,7 +364,7 @@ dialog.zoomed picture img { width: 1500px; min-width: 1500px; max-width: none; }
   .carousel-copy p { font-size: 22px; max-width: 620px; }
   .vision-copy h2 { top: 13%; }
   .outline-title { width: 420px; }
-  .vision-copy p { bottom: 8%; width: auto; max-width: 620px; left: var(--gutter); font-size: 24px; }
+  .vision-copy p { top: 73%; bottom: auto; min-height: 0; width: auto; max-width: 620px; left: var(--gutter); right: var(--gutter); font-size: 24px; }
   .day-caption { top: 58%; }
   .day-description { min-height: 128px; }
   .day-caption p { max-width: 620px; font-size: 22px; }
@@ -380,10 +383,10 @@ dialog.zoomed picture img { width: 1500px; min-width: 1500px; max-width: none; }
   .product-description { gap: 16px; }
   .outline-title { width: 320px; }
   .tutor-intro { top: 41%; }
-  .vision-copy p { font-size: 20px; bottom: 7%; }
+  .vision-copy p { font-size: 20px; bottom: auto; }
   .day-caption { top: 55%; }
-  .day-caption h3 { font-size: 38px; margin-bottom: 16px; }
-  .day-caption p { font-size: 20px; }
+  .cinematic-landing-root .day-caption h3 { font-size: 38px; margin-bottom: 16px; }
+  .cinematic-landing-root .day-caption p { font-size: 20px; }
   .day-description { min-height: 135px; margin-bottom: 12px; }
   .control-beat { top: 48%; width: calc(100% - 40px); gap: 28px; }
   .control-beat h3 { font-size: 34px; line-height: 1.08; margin-bottom: 16px; }
@@ -401,9 +404,9 @@ dialog.zoomed picture img { width: 1500px; min-width: 1500px; max-width: none; }
   .carousel-copy { bottom: 88px; min-height: 225px; }
   .carousel-copy h2 { font-size: 28px; margin-bottom: 12px; }
   .carousel-copy p { font-size: 17px; }
-  .day-caption { top: 50%; }
-  .day-caption h3 { font-size: 30px; }
-  .day-caption p { font-size: 17px; }
+  .day-caption { top: 58%; }
+  .cinematic-landing-root .day-caption h3 { font-size: 30px; }
+  .cinematic-landing-root .day-caption p { font-size: 17px; }
   .day-description { min-height: 130px; }
   .control-beat h3 { font-size: 30px; }
   .control-beat p { font-size: 17px; }

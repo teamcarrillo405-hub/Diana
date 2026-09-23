@@ -1,6 +1,23 @@
 import { expect, test } from "@playwright/test";
 import sharp from "sharp";
 
+type AnimatedWindow = Window & typeof globalThis & {
+  __dianaComposition: NonNullable<Window["__dianaComposition"]> & {
+    carousel: number;
+    timelinePixels: number;
+    scrollPixels: number;
+    dayIndex: number;
+    nativeEnd: number;
+    readingHold: string | null;
+    readingStops: {id: string; point: number}[];
+    dayPlaybackStops: (number | null)[];
+    videoLocked: boolean;
+    videoPlayback: {currentTime: number; angle: number; opacity: number; paused: boolean; finished: boolean}[];
+    seek: (time: number) => void;
+    play: () => void;
+  };
+};
+
 test("anonymous visitors receive the animation assets and a moving rendered scene", async ({ page, request }, testInfo) => {
   for (const [file, contentType] of [["main.js", "javascript"], ["style.css", "text/css"], ["day-connect.mp4", "video/mp4"]]) {
     const response = await request.get(`/assets/landing-cinematic-v3/${file}`, { maxRedirects: 0 });
@@ -18,7 +35,7 @@ test("anonymous visitors receive the animation assets and a moving rendered scen
   const stats = await sharp(before).stats();
   expect(Math.max(...stats.channels.slice(0, 3).map((channel) => channel.stdev))).toBeGreaterThan(5);
   await page.waitForTimeout(800);
-  const after = await canvas.screenshot();
+  const after = await canvas.screenshot({path: testInfo.outputPath("animated-hero.png")});
   expect(before.equals(after), "the idle scene should animate").toBe(false);
   await testInfo.attach("animated-hero", { body: after, contentType: "image/png" });
   await page.mouse.wheel(0, 1400);
@@ -45,4 +62,105 @@ test("waitlist links remain public and reduced motion has a usable fallback", as
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Your Day Starts Here", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Join the Waitlist", exact: true })).toBeVisible();
+});
+
+test("reading stops and both real videos stay framed until their holds finish", async ({ page }, testInfo) => {
+  test.setTimeout(process.env.CI ? 360_000 : 180_000);
+  await page.goto("/");
+  await expect(page.locator("body")).toHaveClass(/motion-ready/);
+  await expect(page.locator("#motion")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(page.locator("#motion")).toHaveCSS("clip-path", "none");
+  await expect(page.locator(".vision-sequence")).toHaveCSS("color", "rgb(0, 0, 0)");
+  await expect(page.locator(".questions-heading h2")).toHaveCSS("color", "rgb(0, 0, 0)");
+  // Use the real chapter link to establish the same timeline offset as skipping the intro.
+  await page.evaluate(() => (document.querySelector('a[href="#homework"]') as HTMLElement).click());
+  await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition?.carousel)).toBe(1);
+  const offset = await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.timelinePixels - (window as AnimatedWindow).__dianaComposition.scrollPixels);
+  const positionBefore = async (point: number) => {
+    await page.evaluate(({point, offset}) => {
+      (window as AnimatedWindow).__dianaComposition.seek(0);
+      window.scrollTo({top: point - offset - 25, behavior: "instant"});
+    }, {point, offset});
+    await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.timelinePixels)).toBeCloseTo(point - 25, 0);
+    await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.play());
+  };
+  const stops = await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingStops);
+  for (const stop of stops.filter((item: {id: string}) => item.id.startsWith("vision"))) {
+    await positionBefore(stop.point);
+    await page.mouse.wheel(0, 600);
+    await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBe(stop.id);
+    const phrase = page.locator(".vision-sequence > *").nth(Number(stop.id.split("-")[1]));
+    await expect(phrase).toHaveCSS("opacity", "1");
+    await expect(phrase).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, 0)");
+    await page.mouse.wheel(0, 1400);
+    await page.waitForTimeout(350);
+    expect(await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.timelinePixels)).toBeCloseTo(stop.point, 0);
+    if (stop.id === "vision-0") await page.screenshot({path: testInfo.outputPath("chatbot-reading-hold.png")});
+    await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBeNull();
+  }
+  const playbackStops = await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.dayPlaybackStops);
+  for (const index of [1, 2]) {
+    await positionBefore(playbackStops[index]!);
+    await page.mouse.wheel(0, 900);
+    await expect.poll(() => page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index].currentTime, index)).toBeGreaterThan(0);
+    const fixed = await page.evaluate(() => ({y: scrollY, timeline: (window as AnimatedWindow).__dianaComposition.timelinePixels}));
+    const video = await page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index], index);
+    expect(Math.abs(video.angle)).toBeLessThan(.0001);
+    expect(video.opacity).toBe(1);
+    await expect(page.locator(".day-caption")).toHaveCSS("opacity", "1");
+    await page.mouse.wheel(0, 3000);
+    await page.waitForTimeout(500);
+    expect(await page.evaluate(() => scrollY)).toBeCloseTo(fixed.y, 0);
+    expect(await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.timelinePixels)).toBeCloseTo(fixed.timeline, 0);
+    const videoEvidence = testInfo.outputPath(`video-${index}-settled.png`);
+    await page.screenshot({path: videoEvidence});
+    await testInfo.attach(`video-${index}-settled`, {path: videoEvidence, contentType: "image/png"});
+    await page.getByRole("button", {name: "Pause motion", exact: true}).click();
+    await expect.poll(() => page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index].paused, index)).toBe(true);
+    await page.getByRole("button", {name: "Play motion", exact: true}).click();
+    await expect.poll(() => page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index].finished, index), {timeout: 60_000}).toBe(true);
+    await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.videoLocked)).toBe(false);
+    await page.mouse.wheel(0, 250);
+    await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.dayIndex)).toBeGreaterThan(index);
+    expect(await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.dayIndex)).toBeLessThan(index + .2);
+  }
+  const titleStop = stops.find((item: {id: string}) => item.id === "control-title");
+  await positionBefore(titleStop!.point);
+  await page.mouse.wheel(0, 500);
+  await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBe("control-title");
+  await expect(page.locator(".hero .control-title")).toHaveCSS("opacity", "1");
+  await page.screenshot({path: testInfo.outputPath("control-title-hold.png")});
+  await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBeNull();
+  expect(await page.locator(".hero .control-atmosphere").evaluate(element => getComputedStyle(element, "::before").content)).toBe("none");
+  expect(await page.locator(".hero .control-atmosphere i").first().evaluate(element => getComputedStyle(element).maskImage)).toContain("symbol.svg");
+  await page.evaluate(() => { (window as AnimatedWindow).__dianaComposition.seek(0); window.scrollTo({top: (window as AnimatedWindow).__dianaComposition.nativeEnd, behavior: "instant"}); });
+  await expect.poll(() => page.locator(".questions").evaluate(element => Math.round(element.getBoundingClientRect().top))).toBe(await page.evaluate(() => innerHeight));
+  await page.mouse.wheel(0, 600);
+  await expect(page.getByRole("heading", {name: "Good Questions", exact: true})).toBeInViewport();
+});
+
+test("switching to reduced motion during a video releases scrolling", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("body")).toHaveClass(/motion-ready/);
+  await page.evaluate(() => (document.querySelector('a[href="#homework"]') as HTMLElement).click());
+  await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition?.carousel)).toBe(1);
+  await page.evaluate(() => {
+    const composition = (window as AnimatedWindow).__dianaComposition;
+    const offset = composition.timelinePixels - composition.scrollPixels;
+    composition.seek(0);
+    window.scrollTo({top: composition.dayPlaybackStops[1]! - offset - 25, behavior: "instant"});
+  });
+  await expect.poll(() => page.evaluate(() => {
+    const composition = (window as AnimatedWindow).__dianaComposition;
+    return Math.abs(composition.timelinePixels - (composition.dayPlaybackStops[1]! - 25));
+  })).toBeLessThan(1);
+  await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.play());
+  await page.mouse.wheel(0, 600);
+  await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.videoLocked)).toBe(true);
+  await page.emulateMedia({reducedMotion: "reduce"});
+  await expect(page.locator("body")).not.toHaveClass(/motion-ready/);
+  await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.videoLocked)).toBe(false);
+  await page.evaluate(() => window.scrollTo({top: 0, behavior: "instant"}));
+  await page.mouse.wheel(0, 500);
+  await expect.poll(() => page.evaluate(() => scrollY)).toBeGreaterThan(100);
 });
