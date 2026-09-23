@@ -25,6 +25,24 @@ beforeEach(() => {
 });
 
 describe("Supabase middleware", () => {
+  it.each([
+    "/assets/landing-cinematic-v3/main.js?v=release",
+    "/assets/landing-cinematic-v3/style.css?v=release",
+    "/assets/landing-cinematic-v3/day-connect.mp4",
+    "/assets/landing-cinematic-v3/privacy.html#privacy",
+    "/early-access/confirm?token=test",
+    "/early-access/unsubscribe?token=test",
+  ])("serves public landing resources without signing in: %s", async (path) => {
+    const response = await updateSession(requestFor(path));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("does not expose adjacent asset paths", async () => {
+    const response = await updateSession(requestFor("/assets/landing-cinematic-v3-private/main.js"));
+    expect(response.status).toBe(307);
+  });
+
   it("excludes bearer-authenticated cron routes from session redirects", () => {
     const matcher = middlewareConfig.matcher.join("\n");
     const schedules = JSON.parse(

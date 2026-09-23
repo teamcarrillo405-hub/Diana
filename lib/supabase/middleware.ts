@@ -5,6 +5,8 @@ import type { Database } from "@/lib/supabase/types";
 // Default-deny: everything requires auth unless explicitly allowed here.
 const PUBLIC_EXACT = new Set([
   "/",
+  "/early-access/confirm",
+  "/early-access/unsubscribe",
   "/manifest.webmanifest",
   // Read-only, key-safe deployment identity used by the release SHA verifier.
   "/api/build-info",
@@ -27,7 +29,7 @@ const PUBLIC_EXACT = new Set([
 ]);
 // "/share" is the account-less parent/teacher summary - it validates its own
 // token server-side (service role), so it must bypass the auth wall.
-const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/landing-3d", "/share"];
+const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/landing-3d", "/share", "/assets/landing-cinematic-v3"];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
 
 function isPublic(path: string): boolean {

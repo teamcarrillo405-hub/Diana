@@ -49,6 +49,20 @@ jobs:
       - name: Production build
         run: npm run build
 
+      - name: Install landing test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify anonymous production landing animation
+        run: npx playwright test --config playwright.landing.config.ts
+
+      - name: Preserve landing browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: landing-browser-evidence
+          path: test-results/landing-production
+          if-no-files-found: ignore
+
   database-release-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 25

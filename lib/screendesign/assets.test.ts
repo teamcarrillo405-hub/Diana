@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 
@@ -150,7 +151,7 @@ describe("ScreenDesign asset integrity", () => {
     }
   });
 
-  it("maps the complete canonical remote URL inventory to local assets and consumers", async () => {
+  it.skipIf(!SCREEN_DESIGN_SCREENS.every((screen) => existsSync(screen.source)))("maps the local reference corpus URL inventory to assets and consumers", async () => {
     const manifest = await loadManifest();
     const remoteEntries = manifest.assets.filter(
       (entry): entry is ManifestEntry & { sourceUrl: string } =>

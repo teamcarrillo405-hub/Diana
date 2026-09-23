@@ -4,14 +4,28 @@ import { describe, expect, it } from "vitest";
 
 const functionsRoot = join(process.cwd(), "supabase/functions");
 const compatibilityEntries = new Set(["assignment-review-v2"]);
+const publicTokenFunctions = new Set(["early-access-confirm", "early-access-signup", "early-access-unsubscribe"]);
 const studentFunctions = readdirSync(functionsRoot, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && entry.name !== "_shared" && !compatibilityEntries.has(entry.name))
+  .filter((entry) => entry.isDirectory() && entry.name !== "_shared" && !compatibilityEntries.has(entry.name) && !publicTokenFunctions.has(entry.name))
   .map((entry) => ({
     name: entry.name,
     source: readFileSync(join(functionsRoot, entry.name, "index.ts"), "utf8"),
   }));
 
 describe("Edge Function tenant boundary", () => {
+  it("guards public waitlist endpoints with origin, method, and rate-limit checks", () => {
+    for (const name of publicTokenFunctions) {
+      const source = readFileSync(join(functionsRoot, name, "index.ts"), "utf8");
+      expect(source).toContain("withEarlyAccessCors(withEarlyAccessFailureBoundary(");
+      expect(source).toContain('request.method !== "POST"');
+      expect(source).toContain("reserveEarlyAccessRateLimits(supabase, rateLimitKeys)");
+      if (name !== "early-access-signup") {
+        expect(source).toContain("parseEarlyAccessToken(parsedBody.value)");
+        expect(source).toContain('.eq("confirmation_token", token)');
+      }
+    }
+  });
+
   it("routes every student-callable handler through the shared security guard", () => {
     expect(studentFunctions.length).toBeGreaterThan(20);
     for (const fn of studentFunctions) {
