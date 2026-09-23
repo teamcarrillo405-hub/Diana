@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Diana</title>
+<meta name="description" content="Four things due. Diana finds the one you can finish tonight and shrinks it to five minutes. A homework workspace that leaves the work with the student.">
+<meta name="theme-color" content="#0b1030">
+<!-- DEPLOY STEP: patch og:url and og:image with the live absolute URL before zipping -->
+<meta property="og:title" content="Diana">
+<meta property="og:description" content="Four things due. Start with one.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://PLACEHOLDER/">
+<meta property="og:image" content="https://PLACEHOLDER/assets/hero-ending.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff98d5'/%3E%3Cstop offset='.5' stop-color='%23d67bff'/%3E%3Cstop offset='1' stop-color='%2350dcff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='3' width='11' height='17' rx='5.5' transform='rotate(-34 9.5 11.5)' fill='url(%23g)'/%3E%3Crect x='14' y='12' width='9' height='14' rx='4.5' transform='rotate(28 18.5 19)' fill='url(%23g)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:ital,wght@0,700;1,800&family=Lexend:wght@300;400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --canvas:#0b1030;--panel:#141a45;--accent:#3ee1ed;--accent-hover:#7ff0f6;--accent-muted:rgba(62,225,237,.16);
+  --text-primary:#f4efe6;--text-secondary:#a9b0cc;--ink-line:rgba(244,239,230,.14);--ink-strong:rgba(244,239,230,.32);
+  --display:'Saira Condensed',Impact,'Arial Narrow',sans-serif;--body:'Lexend',system-ui,Arial,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --ease-out:cubic-bezier(.16,1,.3,1);--ease-inout:cubic-bezier(.65,0,.35,1);
+  --tshadow:0 1px 2px rgba(5,5,10,.95),0 3px 12px rgba(5,5,10,.78),0 10px 44px rgba(5,5,10,.8);
+  --ht:1;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{overflow-x:hidden;overflow-x:clip}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--canvas);color:var(--text-primary);font-family:var(--body);font-weight:300;line-height:1.6;-webkit-font-smoothing:antialiased;opacity:0;transition:opacity .6s var(--ease-out)}
+body.ready{opacity:1}
+h1,h2,h3,p,figure{margin:0}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.skip{position:absolute;left:-9999px;top:8px;z-index:100;padding:10px 14px;background:var(--accent);color:#06121a;font-weight:400;border-radius:6px}
+.skip:focus{left:12px}
+.shell{width:min(1200px,calc(100% - 48px));margin-inline:auto}
+.k{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary)}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 11px;background:rgba(8,8,15,.55);border:1px solid rgba(96,96,126,.3);border-radius:10px;backdrop-filter:blur(10px);text-shadow:0 1px 3px rgba(5,5,10,.85)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 22px;border:0;border-radius:6px;background:var(--accent);color:#06121a;font-family:var(--display);font-style:italic;font-weight:800;font-size:19px;letter-spacing:.02em;text-transform:uppercase;cursor:pointer;text-shadow:none;transition:transform .22s var(--ease-out),background .22s,box-shadow .22s}
+.btn:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 10px 30px rgba(62,225,237,.25)}
+.btn:active{transform:translateY(0)}
+.btn--ghost{background:transparent;color:var(--text-primary);box-shadow:inset 0 0 0 1.5px var(--ink-strong)}
+.btn--ghost:hover{background:rgba(244,239,230,.06);box-shadow:inset 0 0 0 1.5px var(--text-primary)}
+@media(pointer:coarse){.btn{min-height:48px}}
+
+/* the signature: halftone that settles */
+.halftone{position:fixed;inset:-12%;z-index:0;pointer-events:none;opacity:var(--ht);
+  background-image:radial-gradient(circle,rgba(244,239,230,.11) 1.15px,transparent 1.5px);background-size:13px 13px;
+  transform:translate3d(0,0,0);will-change:transform;transition:opacity .35s linear}
+body.motion .halftone{animation:htdrift 75s linear -30s infinite}
+@keyframes htdrift{from{transform:translate3d(0,0,0)}50%{transform:translate3d(-26px,18px,0)}to{transform:translate3d(0,0,0)}}
+.env{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 70% 55% at 78% 8%,rgba(62,225,237,.07),transparent 60%),radial-gradient(ellipse 60% 50% at 12% 90%,rgba(255,131,201,.05),transparent 60%)}
+
+/* header */
+.hd{position:absolute;inset:0 0 auto;z-index:50;height:76px}
+.hd .shell{display:flex;align-items:center;gap:26px;height:100%}
+.wm{display:inline-flex;align-items:center;gap:9px;font-family:var(--display);font-style:italic;font-weight:800;font-size:24px;letter-spacing:.01em;text-transform:uppercase}
+.wm svg{width:22px;height:22px}
+.hd nav{display:flex;gap:22px;margin-left:auto;font-size:14px;font-weight:400;color:var(--text-secondary)}
+.hd nav a:hover{color:var(--text-primary)}
+.hd .btn{min-height:42px;padding:0 16px;font-size:17px}
+@media(max-width:760px){.hd nav{display:none}}
+
+/* hero: pinned stage */
+.hero{position:relative;height:1000vh;z-index:1}
+.stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:var(--canvas)}
+.stage video,.poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.stage video{opacity:0;transform:translateZ(0);will-change:transform;transition:opacity .8s var(--ease-out)}
+.stage.video-ready video{opacity:1}
+.stage.video-failed video{display:none}
+.poster{background:var(--canvas) center/cover no-repeat}
+.scrim{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,10,18,0) 35%,rgba(10,10,18,.62) 100%)}
+.ring{position:absolute;right:28px;bottom:28px;width:44px;height:44px;color:var(--accent);opacity:.9;transition:opacity .4s}
+.ring circle{transition:stroke-dashoffset .12s linear}
+.stage.video-ready .ring{opacity:0}
+.cue{position:absolute;right:28px;bottom:28px;width:44px;height:44px;display:none;place-items:center;color:var(--text-secondary)}
+.stage.video-failed .cue{display:grid}
+@media(max-height:560px){.cue,.ring{display:none}}
+
+.band{position:absolute;z-index:3;max-width:min(560px,44vw);opacity:0;text-shadow:var(--tshadow);--k:0}
+.band::before{content:"";position:absolute;inset:-14% -10%;z-index:-1;pointer-events:none;opacity:calc(.25 + .75*var(--k,1));background:radial-gradient(ellipse 74% 62% at 50% 50%,rgba(5,5,10,.66) 0%,rgba(5,5,10,.44) 46%,rgba(5,5,10,0) 76%)}
+.band .k{display:block;margin-bottom:12px;color:var(--accent)}
+.band .k.chip{display:inline-flex;margin-bottom:14px}
+.band h2,.band h1{font-family:var(--display);font-style:italic;font-weight:800;font-size:clamp(40px,4.6vw,66px);line-height:.94;letter-spacing:.005em;text-transform:uppercase;text-wrap:balance}
+.band p{margin-top:14px;font-size:clamp(16px,1.25vw,19px);line-height:1.5;color:var(--text-primary);max-width:40ch}
+.band .btn{text-shadow:none}
+.b1{left:5.5vw;top:20vh}
+.b2{left:5.5vw;top:22vh}
+.b3{right:5.5vw;top:20vh;text-align:right}
+.b3 p{margin-left:auto}
+.b4{left:5.5vw;top:22vh}
+.b5{left:50%;top:14vh;transform:translateX(-50%);max-width:min(760px,80vw);text-align:center}
+.b5 h1{font-size:clamp(56px,7.4vw,112px)}
+.b5 p{margin:16px auto 0;max-width:44ch}
+.b5 .row{display:flex;justify-content:center;gap:12px;margin-top:26px}
+.b5::before{inset:-20% -16%;background:radial-gradient(ellipse 80% 70% at 50% 40%,rgba(5,5,10,.7) 0%,rgba(5,5,10,.42) 48%,rgba(5,5,10,0) 76%)}
+.hud{position:absolute;left:5.5vw;bottom:30px;z-index:3;display:flex;align-items:center;gap:12px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary)}
+.hud b{font-weight:500;color:var(--text-primary);font-variant-numeric:tabular-nums}
+.hud .rail{width:72px;height:1px;background:var(--ink-line);position:relative}
+.hud .rail::after{content:"";position:absolute;inset:0 auto 0 0;width:calc(var(--p,0)*100%);background:var(--accent)}
+@media(max-height:560px){.hud{display:none}}
+
+/* split text entrances, all transform/opacity, scrubbed off --k */
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.w{display:inline-block;white-space:pre}
+.c{display:inline-block}
+[data-fx=drift] .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);opacity:var(--kc);transform:translateY(calc((1 - var(--kc))*-26px))}
+[data-fx=scatter] .c{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.6,1);opacity:var(--kc);transform:translate(calc((1 - var(--kc))*var(--jx,0px)),calc((1 - var(--kc))*var(--jy,0px))) rotate(calc((1 - var(--kc))*var(--jr,0deg)))}
+[data-fx=blur]{position:absolute}
+[data-fx=blur] .soft,[data-fx=blur] .sharp{display:block}
+[data-fx=blur] .soft{position:absolute;inset:0;filter:blur(10px);opacity:calc(1 - var(--k,0));pointer-events:none}
+[data-fx=blur] .sharp{opacity:var(--k,0)}
+[data-fx=punch] .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);--ks:clamp(0,(var(--k,0) - var(--th,0) - var(--sd,.1))*var(--ss,3.2),1);opacity:var(--kc);transform:scale(calc(.6 + (.4 + var(--ov,.12))*var(--kc) - var(--ov,.12)*var(--ks)))}
+[data-fx=punch] .w.em{--ov:.24;--sd:.16;--ss:2.6}
+[data-fx=rise] .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3.2,1);opacity:var(--kc);transform:translateY(calc((1 - var(--kc))*22px))}
+[data-fx=rise] p{--ks:clamp(0,(var(--k,0) - .66)*4,1);opacity:var(--ks);transform:translateY(calc((1 - var(--ks))*14px))}
+[data-fx=rise] .row{--kb:clamp(0,(var(--k,0) - .78)*5,1);opacity:var(--kb);transform:translateY(calc((1 - var(--kb))*12px))}
+
+/* static hero (five gates, matched exactly in JS) */
+.static{display:none;position:relative;min-height:100svh;min-height:100vh;background:var(--canvas) center/cover no-repeat;isolation:isolate}
+.static::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,16,48,.2),rgba(11,16,48,.55) 55%,rgba(11,16,48,.92))}
+.static .shell{position:relative;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;min-height:100svh;min-height:100vh;padding:120px 0 64px}
+.static h1{font-family:var(--display);font-style:italic;font-weight:800;font-size:clamp(56px,15vw,96px);line-height:.92;letter-spacing:.005em;text-transform:uppercase;text-shadow:var(--tshadow);text-wrap:balance}
+.static p{margin-top:16px;max-width:36ch;font-size:17px;line-height:1.5;text-shadow:var(--tshadow)}
+.static .btn{align-self:flex-start;margin-top:26px}
+@media (max-width: 720px),(orientation: portrait) and (max-width: 1024px),(orientation: portrait) and (pointer: coarse),(orientation: landscape) and (pointer: coarse) and (max-height: 560px),(prefers-reduced-motion: reduce){
+  .hero{display:none}.static{display:block}
+}
+
+/* sections */
+main{position:relative;z-index:2}
+.sec{position:relative;padding:clamp(88px,11vw,140px) 0}
+.sec .k{display:block;margin-bottom:16px}
+.sec h2{font-family:var(--display);font-style:italic;font-weight:800;font-size:clamp(40px,5.2vw,74px);line-height:.94;letter-spacing:.005em;text-transform:uppercase;text-wrap:balance}
+.sec .lead,.sec .body{font-size:clamp(16px,1.2vw,18px);line-height:1.66;color:var(--text-secondary);max-width:58ch}
+.sec .body+.body{margin-top:14px}
+.rule{display:block;width:100%;height:2px;margin:0}
+.rule path{stroke:var(--ink-strong);stroke-width:2;fill:none;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.6s var(--ease-out)}
+.in .rule path{stroke-dashoffset:0}
+
+/* A: what just happened, diagonal cut */
+.a .shell{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,72px);align-items:center}
+.a figure{position:relative;aspect-ratio:16/10;background:var(--panel);clip-path:polygon(0 0,100% 0,92% 100%,0 100%);overflow:hidden;box-shadow:inset 0 0 0 2px var(--ink-line)}
+.a figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.a figure::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 60%,rgba(11,16,48,.55))}
+.a .cap{position:absolute;left:18px;bottom:16px}
+@media(max-width:900px){.a .shell{grid-template-columns:1fr;gap:28px}.a figure{clip-path:none;aspect-ratio:16/9}}
+
+/* B: the refusal + hold */
+.b{background:linear-gradient(180deg,transparent,rgba(20,26,69,.55) 20%,rgba(20,26,69,.55) 80%,transparent)}
+.b .shell{max-width:820px}
+.b h2{text-align:center}
+.thread{display:flex;flex-direction:column;gap:12px;margin-top:40px;padding:28px;background:var(--canvas);border:2px solid var(--ink-line);border-radius:14px;position:relative}
+.bub{position:relative;max-width:82%;padding:14px 17px;font-size:16px;line-height:1.5;opacity:.28;transform:translateY(6px);transition:opacity .5s var(--ease-out),transform .5s var(--ease-out)}
+.thread.lit .bub{opacity:1;transform:none}
+.thread.lit .bub:nth-child(1){transition-delay:0s}.thread.lit .bub:nth-child(2){transition-delay:.35s}.thread.lit .bub:nth-child(3){transition-delay:.7s}.thread.lit .bub:nth-child(4){transition-delay:1.05s}
+.thread.lit.settled .bub:nth-child(1),.thread.lit.settled .bub:nth-child(2),.thread.lit.settled .bub:nth-child(3),.thread.lit.settled .bub:nth-child(4){transition-delay:0s}
+.bub--you{align-self:flex-end;background:var(--panel);border-radius:12px 12px 3px 12px;color:var(--text-primary)}
+.bub--d{align-self:flex-start;background:rgba(62,225,237,.09);border:1px solid rgba(62,225,237,.28);border-radius:12px 12px 12px 3px}
+.bub--d b{display:block;margin-bottom:6px;font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.hold{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:28px}
+.hold button{position:relative;min-height:56px;padding:0 26px;border:2px solid var(--ink-strong);border-radius:999px;background:transparent;color:var(--text-primary);font-family:var(--display);font-style:italic;font-weight:800;font-size:19px;letter-spacing:.02em;text-transform:uppercase;cursor:pointer;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.hold button i{position:absolute;inset:0;transform-origin:left;transform:scaleX(var(--h,0));background:var(--accent-muted);pointer-events:none}
+.hold button span{position:relative}
+.hold .out{min-height:44px;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease-out) .2s,transform .5s var(--ease-out) .2s}
+.hold.done .out{opacity:1;transform:none}
+.hold.done button{border-color:var(--accent);color:var(--accent)}
+.hold .out .chip{color:var(--text-primary);font-size:14px}
+.hold .out .chip b{color:var(--accent);font-weight:400}
+
+/* C: four ways, stepped list */
+.c .lead{margin-top:16px}
+.modes{margin-top:44px;border-top:2px solid var(--ink-line)}
+.m{display:grid;grid-template-columns:56px minmax(0,.6fr) minmax(0,1fr);gap:clamp(16px,3vw,44px);align-items:baseline;padding:26px 0;border-bottom:2px solid var(--ink-line);opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease-out),transform .6s var(--ease-out),background .3s}
+.in .m{opacity:1;transform:none}
+.in .m:nth-child(1){transition-delay:0s}.in .m:nth-child(2){transition-delay:.1s}.in .m:nth-child(3){transition-delay:.2s}.in .m:nth-child(4){transition-delay:.3s}
+.in.settled .m:nth-child(1),.in.settled .m:nth-child(2),.in.settled .m:nth-child(3),.in.settled .m:nth-child(4){transition-delay:0s}
+.m:hover{background:rgba(244,239,230,.03)}
+.m .n{font-family:var(--mono);font-size:12px;color:var(--text-secondary);font-variant-numeric:tabular-nums}
+.m .t{font-family:var(--display);font-style:italic;font-weight:700;font-size:clamp(24px,2.6vw,34px);line-height:1.05;text-transform:uppercase;letter-spacing:.01em}
+.m .d{font-size:16px;line-height:1.6;color:var(--text-secondary);max-width:56ch}
+@media(max-width:760px){.m{grid-template-columns:40px 1fr;gap:6px 14px}.m .d{grid-column:2}}
+
+/* D: done is not submitted */
+.d .shell{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,5vw,72px);align-items:center}
+.d figure{position:relative;aspect-ratio:4/3;background:var(--panel);border:2px solid var(--ink-line);border-radius:10px;overflow:hidden}
+.d figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.d figure .pulse{position:absolute;left:50%;top:58%;width:14px;height:14px;margin:-7px;border-radius:50%;background:var(--accent)}
+.d figure .pulse::after{content:"";position:absolute;inset:-14px;border-radius:50%;box-shadow:0 0 0 2px var(--accent);opacity:0}
+body.motion .in .d figure .pulse::after{animation:pulse 4.5s var(--ease-out) -1.2s infinite}
+@keyframes pulse{0%{opacity:.7;transform:scale(.4)}70%{opacity:0;transform:scale(1.4)}100%{opacity:0;transform:scale(1.4)}}
+@media(max-width:900px){.d .shell{grid-template-columns:1fr}.d figure{order:-1}}
+
+/* E: the receipt */
+.e .shell{display:grid;grid-template-columns:1fr .92fr;gap:clamp(28px,5vw,72px);align-items:center}
+.meter{padding:28px;background:var(--panel);border:2px solid var(--ink-line);border-radius:12px}
+.meter .top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary)}
+.meter .big{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-top:22px}
+.meter .big span{font-size:17px}
+.meter .big b{font-family:var(--display);font-style:italic;font-weight:800;font-size:56px;line-height:1;color:var(--accent);font-variant-numeric:tabular-nums}
+.bar{height:8px;margin-top:14px;border-radius:99px;background:rgba(244,239,230,.09);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform 1.2s var(--ease-out) .15s}
+.in .bar i{transform:scaleX(.87)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-top:22px;border:2px solid var(--ink-line);border-radius:9px;background:var(--ink-line);overflow:hidden}
+.split div{padding:14px 16px;background:var(--panel)}
+.split b{font-size:20px;font-weight:400;font-variant-numeric:tabular-nums}
+.split span{display:block;margin-top:4px;font-size:12.5px;line-height:1.4;color:var(--text-secondary)}
+.meter .ft{margin-top:18px;padding-top:16px;border-top:2px solid var(--ink-line);font-size:13.5px;color:var(--text-secondary)}
+@media(max-width:900px){.e .shell{grid-template-columns:1fr}}
+
+/* F: inside the app */
+.f{text-align:center}
+.f figure{margin:40px auto 0;max-width:1080px;border:2px solid var(--ink-strong);border-radius:12px;overflow:hidden;background:var(--panel);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.f img{display:block;width:100%;height:auto}
+.f figcaption{margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--text-secondary)}
+
+/* G: faq */
+.g .shell{max-width:820px}
+.faq{margin-top:36px;border-top:2px solid var(--ink-line)}
+.faq details{border-bottom:2px solid var(--ink-line)}
+.faq summary{display:flex;align-items:baseline;justify-content:space-between;gap:20px;padding:20px 0;cursor:pointer;list-style:none;font-family:var(--display);font-style:italic;font-weight:700;font-size:clamp(20px,2.2vw,26px);text-transform:uppercase;letter-spacing:.01em}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--mono);font-size:22px;color:var(--accent);transition:transform .3s var(--ease-out)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{padding:0 0 22px;color:var(--text-secondary);font-size:16px;line-height:1.6;max-width:62ch}
+
+/* H: early access */
+.h{background:linear-gradient(180deg,transparent,rgba(20,26,69,.6) 30%)}
+.h .shell{max-width:760px}
+.h h2{font-size:clamp(44px,6.2vw,88px)}
+.form{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.form label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.form input{flex:1 1 280px;min-width:0;min-height:52px;padding:0 16px;border:2px solid var(--ink-strong);border-radius:6px;background:rgba(244,239,230,.04);color:var(--text-primary);font:300 16px var(--body)}
+.form input::placeholder{color:var(--text-secondary)}
+.form input:focus{border-color:var(--accent);outline:none}
+.form .btn{min-height:52px}
+.form .ok{display:none;flex:1 1 100%;padding:16px 18px;border:2px solid var(--accent);border-radius:6px;color:var(--text-primary)}
+.form.sent input,.form.sent .btn{display:none}
+.form.sent .ok{display:block}
+.fine{margin-top:12px;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;color:var(--text-secondary)}
+
+/* footer */
+footer{position:relative;z-index:2;padding:52px 0 40px}
+footer .shell{display:flex;flex-wrap:wrap;align-items:baseline;gap:16px 26px;padding-top:24px;border-top:2px solid var(--ink-line);font-size:13.5px;color:var(--text-secondary)}
+footer nav{display:flex;flex-wrap:wrap;gap:18px;margin-left:auto}
+footer nav a:hover{color:var(--text-primary)}
+footer .dis{flex:1 1 100%;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em}
+@media(max-width:760px){footer nav{margin-left:0}}
+
+/* entrances for section headers */
+.sec .hdr{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+.sec.in .hdr{opacity:1;transform:none}
+
+/* pause everything off-tab */
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused!important}
+
+/* reduced motion: final states, drives stopped */
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important;transition-delay:0s!important}
+  body{opacity:1}
+  .halftone{opacity:.35}
+  .sec .hdr,.m,.bub{opacity:1!important;transform:none!important}
+  .bar i{transform:scaleX(.87)!important}
+  .rule path{stroke-dashoffset:0!important}
+  .hold .out{opacity:1!important;transform:none!important}
+  .hold button i{transform:scaleX(1)!important}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main</a>
+<div class="env" aria-hidden="true"></div>
+<div class="halftone" aria-hidden="true"></div>
+
+<header class="hd">
+  <div class="shell">
+    <a class="wm" href="#top" aria-label="Diana home"><svg viewBox="0 0 32 32" aria-hidden="true"><defs><linearGradient id="wmg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff98d5"/><stop offset=".5" stop-color="#d67bff"/><stop offset="1" stop-color="#50dcff"/></linearGradient></defs><rect x="4" y="3" width="11" height="17" rx="5.5" transform="rotate(-34 9.5 11.5)" fill="url(#wmg)"/><rect x="14" y="12" width="9" height="14" rx="4.5" transform="rotate(28 18.5 19)" fill="url(#wmg)"/></svg>Diana</a>
+    <nav aria-label="Sections"><a href="#how">How it works</a><a href="#modes">Help modes</a><a href="#receipt">Your work</a><a href="#faq">Questions</a></nav>
+    <a class="btn" href="#start">Start tonight</a>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+<div id="top"></div>
+
+<!-- scrub hero -->
+<section class="hero" id="hero" aria-label="Four things due, resolved into one">
+  <div class="stage" id="stage">
+    <div class="poster" id="poster" aria-hidden="true"></div>
+    <video id="vid" preload="none" muted playsinline aria-hidden="true" tabindex="-1"></video>
+    <div class="scrim" aria-hidden="true"></div>
+
+    <div class="band b1" data-a="0" data-b="0.13" data-fx="drift" data-first="1">
+      <span class="k chip">9:47 PM</span>
+      <h2 data-split><span class="sr">Four things due.</span></h2>
+    </div>
+    <div class="band b2" data-a="0.16" data-b="0.30" data-fx="scatter" data-spread="0.5">
+      <h2 data-split><span class="sr">You did the reading. You just can't start.</span></h2>
+    </div>
+    <div class="band b3" data-a="0.36" data-b="0.50" data-fx="blur" data-ramp="0.036">
+      <h2><span class="soft" aria-hidden="true">Diana finds the one you can finish tonight.</span><span class="sharp">Diana finds the one you can finish tonight.</span></h2>
+    </div>
+    <div class="band b4" data-a="0.56" data-b="0.70" data-fx="punch">
+      <h2 data-split data-em="five,minutes."><span class="sr">Then shrinks it to five minutes.</span></h2>
+    </div>
+    <div class="band b5" data-a="0.78" data-b="1" data-fx="rise" data-last="1">
+      <h1 data-split><span class="sr">Start with one.</span></h1>
+      <p>Your next five minutes, made obvious.</p>
+      <div class="row"><a class="btn" href="#start">Start tonight</a><a class="btn btn--ghost" href="#how">See how</a></div>
+    </div>
+
+    <div class="hud" aria-hidden="true"><span>Tonight</span><b id="hudn">4</b><span class="rail" id="rail"></span><span>one move</span></div>
+    <svg class="ring" id="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="126" style="stroke-dashoffset:var(--ld,126)"/></svg>
+    <div class="cue" id="cue" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg></div>
+  </div>
+</section>
+
+<!-- static hero: phones, portrait tablets, reduced motion -->
+<section class="static" id="static" aria-label="Start with one">
+  <div class="shell">
+    <span class="k chip" style="align-self:flex-start;margin-bottom:18px">9:47 PM</span>
+    <h1>Start with one.</h1>
+    <p>Four things due. Diana finds the one you can finish tonight and shrinks it to five minutes.</p>
+    <a class="btn" href="#start">Start tonight</a>
+  </div>
+</section>
+
+<!-- A -->
+<section class="sec a" id="how">
+  <div class="shell">
+    <figure>
+      <img src="assets/hero-ending.jpg" alt="The girl at her settled desk, one tablet glowing, the last papers landed at the edges" onerror="this.style.display='none'">
+      <span class="cap chip k">The settle</span>
+    </figure>
+    <div class="hdr">
+      <span class="k">What just happened</span>
+      <h2>It picks the one you can actually finish.</h2>
+      <p class="body" style="margin-top:18px">Diana pulls your assignments straight from Canvas and Google Classroom, so it already knows the proofs are two days late and the biology set is due at midnight. It does not sort by what is due first. It sorts by what you can get through tonight, at 9:47, tired.</p>
+      <p class="body">Then it shrinks that one to a first step small enough to start without deciding anything.</p>
+    </div>
+  </div>
+</section>
+
+<!-- B -->
+<section class="sec b">
+  <div class="shell">
+    <div class="hdr"><h2>Ask it to write the essay. It says no.</h2></div>
+    <div class="thread" id="thread" aria-label="An example exchange with Diana">
+      <p class="bub bub--you">can you just write the New Deal paragraph for me</p>
+      <p class="bub bub--d"><b>Diana</b>No. But I can get you unstuck in about a minute. You have Chapter 12 open. What is one thing that changed and stayed changed?</p>
+      <p class="bub bub--you">idk, people got jobs from the government?</p>
+      <p class="bub bub--d"><b>Diana</b>That is a real answer. Write that sentence in your own words, then find the page in your notes that backs it up.</p>
+    </div>
+    <div class="hold" id="hold">
+      <button type="button" id="holdbtn" aria-describedby="holdout"><i aria-hidden="true"></i><span>Hold to ask Diana to write it</span></button>
+      <div class="out" id="holdout"><span class="chip">Your next five minutes: <b>one sentence, your words.</b></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- C -->
+<section class="sec c" id="modes">
+  <div class="shell">
+    <div class="hdr">
+      <h2>Four ways to get moving.</h2>
+      <p class="lead">None of them hand you an answer. They change what Diana does with the question.</p>
+    </div>
+    <div class="modes">
+      <div class="m"><span class="n">01</span><span class="t">Break it down</span><span class="d">One overwhelming assignment becomes the three steps that actually come next. You choose where to start and the rest waits.</span></div>
+      <div class="m"><span class="n">02</span><span class="t">Body double</span><span class="d">Diana sits with you and says nothing at all. A timer, your one task, and quiet company until you are moving again.</span></div>
+      <div class="m"><span class="n">03</span><span class="t">Study buddy</span><span class="d">Diana asks you the questions instead of answering them, so you find out what you already know before the test does.</span></div>
+      <div class="m"><span class="n">04</span><span class="t">Check my thinking</span><span class="d">You write the paragraph. Diana points at the sentence where the argument thins out and does not offer to replace it.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- D -->
+<section class="sec d">
+  <div class="shell">
+    <div class="hdr">
+      <span class="k">The step everyone skips</span>
+      <h2>You finished it. Did you turn it in?</h2>
+      <p class="body" style="margin-top:18px">Students with ADHD finish the essay and forget the upload. Diana treats turning it in as its own step, with its own nudge, until the button has actually been pressed.</p>
+    </div>
+    <figure>
+      <img src="assets/still-submit.jpg" alt="A hand tapping one glowing button on the tablet" onerror="this.style.display='none'">
+      <span class="pulse" aria-hidden="true"></span>
+    </figure>
+  </div>
+</section>
+
+<!-- E -->
+<section class="sec e" id="receipt">
+  <div class="shell">
+    <div class="hdr">
+      <span class="k">The receipt</span>
+      <h2>You can always show the work is yours.</h2>
+      <p class="body" style="margin-top:18px">Every assignment keeps a running count of how much of it came from you. Not a grade. Not a warning. Just the receipt, ready the moment a teacher asks.</p>
+    </div>
+    <div class="meter">
+      <div class="top"><span>New Deal reflection</span><span>English 11</span></div>
+      <div class="big"><span>Your words</span><b>87%</b></div>
+      <div class="bar"><i></i></div>
+      <div class="split"><div><b>6</b><span>turns with Diana, all saved</span></div><div><b>13%</b><span>quoted and cited from your sources</span></div></div>
+      <p class="ft">Nothing in this draft was pasted from Diana. Send the receipt to [TEACHER NAME] in one tap.</p>
+    </div>
+  </div>
+</section>
+
+<!-- F -->
+<section class="sec f">
+  <div class="shell">
+    <div class="hdr"><span class="k">Inside the app</span><h2>This is the real thing.</h2></div>
+    <figure>
+      <img src="assets/app-today.png" alt="The Diana Today screen. Your next move, start English, with your classes below." loading="lazy">
+      <figcaption>This is the real app. The illustrations on this page are generated artwork.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- G -->
+<section class="sec g" id="faq">
+  <div class="shell">
+    <div class="hdr"><h2>Questions people actually ask.</h2></div>
+    <div class="faq">
+      <details><summary>Is this cheating?</summary><p>No. Diana refuses to write your work and keeps a record that shows what came from you. Ask it for the answer and you get the next step instead.</p></details>
+      <details><summary>Will my teacher know I used it?</summary><p>Only if you show them. The receipt is yours to share or keep.</p></details>
+      <details><summary>Does it work with my school's stuff?</summary><p>Yes. It pulls from Canvas and Google Classroom.</p></details>
+      <details><summary>What happens to my data?</summary><p>[CONFIRM PRIVACY WORDING] Built for the strictest state rules and ready for students under 13.</p></details>
+      <details><summary>Is it free?</summary><p>Free for students during early access.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- H -->
+<section class="sec h" id="start">
+  <div class="shell">
+    <div class="hdr">
+      <span class="k" style="color:var(--accent)">Early access</span>
+      <h2>Tonight there are four things. Tomorrow there is one.</h2>
+      <p class="body" style="margin-top:18px">Free for students while we are in early access. Bring your Canvas or Google Classroom account and Diana fills itself in.</p>
+    </div>
+    <form class="form" id="form" novalidate>
+      <label for="em">School email</label>
+      <input id="em" type="email" placeholder="you@school.edu" autocomplete="email" required>
+      <button class="btn" type="submit">Start tonight</button>
+      <p class="ok" role="status">You're on the list. We'll email you the night it opens.</p>
+    </form>
+    <p class="fine">Free for students. [CONFIRM PRIVACY WORDING]</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="shell">
+    <span>Diana. A homework workspace that leaves the work with the student.</span>
+    <nav aria-label="Footer"><a href="#how">How it works</a><a href="#modes">Help modes</a><a href="#receipt">Your work</a><a href="#faq">Privacy</a><a href="#faq">Terms</a></nav>
+    <span class="dis">Illustrations on this page are generated artwork. The app screens are real.</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+'use strict';
+var VIDEO_URL='assets/hero-scrub.mp4', POSTER_URL='assets/hero-poster.jpg', VIDEO_BYTES=14000000; /* set to the real byte size after encode */
+var reduceMQ=matchMedia('(prefers-reduced-motion: reduce)');
+var $=function(s,r){return (r||document).querySelector(s)};
+var hero=$('#hero'),stage=$('#stage'),video=$('#vid'),poster=$('#poster'),ring=$('#ring'),cue=$('#cue'),hudn=$('#hudn'),rail=$('#rail');
+var bands=[].slice.call(document.querySelectorAll('.band'));
+var docEl=document.documentElement;
+
+/* ---------- seeded rng + split text ---------- */
+function rng(seed){var s=seed>>>0;return function(){s=(s*1664525+1013904223)>>>0;return s/4294967296}}
+function splitBand(band){
+  var host=band.querySelector('[data-split]'); if(!host) return;
+  var srEl=host.querySelector('.sr'); var text=srEl?srEl.textContent:host.textContent; if(!srEl){host.innerHTML='<span class="sr"></span>';host.querySelector('.sr').textContent=text}
+  var fx=band.dataset.fx, r=rng(text.length*7919+bands.indexOf(band)*31), em=(host.dataset.em||'').split(',').filter(Boolean);
+  var vis=document.createElement('span'); vis.setAttribute('aria-hidden','true');
+  var words=text.split(' '), total=text.replace(/ /g,'').length, ci=0, spread=parseFloat(band.dataset.spread||'0.55');
+  words.forEach(function(w,wi){
+    var ws=document.createElement('span'); ws.className='w'+(em.indexOf(w)>-1?' em':'');
+    ws.style.setProperty('--th',(wi/words.length*0.5+r()*0.06).toFixed(3));
+    if(fx==='scatter'){for(var i=0;i<w.length;i++){var c=document.createElement('span');c.className='c';c.textContent=w[i];c.style.setProperty('--th',(ci/total*spread+r()*0.06).toFixed(3));c.style.setProperty('--jx',((r()-.5)*90).toFixed(1)+'px');c.style.setProperty('--jy',((r()-.5)*70).toFixed(1)+'px');c.style.setProperty('--jr',((r()-.5)*26).toFixed(1)+'deg');ws.appendChild(c);ci++}}
+    else{ws.textContent=w}
+    vis.appendChild(ws); if(wi<words.length-1) vis.appendChild(document.createTextNode(' '));
+  });
+  host.appendChild(vis);
+}
+bands.forEach(splitBand);
+
+/* ---------- band math ---------- */
+var smooth=function(p,e0,e1){var t=Math.min(1,Math.max(0,(p-e0)/(e1-e0)));return t*t*(3-2*t)};
+var clamp=function(v,lo,hi){return Math.min(hi,Math.max(lo,v))};
+bands.forEach(function(b){b.a=parseFloat(b.dataset.a);b.b=parseFloat(b.dataset.b);b.ramp=parseFloat(b.dataset.ramp)||Math.min(.025,(b.b-b.a)*.35);b.op=-1;b.k=-1;b.first=!!b.dataset.first;b.last=!!b.dataset.last});
+var loadK=0, loadStart=0;
+function updateCaptions(p,now){
+  if(loadStart===0) loadStart=now||performance.now();
+  var t=((now||performance.now())-loadStart)/1200; loadK=t>=1?1:1-Math.pow(1-t,3);
+  for(var i=0;i<bands.length;i++){var b=bands[i],a=b.a,bb=b.b,f=Math.min(.02,(bb-a)/3);
+    var op=(b.first?1:smooth(p,a,a+f))*(b.last?1:(1-smooth(p,bb-f,bb)));
+    var k=clamp((p-a)/b.ramp,0,1); if(b.first) k=Math.max(k,loadK);
+    if(Math.abs(op-b.op)>.004){b.op=op;b.style.opacity=op.toFixed(3)}
+    if(Math.abs(k-b.k)>.008){b.k=k;b.style.setProperty('--k',k.toFixed(3))}
+  }
+  var n=Math.max(1,4-Math.round(p*3)); if(hudn && hudn.textContent!==String(n)) hudn.textContent=n;
+}
+var lastRail=-1;
+function updateHud(p){var r=Math.round(p*100)/100;if(r!==lastRail){lastRail=r;rail.style.setProperty('--p',r)}}
+
+/* ---------- halftone that settles (page-level) ---------- */
+var lastHt=-1;
+function updateHalftone(){var max=docEl.scrollHeight-innerHeight;var q=max>0?clamp(scrollY/max,0,1):0;var ht=Math.round((1-q*.94)*100)/100;if(ht!==lastHt){lastHt=ht;docEl.style.setProperty('--ht',ht)}}
+
+/* ---------- scroll progress + lerp loop that rests ---------- */
+var target=0,shown=0,rafId=null,lastTick=0,heroOnScreen=true;
+function heroProgress(){var r=hero.getBoundingClientRect();var span=hero.offsetHeight-innerHeight;return span>0?clamp(-r.top/span,0,1):0}
+function tick(now){
+  var dt=Math.min(100,now-(lastTick||now)); lastTick=now;
+  var k=.16; shown+=(target-shown)*(1-Math.pow(1-k,dt/16.667));
+  if(Math.abs(target-shown)<.0005&&loadK>=1){shown=target;rafId=null;lastTick=0}else{if(Math.abs(target-shown)<.0005)shown=target;rafId=requestAnimationFrame(tick)}
+  if(video.duration) requestSeek(shown*video.duration);
+  updateCaptions(shown,now); updateHud(shown);
+}
+function onScroll(){target=heroProgress();updateHalftone();if(rafId===null&&heroOnScreen) rafId=requestAnimationFrame(tick)}
+
+/* ---------- gated seeks, deadlock safe ---------- */
+var seekBusy=false,pendingTime=null;
+function requestSeek(t){if(!video.duration) return; if(seekBusy){pendingTime=t;return} seekBusy=true; video.currentTime=t}
+video.addEventListener('seeked',function(){seekBusy=false;if(pendingTime!==null){var t=pendingTime;pendingTime=null;requestSeek(t)}});
+video.addEventListener('error',function(){seekBusy=false;pendingTime=null;failVideo()});
+
+/* ---------- blob loader, poster first, streamed with ring + watchdog ---------- */
+var started=false,inited=false;
+function initHeroOnce(){
+  if(inited) return; inited=true;
+  poster.style.backgroundImage="url('"+POSTER_URL+"')";
+  var img=new Image(); img.onload=startBlobFetch; img.onerror=startBlobFetch; img.src=POSTER_URL;
+  setTimeout(startBlobFetch,4000);
+}
+function startBlobFetch(){if(started) return; started=true; loadHeroBlob().catch(failVideo)}
+async function loadHeroBlob(){
+  var ctrl=new AbortController(); var wd=setTimeout(function(){ctrl.abort()},20000);
+  var res=await fetch(VIDEO_URL,{priority:'low',signal:ctrl.signal});
+  if(!res.ok||!res.body) throw new Error('video '+res.status);
+  var total=Number(res.headers.get('Content-Length'))||VIDEO_BYTES, reader=res.body.getReader(), chunks=[], got=0, lastRing=0;
+  for(;;){var r=await reader.read(); if(r.done) break; clearTimeout(wd); wd=setTimeout(function(){ctrl.abort()},20000);
+    chunks.push(r.value); got+=r.value.length; var frac=Math.min(1,got/total), now=performance.now();
+    if(now-lastRing>100||frac===1){lastRing=now;ring.style.setProperty('--ld',Math.round(126*(1-frac)))}}
+  clearTimeout(wd); ring.style.setProperty('--ld',0);
+  video.src=URL.createObjectURL(new Blob(chunks)); video.load();
+  video.addEventListener('canplay',function(){requestSeek(heroProgress()*video.duration);stage.classList.add('video-ready')},{once:true});
+}
+function failVideo(){stage.classList.add('video-failed');ring.style.display='none'}
+
+/* ---------- five gates, live ---------- */
+var GATES=['(max-width: 720px)','(orientation: portrait) and (max-width: 1024px)','(orientation: portrait) and (pointer: coarse)','(orientation: landscape) and (pointer: coarse) and (max-height: 560px)','(prefers-reduced-motion: reduce)'];
+var scrubOn=false;
+function enableScrub(){if(scrubOn) return; scrubOn=true; initHeroOnce(); addEventListener('scroll',onScroll,{passive:true}); bands.forEach(function(b){b.op=-1;b.k=-1}); unpinFinalStates(); loadStart=0; updateCaptions(heroProgress()); onScroll()}
+function disableScrub(){if(!scrubOn) return; scrubOn=false; removeEventListener('scroll',onScroll); if(rafId!==null){cancelAnimationFrame(rafId);rafId=null}}
+function applyHeroMode(){if(GATES.some(function(q){return matchMedia(q).matches})) disableScrub(); else enableScrub()}
+var MQLS=GATES.map(function(q){return matchMedia(q)}); MQLS.forEach(function(m){m.addEventListener('change',applyHeroMode)});
+
+/* ---------- hero on-screen tracking ---------- */
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){es.forEach(function(e){heroOnScreen=e.isIntersecting;if(heroOnScreen) onScroll()})},{threshold:0}).observe(hero)}
+
+/* ---------- reduced motion, live in both directions ---------- */
+var pinned=false;
+function pinToFinalStates(){pinned=true;document.body.classList.remove('motion');document.querySelectorAll('.sec').forEach(function(s){s.classList.add('in','settled')});var h=$('#hold');if(h) h.classList.add('done');var th=$('#thread');if(th) th.classList.add('lit','settled')}
+function unpinFinalStates(){if(!pinned) return;pinned=false;document.body.classList.add('motion')}
+reduceMQ.addEventListener('change',function(e){if(e.matches) pinToFinalStates(); else applyHeroMode()});
+
+/* ---------- section entrances with retired delays ---------- */
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){var el=e.target;el.classList.add('in');setTimeout(function(){el.classList.add('settled')},1400);io.unobserve(el)}})},{threshold:.22});
+  document.querySelectorAll('.sec').forEach(function(s){io.observe(s)});
+  var thread=$('#thread'); if(thread){new IntersectionObserver(function(es,o){es.forEach(function(e){if(e.isIntersecting){thread.classList.add('lit');setTimeout(function(){thread.classList.add('settled')},1600);o.disconnect()}})},{threshold:.4}).observe(thread)}
+}else{document.querySelectorAll('.sec').forEach(function(s){s.classList.add('in','settled')})}
+
+/* ---------- the one interactive moment: press and hold ---------- */
+(function(){
+  var hold=$('#hold'),btn=$('#holdbtn'); if(!hold||!btn) return;
+  var h=0,down=false,raf=null,done=false,last=0;
+  function loop(now){var dt=Math.min(60,now-(last||now));last=now;h+=(down?dt/1400:-dt/700);h=clamp(h,0,1);btn.style.setProperty('--h',h.toFixed(3));
+    if(h>=1&&!done){done=true;hold.classList.add('done');btn.setAttribute('aria-pressed','true')}
+    if((down&&h<1)||(!down&&h>0&&!done)){raf=requestAnimationFrame(loop)}else{raf=null;last=0}}
+  function start(e){if(done) return;down=true;if(raf===null) raf=requestAnimationFrame(loop);e.preventDefault()}
+  function stop(){down=false;if(raf===null&&h>0&&!done) raf=requestAnimationFrame(loop)}
+  btn.addEventListener('pointerdown',start);addEventListener('pointerup',stop);addEventListener('pointercancel',stop);btn.addEventListener('pointerleave',stop);
+  btn.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){start(e)}});btn.addEventListener('keyup',function(e){if(e.key===' '||e.key==='Enter') stop()});
+})();
+
+/* ---------- form: JS success state ---------- */
+var form=$('#form'); if(form){form.addEventListener('submit',function(e){e.preventDefault();var em=$('#em');if(!em.value||em.validity.typeMismatch){em.focus();em.setAttribute('aria-invalid','true');return}form.classList.add('sent');$('.ok',form).focus&&$('.ok',form).setAttribute('tabindex','-1');$('.ok',form).focus()})}
+
+/* ---------- page life ---------- */
+document.addEventListener('visibilitychange',function(){document.body.classList.toggle('paused',document.hidden)});
+if(!reduceMQ.matches) document.body.classList.add('motion'); else pinToFinalStates();
+applyHeroMode(); updateHalftone();
+requestAnimationFrame(function(){document.body.classList.add('ready')});
+})();
+</script>
+</body>
+</html>
