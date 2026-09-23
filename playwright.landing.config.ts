@@ -12,6 +12,8 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:3098",
     browserName: "chromium",
     // GitHub runners compile and render WebGL on the CPU, without a hardware GPU.
+    // Preserve CSS viewport/layout sizes while reducing software raster work.
+    deviceScaleFactor: process.env.CI ? .5 : 1,
     launchOptions: process.env.CI ? {
       args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"],
     } : undefined,

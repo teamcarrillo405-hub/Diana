@@ -12,7 +12,7 @@ type AnimatedWindow = Window & typeof globalThis & {
     readingStops: {id: string; point: number}[];
     dayPlaybackStops: (number | null)[];
     videoLocked: boolean;
-    videoPlayback: {currentTime: number; angle: number; opacity: number; paused: boolean; finished: boolean}[];
+    videoPlayback: {currentTime: number; duration: number; angle: number; opacity: number; paused: boolean; finished: boolean}[];
     seek: (time: number) => void;
     play: () => void;
   };
@@ -113,10 +113,27 @@ test("reading stops and both real videos stay framed until their holds finish", 
   const playbackStops = await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.dayPlaybackStops);
   for (const index of [1, 2]) {
     await positionBefore(playbackStops[index]!);
+    // Pause on the first playing frame inside the browser. A wheel command can
+    // take longer than the entire clip to acknowledge on a software GPU.
+    const pausedFrame = page.evaluate(index => new Promise<void>(resolve => {
+      const observe = () => {
+        const composition = (window as AnimatedWindow).__dianaComposition;
+        const video = composition.videoPlayback[index];
+        if (composition.videoLocked && video.currentTime > 0 && !video.finished) {
+          (document.querySelector("#motion") as HTMLButtonElement).click();
+          resolve();
+        } else requestAnimationFrame(observe);
+      };
+      requestAnimationFrame(observe);
+    }), index);
     await page.mouse.wheel(0, 900);
-    await expect.poll(() => page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index].currentTime, index)).toBeGreaterThan(0);
+    await pausedFrame;
+    await expect(page.getByRole("button", {name: "Play motion", exact: true})).toBeVisible();
     const fixed = await page.evaluate(() => ({y: scrollY, timeline: (window as AnimatedWindow).__dianaComposition.timelinePixels}));
     const video = await page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index], index);
+    expect(video.paused).toBe(true);
+    expect(video.finished).toBe(false);
+    expect(video.currentTime).toBeGreaterThan(0);
     expect(Math.abs(video.angle)).toBeLessThan(.0001);
     expect(video.opacity).toBe(1);
     await expect(page.locator(".day-caption")).toHaveCSS("opacity", "1");
@@ -127,10 +144,34 @@ test("reading stops and both real videos stay framed until their holds finish", 
     const videoEvidence = testInfo.outputPath(`video-${index}-settled.png`);
     await page.screenshot({path: videoEvidence});
     await testInfo.attach(`video-${index}-settled`, {path: videoEvidence, contentType: "image/png"});
-    await page.getByRole("button", {name: "Pause motion", exact: true}).click();
-    await expect.poll(() => page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index].paused, index)).toBe(true);
+    // Observe every available playing frame locally, not after a slow protocol
+    // round trip that may complete after the ended event releases the lock.
+    const playbackFrames = page.evaluate(({index, fixed}) => new Promise<{samples: number; moved: boolean; blocked: boolean; framed: boolean}>(resolve => {
+      const result = {samples: 0, moved: false, blocked: true, framed: true};
+      const observe = () => {
+        const composition = (window as AnimatedWindow).__dianaComposition;
+        const video = composition.videoPlayback[index];
+        if (video.finished) { resolve(result); return; }
+        if (composition.videoLocked && !video.paused) {
+          result.samples++;
+          result.moved ||= Math.abs(scrollY - fixed.y) > 1 || Math.abs(composition.timelinePixels - fixed.timeline) > .5;
+          result.framed &&= Math.abs(video.angle) < .0001 && video.opacity === 1 && getComputedStyle(document.querySelector(".day-caption")!).opacity === "1";
+          const wheel = new WheelEvent("wheel", {deltaY: 3000, cancelable: true});
+          window.dispatchEvent(wheel);
+          result.blocked &&= wheel.defaultPrevented;
+        }
+        requestAnimationFrame(observe);
+      };
+      requestAnimationFrame(observe);
+    }), {index, fixed});
     await page.getByRole("button", {name: "Play motion", exact: true}).click();
-    await expect.poll(() => page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index].finished, index), {timeout: 60_000}).toBe(true);
+    const observed = await playbackFrames;
+    expect(observed.samples).toBeGreaterThan(1);
+    expect(observed.moved).toBe(false);
+    expect(observed.blocked).toBe(true);
+    expect(observed.framed).toBe(true);
+    const completed = await page.evaluate(index => (window as AnimatedWindow).__dianaComposition.videoPlayback[index], index);
+    expect(completed.currentTime).toBeGreaterThanOrEqual(completed.duration - .1);
     await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.videoLocked)).toBe(false);
     await page.mouse.wheel(0, 250);
     await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.dayIndex)).toBeGreaterThan(index);

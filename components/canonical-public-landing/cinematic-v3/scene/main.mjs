@@ -144,6 +144,8 @@ async function initialize() {
       dayVideoBeat.active = false;
       dayVideoBeat.index = -1;
       dayVideoBeat.lockedTimeline = 0;
+      state.videoLocked = false;
+      state.videoPlayback = passage.videoState();
     },
   });
 
