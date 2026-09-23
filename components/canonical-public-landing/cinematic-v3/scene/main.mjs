@@ -34,6 +34,7 @@ const daySummary = dayCaption.querySelector('.day-summary');
 const dayDetail = dayCaption.querySelector('.day-detail');
 const fallbackControl = controlCopy.cloneNode(true);
 const storyProgress = document.querySelector('.story-progress');
+const scrollCue = document.querySelector('.scroll-cue');
 fallbackControl.removeAttribute('id'); fallbackControl.removeAttribute('aria-labelledby');
 fallbackControl.removeAttribute('aria-hidden'); fallbackControl.inert = false;
 fallbackControl.querySelectorAll('[id]').forEach(element => element.removeAttribute('id'));
@@ -243,11 +244,13 @@ async function initialize() {
       tutorIntro.style.setProperty('--tutor-y', `${tutorOverlayY}px`);
       tutorIntro.style.setProperty('--tutor-scale', String(tutorOverlayScale));
     }
-    const progressPercent = Math.round(progress * 100);
-    storyProgress.style.setProperty('--story-progress', `${progressPercent}%`);
+    const visibleTimeline = tutorBeat.complete ? Math.max(choreography.textExit, timelinePixels) : timelinePixels;
+    const visibleProgress = choreography.progressAt(visibleTimeline, tutorBeat.active ? tutorBeat.progress : null);
+    const progressPercent = Math.round(visibleProgress * 100);
+    storyProgress.style.setProperty('--story-progress', String(visibleProgress));
     storyProgress.setAttribute('aria-valuenow', String(progressPercent));
     const progressLabel = motion.control > .4 ? 'Your control' : motion.day > .2 ? 'Your day' : motion.vision > .1 ? 'Why Diana' : motion.stage > .2 ? 'Diana workspace' : 'Introduction';
-    storyProgress.querySelector('b').textContent = progressLabel;
+    storyProgress.setAttribute('aria-valuetext', progressLabel);
     jewel.update(motion.vision, state.time);
     finale.update(motion.vision, state.time);
     wall.mesh.visible = state.layers?.wall !== false && motion.vision === 0;
@@ -382,6 +385,7 @@ async function initialize() {
     Object.assign(state, {dayIndex: motion.dayIndex, dayReadingStops: choreography.dayReadingStops, dayExitEnd: choreography.dayExitEnd, breachStart: choreography.breachStart, breachEnd: choreography.breachEnd, breach: motion.breach, control: motion.control, controlScene: motion.controlScene, controlIntro: motion.controlIntro, controlDim: motion.controlDim, controlStop: choreography.controlStop});
     Object.assign(state, {controlReadingStops: choreography.controlReadingStops, controlStart: choreography.controlStart, controlEnd: choreography.controlEnd, dayDetail: dayDetailProgress, videoPlayback: passage.videoState()});
     Object.assign(state, {readingHold: readingHolds.active?.id ?? null, readingStops: choreography.readingStops, videoLocked: dayVideoBeat.active, dayPlaybackStops: choreography.dayPlaybackStops, nativeEnd: choreography.nativeEnd});
+    updateScrollCue();
     Object.assign(state, {renders: state.renders + 1, yaw: symbol.rotation.y, scrollPixels, timelinePixels, scrollRange, growth: motion.growth, wave: motion.wave, vision: motion.vision, draw: motion.draw, gridTravel: motion.gridTravel, visionStops: choreography.visionStops, visionStart: choreography.visionStart, visionEnd: choreography.visionEnd, finaleStops: choreography.finaleStops, waveStart: choreography.waveStart, waveEnd: choreography.waveEnd, exitEnd: choreography.exitEnd, wordmarkOpacity: motion.opening, tutorOpacity: motion.tutor, tutorOverlayOpacity, tutorOverlayY, tutorOverlayScale, tutorOffset: wall.uniforms.uTutorOffset.value.toArray(), tutorSequenceProgress: tutorBeat.progress, tutorSequenceActive: tutorBeat.active, carousel: motion.stage, carouselIndex: motion.index, activeSlide: currentSlide, checkInOpacity: carousel.panels[0].detailMesh?.material.opacity ?? 0, lobbyOpacity: carousel.panels[0].mesh.material.opacity, textExit: choreography.textExit, carouselStart: choreography.carouselStart, stops: choreography.stops, textRightEdge: motion.x + choreography.tutorWidth / 2, width: canvas.clientWidth, height: canvas.clientHeight, triangles: renderer.info.render.triangles});
     previousStoryScrollPixels = storyScrollPixels;
     previousTimelinePixels = timelinePixels;
@@ -390,7 +394,13 @@ async function initialize() {
       window.dispatchEvent(new CustomEvent('diana:reading-hold', {detail: {id: state.readingHold, timelinePixels}}));
     }
   }
+  function updateScrollCue() {
+    const held = !reduced.matches && (openingCopy.inert || !state.playing || tutorBeat.active || dayVideoBeat.active || Boolean(readingHolds.active));
+    scrollCue.classList.toggle('is-held', held);
+    scrollCue.setAttribute('aria-hidden', String(held));
+  }
   function updateControl() {
+    updateScrollCue();
     motionButton.innerHTML = document.querySelector(state.playing ? '#pause-icon' : '#play-icon').innerHTML;
     const label = reduced.matches ? 'Motion disabled by reduced-motion preference' : state.playing ? 'Pause motion' : 'Play motion';
     motionButton.setAttribute('aria-label', label); motionButton.title = label;

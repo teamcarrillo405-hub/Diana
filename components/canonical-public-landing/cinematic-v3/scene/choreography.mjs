@@ -84,6 +84,10 @@ export function createChoreography({height, span, tutorWidth}) {
     controlStop: controlTitleStop,
     dayStops: [diveStart + height * .7, diveStart + height * 1.35, dayStart + height * .3, daySettled + height * .4],
     visionStops: [visionStart + height * .6, visionStart + height * 1.7, visionEnd],
+    progressAt(pixels, tutorProgress = null) {
+      const visiblePixels = tutorProgress === null ? pixels : tutorLockStart + clamp(tutorProgress, 0, 1) * (textExit - tutorLockStart);
+      return clamp(visiblePixels / end, 0, 1);
+    },
     at(pixels) {
       const travel = clamp((pixels - entry) / (textExit - entry), 0, 1);
       const stage = smooth(pixels, carouselStart, first);

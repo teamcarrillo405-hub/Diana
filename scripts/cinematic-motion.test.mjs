@@ -31,6 +31,20 @@ test('every phrase has a fully opaque, motionless reading plateau', () => {
 });
 for (const height of [844, 900]) {
   const c = createChoreography({height, span: 12, tutorWidth: 8});
+  test(`story progress follows visible motion and stays continuous after the tutor hold at ${height}px`, () => {
+    assert.equal(c.progressAt(-100), 0);
+    assert.equal(c.progressAt(c.end + 100), 1);
+    const start = c.progressAt(c.tutorLockStart, 0);
+    const middle = c.progressAt(c.tutorLockStart, .5);
+    const finish = c.progressAt(c.tutorLockStart, 1);
+    assert.ok(start < middle && middle < finish);
+    assert.equal(finish, c.progressAt(c.textExit));
+    for (const stop of c.dayPlaybackStops.filter(value => value !== null)) {
+      assert.equal(c.progressAt(stop), stop / c.end);
+    }
+    assert.ok(c.progressAt(c.visionStart) < c.progressAt(c.visionEnd));
+    assert.equal(c.progressAt(c.nativeEnd + c.textExit - c.tutorLockStart), 1);
+  });
   test(`video checkpoints are fully framed with readable text at ${height}px`, () => {
     c.dayPlaybackStops.forEach((stop, index) => {
       if (stop === null) return;

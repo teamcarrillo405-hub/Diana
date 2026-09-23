@@ -29,6 +29,11 @@ test("anonymous visitors receive the animation assets and a moving rendered scen
   await page.goto("/");
   await expect(page.locator("body")).toHaveClass(/motion-ready/);
   await expect.poll(() => page.evaluate(() => window.__dianaComposition?.ready)).toBe(true);
+  const progress = page.getByRole("progressbar", {name: "Landing story progress"});
+  await expect(progress).toBeVisible();
+  await expect(progress).toHaveAttribute("aria-valuenow", "0");
+  await expect(page.getByText("Scroll to explore", {exact: true})).toBeVisible();
+  await expect(page.locator('.hero-action a[href="#waitlist"]')).toHaveCount(0);
   const canvas = page.locator(".scene canvas");
   await expect(canvas).toBeVisible();
   const before = await canvas.screenshot();
@@ -40,13 +45,9 @@ test("anonymous visitors receive the animation assets and a moving rendered scen
   await testInfo.attach("animated-hero", { body: after, contentType: "image/png" });
   await page.mouse.wheel(0, 1400);
   await expect.poll(() => page.evaluate(() => window.__dianaComposition?.progress ?? 0)).toBeGreaterThan(0);
+  await expect.poll(async () => Number(await progress.getAttribute("aria-valuenow"))).toBeGreaterThan(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  if (testInfo.project.name === "mobile") {
-    await page.getByLabel("Page sections", { exact: true }).click();
-    await page.getByRole("link", { name: "Join the waitlist", exact: true }).click();
-  } else {
-    await page.getByRole("link", { name: "Join Waitlist", exact: true }).click();
-  }
+  await page.getByRole("link", { name: "Join Waitlist", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Email address", exact: true })).toBeVisible();
   await expect(page.locator(".dpl-honeypot")).toBeHidden();
   expect(errors).toEqual([]);
@@ -62,6 +63,30 @@ test("waitlist links remain public and reduced motion has a usable fallback", as
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Your Day Starts Here", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Join the Waitlist", exact: true })).toBeVisible();
+  await expect(page.getByRole("progressbar", {name: "Landing story progress"})).toBeHidden();
+});
+
+test("scroll cue and signup navigation fit without overlap", async ({page}, testInfo) => {
+  await page.goto("/");
+  await expect(page.locator("body")).toHaveClass(/motion-ready/);
+  const widths = testInfo.project.name === "mobile" ? [320, 390] : [1024, 1440];
+  for (const width of widths) {
+    await page.setViewportSize({width, height: testInfo.project.name === "mobile" ? 844 : 900});
+    await expect(page.getByRole("link", {name: "Join Waitlist", exact: true})).toBeVisible();
+    await expect(page.getByText("Scroll to explore", {exact: true})).toBeVisible();
+    const boxes = await page.locator(".header .brand, .header .nav-link, .header .header-cta, .header .chapter-menu, .header #motion").evaluateAll(elements => elements
+      .filter(element => getComputedStyle(element).display !== "none")
+      .map(element => { const {left, right} = element.getBoundingClientRect(); return {left, right}; }));
+    boxes.forEach((box, index) => {
+      expect(box.left).toBeGreaterThanOrEqual(0);
+      expect(box.right).toBeLessThanOrEqual(width);
+      if (index) expect(box.left - boxes[index - 1].right).toBeGreaterThanOrEqual(7.5);
+    });
+    const rail = await page.getByRole("progressbar").boundingBox();
+    expect(rail?.height).toBe(3);
+    expect(rail?.width).toBe(width);
+    await page.screenshot({path: testInfo.outputPath(`scroll-cue-${width}.png`)});
+  }
 });
 
 test("reading stops and both real videos stay framed until their holds finish", async ({ page }, testInfo) => {
@@ -88,7 +113,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
   for (const stop of stops.filter((item: {id: string}) => item.id.startsWith("vision"))) {
     await positionBefore(stop.point);
     // Record at the rendered hold, not after several slow remote-browser round trips.
-    const observedHold = page.evaluate(id => new Promise<{timeline: number; opacity: string; transform: string; blocked: boolean}>(resolve => {
+    const observedHold = page.evaluate(id => new Promise<{timeline: number; opacity: string; transform: string; blocked: boolean; cueHidden: boolean}>(resolve => {
       const observe = (event: Event) => {
         const composition = (window as AnimatedWindow).__dianaComposition;
         if ((event as CustomEvent<{id: string}>).detail.id !== id) return;
@@ -97,7 +122,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
         const style = getComputedStyle(phrase);
         const wheel = new WheelEvent("wheel", {deltaY: 1400, cancelable: true});
         window.dispatchEvent(wheel);
-        resolve({timeline: composition.timelinePixels, opacity: style.opacity, transform: style.transform, blocked: wheel.defaultPrevented});
+        resolve({timeline: composition.timelinePixels, opacity: style.opacity, transform: style.transform, blocked: wheel.defaultPrevented, cueHidden: getComputedStyle(document.querySelector(".scroll-cue")!).visibility === "hidden"});
       };
       window.addEventListener("diana:reading-hold", observe);
     }), stop.id);
@@ -107,6 +132,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
     expect(held.opacity).toBe("1");
     expect(held.transform).toBe("matrix(1, 0, 0, 1, 0, 0)");
     expect(held.blocked).toBe(true);
+    expect(held.cueHidden).toBe(true);
     if (stop.id === "vision-0") await page.screenshot({path: testInfo.outputPath("chatbot-reading-hold.png")});
     await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBeNull();
   }
@@ -134,6 +160,8 @@ test("reading stops and both real videos stay framed until their holds finish", 
     expect(video.paused).toBe(true);
     expect(video.finished).toBe(false);
     expect(video.currentTime).toBeGreaterThan(0);
+    await expect(page.locator(".scroll-cue")).toBeHidden();
+    const heldProgress = await page.getByRole("progressbar").getAttribute("aria-valuenow");
     expect(Math.abs(video.angle)).toBeLessThan(.0001);
     expect(video.opacity).toBe(1);
     await expect(page.locator(".day-caption")).toHaveCSS("opacity", "1");
@@ -141,6 +169,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
     await page.waitForTimeout(500);
     expect(await page.evaluate(() => scrollY)).toBeCloseTo(fixed.y, 0);
     expect(await page.evaluate(() => (window as AnimatedWindow).__dianaComposition.timelinePixels)).toBeCloseTo(fixed.timeline, 0);
+    await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", heldProgress!);
     const videoEvidence = testInfo.outputPath(`video-${index}-settled.png`);
     await page.screenshot({path: videoEvidence});
     await testInfo.attach(`video-${index}-settled`, {path: videoEvidence, contentType: "image/png"});
@@ -195,6 +224,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
   expect(await page.locator(".hero .control-atmosphere i").first().evaluate(element => getComputedStyle(element).maskImage)).toContain("symbol.svg");
   await page.evaluate(() => { (window as AnimatedWindow).__dianaComposition.seek(0); window.scrollTo({top: (window as AnimatedWindow).__dianaComposition.nativeEnd, behavior: "instant"}); });
   await expect.poll(() => page.locator(".questions").evaluate(element => Math.round(element.getBoundingClientRect().top))).toBe(await page.evaluate(() => innerHeight));
+  await expect(page.getByRole("progressbar")).toHaveAttribute("aria-valuenow", "100");
   await page.mouse.wheel(0, 600);
   await expect(page.getByRole("heading", {name: "Good Questions", exact: true})).toBeInViewport();
 });
