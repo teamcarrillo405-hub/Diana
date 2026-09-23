@@ -1,7 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextRequest } from "next/server";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { updateSession } from "./middleware";
+import { config as middlewareConfig } from "../../middleware";
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(),
@@ -22,6 +25,57 @@ beforeEach(() => {
 });
 
 describe("Supabase middleware", () => {
+  it.each([
+    "/assets/landing-cinematic-v3/main.js?v=release",
+    "/assets/landing-cinematic-v3/style.css?v=release",
+    "/assets/landing-cinematic-v3/day-connect.mp4",
+    "/assets/landing-cinematic-v3/privacy.html#privacy",
+    "/early-access/confirm?token=test",
+    "/early-access/unsubscribe?token=test",
+  ])("serves public landing resources without signing in: %s", async (path) => {
+    const response = await updateSession(requestFor(path));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("does not expose adjacent asset paths", async () => {
+    const response = await updateSession(requestFor("/assets/landing-cinematic-v3-private/main.js"));
+    expect(response.status).toBe(307);
+  });
+
+  it("excludes bearer-authenticated cron routes from session redirects", () => {
+    const matcher = middlewareConfig.matcher.join("\n");
+    const schedules = JSON.parse(
+      readFileSync(join(process.cwd(), "vercel.json"), "utf8"),
+    ) as { crons: Array<{ path: string }> };
+
+    for (const { path } of schedules.crons) {
+      const route = path.replace(/^\//, "");
+      const routePrefix = route.slice(0, route.lastIndexOf("/") + 1);
+      expect(
+        matcher.includes(route) || matcher.includes(routePrefix),
+        `Expected middleware matcher to bypass scheduled route ${path}`,
+      ).toBe(true);
+    }
+  });
+
+  it("lets the read-only build identity route return public JSON", async () => {
+    const response = await updateSession(requestFor("/api/build-info"));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it.each(["/api/health", "/api/readiness"])(
+    "lets the deployment probe %s return public JSON",
+    async (path) => {
+      const response = await updateSession(requestFor(path));
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("location")).toBeNull();
+    },
+  );
+
   it("lets the Diana voice status route return its own JSON auth response", async () => {
     const response = await updateSession(requestFor("/api/diana/voice-candidate/status?traceId=preflight"));
 
@@ -29,8 +83,18 @@ describe("Supabase middleware", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
-  it("lets backend worker version route enforce bearer auth itself", async () => {
-    const response = await updateSession(requestFor("/api/workers/version"));
+  it.each(["/api/workers/version", "/api/operations/metrics/prometheus"])(
+    "lets backend route %s enforce bearer auth itself",
+    async (path) => {
+      const response = await updateSession(requestFor(path));
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("location")).toBeNull();
+    },
+  );
+
+  it("lets the gated QA session route perform its own environment check", async () => {
+    const response = await updateSession(requestFor("/qa-session?account=student"));
 
     expect(response.status).toBe(200);
     expect(response.headers.get("location")).toBeNull();
@@ -42,5 +106,13 @@ describe("Supabase middleware", () => {
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toContain("/login");
     expect(response.headers.get("location")).toContain("next=%2Fapi%2Fprivate-preflight");
+  });
+
+  it("keeps unauthenticated private pages behind the login wall", async () => {
+    const response = await updateSession(requestFor("/settings"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/login");
+    expect(response.headers.get("location")).toContain("next=%2Fsettings");
   });
 });

@@ -19,12 +19,12 @@ const fullEvidence: TeenNativeUxEvidence = {
   authenticatedRoutesNoLoginRedirect: true,
   compactDesktopPrimaryNav: true,
   secondaryDestinationDrawer: true,
-  authCommandCenterShell: true,
+  authScreenDesignShell: true,
   authVisualSignals: true,
-  authFutureModeToggle: true,
-  authAfterLoginPreview: true,
-  futureModeProvider: true,
-  dianaOsCinematicMode: true,
+  authPrivateAssurance: true,
+  authDashboardPreview: true,
+  screenDesignAppShell: true,
+  screenDesignVisualLanguage: true,
   landingMobilePreviewAboveFold: true,
   voiceCommandSurface: true,
   globalVoiceCaptureMic: true,
@@ -69,7 +69,7 @@ describe("teen-native UX scorecard", () => {
       "app_shell_navigation",
       "assignment_helper_visual_learning",
       "study_artifacts_polish",
-      "future_mode_cinematic_quality",
+      "screendesign_visual_coherence",
     ]);
     expect(TEEN_VISUAL_CONFIDENCE_METRICS[0].baselineScore).toBe(8.2);
     expect(TEEN_VISUAL_CONFIDENCE_METRICS[1].baselineScore).toBe(8.7);
@@ -91,7 +91,7 @@ describe("teen-native UX scorecard", () => {
       ...fullEvidence,
       responsiveQaClean: false,
       sourceAnchoredStudyOutput: false,
-      authFutureModeToggle: false,
+      authPrivateAssurance: false,
       authenticatedResponsiveQaClean: false,
     });
 
@@ -100,7 +100,7 @@ describe("teen-native UX scorecard", () => {
       "Run clean responsive QA with no horizontal overflow or server errors.",
       "Run clean authenticated responsive QA for the app shell and core student routes.",
       "Preserve source anchors through every study artifact.",
-      "Expose Future Mode from login and signup.",
+      "Show a clear private-by-default assurance on login and signup.",
     ]));
   });
 });

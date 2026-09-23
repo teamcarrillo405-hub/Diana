@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
+import { reportClientError } from "@/lib/monitoring/client";
 
 export default function RootError({
   error,
@@ -11,7 +12,8 @@ export default function RootError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error(error);
+    if (process.env.NODE_ENV !== "production") console.error(error);
+    reportClientError(error, window.location.pathname);
   }, [error]);
 
   return (

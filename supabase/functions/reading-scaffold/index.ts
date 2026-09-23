@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/reading-scaffold/index.ts
 // F07: Reading comprehension scaffolds - pre/mid/post.
 // ai_mode: 'red' and 'yellow' both return 403 for content-generating support.
@@ -6,6 +8,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -13,7 +16,6 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const PROMPTS: Record<"pre" | "mid" | "post", string> = {
   pre: `You are helping a high school student who has dyslexia prepare to read an assignment.
@@ -33,7 +35,6 @@ Questions only - no answers. No numeric scores. Calm, encouraging tone.`,
 };
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
 
@@ -44,7 +45,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("reading-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -88,7 +89,9 @@ Deno.serve(async (req: Request) => {
       personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
-    const ai = await callStudentTextModel({
+    const ai = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system,
       user: `Reading text:\n\n${truncatedText}`,
       maxTokens: 512,
@@ -113,7 +116,8 @@ Deno.serve(async (req: Request) => {
 
     return json({ content });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("reading-scaffold error:", err);
     return json({ error: "Internal error" }, 500);
   }
-});
+}));

@@ -101,12 +101,8 @@
           Start working
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
         </div>
-        <div onClick="{{ startBrokenDown }}" style="display:inline-flex;align-items:center;gap:9px;padding:14px 22px;border-radius:12px;border:1px solid var(--gl-cyan-25);background:var(--gl-cyan-08);cursor:pointer;font-family:var(--font-display);font-weight:700;font-size:15px;letter-spacing:.03em;text-transform:uppercase;color:var(--gl-cyan)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
-          Break it into small steps
-        </div>
       </div>
-      <div style="margin-top:14px;font-size:13.5px;color:var(--gl-text-dim)">Diana can help while you work — but only when you ask.</div>
+      <div style="margin-top:14px;font-size:13.5px;color:var(--gl-text-dim)">Diana opens the right work format and first move. An optional plan is available once you are inside.</div>
     </div>
   </sc-if>
 
@@ -136,7 +132,7 @@
         <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
           <div onClick="{{ showSteps }}" style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;padding:7px 14px;border-radius:16px;border:1px solid var(--gl-border);font-size:12.5px;font-weight:600;color:var(--gl-text-muted)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"></path></svg>
-            Break it into steps
+            Show optional plan
           </div>
         </div>
       </sc-if>
@@ -282,15 +278,6 @@
       </div>
     </div>
   </sc-if>
-
-  <!-- FLOATING ROBOT (opens the help drawer in place) -->
-  <sc-if value="{{ fabVisible }}" hint-placeholder-val="{{ true }}">
-    <div onClick="{{ openHelp }}" title="Ask Diana" style="position:fixed;right:26px;bottom:26px;z-index:140;width:64px;height:64px;border-radius:50%;cursor:pointer;background:radial-gradient(circle at 32% 28%,#151d34,#060911 70%);border:1.5px solid rgba(41,208,255,.4);display:flex;align-items:center;justify-content:center;animation:hm-pulse 2.6s ease-in-out infinite">
-      <img src="agent-robot-bust.png" alt="Diana AI agent" style="width:46px;height:46px;object-fit:cover;object-position:50% 15%;border-radius:50%;filter:drop-shadow(0 0 6px rgba(41,208,255,.5))">
-      <div style="position:absolute;right:2px;bottom:2px;width:14px;height:14px;border-radius:50%;background:#36e07a;border:2px solid #04060f"></div>
-    </div>
-  </sc-if>
-
   <!-- HELP DRAWER -->
   <sc-if value="{{ helpOpen }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;top:0;right:0;bottom:0;z-index:150;width:390px;max-width:92vw;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--gl-focus-from),var(--gl-focus-to));border-left:1px solid var(--gl-cyan-25);box-shadow:-30px 0 70px rgba(0,0,0,.55)">

@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import {
+  sanitizeMonitoringRoute,
+  sanitizeMonitoringText,
+  sanitizeTelemetryMetadata,
+} from "@/lib/monitoring/privacy";
 import type { Json } from "@/lib/supabase/types";
 
 const EventBody = z.object({
@@ -22,11 +27,13 @@ export async function POST(request: Request) {
 
   const { error } = await supabase.from("analytics_events").insert({
     owner_id: user.id,
-    event_name: parsed.data.eventName,
-    feature: parsed.data.feature ?? null,
-    route: parsed.data.route ?? null,
+    event_name: sanitizeMonitoringText(parsed.data.eventName),
+    feature: parsed.data.feature
+      ? sanitizeMonitoringText(parsed.data.feature).slice(0, 80)
+      : null,
+    route: sanitizeMonitoringRoute(parsed.data.route),
     duration_ms: parsed.data.durationMs ?? null,
-    metadata: (parsed.data.metadata ?? {}) as Json,
+    metadata: sanitizeTelemetryMetadata(parsed.data.metadata) as Json,
   });
 
   if (error) return NextResponse.json({ ok: false }, { status: 500 });

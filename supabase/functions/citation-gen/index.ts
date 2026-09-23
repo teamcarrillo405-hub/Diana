@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/citation-gen/index.ts
 // F11: Citation generator — Haiku 4.5, returns MLA 9 / APA 7 / Chicago as JSON.
 // ai_mode: 'red' returns 403; 'yellow' is ALLOWED (yellow = citation-help only).
@@ -5,13 +7,14 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
+  contentByteLength,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const CITATION_PROMPT = `You are a citation formatter. The student gives you
 source information; you return formatted citations.
@@ -23,12 +26,11 @@ source information; you return formatted citations.
 - Never invent author names or dates. If a field is unknown, leave it as in the spec ("n.d." for APA, etc.).
 - Calm tone in any prose notes.`;
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("citation-gen", async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, content-type",
       },
     });
@@ -128,7 +130,9 @@ Requested formats: ${(formats as string[]).join(", ")}
 Source content:
 ${(sourceText as string).slice(0, 8000)}`;
 
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMsg,
       maxTokens: 600,
@@ -147,7 +151,9 @@ ${(sourceText as string).slice(0, 8000)}`;
       const clean = rawContent.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "").trim();
       citations = JSON.parse(clean) as Record<string, string>;
     } catch {
-      console.error("Failed to parse citation JSON:", rawContent);
+      console.error("citation-gen response parse did not complete", {
+        responseBytes: contentByteLength(rawContent),
+      });
       citations = { raw: rawContent };
     }
 
@@ -161,7 +167,9 @@ ${(sourceText as string).slice(0, 8000)}`;
             assignmentId: (assignmentId as string | null | undefined) ?? null,
             feature: "citation_gen",
             model: modelResult.model,
-            promptSummary: (sourceText as string).slice(0, 200),
+            correlationId: crypto.randomUUID(),
+            inputBytes: contentByteLength(userMsg),
+            outputBytes: contentByteLength(rawContent),
             tokensUsed: tokens,
           },
           supabase,
@@ -175,14 +183,14 @@ ${(sourceText as string).slice(0, 8000)}`;
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("citation-gen error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-});
+}));

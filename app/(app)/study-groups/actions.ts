@@ -117,7 +117,7 @@ export async function joinStudyGroup(
 
   const { data, error } = await supabase.rpc("join_study_group", {
     p_join_code: normalizeJoinCode(parsed.data.joinCode),
-    p_display_name: parsed.data.displayName || user.email?.split("@")[0] || null,
+    p_display_name: parsed.data.displayName || user.email?.split("@")[0] || undefined,
   });
   if (error || !data) return { ok: false, error: error?.message ?? "Invite code was not found." };
 

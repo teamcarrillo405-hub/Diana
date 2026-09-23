@@ -36,7 +36,7 @@ export function ClassForm() {
             placeholder="English 9"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="nexus-input"
+            className="diana-input"
           />
         </label>
         <label className="grid gap-2 text-sm font-semibold">
@@ -45,7 +45,7 @@ export function ClassForm() {
             placeholder="Optional"
             value={teacher}
             onChange={(e) => setTeacher(e.target.value)}
-            className="nexus-input"
+            className="diana-input"
           />
         </label>
       </div>
@@ -68,7 +68,7 @@ export function ClassForm() {
         <button
           type="submit"
           disabled={pending}
-          className="nexus-button nexus-button-primary px-4 py-2 text-sm disabled:opacity-50"
+          className="diana-button diana-button-primary px-4 py-2 text-sm disabled:opacity-50"
         >
           {pending ? "Adding..." : "Add class"}
         </button>

@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/math-step/index.ts
 // F09: Socratic math tutor — Haiku 4.5, never reveals the answer.
 // ai_mode: 'red' and 'yellow' both return 403 (math is highest Socratic concern).
@@ -5,6 +7,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -12,7 +15,6 @@ import {
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MATH_PROMPT = `You are a Socratic math tutor for a high-school student.
 The student will share a math problem they are stuck on. Your rules:
@@ -24,12 +26,11 @@ The student will share a math problem they are stuck on. Your rules:
   refuse-with-redirect guidance.
 - Keep responses \u2264 5 short sentences. Calm tone, never alarmist.`;
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, content-type, apikey",
       },
     });
@@ -138,7 +139,9 @@ Deno.serve(async (req: Request) => {
     const userMessage = messages
       .map((message) => `${message.role === "assistant" ? "Tutor" : "Student"}: ${message.content}`)
       .join("\n\n");
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMessage,
       maxTokens: 400,
@@ -230,7 +233,6 @@ Deno.serve(async (req: Request) => {
         headers: {
           "Content-Type": "text/event-stream",
           "Cache-Control": "no-cache",
-          "Access-Control-Allow-Origin": "*",
         },
       });
     }
@@ -276,14 +278,14 @@ Deno.serve(async (req: Request) => {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("math-step error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-});
+}));

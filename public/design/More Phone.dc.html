@@ -39,8 +39,7 @@
     <span>9:41</span><div style="display:flex;align-items:center;gap:6px"><svg width="17" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="7" width="3" height="5" rx="1"></rect><rect x="5" y="4" width="3" height="8" rx="1"></rect><rect x="10" y="1.5" width="3" height="10.5" rx="1"></rect></svg><svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="#fff" stroke-opacity=".5"></rect><rect x="2" y="2" width="18" height="8" rx="2" fill="#fff"></rect><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" fill-opacity=".5"></rect></svg></div>
   </div>
   <div style="padding:4px 18px 10px;flex-shrink:0">
-    <div style="font-family:var(--font-display);font-weight:700;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--gl-cyan)">More</div>
-    <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:21px;text-transform:uppercase">Everything else.</div>
+    <div style="font-family:var(--font-display);font-style:italic;font-weight:800;font-size:30px;letter-spacing:0;text-transform:uppercase;color:#fff">More</div>
   </div>
 
   <div style="flex:1;overflow-y:auto;padding:0 18px 84px">
@@ -49,9 +48,9 @@
         <div style="font-family:var(--font-display);font-weight:800;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:{{ grp.color }};margin-bottom:8px">{{ grp.title }}</div>
         <div style="display:flex;flex-direction:column;gap:8px">
           <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="3">
-            <a href="{{ it.href }}" style="display:block;border-radius:11px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:12px 14px">
-              <div style="font-family:var(--font-display);font-weight:700;font-size:14px;color:#fff">{{ it.name }}</div>
-              <div style="font-size:11.5px;color:var(--gl-text-overlay-60);margin-top:2px">{{ it.desc }}</div>
+            <a href="{{ it.href }}" style="display:block;border-radius:8px;border:1px solid #d8d1c6;background:#f4efe6;padding:13px 14px">
+              <div style="font-family:var(--font-display);font-weight:800;font-size:15px;color:#0f172a">{{ it.name }}</div>
+              <div style="font-size:11.5px;color:#334155;margin-top:3px">{{ it.desc }}</div>
             </a>
           </sc-for>
         </div>
@@ -61,10 +60,11 @@
 
   <!-- BOTTOM TAB BAR -->
   <div style="position:absolute;left:0;right:0;bottom:0;height:64px;display:flex;align-items:center;justify-content:space-around;background:rgba(2,5,14,.92);border-top:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px);flex-shrink:0">
-    <a href="Student Lobby Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><div style="font-size:18px">⌂</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Today</div></a>
-    <a href="Work Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><div style="font-size:18px">▤</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Work</div></a>
-    <a href="Classes Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><div style="font-size:18px">▦</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Classes</div></a>
-    <a href="More Phone.dc.html" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--gl-cyan)"><div style="font-size:18px">•••</div><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">More</div></a>
+    <a href="Student Lobby Phone.dc.html" aria-label="Today" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect width="7" height="7" x="3" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="3" rx="1"></rect><rect width="7" height="7" x="14" y="14" rx="1"></rect><rect width="7" height="7" x="3" y="14" rx="1"></rect></svg><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Today</div></a>
+    <a href="Work Phone.dc.html" aria-label="Work" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m9 11 3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Work</div></a>
+    <a href="Classes Phone.dc.html" aria-label="Classes" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Classes</div></a>
+    <a href="Calendar Phone.dc.html" aria-label="Calendar" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#7d88ad"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">Calendar</div></a>
+    <a href="More Phone.dc.html" aria-label="More" style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#ffffff"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.7"></circle><circle cx="12" cy="12" r="1.7"></circle><circle cx="19" cy="12" r="1.7"></circle></svg><div style="font-family:var(--font-display);font-weight:700;font-size:10px;letter-spacing:.04em;text-transform:uppercase">More</div></a>
   </div>
 </div>
 
@@ -76,39 +76,18 @@ class Component extends DCLogic {
   renderVals() {
     const groups = [
       {
-        title: 'Think · Proof · Future', color: 'var(--gl-purple)',
+        title: 'Student tools', color: 'var(--gl-cyan)',
         items: [
-          { href: 'Wellness Phone.dc.html', name: 'Think · Wellness', desc: 'Mood, sleep, energy, reflection' },
-          { href: 'Portfolio Phone.dc.html', name: 'Proof · Portfolio', desc: 'Your best work, evidence' },
-          { href: 'AP Command Center Phone.dc.html', name: 'Future · AP Command Center', desc: 'Exam countdowns' },
+          { href: 'Search.dc.html', name: 'Search', desc: 'Find classes, work, notes, and tools' },
+          { href: 'Proof Phone.dc.html', name: 'Record', desc: 'Completed work and weekly showcase' },
+          { href: 'Wellness Phone.dc.html', name: 'Wellness', desc: 'Energy, sleep, meals, and movement' },
         ],
       },
       {
-        title: 'Do the work', color: 'var(--gl-cyan)',
+        title: 'Account', color: '#ff79da',
         items: [
-          { href: 'Assignment Detail Phone.dc.html', name: 'Assignment', desc: 'The focus cockpit' },
-          { href: 'Quick Add.dc.html?mode=assignment', name: 'New assignment', desc: 'Snap it, tag the class, set the date' },
-          { href: 'Quick Add.dc.html', name: 'Quick add', desc: 'Capture by text, photo, or voice' },
-          { href: 'Inbox Phone.dc.html', name: 'Inbox', desc: 'Confirm what Diana caught' },
-          { href: 'Work Phone.dc.html', name: 'Homework', desc: 'One page to do the work' },
-        ],
-      },
-      {
-        title: 'Study', color: 'var(--gl-green)',
-        items: [
-          { href: 'Flashcards.dc.html', name: 'Flashcards', desc: 'Spaced review decks' },
-          { href: 'Study Artifacts.dc.html', name: 'Study artifacts', desc: 'Generate guides, tests, cards' },
-          { href: 'Notes.dc.html', name: 'Notes', desc: 'Type, record, or photograph' },
-          { href: 'Study Groups.dc.html', name: 'Study groups', desc: 'Work together' },
-        ],
-      },
-      {
-        title: 'Account', color: 'var(--gl-gold)',
-        items: [
-          { href: 'Settings Phone.dc.html', name: 'Settings', desc: 'Accessibility, reading, LMS' },
-          { href: 'Sharing Phone.dc.html', name: 'Sharing', desc: 'Parent digest, teacher portal' },
-          { href: 'AI History Phone.dc.html', name: 'AI history', desc: 'Every AI call' },
-          { href: 'Export and Privacy Phone.dc.html', name: 'Export & privacy', desc: 'Data, export, delete' },
+          { href: 'Sharing Phone.dc.html', name: 'Sharing', desc: 'Weekly parent digest' },
+          { href: 'Settings Phone.dc.html', name: 'Settings', desc: 'Profile, accessibility, and account' },
         ],
       },
     ];

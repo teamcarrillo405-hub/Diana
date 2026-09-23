@@ -3,6 +3,7 @@ import {
   buildDianaVoiceSidecarMessages,
   createDianaVoiceCandidate,
   createDianaVoiceCandidateAuditPayload,
+  DianaVoiceProviderError,
   isDianaVoiceSidecarEnabled,
   normalizeDianaVoiceCandidateResponse,
   normalizeDianaVoiceCandidateInput,
@@ -85,6 +86,42 @@ describe("Diana voice sidecar candidate", () => {
     });
     expect(result.trace.allowedDianaTools).toContain("transcribe_voice_note");
     expect(result.trace.allowedDianaTools).not.toContain("start_focus_session");
+  });
+
+  it("maps provider and parser failures to fixed codes without provider text", async () => {
+    const providerText = "stack trace with student transcript";
+    const httpFetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 502,
+      statusText: providerText,
+    });
+
+    const httpError = await createDianaVoiceCandidate({
+      input: { transcript: "private student text", source: "typed" },
+      fetchImpl: httpFetch as unknown as typeof fetch,
+    }).catch((error) => error);
+    expect(httpError).toBeInstanceOf(DianaVoiceProviderError);
+    expect(httpError).toMatchObject({
+      code: "provider_http_error",
+      message: "provider_http_error",
+      metadata: { httpStatus: 502 },
+    });
+    expect(JSON.stringify(httpError)).not.toContain(providerText);
+    expect(JSON.stringify(httpError)).not.toContain("private student text");
+
+    const parserError = await createDianaVoiceCandidate({
+      input: { transcript: "another private transcript", source: "voice" },
+      fetchImpl: vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ provider_debug: providerText }),
+      }) as unknown as typeof fetch,
+    }).catch((error) => error);
+    expect(parserError).toMatchObject({
+      code: "provider_response_invalid",
+      message: "provider_response_invalid",
+      metadata: {},
+    });
+    expect(JSON.stringify(parserError)).not.toContain(providerText);
   });
 
   it("keeps candidate responses to one question and under the display cap", () => {

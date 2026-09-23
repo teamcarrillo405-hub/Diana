@@ -7,12 +7,26 @@
 .swarm/
 .git/
 .next/
+.next-*/
+.tmp/
+.turbo/
+.gstack/
 node_modules/
 test-results/
 vendor/
+/external/
+export/diana-backend/
+/out/
+/dist/
 coverage/
 docs/
 tests/
+.env
+.env.*
 *.log
+*.tsbuildinfo
 ruvector.db
 transcribe-note/
+
+# Canonical ScreenDesign runtime media must ship with every deployment.
+!public/screendesign/**

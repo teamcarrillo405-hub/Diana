@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NotebookPen } from "lucide-react";
 import type { ClassCandidate } from "@/lib/notes/class-router";
 import { NoteEditor } from "./note-editor";
-import { AppTopNav } from "../../app-top-nav";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 
 const SF = "var(--font-display)";
 const BODY = "var(--font-body)";
@@ -55,7 +55,6 @@ export default async function NewNotePage({
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Classes" />
       <div style={{ maxWidth: "var(--layout-max-width)", margin: "0 auto", padding: "var(--space-17) var(--space-17) var(--space-24)", display: "grid", gap: "var(--space-17)" }}>
 
         {/* Hero */}
@@ -79,6 +78,7 @@ export default async function NewNotePage({
           classCandidates={classCandidates}
         />
       </div>
+      <StudentBottomNav />
     </div>
   );
 }

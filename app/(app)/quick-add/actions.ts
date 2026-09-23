@@ -3,12 +3,28 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { hasOwnerStoragePrefix, ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 import { triggerClassification } from "../inbox/[id]/actions";
 
 const Input = z.object({
-  raw: z.string().min(1).max(5000),
+  raw: z.string().trim().min(1).max(5000),
   captureMode: z.enum(["voice", "photo", "text"]),
-  photoStorageKey: z.string().optional(),
+  photoStorageKey: z.string().max(500).optional(),
+}).superRefine((value, context) => {
+  if (value.captureMode === "photo" && !value.photoStorageKey) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["photoStorageKey"],
+      message: "Choose a photo first.",
+    });
+  }
+  if (value.captureMode !== "photo" && value.photoStorageKey) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["photoStorageKey"],
+      message: "Photo storage belongs only to photo captures.",
+    });
+  }
 });
 
 export async function saveInboxItem(
@@ -22,6 +38,13 @@ export async function saveInboxItem(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
+
+  if (
+    parsed.data.photoStorageKey &&
+    !hasOwnerStoragePrefix(user.id, parsed.data.photoStorageKey)
+  ) {
+    return { ok: false, error: "Choose a photo from this account." };
+  }
 
   const { data, error } = await supabase
     .from("inbox_items")
@@ -42,10 +65,9 @@ export async function saveInboxItem(
   void triggerClassification(data.id);
 
   // Refresh the surfaces that show capture counts so a new item appears without
-  // a manual navigation (dashboard "captured today", Work inbox callout, inbox).
+  // a manual navigation (dashboard "captured today" and Work capture review).
   revalidatePath("/dashboard");
   revalidatePath("/assignments");
-  revalidatePath("/inbox");
 
   return { ok: true, id: data.id };
 }
@@ -61,13 +83,13 @@ export async function uploadInboxPhoto(
 
   const file = formData.get("photo") as File | null;
   if (!file) return { ok: false, error: "No photo provided." };
-
-  const ext = file.name.split(".").pop() ?? "jpg";
-  const storageKey = `${user.id}/${Date.now()}.${ext}`;
+  const validation = await validateFileUpload("quickAddPhoto", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
+  const storageKey = ownerStorageKey(user.id, "quick-add", `${crypto.randomUUID()}.${validation.value.extension}`);
 
   const { error } = await supabase.storage
     .from("inbox-photos")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };

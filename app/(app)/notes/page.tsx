@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
 import { snippetForQuery } from "@/lib/notes/related";
 import { NoteSynthesisPanel } from "./note-synthesis-panel";
-import { AppTopNav } from "../app-top-nav";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 import { sessionAdaptationForMood, shouldShowMoodCheckIn } from "@/lib/emotional/session";
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
@@ -100,7 +100,6 @@ export default async function NotesPage({
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--gl-bg-base)", color: "var(--gl-text-primary)" }}>
-      <AppTopNav active="Classes" />
       <style>{`
         .nm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-9); }
         @media (max-width: 640px) { .nm-grid { grid-template-columns: 1fr; } }
@@ -296,6 +295,7 @@ export default async function NotesPage({
           </section>
         )}
       </div>
+      <StudentBottomNav />
     </div>
   );
 }

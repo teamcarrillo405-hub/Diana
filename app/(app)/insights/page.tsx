@@ -1,286 +1,250 @@
-import {
-  Activity,
-  AlertTriangle,
-  BarChart3,
-  Coins,
-  Gauge,
-  ShieldCheck,
-} from "lucide-react";
-import {
-  aiCostByFeature,
-  featureUsageSummary,
-  taskCompletionRate,
-  webVitalStatus,
-} from "@/lib/platform/analytics";
+import Link from "next/link";
+import { Share2 } from "lucide-react";
 import { redirect } from "next/navigation";
+
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import { weekOverWeek } from "@/lib/insights/week-over-week";
 import { createClient } from "@/lib/supabase/server";
-import { InsightsClient, type ExperimentRow, type FeatureFlagRow } from "./insights-client";
-import { PageShell } from "../page-shell";
+import {
+  InsightsClient,
+  type DailyInsightPoint,
+  type InsightEvidenceLink,
+} from "./insights-client";
+
+const INSIGHTS_STYLES = `
+  .sd-progress-insights { --pi-navy:#0f172a; --pi-pink:#ff79da; --pi-teal:#2dd4bf; display:flex; height:max(100dvh,852px); max-height:max(100dvh,852px); flex-direction:column; overflow:hidden; background:var(--pi-navy); color:#fff; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+  .sd-progress-insights * { box-sizing:border-box; }
+  .sd-insights-header { position:relative; z-index:20; flex:none; padding:52px 22px 15px; border-bottom:1px solid rgb(255 255 255 / .05); background:rgb(15 23 42 / .82); backdrop-filter:blur(12px); }
+  .sd-insights-header-main { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; }
+  .sd-insights-wordmark { width:auto; height:15px; margin-bottom:7px; opacity:.93; }
+  .sd-insights-header h1 { margin:0; font-size:25px; font-style:italic; font-weight:950; letter-spacing:-.055em; line-height:.86; text-transform:uppercase; }
+  .sd-insights-header h1 span { color:var(--pi-pink); }
+  .sd-insights-share { display:grid; width:40px; height:40px; place-items:center; border:1px solid rgb(255 255 255 / .1); border-radius:999px; background:rgb(255 255 255 / .05); color:#fff; text-decoration:none; }
+  .sd-insights-kicker { margin:12px 0 0; color:#94a3b8; font-size:9px; font-weight:950; letter-spacing:.18em; text-transform:uppercase; }
+  .sd-insights-client { min-height:0; flex:1; overflow-y:auto; padding:14px 22px 124px; scrollbar-width:none; }
+  .sd-insights-client::-webkit-scrollbar { display:none; }
+  .sd-insights-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
+  .sd-insights-control-group { display:flex; gap:5px; }
+  .sd-insights-control-group button { min-height:29px; border:1px solid rgb(255 255 255 / .09); border-radius:999px; padding:0 9px; background:rgb(255 255 255 / .04); color:#94a3b8; font-size:7px; font-weight:950; letter-spacing:.08em; text-transform:uppercase; }
+  .sd-insights-control-group button[aria-pressed="true"] { border-color:rgb(255 121 218 / .5); background:rgb(255 121 218 / .13); color:var(--pi-pink); }
+  .sd-insights-panel { border:1px solid rgb(255 255 255 / .1); border-radius:22px; padding:16px; background:rgb(255 255 255 / .05); backdrop-filter:blur(8px); }
+  .sd-insights-panel h2,.sd-insights-section > h2 { margin:0; color:#94a3b8; font-size:9px; font-style:italic; font-weight:950; letter-spacing:.12em; text-transform:uppercase; }
+  .sd-insights-chart { display:flex; height:122px; align-items:flex-end; justify-content:space-between; gap:9px; padding:13px 2px 0; }
+  .sd-insights-bar { display:grid; min-width:0; flex:1; justify-items:center; gap:6px; }
+  .sd-insights-bar-track { display:flex; width:100%; max-width:28px; height:91px; align-items:flex-end; overflow:hidden; border-radius:7px 7px 2px 2px; background:rgb(255 255 255 / .06); }
+  .sd-insights-bar-track i { display:block; width:100%; height:max(4px,var(--bar-height)); border-radius:7px 7px 2px 2px; background:color-mix(in srgb,var(--bar-tone,var(--pi-teal)) 72%,transparent); box-shadow:0 0 9px color-mix(in srgb,var(--bar-tone,var(--pi-teal)) 38%,transparent); }
+  .sd-insights-bar[data-peak="true"] { --bar-tone:var(--pi-pink); }
+  .sd-insights-bar small { color:#64748b; font-size:7px; font-weight:950; text-transform:uppercase; }
+  .sd-insights-chart-summary { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:13px; border-top:1px solid rgb(255 255 255 / .07); padding-top:11px; }
+  .sd-insights-chart-summary strong { color:var(--pi-teal); font-size:15px; font-style:italic; font-weight:950; }
+  .sd-insights-chart-summary p { max-width:210px; margin:0; color:#94a3b8; font-size:8px; line-height:1.4; text-align:right; }
+  .sd-insights-split { display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:13px; }
+  .sd-insights-score,.sd-insights-trajectory { display:flex; min-height:182px; flex-direction:column; align-items:center; justify-content:space-between; text-align:center; }
+  .sd-insights-meter { display:grid; width:116px; height:116px; place-items:center; border-radius:999px; background:conic-gradient(var(--pi-pink) 0 var(--meter),rgb(255 255 255 / .06) var(--meter) 100%); }
+  .sd-insights-meter-inner { display:grid; width:94px; height:94px; place-content:center; border-radius:999px; background:var(--pi-navy); }
+  .sd-insights-meter strong { font-size:23px; font-style:italic; font-weight:950; }
+  .sd-insights-meter span { color:var(--pi-pink); font-size:7px; font-weight:950; letter-spacing:.1em; text-transform:uppercase; }
+  .sd-insights-score p,.sd-insights-trajectory p { margin:0; color:#64748b; font-size:7px; font-weight:850; line-height:1.35; text-transform:uppercase; }
+  .sd-insights-trajectory svg { width:100%; height:88px; overflow:visible; }
+  .sd-insights-trajectory polyline { fill:none; stroke:var(--pi-teal); stroke-linecap:round; stroke-linejoin:round; stroke-width:3; }
+  .sd-insights-trajectory circle { fill:var(--pi-pink); }
+  .sd-insights-trend { color:var(--pi-pink); font-size:8px; font-weight:950; text-transform:uppercase; }
+  .sd-insights-section { display:grid; gap:9px; margin-top:18px; }
+  .sd-insights-evidence { display:grid; gap:8px; }
+  .sd-insights-evidence a { display:flex; min-height:54px; align-items:center; justify-content:space-between; gap:12px; border:1px solid rgb(255 255 255 / .1); border-radius:14px; padding:11px 13px; background:rgb(255 255 255 / .05); color:#fff; text-decoration:none; }
+  .sd-insights-evidence a:first-child { border-left:4px solid var(--pi-pink); }
+  .sd-insights-evidence strong { display:block; overflow:hidden; font-size:9px; font-style:italic; font-weight:950; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
+  .sd-insights-evidence small { display:block; margin-top:3px; color:#94a3b8; font-size:8px; }
+  .sd-insights-evidence b { flex:none; color:var(--pi-teal); font-size:8px; font-weight:950; text-transform:uppercase; }
+  .sd-progress-insights > .sd-student-bottom-nav { position:relative; z-index:60; min-height:94px; flex:none; }
+  .diana-app-shell:has(.sd-progress-insights) .agent-fab-anchor,.app-command-frame:has(.sd-progress-insights) .diana-mobile-command { display:none!important; }
+  .app-command-frame:has(.sd-progress-insights) { padding:0!important; }
+  .diana-app:has(.sd-progress-insights) nextjs-portal { display:none!important; }
+  .diana-app:has(.sd-progress-insights) .skip-link { transition:none; }
+  .diana-app:has(.sd-progress-insights) .skip-link:focus { transform:translateY(0)!important; }
+  @media (prefers-reduced-motion:reduce) { .sd-progress-insights * { animation:none!important; scroll-behavior:auto!important; transition:none!important; } }
+`;
+
+type AssignmentRow = {
+  id: string;
+  title: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  submitted_at: string | null;
+};
+
+type TimeLogRow = {
+  assignment_id: string;
+  started_at: string;
+  ended_at: string | null;
+  elapsed_minutes: number | null;
+};
+
+type AnalyticsRow = {
+  event_name: string;
+  feature: string | null;
+  route: string | null;
+  created_at: string;
+};
 
 export default async function InsightsPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const now = new Date();
-  const todayIso = now.toISOString().slice(0, 10);
-  const todayStart = `${todayIso}T00:00:00.000Z`;
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
-
-  const [
-    aiInteractions,
-    analyticsEvents,
-    flags,
-    experiments,
-    errorEvents,
-    performanceEvents,
-    timeLogs,
-    assignments,
-  ] = await Promise.all([
+  const [assignmentResult, timeLogResult, analyticsResult] = await Promise.all([
     supabase
-      .from("ai_interactions")
-      .select("feature, tokens_used, created_at")
+      .from("assignments")
+      .select("id, title, status, created_at, updated_at, submitted_at")
       .eq("owner_id", user.id)
-      .gte("created_at", todayStart)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("analytics_events")
-      .select("event_name, feature, duration_ms, created_at")
-      .eq("owner_id", user.id)
-      .gte("created_at", sevenDaysAgo)
-      .order("created_at", { ascending: false })
+      .order("updated_at", { ascending: false })
       .limit(500),
     supabase
-      .from("feature_flags")
-      .select("id, flag_key, description, enabled, rollout_pct, audience")
-      .eq("owner_id", user.id)
-      .order("flag_key", { ascending: true }),
-    supabase
-      .from("experiments")
-      .select("id, experiment_key, description, surface, enabled, allocation_pct")
-      .eq("owner_id", user.id)
-      .order("experiment_key", { ascending: true }),
-    supabase
-      .from("error_events")
-      .select("id, route, message, severity, diagnosis_tags, created_at")
-      .eq("owner_id", user.id)
-      .gte("created_at", sevenDaysAgo)
-      .order("created_at", { ascending: false })
-      .limit(5),
-    supabase
-      .from("performance_events")
-      .select("id, route, metric_name, value, budget_value, created_at")
-      .eq("owner_id", user.id)
-      .gte("created_at", sevenDaysAgo)
-      .order("created_at", { ascending: false })
-      .limit(20),
-    supabase
       .from("assignment_time_log")
-      .select("started_at, ended_at, elapsed_minutes")
+      .select("assignment_id, started_at, ended_at, elapsed_minutes")
       .eq("owner_id", user.id)
-      .gte("started_at", sevenDaysAgo),
-    supabase.from("assignments").select("status").eq("owner_id", user.id),
+      .order("started_at", { ascending: false })
+      .limit(500),
+    supabase
+      .from("analytics_events")
+      .select("event_name, feature, route, created_at")
+      .eq("owner_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(500),
   ]);
 
-  const costRows = aiCostByFeature(aiInteractions.data ?? [], todayIso);
-  const totalTokens = costRows.reduce((sum, row) => sum + row.tokens, 0);
-  const usageRows = featureUsageSummary(analyticsEvents.data ?? []).slice(0, 6);
-  const completion = taskCompletionRate(assignments.data ?? []);
-  const sessionMinutes = (timeLogs.data ?? []).reduce((sum, row) => {
-    if (typeof row.elapsed_minutes === "number") return sum + row.elapsed_minutes;
-    if (row.ended_at) {
-      return sum + Math.max(0, Math.round((new Date(row.ended_at).getTime() - new Date(row.started_at).getTime()) / 60000));
-    }
-    return sum;
-  }, 0);
-  const averageSessionMinutes =
-    (timeLogs.data?.length ?? 0) === 0 ? 0 : Math.round(sessionMinutes / (timeLogs.data?.length ?? 1));
-  const vitalRows = (performanceEvents.data ?? []).map((row) =>
-    webVitalStatus(row.metric_name, Number(row.value), row.budget_value === null ? null : Number(row.budget_value)),
-  );
-  const vitalAlerts = vitalRows.filter((row) => row.status === "over_budget").length;
-  const activeFlags = (flags.data ?? []).filter((flag) => flag.enabled).length;
-  const activeExperiments = (experiments.data ?? []).filter((experiment) => experiment.enabled).length;
+  const assignments = (assignmentResult.data ?? []) as AssignmentRow[];
+  const timeLogs = (timeLogResult.data ?? []) as TimeLogRow[];
+  const analytics = (analyticsResult.data ?? []) as AnalyticsRow[];
+  const evidenceDates = [
+    ...assignments.map((row) => row.submitted_at ?? row.updated_at),
+    ...timeLogs.map((row) => row.started_at),
+    ...analytics.map((row) => row.created_at),
+  ].filter(validDate);
+  const latestEvidenceTime = Math.max(0, ...evidenceDates.map((value) => new Date(value).getTime()));
+  const anchor = new Date(Math.max(Date.now(), latestEvidenceTime));
+  const days = buildDailyPoints(anchor, assignments, timeLogs, analytics);
+  const trend = weekOverWeek(evidenceDates, anchor);
+  const completedCount = assignments.filter((assignment) => ["submitted", "graded"].includes(assignment.status)).length;
+  const focusMinutes = days.reduce((sum, day) => sum + day.focusMinutes, 0);
+  const activeDays = days.filter((day) => day.focusMinutes + day.workEvents + day.activityEvents > 0).length;
+  const evidenceMix = Math.min(100, Math.round((activeDays / 28) * 50 + (Math.min(completedCount, 5) / 5) * 25 + (Math.min(focusMinutes, 600) / 600) * 25));
+  const evidenceLinks = buildEvidenceLinks(assignments, timeLogs.length, analytics.length);
 
   return (
-    <PageShell
-      active="More"
-      eyebrow="Platform intelligence"
-      title="Insights"
-      subtitle="Usage, AI token spend, rollout controls, and app health in one place."
-      accent="var(--gl-text-muted)"
-      icon={BarChart3}
-    >
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard icon={Coins} label="AI tokens today" value={totalTokens.toLocaleString()} />
-        <MetricCard icon={Activity} label="7-day session avg" value={`${averageSessionMinutes} min`} />
-        <MetricCard icon={BarChart3} label="Task completion" value={`${completion.percent}%`} />
-        <MetricCard icon={Gauge} label="Vital alerts" value={String(vitalAlerts)} />
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <Panel title="AI cost by feature" description="Today for this account.">
-          {costRows.length === 0 ? (
-            <p className="text-sm text-muted">No AI token use logged today.</p>
-          ) : (
-            <div className="space-y-3">
-              {costRows.map((row) => (
-                <BarRow
-                  key={row.feature}
-                  label={labelize(row.feature)}
-                  value={`${row.tokens.toLocaleString()} tokens`}
-                  percent={totalTokens === 0 ? 0 : Math.round((row.tokens / totalTokens) * 100)}
-                />
-              ))}
-            </div>
-          )}
-        </Panel>
-
-        <Panel title="Feature usage" description="Page views and route sessions from the last 7 days.">
-          {usageRows.length === 0 ? (
-            <p className="text-sm text-muted">Usage events will appear after navigation.</p>
-          ) : (
-            <div className="space-y-3">
-              {usageRows.map((row) => (
-                <BarRow
-                  key={row.feature}
-                  label={labelize(row.feature)}
-                  value={`${row.events} events - ${row.sessionMinutes} min`}
-                  percent={Math.min(100, row.events * 10)}
-                />
-              ))}
-            </div>
-          )}
-        </Panel>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-3">
-        <Panel title="Task completion" description={`${completion.completed} of ${completion.total} assignments are done, submitted, or graded.`}>
-          <div className="h-3 overflow-hidden rounded-full bg-border">
-            <div className="h-full bg-accent" style={{ width: `${completion.percent}%` }} />
+    <ScreenDesignViewport className="sd-progress-insights" aria-label="Progress insights">
+      <style>{INSIGHTS_STYLES}</style>
+      <header className="sd-insights-header">
+        <div className="sd-insights-header-main">
+          <div>
+            <DianaWordmark className="sd-insights-wordmark" />
+            <h1>Season<br /><span>Stats</span></h1>
           </div>
-        </Panel>
+          <Link className="sd-insights-share" href="/portfolio" aria-label="Open portfolio"><Share2 size={18} aria-hidden="true" /></Link>
+        </div>
+        <p className="sd-insights-kicker">Private learning analytics</p>
+      </header>
 
-        <Panel title="Rollout state" description={`${activeFlags} active flags and ${activeExperiments} active UI experiments.`}>
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-md border border-border p-3">
-              <p className="text-2xl font-semibold">{flags.data?.length ?? 0}</p>
-              <p className="text-muted">Flags</p>
-            </div>
-            <div className="rounded-md border border-border p-3">
-              <p className="text-2xl font-semibold">{experiments.data?.length ?? 0}</p>
-              <p className="text-muted">Experiments</p>
-            </div>
-          </div>
-        </Panel>
-
-        <Panel title="Anonymized context" description="Monitor events store diagnosis categories, not raw profile values.">
-          <div className="flex items-center gap-2 text-sm text-muted">
-            <ShieldCheck size={18} className="text-accent" />
-            Tags are grouped as attention, reading, math, writing, sensory, wellbeing, or other.
-          </div>
-        </Panel>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-2">
-        <Panel title="App monitor" description="Most recent reports from authenticated sessions.">
-          {(errorEvents.data ?? []).length === 0 ? (
-            <p className="text-sm text-muted">No app monitor reports in the last 7 days.</p>
-          ) : (
-            <div className="space-y-3">
-              {(errorEvents.data ?? []).map((row) => (
-                <div key={row.id} className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-                  <div className="flex items-center gap-2 font-semibold">
-                    <AlertTriangle size={15} />
-                    {row.severity}
-                  </div>
-                  <p className="mt-1 break-words">{row.message}</p>
-                  <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
-                    {(row.route ?? "unknown route")} - {(row.diagnosis_tags ?? []).join(", ") || "not_disclosed"}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </Panel>
-
-        <Panel title="Web vitals" description="Recent route metrics with budget checks.">
-          {vitalRows.length === 0 ? (
-            <p className="text-sm text-muted">Web vital reports will appear after navigation.</p>
-          ) : (
-            <div className="space-y-2">
-              {vitalRows.slice(0, 8).map((row, index) => (
-                <div key={`${row.metricName}-${index}`} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="font-medium">{row.metricName}</span>
-                  <span className={row.status === "ok" ? "text-muted" : "text-amber-700 dark:text-amber-300"}>
-                    {row.value.toFixed(row.metricName === "CLS" ? 3 : 0)} / {row.budget}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </Panel>
-      </section>
-
-      <InsightsClient flags={(flags.data ?? []) as FeatureFlagRow[]} experiments={(experiments.data ?? []) as ExperimentRow[]} />
-    </PageShell>
+      <InsightsClient
+        days={days}
+        evidenceMix={evidenceMix}
+        trendLabel={trend.label}
+        completedCount={completedCount}
+        assignmentCount={assignments.length}
+        evidenceLinks={evidenceLinks}
+      />
+      <StudentBottomNav />
+    </ScreenDesignViewport>
   );
 }
 
-function MetricCard({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof Coins;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted">
-        <Icon size={15} />
-        {label}
-      </div>
-      <p className="mt-3 text-2xl font-semibold tabular-nums">{value}</p>
-    </div>
-  );
+function buildDailyPoints(
+  anchor: Date,
+  assignments: AssignmentRow[],
+  timeLogs: TimeLogRow[],
+  analytics: AnalyticsRow[],
+): DailyInsightPoint[] {
+  const points = new Map<string, DailyInsightPoint>();
+  for (let offset = 27; offset >= 0; offset -= 1) {
+    const date = new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), anchor.getUTCDate() - offset));
+    const key = date.toISOString().slice(0, 10);
+    points.set(key, {
+      date: key,
+      label: new Intl.DateTimeFormat("en-US", { weekday: "narrow", timeZone: "UTC" }).format(date),
+      focusMinutes: 0,
+      workEvents: 0,
+      activityEvents: 0,
+    });
+  }
+
+  for (const log of timeLogs) {
+    const key = validDate(log.started_at) ? log.started_at.slice(0, 10) : "";
+    const point = points.get(key);
+    if (!point) continue;
+    const elapsed = typeof log.elapsed_minutes === "number"
+      ? Math.max(0, log.elapsed_minutes)
+      : log.ended_at && validDate(log.ended_at)
+        ? Math.max(0, Math.round((new Date(log.ended_at).getTime() - new Date(log.started_at).getTime()) / 60_000))
+        : 0;
+    point.focusMinutes += elapsed;
+  }
+  for (const assignment of assignments) {
+    const evidenceDate = assignment.submitted_at ?? assignment.updated_at;
+    const point = points.get(validDate(evidenceDate) ? evidenceDate.slice(0, 10) : "");
+    if (point) point.workEvents += 1;
+  }
+  for (const event of analytics) {
+    const point = points.get(validDate(event.created_at) ? event.created_at.slice(0, 10) : "");
+    if (point) point.activityEvents += 1;
+  }
+  return [...points.values()];
 }
 
-function Panel({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="rounded-lg border border-border bg-card p-4">
-      <div className="mb-4 space-y-1">
-        <h2 className="text-sm font-semibold">{title}</h2>
-        <p className="text-xs text-muted">{description}</p>
-      </div>
-      {children}
-    </section>
-  );
+function buildEvidenceLinks(
+  assignments: AssignmentRow[],
+  timeLogCount: number,
+  analyticsCount: number,
+): InsightEvidenceLink[] {
+  const assignmentLinks = assignments.slice(0, 2).map((assignment, index) => ({
+    href: `/assignments/${assignment.id}`,
+    title: assignment.title,
+    detail: `${labelize(assignment.status)} assignment evidence`,
+    primary: index === 0,
+  }));
+  if (assignmentLinks.length === 0) {
+    assignmentLinks.push({
+      href: "/assignments",
+      title: "Assignment evidence",
+      detail: "No assignment rows are available yet",
+      primary: true,
+    });
+  }
+  return [
+    ...assignmentLinks,
+    {
+      href: "/timer",
+      title: "Focus sessions",
+      detail: `${timeLogCount} saved time log${timeLogCount === 1 ? "" : "s"}`,
+      primary: false,
+    },
+    {
+      href: "/assignments",
+      title: "Learning activity",
+      detail: `${analyticsCount} private activity event${analyticsCount === 1 ? "" : "s"}`,
+      primary: false,
+    },
+  ];
 }
 
-function BarRow({ label, value, percent }: { label: string; value: string; percent: number }) {
-  return (
-    <div className="diana-page space-y-1">
-      <div className="flex items-center justify-between gap-3 text-sm">
-        <span className="truncate font-medium">{label}</span>
-        <span className="shrink-0 text-xs text-muted">{value}</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-border">
-        <div className="h-full bg-accent" style={{ width: `${Math.max(4, Math.min(100, percent))}%` }} />
-      </div>
-    </div>
-  );
+function validDate(value: string): boolean {
+  return !Number.isNaN(new Date(value).getTime());
 }
 
 function labelize(value: string): string {
-  return value.replace(/[_-]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return value.replaceAll("_", " ").replace(/\b\w/gu, (letter) => letter.toUpperCase());
 }

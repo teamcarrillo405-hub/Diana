@@ -1,6 +1,9 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -8,7 +11,6 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const ARTIFACT_PROMPT = `You create study artifacts from the student's real class material.
 Rules:
@@ -86,7 +88,6 @@ Study modes:
 - flashcard_builder: focus on term/idea cards the student should edit before saving.`;
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
 
@@ -211,7 +212,7 @@ function buildStudyArtifactFallback({
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -279,7 +280,9 @@ Deno.serve(async (req: Request) => {
       sourceType,
       sourceTitle,
     });
-    const modelResult = await callStudentTextModel({
+    const modelResult = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system,
       user: userMessage,
       maxTokens: artifactType === "practice_test" ? 3000 : 2400,
@@ -307,7 +310,8 @@ Deno.serve(async (req: Request) => {
 
     return json({ content });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("study-artifacts error:", err);
     return json({ error: "Internal error" }, 500);
   }
-});
+}));

@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { pyodideAvailable, runPython } from "./pyodide-runner";
+import {
+  MAX_CODE_BYTES,
+  pyodideAvailable,
+  runPython,
+  validateCodeForRun,
+} from "./pyodide-runner";
 
 describe("pyodide-runner fallback", () => {
   it("reports unavailable outside the browser", () => {
@@ -17,5 +22,15 @@ describe("pyodide-runner fallback", () => {
     const result = await runPython("def f():\n    return 1");
     expect(result.ok).toBe(false);
     expect(result.error).toContain("Python Lite supports");
+  });
+
+  it("rejects source larger than the registered sandbox limit", async () => {
+    const source = "a".repeat(MAX_CODE_BYTES + 1);
+
+    expect(validateCodeForRun(source)).toContain("under 250 KB");
+    await expect(runPython(source)).resolves.toMatchObject({
+      ok: false,
+      output: [],
+    });
   });
 });

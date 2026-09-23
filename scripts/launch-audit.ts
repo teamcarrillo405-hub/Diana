@@ -1,56 +1,94 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { spawnSync } from "node:child_process";
 import {
-  CRITICAL_PATHS,
-  PERFORMANCE_BUDGETS,
-  REQUIRED_LAUNCH_DOCS,
-  criticalPathCoveragePercent,
-  launchDocsPresent,
+  CRITICAL_PATH_TESTS,
   launchReadinessPasses,
-  performanceBudgetsPass,
+  type LaunchGateResult,
 } from "../lib/launch/readiness";
 
-const ROOT = process.cwd();
+const npmCli = process.env.npm_execpath;
 
-const REQUIRED_FILES = [
-  ".planning/MILESTONE-V2-MASTER-PLAN.md",
-  "supabase/migrations/0034_launch_hardening_retention.sql",
-  "app/(app)/study-groups/page.tsx",
-  "app/(app)/export/page.tsx",
-  "electron/main.cjs",
-  "electron/preload.cjs",
-  "scripts/electron-dev.mjs",
-  "public/sw.js",
-  ...REQUIRED_LAUNCH_DOCS,
+type Gate = {
+  id: string;
+  label: string;
+  args: readonly string[];
+};
+
+const gates = [
+  {
+    id: "dependency-audit",
+    label: "Production dependency audit",
+    args: ["audit", "--audit-level=high"],
+  },
+  {
+    id: "typecheck",
+    label: "TypeScript",
+    args: ["run", "typecheck"],
+  },
+  {
+    id: "critical-tests",
+    label: "Critical-path tests",
+    args: [
+      "exec",
+      "--",
+      "vitest",
+      "run",
+      ...CRITICAL_PATH_TESTS,
+      "lib/launch/readiness.test.ts",
+      "app/api/health/route.test.ts",
+      "app/api/readiness/route.test.ts",
+    ],
+  },
+  {
+    id: "tone-audit",
+    label: "Calm-copy audit",
+    args: ["run", "tone-audit"],
+  },
 ] as const;
 
-function exists(path: string): boolean {
-  return existsSync(join(ROOT, path));
+const remoteGates = process.env.DIANA_VERIFY_EDGE_FUNCTION_PARITY === "true"
+  ? [
+      {
+        id: "edge-function-parity",
+        label: "Edge Function parity",
+        args: ["run", "edge-functions:parity"],
+      },
+    ] as const
+  : [];
+
+function runGate(gate: Gate): LaunchGateResult {
+  console.log(`\n[launch-audit] ${gate.label}`);
+  const command = npmCli ? process.execPath : "npm";
+  const args = npmCli ? [npmCli, ...gate.args] : [...gate.args];
+  const result = spawnSync(command, args, {
+    cwd: process.cwd(),
+    env: process.env,
+    stdio: "inherit",
+    shell: false,
+  });
+
+  if (result.error) {
+    console.error(`[launch-audit] ${gate.label}: could not start (${result.error.message})`);
+  }
+
+  const passed = result.status === 0;
+  console.log(`[launch-audit] ${gate.label}: ${passed ? "pass" : "error"}`);
+  return { id: gate.id, passed };
 }
 
 function main() {
-  const missingFiles = REQUIRED_FILES.filter((path) => !exists(path));
-  const coveragePercent = criticalPathCoveragePercent(CRITICAL_PATHS, exists);
-  const docsPresent = launchDocsPresent(REQUIRED_LAUNCH_DOCS, exists);
-  const performancePasses = performanceBudgetsPass(PERFORMANCE_BUDGETS);
-  const ready = launchReadinessPasses({ coveragePercent, docsPresent, performancePasses }) && missingFiles.length === 0;
+  console.log("launch-audit: running deterministic repository gates (no production secrets required)");
+  if (remoteGates.length === 0) {
+    console.log("launch-audit: remote Edge Function parity skipped; set DIANA_VERIFY_EDGE_FUNCTION_PARITY=true for a staging release gate");
+  }
+  const results = [...gates, ...remoteGates].map(runGate);
 
-  console.log("launch-audit");
-  console.log(`  critical path coverage: ${coveragePercent}%`);
-  console.log(`  performance budgets: LCP ${PERFORMANCE_BUDGETS.lcpMs}ms, FID ${PERFORMANCE_BUDGETS.fidMs}ms, CLS ${PERFORMANCE_BUDGETS.cls}`);
-  console.log(`  launch docs present: ${docsPresent ? "yes" : "no"}`);
-
-  if (missingFiles.length > 0) {
-    console.log("  missing files:");
-    for (const file of missingFiles) console.log(`    - ${file}`);
+  if (!launchReadinessPasses(results)) {
+    console.error("\nlaunch-audit: not ready");
+    process.exitCode = 1;
+    return;
   }
 
-  if (!ready) {
-    console.log("launch-audit: not ready");
-    process.exit(1);
-  }
-
-  console.log("launch-audit: ready");
+  console.log("\nlaunch-audit: ready");
 }
 
 main();

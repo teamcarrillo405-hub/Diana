@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/agent-coach/index.ts
 // Agent Fab — the global "Ask Diana" chat drawer (handoff_for_claude_code/
 // designs/Agent Fab.dc.html, README §6). Page-aware, general coaching:
@@ -8,6 +10,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
@@ -15,7 +18,6 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const COACH_PROMPT = `You are Diana, a calm study coach embedded in a
 homework app for a high-school student. You are NOT a subject tutor here —
@@ -31,11 +33,10 @@ in-person aide would.
   work on the thing they're avoiding).
 - Keep replies to 4 sentences or fewer. No bullet lists in chat.`;
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("agent-coach", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, content-type",
       },
     });
@@ -104,7 +105,9 @@ Deno.serve(async (req: Request) => {
       : "";
     const userPrompt = `${pageContext}${transcript ? transcript + "\n" : ""}Student: ${message}`;
 
-    const ai = await callStudentTextModel({
+    const ai = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userPrompt,
       maxTokens: 300,
@@ -130,13 +133,14 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify({ content: ai.content }), {
       status: 200,
-      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("agent-coach error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-});
+}));

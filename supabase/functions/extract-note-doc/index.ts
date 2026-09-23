@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/extract-note-doc/index.ts
 //
 // Phase 11: F04-PHOTO / F08-NOTE — photo & PDF extraction Edge Function.
@@ -21,10 +23,11 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
+  aiGuardFailureResponse,
   checkTokenBudget,
   resetBudgetIfNewDay,
-  incrementTokens,
   logInteraction,
+  runSafeBudgetedAiCall,
 } from "../_shared/safety.ts";
 
 const OPENAI_API_KEY      = Deno.env.get("OPENAI_API_KEY") ?? "";
@@ -69,7 +72,6 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -82,7 +84,7 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("extract-note-doc", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders() });
   }
@@ -159,38 +161,56 @@ Deno.serve(async (req: Request) => {
       : "Extract all visible text from this photo of student class notes.";
     const maxTokens    = isPdf ? 4000 : 2000;
 
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type":  "application/json",
-      },
-      body: JSON.stringify({
-        model:      "gpt-4o",
-        max_tokens: maxTokens,
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role:    "user",
-            content: [fileBlock, { type: "text", text: userText }],
+    const guardedExtraction = await runSafeBudgetedAiCall({
+      ownerId,
+      supabase,
+      input: userText,
+      systemPrompt,
+      maxOutputTokens: maxTokens,
+      mediaCount: 1,
+      media: isPdf ? [] : [{ mediaType: mimeType, data: base64Data }],
+      invoke: async ({ markProviderUsage }) => {
+        const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
           },
-        ],
-      }),
+          body: JSON.stringify({
+            model: "gpt-4o",
+            max_tokens: maxTokens,
+            messages: [
+              { role: "system", content: systemPrompt },
+              {
+                role: "user",
+                content: [fileBlock, { type: "text", text: userText }],
+              },
+            ],
+          }),
+        });
+        if (!openaiRes.ok) {
+          console.error("openai extract-note-doc request did not complete", openaiRes.status);
+          throw new Error("The document reader could not process this file");
+        }
+        markProviderUsage();
+        let openaiData: {
+          choices?: Array<{ message?: { content?: string } }>;
+          usage?: { prompt_tokens?: number; completion_tokens?: number };
+        };
+        try {
+          openaiData = await openaiRes.json() as typeof openaiData;
+        } catch {
+          throw new Error("extract_note_provider_invalid_json");
+        }
+        return {
+          content: (openaiData.choices?.[0]?.message?.content ?? "").trim(),
+          tokens: Number(openaiData.usage?.prompt_tokens ?? 0) + Number(openaiData.usage?.completion_tokens ?? 0),
+        };
+      },
     });
-
-    if (!openaiRes.ok) {
-      const errText = await openaiRes.text();
-      console.error("openai extract-note-doc error:", errText);
-      return jsonResponse({ ok: false, error: "We couldn't read that file. Try a clearer photo or a smaller PDF." }, 200);
-    }
-
-    const openaiData = (await openaiRes.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
-    };
-    const extracted = (openaiData.choices?.[0]?.message?.content ?? "").trim();
-    const inTok  = Number(openaiData.usage?.prompt_tokens   ?? 0);
-    const outTok = Number(openaiData.usage?.completion_tokens ?? 0);
+    if (!guardedExtraction.ok) return aiGuardFailureResponse(guardedExtraction);
+    const extracted = guardedExtraction.value.content;
+    const totalTokens = guardedExtraction.value.tokens;
 
     // Pitfall 5: very short text -> save storageKey + tiny body, skip cleanup.
     if (extracted.length < MIN_EXTRACT_CHARS) {
@@ -204,19 +224,16 @@ Deno.serve(async (req: Request) => {
         .eq("id", noteId)
         .eq("owner_id", ownerId);
 
-      void incrementTokens(ownerId, inTok + outTok, supabase).catch((e) =>
-        console.warn("incrementTokens (short) failed", e),
-      );
       void logInteraction(
         {
           ownerId,
           feature: "doc_extract",
           model:   "gpt-4o",
           promptSummary: isPdf ? "doc_extract:pdf:short" : "doc_extract:image:short",
-          tokensUsed: inTok + outTok,
+          tokensUsed: totalTokens,
         },
         supabase,
-      ).catch((e) => console.warn("logInteraction (short) failed", e));
+      ).catch(() => console.warn("logInteraction (short) did not complete"));
 
       return jsonResponse({ ok: true, text: "", tooShort: true });
     }
@@ -232,32 +249,38 @@ Deno.serve(async (req: Request) => {
       .eq("id", noteId)
       .eq("owner_id", ownerId);
     if (updErr) {
-      console.error("notes update error:", updErr);
-      return jsonResponse({ ok: false, error: updErr.message }, 200);
+      console.error("notes update did not complete");
+      return jsonResponse({ ok: false, error: "We couldn't save the extracted note yet." }, 200);
     }
 
-    // Fire-and-forget Claude cleanup (Phase 5 transcribe-note pipeline).
-    void supabase.functions
-      .invoke("transcribe-note", { body: { noteId } })
-      .catch((e) => console.warn("transcribe-note kickoff", e));
+    // Preserve the authenticated student JWT across the follow-up call. A
+    // service-role invocation is intentionally not accepted by student guards.
+    const authorization = req.headers.get("Authorization") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
+    void fetch(`${SUPABASE_URL}/functions/v1/transcribe-note`, {
+      method: "POST",
+      headers: {
+        Authorization: authorization,
+        apikey: anonKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ noteId }),
+    }).catch(() => console.warn("transcribe-note kickoff did not complete"));
 
-    void incrementTokens(ownerId, inTok + outTok, supabase).catch((e) =>
-      console.warn("incrementTokens failed", e),
-    );
     void logInteraction(
       {
         ownerId,
         feature: "doc_extract",
         model:   "gpt-4o",
         promptSummary: isPdf ? "doc_extract:pdf" : "doc_extract:image",
-        tokensUsed: inTok + outTok,
+        tokensUsed: totalTokens,
       },
       supabase,
-    ).catch((e) => console.warn("logInteraction failed", e));
+    ).catch(() => console.warn("logInteraction did not complete"));
 
     return jsonResponse({ ok: true, text: extracted });
-  } catch (err) {
-    console.error("extract-note-doc error:", err);
+  } catch {
+    console.error("extract-note-doc request did not complete");
     return jsonResponse({ ok: false, error: "Something went wrong. Try again." }, 200);
   }
-});
+}));

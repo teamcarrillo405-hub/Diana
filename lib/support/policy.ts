@@ -1,4 +1,5 @@
 import type { AssignmentKind } from "@/lib/supabase/types";
+import { normalizeAssignmentKind } from "@/lib/assignment-kind";
 import type { EnergyLevel, ScoredAssignment } from "@/lib/scoring/next-five-minutes";
 
 export type BodyState = "low" | "okay" | "ready";
@@ -114,7 +115,10 @@ export function buildSupportPlan(input: {
   const intensity = chooseIntensity(input, struggle);
   const nextStep = nextLogicalStep(input.assignment, intensity, input.readiness);
   const bodyCue = bodyCueFor(input.readiness);
-  const patternNote = patternNoteFor(input.assignment.kind, input.milestones);
+  const patternNote = patternNoteFor(
+    normalizeAssignmentKind(input.assignment.kind),
+    input.milestones,
+  );
 
   return {
     intensity,

@@ -25,45 +25,10 @@
 </style>
 </helmet>
 
-<div style="width:100%;min-height:900px;font-family:'Barlow Semi Condensed',sans-serif;color:#fff;background:radial-gradient(1100px 560px at 22% -8%,rgba(41,208,255,.07),transparent 60%),#04060f" data-screen-label="Work">
+<div style="width:100%;min-height:900px;font-family:'Barlow Semi Condensed',sans-serif;color:#fff;background:radial-gradient(circle at 88% 6%,rgba(255,121,218,.11),transparent 30%),#0b1428" data-screen-label="Work">
 
   <!-- TOP NAV — locked lobby nav, WORK active -->
-  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
-    <div style="display:flex;gap:8px">
-      <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
-      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
-      <a href="Student Lobby.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Today</a>
-      <a href="Work.dc.html" style="display:inline-block;text-decoration:none;position:relative;color:#fff;padding:18px 2px"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div>Work</a>
-      <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
-      <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
-      <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
-    </div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
-      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
-      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
-      </div>
-      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
-        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
-          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
-            <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }}" alt="You">
-          </sc-if>
-        </sc-if>
-        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
-        </sc-if>
-        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
-        </sc-if>
-        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
-          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">{{ initials }}</span>
-        </sc-if>
-      </a>
-    </div>
-  </div>
+  <dc-import name="Student Desktop Header" active="work" hint-size="1440px,58px"></dc-import>
 
   <div style="max-width:1440px;margin:0 auto;padding:44px 34px 70px">
 
@@ -79,14 +44,7 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#04080f"><path d="M8 5v14l11-7z"></path></svg>
           <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:28px;letter-spacing:.03em;text-transform:uppercase;color:#04080f">Start now</span>
         </div>
-        <div onClick="{{ breakItDown }}" style="display:inline-flex;align-items:center;gap:9px;padding:16px 24px;border-radius:10px;cursor:pointer;border:1px solid rgba(120,150,220,.28);background:rgba(120,150,220,.08)" style-hover="background:rgba(120,150,220,.16)">
-          <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:17px;letter-spacing:.05em;text-transform:uppercase;color:#cdd6f2">Break it into steps</span>
-        </div>
       </div>
-
-      <sc-if value="{{ showWhy }}" hint-placeholder-val="{{ true }}">
-        <div style="margin-top:16px;font-size:13.5px;color:rgba(200,218,255,.45)">Why this one — {{ next.why }}</div>
-      </sc-if>
 
       <!-- ═══ UP NEXT — the whole queue, one calm ordered list ═══ -->
       <div style="margin-top:52px;display:flex;align-items:baseline;gap:14px">
@@ -96,15 +54,15 @@
 
       <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
         <sc-for list="{{ queue }}" as="q" hint-placeholder-count="5">
-          <div onClick="{{ q.go }}" style="display:flex;align-items:center;gap:18px;padding:16px 20px;border-radius:12px;border:1px solid {{ q.border }};background:rgba(4,8,20,.72);backdrop-filter:blur(10px);cursor:pointer;transition:transform .15s" style-hover="transform:translateX(4px)">
-            <div style="width:34px;flex-shrink:0;font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:24px;color:rgba(120,150,220,.45);text-align:center">{{ q.rank }}</div>
+          <div onClick="{{ q.go }}" style="display:flex;align-items:center;gap:18px;padding:16px 20px;border-radius:12px;border:1px solid #fff;background:#fff;cursor:pointer;transition:transform .15s" style-hover="transform:translateX(4px);border-color:#ff79da">
+            <div style="width:34px;flex-shrink:0;font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:24px;color:#687386;text-align:center">{{ q.rank }}</div>
             <div style="flex:1;min-width:0">
-              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:{{ q.classColor }}">{{ q.cls }}</div>
-              <div style="margin-top:3px;font-size:16.5px;font-weight:600;color:#eef2ff">{{ q.title }}</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#111827">{{ q.cls }}</div>
+              <div style="margin-top:3px;font-size:16.5px;font-weight:600;color:#04080f">{{ q.title }}</div>
             </div>
             <div style="flex-shrink:0;display:flex;align-items:center;gap:12px">
-              <span style="font-size:13px;color:rgba(200,218,255,.5)">{{ q.est }}</span>
-              <span style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:{{ q.chipFg }};background:{{ q.chipBg }}">{{ q.chip }}</span>
+              <span style="font-size:13px;color:#4b5563">{{ q.est }}</span>
+              <span style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#111827;background:#eef2f7">{{ q.chip }}</span>
             </div>
           </div>
         </sc-for>
@@ -115,16 +73,14 @@
     </sc-if>
 
     <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
-      <div style="border-radius:14px;border:1px dashed rgba(120,150,220,.22);background:rgba(4,8,20,.35);padding:56px 28px;text-align:center;margin-top:20px">
-        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:26px;text-transform:uppercase;color:#cdd6f2">Nothing queued</div>
-        <p style="margin:8px auto 0;max-width:420px;font-size:13.5px;color:rgba(200,218,255,.55)">New assignments and captures land here automatically, already in order.</p>
+      <div style="border-radius:14px;border:1px dashed #94a3b8;background:#fff;padding:56px 28px;text-align:center;margin-top:20px">
+        <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:26px;text-transform:uppercase;color:#0f172a">Caught up</div>
+        <p style="margin:8px auto 0;max-width:420px;font-size:13.5px;color:#475569">New assignments and captures will land here automatically.</p>
       </div>
     </sc-if>
 
   </div>
 </div>
-
-<dc-import name="Agent Fab" hint-size="64px,64px" style="position:fixed;right:26px;bottom:26px;z-index:999"></dc-import>
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;queueState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;populated&quot;,&quot;empty&quot;],&quot;default&quot;:&quot;populated&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;State&quot;,&quot;label&quot;:&quot;Queue state&quot;},&quot;showWhy&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Content&quot;,&quot;label&quot;:&quot;Show 'why this one' line&quot;}}">
@@ -133,7 +89,6 @@ class Component extends DCLogic {
 
   go = (id) => { window.location.href = 'Homework Mission.dc.html' + (id ? '?a=' + encodeURIComponent(id) : ''); };
   startNext = () => { window.location.href = 'Homework Mission.dc.html?a=eng-rhet&start=1'; };
-  breakItDown = () => { window.location.href = 'Homework Mission.dc.html?a=eng-rhet&steps=1'; };
 
   // canonical class colors — tokens.css --gl-class-*
   CLASS_COLORS = { Math: '#29d0ff', English: '#f25fb0', Science: '#36e07a', History: '#ffd24a', Athletics: '#5b7fff', Art: '#8b96bd' };
@@ -168,14 +123,12 @@ class Component extends DCLogic {
     return {
       hasWork: !empty, isEmpty: empty,
       next: {
-        title: 'Rhetorical analysis — Ch. 3',
+        title: 'Rhetorical analysis',
         cls: 'English', classColor: '#8b96bd',
         meta: 'Due tomorrow 9pm · 12 min to start',
-        why: 'due soonest, matches your energy, and the first step is short.',
       },
-      showWhy: this.props.showWhy ?? true,
       queue,
-      startNext: this.startNext, breakItDown: this.breakItDown,
+      startNext: this.startNext,
       ...this.avatarVals(),
     };
   }

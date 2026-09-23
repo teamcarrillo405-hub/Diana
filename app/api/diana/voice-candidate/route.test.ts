@@ -8,8 +8,18 @@ import {
   reserveWorkerRateLimit,
 } from "@/lib/worker-tier/worker-queue";
 
+const safetyMocks = vi.hoisted(() => ({
+  runSafe: vi.fn(),
+  log: vi.fn(),
+  createAiServiceClient: vi.fn(),
+}));
+
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase/ai-service", () => ({
+  createAiServiceClient: safetyMocks.createAiServiceClient,
 }));
 
 vi.mock("@/lib/worker-tier/worker-queue", () => ({
@@ -22,6 +32,11 @@ vi.mock("@/lib/worker-tier/worker-queue", () => ({
     remaining: 11,
     resetAt: "2026-06-28T04:01:00.000Z",
   }),
+}));
+
+vi.mock("@/lib/ai/safety", () => ({
+  runSafeBudgetedAiCall: safetyMocks.runSafe,
+  logInteraction: safetyMocks.log,
 }));
 
 function jsonRequest(body: unknown) {
@@ -37,15 +52,18 @@ function mockSignedInSupabase({
 }: {
   insertError?: unknown;
 } = {}) {
-  const insert = vi.fn().mockResolvedValue({ error: insertError });
-  const from = vi.fn((table: string) => {
+  const serviceInsert = vi.fn().mockResolvedValue({ error: insertError });
+  const serviceFrom = vi.fn((table: string) => {
     if (table === "authorship_log") {
       return {
-        insert,
+        insert: serviceInsert,
       };
     }
-    return {};
+    return { insert: vi.fn().mockResolvedValue({ error: null }) };
   });
+  const service = { from: serviceFrom, rpc: vi.fn() };
+  safetyMocks.createAiServiceClient.mockReturnValue(service);
+  const from = vi.fn(() => ({}));
 
   vi.mocked(createClient).mockResolvedValue({
     auth: {
@@ -54,12 +72,18 @@ function mockSignedInSupabase({
     from,
   } as never);
 
-  return { from, insert };
+  return { from, insert: serviceInsert, service, serviceFrom };
 }
 
 describe("Diana voice candidate route", () => {
   beforeEach(() => {
     vi.stubEnv("DIANA_OPENJARVIS_SIDECAR_ENABLED", "true");
+    safetyMocks.runSafe.mockImplementation(async (options: { invoke: () => Promise<unknown> }) => ({
+      ok: true,
+      value: await options.invoke(),
+      reservationId: "reservation-voice",
+    }));
+    safetyMocks.log.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -94,7 +118,7 @@ describe("Diana voice candidate route", () => {
   });
 
   it("returns a candidate only after saving the authorship receipt", async () => {
-    const { from, insert } = mockSignedInSupabase();
+    const { serviceFrom, insert } = mockSignedInSupabase();
     const candidate = "Open the rubric and name the first target.";
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true,
@@ -130,11 +154,16 @@ describe("Diana voice candidate route", () => {
         responseChars: candidate.length,
       }),
     }));
-    expect(from).toHaveBeenCalledWith("authorship_log");
+    expect(serviceFrom).toHaveBeenCalledWith("authorship_log");
     expect(reserveWorkerRateLimit).toHaveBeenCalledWith(expect.objectContaining({
       tenantId: "personal:student-1",
       ownerId: "student-1",
       scope: "student",
+    }));
+    expect(safetyMocks.runSafe).toHaveBeenCalledWith(expect.objectContaining({
+      ownerId: "student-1",
+      getOutput: expect.any(Function),
+      supabase: safetyMocks.createAiServiceClient.mock.results[0]?.value,
     }));
     expect(insert).toHaveBeenCalledWith(expect.objectContaining({
       owner_id: "student-1",
@@ -169,7 +198,8 @@ describe("Diana voice candidate route", () => {
     });
     expect(markWorkerJobError).toHaveBeenCalledWith(expect.objectContaining({
       tenantId: "personal:student-1",
-      errorSummary: "Voice candidate worker could not finish.",
+      errorCode: "worker_internal_error",
+      errorMetadata: { phase: "provider", retryable: true },
     }));
   });
 

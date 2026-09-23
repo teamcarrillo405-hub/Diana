@@ -1,17 +1,22 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/math-scaffold/index.ts
 // Phase 16: structured Socratic math scaffold with optional photo extraction.
 // AI mode: red/yellow both block content-generating math help.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
+  aiGuardFailureResponse,
+  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
+  runSafeBudgetedAiCall,
+  type SafetyMediaInput,
 } from "../_shared/safety.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const VALID_SUBJECTS = new Set([
   "algebra",
@@ -79,7 +84,6 @@ Rules:
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -101,11 +105,12 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   return btoa(binary);
 }
 
-async function extractProblemFromPhoto(
-  supabase: ReturnType<typeof createClient>,
+async function loadProblemPhoto(
+  // deno-lint-ignore no-explicit-any
+  supabase: { storage: any },
   storageKey: string,
   bucket: string,
-): Promise<{ problemText: string; latex: string | null; tokens: number }> {
+): Promise<SafetyMediaInput> {
   const ext = (storageKey.split(".").pop() ?? "").toLowerCase();
   const mimeType = MIME_BY_EXT[ext];
   if (!mimeType) {
@@ -114,8 +119,16 @@ async function extractProblemFromPhoto(
 
   const { data: blob, error } = await supabase.storage.from(bucket).download(storageKey);
   if (error || !blob) throw new Error("Photo not found in storage.");
-  const base64Data = uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer()));
+  return {
+    mediaType: mimeType,
+    data: uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer())),
+  };
+}
 
+async function extractProblemFromPhoto(
+  image: SafetyMediaInput,
+  markProviderUsage: () => void,
+): Promise<{ problemText: string; latex: string | null; tokens: number; moderationContent: string }> {
   const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -133,7 +146,7 @@ async function extractProblemFromPhoto(
           content: [
             {
               type: "image_url",
-              image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" },
+              image_url: { url: `data:${image.mediaType};base64,${image.data}`, detail: "high" },
             },
             { type: "text", text: "Extract the problem only. Do not solve it." },
           ],
@@ -143,16 +156,27 @@ async function extractProblemFromPhoto(
   });
 
   if (!openaiRes.ok) {
-    console.error("math photo extraction error:", await openaiRes.text());
+    console.error("math photo extraction request did not complete", openaiRes.status);
     throw new Error("We couldn't read that photo. Try a clearer crop.");
   }
 
-  const openaiData = await openaiRes.json() as {
+  markProviderUsage();
+  let openaiData: {
     choices?: Array<{ message?: { content?: string } }>;
     usage?: { prompt_tokens?: number; completion_tokens?: number };
   };
+  try {
+    openaiData = await openaiRes.json() as typeof openaiData;
+  } catch {
+    throw new Error("math_photo_provider_invalid_json");
+  }
   const raw = openaiData.choices?.[0]?.message?.content ?? "{}";
-  const parsed = JSON.parse(raw) as { problemText?: unknown; latex?: unknown };
+  let parsed: { problemText?: unknown; latex?: unknown };
+  try {
+    parsed = JSON.parse(raw) as typeof parsed;
+  } catch {
+    throw new Error("math_photo_content_invalid_json");
+  }
   const problemText = typeof parsed.problemText === "string" ? parsed.problemText.trim() : "";
   if (problemText.length < 3) throw new Error("We couldn't read enough math from that photo.");
   const tokens = Number(openaiData.usage?.prompt_tokens ?? 0) + Number(openaiData.usage?.completion_tokens ?? 0);
@@ -160,10 +184,11 @@ async function extractProblemFromPhoto(
     problemText,
     latex: typeof parsed.latex === "string" && parsed.latex.trim().length > 0 ? parsed.latex.trim() : null,
     tokens,
+    moderationContent: raw,
   };
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("math-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders() });
   }
@@ -211,7 +236,20 @@ Deno.serve(async (req: Request) => {
     let latex: string | null = null;
     let photoTokens = 0;
     if (storageKey) {
-      const extracted = await extractProblemFromPhoto(supabase, storageKey, bucket);
+      const image = await loadProblemPhoto(supabase, storageKey, bucket);
+      const guardedPhoto = await runSafeBudgetedAiCall({
+        ownerId,
+        supabase,
+        input: "Extract the problem only. Do not solve it.",
+        systemPrompt: PHOTO_PROMPT,
+        maxOutputTokens: 700,
+        mediaCount: 1,
+        media: [image],
+        invoke: ({ markProviderUsage }) => extractProblemFromPhoto(image, markProviderUsage),
+        getOutput: (value) => value.moderationContent,
+      });
+      if (!guardedPhoto.ok) return aiGuardFailureResponse(guardedPhoto);
+      const extracted = guardedPhoto.value;
       problemText = extracted.problemText.slice(0, 2400);
       latex = extracted.latex;
       photoTokens = extracted.tokens;
@@ -246,7 +284,9 @@ Deno.serve(async (req: Request) => {
       problemText,
     ].filter(Boolean).join("\n");
 
-    const ai = await callStudentTextModel({
+    const ai = await callSafeStudentTextModel({
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMessage,
       maxTokens: 650,
@@ -270,7 +310,7 @@ Deno.serve(async (req: Request) => {
         );
         await incrementTokens(ownerId, tokens, supabase);
       })
-      .catch((e) => console.warn("post-response side effects failed", e));
+      .catch(() => console.warn("post-response side effects did not complete"));
 
     return jsonResponse({
       content,
@@ -278,8 +318,8 @@ Deno.serve(async (req: Request) => {
       latex,
     });
   } catch (err) {
-    console.error("math-scaffold error:", err);
-    const message = err instanceof Error ? err.message : "Something went wrong. Try again.";
-    return jsonResponse({ error: message }, 500);
+    if (err instanceof Response) return err;
+    console.error("math-scaffold request did not complete");
+    return jsonResponse({ error: "Math help is unavailable right now." }, 500);
   }
-});
+}));

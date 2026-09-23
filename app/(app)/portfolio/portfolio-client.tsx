@@ -1,8 +1,20 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import {
+  FilePlus2,
+  ImagePlus,
+  Link2,
+  Share2,
+  Sparkles,
+} from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ImagePlus } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { SourceMedia } from "@/components/screen-design/source-media";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+
 import { addPortfolioItem, createPortfolio, uploadPortfolioFile } from "./actions";
 
 type PortfolioItem = {
@@ -10,7 +22,8 @@ type PortfolioItem = {
   title: string;
   reflection_text: string | null;
   mime_type: string | null;
-  signedUrl: string | null;
+  hasStoredFile?: boolean;
+  created_at?: string;
 };
 
 type Portfolio = {
@@ -20,17 +33,25 @@ type Portfolio = {
   items: PortfolioItem[];
 };
 
+type Filter = "all" | "reflection" | "files";
+
 const REFLECTION_PROMPTS = [
   "What did you make?",
-  "What choices did you make first?",
   "What changed while you worked?",
   "What do you want someone to notice?",
 ];
 
-export function PortfolioClient({ portfolios: initial }: { portfolios: Portfolio[] }) {
+export function PortfolioClient({
+  portfolios,
+  canvaState,
+}: {
+  portfolios: Portfolio[];
+  canvaState: "connected" | "disconnected" | "unavailable";
+}) {
   const router = useRouter();
-  const portfolios = initial;
-  const [selectedId, setSelectedId] = useState(initial[0]?.id ?? "");
+  const [filter, setFilter] = useState<Filter>("all");
+  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+  const [selectedId, setSelectedId] = useState(portfolios[0]?.id ?? "");
   const [portfolioTitle, setPortfolioTitle] = useState("");
   const [portfolioDescription, setPortfolioDescription] = useState("");
   const [itemTitle, setItemTitle] = useState("");
@@ -38,6 +59,29 @@ export function PortfolioClient({ portfolios: initial }: { portfolios: Portfolio
   const [file, setFile] = useState<File | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const work = useMemo(
+    () =>
+      portfolios.flatMap((portfolio) =>
+        portfolio.items.map((item) => ({ ...item, portfolioTitle: portfolio.title })),
+      ),
+    [portfolios],
+  );
+  const visibleWork = work.filter((item) => {
+    if (filter === "reflection") return Boolean(item.reflection_text);
+    if (filter === "files") return Boolean(item.hasStoredFile || item.mime_type);
+    return true;
+  });
+
+  function openItem(item: PortfolioItem) {
+    setSelectedItem(item);
+    router.push(`/portfolio?item=${encodeURIComponent(item.id)}`, { scroll: false });
+  }
+
+  function closeItem() {
+    setSelectedItem(null);
+    router.replace("/portfolio", { scroll: false });
+  }
 
   function createNewPortfolio() {
     setMessage(null);
@@ -53,6 +97,7 @@ export function PortfolioClient({ portfolios: initial }: { portfolios: Portfolio
       setPortfolioTitle("");
       setPortfolioDescription("");
       setSelectedId(result.id);
+      setMessage("Portfolio created.");
       router.refresh();
     });
   }
@@ -92,129 +137,217 @@ export function PortfolioClient({ portfolios: initial }: { portfolios: Portfolio
       setItemTitle("");
       setReflection("");
       setFile(null);
+      setMessage("Work added to your portfolio.");
       router.refresh();
     });
   }
 
   return (
-    <div className="space-y-6">
-      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">New portfolio</h2>
-        <input
-          value={portfolioTitle}
-          onChange={(event) => setPortfolioTitle(event.target.value)}
-          placeholder="Portfolio title"
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-        <textarea
-          value={portfolioDescription}
-          onChange={(event) => setPortfolioDescription(event.target.value)}
-          placeholder="Project, class, or theme"
-          rows={2}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-        <button
-          type="button"
-          onClick={createNewPortfolio}
-          disabled={pending || portfolioTitle.trim().length === 0}
-          className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          Create portfolio
-        </button>
-      </section>
+    <div className="sd-portfolio-shell">
+      <main className="sd-portfolio-scroll">
+        <header className="sd-portfolio-header">
+          <DianaWordmark />
+          <Link href="/sharing" className="sd-portfolio-share" aria-label="Open sharing controls">
+            <Share2 size={18} aria-hidden="true" />
+          </Link>
+        </header>
 
-      <section className="space-y-3 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-sm font-medium uppercase tracking-wider text-muted">Add work</h2>
-        <select
-          value={selectedId}
-          onChange={(event) => setSelectedId(event.target.value)}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        >
-          <option value="">Choose portfolio</option>
-          {portfolios.map((portfolio) => (
-            <option key={portfolio.id} value={portfolio.id}>{portfolio.title}</option>
-          ))}
-        </select>
-        <input
-          value={itemTitle}
-          onChange={(event) => setItemTitle(event.target.value)}
-          placeholder="Work title"
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-        <label className="block rounded-md border border-dashed border-border bg-background px-3 py-4 text-sm hover:bg-border/30">
-          <span className="inline-flex items-center gap-2 text-muted">
-            <ImagePlus size={16} />
-            {file ? file.name : "Upload image or document"}
-          </span>
-          <input
-            type="file"
-            accept="image/*,.pdf,.doc,.docx"
-            className="sr-only"
-            onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-          />
-        </label>
-        <div className="rounded-xl border border-border bg-background p-3">
-          <p className="text-xs font-medium uppercase tracking-wider text-muted">Reflection prompts</p>
-          <ul className="mt-2 space-y-1 text-sm">
-            {REFLECTION_PROMPTS.map((prompt) => <li key={prompt}>- {prompt}</li>)}
-          </ul>
+        <h1 className="sd-portfolio-title">
+          Best <span>plays</span>
+        </h1>
+
+        <div className="sd-portfolio-status">
+          <span>{work.length} saved item{work.length === 1 ? "" : "s"}</span>
+          <Link href="/settings#canva" className="sd-portfolio-canva">
+            <Sparkles size={12} aria-hidden="true" /> Canva {canvaLabel(canvaState)}
+          </Link>
         </div>
-        <textarea
-          value={reflection}
-          onChange={(event) => setReflection(event.target.value)}
-          placeholder="Describe your process before adding any polish."
-          rows={4}
-          className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
-        />
-        <button
-          type="button"
-          onClick={addItem}
-          disabled={pending || !selectedId || itemTitle.trim().length === 0}
-          className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-        >
-          Add to portfolio
-        </button>
-        {message && <p className="text-sm text-muted">{message}</p>}
-      </section>
 
-      <section className="space-y-4">
-        {portfolios.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border bg-card p-6 text-center">
-            <p className="text-sm font-medium">No portfolio yet.</p>
-            <p className="mt-1 text-sm text-muted">Create one above, then add work and reflections.</p>
-          </div>
-        ) : (
-          portfolios.map((portfolio) => (
-            <article key={portfolio.id} className="space-y-3 rounded-2xl border border-border bg-card p-5">
-              <div>
-                <h2 className="text-lg font-semibold">{portfolio.title}</h2>
-                {portfolio.description && <p className="text-sm text-muted">{portfolio.description}</p>}
-              </div>
-              {portfolio.items.length === 0 ? (
-                <p className="text-sm text-muted">No work added yet.</p>
-              ) : (
-                <div className="grid gap-3 md:grid-cols-2">
-                  {portfolio.items.map((item) => (
-                    <div key={item.id} className="rounded-xl border border-border bg-background p-3">
-                      {item.signedUrl && item.mime_type?.startsWith("image/") && (
-                        <img
-                          src={item.signedUrl}
-                          alt=""
-                          className="mb-3 aspect-video w-full rounded-md object-cover"
-                        />
-                      )}
-                      <h3 className="text-sm font-medium">{item.title}</h3>
-                      {item.reflection_text && (
-                        <p className="mt-1 whitespace-pre-wrap text-sm text-muted">{item.reflection_text}</p>
-                      )}
-                    </div>
-                  ))}
+        <div className="sd-portfolio-filters" aria-label="Portfolio filters">
+          {([
+            ["all", "All work"],
+            ["reflection", "Reflections"],
+            ["files", "Files"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className="sd-portfolio-filter"
+              aria-pressed={filter === value}
+              onClick={() => setFilter(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <section className="sd-portfolio-grid" aria-label="Portfolio work">
+          {visibleWork.length === 0 ? (
+            <div className="sd-portfolio-empty">
+              <h2>{work.length === 0 ? "No portfolio work yet." : "No work in this filter."}</h2>
+              <p>
+                {work.length === 0
+                  ? "Add work you chose to keep, then include a reflection when you are ready."
+                  : "Choose another filter to see your saved work."}
+              </p>
+            </div>
+          ) : (
+            visibleWork.map((item, index) => (
+              <article className="sd-portfolio-card" key={item.id}>
+                <button
+                  type="button"
+                  className="sd-portfolio-open"
+                  aria-label={index === 0 ? "Open portfolio item" : `Open ${item.title}`}
+                  onClick={() => openItem(item)}
+                >
+                  <SourceMedia
+                    assetId={
+                      index % 2 === 0
+                        ? "portfolio-calculus-project"
+                        : "portfolio-biology-project"
+                    }
+                    width={318}
+                    height={424}
+                    decorative
+                    className="sd-portfolio-thumb"
+                    priority={index < 2}
+                  />
+                  {index === 0 ? (
+                    <SourceMedia
+                      assetId="academic-championship-ring"
+                      width={64}
+                      height={64}
+                      decorative
+                      className="sd-portfolio-ring"
+                    />
+                  ) : null}
+                </button>
+                <div className="sd-portfolio-card-copy">
+                  <h2>{item.title}</h2>
+                  <p>{item.portfolioTitle}</p>
                 </div>
-              )}
-            </article>
-          ))
-        )}
-      </section>
+              </article>
+            ))
+          )}
+        </section>
+
+        <details className="sd-portfolio-add">
+          <summary>Add portfolio work</summary>
+          <div className="sd-portfolio-form">
+            <h2>New portfolio</h2>
+            <label>
+              Portfolio title
+              <input
+                value={portfolioTitle}
+                onChange={(event) => setPortfolioTitle(event.target.value)}
+              />
+            </label>
+            <label>
+              Project, class, or theme
+              <textarea
+                value={portfolioDescription}
+                onChange={(event) => setPortfolioDescription(event.target.value)}
+                rows={2}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={createNewPortfolio}
+              disabled={pending || portfolioTitle.trim().length === 0}
+            >
+              Create portfolio
+            </button>
+
+            <h2>Add work</h2>
+            <label>
+              Portfolio
+              <select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>
+                <option value="">Choose portfolio</option>
+                {portfolios.map((portfolio) => (
+                  <option key={portfolio.id} value={portfolio.id}>
+                    {portfolio.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Work title
+              <input value={itemTitle} onChange={(event) => setItemTitle(event.target.value)} />
+            </label>
+            <label className="sd-portfolio-upload">
+              <ImagePlus size={16} aria-hidden="true" />
+              {file ? file.name : "Upload image or document"}
+              <input
+                type="file"
+                accept="image/*,.pdf,.doc,.docx"
+                className="sr-only"
+                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+              />
+            </label>
+            <p className="sr-only">{REFLECTION_PROMPTS.join(" ")}</p>
+            <label>
+              Reflection
+              <textarea
+                value={reflection}
+                onChange={(event) => setReflection(event.target.value)}
+                rows={3}
+              />
+            </label>
+            <button
+              type="button"
+              onClick={addItem}
+              disabled={pending || !selectedId || itemTitle.trim().length === 0}
+            >
+              <FilePlus2 size={15} aria-hidden="true" /> Add to portfolio
+            </button>
+            {message ? (
+              <p className="sd-portfolio-message" role="status">
+                {message}
+              </p>
+            ) : null}
+          </div>
+        </details>
+      </main>
+
+      <StudentBottomNav />
+
+      {selectedItem ? (
+        <div className="sd-portfolio-dialog-backdrop" onMouseDown={closeItem}>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="portfolio-dialog-title"
+            className="sd-portfolio-dialog"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <SourceMedia
+              assetId="portfolio-calculus-project"
+              width={636}
+              height={848}
+              decorative
+              className="sd-portfolio-dialog-media"
+            />
+            <div className="sd-portfolio-dialog-copy">
+              <h2 id="portfolio-dialog-title">{selectedItem.title}</h2>
+              <p>{selectedItem.reflection_text || "No reflection has been added yet."}</p>
+              <div className="sd-portfolio-dialog-actions">
+                <Link href="/sharing" aria-label="Share portfolio">
+                  <Link2 size={14} aria-hidden="true" /> Share portfolio
+                </Link>
+                <button type="button" onClick={closeItem}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
+}
+
+function canvaLabel(state: "connected" | "disconnected" | "unavailable"): string {
+  if (state === "connected") return "connected";
+  if (state === "disconnected") return "not connected";
+  return "setup unavailable";
 }

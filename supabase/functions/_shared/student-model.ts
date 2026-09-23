@@ -1,4 +1,13 @@
-type StudentModelQuality = "fast" | "quality";
+export type StudentModelQuality = "fast" | "quality" | "complex";
+
+export type HomeworkReviewRoutingInput = {
+  template: string;
+  subjectDomain?: string | null;
+  sourceChars: number;
+  studentWorkChars: number;
+  hasRubric: boolean;
+  signals?: string;
+};
 
 export type StudentModelPart =
   | { type: "text"; text: string }
@@ -6,12 +15,48 @@ export type StudentModelPart =
 
 export type StudentModelResult = {
   content: string;
+  moderationContent?: string;
   model: string;
   tokens: number;
 };
 
 const FAST_TIMEOUT_MS = 12_000;
 const QUALITY_TIMEOUT_MS = 20_000;
+const COMPLEX_TIMEOUT_MS = 35_000;
+
+const OPENAI_DEFAULT_MODELS: Record<StudentModelQuality, string> = {
+  fast: "gpt-5.6-luna",
+  quality: "gpt-5.6-terra",
+  complex: "gpt-5.6-sol",
+};
+
+const OPENAI_REASONING_EFFORT: Record<StudentModelQuality, "low" | "medium" | "high"> = {
+  fast: "low",
+  quality: "medium",
+  complex: "high",
+};
+
+const COMPLEX_REVIEW_TEMPLATES = new Set(["research", "history", "lab", "coding", "project"]);
+const COMPLEX_SUBJECT_DOMAINS = new Set([
+  "computer_science",
+  "accounting",
+  "economics",
+  "engineering",
+  "trade_cte",
+  "cad",
+  "advanced_technical_labs",
+]);
+const ADVANCED_PROBLEM_PATTERN =
+  /\b(calculus|derivative|integral|limit|trigonometry|logarithm|matrix|vectors?|proof|theorem|statistical inference|regression|probability distribution|stoichiometry|thermodynamics|kinematics|electromagnetism|organic chemistry|algorithm|data structure|recursion|debug|dbq|document[- ]based|primary sources?|research synthesis)\b/iu;
+
+export function selectHomeworkReviewQuality(input: HomeworkReviewRoutingInput): StudentModelQuality {
+  if (COMPLEX_REVIEW_TEMPLATES.has(input.template)) return "complex";
+  if (input.subjectDomain && COMPLEX_SUBJECT_DOMAINS.has(input.subjectDomain)) return "complex";
+  if (ADVANCED_PROBLEM_PATTERN.test(input.signals ?? "")) return "complex";
+  if (input.sourceChars >= 10_000 || input.studentWorkChars >= 6_000) return "complex";
+  if (input.hasRubric && input.sourceChars >= 3_000 && input.studentWorkChars >= 1_200) return "complex";
+  return "quality";
+}
 
 export async function callStudentTextModel({
   system,
@@ -22,6 +67,7 @@ export async function callStudentTextModel({
   parts,
   fallbackContent,
   timeoutMs,
+  markProviderUsage,
 }: {
   system: string;
   user: string;
@@ -31,8 +77,10 @@ export async function callStudentTextModel({
   parts?: StudentModelPart[];
   fallbackContent?: string;
   timeoutMs?: number;
+  markProviderUsage?: () => void;
 }): Promise<StudentModelResult> {
-  const requestTimeoutMs = timeoutMs ?? (quality === "quality" ? QUALITY_TIMEOUT_MS : FAST_TIMEOUT_MS);
+  const requestTimeoutMs = timeoutMs ??
+    (quality === "complex" ? COMPLEX_TIMEOUT_MS : quality === "quality" ? QUALITY_TIMEOUT_MS : FAST_TIMEOUT_MS);
   const preferredProvider = (Deno.env.get("STUDENT_AI_PROVIDER") ?? "openai").toLowerCase();
   if (preferredProvider !== "anthropic") {
     return callOpenAiStudentModel({
@@ -44,12 +92,13 @@ export async function callStudentTextModel({
       parts,
       fallbackContent,
       timeoutMs: requestTimeoutMs,
+      markProviderUsage,
     });
   }
 
   const anthropicKey = Deno.env.get("ANTHROPIC_API_KEY") ?? "";
   if (anthropicKey) {
-    const anthropicModel = quality === "quality" ? "claude-sonnet-4-6" : "claude-haiku-4-5";
+    const anthropicModel = quality === "fast" ? "claude-haiku-4-5" : "claude-sonnet-4-6";
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), requestTimeoutMs);
     let anthropicRes: Response | null = null;
@@ -70,25 +119,42 @@ export async function callStudentTextModel({
         }),
       });
     } catch (error) {
-      console.error("student model Anthropic request error:", error);
+      console.error("student model Anthropic request did not complete", {
+        errorName: error instanceof Error ? error.name : "unknown",
+      });
     } finally {
       clearTimeout(timeout);
     }
 
     if (anthropicRes?.ok) {
-      const data = await anthropicRes.json() as {
+      markProviderUsage?.();
+      let data: {
         content?: Array<{ type: string; text: string }>;
         usage?: { input_tokens?: number; output_tokens?: number };
       };
-      const content = sanitizeStudentModelContent(data.content?.[0]?.text ?? "");
+      try {
+        data = await anthropicRes.json() as typeof data;
+      } catch {
+        throw new Error("student_model_invalid_response");
+      }
+      const providerContent = data.content?.[0]?.text ?? "";
+      const content = sanitizeStudentModelContent(providerContent);
       return {
         content: json ? normalizeJsonContent(content, user, fallbackContent) : content,
+        moderationContent: providerContent,
         model: anthropicModel,
         tokens: Number(data.usage?.input_tokens ?? 0) + Number(data.usage?.output_tokens ?? 0),
       };
     }
 
-    if (anthropicRes) console.error("student model Anthropic error:", await anthropicRes.text());
+    if (anthropicRes) {
+      const providerError = await anthropicRes.text();
+      console.error("student model Anthropic response did not complete", {
+        status: anthropicRes.status,
+        responseBytes: new TextEncoder().encode(providerError).byteLength,
+        correlationId: anthropicRes.headers.get("request-id") ?? "unavailable",
+      });
+    }
   }
 
   return callOpenAiStudentModel({
@@ -100,6 +166,7 @@ export async function callStudentTextModel({
     parts,
     fallbackContent,
     timeoutMs: requestTimeoutMs,
+    markProviderUsage,
   });
 }
 
@@ -112,6 +179,7 @@ async function callOpenAiStudentModel({
   parts,
   fallbackContent,
   timeoutMs,
+  markProviderUsage,
 }: {
   system: string;
   user: string;
@@ -121,12 +189,14 @@ async function callOpenAiStudentModel({
   parts?: StudentModelPart[];
   fallbackContent?: string;
   timeoutMs: number;
+  markProviderUsage?: () => void;
 }): Promise<StudentModelResult> {
   const openAiKey = Deno.env.get("OPENAI_API_KEY") ?? "";
   if (!openAiKey) throw new Error("No configured student AI provider.");
 
-  const openAiModel = Deno.env.get("STUDENT_AI_OPENAI_MODEL") ??
-    (quality === "quality" ? "gpt-4.1-mini" : "gpt-4.1-nano");
+  const tierOverride = Deno.env.get(`STUDENT_AI_OPENAI_${quality.toUpperCase()}_MODEL`);
+  const openAiModel = tierOverride ?? Deno.env.get("STUDENT_AI_OPENAI_MODEL") ?? OPENAI_DEFAULT_MODELS[quality];
+  const usesReasoningParameters = /^gpt-5(?:\.|$)/iu.test(openAiModel);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let openAiRes: Response;
@@ -140,7 +210,12 @@ async function callOpenAiStudentModel({
       },
       body: JSON.stringify({
         model: openAiModel,
-        max_tokens: maxTokens,
+        ...(usesReasoningParameters
+          ? {
+              max_completion_tokens: maxTokens,
+              reasoning_effort: OPENAI_REASONING_EFFORT[quality],
+            }
+          : { max_tokens: maxTokens }),
         ...(json ? { response_format: { type: "json_object" } } : {}),
         messages: [
           { role: "system", content: system },
@@ -149,9 +224,13 @@ async function callOpenAiStudentModel({
       }),
     });
   } catch (error) {
-    console.error("student model OpenAI request error:", error);
+    console.error("student model OpenAI request did not complete", {
+      errorName: error instanceof Error ? error.name : "unknown",
+    });
+    const fallback = fallbackStudentContent(user, json, fallbackContent);
     return {
-      content: fallbackStudentContent(user, json, fallbackContent),
+      content: fallback,
+      moderationContent: fallback,
       model: `${openAiModel}:fallback`,
       tokens: 0,
     };
@@ -160,22 +239,37 @@ async function callOpenAiStudentModel({
   }
 
   if (!openAiRes.ok) {
-    console.error("student model OpenAI error:", await openAiRes.text());
+    const providerError = await openAiRes.text();
+    console.error("student model OpenAI response did not complete", {
+      status: openAiRes.status,
+      responseBytes: new TextEncoder().encode(providerError).byteLength,
+      correlationId: openAiRes.headers.get("x-request-id") ?? "unavailable",
+    });
+    const fallback = fallbackStudentContent(user, json, fallbackContent);
     return {
-      content: fallbackStudentContent(user, json, fallbackContent),
+      content: fallback,
+      moderationContent: fallback,
       model: `${openAiModel}:fallback`,
       tokens: 0,
     };
   }
 
-  const data = await openAiRes.json() as {
+  markProviderUsage?.();
+  let data: {
     choices?: Array<{ message?: { content?: string } }>;
     usage?: { prompt_tokens?: number; completion_tokens?: number };
   };
+  try {
+    data = await openAiRes.json() as typeof data;
+  } catch {
+    throw new Error("student_model_invalid_response");
+  }
 
-  const content = sanitizeStudentModelContent(data.choices?.[0]?.message?.content ?? "");
+  const providerContent = data.choices?.[0]?.message?.content ?? "";
+  const content = sanitizeStudentModelContent(providerContent);
   return {
     content: json ? normalizeJsonContent(content, user, fallbackContent) : content,
+    moderationContent: providerContent,
     model: openAiModel,
     tokens: Number(data.usage?.prompt_tokens ?? 0) + Number(data.usage?.completion_tokens ?? 0),
   };

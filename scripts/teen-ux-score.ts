@@ -34,7 +34,7 @@ function main() {
 function collectEvidence(): TeenNativeUxEvidence {
   const qa = latestQaResult();
   const landing = read("components/landing/quiet-command-landing.tsx");
-  const dashboard = read("app/(app)/dashboard/page.tsx") + read("app/(app)/dashboard/lobby-hero.tsx");
+  const dashboard = read("app/(app)/dashboard/page.tsx") + read("app/(app)/dashboard/today-game-plan.tsx");
   const assignment = read("app/(app)/assignments/[id]/page.tsx") + read("app/(app)/assignments/[id]/homework-mission.tsx");
   const mobileNav = read("app/(app)/mobile-tab-bar.tsx");
   const desktopNav = read("app/(app)/app-top-nav.tsx");
@@ -45,24 +45,21 @@ function collectEvidence(): TeenNativeUxEvidence {
     landingNextFiveMinutes: landing.includes("five minutes") && landing.includes("Your clearest move") && landing.includes("Start free"),
     landingProductIdentity: landing.includes("qc-focus-stage") && landing.includes("Preview of the Diana student workspace") && landing.includes("Student-owned"),
     landingStudentEntryPath: landing.includes('href="/signup"') && landing.includes("Start free"),
-    dashboardRightNowCard: dashboard.includes("LobbyHero") && dashboard.includes("Your next move") && dashboard.includes("YOUR NEXT MOVE"),
+    dashboardRightNowCard: dashboard.includes("TodayGamePlan") && dashboard.includes("Today&apos;s") && dashboard.includes("Start now"),
     assignmentNextStepEntry: dashboard.includes("?focus=next-step") && assignment.includes('focus === "next-step"') && assignment.includes("Start first focus"),
     priorityMobileNav: ["Today", "Work", "Classes", "Calendar", "More"].every((label) => mobileNav.includes(label)) && mobileNav.includes('aria-label="Primary"'),
     responsiveActionRows: fileIncludes("components/responsive-action-row.tsx", "sm:flex-row") && fileIncludes("components/responsive-action-row.tsx", "w-full"),
     responsiveQaClean: qa.exists && qa.total >= 50 && qa.overflowCount === 0 && qa.serverErrorCount === 0,
     authenticatedResponsiveQaClean: qa.exists && qa.authenticatedCoverageComplete && qa.overflowCount === 0 && qa.serverErrorCount === 0,
     authenticatedRoutesNoLoginRedirect: qa.exists && qa.loginRedirectCount === 0 && qa.authenticatedRouteCount >= 35,
-    compactDesktopPrimaryNav: desktopNav.includes("gl-desktop-nav") && desktopNav.includes("NAV_TABS") && desktopNav.includes("MobileTabBar"),
-    secondaryDestinationDrawer: moreMenu.includes('aria-label="More destinations"') && moreMenu.includes("Evidence & growth") && moreMenu.includes("Connections & sharing"),
-    authCommandCenterShell: fileIncludes("app/(auth)/layout.tsx", "Private student space") && fileIncludes("app/(auth)/layout.tsx", "SignalStage"),
-    authVisualSignals: fileIncludes("app/(auth)/login/form.tsx", "Source anchors") && fileIncludes("app/(auth)/signup/page.tsx", "Keep it yours"),
-    authFutureModeToggle: (
-      fileIncludes("app/(auth)/login/form.tsx", "FutureModeToggle") &&
-      fileIncludes("app/(auth)/signup/page.tsx", "FutureModeToggle")
-    ) || fileIncludes("app/(auth)/layout.tsx", "FutureModeToggle"),
-    authAfterLoginPreview: fileIncludes("app/(auth)/login/form.tsx", "auth-after-login-preview") && fileIncludes("app/(auth)/signup/page.tsx", "auth-after-login-preview"),
-    futureModeProvider: fileIncludes("app/layout.tsx", "FutureModeProvider") && fileIncludes("components/future-mode-provider.tsx", "diana_experience_mode") && fileIncludes("app/globals.css", "data-experience-mode=\"future\""),
-    dianaOsCinematicMode: fileIncludes("components/future-voice-preview.tsx", "diana-os-cinematic-command-mode") && fileIncludes("app/globals.css", "cinematic-command-hud") && fileIncludes("components/future-mode-toggle.tsx", "Diana OS"),
+    compactDesktopPrimaryNav: desktopNav.includes("sd-top-nav") && desktopNav.includes("NAV_TABS") && desktopNav.includes("MoreMenu"),
+    secondaryDestinationDrawer: moreMenu.includes('aria-label="More destinations"') && moreMenu.includes("Evidence and growth") && moreMenu.includes("Connections and sharing"),
+    authScreenDesignShell: fileIncludes("app/(auth)/layout.tsx", "Private student space") && fileIncludes("app/(auth)/layout.tsx", "sd-auth-shell"),
+    authVisualSignals: fileIncludes("app/(auth)/layout.tsx", "Coach Diana") && fileIncludes("app/(auth)/signup/page.tsx", "Your information stays private"),
+    authPrivateAssurance: fileIncludes("app/(auth)/login/form.tsx", "Private by default") && fileIncludes("app/(auth)/signup/page.tsx", "private by default"),
+    authDashboardPreview: fileIncludes("app/(auth)/layout.tsx", "sd-auth-preview") && fileIncludes("app/(auth)/layout.tsx", "Diana dashboard preview"),
+    screenDesignAppShell: fileIncludes("app/layout.tsx", "screendesign.css") && fileIncludes("app/(app)/app-top-nav.tsx", "sd-top-nav") && fileIncludes("app/(app)/mobile-tab-bar.tsx", "sd-mobile-nav"),
+    screenDesignVisualLanguage: fileIncludes("app/screendesign.css", "--diana-blue") && fileIncludes("app/screendesign.css", "--diana-pink") && fileIncludes("app/screendesign.css", "--diana-teal"),
     landingMobilePreviewAboveFold: landing.includes("qc-focus-stage") && landing.includes("Next 5 minutes") && landing.includes("qc-action-sheet"),
     voiceCommandSurface: exists("app/(app)/voice/voice-command-surface.tsx") && fileIncludes("app/(app)/voice/page.tsx", "VoiceCommandSurface") && fileIncludes("app/(app)/voice/voice-command-surface.tsx", "Talk it through"),
     globalVoiceCaptureMic: fileIncludes("components/quick-capture.tsx", "VoiceTextarea") && fileIncludes("components/voice-textarea.tsx", "SpeechRecognition"),

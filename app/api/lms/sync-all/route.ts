@@ -8,48 +8,16 @@ import { getValidGoogleToken, fetchClassroomAssignments, type GoogleClassroomCon
 import { syncLmsAssignments } from "@/lib/lms/sync";
 import type { LmsProvider, NormalizedAssignment, SyncResult } from "@/lib/lms/types";
 import { createClient } from "@/lib/supabase/server";
+import {
+  hydrateLmsConnectionCredentials,
+  persistLmsTokenRefresh,
+} from "@/lib/integrations/credential-vault";
 
 type Connection = {
   id: string;
   provider: LmsProvider;
   config: Record<string, unknown>;
 };
-
-type Course = { id: string; name: string };
-type Announcement = { id: string; text?: string; alternateLink?: string };
-
-async function classroomGet<T>(url: string, token: string): Promise<T> {
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } });
-  if (!res.ok) throw new Error(`Classroom request to ${url} returned ${res.status}`);
-  return (await res.json()) as T;
-}
-
-async function importClassroomAnnouncements(
-  courses: Course[],
-  token: string,
-  ownerId: string,
-  supabase: Awaited<ReturnType<typeof createClient>>,
-): Promise<void> {
-  for (const course of courses) {
-    const resp = await classroomGet<{ announcements?: Announcement[] }>(
-      `https://classroom.googleapis.com/v1/courses/${course.id}/announcements`,
-      token,
-    ).catch(() => ({ announcements: [] }));
-    const announcements = (resp.announcements ?? []).filter((a) => a.text?.trim()).slice(0, 10);
-    if (announcements.length > 0) {
-      await supabase.from("inbox_items").insert(announcements.map((a) => ({
-        owner_id: ownerId,
-        raw: [
-          `Google Classroom announcement from ${course.name}`,
-          a.text,
-          a.alternateLink ? `Link: ${a.alternateLink}` : "",
-        ].filter(Boolean).join("\n"),
-        capture_mode: "text",
-        status: "unclassified",
-      })));
-    }
-  }
-}
 
 export async function POST() {
   const supabase = await createClient();
@@ -60,6 +28,7 @@ export async function POST() {
   const { data: rows, error } = await supabase
     .from("lms_connections")
     .select("id, provider, config")
+    .eq("owner_id", user.id)
     .in("provider", ["canvas", "google_classroom", "ics", "gitlab"]);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -68,39 +37,45 @@ export async function POST() {
 
   for (const connection of connections) {
     try {
+      const securedConnection = await hydrateLmsConnectionCredentials(user.id, connection);
       let fetched: { items: NormalizedAssignment[]; skipped: number };
       if (connection.provider === "canvas") {
-        const cfg = connection.config as { base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
+        const cfg = securedConnection.config as { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
         if (!cfg.base_url || !cfg.token) throw new Error("Canvas connection is missing credentials");
         const valid = await getValidCanvasToken({
           base_url: cfg.base_url,
           token: cfg.token,
+          institution_id: cfg.institution_id,
           oauth: cfg.oauth,
           refresh_token: cfg.refresh_token,
           expires_at: cfg.expires_at,
         });
         if (valid.refreshed) {
-          await supabase
-            .from("lms_connections")
-            .update({ config: { ...cfg, token: valid.refreshed.token, expires_at: valid.refreshed.expires_at } })
-            .eq("id", connection.id);
+          await persistLmsTokenRefresh(supabase as any, {
+            ownerId: user.id,
+            connection: securedConnection,
+            accessToken: valid.refreshed.token,
+            expiresAt: valid.refreshed.expires_at,
+          });
         }
-        fetched = await fetchCanvasAssignments({ base_url: cfg.base_url, token: valid.token });
+        fetched = await fetchCanvasAssignments({ institution_id: cfg.institution_id, base_url: cfg.base_url, token: valid.token });
       } else if (connection.provider === "ics") {
-        const cfg = connection.config as { url?: string };
+        const cfg = securedConnection.config as { url?: string };
         if (!cfg.url) throw new Error("Calendar connection is missing its URL");
         fetched = await fetchIcsAssignments(cfg.url);
       } else if (connection.provider === "google_classroom") {
-        const cfg = connection.config as GoogleClassroomConfig;
+        const cfg = securedConnection.config as GoogleClassroomConfig;
         let token: string | null = null;
         const valid = await getValidGoogleToken(cfg);
         if (valid) {
           token = valid.token;
           if (valid.refreshed) {
-            await supabase
-              .from("lms_connections")
-              .update({ config: { ...cfg, ...valid.refreshed } })
-              .eq("id", connection.id);
+            await persistLmsTokenRefresh(supabase as any, {
+              ownerId: user.id,
+              connection: securedConnection,
+              accessToken: valid.refreshed.access_token,
+              expiresAt: valid.refreshed.expires_at,
+            });
           }
         } else {
           token = session?.provider_token ?? null;
@@ -108,9 +83,8 @@ export async function POST() {
         if (!token) throw new Error("Google Classroom session needs to be refreshed");
         const gc = await fetchClassroomAssignments(token);
         fetched = { items: gc.items, skipped: gc.skipped };
-        await importClassroomAnnouncements(gc.courses, token, user.id, supabase);
       } else if (connection.provider === "gitlab") {
-        fetched = await fetchGitLabAssignments(connection.config as {
+        fetched = await fetchGitLabAssignments(securedConnection.config as {
           project: string;
           token: string;
           base_url?: string;
@@ -130,7 +104,8 @@ export async function POST() {
       await supabase
         .from("lms_connections")
         .update({ last_synced_at: new Date().toISOString() })
-        .eq("id", connection.id);
+        .eq("id", connection.id)
+        .eq("owner_id", user.id);
       results.push({ ...result, connectionId: connection.id });
     } catch (err) {
       results.push({

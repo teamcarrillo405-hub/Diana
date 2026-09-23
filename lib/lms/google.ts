@@ -2,7 +2,7 @@
 //
 // Previously Classroom sync relied on the ephemeral Supabase Google
 // `session.provider_token` (≈1h, interactive-only). Now a dedicated OAuth flow
-// (app/api/lms/google-oauth/*) stores a refresh_token in the connection config,
+// (app/api/lms/google-oauth/*) stores credentials in the service-only vault,
 // and getValidGoogleToken() mints fresh access tokens on demand — so sync works
 // from the background cron too, not just while a student is signed in.
 
@@ -18,18 +18,26 @@ export type GoogleClassroomConfig = {
 export type ValidGoogleToken = {
   token: string;
   // Present when the token was refreshed — caller should persist this back into
-  // lms_connections.config so the next run reuses it.
+  // the service-only credential vault so the next run reuses it.
   refreshed?: { access_token: string; expires_at: string | null };
 };
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
-// Read-only Classroom scopes.
+// Classroom and Drive scopes required to import material and turn in a supported submission.
 export const GOOGLE_CLASSROOM_SCOPES = [
   "https://www.googleapis.com/auth/classroom.courses.readonly",
-  "https://www.googleapis.com/auth/classroom.coursework.me.readonly",
-  "https://www.googleapis.com/auth/classroom.announcements.readonly",
+  "https://www.googleapis.com/auth/classroom.coursework.me",
+  "https://www.googleapis.com/auth/drive.readonly",
+  "https://www.googleapis.com/auth/drive.file",
   "openid",
   "email",
+];
+
+export const GOOGLE_CLASSROOM_TEACHER_SCOPES = [
+  ...GOOGLE_CLASSROOM_SCOPES.filter(
+    (scope) => scope !== "https://www.googleapis.com/auth/classroom.coursework.me",
+  ),
+  "https://www.googleapis.com/auth/classroom.coursework.students",
 ];
 
 /**
@@ -102,8 +110,50 @@ type CourseWork = {
   dueDate?: ClassroomDate;
   dueTime?: ClassroomTime;
   alternateLink?: string;
-};
+  materials?: Array<{
+    link?: { url?: string; title?: string };
+    driveFile?: { driveFile?: { id?: string; title?: string; alternateLink?: string; thumbnailUrl?: string } };
+    youtubeVideo?: { id?: string; title?: string; alternateLink?: string };
+    form?: { formUrl?: string; title?: string };
+  }>;};
 
+type ClassroomPage<T, K extends string> = {
+  nextPageToken?: string;
+} & Partial<Record<K, T[]>>;
+
+const CLASSROOM_PAGE_SIZE = 100;
+const MAX_CLASSROOM_PAGES = 100;
+
+function classroomSources(work: CourseWork) {
+  const sources = [];
+  if (work.description?.trim()) {
+    sources.push({
+      source_type: "instructions" as const,
+      title: "Google Classroom instructions",
+      provider: "google_classroom",
+      external_id: `${work.id}:instructions`,
+      extracted_text: work.description,
+      import_status: "imported" as const,
+    });
+  }
+  for (const [index, material] of (work.materials ?? []).entries()) {
+    const drive = material.driveFile?.driveFile;
+    const link = material.link;
+    const video = material.youtubeVideo;
+    const form = material.form;
+    const url = drive?.alternateLink ?? link?.url ?? video?.alternateLink ?? form?.formUrl ?? null;
+    const title = drive?.title ?? link?.title ?? video?.title ?? form?.title ?? "Google Classroom material";
+    sources.push({
+      source_type: drive ? "attachment" as const : "link" as const,
+      title,
+      provider: "google_classroom",
+      external_id: `${work.id}:material:${drive?.id ?? index}`,
+      url,
+      import_status: drive?.id ? "ready" as const : "partial" as const,
+    });
+  }
+  return sources;
+}
 function reconstructDueIso(d?: ClassroomDate, t?: ClassroomTime): string | null {
   if (!d) return null;
   return new Date(Date.UTC(d.year, d.month - 1, d.day, t?.hours ?? 23, t?.minutes ?? 59)).toISOString();
@@ -117,30 +167,60 @@ async function classroomGet<T>(url: string, token: string): Promise<T> {
   return (await res.json()) as T;
 }
 
+async function classroomListAll<T, K extends string>(
+  initialUrl: string,
+  token: string,
+  collection: K,
+): Promise<T[]> {
+  const items: T[] = [];
+  const seenTokens = new Set<string>();
+  let pageToken: string | null = null;
+
+  for (let pageCount = 0; pageCount < MAX_CLASSROOM_PAGES; pageCount += 1) {
+    const url = new URL(initialUrl);
+    if (pageToken) url.searchParams.set("pageToken", pageToken);
+
+    const page = await classroomGet<ClassroomPage<T, K>>(url.toString(), token);
+    items.push(...(page[collection] ?? []));
+
+    const nextPageToken = page.nextPageToken?.trim() || null;
+    if (!nextPageToken) return items;
+    if (seenTokens.has(nextPageToken)) {
+      throw new Error(`Google Classroom pagination repeated page token for ${collection}`);
+    }
+    seenTokens.add(nextPageToken);
+    pageToken = nextPageToken;
+  }
+
+  throw new Error(`Google Classroom pagination exceeded ${MAX_CLASSROOM_PAGES} pages for ${collection}`);
+}
+
+export function googleClassroomAssignmentKey(courseId: string, courseWorkId: string): string {
+  return `${courseId}:${courseWorkId}`;
+}
+
 export async function fetchClassroomAssignments(
   token: string,
 ): Promise<{ items: NormalizedAssignment[]; skipped: number; courses: Course[] }> {
-  const coursesResp = await classroomGet<{ courses?: Course[] }>(
-    "https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE",
+  const courses = await classroomListAll<Course, "courses">(
+    `https://classroom.googleapis.com/v1/courses?courseStates=ACTIVE&pageSize=${CLASSROOM_PAGE_SIZE}`,
     token,
+    "courses",
   );
-  const courses = coursesResp.courses ?? [];
   const items: NormalizedAssignment[] = [];
-  let skipped = 0;
+  const skipped = 0;
 
   for (const course of courses) {
-    const workResp = await classroomGet<{ courseWork?: CourseWork[] }>(
-      `https://classroom.googleapis.com/v1/courses/${course.id}/courseWork`,
+    const courseWork = await classroomListAll<CourseWork, "courseWork">(
+      `https://classroom.googleapis.com/v1/courses/${encodeURIComponent(course.id)}/courseWork?pageSize=${CLASSROOM_PAGE_SIZE}`,
       token,
+      "courseWork",
     );
-    for (const work of workResp.courseWork ?? []) {
+    for (const work of courseWork) {
       const due = reconstructDueIso(work.dueDate, work.dueTime);
-      if (!due) {
-        skipped += 1;
-        continue;
-      }
       items.push({
-        external_id: work.id,
+        external_id: googleClassroomAssignmentKey(course.id, work.id),
+        provider_assignment_id: work.id,
         title: work.title,
         description: work.description ?? null,
         due_at: due,
@@ -148,6 +228,7 @@ export async function fetchClassroomAssignments(
         external_url: work.alternateLink ?? null,
         external_course_id: course.id,
         external_course_name: course.name,
+        sources: classroomSources(work),
       });
     }
   }

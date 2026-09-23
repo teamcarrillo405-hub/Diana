@@ -6,11 +6,34 @@
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
+type AssessmentAttemptStore = {
+  from(table: "assessment_attempts"): {
+    select(columns: string): {
+      eq(
+        column: string,
+        value: string,
+      ): {
+        eq(
+          column: string,
+          value: string,
+        ): {
+          limit(count: number): Promise<{ data: Array<{ id: string }> | null }>;
+        };
+      };
+    };
+  };
+};
+
 const ChatInput = z.object({
   message: z.string().min(1).max(2000),
   pageLabel: z.string().max(80).optional(),
   history: z
-    .array(z.object({ role: z.enum(["student", "coach"]), content: z.string().max(2000) }))
+    .array(
+      z.object({
+        role: z.enum(["student", "coach"]),
+        content: z.string().max(2000),
+      }),
+    )
     .max(8)
     .default([]),
 });
@@ -42,10 +65,30 @@ export async function requestAgentCoach(
     .maybeSingle();
 
   if (profile?.age_bracket === "under_13") {
-    return { ok: false, error: "AI features aren't available for under-13 accounts." };
+    return {
+      ok: false,
+      error: "AI features aren't available for under-13 accounts.",
+    };
   }
   if (!profile?.consent_ai) {
-    return { ok: false, error: "Turn on AI features in Settings to chat with Diana." };
+    return {
+      ok: false,
+      error: "Turn on AI features in Settings to chat with Diana.",
+    };
+  }
+  const { data: openAssessments } = await (
+    supabase as unknown as AssessmentAttemptStore
+  )
+    .from("assessment_attempts")
+    .select("id")
+    .eq("student_id", user.id)
+    .eq("status", "in_progress")
+    .limit(1);
+  if ((openAssessments ?? []).length > 0) {
+    return {
+      ok: false,
+      error: "Diana chat is paused while a formal assessment is open.",
+    };
   }
 
   const { data, error } = await supabase.functions.invoke("agent-coach", {

@@ -1,29 +1,23 @@
 "use client";
 
-import { useState, useTransition, type ReactNode } from "react";
 import {
-  createFirstAidStudyCards,
+  Moon,
+  X,
+  Zap,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import {
   logActivity,
-  saveSleepLog,
-  saveWellnessGoal,
+  saveWellnessCheckIn,
 } from "./actions";
 
-type ActivityRow = {
-  id: string;
-  logged_for: string;
-  activity_type: string;
-  duration_minutes: number;
-  felt: string;
-  notes: string | null;
-};
-
-type GoalRow = {
-  id: string;
-  title: string;
-  category: string;
-  target_text: string;
-  next_step: string | null;
-};
+type SessionMood = "good" | "meh" | "rough";
+type SleepQuality = "rested" | "ok" | "rough";
+type ActivityFelt = "steady" | "tired" | "energized" | "sore" | "proud" | "not_sure";
 
 type SleepRow = {
   id: string;
@@ -32,6 +26,18 @@ type SleepRow = {
   sleep_hours: number | null;
   focus_note: string | null;
 };
+
+const MOODS: ReadonlyArray<Readonly<{ value: SessionMood; label: string }>> = [
+  { value: "good", label: "Ready" },
+  { value: "meh", label: "In-between" },
+  { value: "rough", label: "Rough" },
+];
+
+const SLEEP_QUALITIES: ReadonlyArray<Readonly<{ value: SleepQuality; label: string }>> = [
+  { value: "rested", label: "Rested" },
+  { value: "ok", label: "Okay" },
+  { value: "rough", label: "Rough" },
+];
 
 const ACTIVITY_LABELS: Record<string, string> = {
   walk: "Walk",
@@ -44,237 +50,185 @@ const ACTIVITY_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-const FELT_LABELS: Record<string, string> = {
-  steady: "Steady",
-  tired: "Tired",
-  energized: "Energized",
-  sore: "Sore",
-  proud: "Proud",
-  not_sure: "Not sure",
-};
-
 export function WellnessClient({
   today,
-  activityLogs,
-  goals,
+  initialMood,
   sleepLogs,
 }: {
   today: string;
-  activityLogs: ActivityRow[];
-  goals: GoalRow[];
+  initialMood: SessionMood | null;
   sleepLogs: SleepRow[];
 }) {
+  const router = useRouter();
+  const latestSleep = sleepLogs[0];
+  const [mood, setMood] = useState<SessionMood>(initialMood ?? "meh");
+  const [sleepQuality, setSleepQuality] = useState<SleepQuality>(
+    isSleepQuality(latestSleep?.sleep_quality) ? latestSleep.sleep_quality : "ok",
+  );
+  const [sleepHours, setSleepHours] = useState(
+    typeof latestSleep?.sleep_hours === "number" ? latestSleep.sleep_hours : 7.5,
+  );
   const [activityType, setActivityType] = useState("walk");
-  const [durationMinutes, setDurationMinutes] = useState(20);
-  const [felt, setFelt] = useState("steady");
-  const [activityNotes, setActivityNotes] = useState("");
-  const [goalTitle, setGoalTitle] = useState("");
-  const [goalCategory, setGoalCategory] = useState("skill");
-  const [goalTarget, setGoalTarget] = useState("");
-  const [goalStep, setGoalStep] = useState("");
-  const [sleepDate, setSleepDate] = useState(today);
-  const [sleepQuality, setSleepQuality] = useState("ok");
-  const [sleepHours, setSleepHours] = useState("");
-  const [focusNote, setFocusNote] = useState("");
+  const [durationMinutes, setDurationMinutes] = useState(30);
+  const [felt, setFelt] = useState<ActivityFelt | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const sleepFill = `${Math.round((sleepHours / 12) * 100)}%`;
 
-  function run(action: () => Promise<{ ok: true; count?: number } | { ok: false; error: string }>, success: string) {
+  function runAction(
+    action: () => Promise<{ ok: true } | { ok: false; error: string }>,
+    success: string,
+    afterSuccess?: () => void,
+  ) {
     setStatus(null);
     startTransition(async () => {
       const result = await action();
-      setStatus(result.ok ? success.replace("{count}", String(result.count ?? "")) : result.error);
+      if (!result.ok) {
+        setStatus(result.error);
+        return;
+      }
+      setStatus(success);
+      afterSuccess?.();
+      router.refresh();
     });
   }
 
+  function logMovement() {
+    if (!felt) return;
+    runAction(
+      () => logActivity({
+        activityType: activityType as "walk",
+        durationMinutes,
+        felt,
+        loggedFor: today,
+      }),
+      "Activity saved privately.",
+      () => setFelt(null),
+    );
+  }
+
   return (
-    <div className="space-y-8">
-      <header className="space-y-1">
-        <h1 className="text-display">Wellness</h1>
-        <p className="text-muted">Movement, goals, sleep, and health class study support.</p>
+    <>
+      <header className="sd-wellness-header">
+        <div className="sd-wellness-header-row">
+          <DianaWordmark />
+          <Link className="sd-wellness-close" href="/dashboard" aria-label="Close wellness check-in">
+            <X size={20} aria-hidden="true" />
+          </Link>
+        </div>
+        <h1>Daily wellness</h1>
       </header>
 
-      {status && (
-        <div className="rounded-md border border-border bg-card px-3 py-2 text-sm text-muted" role="status">
-          {status}
-        </div>
-      )}
+      <main className="sd-wellness-scroll">
+        <section className="sd-wellness-controls" aria-label="Private wellness check-in">
+          <div className="sd-wellness-control">
+            <div className="sd-wellness-control-head">
+              <div className="sd-wellness-control-title"><Moon size={16} aria-hidden="true" /><h2>Sleep</h2></div>
+              <output htmlFor="wellness-sleep-hours">{sleepHours.toFixed(1)} hrs</output>
+            </div>
+            <div className="sd-wellness-range-wrap" style={{ "--sleep-fill": sleepFill } as React.CSSProperties}>
+              <input
+                id="wellness-sleep-hours"
+                type="range"
+                min="0"
+                max="12"
+                step="0.5"
+                value={sleepHours}
+                onChange={(event) => setSleepHours(Number(event.target.value))}
+                aria-label="Sleep hours"
+              />
+              <span className="sd-wellness-range-labels"><span>Low</span><span>High</span></span>
+              <span className="sd-wellness-range-marker" aria-hidden="true" />
+            </div>
+            <div className="sd-wellness-quality" aria-label="Sleep quality">
+              {SLEEP_QUALITIES.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  aria-pressed={sleepQuality === item.value}
+                  onClick={() => setSleepQuality(item.value)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-      <section className="grid gap-4 lg:grid-cols-2">
-        <form
-          className="space-y-4 rounded-xl border border-border bg-card p-5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            run(
-              () => logActivity({
-                activityType: activityType as any,
-                durationMinutes,
-                felt: felt as any,
-                notes: activityNotes,
-                loggedFor: today,
-              }),
-              "Movement logged.",
-            );
-          }}
+          <div className="sd-wellness-control" data-tone="pink">
+            <div className="sd-wellness-control-head">
+              <div className="sd-wellness-control-title"><Zap size={16} aria-hidden="true" /><h2>Study readiness</h2></div>
+              <output>{MOODS.find((item) => item.value === mood)?.label}</output>
+            </div>
+            <div className="sd-wellness-segments" aria-label="Study readiness">
+              {MOODS.map((item) => (
+                <button
+                  key={item.value}
+                  type="button"
+                  aria-pressed={mood === item.value}
+                  onClick={() => setMood(item.value)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+        </section>
+
+        <section className="sd-wellness-movement-panel" aria-labelledby="wellness-movement-title">
+          <form className="sd-wellness-movement-form" onSubmit={(event) => { event.preventDefault(); logMovement(); }}>
+            <h2 id="wellness-movement-title">Log movement</h2>
+            <div className="sd-wellness-movement-types" aria-label="Activity type">
+              {Object.entries(ACTIVITY_LABELS).map(([value, label]) => (
+                <button key={value} type="button" aria-pressed={activityType === value} onClick={() => setActivityType(value)}>{label}</button>
+              ))}
+            </div>
+            <label className="sd-wellness-minutes">
+              <span>Minutes</span>
+              <input type="range" min="5" max="180" step="5" value={durationMinutes} onChange={(event) => setDurationMinutes(Number(event.target.value))} />
+              <output>{durationMinutes}m</output>
+            </label>
+            <div className="sd-wellness-felt" aria-label="How movement felt">
+              {(["steady", "tired", "energized", "sore", "proud"] as const).map((value) => (
+                <button key={value} type="button" aria-pressed={felt === value} onClick={() => setFelt(value)}>{formatActivityFelt(value)}</button>
+              ))}
+            </div>
+            <button className="sd-wellness-movement-submit" type="submit" disabled={pending || !felt}>{felt ? "Log it" : "Choose how it felt"}</button>
+          </form>
+        </section>
+
+        {status ? <p className="sd-wellness-status" role="status">{status}</p> : null}
+      </main>
+
+      <footer className="sd-wellness-footer">
+        <button
+          type="button"
+          className="sd-wellness-submit"
+          aria-label="Log recovery activity"
+          disabled={pending}
+          onClick={() => runAction(
+            () => saveWellnessCheckIn({
+              mood,
+              sleepDate: today,
+              sleepQuality,
+              sleepHours,
+              focusNote: "",
+            }),
+            "Wellness check-in saved privately.",
+          )}
         >
-          <div>
-            <h2 className="text-lg font-semibold">Activity log</h2>
-            <p className="text-sm text-muted">Track what you did and how it felt.</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Type</span>
-              <select value={activityType} onChange={(e) => setActivityType(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2">
-                {Object.entries(ACTIVITY_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-              </select>
-            </label>
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Minutes</span>
-              <input type="number" min={1} max={720} value={durationMinutes} onChange={(e) => setDurationMinutes(Number(e.target.value))} className="w-full rounded-md border border-border bg-background px-3 py-2" />
-            </label>
-          </div>
-          <label className="space-y-1 text-sm">
-            <span className="font-medium">How it felt</span>
-            <select value={felt} onChange={(e) => setFelt(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2">
-              {Object.entries(FELT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
-          </label>
-          <textarea value={activityNotes} onChange={(e) => setActivityNotes(e.target.value)} rows={3} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="Optional note for class or yourself." />
-          <button disabled={pending} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Save activity</button>
-        </form>
+          {pending ? "Saving wellness" : "Log wellness"}
+        </button>
+      </footer>
 
-        <form
-          className="space-y-4 rounded-xl border border-border bg-card p-5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            run(
-              () => saveSleepLog({
-                sleepDate,
-                sleepQuality: sleepQuality as any,
-                sleepHours: sleepHours ? Number(sleepHours) : null,
-                focusNote,
-              }),
-              "Sleep logged. Dashboard task sizing will use it.",
-            );
-          }}
-        >
-          <div>
-            <h2 className="text-lg font-semibold">Sleep + recovery</h2>
-            <p className="text-sm text-muted">Sleep can adjust the next task size on your dashboard.</p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Date</span>
-              <input type="date" value={sleepDate} onChange={(e) => setSleepDate(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2" />
-            </label>
-            <label className="space-y-1 text-sm">
-              <span className="font-medium">Quality</span>
-              <select value={sleepQuality} onChange={(e) => setSleepQuality(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2">
-                <option value="rested">Rested</option>
-                <option value="ok">OK</option>
-                <option value="rough">Rough</option>
-              </select>
-            </label>
-          </div>
-          <label className="space-y-1 text-sm">
-            <span className="font-medium">Hours (optional)</span>
-            <input type="number" min={0} max={18} step={0.5} value={sleepHours} onChange={(e) => setSleepHours(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2" />
-          </label>
-          <textarea value={focusNote} onChange={(e) => setFocusNote(e.target.value)} rows={3} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="Optional focus note for tomorrow." />
-          <button disabled={pending} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Save sleep</button>
-        </form>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <form
-          className="space-y-4 rounded-xl border border-border bg-card p-5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            run(
-              () => saveWellnessGoal({
-                title: goalTitle,
-                category: goalCategory as any,
-                targetText: goalTarget,
-                nextStep: goalStep,
-              }),
-              "Goal saved.",
-            );
-          }}
-        >
-          <div>
-            <h2 className="text-lg font-semibold">Personal goal</h2>
-            <p className="text-sm text-muted">Set a goal around skill, consistency, strength, flexibility, endurance, or recovery.</p>
-          </div>
-          <input value={goalTitle} onChange={(e) => setGoalTitle(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="Goal title" />
-          <select value={goalCategory} onChange={(e) => setGoalCategory(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm">
-            <option value="skill">Skill</option>
-            <option value="endurance">Endurance</option>
-            <option value="strength">Strength</option>
-            <option value="flexibility">Flexibility</option>
-            <option value="consistency">Consistency</option>
-            <option value="recovery">Recovery</option>
-          </select>
-          <textarea value={goalTarget} onChange={(e) => setGoalTarget(e.target.value)} rows={3} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="What are you practicing?" />
-          <input value={goalStep} onChange={(e) => setGoalStep(e.target.value)} className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm" placeholder="Next small step" />
-          <button disabled={pending} className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50">Save goal</button>
-        </form>
-
-        <div className="space-y-4 rounded-xl border border-border bg-card p-5">
-          <div>
-            <h2 className="text-lg font-semibold">CPR / first aid study</h2>
-            <p className="text-sm text-muted">Add a starter set to your spaced repetition deck.</p>
-          </div>
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => run(createFirstAidStudyCards, "Added {count} study cards.")}
-            className="rounded-md bg-accent px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
-          >
-            Add study cards
-          </button>
-          <p className="text-xs text-muted">Use your class protocol for practice and certification steps.</p>
-        </div>
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-3">
-        <RecentList title="Recent activity" empty="No activity logged yet.">
-          {activityLogs.map((item) => (
-            <li key={item.id} className="rounded-md border border-border bg-card p-3 text-sm">
-              <p className="font-medium">{ACTIVITY_LABELS[item.activity_type] ?? item.activity_type} - {item.duration_minutes} min</p>
-              <p className="text-muted">{FELT_LABELS[item.felt] ?? item.felt} - {item.logged_for}</p>
-              {item.notes && <p className="mt-1 text-muted">{item.notes}</p>}
-            </li>
-          ))}
-        </RecentList>
-        <RecentList title="Active goals" empty="No active goals yet.">
-          {goals.map((goal) => (
-            <li key={goal.id} className="rounded-md border border-border bg-card p-3 text-sm">
-              <p className="font-medium">{goal.title}</p>
-              <p className="text-muted">{goal.target_text}</p>
-              {goal.next_step && <p className="mt-1 text-accent">{goal.next_step}</p>}
-            </li>
-          ))}
-        </RecentList>
-        <RecentList title="Sleep notes" empty="No sleep logs yet.">
-          {sleepLogs.map((sleep) => (
-            <li key={sleep.id} className="rounded-md border border-border bg-card p-3 text-sm">
-              <p className="font-medium">{sleep.sleep_date} - {sleep.sleep_quality}</p>
-              <p className="text-muted">{sleep.sleep_hours ? `${sleep.sleep_hours} hours` : "Hours not added"}</p>
-              {sleep.focus_note && <p className="mt-1 text-muted">{sleep.focus_note}</p>}
-            </li>
-          ))}
-        </RecentList>
-      </section>
-    </div>
+    </>
   );
 }
 
-function RecentList({ title, empty, children }: { title: string; empty: string; children: ReactNode }) {
-  const hasItems = Array.isArray(children) ? children.some(Boolean) : Boolean(children);
-  return (
-    <div className="space-y-3">
-      <h2 className="text-sm font-medium uppercase tracking-wider text-muted">{title}</h2>
-      {hasItems ? <ul className="space-y-2">{children}</ul> : <p className="rounded-md border border-border bg-card p-3 text-sm text-muted">{empty}</p>}
-    </div>
-  );
+function isSleepQuality(value: unknown): value is SleepQuality {
+  return value === "rested" || value === "ok" || value === "rough";
+}
+
+function formatActivityFelt(value: ActivityFelt): string {
+  return value === "not_sure" ? "Not sure" : value;
 }

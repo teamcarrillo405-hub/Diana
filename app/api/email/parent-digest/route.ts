@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
-import { createClient as createServiceClient } from "@supabase/supabase-js";
-import { buildParentDigestEmail } from "@/lib/email/parent-digest";
+import {
+  buildParentDigestEmail,
+  parentDigestIdempotencyKey,
+  parentDigestRecipient,
+} from "@/lib/email/parent-digest";
 import { emailConfigured, sendEmail } from "@/lib/email/resend";
+import { runObservedCronJob, type CronRunOutcome } from "@/lib/operations/cron-run";
 import { growthStory } from "@/lib/portal/growth";
+import { hasValidCronBearer } from "@/lib/security/cron-auth";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
+
+const MAX_PARENT_DIGEST_RECIPIENTS = 300;
 
 /**
  * Weekly parent digest sender — Vercel cron (Sundays, see vercel.json).
@@ -13,24 +21,41 @@ export const maxDuration = 300;
  * builds the growth story from real activity, sends one calm email.
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) {
-    return NextResponse.json({ error: "Not authorized" }, { status: 401 });
+  if (!hasValidCronBearer(request.headers.get("authorization"))) {
+    return NextResponse.json({ error: "Authorization required." }, { status: 401 });
   }
+
+  const supabase = createServiceClient();
+  return runObservedCronJob({
+    routeName: "/api/email/parent-digest",
+    jobName: "parent-digest",
+    serviceClient: supabase,
+    execute: () => runParentDigest(supabase),
+    summarize: summarizeParentDigestRun,
+  });
+}
+
+async function runParentDigest(supabase: ReturnType<typeof createServiceClient>) {
   if (!emailConfigured()) {
-    return NextResponse.json({ error: "Email not configured" }, { status: 500 });
+    return NextResponse.json({ error: "Email delivery is not configured." }, { status: 503 });
   }
 
-  const supabase = createServiceClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  );
+  if (!supabase) {
+    return NextResponse.json({ error: "Digest service is not configured." }, { status: 503 });
+  }
 
-  const { data: profiles } = await supabase
+  const { data: profiles, error: profilesError } = await supabase
     .from("profiles")
     .select("user_id, display_name, notification_preferences")
-    .not("notification_preferences", "is", null)
-    .limit(2000);
+    .contains("notification_preferences", { parentDigest: { enabled: true } })
+    .order("user_id", { ascending: true })
+    .limit(MAX_PARENT_DIGEST_RECIPIENTS + 1);
+  if (profilesError) {
+    return NextResponse.json({ error: "Digest recipients could not be loaded." }, { status: 503 });
+  }
+  if ((profiles?.length ?? 0) > MAX_PARENT_DIGEST_RECIPIENTS) {
+    return NextResponse.json({ error: "Digest recipient scope is temporarily too large." }, { status: 503 });
+  }
 
   const now = new Date();
   const windowDays = 28;
@@ -39,15 +64,16 @@ export async function GET(request: Request) {
   const next7Iso = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
   let sent = 0;
+  let failed = 0;
   for (const profile of profiles ?? []) {
-    const prefs = (profile.notification_preferences ?? {}) as {
-      parentDigest?: { email?: string; enabled?: boolean };
-    };
-    const to = prefs.parentDigest?.enabled ? prefs.parentDigest.email : null;
-    if (!to || !to.includes("@")) continue;
+    const recipient = parentDigestRecipient(profile);
+    if (!recipient) {
+      failed += 1;
+      continue;
+    }
 
-    const ownerId = profile.user_id as string;
-    const [{ data: completed28 }, { data: logs7 }, { count: completedWeek }, { count: upcoming }] =
+    const ownerId = recipient.ownerId;
+    const [completedResult, logsResult, completedWeekResult, upcomingResult] =
       await Promise.all([
         supabase
           .from("task_signals")
@@ -74,6 +100,20 @@ export async function GET(request: Request) {
           .lte("due_at", next7Iso)
           .not("status", "in", "(submitted,graded,abandoned)"),
       ]);
+    if (
+      completedResult.error ||
+      logsResult.error ||
+      completedWeekResult.error ||
+      upcomingResult.error
+    ) {
+      failed += 1;
+      continue;
+    }
+
+    const completed28 = completedResult.data;
+    const logs7 = logsResult.data;
+    const completedWeek = completedWeekResult.count;
+    const upcoming = upcomingResult.count;
 
     const minutesThisWeek = (logs7 ?? []).reduce((sum, log) => {
       if (typeof log.elapsed_minutes === "number") return sum + log.elapsed_minutes;
@@ -96,7 +136,7 @@ export async function GET(request: Request) {
     });
 
     const email = buildParentDigestEmail({
-      studentName: (profile.display_name as string) ?? "Your student",
+      studentName: recipient.studentName,
       story,
       stats: {
         completedThisWeek: completedWeek ?? 0,
@@ -105,9 +145,35 @@ export async function GET(request: Request) {
       },
     });
 
-    const result = await sendEmail({ to, ...email });
+    const result = await sendEmail({
+      to: recipient.email,
+      ...email,
+      idempotencyKey: parentDigestIdempotencyKey(ownerId, now),
+    });
     if (result.ok) sent += 1;
+    else failed += 1;
   }
 
-  return NextResponse.json({ sent });
+  return NextResponse.json(
+    { ok: failed === 0, sent, failed },
+    { status: failed === 0 ? 200 : 503 },
+  );
+}
+
+function summarizeParentDigestRun(response: Response, body: unknown): CronRunOutcome {
+  const result = asRecord(body);
+  const sent = Number(result.sent) || 0;
+  const failed = Number(result.failed) || 0;
+  return {
+    processed: sent + failed,
+    succeeded: sent,
+    failed,
+    retryCount: response.ok ? 0 : Math.max(1, failed),
+    errorCode: response.ok ? null : "parent_digest_failed",
+    errorSummary: response.ok ? null : "Parent digest delivery did not complete successfully.",
+  };
+}
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" ? value as Record<string, unknown> : {};
 }

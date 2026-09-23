@@ -11,6 +11,22 @@
     {
       "path": "/api/cron/lms-sync",
       "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/media-retention",
+      "schedule": "30 13 * * *"
+    },
+    {
+      "path": "/api/cron/account-deletion",
+      "schedule": "15 9 * * *"
+    },
+    {
+      "path": "/api/cron/ai-budget-reconciliation",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/assignment-media-cleanup",
+      "schedule": "*/10 * * * *"
     }
   ]
 }

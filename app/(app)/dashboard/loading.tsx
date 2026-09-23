@@ -13,7 +13,7 @@ export default function DashboardLoading() {
         }
       `}</style>
 
-      {/* AppTopNav stub */}
+      {/* Navigation placeholder */}
       <div style={{ height: "3.25rem", background: "var(--gl-bg-card)", borderBottom: "1px solid var(--gl-border-neutral)" }} />
 
       {/* Hero skeleton */}

@@ -33,7 +33,14 @@ import {
 import { parseMathScaffoldResponse, type MathScaffoldResult, type MathSubject } from "@/lib/math/scaffold";
 import { parseScienceScaffoldResponse, type ScienceScaffoldMode, type ScienceScaffoldResult } from "@/lib/science/scaffold";
 import { parseWritingCoauthorResponse, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
+import {
+  parseAssignmentReviewResponse,
+  type AssignmentReviewTemplate,
+} from "@/lib/assignment-review";
+import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import { ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/lib/supabase/types";
 
 const HistoryItem = z.object({
   role: z.enum(["user", "assistant"]),
@@ -61,6 +68,12 @@ const WritingCoauthorInput = z.object({
   mode: z.enum(["essay_scaffold", "cowrite", "transition", "evidence", "argument", "readability", "tone"]),
   draft: z.string().max(8000).default(""),
   prompt: z.string().max(1500).default(""),
+});
+
+const AcceptWritingSuggestionInput = z.object({
+  assignmentId: z.string().uuid(),
+  currentDraft: z.string().max(8000),
+  suggestionText: z.string().min(1).max(800),
 });
 
 const ScienceScaffoldInput = z.object({
@@ -133,6 +146,16 @@ const CitationInput = z.object({
   sourceText: z.string().min(1).max(8000),
   formats: z.array(z.enum(["mla", "apa", "chicago"])).min(1),
 });
+const AssignmentReviewInput = z.object({
+  assignmentId: z.string().uuid(),
+  template: z.enum(["writing", "math", "worksheet", "research", "history", "lab", "reading", "language", "coding", "art", "project", "handoff"]),
+  focus: z.string().trim().min(1).max(800),
+  question: z.string().max(1200).default(""),
+  fields: z.array(z.object({
+    label: z.string().trim().min(1).max(100),
+    value: z.string().max(8000),
+  })).min(1).max(8),
+});
 
 async function getOwnerId(): Promise<string | null> {
   const supabase = await createClient();
@@ -140,6 +163,31 @@ async function getOwnerId(): Promise<string | null> {
     data: { user },
   } = await supabase.auth.getUser();
   return user?.id ?? null;
+}
+
+async function loadAssignmentAiMode(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ownerId: string,
+  assignmentId: string,
+): Promise<AiMode | null> {
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("ai_mode_override, classes(ai_mode)")
+    .eq("id", assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return null;
+
+  const classMode: AiMode = assignment.classes?.ai_mode === "red"
+    || assignment.classes?.ai_mode === "yellow"
+    ? assignment.classes.ai_mode
+    : "green";
+  const override: AiMode | null = assignment.ai_mode_override === "red"
+    || assignment.ai_mode_override === "yellow"
+    || assignment.ai_mode_override === "green"
+    ? assignment.ai_mode_override
+    : null;
+  return effectiveAiMode(classMode, override);
 }
 
 // Map an Edge-Function error message to calm, student-facing copy.
@@ -406,8 +454,12 @@ export async function requestWritingAid(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = parsed.data.assignmentId
+    ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
+    : parsed.data.aiMode;
+  if (!aiMode) return { error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("writing-aid", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
   return { content: (data as { content: string }).content ?? "" };
@@ -422,12 +474,14 @@ export async function requestWritingCoauthor(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const evidenceContext = parsed.data.mode === "evidence"
     ? await loadWritingEvidenceContext(supabase, ownerId, parsed.data.assignmentId)
     : "";
 
   const { data, error } = await supabase.functions.invoke("writing-cowrite", {
-    body: { ownerId, ...parsed.data, evidenceContext },
+    body: { ownerId, ...parsed.data, aiMode, evidenceContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -441,6 +495,88 @@ export async function requestWritingCoauthor(
   };
 }
 
+export async function requestAssignmentReview(
+  input: z.infer<typeof AssignmentReviewInput>,
+): Promise<{ ok: true; result: ReturnType<typeof parseAssignmentReviewResponse>; sourceAnchors: string[] } | { ok: false; error: string }> {
+  const parsed = AssignmentReviewInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Add a little of your work before asking Diana." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { ok: false, error: "Not signed in." };
+
+  const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
+  const { data, error } = await supabase.functions.invoke("assignment-review", {
+    body: { ownerId, ...parsed.data, aiMode },
+  });
+  if (error) return { ok: false, error: calmError(error.message) };
+  if (data?.error) return { ok: false, error: String(data.error) };
+  return {
+    ok: true,
+    result: parseAssignmentReviewResponse(
+      String(data?.content ?? ""),
+      parsed.data.template as AssignmentReviewTemplate,
+    ),
+    sourceAnchors: Array.isArray(data?.sourceAnchors)
+      ? data.sourceAnchors.filter((anchor: unknown): anchor is string => typeof anchor === "string").slice(0, 12)
+      : [],
+  };
+}
+export async function acceptWritingSuggestion(
+  input: z.infer<typeof AcceptWritingSuggestionInput>,
+): Promise<{ ok: true; draft: string } | { ok: false; error: string }> {
+  const parsed = AcceptWritingSuggestionInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Invalid suggestion." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { ok: false, error: "Not signed in." };
+
+  const supabase = await createClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("saved_work")
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return { ok: false, error: "Assignment not found." };
+
+  const suggestionText = parsed.data.suggestionText.trim();
+  const draft = [parsed.data.currentDraft.trimEnd(), suggestionText]
+    .filter(Boolean)
+    .join("\n\n");
+  const savedWork = assignment.saved_work && typeof assignment.saved_work === "object"
+    && !Array.isArray(assignment.saved_work)
+    ? assignment.saved_work
+    : {};
+  const previousAcceptedChars = typeof savedWork.writingAcceptedAiChars === "number"
+    ? savedWork.writingAcceptedAiChars
+    : 0;
+  const nextSavedWork: Json = {
+    ...savedWork,
+    draft,
+    writingAcceptedAiChars: previousAcceptedChars + suggestionText.length,
+  };
+
+  const { error } = await supabase
+    .from("assignments")
+    .update({ saved_work: nextSavedWork })
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId);
+  if (error) return { ok: false, error: "The draft could not be saved. Try again." };
+
+  await supabase.from("authorship_log").insert({
+    owner_id: ownerId,
+    assignment_id: parsed.data.assignmentId,
+    actor: "student",
+    event_type: "writing_suggestion_accepted",
+    payload: {
+      acceptedAiChars: suggestionText.length,
+      studentConfirmed: true,
+    },
+  });
+
+  return { ok: true, draft };
+}
+
 export async function requestScienceScaffold(
   input: z.infer<typeof ScienceScaffoldInput>,
 ): Promise<{ ok: true; result: ScienceScaffoldResult } | { ok: false; error: string }> {
@@ -450,9 +586,11 @@ export async function requestScienceScaffold(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const classContext = await loadScienceClassContext(supabase, ownerId, parsed.data.assignmentId);
   const { data, error } = await supabase.functions.invoke("science-scaffold", {
-    body: { ownerId, ...parsed.data, classContext },
+    body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -499,19 +637,16 @@ export async function uploadHistoryMapImage(
   const file = formData.get("historyMap") as File | null;
   if (!file) return { ok: false, error: "No image provided." };
 
-  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-  const allowed = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-  if (!allowed.has(ext)) {
-    return { ok: false, error: "Pick a .jpg, .png, .webp, or .gif image." };
-  }
-  if (file.size >= 10 * 1024 * 1024) {
-    return { ok: false, error: "Images work best under 10 MB. Try a smaller crop." };
-  }
+  const validation = await validateFileUpload("aiToolImage", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
 
-  const storageKey = `${user.id}/history-map-${Date.now()}.${ext}`;
+  const storageKey = ownerStorageKey(
+    user.id,
+    `history-map-${Date.now()}.${validation.value.extension}`,
+  );
   const { error } = await supabase.storage
     .from("note-docs")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
@@ -689,6 +824,22 @@ const TaskBreakdownInput = z.object({
   estimatedMinutes: z.number().int().min(1).max(600).optional(),
 });
 
+const AcceptedBreakdownInput = z.object({
+  assignmentId: z.string().uuid(),
+  steps: z.array(z.object({
+    step: z.number().int().min(1).max(12),
+    action: z.string().trim().min(1).max(500),
+    minutes: z.number().int().min(1).max(5),
+    done: z.boolean(),
+  })).min(1).max(12),
+});
+
+function assignmentClassAiMode(classes: { ai_mode?: string | null } | null): AiMode {
+  return classes?.ai_mode === "red" || classes?.ai_mode === "yellow"
+    ? classes.ai_mode
+    : "green";
+}
+
 export async function requestTaskBreakdown(
   input: z.infer<typeof TaskBreakdownInput>,
 ): Promise<{ steps: BreakdownStep[] } | { error: string }> {
@@ -698,29 +849,76 @@ export async function requestTaskBreakdown(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("id, ai_mode_override, classes(ai_mode)")
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return { error: "Assignment not found." };
+
+  const override: AiMode | null =
+    assignment.ai_mode_override === "red" ||
+    assignment.ai_mode_override === "yellow" ||
+    assignment.ai_mode_override === "green"
+      ? assignment.ai_mode_override
+      : null;
+  const aiMode = effectiveAiMode(assignmentClassAiMode(assignment.classes), override);
+  if (aiMode !== "green") {
+    return { error: "AI steps are not available for this assignment." };
+  }
+
   const { data, error } = await supabase.functions.invoke("task-breakdown", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
 
   const content = (data as { content: string }).content ?? "";
   const steps = parseStepsFromContent(content);
+  return { steps };
+}
 
-  // Persist via upsert on assignment_id (unique index ensures one row per assignment)
-  await supabase
+export async function acceptTaskBreakdown(
+  input: z.infer<typeof AcceptedBreakdownInput>,
+): Promise<{ ok: true } | { error: string }> {
+  const parsed = AcceptedBreakdownInput.safeParse(input);
+  if (!parsed.success) return { error: "Choose at least one valid step." };
+  const ownerId = await getOwnerId();
+  if (!ownerId) return { error: "Not signed in." };
+
+  const supabase = await createClient();
+  const { data: assignment } = await supabase
+    .from("assignments")
+    .select("id")
+    .eq("id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
+    .maybeSingle();
+  if (!assignment) return { error: "Assignment not found." };
+
+  const now = new Date().toISOString();
+  const { error } = await supabase
     .from("assignment_steps")
     .upsert(
       {
         owner_id: ownerId,
         assignment_id: parsed.data.assignmentId,
-        steps,
-        generated_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        steps: parsed.data.steps,
+        generated_at: now,
+        updated_at: now,
       },
       { onConflict: "assignment_id" },
     );
+  if (error) return { error: "The steps could not be saved. Try again." };
 
-  return { steps };
+  await supabase.from("authorship_log").insert({
+    owner_id: ownerId,
+    assignment_id: parsed.data.assignmentId,
+    actor: "student",
+    event_type: "task_breakdown_accepted",
+    payload: { stepCount: parsed.data.steps.length },
+  });
+
+  return { ok: true };
 }
 
 const ToggleStepInput = z.object({
@@ -784,19 +982,16 @@ export async function uploadMathPhoto(
   const file = formData.get("mathPhoto") as File | null;
   if (!file) return { ok: false, error: "No photo provided." };
 
-  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-  const allowed = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-  if (!allowed.has(ext)) {
-    return { ok: false, error: "Pick a .jpg, .png, .webp, or .gif photo." };
-  }
-  if (file.size >= 10 * 1024 * 1024) {
-    return { ok: false, error: "Photos work best under 10 MB. Try a smaller crop." };
-  }
+  const validation = await validateFileUpload("aiToolImage", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
 
-  const storageKey = `${user.id}/math-${Date.now()}.${ext}`;
+  const storageKey = ownerStorageKey(
+    user.id,
+    `math-${Date.now()}.${validation.value.extension}`,
+  );
   const { error } = await supabase.storage
     .from("note-docs")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
@@ -811,8 +1006,12 @@ export async function requestMathScaffold(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = parsed.data.assignmentId
+    ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
+    : parsed.data.aiMode;
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("math-scaffold", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -847,17 +1046,53 @@ export async function toggleStepDone(
     .from("assignment_steps")
     .select("steps")
     .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", ownerId)
     .single();
   if (!row) return { error: "No breakdown to update." };
 
-  const steps = (row.steps as BreakdownStep[]).map((s, i) =>
-    i === parsed.data.stepIndex ? { ...s, done: parsed.data.done } : s,
-  );
+  if (!Array.isArray(row.steps)) {
+    return { error: "The saved breakdown needs to be regenerated." };
+  }
+  const storedSteps: BreakdownStep[] = [];
+  for (const value of row.steps) {
+    const storedStep = parseStoredBreakdownStep(value);
+    if (!storedStep) {
+      return { error: "The saved breakdown needs to be regenerated." };
+    }
+    storedSteps.push(storedStep);
+  }
+  const steps = storedSteps.map((storedStep, i) => {
+    return i === parsed.data.stepIndex
+      ? { ...storedStep, done: parsed.data.done }
+      : storedStep;
+  });
   await supabase
     .from("assignment_steps")
-    .update({ steps, updated_at: new Date().toISOString() })
+    .update({
+      steps: JSON.parse(JSON.stringify(steps)) as Json,
+      updated_at: new Date().toISOString(),
+    })
     .eq("assignment_id", parsed.data.assignmentId)
     .eq("owner_id", ownerId);
 
   return { ok: true };
+}
+
+function parseStoredBreakdownStep(value: unknown): BreakdownStep | null {
+  if (!value || typeof value !== "object") return null;
+  const step = value as Record<string, unknown>;
+  if (
+    typeof step.step !== "number"
+    || typeof step.action !== "string"
+    || typeof step.minutes !== "number"
+    || typeof step.done !== "boolean"
+  ) {
+    return null;
+  }
+  return {
+    step: step.step,
+    action: step.action,
+    minutes: step.minutes,
+    done: step.done,
+  };
 }

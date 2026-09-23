@@ -20,7 +20,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600;700&amp;family=Saira+Condensed:ital,wght@0,600;0,700;0,800;1,700;1,800&amp;display=swap" rel="stylesheet">
 <style>
   :root{
-    --gl-bg-base:#04060f; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
+    --gl-bg-base:#0b1428; --gl-bg-hero:#0a1024; --gl-bg-card:rgba(4,8,20,.72);
     --gl-focus-from:rgba(8,12,26,.96); --gl-focus-to:rgba(12,18,42,.96);
     --gl-cyan:#29d0ff; --gl-cyan-85:rgba(41,208,255,.85); --gl-cyan-25:rgba(41,208,255,.25); --gl-cyan-18:rgba(41,208,255,.18); --gl-cyan-14:rgba(41,208,255,.14); --gl-cyan-08:rgba(41,208,255,.08);
     --gl-gold:#ffd24a; --gl-gold-30:rgba(255,210,74,.3); --gl-gold-14:rgba(255,210,74,.14);
@@ -33,110 +33,55 @@
   }
   html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
   ::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:rgba(120,150,220,.22);border-radius:6px}
+  /* Record pattern: cards carry the reading load, while the page shell stays calm. */
+  [style*="background:var(--gl-bg-card)"] { --gl-bg-card:#fff; --gl-border:#cbd5e1; --gl-border-neutral:#cbd5e1; --gl-text-primary:#0f172a; --gl-text-secondary:#334155; --gl-text-muted:#64748b; --gl-text-dim:#64748b; --gl-text-overlay-60:#64748b; background:#fff !important; color:#0f172a; box-shadow:0 6px 22px rgba(2,6,23,.1); }
+  [style*="border:1px dashed"] { --gl-border:#94a3b8; --gl-text-primary:#0f172a; --gl-text-secondary:#334155; --gl-text-muted:#64748b; --gl-text-dim:#64748b; --gl-text-overlay-60:#64748b; border-color:#94a3b8 !important; background:#fff !important; color:#0f172a; }
 </style>
 </helmet>
 
-<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(1200px 600px at 80% -5%,rgba(41,208,255,.05),transparent 60%),var(--gl-bg-base)">
+<div style="width:100%;min-height:100vh;font-family:var(--font-body);color:var(--gl-text-primary);background:radial-gradient(circle at 88% 6%,rgba(255,121,218,.11),transparent 30%),var(--gl-bg-base)">
 
   <!-- APP NAV -->
-  <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
-    <div style="display:flex;gap:8px">
-      <a href="More.dc.html" title="Apps" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
-      <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
-    </div>
-    <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
-      <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Today</a>
-      <a href="Work.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer;padding:18px 2px">Work</a>
-      <a href="Classes.dc.html" style="display:inline-block;text-decoration:none;position:relative;color:#fff;padding:18px 2px;cursor:pointer"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div>Classes</a>
-      <a href="Calendar.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
-      <a href="Messages.dc.html" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
-    </div>
-    <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
-      <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
-      <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid rgba(220,38,38,1);background:rgba(220,38,38,1)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-        <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:#ffffff">RECORD</span>
-      </div>
-      <a href="Settings.dc.html" title="Account" style="text-decoration:none;width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center;cursor:pointer">
-        <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
-          <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
-            <div style="width:100%;height:100%;background-image:{{ avatarPhotoCss }};background-size:cover;background-position:{{ photoObjectPosition }}"></div>
-          </sc-if>
-        </sc-if>
-        <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
-        </sc-if>
-        <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
-          <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
-        </sc-if>
-        <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
-          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;color:#04080f">{{ initials }}</span>
-        </sc-if>
-      </a>
-      <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-      </a>
-    </div>
-  </div>
+  <dc-import name="Student Desktop Header" active="classes" hint-size="1440px,58px"></dc-import>
 
-  <div style="max-width:1440px;margin:0 auto;padding:44px 34px 70px">
+  <div style="max-width:1180px;margin:0 auto;padding:40px 48px 72px">
 
     <!-- ═══════ GRID SCREEN ═══════ -->
     <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
     <div>
-      <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:34px">
+      <header style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:28px">
         <div>
-          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:#29d0ff;margin-bottom:10px">Fall term · 6 classes</div>
-          <h1 style="margin:0;font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:56px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:#fff;text-wrap:balance">Your classes</h1>
+          <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:.34em;text-transform:uppercase;color:#29d0ff;margin-bottom:10px">Fall term</div>
+          <h1 style="margin:0;font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:56px;line-height:.92;text-transform:uppercase;letter-spacing:.01em;color:#fff;text-wrap:balance">Classes</h1>
         </div>
         <a href="New Class.dc.html" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;background:rgba(41,208,255,.08);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:var(--font-display);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--gl-cyan)" style-hover="background:rgba(41,208,255,.16)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"></path></svg>Add class
         </a>
       </header>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
         <sc-for list="{{ gridClasses }}" as="c" hint-placeholder-count="6">
-          <div onClick="{{ c.onOpenDetail }}" style="border-radius:14px;overflow:hidden;border:1px solid {{ c.cardBorder }};box-shadow:{{ c.cardRing }};background:rgba(4,8,20,.72);backdrop-filter:blur(10px);cursor:pointer;transition:transform .2s" style-hover="transform:translateY(-4px)">
-            <div style="padding:20px 20px 18px">
+          <div onClick="{{ c.onOpenDetail }}" style="border-radius:8px;overflow:hidden;border:1px solid {{ c.cardBorder }};box-shadow:{{ c.cardRing }};background:#f4efe6;color:#111827;cursor:pointer;transition:transform .2s" style-hover="transform:translateY(-2px)">
+            <div style="padding:22px 22px 20px">
               <!-- eyebrow: current period + teacher -->
-              <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;min-height:16px">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;min-height:16px">
                 <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}">
                   <div style="display:inline-flex;align-items:center;gap:6px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gl-cyan)"><span style="width:6px;height:6px;border-radius:50%;background:var(--gl-cyan);box-shadow:0 0 8px var(--gl-cyan)"></span>In session now</div>
                 </sc-if>
-                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gl-text-dim)">{{ c.teacher }}</div>
+                <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#64748b">{{ c.teacher }}</div>
               </div>
               <!-- subject name + course grade -->
               <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:14px">
-                <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:40px;line-height:.9;text-transform:uppercase;letter-spacing:.01em">{{ c.name }}</div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:38px;line-height:.92;text-transform:uppercase;letter-spacing:.01em">{{ c.name }}</div>
                 <div style="text-align:right;flex-shrink:0">
-                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:27px;line-height:.9;color:{{ c.gradeColor }}">{{ c.gradeLetter }}</div>
-                  <div style="font-size:12px;font-weight:700;color:var(--gl-text-dim);margin-top:3px">{{ c.gradePct }}</div>
+                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:27px;line-height:.9;color:#0f172a">{{ c.gradeLetter }}</div>
+                  <div style="font-size:12px;font-weight:700;color:#64748b;margin-top:3px">{{ c.gradePct }}</div>
                 </div>
               </div>
 
-              <!-- concept mastery bricks -->
-              <div style="margin-top:18px">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px">
-                  <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gl-text-muted)">Mastery</div>
-                  <div style="font-size:12px;font-weight:600;color:var(--gl-text-dim)">{{ c.masterySummary }}</div>
-                </div>
-                <div style="display:flex;gap:5px">
-                  <sc-for list="{{ c.bricks }}" as="b" hint-placeholder-count="4">
-                    <div title="{{ b.name }}" style="flex:1;height:9px;border-radius:3px;background:{{ b.color }}"></div>
-                  </sc-for>
-                </div>
-              </div>
-
-              <!-- quiet next-up reference line -->
-              <div style="margin-top:15px;display:flex;align-items:center;gap:7px;min-width:0">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ c.nextIconColor }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 14.5 15"></polyline><path d="M10 3h4"></path><line x1="12" y1="3" x2="12" y2="5"></line></svg>
-                <span style="font-size:13px;font-weight:600;color:{{ c.nextColor }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.nextLine }}</span>
-              </div>
-
-              <!-- study tools — consistent on every card -->
-              <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                <div onClick="{{ goFlashcards }}" style="padding:10px 8px;border-radius:8px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.2);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:rgba(41,208,255,.85)" style-hover="background:rgba(41,208,255,.14)">Flashcards</div>
-                <div onClick="{{ goQuiz }}" style="padding:10px 8px;border-radius:8px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.2);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:rgba(41,208,255,.85)" style-hover="background:rgba(41,208,255,.14)">Quiz me</div>
+              <div style="margin-top:22px;padding-top:16px;border-top:1px solid #e2e8f0;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div onClick="{{ goNotes }}" style="padding:11px 8px;border-radius:8px;background:#ffffff;border:1px solid #94a3b8;text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#0f172a" style-hover="background:#f8fafc">Notes</div>
+                <div onClick="{{ c.onOpenDetail }}" style="padding:11px 8px;border-radius:8px;background:#ffffff;border:1px solid #94a3b8;text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#0f172a" style-hover="background:#f8fafc">Open class</div>
               </div>
             </div>
           </div>
@@ -172,40 +117,17 @@
         </div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:18px">
-        <!-- mastery -->
-        <div>
-          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;color:var(--gl-text-secondary)">Concept mastery</div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <sc-for list="{{ sel.concepts }}" as="m" hint-placeholder-count="4">
-              <div onClick="{{ m.onClick }}" style="border-radius:12px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:13px 15px;cursor:pointer">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-                  <div style="font-size:14px;font-weight:600;color:#fff">{{ m.name }}</div>
-                  <div style="position:relative;width:30px;height:30px;border-radius:50%;background:{{ m.glowBg }};display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                    <div style="width:12px;height:12px;border-radius:50%;background:{{ m.dotColor }};box-shadow:{{ m.glow }}"></div>
-                  </div>
-                </div>
-                <div style="margin-top:8px;height:5px;border-radius:3px;background:rgba(120,150,220,.15);overflow:hidden">
-                  <div style="height:100%;border-radius:3px;width:{{ m.pct }}%;background:{{ sel.color }}"></div>
-                </div>
-              </div>
-            </sc-for>
-          </div>
+      <section aria-labelledby="syllabus-heading">
+        <div id="syllabus-heading" style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;color:var(--gl-text-secondary)">Syllabus</div>
+        <div style="border-radius:8px;border:1px dashed var(--gl-border);background:rgba(4,8,20,.4);padding:15px 17px">
+          <sc-if value="{{ sel.hasSyllabus }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;gap:11px">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
+              <div><div style="font-size:14px;font-weight:600;color:#0f172a">{{ sel.syllabusName }}</div><div style="font-size:12px;color:var(--gl-text-dim)">Course document</div></div>
+            </div>
+          </sc-if>
         </div>
-
-        <!-- syllabus -->
-        <div>
-          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:.05em;text-transform:uppercase;margin-bottom:12px;color:var(--gl-text-secondary)">Syllabus</div>
-          <div style="border-radius:12px;border:1px dashed var(--gl-border);background:rgba(4,8,20,.4);padding:15px 17px">
-            <sc-if value="{{ sel.hasSyllabus }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;align-items:center;gap:11px">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gl-text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
-                <div><div style="font-size:14px;font-weight:600;color:#fff">{{ sel.syllabusName }}</div><div style="font-size:12px;color:var(--gl-text-dim)">Key dates + policies parsed automatically</div></div>
-              </div>
-            </sc-if>
-          </div>
-        </div>
-      </div>
+      </section>
 
       <!-- notes for this class -->
       <div style="margin-top:22px">
@@ -223,7 +145,7 @@
             <sc-for list="{{ sel.notes }}" as="n" hint-placeholder-count="2">
               <a href="Notes.dc.html" style="text-decoration:none;display:block;border-radius:12px;border:1px solid var(--gl-border);border-left:3px solid {{ sel.color }};background:var(--gl-bg-card);padding:14px 16px">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-                  <span style="font-family:var(--font-display);font-weight:700;font-size:14.5px;color:#fff">{{ n.title }}</span>
+              <span style="font-family:var(--font-display);font-weight:700;font-size:14.5px;color:#0f172a">{{ n.title }}</span>
                   <span style="font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--gl-text-dim);flex-shrink:0;margin-left:10px">{{ n.source }}</span>
                 </div>
                 <div style="font-size:12.5px;color:var(--gl-text-overlay-60);line-height:1.5">{{ n.snippet }}</div>
@@ -274,8 +196,8 @@ class Component extends DCLogic {
 
   DATA() {
     const I = this.ICONS();
-    const aiColors = { green: 'var(--gl-green)', yellow: 'var(--gl-gold)', red: 'var(--gl-text-dim)' };
-    const aiLabels = { green: 'Full help', yellow: 'Guided only', red: 'Minimal' };
+    const aiColors = { green: 'var(--gl-green)', yellow: 'var(--gl-gold)', red: 'var(--gl-gold)' };
+    const aiLabels = { green: 'Full help', yellow: 'Guided only', red: 'Limited' };
     const grades = { math: { letter: 'B+', pct: 88 }, english: { letter: 'C+', pct: 79 }, science: { letter: 'A\u2212', pct: 91 }, history: { letter: 'A\u2212', pct: 90 }, athletics: { letter: 'A', pct: 99 }, art: { letter: 'A', pct: 96 } };
     return [
       { id: 'math', name: 'Math', teacher: 'Mr. Alvarez', color: 'var(--gl-cyan)', iconBg: 'var(--gl-cyan-08)', icon: I.calc, iconLg: I.calc, aiMode: 'green', overdue: false, nextUp: 'Unit 4 problem set · due tomorrow', loadLabel: '2 open', mastery: 3,
@@ -315,36 +237,16 @@ class Component extends DCLogic {
     ].map((c) => ({ ...c, initial: c.name[0].toUpperCase(), aiModeColor: aiColors[c.aiMode], aiModeLabel: aiLabels[c.aiMode], courseGrade: grades[c.id] }));
   }
 
-  goFlashcards = (e) => { if (e && e.stopPropagation) e.stopPropagation(); window.location.href = 'Flashcards.dc.html'; };
-  goQuiz = (e) => { if (e && e.stopPropagation) e.stopPropagation(); window.location.href = 'Work.dc.html'; };
-
-  masteryColor(lvl) {
-    return lvl >= 4 ? 'var(--gl-green)' : lvl >= 3 ? 'var(--gl-cyan)' : lvl >= 2 ? 'var(--gl-gold)' : 'var(--gl-text-dim)';
-  }
-  gradeColor(pct) {
-    return pct >= 90 ? 'var(--gl-green)' : pct >= 80 ? 'var(--gl-cyan)' : pct >= 70 ? 'var(--gl-gold)' : 'var(--gl-text-dim)';
-  }
+  goNotes = (e) => { if (e && e.stopPropagation) e.stopPropagation(); window.location.href = 'Notes.dc.html'; };
 
   get gridClasses() {
     return this.DATA().map((c) => {
-      const total = c.concepts.length;
-      const strong = c.concepts.filter((m) => m.level >= 3).length;
-      const bricks = c.concepts.map((m) => ({ name: m.name, color: this.masteryColor(m.level) }));
-      const open = c.assignments[0];
-      let nextLine, nextColor = 'var(--gl-text-muted)', nextIconColor = 'rgba(200,218,255,.5)';
-      if (!open) { nextLine = 'Nothing due \u2014 you\u2019re set'; nextColor = 'var(--gl-text-dim)'; nextIconColor = 'rgba(200,218,255,.4)'; }
-      else if (c.overdue) { nextLine = 'Overdue: ' + open.title; nextColor = '#ff8a8a'; nextIconColor = '#ff8a8a'; }
-      else { nextLine = 'Next: ' + open.title + ' \u00b7 ' + open.due.replace(/^Due\s+/, ''); }
       return {
         ...c,
         gradeLetter: c.courseGrade.letter,
         gradePct: c.courseGrade.pct + '%',
-        gradeColor: this.gradeColor(c.courseGrade.pct),
-        masterySummary: strong + ' of ' + total + ' strong',
-        bricks,
-        nextLine, nextColor, nextIconColor,
-        cardBorder: c.active ? 'rgba(41,208,255,.5)' : 'rgba(120,150,220,.16)',
-        cardRing: c.active ? '0 0 0 1px rgba(41,208,255,.4),0 0 30px rgba(41,208,255,.22)' : 'none',
+        cardBorder: c.active ? '#38bdf8' : '#cbd5e1',
+        cardRing: 'none',
         onOpenDetail: () => this.openClass(c.id),
       };
     });
@@ -356,10 +258,6 @@ class Component extends DCLogic {
     const rawSel = data.find((c) => c.id === st.selId) || data[0];
     const sel = rawSel ? {
       ...rawSel,
-      concepts: rawSel.concepts.map((m) => {
-        const glowC = this.masteryColor(m.level);
-        return { ...m, pct: m.level * 25, dotColor: glowC, glow: '0 0 10px ' + glowC, glowBg: 'rgba(120,150,220,.08)', onClick: () => {} };
-      }),
       notes: (this.NOTES_BY_CLASS()[rawSel.id] || []),
       hasNotes: (this.NOTES_BY_CLASS()[rawSel.id] || []).length > 0,
       hasNotesEmpty: (this.NOTES_BY_CLASS()[rawSel.id] || []).length === 0,
@@ -369,7 +267,7 @@ class Component extends DCLogic {
       noop: this.noop,
       isGrid: st.screen === 'grid', isDetail: st.screen === 'detail',
       gridClasses: this.gridClasses, sel, backToGrid: this.backToGrid,
-      goFlashcards: this.goFlashcards, goQuiz: this.goQuiz,
+      goNotes: this.goNotes,
       ...this.avatarVals(),
     };
   }

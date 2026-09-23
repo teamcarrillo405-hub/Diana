@@ -28,6 +28,23 @@
   html,body{margin:0;background:#04060f;}
   *{box-sizing:border-box;}
   image-slot{display:block;}
+  :root{--today-left-edge:225px;--today-right-edge:1023px;--today-right-gutter:257px;}
+  .today-hero-action{left:var(--today-left-edge) !important;}
+  .today-player{--today-player-scale:.92;left:calc(var(--today-right-edge) - 20px) !important;}
+  .today-attention{width:calc(100% - var(--today-left-edge) - var(--today-right-gutter));margin-left:var(--today-left-edge) !important;margin-right:var(--today-right-gutter) !important;}
+  .today-attention-grid{display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+  .today-attention-card{min-width:0 !important;width:auto;}
+  @media (max-width:1100px){
+    :root{--today-left-edge:34px;--today-right-edge:calc(100vw - 34px);--today-right-gutter:34px;}
+    .today-player{left:70% !important;}
+    .today-attention-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  @media (min-width:1101px) and (min-height:860px){
+    .today-hero-zone{overflow:visible !important;}
+    .today-hero-action{transform:translateY(100px);}
+    .today-player{--today-player-scale:1.03;left:calc(var(--today-right-edge) + 86px) !important;top:calc(50% + 102px) !important;}
+    .today-attention{transform:translateY(18px);}
+  }
   @keyframes gl-pulse{0%,100%{opacity:.55;transform:translateX(-50%) scale(1)}50%{opacity:.95;transform:translateX(-50%) scale(1.06)}}
   @keyframes hud-blink{0%,100%{opacity:.7}50%{opacity:1}}
   @keyframes hud-scan{0%{transform:translateY(-100%)}100%{transform:translateY(660px)}}
@@ -71,68 +88,28 @@
 </style>
 </helmet>
 
-<div style="width:100%;font-family:'Barlow Semi Condensed',sans-serif;color:#fff;position:relative;">
+<div style="width:100%;min-height:100vh;font-family:'Barlow Semi Condensed',sans-serif;color:#fff;position:relative;">
 
   <!-- Page background — swappable photo, stretched behind the whole page -->
   <div style="position:absolute;inset:0;width:100%;height:100%;z-index:0;background:#000">
-      <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgFootballOpacity }};transition:opacity .5s" alt="Football bg">
+      <img src="/images/today-high-school-clean.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgFootballOpacity }};transition:opacity .5s" alt="High school bg">
       <img src="./uploads/grok-image-d6de6c47-f8ad-426d-8c9b-b921a623fb75.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgScienceOpacity }};transition:opacity .5s" alt="Science bg">
       <img src="./uploads/grok-image-e2a03daf-7692-41ff-a4b7-2b4cc6daa95e.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgMusicOpacity }};transition:opacity .5s" alt="Music bg">
       <img src="./uploads/grok-image-74811ff2-f7a6-4a2a-91da-29b5088ed2fe.jpg" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:{{ bgDefaultOpacity }};transition:opacity .5s" alt="Default bg">
       <div data-hc-scrim="" style="position:absolute;inset:0;background:{{ bgTintColor }};z-index:1;transition:background .5s"></div>
+      <div aria-hidden="true" style="position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(90deg,rgba(2,5,14,.68) 0%,rgba(2,5,14,.34) 28%,rgba(2,5,14,.04) 55%,transparent 70%),linear-gradient(0deg,rgba(2,5,14,.55) 0%,rgba(2,5,14,.24) 23%,transparent 46%)"></div>
     </div>
 
   <!-- ═══════════════════════════════════════════════════════════
        HERO ZONE — nav + hero content sit above the page background
        ═══════════════════════════════════════════════════════════ -->
-  <div style="position:relative;z-index:1;overflow:hidden;">
+  <div class="today-hero-zone" style="position:relative;z-index:1;overflow:hidden;">
 
     <!-- TOP NAV -->
-    <div style="position:relative;z-index:30;max-width:1440px;margin:0 auto;height:58px;display:flex;align-items:center;gap:22px;padding:0 22px;background:rgba(2,5,14,.72);border-bottom:1px solid rgba(41,208,255,.18);backdrop-filter:blur(20px)">
-      <div style="display:flex;gap:8px">
-        <a href="More.dc.html" title="More tools" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:15px;color:#aab8e0">▦</a>
-        <a href="Search.dc.html" title="Search" style="text-decoration:none;width:34px;height:34px;border-radius:8px;background:rgba(120,150,220,.12);display:flex;align-items:center;justify-content:center;font-size:14px;color:#aab8e0">⌕</a>
-      </div>
-      <div style="display:flex;align-items:center;gap:26px;margin-left:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:18px;letter-spacing:.06em;text-transform:uppercase">
-        <a href="Student Lobby.dc.html" style="display:inline-block;text-decoration:none;position:relative;color:#fff;padding:18px 2px"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#29d0ff;border-radius:2px"></div>Today</a>
-        <a href="Work.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Work</a>
-        <a href="Classes.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Classes</a>
-        <a href="Calendar.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Calendar</a>
-        <a href="Messages.dc.html" class="gl-tab" style="display:inline-block;text-decoration:none;color:#8b96bd;cursor:pointer">Messages</a>
-      </div>
-      <div style="margin-left:auto;display:flex;align-items:center;gap:16px">
-
-        <a href="Quick Add.dc.html" style="text-decoration:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;background:rgba(41,208,255,.14);border:1px solid rgba(41,208,255,.28);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:#29d0ff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>Capture</a>
-
-        <div style="display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:8px;cursor:pointer;border:1.5px solid {{ micBorderColor }};background:{{ micBg }};animation:{{ micAnim }};transition:all .2s" onClick="{{ toggleAudio }}">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ micIconColor }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-          <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:.08em;color:{{ micIconColor }}">RECORD</span>
-        </div>
-        <div onClick="{{ goToProfileFromNav }}" style="width:36px;height:36px;border-radius:50%;border:2px solid rgba(41,208,255,.38);flex-shrink:0;cursor:pointer;overflow:hidden;background:linear-gradient(135deg,#29d0ff,#1a6cff);display:flex;align-items:center;justify-content:center" title="Profile">
-          <sc-if value="{{ isAvatarUpload }}" hint-placeholder-val="{{ false }}">
-            <sc-if value="{{ hasProfilePhoto }}" hint-placeholder-val="{{ false }}">
-              <img src="{{ profilePhotoSrc }}" style="width:100%;height:100%;object-fit:cover;object-position:{{ photoObjectPosition }}" alt="You">
-            </sc-if>
-          </sc-if>
-          <sc-if value="{{ isAvatarBoy }}" hint-placeholder-val="{{ false }}">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#0a3348"></circle><circle cx="50" cy="40" r="17" fill="#bfe6ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#bfe6ff"></path><path d="M33 33c0-11 8-19 17-19s17 8 17 19c-3-5-10-8-17-8s-14 3-17 8z" fill="#0d1f2e"></path></svg>
-          </sc-if>
-          <sc-if value="{{ isAvatarGirl }}" hint-placeholder-val="{{ false }}">
-            <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="50" fill="#2a1f42"></circle><circle cx="50" cy="40" r="17" fill="#e3d4ff"></circle><path d="M50 57c-20 0-33 13-33 29v6h66v-6c0-16-13-29-33-29z" fill="#e3d4ff"></path><path d="M31 40c-1-15 8-27 19-27s20 12 19 27c-1-9-9-15-19-15s-18 6-19 15z" fill="#2c1a44"></path><path d="M29 40c-2 9-1 19 3 26 1-11 0-20 2-26z" fill="#2c1a44"></path><path d="M71 40c2 9 1 19-3 26-1-11 0-20-2-26z" fill="#2c1a44"></path></svg>
-          </sc-if>
-          <sc-if value="{{ showInitialsFallback }}" hint-placeholder-val="{{ true }}">
-            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;color:#04080f">{{ initials }}</span>
-          </sc-if>
-        </div>
-        <!-- Settings gear -->
-        <a href="Settings.dc.html" title="Settings" style="text-decoration:none;width:38px;height:38px;border-radius:8px;background:rgba(120,150,220,.12);border:1px solid rgba(120,150,220,.22);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" style-hover="background:rgba(120,150,220,.22)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aab8e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        </a>
-      </div>
-    </div>
+    <dc-import name="Student Desktop Header" active="today" initial="{{ initials }}" profile-photo="{{ profilePhotoSrc }}" on-record="{{ toggleAudio }}" hint-size="1440px,58px"></dc-import>
 
     <!-- HERO ELEMENTS -->
-    <div style="position:relative;z-index:2;max-width:1440px;margin:0 auto;height:660px;">
+    <div style="position:relative;z-index:2;max-width:1440px;margin:0 auto;height:min(500px,calc(100vh - 58px));min-height:460px;">
 
 
       <!-- field band -->
@@ -142,8 +119,8 @@
       
       
 
-      <!-- PLAYER CARD — student photo center hero -->
-      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-56%);z-index:6;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <!-- PLAYER CARD — a supporting identity cue, not the primary hero action -->
+      <div class="today-player" style="position:absolute;left:72%;top:50%;transform:translate(-50%,-56%) scale(var(--today-player-scale));transform-origin:center;z-index:4;display:flex;flex-direction:column;align-items:center;gap:14px;filter:drop-shadow(0 22px 18px rgba(0,0,0,.48))">
         <div style="position: absolute; top: {{ photoTop }}; left: {{ photoLeft }}">
           <div style="width:{{ photoW }};height:{{ photoH }};border-radius:{{ photoContainerRadius }};clip-path:{{ photoContainerClip }};border:{{ photoContainerBorder }};box-shadow:{{ photoContainerShadow }};overflow:{{ photoContainerOverflow }};background:transparent;position:relative">
             <sc-if value="{{ isFull }}" hint-placeholder-val="{{ false }}">
@@ -168,56 +145,73 @@
         
       </div>
 
-      <!-- QUICK CHECK-IN (bottom-right, Game Day format — baseline-matched to name/CTA block for symmetry; offset to clear the AI agent fab) -->
-      <div style="position:absolute;right:150px;bottom:120px;width:290px;z-index:8">
-        <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:8px 8px 0 0;background:transparent;border:1px solid rgba(41,208,255,.28);border-bottom:none;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;letter-spacing:.12em;color:rgba(41,208,255,.95);text-shadow:0 0 12px rgba(41,208,255,.4)">ENERGY CHECK</div>
-        <div style="position:relative;border-radius:0 12px 12px 12px;border:1px solid rgba(41,208,255,.22);background:transparent;min-height:128px;padding:18px 18px 16px;display:flex;flex-direction:column;justify-content:center">
-          <div style="position:absolute;left:-1px;top:-1px;width:12px;height:12px;border-left:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:2px 0 0 0"></div>
-          <div style="position:absolute;right:-1px;top:-1px;width:12px;height:12px;border-right:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:0 2px 0 0"></div>
-          <div style="position:absolute;left:-1px;bottom:-1px;width:12px;height:12px;border-left:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 0 2px"></div>
-          <div style="position:absolute;right:-1px;bottom:-1px;width:12px;height:12px;border-right:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 2px 0"></div>
-          <!-- BEFORE: energy picker -->
-          <sc-if value="{{ showCheckin }}" hint-placeholder-val="{{ true }}">
-            <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:26px;line-height:.95;text-transform:uppercase;margin-bottom:5px;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.9)">How's your energy?</div>
-            <div style="font-size:14px;color:rgba(210,228,255,.9);margin-bottom:14px;text-shadow:0 1px 8px rgba(0,0,0,.9)">We'll match your study plan to your energy</div>
-            <div style="display:flex;gap:8px">
-              <div onClick="{{ readinessLow }}" style="flex:1;padding:13px 4px;border-radius:10px;background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:#eef2ff;white-space:nowrap" style-hover="background:rgba(255,255,255,.17)">LOW</div>
-              <div onClick="{{ readinessOkay }}" style="flex:1;padding:13px 4px;border-radius:10px;background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:#eef2ff;white-space:nowrap" style-hover="background:rgba(255,255,255,.17)">OKAY</div>
-              <div onClick="{{ readinessHigh }}" style="flex:1;padding:13px 4px;border-radius:10px;background:rgba(255,255,255,.09);border:1.5px solid rgba(255,255,255,.22);text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.06em;color:#eef2ff;white-space:nowrap" style-hover="background:rgba(255,255,255,.17)">LOCKED IN</div>
-            </div>
-          </sc-if>
-          <!-- AFTER: confirmed state -->
-          <sc-if value="{{ showFocus }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-              <div>
-                <div style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#9fb0dd;text-transform:uppercase;margin-bottom:4px">Energy today</div>
-                <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:32px;line-height:.9;text-transform:uppercase;color:#fff">{{ energyLabel }}</div>
-              </div>
-              <div onClick="{{ resetCheckin }}" style="padding:8px 14px;border-radius:8px;background:rgba(120,150,220,.14);border:1px solid rgba(120,150,220,.22);cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:13px;color:#aab8e0;flex-shrink:0" style-hover="background:rgba(120,150,220,.22)">Change</div>
-            </div>
-            <sc-if value="{{ energyAdaptLabel }}" hint-placeholder-val="{{ false }}">
-              <div style="margin-top:8px;font-size:12px;font-weight:600;color:rgba(200,218,255,.7);padding:6px 10px;border-radius:6px;background:rgba(41,208,255,.06);border:1px solid rgba(41,208,255,.14)">{{ energyAdaptLabel }}</div>
-            </sc-if>
-          </sc-if>
-        </div>
-      </div>
 
       <!-- title + Focus Card (mid-left) -->
-      <div style="position:absolute;left:34px;bottom:120px;z-index:8">
-        <div style="font-weight:700;font-size:13px;letter-spacing:.3em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:-4px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 16px rgba(41,208,255,.55),0 2px 8px rgba(0,0,0,.9)">YOUR LOBBY</div>
-        <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:72px;line-height:.88;letter-spacing:.01em;text-transform:uppercase;text-shadow:0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)">{{ profileName }}</div>
+      <div class="today-hero-action" style="position:absolute;left:34px;bottom:124px;z-index:8">
         <div style="margin-top:16px;max-width:390px">
-          <div style="font-size:14px;font-weight:700;letter-spacing:.2em;color:rgba(41,208,255,.9);text-transform:uppercase;margin-bottom:12px;font-family:'Barlow Semi Condensed',sans-serif;text-shadow:0 0 14px rgba(41,208,255,.5),0 2px 6px rgba(0,0,0,.9)">YOUR NEXT MOVE</div>
-          <div onClick="{{ focusCard.onCta }}" style="background:#29d0ff;padding:22px 40px;border-radius:12px;box-shadow:0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6);cursor:pointer;display:inline-flex;align-items:center;gap:12px;transition:transform .12s,box-shadow .2s" style-hover="transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6)"><div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:36px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">▶ {{ nextActionCta }}</div></div>
-          <div style="margin-top:11px;font-size:15px;font-weight:600;color:#eef2ff;text-shadow:0 1px 10px rgba(0,0,0,.95)">{{ heroMoveSub }}</div>
-          <sc-if value="{{ heroFinishBy }}" hint-placeholder-val="{{ false }}">
-            <div style="margin-top:6px;display:flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:#c0d0f0;text-shadow:0 1px 8px rgba(0,0,0,.95)">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0d0f0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 14.5 15"></polyline><path d="M10 3h4"></path><line x1="12" y1="3" x2="12" y2="5"></line></svg>
-              {{ heroFinishBy }}
+          <div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:64px;line-height:.9;letter-spacing:.01em;color:#fff;text-transform:uppercase;margin-bottom:16px;text-shadow:0 0 50px rgba(41,208,255,.65),0 2px 14px rgba(41,208,255,.35),0 8px 40px rgba(10,40,100,.9)">{{ heroHeading }}</div>
+          <sc-if value="{{ hasNextMove }}" hint-placeholder-val="{{ true }}">
+            <div onClick="{{ focusCard.onCta }}" style="width:280px;min-height:88px;background:#29d0ff;padding:18px 22px;border-radius:12px;box-shadow:0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6);cursor:pointer;display:inline-flex;align-items:center;justify-content:space-between;gap:12px;transition:transform .12s,box-shadow .2s" style-hover="transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6)"><div style="font-family:'Saira Condensed',sans-serif;font-style:italic;font-weight:800;font-size:36px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">▶ {{ nextActionCta }}</div><span style="font-size:32px;font-weight:800;line-height:1;color:#04080f">→</span></div>
+          </sc-if>
+          <sc-if value="{{ showPrimaryCheckin }}" hint-placeholder-val="{{ false }}">
+            <div onClick="{{ openCheckin }}" style="background:#29d0ff;padding:22px 40px;border-radius:12px;box-shadow:0 0 32px rgba(41,208,255,.45),0 8px 28px rgba(0,0,0,.6);cursor:pointer;display:inline-flex;align-items:center;transition:transform .12s,box-shadow .2s" style-hover="transform:translateY(-3px);box-shadow:0 0 50px rgba(41,208,255,.65),0 12px 32px rgba(0,0,0,.6)"><div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:36px;letter-spacing:.04em;text-transform:uppercase;color:#04080f">CHECK-IN</div></div>
+          </sc-if>
+          <sc-if value="{{ showCaughtUpCheckinStatus }}" hint-placeholder-val="{{ false }}">
+            <div style="display:inline-flex;align-items:center;padding:13px 18px;border-radius:8px;background:rgba(54,224,122,.14);border:1px solid rgba(54,224,122,.35);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:.08em;text-transform:uppercase;color:#c7f9d8">Checked in</div>
+          </sc-if>
+          <sc-if value="{{ hasNextMove }}" hint-placeholder-val="{{ true }}">
+            <div style="margin-top:8px;display:flex;min-height:36px;align-items:center;gap:7px;font-size:15px;font-weight:700;color:#dbe5f8;text-shadow:0 1px 8px rgba(0,0,0,.95)">
+              <sc-if value="{{ heroFinishBy }}" hint-placeholder-val="{{ false }}">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0d0f0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"></circle><polyline points="12 9 12 13 14.5 15"></polyline><path d="M10 3h4"></path><line x1="12" y1="3" x2="12" y2="5"></line></svg>
+                <span>{{ heroFinishBy }}</span>
+              </sc-if>
+              <sc-if value="{{ showCompactCheckin }}" hint-placeholder-val="{{ true }}">
+                <span style="color:rgba(192,208,240,.55)">&middot;</span>
+                <span role="button" tabindex="0" aria-label="Open check-in" onClick="{{ openCheckin }}" style="display:inline-flex;min-height:36px;align-items:center;border:1px solid rgba(41,208,255,.42);border-radius:7px;background:rgba(41,208,255,.12);padding:0 9px;font-family:'Saira Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#67dcff;cursor:pointer">Check-In</span>
+              </sc-if>
+              <sc-if value="{{ isCheckedIn }}" hint-placeholder-val="{{ false }}">
+                <span style="color:rgba(192,208,240,.55)">&middot;</span>
+                <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#c7f9d8">Checked in</span>
+              </sc-if>
             </div>
           </sc-if>
-          
         </div>
+
+        <sc-if value="{{ checkinOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;left:0;top:100%;z-index:10;width:390px;border-radius:8px;border:1px dashed rgba(148,163,184,.82);background:rgba(4,8,20,.98);padding:10px;box-shadow:0 24px 54px rgba(0,0,0,.48);backdrop-filter:blur(14px)">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:4px">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:14px;line-height:1;letter-spacing:.1em;text-transform:uppercase;color:#fff">Check-In</div>
+              <div onClick="{{ closeCheckin }}" title="Close check-in" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:6px;color:#c0d0f0;cursor:pointer;font-size:18px;line-height:1" style-hover="background:rgba(120,150,220,.18);color:#fff">x</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:56px;flex-shrink:0;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Energy</div>
+                <div style="display:flex;flex:1;gap:6px">
+                  <div onClick="{{ readinessLow }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ energyLow.bg }};border:1px solid {{ energyLow.border }};box-shadow:{{ energyLow.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;line-height:1.2;letter-spacing:.04em;color:{{ energyLow.color }}">{{ energyLow.mark }}LOW</div>
+                  <div onClick="{{ readinessOkay }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ energyOkay.bg }};border:1px solid {{ energyOkay.border }};box-shadow:{{ energyOkay.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;line-height:1.2;letter-spacing:.04em;color:{{ energyOkay.color }}">{{ energyOkay.mark }}OKAY</div>
+                  <div onClick="{{ readinessHigh }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ energyHigh.bg }};border:1px solid {{ energyHigh.border }};box-shadow:{{ energyHigh.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;line-height:1.2;letter-spacing:.04em;color:{{ energyHigh.color }}">{{ energyHigh.mark }}GOOD</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:56px;flex-shrink:0;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Sleep</div>
+                <div style="display:flex;flex:1;gap:6px">
+                  <div onClick="{{ sleepShort }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ sleepShortStyle.bg }};border:1px solid {{ sleepShortStyle.border }};box-shadow:{{ sleepShortStyle.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;color:{{ sleepShortStyle.color }}">{{ sleepShortStyle.mark }}3-4 HR</div>
+                  <div onClick="{{ sleepMedium }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ sleepMediumStyle.bg }};border:1px solid {{ sleepMediumStyle.border }};box-shadow:{{ sleepMediumStyle.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;color:{{ sleepMediumStyle.color }}">{{ sleepMediumStyle.mark }}4-6 HR</div>
+                  <div onClick="{{ sleepRested }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ sleepRestedStyle.bg }};border:1px solid {{ sleepRestedStyle.border }};box-shadow:{{ sleepRestedStyle.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:11px;color:{{ sleepRestedStyle.color }}">{{ sleepRestedStyle.mark }}7-9 HR</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:6px">
+                <div style="width:56px;flex-shrink:0;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#fff">Meals</div>
+                <div style="display:flex;flex:1;gap:6px">
+                  <div onClick="{{ mealsNone }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ mealsNoneStyle.bg }};border:1px solid {{ mealsNoneStyle.border }};box-shadow:{{ mealsNoneStyle.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;line-height:1.2;color:{{ mealsNoneStyle.color }}">{{ mealsNoneStyle.mark }}NOT YET</div>
+                  <div onClick="{{ mealsSnack }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ mealsSnackStyle.bg }};border:1px solid {{ mealsSnackStyle.border }};box-shadow:{{ mealsSnackStyle.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;line-height:1.2;color:{{ mealsSnackStyle.color }}">{{ mealsSnackStyle.mark }}SNACK</div>
+                  <div onClick="{{ mealsMeal }}" style="flex:1;min-height:34px;display:flex;align-items:center;justify-content:center;padding:7px 3px;border-radius:6px;background:{{ mealsMealStyle.bg }};border:1px solid {{ mealsMealStyle.border }};box-shadow:{{ mealsMealStyle.shadow }};text-align:center;cursor:pointer;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;line-height:1.2;color:{{ mealsMealStyle.color }}">{{ mealsMealStyle.mark }}MEAL</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
         <div style="display:none">
 
           <!-- CHECK-IN STATE -->
@@ -274,11 +268,7 @@
   <!-- Category detail popup — opens from a Needs-attention box; renders nothing when closed -->
   <sc-if value="{{ catOpen }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ closeCategory }}" style="position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;background:rgba(4,6,15,.82);backdrop-filter:blur(10px);padding:24px">
-      <div onClick="{{ stopProp }}" style="position:relative;width:540px;max-width:94vw;max-height:82vh;overflow-y:auto;background:linear-gradient(180deg,rgba(14,20,42,.98),rgba(8,12,28,.98));border:1px solid {{ activeCat.soft }};border-radius:18px;padding:24px 26px;box-shadow:0 32px 80px rgba(0,0,0,.6)">
-        <div style="position:absolute;left:-1px;top:-1px;width:16px;height:16px;border-left:2px solid {{ activeCat.accent }};border-top:2px solid {{ activeCat.accent }};border-radius:2px 0 0 0"></div>
-        <div style="position:absolute;right:-1px;top:-1px;width:16px;height:16px;border-right:2px solid {{ activeCat.accent }};border-top:2px solid {{ activeCat.accent }};border-radius:0 2px 0 0"></div>
-        <div style="position:absolute;left:-1px;bottom:-1px;width:16px;height:16px;border-left:2px solid {{ activeCat.accent }};border-bottom:2px solid {{ activeCat.accent }};border-radius:0 0 0 2px"></div>
-        <div style="position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-right:2px solid {{ activeCat.accent }};border-bottom:2px solid {{ activeCat.accent }};border-radius:0 0 2px 0"></div>
+      <div onClick="{{ stopProp }}" style="position:relative;width:540px;max-width:94vw;max-height:82vh;overflow-y:auto;background:linear-gradient(180deg,rgba(14,20,42,.98),rgba(8,12,28,.98));border:1px dashed {{ activeCat.soft }};border-radius:18px;padding:24px 26px;box-shadow:0 32px 80px rgba(0,0,0,.6)">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
           <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-style:italic;font-size:26px;letter-spacing:.02em;text-transform:uppercase;color:{{ activeCat.accent }}">{{ activeCat.label }}</div>
           <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;padding:3px 11px;border-radius:7px;background:rgba(120,150,220,.12);color:#fff">{{ activeCat.count }}</div>
@@ -307,26 +297,24 @@
     </div>
   </sc-if>
 
-  <!-- Needs-attention — four boxes (Weekly-XP styling); each opens a popup list -->
-  <div style="max-width:1440px;margin:0 auto;padding:22px 34px 60px;position:relative;z-index:1">
-    <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:#29d0ff;opacity:.85;margin-bottom:13px">Needs attention</div>
-    <div style="display:flex;gap:14px;flex-wrap:wrap">
-      <sc-for list="{{ categories }}" as="cat" hint-placeholder-count="4">
-        <div onClick="{{ cat.onOpen }}" style="flex:1;min-width:230px;position:relative;padding:16px 18px;background:transparent;border:1px solid rgba(41,208,255,.2);border-radius:14px;cursor:pointer;opacity:{{ cat.opacity }}" style-hover="background:rgba(41,208,255,.05)">
-          <div style="position:absolute;left:-1px;top:-1px;width:14px;height:14px;border-left:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:2px 0 0 0"></div>
-          <div style="position:absolute;right:-1px;top:-1px;width:14px;height:14px;border-right:2px solid rgba(41,208,255,.8);border-top:2px solid rgba(41,208,255,.8);border-radius:0 2px 0 0"></div>
-          <div style="position:absolute;left:-1px;bottom:-1px;width:14px;height:14px;border-left:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 0 2px"></div>
-          <div style="position:absolute;right:-1px;bottom:-1px;width:14px;height:14px;border-right:2px solid rgba(41,208,255,.8);border-bottom:2px solid rgba(41,208,255,.8);border-radius:0 0 2px 0"></div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
-            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:{{ cat.accent }};text-shadow:0 0 12px {{ cat.soft }}">{{ cat.label }}</div>
-            <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;color:#fff;line-height:1">{{ cat.count }}</div>
+  <!-- Needs-attention — show only categories with actionable items -->
+  <sc-if value="{{ hasAttention }}" hint-placeholder-val="{{ true }}">
+    <div class="today-attention" style="max-width:798px;margin:0 auto;padding:32px 0 18px;position:relative;z-index:1">
+      <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:rgba(200,218,255,.72);margin-bottom:11px">Needs attention</div>
+      <div class="today-attention-grid" style="display:flex;gap:12px;flex-wrap:wrap">
+        <sc-for list="{{ attentionCategories }}" as="cat" hint-placeholder-count="3">
+          <div class="today-attention-card" onClick="{{ cat.onOpen }}" style="flex:0 1 300px;min-width:230px;min-height:94px;position:relative;padding:12px 15px;background:rgba(4,8,20,.58);border:1px dashed rgba(148,163,184,.78);border-radius:8px;cursor:pointer;backdrop-filter:blur(8px)" style-hover="background:rgba(41,208,255,.05)">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:{{ cat.accent }};text-shadow:0 0 12px {{ cat.soft }}">{{ cat.label }}</div>
+              <div style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:26px;color:#fff;line-height:1">{{ cat.count }}</div>
+            </div>
+            <div style="font-size:13px;color:#9fb0dd;margin-bottom:11px">{{ cat.sub }}</div>
+            <div style="display:flex;align-items:center;gap:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:{{ cat.accent }};opacity:.85">View list<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></div>
           </div>
-          <div style="font-size:13px;color:#9fb0dd;margin-bottom:11px">{{ cat.sub }}</div>
-          <div style="display:flex;align-items:center;gap:6px;font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:{{ cat.accent }};opacity:.85">View list<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></div>
-        </div>
-      </sc-for>
+        </sc-for>
+      </div>
     </div>
-  </div>
+  </sc-if>
 
   <!-- ===== AUDIO NOTE OVERLAY ===== -->
   <sc-if value="{{ recording }}" hint-placeholder-val="{{ false }}">
@@ -524,10 +512,10 @@
               <div style="margin-bottom:28px">
                 <div style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(41,208,255,.7);margin-bottom:14px">Lobby Background</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <!-- Football -->
+            <!-- High school -->
             <div onClick="{{ setBgFootball }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgFootballBorder }};background:{{ bgFootballActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
-              <img src="./uploads/grok-image-22220711-cb66-4dfb-930d-3d0635b526a7-ae02ddd3.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="Football">
-              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">STADIUM</div>
+              <img src="/images/today-high-school-clean.jpg" style="width:100%;height:80px;object-fit:cover;display:block" alt="High school">
+              <div style="padding:8px 10px;font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#fff">HIGH SCHOOL</div>
             </div>
             <!-- Science -->
             <div onClick="{{ setBgScience }}" style="border-radius:12px;overflow:hidden;border:2px solid {{ bgScienceBorder }};background:{{ bgScienceActive }};cursor:pointer;transition:all .2s" style-hover="border-color:rgba(41,208,255,.5)">
@@ -871,7 +859,7 @@
 class Component extends DCLogic {
   state = (() => {
     return {
-      qi: 0, ci: 0, recording: false, transcript: '', paused: false, picking: false, saved: false, savedClassName: null, savedClassAccent: null, statusOverrides: {}, checkinDone: false, notifOpen: false, readiness: null, overwhelmed: false, showSettings: false, alertDismissed: false, catOpen: null,
+      qi: 0, ci: 0, recording: false, transcript: '', paused: false, picking: false, saved: false, savedClassName: null, savedClassAccent: null, statusOverrides: {}, checkinDone: false, checkinComplete: false, checkinOpen: false, notifOpen: false, readiness: null, sleep: null, meals: null, overwhelmed: false, showSettings: false, alertDismissed: false, catOpen: null,
       selectedBg: localStorage.getItem('diana-selected-bg') || 'football',
       photoStyle: 'full',
       bgChanged: false,
@@ -1042,8 +1030,22 @@ class Component extends DCLogic {
   };
 
   openFileInput = () => { const el = document.querySelector('[data-fullbody-input]'); if (el) el.click(); };
-  setReadiness = (level) => this.setState({ checkinDone: true, readiness: level });
-  resetCheckin = () => this.setState({ checkinDone: false, readiness: null, overwhelmed: false });
+  openCheckin = () => {
+    if (!this.state.checkinComplete) this.setState({ checkinOpen: true });
+  };
+  closeCheckin = () => this.setState({ checkinOpen: false });
+  updateCheckin = (field, level) => {
+    clearTimeout(this._checkinTimer);
+    this._checkinTimer = null;
+    this.setState({ [field]: level, checkinComplete: false, checkinDone: false });
+  };
+  setReadiness = (level) => this.updateCheckin('readiness', level);
+  setSleep = (level) => this.updateCheckin('sleep', level);
+  setMeals = (level) => this.updateCheckin('meals', level);
+  resetCheckin = () => {
+    clearTimeout(this._checkinTimer);
+    this.setState({ checkinDone: false, checkinComplete: false, checkinOpen: false, readiness: null, sleep: null, meals: null, overwhelmed: false });
+  };
   setOverwhelmed = () => this.setState({ overwhelmed: true });
   dismissOverwhelmed = () => this.setState({ overwhelmed: false });
 
@@ -1054,7 +1056,34 @@ class Component extends DCLogic {
     this._syncFullBodyImg();
     this._syncHeroPreviewImg();
     this._syncA11y();
+    this._sharedSettingsStorageHandler = (event) => {
+      const keys = [
+        'diana-selected-bg',
+        'diana-profile-src',
+        'diana-avatar-type',
+        'diana-photo-offset-x',
+        'diana-photo-offset-y',
+        'diana-bg-removed',
+        'diana-photo-cutout',
+      ];
+      if (event.key === null || keys.includes(event.key)) this._syncSharedSettings();
+    };
+    window.addEventListener('storage', this._sharedSettingsStorageHandler);
     this._bootstrapRealData();
+  }
+
+  _syncSharedSettings() {
+    const storedPhoto = localStorage.getItem('diana-profile-src') || '';
+    const profilePhotoSrc = storedPhoto.startsWith('blob:') ? '' : storedPhoto;
+    this.setState({
+      selectedBg: localStorage.getItem('diana-selected-bg') || 'football',
+      avatarType: localStorage.getItem('diana-avatar-type') || 'none',
+      profilePhotoSrc,
+      photoOffsetX: parseFloat(localStorage.getItem('diana-photo-offset-x')) || 50,
+      photoOffsetY: parseFloat(localStorage.getItem('diana-photo-offset-y')) || 50,
+      bgRemoved: localStorage.getItem('diana-bg-removed') === '1',
+      photoCutoutSrc: localStorage.getItem('diana-photo-cutout') || '',
+    });
   }
 
   // Live-preview data hydration. This file is served from the same Next.js
@@ -1086,13 +1115,35 @@ class Component extends DCLogic {
 
       const realClasses = (classes || []).map((c, i) => this._mapAssignmentToClassRow(c, (assignments || []).find(a => a.class_id === c.id), i));
 
+      const savedAvatarType = localStorage.getItem('diana-avatar-type');
+      const storedPhoto = localStorage.getItem('diana-profile-src') || '';
+      const localPhoto = storedPhoto.startsWith('blob:') ? '' : storedPhoto;
+      const hasLocalAvatarChoice = savedAvatarType !== null;
       this.setState({
         realClasses: realClasses.length ? realClasses : null,
         profileName: (profile?.display_name || '').split(/\s+/)[0] || this.state.profileName,
-        avatarType: profile?.photo_url ? 'upload' : this.state.avatarType,
-        profilePhotoSrc: profile?.photo_url || this.state.profilePhotoSrc,
-        photoOffsetX: profile?.photo_offset_x ?? this.state.photoOffsetX,
-        photoOffsetY: profile?.photo_offset_y ?? this.state.photoOffsetY,
+        avatarType: hasLocalAvatarChoice
+          ? savedAvatarType
+          : profile?.photo_url
+            ? 'upload'
+            : this.state.avatarType,
+        profilePhotoSrc: hasLocalAvatarChoice
+          ? savedAvatarType === 'upload'
+            ? localPhoto
+            : ''
+          : profile?.photo_url || this.state.profilePhotoSrc,
+        photoOffsetX: hasLocalAvatarChoice
+          ? parseFloat(localStorage.getItem('diana-photo-offset-x')) || 50
+          : profile?.photo_offset_x ?? this.state.photoOffsetX,
+        photoOffsetY: hasLocalAvatarChoice
+          ? parseFloat(localStorage.getItem('diana-photo-offset-y')) || 50
+          : profile?.photo_offset_y ?? this.state.photoOffsetY,
+        bgRemoved: hasLocalAvatarChoice
+          ? localStorage.getItem('diana-bg-removed') === '1'
+          : this.state.bgRemoved,
+        photoCutoutSrc: hasLocalAvatarChoice
+          ? localStorage.getItem('diana-photo-cutout') || ''
+          : this.state.photoCutoutSrc,
       });
     } catch (e) {
       console.warn('[live-preview] real data hydration skipped:', e);
@@ -1127,10 +1178,25 @@ class Component extends DCLogic {
     this._syncFullBodyImg();
     this._syncHeroPreviewImg();
     this._syncA11y();
+    this._syncCheckinCompletion();
+  }
+
+  _syncCheckinCompletion() {
+    const ready = this.state.readiness && this.state.sleep && this.state.meals;
+    if (ready && !this.state.checkinComplete && !this._checkinTimer) {
+      this._checkinTimer = setTimeout(() => {
+        this._checkinTimer = null;
+        this.setState({ checkinComplete: true, checkinDone: true, checkinOpen: false });
+      }, 650);
+    } else if ((!ready || this.state.checkinComplete) && this._checkinTimer) {
+      clearTimeout(this._checkinTimer);
+      this._checkinTimer = null;
+    }
   }
 
   componentWillUnmount() {
     if (this._questTimer) clearInterval(this._questTimer);
+    if (this._checkinTimer) clearTimeout(this._checkinTimer);
     const r = document.documentElement;
     if (r) { delete r.dataset.hc; delete r.dataset.rm; }
   }
@@ -1159,18 +1225,32 @@ class Component extends DCLogic {
   _syncFullBodyImg() {
     const img = document.querySelector('[data-fb-img]');
     if (!img) return;
-    const { avatarType, profilePhotoSrc, photoCutoutSrc, photoOffsetX, photoOffsetY, bgRemoved } = this.state;
-    const useCutout = bgRemoved && !!photoCutoutSrc;
+    const { avatarType, profileName, profilePhotoSrc, photoCutoutSrc, photoOffsetX, photoOffsetY, bgRemoved } = this.state;
+    const useSavedCutout = bgRemoved && !!photoCutoutSrc;
+    const storedProfilePhoto = localStorage.getItem('diana-profile-src') || '';
+    const hasLocalProfilePhoto = !!storedProfilePhoto && !storedProfilePhoto.startsWith('blob:');
+    const useGraysonReferenceCutout =
+      avatarType === 'upload' &&
+      profileName.trim().toLowerCase().startsWith('grayson') &&
+      !photoCutoutSrc &&
+      !hasLocalProfilePhoto;
+    const useTransparentCutout = useSavedCutout || useGraysonReferenceCutout;
     let src = '';
-    if (avatarType === 'upload' && profilePhotoSrc) src = useCutout ? photoCutoutSrc : profilePhotoSrc;
-    else if (avatarType === 'boy') src = this._avatarDataUri('boy');
+    if (avatarType === 'upload' && profilePhotoSrc) {
+      src = useSavedCutout
+        ? photoCutoutSrc
+        : useGraysonReferenceCutout
+          ? './uploads/grayson-lobby-cutout.png'
+          : profilePhotoSrc;
+    } else if (avatarType === 'boy') src = this._avatarDataUri('boy');
     else if (avatarType === 'girl') src = this._avatarDataUri('girl');
     img.src = src || 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==';
     if (avatarType === 'upload' && profilePhotoSrc) {
-      img.style.objectFit = 'cover';
-      img.style.objectPosition = photoOffsetX + '% ' + photoOffsetY + '%';
-      // Real cut-out = genuine transparency, no mask. Legacy fallback = soft vignette.
-      const mask = (bgRemoved && !photoCutoutSrc) ? 'radial-gradient(ellipse 60% 66% at 50% 34%, #000 58%, transparent 100%)' : 'none';
+      img.style.objectFit = useTransparentCutout ? 'contain' : 'cover';
+      img.style.objectPosition = useTransparentCutout ? 'bottom' : photoOffsetX + '% ' + photoOffsetY + '%';
+      const mask = useTransparentCutout
+        ? 'none'
+        : 'radial-gradient(ellipse 72% 92% at 50% 44%, #000 66%, rgba(0,0,0,.9) 74%, transparent 100%)';
       img.style.webkitMaskImage = mask;
       img.style.maskImage = mask;
     } else {
@@ -1192,9 +1272,18 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     clearInterval(this._questTimer);
+    clearTimeout(this._checkinTimer);
     this._shouldRecord = false;
     this._recognition?.stop();
     clearTimeout(this._saveTimer);
+    if (this._sharedSettingsStorageHandler) {
+      window.removeEventListener('storage', this._sharedSettingsStorageHandler);
+    }
+    const root = document.documentElement;
+    if (root) {
+      delete root.dataset.hc;
+      delete root.dataset.rm;
+    }
   }
 
   toggleAudio = () => {
@@ -1430,6 +1519,16 @@ class Component extends DCLogic {
 
   renderVals() {
     const allClasses = this.classes;
+    const checkinStyle = (selected) => ({
+      bg: selected ? 'rgba(41,208,255,.32)' : 'rgba(255,255,255,.07)',
+      border: selected ? '#29d0ff' : 'rgba(255,255,255,.2)',
+      color: selected ? '#ffffff' : '#dbe5ff',
+      shadow: selected ? '0 0 14px rgba(41,208,255,.32)' : 'none',
+      mark: selected ? '✓ ' : '',
+    });
+    const energyLabel = { low: 'Low', okay: 'Okay', high: 'Good' }[this.state.readiness] || '';
+    const sleepLabel = { short: '3-4 hr', medium: '4-6 hr', rested: '7-9 hr' }[this.state.sleep] || '';
+    const mealsLabel = { none: 'Not yet', snack: 'Snack', meal: 'Meal' }[this.state.meals] || '';
     const activeClasses = allClasses.filter(c => c.status === 'in_progress' || c.status === 'not_started');
     const totalMin = activeClasses.reduce((sum, c) => sum + (c.estMin || 0), 0);
     const h = Math.floor(totalMin / 60);
@@ -1442,8 +1541,8 @@ class Component extends DCLogic {
     const workloadColor = totalMin === 0 ? '#36e07a' : totalMin < 60 ? '#36e07a' : totalMin < 120 ? '#ffd24a' : '#ff7070';
     const workloadPct = totalMin === 0 ? '0%' : Math.min(100, Math.round(totalMin / 180 * 100)) + '%';
     
-    // SCORECARD FIX: Next action CTA — show assignment-specific move, not generic "Start Next Mission"
-    const nextActionCta = this.nextMove ? ("START " + this.nextMove.name.toUpperCase()) : "START NEXT MISSION";
+    // Keep the action scannable: the button names only the subject.
+    const nextActionCta = this.nextMove ? this.nextMove.name.toUpperCase() : "CAUGHT UP";
     // PHASE 1: hero funnel subtitle — context lives under the one PLAY button
     const heroMoveSub = this.nextMove ? (this.nextMove.name + " · " + this.nextMove.nextAssignment) : "All caught up — nice work today";
     const overdueCount = allClasses.filter(c => c.overdue && c.status !== 'turned_in').length;
@@ -1490,31 +1589,25 @@ class Component extends DCLogic {
     });
     const overdueList = allClasses.filter(c => c.overdue && c.status !== 'turned_in').map(c => {
       const dl = c.daysLate || 1;
-      return { accent: '#ff7a7a', title: c.name, meta: c.nextAssignment, when: dl + (dl === 1 ? 'd late' : 'd late'), onClick: detGo(c.name) };
+      return { accent: '#ff79da', title: c.name, meta: c.nextAssignment, when: dl + (dl === 1 ? 'd earlier' : 'd earlier'), onClick: detGo(c.name) };
     });
     const ntiList = allClasses.filter(c => c.status === 'finished').map(c => ({ accent: '#ffd24a', title: c.name, meta: c.nextAssignment + ' — ready to submit', when: 'Ready', onClick: detGo(c.name) }));
-    const feedbackList = [
-      { accent: '#4be08e', title: 'History · Ch. 7 study guide', meta: 'Mr. Boyd — scored 47/50', when: 'New', onClick: msgGo() },
-      { accent: '#4be08e', title: 'Science · Lab write-up', meta: 'Dr. Nash — feedback posted by Friday', when: 'Sent', onClick: msgGo() },
-      { accent: '#7fdcff', title: 'English · Reading Quiz make-up', meta: 'Ms. Rivera — Thursday, 2nd period', when: 'New', onClick: msgGo() },
-    ];
-
     const catStyle = {
       tests:    { accent: '#b79bff', soft: 'rgba(167,139,250,.45)' },
-      overdue:  { accent: '#ff7a7a', soft: 'rgba(255,85,85,.45)' },
+      overdue:  { accent: '#ff79da', soft: 'rgba(255,121,218,.42)' },
       nti:      { accent: '#ffd24a', soft: 'rgba(255,210,74,.45)' },
-      feedback: { accent: '#4be08e', soft: 'rgba(54,224,122,.45)' },
     };
     const catDefs = [
       { key: 'tests',    label: 'Quizzes & tests', items: testList,     sub0: 'Nothing coming up',   subN: 'coming up' },
-      { key: 'overdue',  label: 'Overdue',         items: overdueList,  sub0: 'Nothing overdue',     subN: 'past the due date' },
+      { key: 'overdue',  label: 'Due earlier',     items: overdueList,  sub0: 'Nothing due earlier', subN: 'past the due date' },
       { key: 'nti',      label: 'Not turned in',   items: ntiList,      sub0: 'All submitted',       subN: 'done, not submitted' },
-      { key: 'feedback', label: 'Feedback',        items: feedbackList, sub0: 'No new feedback',     subN: 'new from teachers' },
     ];
     const categories = catDefs.map(c => {
       const n = c.items.length;
       return { key: c.key, label: c.label, count: n, items: c.items, accent: catStyle[c.key].accent, soft: catStyle[c.key].soft, sub: n === 0 ? c.sub0 : (n + ' ' + c.subN), opacity: n === 0 ? '.5' : '1', onOpen: () => this.openCategory(c.key) };
     });
+    const attentionCategories = categories.slice(0, 3);
+    const hasAttention = attentionCategories.length > 0;
     const activeCat = (() => {
       const found = categories.find(c => c.key === this.state.catOpen);
       if (!found) return null;
@@ -1554,7 +1647,9 @@ class Component extends DCLogic {
     }
     // PHASE 3: Felt time — finish-by shown in the hero funnel
     // Show est. time for the specific next move (not total), so the student knows how long THIS task takes
-    const heroFinishBy = (this.nextMove && this.nextMove.estMin > 0) ? ('est. ' + this.nextMove.estMin + ' min') : '';
+    const hasNextMove = !!move;
+    const heroHeading = hasNextMove ? 'NEXT MOVE' : 'CAUGHT UP';
+    const heroFinishBy = (hasNextMove && move.estMin > 0) ? ('est. ' + move.estMin + ' min') : '';
     const focusCard = (() => {
       if (!move) return { subject: '', assignment: 'All caught up tonight!', timeStr: 'Great work today', urgencyLabel: 'DONE', urgencyBg: 'rgba(54,224,122,.2)', urgencyFg: '#36e07a', borderColor: 'rgba(54,224,122,.3)', ctaLabel: 'REVIEW NOTES \u2192', ctaBg: 'rgba(54,224,122,.12)', ctaFg: '#36e07a', ctaShadow: 'none', onCta: () => { window.location.href = 'Notes.dc.html'; }, oneMove: 'Take a break' };
       const isTurnin = move.status === 'finished';
@@ -1595,6 +1690,8 @@ class Component extends DCLogic {
       notifItems,
       hasNoNotifs: notifItems.length === 0,
       categories,
+      attentionCategories,
+      hasAttention,
       activeCat,
       catOpen: !!activeCat,
       closeCategory: this.closeCategory,
@@ -1604,6 +1701,8 @@ class Component extends DCLogic {
       notifChevron: this.state.notifOpen ? 'rotate(180deg)' : 'rotate(0deg)',
       focusCard,
       nextActionCta,
+      heroHeading,
+      hasNextMove,
       heroMoveSub,
       lowModeActive,
       heroFinishBy,
@@ -1612,14 +1711,24 @@ class Component extends DCLogic {
       jarvisArc2Anim: this.state.recording ? 'jarvis-spin-rev 1.5s linear infinite' : 'jarvis-spin-rev 7s linear infinite',
       jarvisScanAnim: this.state.recording ? 'jarvis-spin 1s linear infinite' : 'jarvis-spin 5s linear infinite',
       jarvisLabel: this.state.recording ? 'LISTENING...' : 'TAP TO SPEAK',
-      energyLabel: this.state.readiness === 'low' ? 'Low' : this.state.readiness === 'high' ? 'Locked in' : 'Okay',
+      energyLabel: this.state.readiness === 'low' ? 'Low' : this.state.readiness === 'high' ? 'Good' : 'Okay',
       testStrip: [
         { label: "Reading Quiz · English", date: "THU", bg: "rgba(255,55,55,.14)",   border: "rgba(255,55,55,.3)",   fg: "#ff8070", dateFg: "#ff7070" },
         { label: "Ch. 4 Quiz · Math",      date: "FRI", bg: "rgba(255,210,74,.12)",  border: "rgba(255,210,74,.28)", fg: "#ffd24a", dateFg: "#ffd24a" },
         { label: "Ch. 7 Test · History",   date: "MON", bg: "rgba(120,150,220,.1)",  border: "rgba(120,150,220,.22)",fg: "#aab8e0", dateFg: "#9fb0dd" },
       ],
+      checkinOpen: this.state.checkinOpen,
+      showCompactCheckin: !this.state.checkinComplete,
+      isCheckedIn: this.state.checkinComplete,
+      showPrimaryCheckin: !hasNextMove && !this.state.checkinComplete,
+      showCaughtUpCheckinStatus: !hasNextMove && this.state.checkinComplete,
+      openCheckin: this.openCheckin,
+      closeCheckin: this.closeCheckin,
       showCheckin: !this.state.checkinDone,
       showFocus: this.state.checkinDone,
+      showCheckinPicker: !this.state.checkinComplete,
+      showCheckinSummary: this.state.checkinComplete,
+      checkinSummary: [energyLabel, sleepLabel, mealsLabel].filter(Boolean).join(' · '),
       showOverwhelmed: this.state.overwhelmed,
       setOverwhelmed: this.setOverwhelmed,
       dismissOverwhelmed: this.dismissOverwhelmed,
@@ -1627,6 +1736,21 @@ class Component extends DCLogic {
       readinessLow: () => this.setReadiness('low'),
       readinessOkay: () => this.setReadiness('okay'),
       readinessHigh: () => this.setReadiness('high'),
+      sleepShort: () => this.setSleep('short'),
+      sleepMedium: () => this.setSleep('medium'),
+      sleepRested: () => this.setSleep('rested'),
+      mealsNone: () => this.setMeals('none'),
+      mealsSnack: () => this.setMeals('snack'),
+      mealsMeal: () => this.setMeals('meal'),
+      energyLow: checkinStyle(this.state.readiness === 'low'),
+      energyOkay: checkinStyle(this.state.readiness === 'okay'),
+      energyHigh: checkinStyle(this.state.readiness === 'high'),
+      sleepShortStyle: checkinStyle(this.state.sleep === 'short'),
+      sleepMediumStyle: checkinStyle(this.state.sleep === 'medium'),
+      sleepRestedStyle: checkinStyle(this.state.sleep === 'rested'),
+      mealsNoneStyle: checkinStyle(this.state.meals === 'none'),
+      mealsSnackStyle: checkinStyle(this.state.meals === 'snack'),
+      mealsMealStyle: checkinStyle(this.state.meals === 'meal'),
       questTransform: `translateX(${-this.state.qi * 288}px)`,
       questDots: Array.from({length: 5}, (_, i) => ({
         bg: i === this.state.qi ? '#29d0ff' : 'rgba(120,150,220,.28)',
@@ -1750,7 +1874,6 @@ class Component extends DCLogic {
       resetButtonLabel: this.state.resetConfirming ? 'Click again to confirm' : 'Reset profile',
       onResetLoop: () => { if (this.state.resetConfirming) { this.setState({ resetConfirming: false }); } else { this.setState({ resetConfirming: true }); } },
       privacyLinks: [
-        { href: 'AI History.dc.html', label: 'AI history', desc: 'Every AI call, in the open' },
         { href: 'Export and Privacy.dc.html', label: 'Export & privacy', desc: 'Data inventory, export, delete' },
         { href: 'Sharing.dc.html', label: 'Sharing', desc: 'Parent digest, teacher portal' },
       ],
@@ -1810,7 +1933,7 @@ class Component extends DCLogic {
       bgScienceOpacity: this.state.selectedBg === 'science' ? 1 : 0,
       bgMusicOpacity: this.state.selectedBg === 'music' ? 1 : 0,
       bgDefaultOpacity: this.state.selectedBg === 'default' ? 1 : 0,
-      bgTintColor: this.state.selectedBg === 'football' ? 'rgba(0,0,0,.68)' : this.state.selectedBg === 'music' ? 'rgba(0,0,0,.70)' : this.state.selectedBg === 'default' ? 'rgba(0,0,0,.45)' : 'rgba(0,0,0,.42)',
+      bgTintColor: this.state.selectedBg === 'football' ? 'rgba(0,0,0,.06)' : this.state.selectedBg === 'music' ? 'rgba(0,0,0,.46)' : this.state.selectedBg === 'default' ? 'rgba(0,0,0,.29)' : 'rgba(0,0,0,.27)',
       bgTechActive: this.state.selectedBg === 'tech' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
       bgFootballActive: this.state.selectedBg === 'football' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',
       bgScienceActive: this.state.selectedBg === 'science' ? 'rgba(41,208,255,.22)' : 'rgba(120,150,220,.08)',

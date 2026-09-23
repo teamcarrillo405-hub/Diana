@@ -30,6 +30,9 @@
     --font-display:'Saira Condensed',sans-serif; --font-body:'Barlow Semi Condensed',sans-serif; --font-mono:'JetBrains Mono',monospace;
   }
   html,body{margin:0;background:var(--gl-bg-base);}*{box-sizing:border-box;}
+  [data-wellness-movement]{background:#f4efe6 !important;border-color:#cbd5e1 !important;color:#0f172a;box-shadow:0 8px 20px rgba(2,6,23,.12);}
+  [data-wellness-movement] [style*="color:var(--gl-text-dim)"]{color:#475569 !important;}
+  [data-wellness-movement] [style*="border-top:1px solid var(--gl-border)"]{border-color:#e2e8f0 !important;}
 
   *::-webkit-scrollbar{width:0 !important;height:0 !important;display:none !important;}
   *{scrollbar-width:none;}
@@ -75,7 +78,7 @@
     </div>
 
     <!-- MOVEMENT -->
-    <div style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
+    <div data-wellness-movement style="border-radius:14px;border:1px solid var(--gl-border);background:var(--gl-bg-card);padding:16px">
       <div style="font-family:var(--font-display);font-weight:700;font-size:14px;text-transform:uppercase;margin-bottom:12px">Log movement</div>
       <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
         <sc-for list="{{ activityTypes }}" as="a" hint-placeholder-count="8">
@@ -91,7 +94,7 @@
           <div onClick="{{ f.onClick }}" style="padding:6px 11px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.fg }}">{{ f.label }}</div>
         </sc-for>
       </div>
-      <div onClick="{{ onLogActivity }}" style="text-align:center;padding:12px;border-radius:10px;font-family:var(--font-display);font-weight:700;font-size:13px;letter-spacing:.05em;text-transform:uppercase;background:{{ logButtonBg }};color:{{ logButtonFg }};border:1px solid {{ logButtonBorder }}">{{ logButtonText }}</div>
+      <div onClick="{{ onLogActivity }}" style="display:{{ logButtonDisplay }};text-align:center;padding:{{ logButtonPadding }};border-radius:10px;cursor:{{ logButtonCursor }};font-family:var(--font-display);font-weight:700;font-size:{{ logButtonFontSize }};letter-spacing:.05em;text-transform:uppercase;background:{{ logButtonBg }};color:{{ logButtonFg }};border:1px solid {{ logButtonBorder }}">{{ logButtonText }}</div>
 
       <sc-if value="{{ hasRecentActivity }}" hint-placeholder-val="{{ false }}">
         <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--gl-border);display:flex;flex-direction:column;gap:7px">
@@ -198,17 +201,17 @@ class Component extends DCLogic {
 
     const activityTypes = this.ACTIVITY_TYPES.map(a => ({
       ...a,
-      border: s.activityType === a.id ? 'var(--gl-green-30)' : 'var(--gl-border)',
-      bg: s.activityType === a.id ? 'var(--gl-green-14)' : 'rgba(4,8,20,.4)',
-      fg: s.activityType === a.id ? 'var(--gl-green)' : 'var(--gl-text-muted)',
+      border: s.activityType === a.id ? '#0ea5e9' : '#cbd5e1',
+      bg: s.activityType === a.id ? '#e0f2fe' : '#f8fafc',
+      fg: s.activityType === a.id ? '#0369a1' : '#0f172a',
       onClick: () => this.setState({ activityType: a.id }),
     }));
 
     const feltOptions = this.FELT_OPTIONS.map(f => ({
       ...f,
-      border: s.felt === f.id ? 'var(--gl-cyan-30)' : 'var(--gl-border)',
-      bg: s.felt === f.id ? 'var(--gl-cyan-14)' : 'rgba(4,8,20,.4)',
-      fg: s.felt === f.id ? 'var(--gl-cyan)' : 'var(--gl-text-muted)',
+      border: s.felt === f.id ? '#0ea5e9' : '#cbd5e1',
+      bg: s.felt === f.id ? '#e0f2fe' : '#f8fafc',
+      fg: s.felt === f.id ? '#0369a1' : '#0f172a',
       onClick: () => this.setState({ felt: f.id }),
     }));
 
@@ -225,9 +228,13 @@ class Component extends DCLogic {
       onActivityMinutesChange: e => this.setState({ activityMinutes: parseInt(e.target.value, 10) }),
       feltOptions,
       logButtonText: canLog ? 'Log it' : 'Choose how it felt',
-      logButtonBg: canLog ? 'var(--gl-green-14)' : 'rgba(120,150,220,.08)',
-      logButtonFg: canLog ? 'var(--gl-green)' : 'var(--gl-text-dim)',
-      logButtonBorder: canLog ? 'var(--gl-green-30)' : 'var(--gl-border)',
+      logButtonDisplay: canLog ? 'block' : 'inline-block',
+      logButtonPadding: canLog ? '12px' : '8px 10px',
+      logButtonFontSize: canLog ? '13px' : '11px',
+      logButtonCursor: canLog ? 'pointer' : 'default',
+      logButtonBg: canLog ? '#e0f2fe' : '#f1f5f9',
+      logButtonFg: canLog ? '#0369a1' : '#64748b',
+      logButtonBorder: canLog ? '#0ea5e9' : '#cbd5e1',
       onLogActivity: () => {
         if (!canLog) return;
         const a = this.ACTIVITY_TYPES.find(x => x.id === s.activityType);

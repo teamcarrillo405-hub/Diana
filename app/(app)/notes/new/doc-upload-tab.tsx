@@ -92,6 +92,7 @@ export function DocUploadTab({
 
         // 4. Upload to Supabase Storage via new server action
         const formData = new FormData();
+        formData.append("noteId", noteId);
         formData.append("doc", file);
         const up = await uploadNoteDoc(formData);
         if (!up.ok) {

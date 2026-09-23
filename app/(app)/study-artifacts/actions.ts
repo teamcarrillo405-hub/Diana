@@ -5,11 +5,15 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createCard } from "@/lib/fsrs/fsrs";
 import { normalizeConceptNames } from "@/lib/mastery/concepts";
+import { masteryLevelFromAiQuizResult } from "@/lib/mastery/concepts";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import { buildSourcePacket } from "@/lib/assignment-sources";
 import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 import {
   buildFallbackStudyArtifact,
   completeStudyArtifact,
+  isStudyArtifactSourceType,
+  isStudyArtifactType,
   parseStudyArtifactResponse,
   withEditedCards,
   type StudyArtifact,
@@ -17,7 +21,19 @@ import {
   type StudyArtifactSourceType,
   type StudyArtifactType,
 } from "@/lib/study-helper/artifacts";
-import type { StudyHelperMode } from "@/lib/study-helper/modes";
+import {
+  mergePracticeProgress,
+  normalizePracticeProgress,
+  type PracticeProgress,
+} from "@/lib/study-helper/practice-progress";
+import {
+  scorePracticeTest,
+  type PracticeScoreSummary,
+} from "@/lib/study-helper/practice-scoring";
+import {
+  normalizeStudyHelperMode,
+  type StudyHelperMode,
+} from "@/lib/study-helper/modes";
 import { coverageWindowStart, looksLikeTest, previousTestDueAt } from "@/lib/test-prep/plan";
 import type { Json } from "@/lib/supabase/types";
 
@@ -38,6 +54,16 @@ const SaveArtifactCardsInput = z.object({
   })).max(12).optional(),
 });
 
+const SavePracticeProgressInput = z.object({
+  artifactId: z.string().uuid(),
+  currentQuestion: z.number().int().min(0).max(19),
+  responses: z.array(z.object({
+    questionIndex: z.number().int().min(0).max(19),
+    response: z.string().trim().min(1).max(2_000),
+  })).max(20),
+  completed: z.boolean(),
+});
+
 type StudySource = {
   sourceType: StudyArtifactSourceType;
   sourceId: string;
@@ -47,6 +73,41 @@ type StudySource = {
   aiMode: AiMode;
   assignmentId: string | null;
   revalidatePath: string;
+};
+
+type AssignmentSourceRow = {
+  source_type: string;
+  title: string;
+  extracted_text: string | null;
+  source_location: string | null;
+};
+
+type AssignmentSourceQuery = {
+  eq(column: string, value: string): AssignmentSourceQuery;
+  order(
+    column: string,
+    options: { ascending: boolean },
+  ): Promise<{ data: AssignmentSourceRow[] | null }>;
+};
+
+type AssignmentSourceClient = {
+  from(table: "assignment_sources"): {
+    select(columns: string): AssignmentSourceQuery;
+  };
+};
+
+type PracticeAttemptRpcClient = {
+  rpc(
+    name: "save_practice_attempt",
+    args: {
+      p_artifact_id: string;
+      p_assignment_id: string | null;
+      p_attempt_number: number;
+      p_completed: boolean;
+      p_result: Json;
+      p_responses: Json;
+    },
+  ): Promise<{ data: string | null; error: { message: string } | null }>;
 };
 
 export async function generateStudyArtifact(
@@ -97,24 +158,29 @@ export async function generateStudyArtifact(
     ? await loadClassContext(supabase, user.id, source.classId, source.sourceType, source.sourceId, coveredSince)
     : "";
 
-  const { data, error } = await supabase.functions.invoke("study-artifacts", {
-    body: {
-      ownerId: user.id,
-      assignmentId: source.assignmentId,
-      aiMode: source.aiMode,
-      artifactType: parsed.data.artifactType,
-      studyMode: parsed.data.studyMode,
-      sourceType: source.sourceType,
-      sourceTitle: source.title,
-      sourceText: source.text,
-      classContext,
-    },
-  });
+  let raw = "";
+  const deterministicQa =
+    process.env.NODE_ENV !== "production" && process.env.QA_CREATE_USER === "true";
+  if (!deterministicQa) {
+    const { data, error } = await supabase.functions.invoke("study-artifacts", {
+      body: {
+        ownerId: user.id,
+        assignmentId: source.assignmentId,
+        aiMode: source.aiMode,
+        artifactType: parsed.data.artifactType,
+        studyMode: parsed.data.studyMode,
+        sourceType: source.sourceType,
+        sourceTitle: source.title,
+        sourceText: source.text,
+        classContext,
+      },
+    });
 
-  if (data?.error) return { ok: false, error: calmArtifactError(String(data.error)) };
-  if (error) return { ok: false, error: calmArtifactError(error.message) };
+    if (data?.error) return { ok: false, error: calmArtifactError(String(data.error)) };
+    if (error) return { ok: false, error: calmArtifactError(error.message) };
+    raw = String((data as { content?: unknown } | null)?.content ?? "");
+  }
 
-  const raw = String((data as { content?: unknown } | null)?.content ?? "");
   const artifact = raw
     ? parseStudyArtifactResponse(raw, {
         type: parsed.data.artifactType,
@@ -180,6 +246,7 @@ export async function generateStudyArtifact(
   });
 
   revalidatePath(source.revalidatePath);
+  revalidatePath("/study-artifacts");
   revalidatePath("/flashcards");
   return { ok: true, id: row.id, artifact };
 }
@@ -201,6 +268,16 @@ export async function saveArtifactFlashcards(
     .eq("owner_id", user.id)
     .single();
   if (error || !artifact) return { ok: false, error: "Study set was not found." };
+  const sourceType = isStudyArtifactSourceType(artifact.source_type)
+    ? artifact.source_type
+    : null;
+  const artifactType = isStudyArtifactType(artifact.artifact_type)
+    ? artifact.artifact_type
+    : null;
+  const studyMode = normalizeStudyHelperMode(artifact.study_mode);
+  if (!sourceType || !artifactType || !studyMode) {
+    return { ok: false, error: "Study set metadata needs to be refreshed." };
+  }
 
   const originalPayload = completeStudyArtifact(artifact.payload);
   const payload = parsed.data.cards
@@ -208,7 +285,7 @@ export async function saveArtifactFlashcards(
     : originalPayload;
   const cards = Array.isArray(payload.cards) ? payload.cards.slice(0, 12) : [];
   if (cards.length === 0) return { ok: false, error: "This study set does not have card drafts yet." };
-  const sourceAssignmentId = artifact.source_type === "assignment"
+  const sourceAssignmentId = sourceType === "assignment"
     ? artifact.source_id
     : await loadAssignmentIdForNote(supabase, user.id, artifact.source_id);
 
@@ -224,7 +301,7 @@ export async function saveArtifactFlashcards(
     });
     return {
       owner_id: user.id,
-      source_note_id: artifact.source_type === "note" ? artifact.source_id : null,
+      source_note_id: sourceType === "note" ? artifact.source_id : null,
       source_assignment_id: sourceAssignmentId,
       source_artifact_id: artifact.id,
       source_anchor: card.sourceAnchor || null,
@@ -266,14 +343,14 @@ export async function saveArtifactFlashcards(
   await recordStudyArtifactSignal({
     supabase,
     ownerId: user.id,
-    assignmentId: artifact.source_type === "assignment" ? artifact.source_id : null,
+    assignmentId: sourceType === "assignment" ? artifact.source_id : null,
     source: {
-      sourceType: artifact.source_type,
+      sourceType,
       sourceId: artifact.source_id,
     },
     artifactId: artifact.id,
-    artifactType: artifact.artifact_type,
-    studyMode: artifact.study_mode,
+    artifactType,
+    studyMode,
     event: "cards_saved",
     count: cards.length,
   });
@@ -295,6 +372,198 @@ export async function saveArtifactFlashcards(
   revalidatePath("/flashcards");
   revalidatePath(artifact.source_type === "assignment" ? `/assignments/${artifact.source_id}` : `/notes/${artifact.source_id}`);
   return { ok: true, count: cards.length };
+}
+
+export async function savePracticeTestProgress(
+  input: z.input<typeof SavePracticeProgressInput>,
+): Promise<
+  | { ok: true; progress: PracticeProgress; result: PracticeScoreSummary }
+  | { ok: false; error: string }
+> {
+  const parsed = SavePracticeProgressInput.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "Add a response before saving this practice step." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+
+  const { data: artifact, error } = await supabase
+    .from("study_artifacts")
+    .select("id, owner_id, source_type, source_id, artifact_type, study_mode, payload, class_id")
+    .eq("id", parsed.data.artifactId)
+    .eq("owner_id", user.id)
+    .single();
+  if (error || !artifact || artifact.artifact_type !== "practice_test") {
+    return { ok: false, error: "Practice set was not found." };
+  }
+  const sourceType = isStudyArtifactSourceType(artifact.source_type)
+    ? artifact.source_type
+    : null;
+  const studyMode = normalizeStudyHelperMode(artifact.study_mode);
+  if (!sourceType || !studyMode) {
+    return { ok: false, error: "Practice set metadata needs to be refreshed." };
+  }
+
+  const rawPayload =
+    artifact.payload && typeof artifact.payload === "object" && !Array.isArray(artifact.payload)
+      ? artifact.payload as Record<string, unknown>
+      : {};
+  const previous = normalizePracticeProgress(rawPayload.practiceProgress);
+  const responses = { ...previous.responses };
+  for (const response of parsed.data.responses) {
+    responses[String(response.questionIndex)] = response.response;
+  }
+  const completed = previous.completed || parsed.data.completed;
+  const nowIso = new Date().toISOString();
+  const progress = normalizePracticeProgress({
+    currentQuestion: parsed.data.currentQuestion,
+    completed,
+    completedAt: completed ? previous.completedAt ?? nowIso : null,
+    responses,
+  });
+  const completedArtifact = completeStudyArtifact(rawPayload);
+  const practiceResult = scorePracticeTest(completedArtifact.quiz, progress.responses);
+  const nextPayload = {
+    ...mergePracticeProgress(rawPayload, progress),
+    practiceResult,
+    score: completed ? practiceResult.percentage : rawPayload.score ?? null,
+  };
+
+  const { error: updateError } = await supabase
+    .from("study_artifacts")
+    .update({
+      payload: nextPayload as unknown as Json,
+      loop_state: "reviewing",
+      last_reviewed_at: nowIso,
+      updated_at: nowIso,
+    })
+    .eq("id", artifact.id)
+    .eq("owner_id", user.id);
+  if (updateError) {
+    return { ok: false, error: "Your response is still here. Try saving again." };
+  }
+
+  const assignmentId = sourceType === "assignment"
+    ? artifact.source_id
+    : await loadAssignmentIdForNote(supabase, user.id, artifact.source_id);
+  const attemptNumber =
+    typeof rawPayload.practiceAttemptNumber === "number" &&
+    Number.isInteger(rawPayload.practiceAttemptNumber) &&
+    rawPayload.practiceAttemptNumber > 0
+      ? rawPayload.practiceAttemptNumber
+      : 1;
+  const { error: attemptError } = await (supabase as unknown as PracticeAttemptRpcClient)
+    .rpc("save_practice_attempt", {
+      p_artifact_id: artifact.id,
+      p_assignment_id: assignmentId,
+      p_attempt_number: attemptNumber,
+      p_completed: completed,
+      p_result: practiceResult as unknown as Json,
+      p_responses: practiceResult.results as unknown as Json,
+    });
+  if (attemptError) {
+    console.error("Practice attempt persistence was unavailable.", attemptError.message);
+  }
+  if (completed) {
+    await recordPracticeMasteryEvidence({
+      supabase,
+      ownerId: user.id,
+      classId: artifact.class_id,
+      results: practiceResult.results,
+    });
+  }
+  await recordStudyArtifactSignal({
+    supabase,
+    ownerId: user.id,
+    assignmentId,
+    source: {
+      sourceType,
+      sourceId: artifact.source_id,
+    },
+    artifactId: artifact.id,
+    artifactType: "practice_test",
+    studyMode,
+    event: completed ? "practice_completed" : "practice_response_saved",
+    count: Object.keys(progress.responses).length,
+  });
+  await recordAuthorshipEvent({
+    supabase,
+    ownerId: user.id,
+    assignmentId,
+    artifactId: artifact.id,
+    actor: "student",
+    eventType: completed ? "practice_session_completed" : "practice_response_saved",
+    payload: {
+      currentQuestion: progress.currentQuestion,
+      responseCount: Object.keys(progress.responses).length,
+      completed: progress.completed,
+      scoreRecorded: completed && practiceResult.percentage !== null,
+      score: completed ? practiceResult.percentage : null,
+      scoredCount: practiceResult.scoredCount,
+      reviewCount: practiceResult.reviewTogetherCount,
+    } as Json,
+  });
+  await recordStudentStateSnapshot({
+    supabase,
+    ownerId: user.id,
+    assignmentId,
+    trigger: completed ? "practice_session_completed" : "practice_response_saved",
+  });
+
+  revalidatePath(`/study-artifacts/${artifact.id}`);
+  revalidatePath("/study-artifacts");
+  revalidatePath("/dashboard");
+  return { ok: true, progress, result: practiceResult };
+}
+
+export async function restartPracticeTest(
+  artifactId: string,
+): Promise<{ ok: true; progress: PracticeProgress } | { ok: false; error: string }> {
+  const parsed = z.string().uuid().safeParse(artifactId);
+  if (!parsed.success) return { ok: false, error: "Practice set was not found." };
+
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Not signed in." };
+  const { data: artifact } = await supabase
+    .from("study_artifacts")
+    .select("id, payload")
+    .eq("id", parsed.data)
+    .eq("owner_id", user.id)
+    .eq("artifact_type", "practice_test")
+    .maybeSingle();
+  if (!artifact) return { ok: false, error: "Practice set was not found." };
+
+  const rawPayload =
+    artifact.payload && typeof artifact.payload === "object" && !Array.isArray(artifact.payload)
+      ? artifact.payload as Record<string, unknown>
+      : {};
+  const currentAttempt =
+    typeof rawPayload.practiceAttemptNumber === "number" &&
+    Number.isInteger(rawPayload.practiceAttemptNumber)
+      ? rawPayload.practiceAttemptNumber
+      : 1;
+  const progress = normalizePracticeProgress({});
+  const { error } = await supabase
+    .from("study_artifacts")
+    .update({
+      payload: {
+        ...mergePracticeProgress(rawPayload, progress),
+        practiceAttemptNumber: currentAttempt + 1,
+        practiceResult: null,
+        score: null,
+      } as unknown as Json,
+      loop_state: "generated",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", artifact.id)
+    .eq("owner_id", user.id);
+  if (error) return { ok: false, error: "The next practice pass is not ready yet." };
+
+  revalidatePath(`/study-artifacts/${artifact.id}`);
+  return { ok: true, progress };
 }
 
 async function loadAssignmentIdForNote(
@@ -345,6 +614,64 @@ async function resolveConceptForArtifactCard({
   return data?.id ?? null;
 }
 
+async function recordPracticeMasteryEvidence({
+  supabase,
+  ownerId,
+  classId,
+  results,
+}: {
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  ownerId: string;
+  classId: string | null;
+  results: PracticeScoreSummary["results"];
+}) {
+  if (!classId) return;
+  for (const result of results.filter((item) => item.scored).slice(0, 12)) {
+    const name = normalizeConceptNames([result.question, result.expectedAnswer])[0];
+    if (!name) continue;
+    const { data: existing } = await supabase
+      .from("mastery_concepts")
+      .select("id, mastery_level")
+      .eq("owner_id", ownerId)
+      .eq("class_id", classId)
+      .eq("name", name)
+      .maybeSingle();
+    let concept = existing;
+    if (!concept) {
+      const { data } = await supabase
+        .from("mastery_concepts")
+        .insert({
+          owner_id: ownerId,
+          class_id: classId,
+          name,
+          source: "ai_quiz",
+        })
+        .select("id, mastery_level")
+        .single();
+      concept = data;
+    }
+    if (!concept) continue;
+    const currentLevel = Number(concept.mastery_level ?? 0);
+    const rating = result.category === "matched" ? 4 : 1;
+    const nextLevel = masteryLevelFromAiQuizResult(currentLevel, rating);
+    await Promise.all([
+      supabase.from("mastery_events").insert({
+        owner_id: ownerId,
+        concept_id: concept.id,
+        source: "ai_quiz",
+        rating,
+        delta: nextLevel - currentLevel,
+        evidence_text: `${result.question} | ${result.sourceAnchor}`.slice(0, 500),
+      }),
+      supabase.from("mastery_concepts").update({
+        mastery_level: nextLevel,
+        last_practiced_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }).eq("id", concept.id).eq("owner_id", ownerId),
+    ]);
+  }
+}
+
 function countArtifactAnchors(artifact: StudyArtifact): number {
   const anchors = new Set<string>();
   const quiz = Array.isArray(artifact.quiz) ? artifact.quiz : [];
@@ -372,6 +699,16 @@ async function loadAssignmentSource(
     data.ai_mode_override === "red" || data.ai_mode_override === "yellow" || data.ai_mode_override === "green"
       ? data.ai_mode_override
       : null;
+  const { data: importedSources } = await (supabase as unknown as AssignmentSourceClient)
+    .from("assignment_sources")
+    .select("source_type, title, extracted_text, source_location")
+    .eq("assignment_id", data.id)
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: true });
+  const packet = buildSourcePacket({
+    description: data.description,
+    rubric_text: data.rubric_text,
+  }, importedSources ?? []);
 
   return {
     sourceType: "assignment",
@@ -380,9 +717,11 @@ async function loadAssignmentSource(
     text: [
       `Assignment: ${data.title}`,
       `Kind: ${data.kind}`,
-      data.description ? `Prompt:\n${data.description}` : "",
-      data.rubric_text ? `Rubric:\n${data.rubric_text}` : "",
-    ].filter(Boolean).join("\n\n").slice(0, 10000),
+      packet.directions ? `Directions:\n${packet.directions}` : "",
+      packet.rubric ? `Rubric:\n${packet.rubric}` : "",
+      packet.materialText ? `Imported class material:\n${packet.materialText}` : "",
+      packet.citations.length > 0 ? `Source locations:\n${packet.citations.join("\n")}` : "",
+    ].filter(Boolean).join("\n\n").slice(0, 20_000),
     classId: data.class_id,
     aiMode: effectiveAiMode(classMode, override),
     assignmentId: data.id,
@@ -488,7 +827,7 @@ async function recordStudyArtifactSignal({
   artifactId: string;
   artifactType: StudyArtifactType;
   studyMode: StudyHelperMode;
-  event: "artifact_generated" | "cards_saved";
+  event: "artifact_generated" | "cards_saved" | "practice_response_saved" | "practice_completed";
   count?: number;
 }) {
   await supabase.from("task_signals").insert({
@@ -513,20 +852,26 @@ async function recordAuthorshipEvent({
   assignmentId,
   artifactId,
   eventType,
+  actor = "diana",
   payload,
 }: {
   supabase: Awaited<ReturnType<typeof createClient>>;
   ownerId: string;
   assignmentId: string | null;
   artifactId: string;
-  eventType: "study_artifact_generated" | "artifact_cards_saved";
+  eventType:
+    | "study_artifact_generated"
+    | "artifact_cards_saved"
+    | "practice_response_saved"
+    | "practice_session_completed";
+  actor?: "diana" | "student";
   payload: Json;
 }) {
   await supabase.from("authorship_log").insert({
     owner_id: ownerId,
     assignment_id: assignmentId,
     source_artifact_id: artifactId,
-    actor: "diana",
+    actor,
     event_type: eventType,
     payload,
   });

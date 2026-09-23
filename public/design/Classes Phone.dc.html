@@ -42,15 +42,15 @@
 
   <div style="flex:1;overflow:auto;padding:14px 16px 10px">
     <sc-for list="{{ classes }}" as="c" hint-placeholder-count="6">
-      <div style="position:relative;display:flex;align-items:center;gap:12px;border-radius:13px;border:1px solid {{ c.overdue ? 'rgba(255,85,85,.4)' : 'rgba(120,150,220,.18)' }};background:rgba(4,8,20,.72);padding:13px 14px;margin-bottom:10px;overflow:hidden">
+      <div style="position:relative;display:flex;align-items:center;gap:12px;border-radius:13px;border:1px solid {{ c.overdue ? 'rgba(255,85,85,.5)' : 'rgba(120,150,220,.34)' }};background:#ffffff;padding:13px 14px;margin-bottom:10px;overflow:hidden">
         <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:{{ c.color }}"></div>
         <div style="width:38px;height:38px;border-radius:10px;background:{{ c.iconBg }};display:flex;align-items:center;justify-content:center;color:{{ c.color }};font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:17px;flex-shrink:0">{{ c.initial }}</div>
         <div style="flex:1;min-width:0">
           <div style="display:flex;align-items:center;gap:7px">
-            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;color:#fff">{{ c.name }}</span>
+            <span style="font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:16px;text-transform:uppercase;color:#111827">{{ c.name }}</span>
             <span style="width:7px;height:7px;border-radius:50%;background:{{ c.aiModeColor }};flex-shrink:0"></span>
           </div>
-          <div style="font-size:12.5px;color:rgba(200,218,255,.6);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.nextUp }}</div>
+          <div style="font-size:12.5px;color:#64748b;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.nextUp }}</div>
         </div>
         <sc-if value="{{ c.overdue }}" hint-placeholder-val="{{ false }}">
           <span style="flex-shrink:0;padding:4px 9px;border-radius:6px;background:rgba(255,55,55,.12);border:1px solid rgba(255,85,85,.4);font-family:'Saira Condensed',sans-serif;font-weight:800;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:#ff7a7a;animation:clp-pulse 2.4s ease-in-out infinite">{{ c.overdueLabel }}</span>
@@ -68,7 +68,7 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
       <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase">Work</span>
     </a>
-    <a href="Classes Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;color:#29d0ff">
+    <a href="Classes Phone.dc.html" style="text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:4px;color:#ffffff">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
       <span style="font-family:'Saira Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.06em;text-transform:uppercase">Classes</span>
     </a>

@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { canvaEnv, exchangeCanvaCode } from "@/lib/integrations/canva";
+import {
+  saveCanvaConnectionWithCredential,
+} from "@/lib/integrations/credential-vault";
 
 export const dynamic = "force-dynamic";
 
@@ -36,15 +39,13 @@ export async function GET(request: Request) {
 
   try {
     const tokens = await exchangeCanvaCode(env, code, expected.verifier);
-    const { error } = await supabase.from("canva_connections").upsert({
-      owner_id: user.id,
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
-      expires_at: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
+    await saveCanvaConnectionWithCredential(supabase, {
+      ownerId: user.id,
+      accessToken: tokens.access_token,
+      refreshToken: tokens.refresh_token,
+      expiresAt: new Date(Date.now() + tokens.expires_in * 1000).toISOString(),
       scope: tokens.scope ?? null,
-      updated_at: new Date().toISOString(),
     });
-    if (error) throw new Error(error.message);
     return NextResponse.redirect(new URL("/settings?canva=connected", request.url));
   } catch {
     return NextResponse.redirect(new URL("/settings?canva=connect-issue", request.url));

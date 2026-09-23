@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { fetchCanvasAssignments, getValidCanvasToken } from "@/lib/lms/canvas";
 import { syncLmsAssignments } from "@/lib/lms/sync";
+import {
+  hydrateLmsConnectionCredentials,
+  persistLmsTokenRefresh,
+} from "@/lib/integrations/credential-vault";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -25,7 +29,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Connection not found" }, { status: 404 });
   }
 
-  const cfg = conn.config as { base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
+  let securedConnection;
+  try {
+    securedConnection = await hydrateLmsConnectionCredentials(user.id, conn);
+  } catch {
+    return NextResponse.json({ error: "Connection credentials are not available" }, { status: 503 });
+  }
+  const cfg = securedConnection.config as { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
   if (!cfg.base_url || !cfg.token) {
     return NextResponse.json({ error: "Connection is missing Canvas URL or token" }, { status: 400 });
   }
@@ -34,26 +44,31 @@ export async function POST(req: Request) {
     const valid = await getValidCanvasToken({
       base_url: cfg.base_url,
       token: cfg.token,
+      institution_id: cfg.institution_id,
       oauth: cfg.oauth,
       refresh_token: cfg.refresh_token,
       expires_at: cfg.expires_at,
     });
     if (valid.refreshed) {
-      await supabase
-        .from("lms_connections")
-        .update({ config: { ...cfg, token: valid.refreshed.token, expires_at: valid.refreshed.expires_at } })
-        .eq("id", conn.id);
+      await persistLmsTokenRefresh(supabase as any, {
+        ownerId: user.id,
+        connection: securedConnection,
+        accessToken: valid.refreshed.token,
+        expiresAt: valid.refreshed.expires_at,
+      });
     }
     const { items, skipped } = await fetchCanvasAssignments({
       base_url: cfg.base_url,
       token: valid.token,
+      institution_id: cfg.institution_id,
     });
     const result = await syncLmsAssignments(supabase, user.id, "canvas", items, skipped);
 
     await supabase
       .from("lms_connections")
       .update({ last_synced_at: new Date().toISOString() })
-      .eq("id", connectionId);
+      .eq("id", connectionId)
+      .eq("owner_id", user.id);
 
     return NextResponse.json(result);
   } catch (e) {

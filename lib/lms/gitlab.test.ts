@@ -32,6 +32,7 @@ describe("fetchGitLabAssignments", () => {
       project: "class/quiz",
       token: "glpat-test",
       labels: "assignment",
+      base_url: "https://93.184.216.34",
     });
 
     expect(result.skipped).toBe(1);
@@ -45,18 +46,19 @@ describe("fetchGitLabAssignments", () => {
         rubric_text: "GitLab labels: assignment, javascript",
       }),
     ]);
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining("https://gitlab.com/api/v4/projects/class%2Fquiz/issues?"),
-      expect.objectContaining({
-        headers: expect.objectContaining({ "PRIVATE-TOKEN": "glpat-test" }),
-      }),
-    );
+    const [requestUrl, requestInit] = vi.mocked(fetch).mock.calls[0];
+    expect(String(requestUrl)).toContain("https://93.184.216.34/api/v4/projects/class%2Fquiz/issues?");
+    expect(requestInit).toEqual(expect.objectContaining({
+      headers: expect.objectContaining({ "PRIVATE-TOKEN": "glpat-test" }),
+      redirect: "manual",
+    }));
   });
 
   it("rejects display names that are not GitLab project paths", async () => {
     await expect(fetchGitLabAssignments({
       project: "High School",
       token: "glpat-test",
+      base_url: "https://93.184.216.34",
     })).rejects.toThrow("project path");
   });
 });

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, BookOpenCheck, LockKeyhole, PencilRuler, ShieldCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { PageShell } from "../../../page-shell";
+import { DianaWordmark } from "@/components/screen-design/primitives";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
 import { saveClassAiMode } from "./actions";
 
 const BODY = "var(--font-body)";
@@ -33,14 +34,13 @@ export default async function ClassAiSettingsPage({
   }
 
   return (
-    <PageShell
-      active="Classes"
-      eyebrow="Class AI rules"
-      title={`AI mode for ${cls.name}`}
-      subtitle="Pick how Diana can help in this subject. This setting applies before any assignment-level override."
-      accent="var(--gl-gold)"
-      icon={ShieldCheck}
-    >
+    <div className="sd-support-screen">
+      <header className="sd-support-header">
+        <DianaWordmark />
+        <p><ShieldCheck size={14} aria-hidden="true" /> Class AI rules</p>
+        <h1>AI mode for {cls.name}</h1>
+        <span>Pick how Diana can help in this subject. This setting applies before any assignment-level override.</span>
+      </header>
       <Link
         href={`/classes/${id}`}
         style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-4)", fontFamily: BODY, fontSize: "var(--text-12)", fontWeight: "var(--weight-600)", color: "var(--gl-text-muted)", textDecoration: "none" }}
@@ -52,7 +52,7 @@ export default async function ClassAiSettingsPage({
       {/* Form */}
       <form action={action}>
           <input type="hidden" name="classId" value={id} />
-          <div className="class-ai-mode-panel nexus-panel nexus-tone-gold nexus-panel-default">
+          <div className="class-ai-mode-panel diana-panel diana-tone-gold diana-panel-default">
             {[
               { value: "green", Icon: BookOpenCheck, label: "Full help", desc: "Study help, planning, citation support, and guided scaffolds are available for this class.", modeLabel: "Green" },
               { value: "yellow", Icon: PencilRuler, label: "Citations only", desc: "Diana can help with sources and citations, but not content-generating support.", modeLabel: "Yellow" },
@@ -74,10 +74,11 @@ export default async function ClassAiSettingsPage({
               </label>
             ))}
           </div>
-        <button type="submit" className="nexus-button nexus-button-primary class-settings-save">
+        <button type="submit" className="diana-button diana-button-primary class-settings-save">
           Save class rule
         </button>
       </form>
-    </PageShell>
+      <StudentBottomNav />
+    </div>
   );
 }

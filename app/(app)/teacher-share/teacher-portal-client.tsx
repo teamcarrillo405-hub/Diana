@@ -161,15 +161,15 @@ export function TeacherPortalClient({
 
   if (classes.length === 0) {
     return (
-      <section className="nexus-panel nexus-panel-dense grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+      <section className="diana-panel diana-panel-dense grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
         <div className="space-y-2">
-          <span className="nexus-kicker">Setup first</span>
+          <span className="diana-kicker">Setup first</span>
           <h2 className="text-2xl font-semibold">Create one class before opening teacher tools.</h2>
           <p className="max-w-2xl text-sm text-muted">
             Teacher assignments, roster, AI policy, and accommodation confirmations need a class anchor first.
           </p>
         </div>
-        <Link href="/classes" className="nexus-button nexus-button-primary w-fit">
+        <Link href="/classes" className="diana-button diana-button-primary w-fit">
           Open classes
         </Link>
       </section>

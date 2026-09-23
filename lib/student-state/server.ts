@@ -1,5 +1,9 @@
 import type { createClient } from "@/lib/supabase/server";
-import type { AssignmentStatus, Json } from "@/lib/supabase/types";
+import type { Json } from "@/lib/supabase/types";
+import {
+  normalizeAssignmentKind,
+  normalizeAssignmentStatus,
+} from "@/lib/assignment-kind";
 import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
 import {
   buildStudentStateModel,
@@ -67,8 +71,8 @@ export async function recordStudentStateSnapshot({
     assignment: {
       id: assignment.id,
       title: assignment.title,
-      kind: assignment.kind,
-      status: assignment.status as AssignmentStatus,
+      kind: normalizeAssignmentKind(assignment.kind),
+      status: normalizeAssignmentStatus(assignment.status),
       reading_load: assignment.reading_load,
       writing_load: assignment.writing_load,
       difficulty: assignment.difficulty,

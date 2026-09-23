@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { PauseCircle, PlayCircle, Square, Volume2 } from "lucide-react";
 import { useTtsHighlight } from "@/lib/tts/use-tts-highlight";
 import type { TtsProvider } from "@/lib/supabase/types";
+import { requestRemoteSpeech } from "@/lib/tts/remote-client";
 
 export function TtsHighlightButton({
   text,
@@ -28,23 +29,14 @@ export function TtsHighlightButton({
   }, []);
 
   if (provider !== "browser") {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
-    const anonKey =
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ??
-      "";
-
     async function speakRemote() {
       setRemoteState("playing");
       try {
-        const res = await fetch(`${supabaseUrl}/functions/v1/tts-generate`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            apikey: anonKey,
-            Authorization: `Bearer ${anonKey}`,
-          },
-          body: JSON.stringify({ text, provider, voice, speed }),
+        const res = await requestRemoteSpeech({
+          text,
+          provider: provider as Exclude<TtsProvider, "browser">,
+          voice,
+          speed,
         });
 
         if (!res.ok) {
