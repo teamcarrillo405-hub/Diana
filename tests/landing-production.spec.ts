@@ -74,14 +74,19 @@ test("scroll cue and signup navigation fit without overlap", async ({page}, test
     await page.setViewportSize({width, height: testInfo.project.name === "mobile" ? 844 : 900});
     await expect(page.getByRole("link", {name: "Join Waitlist", exact: true})).toBeVisible();
     await expect(page.getByText("Scroll to explore", {exact: true})).toBeVisible();
-    const boxes = await page.locator(".header .brand, .header .nav-link, .header .header-cta, .header .chapter-menu, .header #motion").evaluateAll(elements => elements
-      .filter(element => getComputedStyle(element).display !== "none")
-      .map(element => { const {left, right} = element.getBoundingClientRect(); return {left, right}; }));
-    boxes.forEach((box, index) => {
-      expect(box.left).toBeGreaterThanOrEqual(0);
-      expect(box.right).toBeLessThanOrEqual(width);
-      if (index) expect(box.left - boxes[index - 1].right).toBeGreaterThanOrEqual(7.5);
-    });
+    const assertHeaderSpacing = async () => {
+      const boxes = await page.locator(".header .brand, .header .nav-link, .header .header-cta, .header .chapter-menu, .header #motion").evaluateAll(elements => elements
+        .filter(element => getComputedStyle(element).display !== "none")
+        .map(element => { const {left, right} = element.getBoundingClientRect(); return {left, right, name: element.className}; }));
+      boxes.forEach((box, index) => {
+        expect(box.left, box.name).toBeGreaterThanOrEqual(0);
+        expect(box.right, box.name).toBeLessThanOrEqual(width);
+        if (index) expect(box.left - boxes[index - 1].right, `${width}px gap before ${box.name}`).toBeGreaterThanOrEqual(7.5);
+      });
+    };
+    await assertHeaderSpacing();
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    await assertHeaderSpacing();
     const rail = await page.getByRole("progressbar").boundingBox();
     expect(rail?.height).toBe(3);
     expect(rail?.width).toBe(width);

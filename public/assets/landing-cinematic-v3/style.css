@@ -426,7 +426,7 @@ dialog.zoomed picture img { width: 1500px; min-width: 1500px; max-width: none; }
   .cinematic-landing-root .header nav > .header-cta { display: inline-flex; padding: 0 10px; font-size: 16px; white-space: nowrap; }
 }
 @media (max-width: 360px) {
-  .cinematic-landing-root .header { padding-inline: 16px; }
+  .cinematic-landing-root .header { padding-inline: 12px; gap: 8px; }
   .cinematic-landing-root .brand { gap: 5px; }
   .cinematic-landing-root .header nav > .header-cta { padding: 0 6px; font-size: 14px; }
 }
