@@ -221,9 +221,8 @@ img { display: block; max-width: 100%; }
 .cta:active { transform: translateY(1px); }
 .story-progress { display: none; position: absolute; z-index: 8; left: 0; right: 0; bottom: 0; height: 3px; background: rgb(255 255 255 / 24%); pointer-events: none; }
 .motion-ready .story-progress { display: block; }
-.story-progress span { display: block; width: 100%; height: 100%; background: #eaff32; transform: scaleX(var(--story-progress, 0)); transform-origin: left center; transition: transform 120ms linear; }
+.story-progress span { display: block; width: 100%; height: 100%; background: var(--diana-teal, #2dd4bf); transform: scaleX(var(--story-progress, 0)); transform-origin: left center; transition: transform 120ms linear; }
 .light-chapter .story-progress { background: rgb(17 22 27 / 20%); }
-.light-chapter .story-progress span { background: #11161b; }
 .workspace { padding: 24px var(--gutter) 48px; background: #f7f8fa; color: #101217; }
 .fallback-chapter { margin-top: 64px; }
 .section-intro { display: flex; justify-content: space-between; align-items: start; gap: 40px; margin: 0 0 36px; }

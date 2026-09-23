@@ -88,6 +88,7 @@ test("scroll cue and signup navigation fit without overlap", async ({page}, test
     await page.evaluate(() => document.fonts.ready.then(() => undefined));
     await assertHeaderSpacing();
     const rail = await page.getByRole("progressbar").boundingBox();
+    await expect(page.locator(".story-progress span")).toHaveCSS("background-color", "rgb(45, 212, 191)");
     expect(rail?.height).toBe(3);
     expect(rail?.width).toBe(width);
     await page.screenshot({path: testInfo.outputPath(`scroll-cue-${width}.png`)});
@@ -118,7 +119,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
   for (const stop of stops.filter((item: {id: string}) => item.id.startsWith("vision"))) {
     await positionBefore(stop.point);
     // Record at the rendered hold, not after several slow remote-browser round trips.
-    const observedHold = page.evaluate(id => new Promise<{timeline: number; opacity: string; transform: string; blocked: boolean; cueHidden: boolean}>(resolve => {
+    const observedHold = page.evaluate(id => new Promise<{timeline: number; opacity: string; transform: string; blocked: boolean; cueHidden: boolean; progressColor: string}>(resolve => {
       const observe = (event: Event) => {
         const composition = (window as AnimatedWindow).__dianaComposition;
         if ((event as CustomEvent<{id: string}>).detail.id !== id) return;
@@ -127,7 +128,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
         const style = getComputedStyle(phrase);
         const wheel = new WheelEvent("wheel", {deltaY: 1400, cancelable: true});
         window.dispatchEvent(wheel);
-        resolve({timeline: composition.timelinePixels, opacity: style.opacity, transform: style.transform, blocked: wheel.defaultPrevented, cueHidden: getComputedStyle(document.querySelector(".scroll-cue")!).visibility === "hidden"});
+        resolve({timeline: composition.timelinePixels, opacity: style.opacity, transform: style.transform, blocked: wheel.defaultPrevented, cueHidden: getComputedStyle(document.querySelector(".scroll-cue")!).visibility === "hidden", progressColor: getComputedStyle(document.querySelector(".story-progress span")!).backgroundColor});
       };
       window.addEventListener("diana:reading-hold", observe);
     }), stop.id);
@@ -138,6 +139,7 @@ test("reading stops and both real videos stay framed until their holds finish", 
     expect(held.transform).toBe("matrix(1, 0, 0, 1, 0, 0)");
     expect(held.blocked).toBe(true);
     expect(held.cueHidden).toBe(true);
+    expect(held.progressColor).toBe("rgb(45, 212, 191)");
     if (stop.id === "vision-0") await page.screenshot({path: testInfo.outputPath("chatbot-reading-hold.png")});
     await expect.poll(() => page.evaluate(() => (window as AnimatedWindow).__dianaComposition.readingHold)).toBeNull();
   }
