@@ -158,7 +158,7 @@ export function CinematicLandingClient({ narrativeHtml, assetBase, assetVersion 
   }, [assetBase, assetVersion]);
 
   return (
-    <div ref={rootRef} className="cinematic-landing-root">
+    <div ref={rootRef} className="cinematic-landing-root" data-public-shell="cinematic">
       <link rel="preload" href={`${assetBase}/outfit.woff2?v=${assetVersion}`} as="font" type="font/woff2" crossOrigin="anonymous" />
       <link rel="stylesheet" href={`${assetBase}/style.css?v=${assetVersion}`} />
       <div dangerouslySetInnerHTML={{ __html: narrativeHtml }} />

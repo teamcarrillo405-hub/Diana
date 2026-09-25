@@ -95,6 +95,42 @@ test("scroll cue and signup navigation fit without overlap", async ({page}, test
   }
 });
 
+test("landing text keeps its own colors and fonts outside the student app theme", async ({page}, testInfo) => {
+  await page.goto("/");
+  await expect(page.locator("body")).toHaveClass(/motion-ready/);
+  await expect(page.locator(".cinematic-landing-root")).toHaveAttribute("data-public-shell", "cinematic");
+  // Reproduce the newer student-shell stylesheet that caused the production regression.
+  await page.addStyleTag({content: `
+    .diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) :is(h2, h3) {
+      color: #182126; font-family: Lexend, sans-serif; font-weight: 620;
+    }
+    .diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) p { color: #53615c; }
+  `});
+  const whiteText = ".hero-action p, .carousel-copy h2, .carousel-copy p, .day-caption h3, .day-caption p, .control-title h2, .control-beat h3, .control-beat p, .closing-wordmark span, .closing-action label:first-child, .dpl-form-message-idle, .closing-footer a";
+  for (const element of await page.locator(whiteText).all()) {
+    await expect(element).toHaveCSS("color", "rgb(255, 255, 255)");
+    await expect(element).toHaveCSS("-webkit-text-fill-color", "rgb(255, 255, 255)");
+  }
+  await expect(page.locator(".carousel-copy h2")).toHaveCSS("font-weight", "800");
+  expect(await page.locator(".carousel-copy h2").evaluate(element => getComputedStyle(element).fontFamily)).toContain("Saira");
+  await expect(page.locator(".vision-sequence")).toHaveCSS("color", "rgb(0, 0, 0)");
+  await expect(page.locator(".questions-heading h2")).toHaveCSS("color", "rgb(0, 0, 0)");
+  await expect(page.locator(".header-cta")).toHaveCSS("color", "rgb(17, 22, 27)");
+  await expect(page.locator(".story-progress span")).toHaveCSS("background-color", "rgb(45, 212, 191)");
+  await page.screenshot({path: testInfo.outputPath("hero-text-colors.png")});
+  await page.evaluate(() => (document.querySelector('a[href="#homework"]') as HTMLElement).click());
+  await expect(page.locator(".carousel-copy")).toHaveCSS("opacity", "1");
+  await page.screenshot({path: testInfo.outputPath("carousel-text-colors.png")});
+  await page.emulateMedia({reducedMotion: "reduce"});
+  for (const element of await page.locator(".section-intro h2, .fallback-day-heading, .dialog-header h2").all()) {
+    await expect(element).toHaveCSS("color", "rgb(16, 18, 23)");
+  }
+  await page.getByRole("link", {name: "Join Waitlist", exact: true}).click();
+  await expect(page.locator(".closing-wordmark span").first()).toHaveCSS("opacity", "1");
+  await expect(page.locator(".closing-wordmark span").first()).toHaveCSS("text-shadow", "none");
+  await page.screenshot({path: testInfo.outputPath("footer-text-colors.png")});
+});
+
 test("reading stops and both real videos stay framed until their holds finish", async ({ page }, testInfo) => {
   test.setTimeout(process.env.CI ? 360_000 : 180_000);
   await page.goto("/");
