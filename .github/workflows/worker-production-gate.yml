@@ -57,7 +57,8 @@ concurrency:
 
 jobs:
   production-gate:
-    runs-on: ubuntu-latest
+    # Authenticated browser smoke uses Playwright 1.60's supported Ubuntu dependencies.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       DIANA_WORKER_BASE_URL: ${{ inputs.target_origin }}

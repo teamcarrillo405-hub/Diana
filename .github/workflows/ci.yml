@@ -26,7 +26,8 @@ jobs:
           GITLEAKS_ENABLE_COMMENTS: false
 
   gates:
-    runs-on: ubuntu-latest
+    # Playwright 1.60 browser dependencies support Ubuntu 24.04; latest can move ahead.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       # Build-time placeholders — real values live in Vercel. Client pages
@@ -203,48 +204,6 @@ jobs:
           finally {
             & npx --yes supabase@2.111.0 stop --workdir $workdir --no-backup
           }
-
-  staging-edge-parity:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment: staging
-    env:
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Pin npm toolchain
-        run: |
-          npm install --global npm@11.11.0 --ignore-scripts
-          test "$(npm --version)" = "11.11.0"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Require protected staging credentials and deployment receipt
-        env:
-          STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON: ${{ secrets.STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON }}
-        run: |
-          test -n "$SUPABASE_ACCESS_TOKEN"
-          test -n "$SUPABASE_PROJECT_REF"
-          test -n "$STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON"
-          receipt_path="${RUNNER_TEMP}/staging-edge-deployment-receipt.json"
-          umask 077
-          printf '%s\n' "$STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON" > "$receipt_path"
-          printf 'STAGING_EDGE_DEPLOYMENT_RECEIPT_PATH=%s\n' "$receipt_path" >> "$GITHUB_ENV"
-
-      - name: Require exact Edge Function content parity
-        run: >-
-          npm run edge-functions:parity --
-          --receipt="$STAGING_EDGE_DEPLOYMENT_RECEIPT_PATH"
-          --release-sha="$GITHUB_SHA"
 
   database-release-contract:
     runs-on: ubuntu-latest

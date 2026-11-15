@@ -4,6 +4,17 @@ This framework records one beta decision under
 `artifacts/beta-gate/<run-id>`. It does not deploy, target production, retain
 raw command output, or store credential values or student source.
 
+Routine branch and main CI checks source health; a green CI run does not
+certify a beta release. Live Edge qualification runs separately through
+[Staging Edge qualification](../../.github/workflows/staging-edge-qualification.yml),
+manually dispatched from `main` with an exact commit SHA already on `main`.
+It requires a real staging deployment and its matching receipt, and fails
+when staging credentials or evidence are absent. See the
+[staging handoff](STAGING_EDGE_FUNCTION_PARITY.md#protected-ci-handoff).
+The required signed `edge-parity` and `edge-deployment-content` certifications
+and finalization checks below still apply; this workflow alone is not beta
+approval, and production deployment evidence cannot replace staging evidence.
+
 ## Public Commands
 
 Preflight protects exactly seventeen public package aliases. A release run
