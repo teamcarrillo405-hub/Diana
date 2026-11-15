@@ -85,7 +85,7 @@ describe("Study Buddy assignment context", () => {
       kind: "essay",
       class_id: "22222222-2222-4222-8222-222222222222",
       assignment_profile: null,
-    }));
+    }, { personalizationEnabled: true }));
 
     const response = await POST(studyRequest());
 
@@ -119,6 +119,27 @@ describe("Study Buddy assignment context", () => {
       ]),
     }));
     expect(json.response.anchor).toContain("Source context: Primary source, page 1");
+  });
+
+  it("does not send check-in-derived support when personalization is off", async () => {
+    mocks.cookieClient.mockReturnValue(cookieClient({
+      id: assignmentId,
+      title: "Trusted assignment",
+      description: "Use the assigned primary source.",
+      rubric_text: "Cite one specific detail.",
+      kind: "essay",
+      class_id: "22222222-2222-4222-8222-222222222222",
+      assignment_profile: null,
+    }, { personalizationEnabled: false }));
+
+    const response = await POST(studyRequest());
+    expect(response.status).toBe(200);
+    const providerInput = String(mocks.invoke.mock.calls[0]?.[1]?.body?.source ?? "");
+    expect(providerInput).toContain("Trusted assignment");
+    expect(providerInput).toContain("Help level: 45%");
+    expect(providerInput).not.toContain("show one step at a time");
+    expect(providerInput).not.toContain("keep wording short and reduce visible choices");
+    expect(providerInput).not.toContain("use a visual frame before asking for the next move");
   });
 
 
@@ -259,6 +280,7 @@ function cookieClient(assignment: Record<string, unknown> | null, options: {
   snapshot?: Record<string, unknown> | null;
   artifactBlocks?: Array<Record<string, unknown>>;
   classMode?: "green" | "yellow";
+  personalizationEnabled?: boolean;
 } = {}) {
   const assignmentQuery: any = {
     select: () => assignmentQuery,
@@ -307,7 +329,7 @@ function cookieClient(assignment: Record<string, unknown> | null, options: {
   const profileQuery: any = {
     select: () => profileQuery,
     eq: () => profileQuery,
-    maybeSingle: () => Promise.resolve({ data: { age_bracket: "13_to_17", consent_ai: true, school_year: 9, tutor_complexity: "balanced" }, error: null }),
+    maybeSingle: () => Promise.resolve({ data: { age_bracket: "13_to_17", consent_ai: true, school_year: 9, tutor_complexity: "balanced", tutor_personalization_enabled: options.personalizationEnabled ?? false }, error: null }),
   };
   const deletionQuery: any = {
     select: () => deletionQuery,
@@ -333,7 +355,7 @@ function cookieClient(assignment: Record<string, unknown> | null, options: {
     eq: () => snapshotQuery,
     order: () => snapshotQuery,
     limit: () => snapshotQuery,
-    maybeSingle: () => Promise.resolve({ data: options.snapshot === undefined ? { readiness: { body: "low", focus: "scattered" }, support_intensity: "guided", friction_signals: { incorrectAttempts: 1 } } : options.snapshot, error: null }),
+    maybeSingle: () => Promise.resolve({ data: options.snapshot === undefined ? { created_at: new Date().toISOString(), readiness: { body: "low", focus: "scattered" }, support_intensity: "guided", friction_signals: { incorrectAttempts: 1 } } : options.snapshot, error: null }),
   };
   const taskSignalQuery: any = {
     select: () => taskSignalQuery,

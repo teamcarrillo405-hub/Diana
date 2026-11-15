@@ -252,10 +252,14 @@ The primary Edge `buildUserPrompt`, prompt constant and result parser now live i
 `supabase/functions/_shared/study-buddy-prompt.ts`. The exact Responses body builder
 lives in `student-response-request.ts`; existing Edge code delegates to these
 functions. Model environment resolution and default models remain unchanged.
-Frozen disclosure-v3 **source artifact** parity tests execute 18 prompt variations,
-18 serialized request variations and valid/invalid output parser cases. This
-proves source equivalence to that artifact; it is not a live Edge deployment
-inspection. The sidecar's separate 800-character recipe is not used.
+The recovered disclosure-v3 source artifact remains historical evidence. The
+consent and source-trust changes intentionally alter the current system and user
+prompt bytes, so they are no longer equivalent to that artifact. Current
+source-only regression tests check 18 synthetic prompt variations; the historical
+fixture retains its parser and serialized-request regression checks. Neither is a
+live Edge inspection, model evaluation, or approval of the changed bytes. A new
+qualified plan and evidence are required before any execution gated on those
+bytes. The sidecar's separate 800-character recipe is not used.
 
 `integrated-primary-recipe.ts` prepares the bounded curriculum-only, empty-work,
 empty-conversation hint path. It captures the final 20,000-character source clip,

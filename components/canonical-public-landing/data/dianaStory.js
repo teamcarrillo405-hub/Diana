@@ -122,7 +122,7 @@ export const coachStory = {
     },
     {
       id: 'check-in',
-      body: 'Energy, sleep, and meals help Diana adjust pacing without turning it into a lecture.',
+      body: 'Optional check-ins can help Diana suggest a manageable next step.',
       label: 'Health check-in',
       x: 42.3,
       y: 57.8,

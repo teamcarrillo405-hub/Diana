@@ -26,6 +26,7 @@ describe("privacy export helpers", () => {
       learnerProfileSnapshots: 2,
       learningEvents: 6,
       shareLinks: 1,
+      dailySupportChoices: 1,
     })).toEqual([
       { label: "Classes", count: 2 },
       { label: "Assignments", count: 5 },
@@ -41,6 +42,7 @@ describe("privacy export helpers", () => {
       { label: "Learner profile snapshots", count: 2 },
       { label: "Learning events", count: 6 },
       { label: "Share links", count: 1 },
+      { label: "Daily support choices", count: 1 },
     ]);
   });
 
@@ -85,6 +87,7 @@ describe("privacy export helpers", () => {
     expect(categoryLabel("session_handoff")).toBe("Device handoff");
     expect(categoryLabel("learner_profile_snapshots")).toBe("Learner profile snapshots");
     expect(categoryLabel("learning_events")).toBe("Learning events");
+    expect(categoryLabel("student_daily_support_needs")).toBe("Daily support choices");
   });
 
   it("formats handoff time in an explicit timezone for stable hydration", () => {

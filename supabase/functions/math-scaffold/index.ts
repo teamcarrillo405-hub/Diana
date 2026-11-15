@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 // supabase/functions/math-scaffold/index.ts
 // Phase 16: structured Socratic math scaffold with optional photo extraction.
@@ -223,20 +224,19 @@ Deno.serve(withStudentSecurity("math-scaffold", async (req: Request) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("interests, session_mood")
+      .select("interests")
       .eq("user_id", ownerId)
       .single();
 
     const personalization = buildPersonalizationPrompt({
       interests: Array.isArray(profile?.interests) ? profile.interests : [],
-      sessionMood: typeof profile?.session_mood === "string" ? profile.session_mood : null,
     });
 
     const systemPrompt = composeSystemPrompt(SCAFFOLD_PROMPT, {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
-      personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
+      personalization: [personalization, await adaptationLineForOwner(ownerId, supabase), await loadStudentSupportFromRequest(req, ownerId)].filter(Boolean).join("\n") || null,
     });
 
     const userMessage = [

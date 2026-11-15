@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 // supabase/functions/reading-scaffold/index.ts
 // F07: Reading comprehension scaffolds - pre/mid/post.
@@ -18,18 +19,18 @@ import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const PROMPTS: Record<"pre" | "mid" | "post", string> = {
-  pre: `You are helping a high school student who has dyslexia prepare to read an assignment.
+  pre: `You are helping a student prepare to read an assignment.
 List 5-8 vocabulary words from this text that might be unfamiliar to a 9th-12th grader.
 For each word: the word, a plain-language definition (1 sentence), and how it is used in context.
 Do NOT summarize the text. Do NOT give away the main argument.
 Format as a simple list. Calm, encouraging tone. No scores.`,
 
-  mid: `You are helping a high school student who has dyslexia check in during reading.
+  mid: `You are helping a student check in during reading.
 In 2-4 sentences, describe what has happened so far in plain language.
 Then ask one open-ended question to help them think about what they just read.
 Keep it encouraging. Do not answer the question for them. No scores.`,
 
-  post: `You are helping a high school student who has dyslexia review what they read.
+  post: `You are helping a student review what they read.
 Write 3 retrieval questions about the main ideas. Each question should be answerable from the text.
 Questions only - no answers. No numeric scores. Calm, encouraging tone.`,
 };
@@ -83,7 +84,7 @@ Deno.serve(withStudentSecurity("reading-scaffold", async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
-      personalization: await adaptationLineForOwner(ownerId, supabase),
+      personalization: [await adaptationLineForOwner(ownerId, supabase), await loadStudentSupportFromRequest(req, ownerId)].filter(Boolean).join("\n") || null,
     });
 
     const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "reading-scaffold" }, {

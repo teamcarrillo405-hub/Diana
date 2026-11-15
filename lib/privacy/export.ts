@@ -13,6 +13,7 @@ export type DataInventoryInput = {
   learnerProfileSnapshots: number;
   learningEvents: number;
   shareLinks: number;
+  dailySupportChoices: number;
 };
 
 export type DataInventoryRow = {
@@ -44,6 +45,7 @@ export const PRIVACY_DELETE_CATEGORIES = [
   "learning_events",
   "share_links",
   "session_handoff",
+  "student_daily_support_needs",
 ] as const;
 
 export type PrivacyDeleteCategory = typeof PRIVACY_DELETE_CATEGORIES[number];
@@ -72,6 +74,7 @@ export function buildDataInventory(input: DataInventoryInput): DataInventoryRow[
     { label: "Learner profile snapshots", count: input.learnerProfileSnapshots },
     { label: "Learning events", count: input.learningEvents },
     { label: "Share links", count: input.shareLinks },
+    { label: "Daily support choices", count: input.dailySupportChoices },
   ];
 }
 
@@ -155,6 +158,7 @@ export function categoryLabel(category: PrivacyDeleteCategory): string {
     learning_events: "Learning events",
     share_links: "Share links",
     session_handoff: "Device handoff",
+    student_daily_support_needs: "Daily support choices",
   } satisfies Record<PrivacyDeleteCategory, string>)[category];
 }
 

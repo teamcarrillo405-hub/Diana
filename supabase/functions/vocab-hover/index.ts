@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -81,6 +82,7 @@ Deno.serve(withStudentSecurity("vocab-hover", async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
+      personalization: await loadStudentSupportFromRequest(req, ownerId),
     });
 
     const userMessage = [

@@ -1,4 +1,4 @@
-import { computeEffectiveness, outcomeEvents } from "@/lib/adaptation/effectiveness";
+import { computeEffectiveness, outcomeEvents, safePromptFeature } from "@/lib/adaptation/effectiveness";
 import { intervalMultiplier, MIN_SAMPLES_FOR_CALIBRATION, type ReviewSample } from "@/lib/fsrs/personalize";
 import type { StudyHelperMode } from "@/lib/study-helper/modes";
 
@@ -234,8 +234,10 @@ export function learnerPromptLine(profile: LearnerProfile): string | null {
   if (profile.preferences.preferredStudyMode) {
     parts.push(`${studyModeLabel(profile.preferences.preferredStudyMode)} has worked for this student; use that shape when it fits`);
   }
-  if (profile.preferences.easeOffFeatures[0]) {
-    parts.push(`${humanFeature(profile.preferences.easeOffFeatures[0])} has not been landing; try a different support shape first`);
+  const safeEaseOff = profile.preferences.easeOffFeatures
+    .map(safePromptFeature).find((label): label is string => label !== null);
+  if (safeEaseOff) {
+    parts.push(`${safeEaseOff} has not been landing; try a different support shape first`);
   }
   if (profile.friction.stuckPattern === "direct_answer") {
     parts.push("when the student asks for final work, redirect to a student-owned first move");

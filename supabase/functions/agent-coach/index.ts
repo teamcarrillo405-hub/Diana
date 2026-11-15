@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 // supabase/functions/agent-coach/index.ts
 // Agent Fab — the global "Ask Diana" chat drawer (handoff_for_claude_code/
@@ -88,7 +89,10 @@ Deno.serve(withStudentSecurity("agent-coach", async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
-      personalization: await adaptationLineForOwner(ownerId, supabase),
+      personalization: [
+        await adaptationLineForOwner(ownerId, supabase),
+        await loadStudentSupportFromRequest(req, ownerId),
+      ].filter(Boolean).join("\n") || null,
     });
 
     // Flatten the last few turns as context — this drawer is short, page-scoped

@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 // supabase/functions/history-scaffold/index.ts
 // Phase 20: history and social studies scaffold engine.
@@ -200,18 +201,17 @@ Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
       if (sourceText.trim().length < 5) return jsonResponse({ error: "Add the source or prompt first." }, 400);
       const { data: profile } = await supabase
         .from("profiles")
-        .select("interests, session_mood")
+        .select("interests")
         .eq("user_id", ownerId)
         .single();
       const personalization = buildPersonalizationPrompt({
         interests: Array.isArray(profile?.interests) ? profile.interests : [],
-        sessionMood: typeof profile?.session_mood === "string" ? profile.session_mood : null,
       });
       const systemPrompt = composeSystemPrompt(HISTORY_PROMPT, {
         includeRefuseRedirect: true,
         includeFrustration: true,
         includeMinorSafety: true,
-        personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
+        personalization: [personalization, await adaptationLineForOwner(ownerId, supabase), await loadStudentSupportFromRequest(req, ownerId)].filter(Boolean).join("\n") || null,
       });
       const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "history-scaffold" }, {
         task: "history_scaffold",

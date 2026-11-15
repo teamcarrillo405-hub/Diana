@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -9,7 +10,7 @@ import {
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
 import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
-import { composeSystemPrompt } from "../_shared/system-prompts.ts";
+import { composeSystemPrompt, normalizeStudentInterestIds } from "../_shared/system-prompts.ts";
 
 const TARGETS = ["simpler", "more_detail"] as const;
 type Target = (typeof TARGETS)[number];
@@ -61,7 +62,7 @@ Deno.serve(withStudentSecurity("reading-level", async (req: Request) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("interests, accommodations")
+      .select("interests")
       .eq("user_id", ownerId)
       .single();
 
@@ -69,12 +70,12 @@ Deno.serve(withStudentSecurity("reading-level", async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
+      personalization: await loadStudentSupportFromRequest(req, ownerId),
     });
 
     const userMessage = [
       `Target: ${target}`,
-      `Student interests: ${arrayText(profile?.interests)}`,
-      `Accommodations: ${arrayText(profile?.accommodations)}`,
+      `Student interests: ${normalizeStudentInterestIds(profile?.interests).join(", ")}`,
       `Text:\n${text}`,
     ].join("\n");
     const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "reading-level" }, {
@@ -109,12 +110,6 @@ Deno.serve(withStudentSecurity("reading-level", async (req: Request) => {
     return json({ error: "internal" }, 500);
   }
 }));
-
-function arrayText(value: unknown): string {
-  return Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string").slice(0, 6).join(", ")
-    : "";
-}
 
 function fallbackAdapt(text: string, target: Target): string {
   const trimmed = text.trim().replace(/\s+/g, " ");

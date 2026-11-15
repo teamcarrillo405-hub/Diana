@@ -41,7 +41,9 @@ export async function adaptationLineForOwner(
 
     const byFeature = new Map<string, { helpful: number; total: number }>();
     for (const row of rows) {
-      if (typeof row.feature !== "string") continue;
+      // Feedback is student-writable. Never interpolate unrecognized values
+      // into a model instruction, even after the sample threshold is met.
+      if (typeof row.feature !== "string" || !Object.hasOwn(HUMAN, row.feature)) continue;
       const bucket = byFeature.get(row.feature) ?? { helpful: 0, total: 0 };
       bucket.total += 1;
       if (row.helpful === true) bucket.helpful += 1;
@@ -53,8 +55,8 @@ export async function adaptationLineForOwner(
     for (const [feature, { helpful, total }] of byFeature) {
       if (total < MIN_SAMPLES) continue;
       const score = (helpful + 1) / (total + 2);
-      if (score >= LEAN_IN_SCORE) leanIn.push(HUMAN[feature] ?? feature);
-      else if (score <= EASE_OFF_SCORE) easeOff.push(HUMAN[feature] ?? feature);
+      if (score >= LEAN_IN_SCORE) leanIn.push(HUMAN[feature]);
+      else if (score <= EASE_OFF_SCORE) easeOff.push(HUMAN[feature]);
     }
 
     const parts: string[] = [];

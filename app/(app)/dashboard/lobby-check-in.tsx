@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { type CSSProperties, useEffect, useState, useTransition } from "react";
 import styles from "@/components/dashboard/today-dashboard.module.css";
 
-import type { LobbyCheckInValue, LobbyEnergy, LobbyMovement } from "@/lib/dashboard/lobby-check-in";
-import { saveLobbyCheckIn } from "./actions";
+import type { LobbyCheckInValue, LobbyEnergy, LobbyMovement, StudentDailySupportNeed } from "@/lib/dashboard/lobby-check-in";
+import { getStudentSupportPreferences, saveLobbyCheckIn, saveStudentDailySupportNeed, saveTutorPersonalizationPreference } from "./actions";
 
 const ENERGY_OPTIONS: ReadonlyArray<{ value: LobbyEnergy; label: string }> = [
   { value: "low", label: "Low" },
@@ -71,7 +71,7 @@ export function LobbyCheckIn({ initialValue, sleepDate, primary = false, appeara
 
   const status = saveState === "saving" || pending ? "Saving" : saveState === "saved" ? "Saved for today" : "";
 
-  if (appearance === "today") return (
+  if (appearance === "today") return (<>
     <form className={styles.checkIn} onSubmit={event => { event.preventDefault(); setSleepLogged(true); choosing(); }}>
       <div className={styles.energyRow}><span>Energy</span><div role="group" aria-label="Energy" className={styles.energyOptions}>{ENERGY_OPTIONS.map(option => <button key={option.value} type="button" aria-pressed={energy === option.value} disabled={pending} onClick={() => { setEnergy(option.value); choosing(); }}>{option.label}</button>)}</div></div>
       <label className={styles.rangeRow}><span>Sleep <output>{sleepHours} hrs</output></span><input type="range" min="0" max="12" step=".5" value={sleepHours} disabled={pending} onChange={event => { setSleepHours(Number(event.target.value)); setSleepLogged(true); choosing(); }} aria-label="Sleep" style={{ "--fill": `${sleepHours / 12 * 100}%` } as CSSProperties} /></label>
@@ -81,6 +81,8 @@ export function LobbyCheckIn({ initialValue, sleepDate, primary = false, appeara
       </button>
       <span className={message ? styles.emptyNote : styles.srOnly} role="status">{message ?? status}</span>
     </form>
+    <DailySupportPreferences />
+  </>
   );
 
   return (
@@ -95,8 +97,94 @@ export function LobbyCheckIn({ initialValue, sleepDate, primary = false, appeara
         {saveState === "error" && allChosen ? <button type="button" onClick={() => setSaveState("choosing")}>Try again</button> : null}
       </div>
       <Link href="/wellness" className="sd-lobby-checkin-open">Log wellness</Link>
+      <DailySupportPreferences />
     </section>
   );
+}
+
+function DailySupportPreferences() {
+  const [need, setNeed] = useState<StudentDailySupportNeed | "">("");
+  const [savedNeed, setSavedNeed] = useState<StudentDailySupportNeed | "">("");
+  const [enabled, setEnabled] = useState(false);
+  const [savedEnabled, setSavedEnabled] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    void getStudentSupportPreferences().then((result) => {
+      if (!active) return;
+      if (result.ok) {
+        setNeed(result.need ?? "");
+        setSavedNeed(result.need ?? "");
+        setEnabled(result.personalizationEnabled);
+        setSavedEnabled(result.personalizationEnabled);
+        setReady(true);
+      } else setMessage(result.error);
+    }).catch(() => { if (active) setMessage("Your support choices are unavailable right now."); });
+    return () => { active = false; };
+  }, [loadAttempt]);
+
+  async function saveNeed(value: StudentDailySupportNeed | null) {
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await saveStudentDailySupportNeed(value);
+      if (result.ok) {
+        setNeed(value ?? "");
+        setSavedNeed(value ?? "");
+        setMessage(value ? "Support choice saved for 24 hours." : "Support choice cleared.");
+      } else setMessage(result.error);
+    } catch { setMessage("Your support choice could not be saved yet."); }
+    finally { setBusy(false); }
+  }
+
+  async function saveSharingPreference() {
+    setBusy(true);
+    setMessage("");
+    try {
+      const result = await saveTutorPersonalizationPreference(enabled);
+      if (result.ok) {
+        setSavedEnabled(enabled);
+        setMessage("Sharing preference saved.");
+      } else {
+        setEnabled(savedEnabled);
+        setMessage(result.error + " Reload to confirm your saved preference.");
+      }
+    } catch {
+      setEnabled(savedEnabled);
+      setMessage("Your sharing preference could not be confirmed. Reload to check it.");
+    }
+    finally { setBusy(false); }
+  }
+
+  return <section aria-label="Optional support choices" style={{ display: "grid", gap: 12, marginTop: 16, padding: 16, border: "1px solid #8d78ab", borderRadius: 8, background: "#f8f5fc", color: "#292035" }}>
+    <p>Optional: let Diana know if a snack, water or a break would help. You can skip this or clear it at any time. The choice is used for up to 24 hours.</p>
+    <label>What would help right now?
+      <select aria-label="What would help right now?" style={{ display: "block", width: "100%", minHeight: 44, marginTop: 6, background: "white", color: "#292035", border: "1px solid #655573", borderRadius: 6, padding: "0 10px" }} value={need} disabled={!ready || busy} onChange={(event) => setNeed(event.target.value as StudentDailySupportNeed | "")}>
+        <option value="">Prefer not to share</option>
+        <option value="food">A snack or food</option>
+        <option value="water">Water</option>
+        <option value="break">A break</option>
+      </select>
+    </label>
+    {ready && need !== savedNeed && <p>Support choice changed. Save to apply it.</p>}
+    <div>
+      <button type="button" style={{ minHeight: 44, padding: "8px 12px", background: "#60239e", color: "white", border: "1px solid #60239e", borderRadius: 6 }} disabled={!ready || busy} onClick={() => void saveNeed(need || null)}>Save support choice</button>{" "}
+      <button type="button" style={{ minHeight: 44, padding: "8px 12px", background: "white", color: "#292035", border: "1px solid #655573", borderRadius: 6 }} disabled={!ready || busy} onClick={() => void saveNeed(null)}>Clear support choice</button>
+    </div>
+    <label>
+      <input type="checkbox" checked={enabled} disabled={!ready || busy} onChange={(event) => setEnabled(event.target.checked)} />{" "}
+      Allow general guidance based on my learning accommodations, recent mood and support choice to be shared with Diana&apos;s AI provider to personalize help.
+    </label>
+    <p>This is optional and off by default. Diana does not automatically include diagnosis labels or your specific support choice in this guidance. Information you choose to write or upload may be sent when you request AI help. Sharing changes apply to future requests; they cannot recall a request already sent. Your support choice remains stored until you clear or replace it.</p>
+    {ready && enabled !== savedEnabled && <p>Sharing preference changed. Save to apply it.</p>}
+    <button type="button" style={{ minHeight: 44, padding: "8px 12px", background: "white", color: "#292035", border: "1px solid #655573", borderRadius: 6 }} disabled={!ready || busy || enabled === savedEnabled} onClick={() => void saveSharingPreference()}>Save sharing preference</button>
+    <p role="status">{message}</p>
+    {!ready && message && <button type="button" style={{ minHeight: 44, padding: "8px 12px", background: "white", color: "#292035", border: "1px solid #655573", borderRadius: 6 }} onClick={() => { setMessage(""); setLoadAttempt((value) => value + 1); }}>Retry loading support choices</button>}
+  </section>;
 }
 
 function EnergySlider({ energy, disabled, onSelect }: {

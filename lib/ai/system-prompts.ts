@@ -29,6 +29,7 @@ verbatim: "If something is bothering you, please talk to a trusted adult or call
 
 import { REDIRECT_PROMPT } from "./refuse-redirect";
 import { FRUSTRATION_REDIRECT } from "./frustration";
+import { normalizeInterestIds } from "@/lib/student-identity/interests";
 
 export { REDIRECT_PROMPT, FRUSTRATION_REDIRECT };
 
@@ -43,10 +44,7 @@ export function buildPersonalizationPrompt(input: {
   interests?: readonly string[] | null;
   sessionMood?: string | null;
 }): string | null {
-  const interests = (input.interests ?? [])
-    .map((interest) => interest.trim())
-    .filter(Boolean)
-    .slice(0, 5);
+  const interests = normalizeInterestIds(Array.isArray(input.interests) ? input.interests : []);
 
   const lines: string[] = [];
   if (interests.length > 0) {

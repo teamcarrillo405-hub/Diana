@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      student_daily_support_needs: {
+        Row: {
+          owner_id: string
+          need: string
+          updated_at: string
+          expires_at: string
+        }
+        Insert: {
+          owner_id: string
+          need: string
+          updated_at?: string
+          expires_at?: string
+        }
+        Update: {
+          owner_id?: string
+          need?: string
+          updated_at?: string
+          expires_at?: string
+        }
+        Relationships: []
+      }
       accommodation_confirmations: {
         Row: {
           accommodations: Json
@@ -5588,6 +5609,7 @@ export type Database = {
           tts_voice: string
           tutor_complexity: string
           tutor_persona: string
+          tutor_personalization_enabled: boolean
           tutor_style: string
           updated_at: string
           user_id: string
@@ -5651,6 +5673,7 @@ export type Database = {
           tts_voice?: string
           tutor_complexity?: string
           tutor_persona?: string
+          tutor_personalization_enabled?: boolean
           tutor_style?: string
           updated_at?: string
           user_id: string
@@ -5714,6 +5737,7 @@ export type Database = {
           tts_voice?: string
           tutor_complexity?: string
           tutor_persona?: string
+          tutor_personalization_enabled?: boolean
           tutor_style?: string
           updated_at?: string
           user_id?: string

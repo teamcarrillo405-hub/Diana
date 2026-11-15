@@ -8,6 +8,7 @@ import {
 import { logInteraction } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportPersonalization } from "../_shared/student-support-context.ts";
 import { recordEdgeStudyBuddyAssistance } from "../_shared/learning/study-buddy-assistance.ts";
 import {
   edgeAiGuidanceEvidence,
@@ -46,6 +47,10 @@ function boundedNumber(value: unknown, max: number): number {
   return typeof value === "number" && Number.isFinite(value)
     ? Math.max(0, Math.min(max, Math.trunc(value)))
     : 0;
+}
+
+function allowedChoice(value: unknown, allowed: readonly string[], fallback: string): string {
+  return typeof value === "string" && allowed.includes(value) ? value : fallback;
 }
 
 function normalizeConversation(value: unknown): ConversationTurn[] {
@@ -105,9 +110,9 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
     const supabase = auth.serviceClient;
     const userPrompt = buildUserPrompt({
       mode,
-      tutorPersona: boundedText(body.tutorPersona, 40) || "diana",
-      tutorStyle: boundedText(body.tutorStyle, 40) || "socratic",
-      complexity: boundedText(body.complexity, 40) || "balanced",
+      tutorPersona: allowedChoice(body.tutorPersona, ["diana", "xavier", "maya"], "diana"),
+      tutorStyle: allowedChoice(body.tutorStyle, ["socratic", "supportive", "direct"], "socratic"),
+      complexity: allowedChoice(body.complexity, ["simple", "balanced", "advanced"], "balanced"),
       source,
       question,
       conversation,
@@ -116,8 +121,10 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
       specialistContext,
     });
     const fallbackContent = JSON.stringify(FALLBACK_RESULT);
+    const personalization = await loadStudentSupportPersonalization(auth.userClient, auth.ownerId);
     const system = composeSystemPrompt(STUDY_BUDDY_PROMPT, {
       includeRefuseRedirect: true, includeFrustration: true, includeMinorSafety: true,
+      personalization,
     });
     try {
       await recordEdgeStudyBuddyAssistance({ enabled: Deno.env.get("DIANA_DURABLE_TASK_ASSISTANCE_ENABLED") === "true",

@@ -1,0 +1,99 @@
+{
+  "schema": "learning-current-primary-regression-contract-v1",
+  "evidenceScope": "Synthetic source regression snapshot only. Not a provider run, qualification, execution approval, or replacement for the recovered historical contract.",
+  "historicalContract": "recovered-primary-contract.json",
+  "purpose": "Intentional untrusted-source, consent-aware support, and flexible next-move changes alter the current prompt and request bytes; this does not qualify historic evaluations for the new recipe.",
+  "systemPromptSha256": "dc0937a8710a99ef0f71ab71a59d5e286fcc59bdb506784715ca03f5bb80429e",
+  "prompts": [
+    {
+      "size": 0,
+      "mode": "hint",
+      "sha256": "c5554d89ecc5fe94fb4ee1c5144dde7d062ff609fa523bee5c91c05a24ff44b9"
+    },
+    {
+      "size": 0,
+      "mode": "quiz",
+      "sha256": "ddffc5a807c722cd2b7fb8c1d19b2db7f172736a3bb4784a87888c4fa6565e47"
+    },
+    {
+      "size": 0,
+      "mode": "guide",
+      "sha256": "afb229898ccd1ab56b7a272ee4affea835fd13a869d55dd59293ce5f28a31c77"
+    },
+    {
+      "size": 1,
+      "mode": "hint",
+      "sha256": "c96046624271e0218c947e9ac3c1cc01a54c91e81790ebe1b79804ca18b15466"
+    },
+    {
+      "size": 1,
+      "mode": "quiz",
+      "sha256": "bccf47521381a097cb59b5951981c7b0ea00ec63747eb15b5c2d7586964bb608"
+    },
+    {
+      "size": 1,
+      "mode": "guide",
+      "sha256": "7e69cefdab5f0aa961774aa87b8ce8de93042077cbfae947ea398d36f8018081"
+    },
+    {
+      "size": 799,
+      "mode": "hint",
+      "sha256": "21269f6d5c1e5d30382f8cc126f5d6fdadd2ade9dc7cc15d0f358fcac4c9d727"
+    },
+    {
+      "size": 799,
+      "mode": "quiz",
+      "sha256": "30c1a3a0206c10c7cc219bb9e4ac370e4208d293c6fb2ade503eaf770da647f0"
+    },
+    {
+      "size": 799,
+      "mode": "guide",
+      "sha256": "9f15d5275180433ee0b55297ace9a64244e22dff58dcab7e513e39e54cef0761"
+    },
+    {
+      "size": 1000,
+      "mode": "hint",
+      "sha256": "8fd34eddb58fca98b47769e15a29dafd78c29c8a24bc8d2c040321d65475de04"
+    },
+    {
+      "size": 1000,
+      "mode": "quiz",
+      "sha256": "a7ad5799fe0f4fbb32ad68681f7a3e08e9ab737ee87e7a9d61935cc09f08b808"
+    },
+    {
+      "size": 1000,
+      "mode": "guide",
+      "sha256": "87e879efaac9e850936085c126e6abdc3571de34fc7f0d501205f6324de9be09"
+    },
+    {
+      "size": 20000,
+      "mode": "hint",
+      "sha256": "9aaada3fc969a0dffeecf5629ba1b36f4e5af97fa679ccc6ec6cb0e685e36288"
+    },
+    {
+      "size": 20000,
+      "mode": "quiz",
+      "sha256": "c70ced2bf89181fbb789fa88a3f1241893662ff57b9d7e791928a4eee7909325"
+    },
+    {
+      "size": 20000,
+      "mode": "guide",
+      "sha256": "c4e128fb24d7768917db265154caee048eb6d991642117a0dc17980a226f2307"
+    },
+    {
+      "size": 20001,
+      "mode": "hint",
+      "sha256": "94d252800f77fcfab377964d4601e79f9f65c617e91bc2cb9468b912e12550b0"
+    },
+    {
+      "size": 20001,
+      "mode": "quiz",
+      "sha256": "70ec1f0e225b88e7b256b342db063ec6e392d689d135ceb6caa3d6bf96770015"
+    },
+    {
+      "size": 20001,
+      "mode": "guide",
+      "sha256": "74e8646ef5ec6c7195b84511608286e5d287309d06ad7df1006cd9bec6d86dde"
+    }
+  ]
+}

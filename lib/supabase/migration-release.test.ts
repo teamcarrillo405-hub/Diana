@@ -39,6 +39,7 @@ const expectedPostReleaseVersions: readonly string[] = [
   "20260929035711",
   "20260929135915",
   "20260929141355",
+  "20261115203000",
 ];
 const sequentialTypeMigrations = [
   "20260901200000_assignment_provider_missing_tombstone.sql",
@@ -186,6 +187,34 @@ describe("beta migration release", () => {
     ).toBe(true);
     expect(releaseGate).toContain(`$stagingHead = "${stagingHead}"`);
     expect(releaseGate).toContain(`$releaseHead = "${releaseHead}"`);
+  });
+
+  it("tracks the opt-in, owner-isolated daily support schema and generated shapes", () => {
+    const migration = compactWhitespace(readMigration("20261115203000_student_daily_support_preferences.sql").toLowerCase());
+    const generatedTypes = readFileSync(join(process.cwd(), "lib/supabase/types.ts"), "utf8");
+    const support = generatedTypeBlock(generatedTypes, "student_daily_support_needs");
+    const profiles = generatedTypeBlock(generatedTypes, "profiles");
+
+    expect(migration).toContain("tutor_personalization_enabled boolean not null default false");
+    expect(migration).toContain("owner_id uuid primary key references auth.users(id) on delete cascade");
+    expect(migration).toContain("need text not null check (need in ('food', 'water', 'break'))");
+    expect(migration).toContain("new.updated_at := now();");
+    expect(migration).toContain("new.expires_at := now() + interval '24 hours';");
+    expect(migration).toContain("before insert or update on public.student_daily_support_needs");
+    expect(migration).toContain("alter table public.student_daily_support_needs enable row level security");
+    for (const operation of ["select", "insert", "update", "delete"]) {
+      expect(migration).toContain(`create policy student_daily_support_${operation}`);
+      expect(migration).toContain(`for ${operation} to authenticated`);
+    }
+    expect(migration.match(/owner_id = \(select auth\.uid\(\)\)/gu)).toHaveLength(5);
+    expect(migration).toContain("revoke all on public.student_daily_support_needs from public, anon");
+    expect(migration).toContain("grant select, insert, update, delete on public.student_daily_support_needs to authenticated");
+    for (const field of ["owner_id: string", "need: string", "updated_at: string", "expires_at: string"]) {
+      expect(generatedShape(support, "Row")).toContain(field);
+    }
+    expect(generatedShape(profiles, "Row")).toContain("tutor_personalization_enabled: boolean");
+    expect(generatedShape(profiles, "Insert")).toContain("tutor_personalization_enabled?: boolean");
+    expect(generatedShape(profiles, "Update")).toContain("tutor_personalization_enabled?: boolean");
   });
 
   it("represents migrations 200000 through 230000 in sequential schema order", () => {

@@ -90,8 +90,10 @@ export function preferredStudyMode(effectiveness: HelperEffectiveness[]): StudyH
  * direction.
  */
 export function adaptationPromptLine(effectiveness: HelperEffectiveness[]): string | null {
-  const leanIn = effectiveness.filter((e) => e.stance === "lean_in").slice(0, 2);
-  const easeOff = effectiveness.filter((e) => e.stance === "ease_off").slice(0, 1);
+  // Owner-writable feature names are untrusted data, not system instructions.
+  const safe = effectiveness.filter((e) => safePromptFeature(e.feature) !== null);
+  const leanIn = safe.filter((e) => e.stance === "lean_in").slice(0, 2);
+  const easeOff = safe.filter((e) => e.stance === "ease_off").slice(0, 1);
   if (leanIn.length === 0 && easeOff.length === 0) return null;
 
   const parts: string[] = [];
@@ -170,8 +172,7 @@ export function outcomeEvents(input: {
   return events;
 }
 
-export function humanFeature(feature: string): string {
-  const known: Record<string, string> = {
+const HUMAN_FEATURES: Record<string, string> = {
     math_step: "Math hints",
     math_example: "Worked examples",
     math_scaffold: "The math step board",
@@ -199,6 +200,15 @@ export function humanFeature(feature: string): string {
     "study_mode:flashcard_builder": "Card building",
     study_buddy: "The study buddy",
     study_artifacts: "Study artifacts",
-  };
-  return known[feature] ?? feature.replace(/^subject:/, "").replace(/^study_mode:/, "").replaceAll("_", " ");
+};
+
+export function humanFeature(feature: string): string {
+  return Object.hasOwn(HUMAN_FEATURES, feature)
+    ? HUMAN_FEATURES[feature]
+    : feature.replace(/^subject:/, "").replace(/^study_mode:/, "").replaceAll("_", " ");
+}
+
+/** Fixed labels only when writing instructions to an AI provider. */
+export function safePromptFeature(feature: string): string | null {
+  return Object.hasOwn(HUMAN_FEATURES, feature) ? HUMAN_FEATURES[feature] : null;
 }
