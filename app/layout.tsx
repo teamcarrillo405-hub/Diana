@@ -14,9 +14,9 @@ import "./canonical-public-landing.css";
 import "./public-landing-v2.css";
 import { AccentProvider } from "@/components/accent-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { publicAppUrl } from "@/lib/public-site";
+import { resolvePublicSiteUrl } from "@/lib/public-site-url";
 
-const publicSiteUrl = publicAppUrl();
+const publicSiteUrl = resolvePublicSiteUrl();
 const publicSiteStructuredData = {
   "@context": "https://schema.org",
   "@graph": [
