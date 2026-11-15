@@ -123,6 +123,7 @@ export async function exportUserDataJson(): Promise<DataExportResult> {
     learnerProfileSnapshots,
     learningEvents,
     shareLinks,
+    dailySupportChoices,
   ] = await Promise.all([
     supabase.from("profiles").select("*").eq("user_id", user.id).single(),
     supabase.from("classes").select("*").eq("owner_id", user.id),
@@ -139,6 +140,7 @@ export async function exportUserDataJson(): Promise<DataExportResult> {
     supabase.from("learner_profile_snapshots").select("*").eq("owner_id", user.id),
     supabase.from("learning_events").select("*").eq("owner_id", user.id),
     supabase.from("share_links").select("*").eq("owner_id", user.id),
+    supabase.from("student_daily_support_needs").select("need, updated_at, expires_at").eq("owner_id", user.id),
   ]);
 
   const exportQueries = [
@@ -157,6 +159,7 @@ export async function exportUserDataJson(): Promise<DataExportResult> {
     learnerProfileSnapshots,
     learningEvents,
     shareLinks,
+    dailySupportChoices,
   ];
   if (exportQueries.some((query) => query.error)) {
     return { ok: false, error: "Your export could not be prepared yet. Please try again." };
@@ -180,6 +183,7 @@ export async function exportUserDataJson(): Promise<DataExportResult> {
     learnerProfileSnapshots: learnerProfileSnapshots.data ?? [],
     learningEvents: learningEvents.data ?? [],
     shareLinks: shareLinks.data ?? [],
+    dailySupportChoices: dailySupportChoices.data ?? [],
   }, null, 2) };
 }
 
@@ -373,6 +377,7 @@ export async function deleteDataCategory(
   if (category === "authorship_log") revalidatePath("/settings");
   if (category === "competitive_benchmarks" || category === "teen_test_observations") revalidatePath("/proof");
   if (category === "mastery_concepts") revalidatePath("/classes");
+  if (category === "student_daily_support_needs") revalidatePath("/dashboard");
   return { ok: true, label: categoryLabel(category) };
 }
 
@@ -399,6 +404,7 @@ export async function inventoryForUser(ownerId: string) {
     learnerProfileSnapshots,
     learningEvents,
     shareLinks,
+    dailySupportChoices,
   ] = await Promise.all([
     supabase.from("classes").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("assignments").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
@@ -414,6 +420,7 @@ export async function inventoryForUser(ownerId: string) {
     supabase.from("learner_profile_snapshots").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("learning_events").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
     supabase.from("share_links").select("id", { count: "exact", head: true }).eq("owner_id", ownerId),
+    supabase.from("student_daily_support_needs").select("owner_id", { count: "exact", head: true }).eq("owner_id", ownerId),
   ]);
   return buildDataInventory({
     classes: classes.count ?? 0,
@@ -430,6 +437,7 @@ export async function inventoryForUser(ownerId: string) {
     learnerProfileSnapshots: learnerProfileSnapshots.count ?? 0,
     learningEvents: learningEvents.count ?? 0,
     shareLinks: shareLinks.count ?? 0,
+    dailySupportChoices: dailySupportChoices.count ?? 0,
   });
 }
 
@@ -465,5 +473,7 @@ async function deleteCategoryRows(
       return supabase.from("share_links").delete().eq("owner_id", ownerId);
     case "session_handoff":
       return supabase.from("session_handoffs").delete().eq("owner_id", ownerId);
+    case "student_daily_support_needs":
+      return supabase.from("student_daily_support_needs").delete().eq("owner_id", ownerId);
   }
 }

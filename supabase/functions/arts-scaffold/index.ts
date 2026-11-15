@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -73,7 +74,10 @@ Deno.serve(withStudentSecurity("arts-scaffold", async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
-      personalization: await adaptationLineForOwner(ownerId, supabase),
+      personalization: [
+        await adaptationLineForOwner(ownerId, supabase),
+        await loadStudentSupportFromRequest(req, ownerId),
+      ].filter(Boolean).join("\n") || null,
     });
 
     const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "arts-scaffold" }, {

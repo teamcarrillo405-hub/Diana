@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 // supabase/functions/task-breakdown/index.ts
 // F6: AI task breakdown — Haiku 4.5, splits assignment into atomic steps.
@@ -17,7 +18,7 @@ import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignme
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
-const BREAKDOWN_PROMPT = `You are a task-decomposition assistant for a high-school student with ADHD.
+const BREAKDOWN_PROMPT = `You are a task-decomposition assistant helping a student.
 The student gives you an assignment. You split it into atomic steps, each completable in 5 minutes or less.
 Rules:
 - Output ONLY a JSON array. No prose before or after. Format: [{"step": 1, "action": "...", "minutes": N}, ...]
@@ -97,7 +98,7 @@ Deno.serve(withStudentSecurity("task-breakdown", async (req: Request) => {
       includeRefuseRedirect: false,
       includeFrustration: false,
       includeMinorSafety: true,
-      personalization: await adaptationLineForOwner(ownerId, supabase),
+      personalization: [await adaptationLineForOwner(ownerId, supabase), await loadStudentSupportFromRequest(req, ownerId)].filter(Boolean).join("\n") || null,
     });
 
     // 6. Build single user message (no history — breakdown is one-shot)

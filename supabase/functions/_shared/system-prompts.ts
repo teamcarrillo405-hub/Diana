@@ -53,14 +53,29 @@ export interface ComposeOptions {
   personalization?: string | null;
 }
 
+// Mirror of lib/student-identity/interests.ts. Keep this fixed set aligned with
+// the student-facing choices; profile values are owner-writable untrusted data.
+const VALID_INTEREST_IDS = new Set([
+  "gaming", "music", "sports", "fashion", "coding", "art",
+  "film", "animals", "cars", "cooking", "space", "business",
+]);
+
+export function normalizeStudentInterestIds(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const result: string[] = [];
+  for (const item of value) {
+    if (typeof item !== "string" || !VALID_INTEREST_IDS.has(item) || result.includes(item)) continue;
+    result.push(item);
+    if (result.length === 5) break;
+  }
+  return result;
+}
+
 export function buildPersonalizationPrompt(input: {
   interests?: readonly string[] | null;
   sessionMood?: string | null;
 }): string | null {
-  const interests = (input.interests ?? [])
-    .map((interest) => interest.trim())
-    .filter(Boolean)
-    .slice(0, 5);
+  const interests = normalizeStudentInterestIds(input.interests);
 
   const lines: string[] = [];
   if (interests.length > 0) {

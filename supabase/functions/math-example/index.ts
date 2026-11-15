@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 // supabase/functions/math-example/index.ts
 // F6 (AP Math depth): Worked example of an ANALOGOUS problem — never the student's actual problem.
@@ -98,7 +99,10 @@ Deno.serve(withStudentSecurity("math-example", async (req: Request) => {
       includeRefuseRedirect: true,
       includeFrustration: false,
       includeMinorSafety: true,
-      personalization: await adaptationLineForOwner(ownerId, supabase),
+      personalization: [
+        await adaptationLineForOwner(ownerId, supabase),
+        await loadStudentSupportFromRequest(req, ownerId),
+      ].filter(Boolean).join("\n") || null,
     });
 
     // 6. Build single user message — worked example is one-shot, no history

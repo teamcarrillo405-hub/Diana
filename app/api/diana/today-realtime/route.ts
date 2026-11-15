@@ -5,6 +5,7 @@ import { createAiServiceClient } from "@/lib/supabase/ai-service";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
 import { authorizeTodayAcademicScope, recordTodayAcademicAssistance, TodayAssistanceError } from "@/lib/learning-engine/today-assistance";
+import { loadStudentSupportPersonalization } from "@/supabase/functions/_shared/student-support-context";
 
 const REALTIME_TTL_SECONDS = 600;
 const MAX_OUTPUT_TOKENS = 500;
@@ -79,7 +80,7 @@ async function loadTodayContext(ownerId: string) {
   const supabase = await createClient();
   const now = new Date();
   const today = now.toISOString().slice(0, 10);
-  const [{ data: assignments }, { data: profile }, { data: checkIn }] = await Promise.all([
+  const [{ data: assignments }, { data: profile }, supportGuidance] = await Promise.all([
     supabase
       .from("assignments")
       .select("id, title, due_at, status, estimated_minutes, classes(name)")
@@ -89,18 +90,10 @@ async function loadTodayContext(ownerId: string) {
       .limit(12),
     supabase
       .from("profiles")
-      .select("display_name, diagnoses, accommodations, reduced_motion, dyslexia_font, high_contrast, timezone")
+      .select("display_name, timezone")
       .eq("user_id", ownerId)
       .maybeSingle(),
-    supabase
-      .from("task_signals")
-      .select("value")
-      .eq("owner_id", ownerId)
-      .eq("kind", "mood_checkin")
-      .gte("occurred_at", `${today}T00:00:00.000Z`)
-      .order("occurred_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+    loadStudentSupportPersonalization(supabase, ownerId),
   ]);
 
   const compactAssignments = (assignments ?? []).map((assignment) => ({
@@ -117,14 +110,7 @@ async function loadTodayContext(ownerId: string) {
     nextMove: compactAssignments[0] ?? null,
     assignments: compactAssignments,
     calendarToday: compactAssignments.filter((assignment) => assignment.dueAt?.startsWith(today)),
-    checkIn: checkIn?.value ?? null,
-    accessibility: {
-      diagnoses: profile?.diagnoses ?? [],
-      accommodations: profile?.accommodations ?? [],
-      reducedMotion: profile?.reduced_motion ?? false,
-      dyslexiaFont: profile?.dyslexia_font ?? false,
-      highContrast: profile?.high_contrast ?? false,
-    },
+    ...(supportGuidance ? { supportGuidance } : {}),
     timezone: profile?.timezone ?? "America/Los_Angeles",
   };
 }

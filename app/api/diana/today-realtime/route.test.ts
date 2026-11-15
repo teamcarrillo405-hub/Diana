@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   log: vi.fn(),
   service: vi.fn(),
   signedIn: true,
+  personalization: false,
+  reads: [] as Array<{ table: string; columns: string }>,
 }));
 
 vi.mock('server-only', () => ({}));
@@ -26,9 +28,9 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: async () => makeSupabase
 import { POST } from "./route";
 import { TodayAssistanceError } from "@/lib/learning-engine/today-assistance";
 
-function chain(result: unknown) {
+function chain(result: unknown, table = "") {
   const api: any = {
-    select: () => api,
+    select: (columns: string) => { mocks.reads.push({ table, columns }); return api; },
     eq: () => api,
     not: () => api,
     gte: () => api,
@@ -45,8 +47,8 @@ function makeSupabase() {
     auth: { getUser: async () => ({ data: { user: mocks.signedIn ? { id: "student-1" } : null } }) },
     from: (table: string) => {
       if (table === "assignments") return chain({ data: [{ id: "a-1", title: "Nixon report", due_at: "2026-08-15T20:00:00Z", status: "captured", estimated_minutes: 60, classes: { name: "History" } }] });
-      if (table === "profiles") return chain({ data: { display_name: "Grayson", diagnoses: ["ADHD"], accommodations: [], reduced_motion: false, dyslexia_font: false, high_contrast: false, timezone: "America/Los_Angeles" } });
-      if (table === "task_signals") return chain({ data: { value: { energy: "good", sleep: "seven_to_nine", meals: "meal" } } });
+      if (table === "profiles") return chain({ data: { display_name: "Grayson", diagnoses: ["PRIVATE_DIAGNOSIS"], accommodations: ["reader", "private free text"], tutor_personalization_enabled: mocks.personalization, session_mood: "rough", last_mood_checkin_at: new Date().toISOString(), timezone: "America/Los_Angeles" }, error: null }, table);
+      if (table === "student_daily_support_needs") return chain({ data: { need: "food", updated_at: new Date().toISOString(), expires_at: new Date(Date.now() + 60_000).toISOString() }, error: null }, table);
       return chain({ data: null });
     },
   };
@@ -62,6 +64,8 @@ describe("Today realtime route", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
     mocks.signedIn = true;
+    mocks.personalization = false;
+    mocks.reads = [];
     mocks.authorize.mockImplementation(async (_client, _owner, args) => args.assignmentId ?? null);
     mocks.record.mockResolvedValue('realtime-bound-key');
     vi.stubEnv("OPENAI_API_KEY", "sk-test");
@@ -92,7 +96,25 @@ describe("Today realtime route", () => {
       "confirm_action",
     ]));
     expect(body.session.instructions).toContain("Nixon report");
-    expect(body.session.instructions).toContain("ADHD");
+    expect(body.session.instructions).not.toContain("PRIVATE_DIAGNOSIS");
+    expect(body.session.instructions).not.toContain("supportGuidance");
+    expect(mocks.reads.some((item) => item.table === "student_daily_support_needs")).toBe(false);
+    expect(mocks.reads.some((item) => item.columns.includes("accommodations"))).toBe(false);
+  });
+
+  it("uses only fixed, consented support guidance without raw sensitive values", async () => {
+    mocks.personalization = true;
+    const response = await POST(new Request("http://diana.test/api/diana/today-realtime", { method: "POST" }));
+    expect(response.status).toBe(200);
+    const body = JSON.parse(String((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0]?.[1]?.body));
+    const instructions = body.session.instructions as string;
+    expect(instructions).toContain("Student-selected support preferences");
+    expect(instructions).toContain("offer to read or explain directions one part at a time");
+    expect(instructions).toContain("optional pause for a basic need");
+    expect(instructions).not.toContain("PRIVATE_DIAGNOSIS");
+    expect(instructions).not.toContain("private free text");
+    expect(instructions).not.toContain('"need":"food"');
+    expect(instructions).not.toContain('"session_mood":"rough"');
   });
 
   it("requires authentication before creating a provider session", async () => {

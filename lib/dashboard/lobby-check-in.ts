@@ -1,4 +1,5 @@
 export type LobbyEnergy = "low" | "okay" | "good";
+export type StudentDailySupportNeed = "food" | "water" | "break";
 export type LobbyMovement =
   | "walk"
   | "run"

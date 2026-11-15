@@ -14,6 +14,8 @@ import {
 import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
+import { requireStudentContext } from "../_shared/student-auth.ts";
+import { loadStudentSupportPersonalization } from "../_shared/student-support-context.ts";
 
 const MATH_PROMPT = `You are a Socratic math tutor for a high-school student.
 The student will share a math problem they are stuck on. Your rules:
@@ -40,6 +42,7 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
     const body = await req.json() as {
       ownerId?: unknown;
       assignmentId?: unknown;
+      classId?: unknown;
       history?: unknown;
       prompt?: unknown;
       aiMode?: unknown;
@@ -67,6 +70,12 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
         headers: { "Content-Type": "application/json" },
       });
     }
+    // Use the signed-in owner's RLS client for optional support context. A
+    // request body cannot grant access or choose another student's profile.
+    const auth = await requireStudentContext(req, {
+      suppliedOwnerId: ownerId, assignmentId, classId: body.classId, requireAiGreen: true,
+    });
+    if (auth instanceof Response) return auth;
     // 2. Supabase service-role client
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -90,13 +99,12 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("interests, session_mood")
+      .select("interests")
       .eq("user_id", ownerId)
       .single();
 
     let personalization = buildPersonalizationPrompt({
       interests: Array.isArray(profile?.interests) ? profile.interests : [],
-      sessionMood: typeof profile?.session_mood === "string" ? profile.session_mood : null,
     });
 
     // Effectiveness loop: one learned-context line from the student's own
@@ -105,6 +113,9 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
     if (learnedLine) {
       personalization = personalization ? `${personalization}\n${learnedLine}` : learnedLine;
     }
+
+    const support = await loadStudentSupportPersonalization(auth.userClient, auth.ownerId);
+    if (support) personalization = personalization ? `${personalization}\n${support}` : support;
 
     // 5. Compose system prompt with F17 + F18 + MINOR_SAFETY fragments
     const systemPrompt = composeSystemPrompt(MATH_PROMPT, {

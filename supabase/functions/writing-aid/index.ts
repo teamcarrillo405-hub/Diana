@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportFromRequest } from "../_shared/student-support-edge.ts";
 
 // supabase/functions/writing-aid/index.ts
 // F10: Writing coach — Sonnet 4.6, explains rules without editing student text.
@@ -15,8 +16,8 @@ import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignme
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
-const WRITING_PROMPT = `You are a writing coach for a high-school student
-with dyslexia and/or ADHD. The student will share a sentence or short
+const WRITING_PROMPT = `You are a writing coach for a student.
+The student will share a sentence or short
 passage from their writing. Your rules:
 - NEVER edit, rewrite, or "fix" the student's text. Do not output a corrected version.
 - Identify ONE rule the passage breaks (grammar, mechanics, style, or substance).
@@ -87,7 +88,7 @@ Deno.serve(withStudentSecurity("writing-aid", async (req: Request) => {
       includeFrustration: true,
       includeMinorSafety: true,
 
-      personalization: await adaptationLineForOwner(ownerId, supabase),
+      personalization: [await adaptationLineForOwner(ownerId, supabase), await loadStudentSupportFromRequest(req, ownerId)].filter(Boolean).join("\n") || null,
     });
 
     // 6. Build single user message — writing-aid is per-sentence (no history needed)

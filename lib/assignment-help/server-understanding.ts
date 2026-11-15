@@ -82,6 +82,7 @@ type CourseMaterialRow = {
 };
 
 type SnapshotRow = {
+  created_at?: unknown;
   readiness?: unknown;
   support_intensity?: unknown;
   friction_signals?: unknown;
@@ -96,6 +97,8 @@ type SignalRow = {
 type LearnerProfileRow = {
   school_year?: unknown;
   tutor_complexity?: unknown;
+  accommodations?: unknown;
+  tutor_personalization_enabled?: unknown;
 };
 
 const SUPPORT_INTENSITIES: readonly SupportIntensity[] = [
@@ -161,9 +164,15 @@ function classNameFromAssignmentRow(row: Record<string, unknown>): string | null
   return typeof name === "string" && name.trim() ? name.trim() : null;
 }
 export function inferStudyHelperEvent(question: string): StudyHelperEvent | null {
-  const lower = question.toLocaleLowerCase("en-US");
+  const lower = question.toLocaleLowerCase("en-US").replace(/[\u2018\u2019]/gu, "'").trim();
   if (/\b(just tell me|give me the answer|what is the answer|solve it for me|answer only)\b/u.test(lower)) {
     return "direct_answer_request";
+  }
+  // Treat a student's explicit first-person request as a support signal. Do
+  // not infer a student's state from similar phrases quoted in source text.
+  if (/^i\s+(?:still\s+)?(?:don't|dont|do not)\s+understand\b/u.test(lower)
+    || /^i\s+(?:still\s+)?need\s+(?:another|a different)\s+explanation\b/u.test(lower)) {
+    return "still_stuck";
   }
   if (/\b(stuck|confused|lost|dont get|don't get|do not get|makes no sense|i need more help|help me understand)\b/u.test(lower)) {
     return "still_stuck";
@@ -255,7 +264,8 @@ export async function loadAssignmentHomeworkKernel(args: {
   const trustDecision = resolveDianaHomeworkTrust({ classAiMode, assignmentAiModeOverride: override });
   const contextIssues: string[] = [];
 
-  const since = new Date((args.now ?? new Date()).getTime() - 24 * 60 * 60 * 1000).toISOString();
+  const now = args.now ?? new Date();
+  const since = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
   const [sourcesResult, snapshotResult, signalsResult, courseMaterialsResult, learnerProfileResult, masteryResult] = await Promise.all([
     args.supabase
       .from("assignment_sources")
@@ -265,7 +275,7 @@ export async function loadAssignmentHomeworkKernel(args: {
       .order("created_at", { ascending: true }) as unknown as Promise<{ data: SourceRow[] | null }>,
     args.supabase
       .from("student_state_snapshots")
-      .select("readiness, support_intensity, friction_signals")
+      .select("created_at, readiness, support_intensity, friction_signals")
       .eq("assignment_id", assignment.id)
       .eq("owner_id", args.ownerId)
       .order("created_at", { ascending: false })
@@ -302,7 +312,7 @@ export async function loadAssignmentHomeworkKernel(args: {
         ]),
     args.supabase
       .from("profiles")
-      .select("school_year, tutor_complexity")
+      .select("school_year, tutor_complexity, accommodations, tutor_personalization_enabled")
       .eq("user_id", args.ownerId)
       .maybeSingle() as Promise<{ data: LearnerProfileRow | null }>,
     assignment.class_id
@@ -357,8 +367,13 @@ export async function loadAssignmentHomeworkKernel(args: {
     workProfileSource: assignment.work_profile_source,
     profile: assignment.assignment_profile,
   });
-  const readiness = readinessFromSignalValue(snapshot?.readiness);
-  const supportIntensity = normalizeSupportIntensity(snapshot?.support_intensity);
+  const snapshotAt = typeof snapshot?.created_at === "string" ? Date.parse(snapshot.created_at) : NaN;
+  const freshSnapshot = Number.isFinite(snapshotAt) && snapshotAt <= now.getTime()
+    && now.getTime() - snapshotAt <= 24 * 60 * 60 * 1000;
+  // Stale/future/undated wellness is never reused, while independent learning
+  // attempt signals remain available to the help ladder.
+  const readiness = freshSnapshot ? readinessFromSignalValue(snapshot?.readiness) : null;
+  const supportIntensity = freshSnapshot ? normalizeSupportIntensity(snapshot?.support_intensity) : null;
   const attemptSignals = attemptSignalsFromFriction(snapshot?.friction_signals, liveFriction);
   const sourceImportStatuses = sources.map((source) => source.import_status ?? null);
   const learnerProfile = dataOf<LearnerProfileRow>(learnerProfileResult, "learner profile", contextIssues);
@@ -396,9 +411,12 @@ export async function loadAssignmentHomeworkKernel(args: {
       profile,
       sourcePacket,
       importStatuses: sourceImportStatuses,
-      readiness,
-      supportIntensity,
+      // Personalization may influence the local support plan, but derived
+      // wellness context must not reach the tutor without an explicit opt-in.
+      readiness: learnerProfile?.tutor_personalization_enabled === true ? readiness : null,
+      supportIntensity: learnerProfile?.tutor_personalization_enabled === true ? supportIntensity : null,
       attempts: attemptSignals,
+      accommodations: learnerProfile?.tutor_personalization_enabled === true ? learnerProfile.accommodations : undefined,
       masteryReadiness,
       learnerContext: {
         schoolYear,

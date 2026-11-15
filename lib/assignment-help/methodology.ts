@@ -383,6 +383,7 @@ export function resolveHomeworkHelpContract(input: {
   supportIntensity?: SupportIntensity | null;
   readiness?: ReadinessCheckIn | null;
   attempts?: HomeworkAttemptSignals | null;
+  accommodations?: unknown;
 }): HomeworkHelpContract {
   const attempts = input.attempts ?? {};
   const helpLevel = helpLevelForAttempts(attempts);
@@ -390,7 +391,7 @@ export function resolveHomeworkHelpContract(input: {
     helpLevel,
     explanationShare: HELP_BY_LEVEL[helpLevel],
     studentOwnedBoundary: boundaryForLevel(helpLevel),
-    presentationSupports: presentationSupportsFor(input.supportIntensity, input.readiness, attempts),
+    presentationSupports: presentationSupportsFor(input.supportIntensity, input.readiness, attempts, input.accommodations),
     escalationReason: escalationReasonFor(helpLevel, input.supportIntensity, input.readiness, attempts),
     stopBeforeAnswer: helpLevel < 75,
   };
@@ -421,6 +422,7 @@ export function buildAssignmentUnderstanding(input: {
   supportIntensity?: SupportIntensity | null;
   readiness?: ReadinessCheckIn | null;
   attempts?: HomeworkAttemptSignals | null;
+  accommodations?: unknown;
   learnerContext?: Partial<HomeworkLearnerContext> | null;
   masteryReadiness?: HomeworkMasteryReadiness | null;
 }): AssignmentUnderstanding {
@@ -430,6 +432,7 @@ export function buildAssignmentUnderstanding(input: {
   const helpContract = resolveHomeworkHelpContract({
     supportIntensity: input.supportIntensity,
     readiness: input.readiness,
+    accommodations: input.accommodations,
     attempts: {
       ...input.attempts,
       lowConfidenceExtraction: input.attempts?.lowConfidenceExtraction || sourceState === "source_partial",
@@ -567,6 +570,7 @@ function presentationSupportsFor(
   intensity: SupportIntensity | null | undefined,
   readiness: ReadinessCheckIn | null | undefined,
   attempts: HomeworkAttemptSignals,
+  accommodations: unknown,
 ): string[] {
   const supports = new Set<string>();
   if (readiness?.body === "low") supports.add("keep wording short and reduce visible choices");
@@ -576,8 +580,23 @@ function presentationSupportsFor(
   if (intensity === "scaffolded") supports.add("show a concrete setup and ask for one continuation");
   if (intensity === "one_move" || intensity === "recovery") supports.add("only one academic action should be visible");
   if (attempts.lowConfidenceExtraction) supports.add("confirm extracted questions before starting");
+  // Only fixed, recognized choices become instructions. Never forward free text,
+  // diagnoses, or an entire IEP to a model as part of a presentation preference.
+  if (Array.isArray(accommodations)) {
+    const selected = new Set(accommodations.filter((item): item is string => typeof item === "string"));
+    const guidance: ReadonlyArray<readonly [string, string]> = [
+      ["extended_time", "allow the student time to respond without pressure"],
+      ["reduced_quantity", "organize the assigned work into manageable portions without changing its requirements"],
+      ["alternate_format", "offer an accessible alternative presentation when available while preserving the directions"],
+      ["reader", "offer read-aloud or text-to-speech when available"],
+      ["scribe", "offer available response tools while keeping the student's words and choices their own"],
+      ["breaks", "offer an optional break when helpful without pressure"],
+      ["quiet_setting", "offer a quieter setting and minimize distractions when possible"],
+    ];
+    for (const [name, instruction] of guidance) if (selected.has(name)) supports.add(instruction);
+  }
   if (supports.size === 0) supports.add("use calm concise guidance");
-  return [...supports].slice(0, 5);
+  return [...supports];
 }
 
 function escalationReasonFor(

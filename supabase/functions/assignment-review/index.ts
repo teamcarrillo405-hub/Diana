@@ -1,4 +1,5 @@
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { loadStudentSupportPersonalization } from "../_shared/student-support-context.ts";
 
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -248,7 +249,10 @@ Deno.serve(withStudentSecurity("assignment-review", async (req) => {
       task: "assignment_review",
       ownerId,
       supabase,
-      system: composeSystemPrompt(REVIEW_PROMPT, { includeRefuseRedirect: true, includeFrustration: true, includeMinorSafety: true }),
+      system: composeSystemPrompt(REVIEW_PROMPT, {
+        includeRefuseRedirect: true, includeFrustration: true, includeMinorSafety: true,
+        personalization: await loadStudentSupportPersonalization(authClient, ownerId),
+      }),
       user,
       maxTokens: 850,
       routing: {

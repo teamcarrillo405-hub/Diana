@@ -6,6 +6,60 @@ import { revalidatePath } from "next/cache";
 import { fallbackReflection, roughModeUntil, startOfWeekIsoDate } from "@/lib/emotional/session";
 import { moodFromReadiness } from "@/lib/support/policy";
 import { maintainWellnessHistory } from "@/lib/wellness/retention";
+import type { StudentDailySupportNeed } from "@/lib/dashboard/lobby-check-in";
+
+// This preference is separate from the wellness history. It contains only an
+// explicitly selected support request and expires from use after 24 hours.
+const StudentSupportNeedInput = z.enum(["food", "water", "break"]).nullable();
+
+export async function getStudentSupportPreferences(): Promise<
+  | { ok: true; need: StudentDailySupportNeed | null; personalizationEnabled: boolean }
+  | { ok: false; error: string }
+> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in to view your support choices." };
+
+  const [needResult, profileResult] = await Promise.all([
+    supabase.from("student_daily_support_needs").select("need, expires_at")
+      .eq("owner_id", user.id).gt("expires_at", new Date().toISOString()).maybeSingle(),
+    supabase.from("profiles").select("tutor_personalization_enabled").eq("user_id", user.id).maybeSingle(),
+  ]);
+  if (needResult.error || profileResult.error || !profileResult.data) {
+    return { ok: false, error: "Your support choices are unavailable right now." };
+  }
+  const need = StudentSupportNeedInput.safeParse(needResult.data?.need ?? null);
+  return { ok: true, need: need.success ? need.data : null, personalizationEnabled: profileResult.data.tutor_personalization_enabled === true };
+}
+
+export async function saveStudentDailySupportNeed(input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = StudentSupportNeedInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Choose a support option." };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in to save a support choice." };
+
+  const result = parsed.data === null
+    ? await supabase.from("student_daily_support_needs").delete().eq("owner_id", user.id)
+    : await supabase.from("student_daily_support_needs").upsert({ owner_id: user.id, need: parsed.data });
+  if (result.error) return { ok: false, error: "Your support choice could not be saved yet." };
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
+
+export async function saveTutorPersonalizationPreference(input: unknown): Promise<{ ok: true } | { ok: false; error: string }> {
+  const parsed = z.boolean().safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Choose a sharing preference." };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in to save your sharing preference." };
+  const { data, error } = await supabase.from("profiles")
+    .update({ tutor_personalization_enabled: parsed.data }).eq("user_id", user.id)
+    .select("user_id").maybeSingle();
+  if (error || !data) return { ok: false, error: "Your sharing preference could not be saved yet." };
+  revalidatePath("/dashboard");
+  return { ok: true };
+}
 
 // ---------- Phase 8 — F14 Evening planning surface ----------
 
