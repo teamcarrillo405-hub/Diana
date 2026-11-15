@@ -99,7 +99,7 @@ function createProject(options: {
     mkdirSync(path.join(root, "tests"));
     writeFileSync(path.join(root, "tests", "beta-browser.spec.ts"), "export {};\n");
   }
-  writeFileSync(path.join(root, ".gitignore"), "artifacts/\nnode_modules/\n");
+  writeFileSync(path.join(root, ".gitignore"), "artifacts/\nnode_modules\nnode_modules/\n");
   writeTestCheckpointPolicy(root);
   gitText(root, ["init", "--quiet"]);
   gitText(root, ["config", "user.email", "surfaces@example.invalid"]);
