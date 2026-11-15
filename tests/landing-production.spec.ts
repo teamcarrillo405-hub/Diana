@@ -54,11 +54,16 @@ test("anonymous visitors receive the animation assets and a moving rendered scen
 });
 
 test("waitlist links remain public and reduced motion has a usable fallback", async ({ page }) => {
-  await page.goto("/early-access/confirm");
-  await expect(page.getByRole("heading", { name: "Confirm Early Access" })).toBeVisible();
-  await expect(page.getByRole("status")).toContainText("We could not use this link");
-  await page.goto("/early-access/unsubscribe");
-  await expect(page.getByRole("heading", { name: "Early Access Preferences" })).toBeVisible();
+  for (const [path, title] of [
+    ["/early-access/confirm", "Confirm your email"],
+    ["/early-access/unsubscribe", "Email preferences"],
+  ]) {
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(200);
+    expect(new URL(page.url()).pathname).toBe(path);
+    await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
+    await expect(page.getByRole("status")).toContainText("We could not use this link");
+  }
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Your Day Starts Here", exact: true })).toBeVisible();
