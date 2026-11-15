@@ -26,7 +26,6 @@ const MODES: Array<{ mode: VisualToolMode; label: string; icon: typeof Network }
 
 export function VisualLearningPanel({
   noteId,
-  title,
   text,
   outline,
 }: {
@@ -64,6 +63,7 @@ export function VisualLearningPanel({
     setDiagramPreview(previewUrl);
     startTransition(async () => {
       const formData = new FormData();
+      formData.append("noteId", noteId);
       formData.append("diagram", file);
       const upload = await uploadDiagramImage(formData);
       if (!upload.ok) {

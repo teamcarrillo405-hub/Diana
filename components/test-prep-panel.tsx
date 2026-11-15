@@ -107,10 +107,10 @@ export function TestPrepPanel({
           href="#study-artifacts"
           className="touch-target inline-flex items-center gap-2 rounded-xl bg-brand px-3 py-2 text-sm font-medium text-white hover:bg-brand-strong"
         >
-          <ListChecks size={15} /> Make a practice test
+          <ListChecks size={15} /> Make a quiz
         </a>
         <Link
-          href="/flashcards"
+          href="/study"
           className="touch-target inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm hover:bg-surface-soft"
         >
           <Brain size={15} /> Review cards

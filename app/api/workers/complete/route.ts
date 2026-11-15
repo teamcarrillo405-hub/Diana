@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
 import { hasValidWorkerBearer } from "@/lib/worker-tier/worker-api-auth";
-import { completeWorkerJob, markWorkerJobError, WorkerJobTenantScopeError } from "@/lib/worker-tier/worker-queue";
+import {
+  completeWorkerJob,
+  isWorkerOperationalErrorCode,
+  markWorkerJobError,
+  sanitizeWorkerErrorMetadata,
+  WorkerJobTenantScopeError,
+} from "@/lib/worker-tier/worker-queue";
 
 export async function POST(request: Request) {
   if (!hasValidWorkerBearer(request)) {
@@ -12,7 +18,8 @@ export async function POST(request: Request) {
     tenantId?: unknown;
     status?: unknown;
     result?: unknown;
-    errorSummary?: unknown;
+    errorCode?: unknown;
+    errorMetadata?: unknown;
   } | null;
   const traceId = typeof body?.traceId === "string" ? body.traceId.trim() : "";
   const tenantId = typeof body?.tenantId === "string" ? body.tenantId.trim() : "";
@@ -47,12 +54,17 @@ export async function POST(request: Request) {
     }
 
     if (status === "error") {
+      if (!isWorkerOperationalErrorCode(body?.errorCode)) {
+        return NextResponse.json(
+          { ok: false, error: "Worker error code is not supported." },
+          { status: 400 },
+        );
+      }
       await markWorkerJobError({
         traceId,
         tenantId,
-        errorSummary: typeof body?.errorSummary === "string"
-          ? body.errorSummary
-          : "Worker reported an error state.",
+        errorCode: body.errorCode,
+        errorMetadata: sanitizeWorkerErrorMetadata(body.errorMetadata),
       });
       return NextResponse.json({ ok: true });
     }

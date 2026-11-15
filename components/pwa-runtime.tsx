@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { transitionAssignment } from "@/app/(app)/assignments/[id]/actions";
-import { rateCard } from "@/app/(app)/flashcards/[id]/actions";
+import { rateCard } from "@/app/(app)/study-artifacts/flashcard-actions";
 import { createNote, saveNote } from "@/app/(app)/notes/actions";
 import {
   getOfflineAssignmentStatuses,

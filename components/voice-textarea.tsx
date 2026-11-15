@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Mic, MicOff, RefreshCw, SlidersHorizontal } from "lucide-react";
 import { transcribeVoiceBlob } from "@/components/voice-textarea-actions";
 
@@ -30,6 +30,7 @@ export function VoiceTextarea(
     provider?: "browser" | "openai";
     speechLang?: string;
     showDeviceStatus?: boolean;
+    dictationLabel?: string;
   },
 ) {
   const {
@@ -37,6 +38,7 @@ export function VoiceTextarea(
     provider = "browser",
     speechLang = "en-US",
     showDeviceStatus = false,
+    dictationLabel = "Start recording",
     ...rest
   } = props;
   const [recording, setRecording] = useState(false);
@@ -45,8 +47,9 @@ export function VoiceTextarea(
   const [checkingMic, setCheckingMic] = useState(false);
   const [micDevices, setMicDevices] = useState<MediaDeviceInfo[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState("");
-  const [permissionState, setPermissionState] = useState<"checking" | "ready" | "needs_permission" | "blocked" | "unsupported">("checking");
+  const [permissionState, setPermissionState] = useState<"checking" | "ready" | "needs_permission" | "waiting" | "blocked" | "unsupported">("checking");
   const [status, setStatus] = useState("Checking microphone access.");
+  const [voiceError, setVoiceError] = useState("");
   const [inputLevel, setInputLevel] = useState(0);
   const [recordingMicLabel, setRecordingMicLabel] = useState("selected microphone");
 
@@ -61,6 +64,17 @@ export function VoiceTextarea(
   const peakInputLevelRef = useRef(0);
   const recordingStartedAtRef = useRef<number | null>(null);
   const recordingMicLabelRef = useRef("selected microphone");
+
+  const cleanupInputMeter = useCallback(() => {
+    meterCleanupRef.current?.();
+    meterCleanupRef.current = null;
+  }, []);
+
+  const stopInputMeter = useCallback(() => {
+    cleanupInputMeter();
+    activeStreamRef.current?.getTracks().forEach((track) => track.stop());
+    activeStreamRef.current = null;
+  }, [cleanupInputMeter]);
 
   useEffect(() => {
     if (provider === "openai") {
@@ -112,25 +126,9 @@ export function VoiceTextarea(
       rec.stop();
       stopInputMeter();
     };
-  }, [onTranscript, provider, speechLang]);
+  }, [onTranscript, provider, speechLang, stopInputMeter]);
 
-  useEffect(() => {
-    if (typeof navigator === "undefined" || !navigator.mediaDevices?.enumerateDevices) return;
-    void refreshDevices(false);
-
-    function handleDeviceChange() {
-      void refreshDevices(false);
-    }
-
-    navigator.mediaDevices.addEventListener?.("devicechange", handleDeviceChange);
-    return () => navigator.mediaDevices.removeEventListener?.("devicechange", handleDeviceChange);
-  }, []);
-
-  useEffect(() => () => {
-    stopInputMeter();
-  }, []);
-
-  async function refreshDevices(requestPermission: boolean) {
+  const refreshDevices = useCallback(async (requestPermission: boolean) => {
     if (!navigator.mediaDevices?.enumerateDevices) {
       setPermissionState("unsupported");
       setStatus("This browser cannot list microphone options.");
@@ -143,7 +141,7 @@ export function VoiceTextarea(
         const audio: MediaTrackConstraints | boolean = selectedDeviceId
           ? { deviceId: { exact: selectedDeviceId } }
           : true;
-        permissionStream = await navigator.mediaDevices.getUserMedia({ audio });
+        permissionStream = await requestAudioStream(audio);
         setPermissionState("ready");
       }
 
@@ -167,7 +165,27 @@ export function VoiceTextarea(
     } finally {
       permissionStream?.getTracks().forEach((track) => track.stop());
     }
-  }
+  }, [selectedDeviceId]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.enumerateDevices) return;
+    void refreshDevices(false);
+
+    function handleDeviceChange() {
+      void refreshDevices(false);
+    }
+
+    navigator.mediaDevices.addEventListener?.("devicechange", handleDeviceChange);
+    return () => navigator.mediaDevices.removeEventListener?.("devicechange", handleDeviceChange);
+  }, [refreshDevices]);
+
+  useEffect(() => () => {
+    const recorder = mediaRecorderRef.current;
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
+    }
+    stopInputMeter();
+  }, [stopInputMeter]);
 
   async function checkSelectedMic() {
     if (!navigator.mediaDevices?.getUserMedia) {
@@ -184,7 +202,7 @@ export function VoiceTextarea(
       const audio: MediaTrackConstraints | boolean = selectedDeviceId
         ? { deviceId: { exact: selectedDeviceId } }
         : true;
-      const stream = await navigator.mediaDevices.getUserMedia({ audio });
+      const stream = await requestAudioStream(audio);
       activeStreamRef.current = stream;
       const trackLabel = stream.getAudioTracks()[0]?.label || selectedMicLabel() || "system default microphone";
       setPermissionState("ready");
@@ -218,11 +236,24 @@ export function VoiceTextarea(
   async function startOpenAIRecording() {
     if (recording || transcribing || checkingMic) return;
 
+    setVoiceError("");
+
+    if (!window.isSecureContext) {
+      setPermissionState("blocked");
+      setStatus("Voice recording needs a secure app connection. Refresh Diana, then try again.");
+      return;
+    }
+    if (typeof MediaRecorder === "undefined") {
+      setPermissionState("unsupported");
+      setStatus("This browser can use the microphone, but cannot record audio for transcription. Type your message instead.");
+      return;
+    }
+
     try {
       const audio: MediaTrackConstraints | boolean = selectedDeviceId
         ? { deviceId: { exact: selectedDeviceId } }
         : true;
-      const stream = await navigator.mediaDevices.getUserMedia({ audio });
+      const stream = await requestAudioStream(audio);
       const mediaRecorder = new MediaRecorder(stream);
       activeStreamRef.current = stream;
       peakInputLevelRef.current = 0;
@@ -239,8 +270,16 @@ export function VoiceTextarea(
         if (e.data.size > 0) chunksRef.current.push(e.data);
       };
 
+      mediaRecorder.onerror = () => {
+        stopInputMeter();
+        mediaRecorderRef.current = null;
+        setRecording(false);
+        setStatus("Recording stopped before Diana could transcribe it. Check the microphone, then try again.");
+      };
+
       mediaRecorder.onstop = async () => {
         stopInputMeter();
+        mediaRecorderRef.current = null;
         stream.getTracks().forEach((t) => t.stop());
         activeStreamRef.current = null;
 
@@ -267,14 +306,18 @@ export function VoiceTextarea(
 
           if (!result.ok) {
             console.error("Voice transcription unavailable:", result.error);
+            setVoiceError(result.error);
             setStatus(result.error);
           } else if (onTranscript) {
             onTranscript(result.text);
+            setVoiceError("");
             setStatus("Transcription added to the note.");
           }
         } catch (err) {
           console.error("Voice transcription could not finish:", err);
-          setStatus("Transcription could not finish. The recording was stopped safely.");
+          const message = "Diana could not transcribe that recording right now. Try again or type your message.";
+          setVoiceError(message);
+          setStatus(message);
         } finally {
           chunksRef.current = [];
           setTranscribing(false);
@@ -286,13 +329,29 @@ export function VoiceTextarea(
       setRecording(true);
     } catch (err) {
       console.error("getUserMedia unavailable:", err);
-      setPermissionState("blocked");
-      setStatus("Microphone access did not start. Check Windows input privacy or choose another mic.");
+      const permissionDenied = err instanceof DOMException && (err.name === "NotAllowedError" || err.name === "SecurityError");
+      const deviceMissing = err instanceof DOMException && err.name === "NotFoundError";
+      const recorderUnavailable = err instanceof TypeError && /mediarecorder/iu.test(err.message);
+      const permissionPending = err instanceof Error && err.message === "microphone_permission_pending";
+      setPermissionState(permissionDenied ? "blocked" : deviceMissing || recorderUnavailable ? "unsupported" : permissionPending ? "waiting" : "needs_permission");
+      const message = permissionDenied
+        ? "Microphone permission was not allowed. Check browser and Windows microphone permissions, then retry."
+        : deviceMissing
+          ? "No microphone input was found. Connect or select a microphone, then retry."
+          : recorderUnavailable
+            ? "This browser can use the microphone, but cannot record audio for transcription. Type your message instead."
+            : permissionPending
+              ? "Microphone permission is still waiting. Choose Allow in your browser, then try again."
+              : "Microphone access did not start. Check Windows input privacy or choose another mic.";
+      setVoiceError(message);
+      setStatus(message);
     }
   }
 
   function stopOpenAIRecording() {
-    mediaRecorderRef.current?.stop();
+    const recorder = mediaRecorderRef.current;
+    if (!recorder || recorder.state === "inactive") return;
+    recorder.stop();
     setRecording(false);
     setStatus(`Stopping ${recordingMicLabelRef.current}. Diana will transcribe next.`);
   }
@@ -304,7 +363,7 @@ export function VoiceTextarea(
       stopInputMeter();
     } else {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await requestAudioStream(true);
         activeStreamRef.current = stream;
         startInputMeter(stream);
         stream.getTracks().forEach((track) => track.stop());
@@ -329,7 +388,7 @@ export function VoiceTextarea(
     }
   }
 
-  function startInputMeter(stream: MediaStream) {
+  function startInputMeter(stream: MediaStream, onLevel?: (level: number) => void) {
     cleanupInputMeter();
     const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) {
@@ -358,6 +417,7 @@ export function VoiceTextarea(
       const level = Math.min(1, rms * 8);
       peakInputLevelRef.current = Math.max(peakInputLevelRef.current, level);
       setInputLevel(level);
+      onLevel?.(level);
       frame = window.requestAnimationFrame(tick);
     }
 
@@ -371,17 +431,6 @@ export function VoiceTextarea(
     };
   }
 
-  function cleanupInputMeter() {
-    meterCleanupRef.current?.();
-    meterCleanupRef.current = null;
-  }
-
-  function stopInputMeter() {
-    cleanupInputMeter();
-    activeStreamRef.current?.getTracks().forEach((track) => track.stop());
-    activeStreamRef.current = null;
-  }
-
   function selectedMicLabel() {
     return micDevices.find((device) => device.deviceId === selectedDeviceId)?.label;
   }
@@ -390,7 +439,7 @@ export function VoiceTextarea(
     ? "Transcribing\u2026"
     : recording
     ? "Stop and transcribe"
-    : "Start recording";
+    : dictationLabel;
 
   const voicePhaseLabel = transcribing
     ? "Transcribing"
@@ -470,7 +519,7 @@ export function VoiceTextarea(
                 ? `Diana is recording ${recordingMicLabel}.`
                 : transcribing
                 ? "Diana is turning the recording into text."
-                : "Use Start recording for notes, or Check mic to test input."}
+                : `Use ${dictationLabel} for notes, or Check mic to test input.`}
             </p>
           </div>
           <div className="mt-3 grid gap-2">
@@ -485,7 +534,7 @@ export function VoiceTextarea(
               }`}
             >
               {recording ? <MicOff size={15} /> : <Mic size={15} />}
-              {recording ? "Stop and transcribe" : "Start recording"}
+              {recording ? "Stop and transcribe" : dictationLabel}
             </button>
           </div>
           <p className="mt-2 text-xs text-muted">
@@ -521,6 +570,9 @@ export function VoiceTextarea(
         </button>
       )}
       </div>
+      {!showDeviceStatus && (permissionState === "waiting" || permissionState === "blocked" || permissionState === "unsupported" || transcribing || Boolean(voiceError)) ? (
+        <p className="text-xs text-muted" role="status" aria-live="polite">{status}</p>
+      ) : null}
     </div>
   );
 }
@@ -538,9 +590,29 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function requestAudioStream(audio: MediaTrackConstraints | boolean): Promise<MediaStream> {
+  let expired = false;
+  let timeoutId: number | null = null;
+  const request = navigator.mediaDevices.getUserMedia({ audio });
+  request.then((stream) => {
+    if (expired) stream.getTracks().forEach((track) => track.stop());
+  }).catch(() => undefined);
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = window.setTimeout(() => {
+      expired = true;
+      reject(new Error("microphone_permission_pending"));
+    }, MICROPHONE_PERMISSION_TIMEOUT_MS);
+  });
+  try {
+    return await Promise.race([request, timeout]);
+  } finally {
+    if (timeoutId !== null) window.clearTimeout(timeoutId);
+  }
+}
+
 const MIN_USABLE_INPUT_LEVEL = 0.03;
 const MIN_RECORDED_AUDIO_BYTES = 1200;
-
+const MICROPHONE_PERMISSION_TIMEOUT_MS = 12_000;
 function formatDuration(ms: number) {
   if (!Number.isFinite(ms) || ms <= 0) return "a short recording";
   const seconds = Math.max(1, Math.round(ms / 1000));

@@ -2,7 +2,6 @@ export type ShareType = "parent_summary" | "teacher_snapshot";
 
 export type ShareLink = {
   id: string;
-  token: string;
   owner_id: string;
   share_type: ShareType;
   expires_at: string; // ISO timestamp
@@ -20,15 +19,15 @@ export type ParentSummary = {
   expiresAt: string;
 };
 
-export type TeacherClassRow = {
-  name: string;
-  aiMode: "red" | "yellow" | "green";
+export type ExternalScoutPortfolioItem = {
+  id: string;
+  title: string;
+  reflectionText: string | null;
 };
 
-export type TeacherSnapshot = {
-  classes: TeacherClassRow[];
-  readingFont: string;
-  extendedReadingTime: boolean; // derived from disability_flags.dyslexia
-  extraTimePct: number;
+export type ExternalScoutPortfolio = {
+  title: string;
+  description: string | null;
+  items: ExternalScoutPortfolioItem[];
   expiresAt: string;
 };

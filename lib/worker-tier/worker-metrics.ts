@@ -33,6 +33,10 @@ export type WorkerQueueMetricsSnapshot = {
     averageClaimMs: number | null;
     averageCompletionMs: number | null;
   };
+  age: {
+    oldestQueuedMs: number | null;
+    oldestRunningMs: number | null;
+  };
   tenants: WorkerTenantMetrics[];
 };
 
@@ -58,6 +62,8 @@ export function createWorkerQueueMetricsSnapshot({
   };
   const claimLatencies: number[] = [];
   const completionLatencies: number[] = [];
+  const queuedAges: number[] = [];
+  const runningAges: number[] = [];
   const tenants = new Map<string, WorkerTenantMetrics>();
 
   for (const row of rows) {
@@ -89,6 +95,14 @@ export function createWorkerQueueMetricsSnapshot({
       const completionMs = Date.parse(row.completed_at) - Date.parse(row.started_at);
       if (Number.isFinite(completionMs) && completionMs >= 0) completionLatencies.push(completionMs);
     }
+    if (row.status === "queued") {
+      const queuedAgeMs = generatedAt.getTime() - Date.parse(row.created_at);
+      if (Number.isFinite(queuedAgeMs) && queuedAgeMs >= 0) queuedAges.push(queuedAgeMs);
+    }
+    if (row.status === "running") {
+      const runningAgeMs = generatedAt.getTime() - Date.parse(row.started_at ?? row.created_at);
+      if (Number.isFinite(runningAgeMs) && runningAgeMs >= 0) runningAges.push(runningAgeMs);
+    }
   }
 
   return {
@@ -99,6 +113,10 @@ export function createWorkerQueueMetricsSnapshot({
     latency: {
       averageClaimMs: average(claimLatencies),
       averageCompletionMs: average(completionLatencies),
+    },
+    age: {
+      oldestQueuedMs: maximum(queuedAges),
+      oldestRunningMs: maximum(runningAges),
     },
     tenants: [...tenants.values()].sort((a, b) => b.errors - a.errors || b.total - a.total),
   };
@@ -159,6 +177,12 @@ export function formatWorkerQueueMetricsPrometheus(
     "# HELP diana_worker_completion_latency_ms Average time from claim to completion.",
     "# TYPE diana_worker_completion_latency_ms gauge",
     `diana_worker_completion_latency_ms{queue="${queue}"} ${snapshot.latency.averageCompletionMs ?? 0}`,
+    "# HELP diana_worker_oldest_queued_age_ms Age of the oldest queued job, including jobs older than the metrics window.",
+    "# TYPE diana_worker_oldest_queued_age_ms gauge",
+    `diana_worker_oldest_queued_age_ms{queue="${queue}"} ${snapshot.age.oldestQueuedMs ?? 0}`,
+    "# HELP diana_worker_oldest_running_age_ms Age of the oldest running job, including jobs older than the metrics window.",
+    "# TYPE diana_worker_oldest_running_age_ms gauge",
+    `diana_worker_oldest_running_age_ms{queue="${queue}"} ${snapshot.age.oldestRunningMs ?? 0}`,
     "# HELP diana_worker_tenants_with_errors Number of tenants with worker errors in the selected window.",
     "# TYPE diana_worker_tenants_with_errors gauge",
     `diana_worker_tenants_with_errors{queue="${queue}"} ${snapshot.tenants.filter((tenant) => tenant.errors > 0).length}`,
@@ -192,6 +216,10 @@ export function formatWorkerQueueMetricsPrometheus(
 function average(values: number[]): number | null {
   if (values.length === 0) return null;
   return Math.round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+function maximum(values: number[]): number | null {
+  return values.length === 0 ? null : Math.max(...values);
 }
 
 function labelValue(value: string): string {

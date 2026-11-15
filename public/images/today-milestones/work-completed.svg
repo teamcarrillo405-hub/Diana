@@ -1,0 +1,50 @@
+<svg width="128" height="140" viewBox="0 0 128 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Work completed">
+<ellipse id="Contact shadow" opacity="0.09" cx="65" cy="131.5" rx="48" ry="3.5" fill="#433264"/>
+<rect id="Previous page" x="10" y="28" width="78" height="96" rx="7" transform="rotate(-7 10 28)" fill="url(#paint0_linear_2_5)"/>
+<g id="Finished page" filter="url(#filter0_d_2_5)">
+<rect x="25" y="10" width="78" height="107" rx="7" fill="url(#paint1_linear_2_5)"/>
+<rect x="25.65" y="10.65" width="76.7" height="105.7" rx="6.35" stroke="#9828FF" stroke-width="1.3"/>
+</g>
+<g id="Paper fold" clip-path="url(#clip0_2_5)">
+<path id="Vector" d="M78 10L103 35H83C79.6667 35 78 33.3333 78 30V10Z" fill="#BB59FF"/>
+<g id="Vector_2">
+<path d="M79 11L102 34L79 11Z" fill="black"/>
+<path d="M79 11L102 34" stroke="white" stroke-width="1.2"/>
+</g>
+</g>
+<rect id="Printed line" x="38" y="48" width="43" height="4" rx="2" fill="#A138F0"/>
+<rect id="Printed line_2" x="38" y="59" width="43" height="4" rx="2" fill="#A138F0"/>
+<rect id="Printed line_3" x="38" y="70" width="29" height="4" rx="2" fill="#A138F0"/>
+<circle id="Completed seal" cx="98.5" cy="107.5" r="16.25" fill="url(#paint2_linear_2_5)" stroke="#F6F0FF" stroke-width="2.5"/>
+<g id="Confirmation check">
+<path id="Vector_3" d="M95.875 107.5L97.625 109.25L101.125 105.75" stroke="white" stroke-width="2.1875" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_2_5" x="18" y="9" width="92" height="121" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="6"/>
+<feGaussianBlur stdDeviation="3.5"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.282353 0 0 0 0 0.207843 0 0 0 0 0.396078 0 0 0 0.18 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2_5"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2_5" result="shape"/>
+</filter>
+<linearGradient id="paint0_linear_2_5" x1="10" y1="76" x2="88" y2="76" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CC79FF"/>
+<stop offset="1" stop-color="#9828FF"/>
+</linearGradient>
+<linearGradient id="paint1_linear_2_5" x1="25" y1="63.5" x2="103" y2="63.5" gradientUnits="userSpaceOnUse">
+<stop stop-color="white"/>
+<stop offset="1" stop-color="#EAD0FF"/>
+</linearGradient>
+<linearGradient id="paint2_linear_2_5" x1="81" y1="107.5" x2="116" y2="107.5" gradientUnits="userSpaceOnUse">
+<stop stop-color="#C63CFF"/>
+<stop offset="1" stop-color="#7815ED"/>
+</linearGradient>
+<clipPath id="clip0_2_5">
+<rect width="25" height="25" fill="white" transform="translate(78 10)"/>
+</clipPath>
+</defs>
+</svg>

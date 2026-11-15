@@ -2,17 +2,21 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Brain, Plus, Sparkles, Tags, Trash2, X } from "lucide-react";
+import { ArrowLeft, BookOpen, Brain, ChevronDown, Plus, Save, Sparkles, Tags, Trash2, X } from "lucide-react";
 import { AccessibleReadingText, type ReadingPrefs } from "@/components/accessible-reading-text";
 import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import { ReadingAnnotationControl } from "@/components/reading-annotation-control";
 import { ReadingLevelAdapter } from "@/components/reading-level-adapter";
 import { StudyArtifactPanel } from "@/components/study-artifact-panel";
+import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
+import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
 import type { RelatedNote } from "@/lib/notes/related";
 import type { TtsProvider } from "@/lib/supabase/types";
 import type { OutlineNode } from "@/lib/notes/types";
 import { VisualLearningPanel } from "./visual-learning-panel";
+import { saveNote } from "../actions";
+import { NoteSynthesisPanel } from "../note-synthesis-panel";
 import {
   createFlashcardFromSelection,
   deleteNote,
@@ -22,8 +26,57 @@ import {
   updateNoteTags,
 } from "./actions";
 
+const NOTE_DETAIL_STYLES = `
+  .sd-note-detail { min-height:100dvh; background:linear-gradient(rgb(214 218 214 / .84),rgb(214 218 214 / .9)),url("/images/classes-high-tech-classroom.png") center/cover fixed; color:#182126; font-family:var(--font-lexend),Lexend,system-ui,sans-serif; }
+  .sd-note-detail-main { width:calc(100% - (2 * clamp(24px,3.5vw,72px))); max-width:1680px; margin:0 auto; padding:clamp(34px,4vw,64px) 0 clamp(52px,6vw,96px); }
+  .sd-note-detail-frame { width:min(100%,1240px); margin:0 auto; }
+  .sd-note-detail-back { display:inline-flex; align-items:center; gap:8px; min-height:44px; color:#182126; font-size:14px; font-weight:600; text-decoration:none; }
+  .sd-note-detail-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,350px); gap:24px; align-items:start; }
+  .sd-note-detail-editor,.sd-note-detail-rail,.sd-note-detail-tools { border:1px solid rgb(255 255 255 / .76); background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46)); box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 14px 34px rgb(24 33 38 / .12); backdrop-filter:blur(24px) saturate(1.04); }
+  .sd-note-detail-editor { border-radius:12px 20px 12px 20px; padding:clamp(22px,2.8vw,34px); }
+  .sd-note-detail-kicker { margin:0 0 7px; color:#53615c; font-size:14px; font-weight:600; }
+  .sd-note-detail-editor h1 { margin:0; color:#182126; font-size:clamp(30px,3vw,42px); font-weight:620; line-height:1.14; letter-spacing:0; }
+  .sd-note-detail-editor textarea { box-sizing:border-box; width:100%; min-height:390px; margin-top:24px; resize:vertical; border:1px solid rgb(24 33 38 / .22); border-radius:10px; outline:0; background:rgb(255 255 255 / .68); padding:18px; color:#182126; font:400 16px/1.65 var(--font-lexend),Lexend,sans-serif; }
+  .sd-note-detail-editor textarea:focus-visible,.sd-note-detail-rail select:focus-visible { outline:3px solid rgb(24 33 38 / .28); outline-offset:2px; }
+  .sd-note-detail-save-row { display:flex; align-items:center; gap:12px; margin-top:14px; }
+  .sd-note-detail-save-row button { min-height:44px; border:1px solid #c6d23f; border-radius:8px; background:#e8f56b; padding:0 18px; color:#141d20; font:600 14px var(--font-lexend),Lexend,sans-serif; cursor:pointer; }
+  .sd-note-detail-save-row span { color:#53615c; font-size:14px; }
+  .sd-note-detail-rail { display:grid; gap:18px; border-radius:12px; padding:22px; }
+  .sd-note-detail-rail label { display:grid; gap:8px; color:#53615c; font-size:14px; font-weight:600; }
+  .sd-note-detail-rail select { min-height:44px; border:1px solid rgb(24 33 38 / .22); border-radius:8px; background:rgb(255 255 255 / .7); padding:0 12px; color:#182126; font:400 16px var(--font-lexend),Lexend,sans-serif; }
+  .sd-note-detail-rail .sd-notes-chat { display:grid; gap:12px; }
+  .sd-note-detail-rail .sd-notes-chat-head { display:grid; gap:4px; }
+  .sd-note-detail-rail .sd-notes-chat-head h2 { display:flex; align-items:center; gap:8px; margin:0; font-size:20px; font-weight:620; }
+  .sd-note-detail-rail .sd-notes-chat-head p,.sd-note-detail-rail .sd-notes-chat-history > p { margin:0; color:#53615c; font-size:14px; line-height:1.55; }
+  .sd-note-detail-rail .sd-notes-chat-history { display:grid; gap:10px; min-height:72px; }
+  .sd-note-detail-rail .sd-notes-chat-turn { border:1px solid rgb(24 33 38 / .16); border-radius:10px; padding:12px; color:#182126; font-size:15px; line-height:1.6; white-space:pre-wrap; }
+  .sd-note-detail-rail .sd-notes-chat-turn--student { background:#182126; color:#fff; }
+  .sd-note-detail-rail .sd-notes-chat-turn--diana { background:rgb(255 255 255 / .52); }
+  .sd-note-detail-rail .sd-notes-chat-composer { display:grid; gap:8px; border:1px solid rgb(24 33 38 / .2); border-radius:10px; background:rgb(255 255 255 / .5); padding:10px; }
+  .sd-note-detail-rail .sd-notes-chat-composer textarea { width:100%; min-height:78px; resize:vertical; border:0; outline:0; background:transparent; color:#182126; font:400 15px/1.55 var(--font-lexend),Lexend,sans-serif; }
+  .sd-note-detail-rail .sd-notes-chat-actions { display:flex; justify-content:flex-end; }
+  .sd-note-detail-rail .sd-notes-chat-actions button { display:grid; width:44px; height:44px; place-items:center; border:1px solid #c6d23f; border-radius:8px; background:#e8f56b; color:#141d20; cursor:pointer; }
+  .sd-note-detail-tools { display:none!important; }
+  .sd-note-detail-tools > summary { display:flex; min-height:54px; align-items:center; justify-content:space-between; padding:0 22px; color:#182126; font-size:16px; font-weight:600; cursor:pointer; list-style:none; }
+  .sd-note-detail-tools > summary::-webkit-details-marker { display:none; }
+  .sd-note-detail-tools[open] > summary { border-bottom:1px solid rgb(24 33 38 / .14); }
+  .sd-note-detail-tools[open] > summary svg { transform:rotate(180deg); }
+  .sd-note-detail-tools-inner { display:grid; gap:18px; padding:22px; }
+  .sd-note-detail-tools-inner > .notes-detail-class-picker { display:none!important; }
+  .sd-note-detail .notes-remember-panel,.sd-note-detail .notes-tags-panel,.sd-note-detail .notes-related-panel,.sd-note-detail .notes-reading-section,.sd-note-detail .notes-transcript-action,.sd-note-detail .notes-delete-panel,.sd-note-detail .space-y-2 { display:grid; gap:12px; border:1px solid rgb(24 33 38 / .16); border-radius:10px; background:rgb(255 255 255 / .42); padding:18px; clip-path:none; }
+  .sd-note-detail .notes-remember-panel > p,.sd-note-detail .notes-tags-head h2,.sd-note-detail .notes-reading-section > h2,.sd-note-detail .notes-related-panel > h2 { margin:0; color:#53615c; font:600 14px var(--font-lexend),Lexend,sans-serif; letter-spacing:0; text-transform:none; }
+  .sd-note-detail .notes-remember-panel h2 { margin:0; color:#182126; font-size:22px; font-weight:620; }
+  .sd-note-detail .notes-remember-panel > div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .sd-note-detail .notes-remember-panel > div > div { border:1px solid rgb(24 33 38 / .12); background:rgb(255 255 255 / .34); padding:12px; }
+  .sd-note-detail .notes-support-button { min-height:40px; border:1px solid rgb(24 33 38 / .22); border-radius:8px; background:rgb(255 255 255 / .6); color:#182126; clip-path:none; font:600 14px var(--font-lexend),Lexend,sans-serif; }
+  .sd-note-detail .notes-tag-chip { border-radius:8px; color:#182126; font-family:var(--font-lexend),Lexend,sans-serif; letter-spacing:0; text-transform:none; }
+  .sd-note-detail .sd-student-bottom-nav { display:none; }
+  @media (max-width:900px) { .sd-note-detail-main { width:calc(100% - 32px); padding:28px 0 108px; } .sd-note-detail-grid { grid-template-columns:1fr; } .sd-note-detail-rail,.sd-note-detail-tools { grid-column:auto; } .sd-note-detail-editor textarea { min-height:300px; } .sd-note-detail .sd-student-bottom-nav { display:flex; } }
+`;
+
 export function NoteDetail({
   id,
+  title,
   bodyText,
   transcriptText,
   outline,
@@ -40,10 +93,11 @@ export function NoteDetail({
   ttsVoice,
   classId: initialClassId,
   ownerId,
-  classAiMode,
+  aiMode,
   classes,
 }: {
   id: string;
+  title: string;
   bodyText: string;
   transcriptText: string | null;
   outline: OutlineNode[] | null;
@@ -60,7 +114,7 @@ export function NoteDetail({
   ttsVoice: string;
   classId: string | null;
   ownerId: string;
-  classAiMode: "red" | "yellow" | "green";
+  aiMode: "red" | "yellow" | "green";
   classes: { id: string; name: string }[];
 }) {
   const router = useRouter();
@@ -74,6 +128,22 @@ export function NoteDetail({
   const [selectedText, setSelectedText] = useState("");
   const [cardStatus, setCardStatus] = useState<string | null>(null);
   const [tagStatus, setTagStatus] = useState<string | null>(null);
+  const [body, setBody] = useState(bodyText);
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+
+  function handleSave() {
+    setSaveStatus("Saving...");
+    startTransition(async () => {
+      const result = await saveNote({
+        id,
+        title,
+        bodyText: body,
+        classId,
+        source: normalizeNoteSource(source),
+      });
+      setSaveStatus(result.ok ? "Saved" : result.error);
+    });
+  }
 
   function handleClassChange(newId: string | null) {
     setClassId(newId);
@@ -159,8 +229,47 @@ export function NoteDetail({
   }
 
   return (
-    <div className="notes-detail-workspace">
-      {/* Class picker — always visible if student has classes */}
+    <div className="sd-note-detail diana-current-page" aria-label="Notes surface">
+      <style>{NOTE_DETAIL_STYLES}</style>
+      <StudentDesktopNav active="More" />
+      <main className="sd-note-detail-main">
+        <div className="sd-note-detail-frame">
+          <Link href="/notes" className="sd-note-detail-back"><ArrowLeft size={18} aria-hidden="true" /> Back to notes</Link>
+          <div className="sd-note-detail-grid">
+        <section className="sd-notes-overview sd-note-detail-editor" aria-labelledby="notes-overview-title">
+          <div className="sd-note-detail-kicker">{classes.find((item) => item.id === classId)?.name ?? "Notes"}</div>
+          <h1 id="notes-overview-title">{title}</h1>
+          <textarea
+            aria-label="Note body"
+            value={body}
+            onChange={(event) => setBody(event.target.value)}
+            placeholder="Add the ideas you want to remember..."
+          />
+          <div className="sd-note-detail-save-row">
+            <button type="button" onClick={handleSave} aria-label="Save note">
+              <Save size={14} aria-hidden="true" /> Save note
+            </button>
+            {saveStatus ? <span role="status" aria-live="polite">{saveStatus}</span> : null}
+          </div>
+        </section>
+
+        <aside className="sd-note-detail-rail" aria-label="Note help and details">
+          {classes.length > 0 && (
+            <label>
+              <span>Class</span>
+              <select value={classId ?? ""} onChange={(event) => handleClassChange(event.target.value || null)}>
+                <option value="">No class</option>
+                {classes.map((course) => <option key={course.id} value={course.id}>{course.name}</option>)}
+              </select>
+            </label>
+          )}
+          <NoteSynthesisPanel classId={classId} scopeLabel={`${title} and related class notes`} />
+        </aside>
+
+        <details className="notes-detail-workspace sd-note-detail-tools">
+          <summary>Study tools <ChevronDown size={18} aria-hidden="true" /></summary>
+          <div className="sd-note-detail-tools-inner">
+      {/* Retained for the existing class-save behavior; the active picker is in the right rail. */}
       {classes.length > 0 && (
         <label className="notes-detail-class-picker">
           <span>Class</span>
@@ -197,7 +306,7 @@ export function NoteDetail({
       <StudyArtifactPanel
         sourceType="note"
         sourceId={id}
-        aiMode={classAiMode}
+        aiMode={aiMode}
         studyMode="retrieval_quiz"
       />
 
@@ -275,16 +384,16 @@ export function NoteDetail({
         <h2>
           Your notes
         </h2>
-        <VocabHoverProvider ownerId={ownerId} aiMode={classAiMode} sourceType="note" sourceId={id}>
+        <VocabHoverProvider ownerId={ownerId} aiMode={aiMode} sourceType="note" sourceId={id}>
           <div
             className="reading-view notes-reading-surface whitespace-pre-wrap"
             onMouseUp={captureSelection}
             onKeyUp={captureSelection}
           >
-            {ttsOn && bodyText.trim().length > 0 && (
+            {ttsOn && body.trim().length > 0 && (
               <div className="mb-3">
                 <TtsHighlightButton
-                  text={bodyText}
+                  text={body}
                   provider={ttsProvider}
                   speed={ttsSpeed}
                   pitch={ttsPitch}
@@ -292,14 +401,14 @@ export function NoteDetail({
                 />
               </div>
             )}
-            {bodyText.trim().length > 0 ? (
-              <AccessibleReadingText text={bodyText} prefs={readingPrefs} />
+            {body.trim().length > 0 ? (
+              <AccessibleReadingText text={body} prefs={readingPrefs} />
             ) : (
               <p className="text-sm text-muted">(empty)</p>
             )}
           </div>
         </VocabHoverProvider>
-        <ReadingLevelAdapter text={bodyText} aiMode={classAiMode} />
+        <ReadingLevelAdapter text={body} aiMode={aiMode} />
         <SelectionCardControl
           selectedText={selectedText}
           cardStatus={cardStatus}
@@ -312,7 +421,7 @@ export function NoteDetail({
       {source === "lecture" && actionItems.length > 0 && (
         <section className="notes-transcript-action">
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
-            Action items sent to inbox
+            Action items sent to Work
           </h2>
           <ul className="space-y-2 rounded-2xl border border-border bg-surface-raised p-4 text-sm">
             {actionItems.map((item) => (
@@ -327,7 +436,7 @@ export function NoteDetail({
           <h2 className="text-xs font-medium uppercase tracking-wider text-muted">
             Cleaned transcript
           </h2>
-          <VocabHoverProvider ownerId={ownerId} aiMode={classAiMode} sourceType="note" sourceId={id}>
+          <VocabHoverProvider ownerId={ownerId} aiMode={aiMode} sourceType="note" sourceId={id}>
             <div className="reading-view rounded-2xl border border-subject-reading/25 p-4">
               {ttsOn && (
                 <TtsHighlightButton
@@ -347,7 +456,7 @@ export function NoteDetail({
               </div>
             </div>
           </VocabHoverProvider>
-          <ReadingLevelAdapter text={transcriptText} aiMode={classAiMode} />
+          <ReadingLevelAdapter text={transcriptText} aiMode={aiMode} />
           <SelectionCardControl
             selectedText={selectedText}
             cardStatus={cardStatus}
@@ -360,7 +469,7 @@ export function NoteDetail({
           <button
             type="button"
             onClick={handleTranscribe}
-            disabled={transcribing || !bodyText.trim()}
+            disabled={transcribing || !body.trim()}
             className="notes-support-button"
           >
             <Sparkles size={14} />
@@ -391,7 +500,7 @@ export function NoteDetail({
       <VisualLearningPanel
         noteId={id}
         title="Visual learning"
-        text={[bodyText, transcriptText ?? ""].join("\n")}
+        text={[body, transcriptText ?? ""].join("\n")}
         outline={outline}
       />
 
@@ -444,6 +553,12 @@ export function NoteDetail({
           </div>
         )}
       </section>
+          </div>
+        </details>
+          </div>
+        </div>
+      </main>
+      <StudentBottomNav />
     </div>
   );
 }
@@ -476,4 +591,18 @@ function SelectionCardControl({
       {cardStatus && <span className="text-xs text-muted">{cardStatus}</span>}
     </div>
   );
+}
+
+function normalizeNoteSource(
+  source: string,
+): "manual" | "voice" | "audio_upload" | "doc_upload" | "lecture" {
+  if (
+    source === "voice"
+    || source === "audio_upload"
+    || source === "doc_upload"
+    || source === "lecture"
+  ) {
+    return source;
+  }
+  return "manual";
 }

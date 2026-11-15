@@ -40,6 +40,31 @@ export type DianaVoiceCandidateAuditPayload = {
   trace: DianaVoiceCandidateTrace;
 };
 
+export const DIANA_VOICE_PROVIDER_ERROR_CODES = [
+  "provider_boundary_invalid",
+  "provider_http_error",
+  "provider_response_invalid",
+  "provider_response_empty",
+] as const;
+
+export type DianaVoiceProviderErrorCode =
+  (typeof DIANA_VOICE_PROVIDER_ERROR_CODES)[number];
+
+export class DianaVoiceProviderError extends Error {
+  readonly code: DianaVoiceProviderErrorCode;
+  readonly metadata: Readonly<{ httpStatus?: number; issueCount?: number }>;
+
+  constructor(
+    code: DianaVoiceProviderErrorCode,
+    metadata: { httpStatus?: number; issueCount?: number } = {},
+  ) {
+    super(code);
+    this.name = "DianaVoiceProviderError";
+    this.code = code;
+    this.metadata = Object.freeze({ ...metadata });
+  }
+}
+
 const VOICE_SIDECAR_PROMPT = [
   "You are a local Diana sidecar worker.",
   "Return one candidate next move for Diana to review before the student sees it.",
@@ -122,18 +147,43 @@ export async function createDianaVoiceCandidate({
   });
   const issues = localSidecarBoundaryIssues(workRequest);
   if (issues.length > 0) {
-    throw new Error(`Local sidecar boundary issue: ${issues.join("; ")}`);
+    throw new DianaVoiceProviderError("provider_boundary_invalid", {
+      issueCount: Math.min(issues.length, 20),
+    });
   }
 
   const chatRequest = createSidecarChatRequest(config, buildDianaVoiceSidecarMessages(input));
-  const response = await fetchImpl(chatRequest.url, { ...chatRequest.init, signal });
+  let response: Response;
+  try {
+    response = await fetchImpl(chatRequest.url, { ...chatRequest.init, signal });
+  } catch {
+    throw new DianaVoiceProviderError("provider_http_error");
+  }
   if (!response.ok) {
-    throw new Error(`Local sidecar returned ${response.status} ${response.statusText}`);
+    throw new DianaVoiceProviderError("provider_http_error", {
+      httpStatus: Math.max(0, Math.min(599, Math.floor(response.status))),
+    });
   }
 
-  const text = normalizeDianaVoiceCandidateResponse(parseSidecarText("openjarvis", await response.json()));
+  let rawPayload: unknown;
+  try {
+    rawPayload = await response.json();
+  } catch {
+    throw new DianaVoiceProviderError("provider_response_invalid");
+  }
+  if (!hasOpenJarvisTextShape(rawPayload)) {
+    throw new DianaVoiceProviderError("provider_response_invalid");
+  }
+
+  let parsedText: string;
+  try {
+    parsedText = parseSidecarText("openjarvis", rawPayload);
+  } catch {
+    throw new DianaVoiceProviderError("provider_response_invalid");
+  }
+  const text = normalizeDianaVoiceCandidateResponse(parsedText);
   if (!text) {
-    throw new Error("Local sidecar returned an empty response.");
+    throw new DianaVoiceProviderError("provider_response_empty");
   }
 
   return {
@@ -147,6 +197,19 @@ export async function createDianaVoiceCandidate({
       allowedDianaTools: [...STUDENT_RUNTIME_READ_TOOLS],
     },
   };
+}
+
+function hasOpenJarvisTextShape(payload: unknown): boolean {
+  if (!payload || typeof payload !== "object") return false;
+  const choices = (payload as { choices?: unknown }).choices;
+  if (!Array.isArray(choices) || !choices[0] || typeof choices[0] !== "object") {
+    return false;
+  }
+  const message = (choices[0] as { message?: unknown }).message;
+  return Boolean(
+    message && typeof message === "object" &&
+      typeof (message as { content?: unknown }).content === "string",
+  );
 }
 
 export function normalizeDianaVoiceCandidateResponse(raw: string): string {

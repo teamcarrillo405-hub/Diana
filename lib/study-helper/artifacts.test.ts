@@ -88,6 +88,20 @@ describe("study artifacts", () => {
     expect(artifact.reviewLoop.nextSupportUse).toContain("recall ratings");
   });
 
+  it("honors the requested practice quiz length", () => {
+    const artifact = buildFallbackStudyArtifact({
+      type: "practice_test",
+      sourceTitle: "Biology notes",
+      sourceType: "note",
+      mode: "retrieval_quiz",
+      sourceText,
+      questionCount: 15,
+    });
+
+    expect(artifact.quiz).toHaveLength(15);
+    expect(artifact.practiceSettings.questionCount).toBe(15);
+  });
+
   it("prefers concrete assignment and rubric anchors when present", () => {
     const artifact = buildFallbackStudyArtifact({
       type: "flashcard_set",

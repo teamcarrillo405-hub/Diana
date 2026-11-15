@@ -25,6 +25,10 @@ vi.mock("@/lib/worker-tier/worker-metrics", async () => {
         averageClaimMs: 1200,
         averageCompletionMs: 3400,
       },
+      age: {
+        oldestQueuedMs: 61_000,
+        oldestRunningMs: 12_000,
+      },
       tenants: [
         { tenantId: "personal:test", total: 2, queued: 1, running: 0, errors: 1 },
       ],
@@ -66,6 +70,7 @@ describe("worker prometheus metrics route", () => {
     expect(response.headers.get("content-type")).toContain("text/plain");
     expect(text).toContain('diana_worker_jobs_total{queue="student-ai-candidate",status="queued"} 1');
     expect(text).toContain('diana_worker_claim_latency_ms{queue="student-ai-candidate"} 1200');
+    expect(text).toContain('diana_worker_oldest_queued_age_ms{queue="student-ai-candidate"} 61000');
     expect(text).not.toContain("tenant_id=");
     expect(getWorkerQueueMetrics).toHaveBeenCalledWith({
       queueName: "student-ai-candidate",

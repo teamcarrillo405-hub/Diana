@@ -21,6 +21,12 @@ spec:
       bearerTokenSecret:
         name: diana-worker-metrics-token
         key: token
+    - interval: 30s
+      path: /api/operations/metrics/prometheus
+      scheme: https
+      bearerTokenSecret:
+        name: diana-worker-metrics-token
+        key: token
   namespaceSelector:
     matchNames:
       - production
@@ -31,9 +37,65 @@ spec:
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
-  name: diana-worker-alerts
+  name: diana-operational-alerts
 spec:
   groups:
+    - name: diana-availability
+      rules:
+        - alert: DianaReadinessFailure
+          expr: diana_operational_readiness == 0
+          for: 2m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana readiness checks are not passing
+            runbook_path: docs/operations/operational-alerts-runbook.md#readiness-failure
+        - alert: DianaOperationalMetricsIncomplete
+          expr: diana_operational_metrics_source_available == 0
+          for: 5m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana operational metrics are incomplete
+            runbook_path: docs/operations/operational-alerts-runbook.md#operational-metrics-incomplete
+        - alert: DianaCronSuccessStale
+          expr: (diana_cron_has_success == 0) or on (job_name, route_name) (diana_cron_last_success_age_seconds > diana_cron_stale_after_seconds)
+          for: 5m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana cron success is missing or stale
+            runbook_path: docs/operations/operational-alerts-runbook.md#cron-success-stale
+        - alert: DianaCronRunStuck
+          expr: (diana_cron_running_count > 0) and on (job_name, route_name) (diana_cron_oldest_running_age_seconds > diana_cron_stuck_after_seconds)
+          for: 5m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana cron run appears stuck
+            runbook_path: docs/operations/operational-alerts-runbook.md#cron-run-stuck
+        - alert: DianaCronRetrySignaled
+          expr: diana_cron_retry_signaled_24h > 0
+          for: 5m
+          labels:
+            severity: warning
+            owner_status: unassigned
+          annotations:
+            summary: Diana cron retry signal is present
+            runbook_path: docs/operations/operational-alerts-runbook.md#retry-signal
+        - alert: DianaCronDeadLetterSignaled
+          expr: diana_cron_dead_letter_signaled_24h > 0
+          for: 2m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana cron dead-letter signal is present
+            runbook_path: docs/operations/operational-alerts-runbook.md#dead-letter-signal
     - name: diana-worker
       rules:
         - alert: DianaWorkerQueueBacklog
@@ -41,30 +103,81 @@ spec:
           for: 10m
           labels:
             severity: warning
+            owner_status: unassigned
           annotations:
             summary: Diana worker queue backlog is growing
-            description: More than 50 student-ai-candidate jobs have been queued for 10 minutes.
+            runbook_path: docs/operations/operational-alerts-runbook.md#worker-queue-backlog
+        - alert: DianaWorkerQueueAgeHigh
+          expr: diana_worker_oldest_queued_age_ms{queue="student-ai-candidate"} > 300000
+          for: 5m
+          labels:
+            severity: warning
+            owner_status: unassigned
+          annotations:
+            summary: Diana worker queued work is too old
+            runbook_path: docs/operations/operational-alerts-runbook.md#worker-queue-age
+        - alert: DianaWorkerRunningAgeHigh
+          expr: diana_worker_oldest_running_age_ms{queue="student-ai-candidate"} > 600000
+          for: 5m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana worker running work appears stuck
+            runbook_path: docs/operations/operational-alerts-runbook.md#worker-running-age
         - alert: DianaWorkerRunningLeaseBacklog
-          expr: sum(diana_worker_jobs_total{queue="student-ai-candidate",status="running"}) > 25
+          expr: sum(diana_worker_jobs_total{queue="student-ai-candidate",status="running"}) > 20
           for: 10m
           labels:
             severity: warning
+            owner_status: unassigned
           annotations:
-            summary: Diana worker running lease count is elevated
-            description: Running worker leases are elevated long enough to indicate slow completions or stuck workers.
+            summary: Diana worker running lease backlog is elevated
+            runbook_path: docs/operations/operational-alerts-runbook.md#worker-running-lease-backlog
         - alert: DianaWorkerHighRetryCount
           expr: sum(diana_worker_retries_total{queue="student-ai-candidate"}) > 20
-          for: 15m
-          labels:
-            severity: warning
-          annotations:
-            summary: Diana worker retry count is elevated
-            description: Worker retry attempts crossed the alert threshold in the selected metrics window.
-        - alert: DianaWorkerTenantErrors
-          expr: sum(diana_worker_tenants_with_errors{queue="student-ai-candidate"}) > 0
           for: 10m
           labels:
             severity: warning
+            owner_status: unassigned
           annotations:
-            summary: Diana worker tenant errors detected
-            description: One or more tenants have worker errors in the selected metrics window.
+            summary: Diana worker retry count is elevated
+            runbook_path: docs/operations/operational-alerts-runbook.md#worker-retries
+        - alert: DianaWorkerErrorsPresent
+          expr: sum(diana_worker_jobs_total{queue="student-ai-candidate",status="error"}) > 0
+          for: 5m
+          labels:
+            severity: warning
+            owner_status: unassigned
+          annotations:
+            summary: Diana worker errors are present
+            runbook_path: docs/operations/operational-alerts-runbook.md#worker-errors
+        - alert: DianaWorkerTenantErrors
+          expr: diana_worker_tenants_with_errors{queue="student-ai-candidate"} > 0
+          for: 5m
+          labels:
+            severity: warning
+            owner_status: unassigned
+          annotations:
+            summary: Diana worker errors affect one or more tenants
+            runbook_path: docs/operations/operational-alerts-runbook.md#worker-tenant-errors
+    - name: diana-submissions
+      rules:
+        - alert: DianaAmbiguousSubmissionBacklog
+          expr: diana_submission_confirmation_pending_total > 5
+          for: 10m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana ambiguous submission backlog is elevated
+            runbook_path: docs/operations/operational-alerts-runbook.md#ambiguous-submission-backlog
+        - alert: DianaAmbiguousSubmissionAgeHigh
+          expr: diana_submission_oldest_confirmation_pending_age_seconds > 900
+          for: 10m
+          labels:
+            severity: critical
+            owner_status: unassigned
+          annotations:
+            summary: Diana has an old ambiguous submission receipt
+            runbook_path: docs/operations/operational-alerts-runbook.md#ambiguous-submission-backlog

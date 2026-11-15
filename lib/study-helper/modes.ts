@@ -177,7 +177,7 @@ function reasonFor(
   mode: StudyHelperMode,
 ): string {
   if (input.classAiMode === "red") {
-    return "This class has content AI off, so Diana keeps support to reading, organization, and student-authored work.";
+    return "Diana is keeping support to reading, organization, and student-authored work.";
   }
   if (input.focusNextStep || input.supportIntensity === "one_move" || input.supportIntensity === "recovery") {
     return "Diana is keeping one academic move visible before adding more options.";
@@ -222,9 +222,9 @@ function escapeValveFor(mode: StudyHelperMode): string {
 }
 
 function aiPolicyLabel(mode: StudyHelperAiMode): string {
-  if (mode === "red") return "AI policy: no content help";
-  if (mode === "yellow") return "AI policy: scaffolding only";
-  return "AI policy: full study support";
+  if (mode === "red") return "Diana Trust: source-only";
+  if (mode === "yellow") return "Diana Trust: guided support";
+  return "Diana Trust: full study support";
 }
 
 function trustNoteFor(mode: StudyHelperAiMode): string {

@@ -1,13 +1,38 @@
 import type { Metadata, Viewport } from "next";
-import { Barlow_Semi_Condensed, Lexend, Saira_Condensed, Space_Grotesk, Space_Mono, VT323 } from "next/font/google";
+import { headers } from "next/headers";
+import { Barlow_Semi_Condensed, Lexend, Saira_Condensed } from "next/font/google";
 import "@fontsource/atkinson-hyperlegible-next/400.css";
 import "@fontsource/atkinson-hyperlegible-next/700.css";
 import "@fontsource/opendyslexic"; // weight 400 only; Pitfall 7 guard (no all.css)
+import "katex/dist/katex.min.css";
 import "./globals.css";
 import "../tokens.css";
+import "./screendesign.css";
+import "./assignment-workspace.css";
+import "./canonical-public-landing.css";
+import "./public-pages.css";
 import { AccentProvider } from "@/components/accent-provider";
-import { FutureModeProvider } from "@/components/future-mode-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { resolvePublicSiteUrl } from "@/lib/public-site-url";
+
+const publicSiteUrl = resolvePublicSiteUrl();
+const publicSiteStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "Diana",
+      url: publicSiteUrl,
+      logo: `${publicSiteUrl}/screendesign/brand/diana-logo-no-shadow.png`,
+    },
+    {
+      "@type": "WebSite",
+      name: "Diana",
+      url: publicSiteUrl,
+      description: "Homework workspace for students.",
+    },
+  ],
+};
 
 // GAP-01: Lexend is referenced in .dyslexia-font CSS but must be explicitly
 // loaded by next/font/google to actually download. The CSS variable is
@@ -17,27 +42,6 @@ const lexend = Lexend({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-lexend",
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-nexus-display",
-  weight: ["400", "500", "600", "700"],
-});
-
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-nexus-mono",
-  weight: ["400", "700"],
-});
-
-const vt323 = VT323({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-nexus-arcade",
-  weight: "400",
 });
 
 const sairaCondensed = Saira_Condensed({
@@ -56,10 +60,36 @@ const barlowSemiCondensed = Barlow_Semi_Condensed({
 });
 
 export const metadata: Metadata = {
-  title: "Diana",
-  description: "Student-owned school support for next moves, original thinking, and future planning.",
+  metadataBase: new URL(publicSiteUrl),
+  title: {
+    default: "Diana | Homework Workspace for Students",
+    template: "%s | Diana",
+  },
+  description: "Bring assignments, notes, deadlines, and guided homework help into one workspace. Diana shows the next move while your work stays yours.",
   applicationName: "Diana",
   manifest: "/manifest.webmanifest",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Diana",
+    title: "Diana | Homework Workspace for Students",
+    description: "Bring assignments, notes, deadlines, and guided homework help into one workspace.",
+    images: [{
+      url: "/assets/dashboard/diana-today-home-screen.png",
+      width: 1900,
+      height: 920,
+      alt: "Diana Today homework workspace",
+    }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Diana | Homework Workspace for Students",
+    description: "Bring assignments, notes, deadlines, and guided homework help into one workspace.",
+    images: ["/assets/dashboard/diana-today-home-screen.png"],
+  },
   appleWebApp: {
     capable: true,
     title: "Diana",
@@ -76,30 +106,38 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="en"
-      className={`${lexend.variable} ${spaceGrotesk.variable} ${spaceMono.variable} ${vt323.variable} ${sairaCondensed.variable} ${barlowSemiCondensed.variable}`}
+      className={`${lexend.variable} ${sairaCondensed.variable} ${barlowSemiCondensed.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script
+          suppressHydrationWarning
+          nonce={nonce}
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem('diana_theme');var c=document.documentElement.classList;if(t==='dark'){c.add('dark');}else if(t==='light'){c.add('light');}var m=localStorage.getItem('diana_experience_mode');document.documentElement.dataset.experienceMode=m==='future'?'future':'calm';}catch(e){}})();`,
+            __html: `(function(){try{var t=localStorage.getItem('diana_theme');var c=document.documentElement.classList;if(t==='dark'){c.add('dark');}else if(t==='light'){c.add('light');}}catch(e){}})();`,
           }}
         />
+        <script
+          suppressHydrationWarning
+          nonce={nonce}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(publicSiteStructuredData) }}
+        />
       </head>
-      <body className="nexus-app">
+      <body className="diana-app" suppressHydrationWarning>
         <a href="#main-content" className="skip-link">
           Skip to main
         </a>
         <ThemeProvider>
-          <FutureModeProvider />
           <AccentProvider />
           {children}
         </ThemeProvider>

@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import {
+  hasOwnerStoragePrefix,
+  ownerStorageKey,
+  validateFileUpload,
+} from "@/lib/security/upload-validation";
 
 const CreateInput = z.object({
   title:        z.string().min(1).max(200).default("Untitled note"),
@@ -12,8 +17,9 @@ const CreateInput = z.object({
 });
 
 const SynthesisInput = z.object({
-  query: z.string().min(3).max(500),
+  query: z.string().min(3).max(4_000),
   classId: z.string().uuid().nullable().optional(),
+  generalOnly: z.boolean().optional(),
 });
 
 const SaveInput = z.object({
@@ -74,6 +80,7 @@ export async function synthesizeNotes(
       ownerId: user.id,
       query: parsed.data.query,
       classId: parsed.data.classId ?? null,
+      generalOnly: parsed.data.generalOnly === true,
     },
   });
 
@@ -107,6 +114,9 @@ export async function saveNote(
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
+  if (parsed.data.audioStorageKey && !hasOwnerStoragePrefix(user.id, parsed.data.audioStorageKey)) {
+    return { ok: false, error: "Choose a recording from this account." };
+  }
 
   const { error } = await supabase
     .from("notes")
@@ -134,15 +144,35 @@ export async function uploadNoteAudio(
 
   const file = formData.get("audio") as File | null;
   if (!file) return { ok: false, error: "No audio provided." };
-
-  const ext = file.name.split(".").pop() ?? "webm";
-  const storageKey = `${user.id}/${Date.now()}.${ext}`;
+  const sourceValue = String(formData.get("source") ?? "audio_upload");
+  const source = z.enum(["voice", "audio_upload"]).safeParse(sourceValue);
+  if (!source.success) return { ok: false, error: "Invalid audio source." };
+  const noteId = typeof formData.get("noteId") === "string" ? String(formData.get("noteId")) : "";
+  if (!z.string().uuid().safeParse(noteId).success) return { ok: false, error: "Note not found." };
+  const { data: note } = await supabase.from("notes").select("id").eq("id", noteId).eq("owner_id", user.id).maybeSingle();
+  if (!note) return { ok: false, error: "Note not found." };
+  const validation = await validateFileUpload("noteAudio", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
+  const storageKey = ownerStorageKey(user.id, "notes", noteId, "audio", `${crypto.randomUUID()}.${validation.value.extension}`);
 
   const { error } = await supabase.storage
     .from("note-audio")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
+  const { error: noteError } = await supabase
+    .from("notes")
+    .update({
+      audio_storage_key: storageKey,
+      source: source.data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", noteId)
+    .eq("owner_id", user.id);
+  if (noteError) {
+    await supabase.storage.from("note-audio").remove([storageKey]);
+    return { ok: false, error: "Diana could not attach that audio to your note." };
+  }
   return { ok: true, storageKey };
 }
 
@@ -192,6 +222,9 @@ export async function triggerAudioTranscription(
   if (noteErr || !note || note.owner_id !== user.id) {
     return { ok: false, error: "Note not found." };
   }
+  if (!hasOwnerStoragePrefix(user.id, parsed.data.storageKey)) {
+    return { ok: false, error: "Choose a recording from this account." };
+  }
 
   // Step 1 — Whisper STT (AWAITED). Pitfall 3 confirmed: invoke() works for
   // JSON-returning Edge Functions; only tts-generate needs direct fetch.
@@ -199,11 +232,17 @@ export async function triggerAudioTranscription(
     body: {
       audioStorageKey: parsed.data.storageKey,
       bucket:          "note-audio",
+      noteId:          parsed.data.noteId,
     },
   });
 
   if (error || !data?.ok || typeof data.text !== "string") {
-    return { ok: false, error: "We couldn't process your recording. Try again, or paste text." };
+    const message = typeof data?.message === "string"
+      ? data.message
+      : typeof data?.error === "string"
+        ? data.error
+        : "We couldn't process your recording. Try again, or paste text.";
+    return { ok: false, error: message };
   }
 
   const text = data.text.trim();
@@ -265,14 +304,18 @@ export async function uploadNoteDoc(
   const file = formData.get("doc") as File | null;
   if (!file) return { ok: false, error: "No file provided." };
 
-  // Trust the file extension (DocUploadTab has already validated + converted HEIC).
-  // Default to "jpg" if missing — Storage requires a key with extension.
-  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-  const storageKey = `${user.id}/${Date.now()}.${ext}`;
+  // The client converts HEIC first; the server still verifies the resulting file.
+  const noteId = typeof formData.get("noteId") === "string" ? String(formData.get("noteId")) : "";
+  if (!z.string().uuid().safeParse(noteId).success) return { ok: false, error: "Note not found." };
+  const { data: note } = await supabase.from("notes").select("id").eq("id", noteId).eq("owner_id", user.id).maybeSingle();
+  if (!note) return { ok: false, error: "Note not found." };
+  const validation = await validateFileUpload("noteDocument", file);
+  if (!validation.ok) return { ok: false, error: validation.error };
+  const storageKey = ownerStorageKey(user.id, "notes", noteId, "documents", `${crypto.randomUUID()}.${validation.value.extension}`);
 
   const { error } = await supabase.storage
     .from("note-docs")
-    .upload(storageKey, file, { contentType: file.type });
+    .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
   return { ok: true, storageKey };
@@ -323,6 +366,10 @@ export async function triggerDocExtraction(
     .single();
   if (noteErr || !note || note.owner_id !== user.id) {
     return { ok: false, error: "Note not found." };
+  }
+
+  if (!hasOwnerStoragePrefix(user.id, parsed.data.storageKey)) {
+    return { ok: false, error: "Choose a file from this account." };
   }
 
   // AWAITED: extract-note-doc runs Claude Vision/PDF synchronously.

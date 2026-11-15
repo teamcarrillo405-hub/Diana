@@ -1,0 +1,263 @@
+{
+  "schemaVersion": 1,
+  "assetCount": 16,
+  "screenDesignAssetCount": 15,
+  "avatarAssetCount": 0,
+  "derivedAssetCount": 1,
+  "assets": [
+    {
+      "id": "diana-logo",
+      "localPath": "/screendesign/brand/diana-logo.png",
+      "sha256": "92917364406f6544879339a54799ab2344d724396498acda00f5e29dd26b8f0a",
+      "mimeType": "image/png",
+      "width": 1440,
+      "height": 440,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Diana wordmark",
+      "consumers": [
+        "ai-writing-coach",
+        "assignment-detail",
+        "dashboard-personalized",
+        "external-scout-view",
+        "library-empty-state",
+        "milestone-celebration",
+        "mission-board",
+        "onboarding-educational",
+        "onboarding-quiz-challenge",
+        "onboarding-quiz-schedule",
+        "onboarding-welcome",
+        "practice-test-session",
+        "quick-add",
+        "rubric-scout",
+        "settings-profile-center",
+        "smart-loading",
+        "smart-search",
+        "study-artifacts-hub",
+        "study-calendar",
+        "subject-library",
+        "wellness-recovery-log"
+      ]
+    },
+    {
+      "id": "diana-logo-tight",
+      "derivedFrom": "diana-logo",
+      "transformation": "sharp.trim().png() transparent-bounds crop",
+      "localPath": "/screendesign/brand/diana-logo-tight.png",
+      "sha256": "ece835a67141b4c4b0af1edd0730cc0336c2ea28a7b1e596e0fae38b1cc6cada",
+      "mimeType": "image/png",
+      "width": 950,
+      "height": 301,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Compact Diana wordmark",
+      "consumers": [
+        "assignment-detail",
+        "dashboard-personalized",
+        "mission-board"
+      ]
+    },
+    {
+      "id": "diana-mascot",
+      "localPath": "/screendesign/brand/diana-mascot.png",
+      "sha256": "68c122dc0343cb2c445a596b0021cd8a4fc6bd2a0ab66305c7c4e2cd295392b5",
+      "mimeType": "image/png",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Diana assistant mascot",
+      "consumers": [
+        "ai-writing-coach",
+        "library-empty-state",
+        "quick-add",
+        "review-submit-checkpoint",
+        "scout-share-view"
+      ]
+    },
+    {
+      "id": "dashboard-stadium-background",
+      "localPath": "/screendesign/dashboard/stadium-background.jpg",
+      "sha256": "50f98ec6fe94c7ee8d60f67c8fef12530fc820e9487d35a9a2acf880be287b08",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Dashboard stadium backdrop",
+      "consumers": [
+        "dashboard-personalized"
+      ]
+    },
+    {
+      "id": "dashboard-athlete-cutout",
+      "localPath": "/screendesign/dashboard/athlete-cutout.png",
+      "sha256": "843d6401115c86a93225f93603cd4ca44d18bfa3107ae60ad8202c1ee1e96d22",
+      "mimeType": "image/png",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Dashboard student-athlete foreground",
+      "consumers": [
+        "dashboard-personalized"
+      ]
+    },
+    {
+      "id": "onboarding-welcome-background",
+      "localPath": "/screendesign/onboarding/welcome-background.png",
+      "sha256": "b73180fbc5027d9533d542388638ebb8f0111daae95e556135e4ef2a5caa5c08",
+      "mimeType": "image/png",
+      "width": 1586,
+      "height": 992,
+      "hasAlpha": false,
+      "alphaIntent": "preserve",
+      "semanticRole": "Onboarding welcome atmosphere",
+      "consumers": [
+        "onboarding-welcome"
+      ]
+    },
+    {
+      "id": "onboarding-gpa-progress-chart",
+      "localPath": "/screendesign/onboarding/gpa-progress-chart.png",
+      "sha256": "6fb4e01ce7d588399e3670cdae11e0da2fc93247a0f41feb4d4c9748817a6d04",
+      "mimeType": "image/png",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Onboarding GPA progress illustration",
+      "consumers": [
+        "onboarding-educational"
+      ]
+    },
+    {
+      "id": "academic-championship-ring",
+      "localPath": "/screendesign/instructional/academic-championship-ring.png",
+      "sha256": "1d433f1c50954c067f5b21274f197a892f350a75d699b3005383221d03f7c13b",
+      "mimeType": "image/png",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": true,
+      "alphaIntent": "preserve",
+      "semanticRole": "Academic achievement ring",
+      "consumers": [
+        "external-scout-view",
+        "milestone-celebration"
+      ]
+    },
+    {
+      "id": "supply-demand-graph",
+      "localPath": "/screendesign/instructional/supply-demand-graph.jpg",
+      "sha256": "bf13bb5158ecf7d47584495f48a61ea29f1205637415d354f99d40be61e1365e",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Supply and demand instructional graph",
+      "consumers": [
+        "notes-surface"
+      ]
+    },
+    {
+      "id": "practice-test-visual",
+      "localPath": "/screendesign/instructional/practice-test.jpg",
+      "sha256": "55ba0ab90d01eb98950cb616b146a996969481884c9c6f8fdb817f4fe1f34e93",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Practice test artifact thumbnail",
+      "consumers": [
+        "study-artifacts-hub"
+      ]
+    },
+    {
+      "id": "study-guide-visual",
+      "localPath": "/screendesign/instructional/study-guide.jpg",
+      "sha256": "08f09d64b97168ee8eb6ac057589dfdca76f8acb58065ec2fc22aab5111bd6f5",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Study guide artifact thumbnail",
+      "consumers": [
+        "study-artifacts-hub"
+      ]
+    },
+    {
+      "id": "flashcard-batch-visual",
+      "localPath": "/screendesign/instructional/flashcard-batch.jpg",
+      "sha256": "da5873ba4f1a4efac1cdb54823071c92716961aba3c73a810f925406960185f2",
+      "mimeType": "image/jpeg",
+      "width": 848,
+      "height": 1264,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Flashcard batch artifact thumbnail",
+      "consumers": [
+        "study-artifacts-hub"
+      ]
+    },
+    {
+      "id": "search-biology-graphic",
+      "localPath": "/screendesign/instructional/search-biology.jpg",
+      "sha256": "dc3e0471a949297646947a3491bcc60fac36cf1d32b2151d1006a10ca6d10ce9",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Biology search result visual",
+      "consumers": [
+        "smart-search"
+      ]
+    },
+    {
+      "id": "search-economics-graphic",
+      "localPath": "/screendesign/instructional/search-economics.jpg",
+      "sha256": "57b6f402b7a982f908936b55cb0988fee64d1e314e2ff197c1a0abbedc91a520",
+      "mimeType": "image/jpeg",
+      "width": 1264,
+      "height": 848,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Economics search result visual",
+      "consumers": [
+        "smart-search"
+      ]
+    },
+    {
+      "id": "student-profile-avatar",
+      "localPath": "/screendesign/social/student-profile-avatar.jpg",
+      "sha256": "63771a6fb86c4adbbb55d463ca27ef7822f5115b991b0f567ead315a931ccf70",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Student profile avatar",
+      "consumers": [
+        "external-scout-view",
+        "settings-profile-center"
+      ]
+    },
+    {
+      "id": "search-student-avatar",
+      "localPath": "/screendesign/social/search-student-avatar.jpg",
+      "sha256": "37ca6afad84ee7c9543130e7f0bdf7f8062abc5e5dc62f5ded1f6f586af2f3f6",
+      "mimeType": "image/jpeg",
+      "width": 1024,
+      "height": 1024,
+      "hasAlpha": false,
+      "alphaIntent": "opaque",
+      "semanticRole": "Student search result avatar",
+      "consumers": [
+        "smart-search"
+      ]
+    }
+  ]
+}

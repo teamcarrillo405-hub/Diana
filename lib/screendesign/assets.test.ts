@@ -1,0 +1,137 @@
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import path from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import {
+  SCREEN_DESIGN_ASSET_IDS,
+  getScreenDesignAsset,
+} from "@/lib/screendesign/assets";
+
+interface ManifestEntry {
+  id: string;
+  sourceUrl?: string;
+  derivedFrom?: string;
+  transformation?: string;
+  localPath: string;
+  sha256: string;
+  mimeType: string;
+  width: number;
+  height: number;
+  hasAlpha: boolean;
+  alphaIntent: "opaque" | "preserve";
+  semanticRole: string;
+  consumers: string[];
+}
+
+interface AssetManifest {
+  schemaVersion: number;
+  assetCount: number;
+  screenDesignAssetCount: number;
+  avatarAssetCount: number;
+  derivedAssetCount: number;
+  assets: ManifestEntry[];
+}
+
+interface ImageMetadata {
+  width?: number;
+  height?: number;
+  hasAlpha?: boolean;
+}
+
+type SharpFactory = (
+  input: Buffer,
+  options?: { failOn?: "error" },
+) => { metadata: () => Promise<ImageMetadata> };
+
+const sharp = createRequire(import.meta.url)("sharp") as SharpFactory;
+
+const PUBLIC_ROOT = path.resolve(process.cwd(), "public");
+const MANIFEST_PATH = path.resolve(
+  process.cwd(),
+  "docs",
+  "design",
+  "screendesign-asset-provenance.json",
+);
+
+const loadManifest = async (): Promise<AssetManifest> =>
+  JSON.parse(await readFile(MANIFEST_PATH, "utf8")) as AssetManifest;
+
+const localFileFor = (localPath: string): string =>
+  path.join(PUBLIC_ROOT, ...localPath.slice(1).split("/"));
+
+describe("ScreenDesign asset integrity", () => {
+  it("resolves every typed asset id to frozen local-only rendering metadata", () => {
+    expect(SCREEN_DESIGN_ASSET_IDS).toHaveLength(16);
+    expect(new Set(SCREEN_DESIGN_ASSET_IDS).size).toBe(16);
+
+    for (const id of SCREEN_DESIGN_ASSET_IDS) {
+      const asset = getScreenDesignAsset(id);
+      expect(asset.id).toBe(id);
+      expect(asset.localPath).toMatch(/^\/screendesign\//u);
+      expect(asset.localPath).not.toMatch(/^https?:/u);
+      expect(asset).not.toHaveProperty("sourceUrl");
+      expect(asset).not.toHaveProperty("sha256");
+      expect(Object.isFrozen(asset)).toBe(true);
+      expect(Object.isFrozen(asset.consumers)).toBe(true);
+    }
+  });
+
+  it("keeps dashboard layers and brand art distinct", () => {
+    const requiredIds = [
+      "dashboard-stadium-background",
+      "dashboard-athlete-cutout",
+      "onboarding-welcome-background",
+      "diana-logo",
+      "diana-logo-tight",
+      "diana-mascot",
+    ] as const;
+
+    const required = requiredIds.map((id) => getScreenDesignAsset(id));
+    expect(new Set(required.map((asset) => asset.id)).size).toBe(requiredIds.length);
+    expect(new Set(required.map((asset) => asset.localPath)).size).toBe(
+      requiredIds.length,
+    );
+    expect(getScreenDesignAsset("dashboard-stadium-background").localPath).toBe(
+      "/screendesign/dashboard/stadium-background.jpg",
+    );
+    expect(getScreenDesignAsset("dashboard-athlete-cutout").localPath).toBe(
+      "/screendesign/dashboard/athlete-cutout.png",
+    );
+  });
+
+  it("rejects an unknown runtime id", () => {
+    expect(() =>
+      getScreenDesignAsset("not-a-canonical-asset" as never),
+    ).toThrow(/Unknown ScreenDesign asset id/u);
+  });
+
+  it("matches every checked-in file to the manifest checksum and dimensions", async () => {
+    const manifest = await loadManifest();
+    expect(manifest).toMatchObject({
+      schemaVersion: 1,
+      assetCount: 16,
+      screenDesignAssetCount: 15,
+      avatarAssetCount: 0,
+      derivedAssetCount: 1,
+    });
+    expect(manifest.assets).toHaveLength(16);
+
+    for (const entry of manifest.assets) {
+      const buffer = await readFile(localFileFor(entry.localPath));
+      const checksum = createHash("sha256").update(buffer).digest("hex");
+      const metadata = await sharp(buffer, { failOn: "error" }).metadata();
+
+      expect(checksum, entry.id).toBe(entry.sha256);
+      expect(metadata.width, entry.id).toBe(entry.width);
+      expect(metadata.height, entry.id).toBe(entry.height);
+      expect(metadata.hasAlpha === true, entry.id).toBe(entry.hasAlpha);
+      expect(entry.semanticRole.length, entry.id).toBeGreaterThan(0);
+      expect(entry.consumers.length, entry.id).toBeGreaterThan(0);
+      expect(entry.alphaIntent, entry.id).toMatch(/^(opaque|preserve)$/u);
+    }
+  });
+
+});

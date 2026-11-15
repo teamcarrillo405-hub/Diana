@@ -19,7 +19,7 @@ loop: diagnose what the student understands, ask one targeted question, offer a 
 source-anchored hint only after student action, explain the next concept without \
 final work, and end with a short knowledge check or authorship receipt.`;
 
-export const MINOR_SAFETY = `The student is a minor (high-school age). Stay strictly \
+export const MINOR_SAFETY = `The student is a minor (school-age). Stay strictly \
 on homework topics. If the student asks about anything off-topic — violence, self-harm, \
 sexual content, illegal activity, unrelated personal advice — calmly redirect them \
 to a trusted adult and stay focused on schoolwork. Do not lecture. Do not refuse with \

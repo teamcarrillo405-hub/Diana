@@ -1,110 +1,197 @@
-// Real Python in the browser via Pyodide (MIT-licensed CPython on wasm).
-//
-// Free-ecosystem adoption: the lite runner covers print/variables/loops, but
-// real coursework needs functions, lists, dicts, imports. Pyodide loads from
-// the jsDelivr CDN only when a student actually runs Python — nothing is
-// bundled. On any load or runtime failure we fall back to the deterministic
-// lite runner so the feature never breaks offline or on a blocked CDN.
+// Python runs in a fresh browser worker for each run. Pyodide and the Python
+// standard library are served from Diana's own static assets.
 
 import { runPythonLite, type CodeRunResult } from "./sandbox";
 
-const PYODIDE_VERSION = "0.26.4";
-const PYODIDE_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
-const RUN_TIMEOUT_MS = 8_000;
-const MAX_OUTPUT_LINES = 200;
+export const RUN_TIMEOUT_MS = 8_000;
+export const WORKER_START_TIMEOUT_MS = 30_000;
+export const MAX_CODE_BYTES = 250_000;
+export const MAX_OUTPUT_LINES = 200;
 
-type PyodideLike = {
-  runPythonAsync: (code: string) => Promise<unknown>;
-  setStdout: (options: { batched: (line: string) => void }) => void;
-  setStderr: (options: { batched: (line: string) => void }) => void;
+export type PythonRunResult = CodeRunResult & {
+  durationMs: number;
+  outputTruncated: boolean;
+  runtime: "pyodide" | "python-lite" | "unavailable";
 };
 
-let pyodidePromise: Promise<PyodideLike> | null = null;
+type WorkerResultMessage = {
+  type: "result";
+  runId: string;
+  ok: boolean;
+  output: string[];
+  error: string | null;
+  outputTruncated?: boolean;
+};
 
-/** Whether the rich runtime can even be attempted in this environment. */
+const activeWorkers = new Set<Worker>();
+let runQueue: Promise<unknown> = Promise.resolve();
+
 export function pyodideAvailable(): boolean {
-  return typeof window !== "undefined" && typeof WebAssembly !== "undefined";
+  return (
+    typeof window !== "undefined" &&
+    typeof Worker !== "undefined" &&
+    typeof WebAssembly !== "undefined"
+  );
 }
 
-async function loadPyodideOnce(): Promise<PyodideLike> {
-  if (!pyodidePromise) {
-    pyodidePromise = (async () => {
-      await injectScript(`${PYODIDE_BASE}pyodide.js`);
-      const loadPyodide = (window as unknown as {
-        loadPyodide?: (opts: { indexURL: string }) => Promise<PyodideLike>;
-      }).loadPyodide;
-      if (!loadPyodide) throw new Error("Pyodide loader missing after script load");
-      return loadPyodide({ indexURL: PYODIDE_BASE });
-    })().catch((err) => {
-      pyodidePromise = null; // allow a retry on the next run
-      throw err;
-    });
+export function validateCodeForRun(code: string): string | null {
+  if (code.includes("\0")) {
+    return "Remove the null character before running this code.";
   }
-  return pyodidePromise;
+  if (new TextEncoder().encode(code).byteLength > MAX_CODE_BYTES) {
+    return "Keep this run under 250 KB. Split a larger program into smaller files or tests.";
+  }
+  return null;
 }
 
-function injectScript(src: string): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${src}"]`);
-    if (existing) {
-      resolve();
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = src;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error(`Could not load ${src}`));
-    document.head.appendChild(script);
+export async function runPython(code: string): Promise<PythonRunResult> {
+  const startedAt = now();
+  const validationError = validateCodeForRun(code);
+  if (validationError) {
+    return {
+      ok: false,
+      output: [],
+      error: validationError,
+      durationMs: elapsed(startedAt),
+      outputTruncated: false,
+      runtime: "unavailable",
+    };
+  }
+  if (!pyodideAvailable()) return runWithLiteFallback(code, startedAt);
+
+  const queuedRun = runQueue.then(
+    () => runPythonInWorker(code),
+    () => runPythonInWorker(code),
+  );
+  runQueue = queuedRun.catch(() => undefined);
+  return queuedRun;
+}
+
+async function runPythonInWorker(code: string): Promise<PythonRunResult> {
+  const startedAt = now();
+  let worker: Worker;
+  try {
+    worker = await createSandboxWorker();
+  } catch {
+    return runWithLiteFallback(code, startedAt);
+  }
+
+  const runId = createRunId();
+  return new Promise<PythonRunResult>((resolve) => {
+    let settled = false;
+    const finish = (result: PythonRunResult) => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeout);
+      worker.removeEventListener("message", onMessage);
+      worker.removeEventListener("error", onError);
+      activeWorkers.delete(worker);
+      worker.terminate();
+      resolve(result);
+    };
+    const onMessage = (event: MessageEvent<WorkerResultMessage>) => {
+      if (event.data?.type !== "result" || event.data.runId !== runId) return;
+      finish({
+        ok: event.data.ok,
+        output: event.data.output.slice(0, MAX_OUTPUT_LINES + 1),
+        error: event.data.error,
+        durationMs: elapsed(startedAt),
+        outputTruncated: event.data.outputTruncated === true,
+        runtime: "pyodide",
+      });
+    };
+    const onError = () => {
+      finish({
+        ok: false,
+        output: [],
+        error: "The Python sandbox stopped. Start a new run when you are ready.",
+        durationMs: elapsed(startedAt),
+        outputTruncated: false,
+        runtime: "pyodide",
+      });
+    };
+    const timeout = window.setTimeout(() => {
+      finish({
+        ok: false,
+        output: [],
+        error: "That run took too long. Check for a loop that never ends, then try again.",
+        durationMs: elapsed(startedAt),
+        outputTruncated: false,
+        runtime: "pyodide",
+      });
+    }, RUN_TIMEOUT_MS);
+
+    worker.addEventListener("message", onMessage);
+    worker.addEventListener("error", onError);
+    worker.postMessage({ type: "run", runId, code });
   });
 }
 
-/**
- * Run student Python with real CPython semantics; fall back to the lite
- * runner when wasm/CDN is unavailable. Output is line-capped and the run is
- * time-capped so a stray `while True:` cannot hang the helper.
- */
-export async function runPython(code: string): Promise<CodeRunResult> {
-  if (!pyodideAvailable()) return runPythonLite(code);
-
-  try {
-    const pyodide = await withTimeout(loadPyodideOnce(), RUN_TIMEOUT_MS);
-    const output: string[] = [];
-    const capture = (line: string) => {
-      if (output.length < MAX_OUTPUT_LINES) output.push(line);
+function createSandboxWorker(): Promise<Worker> {
+  return new Promise<Worker>((resolve, reject) => {
+    const worker = new Worker("/pyodide-sandbox-worker.js", {
+      name: "diana-python-sandbox",
+      type: "module",
+    });
+    activeWorkers.add(worker);
+    const timeout = window.setTimeout(() => {
+      cleanup();
+      activeWorkers.delete(worker);
+      worker.terminate();
+      reject(new Error("sandbox start timeout"));
+    }, WORKER_START_TIMEOUT_MS);
+    const cleanup = () => {
+      window.clearTimeout(timeout);
+      worker.removeEventListener("message", onMessage);
+      worker.removeEventListener("error", onError);
     };
-    pyodide.setStdout({ batched: capture });
-    pyodide.setStderr({ batched: capture });
-
-    await withTimeout(pyodide.runPythonAsync(code), RUN_TIMEOUT_MS);
-    if (output.length >= MAX_OUTPUT_LINES) output.push("… output capped.");
-    return { ok: true, output, error: null };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    if (message === "timeout") {
-      return {
-        ok: false,
-        output: [],
-        error: "That run took too long: check for a loop that never ends, then try again.",
-      };
-    }
-    // CDN or wasm unavailable → quiet fallback to the lite runner.
-    if (/could not load|loader missing|networkerror/i.test(message)) {
-      return runPythonLite(code);
-    }
-    // Real Python error: show it — reading tracebacks is part of learning.
-    return { ok: false, output: [], error: trimTraceback(message) };
-  }
+    const onMessage = (event: MessageEvent<{ type?: string }>) => {
+      if (event.data?.type === "ready") {
+        cleanup();
+        resolve(worker);
+      } else if (event.data?.type === "init_error") {
+        cleanup();
+        activeWorkers.delete(worker);
+        worker.terminate();
+        reject(new Error("sandbox could not start"));
+      }
+    };
+    const onError = () => {
+      cleanup();
+      activeWorkers.delete(worker);
+      worker.terminate();
+      reject(new Error("sandbox could not start"));
+    };
+    worker.addEventListener("message", onMessage);
+    worker.addEventListener("error", onError);
+  });
 }
 
-function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) => setTimeout(() => reject(new Error("timeout")), ms)),
-  ]);
+function runWithLiteFallback(code: string, startedAt = now()): PythonRunResult {
+  const result = runPythonLite(code);
+  return {
+    ...result,
+    durationMs: elapsed(startedAt),
+    outputTruncated: false,
+    runtime: "python-lite",
+  };
 }
 
-/** Last lines of a Python traceback — the part a student can act on. */
-function trimTraceback(message: string): string {
-  const lines = message.trim().split("\n");
-  return lines.slice(-3).join("\n");
+function createRunId(): string {
+  return typeof crypto?.randomUUID === "function"
+    ? crypto.randomUUID()
+    : `run-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function now(): number {
+  return typeof performance !== "undefined" ? performance.now() : Date.now();
+}
+
+function elapsed(startedAt: number): number {
+  return Math.max(0, Math.round(now() - startedAt));
+}
+
+export function disposePythonSandbox() {
+  for (const worker of activeWorkers) worker.terminate();
+  activeWorkers.clear();
 }

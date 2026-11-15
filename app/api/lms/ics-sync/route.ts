@@ -40,7 +40,8 @@ export async function POST(req: Request) {
     await supabase
       .from("lms_connections")
       .update({ last_synced_at: new Date().toISOString() })
-      .eq("id", connectionId);
+      .eq("id", connectionId)
+      .eq("owner_id", user.id);
 
     return NextResponse.json(result);
   } catch (e) {

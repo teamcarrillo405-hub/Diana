@@ -1,10 +1,7 @@
 /**
- * Dashboard layout — full-bleed, dark-locked pass-through.
+ * Full-bleed Today layout. Authentication remains in the parent app layout.
  *
- * - Wraps children in `.dark` so the app's token-based Tailwind components
- *   (THINK/PROOF cards: MoodCheckIn, GradeMoveCard, etc.) resolve to their
- *   dark values on the always-dark lobby, instead of leaking light-mode
- *   colors for light-mode users.
+ * The approved frosted dashboard owns its foreground and surface colors.
  * - Scopes a `prefers-reduced-motion` reset to the dashboard so every
  *   animation/transition (mic pulse, card pulses, progress fills, carousel,
  *   CTA hover) collapses to instant for motion-sensitive students — a calm
@@ -15,8 +12,14 @@
  */
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="dark gl-dash-root">
+    <div className="gl-dash-root">
       <style>{`
+        .diana-authenticated-field:has([data-today-dashboard]),
+        .app-command-frame:has([data-today-dashboard]) { padding: 0; max-width: none; background: transparent; }
+        .app-command-frame:has([data-today-dashboard]) .diana-mobile-command,
+        .diana-app:has([data-today-dashboard]) .agent-fab-anchor { display: none !important; }
+        .gl-dash-root { width: 100%; min-width: 0; }
+        body:has([data-today-dashboard]) { background: #141922; }
         @media (prefers-reduced-motion: reduce) {
           .gl-dash-root, .gl-dash-root * {
             animation: none !important;

@@ -66,7 +66,7 @@ jobs:
       IMAGE_PULL_SECRET_NAME: ${{ inputs.image_pull_secret_name }}
       REPLICAS: ${{ inputs.replicas }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Prepare deployment evidence
         run: |
@@ -90,7 +90,7 @@ jobs:
       - name: Setup Node
         id: setup_node
         if: inputs.run_canary == 'true'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "22"
           cache: npm
@@ -102,7 +102,7 @@ jobs:
 
       - name: Setup kubectl
         id: setup_kubectl
-        uses: azure/setup-kubectl@v4
+        uses: azure/setup-kubectl@c0c8b32d33a5244f1e5947304550403b63930415 # v4
 
       - name: Check deployment secrets and inputs
         id: check_inputs
@@ -253,7 +253,7 @@ jobs:
 
       - name: Upload deployment evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: diana-worker-kubernetes-deploy-${{ github.run_id }}-${{ github.run_attempt }}
           path: worker-kubernetes-deploy-evidence

@@ -12,6 +12,7 @@ import type { ShareLink, ShareType } from "@/lib/sharing/types";
 export function SharingSection() {
   const [links, setLinks] = useState<ShareLink[] | null>(null);
   const [origin, setOrigin] = useState<string>("");
+  const [revealedTokens, setRevealedTokens] = useState<Record<string, string>>({});
   const [pending, startTransition] = useTransition();
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -33,6 +34,7 @@ export function SharingSection() {
         setErrorMsg(res.error);
         return;
       }
+      setRevealedTokens((current) => ({ ...current, [res.id]: res.token }));
       await refresh();
     });
   }
@@ -45,6 +47,11 @@ export function SharingSection() {
         setErrorMsg(res.error);
         return;
       }
+      setRevealedTokens((current) => {
+        const next = { ...current };
+        delete next[id];
+        return next;
+      });
       await refresh();
     });
   }
@@ -78,6 +85,7 @@ export function SharingSection() {
         description="Effort and upcoming work only. No grades, no assignment names, no notes."
         origin={origin}
         links={parentLinks}
+        revealedTokens={revealedTokens}
         pending={pending}
         onCreate={() => handleCreate("parent_summary")}
         onRevoke={handleRevoke}
@@ -90,6 +98,7 @@ export function SharingSection() {
         description="Accommodations and preferences only. No diagnoses, no grades."
         origin={origin}
         links={teacherLinks}
+        revealedTokens={revealedTokens}
         pending={pending}
         onCreate={() => handleCreate("teacher_snapshot")}
         onRevoke={handleRevoke}
@@ -111,6 +120,7 @@ function ShareGroup({
   description,
   origin,
   links,
+  revealedTokens,
   pending,
   onCreate,
   onRevoke,
@@ -121,6 +131,7 @@ function ShareGroup({
   description: string;
   origin: string;
   links: ShareLink[];
+  revealedTokens: Record<string, string>;
   pending: boolean;
   onCreate: () => void;
   onRevoke: (id: string) => void;
@@ -147,7 +158,8 @@ function ShareGroup({
       {links.length > 0 && (
         <ul className="space-y-2 pt-2">
           {links.map((l) => {
-            const url = `${origin}/share/${l.token}`;
+            const rawToken = revealedTokens[l.id];
+            const url = rawToken ? `${origin}/share/${rawToken}` : null;
             const worksUntil = new Date(l.expires_at).toLocaleDateString(
               undefined,
               {
@@ -162,19 +174,27 @@ function ShareGroup({
                 className="space-y-1 rounded-lg border border-border bg-card/60 p-2"
               >
                 <div className="flex items-center gap-2">
-                  <input
-                    readOnly
-                    value={url}
-                    className="min-w-0 flex-1 rounded border border-border bg-card px-2 py-1 text-xs"
-                    onFocus={(e) => e.currentTarget.select()}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => onCopy(url)}
-                    className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:bg-border/20"
-                  >
-                    <Copy size={12} /> Copy
-                  </button>
+                  {url ? (
+                    <>
+                      <input
+                        readOnly
+                        value={url}
+                        className="min-w-0 flex-1 rounded border border-border bg-card px-2 py-1 text-xs"
+                        onFocus={(e) => e.currentTarget.select()}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => onCopy(url)}
+                        className="inline-flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:bg-border/20"
+                      >
+                        <Copy size={12} /> Copy
+                      </button>
+                    </>
+                  ) : (
+                    <p className="min-w-0 flex-1 text-xs text-muted">
+                      Active link. Its private URL is shown only when it is created.
+                    </p>
+                  )}
                   <button
                     type="button"
                     onClick={() => onRevoke(l.id)}

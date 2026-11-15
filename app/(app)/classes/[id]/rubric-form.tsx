@@ -3,8 +3,15 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addRubric } from "./actions";
+import { CourseMaterialUpload } from "./course-material-upload";
 
-export function RubricForm({ classId }: { classId: string }) {
+export function RubricForm({
+  classId,
+  document,
+}: {
+  classId: string;
+  document?: { id: string; name: string; href: string | null } | null;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [title, setTitle] = useState("");
@@ -35,21 +42,22 @@ export function RubricForm({ classId }: { classId: string }) {
         placeholder="Rubric title (e.g. Lab report rubric)"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="nexus-input"
+        className="diana-input"
       />
       <textarea
         placeholder="Paste the rubric or grading criteria..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={6}
-        className="nexus-input font-mono text-sm"
+        className="diana-input font-mono text-sm"
       />
       <p>
         Save teacher expectations here so Diana can turn them into checkable moves at submission time.
       </p>
+      <CourseMaterialUpload classId={classId} kind="rubric" document={document} />
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex justify-end">
-        <button type="submit" disabled={pending} className="nexus-button nexus-button-primary disabled:opacity-50">
+        <button type="submit" disabled={pending} className="diana-button diana-button-primary disabled:opacity-50">
           {pending ? "Saving..." : "Save rubric"}
         </button>
       </div>

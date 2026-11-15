@@ -23,7 +23,7 @@ export function LobbyBackgroundPicker() {
 
   return (
     <div className="space-y-2">
-      <p className="nexus-kicker text-sm font-medium">Lobby background</p>
+      <p className="diana-kicker text-sm font-medium">Lobby background</p>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         {LOBBY_BG_OPTIONS.map(({ key, label, thumb }) => (
           <button
@@ -35,7 +35,6 @@ export function LobbyBackgroundPicker() {
               current === key ? "border-accent" : "border-border hover:border-accent/50"
             }`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={thumb} alt="" className="h-16 w-full object-cover" />
             <span className="block px-2 py-1.5 text-xs font-semibold uppercase tracking-wide">{label}</span>
           </button>

@@ -1,6 +1,8 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/math-scaffold/index.ts
 // Phase 16: structured Socratic math scaffold with optional photo extraction.
-// AI mode: red/yellow both block content-generating math help.
+// Diana direct-to-student homework trust rules are enforced by the shared adapter.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
@@ -8,10 +10,11 @@ import {
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
+  type SafetyMediaInput,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const VALID_SUBJECTS = new Set([
   "algebra",
@@ -79,7 +82,6 @@ Rules:
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -101,11 +103,12 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   return btoa(binary);
 }
 
-async function extractProblemFromPhoto(
-  supabase: ReturnType<typeof createClient>,
+async function loadProblemPhoto(
+  // deno-lint-ignore no-explicit-any
+  supabase: { storage: any },
   storageKey: string,
   bucket: string,
-): Promise<{ problemText: string; latex: string | null; tokens: number }> {
+): Promise<SafetyMediaInput> {
   const ext = (storageKey.split(".").pop() ?? "").toLowerCase();
   const mimeType = MIME_BY_EXT[ext];
   if (!mimeType) {
@@ -114,56 +117,52 @@ async function extractProblemFromPhoto(
 
   const { data: blob, error } = await supabase.storage.from(bucket).download(storageKey);
   if (error || !blob) throw new Error("Photo not found in storage.");
-  const base64Data = uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer()));
-
-  const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${Deno.env.get("OPENAI_API_KEY") ?? ""}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      max_tokens: 700,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: PHOTO_PROMPT },
-        {
-          role: "user",
-          content: [
-            {
-              type: "image_url",
-              image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" },
-            },
-            { type: "text", text: "Extract the problem only. Do not solve it." },
-          ],
-        },
-      ],
-    }),
-  });
-
-  if (!openaiRes.ok) {
-    console.error("math photo extraction error:", await openaiRes.text());
-    throw new Error("We couldn't read that photo. Try a clearer crop.");
-  }
-
-  const openaiData = await openaiRes.json() as {
-    choices?: Array<{ message?: { content?: string } }>;
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
-  };
-  const raw = openaiData.choices?.[0]?.message?.content ?? "{}";
-  const parsed = JSON.parse(raw) as { problemText?: unknown; latex?: unknown };
-  const problemText = typeof parsed.problemText === "string" ? parsed.problemText.trim() : "";
-  if (problemText.length < 3) throw new Error("We couldn't read enough math from that photo.");
-  const tokens = Number(openaiData.usage?.prompt_tokens ?? 0) + Number(openaiData.usage?.completion_tokens ?? 0);
   return {
-    problemText,
-    latex: typeof parsed.latex === "string" && parsed.latex.trim().length > 0 ? parsed.latex.trim() : null,
-    tokens,
+    mediaType: mimeType,
+    data: uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer())),
   };
 }
 
-Deno.serve(async (req: Request) => {
+async function extractProblemFromPhoto(
+  ownerId: string,
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  image: SafetyMediaInput,
+): Promise<{ problemText: string; latex: string | null; tokens: number; model: string }> {
+  const ai = await runOpenAIHomeworkAdapter({
+    task: "source_extraction",
+    ownerId,
+    supabase,
+    system: PHOTO_PROMPT,
+    user: "Extract the problem only. Do not solve it.",
+    maxTokens: 700,
+    json: true,
+    quality: "fast",
+    parts: [
+      { type: "text", text: "Extract the problem only. Do not solve it." },
+      { type: "image", mediaType: image.mediaType, data: image.data },
+    ],
+    fallbackContent: JSON.stringify({ problemText: "[unclear]", latex: null }),
+  });
+
+  let parsed: { problemText?: unknown; latex?: unknown };
+  try {
+    parsed = JSON.parse(ai.content) as typeof parsed;
+  } catch {
+    throw new Error("math_photo_content_invalid_json");
+  }
+  const problemText = typeof parsed.problemText === "string" ? parsed.problemText.trim() : "";
+  if (problemText.length < 3 || problemText === "[unclear]") {
+    throw new Error("We couldn't read enough math from that photo.");
+  }
+  return {
+    problemText,
+    latex: typeof parsed.latex === "string" && parsed.latex.trim().length > 0 ? parsed.latex.trim() : null,
+    tokens: ai.tokens,
+    model: ai.model,
+  };
+}
+Deno.serve(withStudentSecurity("math-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders() });
   }
@@ -192,9 +191,6 @@ Deno.serve(async (req: Request) => {
       : "note-docs";
 
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
-    if (body.aiMode === "red" || body.aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -204,17 +200,20 @@ Deno.serve(async (req: Request) => {
     await resetBudgetIfNewDay(ownerId, supabase);
     const { allowed } = await checkTokenBudget(ownerId, supabase);
     if (!allowed) {
-      return jsonResponse({ error: "You've used your AI quota for today — resets at midnight." }, 429);
+      return jsonResponse({ error: "You've used your AI quota for today - resets at midnight." }, 429);
     }
 
     let problemText = typeof body.problemText === "string" ? body.problemText.trim().slice(0, 2400) : "";
     let latex: string | null = null;
     let photoTokens = 0;
+    let photoModel: string | null = null;
     if (storageKey) {
-      const extracted = await extractProblemFromPhoto(supabase, storageKey, bucket);
+      const image = await loadProblemPhoto(supabase, storageKey, bucket);
+      const extracted = await extractProblemFromPhoto(ownerId, supabase, image);
       problemText = extracted.problemText.slice(0, 2400);
       latex = extracted.latex;
       photoTokens = extracted.tokens;
+      photoModel = extracted.model;
     }
 
     if (problemText.length < 1) {
@@ -246,7 +245,11 @@ Deno.serve(async (req: Request) => {
       problemText,
     ].filter(Boolean).join("\n");
 
-    const ai = await callStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+
+      task: "math_scaffold",
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMessage,
       maxTokens: 650,
@@ -262,7 +265,7 @@ Deno.serve(async (req: Request) => {
             ownerId,
             assignmentId,
             feature: "math_scaffold",
-            model: storageKey ? `gpt-4o + ${ai.model}` : ai.model,
+            model: photoModel ? `${photoModel} + ${ai.model}` : ai.model,
             promptSummary: problemText.slice(0, 200),
             tokensUsed: tokens,
           },
@@ -270,7 +273,7 @@ Deno.serve(async (req: Request) => {
         );
         await incrementTokens(ownerId, tokens, supabase);
       })
-      .catch((e) => console.warn("post-response side effects failed", e));
+      .catch(() => console.warn("post-response side effects did not complete"));
 
     return jsonResponse({
       content,
@@ -278,8 +281,8 @@ Deno.serve(async (req: Request) => {
       latex,
     });
   } catch (err) {
-    console.error("math-scaffold error:", err);
-    const message = err instanceof Error ? err.message : "Something went wrong. Try again.";
-    return jsonResponse({ error: message }, 500);
+    if (err instanceof Response) return err;
+    console.error("math-scaffold request did not complete");
+    return jsonResponse({ error: "Math help is unavailable right now." }, 500);
   }
-});
+}));

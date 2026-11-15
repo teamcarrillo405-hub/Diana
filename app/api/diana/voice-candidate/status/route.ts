@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { STUDENT_RUNTIME_READ_TOOLS } from "@/lib/integrations/command-center-contract";
 import { recordLearningEvent } from "@/lib/learning-loop/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAiServiceClient } from "@/lib/supabase/ai-service";
 import type { Json } from "@/lib/supabase/types";
 
 type WorkerResultPayload = {
@@ -32,6 +32,13 @@ export async function GET(request: Request) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ ok: false, error: "Sign in to ask Diana." }, { status: 401 });
+  }
+  const accounting = createAiServiceClient();
+  if (!accounting) {
+    return NextResponse.json(
+      { ok: false, error: "Diana candidate status is unavailable right now." },
+      { status: 503 },
+    );
   }
 
   const { data, error } = await supabase
@@ -66,27 +73,14 @@ export async function GET(request: Request) {
         { status: 503 },
       );
     }
-    const receiptSaved = await ensureAuthorshipReceipt({
-      supabase,
-      ownerId: user.id,
-      job: data,
-      response,
-      result: result ?? {},
-    });
-    if (!receiptSaved) {
-      return NextResponse.json(
-        { ok: false, error: "Diana needs to save the authorship receipt before showing that help." },
-        { status: 500 },
-      );
-    }
     const hasLearningEvent = await learningEventExists({
-      supabase,
+      supabase: accounting,
       ownerId: user.id,
       traceId: data.trace_id,
     });
     if (!hasLearningEvent) {
       await recordLearningEvent({
-        supabase,
+        supabase: accounting,
         ownerId: user.id,
         eventName: "voice_candidate_completed",
         assignmentId: assignmentIdFromJob(data.payload),
@@ -133,7 +127,7 @@ async function learningEventExists({
   ownerId,
   traceId,
 }: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
+  supabase: NonNullable<ReturnType<typeof createAiServiceClient>>;
   ownerId: string;
   traceId: string;
 }): Promise<boolean> {
@@ -156,80 +150,6 @@ function publicTrace(traceId: string, queueMode: string) {
     policyMode: "student_runtime",
     readOnly: true,
   };
-}
-
-async function ensureAuthorshipReceipt({
-  supabase,
-  ownerId,
-  job,
-  response,
-  result,
-}: {
-  supabase: Awaited<ReturnType<typeof createClient>>;
-  ownerId: string;
-  job: {
-    trace_id: string;
-    tenant_id: string;
-    feature: string;
-    queue_name: string;
-    queue_mode: string;
-    payload: Json;
-  };
-  response: string;
-  result: WorkerResultPayload;
-}): Promise<boolean> {
-  const existing = await supabase
-    .from("authorship_log")
-    .select("id")
-    .eq("owner_id", ownerId)
-    .eq("event_type", "local_voice_candidate")
-    .contains("payload", { workerJob: { traceId: job.trace_id } })
-    .maybeSingle();
-  if (existing.error) return false;
-  if (existing.data) return true;
-
-  const payload = job.payload as WorkerPayload | null;
-  const input = payload?.input;
-  const transcript = typeof input?.transcript === "string" ? input.transcript : "";
-  const assignmentId = typeof input?.assignmentId === "string" ? input.assignmentId : null;
-  const source = input?.source === "voice" ? "voice" : "typed";
-  const responseChars = typeof result.responseChars === "number" ? result.responseChars : response.length;
-  const provider = typeof result.provider === "string" ? result.provider : "openjarvis";
-  const model = typeof result.model === "string" ? result.model : "unknown";
-  const workerId = typeof result.workerId === "string" ? result.workerId : undefined;
-  const durationMs = typeof result.durationMs === "number" ? result.durationMs : undefined;
-
-  const inserted = await supabase.from("authorship_log").insert({
-    owner_id: ownerId,
-    assignment_id: assignmentId,
-    actor: "diana",
-    event_type: "local_voice_candidate",
-    payload: {
-      source,
-      transcriptChars: transcript.length,
-      responseChars,
-      trace: {
-        worker: "openjarvis",
-        provider,
-        model,
-        policyMode: "student_runtime",
-        readOnly: true,
-        allowedDianaTools: [...STUDENT_RUNTIME_READ_TOOLS],
-      },
-      workerJob: {
-        traceId: job.trace_id,
-        feature: job.feature,
-        queueName: job.queue_name,
-        queueMode: job.queue_mode,
-        tenantId: job.tenant_id,
-        sessionId: typeof payload?.sessionId === "string" ? payload.sessionId : "voice-session",
-        workerId,
-        durationMs,
-      },
-    } as unknown as Json,
-  });
-
-  return !inserted.error;
 }
 
 export const runtime = "nodejs";

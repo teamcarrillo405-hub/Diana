@@ -26,8 +26,8 @@ const ARTIFACT_OPTIONS = [
   },
   {
     type: "practice_test",
-    label: "Practice test",
-    description: "Create source-anchored questions with hints.",
+    label: "Quiz",
+    description: "Choose a short practice set or longer test prep.",
     icon: Brain,
   },
   {
@@ -60,7 +60,7 @@ export function StudyArtifactPanel({
   const [editableCards, setEditableCards] = useState<StudyArtifactCard[]>([]);
   const [status, setStatus] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<StudyArtifactType>("practice_test");
-  const aiAvailable = aiMode === "green";
+  const aiAvailable = true;
   const ownershipMeter = buildHelpOwnershipMeter({
     aiPolicy: aiMode,
     supportIntensity: studyMode === "retrieval_quiz" || studyMode === "flashcard_builder" ? "guided" : "scaffolded",
@@ -118,7 +118,7 @@ export function StudyArtifactPanel({
         </div>
         <div className="inline-flex w-fit items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs text-muted">
           <ShieldCheck size={13} />
-          {aiMode === "green" ? "AI policy: study artifacts on" : "AI policy: manual cards only"}
+          Diana Trust Rules
         </div>
       </div>
 
@@ -181,11 +181,6 @@ export function StudyArtifactPanel({
         })}
       </div>
 
-      {!aiAvailable && (
-        <p className="rounded-2xl border border-amber-500/30 bg-amber-50 p-3 text-sm text-amber-950 dark:bg-amber-400/10 dark:text-amber-100">
-          This class is set to scaffolding-only or no-content AI. Highlight text and create cards manually from your own notes.
-        </p>
-      )}
 
       {status && <p className="text-sm text-muted">{status}</p>}
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { createCard, schedule, Rating, type FsrsCard } from "./fsrs";
+import { createCard, schedule, Rating } from "./fsrs";
 
 const FIXED_NOW = new Date("2026-06-01T12:00:00.000Z");
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;

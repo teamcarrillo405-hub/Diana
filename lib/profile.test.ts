@@ -1,12 +1,17 @@
 // lib/profile.test.ts
 import { describe, it, expect } from "vitest";
-import { profileBodyClass } from "./profile";
+import {
+  normalizeTutorComplexity,
+  normalizeTutorPersona,
+  normalizeTutorStyle,
+  profileBodyClass,
+} from "./profile";
 import type { ProfilePrefs } from "./profile";
 
 const BASE: ProfilePrefs = {
   user_id: "u1",
   display_name: "Test",
-  age_bracket: "teen",
+  age_bracket: "13_to_17",
   class_count_hint: null,
   diagnoses: [],
   accommodations: [],
@@ -41,6 +46,10 @@ const BASE: ProfilePrefs = {
   tts_voice: "nova",
   onboarded_at: null,
   consent_ai: false,
+  teen_guardian_permission_attested_at: null,
+  teen_guardian_permission_policy_version: null,
+  teen_guardian_permission_source: null,
+  teen_guardian_permission_withdrawn_at: null,
   timezone: "UTC",
   reading_font: "system",
   daily_token_budget: 50000,
@@ -49,6 +58,11 @@ const BASE: ProfilePrefs = {
   photo_url: null,
   photo_offset_x: 50,
   photo_offset_y: 50,
+  tutor_persona: "diana",
+  tutor_style: "socratic",
+  tutor_complexity: "balanced",
+  learning_hurdle: null,
+  study_schedule_preference: null,
 };
 
 describe("profileBodyClass reading_font", () => {
@@ -96,5 +110,19 @@ describe("profileBodyClass reading_font", () => {
     expect(classes).toContain("visual-pacing-line");
     expect(classes).toContain("reading-letter-wide");
     expect(classes).toContain("reading-word-wider");
+  });
+});
+
+describe("profile enum normalization", () => {
+  it("preserves supported tutor preferences", () => {
+    expect(normalizeTutorPersona("maya")).toBe("maya");
+    expect(normalizeTutorStyle("direct")).toBe("direct");
+    expect(normalizeTutorComplexity("advanced")).toBe("advanced");
+  });
+
+  it("falls back when stored preferences are outside supported values", () => {
+    expect(normalizeTutorPersona("unknown")).toBe("diana");
+    expect(normalizeTutorStyle(null)).toBe("socratic");
+    expect(normalizeTutorComplexity(undefined)).toBe("balanced");
   });
 });

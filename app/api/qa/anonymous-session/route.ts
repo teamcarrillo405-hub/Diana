@@ -1,7 +1,17 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
-import { seedGraysonFreshmanDemo } from "@/lib/qa/grayson-demo";
+import {
+  resetScreenDesignOwner,
+  seedGraysonFreshmanDemo,
+  seedScreenDesignScenario,
+} from "@/lib/qa/grayson-demo";
+import {
+  getScreenDesignFixtureScenario,
+  type ScreenDesignOwnerAlias,
+} from "@/lib/qa/screendesign-fixtures";
+import type { AppProfileInsert } from "@/lib/profile";
+import type { TablesInsert } from "@/lib/supabase/types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,10 +21,66 @@ const qaUser = {
   password: process.env.QA_TEST_PASSWORD ?? "Diana-QA-Visual-Gate-2026!",
   displayName: "Diana QA Student",
   demo: null as "grayson" | null,
+  scenarioId: null as string | null,
+  ownerAlias: "qa-primary" as ScreenDesignOwnerAlias,
+  operation: "seed" as "seed" | "reset",
 };
+
+function qaSignupMetadata(activeQaUser: Pick<typeof qaUser, "displayName">) {
+  return {
+    display_name: activeQaUser.displayName,
+    date_of_birth: "2009-09-01",
+    timezone,
+    // The local QA user goes through the same teen-access gate as a real signup.
+    teen_guardian_permission_attested: true,
+    teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+    teen_guardian_permission_source: "signup_attestation",
+  };
+}
 
 function resolveQaUser(request: Request) {
   const params = new URL(request.url).searchParams;
+  const scenarioId = params.get("scenario");
+  if (scenarioId) {
+    const scenario = getScreenDesignFixtureScenario(scenarioId);
+    if (!scenario) return null;
+    const ownerAlias =
+      params.get("owner") === "secondary"
+        ? "qa-secondary"
+        : scenario.ownerAlias;
+    const account =
+      ownerAlias === "qa-secondary"
+        ? {
+            email:
+              process.env.QA_SCREEN_DESIGN_SECONDARY_EMAIL ??
+              "diana-screendesign-secondary@local.test",
+            displayName: "Diana QA Student Two",
+          }
+        : ownerAlias === "qa-public-owner"
+          ? {
+              email:
+                process.env.QA_SCREEN_DESIGN_PUBLIC_EMAIL ??
+                "diana-screendesign-share-owner@local.test",
+              displayName: "Grayson",
+            }
+          : {
+              email:
+                process.env.QA_TEST_EMAIL ??
+                process.env.QA_SCREEN_DESIGN_PRIMARY_EMAIL ??
+                process.env.QA_GRAYSON_TEST_EMAIL ??
+                "grayson-qa-student@local.test",
+              displayName: process.env.QA_TEST_EMAIL ? "Diana Beta Student" : "Grayson",
+            };
+
+    return {
+      ...qaUser,
+      ...account,
+      scenarioId: scenario.id,
+      ownerAlias,
+      operation: params.get("operation") === "reset" ? "reset" : "seed",
+    };
+  }
+
   const variant = params.get("variant");
   const profile = params.get("profile");
   if (variant === "grayson" || profile === "grayson") {
@@ -23,6 +89,8 @@ function resolveQaUser(request: Request) {
       email: process.env.QA_GRAYSON_TEST_EMAIL ?? "grayson-qa-student@local.test",
       displayName: "Grayson",
       demo: "grayson" as const,
+      scenarioId: null,
+      ownerAlias: "qa-primary" as const,
     };
   }
 
@@ -58,6 +126,12 @@ async function handleQaSession(request: Request) {
   }
 
   const activeQaUser = resolveQaUser(request);
+  if (!activeQaUser) {
+    return NextResponse.json(
+      { error: "Unknown ScreenDesign QA fixture scenario." },
+      { status: 400 },
+    );
+  }
   const supabase = await createClient();
   const found = await findQaUser(activeQaUser.email);
   if (!found?.admin || found.error) {
@@ -74,11 +148,7 @@ async function handleQaSession(request: Request) {
     const { data: updated, error: updateError } = await admin.auth.admin.updateUserById(found.user.id, {
       password: activeQaUser.password,
       email_confirm: true,
-      user_metadata: {
-        display_name: activeQaUser.displayName,
-        date_of_birth: "2009-09-01",
-        timezone,
-      },
+      user_metadata: qaSignupMetadata(activeQaUser),
     });
     if (updateError || !updated.user) {
       return NextResponse.json({ error: updateError?.message ?? "QA user update could not finish." }, { status: 500 });
@@ -89,11 +159,7 @@ async function handleQaSession(request: Request) {
       email: activeQaUser.email,
       password: activeQaUser.password,
       email_confirm: true,
-      user_metadata: {
-        display_name: activeQaUser.displayName,
-        date_of_birth: "2009-09-01",
-        timezone,
-      },
+      user_metadata: qaSignupMetadata(activeQaUser),
     });
     if (createError || !created.user) {
       return NextResponse.json({ error: createError?.message ?? "QA user creation could not finish." }, { status: 500 });
@@ -107,18 +173,23 @@ async function handleQaSession(request: Request) {
   });
   if (signinError) return NextResponse.json({ error: signinError.message }, { status: 403 });
 
+  const qaProfile: AppProfileInsert = {
+    user_id: userId,
+    display_name: activeQaUser.displayName,
+    date_of_birth: "2009-09-01",
+    age_bracket: "13_to_17",
+    timezone,
+    onboarded_at: new Date().toISOString(),
+    consent_ai: true,
+    teen_guardian_permission_attested_at: new Date().toISOString(),
+    teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+    teen_guardian_permission_source: "synthetic_qa_fixture",
+    teen_guardian_permission_withdrawn_at: null,
+  };
   const { error: profileError } = await supabase
     .from("profiles")
     .upsert(
-      {
-        user_id: userId,
-        display_name: activeQaUser.displayName,
-        date_of_birth: "2009-09-01",
-        age_bracket: "13_to_17",
-        timezone,
-        onboarded_at: new Date().toISOString(),
-        consent_ai: true,
-      },
+      qaProfile as TablesInsert<"profiles">,
       { onConflict: "user_id" },
     );
 
@@ -126,12 +197,34 @@ async function handleQaSession(request: Request) {
     return NextResponse.json({ error: profileError.message }, { status: 500 });
   }
 
-  const seeded =
-    activeQaUser.demo === "grayson"
+  if (activeQaUser.scenarioId && activeQaUser.operation === "reset") {
+    await resetScreenDesignOwner(admin, userId, activeQaUser.ownerAlias);
+    return NextResponse.json({
+      ok: true,
+      reset: true,
+      ownerAlias: activeQaUser.ownerAlias,
+      scenarioId: activeQaUser.scenarioId,
+    });
+  }
+
+  const seeded = activeQaUser.scenarioId
+    ? await seedScreenDesignScenario(
+        admin,
+        userId,
+        activeQaUser.ownerAlias,
+        activeQaUser.scenarioId,
+      )
+    : activeQaUser.demo === "grayson"
       ? await seedGraysonFreshmanDemo(admin, userId)
       : null;
 
-  return NextResponse.json({ ok: true, profile: activeQaUser.demo, seeded });
+  return NextResponse.json({
+    ok: true,
+    profile: activeQaUser.demo,
+    ownerAlias: activeQaUser.scenarioId ? activeQaUser.ownerAlias : undefined,
+    scenarioId: activeQaUser.scenarioId ?? undefined,
+    seeded,
+  });
 }
 
 export async function GET(request: Request) {

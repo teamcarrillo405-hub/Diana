@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/task-breakdown/index.ts
 // F6: AI task breakdown — Haiku 4.5, splits assignment into atomic steps.
 // ai_mode: 'red' returns 403; 'yellow' is allowed (task breakdown is pure planning,
@@ -11,8 +13,8 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
 const BREAKDOWN_PROMPT = `You are a task-decomposition assistant for a high-school student with ADHD.
@@ -24,12 +26,11 @@ Rules:
 - Minutes per step must be 5 or fewer and a realistic estimate.
 - Calm tone. No "you need to" or "you must". No exclamation marks.`;
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("task-breakdown", async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, content-type",
       },
     });
@@ -47,7 +48,7 @@ Deno.serve(async (req: Request) => {
       aiMode?: unknown;
     };
 
-    const { ownerId, assignmentId, title, description, kind, estimatedMinutes, aiMode } = body;
+    const { ownerId, assignmentId, title, description, kind, estimatedMinutes, aiMode: _aiMode } = body;
 
     if (typeof ownerId !== "string" || !ownerId) {
       return new Response(JSON.stringify({ error: "ownerId required" }), {
@@ -69,15 +70,6 @@ Deno.serve(async (req: Request) => {
     }
 
     // 2. aiMode check — only 'red' blocks (yellow allowed for task breakdown)
-    if (aiMode === "red") {
-      return new Response(
-        JSON.stringify({ error: "AI not available for this class" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
 
     // 3. Supabase service-role client
     const supabase = createClient(
@@ -117,7 +109,10 @@ Deno.serve(async (req: Request) => {
     ].filter(Boolean).join("\n");
 
     // 7. Use the shared fast student model.
-    const modelResult = await callStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+      task: "task_breakdown",
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: userMessage,
       maxTokens: 600,
@@ -151,14 +146,14 @@ Deno.serve(async (req: Request) => {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("task-breakdown error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-});
+}));

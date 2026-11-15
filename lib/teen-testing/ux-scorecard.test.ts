@@ -7,25 +7,25 @@ import {
 } from "./ux-scorecard";
 
 const fullEvidence: TeenNativeUxEvidence = {
-  landingNextFiveMinutes: true,
-  landingProductIdentity: true,
-  landingStudentEntryPath: true,
-  dashboardRightNowCard: true,
-  assignmentNextStepEntry: true,
+  landingHeroNextMove: true,
+  landingTutorIdentity: true,
+  landingWaitlistEntry: true,
+  dashboardFirstMove: true,
+  assignmentWorkStart: true,
   priorityMobileNav: true,
   responsiveActionRows: true,
   responsiveQaClean: true,
   authenticatedResponsiveQaClean: true,
   authenticatedRoutesNoLoginRedirect: true,
-  compactDesktopPrimaryNav: true,
-  secondaryDestinationDrawer: true,
-  authCommandCenterShell: true,
+  sharedDesktopNavigation: true,
+  moreToolsHub: true,
+  authScreenDesignShell: true,
   authVisualSignals: true,
-  authFutureModeToggle: true,
-  authAfterLoginPreview: true,
-  futureModeProvider: true,
-  dianaOsCinematicMode: true,
-  landingMobilePreviewAboveFold: true,
+  authPrivateAssurance: true,
+  authCalmEntry: true,
+  sharedScreenDesignShell: true,
+  screenDesignVisualTokens: true,
+  landingHeroAboveFold: true,
   voiceCommandSurface: true,
   globalVoiceCaptureMic: true,
   teenVoicePlan: true,
@@ -35,14 +35,14 @@ const fullEvidence: TeenNativeUxEvidence = {
   timeToFirstActionMetric: true,
   oneMoveSupport: true,
   subjectNativeHelpers: true,
-  subjectVisualBoards: true,
+  subjectWorkspaceVisuals: true,
   studyArtifactsLoop: true,
   studyArtifactPrimaryActions: true,
   sourceAnchoredStudyOutput: true,
   ownershipMeter: true,
   authorshipProof: true,
   finalWorkProtection: true,
-  proofPanelVisible: true,
+  recordSurfaceVisible: true,
   visualTeenValidationFields: true,
   liveTeenValidationPassed: false,
 };
@@ -69,7 +69,7 @@ describe("teen-native UX scorecard", () => {
       "app_shell_navigation",
       "assignment_helper_visual_learning",
       "study_artifacts_polish",
-      "future_mode_cinematic_quality",
+      "screendesign_visual_coherence",
     ]);
     expect(TEEN_VISUAL_CONFIDENCE_METRICS[0].baselineScore).toBe(8.2);
     expect(TEEN_VISUAL_CONFIDENCE_METRICS[1].baselineScore).toBe(8.7);
@@ -91,7 +91,7 @@ describe("teen-native UX scorecard", () => {
       ...fullEvidence,
       responsiveQaClean: false,
       sourceAnchoredStudyOutput: false,
-      authFutureModeToggle: false,
+      authPrivateAssurance: false,
       authenticatedResponsiveQaClean: false,
     });
 
@@ -100,7 +100,8 @@ describe("teen-native UX scorecard", () => {
       "Run clean responsive QA with no horizontal overflow or server errors.",
       "Run clean authenticated responsive QA for the app shell and core student routes.",
       "Preserve source anchors through every study artifact.",
-      "Expose Future Mode from login and signup.",
+      "Show a clear private-by-default assurance on login and signup.",
     ]));
+    expect(new Set(scorecard.nextBacklog).size).toBe(scorecard.nextBacklog.length);
   });
 });

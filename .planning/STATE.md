@@ -2,23 +2,35 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: The Complete Academic Platform
-status: Milestone v2.0 COMPLETE - Phase 35 COMPLETE
-stopped_at: "Completed Phase 35: COPPA retention enforcement, launch audit, launch readiness docs, critical-path coverage gate, migration 0034, and final static gates. Milestone v2.0 complete."
-last_updated: "2026-06-02T12:47:04.0000000-07:00"
+current_phase: 36
+current_plan: 24
+status: executing
+stopped_at: Completed 36-31-PLAN.md
+last_updated: "2026-07-17T22:23:00.382Z"
+last_activity: 2026-07-17
+last_activity_desc: Completed 36-31 public ScreenDesign home funnel correction and release gates
 progress:
-  total_phases: 35
-  completed_phases: 35
-  total_plans: 63
-  completed_plans: 63
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 31
+  completed_plans: 30
+  percent: 97
+total_plans_in_phase: 31
 ---
 
 # Diana — Project State
 
-**Last updated:** 2026-06-01
-**Current branch:** `claude/adhd-app-jxpn9`  
-**Active phase:** Phase 35 COMPLETE - v2.0 launch hardening delivered
-**Last session:** 2026-06-02T12:47:04.0000000-07:00
-**Stopped at:** Completed Phase 35 with final v2.0 verification; milestone v2.0 is complete
+**Last updated:** 2026-07-17
+**Current branch:** `codex/figma-47-screen-rebuild`
+**Current Phase:** 36
+**Current Plan:** 24
+**Total Plans in Phase:** 31
+**Status:** Ready for refreshed exact-preview review
+**Progress:** [██████████] 97%
+**Last Activity:** 2026-07-17 - Completed 36-31 public ScreenDesign home funnel correction and release gates
+**Active phase:** Phase 36 - Faithful ScreenDesign rebuild
+**Last session:** 2026-07-17T22:23:00.374Z
+**Stopped at:** Completed 36-31-PLAN.md
 
 ---
 
@@ -665,6 +677,7 @@ progress:
 
 - Phase 8 added: Provider Wiring + Scorer Interleaving + Intentions Evening Trigger
 - Phase 11 added: Photo and PDF upload to notes — Claude Vision/PDF extraction → transcribe-note cleanup pipeline + auto-class routing
+- Phase 36 added: Faithfully implement all 47 Figma HTML screens and remove the Nexus design
 
 ## Repo pointers
 
@@ -673,3 +686,126 @@ progress:
 - AI ethics: `docs/ai-ethics.md`
 - Research findings: `docs/research/findings.md`
 - Evidence review (gap analysis): `docs/review/slice-1-evidence-review.md`
+
+## Performance Metrics
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 36 P01 | 8 min | 3 tasks | 5 files |
+| Phase 36 P02 | 18 min | 2 tasks | 32 files |
+| Phase 36 P04 | 25 min | 3 tasks | 6 files |
+| Phase 36 P27 | 24 min | 2 tasks | 4 files |
+| Phase 36 P28 | 3h 3m | 2 tasks | 4 files |
+| Phase 36 P06 | 10 min | 3 tasks | 5 files |
+| Phase 36 P03 | 18 min | 2 tasks | 5 files |
+| Phase 36 P05 | 70 min | 3 tasks | 9 files |
+| Phase 36 P08 | 45 min | 3 tasks | 17 files |
+| Phase 36 P09 | 55 min | 3 tasks | 13 files |
+| Phase 36 P10 | 50 min | 2 tasks | 12 files |
+| Phase 36 P11 | 35 min | 2 tasks | 11 files |
+| Phase 36 P13 | 22 min | 3 tasks | 14 files |
+| Phase 36 P14 | 30 min | 3 tasks | 13 files |
+| Phase 36 P15 | 64 min | 3 tasks | 8 files |
+| Phase 36 P16 | 29 min | 3 tasks | 16 files |
+| Phase 36 P17 | 19 min | 2 tasks | 9 files |
+| Phase 36 P18 | 27 min | 3 tasks | 20 files |
+| Phase 36 P19 | 22 min | 3 tasks | 12 files |
+| Phase 36 P20 | 24 min | 2 tasks | 11 files |
+| Phase 36 P21 | 12 min | 2 tasks | 5 files |
+| Phase 36 P25 | 25 min | 2 tasks | 12 files |
+| Phase 36 P26 | 30 min | 2 tasks | 5 files |
+| Phase 36 P07 | 36 min | 3 tasks | 15 files |
+| Phase 36 P22 | 2h 1m | 3 tasks | 11 files |
+| Phase 36 P23 | 107m | 3 tasks | 55 files |
+| Phase 36 P29 | 5 min | 2 tasks | 1 files |
+| Phase 36 P31 | 45 min | 3 tasks | 10 files |
+
+## Decisions
+
+- [Phase 36]: Inbox suggestion acceptance and assignment creation remain separate student actions. - Classification may confirm the suggested metadata, but conversion requires the editable selected-item review.
+- [Phase 36]: Quick Add keeps the canonical mode selector as its default state. - Operational QA enters a real capture mode and submits validated text before asserting the persisted triage route.
+- [Phase 36]: Mission Board renders owner-scoped ranked assignment lifecycle data in the ScreenDesign hierarchy. - Source fidelity does not justify restoring obsolete Nexus metric lanes or fabricated records.
+- [Phase 36]: Capture uploads must belong to the authenticated owner and pass photo mode, MIME, and size validation. - Storage references are untrusted inputs at the server-action boundary.
+
+- [Phase 36]: The attached dashboard exclusively owns /dashboard; the export-folder dashboard is excluded. — D-02 establishes source precedence and the registry test enforces it.
+- [Phase 36]: All 47 canonical states use stable typed route, state, action, auth, data, viewport, and snapshot metadata. — Downstream implementation and QA need one deterministic source contract.
+- [Phase 36]: Windows npm and npx execute their adjacent Node CLI after .cmd resolution. — Direct .cmd spawn with shell disabled returns EINVAL; direct Node CLI invocation preserves shell-free argv execution.
+- [Phase 36]: Canonical ScreenDesign media is owned as 24 source assets plus four avatars with exact count and provenance gates. — The canonical registry and D-09 require one deterministic local dependency set.
+- [Phase 36]: Dashboard stadium and athlete imagery remain separate local layers. — Separate files preserve the attached dashboard crop and responsive composition.
+- [Phase 36]: Typed asset lookup exposes only Diana-owned rendering metadata. — Remote provenance URLs and checksums stay outside rendering results.
+- [Phase 36]: Shared ScreenDesign code remains below the composition level. — The 47 sources have materially different hierarchy and must not be forced through another generic shell.
+- [Phase 36]: The source canvas is 393px wide and at least 852px tall, centered and viewport-height expanded on larger screens. — This preserves the locked mobile geometry while remaining safe outside the source viewport.
+- [Phase 36]: Student navigation derives one active owner from the pathname and falls back to More for unrelated routes. — Today, Work, Classes, and Calendar own their route prefixes without misclassifying supporting screens.
+- [Phase 36]: SourceMedia accepts only typed local asset ids plus explicit dimensions and image intent. — Arbitrary URLs and ambiguous decorative markup cannot enter shared screen rendering.
+- [Phase 36]: Every canonical screen receives one default fixture, with 11 guard variants covering policy, availability, membership, score, share-token, and accessibility states. — A stable 47-plus-guard catalog lets visual and interaction QA select deterministic real states without ad hoc setup.
+- [Phase 36]: Screen fixtures seed real Supabase tables with deterministic synthetic IDs and owner-scoped resets. — Idempotent real-schema data preserves honest application behavior while preventing cross-owner mutation.
+- [Phase 36]: The anonymous QA route accepts only the static QA account allowlist and canonical scenario IDs. — Callers cannot choose arbitrary user IDs or escalate the service-role boundary.
+- [Phase 36]: QA seed responses expose stable aliases and storage-state inputs, never credentials, owner UUIDs, or secrets. — Browser automation receives deterministic handles without leaking privileged identity data.
+- [Phase 36]: Canonical ScreenDesign references normalize only from exact registry entries and exact 28-entry manifest URL mappings. — Fail-closed canonical inputs prevent the conflicting dashboard, fuzzy URLs, and remote asset drift from contaminating fidelity evidence.
+- [Phase 36]: Source capture runs on one isolated origin with browser request evidence and exact path allowlists. — Every external attempt is aborted and recorded, while only canonical documents, compiled CSS, and checked-in manifest assets may complete.
+- [Phase 36]: Dedicated nullable preference fields preserve all legacy onboarding and profile values. — Challenge and schedule answers have distinct semantics and must never be coerced into existing fields.
+- [Phase 36]: Completion time is constructed only after both ScreenDesign selections validate. — The exact-key pure serializer prevents premature onboarding completion and accidental profile overwrites.
+- [Phase 36]: The completion action keeps auth and ownership at the existing Supabase server and profiles RLS boundary. — Authenticated user_id scoping and calm discriminated results preserve the established trust boundary.
+- [Phase 36]: Use the same deterministic Chromium environment for source and app evidence. — This makes the 393x852 visual comparison meaningful and reproducible.
+- [Phase 36]: Run ScreenDesign scenarios with one worker and owner-scoped resets. — The shared synthetic data graph must be deterministic before each capture.
+- [Phase 36]: Require explicit golden creation and never update visual baselines silently. — A visual mismatch must remain a visible review gate.
+- [Phase 36]: The live dashboard render path is only the attached stadium Lobby. — TodayGamePlan is orphaned and cannot re-enter the route before the repo-wide removal plan deletes obsolete files.
+- [Phase 36]: Past-due work uses the calm Due earlier label. — The source hierarchy and factual counts are preserved while the mandatory tone gate remains clean.
+- [Phase 36]: The dashboard Start action uses a semantic anchor. — It produced an observable real route transition in the deterministic navigation harness.
+- [Phase 36]: Dashboard background compatibility exposes only the canonical stadium. — Existing settings consumers remain valid without allowing a legacy visual to replace the attached composition.
+- [Phase 36]: The authenticated classes result alone selects the honest empty or populated library composition. — URL query flags cannot spoof a roster state that is derived from owner-scoped server data.
+- [Phase 36]: Rubric Scout exposes only owner-scoped rubric, syllabus, class, and assignment context, with Diana help available only under green class policy. — The route preserves RLS and explicit owner filters while the UI respects the existing AI traffic-light seam.
+- [Phase 36]: Canonical class QA seeds a real class_syllabi row so source evidence never fabricates course policies. — Deterministic evidence should exercise the same persistent table and semantics as the live route.
+- [Phase 36]: AP percentages render only from valid owner-scoped saved practice counts. — Unscored attempts must not become invented progress.
+- [Phase 36]: Mastery, self-confidence, and Canvas grades remain separate evidence labels. — Each measure has a distinct provenance and should not be collapsed into one score.
+- [Phase 36]: Transcript export uses the existing owner-scoped privacy export center. — Navigation is operational without claiming a PDF exists before the student chooses an export.
+- [Phase 36]: Direct owner-card review routes honor the requested card while the remaining queue stays due-only. — A direct student choice should not render a false empty state, but normal FSRS due behavior must remain intact.
+- [Phase 36]: Practice responses merge into the existing artifact payload without inventing a score. — This preserves generated material, durable progress, and truthful evidence without a schema migration.
+- [Phase 36]: Study artifact creation remains on the existing authenticated AI policy action. — One server path preserves traffic-light, token-budget, safety, authorship, and task-signal enforcement.
+- [Phase 36]: Focus persistence uses authenticated time logs while useTimer remains the sole timer-state authority. — Keeps the calm state union and server ownership boundary aligned.
+- [Phase 36]: Calendar workload is derived from owner assignments and profile accommodations. — Preserves real student data and avoids fabricated schedule metrics.
+- [Phase 36]: Goal submission preserves selections until the authenticated write succeeds. — Calm errors must not discard student choices or display false success.
+- [Phase 36]: Mastery evidence, student confidence, and grades remain separate — Each measure has distinct provenance and must not be presented as one score
+- [Phase 36]: Knowledge Graph edges use authenticated class context only — The app must not invent semantic relationships absent from stored evidence
+- [Phase 36]: Progress evidence mix is a private activity aggregate, not a grade — Assignment, focus, and activity inputs support calm trends without fabricating academic outcomes
+- [Phase 36]: Milestone celebration requires a real completed proof relation — Source fidelity cannot fabricate an achievement when no owner-scoped completed assignment signal exists.
+- [Phase 36]: Portfolio artwork stays local while item facts remain owner-scoped — Canonical thumbnails may shape presentation but never replace real titles, reflections, file state, or portfolio membership.
+- [Phase 36]: Privacy success follows the complete server result — Exports, backups, and destructive controls must not show success until authenticated owner-scoped operations finish, and every deletion write is checked.
+- [Phase 36]: Public share loaders authorize exact active tokens before querying owner-scoped evidence. — This keeps unauthenticated access narrowly scoped and prevents token, owner, or report-type widening.
+- [Phase 36]: Public portfolio and report payloads omit private profile and class fields. — Canonical source hierarchy is preserved with approved evidence and aggregate progress rather than exposing minor data.
+- [Phase 36]: AI History combines owner-scoped interactions and authorship evidence into one minimized client model. — Raw prompt and authorship payloads stay server-side while student and Diana work retain distinct provenance.
+- [Phase 36]: LMS client props contain only server-derived safe state, never provider config. — Credential material stays behind the authenticated server boundary and sync success requires persisted evidence.
+- [Phase 36]: /settings owns profile mutation while /me reuses Profile Center read-only. — A single validated mutation surface preserves profile, onboarding, accessibility, privacy, and personalization values without duplicate writes.
+- [Phase 36]: Support screens use explicit owner filters and supported persisted evidence only. — Notification, search, and wellness fidelity must not widen private records or invent missing state.
+- [Phase 36]: Wellness replaces medical forecast claims with study-readiness recovery guidance. — Health-adjacent copy remains capability-focused and saves only validated private choices.
+- [Phase 36]: Community activity stays private to authenticated owners and members. — The canonical leaderboard energy must not expose public or cross-group minor ranking.
+- [Phase 36]: Community avatars decorate real member rows only. — Source art may shape presentation but must not fabricate friends, memberships, or activity.
+- [Phase 36]: Tutor persona and style are profile preferences only. — Portrait selection must not change AI provider, class policy, authorship controls, or safety enforcement.
+- [Phase 36]: Both upgrade compositions use the same server-resolved checkout authority and authenticated billing endpoint. — One authority prevents client-spoofed capability or checkout URLs.
+- [Phase 36]: Unsupported pricing, trial, testimonial, member-count, score, and time-saved claims are not rendered. — Source fidelity cannot fabricate billing or social proof unsupported by product data.
+- [Phase 36]: Community upgrade accepts both view=community and the exact QA sdState=view=community selector. — Production and deterministic visual evidence must select the same canonical composition.
+- [Phase 36]: Smart Loading duration is owned only by the active Server Component request. — No client timer, timeout, polling, percentage, or private record context may control or enter the suspense fallback.
+- [Phase 36]: Deterministic Smart Loading QA uses an authenticated QA-only Server Component gate. — A request-controlled gate proves fallback and immediate resolution without adding a production delay.
+- [Phase 36]: Linked schema writes require matching CLI, local app, and Vercel Preview Supabase project refs. A single intended pending migration may be applied only after identity equality and a dry run.
+- [Phase 36]: Live onboarding schema proof uses ephemeral in-memory CLI credentials and read-only pg_catalog inspection. Docker is unavailable, so local psql preserves exact live verification without persisting or printing secrets.
+- [Phase 36]: The onboarding persistence QA seam remains development-only and caller-owned. It accepts no owner id and delegates auth, validation, mutation, and RLS to completeScreenDesignOnboarding.
+- [Phase 36]: Live onboarding contains only the four attached source states; the obsolete done composition redirects to the real dashboard. — D-04 locks the first-run order and excludes alternate legacy designs.
+- [Phase 36]: Canonical onboarding selectors outrank broad application theme rules. — Old command styling must not leak into reviewed ScreenDesign compositions.
+- [Phase 36]: Every authenticated canonical state maps to exactly one locked primary destination. — Query and modal states inherit their route owner instead of creating duplicate navigation destinations.
+- [Phase 36]: Browser mutation evidence excludes monitoring traffic and requires a successful application write plus reload. — Click completion and background requests are not durable proof of an operational primary action.
+- [Phase 36]: Authenticated route templates remain DOM-transparent around streamed segments. — A stable layout tree prevents hydration mismatches between the server response and client segment boundary.
+- [Phase 36]: Delete presentation consumers only and preserve operational business, safety, state, and owner-scoped data modules. — Legacy removal must not delete backend capability or user data.
+- [Phase 36]: The App Router root owns the ScreenDesign onboarding welcome composition; no parallel Pages Router or Quiet Command landing remains. — The public entry point must use the same canonical ScreenDesign system and cannot be shadowed by the old design.
+- [Phase 36]: Visual evidence uses one screenshot buffer and browser reduced motion instead of global zero-duration CSS overrides. — Global duration overrides changed Chromium compositing and made evidence less faithful.
+- [Phase 36]: Independent acceptance validated unchanged producer evidence before any metadata commit changed HEAD. — This preserves the release SHA binding and separates production from acceptance.
+- [Phase 36]: The Plan 36-29 receipt binds the exact phase36-plan30 run, release SHA, index hash, validator hash, and canonical ordered 47-id result. — Plan 36-24 must consume one immutable identity chain.
+
+- [Phase 36]: Anonymous public onboarding stores only two canonical preference values in a strict versioned session draft. Identity, credentials, billing, and owner data remain outside the anonymous storage boundary.
+- [Phase 36]: Public access layouts use local next and back callbacks while authenticated upgrade routes retain server-resolved billing authority. The requested sequence cannot choose checkout, price, entitlement, or subscription state.
+- [Phase 36]: Signup marks public onboarding complete only when both metadata values pass explicit SQL allowlists. Missing, partial, or invalid drafts continue through the authenticated onboarding path.
+
+## Session
+
+**Last session:** 2026-07-17T22:23:00.374Z
+**Stopped at:** Completed 36-31-PLAN.md
+**Resume file:** None

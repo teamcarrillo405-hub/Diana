@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/history-scaffold/index.ts
 // Phase 20: history and social studies scaffold engine.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -7,10 +9,11 @@ import {
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
+  type SafetyMediaInput,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const TEXT_MODES = new Set(["primary_source", "cause_effect", "happ", "dbq", "compare", "current_events"]);
 const MIME_BY_EXT: Record<string, string> = {
@@ -80,7 +83,6 @@ Do not invent unseen regions.`;
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -102,56 +104,52 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
   return btoa(binary);
 }
 
-async function runMapAnnotation(
-  supabase: ReturnType<typeof createClient>,
+async function loadMapImage(
+  // deno-lint-ignore no-explicit-any
+  supabase: { storage: any },
   storageKey: string,
   bucket: string,
-): Promise<{ content: string; tokens: number }> {
+): Promise<SafetyMediaInput> {
   const ext = (storageKey.split(".").pop() ?? "").toLowerCase();
   const mimeType = MIME_BY_EXT[ext];
   if (!mimeType) throw new Error("Pick a .jpg, .png, .webp, or .gif image.");
 
   const { data: blob, error } = await supabase.storage.from(bucket).download(storageKey);
   if (error || !blob) throw new Error("Map image not found.");
-  const base64Data = uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer()));
-
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Authorization": `Bearer ${Deno.env.get("OPENAI_API_KEY") ?? ""}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4o",
-      max_tokens: 900,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: MAP_PROMPT },
-        {
-          role: "user",
-          content: [
-            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" } },
-            { type: "text", text: "Annotate the map for a student label quiz. Use visible map details only." },
-          ],
-        },
-      ],
-    }),
-  });
-  if (!res.ok) {
-    console.error("history-scaffold map error:", await res.text());
-    throw new Error("We couldn't annotate that map. Try a clearer crop.");
-  }
-  const data = await res.json() as {
-    choices?: Array<{ message?: { content?: string } }>;
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
-  };
   return {
-    content: data.choices?.[0]?.message?.content ?? "{}",
-    tokens: Number(data.usage?.prompt_tokens ?? 0) + Number(data.usage?.completion_tokens ?? 0),
+    mediaType: mimeType,
+    data: uint8ArrayToBase64(new Uint8Array(await blob.arrayBuffer())),
   };
 }
 
-Deno.serve(async (req: Request) => {
+async function runMapAnnotation(
+  ownerId: string,
+  // deno-lint-ignore no-explicit-any
+  supabase: any,
+  image: SafetyMediaInput,
+): Promise<{ content: string; tokens: number; model: string }> {
+  const ai = await runOpenAIHomeworkAdapter({
+    task: "visual_tool",
+    ownerId,
+    supabase,
+    system: MAP_PROMPT,
+    user: "Annotate the map for a student label quiz. Use visible map details only.",
+    maxTokens: 900,
+    json: true,
+    quality: "quality",
+    parts: [
+      { type: "text", text: "Annotate the map for a student label quiz. Use visible map details only." },
+      { type: "image", mediaType: image.mediaType, data: image.data },
+    ],
+    fallbackContent: JSON.stringify({ title: "Map study", annotations: [], quizPrompt: "Name one visible detail from the map." }),
+  });
+  return {
+    content: ai.content,
+    tokens: ai.tokens,
+    model: ai.model,
+  };
+}
+Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders() });
 
   try {
@@ -168,13 +166,10 @@ Deno.serve(async (req: Request) => {
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const assignmentId = typeof body.assignmentId === "string" ? body.assignmentId : null;
     const mode = typeof body.mode === "string" ? body.mode : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
     const sourceText = typeof body.sourceText === "string" ? body.sourceText.slice(0, 10000) : "";
     const classContext = typeof body.classContext === "string" ? body.classContext.slice(0, 3000) : "";
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
     if (!TEXT_MODES.has(mode) && mode !== "map_annotation") {
       return jsonResponse({ error: "mode required" }, 400);
     }
@@ -189,16 +184,17 @@ Deno.serve(async (req: Request) => {
 
     let content = "";
     let tokens = 0;
-    let model = "claude-haiku-4-5";
+    let model = "gpt-5-mini";
 
     if (mode === "map_annotation") {
       const storageKey = typeof body.storageKey === "string" ? body.storageKey : "";
       const bucket = typeof body.bucket === "string" && body.bucket.length > 0 ? body.bucket : "note-docs";
       if (!storageKey) return jsonResponse({ error: "storageKey required" }, 400);
-      const result = await runMapAnnotation(supabase, storageKey, bucket);
+      const image = await loadMapImage(supabase, storageKey, bucket);
+      const result = await runMapAnnotation(ownerId, supabase, image);
       content = result.content;
       tokens = result.tokens;
-      model = "gpt-4o";
+      model = result.model;
     } else {
       if (sourceText.trim().length < 5) return jsonResponse({ error: "Add the source or prompt first." }, 400);
       const { data: profile } = await supabase
@@ -216,7 +212,10 @@ Deno.serve(async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const ai = await callStudentTextModel({
+      const ai = await runOpenAIHomeworkAdapter({
+        task: "history_scaffold",
+        ownerId,
+        supabase,
         system: systemPrompt,
         user: `Mode: ${mode}\nSource or prompt:\n${sourceText}\n\nClass context:\n${classContext}`,
         maxTokens: 650,
@@ -240,12 +239,12 @@ Deno.serve(async (req: Request) => {
         }, supabase);
         await incrementTokens(ownerId, tokens, supabase);
       })
-      .catch((e) => console.warn("post-response side effects failed", e));
+      .catch(() => console.warn("post-response side effects did not complete"));
 
     return jsonResponse({ content });
   } catch (err) {
-    console.error("history-scaffold error:", err);
-    const message = err instanceof Error ? err.message : "Internal error";
-    return jsonResponse({ error: message }, 500);
+    if (err instanceof Response) return err;
+    console.error("history-scaffold request did not complete");
+    return jsonResponse({ error: "History help is unavailable right now." }, 500);
   }
-});
+}));

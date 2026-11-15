@@ -1,0 +1,852 @@
+import {
+  SCREEN_DESIGN_SCREEN_BY_ID,
+  type ScreenDesignActionKind,
+  type ScreenDesignAuthClass,
+} from "@/lib/screendesign/screens";
+import { TEEN_GUARDIAN_PERMISSION_POLICY_VERSION } from "@/lib/learner-access-policy";
+
+export const SCREEN_DESIGN_FIXED_CLOCK = "2026-09-14T16:30:00.000Z" as const;
+
+export const SCREEN_DESIGN_OWNER_ALIASES = [
+  "qa-primary",
+  "qa-secondary",
+  "qa-public-owner",
+] as const;
+
+export type ScreenDesignOwnerAlias =
+  (typeof SCREEN_DESIGN_OWNER_ALIASES)[number];
+
+export const SCREEN_DESIGN_RECORD_KINDS = [
+  "profile",
+  "class",
+  "rubric",
+  "class-syllabus",
+  "assignment",
+  "assignment-step",
+  "assignment-checklist",
+  "assignment-signal",
+  "assignment-time-log",
+  "inbox-item",
+  "note",
+  "flashcard",
+  "study-artifact",
+  "mastery-concept",
+  "lms-connection",
+  "portfolio",
+  "portfolio-item",
+  "wellness-activity",
+  "wellness-goal",
+  "sleep-log",
+  "ai-interaction",
+  "authorship-log",
+  "share-token",
+] as const;
+
+export type ScreenDesignRecordKind =
+  (typeof SCREEN_DESIGN_RECORD_KINDS)[number];
+
+export const SCREEN_DESIGN_GUARDED_STATES = [
+  "populated",
+  "honest-empty",
+  "ai-green",
+  "ai-yellow",
+  "ai-red",
+  "lms-disconnected",
+  "lms-error",
+  "lms-connected",
+  "share-active",
+  "share-expired",
+  "share-revoked",
+  "practice-no-score",
+  "onboarding-invalid",
+  "onboarding-valid",
+  "reduced-motion",
+] as const;
+
+export type ScreenDesignGuardedState =
+  (typeof SCREEN_DESIGN_GUARDED_STATES)[number];
+
+export const SCREEN_DESIGN_CANONICAL_SCREEN_IDS = [
+  "ai-writing-coach",
+  "assignment-detail",
+  "dashboard-personalized",
+  "external-scout-view",
+  "library-empty-state",
+  "lms-sync-center",
+  "milestone-celebration",
+  "mission-board",
+  "notes-surface",
+  "onboarding-welcome",
+  "onboarding-educational",
+  "onboarding-quiz-challenge",
+  "onboarding-quiz-schedule",
+  "practice-test-session",
+  "quick-add",
+  "review-submit-checkpoint",
+  "rubric-scout",
+  "scout-share-view",
+  "settings-profile-center",
+  "smart-loading",
+  "smart-search",
+  "study-artifacts-hub",
+  "study-calendar",
+  "subject-library",
+  "wellness-recovery-log",
+] as const;
+
+export type ScreenDesignScreenId =
+  (typeof SCREEN_DESIGN_CANONICAL_SCREEN_IDS)[number];
+
+export interface ScreenDesignFixtureRecordFactory {
+  readonly kind: ScreenDesignRecordKind;
+  readonly alias: string;
+  readonly dependsOn?: readonly string[];
+  readonly values?: Readonly<Record<string, unknown>>;
+}
+
+export interface ScreenDesignFixtureRoute {
+  readonly pathname: `/${string}`;
+  readonly params: Readonly<Record<string, string>>;
+  readonly stateSelector: string | null;
+}
+
+export interface ScreenDesignFixtureCopy {
+  readonly studentName: "Grayson";
+  readonly heading: string;
+  readonly primaryActionLabel: string;
+  readonly emptyStateLabel?: string;
+}
+
+export type ScreenDesignExpectedPersistedResult =
+  | {
+      readonly kind: "record";
+      readonly recordKind: ScreenDesignRecordKind;
+      readonly alias: string;
+      readonly field: string;
+      readonly value: unknown;
+    }
+  | {
+      readonly kind: "navigation";
+      readonly destination: `/${string}`;
+    }
+  | {
+      readonly kind: "none";
+      readonly reason: string;
+    };
+
+export interface ScreenDesignFixtureScenario {
+  readonly id: string;
+  readonly screenId: ScreenDesignScreenId;
+  readonly variant: string;
+  readonly isDefault: boolean;
+  readonly authClass: ScreenDesignAuthClass;
+  readonly ownerAlias: ScreenDesignOwnerAlias;
+  readonly fixedClock: typeof SCREEN_DESIGN_FIXED_CLOCK;
+  readonly displayCopy: ScreenDesignFixtureCopy;
+  readonly route: ScreenDesignFixtureRoute;
+  readonly records: readonly ScreenDesignFixtureRecordFactory[];
+  readonly guardedStates: readonly ScreenDesignGuardedState[];
+  readonly expectedPrimaryAction: Readonly<{
+    label: string;
+    kind: ScreenDesignActionKind;
+  }>;
+  readonly expectedPersistedResult: ScreenDesignExpectedPersistedResult;
+}
+
+type ScenarioDefinition = Readonly<{
+  screenId: ScreenDesignScreenId;
+  variant?: string;
+  isDefault?: boolean;
+  heading: string;
+  ownerAlias?: ScreenDesignOwnerAlias;
+  params?: Readonly<Record<string, string>>;
+  records: readonly ScreenDesignFixtureRecordFactory[];
+  guardedStates?: readonly ScreenDesignGuardedState[];
+  result?: ScreenDesignExpectedPersistedResult;
+}>;
+
+const record = (
+  kind: ScreenDesignRecordKind,
+  alias: string,
+  values: Readonly<Record<string, unknown>> = {},
+  dependsOn: readonly string[] = [],
+): ScreenDesignFixtureRecordFactory =>
+  Object.freeze({ kind, alias, values: Object.freeze(values), dependsOn });
+
+const profile = (
+  values: Readonly<Record<string, unknown>> = {},
+): ScreenDesignFixtureRecordFactory =>
+  record("profile", "profile-main", {
+    displayName: "Grayson",
+    schoolYear: 9,
+    timezone: "America/Los_Angeles",
+    consentAi: true,
+    teenGuardianPermissionAttestedAt: SCREEN_DESIGN_FIXED_CLOCK,
+    teenGuardianPermissionPolicyVersion: TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+    teenGuardianPermissionSource: "synthetic_qa_fixture",
+    teenGuardianPermissionWithdrawnAt: null,
+    ...values,
+  });
+
+const academicCore = (
+  aiMode: "green" | "yellow" | "red" = "green",
+  assignmentValues: Readonly<Record<string, unknown>> = {},
+): readonly ScreenDesignFixtureRecordFactory[] => [
+  profile(),
+  record("class", "class-main", {
+    name: "English 9",
+    teacher: "Ms. Rivera",
+    aiMode,
+  }),
+  record(
+    "assignment",
+    "assignment-main",
+    {
+      title: "Identity quote response",
+      status: "todo",
+      dueAt: "2026-09-15T22:30:00.000Z",
+      estimatedMinutes: 35,
+      ...assignmentValues,
+    },
+    ["class-main"],
+  ),
+];
+
+const assignmentSupport = (
+  assignmentValues: Readonly<Record<string, unknown>> = {},
+  checklistValues: Readonly<Record<string, unknown>> = {},
+): readonly ScreenDesignFixtureRecordFactory[] => [
+  ...academicCore("green", assignmentValues),
+  record(
+    "assignment-checklist",
+    "checklist-main",
+    { checked: false, label: "Quote and page number are attached", ...checklistValues },
+    ["assignment-main"],
+  ),
+  record(
+    "assignment-signal",
+    "signal-main",
+    { kind: "start", occurredAt: SCREEN_DESIGN_FIXED_CLOCK },
+    ["assignment-main"],
+  ),
+  record(
+    "assignment-time-log",
+    "time-log-main",
+    { startedAt: "2026-09-14T16:20:00.000Z", endedAt: null },
+    ["assignment-main"],
+  ),
+];
+
+const workQueuePreview = (): readonly ScreenDesignFixtureRecordFactory[] => [
+  profile(),
+  record("class", "class-algebra", { name: "Algebra I", teacher: "Mr. Chen", aiMode: "green" }),
+  record("class", "class-history", { name: "World History", teacher: "Ms. Johnson", aiMode: "green" }),
+  record("class", "class-chemistry", { name: "Chemistry", teacher: "Dr. Patel", aiMode: "green" }),
+  record(
+    "assignment",
+    "assignment-main",
+    {
+      title: "Linear equations practice set",
+      kind: "problem_set",
+      status: "todo",
+      dueAt: "2026-09-14T19:00:00.000Z",
+      estimatedMinutes: 30,
+    },
+    ["class-algebra"],
+  ),
+  record(
+    "assignment",
+    "assignment-graphing",
+    {
+      title: "Function graph practice",
+      kind: "problem_set",
+      status: "drafting",
+      dueAt: "2026-09-15T21:00:00.000Z",
+      estimatedMinutes: 25,
+    },
+    ["class-algebra"],
+  ),
+  record(
+    "assignment",
+    "assignment-nixon",
+    {
+      title: "Nixon research outline",
+      kind: "essay",
+      status: "todo",
+      dueAt: "2026-09-16T21:00:00.000Z",
+      estimatedMinutes: 40,
+    },
+    ["class-history"],
+  ),
+  record(
+    "assignment",
+    "assignment-chemistry",
+    {
+      title: "Balancing equations practice",
+      kind: "lab",
+      status: "todo",
+      dueAt: "2026-09-17T21:00:00.000Z",
+      estimatedMinutes: 30,
+    },
+    ["class-chemistry"],
+  ),
+  record(
+    "assignment",
+    "assignment-quiz",
+    {
+      title: "Quiz: slope and intercepts",
+      kind: "test_prep",
+      status: "checking",
+      dueAt: "2026-09-19T21:00:00.000Z",
+      estimatedMinutes: 35,
+    },
+    ["class-algebra"],
+  ),
+];
+
+const shareRecords = (
+  tokenState: "active" | "expired" | "revoked",
+  scope: "portfolio" | "report",
+): readonly ScreenDesignFixtureRecordFactory[] => [
+  profile(),
+  ...(scope === "portfolio"
+    ? [
+        record("portfolio", "portfolio-main", { title: "Freshman portfolio" }),
+        record(
+          "portfolio-item",
+          "portfolio-item-main",
+          {
+            title: "Identity quote response",
+            reflection: "I revised the explanation.",
+            position: 0,
+          },
+          ["portfolio-main"],
+        ),
+      ]
+    : [
+        record("class", "class-main", { name: "English 9", aiMode: "green" }),
+        record(
+          "mastery-concept",
+          "concept-main",
+          { name: "Claim evidence reasoning", masteryLevel: 1.8 },
+          ["class-main"],
+        ),
+      ]),
+  record(
+    "share-token",
+    "share-token-main",
+    { tokenAlias: `share-${tokenState}`, tokenState, scope },
+    scope === "portfolio" ? ["portfolio-main"] : ["concept-main"],
+  ),
+];
+
+const navigation = (destination: `/${string}`): ScreenDesignExpectedPersistedResult => ({
+  kind: "navigation",
+  destination,
+});
+
+const mutation = (
+  recordKind: ScreenDesignRecordKind,
+  alias: string,
+  field: string,
+  value: unknown,
+): ScreenDesignExpectedPersistedResult => ({
+  kind: "record",
+  recordKind,
+  alias,
+  field,
+  value,
+});
+
+const noWrite = (reason: string): ScreenDesignExpectedPersistedResult => ({
+  kind: "none",
+  reason,
+});
+
+const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
+  {
+    screenId: "ai-writing-coach",
+    heading: "Writing Coach",
+    params: { id: "assignment-main" },
+    records: [
+      ...academicCore("green", {
+        title: "The Hero's Journey",
+        savedWork: {
+          draft: "Odysseus learns that endurance matters because every challenge asks him to choose who he will become.",
+        },
+      }),
+      record(
+        "ai-interaction",
+        "ai-interaction-main",
+        { feature: "writing_aid", aiMode: "green" },
+        ["assignment-main"],
+      ),
+      record(
+        "authorship-log",
+        "authorship-main",
+        { feature: "writing_aid" },
+        ["assignment-main", "ai-interaction-main"],
+      ),
+    ],
+    guardedStates: ["ai-green"],
+    result: mutation("authorship-log", "authorship-main", "feature", "writing_aid"),
+  },
+  {
+    screenId: "assignment-detail",
+    heading: "Assignment detail",
+    params: { id: "assignment-main" },
+    records: [
+      ...assignmentSupport({}, { checked: true }),
+      record(
+        "assignment-step",
+        "assignment-step-main",
+        {
+          steps: [
+            { step: 1, action: "Write a one-sentence claim.", minutes: 5, done: false },
+            { step: 2, action: "Choose the strongest quote.", minutes: 5, done: false },
+            { step: 3, action: "Explain how the quote supports the claim.", minutes: 5, done: false },
+          ],
+        },
+        ["assignment-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+    result: mutation("assignment", "assignment-main", "status", "in_progress"),
+  },
+  {
+    screenId: "assignment-detail",
+    variant: "work-queue-five",
+    heading: "Five assignment work queue",
+    params: { id: "assignment-main" },
+    records: workQueuePreview(),
+    guardedStates: ["populated"],
+    result: mutation("assignment", "assignment-main", "status", "in_progress"),
+  },
+  {
+    screenId: "dashboard-personalized",
+    heading: "Lobby",
+    records: assignmentSupport(),
+    guardedStates: ["populated"],
+  },
+  {
+    screenId: "external-scout-view",
+    heading: "Shared portfolio evidence",
+    ownerAlias: "qa-public-owner",
+    params: { token: "share-active" },
+    records: shareRecords("active", "portfolio"),
+    guardedStates: ["share-active"],
+  },
+  {
+    screenId: "library-empty-state",
+    heading: "Your classes",
+    records: [profile()],
+    guardedStates: ["honest-empty"],
+  },
+  {
+    screenId: "lms-sync-center",
+    heading: "Learning platform connections",
+    records: [profile()],
+    guardedStates: ["lms-disconnected", "honest-empty"],
+  },
+  {
+    screenId: "milestone-celebration",
+    heading: "Learning milestone",
+    records: [
+      ...academicCore("green", { status: "graded" }),
+      record(
+        "assignment-signal",
+        "signal-completed",
+        { kind: "completed", occurredAt: SCREEN_DESIGN_FIXED_CLOCK },
+        ["assignment-main"],
+      ),
+      record(
+        "authorship-log",
+        "authorship-main",
+        { feature: "student_work", studentConfirmed: true },
+        ["assignment-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+  },
+  {
+    screenId: "mission-board",
+    heading: "Mission board",
+    records: academicCore(),
+    guardedStates: ["populated"],
+  },
+  {
+    screenId: "notes-surface",
+    heading: "Notes",
+    params: { id: "note-main" },
+    records: [
+      ...academicCore(),
+      record(
+        "note",
+        "note-main",
+        { title: "Identity reading notes", bodyText: "Claim, quote, explanation." },
+        ["class-main", "assignment-main"],
+      ),
+      record(
+        "flashcard",
+        "flashcard-main",
+        { front: "What is the claim?", back: "Identity shapes choices." },
+        ["class-main", "note-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+    result: mutation("note", "note-main", "bodyText", "Claim, quote, explanation."),
+  },
+  {
+    screenId: "onboarding-welcome",
+    heading: "DIANA AI TUTOR",
+    records: [profile({ onboardedAt: null })],
+    guardedStates: ["onboarding-invalid"],
+  },
+  {
+    screenId: "onboarding-educational",
+    heading: "DID YOU KNOW?",
+    records: [profile({ onboardedAt: null })],
+    guardedStates: ["onboarding-invalid"],
+  },
+  {
+    screenId: "onboarding-quiz-challenge",
+    heading: "WHAT'S YOUR BIGGEST HURDLE RIGHT NOW?",
+    records: [profile({ onboardedAt: null, learningHurdle: null })],
+    guardedStates: ["onboarding-invalid"],
+    result: noWrite("An invalid or missing hurdle does not persist."),
+  },
+  {
+    screenId: "onboarding-quiz-schedule",
+    heading: "WHEN ARE YOU MOST IN THE ZONE?",
+    records: [profile({ onboardedAt: null, studySchedulePreference: "after_practice" })],
+    guardedStates: ["onboarding-valid"],
+    result: mutation("profile", "profile-main", "studySchedulePreference", "after_practice"),
+  },
+  {
+    screenId: "practice-test-session",
+    heading: "Practice session",
+    params: { id: "artifact-main" },
+    records: [
+      ...academicCore(),
+      record(
+        "study-artifact",
+        "artifact-main",
+        { artifactType: "practice_test", score: null, completed: false },
+        ["class-main", "assignment-main"],
+      ),
+    ],
+    guardedStates: ["practice-no-score"],
+    result: mutation("study-artifact", "artifact-main", "completed", true),
+  },
+  {
+    screenId: "quick-add",
+    heading: "Quick add",
+    records: [
+      profile(),
+      record("inbox-item", "inbox-main", {
+        raw: "Bring the biology diagram tomorrow.",
+        status: "unclassified",
+      }),
+    ],
+    guardedStates: ["populated"],
+    result: mutation("inbox-item", "inbox-main", "status", "unclassified"),
+  },
+  {
+    screenId: "review-submit-checkpoint",
+    heading: "Review before submitting",
+    params: { id: "assignment-main" },
+    records: [
+      ...assignmentSupport({ status: "exporting" }, { checked: true }),
+      record(
+        "authorship-log",
+        "authorship-main",
+        { feature: "submission_review", studentConfirmed: false },
+        ["assignment-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+    result: mutation("assignment", "assignment-main", "status", "submitted"),
+  },
+  {
+    screenId: "rubric-scout",
+    heading: "Rubric scout",
+    params: { id: "class-main" },
+    records: [
+      ...academicCore(),
+      record(
+        "rubric",
+        "rubric-main",
+        { title: "Identity response rubric", parseStatus: "parsed" },
+        ["class-main"],
+      ),
+      record(
+        "class-syllabus",
+        "syllabus-main",
+        { title: "English 9 course guide" },
+        ["class-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+  },
+  {
+    screenId: "scout-share-view",
+    heading: "Shared progress report",
+    ownerAlias: "qa-public-owner",
+    params: { token: "share-active" },
+    records: shareRecords("active", "report"),
+    guardedStates: ["share-active"],
+  },
+  {
+    screenId: "settings-profile-center",
+    heading: "Profile and settings",
+    records: [profile({ reducedMotion: false, highContrast: false })],
+    guardedStates: ["populated"],
+    result: mutation("profile", "profile-main", "reducedMotion", false),
+  },
+  {
+    screenId: "smart-loading",
+    heading: "Getting your next view ready",
+    records: [profile()],
+    guardedStates: ["populated"],
+    result: noWrite("Loading reflects the owning request and creates no record."),
+  },
+  {
+    screenId: "smart-search",
+    heading: "Search Diana",
+    records: [
+      ...academicCore(),
+      record(
+        "note",
+        "note-main",
+        { title: "Identity reading notes", bodyText: "Quote and explanation." },
+        ["class-main", "assignment-main"],
+      ),
+      record(
+        "mastery-concept",
+        "concept-main",
+        { name: "Claim evidence reasoning", masteryLevel: 1.8 },
+        ["class-main"],
+      ),
+      record(
+        "study-artifact",
+        "artifact-main",
+        { artifactType: "study_guide", title: "Identity study guide" },
+        ["class-main", "assignment-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+    result: noWrite("Search is RLS-scoped and does not mutate student data."),
+  },
+  {
+    screenId: "study-artifacts-hub",
+    heading: "Study artifacts",
+    records: [
+      ...academicCore(),
+      record(
+        "study-artifact",
+        "artifact-main",
+        { artifactType: "study_guide", title: "Identity study guide" },
+        ["class-main", "assignment-main"],
+      ),
+    ],
+    guardedStates: ["ai-green", "populated"],
+    result: mutation("study-artifact", "artifact-main", "artifactType", "study_guide"),
+  },
+  {
+    screenId: "study-calendar",
+    heading: "Study calendar",
+    records: academicCore(),
+    guardedStates: ["populated"],
+  },
+  {
+    screenId: "subject-library",
+    heading: "Subject library",
+    records: academicCore(),
+    guardedStates: ["populated"],
+  },
+  {
+    screenId: "wellness-recovery-log",
+    heading: "Wellness and recovery",
+    records: [
+      profile(),
+      record("wellness-activity", "wellness-activity-main", {
+        activityType: "walk",
+        durationMinutes: 20,
+        felt: "steady",
+      }),
+      record("wellness-goal", "wellness-goal-main", {
+        category: "recovery",
+        title: "Take one screen break",
+      }),
+      record("sleep-log", "sleep-main", {
+        sleepDate: "2026-09-13",
+        durationMinutes: 480,
+        quality: "okay",
+      }),
+    ],
+    guardedStates: ["populated"],
+    result: mutation("wellness-activity", "wellness-activity-main", "durationMinutes", 20),
+  },
+];
+
+const GUARDED_SCENARIOS: readonly ScenarioDefinition[] = [
+  {
+    screenId: "ai-writing-coach",
+    variant: "ai-red-blocked",
+    heading: "Writing Coach is unavailable right now",
+    params: { id: "assignment-main" },
+    records: academicCore("red"),
+    guardedStates: ["ai-red"],
+    result: noWrite("Red AI policy blocks content generation server-side."),
+  },
+  {
+    screenId: "ai-writing-coach",
+    variant: "ai-yellow-blocked",
+    heading: "Writing Coach limited for this class",
+    params: { id: "assignment-main" },
+    records: academicCore("yellow"),
+    guardedStates: ["ai-yellow"],
+    result: noWrite("Yellow AI policy blocks writing generation server-side."),
+  },
+  {
+    screenId: "lms-sync-center",
+    variant: "lms-error",
+    heading: "Connection needs attention",
+    records: [
+      profile(),
+      record("lms-connection", "lms-main", {
+        provider: "canvas",
+        status: "error",
+        lastSyncError: "Synthetic QA sync interruption",
+      }),
+    ],
+    guardedStates: ["lms-error"],
+  },
+  {
+    screenId: "lms-sync-center",
+    variant: "lms-connected",
+    heading: "Learning platform connected",
+    records: [
+      profile(),
+      record("lms-connection", "lms-main", {
+        provider: "canvas",
+        status: "connected",
+        lastSyncError: null,
+      }),
+    ],
+    guardedStates: ["lms-connected"],
+  },
+  {
+    screenId: "external-scout-view",
+    variant: "share-expired",
+    heading: "This shared link has expired",
+    ownerAlias: "qa-public-owner",
+    params: { token: "share-expired" },
+    records: shareRecords("expired", "portfolio"),
+    guardedStates: ["share-expired"],
+    result: noWrite("Expired tokens expose no portfolio records."),
+  },
+  {
+    screenId: "external-scout-view",
+    variant: "share-revoked",
+    heading: "This shared link is no longer available",
+    ownerAlias: "qa-public-owner",
+    params: { token: "share-revoked" },
+    records: shareRecords("revoked", "portfolio"),
+    guardedStates: ["share-revoked"],
+    result: noWrite("Revoked tokens expose no portfolio records."),
+  },
+  {
+    screenId: "onboarding-quiz-challenge",
+    variant: "valid-selection",
+    heading: "WHAT'S YOUR BIGGEST HURDLE RIGHT NOW?",
+    records: [profile({ onboardedAt: null, learningHurdle: "time_management" })],
+    guardedStates: ["onboarding-valid"],
+    result: mutation("profile", "profile-main", "learningHurdle", "time_management"),
+  },
+  {
+    screenId: "onboarding-quiz-schedule",
+    variant: "invalid-selection",
+    heading: "WHEN ARE YOU MOST IN THE ZONE?",
+    records: [profile({ onboardedAt: null, studySchedulePreference: null })],
+    guardedStates: ["onboarding-invalid"],
+    result: noWrite("An invalid or missing schedule does not persist."),
+  },
+  {
+    screenId: "milestone-celebration",
+    variant: "reduced-motion",
+    heading: "Record",
+    records: [profile({ reducedMotion: true })],
+    guardedStates: ["reduced-motion"],
+    result: navigation("/proof"),
+  },
+];
+
+function defaultResult(
+  definition: ScenarioDefinition,
+): ScreenDesignExpectedPersistedResult {
+  const screen = SCREEN_DESIGN_SCREEN_BY_ID.get(definition.screenId);
+  if (!screen) throw new Error(`Unknown ScreenDesign screen: ${definition.screenId}`);
+
+  if (screen.primaryAction.kind === "navigate") return navigation(screen.route);
+  if (screen.primaryAction.kind === "search") {
+    return noWrite("Search is a read-only owner-scoped operation.");
+  }
+  if (screen.primaryAction.kind === "system") {
+    return noWrite("System request completion does not create a fixture record.");
+  }
+
+  return mutation("profile", "profile-main", "updatedAt", SCREEN_DESIGN_FIXED_CLOCK);
+}
+
+function defineScenario(
+  definition: ScenarioDefinition,
+): ScreenDesignFixtureScenario {
+  const screen = SCREEN_DESIGN_SCREEN_BY_ID.get(definition.screenId);
+  if (!screen) throw new Error(`Unknown ScreenDesign screen: ${definition.screenId}`);
+  const variant = definition.variant ?? "default";
+
+  return Object.freeze({
+    id: `${definition.screenId}:${variant}`,
+    screenId: definition.screenId,
+    variant,
+    isDefault: definition.isDefault ?? definition.variant == null,
+    authClass: screen.authClass,
+    ownerAlias:
+      definition.ownerAlias ??
+      (screen.authClass === "public-token" ? "qa-public-owner" : "qa-primary"),
+    fixedClock: SCREEN_DESIGN_FIXED_CLOCK,
+    displayCopy: Object.freeze({
+      studentName: "Grayson",
+      heading: definition.heading,
+      primaryActionLabel: screen.primaryAction.label,
+      ...(definition.guardedStates?.includes("honest-empty")
+        ? { emptyStateLabel: definition.heading }
+        : {}),
+    }),
+    route: Object.freeze({
+      pathname: screen.route,
+      params: Object.freeze(definition.params ?? {}),
+      stateSelector: screen.stateSelector,
+    }),
+    records: Object.freeze([...definition.records]),
+    guardedStates: Object.freeze([...(definition.guardedStates ?? ["populated"])]),
+    expectedPrimaryAction: Object.freeze({
+      label: screen.primaryAction.label,
+      kind: screen.primaryAction.kind,
+    }),
+    expectedPersistedResult: definition.result ?? defaultResult(definition),
+  });
+}
+
+export const SCREEN_DESIGN_FIXTURE_SCENARIOS: readonly ScreenDesignFixtureScenario[] =
+  Object.freeze([...DEFAULT_SCENARIOS, ...GUARDED_SCENARIOS].map(defineScenario));
+
+export function getScreenDesignFixtureScenario(
+  scenarioId: string,
+): ScreenDesignFixtureScenario | null {
+  return (
+    SCREEN_DESIGN_FIXTURE_SCENARIOS.find((scenario) => scenario.id === scenarioId) ??
+    null
+  );
+}

@@ -67,8 +67,8 @@ describe("study helper mode model", () => {
       selectedMode: "guided_steps",
     });
 
-    expect(context.aiPolicyLabel).toBe("AI policy: no content help");
-    expect(context.reason).toContain("content AI off");
+    expect(context.aiPolicyLabel).toBe("Diana Trust: source-only");
+    expect(context.reason).toContain("reading, organization");
     expect(context.bars.find((bar) => bar.id === "trust")?.status).toBe("guarded");
   });
 
@@ -94,7 +94,7 @@ describe("study helper mode model", () => {
     expect(shellContextFromStudyHelper(context)).toMatchObject({
       selectedMode: "visual_breakdown",
       modeLabel: "Show visually",
-      aiPolicyLabel: "AI policy: scaffolding only",
+      aiPolicyLabel: "Diana Trust: guided support",
     });
   });
 });

@@ -3,11 +3,55 @@
 // Pagination: follow Link: rel="next" (Canvas defaults per_page=10 even when we ask for 100 — defensive).
 
 import type { NormalizedAssignment } from "./types";
+import { LmsReconnectRequiredError } from "./errors";
+import { assertLmsProviderFeatureEnabled } from "./provider-features";
 import type { GradeRecord } from "@/lib/grades/insights";
+import {
+  fetchCanvasDestination,
+  resolveCanvasConnectionDestination,
+  type CanvasInstitution,
+} from "@/lib/security/canvas-institutions";
 
-type CanvasConfig = { base_url: string; token: string };
+type CanvasConfig = { base_url: string; token: string; institution_id?: string | null };
 
 type CanvasCourse = { id: number; name: string };
+type CanvasAttachment = { id: number; filename?: string; url?: string; 'content-type'?: string | null };
+const MAX_CANVAS_PAGES = 100;
+
+export const CANVAS_IMPORT_OAUTH_SCOPES = [
+  "url:GET|/api/v1/users/:user_id/profile",
+  "url:GET|/api/v1/courses",
+  "url:GET|/api/v1/courses/:course_id/assignments",
+  "url:GET|/api/v1/courses/:course_id/students/submissions",
+] as const;
+
+export const CANVAS_SUBMISSION_OAUTH_SCOPES = [
+  "url:GET|/api/v1/courses/:course_id/assignments/:id",
+  "url:GET|/api/v1/users/:user_id/files",
+  "url:POST|/api/v1/courses/:course_id/assignments/:assignment_id/submissions",
+  "url:POST|/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/files",
+] as const;
+
+export const CANVAS_TEACHER_SUBMISSION_OAUTH_SCOPES = [
+  "url:GET|/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id",
+  "url:PUT|/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id",
+] as const;
+
+export function canvasOAuthScopes(input: {
+  importEnabled: boolean;
+  submissionEnabled: boolean;
+  teacher?: boolean;
+}): string[] {
+  return [...new Set([
+    ...(input.importEnabled ? CANVAS_IMPORT_OAUTH_SCOPES : []),
+    ...(input.submissionEnabled
+      ? input.teacher
+        ? CANVAS_TEACHER_SUBMISSION_OAUTH_SCOPES
+        : CANVAS_SUBMISSION_OAUTH_SCOPES
+      : []),
+  ])];
+}
+
 type CanvasAssignment = {
   id: number;
   name: string;
@@ -15,6 +59,7 @@ type CanvasAssignment = {
   due_at: string | null;
   html_url?: string | null;
   rubric?: Array<{ description?: string; long_description?: string; points?: number }>;
+  attachments?: CanvasAttachment[];
 };
 
 function parseNextLink(linkHeader: string | null): string | null {
@@ -28,11 +73,25 @@ function parseNextLink(linkHeader: string | null): string | null {
   return null;
 }
 
-async function fetchAllPages<T>(initialUrl: string, token: string): Promise<T[]> {
+async function fetchAllPages<T>(
+  initialUrl: string,
+  token: string,
+  institution: CanvasInstitution,
+): Promise<T[]> {
   const out: T[] = [];
+  const visited = new Set<string>();
   let url: string | null = initialUrl;
+  let pageCount = 0;
   while (url) {
-    const res: Response = await fetch(url, {
+    if (visited.has(url)) {
+      throw new Error("Canvas pagination repeated a page URL.");
+    }
+    if (pageCount >= MAX_CANVAS_PAGES) {
+      throw new Error(`Canvas pagination exceeded ${MAX_CANVAS_PAGES} pages.`);
+    }
+    visited.add(url);
+    pageCount += 1;
+    const res = await fetchCanvasDestination(institution, url, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     });
     if (!res.ok) {
@@ -48,12 +107,13 @@ async function fetchAllPages<T>(initialUrl: string, token: string): Promise<T[]>
 // ---------------------------------------------------------------------------
 // OAuth token refresh. Personal access tokens (oauth !== true) never expire and
 // pass through untouched. OAuth access tokens (~1h) are refreshed via the stored
-// refresh_token; the caller persists `refreshed` back into the connection config.
+// refresh_token; the caller persists `refreshed` through the credential vault.
 // Canvas's refresh grant returns a new access_token but reuses the refresh_token.
 // ---------------------------------------------------------------------------
 export type CanvasTokenConfig = {
   base_url: string;
-  token: string;
+  token?: string | null;
+  institution_id?: string | null;
   oauth?: boolean;
   refresh_token?: string | null;
   expires_at?: string | null;
@@ -65,34 +125,49 @@ export type ValidCanvasToken = {
 };
 
 export async function getValidCanvasToken(config: CanvasTokenConfig): Promise<ValidCanvasToken> {
-  // Personal access token (or no refresh available) — use as-is.
-  if (!config.oauth || !config.refresh_token) {
+  // Personal access tokens do not use the OAuth refresh contract.
+  if (!config.oauth) {
+    if (!config.token) throw new LmsReconnectRequiredError("canvas");
     return { token: config.token };
   }
   const now = Date.now();
   const expiresMs = config.expires_at ? Date.parse(config.expires_at) : 0;
-  if (config.token && expiresMs - now > 90_000) {
+  if (config.token && config.refresh_token && Number.isFinite(expiresMs) && expiresMs - now > 90_000) {
     return { token: config.token };
+  }
+  if (!config.refresh_token) {
+    throw new LmsReconnectRequiredError("canvas");
   }
   const clientId = process.env.CANVAS_CLIENT_ID;
   const clientSecret = process.env.CANVAS_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
-    return { token: config.token }; // can't refresh; best effort with the stale token
+    throw new LmsReconnectRequiredError("canvas");
   }
-  const tokenUrl = new URL("/login/oauth2/token", config.base_url);
-  const res = await fetch(tokenUrl, {
-    method: "POST",
-    headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: config.refresh_token,
-    }),
-  }).catch(() => null);
-  if (!res || !res.ok) return { token: config.token };
-  const body = (await res.json()) as { access_token?: string; expires_in?: number };
-  if (!body.access_token) return { token: config.token };
+  let res: Response;
+  try {
+    const institution = await resolveCanvasConnectionDestination(config);
+    const tokenUrl = new URL("/login/oauth2/token", institution.origin);
+    res = await fetchCanvasDestination(institution, tokenUrl, {
+      method: "POST",
+      headers: { Accept: "application/json", "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        client_id: clientId,
+        client_secret: clientSecret,
+        refresh_token: config.refresh_token,
+      }),
+    });
+  } catch (error) {
+    throw new LmsReconnectRequiredError("canvas", undefined, { cause: error });
+  }
+  if (!res.ok) throw new LmsReconnectRequiredError("canvas");
+  let body: { access_token?: string; expires_in?: number };
+  try {
+    body = (await res.json()) as { access_token?: string; expires_in?: number };
+  } catch (error) {
+    throw new LmsReconnectRequiredError("canvas", undefined, { cause: error });
+  }
+  if (!body.access_token) throw new LmsReconnectRequiredError("canvas");
   const expires_at =
     typeof body.expires_in === "number"
       ? new Date(Date.now() + body.expires_in * 1000).toISOString()
@@ -100,29 +175,64 @@ export async function getValidCanvasToken(config: CanvasTokenConfig): Promise<Va
   return { token: body.access_token, refreshed: { token: body.access_token, expires_at } };
 }
 
+function canvasSources(assignment: CanvasAssignment) {
+  const sources = [];
+  if (assignment.description?.trim()) {
+    sources.push({
+      source_type: "instructions" as const,
+      title: "Canvas assignment instructions",
+      provider: "canvas",
+      external_id: `${assignment.id}:instructions`,
+      extracted_text: assignment.description,
+      import_status: "imported" as const,
+    });
+  }
+  if (assignment.rubric?.length) {
+    sources.push({
+      source_type: "rubric" as const,
+      title: "Canvas rubric",
+      provider: "canvas",
+      external_id: `${assignment.id}:rubric`,
+      extracted_text: formatCanvasRubric(assignment.rubric),
+      import_status: "imported" as const,
+    });
+  }
+  for (const attachment of assignment.attachments ?? []) {
+    sources.push({
+      source_type: "attachment" as const,
+      title: attachment.filename?.trim() || "Canvas attachment",
+      provider: "canvas",
+      external_id: `${assignment.id}:attachment:${attachment.id}`,
+      url: attachment.url ?? null,
+      mime_type: attachment["content-type"] ?? null,
+      import_status: attachment.url ? "ready" as const : "partial" as const,
+    });
+  }
+  return sources;
+}
 export async function fetchCanvasAssignments(
   config: CanvasConfig,
 ): Promise<{ items: NormalizedAssignment[]; skipped: number }> {
-  const base = config.base_url.replace(/\/$/, "");
+  assertLmsProviderFeatureEnabled("canvas_import");
+  const institution = await resolveCanvasConnectionDestination(config);
+  const base = institution.origin;
 
   const courses = await fetchAllPages<CanvasCourse>(
     `${base}/api/v1/courses?enrollment_state=active&per_page=100`,
     config.token,
+    institution,
   );
 
-  let skipped = 0;
+  const skipped = 0;
   const items: NormalizedAssignment[] = [];
 
   for (const course of courses) {
     const assignments = await fetchAllPages<CanvasAssignment>(
       `${base}/api/v1/courses/${course.id}/assignments?per_page=100`,
       config.token,
+      institution,
     );
     for (const a of assignments) {
-      if (!a.due_at) {
-        skipped += 1;
-        continue;
-      }
       items.push({
         external_id: String(a.id),
         title: a.name,
@@ -133,6 +243,7 @@ export async function fetchCanvasAssignments(
         rubric_text: formatCanvasRubric(a.rubric),
         external_course_id: String(course.id),
         external_course_name: course.name,
+        sources: canvasSources(a),
       });
     }
   }
@@ -191,10 +302,13 @@ export function normalizeCanvasSubmission(
 
 /** Provider-computed current score percent per course id. */
 export async function fetchCanvasCourseScores(config: CanvasConfig): Promise<Map<string, number | null>> {
-  const base = config.base_url.replace(/\/$/, "");
+  assertLmsProviderFeatureEnabled("canvas_import");
+  const institution = await resolveCanvasConnectionDestination(config);
+  const base = institution.origin;
   const courses = await fetchAllPages<CanvasCourseWithScore>(
     `${base}/api/v1/courses?enrollment_state=active&include[]=total_scores&per_page=100`,
     config.token,
+    institution,
   );
   const scores = new Map<string, number | null>();
   for (const course of courses) {
@@ -206,10 +320,13 @@ export async function fetchCanvasCourseScores(config: CanvasConfig): Promise<Map
 
 /** The student's own graded/open work across active courses. */
 export async function fetchCanvasGrades(config: CanvasConfig): Promise<GradeRecord[]> {
-  const base = config.base_url.replace(/\/$/, "");
+  assertLmsProviderFeatureEnabled("canvas_import");
+  const institution = await resolveCanvasConnectionDestination(config);
+  const base = institution.origin;
   const courses = await fetchAllPages<CanvasCourse>(
     `${base}/api/v1/courses?enrollment_state=active&per_page=100`,
     config.token,
+    institution,
   );
 
   const records: GradeRecord[] = [];
@@ -217,6 +334,7 @@ export async function fetchCanvasGrades(config: CanvasConfig): Promise<GradeReco
     const submissions = await fetchAllPages<CanvasSubmission>(
       `${base}/api/v1/courses/${course.id}/students/submissions?student_ids[]=self&include[]=assignment&per_page=100`,
       config.token,
+      institution,
     );
     for (const submission of submissions) {
       const normalized = normalizeCanvasSubmission(course, submission);

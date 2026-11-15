@@ -1,6 +1,7 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/writing-aid/index.ts
 // F10: Writing coach — Sonnet 4.6, explains rules without editing student text.
-// ai_mode: 'red' and 'yellow' both return 403 (yellow = citations only).
 // Fire-and-forget: logInteraction + incrementTokens never block the response.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -10,9 +11,9 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const WRITING_PROMPT = `You are a writing coach for a high-school student
 with dyslexia and/or ADHD. The student will share a sentence or short
@@ -26,12 +27,11 @@ passage from their writing. Your rules:
   refuse-with-redirect guidance.
 - Calm tone. \u2264 6 short sentences total.`;
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("writing-aid", async (req: Request) => {
   // CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "authorization, content-type",
       },
     });
@@ -46,7 +46,7 @@ Deno.serve(async (req: Request) => {
       aiMode?: unknown;
     };
 
-    const { ownerId, assignmentId, prompt, aiMode } = body;
+    const { ownerId, assignmentId, prompt } = body;
 
     if (typeof ownerId !== "string" || !ownerId) {
       return new Response(JSON.stringify({ error: "ownerId required" }), {
@@ -60,19 +60,7 @@ Deno.serve(async (req: Request) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-
-    // 2. aiMode check — both 'red' and 'yellow' block writing-aid (yellow = citations only)
-    if (aiMode === "red" || aiMode === "yellow") {
-      return new Response(
-        JSON.stringify({ error: "AI not available for this class" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // 3. Supabase service-role client
+    // 2. Supabase service-role client
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -107,7 +95,10 @@ Deno.serve(async (req: Request) => {
       { role: "user" as const, content: prompt as string },
     ];
 
-    const ai = await callStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+      task: "writing_aid",
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: messages[0].content,
       maxTokens: 500,
@@ -140,14 +131,14 @@ Deno.serve(async (req: Request) => {
       status: 200,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
       },
     });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("writing-aid error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-});
+}));

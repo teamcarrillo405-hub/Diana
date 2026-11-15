@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/cs-scaffold/index.ts
 // Phase 21: computer science scaffold engine.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
@@ -8,9 +10,9 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const MODES = new Set(["error_hint", "pseudocode_bridge", "code_review", "debug_log", "project_scaffold"]);
 
@@ -50,7 +52,6 @@ Rules:
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -63,7 +64,7 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("cs-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders() });
 
   try {
@@ -81,7 +82,7 @@ Deno.serve(async (req: Request) => {
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const assignmentId = typeof body.assignmentId === "string" ? body.assignmentId : null;
     const mode = typeof body.mode === "string" && MODES.has(body.mode) ? body.mode : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
     const code = typeof body.code === "string" ? body.code.slice(0, 8000) : "";
     const language = typeof body.language === "string" ? body.language.slice(0, 40) : "javascript";
     const runtimeError = typeof body.runtimeError === "string" ? body.runtimeError.slice(0, 1200) : "";
@@ -89,9 +90,6 @@ Deno.serve(async (req: Request) => {
     const classContext = typeof body.classContext === "string" ? body.classContext.slice(0, 3000) : "";
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
     if (!mode) return jsonResponse({ error: "mode required" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
     if (`${code}${runtimeError}${prompt}`.trim().length < 3) {
       return jsonResponse({ error: "Add code, an error, or a prompt first." }, 400);
     }
@@ -120,7 +118,11 @@ Deno.serve(async (req: Request) => {
       personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
-    const ai = await callStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+
+      task: "cs_scaffold",
+      ownerId,
+      supabase,
       system: systemPrompt,
       user: `Mode: ${mode}
 Language: ${language}
@@ -157,7 +159,8 @@ ${classContext}`,
 
     return jsonResponse({ content });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("cs-scaffold error:", err);
     return jsonResponse({ error: "Internal error" }, 500);
   }
-});
+}));

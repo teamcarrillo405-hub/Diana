@@ -5,8 +5,25 @@ import type { Database } from "@/lib/supabase/types";
 // Default-deny: everything requires auth unless explicitly allowed here.
 const PUBLIC_EXACT = new Set([
   "/",
+  "/how-it-works",
+  "/student-control",
+  "/trust",
+  "/early-access/unsubscribe",
+  "/early-access/confirm",
+  // The offline recovery screen must remain reachable without a session.
+  "/offline",
+  "/public-not-found",
+  "/robots.txt",
+  "/sitemap.xml",
   "/manifest.webmanifest",
+  // Read-only, key-safe deployment identity used by the release SHA verifier.
+  "/api/build-info",
+  "/api/health",
+  "/api/readiness",
   "/api/qa/anonymous-session",
+  // Development-only QA login. The route itself returns 404 in production or
+  // when QA_CREATE_USER is disabled.
+  "/qa-session",
   // Handles its own feature flag, session check, and JSON response.
   "/api/diana/voice-candidate",
   "/api/diana/voice-candidate/status",
@@ -16,19 +33,53 @@ const PUBLIC_EXACT = new Set([
   "/api/workers/metrics",
   "/api/workers/metrics/prometheus",
   "/api/workers/version",
+  "/api/operations/metrics/prometheus",
 ]);
-// "/share" is the account-less parent/teacher summary — it validates its own
+// "/share" is the account-less parent/teacher summary - it validates its own
 // token server-side (service role), so it must bypass the auth wall.
-const PUBLIC_PREFIXES = ["/login", "/signup", "/auth", "/icon", "/film", "/landing-3d", "/share"];
+const PUBLIC_PREFIXES = [
+  "/login",
+  "/signup",
+  "/auth",
+  "/icon",
+  "/share",
+  "/assets/landing-cinematic-v3",
+];
 const AUTH_ONLY_PREFIXES = ["/login", "/signup"];
+const PRIVATE_ROUTE_ROOTS = new Set([
+  "assignments",
+  "calendar",
+  "classes",
+  "dashboard",
+  "more",
+  "notes",
+  "onboarding",
+  "proof",
+  "quick-add",
+  "search",
+  "settings",
+  "sharing",
+  "study",
+  "study-artifacts",
+  "wellness",
+]);
 
 function isPublic(path: string): boolean {
   if (PUBLIC_EXACT.has(path)) return true;
   return PUBLIC_PREFIXES.some((p) => path === p || path.startsWith(p + "/"));
 }
 
-export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+function isUnknownPublicPath(path: string): boolean {
+  if (path === "/" || path.startsWith("/api/") || path.includes(".")) return false;
+  const root = path.split("/").filter(Boolean)[0];
+  return Boolean(root && !PRIVATE_ROUTE_ROOTS.has(root) && !isPublic(path));
+}
+
+export async function updateSession(
+  request: NextRequest,
+  requestHeaders: Headers = new Headers(request.headers),
+) {
+  let response = NextResponse.next({ request: { headers: requestHeaders } });
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,7 +93,7 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          response = NextResponse.next({ request });
+          response = NextResponse.next({ request: { headers: requestHeaders } });
           cookiesToSet.forEach(({ name, value, options }) =>
             response.cookies.set(name, value, options),
           );
@@ -53,6 +104,10 @@ export async function updateSession(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser();
   const path = request.nextUrl.pathname;
+
+  if (!user && isUnknownPublicPath(path)) {
+    return NextResponse.rewrite(new URL("/public-not-found", request.url), { status: 404 });
+  }
 
   if (!user && !isPublic(path)) {
     const url = request.nextUrl.clone();

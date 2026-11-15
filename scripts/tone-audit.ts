@@ -25,6 +25,10 @@ const SKIP_DIRS = new Set([
   ".claude",                          // worktrees and Claude tooling — not project source
   ".claude-flow",                     // Claude workflow orchestration — not project source
   ".codex",                           // Codex tooling metadata — not project source
+  ".codex-candidates",                // design proofs and review notes — not rendered application copy
+  ".tmp",                             // downloaded verification tools and their docs
+  "artifacts",                        // generated media and QA artifacts — not rendered application copy
+  "plugins",                          // vendored plugin code and documentation — not Diana UI copy
   "export",                           // generated handoff copies — audited in their source project
   "supabase/functions/node_modules",
 ]);
@@ -35,6 +39,7 @@ const SKIP_PATH_PREFIXES = [
   "docs/",                  // all docs are design/architecture documents, not UI copy
   "supabase/functions/",    // Deno edge functions are server-side API code, not UI copy
   "app/api/",               // route handlers contain machine status and logs, not UI copy
+  "lib/operations/",        // operational ledgers use machine-only status vocabulary, not UI copy
   "lib/ai/",                // AI system-prompt templates — server-side prompt engineering, not UI copy
   "lib/competitive/",       // product score criteria, not student-facing UI copy
   "lib/social/",            // copy validators and data rules, not rendered UI copy
@@ -61,6 +66,7 @@ const SKIP_LINE_PATTERNS = [
   /^import\s+/,                         // import statements (component/identifier names)
   /^export\s+(function|class|const)\s/, // exported identifiers (component/function names)
   /[\w_](status|state|type|kind|mode)\s*===?\s*["']/, // DB/code enum comparisons
+  /[\w_]*(status|state)\??\s*[:=].*["']failed["']/, // machine-only status enums and persisted receipt states
   /^\s*[<{]\s*[A-Z][A-Za-z]+/,          // JSX component usage (starts with <Component or {Component)
   /!!\s*\w/,                             // JavaScript double-negation boolean cast (!!value) — not UI copy
 ];

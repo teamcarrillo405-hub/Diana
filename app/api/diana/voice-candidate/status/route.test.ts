@@ -2,8 +2,19 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createClient } from "@/lib/supabase/server";
 import { GET } from "./route";
 
+const mocks = vi.hoisted(() => ({
+  createAiServiceClient: vi.fn(),
+  recordLearningEvent: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
+}));
+vi.mock("@/lib/supabase/ai-service", () => ({
+  createAiServiceClient: mocks.createAiServiceClient,
+}));
+vi.mock("@/lib/learning-loop/server", () => ({
+  recordLearningEvent: mocks.recordLearningEvent,
 }));
 
 function request(traceId = "dw-1") {
@@ -41,6 +52,16 @@ function mockSupabaseJob({
     insert,
   };
   const from = vi.fn((table: string) => table === "authorship_log" ? receiptQuery : workerQuery);
+  const learningMaybeSingle = vi.fn().mockResolvedValue({ data: { id: "event-1" }, error: null });
+  const learningQuery = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    maybeSingle: learningMaybeSingle,
+    insert: vi.fn().mockResolvedValue({ error: null }),
+  };
+  const serviceFrom = vi.fn().mockReturnValue(learningQuery);
+  const service = { from: serviceFrom };
+  mocks.createAiServiceClient.mockReturnValue(service);
 
   vi.mocked(createClient).mockResolvedValue({
     auth: {
@@ -58,6 +79,8 @@ function mockSupabaseJob({
     receiptContains,
     receiptMaybeSingle,
     insert,
+    service,
+    serviceFrom,
   };
 }
 
@@ -116,7 +139,7 @@ describe("Diana voice candidate status route", () => {
   });
 
   it("returns the completed candidate for the signed-in owner only", async () => {
-    const { receiptContains, insert } = mockSupabaseJob({
+    const { from, insert } = mockSupabaseJob({
       data: {
         trace_id: "dw-done",
         tenant_id: "personal:student-1",
@@ -165,33 +188,9 @@ describe("Diana voice candidate status route", () => {
     expect(JSON.stringify(json)).not.toContain("llama3.2");
     expect(JSON.stringify(json)).not.toContain("worker-a");
     expect(JSON.stringify(json)).not.toContain("image-sha-a");
-    expect(receiptContains).toHaveBeenCalledWith("payload", { workerJob: { traceId: "dw-done" } });
-    expect(insert).toHaveBeenCalledWith(expect.objectContaining({
-      owner_id: "student-1",
-      assignment_id: null,
-      actor: "diana",
-      event_type: "local_voice_candidate",
-      payload: expect.objectContaining({
-        source: "typed",
-        transcriptChars: 22,
-        responseChars: 42,
-        trace: expect.objectContaining({
-          worker: "openjarvis",
-          provider: "openjarvis",
-          model: "llama3.2:3b",
-          policyMode: "student_runtime",
-          readOnly: true,
-          allowedDianaTools: expect.arrayContaining(["transcribe_voice_note"]),
-        }),
-        workerJob: expect.objectContaining({
-          traceId: "dw-done",
-          tenantId: "personal:student-1",
-          queueMode: "managed_queue",
-          workerId: "worker-a",
-          durationMs: 1234,
-        }),
-      }),
-    }));
+    expect(from).toHaveBeenCalledWith("worker_jobs");
+    expect(from).not.toHaveBeenCalledWith("authorship_log");
+    expect(insert).not.toHaveBeenCalled();
   });
 
   it("does not duplicate the authorship receipt for repeated status polling", async () => {

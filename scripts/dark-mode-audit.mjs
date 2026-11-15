@@ -8,7 +8,7 @@ const baseUrl = process.env.QA_BASE_URL ?? "http://localhost:3210";
 const outDir = join(process.cwd(), ".planning", "qa-screenshots", "dark-mode-audit-2026-06-09");
 mkdirSync(outDir, { recursive: true });
 
-const routes = ["/", "/dashboard", "/assignments", "/notes", "/flashcards", "/study-buddy", "/settings", "/timer"];
+const routes = ["/", "/dashboard", "/assignments", "/notes", "/study-artifacts", "/settings"];
 
 const run = async () => {
   const browser = await chromium.launch();
@@ -43,17 +43,6 @@ const run = async () => {
     await page.screenshot({ path: join(outDir, `dark-390-${name}.png`), fullPage: true });
     console.log("captured dark mobile", route);
   }
-
-  // future mode (Diana OS) landing, desktop
-  await page.setViewportSize({ width: 1440, height: 1000 });
-  await context.addInitScript(() => {
-    localStorage.setItem("diana_experience_mode", "future");
-  });
-  await page.goto(new URL("/", baseUrl).toString(), { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.waitForLoadState("networkidle", { timeout: 8_000 }).catch(() => undefined);
-  await page.waitForTimeout(800);
-  await page.screenshot({ path: join(outDir, "future-1440-landing.png"), fullPage: true });
-  console.log("captured future landing");
 
   await browser.close();
   console.log("done:", outDir);

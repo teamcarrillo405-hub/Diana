@@ -1,0 +1,29 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Machine-local runtime state and intentionally vendored third-party trees"
+paths = [
+  '''(^|[\\/])(?:\.codex-review|\.gstack|\.ruflo|\.ruvector|\.vercel|\.next(?:-[^\\/]+)?|node_modules|dist|coverage|playwright-report|test-results)[\\/]''',
+  '''(^|[\\/])(?:external|plugins|vendor[\\/]open-source|public[\\/]vendor|tools[\\/]comfyui-mcp)[\\/]''',
+  '''(^|[\\/])(?:agentdb\.rvf(?:\.lock)?|ruvector\.db|\.mcp\.json)$''',
+  '''(^|[\\/])(?:\.tmp|\.qa|\.planning[\\/]qa-screenshots)[\\/]''',
+]
+
+[[allowlists]]
+description = "Fixed guardian registry identifiers"
+condition = "AND"
+paths = ['''(^|[\\/])lib[\\/]guardian[\\/]child-data-registry\.ts$''']
+regexes = ['''^teen_(?:permission_records|ai_permission)_v1$''']
+
+[[allowlists]]
+description = "Fixed early-access UUID fixture"
+condition = "AND"
+paths = ['''(^|[\\/])lib[\\/]security[\\/]early-access-functions\.test\.ts$''']
+regexes = ['''^123e4567-e89b-42d3-a456-426614174000$''']
+
+[[allowlists]]
+description = "Fixed redaction credential fixture"
+condition = "AND"
+paths = ['''(^|[\\/])lib[\\/]beta[\\/]run-id-redaction\.test\.ts$''']
+regexes = ['''^sk-proj-1234567890abcdef$''']

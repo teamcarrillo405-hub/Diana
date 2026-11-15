@@ -1,7 +1,9 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/reading-scaffold/index.ts
 // F07: Reading comprehension scaffolds - pre/mid/post.
 // ai_mode: 'red' and 'yellow' both return 403 for content-generating support.
-// Model: claude-sonnet-4-6 (comprehension needs reasoning quality, not Haiku).
+// Model: shared OpenAI homework adapter quality tier for reading comprehension.
 // Never produces numeric scores per F07 spec.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
@@ -11,9 +13,9 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
-import { callStudentTextModel } from "../_shared/student-model.ts";
 
 const PROMPTS: Record<"pre" | "mid" | "post", string> = {
   pre: `You are helping a high school student who has dyslexia prepare to read an assignment.
@@ -33,7 +35,6 @@ Questions only - no answers. No numeric scores. Calm, encouraging tone.`,
 };
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, content-type",
 };
 
@@ -44,7 +45,7 @@ function json(body: unknown, status = 200) {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("reading-scaffold", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -62,13 +63,10 @@ Deno.serve(async (req: Request) => {
     const assignmentId = typeof body.assignmentId === "string" ? body.assignmentId : null;
     const type = body.type as "pre" | "mid" | "post";
     const text = typeof body.text === "string" ? body.text : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
 
     if (!ownerId || text.trim().length < 10) return json({ error: "Reading input required" }, 400);
     if (!PROMPTS[type]) return json({ error: "Invalid scaffold type" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") {
-      return json({ error: "AI not available for this class" }, 403);
-    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -88,7 +86,10 @@ Deno.serve(async (req: Request) => {
       personalization: await adaptationLineForOwner(ownerId, supabase),
     });
 
-    const ai = await callStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+      task: "reading_scaffold",
+      ownerId,
+      supabase,
       system,
       user: `Reading text:\n\n${truncatedText}`,
       maxTokens: 512,
@@ -113,7 +114,8 @@ Deno.serve(async (req: Request) => {
 
     return json({ content });
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("reading-scaffold error:", err);
     return json({ error: "Internal error" }, 500);
   }
-});
+}));

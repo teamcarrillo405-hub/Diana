@@ -82,7 +82,6 @@ const workerRunner = read("lib/worker-tier/worker-runner.ts");
 const voiceCandidateRoute = read("app/api/diana/voice-candidate/route.ts");
 const voiceCandidateStatusRoute = read("app/api/diana/voice-candidate/status/route.ts");
 const workerVersionRoute = read("app/api/workers/version/route.ts");
-const voiceCommandSurface = read("app/(app)/voice/voice-command-surface.tsx");
 const supabaseMiddleware = read("lib/supabase/middleware.ts");
 const loadSmoke = read("scripts/run-worker-load-smoke.ts");
 const dianaStatusSmoke = read("scripts/run-diana-status-polling-smoke.ts");
@@ -205,9 +204,7 @@ const checks: Check[] = [
   ),
   check(
     "Worker prometheus manifest has scrape and alert objects",
-    ["ServiceMonitor", "PrometheusRule"].every((kind) =>
-      parsedPrometheus.manifests.some((manifest) => manifest.kind === kind)
-    ),
+    Boolean(serviceMonitorManifest) && Boolean(prometheusRuleManifest),
     "deploy/worker/prometheus-example.yaml must include ServiceMonitor and PrometheusRule objects.",
   ),
   check(
@@ -259,7 +256,7 @@ const checks: Check[] = [
       "extractWorkerTimeoutMs(claimed.constraints)",
       "runWithWorkerTimeout",
       "AbortController",
-      "Worker execution timed out.",
+      'WorkerCycleFailure("provider_timeout"',
       "imageSha: config.imageSha",
     ]),
     "Worker runtime must honor claimed job budget timeout constraints, abort sidecar work, and record image provenance.",
@@ -267,6 +264,7 @@ const checks: Check[] = [
   check(
     "Voice worker rollout is tenant scoped",
     includesAll(workerTier, [
+      "DIANA_MANAGED_VOICE_WORKER_ENABLED",
       "DIANA_VOICE_MANAGED_QUEUE_TENANTS",
       "DIANA_VOICE_INLINE_QUEUE_TENANTS",
       "tenantListIncludes",
@@ -279,17 +277,19 @@ const checks: Check[] = [
   ),
   check(
     "Queued voice results return through Diana only",
-    includesAll(workerRunner, ["response: result.response"]) &&
+    (includesAll(appEnv, ["DIANA_MANAGED_VOICE_WORKER_ENABLED=false"]) &&
+      includesAll(workerTier, [
+        'env.DIANA_MANAGED_VOICE_WORKER_ENABLED !== "true"',
+        'return "inline"',
+      ])) ||
+    (includesAll(workerRunner, ["response: result.response"]) &&
       includesAll(voiceCandidateStatusRoute, [
         ".eq(\"owner_id\", user.id)",
         "result_payload",
         "publicTrace",
-        "STUDENT_RUNTIME_READ_TOOLS",
+        "const supabase = await createClient()",
       ]) &&
-      includesAll(voiceCommandSurface, [
-        "/api/diana/voice-candidate/status?traceId=",
-        "pollQueuedCandidate",
-      ]) &&
+      includesAll(workerTier, ["STUDENT_RUNTIME_READ_TOOLS"]) &&
       includesAll(voiceCandidateStatusRoute, [
         "return NextResponse.json({",
         "response,",
@@ -297,8 +297,8 @@ const checks: Check[] = [
       ]) &&
       includesAll(supabaseMiddleware, [
         "/api/diana/voice-candidate/status",
-      ]),
-    "Managed-queue voice results must be owner-scoped, return JSON auth errors, and avoid backend provider details.",
+      ])),
+    "Managed queue must either remain fail-closed for beta or return owner-scoped results without provider details.",
   ),
   check(
     "Worker version route proves app deployment SHA",
@@ -367,6 +367,7 @@ const checks: Check[] = [
     "Diana app env exposes tenant rollout controls",
     includesAll(appEnv, [
       "WORKER_API_TOKEN",
+      "DIANA_MANAGED_VOICE_WORKER_ENABLED=false",
       "DIANA_VOICE_QUEUE_MODE=inline",
       "DIANA_VOICE_MANAGED_QUEUE_TENANTS",
       "DIANA_VOICE_INLINE_QUEUE_TENANTS",
@@ -466,7 +467,7 @@ const checks: Check[] = [
       "steps.push_image.outcome",
       "npm run worker:image-evidence-check -- --dir=worker-image-evidence",
       "--require-pushed",
-      "actions/upload-artifact@v4",
+      "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
       "diana-worker-image-${{ github.run_id }}-${{ github.run_attempt }}",
       "worker-image-evidence",
     ]),
@@ -516,7 +517,11 @@ const checks: Check[] = [
   ),
   check(
     "Worker image workflow installs dependencies deterministically",
-    includesAll(workflow, ["actions/setup-node@v4", "npm ci", "cache: npm"]),
+    includesAll(workflow, [
+      "actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "npm ci",
+      "cache: npm",
+    ]),
     "Worker image workflow must install dependencies before npm script checks.",
   ),
   check(
@@ -583,7 +588,7 @@ const checks: Check[] = [
   check(
     "Production gate workflow uploads evidence artifact",
     includesAll(productionGateWorkflow, [
-      "actions/upload-artifact@v4",
+      "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
       "Upload production gate evidence",
       "diana-worker-production-gate-${{ github.run_id }}-${{ github.run_attempt }}",
       "worker-gate-evidence/summary.json",
@@ -641,7 +646,7 @@ const checks: Check[] = [
       "kubectl -n \"$NAMESPACE\" rollout status deployment/diana-worker --timeout=180s",
       "npm run worker:production-preflight",
       "npm run worker:deployed-canary -- --timeout-ms=120000 --poll-ms=1000 --expected-image-sha=${{ inputs.image_sha }}",
-      "actions/upload-artifact@v4",
+      "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
       "diana-worker-kubernetes-deploy-${{ github.run_id }}-${{ github.run_attempt }}",
       "worker-kubernetes-deploy-evidence",
       "steps.apply_worker_workload.outcome",

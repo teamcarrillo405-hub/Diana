@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { buildParentDigestEmail } from "./parent-digest";
+import {
+  buildParentDigestEmail,
+  parentDigestIdempotencyKey,
+  parentDigestRecipient,
+} from "./parent-digest";
 
 const STORY = {
   headline: "Momentum is building.",
@@ -42,5 +46,31 @@ describe("buildParentDigestEmail", () => {
     for (const banned of ["behind", "failed", "missed", "lazy", "concern"]) {
       expect(text).not.toContain(banned);
     }
+  });
+
+  it("derives the recipient only from the same student's opted-in profile", () => {
+    expect(parentDigestRecipient({
+      user_id: "student-a",
+      display_name: "Sam",
+      notification_preferences: {
+        parentDigest: { enabled: true, email: " Parent@Example.com " },
+        anotherStudent: { ownerId: "student-b", email: "other@example.com" },
+      },
+    })).toEqual({ ownerId: "student-a", studentName: "Sam", email: "parent@example.com" });
+
+    expect(parentDigestRecipient({
+      user_id: "student-b",
+      display_name: "Lee",
+      notification_preferences: { parentDigest: { enabled: false, email: "parent@example.com" } },
+    })).toBeNull();
+  });
+
+  it("uses a stable weekly key without exposing the student id", () => {
+    const first = parentDigestIdempotencyKey("student-private-id", new Date("2026-07-26T18:00:00Z"));
+    const retry = parentDigestIdempotencyKey("student-private-id", new Date("2026-07-27T01:00:00Z"));
+
+    expect(first).toBe(retry);
+    expect(first).toMatch(/^parent-digest\/2026-07-26\/[a-f0-9]{24}$/u);
+    expect(first).not.toContain("student-private-id");
   });
 });

@@ -176,12 +176,15 @@ try {
   const results = await Promise.all(cases.map((testCase) => runCase(testCase, accessToken)));
   const ownershipResult = await invoke("classify-inbox", { inboxItemId: outsiderItem.id }, accessToken);
   const ownershipBody = await readJson(ownershipResult);
+  const ownershipPayload = JSON.stringify(ownershipBody);
+  const ownershipHidden = ownershipResult.status === 404 &&
+    !ownershipPayload.toLowerCase().includes("private algebra capture");
   results.push({
     label: "inbox ownership boundary",
     status: ownershipResult.status,
-    ok: ownershipResult.status === 404 && ownershipBody.error === "Item not found",
+    ok: ownershipHidden,
     latencyMs: null,
-    note: ownershipResult.status === 404 ? "cross-student item hidden" : "ownership boundary not enforced",
+    note: ownershipHidden ? "cross-student item hidden" : "ownership boundary not enforced",
   });
 
   for (const result of results) {
@@ -273,6 +276,10 @@ async function ensureProfile(userId, displayName) {
     timezone: "America/Los_Angeles",
     onboarded_at: new Date().toISOString(),
     consent_ai: true,
+    teen_guardian_permission_attested_at: new Date().toISOString(),
+    teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+    teen_guardian_permission_source: "synthetic_qa_fixture",
+    teen_guardian_permission_withdrawn_at: null,
     daily_token_budget: 200_000,
     tokens_used_today: 0,
     token_reset_date: new Date().toISOString().slice(0, 10),

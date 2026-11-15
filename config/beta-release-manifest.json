@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 2,
+  "kind": "diana-beta-release-manifest",
+  "profile": "web-pwa-13-plus",
+  "ageBoundary": {
+    "minimumAccountAge": 13,
+    "under13AccountsEnabled": false,
+    "under13DirectAiEnabled": false,
+    "guardianFoundation": "disabled",
+    "under13ReleaseGateContractVersion": 1
+  },
+  "gitleaks": {
+    "version": "8.30.1",
+    "allowedBinaries": [
+      {
+        "platform": "win32",
+        "arch": "x64",
+        "sha256": "17157e2ee8b76fc8b1d8bee607a250e34b8a8023c8bc81822d4b5ee4d78fcb7c"
+      },
+      {
+        "platform": "linux",
+        "arch": "x64",
+        "sha256": "88f91962aa2f93ac6ab281d553b9e125f5197bbbce38f9f2437f7299c32e5509"
+      }
+    ]
+  },
+  "restoreFromHead": [
+    ".planning"
+  ],
+  "includeFromWorktree": [
+    "public/assets/dashboard/diana-dashboard-school-1472x778.webp",
+    "public/assets/dashboard/diana-today-home-screen.png",
+    "public/assets/fonts/outfit-landing.woff2",
+    "public/assets/video/diana-work-stays-yours-film-poster-v2.webp",
+    "public/images/assignment/gamer-study-room-blur.png",
+    "public/images/assignment/gamer-study-room.png",
+    "public/images/auth-command-space.png",
+    "public/images/calendar-gamer-planning-studio.png",
+    "public/images/classes-gamer-classroom.png",
+    "public/images/classes-high-tech-classroom.png",
+    "public/images/diana-loading-empty-studio.png",
+    "public/images/more-gamer-classroom.png",
+    "public/images/onboarding-study-sunlight.png",
+    "public/images/record-gamer-gallery-v2.png",
+    "public/images/today-future-academy-4k.webp",
+    "public/images/today-gamer-high-school.png",
+    "public/images/today-milestones/sessions-finished.svg",
+    "public/images/today-milestones/work-completed.svg",
+    "public/images/today-milestones/work-submitted.svg",
+    "public/privacy.html",
+    "public/screendesign/brand/diana-logo-no-shadow.png",
+    "public/screendesign/brand/diana-logo-tight-dark-wordmark.png",
+    "public/screendesign/brand/diana-logo-tight-no-shadow.png",
+    "public/trust.html"
+  ]
+}

@@ -1,5 +1,6 @@
 node_modules/
 .next/
+.next-*/
 out/
 dist/
 .env
@@ -14,13 +15,52 @@ tsconfig.tsbuildinfo
 coverage/
 .qa/
 test-results/
+playwright-report/
 vendor/open-source/
 external/
+
+# Generated evidence and media outputs stay local and never enter a release candidate.
+/artifacts/
+
+# Local credentials and agent/review runtime state must never be committed.
+.secrets/
+.codex-review/
+.codex-temp/
+.ruvector/
+.ruflo/
+/agentdb.rvf
+/agentdb.rvf.lock
+/.tmp-*.json
+/.tsconfig-beta-*.json
 
 # Playwright session tokens must never land in the repo
 **/auth-storage-state.json
 .gstack/
-.planning/qa-screenshots/**/auth-storage-state.json
+.planning/qa-screenshots/
+
+# Local agent runtimes and machine state
+.agents/
+.claude/
+.claude-flow/
+.codex/
+.mcp.json
+.swarm/
+ruvector.db
+supabase/.temp/
+lib/supabase/types.ts.new
+.tmp/
+public/assets/candidates/landing/
+.media-candidates/
+
+# Machine-local specialist and media tooling is excluded from release candidates.
+/plugins/comfyui-codex/
+/tools/comfyui-mcp/
+/tools/queue-seedance25-smoke-test.ps1
+/tools/render-work-stays-yours-film*.mjs
+/tools/work-stays-yours-sound.ffscript
+/scripts/comfy-loading-background.json
+/.codex-specialist-package.json
+/--no-banner
 
 # ── Phantom junk files ────────────────────────────────────────────────────
 # Zero-byte files created when JS/TS/CSS fragments get executed in a shell and

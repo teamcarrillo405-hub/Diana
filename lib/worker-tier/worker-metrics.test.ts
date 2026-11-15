@@ -70,6 +70,10 @@ describe("worker queue metrics", () => {
         averageClaimMs: 3000,
         averageCompletionMs: 5500,
       },
+      age: {
+        oldestQueuedMs: 600000,
+        oldestRunningMs: null,
+      },
       tenants: [
         {
           tenantId: "personal:student-2",
@@ -151,6 +155,10 @@ describe("worker queue metrics", () => {
         queued: 1,
         running: 1,
         retries: 1,
+      },
+      age: {
+        oldestQueuedMs: 4_200_000,
+        oldestRunningMs: 4_130_000,
       },
     });
 

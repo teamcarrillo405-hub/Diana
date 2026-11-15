@@ -16,7 +16,7 @@ A distribution plan for the **19 built-but-unplaced** dashboard components. Toda
 
 This handoff answers: **where does each one go**, without turning the landing page into a 21-feature scroll.
 
-**Visual companion:** `Dashboard Plan (visual reference).dc.html` — open it and click the nav tabs (PLAN · TODAY · WORK · THINK · PROOF · FUTURE). Each tab is mocked in the locked Student Lobby system. It is illustration for humans — this `.md` is the spec to build from.
+**Visual companion:** `Dashboard Plan (visual reference).dc.html` — open it and click the nav tabs (PLAN · TODAY · WORK · THINK · PROOF). Each tab is mocked in the locked Student Lobby system. It is illustration for humans — this `.md` is the spec to build from.
 
 ## The core decision
 
@@ -64,16 +64,6 @@ This handoff answers: **where does each one go**, without turning the landing pa
 
 *(Also the eventual home of portfolio / mastery / submitted work — out of scope here.)*
 
-### FUTURE — what's coming
-| Component | Condition | Notes |
-|---|---|---|
-| `evening-planning.tsx` | 5–8 PM only | Event intentions; optimistic dismiss |
-| `quest-carousel.tsx` | always | Auto-advancing, 5s interval |
-
-*(Also the eventual home of upcoming tests / AP planning.)*
-
----
-
 ## The Alert Slot (the only new TODAY element)
 
 A single shared region directly under the nav, above MY CLASSES. **Renders nothing when empty** (most days). When triggered, shows one strip at a time, priority order: **past-due reminder → burnout cue → token budget**.
@@ -106,7 +96,7 @@ All tabs: max-width `1440px`, `34px` (≈`24px` in the ref) side gutters, `34px`
 - Title: `Saira Condensed 800 italic 40px, uppercase`
 - Sub: `15px / rgba(200,218,255,.62)`
 
-**Tab accent colors:** TODAY/WORK `#29d0ff` · THINK `#b09cff` · PROOF `#36e07a` · FUTURE `#ffd24a`
+**Tab accent colors:** TODAY/WORK `#29d0ff` · THINK `#b09cff` · PROOF `#36e07a`
 
 ### WORK
 - 2-column grid `1fr / 380px`, `20px` gap.
@@ -124,11 +114,6 @@ All tabs: max-width `1440px`, `34px` (≈`24px` in the ref) side gutters, `34px`
 ### PROOF
 - Single column. **DoneToday** = green stat strip (`Saira 800 24px`). **GradeMoveCard** = cyan-tinted, target icon + move + reason + Open.
 
-### FUTURE
-- Single column. **EveningPlanning** = gold-bordered, intention rows (time + label + Set intention). **QuestCarousel** = 100%-width slide track, `translateX(-index*100%)`, dot indicators, 5s auto-advance.
-
----
-
 ## Design tokens (locked — from Student Lobby)
 
 > All names below resolve in `tokens.css`: every `--color-*` is mirrored as a `--gl-*` alias (see the `--gl-* ALIASES FOR HANDOFF` section). `--gl-amber` maps to `--gl-gold`.
@@ -140,7 +125,7 @@ All tabs: max-width `1440px`, `34px` (≈`24px` in the ref) side gutters, `34px`
 --gl-cyan           #29d0ff      primary accent, CTAs, active states
 --gl-purple         #7e5cff / #b09cff   THINK / wellness, overwhelmed
 --gl-green          #36e07a      success, PROOF, done
---gl-gold           #ffd24a      warning, FUTURE, not-turned-in
+--gl-gold           #ffd24a      warning, not-turned-in
 --gl-red            #ff5555 / #ff7070   overdue, past-due reminder
 --gl-amber          → --gl-gold (#ffd24a)   token / burnout warnings (never red)
 --gl-text-muted     rgba(200,218,255,.6)
@@ -157,7 +142,7 @@ Card radius 14px · button 8–12px · max-width 1440px · gutters 34px
 ## Build notes for Claude Code
 
 - **Logic is locked.** Per `LOGIC_MANIFEST.md`, only add imports + JSX to `page.tsx` and appearance-only changes to component files. No function bodies, conditions, or data flows.
-- **New tabs need routes.** WORK / THINK / PROOF / FUTURE map to new route segments under `app/(app)/`. Wire `nav.tsx` (`DESKTOP_GROUPS` / `PRIMARY_MOBILE_ITEMS`) — appearance/labels only, not `isActivePath` or the guards.
+- **New tabs need routes.** WORK / THINK / PROOF map to new route segments under `app/(app)/`. Wire `nav.tsx` (`DESKTOP_GROUPS` / `PRIMARY_MOBILE_ITEMS`) — appearance/labels only, not `isActivePath` or the guards.
 - **Data fetching** for moved components (reminder items, token budget, mood state, grade moves, evening intentions) follows the existing parallel-query pattern in `page.tsx`. Reuse the `actions.ts` getters already listed in the manifest (`getReminderItems`, `getEventIntentions`, etc.).
 - **Re-skin, don't rebuild.** The components currently use generic Tailwind (`bg-card`, `text-muted`, `rounded-2xl`). Map those to the Student Lobby tokens above. `focus-hero-card.tsx` is the closest existing pattern — match its structure.
 
@@ -167,7 +152,7 @@ Card radius 14px · button 8–12px · max-width 1440px · gutters 34px
 
 | File | Description |
 |---|---|
-| `Dashboard Plan (visual reference).dc.html` | Interactive companion — PLAN map + all 5 tab mocks (for humans) |
+| `Dashboard Plan (visual reference).dc.html` | Interactive companion — PLAN map + all 4 tab mocks (for humans) |
 | `Dashboard Plan.md` | This file — the authoritative plan |
 | `Student Lobby.dc.html` | The locked **pixel source** (hero + classes) |
 | `tokens.css` | Full `--gl-*` token extraction (in the repo root) |

@@ -1,3 +1,5 @@
+import { withStudentSecurity } from "../_shared/student-handler.ts";
+
 // supabase/functions/extract-note-doc/index.ts
 //
 // Phase 11: F04-PHOTO / F08-NOTE — photo & PDF extraction Edge Function.
@@ -23,11 +25,11 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   checkTokenBudget,
   resetBudgetIfNewDay,
-  incrementTokens,
   logInteraction,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import type { StudentModelPart } from "../_shared/student-model.ts";
 
-const OPENAI_API_KEY      = Deno.env.get("OPENAI_API_KEY") ?? "";
 const SUPABASE_URL        = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
@@ -69,7 +71,6 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
 
 function corsHeaders(extra: Record<string, string> = {}): Record<string, string> {
   return {
-    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "authorization, content-type",
     ...extra,
   };
@@ -82,7 +83,7 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-Deno.serve(async (req: Request) => {
+Deno.serve(withStudentSecurity("extract-note-doc", async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders() });
   }
@@ -142,16 +143,9 @@ Deno.serve(async (req: Request) => {
     const arrayBuf    = await blob.arrayBuffer();
     const base64Data  = uint8ArrayToBase64(new Uint8Array(arrayBuf));
 
-    // Build GPT-4o content block — image_url for photos, file for PDFs.
-    const fileBlock = isPdf
-      ? {
-          type: "file" as const,
-          file: { file_data: `data:${mimeType};base64,${base64Data}`, filename: "document.pdf" },
-        }
-      : {
-          type: "image_url" as const,
-          image_url: { url: `data:${mimeType};base64,${base64Data}`, detail: "high" as const },
-        };
+    const sourcePart: StudentModelPart = isPdf
+      ? { type: "file", mediaType: mimeType, data: base64Data, filename: "document.pdf" }
+      : { type: "image", mediaType: mimeType, data: base64Data };
 
     const systemPrompt = isPdf ? PDF_EXTRACT_PROMPT : IMAGE_EXTRACT_PROMPT;
     const userText     = isPdf
@@ -159,39 +153,27 @@ Deno.serve(async (req: Request) => {
       : "Extract all visible text from this photo of student class notes.";
     const maxTokens    = isPdf ? 4000 : 2000;
 
-    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type":  "application/json",
-      },
-      body: JSON.stringify({
-        model:      "gpt-4o",
-        max_tokens: maxTokens,
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role:    "user",
-            content: [fileBlock, { type: "text", text: userText }],
-          },
-        ],
-      }),
+    const extraction = await runOpenAIHomeworkAdapter({
+      task: "source_extraction",
+      ownerId,
+      supabase,
+      system: systemPrompt,
+      user: userText,
+      maxTokens,
+      quality: "fast",
+      parts: [
+        sourcePart,
+        { type: "text", text: userText },
+      ],
+      timeoutMs: 45000,
+      reservationUnits: Math.min(
+        1_000_000,
+        maxTokens + 8192 + Math.ceil(blob.size / 64),
+      ),
     });
-
-    if (!openaiRes.ok) {
-      const errText = await openaiRes.text();
-      console.error("openai extract-note-doc error:", errText);
-      return jsonResponse({ ok: false, error: "We couldn't read that file. Try a clearer photo or a smaller PDF." }, 200);
-    }
-
-    const openaiData = (await openaiRes.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-      usage?: { prompt_tokens?: number; completion_tokens?: number };
-    };
-    const extracted = (openaiData.choices?.[0]?.message?.content ?? "").trim();
-    const inTok  = Number(openaiData.usage?.prompt_tokens   ?? 0);
-    const outTok = Number(openaiData.usage?.completion_tokens ?? 0);
-
+    const extracted = extraction.content.trim();
+    const totalTokens = extraction.tokens;
+    const extractionModel = extraction.model;
     // Pitfall 5: very short text -> save storageKey + tiny body, skip cleanup.
     if (extracted.length < MIN_EXTRACT_CHARS) {
       await supabase
@@ -204,19 +186,16 @@ Deno.serve(async (req: Request) => {
         .eq("id", noteId)
         .eq("owner_id", ownerId);
 
-      void incrementTokens(ownerId, inTok + outTok, supabase).catch((e) =>
-        console.warn("incrementTokens (short) failed", e),
-      );
       void logInteraction(
         {
           ownerId,
           feature: "doc_extract",
-          model:   "gpt-4o",
+          model:   extractionModel,
           promptSummary: isPdf ? "doc_extract:pdf:short" : "doc_extract:image:short",
-          tokensUsed: inTok + outTok,
+          tokensUsed: totalTokens,
         },
         supabase,
-      ).catch((e) => console.warn("logInteraction (short) failed", e));
+      ).catch(() => console.warn("logInteraction (short) did not complete"));
 
       return jsonResponse({ ok: true, text: "", tooShort: true });
     }
@@ -232,32 +211,38 @@ Deno.serve(async (req: Request) => {
       .eq("id", noteId)
       .eq("owner_id", ownerId);
     if (updErr) {
-      console.error("notes update error:", updErr);
-      return jsonResponse({ ok: false, error: updErr.message }, 200);
+      console.error("notes update did not complete");
+      return jsonResponse({ ok: false, error: "We couldn't save the extracted note yet." }, 200);
     }
 
-    // Fire-and-forget Claude cleanup (Phase 5 transcribe-note pipeline).
-    void supabase.functions
-      .invoke("transcribe-note", { body: { noteId } })
-      .catch((e) => console.warn("transcribe-note kickoff", e));
+    // Preserve the authenticated student JWT across the follow-up call. A
+    // service-role invocation is intentionally not accepted by student guards.
+    const authorization = req.headers.get("Authorization") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
+    void fetch(`${SUPABASE_URL}/functions/v1/transcribe-note`, {
+      method: "POST",
+      headers: {
+        Authorization: authorization,
+        apikey: anonKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ noteId }),
+    }).catch(() => console.warn("transcribe-note kickoff did not complete"));
 
-    void incrementTokens(ownerId, inTok + outTok, supabase).catch((e) =>
-      console.warn("incrementTokens failed", e),
-    );
     void logInteraction(
       {
         ownerId,
         feature: "doc_extract",
-        model:   "gpt-4o",
+        model:   extractionModel,
         promptSummary: isPdf ? "doc_extract:pdf" : "doc_extract:image",
-        tokensUsed: inTok + outTok,
+        tokensUsed: totalTokens,
       },
       supabase,
-    ).catch((e) => console.warn("logInteraction failed", e));
+    ).catch(() => console.warn("logInteraction did not complete"));
 
     return jsonResponse({ ok: true, text: extracted });
-  } catch (err) {
-    console.error("extract-note-doc error:", err);
+  } catch {
+    console.error("extract-note-doc request did not complete");
     return jsonResponse({ ok: false, error: "Something went wrong. Try again." }, 200);
   }
-});
+}));

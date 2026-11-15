@@ -5,6 +5,17 @@ import { POST } from "./route";
 vi.mock("@/lib/worker-tier/worker-queue", () => ({
   completeWorkerJob: vi.fn().mockResolvedValue(undefined),
   markWorkerJobError: vi.fn().mockResolvedValue(undefined),
+  isWorkerOperationalErrorCode: (value: unknown) => [
+    "provider_timeout",
+    "worker_internal_error",
+  ].includes(String(value)),
+  sanitizeWorkerErrorMetadata: (value: unknown) => {
+    if (!value || typeof value !== "object") return {};
+    const raw = value as Record<string, unknown>;
+    return raw.phase === "provider" && typeof raw.httpStatus === "number"
+      ? { phase: "provider", httpStatus: Math.min(599, Math.max(0, Math.floor(raw.httpStatus))) }
+      : {};
+  },
   WorkerJobTenantScopeError: class WorkerJobTenantScopeError extends Error {
     constructor(message = "Worker job did not match a tenant-scoped job.") {
       super(message);
@@ -81,15 +92,31 @@ describe("worker complete route", () => {
       traceId: "dw-2",
       tenantId: "personal:student-1",
       status: "error",
-      errorSummary: "model timeout",
+      errorCode: "provider_timeout",
+      errorMetadata: { phase: "provider", providerText: "model timeout" },
     }));
 
     expect(response.status).toBe(200);
     expect(markWorkerJobError).toHaveBeenCalledWith({
       traceId: "dw-2",
       tenantId: "personal:student-1",
-      errorSummary: "model timeout",
+      errorCode: "provider_timeout",
+      errorMetadata: {},
     });
+  });
+
+  it("rejects free-form provider errors at the worker boundary", async () => {
+    vi.stubEnv("WORKER_API_TOKEN", "worker-secret");
+
+    const response = await POST(request({
+      traceId: "dw-secret",
+      tenantId: "personal:student-1",
+      status: "error",
+      errorSummary: "provider stack with student transcript",
+    }));
+
+    expect(response.status).toBe(400);
+    expect(markWorkerJobError).not.toHaveBeenCalled();
   });
 
   it("requires a tenant id so completions stay tenant-scoped", async () => {

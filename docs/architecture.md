@@ -89,13 +89,13 @@ diana/
 ├── supabase/
 │   ├── migrations/                   # SQL versioned here
 │   ├── functions/                    # edge functions
-│   │   ├── ai-chat/                  # generic Claude proxy with logging
-│   │   ├── ai-validate-step/         # math step validation
-│   │   ├── ai-feedback/              # writing feedback
-│   │   ├── ai-comprehension/         # reading prompts + validation
-│   │   ├── ai-generate-cards/        # flashcard generation
-│   │   ├── ai-summarize-rubric/      # class rubric → structured fields
-│   │   └── ai-classify-inbox/        # inbox item → class + assignment
+│   │   ├── study-buddy/               # protected OpenAI tutoring boundary
+│   │   ├── assignment-review/         # source-aware homework review
+│   │   ├── extract-assignment-source/ # assignment document extraction
+│   │   ├── classify-inbox/            # inbox item → class + assignment
+│   │   ├── early-access-signup/       # rate-limited public waitlist signup
+│   │   ├── early-access-confirm/      # opaque waitlist confirmation
+│   │   └── early-access-unsubscribe/  # irreversible waitlist opt-out
 │   └── seed.sql                      # alpha test fixtures
 ├── docs/
 │   ├── research/findings.md

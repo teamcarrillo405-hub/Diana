@@ -2,6 +2,8 @@
 
 This is the implementation contract for Diana's shared interface kit. New product surfaces must use these components and the tokens in `app/globals.css` before introducing page-specific styles.
 
+For the complete page anatomy, responsive behavior, and review checklist, use [PAGE-GUIDE.md](PAGE-GUIDE.md). The guide turns the Wellness screen decisions into the standard for every student-facing page.
+
 ## Foundations
 
 | Layer | Source | Purpose |
@@ -14,7 +16,7 @@ This is the implementation contract for Diana's shared interface kit. New produc
 Rules:
 
 1. Use `var(--gl-*)` or `var(--ds-*)` for colors and shared effects. Do not add raw color values to product components.
-2. Use Saira Condensed through `var(--font-display)` for display headings and strong actions. Use Barlow Semi Condensed through `var(--font-body)` for body copy and labels.
+2. Use Saira Condensed through `var(--font-display)` for default display headings and strong actions. Use Barlow Semi Condensed through `var(--font-body)` for body copy and labels; those tokens may resolve to the student's selected accessible font. When a page title is explicitly matched to an approved live screen, match that screen's computed type treatment rather than forcing the generic display font.
 3. Attention states use the gold token family. Do not use red for due work, validation, or ordinary errors.
 4. Every interactive component needs a visible keyboard focus state, a disabled or waiting state when applicable, and a useful accessible name.
 5. Empty states are calm, brief, and actionable. They never imply blame.
@@ -110,23 +112,24 @@ Rules:
 
 ## Navigation Components
 
-- Desktop and wide-screen navigation: `app/(app)/app-top-nav.tsx`
-- Phone navigation: `app/(app)/mobile-tab-bar.tsx`
-- Shared drawer: `app/(app)/more-menu.tsx`
+- Route ownership and the five destinations: `lib/navigation.ts`
+- Desktop and wide-screen navigation: `components/screen-design/student-desktop-nav.tsx`
+- Phone navigation: `components/screen-design/student-bottom-nav.tsx`
+- More tools hub: `app/(app)/more/page.tsx`
 - Locked destinations: Today, Work, Classes, Calendar, More.
 
 The old side navigation is retired. Do not introduce another primary navigation pattern.
 
 ## Figma source and code mapping
 
-The editable design source is the [Diana Design System](https://www.figma.com/design/M7kvCycCFWJnKUgYmfKheZ/Diana-Design-System). It contains foundations, approved mobile flows, and reusable component pages. The `99 ScreenDesign reference` page preserves all 47 original ScreenDesign HTML exports in a named six-column grid. Those frames are visual references only. They are not production components and must not be copied into the app as generated markup.
+The editable design source is the [Diana Design System](https://www.figma.com/design/M7kvCycCFWJnKUgYmfKheZ/Diana-Design-System). It contains foundations, approved mobile flows, and reusable component pages. The 25 active ScreenDesign exports remain local visual references, not production markup. `SCREEN-MAP.md` is the authoritative production mapping.
 
 | Figma component | Figma node | React implementation |
 |---|---|---|
 | Diana Button, primary emphasis | `8:8` | `components/ui/hero-cta-button.tsx` |
 | Diana Button, quiet emphasis | `8:10` | Page action styles must reuse the shared button tokens in `app/globals.css`; use `SlantedActionButton` only for the lime action convention. |
 | Assignment card | `9:7` | `components/ui/mission-card.tsx` and `MissionProgress` |
-| Mobile navigation | `11:245` | `app/(app)/mobile-tab-bar.tsx` |
+| Mobile navigation | `11:245` | `components/screen-design/student-bottom-nav.tsx` |
 
 Figma Code Connect is not available on the current Professional plan. It requires an Organization or Enterprise plan and published library components. Until the plan changes, this table is the design-to-code mapping contract.
 
