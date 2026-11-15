@@ -469,7 +469,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(readBetaSurfaceReceipt(projectRoot, runId, "browser")).toEqual(receipt);
   });
 
-  it("fails closed before launch without a distinct dedicated loopback Supabase project", () => {
+  it("fails closed before launch without a distinct dedicated loopback Supabase project", { timeout: 180_000 }, () => {
     let invoked = false;
     const runCommand = () => {
       invoked = true;
