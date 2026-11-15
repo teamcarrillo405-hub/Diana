@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const projectRoot = process.cwd();
+// The standalone Node worker loads PDF.js outside Next's module graph.
+// Each extraction caller needs the package and its local font/CMap/WASM data.
+const pdfRuntimeFiles = [
+  "./lib/learning-engine/pdf-worker.mjs",
+  "./node_modules/pdfjs-dist/**/*",
+];
 
 function resolveDistDir() {
   if (process.env.NEXT_DIST_DIR) return process.env.NEXT_DIST_DIR;
@@ -48,11 +54,12 @@ const config: NextConfig = {
   // cinematic landing deliberately retains only its HTML, CSS, and JS sources
   // in its trace during postbuild so its server render can parse them.
   outputFileTracingExcludes: {
-    "/*": ["./public/**/*"],
+    "/*": ["./public/**/*", "./artifacts/**/*"],
   },
   outputFileTracingIncludes: {
-    "/api/learning/ingest": ["./lib/learning-engine/pdf-worker.mjs", "./node_modules/pdfjs-dist/**/*"],
-    "/assignments/*/workspace": ["./lib/learning-engine/pdf-worker.mjs", "./node_modules/pdfjs-dist/**/*"],
+    "/api/learning/ingest": pdfRuntimeFiles,
+    "/api/learning/jobs": pdfRuntimeFiles,
+    "/assignments/*/workspace": pdfRuntimeFiles,
     "/api/materials/textbook": ["./content/textbooks/**/*"],
     "/api/diana/study-buddy": ["./content/textbooks/**/*"],
     "/classes/*/reference/*": ["./content/textbooks/**/*"],

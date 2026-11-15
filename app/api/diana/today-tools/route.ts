@@ -15,7 +15,7 @@ import { authorizeTodayAcademicScope, recordTodayAcademicAssistance, TodayAssist
 const RequestInput = z.object({
   callId: z.string().trim().min(1).max(160),
   name: z.string().trim(),
-  arguments: z.record(z.unknown()).default({}),
+  arguments: z.record(z.string(), z.unknown()).default({}),
 });
 
 const ACTIONS = new Set<TodayVoiceToolName>(["open_destination", "start_focus_session", "create_quick_capture"]);

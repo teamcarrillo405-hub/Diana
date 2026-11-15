@@ -31,9 +31,9 @@ const VerbosityInput = z.object({
 
 const BackupImportInput = z.object({
   profile: z.object({
-    ai_verbosity_by_subject: z.record(z.enum(["minimal", "balanced", "detailed"])).optional(),
+    ai_verbosity_by_subject: z.record(z.string(), z.enum(["minimal", "balanced", "detailed"])).optional(),
     notification_preferences: NotificationPrefsInput.optional(),
-    privacy_preferences: z.record(z.unknown()).optional(),
+    privacy_preferences: z.record(z.string(), z.unknown()).optional(),
     tts_enabled: z.boolean().optional(),
     dyslexia_font: z.boolean().optional(),
     high_contrast: z.boolean().optional(),

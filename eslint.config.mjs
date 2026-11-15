@@ -36,6 +36,7 @@ const config = [
       "plugins/**",
       "public/design/**",
       "public/assets/landing-cinematic-v3/main.js",
+      "public/assets/learning/pdf-worker-*.min.mjs",
       "public/vendor/**",
       "test-results/**",
       "tests/fixtures/screendesign.ts",

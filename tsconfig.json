@@ -32,25 +32,9 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    ".next-beta-000000000000/types/**/*.ts",
-    ".next-beta-111111111111/types/**/*.ts",
-    ".next-beta-222222222222/types/**/*.ts",
-    ".next-beta-5b68831b94a6/types/**/*.ts",
-    ".next-beta-9c59d1cb25e6/types/**/*.ts",
-    ".next-dev-3000/types/**/*.ts",
-    ".next-dev-3001/types/**/*.ts",
-    ".next-dev-3002/types/**/*.ts",
-    ".next-dev-3004/types/**/*.ts",
-    ".next-dev-3005/types/**/*.ts",
-    ".next-dev-3006/types/**/*.ts",
-    ".next-dev-3017/types/**/*.ts",
-    ".next-dev-3027/types/**/*.ts",
-    ".next-playwright-3005/types/**/*.ts",
-    ".next-playwright-3010/types/**/*.ts",
-    ".next-playwright-3011/types/**/*.ts",
-    ".next-playwright-3012/types/**/*.ts",
     ".next/types/**/*.ts",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    ".next-dev-3016/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

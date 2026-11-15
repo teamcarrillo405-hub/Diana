@@ -13,7 +13,7 @@ const EventBody = z.object({
   feature: z.string().trim().max(80).nullable().optional(),
   route: z.string().trim().max(240).nullable().optional(),
   durationMs: z.number().int().min(0).max(24 * 60 * 60 * 1000).nullable().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function POST(request: Request) {

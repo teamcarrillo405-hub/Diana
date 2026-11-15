@@ -36,7 +36,7 @@ describe("browser response hardening", () => {
     expect(contentSecurityPolicy("n", true)).not.toContain("'unsafe-eval'");
   });
 
-  it("permits only the controlled OpenAI Realtime and Supabase connections", () => {
+  it("permits only the controlled Realtime, Supabase, and pinned recognition connections", () => {
     const previousSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://diana-project.supabase.co/rest/v1";
 
@@ -45,6 +45,10 @@ describe("browser response hardening", () => {
         "'self'",
         "https://api.openai.com",
         "https://diana-project.supabase.co",
+        "https://huggingface.co",
+        "https://cas-bridge.xethub.hf.co",
+        "https://cdn-lfs.hf.co",
+        "https://us.aws.cdn.hf.co",
       ].sort());
     } finally {
       if (previousSupabaseUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;

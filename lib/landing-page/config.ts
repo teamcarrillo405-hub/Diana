@@ -67,7 +67,7 @@ const landingNodeStyleSchema = z.object({
 });
 
 const nodeStyleMapSchema = z
-  .record(landingNodeStyleSchema)
+  .record(z.string(), landingNodeStyleSchema)
   .superRefine((styles, context) => {
     const allowed = new Set<string>(LANDING_NODE_IDS);
     for (const key of Object.keys(styles)) {

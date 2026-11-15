@@ -1,7 +1,7 @@
 /** Synthetic receipt tests only; never reads paid benchmark responses. */
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { resolve, sep } from 'node:path'
+import { resolve } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 import { DIMENSIONS, rawSha, valueSha, buildReviewSnapshot, writeReviewPacket, validatePrimaryReview,
   writeDisputePacket, writeReviewReport, resolveQuality, archiveReviewSources, type ReviewPacket, type PrimaryReview } from '../../scripts/learning/review-hybrid-benchmark'

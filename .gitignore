@@ -28,6 +28,7 @@ external/
 # Local credentials and agent/review runtime state must never be committed.
 .secrets/
 .codex-review/
+.codex-temp/
 .ruvector/
 .ruflo/
 /agentdb.rvf

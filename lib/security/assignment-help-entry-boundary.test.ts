@@ -5,7 +5,9 @@ import { runInNewContext } from 'node:vm'
 import { build } from 'esbuild'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
-const root = resolve('artifacts/learning-engine/research/edge-assistance-candidates-v1')
+// Execute the checked-in entry code. Historical remote bundles are private
+// release evidence and are deliberately not prerequisites for repository CI.
+const root = resolve('supabase/functions')
 const owner = '11111111-1111-4111-8111-111111111111'
 const assignment = '22222222-2222-4222-8222-222222222222'
 const note = '44444444-4444-4444-8444-444444444444'
@@ -42,8 +44,8 @@ const cases = [
 const bundles = new Map<string, string>()
 const noop = 'export const resetBudgetIfNewDay=async()=>{}; export const incrementTokens=async()=>{}; export const logInteraction=async()=>{};'
 beforeAll(async () => {
-  for (const slug of new Set(cases.map(item => item.slug))) for (const version of ['baseline', 'candidate']) {
-    const result = await build({ entryPoints: [resolve(root, slug, version, 'functions', slug, 'index.ts')], bundle: true,
+  for (const slug of new Set(cases.map(item => item.slug))) {
+    const result = await build({ entryPoints: [resolve(root, slug, 'index.ts')], bundle: true,
       write: false, format: 'cjs', platform: 'node', plugins: [{ name: 'stub-io-only', setup(builder) {
         builder.onResolve({ filter: /^(jsr:)|\/(student-auth|student-handler|safety|adaptation|homework-adapter)\.ts$/ }, args => ({ path: args.path, namespace: 'io' }))
         builder.onLoad({ filter: /.*/, namespace: 'io' }, args => {
@@ -52,16 +54,16 @@ beforeAll(async () => {
             : args.path.endsWith('student-auth.ts') ? 'export const requireStudentContext=async()=>globalThis.testIO.auth;'
             : args.path.endsWith('student-handler.ts') ? 'export const withStudentSecurity=(_feature,handler)=>handler;'
             : args.path.endsWith('adaptation.ts') ? 'export const adaptationLineForOwner=async()=>null;'
-            : args.path.endsWith('homework-adapter.ts') ? 'export const runOpenAIHomeworkAdapter=(params)=>globalThis.testIO.provider(params);'
+            : args.path.endsWith('homework-adapter.ts') ? 'export const runOpenAIHomeworkAdapter=(params)=>globalThis.testIO.provider(params); export const homeworkQualityForTask=()=>"quality";'
             : noop + 'export const contentByteLength=value=>new TextEncoder().encode(JSON.stringify(value)).byteLength; export const checkTokenBudget=async()=>({allowed:true}); export const callSafeStudentTextModel=(params)=>globalThis.testIO.provider(params); export const estimateTokenReservation=()=>100; export const aiGuardFailureResponse=()=>new Response(null,{status:503}); export const runSafeBudgetedAiCall=async(params)=>({ok:true,value:await params.invoke({markProviderUsage:()=>{}})});'
           return { contents, loader: 'js' }
         })
       } }] })
-    bundles.set(slug + ':' + version, result.outputFiles[0].text)
+    bundles.set(slug, result.outputFiles[0].text)
   }
 })
 
-function runtime(slug: string, version: string, enabled: boolean) {
+function runtime(slug: string, enabled: boolean) {
   const order: string[] = []
   const rpc = vi.fn(async (_name: string, args: Record<string, unknown>): Promise<unknown> => {
     order.push('receipt')
@@ -79,7 +81,11 @@ function runtime(slug: string, version: string, enabled: boolean) {
     return chain
   },
     storage: { from: () => ({ download: async () => ({ error: null, data: new Blob(['synthetic image'], { type: 'image/png' }) }) }) } }
-  const provider = vi.fn(async (_params: unknown) => { order.push('provider'); return { content: 'Which source detail supports your next step?', tokens: 10, model: 'stub-model' } })
+  const provider = vi.fn(async (params: unknown) => {
+    order.push('provider')
+    const extraction = (params as Record<string, unknown>).task === 'source_extraction'
+    return { content: extraction ? '{"problemText":"2x + 3 = 9","latex":null}' : 'Which source detail supports your next step?', tokens: 10, model: 'stub-model' }
+  })
   const fetch = vi.fn(async (url: string, _options: unknown) => {
     order.push('provider')
     return new Response(JSON.stringify(url.endsWith('client_secrets')
@@ -88,7 +94,7 @@ function runtime(slug: string, version: string, enabled: boolean) {
   })
   let handler!: (request: Request) => Promise<Response>
   const runtimeModule = { exports: {} }
-  runInNewContext(bundles.get(slug + ':' + version)!, { module: runtimeModule, exports: runtimeModule.exports,
+  runInNewContext(bundles.get(slug)!, { module: runtimeModule, exports: runtimeModule.exports,
     Deno: { serve: (value: typeof handler) => { handler = value }, env: { get: (name: string) => name === 'DIANA_DURABLE_TASK_ASSISTANCE_ENABLED' ? String(enabled)
       : ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY', 'SUPABASE_ANON_KEY', 'OPENAI_API_KEY'].includes(name) ? 'stub-only' : undefined } },
     testIO: { client, provider, auth: { ownerId: owner, userClient: client, serviceClient: client } },
@@ -108,19 +114,29 @@ function providerInputs(value: ReturnType<typeof runtime>) {
   return { text: value.provider.mock.calls.map(([params]) => { const { supabase: _client, ...rest } = params as Record<string, unknown>; return JSON.parse(JSON.stringify(rest)) }),
     http: value.fetch.mock.calls.map(([url, options]) => ({ url, ...options as Record<string, unknown> })) }
 }
+function expectProviderRecipesUnchanged(candidate: ReturnType<typeof runtime>, baseline: ReturnType<typeof runtime>) {
+  const before = providerInputs(baseline)
+  // The receipt wrapper deliberately forwards the stable operation key to
+  // instructional adapters; prompt, model and all other settings stay exact.
+  expect(providerInputs(candidate)).toEqual({
+    text: before.text.map((params: Record<string, unknown>) => params.task === 'source_extraction'
+      ? params : { ...params, idempotencyKey: 'stable-operation' }),
+    http: before.http,
+  })
+}
 const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
 
-describe('remote-based staged candidates, actual entry code with stub IO', () => {
-  it.each(cases)('$label preserves deployed prompt, provider settings and response with flag off', async item => {
-    const baseline = runtime(item.slug, 'baseline', false), candidate = runtime(item.slug, 'candidate', false)
+describe('repository Edge entries with real receipt logic and stub authentication/provider IO', () => {
+  it.each(cases)('$label produces a deterministic response without a receipt when the flag is off', async item => {
+    const baseline = runtime(item.slug, false), candidate = runtime(item.slug, false)
     const old = await baseline.run(item.body), next = await candidate.run(item.body)
     expect(old.status).toBe(200); expect(next.status).toBe(200)
     expect(await next.text()).toBe(await old.text())
     expect(providerInputs(candidate)).toEqual(providerInputs(baseline))
     expect(candidate.rpc).not.toHaveBeenCalled()
   })
-  it.each(cases)('$label awaits exact receipt, then preserves deployed provider recipe', async item => {
-    const baseline = runtime(item.slug, 'baseline', false), candidate = runtime(item.slug, 'candidate', true)
+  it.each(cases)('$label awaits exact receipt before invoking the configured provider recipe', async item => {
+    const baseline = runtime(item.slug, false), candidate = runtime(item.slug, true)
     await baseline.run(item.body)
     let settle!: (value: unknown) => void
     candidate.rpc.mockImplementation(() => new Promise(resolve => { settle = resolve }))
@@ -130,66 +146,59 @@ describe('remote-based staged candidates, actual entry code with stub IO', () =>
     const args = candidate.rpc.mock.calls[0][1]
     settle({ data: receipt(args), error: null })
     expect((await pending).status).toBe(200)
-    expect(providerInputs(candidate)).toEqual(providerInputs(baseline))
-    const inputs = providerInputs(candidate)
-    const recipe = inputs.text[0] ?? JSON.parse((inputs.http[0] as Record<string, unknown>).body as string)
+    expectProviderRecipesUnchanged(candidate, baseline)
+    const inputs = providerInputs(baseline)
+    const raw = baseline.provider.mock.calls[0]?.[0] as Record<string, unknown> | undefined
+    const { supabase: _client, ...parameters } = raw ?? {}
+    const recipe = raw ? { ...parameters, json: parameters.json ?? false, quality: parameters.quality ?? 'quality', idempotencyKey: 'stable-operation' }
+      : JSON.parse((inputs.http[0] as Record<string, unknown>).body as string)
     expect(args.p_payload_sha256).toBe(hash(JSON.stringify({ protocol: 'edge-assignment-help-v1', feature: item.slug,
       ownerId: owner, assignmentIds: [assignment], sourceNoteIds: item.slug === 'note-synthesis' || item.label === 'note-derived artifact' ? [note] : [], assignmentId: assignment, requestId: args.p_request,
       channel: 'api', kind: item.slug === 'math-step' ? 'hint' : item.slug === 'math-example' ? 'example' : item.slug === 'assignment-review' ? 'check' : 'guide', recipe })))
   })
   it.each(cases)('$label blocks all provider/output/capability release when receipt mismatches', async item => {
-    const candidate = runtime(item.slug, 'candidate', true)
+    const candidate = runtime(item.slug, true)
     candidate.rpc.mockImplementation(async (_name, args) => ({ error: null, data: { ...receipt(args), payloadSha256: '0'.repeat(64) } }))
     const response = await candidate.run(item.body)
     expect(response.status).toBe(503)
     expect(await response.text()).not.toMatch(/ek_stub|source detail|Synthetic map|data:/)
     expect(candidate.provider).not.toHaveBeenCalled(); expect(candidate.fetch).not.toHaveBeenCalled()
   })
-  it('preserves every original non-entry dependency and binds every candidate file hash', () => {
-    const manifest = JSON.parse(readFileSync(resolve(root, 'manifest.json'), 'utf8'))
-    expect(manifest.deployed).toBe(false)
-    expect(manifest.functions).toHaveLength(23)
-    for (const fn of manifest.functions) {
-      const raw = readFileSync(resolve(root, fn.slug, 'remote-source.json'))
-      expect(hash(raw)).toBe(fn.remoteSourceSha256)
-      const remote = JSON.parse(raw.toString('utf8'))
-      for (const file of fn.files) {
-      const bytes = readFileSync(resolve(root, fn.slug, 'candidate', file.name))
-      expect(hash(bytes)).toBe(file.candidateSha256)
-      if (file.baselineSha256) expect(hash(remote.files.find((item: { name: string }) => item.name === file.name).content)).toBe(file.baselineSha256)
-      if (file.baselineSha256 && file.name !== fn.entry) {
-        expect(bytes.equals(readFileSync(resolve(root, fn.slug, 'baseline', file.name)))).toBe(true)
-        expect(file.unchanged).toBe(true)
-      }
-      if (file.name.includes('homework-adapter')) expect(file.unchanged).toBe(true)
-      }
+  it('bundles every instructional entry from source with its real receipt boundary', () => {
+    expect([...bundles.keys()].sort()).toEqual([...new Set(cases.map(item => item.slug))].sort())
+    expect(bundles.size).toBe(23)
+    for (const slug of bundles.keys()) {
+      expect(readFileSync(resolve(root, slug, 'index.ts'), 'utf8')).toContain('withStudentSecurity(')
+      expect(bundles.get(slug)).toContain('learning_begin_assignment_assistance')
     }
   })
   it('preserves math photo extraction but blocks instructional invocation until the receipt', async () => {
     const body = { storageKey: owner + '/equation.png' }
-    const baseline = runtime('math-scaffold', 'baseline', false), candidate = runtime('math-scaffold', 'candidate', true)
+    const baseline = runtime('math-scaffold', false), candidate = runtime('math-scaffold', true)
     const old = await baseline.run(body)
     let settle!: (value: unknown) => void
     candidate.rpc.mockImplementation(() => new Promise(resolve => { settle = resolve }))
     const pending = candidate.run(body)
     await vi.waitFor(() => expect(candidate.rpc).toHaveBeenCalledOnce())
     // Source extraction is not pedagogical assistance and is unchanged.
-    expect(candidate.fetch).toHaveBeenCalledOnce()
-    expect(candidate.provider).not.toHaveBeenCalled()
+    expect(candidate.fetch).not.toHaveBeenCalled()
+    expect(candidate.provider).toHaveBeenCalledOnce()
+    expect(candidate.provider.mock.calls[0][0]).toMatchObject({ task: 'source_extraction' })
     const args = candidate.rpc.mock.calls[0][1]
     settle({ data: receipt(args), error: null })
     const next = await pending
     expect(next.status).toBe(200); expect(await next.text()).toBe(await old.text())
-    expect(providerInputs(candidate)).toEqual(providerInputs(baseline))
+    expect(candidate.provider).toHaveBeenCalledTimes(2)
+    expectProviderRecipesUnchanged(candidate, baseline)
   })
   it.each(['assignment', 'note'])('rejects omitted %s artifact identity before provider use', async sourceType => {
-    const candidate = runtime('study-artifacts', 'candidate', true)
+    const candidate = runtime('study-artifacts', true)
     const response = await candidate.run({ assignmentId: undefined, sourceType, artifactType: 'study_guide', studyMode: 'guided_steps', sourceText: 'Synthetic classroom source about bridges and rivers.' })
     expect(response.status).toBe(400)
     expect(candidate.provider).not.toHaveBeenCalled(); expect(candidate.fetch).not.toHaveBeenCalled()
   })
   it('assignment-review binds the actual retrieved source chunk in its recipe', async () => {
-    const candidate = runtime('assignment-review', 'candidate', true)
+    const candidate = runtime('assignment-review', true)
     expect((await candidate.run({ fields: [{ label: 'Draft', value: 'My bridge evidence.' }] })).status).toBe(200)
     const params = candidate.provider.mock.calls[0][0] as Record<string, unknown>
     expect(params.user).toContain('[Source: Source | p1]')

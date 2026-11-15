@@ -18,6 +18,9 @@ export async function extractPdfBatch(bytes: Uint8Array, startPage: number, maxP
   }
   return new Promise((resolve, reject) => {
     const worker = new Worker(path.join(process.cwd(),"lib/learning-engine/pdf-worker.mjs"), {
+      // This worker is native ESM. Inheriting dev/CLI loaders repeatedly loads
+      // their module graph into the bounded parser heap and can exhaust it.
+      execArgv: [],
       workerData: { bytes, startPage, maxPages }, resourceLimits: { maxOldGenerationSizeMb: 192, stackSizeMb: 4 },
     });
     let completed = false;

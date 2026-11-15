@@ -10,6 +10,8 @@ export default defineConfig({
     },
   },
   test: {
+    // Checkpoint suites launch real Git processes; bound contention on shared runners.
+    maxWorkers: 2,
     environment: "node",
     globals: false,
     setupFiles: ["./vitest.setup.ts"],

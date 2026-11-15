@@ -166,7 +166,7 @@ const ItemInput = z.object({
   reflectionText: z.string().max(2000).optional(),
   storageKey: z.string().max(2048).nullable().optional(),
   mimeType: z.string().max(200).nullable().optional(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function addPortfolioItem(

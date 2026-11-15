@@ -28,7 +28,7 @@ export function ingestionEndpoint(value: string): string {
 function claims(token: string): Record<string, unknown> {
   const parts = token.split(".");
   if (parts.length !== 3 || !parts.every(part => /^[A-Za-z0-9_-]+$/.test(part))) throw new Error("ingestion_session_invalid");
-  return z.record(z.unknown()).parse(JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8")));
+  return z.record(z.string(), z.unknown()).parse(JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8")));
 }
 
 /** Local claims reject unsafe inputs; the adapter MUST also verify the token with Supabase. */

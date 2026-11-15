@@ -136,13 +136,12 @@ describe('default-off integrated execution Edge core', () => {
       expect(verifyIntegratedExecutionSources(owner, row, altered), change).toBe(false);
     }
   });
-  it('moves the independently reviewed parser implementation byte-for-byte', () => {
-    const receipt = JSON.parse(readFileSync('artifacts/learning-engine/release/integrated-provider-parser-verification-20260929-v2.json', 'utf8'));
-    const expected = receipt.files.find((row: { path: string }) => row.path === 'lib/learning-engine/integrated-provider-response.ts').sha256;
-    const moved = readFileSync('supabase/functions/_shared/learning/integrated-provider-response.ts');
+  it('retains the recovered parser implementation with portable source line endings', () => {
+    const contract = JSON.parse(readFileSync('lib/learning-engine/fixtures/recovered-primary-contract.json', 'utf8'));
+    const moved = readFileSync('supabase/functions/_shared/learning/integrated-provider-response.ts', 'utf8').replaceAll('\r\n', '\n');
     const prefix = "import { Buffer } from 'node:buffer';\n";
-    expect(moved.subarray(0, Buffer.byteLength(prefix)).toString()).toBe(prefix);
-    expect(createHash('sha256').update(moved.subarray(Buffer.byteLength(prefix))).digest('hex')).toBe(expected);
+    expect(moved.startsWith(prefix)).toBe(true);
+    expect(createHash('sha256').update(moved.slice(prefix.length)).digest('hex')).toBe(contract.parserBodySha256);
   });
   it('requires deployment approval before authentication or provider interaction', async () => {
     const f = fixture(); delete f.env.DIANA_INTEGRATED_EXECUTION_ENABLED;

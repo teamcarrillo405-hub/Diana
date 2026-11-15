@@ -80,11 +80,15 @@ describe("AI methodology contracts", () => {
   });
 
   it.each(DIRECT_TO_STUDENT_HOMEWORK_EDGE_FUNCTIONS)(
-    "%s uses the shared homework adapter without school-policy red/yellow blockers",
+    "%s uses the shared homework adapter and the assignment receipt boundary for instructional help",
     (functionName) => {
       const source = edgeSource(functionName);
 
-      expect(source).toContain("runOpenAIHomeworkAdapter({");
+      // Note tagging is source organization; instructional help must first
+      // pass through the authenticated, assignment-scoped receipt wrapper.
+      expect(source).toContain(functionName === "note-tags"
+        ? "runOpenAIHomeworkAdapter({"
+        : "runAssignmentScopedHomeworkAdapter({");
       expect(source).not.toMatch(/aiMode\s*===\s*"red"/u);
       expect(source).not.toMatch(/aiMode\s*===\s*"yellow"/u);
       expect(source).not.toContain("AI not available for this class");
@@ -92,6 +96,16 @@ describe("AI methodology contracts", () => {
       expect(source).toMatch(/includeMinorSafety:\s*true/u);
     },
   );
+
+  it("keeps the scoped wrapper ahead of the unchanged shared homework adapter", () => {
+    const boundary = readFileSync(join(process.cwd(), "supabase/functions/_shared/learning/assignment-help-boundary.ts"), "utf8");
+    const receipt = boundary.indexOf("await recordEdgeAssignmentHelp(context,");
+    const invocation = boundary.indexOf("return runOpenAIHomeworkAdapter({ ...input,");
+    expect(boundary).toContain('from "../homework-adapter.ts"');
+    expect(receipt).toBeGreaterThan(-1);
+    expect(invocation).toBeGreaterThan(receipt);
+    expect(boundary).not.toContain("fetch(");
+  });
 
   it("keeps non-homework classifier and reflection routes outside the homework adapter contract", () => {
     for (const functionName of ["classify-inbox", "weekly-reflection", "agent-coach"]) {

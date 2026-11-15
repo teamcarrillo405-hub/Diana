@@ -6,6 +6,7 @@ import {
 } from "./evaluation-harness";
 import {
   BetaEducationalEvaluationManifestValidationError,
+  betaEducationalEvaluationCorpusManifestSchema,
   validateBetaEducationalEvaluationCorpusManifest,
   validateBetaEducationalEvaluationExpertSampleManifest,
 } from "./evaluation-validator";
@@ -85,8 +86,16 @@ describe("beta educational evaluation manifest validator", () => {
     const missing = mutableCorpus();
     missing.cases.pop();
     expect(validationIssues(() =>
-      validateBetaEducationalEvaluationCorpusManifest(missing)).join("\n"))
-      .toContain("Array must contain exactly 996 element");
+      validateBetaEducationalEvaluationCorpusManifest(missing)))
+      .toEqual([expect.stringMatching(/^cases:/u)]);
+    expect(betaEducationalEvaluationCorpusManifestSchema.safeParse(missing).error?.issues)
+      .toEqual([expect.objectContaining({
+        code: "too_small",
+        path: ["cases"],
+        origin: "array",
+        minimum: 996,
+        exact: true,
+      })]);
 
     const duplicate = mutableCorpus();
     duplicate.cases[1].caseId = duplicate.cases[0].caseId;

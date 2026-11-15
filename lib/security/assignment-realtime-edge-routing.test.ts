@@ -26,6 +26,7 @@ describe("Assignment Realtime provider boundary", () => {
     expect(sessionEdge).toContain('fetch("https://api.openai.com/v1/realtime/client_secrets"');
     expect(reasoningEdge).toContain('Deno.serve(withStudentSecurity("assignment-realtime-reason"');
     expect(reasoningEdge).toContain('task: "realtime"');
-    expect(reasoningEdge).toContain("runOpenAIHomeworkAdapter");
+    expect(reasoningEdge).toContain("runAssignmentScopedHomeworkAdapter");
+    expect(reasoningEdge).toContain('from "../_shared/learning/assignment-help-boundary.ts"');
   });
 });
