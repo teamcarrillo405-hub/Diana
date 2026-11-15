@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   formatHomeworkKernelForTutor,
@@ -29,12 +29,50 @@ function makeChain(result: TableResult, inserts: Array<{ table: string; value: R
 }
 
 function makeClient(results: Record<string, TableResult>) {
+  const assignment = results.assignments?.data as Record<string, unknown> | null;
+  if (assignment) {
+    const original = assignment.classes;
+    results = { ...results, assignments: { ...results.assignments, data: {
+      ai_mode_override: null, ...assignment,
+      classes: original === null ? null : assignment.class_id ? {
+        id: assignment.class_id, owner_id: assignment.owner_id, ai_mode: "green",
+        ...(original as Record<string, unknown> | undefined),
+      } : original,
+    } } };
+  }
   const inserts: Array<{ table: string; value: Record<string, unknown> }> = [];
   return {
     inserts,
     from: (table: string) => makeChain(results[table] ?? { data: null }, inserts, table),
   };
 }
+
+afterEach(() => vi.unstubAllEnvs());
+
+describe("stored assignment policy in the real kernel", () => {
+  const owned = { id: "assignment-1", owner_id: "student-1", title: "Practice", kind: "math", class_id: "class-1" };
+  it.each(["red", "yellow"])("preserves the stored %s class or assignment restriction", async mode => {
+    vi.stubEnv("DIANA_HOMEWORK_PRODUCT_TIER", "school_tier");
+    for (const policy of [{ classes: { ai_mode: mode } }, { ai_mode_override: mode }]) {
+      const kernel = await loadAssignmentHomeworkKernel({ supabase: makeClient({ assignments: { data: { ...owned, ...policy } } }),
+        ownerId: "student-1", assignmentId: "assignment-1" });
+      expect(kernel?.trustDecision).toMatchObject({ allowed: false, aiMode: mode });
+    }
+  });
+  it("rejects unavailable, foreign or malformed policy instead of defaulting to green", async () => {
+    for (const policy of [{ classes: null }, { classes: { owner_id: "other" } },
+      { classes: { id: "other" } }, { classes: { ai_mode: "unknown" } }, { ai_mode_override: "unknown" }]) {
+      await expect(loadAssignmentHomeworkKernel({ supabase: makeClient({ assignments: { data: { ...owned, ...policy } } }),
+        ownerId: "student-1", assignmentId: "assignment-1" })).rejects.toThrow("homework_policy_unavailable");
+    }
+  });
+  it("preserves the direct-to-student product policy explicitly", async () => {
+    vi.stubEnv("DIANA_HOMEWORK_PRODUCT_TIER", "direct_to_student");
+    const kernel = await loadAssignmentHomeworkKernel({ supabase: makeClient({ assignments: { data: { ...owned, classes: { ai_mode: "red" } } } }),
+      ownerId: "student-1", assignmentId: "assignment-1" });
+    expect(kernel?.trustDecision).toMatchObject({ allowed: true, schoolPolicyDormant: true });
+  });
+});
 
 describe("server assignment homework kernel", () => {
   it("loads a source-aware assignment understanding and records the live study event", async () => {

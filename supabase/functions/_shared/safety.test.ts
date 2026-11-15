@@ -594,6 +594,31 @@ Deno.test("settlement retries safely with the same reservation id", async () => 
   assert(attempts === 2, "settlement did not retry once");
 });
 
+Deno.test("explicit provider rejection releases only its own reserved usage", async () => {
+  const calls: string[] = [];
+  const client = makeRpcClient((name, args) => {
+    calls.push(name);
+    if (name === "reserve_ai_token_budget") return { data: [{ reservation_id: "rejected-request", allowed: true, remaining_tokens: 100, reserved_tokens: args.p_requested_tokens, reservation_status: "active" }], error: null };
+    if (name === "release_ai_budget_known_not_consumed") {
+      assert(args.p_reservation_id === "rejected-request", "A different request was released");
+      assert(typeof args.p_provider_start_key === "string", "Release lost its provider start key");
+      return { data: [{ reservation_id: "rejected-request", reservation_status: "released" }], error: null };
+    }
+    return { data: [], error: null };
+  });
+  const result = await runSafeBudgetedAiCall({
+    ownerId: "owner-1",
+    // deno-lint-ignore no-explicit-any
+    supabase: client as any,
+    input: "Explain a class concept.", systemPrompt: "Help with classwork.", maxOutputTokens: 100,
+    invoke: () => Promise.resolve({ content: "Unavailable", tokens: 0 }),
+    getUsageState: () => "rejected", moderator: allowAll,
+  });
+  assert(result.ok, "Rejected provider result was lost");
+  assert(calls.includes("release_ai_budget_known_not_consumed"), "Rejected request was charged");
+  assert(!calls.includes("settle_ai_token_budget"), "Rejected request was settled as consumed");
+});
+
 Deno.test("provider exception after durable start conservatively settles the reservation", async () => {
   const calls: string[] = [];
   const client = makeRpcClient((name, args) => {

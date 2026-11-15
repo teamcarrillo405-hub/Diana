@@ -1,0 +1,7 @@
+.tabs { display:flex; flex-wrap:wrap; gap:8px 28px; border-bottom:1px solid #c3dacc42; margin-top:26px; }
+.tabs.tabs button { position:relative; display:flex; align-items:center; min-height:54px; border:0; border-radius:0; padding:8px 0 14px; background:transparent; color:#b5c9bf; font:700 24px/1.15 var(--font-saira-condensed),sans-serif; text-transform:uppercase; box-shadow:none; }
+.tabs.tabs button[aria-selected="true"] { color:#fff; }
+.tabs button[aria-selected="true"]::after { content:""; position:absolute; height:3px; bottom:-1px; left:0; right:0; background:#f339a7; }
+.panel { padding-top:24px; }
+.panel[hidden] { display:none; }
+@media(max-width:640px) { .tabs { gap:0 20px; } .tabs.tabs button { min-height:48px; font-size:21px; } }

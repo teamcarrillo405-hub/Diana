@@ -21,6 +21,7 @@ interface CliOptions {
   releaseSha: string;
   url: string;
 }
+
 function parseArguments(args: string[]): CliOptions {
   const [command, ...flags] = args;
   if (!["template", "validate", "validate-all"].includes(String(command))) {
@@ -58,6 +59,7 @@ function parseArguments(args: string[]): CliOptions {
     url: values.get("--url")!,
   };
 }
+
 try {
   if (process.argv.slice(2).includes("--help")) {
     console.log(USAGE);
@@ -102,4 +104,5 @@ try {
   console.error(`beta-external-evidence: ${redactText(error instanceof Error ? error.message : String(error))}`);
   console.error(USAGE);
   process.exitCode = 2;
-} // CLI entrypoint
+}
+

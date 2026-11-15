@@ -1,0 +1,6 @@
+.root{display:grid;gap:24px;color:#e3eee7;max-width:1080px;min-width:0;padding-block:24px}
+.root h1{font:700 40px/1.1 var(--font-saira-condensed),sans-serif}.root h2{font:700 30px/1.2 var(--font-saira-condensed),sans-serif}.root h3{font-weight:700;margin-top:16px}
+.root label{display:grid;gap:8px;margin-block:14px}.root label:has(input){display:flex;align-items:center;gap:12px}.root input{accent-color:#7951d5;min-width:20px;min-height:20px}
+.root select,.root textarea{width:100%;min-width:0;min-height:44px;padding:12px;background:#193026;color:#edf5ef;border:1px solid #b3cbbb60;border-radius:3px}.root textarea{min-height:160px}
+.root button{min-height:44px;padding:10px 16px;background:#7951d5;color:white;border-radius:3px}.root button:disabled{opacity:.5}.root :is(button,input,select,textarea,summary):focus-visible{outline:2px solid #d5c4fa;outline-offset:3px}
+.root details{padding-block:16px;border-bottom:1px solid #bad0c33d}.root summary{cursor:pointer;font-weight:600}.root p{line-height:1.65;margin-block:10px}.root blockquote{border-left:2px solid #71c3ac;padding-left:16px}.root ol{padding-left:24px;list-style:decimal}.root pre{font-size:13px;line-height:1.6}.root [role=status]{color:#efdbb4}.root fieldset{display:grid;gap:10px}

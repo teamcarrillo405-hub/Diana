@@ -39,7 +39,7 @@ test.describe("desktop Study router", () => {
     await openStudy(page);
 
     await page.getByRole("button", { name: "Study", exact: true }).first().click();
-    await expect(page).toHaveURL(/\/(?:assignments\/[0-9a-f-]+\/workspace(?:#(?:ask-diana|subject-tools))?|study-artifacts\/[0-9a-f-]+)/u, {
+    await expect(page).toHaveURL(/\/(?:assignments\/[0-9a-f-]+\/workspace(?:#(?:ask-diana|subject-tools))?|study-buddy\?|study-artifacts\/[0-9a-f-]+)/u, {
       timeout: 30_000,
     });
     await expect(page.locator("body")).not.toContainText(/Application error|Internal Server Error/u);

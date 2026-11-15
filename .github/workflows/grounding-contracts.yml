@@ -1,0 +1,34 @@
+name: Grounding research contracts
+
+on:
+  push:
+    paths:
+      - "scripts/learning/**"
+      - "docs/engineering/grounding-*.json"
+      - ".github/workflows/grounding-contracts.yml"
+  pull_request:
+    paths:
+      - "scripts/learning/**"
+      - "docs/engineering/grounding-*.json"
+      - ".github/workflows/grounding-contracts.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Verify grounding contracts without models or credentials
+        # Only standard-library fixtures. This does not train, infer, download,
+        # inspect private student data, or promote an adapter.
+        env:
+          HF_HUB_OFFLINE: "1"
+          TRANSFORMERS_OFFLINE: "1"
+          HF_HUB_DISABLE_TELEMETRY: "1"
+        run: |
+          python3 -m unittest discover -s scripts/learning -p 'test_*v[34]*.py' -v
+          python3 -m unittest discover -s scripts/learning -p 'test_*qwen3*.py' -v
+          python3 -m unittest discover -s scripts/learning -p 'test_grounding_adjudication.py' -v

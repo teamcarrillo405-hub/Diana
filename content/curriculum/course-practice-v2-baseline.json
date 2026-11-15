@@ -1,0 +1,82 @@
+[
+  {
+    "activityId": "course-practice-v2:english-middle-school:compare",
+    "versionId": "89a24bee4d88a006d84874bfa1a98456532ddad21339dbd892add15d34a04351"
+  },
+  {
+    "activityId": "course-practice-v2:english-middle-school:revise",
+    "versionId": "5e4080ccef00009d945e5fe379fd9675d7394c90599566a1b04af224943b6a0c"
+  },
+  {
+    "activityId": "course-practice-v2:science-middle-school:measurement",
+    "versionId": "3d33291868b968802cf5422f83181d1d5b9c6c52ff1e263f10c7c3281ff3d635"
+  },
+  {
+    "activityId": "course-practice-v2:science-middle-school:explain",
+    "versionId": "eedd3ba2275784dd05c0a0f91737afbbe37566cb9c865fee71e084930a75aeac"
+  },
+  {
+    "activityId": "course-practice-v2:english-high-school:compare",
+    "versionId": "c86708624a7834ea3d93c998a407cd5ad672d2c434d5710e7cec7c82376ae8c6"
+  },
+  {
+    "activityId": "course-practice-v2:english-high-school:revise",
+    "versionId": "2e16e2c33825563b66773aa06c0938e17f777fbba27e6219e3d82a3a0ac356d9"
+  },
+  {
+    "activityId": "course-practice-v2:science-high-school:measurement",
+    "versionId": "4290fda7ad6683d2138201cc1948cfbce42520ae51890354da4e4cd91e798787"
+  },
+  {
+    "activityId": "course-practice-v2:science-high-school:balance",
+    "versionId": "de3a8b9d1be27f7470ddd8630cae4b6efb9a4c358661c9954217cd61825a5520"
+  },
+  {
+    "activityId": "course-practice-v2:science-high-school:explain",
+    "versionId": "30ba038a9bbde5c0d4a699bf06ed8325a61b54c24721a25a8ead2a638811c9a1"
+  },
+  {
+    "activityId": "course-practice-v2:english-college-intro:compare",
+    "versionId": "d592be4d73c5c653adf038d682c42f823822b15da0fc248107e801844c02f8f6"
+  },
+  {
+    "activityId": "course-practice-v2:english-college-intro:revise",
+    "versionId": "40f4d7a3fc83f571a2e1cfc5622b8d96a62236bf21a06b22026e0191f8a76ba0"
+  },
+  {
+    "activityId": "course-practice-v2:science-college-intro:measurement",
+    "versionId": "a09e0c4f83b75c18cdd7b31ad6fb0faba085c7ada3acf159b2c16a6aef94746f"
+  },
+  {
+    "activityId": "course-practice-v2:science-college-intro:balance",
+    "versionId": "b29376e2eccc65227a78abe5643916db0aa964080fdd3ddbc6d1081c84117d20"
+  },
+  {
+    "activityId": "course-practice-v2:science-college-intro:explain",
+    "versionId": "710b2119e8314ca393512f22db3b44c452beb696c72b501edd18c670125a16ca"
+  },
+  {
+    "activityId": "course-practice-v2:math-middle-school:ratio",
+    "versionId": "435da12d1765511cf8b62f373828382e8d6d70731c1dbe47cf1bb47a3aea64d3"
+  },
+  {
+    "activityId": "course-practice-v2:math-middle-school:mean",
+    "versionId": "347fd6d3840307ecf2b18cff6f2da33c2e70c80b9f4815c691e6ff6b9b29bc12"
+  },
+  {
+    "activityId": "course-practice-v2:math-high-school:function",
+    "versionId": "4d95a9229f48fb7ef9cba2c21f16bba1d1187a5f9be56022e0065aace0bd5a9c"
+  },
+  {
+    "activityId": "course-practice-v2:math-high-school:roots",
+    "versionId": "492c4f685584d793dc8cf17216e11a20fb3a90e757c4c5cfd7e6464fab30844c"
+  },
+  {
+    "activityId": "course-practice-v2:math-college-intro:function",
+    "versionId": "51a26bb6c2cddb6ea7bd85fa81edc08d67954e0e26932ea193f8540f21da5b63"
+  },
+  {
+    "activityId": "course-practice-v2:math-college-intro:roots",
+    "versionId": "e6a09af08d22627541f6262bf86facf032c3aca4624e4facadcc652ede4f0610"
+  }
+]

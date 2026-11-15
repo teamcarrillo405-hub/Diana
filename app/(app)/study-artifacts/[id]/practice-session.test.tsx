@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: vi.fn() }),
 }));
+vi.mock("@/components/screen-design/student-desktop-nav", () => ({StudentDesktopNav:()=>null}));
 
 vi.mock("@/components/screen-design/primitives", () => ({
   DianaWordmark: () => <span>Diana</span>,
@@ -21,6 +22,7 @@ vi.mock("../actions", () => ({
 }));
 
 import { PracticeTestSession } from "./practice-session";
+import { savePracticeTestProgress } from "../actions";
 
 const quiz = [{
   question: "Which detail supports the claim?",
@@ -32,6 +34,34 @@ const quiz = [{
 
 describe("PracticeTestSession journey continuity", () => {
   afterEach(cleanup);
+
+  it("keeps a draft visible when saving is unavailable", async () => {
+    vi.mocked(savePracticeTestProgress).mockResolvedValueOnce({ok:false,error:"Try saving again."});
+    render(<PracticeTestSession artifactId="quiz-1" artifactTitle="Quiz" assignmentId={null} quiz={[{...quiz[0],choices:[]}]} initialProgress={{currentQuestion:0,completed:false,completedAt:null,responses:{}}} initialResult={null} />);
+    fireEvent.change(screen.getByLabelText("Practice response"),{target:{value:"My evidence"}});
+    expect(screen.getByText("Draft",{selector:"small"})).toBeInTheDocument();
+    expect(screen.getByText("0 of 1 saved")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button",{name:"Finish quiz"}));
+    expect(await screen.findByText("Try saving again.")).toBeInTheDocument();
+    expect(screen.getByLabelText("Practice response")).toHaveValue("My evidence");
+  });
+
+  it("saves pending answers together and rejects a partial finish", async () => {
+    vi.mocked(savePracticeTestProgress).mockClear();
+    vi.mocked(savePracticeTestProgress).mockResolvedValueOnce({ok:true,progress:{currentQuestion:1,completed:true,completedAt:"2026-09-24T12:00:00Z",responses:{"0":"First","1":"Second"}},result:{results:[],questionCount:2,answeredCount:2,scoredCount:0,unscoredCount:2,matchedCount:0,checkAgainCount:0,reviewTogetherCount:2,notAnsweredCount:0,pointsEarned:0,pointsPossible:0,percentage:null},supportState:{stage:"guided",completedPasses:0} as never});
+    render(<PracticeTestSession artifactId="quiz-1" artifactTitle="Quiz" assignmentId={null} quiz={[{...quiz[0],choices:[]},{...quiz[0],question:"Explain your idea",choices:[]}]} initialProgress={{currentQuestion:0,completed:false,completedAt:null,responses:{}}} initialResult={null} />);
+    fireEvent.click(screen.getByRole("button",{name:/Question 2/}));
+    fireEvent.change(screen.getByLabelText("Practice response"),{target:{value:"Second"}});
+    fireEvent.click(screen.getByRole("button",{name:"Finish quiz"}));
+    expect(screen.getByText("Add a response to each question before finishing.")).toBeInTheDocument();
+    expect(savePracticeTestProgress).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button",{name:/Question 1/}));
+    fireEvent.change(screen.getByLabelText("Practice response"),{target:{value:"First"}});
+    fireEvent.click(screen.getByRole("button",{name:/Question 2/}));
+    fireEvent.click(screen.getByRole("button",{name:"Finish quiz"}));
+    await waitFor(()=>expect(savePracticeTestProgress).toHaveBeenCalledWith(expect.objectContaining({completed:true,responses:[{questionIndex:0,response:"First"},{questionIndex:1,response:"Second"}]})));
+    expect(await screen.findByText("2 responses saved")).toBeInTheDocument();
+  });
 
   it("returns assignment-linked completion to the assignment workspace", () => {
     const assignmentId = "11111111-1111-4111-8111-111111111111";
@@ -57,7 +87,7 @@ describe("PracticeTestSession journey continuity", () => {
     );
   });
 
-  it("preserves Study Lab exits for standalone practice", () => {
+  it("returns standalone practice to saved Quiz material", () => {
     render(
       <PracticeTestSession
         artifactId="22222222-2222-4222-8222-222222222222"
@@ -74,9 +104,9 @@ describe("PracticeTestSession journey continuity", () => {
       />,
     );
 
-    expect(screen.getByRole("link", { name: "Back to study lab" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Back to Quiz" })).toHaveAttribute(
       "href",
-      "/study-artifacts",
+      "/study?view=saved",
     );
     expect(screen.getByRole("complementary", { name: "Quiz questions" })).toBeInTheDocument();
     expect(screen.getByLabelText("Ask Diana about this quiz")).toBeInTheDocument();

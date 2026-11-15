@@ -17,31 +17,13 @@ type ReleaseManifest = {
   includeFromWorktree: string[];
 };
 
-const REQUIRED_WORKTREE_ASSETS = [
-  "public/assets/dashboard/diana-dashboard-school-1472x778.webp",
-  "public/assets/dashboard/diana-today-home-screen.png",
-  "public/assets/fonts/outfit-landing.woff2",
-  "public/assets/video/diana-work-stays-yours-film-poster-v2.webp",
-  "public/images/assignment/gamer-study-room-blur.png",
-  "public/images/assignment/gamer-study-room.png",
-  "public/images/auth-command-space.png",
-  "public/images/calendar-gamer-planning-studio.png",
-  "public/images/classes-gamer-classroom.png",
-  "public/images/classes-high-tech-classroom.png",
-  "public/images/diana-loading-empty-studio.png",
-  "public/images/more-gamer-classroom.png",
-  "public/images/onboarding-study-sunlight.png",
-  "public/images/record-gamer-gallery-v2.png",
-  "public/images/today-future-academy-4k.webp",
-  "public/images/today-gamer-high-school.png",
-  "public/images/today-milestones/sessions-finished.svg",
-  "public/images/today-milestones/work-completed.svg",
-  "public/images/today-milestones/work-submitted.svg",
-  "public/privacy.html",
-  "public/screendesign/brand/diana-logo-no-shadow.png",
-  "public/screendesign/brand/diana-logo-tight-dark-wordmark.png",
-  "public/screendesign/brand/diana-logo-tight-no-shadow.png",
-  "public/trust.html",
+const HELP_MODE_ASSETS = [
+  "public/assets/help-modes/make-the-game-poster.webp",
+  "public/assets/help-modes/make-the-game.mp4",
+  "public/assets/help-modes/make-the-game.webm",
+  "public/assets/help-modes/show-up-for-your-club-poster.webp",
+  "public/assets/help-modes/show-up-for-your-club.mp4",
+  "public/assets/help-modes/show-up-for-your-club.webm",
 ] as const;
 
 function readManifest(): ReleaseManifest {
@@ -51,16 +33,16 @@ function readManifest(): ReleaseManifest {
 }
 
 describe("beta release composition", () => {
-  it("ships only the active public assets the current runtime requires", () => {
+  it("ships every source the canonical help-mode videos advertise", () => {
     const manifest = readManifest();
-    expect(manifest.restoreFromHead).toEqual([".planning"]);
-    expect(manifest.includeFromWorktree).toEqual(REQUIRED_WORKTREE_ASSETS);
-    for (const asset of REQUIRED_WORKTREE_ASSETS) {
+    expect(manifest.restoreFromHead).toContain("public/assets/help-modes");
+    for (const asset of HELP_MODE_ASSETS) {
+      expect(manifest.includeFromWorktree).toContain(asset);
       expect(existsSync(path.resolve(asset))).toBe(true);
     }
   });
 
-  it("keeps retired preview systems out of the release manifest", () => {
+  it("holds unfinished 3D landing work out of the web beta", () => {
     const manifest = readManifest();
     expect(manifest).toMatchObject({
       schemaVersion: 2,
@@ -74,22 +56,10 @@ describe("beta release composition", () => {
         under13ReleaseGateContractVersion: 1,
       },
     });
-    for (const retiredPath of [
+    expect(manifest.restoreFromHead).toEqual(expect.arrayContaining([
       "app/landing-3d",
       "components/cinematic-logo-mask-hero.tsx",
-      "diana-logo.png",
       "public/landing-3d",
-      "public/assets/comfyui-i2v",
-      "public/assets/candidates",
-      "public/assets/final",
-      "public/assets/hero",
-      "public/assets/help-fit",
-      "public/assets/help-modes",
-      "public/assets/homework",
-      "public/assets/video",
-    ]) {
-      expect(manifest.restoreFromHead).not.toContain(retiredPath);
-      expect(manifest.includeFromWorktree).not.toContain(retiredPath);
-    }
+    ]));
   });
 });

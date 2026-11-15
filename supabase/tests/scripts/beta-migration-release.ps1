@@ -14,8 +14,8 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $cliVersion = "2.111.0"
-$stagingHead = "20260902215000"
-$releaseHead = "20260902215000"
+$stagingHead = "20260925172424"
+$releaseHead = "20260925172424"
 $expectedPendingVersions = @()
 $historicalHashes = @{
   "20260811103918_assignment_problem_progress.sql" = "5539306f55be4c8621cc6124d40fb19d317146cb288769c37ec00636ed0a6fa6"

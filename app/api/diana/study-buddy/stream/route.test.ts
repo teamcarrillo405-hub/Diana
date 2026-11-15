@@ -43,6 +43,64 @@ function events(value: string) {
 describe("study buddy stream route", () => {
   beforeEach(() => vi.clearAllMocks());
 
+  it("holds substantive stream events until the buffered assistance boundary resolves", async () => {
+    let release!: (value: Response) => void;
+    mocks.runBuffered.mockImplementationOnce(() => new Promise<Response>((resolve) => { release = resolve; }));
+    const incoming = request();
+    incoming.headers.set("x-idempotency-key", "stable-stream-turn");
+    const response = await POST(incoming);
+    const reader = response.body!.getReader();
+    const first = await reader.read();
+    expect(new TextDecoder().decode(first.value)).toContain('"type":"thinking"');
+    let settled = false;
+    const next = reader.read().then((value) => { settled = true; return value; });
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    expect(mocks.runBuffered.mock.calls[0][0].headers.get("x-idempotency-key")).toBe("stable-stream-turn");
+    release(new Response(JSON.stringify({ ok: false, error: "Assistance could not be recorded." }), { status: 503 }));
+    const final = new TextDecoder().decode((await next).value);
+    expect(final).toContain('"type":"retryable_error"');
+    expect(final).not.toContain('"type":"streaming"');
+    expect(final).not.toContain('"type":"complete"');
+    expect((await reader.read()).done).toBe(true);
+    expect(response.headers.get("Cache-Control")).toContain("no-store");
+  });
+
+  it("retains local-first provenance and zero provider usage in the complete event", async () => {
+    const provider = { called: false, responseOrigin: "local", tokens: 0 };
+    const routing = { localCapability: "bounded-linear-equation-v1" };
+    mocks.runBuffered.mockResolvedValueOnce(new Response(JSON.stringify({
+      ok: true, response: { title: "Local hint", main: "Subtract five from each side.", reason: "", steps: [], anchor: "Student work", visualAid: { kind: "none", title: "", description: "", steps: [] } },
+      evidence, providerState: availableProviderState, provider, routing,
+    }), { status: 200 }));
+    const result = events(await (await POST(request())).text());
+    expect(result.at(-1)).toMatchObject({ type: "complete", provider, routing, evidence });
+    expect(result.at(-1)).not.toHaveProperty("model");
+  });
+
+  it("completes a source-conflict clarification without treating it as a broken envelope", async () => {
+    mocks.runBuffered.mockResolvedValueOnce(new Response(JSON.stringify({
+      ok: true,
+      response: {
+        title: "Choose the source version",
+        main: "The selected source versions conflict. I need the intended version before helping with this question.",
+        reason: "Choosing the source keeps the next step tied to your assignment.",
+        steps: ["Open the assigned source.", "Check its edition or revision label.", "Which source version should we use?"],
+        anchor: "Source selection needs confirmation.",
+      },
+      evidence: { ...evidence, verificationLevel: "needs_more_information", confidence: 0,
+        limitations: ["The source conflict is unresolved; no answer or interpretation was checked."],
+        escalationReason: "Confirm the intended source version." },
+      providerState: availableProviderState,
+      provider: { called: false, responseOrigin: "local", tokens: 0 },
+    }), { status: 200 }));
+    const result = events(await (await POST(request())).text());
+    expect(result.at(-1)).toMatchObject({ type: "complete", response: { title: "Choose the source version" },
+      evidence: { verificationLevel: "needs_more_information", confidence: 0 },
+      provider: { called: false, responseOrigin: "local", tokens: 0 } });
+    expect(result.some(event => event.type === "retryable_error" || event.type === "interrupted")).toBe(false);
+  });
+
   it("emits thinking, deltas, and one complete event", async () => {
     mocks.runBuffered.mockResolvedValue(new Response(JSON.stringify({
       ok: true,

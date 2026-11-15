@@ -1,0 +1,67 @@
+.hero { position: relative; background: #f3f5f0; }
+.stage { position: relative; isolation: isolate; width: 100%; height: calc(100svh - 76px); min-height: 600px; overflow: hidden; background: #10171c; }
+.scene { position: absolute; inset: 0; overflow: hidden; will-change: transform, opacity; }
+.life { z-index: 0; }
+.work { z-index: 1; background: #f3f5f0; opacity: 0; visibility: hidden; }
+.practice { z-index: 2; background: #f3f5f0; opacity: 0; visibility: hidden; }
+.openingPoster, .video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.openingPoster img, .video { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.openingCopy { position: absolute; top: 9%; left: 57%; width: 40%; max-width: 540px; }
+.hero .openingCopy h1 { margin: 0; color: #fff; font-size: 88px; font-weight: 600; line-height: .96; letter-spacing: 0; text-transform: none; text-shadow: none; }
+.productCopy { position: relative; z-index: 2; width: min(1280px, calc(100% - 96px)); margin: 0 auto; padding-top: 34px; }
+.hero .productCopy h2 { color: #192122; font-size: 64px; font-weight: 600; line-height: 1; letter-spacing: 0; text-transform: none; }
+.productScreen { position: absolute; inset: 126px 48px 64px; display: flex; align-items: flex-start; justify-content: center; transform-origin: 50% 50%; overflow: hidden; }
+.productScreen img { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center top; }
+.storyFooter { position: absolute; z-index: 4; inset: auto 48px 12px; display: flex; justify-content: space-between; align-items: center; height: 44px; color: #fff; }
+.stage[data-story-active="1"] .storyFooter, .stage[data-story-active="2"] .storyFooter { color: #192122; }
+.beatNav { display: flex; align-items: center; gap: 10px; }
+.hero .beatNav button { display: flex; align-items: center; width: 54px; height: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: inherit; }
+.progressTrack { display: block; width: 100%; height: 3px; overflow: hidden; background: color-mix(in srgb, currentColor 24%, transparent); }
+.progressTrack > span { display: block; width: 100%; height: 100%; background: currentColor; transform: scaleX(0); transform-origin: left; }
+.hero .beatNav button:focus-visible, .explore:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.hero .beatNav button:hover { background: transparent; transform: none; }
+.hero .beatNav button:hover .progressTrack { height: 4px; }
+.explore { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-width: 44px; min-height: 44px; color: inherit; font-size: 15px; font-weight: 600; text-decoration: none; }
+.explore:hover { text-decoration: underline; text-underline-offset: 5px; }
+
+@media (max-width: 1179px) {
+  .openingCopy { top: 12%; left: 56%; width: 42%; }
+  .hero .openingCopy h1 { font-size: 68px; }
+  .hero .productCopy h2 { font-size: 56px; }
+  .productScreen { inset-inline: 24px; }
+  .productCopy { width: calc(100% - 48px); }
+  .storyFooter { inset-inline: 24px; }
+}
+
+@media (max-width: 767px) {
+  .stage { height: calc(100svh - 64px); min-height: 560px; }
+  .openingCopy { top: auto; bottom: 74px; left: 24px; width: calc(100% - 48px); max-width: 420px; }
+  .hero .openingCopy h1 { font-size: 48px; line-height: .98; }
+  .openingPoster, .video { height: calc(100% - 240px); }
+  .openingPoster img, .video { object-position: 30% center; }
+  .productCopy { padding-top: 30px; }
+  .hero .productCopy h2 { font-size: 44px; max-width: 350px; }
+  .productScreen { inset: 142px 24px 66px; }
+  .productScreen img { width: 100%; height: 100%; max-width: 400px; object-fit: contain; }
+  .practice .productScreen { align-items: center; }
+  .practice .productScreen img { object-position: center; }
+  .storyFooter { inset-inline: 24px; }
+  .hero .beatNav button { width: 44px; }
+}
+
+@media (max-height: 700px) and (min-width: 768px) {
+  .stage { min-height: 460px; }
+  .hero .openingCopy h1 { font-size: 62px; }
+  .hero .productCopy h2 { font-size: 48px; }
+  .productCopy { padding-top: 22px; }
+  .productScreen { top: 94px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stage { height: auto; min-height: 0; background: #f3f5f0; }
+  .scene { position: relative; min-height: 640px; opacity: 1; visibility: visible; will-change: auto; }
+  .video, .beatNav { display: none; }
+  .life { height: calc(100svh - 76px); }
+  .work, .practice { min-height: 740px; }
+  .storyFooter { position: relative; inset: auto; justify-content: flex-end; padding: 0 24px 24px; height: 68px; color: #192122; }
+}

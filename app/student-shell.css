@@ -1,0 +1,14 @@
+/* Layout only. Route components own their content and colors. */
+.diana-app-shell:has([data-student-shell]) { background:#101719; }
+.diana-app-shell:has([data-student-shell]) .diana-authenticated-field { background:transparent; padding:0; }
+.diana-app-shell:has([data-student-shell]) .app-command-frame { width:100%; max-width:none; margin:0; padding:0; }
+.diana-app-shell:has([data-student-shell]) :is(.diana-mobile-command,.agent-fab-anchor) { display:none; }
+
+/* Saved forms share the same controls across Classes, Notes and Settings. */
+[data-student-shell] :is(.diana-input,.diana-select,.diana-textarea) { border:1px solid #b8cfca60; background:#142326; color:#edf6ef; border-radius:3px; padding:10px 12px; width:100%; min-height:44px; }
+[data-student-shell] :is(.diana-input,.diana-select,.diana-textarea)::placeholder { color:#a5bbb4; }
+[data-student-shell] :is(.diana-button-primary,.class-material-upload-button) { border:1px solid #bc99ea; border-radius:2px; background:#8124e5; color:#fff; min-height:44px; padding:10px 16px; }
+[data-student-shell] :is(.class-material-upload-link,.class-material-upload-remove) { color:#dce9e1; min-height:44px; padding:10px; display:inline-flex; align-items:center; gap:6px; }
+[data-student-shell] .class-rubric-form { display:grid; gap:12px; }
+[data-student-shell] .class-material-upload { display:flex; flex-wrap:wrap; align-items:center; gap:10px; }
+[data-student-shell] :is(.class-material-upload-hint,.class-material-upload-message) { width:100%; color:#b8c7c7; font-size:12px; }

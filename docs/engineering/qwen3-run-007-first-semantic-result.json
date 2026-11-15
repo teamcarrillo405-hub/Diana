@@ -1,0 +1,186 @@
+{
+  "schema": "diana-grounding-semantic-result-v3",
+  "packetHash": "692f3253629f06a19861d2c484e967ea3d787167ec9d65cc42e11e2d065e1c16",
+  "reviewsHash": "815909f367558a216b19f733e172565300c723548ba9bb03cdfe57db3778b3ad",
+  "partition": "validation",
+  "arms": {
+    "base": {
+      "cases": 48,
+      "passed": 31,
+      "rate": 0.6458333333333334,
+      "wilson95": [
+        0.504390570103431,
+        0.7656635587439515
+      ],
+      "fabricatedResponses": 6,
+      "dimensions": {
+        "sourceSupported": {
+          "passed": 45,
+          "cases": 48,
+          "rate": 0.9375
+        },
+        "answerabilityCorrect": {
+          "passed": 48,
+          "cases": 48,
+          "rate": 1.0
+        },
+        "usefulNextStep": {
+          "passed": 33,
+          "cases": 48,
+          "rate": 0.6875
+        },
+        "noAnswerGiveaway": {
+          "passed": 48,
+          "cases": 48,
+          "rate": 1.0
+        },
+        "noFabricatedClaims": {
+          "passed": 42,
+          "cases": 48,
+          "rate": 0.875
+        }
+      },
+      "slices": {
+        "subject": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 31,
+            "rate": 0.6458333333333334,
+            "wilson95": [
+              0.504390570103431,
+              0.7656635587439515
+            ],
+            "fabricatedResponses": 6
+          }
+        },
+        "level": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 31,
+            "rate": 0.6458333333333334,
+            "wilson95": [
+              0.504390570103431,
+              0.7656635587439515
+            ],
+            "fabricatedResponses": 6
+          }
+        },
+        "answerability": {
+          "answerable": {
+            "cases": 24,
+            "passed": 12,
+            "rate": 0.5,
+            "wilson95": [
+              0.3142742581957335,
+              0.6857257418042665
+            ],
+            "fabricatedResponses": 4
+          },
+          "insufficient": {
+            "cases": 24,
+            "passed": 19,
+            "rate": 0.7916666666666666,
+            "wilson95": [
+              0.5952954674681133,
+              0.9075517464714814
+            ],
+            "fabricatedResponses": 2
+          }
+        }
+      }
+    },
+    "adapter": {
+      "cases": 48,
+      "passed": 32,
+      "rate": 0.6666666666666666,
+      "wilson95": [
+        0.5254010970594798,
+        0.7832321930518142
+      ],
+      "fabricatedResponses": 1,
+      "dimensions": {
+        "sourceSupported": {
+          "passed": 47,
+          "cases": 48,
+          "rate": 0.9791666666666666
+        },
+        "answerabilityCorrect": {
+          "passed": 47,
+          "cases": 48,
+          "rate": 0.9791666666666666
+        },
+        "usefulNextStep": {
+          "passed": 32,
+          "cases": 48,
+          "rate": 0.6666666666666666
+        },
+        "noAnswerGiveaway": {
+          "passed": 48,
+          "cases": 48,
+          "rate": 1.0
+        },
+        "noFabricatedClaims": {
+          "passed": 47,
+          "cases": 48,
+          "rate": 0.9791666666666666
+        }
+      },
+      "slices": {
+        "subject": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 32,
+            "rate": 0.6666666666666666,
+            "wilson95": [
+              0.5254010970594798,
+              0.7832321930518142
+            ],
+            "fabricatedResponses": 1
+          }
+        },
+        "level": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 32,
+            "rate": 0.6666666666666666,
+            "wilson95": [
+              0.5254010970594798,
+              0.7832321930518142
+            ],
+            "fabricatedResponses": 1
+          }
+        },
+        "answerability": {
+          "answerable": {
+            "cases": 24,
+            "passed": 17,
+            "rate": 0.7083333333333334,
+            "wilson95": [
+              0.5083230633550337,
+              0.8508535180303913
+            ],
+            "fabricatedResponses": 1
+          },
+          "insufficient": {
+            "cases": 24,
+            "passed": 15,
+            "rate": 0.625,
+            "wilson95": [
+              0.42709962442674276,
+              0.7884063244045122
+            ],
+            "fabricatedResponses": 0
+          }
+        }
+      }
+    }
+  },
+  "target": 0.95,
+  "pointTargetMet": false,
+  "noFabricatedResponses": false,
+  "descriptiveSemanticGatePassed": false,
+  "productionEligible": false,
+  "educatorQualificationVerified": false,
+  "learningGainsEstablished": false,
+  "qualification": "Authored sample only. Wilson intervals assume independent cases; related templates reduce effective sample size. A 95% observed rate is not evidence that population accuracy is at least 95%. Reviewer credentials are not verified by this file."
+}

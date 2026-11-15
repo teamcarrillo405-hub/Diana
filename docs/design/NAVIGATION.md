@@ -1,53 +1,162 @@
 # Diana Navigation Architecture
 
-This document is the current routing source of truth for student-facing navigation.
+This is the routing source of truth. Check it before adding a page, changing primary navigation, or moving a feature.
 
-Last verified: 2026-11-14.
+Last verified: 2026-07-14.
 
 ## Primary navigation
 
-Diana uses five destinations across authenticated pages:
+Diana uses one five-destination navigation model across authenticated pages:
 
 ```text
 TODAY | WORK | CLASSES | CALENDAR | MORE
 ```
 
-The shared desktop and mobile navigation is defined by `lib/navigation.ts` and rendered by `components/screen-design/student-desktop-nav.tsx` and `components/screen-design/student-bottom-nav.tsx`.
+Wide screens use `app/(app)/app-top-nav.tsx`. Phones use `app/(app)/mobile-tab-bar.tsx`. Both open the same `app/(app)/more-menu.tsx` drawer. The old side navigation is retired.
 
 | Destination | Route | Product role |
 |---|---|---|
-| Today | `/dashboard` | The student's immediate plan and next useful action |
-| Work | `/assignments` | Assignment workspace, review, focus, submission, and captures |
-| Classes | `/classes` | Subject-level assignments, notes, syllabus, rubrics, and mastery |
-| Calendar | `/calendar` | Timing, workload, and planning context |
-| More | `/more` | Search, record, wellness, and sharing tools |
+| Today | `/dashboard` | The student's immediate plan, current class context, reminders, and fast capture |
+| Work | `/assignments` | Cross-class mission board, study tools, and assignment actions |
+| Classes | `/classes` | Per-subject assignments, notes, grades, syllabus, rubrics, and mastery |
+| Calendar | `/calendar` | Assignment timing and accommodation-aware workload |
+| More | Drawer | Evidence, growth, support, account, connection, and sharing destinations |
 
-The desktop Add menu links to `/quick-add` and `/notes/new`. Profile and settings controls link to `/me` and `/settings`.
+Quick capture, record, and Settings shortcuts may appear beside the destination list. They do not become additional primary tabs.
 
-## Supporting routes
+## Destination contents
 
-These routes are part of the current product but are not primary destinations:
+### Today
 
-- `/assignments/captures/[id]` for reviewing a captured item
-- `/notes`, `/notes/new`, and `/notes/[id]` for notes
-- `/study` and `/study-artifacts` for study work and saved artifacts
-- `/search` for finding classes, work, notes, and tools
-- `/proof` for completed work and showcase records
-- `/wellness` for student check-ins
-- `/sharing` for the weekly parent digest
-- `/settings` and `/me` for account, access, and personal controls
+Route: `/dashboard`
+
+- Lobby hero and next useful action
+- Reminder or attention strip
+- Current class context
+- Text or voice capture
+
+### Work
+
+Route: `/assignments`
+
+- Start-now action
+- Mission metrics
+- Assignment lanes
+- Study tools
+- Voice entry point
+- Inbox access
+
+### Classes
+
+Routes: `/classes`, `/classes/[id]`
+
+The class is Diana's subject-level organizing unit. A class hub may contain:
+
+- assignments for that class
+- subject-specific notes and new-note action
+- grades and feedback context
+- syllabus information
+- rubrics and teacher rules
+- mastery information
+- approved learning sources
+
+`/notes` remains the cross-subject notes and search surface. It is not a primary Think tab.
+
+### Calendar
+
+Route: `/calendar`
+
+- weekly assignment view
+- daily workload grouping
+- accommodation-aware time expectations
+
+### More
+
+Evidence and growth:
+
+- Proof: `/proof`
+- Grades: `/grades`
+- Transcript: `/grades/transcript`
+- Portfolio: `/portfolio`
+- AP exam prep: `/ap`
+
+Learn and review:
+
+- Search: `/search`
+- Study artifacts: `/study-artifacts`
+- Tutor: `/study-buddy`
+- Knowledge graph: `/knowledge-graph`
+
+Profile and support:
+
+- Notifications: `/notifications`
+- Tutor settings: `/settings/tutor`
+- Study goals: `/settings/goals`
+- Me: `/me`
+- Wellness: `/wellness`
+- Settings and accessibility controls: `/settings`
+
+Connections and sharing:
+
+- Export and privacy: `/export`
+- Parent and teacher sharing: `/sharing`
+- Study groups: `/study-groups`
+
+`/insights` is an internal or administrative analytics surface. It must not appear in student navigation.
+
+## Merged and retired routes
+
+| Former route | Current home |
+|---|---|
+| `/focus` | Start-now and focus actions under Work |
+| `/body-double` | `/timer?with=others` |
+| `/shame-mode` | Retired |
+| `/wins` | Proof |
+| `/recap` | Proof |
+| `/reminders` | Calendar and Settings |
+| `/templates` | New assignment flow |
+| `/parent-share` | `/sharing` redirect |
+| `/teacher-share` | `/sharing` redirect |
+| `/accessibility` | Settings |
+| `/imports` | Settings |
+
+Do not reintroduce a curated middle page in front of a real destination.
+
+## AI placement
+
+- `/voice` is the general Diana conversation and planning surface. Work provides a prominent entry point.
+- `/study-buddy` supports guided learning and is reachable from study tools and class context.
+- `/break-down` turns a task into smaller student-owned steps and is reachable from Work.
+- Assignment-specific AI actions stay with the assignment rather than becoming primary navigation.
+
+All student AI calls route through authenticated server or Edge Function boundaries. Client navigation never carries provider credentials.
 
 ## Capture flow
 
+The connected capture path is:
+
 ```text
-Quick add or note capture
+Quick add or record
+  -> inbox row
   -> authenticated classification
-  -> /assignments/captures/[id] review
+  -> student review
   -> confirmed class or assignment destination
 ```
 
-Students review and can change any suggested class, work type, or date before confirmation.
+The classifier enforces row ownership. The student can review and change suggestions before confirming.
 
-## Route ownership rule
+## Implementation status
 
-Before adding or moving a feature, give it a current owning destination. Keep assignment-specific work inside Work, class-specific material inside Classes, and utility surfaces within More or Settings. Update this document and `lib/navigation.ts` in the same change when navigation changes.
+- Five-destination desktop navigation: complete.
+- Five-destination phone navigation: complete.
+- Shared More drawer: complete.
+- Old side navigation: removed.
+- Notes in class context plus global notes: complete.
+- Study tools on Work: complete.
+- Capture and record persistence: complete.
+- Inbox classification and ownership boundary: complete and production-smoke tested.
+- Syllabus per class: complete and migrated.
+
+## Rule going forward
+
+Before adding or moving a feature, identify its owning destination here. If it does not justify a primary destination, place it within the relevant class, assignment, or More group. Update this file in the same change that updates navigation code.

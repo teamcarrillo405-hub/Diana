@@ -39,6 +39,10 @@ type GuardFailure = {
   code: string;
 };
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
 function failure(error: string, status: number, code: string): Response {
   return new Response(JSON.stringify({ error, code }), {
     status,
@@ -130,8 +134,11 @@ async function requireOwnedResource(
     .eq(ownerColumn, ownerId)
     .maybeSingle();
   if (error) return failure("Resource access could not be verified.", 503, "authorization_unavailable");
-  if (!data) return failure("Resource not found.", 404, "resource_not_found");
-  return data as Record<string, unknown>;
+  if (data === null) return failure("Resource not found.", 404, "resource_not_found");
+  if (!isRecord(data) || data[idColumn] !== resourceId || data[ownerColumn] !== ownerId) {
+    return failure("Resource access could not be verified.", 503, "authorization_unavailable");
+  }
+  return data;
 }
 
 export async function requireStudentContext(

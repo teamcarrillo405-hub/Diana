@@ -29,14 +29,24 @@ export const SCREEN_DESIGN_RECORD_KINDS = [
   "inbox-item",
   "note",
   "flashcard",
+  "flashcard-review",
   "study-artifact",
   "mastery-concept",
+  "mastery-event",
+  "ap-exam-plan",
+  "ap-practice-attempt",
   "lms-connection",
   "portfolio",
   "portfolio-item",
+  "analytics-event",
+  "session-handoff",
+  "data-deletion-request",
   "wellness-activity",
   "wellness-goal",
   "sleep-log",
+  "study-group",
+  "study-group-membership",
+  "study-group-session",
   "ai-interaction",
   "authorship-log",
   "share-token",
@@ -51,12 +61,16 @@ export const SCREEN_DESIGN_GUARDED_STATES = [
   "ai-green",
   "ai-yellow",
   "ai-red",
+  "billing-unavailable",
+  "billing-configured",
   "lms-disconnected",
   "lms-error",
   "lms-connected",
   "share-active",
   "share-expired",
   "share-revoked",
+  "group-member",
+  "group-nonmember",
   "practice-no-score",
   "onboarding-invalid",
   "onboarding-valid",
@@ -67,20 +81,35 @@ export type ScreenDesignGuardedState =
   (typeof SCREEN_DESIGN_GUARDED_STATES)[number];
 
 export const SCREEN_DESIGN_CANONICAL_SCREEN_IDS = [
+  "ai-history-log",
   "ai-writing-coach",
+  "ap-command-center",
   "assignment-detail",
+  "concept-deep-dive",
   "dashboard-personalized",
   "external-scout-view",
+  "flashcards-review",
+  "focus-session-immersive",
+  "global-leaderboard",
+  "knowledge-graph",
   "library-empty-state",
   "lms-sync-center",
+  "mastery-tracker",
+  "mastery-transcript-view",
   "milestone-celebration",
   "mission-board",
   "notes-surface",
+  "notification-center",
   "onboarding-welcome",
   "onboarding-educational",
   "onboarding-quiz-challenge",
   "onboarding-quiz-schedule",
+  "paywall-social-proof",
+  "paywall-standard",
+  "portfolio-gallery",
   "practice-test-session",
+  "privacy-export-hub",
+  "progress-insights",
   "quick-add",
   "review-submit-checkpoint",
   "rubric-scout",
@@ -90,7 +119,13 @@ export const SCREEN_DESIGN_CANONICAL_SCREEN_IDS = [
   "smart-search",
   "study-artifacts-hub",
   "study-calendar",
+  "study-goal-wizard",
+  "study-room-social",
   "subject-library",
+  "task-breakdown-modal",
+  "tutor-chat",
+  "tutor-gallery",
+  "tutor-personalization",
   "wellness-recovery-log",
 ] as const;
 
@@ -304,6 +339,23 @@ const workQueuePreview = (): readonly ScreenDesignFixtureRecordFactory[] => [
   ),
 ];
 
+const classMastery = (): readonly ScreenDesignFixtureRecordFactory[] => [
+  profile(),
+  record("class", "class-main", { name: "Algebra I", aiMode: "green" }),
+  record(
+    "mastery-concept",
+    "concept-main",
+    { name: "Solving linear equations", masteryLevel: 1.9 },
+    ["class-main"],
+  ),
+  record(
+    "mastery-event",
+    "mastery-event-main",
+    { source: "flashcard_review", evidence: "one supported practice pass" },
+    ["concept-main"],
+  ),
+];
+
 const shareRecords = (
   tokenState: "active" | "expired" | "revoked",
   scope: "portfolio" | "report",
@@ -340,6 +392,32 @@ const shareRecords = (
   ),
 ];
 
+const groupRecords = (
+  membership: "member" | "nonmember",
+): readonly ScreenDesignFixtureRecordFactory[] => [
+  profile(),
+  record("study-group", "group-main", {
+    name: "Freshman study room",
+    inviteCode: "QA-STUDY",
+  }),
+  ...(membership === "member"
+    ? [
+        record(
+          "study-group-membership",
+          "membership-main",
+          { role: "member" },
+          ["group-main"],
+        ),
+        record(
+          "study-group-session",
+          "group-session-main",
+          { status: "scheduled", durationMinutes: 25 },
+          ["group-main", "membership-main"],
+        ),
+      ]
+    : []),
+];
+
 const navigation = (destination: `/${string}`): ScreenDesignExpectedPersistedResult => ({
   kind: "navigation",
   destination,
@@ -364,6 +442,24 @@ const noWrite = (reason: string): ScreenDesignExpectedPersistedResult => ({
 });
 
 const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
+  {
+    screenId: "ai-history-log",
+    heading: "AI activity",
+    records: [
+      profile(),
+      record("ai-interaction", "ai-interaction-main", {
+        feature: "writing_aid",
+        model: "claude-sonnet-4-6",
+      }),
+      record(
+        "authorship-log",
+        "authorship-main",
+        { feature: "writing_aid", promptExcerpt: "Help me strengthen my explanation." },
+        ["ai-interaction-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+  },
   {
     screenId: "ai-writing-coach",
     heading: "Writing Coach",
@@ -390,6 +486,25 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     ],
     guardedStates: ["ai-green"],
     result: mutation("authorship-log", "authorship-main", "feature", "writing_aid"),
+  },
+  {
+    screenId: "ap-command-center",
+    heading: "AP Command Center",
+    records: [
+      profile(),
+      record("ap-exam-plan", "ap-plan-main", {
+        subject: "english_language",
+        examDate: "2027-05-11",
+        targetBand: "3-4",
+      }),
+      record(
+        "ap-practice-attempt",
+        "ap-attempt-main",
+        { practiceType: "frq", correctCount: 0, totalCount: 0, scoreBand: null },
+        ["ap-plan-main"],
+      ),
+    ],
+    guardedStates: ["populated", "practice-no-score"],
   },
   {
     screenId: "assignment-detail",
@@ -423,6 +538,13 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     result: mutation("assignment", "assignment-main", "status", "in_progress"),
   },
   {
+    screenId: "concept-deep-dive",
+    heading: "Concept deep dive",
+    params: { id: "concept-main" },
+    records: classMastery(),
+    guardedStates: ["populated"],
+  },
+  {
     screenId: "dashboard-personalized",
     heading: "Lobby",
     records: assignmentSupport(),
@@ -437,6 +559,47 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     guardedStates: ["share-active"],
   },
   {
+    screenId: "flashcards-review",
+    heading: "Flashcard review",
+    params: { id: "flashcard-main" },
+    records: [
+      ...classMastery(),
+      record(
+        "flashcard",
+        "flashcard-main",
+        { front: "What does slope describe?", back: "Rate of change", state: "review" },
+        ["class-main", "concept-main"],
+      ),
+      record(
+        "flashcard-review",
+        "flashcard-review-main",
+        { rating: 3, reviewedAt: SCREEN_DESIGN_FIXED_CLOCK },
+        ["flashcard-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+    result: mutation("flashcard-review", "flashcard-review-main", "rating", 3),
+  },
+  {
+    screenId: "focus-session-immersive",
+    heading: "Focus session",
+    records: assignmentSupport(),
+    guardedStates: ["populated"],
+    result: mutation("assignment-time-log", "time-log-main", "endedAt", null),
+  },
+  {
+    screenId: "global-leaderboard",
+    heading: "Community activity",
+    records: groupRecords("member"),
+    guardedStates: ["group-member"],
+  },
+  {
+    screenId: "knowledge-graph",
+    heading: "Knowledge graph",
+    records: classMastery(),
+    guardedStates: ["populated"],
+  },
+  {
     screenId: "library-empty-state",
     heading: "Your classes",
     records: [profile()],
@@ -447,6 +610,24 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     heading: "Learning platform connections",
     records: [profile()],
     guardedStates: ["lms-disconnected", "honest-empty"],
+  },
+  {
+    screenId: "mastery-tracker",
+    heading: "Mastery tracker",
+    records: classMastery(),
+    guardedStates: ["populated"],
+  },
+  {
+    screenId: "mastery-transcript-view",
+    heading: "Mastery transcript",
+    records: [
+      ...classMastery(),
+      record("lms-connection", "lms-main", {
+        provider: "canvas",
+        status: "connected",
+      }),
+    ],
+    guardedStates: ["lms-connected", "populated"],
   },
   {
     screenId: "milestone-celebration",
@@ -497,6 +678,19 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     result: mutation("note", "note-main", "bodyText", "Claim, quote, explanation."),
   },
   {
+    screenId: "notification-center",
+    heading: "Notifications",
+    records: [
+      ...academicCore(),
+      record("lms-connection", "lms-main", {
+        provider: "canvas",
+        status: "connected",
+        lastSyncError: null,
+      }),
+    ],
+    guardedStates: ["populated", "lms-connected"],
+  },
+  {
     screenId: "onboarding-welcome",
     heading: "DIANA AI TUTOR",
     records: [profile({ onboardedAt: null })],
@@ -523,6 +717,40 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     result: mutation("profile", "profile-main", "studySchedulePreference", "after_practice"),
   },
   {
+    screenId: "paywall-social-proof",
+    heading: "Diana access",
+    records: [profile()],
+    guardedStates: ["billing-unavailable", "honest-empty"],
+    result: noWrite("Billing is unavailable and no checkout is simulated."),
+  },
+  {
+    screenId: "paywall-standard",
+    heading: "Choose your access",
+    records: [profile()],
+    guardedStates: ["billing-unavailable"],
+    result: noWrite("Billing is unavailable and no checkout is simulated."),
+  },
+  {
+    screenId: "portfolio-gallery",
+    heading: "Portfolio",
+    records: [
+      ...shareRecords("active", "portfolio").filter(
+        (item) => item.kind !== "share-token",
+      ),
+      record(
+        "portfolio-item",
+        "portfolio-item-secondary",
+        {
+          title: "Biology cycle guide",
+          reflection: "I organized each stage so the cycle is easier to follow.",
+          position: 1,
+        },
+        ["portfolio-main"],
+      ),
+    ],
+    guardedStates: ["populated"],
+  },
+  {
     screenId: "practice-test-session",
     heading: "Practice session",
     params: { id: "artifact-main" },
@@ -537,6 +765,37 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     ],
     guardedStates: ["practice-no-score"],
     result: mutation("study-artifact", "artifact-main", "completed", true),
+  },
+  {
+    screenId: "privacy-export-hub",
+    heading: "Privacy and export",
+    records: [
+      profile(),
+      record("session-handoff", "handoff-main", {
+        route: "/dashboard",
+        updatedAt: SCREEN_DESIGN_FIXED_CLOCK,
+      }),
+      record("data-deletion-request", "deletion-main", {
+        status: "cancelled",
+        requestedAt: "2026-08-01T16:30:00.000Z",
+      }),
+    ],
+    guardedStates: ["populated"],
+    result: noWrite(
+      "Export downloads a private owner-scoped copy and does not change stored records.",
+    ),
+  },
+  {
+    screenId: "progress-insights",
+    heading: "Progress insights",
+    records: [
+      ...assignmentSupport(),
+      record("analytics-event", "analytics-main", {
+        eventName: "assignment_opened",
+        occurredAt: SCREEN_DESIGN_FIXED_CLOCK,
+      }),
+    ],
+    guardedStates: ["populated"],
   },
   {
     screenId: "quick-add",
@@ -659,10 +918,80 @@ const DEFAULT_SCENARIOS: readonly ScenarioDefinition[] = [
     guardedStates: ["populated"],
   },
   {
+    screenId: "study-goal-wizard",
+    heading: "Study goal",
+    records: [profile({ studyGoal: "Finish one evidence paragraph" })],
+    guardedStates: ["populated"],
+    result: mutation("profile", "profile-main", "studyGoal", "Finish one evidence paragraph"),
+  },
+  {
+    screenId: "study-room-social",
+    heading: "Study room",
+    records: groupRecords("member"),
+    guardedStates: ["group-member"],
+    result: mutation("study-group-membership", "membership-main", "role", "member"),
+  },
+  {
     screenId: "subject-library",
     heading: "Subject library",
     records: academicCore(),
     guardedStates: ["populated"],
+  },
+  {
+    screenId: "task-breakdown-modal",
+    heading: "Break this task down",
+    records: [
+      ...academicCore(),
+      record(
+        "assignment-step",
+        "assignment-step-main",
+        {
+          steps: [
+            { step: 1, action: "Pick the quote and page number.", minutes: 5, done: true },
+            { step: 2, action: "Write a one-sentence claim.", minutes: 5, done: false },
+            { step: 3, action: "Connect the quote to the claim.", minutes: 5, done: false },
+            { step: 4, action: "Read the response against the rubric.", minutes: 5, done: false },
+            { step: 5, action: "Prepare the final response for submission.", minutes: 5, done: false },
+          ],
+        },
+        ["assignment-main"],
+      ),
+    ],
+    guardedStates: ["ai-green"],
+    result: mutation("assignment-step", "assignment-step-main", "accepted", true),
+  },
+  {
+    screenId: "tutor-chat",
+    heading: "Study Buddy",
+    records: [
+      profile({ tutorPersona: "diana", tutorStyle: "socratic", tutorComplexity: "balanced" }),
+      record("ai-interaction", "ai-interaction-main", {
+        feature: "study_buddy",
+        model: "claude-sonnet-4-6",
+      }),
+      record(
+        "authorship-log",
+        "authorship-main",
+        { feature: "study_buddy" },
+        ["ai-interaction-main"],
+      ),
+    ],
+    guardedStates: ["ai-green"],
+    result: mutation("authorship-log", "authorship-main", "feature", "study_buddy"),
+  },
+  {
+    screenId: "tutor-gallery",
+    heading: "Choose your tutor",
+    records: [profile({ tutorPersona: "diana" })],
+    guardedStates: ["populated"],
+    result: mutation("profile", "profile-main", "tutorPersona", "maya"),
+  },
+  {
+    screenId: "tutor-personalization",
+    heading: "Tutor style",
+    records: [profile({ tutorStyle: "socratic", tutorComplexity: "balanced" })],
+    guardedStates: ["populated"],
+    result: mutation("profile", "profile-main", "tutorStyle", "supportive"),
   },
   {
     screenId: "wellness-recovery-log",
@@ -707,6 +1036,14 @@ const GUARDED_SCENARIOS: readonly ScenarioDefinition[] = [
     records: academicCore("yellow"),
     guardedStates: ["ai-yellow"],
     result: noWrite("Yellow AI policy blocks writing generation server-side."),
+  },
+  {
+    screenId: "paywall-standard",
+    variant: "billing-configured",
+    heading: "Choose your access",
+    records: [profile()],
+    guardedStates: ["billing-configured"],
+    result: navigation("/api/billing/checkout"),
   },
   {
     screenId: "lms-sync-center",
@@ -755,6 +1092,14 @@ const GUARDED_SCENARIOS: readonly ScenarioDefinition[] = [
     records: shareRecords("revoked", "portfolio"),
     guardedStates: ["share-revoked"],
     result: noWrite("Revoked tokens expose no portfolio records."),
+  },
+  {
+    screenId: "study-room-social",
+    variant: "group-nonmember",
+    heading: "Join with an invite",
+    records: groupRecords("nonmember"),
+    guardedStates: ["group-nonmember"],
+    result: noWrite("Nonmembers cannot read or mutate membership-scoped group records."),
   },
   {
     screenId: "onboarding-quiz-challenge",

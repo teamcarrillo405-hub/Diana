@@ -99,7 +99,7 @@ function createProject(options: {
     mkdirSync(path.join(root, "tests"));
     writeFileSync(path.join(root, "tests", "beta-browser.spec.ts"), "export {};\n");
   }
-  writeFileSync(path.join(root, ".gitignore"), "artifacts/\nnode_modules\nnode_modules/\n");
+  writeFileSync(path.join(root, ".gitignore"), "artifacts/\nnode_modules/\n");
   writeTestCheckpointPolicy(root);
   gitText(root, ["init", "--quiet"]);
   gitText(root, ["config", "user.email", "surfaces@example.invalid"]);
@@ -469,7 +469,7 @@ describe("deterministic beta command surfaces", { timeout: 90_000 }, () => {
     expect(readBetaSurfaceReceipt(projectRoot, runId, "browser")).toEqual(receipt);
   });
 
-  it("fails closed before launch without a distinct dedicated loopback Supabase project", { timeout: 180_000 }, () => {
+  it("fails closed before launch without a distinct dedicated loopback Supabase project", () => {
     let invoked = false;
     const runCommand = () => {
       invoked = true;

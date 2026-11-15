@@ -34,6 +34,7 @@ const config = [
       "next-env.d.ts",
       "playwright-report/**",
       "plugins/**",
+      "public/design/**",
       "public/assets/landing-cinematic-v3/main.js",
       "public/vendor/**",
       "test-results/**",

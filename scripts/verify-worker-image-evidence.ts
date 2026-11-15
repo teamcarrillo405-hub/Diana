@@ -1,5 +1,6 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 type ImageEvidence = {
   workflow?: unknown;
@@ -29,9 +30,11 @@ const baseRequiredSteps = [
   "deploymentCheck",
   "workerTests",
   "runtimeSmoke",
+  "credentialProof",
   "buildImage",
   "recordImageEvidence",
   "commandSmoke",
+  "containerProof",
 ] as const;
 const pushSteps = ["loginRegistry", "pushImage"] as const;
 
@@ -50,7 +53,7 @@ function main() {
   if (!ok) process.exit(1);
 }
 
-function verifyEvidence({ dir, requirePushed }: { dir: string; requirePushed: boolean }): Check[] {
+export function verifyEvidence({ dir, requirePushed }: { dir: string; requirePushed: boolean }): Check[] {
   const checks: Check[] = [];
   const summaryPath = join(dir, "summary.json");
   const summary = readJson<ImageEvidence>(summaryPath);
@@ -67,10 +70,10 @@ function verifyEvidence({ dir, requirePushed }: { dir: string; requirePushed: bo
   ));
   checks.push(check(
     "artifact metadata includes run ids",
-    isNonEmptyString(outcome.sha) &&
-      isNonEmptyString(outcome.runId) &&
-      isNonEmptyString(outcome.runAttempt),
-    "sha, runId, and runAttempt are required",
+    typeof outcome.sha === "string" && /^[a-f0-9]{40}$/.test(outcome.sha) &&
+      typeof outcome.runId === "string" && /^[1-9][0-9]*$/.test(outcome.runId) &&
+      typeof outcome.runAttempt === "string" && /^[1-9][0-9]*$/.test(outcome.runAttempt),
+    "a full lowercase commit sha and positive numeric runId/runAttempt are required",
   ));
   checks.push(check(
     "artifact summary and outcome metadata match",
@@ -84,19 +87,19 @@ function verifyEvidence({ dir, requirePushed }: { dir: string; requirePushed: bo
     "artifact metadata includes image tags",
     isNonEmptyString(summary.localImage) &&
       isNonEmptyString(summary.remoteImage) &&
-      metadataValue(summary.localImage).includes(metadataValue(summary.sha)) &&
-      metadataValue(summary.remoteImage).includes(metadataValue(summary.sha)) &&
-      metadataValue(summary.remoteImage).startsWith("ghcr.io/"),
-    "localImage and remoteImage must include the commit sha; remoteImage must be a GHCR tag",
+      summary.localImage === `diana-worker:${summary.sha}` &&
+      /^ghcr\.io\/[a-z0-9][a-z0-9._/-]*\/diana-worker:[a-f0-9]{40}$/.test(summary.remoteImage) &&
+      summary.remoteImage.endsWith(`:${summary.sha}`),
+    "localImage and remoteImage must use the exact commit sha tag; remoteImage must be a GHCR worker tag",
   ));
   checks.push(check(
     "artifact metadata includes docker image id",
-    /^sha256:[a-f0-9]{64}$/i.test(metadataValue(summary.imageId)),
+    typeof summary.imageId === "string" && /^sha256:[a-f0-9]{64}$/.test(summary.imageId),
     "imageId must be a Docker sha256 digest",
   ));
   checks.push(check(
     "artifact metadata records push request state",
-    ["true", "false"].includes(metadataValue(outcome.pushRequested)),
+    outcome.pushRequested === "true" || outcome.pushRequested === "false",
     "pushRequested must be true or false",
   ));
 
@@ -126,14 +129,55 @@ function verifyEvidence({ dir, requirePushed }: { dir: string; requirePushed: bo
   for (const step of optionalSteps) {
     checks.push(check(
       `${step} is skipped when push is not requested`,
-      steps[step] === "skipped" || steps[step] === "success",
+      steps[step] === "skipped",
       `outcome=${String(steps[step])}`,
     ));
   }
 
+  const proofPath = join(dir, "credential-proof.log");
+  const proofLines = existsSync(proofPath) ? readFileSync(proofPath, "utf8").split(/\r?\n/u) : [];
+  const provesCapabilityCycle = proofLines.some(line => {
+    try {
+      const proof = JSON.parse(line) as Record<string, unknown>;
+      return proof.ok === true && proof.compiledCycle === "completed" &&
+        proof.network === "loopback_synthetic_only" && proof.outputTokenLimit === 500 &&
+        proof.privateContentLogged === false && Array.isArray(proof.credentialNames) &&
+        proof.credentialNames.length === 1 && proof.credentialNames[0] === "WORKER_API_TOKEN";
+    } catch { return false; }
+  });
+  checks.push(check("compiled capability protocol proof is present", provesCapabilityCycle,
+    "credential-proof.log must show a completed synthetic loopback cycle with only the worker token and no private content logging"));
+
+  const containerProofPath = join(dir, "container-proof.log");
+  const containerProofLines = existsSync(containerProofPath) ? readFileSync(containerProofPath, "utf8").split(/\r?\n/u) : [];
+  const provesRestrictedImage = containerProofLines.some(line => {
+    try {
+      const proof = JSON.parse(line) as Record<string, unknown>;
+      return proof.ok === true && proof.imageId === summary.imageId && proof.compiledCycle === "completed" &&
+        proof.network === "none_with_container_loopback" && proof.readOnlyRoot === true && proof.runtimeNodeModules === false &&
+        typeof proof.runtimeUser === "string" && proof.runtimeUser.length > 0 && !/^(root|0+)(:|$)/.test(proof.runtimeUser) &&
+        proof.outputTokenLimit === 500 && proof.privateContentLogged === false;
+    } catch { return false; }
+  });
+  checks.push(check("restricted image protocol proof matches image identity", provesRestrictedImage,
+    "container-proof.log must bind the built image to a complete non-root protocol cycle with no application node_modules directories or external networking"));
+
   const pushedImagePath = join(dir, "pushed-image.txt");
   const pushedImage = existsSync(pushedImagePath) ? readFileSync(pushedImagePath, "utf8").trim() : "";
-  if (requirePushed || pushedImage) {
+  if (requirePushed || pushWasRequested || pushedImage) {
+    const pushedReceipt = readJson<{ remoteImage?: unknown; imageId?: unknown; repositoryDigest?: unknown }>(join(dir, "pushed-image.json"));
+    const remote = metadataValue(summary.remoteImage);
+    const repository = remote.slice(0, remote.lastIndexOf(":"));
+    checks.push(check("pushed receipt binds the tested image and repository digest",
+      !!pushedReceipt && pushedReceipt.remoteImage === summary.remoteImage && pushedReceipt.imageId === summary.imageId &&
+        typeof pushedReceipt.repositoryDigest === "string" && pushedReceipt.repositoryDigest.startsWith(repository + "@sha256:") &&
+        /^sha256:[a-f0-9]{64}$/.test(pushedReceipt.repositoryDigest.slice(repository.length + 1)),
+      "pushed-image.json must bind the tested imageId to the pushed repository and immutable manifest digest"));
+    checks.push(check(
+      "pushed image has successful publishing outcomes",
+      pushWasRequested && pushSteps.every(step => steps[step] === "success"),
+      "pushed evidence requires pushRequested=true and successful registry login and image push",
+    ));
     checks.push(check(
       "pushed-image.txt is present",
       existsSync(pushedImagePath) && statSync(pushedImagePath).size > 0,
@@ -170,4 +214,4 @@ function check(name: string, ok: boolean, detail: string): Check {
   return { name, ok, detail };
 }
 
-main();
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

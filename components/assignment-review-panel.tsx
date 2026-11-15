@@ -787,7 +787,7 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
         method: "POST",
         headers: { "Content-Type": "application/json", "x-idempotency-key": clientTurnId },
         signal: controller.signal,
-        body: JSON.stringify({ assignmentId, mode: "guide", question: studentMessage.text, source, conversation }),
+        body: JSON.stringify({ assignmentId, ...(problemId ? { problemId } : {}), mode: "guide", question: studentMessage.text, source, conversation }),
       });
 
       await readStudyStream(response, (event) => {
@@ -955,6 +955,7 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
   if (isUnitReview) {
     return (
       <aside id="ask-diana" className="sd-assignment-diana-chat" aria-label="Ask Diana">
+        <h2 className="sd-assignment-chat-heading">Ask Diana</h2>
         <div className="sd-assignment-diana-chat-feed" role="region" aria-label="Diana conversation" aria-live="polite" tabIndex={0}>
           {displayMathMessages.length === 0 ? (
             <p className="sd-assignment-diana-empty">Ask Diana when you want a hint.</p>
@@ -1027,6 +1028,7 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
 
   return (
     <aside id="ask-diana" className="sd-assignment-diana-chat sd-assignment-diana-chat--rail" aria-label="Ask Diana" aria-live="polite">
+      <h2 className="sd-assignment-chat-heading">Ask Diana</h2>
       <div className="sd-assignment-diana-chat-feed" role="region" aria-label="Diana conversation" tabIndex={0}>
         {chatMessages.map((chatMessage) => <article key={chatMessage.id} className="sd-assignment-diana-message" data-role={chatMessage.role}><p>{chatMessage.text}</p>{chatMessage.result ? <MathCoachVisual visualAid={chatMessage.result.visualAid} /> : null}</article>)}
       </div>

@@ -1,0 +1,39 @@
+.root.root.root.root.root .sceneTools { position:absolute; z-index:2; right:0; bottom:0; display:flex; justify-content:flex-end; }
+.root.root.root.root.root .mobileDate { display:none; }
+.root.root.root.root.root .motionToggle { display:inline-flex; align-items:center; justify-content:center; gap:10px; width:auto; min-height:44px; padding:10px 14px; border:1px solid #ceddd43d; border-radius:3px; background:#101b20d9; color:#d7e3dd; font:400 13px/1.4 var(--font-lexend),sans-serif; box-shadow:none; white-space:nowrap; }
+.root.root.root.root.root .motionToggle svg { flex:none; width:18px; height:18px; }
+.root.root.root.root.root .motionToggle:hover { background:#243337; color:#fff; }
+.root.root.root.root.root .motionToggle:focus-visible { outline:2px solid #f1f6f3; outline-offset:4px; }
+@media(min-width:761px) {
+  .root.root.root.root.root > div:has(> main) { width:min(1680px,calc(100% - 64px)); margin-top:32px; padding-bottom:48px; }
+  /* Fit the longest label in the student's chosen reading font, then reserve a real gutter. */
+  .root.root.root.root.root [data-today-stage-workspace] { grid-template-columns:max-content minmax(0,1fr); column-gap:clamp(40px,4.5vw,72px); }
+  .root.root.root.root.root [data-today-stage-rail] { width:max-content; min-width:220px; padding-top:8px; }
+  .root.root.root.root.root [data-today-stage-rail] > p { height:24px; margin:0 12px 24px; font:400 15px/24px var(--font-lexend),sans-serif; text-transform:none; color:#bfceca; }
+  .root.root.root.root.root [data-today-stage-rail] button { width:100%; padding-inline:12px; font-size:24px; white-space:nowrap; }
+  .root.root.root.root.root [data-today-rail-indicator] { top:64px; }
+  .root.root.root.root.root [data-now-briefing] { padding-top:56px; }
+  .root.root.root.root.root [data-now-title] { text-wrap:pretty; overflow-wrap:break-word; }
+  .root.root.root.root.root:not([data-lobby-mode="now"]) .sceneTools { display:none; }
+}
+@media(min-width:761px) and (max-width:1000px) {
+  .root.root.root.root.root > div:has(> main) { width:calc(100% - 48px); margin-top:24px; }
+  .root.root.root.root.root [data-today-stage-workspace] { column-gap:32px; }
+  .root.root.root.root.root [data-today-stage-rail] { min-width:180px; }
+  .root.root.root.root.root [data-today-stage-rail] button { font-size:20px; }
+  .root.root.root.root.root [data-today-stage-rail] > p { font-size:13px; }
+  .root.root.root.root.root [data-today-stage-deck] > section[aria-label="Today's Plan"] { width:64%; }
+  .root.root.root.root.root [data-now-title] { font-size:34px; line-height:1.1; }
+  .root.root.root.root.root [data-today-stage-image] { width:32%; }
+}
+@media(max-width:760px) {
+  .root.root.root.root.root .sceneTools { position:relative; right:auto; bottom:auto; justify-content:space-between; align-items:center; gap:12px; margin:0 0 16px; }
+  .root.root.root.root.root .mobileDate { display:block; color:#e0e8e3; font-size:13px; line-height:1.5; }
+  .root.root.root.root.root .motionToggle { gap:8px; padding-inline:10px; font-size:12px; }
+}
+@media(prefers-reduced-motion:reduce) { .root.root.root.root.root .motionToggle { display:none; } }
+.root.root.root.root.root .allWork { display:inline-flex; min-height:44px; align-items:center; margin-top:14px; color:#ccded7; font-size:13px; text-decoration:none; }
+.root.root.root.root.root .dialog h2 { margin:0 0 24px; color:inherit; font:700 36px/1.1 var(--font-saira-condensed),sans-serif; }
+.root.root.root.root.root .dialog { --ink:#f0f6f3; --muted:#bccdc6; }
+.root.root.root.root.root .dialog [hidden] { display:none; }
+@media(max-width:760px) { .root.root.root.root.root .allWork { margin:0 20px 18px; color:#233e34; } .root.root.root.root.root .dialog { --ink:#18272b; --muted:#415458; } }

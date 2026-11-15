@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PublicPageFrame } from "@/components/marketing/public-page-frame";
 
 export const metadata: Metadata = {
   title: "Trust",
-  description: "How Diana approaches student control, early access, and product privacy before account launch.",
+  description: "Student control, early access, and privacy in Diana.",
   alternates: { canonical: "/trust" },
 };
 
@@ -23,8 +24,8 @@ export default function TrustPage() {
           <p>Diana is designed to keep guidance distinct from student writing and to leave the turn-in decision with the student.</p>
         </article>
         <article id="legal">
-          <h2>Before accounts open</h2>
-          <p>Account terms, privacy notices, and age-appropriate access requirements will be published before public account creation opens.</p>
+          <h2>Privacy and terms</h2>
+          <p>Read how Diana handles account data, sharing, and access in the <Link href="/privacy.html">privacy notice</Link> and <Link href="/privacy.html#terms">terms</Link>.</p>
         </article>
         <article id="contact">
           <h2>Questions</h2>

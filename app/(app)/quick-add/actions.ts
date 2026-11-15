@@ -4,8 +4,8 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { hasOwnerStoragePrefix, ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
-import { triggerClassification } from "../assignments/captures/[id]/actions";
-import { createAssignment } from "./assignment-actions";
+import { triggerClassification } from "../inbox/[id]/actions";
+import { createAssignment } from "../assignments/new/actions";
 import {
   addAssignmentSourceFile,
   addAssignmentSourceText,

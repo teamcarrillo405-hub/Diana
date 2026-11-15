@@ -1,0 +1,42 @@
+.root { min-height:100dvh; background:linear-gradient(90deg,#0a1012f0,#0a1012d0 56%,#0a101292),url('/assets/today-now/diana-signature-studio-v1-1678.webp') 70% center/cover fixed; color:#eff5ef; font-family:var(--font-lexend),sans-serif; color-scheme:dark; }
+.root * { box-sizing:border-box; }
+.header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:20px; padding:22px 36px; border-bottom:1px solid #b4d0c326; background:#0e171aa3; }
+.brand img { display:block; width:145px; height:auto; }
+.header nav { display:flex; gap:26px; align-items:center; flex-wrap:wrap; }
+.header a { min-height:44px; display:inline-flex; align-items:center; color:inherit; font-size:13px; text-decoration:none; }
+.header a[aria-current] { border-bottom:3px solid #e796c3; }
+.header .cta,.root button[type=submit] { background:#7951d5; color:#fff; padding:12px 20px; border:0; border-radius:3px; }
+.main { width:min(100% - 72px,1200px); margin:0 auto; padding:60px 0 80px; }
+.hero { margin-bottom:38px; max-width:800px; }
+.hero h1,.form h1 { font:700 clamp(36px,5vw,58px)/1.06 var(--font-saira-condensed),sans-serif; text-transform:uppercase; margin:0 0 18px; color:#eff5ef; }
+.hero p { font-size:16px; line-height:1.8; color:#c4d5c8; margin:0; }
+.root :global(.dpl-sub-content) { display:grid; gap:32px; background:transparent; padding:0; border:0; }
+.root :global(.dpl-sub-content) article { border:0; padding:0 0 28px; border-bottom:1px solid #b4d0c326; border-radius:0; background:transparent; box-shadow:none; }
+.root :global(.dpl-sub-content) h2 { font:700 28px/1.25 var(--font-saira-condensed),sans-serif; margin:0 0 12px; color:#eff5ef; }
+.root :global(.dpl-sub-content) p { font-size:15px; line-height:1.8; color:#c4d5c8; max-width:75ch; }
+.root :global(.dpl-sub-control) { grid-template-columns:1fr 1fr; align-items:start; gap:50px; }
+.root :global(.dpl-sub-control-copy) { display:grid; gap:28px; }
+.root :global(.dpl-sub-product-image) { width:100%; height:auto; border-radius:3px; }
+.footer { display:flex; gap:28px; flex-wrap:wrap; max-width:1200px; padding:24px 36px; margin:auto; border-top:1px solid #b4d0c326; font-size:12px; color:#bed1c4; }
+.footer a { color:inherit; min-height:44px; display:inline-flex; align-items:center; }
+.form { max-width:500px; padding:34px; background:#14271cbf; border:1px solid #b4d0c32f; backdrop-filter:blur(20px); border-radius:3px; }
+.root.root.root :global(.entry-form) { display:grid; gap:22px; margin-top:30px; }
+.root.root.root :global(.sd-field) { display:grid; gap:8px; }
+.root.root.root :global(.sd-field) label { font:400 14px/1.6 var(--font-lexend),sans-serif; color:#eff5ef; text-transform:none; letter-spacing:0; }
+.root.root.root :global(.sd-field) p { font-size:12px; line-height:1.6; color:#bed1c4; margin:0; }
+.root.root.root :is(input,select,textarea) { width:100%; min-height:48px; border:1px solid #b4d0c370; border-radius:3px; background:#193025; color:#eff5ef; padding:12px; font:400 16px/1.4 var(--font-lexend),sans-serif; box-shadow:none; }
+.root.root.root :global(.entry-submit) { min-height:48px; width:100%; color:#fff; background:#7951d5; font:500 16px/1.3 var(--font-lexend),sans-serif; text-transform:none; clip-path:none; box-shadow:none; }
+.root :global(.entry-link-row),.root :global(.entry-assurance) { font-size:13px; line-height:1.7; margin:24px 0 0; color:#bed1c4; }
+.root :global(.entry-link-row) a { color:#d5b7fa; }
+.root :global(.entry-error) { padding:12px; border:1px solid #d1a96980; color:#f2d09b; font-size:14px; line-height:1.65; }
+.root :is(a,button,input,select,textarea):focus-visible { outline:3px solid #c8b0f8; outline-offset:4px; }
+.root button:disabled { opacity:.5; }
+@media(max-width:760px) { .header { padding:16px 18px; gap:12px; }.header nav { order:3; width:100%; gap:22px; }.header .cta { padding:10px 12px; }.main { width:calc(100% - 36px); padding:32px 0 50px; }.form { padding:26px 20px; }.root :global(.dpl-sub-control) { grid-template-columns:1fr; }.footer { padding:20px 18px; }.root { background-attachment:scroll; } }
+
+.root :global(.entry-account) { display:grid; gap:12px; margin-top:24px; color:#bed1c4; font-size:13px; text-align:center; }
+.root :global(.entry-account) a { color:#d5b7fa; min-height:44px; display:grid; place-items:center; text-underline-offset:4px; }
+.root :global(.entry-submit):hover { background:#8b64df; }
+.root :global(.entry-error) { background:#4a381e; }
+.header .brand img { display:block; width:145px; height:auto; }
+
+.root :global(.dpl-sub-content) a { color:#d5b7fa; text-underline-offset:4px; }

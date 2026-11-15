@@ -1,0 +1,53 @@
+{
+  "schema": "diana-qwen3-evidence-integrity-audit-findings-v1",
+  "reviewerId": "evidence-integrity-independent-a-reviewer",
+  "reviewerKind": "ai",
+  "educatorReviewed": false,
+  "approvedForTraining": false,
+  "observedSourceSha256": "7fe85361e762b7ea4fe1c564a7ac0e14e8a90abb0a59769735ffb801ddc8409e",
+  "recordedAt": "2026-09-28T20:35:07.168840+00:00",
+  "status": "initial-manual-findings-recorded-after-author-revision",
+  "provenance": "All 150 pairs were manually reviewed. The initial full-audit write was stopped before writing because the author source changed. This records the observed old source digest and actual findings only; no old pair hashes or previously saved audit are claimed.",
+  "findings": [
+    {
+      "id": "pref-integrity-a-marble_plan-gap",
+      "notes": "Do not presume cups were filled; first establish whether filling occurred, then obtain per-cup counts if so."
+    },
+    {
+      "id": "pref-integrity-a-lantern_path-supported",
+      "notes": "NEXT repeats the lantern location; use a relevant interpretation or comparison of the source wording."
+    },
+    {
+      "id": "pref-integrity-a-blue_scarf-supported",
+      "notes": "NEXT repeats identification of the signal object; interpret its role or relationship in the sentence."
+    },
+    {
+      "id": "pref-integrity-a-quiet_stairs-supported",
+      "notes": "NEXT repeats the reported actions; compare the actions or their evidentiary roles instead."
+    },
+    {
+      "id": "pref-integrity-a-paper_boat-supported",
+      "notes": "NEXT repeats the starting location; compare relevant placement or movement relationships."
+    },
+    {
+      "id": "pref-integrity-a-leaf_label-supported",
+      "notes": "NEXT repeats specimen identification; interpret maple/leaf or compare specimen versus source tree."
+    },
+    {
+      "id": "pref-integrity-a-leaf_label-gap",
+      "notes": "Obtain source-tree identity and collection date plus dated planting/age evidence to determine age at collection."
+    },
+    {
+      "id": "pref-integrity-a-two_arrivals-gap",
+      "notes": "Do not assume the two events occur on one day; obtain both dated times on a shared time standard."
+    },
+    {
+      "id": "pref-integrity-a-race_recollections-gap",
+      "notes": "Obtain both dates as well as verified start and finish times so elapsed duration is determined."
+    },
+    {
+      "id": "pref-integrity-a-festival_notice-gap",
+      "notes": "First establish whether the scheduled festival occurred; if held, obtain actual attendee evidence."
+    }
+  ]
+}

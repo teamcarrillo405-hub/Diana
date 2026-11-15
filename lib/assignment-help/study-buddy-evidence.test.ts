@@ -87,15 +87,16 @@ describe("Study Buddy source evidence integration", () => {
     expect(ungrounded.verificationLevel).toBe("ai_guidance");
   });
 
-  it("keeps the deterministic algebra verifier tool checked", () => {
+  it("does not label a proposed local scaffold as a completed verification", () => {
     const evidence = linearEquationTutorEvidence(
       buildStudyBuddySourceEvidenceContext(kernel(), "momentum"),
     );
 
-    expect(evidence.verificationLevel).toBe("tool_checked");
+    expect(evidence.verificationLevel).toBe("ai_guidance");
+    expect(evidence.confidence).toBe(0);
     expect(evidence.verifierResult).toEqual(expect.objectContaining({
       verifier: "linear_equation_step",
-      status: "passed",
+      status: "not_run",
     }));
   });
 });

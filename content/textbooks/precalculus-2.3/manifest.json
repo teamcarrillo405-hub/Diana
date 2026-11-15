@@ -1,0 +1,379 @@
+{
+  "bookId": "lippman-rasmussen-precalculus-2.3",
+  "edition": "2.3",
+  "authors": "David Lippman & Melonie Rasmussen",
+  "license": "CC BY-SA 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+  "publisher": "https://www.opentextbookstore.com/precalc/",
+  "checkedAt": "2026-09-25",
+  "chapters": [
+    {
+      "number": 1,
+      "title": "Functions",
+      "pages": 100,
+      "blocks": 582,
+      "chunks": 513,
+      "assetHash": "b5b5461e76331a072fac124e81c75caaf1080b56b96242bbfebe2281d9a1715c",
+      "indexHash": "3e313a662333dfc4d25925ba761ce3b020f2b1232925d244038fe8718edb75bf",
+      "pdfBytes": 5049935,
+      "indexBytes": 93899,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=1&format=pdf",
+      "retrieval": [
+        {
+          "query": "function domain range",
+          "matches": 6,
+          "pages": [
+            32,
+            92,
+            33,
+            31,
+            35,
+            94
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "composition inverse functions",
+          "matches": 6,
+          "pages": [
+            98,
+            62,
+            56,
+            54,
+            96,
+            56
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Linear Functions",
+      "pages": 58,
+      "blocks": 429,
+      "chunks": 355,
+      "assetHash": "b4a43ce237751b4b40aa6955bee8d375d11fbda778d1b461ba99aa9eb329efe4",
+      "indexHash": "1c0ca09227df78010827e4ff962f6781912e859f005065fdf6046cfa8d75420a",
+      "pdfBytes": 2178657,
+      "indexBytes": 65604,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=2&format=pdf",
+      "retrieval": [
+        {
+          "query": "slope rate of change",
+          "matches": 6,
+          "pages": [
+            15,
+            29,
+            20,
+            8,
+            8,
+            3
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "absolute value functions",
+          "matches": 6,
+          "pages": [
+            55,
+            53,
+            53,
+            53,
+            57,
+            57
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Polynomial and Rational Functions",
+      "pages": 90,
+      "blocks": 722,
+      "chunks": 608,
+      "assetHash": "bde8345a0d05e762cf787b341f6f62bfdbe8443769e5aae141ab2f95ef81259f",
+      "indexHash": "325f7b2bc3404f67b355b86de040a37950e41535e560852014079ad006be2b31",
+      "pdfBytes": 3593240,
+      "indexBytes": 103052,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=3&format=pdf",
+      "retrieval": [
+        {
+          "query": "polynomial zeros factors",
+          "matches": 6,
+          "pages": [
+            36,
+            57,
+            46,
+            38,
+            6,
+            29
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "rational functions asymptotes",
+          "matches": 6,
+          "pages": [
+            77,
+            69,
+            77,
+            63,
+            71,
+            67
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Exponential and Logarithmic Functions",
+      "pages": 88,
+      "blocks": 642,
+      "chunks": 532,
+      "assetHash": "be203973c66ca836d517069a95a998baa9745a6927090877b0aa9826d210acf5",
+      "indexHash": "8853696a81f17e638f82b5d61f4b065a67e608ff84c6526d0458940da362b9ca",
+      "pdfBytes": 2986408,
+      "indexBytes": 95327,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=4&format=pdf",
+      "retrieval": [
+        {
+          "query": "exponential growth decay",
+          "matches": 6,
+          "pages": [
+            13,
+            3,
+            26,
+            60,
+            14,
+            5
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "logarithmic properties",
+          "matches": 6,
+          "pages": [
+            51,
+            45,
+            51,
+            45,
+            51,
+            38
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "title": "Trigonometric Functions of Angles",
+      "pages": 58,
+      "blocks": 366,
+      "chunks": 321,
+      "assetHash": "0160638fe6ad606276652a7372d749decc8dc1a733fe19270ca46e8bd7b4a901",
+      "indexHash": "1ff08290a00606be9d60096608da920161d63ba912837648bfc14fa4fceea8ea",
+      "pdfBytes": 1769373,
+      "indexBytes": 58072,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=5&format=pdf",
+      "retrieval": [
+        {
+          "query": "sine cosine circle",
+          "matches": 6,
+          "pages": [
+            30,
+            40,
+            30,
+            29,
+            28,
+            34
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "right triangle trigonometry",
+          "matches": 6,
+          "pages": [
+            51,
+            50,
+            53,
+            53,
+            50,
+            49
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "title": "Periodic Functions",
+      "pages": 58,
+      "blocks": 338,
+      "chunks": 291,
+      "assetHash": "135f8450d6f1bd41e3691453d9452a91fdc2da6fdc6e2dbb30adf6ef5006e652",
+      "indexHash": "8b044391e982c4c7dd98fd5d3feff5365326b71b538db1d4ff1ab8adb95977fc",
+      "pdfBytes": 2512961,
+      "indexBytes": 55751,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=6&format=pdf",
+      "retrieval": [
+        {
+          "query": "sinusoidal amplitude period",
+          "matches": 6,
+          "pages": [
+            13,
+            14,
+            12,
+            9,
+            10,
+            17
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "inverse trigonometric functions",
+          "matches": 6,
+          "pages": [
+            47,
+            31,
+            28,
+            51,
+            50,
+            47
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "title": "Trigonometric Equations and Identities",
+      "pages": 44,
+      "blocks": 399,
+      "chunks": 364,
+      "assetHash": "c1d6456a40c0c4d252b55859bdc27e4f40608fb446a59ac2d1395c192eaab168",
+      "indexHash": "ab7c4df9fb88ad3edafbfe822d0d3ef3eed9851b83874b0399b1c222485df137",
+      "pdfBytes": 1472824,
+      "indexBytes": 53313,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=7&format=pdf",
+      "retrieval": [
+        {
+          "query": "trigonometric identities",
+          "matches": 6,
+          "pages": [
+            26,
+            33,
+            20,
+            30,
+            9,
+            13
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "double angle identities",
+          "matches": 6,
+          "pages": [
+            26,
+            31,
+            25,
+            30,
+            31,
+            27
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "title": "Further Applications of Trigonometry",
+      "pages": 82,
+      "blocks": 551,
+      "chunks": 489,
+      "assetHash": "060da5298d1c21a87065b84b905b865dc8e329bf7cf291679a8f150b4dc3746c",
+      "indexHash": "f782c1b51d3b34d1140f14d544b80964966b981c3cc9ef1b98c9eb878c6ca3be",
+      "pdfBytes": 3034477,
+      "indexBytes": 85602,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=8&format=pdf",
+      "retrieval": [
+        {
+          "query": "law of sines cosines",
+          "matches": 6,
+          "pages": [
+            4,
+            5,
+            3,
+            11,
+            12,
+            11
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "vectors dot product",
+          "matches": 6,
+          "pages": [
+            64,
+            64,
+            58,
+            62,
+            59,
+            60
+          ],
+          "anchorsValid": true
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "title": "Conics",
+      "pages": 62,
+      "blocks": 610,
+      "chunks": 564,
+      "assetHash": "b1b25d72f41a286e45358b5eb7ee8316d23f636b975275d2f6d48bc6b409299e",
+      "indexHash": "ed1858ed74ed88f7aa4799a29a507ccdd47434e7072d375335383dcd0c6bdd91",
+      "pdfBytes": 2801822,
+      "indexBytes": 78800,
+      "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=9&format=pdf",
+      "retrieval": [
+        {
+          "query": "ellipse hyperbola",
+          "matches": 6,
+          "pages": [
+            29,
+            45,
+            54,
+            19,
+            55,
+            38
+          ],
+          "anchorsValid": true
+        },
+        {
+          "query": "parabola polar coordinates",
+          "matches": 6,
+          "pages": [
+            52,
+            56,
+            56,
+            54,
+            55,
+            58
+          ],
+          "anchorsValid": true
+        }
+      ]
+    }
+  ],
+  "pages": 640,
+  "chunks": 4037,
+  "modelCalls": 0,
+  "allChaptersIndexed": true,
+  "educatorReviewed": false,
+  "automatedExerciseCoverage": "bounded subset only; chapter availability is not assessment coverage",
+  "qualityScope": "Native text extraction and source-anchor integrity. No diagram, equation-layout or expert relevance certification.",
+  "trainingPermission": "excluded"
+}

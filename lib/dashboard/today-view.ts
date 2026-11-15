@@ -9,7 +9,7 @@ const DAY = 86_400_000;
 
 export type TodayAssignment = Pick<Assignment, "id" | "title" | "due_at" | "status" | "estimated_minutes" | "classes"> & { submitted_at?: string | null };
 export type TodayFocusLog = { id: number; started_at: string; target_ends_at: string | null; ended_at: string | null; elapsed_minutes: number | null; focus_state: string };
-export type TodayTask = { id: string; title: string; subject: string; color: string; minutes: number; due: string; date: string; day: string; month: string; ready: boolean; href: string };
+export type TodayTask = { id: string; title: string; subject: string; color: string; minutes: number; due: string; date: string; day: string; month: string; ready: boolean; resumable?: boolean; href: string };
 export type TodayData = ReturnType<typeof buildTodayView>;
 
 export function formatMinutes(value: number) {
@@ -77,7 +77,7 @@ export function buildTodayView(input: {
     const key = a.due_at ? todayDateKey(a.due_at, week.zone) : "";
     const ready = a.status === "done" || a.status === "exporting";
     const due = !key ? "No due date" : key === week.today ? "Today" : key === shiftDate(week.today, 1) ? "Tomorrow" : key < week.today ? "From earlier" : dateLabel(a.due_at!, { weekday: "short", month: "short", day: "numeric" });
-    return { id: a.id, title: normalizeDashboardAssignmentTitle(a.title), subject: subject(a), color: color(subject(a)), minutes: Math.max(0, Math.round(minutes)), due: ready ? "Ready to submit" : due, date: key ? dateLabel(a.due_at!, { month: "short", day: "numeric" }) : "No due date", day: key ? key.slice(-2).replace(/^0/, "") : "", month: key ? dateLabel(a.due_at!, { month: "short" }).toUpperCase() : "", ready, href: `/assignments/${encodeURIComponent(a.id)}${ready ? "/submit" : "?focus=next-step"}` };
+    return { id: a.id, title: normalizeDashboardAssignmentTitle(a.title), subject: subject(a), color: color(subject(a)), minutes: Math.max(0, Math.round(minutes)), due: ready ? "Ready to submit" : due, date: key ? dateLabel(a.due_at!, { month: "short", day: "numeric" }) : "No due date", day: key ? key.slice(-2).replace(/^0/, "") : "", month: key ? dateLabel(a.due_at!, { month: "short" }).toUpperCase() : "", ready, resumable: a.status === "drafting", href: `/assignments/${encodeURIComponent(a.id)}${ready ? "/submit" : "/workspace"}` };
   };
   const ranked = input.ranked.filter(a => !FINISHED.has(a.status) && !CLOSED.has(a.status));
   const priority = ranked[0];

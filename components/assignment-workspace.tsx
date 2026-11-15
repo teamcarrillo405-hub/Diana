@@ -21,6 +21,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type 
 
 import {
   addProblem,
+  confirmAssignmentProblemText,
   confirmProblemQueueFromPreview,
   markProblemDone,
   markProblemReviewed,
@@ -33,7 +34,8 @@ import { AssignmentFocusClock } from "@/components/assignment-focus-clock";
 import { MathWorkSurface } from "@/components/assignment-math-work-surface";
 import { AssignmentSourceImporter } from "@/components/assignment-source-importer";
 import { AssignmentReviewPanel } from "@/components/assignment-review-panel";
-import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import styles from "@/components/student-shell/workspace.module.css";
 import {
   displayAssignmentWorkspaceTitle,
   type AssignmentWorkspaceMode,
@@ -58,6 +60,7 @@ import type {
 } from "@/lib/assignment-workspace-contracts";
 import type { BreakdownStep } from "@/lib/task-breakdown/types";
 import type { AssignmentKind, AssignmentStatus } from "@/lib/supabase/types";
+import type { LearningDomain } from "@/lib/learning-engine/course-domains";
 
 const AssignmentNativeTools = dynamic(
   () => import("@/components/assignment-native-tools").then((module) => module.AssignmentNativeTools),
@@ -76,6 +79,8 @@ type Problem = {
   id: string;
   problemNumber: number;
   problemText: string;
+  source?: string;
+  unitType?: string;
   studentWork: Record<string, unknown>;
   scaffold?: Record<string, unknown> | null;
   progressStatus?: "not_started" | "in_progress" | "done";
@@ -91,6 +96,7 @@ type ProblemPreviewDraft = {
 };
 type AssignmentWorkspaceProps = {
   assignmentId: string;
+  classId?:string;
   title: string;
   courseLabel: string;
   kind: AssignmentKind;
@@ -138,6 +144,7 @@ function starterQuestionForProblem(problemText: string): string {
 
 export function AssignmentWorkspace({
   assignmentId,
+  classId,
   title,
   courseLabel,
   description,
@@ -236,38 +243,32 @@ export function AssignmentWorkspace({
       estimatedMinutes={estimatedMinutes}
     />
   );
+  const learningSubject: LearningDomain = assignmentProfile.subjectDomain === "mathematics" ? "math"
+    : assignmentProfile.subjectDomain === "science" ? "science"
+    : assignmentProfile.subjectDomain === "social_studies" ? "history"
+    : assignmentProfile.subjectDomain === "english_language_arts" ? (mode === "reading" ? "reading" : "english")
+    : assignmentProfile.subjectDomain === "computer_science" ? "computing" : "other";
   return (
-    <div
-      className="sd-capture-work-screen sd-assignment-workspace min-h-dvh bg-white text-slate-950"
-      data-version="11"
-    >
+    <StudentShell active="Work" className={`${styles.root} sd-assignment-workspace`} version="12">
       <nav className="sd-assignment-skip-links" aria-label="Skip to workspace section">
         <a href="#current-problem">Current problem</a>
         <a href="#ask-diana">Ask Diana</a>
         <a href="#assignment-work">Work</a>
       </nav>
-      <StudentDesktopNav active="Work" />
-      <div className="sd-assignment-workspace-main">
-        <div className="sd-assignment-frame-timer" aria-label="Focus timer">
+      <main id="main-content" tabIndex={-1} className="sd-assignment-workspace-main">
+        <Link href="/assignments" className="sd-assignment-workspace-back"><ArrowLeft size={16} aria-hidden="true" /> Back to Work</Link>
+        {classId&&<Link href={`/classes/${classId}?materials=1`} className="sd-assignment-workspace-back">Class materials</Link>}
+        <header className={styles.heading}>
+          <div><p>{courseLabel}</p><h1>{displayTitle}</h1></div>
+          <div aria-label="Focus timer">
           {focusClock}
-        </div>
-        <div className="sd-assignment-gamer-shell">
-        <span className="sd-assignment-gamer-shell-notch sd-assignment-gamer-shell-notch--top" aria-hidden="true" />
-        <span className="sd-assignment-gamer-shell-notch sd-assignment-gamer-shell-notch--bottom" aria-hidden="true" />
-        <div className="sd-assignment-workspace-topline">
-          <Link href="/assignments" className="sd-assignment-workspace-back" aria-label="Back to work">
-            <ArrowLeft size={16} aria-hidden="true" /> <span>Back to work</span>
-          </Link>
-
-          <div className="sd-assignment-workspace-top-spacer" aria-hidden="true" />
-        </div>
-
+          </div>
+        </header>
         <div className="sd-assignment-workspace-body" data-work-first>
           <section className="sd-assignment-workspace-editor" aria-live="polite">
             <AssignmentWorkspaceShell
               assignmentId={assignmentId}
-              courseLabel={courseLabel}
-              title={displayTitle}
+              learningSubject={learningSubject}
               initialProblems={initialProblems}
               initialProblemMessages={initialProblemMessages}
               initialWorkspacePreferences={initialWorkspacePreferences}
@@ -291,9 +292,8 @@ export function AssignmentWorkspace({
             />
           </section>
         </div>
-        </div>
-      </div>
-    </div>
+      </main>
+    </StudentShell>
   );
 }
 function WorkspaceTools({ assignmentId, title, profile, initialBlocks, practicalGate, capabilities }: {
@@ -314,10 +314,9 @@ function WorkspaceTools({ assignmentId, title, profile, initialBlocks, practical
   );
 }
 
-function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, onReviewSubmission, assignmentDetails, feedbackMessage, template, unitNoun, unitNounPlural, primaryTools, optionalTools }: {
+function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, onReviewSubmission, assignmentDetails, feedbackMessage, template, unitNoun, unitNounPlural, primaryTools, optionalTools }: {
   assignmentId: string;
-  courseLabel: string;
-  title: string;
+  learningSubject: LearningDomain;
   initialProblems: Problem[];
   initialProblemMessages: AssignmentProblemMessage[];
   initialWorkspacePreferences: AssignmentWorkspacePreference[];
@@ -615,7 +614,7 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
     startTransition(async () => {
       const result = await confirmProblemQueueFromPreview({ assignmentId, problems: confirmed });
       if (!result.ok) return onMessage(result.error);
-      const imported: Problem[] = result.problems.map((problem) => ({ ...problem, studentWork: {}, progressStatus: "not_started", reviewedAt: null, completedAt: null }));
+      const imported: Problem[] = result.problems.map((problem) => ({ ...problem, source: "student_confirmed_source", unitType: "problem", studentWork: {}, progressStatus: "not_started", reviewedAt: null, completedAt: null }));
       commitProblems((current) => [...current, ...imported]);
       setPreviewDrafts([]);
       setPreviewRequiresConfirmation(false);
@@ -636,7 +635,7 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
     startTransition(async () => {
       const result = await addProblem({ assignmentId, problemText });
       if (!result.ok) return onMessage(result.error);
-      const next: Problem = { id: result.id, problemNumber: result.problemNumber, problemText, studentWork: {}, progressStatus: "not_started", reviewedAt: null, completedAt: null };
+      const next: Problem = { id: result.id, problemNumber: result.problemNumber, problemText, source: "manual", unitType: "problem", studentWork: {}, progressStatus: "not_started", reviewedAt: null, completedAt: null };
       commitProblems((current) => [...current, next]);
       setNewProblem("");
       setActiveIndex(problems.length);
@@ -644,6 +643,23 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
       setWork("");
       setWorkInk("");
       onMessage("Problem added");
+    });
+  }
+
+  function confirmActiveProblemText() {
+    if (!active) return;
+    if (!window.navigator.onLine) return onMessage("Connect to confirm this problem against its source.");
+    const selected = active;
+    onMessage("Confirming problem text...");
+    startTransition(async () => {
+      const result = await confirmAssignmentProblemText({ assignmentId, problemId: selected.id, expectedText: selected.problemText });
+      if (!result.ok) return onMessage(result.error);
+      commitProblems((current) => current.map((problem) => problem.id === selected.id ? { ...problem, source: "student_confirmed_source" } : problem));
+      const prepared = await fetch("/api/learning/ingest", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignmentId, sourceId: "assignment-problems", subject: learningSubject }),
+      }).then((response) => response.ok).catch(() => false);
+      onMessage(prepared ? "Problem text confirmed and ready for search" : "Problem text confirmed. Prepare assignment search again when available.");
     });
   }
 
@@ -759,10 +775,6 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
         </button>
         {problemSheetOpen ? <button type="button" className="sd-assignment-problem-sheet-scrim" aria-label="Close problems" onClick={() => setProblemSheetOpen(false)} /> : null}
         <aside ref={problemPanelRef} id="assignment-problem-rail" className="sd-assignment-math-left" aria-label={`Assignment ${unitNounPlural}`} data-open={problemSheetOpen || undefined}>
-          <header className="sd-assignment-mission-heading">
-            <p>{courseLabel}</p>
-            <h1 title={title}>{title}</h1>
-          </header>
           <div className="sd-assignment-math-left-heading">
             <p>{unitNounPlural}</p>
             <span>{doneCount} of {problems.length} done</span>
@@ -823,12 +835,18 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
           ) : null}
         </aside>
 
-        <main className="sd-assignment-math-main">
+        <section className="sd-assignment-math-main" aria-label="Homework workspace">
           {problems.length > 0 && active ? (
             <>
               <section id="current-problem" className="sd-assignment-problem-card" aria-label={`Current ${unitNoun}`} tabIndex={-1}>
-                <p className="sd-assignment-mode-title">{unitLabel(active)} of {totalProblems}</p>
+                <p className="sd-assignment-mode-title">{unitLabel(active)} <span>{activeIndex + 1} of {totalProblems}</span></p>
                 <p className="sd-assignment-problem-text">{active.problemText}</p>
+                {active.unitType === "problem" && (active.source === "assignment_source" || active.source === "photo_scan") ? (
+                  <div className="sd-assignment-source-confirmation">
+                    <span>Check this wording against the assignment before Diana treats it as a confirmed source.</span>
+                    <button type="button" disabled={problemPending} onClick={confirmActiveProblemText}>I checked the wording</button>
+                  </div>
+                ) : null}
               </section>
               {feedbackMessage ? <p className="sd-assignment-workspace-status-line" role="status" aria-live="polite">{feedbackMessage}</p> : null}
               <AssignmentReviewPanel
@@ -881,7 +899,7 @@ function AssignmentWorkspaceShell({ assignmentId, courseLabel, title, initialPro
               <button type="button" data-primary="true" onClick={openAddProblem}>Add or import {unitNoun}</button>
             </div>
           )}
-        </main>
+        </section>
 
         {toolsOpen ? <button className="sd-assignment-tools-scrim" type="button" aria-label="Close assignment tools" onClick={() => { setToolsOpen(false); toolsToggleRef.current?.focus(); }} /> : null}
         <aside ref={toolsPanelRef} id="assignment-utilities" className="sd-assignment-math-right" aria-label="Assignment actions" data-open={toolsOpen || undefined}>

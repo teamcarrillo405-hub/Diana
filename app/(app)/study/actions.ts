@@ -17,6 +17,16 @@ const StartStudyInput = z.object({
   requestedSkill: z.string().trim().max(40).optional(),
 });
 
+export async function createQuiz(formData: FormData): Promise<void> {
+  const source = z.string().regex(/^(assignment|note):[0-9a-f-]{36}$/i).safeParse(formData.get("source"));
+  const count = z.coerce.number().int().min(3).max(20).safeParse(formData.get("questionCount") ?? 6);
+  if (!source.success || !count.success) redirect("/study?notice=choose-source");
+  const [sourceType, sourceId] = source.data.split(":") as ["assignment" | "note", string];
+  const result = await generateStudyArtifact({ sourceType, sourceId, artifactType: "practice_test", studyMode: "retrieval_quiz", questionCount: count.data });
+  if (!result.ok) redirect(`/study?source=${encodeURIComponent(source.data)}&questionCount=${count.data}&notice=${encodeURIComponent(result.error)}`);
+  redirect(`/study-artifacts/${result.id}`);
+}
+
 
 export async function startStudentStudy(formData: FormData): Promise<void> {
   const parsed = StartStudyInput.safeParse({
@@ -111,7 +121,7 @@ async function routeStudyDestination({
   if (destination.kind === "coach") {
     // Coaching now happens beside the student's work, not on a second chat
     // screen. The assignment workspace carries the source packet and draft.
-    redirect(`/assignments/${assignmentId}/workspace#diana`);
+    redirect(`/assignments/${assignmentId}/workspace#ask-diana`);
   }
 
   redirect(`/assignments/${assignmentId}/workspace#${destination.anchor}`);

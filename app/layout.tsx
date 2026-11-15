@@ -9,13 +9,14 @@ import "./globals.css";
 import "../tokens.css";
 import "./screendesign.css";
 import "./assignment-workspace.css";
+import "./student-shell.css";
 import "./canonical-public-landing.css";
-import "./public-pages.css";
+import "./public-landing-v2.css";
 import { AccentProvider } from "@/components/accent-provider";
 import { ThemeProvider } from "@/components/theme-provider";
-import { resolvePublicSiteUrl } from "@/lib/public-site-url";
+import { publicAppUrl } from "@/lib/public-site";
 
-const publicSiteUrl = resolvePublicSiteUrl();
+const publicSiteUrl = publicAppUrl();
 const publicSiteStructuredData = {
   "@context": "https://schema.org",
   "@graph": [

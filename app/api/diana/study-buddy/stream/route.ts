@@ -57,7 +57,10 @@ export async function POST(request: Request) {
           "providerState" in payload ? payload.providerState : null,
         );
         const completeEnvelope = payload.ok && payload.response && evidence && providerState
-          ? { response: payload.response, evidence, providerState }
+          ? { response: payload.response, evidence, providerState,
+              ...(payload.provider ? { provider: payload.provider } : {}),
+              ...(payload.routing ? { routing: payload.routing } : {}),
+            }
           : null;
 
         if (!bufferedResponse.ok || !completeEnvelope) {
@@ -111,7 +114,7 @@ export async function POST(request: Request) {
     status: 200,
     headers: {
       "Content-Type": "text/event-stream; charset=utf-8",
-      "Cache-Control": "no-cache, no-transform",
+      "Cache-Control": "no-store, no-transform",
       Connection: "keep-alive",
     },
   });

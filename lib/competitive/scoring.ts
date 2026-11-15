@@ -85,7 +85,7 @@ export function scoreCompetitiveSystem(
 ): CompetitiveScorecard {
   const bars: CompetitiveBarScore[] = [
     bar("start_the_work", "Start the work", [
-      criterion("landing_hero", "Public page leads with one clear next school move.", evidence.landingHero, "Keep the landing page centered on the next school move."),
+      criterion("landing_hero", "Public page leads with the next 5 minutes ritual.", evidence.landingHero, "Keep the landing page centered on the next school move."),
       criterion("dashboard_focus", "Dashboard has a first-screen focus card.", evidence.dashboardFocusCard, "Restore a prominent dashboard focus card."),
       criterion("next_five_minutes", "Next-five-minutes scorer exists and is tested.", evidence.nextFiveMinutesScorer, "Wire the priority scorer into the dashboard."),
       criterion("state_context", "Start logic uses student-state context.", evidence.studentStateModel, "Connect readiness and friction signals to the start surface."),
@@ -128,7 +128,7 @@ export function scoreCompetitiveSystem(
     bar("teen_native_ux", "Teen-native UX", [
       criterion("responsive_qa", "Browser QA has no overflow or server errors.", evidence.responsiveQaClean, "Run responsive browser QA and fix layout issues."),
       criterion("copy_clean", "Visible QA has no banned copy or pressure language.", evidence.noVisibleBannedCopy, "Remove visible shame, red-error, and streak language."),
-      criterion("priority_nav", "Mobile nav prioritizes Today, Work, Classes, Calendar, and More.", evidence.priorityMobileNav, "Keep secondary tools inside More."),
+      criterion("priority_nav", "Mobile nav prioritizes Focus, Assignments, Notes, Study, More.", evidence.priorityMobileNav, "Collapse secondary routes into More."),
       criterion("teen_protocol", "Teen-test protocol exists and blocks unsupported claims.", evidence.teenTestProtocol, "Make teen testing executable and scoreable."),
       criterion("teen_ux_sections", "Teen-native UX is split into explicit competitor-beating sections.", evidence.teenNativeUxSectionModel, "Add a teen-native UX section model."),
       criterion("teen_ux_command", "Teen-native UX has its own repeatable score command.", evidence.teenNativeUxScoreCommand, "Add npm run teen-ux-score."),
@@ -153,7 +153,7 @@ export function scoreCompetitiveSystem(
   const overallRepoScore = repoBars.length
     ? round(repoBars.reduce((sum, item) => sum + item.score, 0) / repoBars.length)
     : 0;
-  const nextBacklog = unique(bars.flatMap((item) => item.nextBacklog));
+  const nextBacklog = bars.flatMap((item) => item.nextBacklog);
   const allRepoVerifiableBarsAtTen = repoBars.every((item) => item.score === 10);
 
   return {
@@ -231,8 +231,4 @@ function criterion(
 
 function round(value: number): number {
   return Math.round(value * 10) / 10;
-}
-
-function unique(items: string[]): string[] {
-  return [...new Set(items)];
 }

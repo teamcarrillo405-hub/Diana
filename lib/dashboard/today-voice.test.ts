@@ -21,6 +21,7 @@ describe("Today dashboard visual model", () => {
         { ...attentionDetails, key: "tests", label: "Tests", count: 2, description: "", href: "/", tone: "purple" },
         { ...attentionDetails, key: "due_earlier", label: "Due", count: 1, description: "", href: "/", tone: "orange" },
         { ...attentionDetails, key: "not_submitted", label: "Turn in", count: 3, description: "", href: "/", tone: "yellow" },
+        { ...attentionDetails, key: "feedback", label: "Feedback", count: 9, description: "", href: "/", tone: "green" },
       ],
     }, null);
 

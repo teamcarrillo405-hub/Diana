@@ -10,7 +10,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter, type AssignmentHelpContext } from "../_shared/learning/assignment-help-boundary.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -102,6 +102,7 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
 }
 
 async function runDiagramAnnotation(
+  assistance: AssignmentHelpContext,
   // deno-lint-ignore no-explicit-any
   supabase: { storage: any },
   ownerId: string,
@@ -121,7 +122,7 @@ async function runDiagramAnnotation(
     includeFrustration: false,
     includeMinorSafety: true,
   });
-  const modelResult = await runOpenAIHomeworkAdapter({
+  const modelResult = await runAssignmentScopedHomeworkAdapter(assistance, {
     task: "visual_tool",
     ownerId,
     // The service client also provides the RPC surface used by the guard.
@@ -187,7 +188,7 @@ Deno.serve(withStudentSecurity("visual-tools", async (req: Request) => {
     if (mode === "diagram_annotation") {
       const storageKey = typeof body.storageKey === "string" ? body.storageKey : "";
       const bucket = typeof body.bucket === "string" && body.bucket.length > 0 ? body.bucket : "note-docs";
-      const result = await runDiagramAnnotation(supabase, ownerId, storageKey, bucket);
+      const result = await runDiagramAnnotation({ request: req, body, feature: "visual-tools" }, supabase, ownerId, storageKey, bucket);
       content = result.content;
       tokens = result.tokens;
       model = result.model;
@@ -212,7 +213,7 @@ Deno.serve(withStudentSecurity("visual-tools", async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const modelResult = await runOpenAIHomeworkAdapter({
+      const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "visual-tools" }, {
         task: "visual_tool",
         ownerId,
         supabase,

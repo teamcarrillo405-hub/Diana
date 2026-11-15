@@ -94,10 +94,9 @@ export function buildTodayDashboardVisualModel(
   checkIn: LobbyCheckInValue | null,
 ): TodayDashboardVisualModel {
   return {
-    attentionTotal: view.attention.reduce(
-      (total, category) => total + Math.max(0, category.count),
-      0,
-    ),
+    attentionTotal: view.attention
+      .filter((category) => category.key !== "feedback")
+      .reduce((total, category) => total + Math.max(0, category.count), 0),
     readiness: checkIn
       ? {
           energy: ENERGY_LEVEL[checkIn.energy],

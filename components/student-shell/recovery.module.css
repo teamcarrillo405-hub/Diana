@@ -1,0 +1,17 @@
+.root { display:grid; place-items:center; min-height:100dvh; padding:30px 18px; background:linear-gradient(90deg,#0a1012ef,#0a1012b0),url('/assets/today-now/diana-signature-studio-v1-1678.webp') center/cover; color:#eff5ef; font-family:var(--font-lexend),sans-serif; }
+.root :global(.diana-recovery-screen__panel) { width:min(100%,560px); padding:36px; background:#14271cd6; backdrop-filter:blur(20px); border:1px solid #b4d0c33d; border-radius:3px; }
+.root :global(.diana-recovery-screen__brand) { width:145px; margin-bottom:38px; }
+.root :global(.diana-recovery-screen__eyebrow) { margin:0 0 10px; color:#e5bc81; font-size:12px; }
+.root h1 { font:700 42px/1.1 var(--font-saira-condensed),sans-serif; text-transform:uppercase; margin:0; color:#eff5ef; }
+.root :global(.diana-recovery-screen__message) { margin:20px 0 0; color:#c4d5c8; font-size:15px; line-height:1.8; }
+.root :global(.diana-recovery-screen__actions) { display:flex; flex-wrap:wrap; gap:14px; margin-top:30px; }
+.root :global(.diana-recovery-screen__action) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 16px; color:inherit; border:1px solid #b4d0c350; background:transparent; border-radius:3px; font:500 13px/1.3 var(--font-lexend),sans-serif; text-decoration:none; }
+.root :global(.diana-recovery-screen__action--primary) { background:#7951d5; border-color:#a78bdd; }
+.root :is(a,button):focus-visible { outline:3px solid #c8b0f8; outline-offset:4px; }
+.loading { display:grid; justify-items:center; gap:28px; max-width:500px; }
+.loading img { width:145px; height:auto; }
+.loading p { font-size:14px; line-height:1.7; color:#c4d5c8; }
+.indicator { width:120px; height:3px; background:#b28bee; transform-origin:left; animation:loading-progress-forward 3.6s linear forwards; }
+@keyframes loading-progress-forward { from { transform:scaleX(.05); } to { transform:scaleX(.9); } }
+@media(prefers-reduced-motion:reduce) { .indicator { animation:none; } }
+@media(max-width:500px) { .root :global(.diana-recovery-screen__panel) { padding:26px 22px; }.root h1 { font-size:34px; } }

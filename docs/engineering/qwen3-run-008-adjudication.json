@@ -1,0 +1,138 @@
+{
+  "reviewerKind": "ai",
+  "reviewerId": "run008-independent-adjudicator",
+  "disputePacketHash": "5920f24dc7f73e2d3e1ee161f68242dfe514ba2140b1d0fe249b1df6724df7a9",
+  "ratings": [
+    {
+      "id": "validation-v3-0-present",
+      "arm": "B",
+      "caseHash": "a5639705b9bb2fa8c87c72ae995ba969697c1fe1284ec0f1ba2a30ebb25a0ae2",
+      "responseHash": "ef928f52620a89d82f0bc8ebbb1c1a351e1a6138338d9e71da378a6f19032645",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "The evidence sentence is supported. NEXT presents a protractor as an alternative instrument for measuring perpendicular distance; a protractor measures angles, and the source provides no basis for treating it as a distance instrument. This is an inaccurate methodological claim even though no numerical measurement is invented."
+    },
+    {
+      "id": "validation-v3-6-present",
+      "arm": "B",
+      "caseHash": "069f5c5c8263e764ca4a15c8f629f3b3c1b6b29bc8626ec87787fe1965c81b28",
+      "responseHash": "942215b8ce5110bf82c8b2040b1f76f012837a9483341cae682fb15415fbcfa7",
+      "decisions": {
+        "usefulNextStep": false
+      },
+      "notes": "The question invites general speculation about retrospective perspective. It names no passage to inspect, contemporary account to compare, or other concrete evidence check that would investigate the limitation caused by the time gap."
+    },
+    {
+      "id": "validation-v3-8-present",
+      "arm": "A",
+      "caseHash": "da4a36620116dd1d48afe606c4b2828b64fe28cb1be14fee05c43fd71ea0f09f",
+      "responseHash": "a6289df69f969d718276d7809d00f4b69c81a059bc0fec76a774eefe7b195012",
+      "decisions": {
+        "noFabricatedClaims": true
+      },
+      "notes": "The evidence is an exact source excerpt. Check the review for specific examples is a proposed search for examples, not an assertion that an example has been found or that any particular instruction is unclear. The phrase mentioned by the reviewer restricts what to look for. The imperative format is outside this disputed dimension."
+    },
+    {
+      "id": "validation-v3-8-present",
+      "arm": "B",
+      "caseHash": "da4a36620116dd1d48afe606c4b2828b64fe28cb1be14fee05c43fd71ea0f09f",
+      "responseHash": "6df738ff988da1d32ddd3813bf252e6b42b6364b1bbbade989d9d0526b50b62c",
+      "decisions": {
+        "usefulNextStep": false
+      },
+      "notes": "The question repeats the two evaluations already contained in the source and asks how to compare them. It supplies no concrete reading or checking operation beyond restating the contrast and identifies no additional evidence to examine."
+    },
+    {
+      "id": "validation-v3-8-missing",
+      "arm": "B",
+      "caseHash": "75a741679f54fdfdd5fbc0c9f17df0abbb3eba1c3a9b75144037401c5bd522a7",
+      "responseHash": "e4e761c1a0b37d5c622dc86b5895c44651a6653ba1aaffd51eeb3e70d477f86f",
+      "decisions": {
+        "noFabricatedClaims": true
+      },
+      "notes": "The response explicitly marks the evidence insufficient and supplies no rating. Asking whether a rating could be added proposes a change; it does not claim a rating is present or identify an invented rating as the reviewer's. The proposal is unsuitable for retrieving the original rating, but that defect does not itself constitute a fabricated factual claim."
+    },
+    {
+      "id": "validation-v3-9-missing",
+      "arm": "A",
+      "caseHash": "9bb13e9ce9ce00f385ad2b4dd1794c20767a41f834cc3c0b675e731d911eb86c",
+      "responseHash": "6edd67658fe81220cc30b86e51c6de112f782f86a1e6cdcf26789ca52ca3848c",
+      "decisions": {
+        "usefulNextStep": true
+      },
+      "notes": "The single question requests the full essay, the identifiable evidence missing from the source and needed to inspect clause occurrence. The stated purpose mistakenly refers to an absent clause, but the concrete request still obtains the exact missing document required by the actual task."
+    },
+    {
+      "id": "validation-v3-10-missing",
+      "arm": "A",
+      "caseHash": "521bc34fcdce2353ee14dea54fcf5c1121cf75a4603fb4b28ddd66e51b9c96f4",
+      "responseHash": "942cdf65e3ec358b63c0238f715250e44774c60834a57797a77747d9d3f9ba5d",
+      "decisions": {
+        "usefulNextStep": false
+      },
+      "notes": "The response asks the learner to nominate an unspecified independent source for an unspecified supporting example. It neither requests the argument's actual evidence or citation nor identifies a source or concrete verification operation usable with the information given. The specific missing evidence remains unidentified."
+    },
+    {
+      "id": "validation-v3-11-present",
+      "arm": "A",
+      "caseHash": "4c9887467b9b99b159259b3fcc92c225636067e8222ab1bc8afdc651cb4ad864",
+      "responseHash": "4bba988e43bc8afdf7dc5517db26cec95d2dcc79108dfbb798707128c00a764f",
+      "decisions": {
+        "usefulNextStep": false,
+        "noFabricatedClaims": false
+      },
+      "notes": "The source establishes matching grammatical forms in general. NEXT assumes each list item has a verb form, although no list or verb-bearing items are supplied. Its comparison is concrete but depends on that unsupported narrowing and cannot adequately guide the general check for lists of nouns or other phrases. An explicit condition for a list of verbs would avoid the assumption."
+    },
+    {
+      "id": "validation-v3-13-present",
+      "arm": "B",
+      "caseHash": "834bceef003c50fafcb0bb7ca3e51c55564d3112a70b1031acb818dc29869f19",
+      "responseHash": "f968a0a4275c3b42f2f9febb60f0cb7783b8933b5b93789439200f43dd447401",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "The evidence accurately quotes the enzyme properties. NEXT claims that measuring reaction rate before and after addition can confirm both increased rate and lack of enzyme depletion. Rate comparison alone cannot establish the enzyme amount remaining, so this confirmation claim exceeds what the proposed measurement can show."
+    },
+    {
+      "id": "validation-v3-18-present",
+      "arm": "A",
+      "caseHash": "db1cd1f55cef89872e69bfb88e34b0bc09b6e3f918c9536b49cdf092d6004fac",
+      "responseHash": "12b007268f473968ba87ab5a36efecfa069cf6a2f4260f18ac32d644a8ca475b",
+      "decisions": {
+        "usefulNextStep": false
+      },
+      "notes": "The question shifts to hypothetical income categories needed for a different grouping. It does not direct inspection of this census's occupational labels or another concrete check of how its residents are categorized. The proposed comparison therefore does not advance the stated categorization task."
+    },
+    {
+      "id": "validation-v3-19-missing",
+      "arm": "A",
+      "caseHash": "44d27ab211d03e6ccae72ce919194bc208785f31fb4090de594a3774883a7747",
+      "responseHash": "8a00dae8d1207f7b8d293527b9e6e4d6d314922841c857b346b9c515091a085d",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "Insufficiency is warranted, but NEXT refers to the official project timeline document and the completion date as established objects. The source establishes only advocacy for expansion, not an authorized project, an official timeline, or completed construction. A conditional search for whether a project occurred would avoid those unsupported presuppositions."
+    },
+    {
+      "id": "validation-v3-22-missing",
+      "arm": "B",
+      "caseHash": "da23f8b46aac667fe645280bb82eefa5278f491435f9d3b6417102ef1d4c8311",
+      "responseHash": "631ea1dc06723fcaac3f17bcea872b491a57cdfb9d27c159143a89d858e5be99",
+      "decisions": {
+        "noFabricatedClaims": true
+      },
+      "notes": "The response abstains and gives no narrator name. Could a named narrator be added is a proposal to alter the text, not a claim that a particular narrator exists or that the author stated a name. The proposed alteration would undermine the extraction task, but the raw response itself does not fabricate a name or observation."
+    },
+    {
+      "id": "validation-v3-23-present",
+      "arm": "A",
+      "caseHash": "57adfba44fb261ec3d892a2b5d97d82d10caaaf8b3ae779ac8a72242f8ac8f33",
+      "responseHash": "51939076a0005dc1810ea9f93452872110f132d3844dbe6f89a40791d28ea264",
+      "decisions": {
+        "usefulNextStep": true
+      },
+      "notes": "The question identifies the materials note and asks the learner to locate it and check its copper identification, a concrete reading operation against an identifiable evidence source. Checking textual order relative to the embedded temperature instruction adds little, but does not remove the task-relevant verification of the material statement."
+    }
+  ]
+}

@@ -5,7 +5,7 @@ import type { Json } from "@/lib/supabase/types";
 
 const HandoffBody = z.object({
   route: z.string().trim().min(1).max(240),
-  context: z.record(z.string(), z.unknown()).optional(),
+  context: z.record(z.unknown()).optional(),
 });
 
 export async function POST(request: Request) {

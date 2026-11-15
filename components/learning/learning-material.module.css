@@ -1,0 +1,39 @@
+.layout{display:grid;grid-template-columns:minmax(180px,260px) minmax(0,1fr);gap:36px;align-items:start}
+.sources{display:grid;gap:10px}
+.source{display:block;text-align:left;padding:16px;border:0;background:transparent;color:#d2e1d8;border-radius:0;font-weight:600}
+.source[aria-pressed=true]{color:#fff;background:#b90b68;clip-path:polygon(1% 9%,96% 0,100% 88%,3% 100%,0 40%)}
+.body{min-width:0;display:grid;gap:24px}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.button{padding:10px 16px;min-height:44px;border-radius:3px;background:#7951d5;color:#fff;font-weight:600}
+.button:disabled{opacity:.5}
+.secondary{background:transparent;border:1px solid #bad0c35c;color:#d8e8de}
+.field{display:grid;gap:8px;font-size:14px}
+.field input,.field select,.field textarea{width:100%;min-width:0;min-height:44px;border:1px solid #b3cbbb60;border-radius:3px;background:#193026;color:#edf5ef;padding:12px}
+.field textarea{min-height:160px;line-height:1.65}
+.passage{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-height:360px;overflow:auto;padding:20px;border:1px solid #bad0c33d;border-radius:3px}
+.notice{color:#efdbb4;font-size:14px}
+.feedback{border-left:3px solid #71c3ac;padding:12px 18px;line-height:1.6}
+.label{font-size:13px;opacity:.7}
+.section{display:grid;gap:16px;color:#e3eee7;min-width:0}
+.section h2{font:700 30px/1.2 var(--font-saira-condensed),sans-serif;overflow-wrap:anywhere}
+.section a{color:#d8e8de;text-underline-offset:4px}
+.button:focus-visible,.source:focus-visible,.field input:focus-visible,.field textarea:focus-visible,.field select:focus-visible{outline:2px solid #d5c4fa;outline-offset:3px}
+@media(max-width:700px){.layout{grid-template-columns:1fr;gap:24px}.sources{display:flex;overflow:auto}.source{min-width:180px}.toolbar{align-items:stretch}.button{min-height:44px}}
+.regionReview{display:grid;gap:1rem;margin-block:1rem}
+.pdfPage canvas{display:block;width:100%;height:auto;background:white}
+.originalSource{width:100%;height:32rem;border:1px solid rgba(255,255,255,.16);border-radius:.75rem}
+.regionImage{position:relative;max-width:42rem}
+.regionImage img{width:100%;display:block}
+.regionImage span{position:absolute;border:2px solid #e8a5c8;background:rgba(232,165,200,.15);pointer-events:none}
+.bookSearch{display:flex;gap:16px;align-items:end}.bookSearch label{flex:1}
+.bookControls{display:grid;grid-template-columns:minmax(160px,1fr) 90px auto;gap:20px;align-items:end}
+.bookMatches{display:grid;gap:24px}.bookMatches article{border-bottom:1px solid #bad0c33d;padding-bottom:20px}
+.bookQuote{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-height:180px;overflow:auto;margin-top:12px}
+.practicePrompt{font-size:20px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;padding-block:12px}
+.practiceToggle{justify-self:start}
+.coursePractice{display:grid;gap:24px;max-width:1080px;min-width:0;color:#e3eee7}.courseSelectors{display:grid;grid-template-columns:1fr 1fr;gap:20px}.courseQuestion{display:flex;align-items:end;gap:16px}.courseQuestion label{flex:1}.coursePassages{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:24px}.coursePassages h3{font-weight:700}.coursePractice details p{margin-block:10px}.coursePractice .feedback ul{list-style:disc;padding-left:20px}
+@media(max-width:600px){.courseSelectors{grid-template-columns:1fr}.courseQuestion{flex-wrap:wrap}.courseQuestion label{flex-basis:100%}}
+.confirmation{display:flex;gap:12px;align-items:center;font-size:14px;min-height:44px}.confirmation input{width:20px;height:20px;accent-color:#7951d5}
+.skillList{display:grid;gap:20px;padding-block:16px}.skillList p{line-height:1.6}.feedback ol{padding-left:24px;list-style:decimal}.feedback li{margin-block:8px}.feedback h3{font-weight:700;font-size:18px}
+.recognitionCapture{display:grid;gap:10px;max-width:36rem;padding:14px 0}.recognitionCapture button{justify-self:start}.recognitionCapture p{margin:0}
+@media(max-width:700px){.bookControls{grid-template-columns:minmax(0,1fr) 80px}.bookControls .toolbar{grid-column:1/-1}.bookSearch{flex-wrap:wrap}.bookSearch label{flex-basis:100%}}

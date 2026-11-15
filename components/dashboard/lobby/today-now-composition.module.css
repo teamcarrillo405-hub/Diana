@@ -1,0 +1,421 @@
+/* The composition is an opt-in proof; approved motion and live Today stay unchanged. */
+.composition.composition.composition.composition {
+  --diana-grade: brightness(.9) saturate(.88) contrast(1.015);
+  overflow: clip;
+}
+.composition.composition.composition.composition[data-now-studio] {
+  background: #121517;
+  --diana-display-grade: brightness(.96) saturate(.96) contrast(1.02);
+}
+.environment {
+  position: absolute;
+  z-index: -2;
+  top: 72px;
+  left: 0;
+  width: 100%;
+  height: calc(var(--scene-height) + 156px);
+  overflow: hidden;
+  pointer-events: none;
+  mask-image: linear-gradient(#000 0%, #000 90%, transparent 100%);
+}
+.environment img { object-fit: cover; object-position: 62% bottom; }
+
+.floorPlane {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  width: min(100%, calc((var(--scene-height) - 14px) * .3916667));
+  aspect-ratio: 771 / 1969;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.castShadow, .reflection { position: absolute; inset: 0; transform-origin: 70% 97%; }
+.castShadow {
+  background: #040c10;
+  mask: url('/images/today-diana-cutout.png') center / contain no-repeat;
+  transform: skewX(48deg) scaleY(.15);
+  opacity: .28;
+  filter: blur(8px);
+}
+.reflection {
+  background: url('/images/today-diana-cutout.png') center / contain no-repeat;
+  transform: scaleY(-.18);
+  mask-image: linear-gradient(transparent 69%, #0009 92%, #000 100%);
+  opacity: .16;
+  filter: blur(3px) saturate(.55) brightness(.6);
+}
+
+.composition.composition.composition.composition [data-now-title] {
+  text-wrap: balance;
+  letter-spacing: 0;
+}
+.composition.composition.composition.composition [data-today-stage-deck] > section { animation: none; transition: none; }
+.composition.composition.composition.composition [data-now-identity] { display: block; }
+.composition.composition.composition.composition [data-now-subject] { gap: 12px; }
+.composition.composition.composition.composition [data-subject-emblem]:not([data-small]) { width: 44px; height: 44px; }
+.composition.composition.composition.composition [data-subject-emblem]::before,
+.composition.composition.composition.composition [data-subject-emblem]::after { clip-path: polygon(0 0, 82% 0, 100% 18%, 100% 100%, 0 100%); }
+.composition.composition.composition.composition [data-subject-emblem]::after { background: #20272a; }
+.composition.composition.composition.composition [data-now-action] { display: flex; flex-direction: column; align-items: flex-start; gap: 22px; }
+.composition.composition.composition.composition [data-now-action] [data-now-meta] { margin: 0; font-size: 14px; line-height: 22px; gap: 10px 20px; }
+.composition.composition.composition.composition [data-now-start] {
+  position: relative; margin: 0; width: 224px; height: 56px; min-width: 168px;
+  padding: 0 24px; border: 1px solid #bb7fff; border-radius: 2px;
+  background: #8924f6; font: 700 24px/1 var(--font-saira-condensed), sans-serif;
+  text-transform: uppercase; gap: 14px;
+  box-shadow: inset 0 1px 0 #ffffff40, 0 5px 18px #06020740;
+  transition: background 100ms ease, box-shadow 100ms ease;
+}
+.composition.composition.composition.composition [data-now-start]::after { content: ""; position: absolute; right: 6px; top: 6px; bottom: 6px; width: 2px; background: #ffffff38; }
+.composition.composition.composition.composition [data-now-start]:hover { background: #9c3aff; box-shadow: inset 0 1px 0 #fff8, 0 0 0 1px #c795ff60; }
+.composition.composition.composition.composition [data-now-start]:active { background: #711ad4; box-shadow: inset 0 3px 12px #21083480; }
+.composition.composition.composition.composition [data-now-start][aria-busy="true"] { background: #663aa0; border-color: #d0bbeb; cursor: progress; }
+.composition.composition.composition.composition [data-now-support] { margin-top: 38px; }
+.composition.composition.composition.composition [data-now-empty] [data-now-identity] > svg { color: #cadbd6; }
+.composition.composition.composition.composition [data-now-queue] { display: block; margin-top: 20px; padding: 0; }
+.composition.composition.composition.composition [data-now-queue] > p { margin: 0 0 8px; font-size: 13px; line-height: 20px; }
+.composition.composition.composition.composition [data-now-queue] ul { display: block; }
+.composition.composition.composition.composition [data-now-queue] li + li { border-top: 1px solid #e7f1ed26; }
+.composition.composition.composition.composition [data-now-queue] button { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto 16px; gap: 4px 16px; min-height: 76px; padding: 12px 16px; align-items: center; border-left: 2px solid var(--subject-color); border-radius: 2px; background: rgb(28 33 35 / .78); box-shadow: inset 0 1px 0 #e4f3ed24, inset 0 -1px 0 #e4f3ed12; transition: background 100ms, box-shadow 100ms; }
+.composition.composition.composition.composition [data-now-queue] button > span:first-child { grid-column: 1; grid-row: 1; font-size: 12px; }
+.composition.composition.composition.composition [data-now-queue] strong { grid-column: 1; grid-row: 2; font-size: 16px; line-height: 22px; }
+.composition.composition.composition.composition [data-now-queue] button > span:last-child { display: flex; align-items: center; justify-content: flex-end; gap: 5px; flex-wrap: wrap; grid-column: 2; grid-row: 1 / 3; max-width: 115px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.composition.composition.composition.composition [data-now-queue] button > span:last-child > span { display: block; width: 100%; text-align: right; }
+.composition.composition.composition.composition [data-queue-chevron] { grid-column: 3; grid-row: 1 / 3; color: #d6dedf; }
+.composition.composition.composition.composition [data-now-queue] button:hover { background: rgb(56 65 68 / .9); box-shadow: inset 0 0 0 1px #dbe6e64d; }
+.composition.composition.composition.composition [data-now-queue] button:hover strong { text-decoration: none; }
+.composition.composition.composition.composition [data-now-queue] button[data-session-paused="true"] > span:last-child { color: #ffd184; }
+
+@media (min-width: 761px) {
+  .composition.composition.composition.composition {
+    --scene-height: clamp(570px, calc(100svh - 216px), 820px);
+  }
+  .composition.composition.composition.composition::before {
+    background: linear-gradient(90deg, rgb(6 13 17 / .93) 0%, rgb(6 13 17 / .87) 18%, rgb(6 13 17 / .75) 47%, rgb(6 13 17 / .31) 66%, rgb(6 13 17 / .07) 100%);
+  }
+  .composition.composition.composition.composition[data-now-studio]::before { background: linear-gradient(90deg, #080d11b8 0%, #080d1170 50%, #080d1110 74%, transparent 100%); }
+  .composition.composition.composition.composition > div:has(> main) { width: min(1680px, calc(100% - 96px)); max-width: 1680px; margin-top: 24px; }
+  .composition.composition.composition.composition [data-today-stage-workspace] { grid-template-columns: 192px minmax(0, 1fr); column-gap: 48px; }
+  .composition.composition.composition.composition [data-today-stage-rail] { padding-top: 24px; gap: 8px; }
+  .composition.composition.composition.composition [data-today-stage-rail] > p { margin: 0 12px 16px; height: 18px; line-height: 18px; }
+  .composition.composition.composition.composition [data-today-stage-rail] button { height: 52px; min-height: 52px; padding: 10px 12px; font-size: 26px; line-height: 28px; color: #c4cacc; text-shadow: none; }
+  .composition.composition.composition.composition [data-today-stage-rail] button[aria-selected="true"] { color: #fff; }
+  .composition.composition.composition.composition [data-today-stage-rail] button:hover:not([aria-selected="true"]) { background: #ffffff09; box-shadow: inset 2px 0 0 #e2e9e970; color: #fff; }
+  .composition.composition.composition.composition [data-today-rail-indicator] { top: 66px; height: 52px; background: #cf087d; transform: translateY(calc(var(--selected-index) * 60px)); }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: min(60%, 600px); min-height: 0; }
+  .composition.composition.composition.composition [data-now-briefing] { padding: 60px 0 0; gap: 18px; }
+  .composition.composition.composition.composition [data-now-title] { margin: 16px 0 0; font-size: 56px; line-height: 58px; text-wrap: balance; }
+  .composition.composition.composition.composition [data-now-title][data-long-title="true"] { font-size: 40px; line-height: 44px; }
+  .composition.composition.composition.composition [data-now-subject] > span { font-size: 14px; line-height: 20px; }
+  .composition.composition.composition.composition [data-now-action] [data-now-meta] { color: #dce8e3; }
+  .composition.composition.composition.composition [data-now-queue] { border-top: 0; }
+  .composition.composition.composition.composition [data-today-stage-image] { width: 35%; max-width: 370px; right: 0; }
+  .composition.composition.composition.composition [data-now-empty] h2 { margin-top: 20px; font-size: 48px; line-height: 52px; }
+  .composition.composition.composition.composition [data-now-empty] [data-now-identity] { display: flex; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[data-active="true"] [data-now-heading] { animation: studio-enter 180ms cubic-bezier(.2,.8,.2,1) both; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[data-active="true"] [data-now-action] { animation: studio-enter 200ms 20ms cubic-bezier(.2,.8,.2,1) both; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[data-active="true"] [data-now-support] { animation: studio-enter 200ms 40ms cubic-bezier(.2,.8,.2,1) both; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[data-active="true"]:not([aria-label="Today's Plan"]) { animation: studio-enter 180ms cubic-bezier(.2,.8,.2,1) both; }
+}
+@keyframes studio-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 1201px) {
+  .composition.composition.composition.composition [data-today-stage-image] { right: 4%; }
+}
+
+@media (max-width: 900px) {
+  .composition.composition.composition.composition { padding-bottom: 90px; }
+  .composition.composition.composition.composition nav[aria-label="Primary mobile"] { position: fixed; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); z-index: 20; bottom: max(9px, env(safe-area-inset-bottom)); left: 12px; right: 12px; max-width: 520px; margin: 0 auto; padding: 6px; border: 1px solid #ffffff45; border-radius: 6px; background: #1c2528f2; backdrop-filter: blur(18px); }
+  .composition.composition.composition.composition nav[aria-label="Primary mobile"] a { display: flex; flex-direction: column; gap: 4px; min-height: 47px; align-items: center; justify-content: center; border-radius: 3px; color: #ced8da; text-decoration: none; font-size: 10px; }
+  .composition.composition.composition.composition nav[aria-label="Primary mobile"] a[aria-current="page"] { background: #ffffff12; color: white; box-shadow: inset 0 -2px 0 #cceade; }
+}
+
+@media (min-width: 761px) and (max-width: 1200px) {
+  .composition.composition.composition.composition > div:has(> main) { width: calc(100% - 48px); margin-top: 12px; }
+  .composition.composition.composition.composition [data-today-stage-workspace] { grid-template-columns: 160px minmax(0, 1fr); column-gap: 32px; }
+  .composition.composition.composition.composition [data-now-title] { font-size: 48px; line-height: 50px; }
+  .composition.composition.composition.composition [data-now-title][data-long-title="true"] { font-size: 36px; line-height: 40px; }
+  .composition.composition.composition.composition [data-now-briefing] { padding-top: 58px; }
+  .composition.composition.composition.composition [data-now-support] { margin-top: 30px; }
+}
+
+@media (min-width: 761px) and (max-width: 1000px) {
+  .composition.composition.composition.composition { --scene-height: clamp(570px, calc(100svh - 220px), 680px); }
+  .composition.composition.composition.composition > div:has(> main) { width: calc(100% - 32px); }
+  .composition.composition.composition.composition [data-today-stage-workspace] { grid-template-columns: 136px minmax(0, 1fr); column-gap: 20px; }
+  .composition.composition.composition.composition [data-today-stage-rail] button { font-size: 22px; }
+  .composition.composition.composition.composition [data-now-title] { font-size: 40px; line-height: 44px; }
+  .composition.composition.composition.composition [data-now-title][data-long-title="true"] { font-size: 32px; line-height: 36px; }
+  .composition.composition.composition.composition [data-today-stage-image] { right: 0; width: 35%; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: 61%; }
+  .composition.composition.composition.composition [data-now-support] { margin-top: 26px; }
+  .composition.composition.composition.composition [data-now-queue] button { grid-template-columns: minmax(0, 1fr) 16px; }
+  .composition.composition.composition.composition [data-now-queue] button > span:last-child { grid-column: 1; grid-row: 3; justify-content: flex-start; max-width: none; }
+  .composition.composition.composition.composition [data-now-queue] button > span:last-child > span { width: auto; }
+  .composition.composition.composition.composition [data-queue-chevron] { grid-column: 2; grid-row: 1 / 4; }
+  .environment img { object-position: 58% bottom; }
+}
+
+@media (min-width: 761px) and (max-width: 900px) {
+  .environment { min-height: calc(100svh - 66px); top: 66px; mask-image: none; }
+  .composition.composition.composition.composition [data-today-stage-image] { width: 40%; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: 57%; }
+  .composition.composition.composition.composition [data-now-title] { font-size: 38px; line-height: 42px; }
+}
+
+@media (max-width: 760px) {
+  .floorPlane { display: none; }
+  .environment { position: fixed; top: 66px; height: calc(100svh - 66px); mask-image: none; }
+  .environment img { object-position: right center; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section { background: rgb(237 244 242 / .91); }
+  .composition.composition.composition.composition [data-now-briefing] { padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .composition.composition.composition.composition [data-now-title] { margin: 12px 0 0; font-size: 32px; line-height: 36px; }
+  .composition.composition.composition.composition [data-now-title][data-long-title="true"] { font-size: 28px; line-height: 32px; }
+  .composition.composition.composition.composition [data-now-action] { align-items: stretch; }
+  .composition.composition.composition.composition [data-now-start] { width: 100%; }
+  .composition.composition.composition.composition [data-now-start],
+  .composition.composition.composition.composition [data-now-start]:hover { box-shadow: inset 0 1px 0 #ffffff35, 0 2px 3px #22142b20; border-color: #9e58f3; }
+  .composition.composition.composition.composition [data-now-start]::after { background: #ffffff22; }
+  .composition.composition.composition.composition [data-now-support] { margin: 0; padding: 0 20px 20px; background: #edf4f2ed; }
+  .composition.composition.composition.composition [data-now-queue] { margin: 16px 0 0; padding: 16px 0 0; border-top: 1px solid #61767a36; }
+  .composition.composition.composition.composition [data-now-queue] button { background: #e0eae7; padding: 10px; grid-template-columns: minmax(0, 1fr) 16px; }
+  .composition.composition.composition.composition [data-now-queue] button > span:last-child { grid-column: 1; grid-row: 3; justify-content: flex-start; max-width: none; }
+  .composition.composition.composition.composition [data-now-queue] button > span:last-child > span { width: auto; }
+  .composition.composition.composition.composition [data-queue-chevron] { grid-column: 2; grid-row: 1 / 4; color: #334e4a; }
+  .composition.composition.composition.composition [data-now-queue] :is(strong, button > span:last-child) { color: #243d43; }
+  .composition.composition.composition.composition [data-now-queue] button > span:first-child { color: #41595e; }
+  .composition.composition.composition.composition [data-now-queue] li + li { border-color: #61767a36; }
+  .composition.composition.composition.composition [data-now-queue] button:hover { background: #233e4208; }
+}
+
+@media (min-width: 2200px) and (min-height: 1100px) {
+  .composition.composition.composition.composition { --scene-height: calc(100svh - 240px); }
+  .composition.composition.composition.composition > div:has(> main) { width: calc(100% - 192px); max-width: 3200px; margin-inline: auto; }
+  .composition.composition.composition.composition [data-today-stage-workspace] { grid-template-columns: 260px minmax(0, 1fr); column-gap: 72px; }
+  .composition.composition.composition.composition [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: min(60%, 760px); }
+  .composition.composition.composition.composition [data-today-stage-image] { height: var(--scene-height); width: calc((var(--scene-height) - 14px) * .3916667); max-width: none; }
+  .composition.composition.composition.composition [data-now-title] { font-size: 72px; line-height: 78px; }
+  .composition.composition.composition.composition [data-now-title][data-long-title="true"] { font-size: 56px; line-height: 62px; }
+  .composition.composition.composition.composition [data-now-action] [data-now-meta] { font-size: 18px; line-height: 26px; }
+  .environment { top: 72px; height: calc(100svh - 72px); mask-image: none; }
+  .environment img { object-position: 62% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .composition.composition.composition.composition [data-today-stage-deck] > section,
+  .composition.composition.composition.composition [data-today-stage-deck] :is([data-now-heading], [data-now-action], [data-now-support]),
+  .composition.composition.composition.composition [data-today-rail-indicator] { animation: none !important; transition: none; transform: none; }
+  .composition.composition.composition.composition [data-today-rail-indicator] { transform: translateY(calc(var(--selected-index) * 60px)); }
+}
+
+/* The asset review shares one graphic system without changing the live header. */
+.composition.composition.composition.composition[data-now-studio] {
+  --menu-ink: #f1f6f3;
+  --menu-muted: #bfceca;
+  --menu-rule: #c1d4cd45;
+  --menu-focus: #f1f6f3;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-subject] {
+  gap: 12px;
+  min-height: 44px;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-subject] > span:not([data-subject-emblem]) {
+  color: var(--menu-ink);
+  font: 600 24px/28px var(--font-saira-condensed), sans-serif;
+  letter-spacing: 0;
+}
+.composition.composition.composition.composition[data-now-studio] [data-subject-emblem]::before,
+.composition.composition.composition.composition[data-now-studio] [data-subject-emblem]::after { display: none; }
+.composition.composition.composition.composition[data-now-studio] [data-now-subject] [data-subject-emblem] {
+  width: 40px;
+  height: 40px;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-subject] [data-subject-emblem] > svg {
+  width: 38px;
+  height: 38px;
+  stroke-width: 1.8;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] > p {
+  font: 600 20px/24px var(--font-saira-condensed), sans-serif;
+  text-transform: uppercase;
+  color: var(--menu-muted);
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] { margin-top: 24px; padding: 0; border: 0; background: none; backdrop-filter: none; }
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] > p { margin: 0 0 8px; }
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] li { border-top: 1px solid var(--menu-rule); }
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] button {
+  grid-template-columns: 36px minmax(0, 1fr) auto 16px;
+  gap: 3px 12px;
+  min-height: 86px;
+  padding: 12px 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--menu-ink);
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] button > [data-now-queue-emblem] {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue-emblem] [data-subject-emblem],
+.composition.composition.composition.composition[data-now-studio] [data-now-queue-emblem] svg { width: 30px; height: 30px; }
+.composition.composition.composition.composition[data-now-studio] [data-now-queue-subject] {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--menu-muted);
+  font: 500 18px/22px var(--font-saira-condensed), sans-serif;
+  text-transform: uppercase;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue-title] {
+  grid-column: 2;
+  grid-row: 2;
+  color: var(--menu-ink);
+  font: 600 24px/27px var(--font-saira-condensed), sans-serif;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] button > [data-now-queue-time] {
+  grid-column: 3;
+  grid-row: 1 / 3;
+  color: var(--menu-muted);
+  max-width: 92px;
+  font: 500 19px/23px var(--font-saira-condensed), sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] button[data-session-paused="true"] > [data-now-queue-time] { color: #ffd184; }
+.composition.composition.composition.composition[data-now-studio] [data-queue-chevron] { grid-column: 4; grid-row: 1 / 3; color: var(--menu-muted); }
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] button:hover { background: none; box-shadow: inset 0 -2px var(--menu-rule); }
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] button:hover [data-now-queue-title] { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.composition.composition.composition.composition[data-now-studio] :is([data-now-start], [data-now-empty] a, [data-now-queue] button, [data-today-stage-rail] button):focus-visible {
+  outline: 2px solid var(--menu-focus);
+  outline-offset: 4px;
+}
+.composition.composition.composition.composition[data-now-studio] [data-now-queue] button:focus-visible { outline-offset: 4px; }
+
+@media (min-width: 901px) {
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-nav-inner) {
+    width: min(1680px, calc(100% - 96px)) !important;
+    margin-inline: auto !important;
+    padding-inline: 0 !important;
+    gap: 48px !important;
+  }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-tools) { flex: 0 0 192px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) { gap: 32px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) > a {
+    font-family: var(--font-saira-condensed), sans-serif !important;
+    font-size: 25px !important;
+    font-weight: 650 !important;
+    text-transform: uppercase !important;
+    color: #bfceca !important;
+  }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) > a:is(:hover, [aria-current="page"]) { color: #f1f6f3 !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) > a[aria-current="page"]::after { background: #cf087d !important; height: 3px !important; bottom: 0 !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-actions) { gap: 12px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-settings) > svg,
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-menu) > summary > svg { width: 20px; height: 20px; stroke-width: 1.8; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-menu) > summary,
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-settings),
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-avatar) {
+    border: 0 !important;
+    background: none !important;
+    border-radius: 0 !important;
+  }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-avatar) { border-radius: 50% !important; box-shadow: inset 0 0 0 1px #c1d4cd45; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-menu) > summary {
+    font: 600 22px/1 var(--font-saira-condensed), sans-serif !important;
+    text-transform: uppercase !important;
+    padding-inline: 8px !important;
+  }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-nav) :is(a, summary):focus-visible { outline: 2px solid #f1f6f3; outline-offset: 4px; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) > a:focus-visible { outline-offset: -5px; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-options) {
+    background: #182125f5 !important;
+    border-color: #c1d4cd45 !important;
+    border-radius: 4px !important;
+  }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-options) > a { color: #f1f6f3 !important; border-radius: 0 !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-options) strong { color: #f1f6f3 !important; font: 600 20px/24px var(--font-saira-condensed), sans-serif !important; text-transform: uppercase; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-options) small { color: #bfceca !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-add-options) > a:focus-visible { outline-offset: -2px; }
+}
+@media (min-width: 901px) and (max-width: 1200px) {
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-nav-inner) { width: calc(100% - 48px) !important; gap: 32px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-tools) { flex-basis: 160px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) { gap: 24px !important; }
+}
+@media (min-width: 901px) and (max-width: 1000px) {
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-nav-inner) { width: calc(100% - 32px) !important; gap: 20px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-tools) { flex-basis: 136px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) { gap: 20px !important; }
+  .composition.composition.composition.composition[data-now-studio] :global(.sd-student-desktop-destinations) > a { font-size: 23px !important; }
+}
+@media (max-width: 1000px) {
+  .composition.composition.composition.composition[data-now-studio] [data-now-queue] button { grid-template-columns: 30px minmax(0, 1fr) 16px; gap: 4px 10px; }
+  .composition.composition.composition.composition[data-now-studio] [data-now-queue] button > [data-now-queue-time] { grid-column: 2; grid-row: 3; justify-content: flex-start; max-width: none; font-size: 17px; }
+  .composition.composition.composition.composition[data-now-studio] [data-queue-chevron] { grid-column: 3; grid-row: 1 / 4; }
+  .composition.composition.composition.composition[data-now-studio] [data-now-queue-title] { font-size: 22px; line-height: 25px; }
+}
+@media (max-width: 760px) {
+  .composition.composition.composition.composition[data-now-studio] { --menu-ink: #213b36; --menu-muted: #41595e; --menu-rule: #4762674d; --menu-focus: #254550; }
+  .composition.composition.composition.composition[data-now-studio] [data-now-subject] [data-subject-emblem],
+  .composition.composition.composition.composition[data-now-studio] [data-now-queue-emblem] [data-subject-emblem] { color: #176775; }
+  .composition.composition.composition.composition[data-now-studio] [data-now-subject] [data-subject-emblem] > svg { width: 34px; height: 34px; }
+  .composition.composition.composition.composition[data-now-studio] [data-now-queue] button[data-session-paused="true"] > [data-now-queue-time] { color: #73521b; }
+}
+@media (max-width: 900px) {
+  .composition.composition.composition.composition[data-now-studio] nav[aria-label="Primary mobile"] a { font: 600 15px/17px var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+  .composition.composition.composition.composition[data-now-studio] nav[aria-label="Primary mobile"] a[aria-current="page"] { box-shadow: inset 0 -2px #cf087d; }
+  .composition.composition.composition.composition[data-now-studio] nav[aria-label="Primary mobile"] a:focus-visible { outline: 2px solid #f1f6f3; outline-offset: -2px; }
+}
+
+/* The interaction controller owns these beats; suppress the older parallel reveals. */
+.composition.composition.composition.composition[data-menu-sequence] [data-today-stage-deck] > section[data-active="true"],
+.composition.composition.composition.composition[data-menu-sequence] [data-today-stage-deck] > section[data-active="true"] :is([data-now-heading], [data-now-action], [data-now-support]) {
+  animation: none;
+}
+.composition.composition.composition.composition[data-menu-sequence] [data-today-rail-indicator] {
+  transition: transform var(--menu-selection-ms) cubic-bezier(.2,.8,.2,1);
+}
+.composition.composition.composition.composition[data-menu-sequence] [data-now-support] {
+  transition: opacity var(--menu-launch-ms) ease-out;
+}
+.composition.composition.composition.composition[data-menu-sequence="launch"] [data-now-support] { opacity: .55; }
+.composition.composition.composition.composition[data-menu-sequence] [data-authored-session] > div {
+  animation: menu-session-arrive var(--menu-session-ms) cubic-bezier(.2,.8,.2,1) both;
+}
+.composition.composition.composition.composition[data-menu-sequence] [data-authored-session]::backdrop {
+  animation: menu-backdrop-arrive var(--menu-session-ms) ease-out both;
+}
+@keyframes menu-session-arrive { from { opacity: .25; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes menu-backdrop-arrive { from { opacity: 0; } to { opacity: 1; } }
+@media (min-width: 761px) {
+  .composition.composition.composition.composition[data-menu-sequence] [data-today-stage-deck] > section[data-active="true"] {
+    opacity: 1;
+    transform: none;
+    transition: opacity var(--menu-content-ms) ease-out, transform var(--menu-content-ms) cubic-bezier(.2,.8,.2,1);
+  }
+  .composition.composition.composition.composition[data-menu-sequence="selection"] [data-today-stage-deck] > section[data-active="true"] {
+    opacity: .25;
+    transform: translateY(4px);
+    transition: none;
+  }
+  .composition.composition.composition.composition[data-menu-sequence="session"] [data-today-stage-deck] > section[data-active="true"] { opacity: .72; }
+  .composition.composition.composition.composition[data-menu-sequence="return"] [data-today-stage-deck] > section[data-active="true"] { transition-duration: var(--menu-return-ms); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .composition.composition.composition.composition[data-menu-sequence] [data-today-rail-indicator] { transform: translateY(calc(var(--selected-index) * 60px)); transition: none; }
+  .composition.composition.composition.composition[data-menu-sequence] [data-today-stage-deck] > section[data-active="true"],
+  .composition.composition.composition.composition[data-menu-sequence] [data-now-support] { opacity: 1; transform: none; transition: none; }
+  .composition.composition.composition.composition[data-menu-sequence] [data-authored-session] > div,
+  .composition.composition.composition.composition[data-menu-sequence] [data-authored-session]::backdrop { animation: none; }
+}
+
+@media (forced-colors: active) {
+  .floorPlane, .environment { display: none; }
+  .composition.composition.composition.composition::before { display: none; }
+  .composition.composition.composition.composition[data-now-studio] { --menu-ink: CanvasText; --menu-muted: CanvasText; --menu-rule: CanvasText; --menu-focus: Highlight; }
+}

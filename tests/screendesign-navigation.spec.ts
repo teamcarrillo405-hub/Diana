@@ -295,6 +295,14 @@ const assertExactNavigation = async (
     };
   }
 
+  if (scenario.screenId === "portfolio-gallery") {
+    await expect(page.getByRole("dialog")).toBeVisible();
+    return {
+      afterClickPath: new URL(page.url()).pathname,
+      browserBackRestored: false,
+    };
+  }
+
   throw new Error(
     `${scenario.id} declares navigation but exposes neither a destination nor a named state transition.`,
   );
@@ -481,7 +489,7 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
       } else if (scenario.expectedPersistedResult.kind === "navigation") {
         expect(action.clicked, `${scenario.id} should execute its navigation`).toBe(true);
         expect(
-          action.targetUrl !== null || onboardingStateAdvanced,
+          action.targetUrl !== null || onboardingStateAdvanced || scenario.screenId === "portfolio-gallery",
           `${scenario.id} should declare an exact route or named state transition`,
         ).toBe(true);
       } else {
@@ -527,6 +535,68 @@ for (const scenario of SELECTED_SCREEN_DESIGN_SCENARIOS) {
   });
 }
 
+if (IS_FULL_MATRIX) {
+  test("public home scrolls through every attached composition before signup", async ({
+    page,
+  }) => {
+    await page.context().clearCookies();
+    await page.goto("/", { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
+
+    await expect(page.locator(".sd-public-home-panel")).toHaveCount(6);
+    await expect(page.locator("[data-onboarding-step='welcome']")).toBeAttached();
+    await expect(page.locator("[data-onboarding-step='educational']")).toBeAttached();
+    await expect(page.locator("[data-onboarding-step='challenge']")).toBeAttached();
+    await expect(page.locator("[data-onboarding-step='schedule']")).toBeAttached();
+    await page.getByRole("button", { name: "GET STARTED" }).click();
+    await expect
+      .poll(() =>
+        page.locator("#public-home-educational").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
+    await page
+      .locator("#public-home-educational")
+      .getByRole("button", { name: "CONTINUE" })
+      .click();
+    await expect
+      .poll(() =>
+        page.locator("#public-home-challenge").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
+    await page.getByRole("radio", { name: /Time Management/iu }).click();
+    await page.getByRole("button", { name: "Select learning hurdle" }).click();
+    await page.getByRole("radio", { name: /Morning Hustle/iu }).click();
+    await page.getByRole("button", { name: "Select study schedule" }).click();
+
+    await expect
+      .poll(() =>
+        page.locator("#public-home-community").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
+    await page
+      .getByRole("button", { name: "Continue to access options" })
+      .click();
+    await expect
+      .poll(() =>
+        page.locator("#public-home-standard").evaluate(
+          (element) => Math.abs(element.getBoundingClientRect().top),
+        ),
+      )
+      .toBeLessThan(3);
+    await page
+      .getByRole("button", { name: "Create your account", exact: true })
+      .click();
+
+    await expect.poll(() => new URL(page.url()).pathname).toBe("/signup");
+  });
+}
+
 const onboardingScenario = SELECTED_SCREEN_DESIGN_SCENARIOS.find(
   (scenario) => scenario.screenId === "onboarding-welcome",
 );
@@ -545,25 +615,25 @@ if (onboardingScenario) {
     await page.getByRole("button", { name: "CONTINUE" }).click();
     await expect(page.locator("[data-onboarding-step='challenge']")).toBeVisible();
 
-    const hurdle = page.getByRole("radio", { name: /Finding time/iu });
+    const hurdle = page.getByRole("radio", { name: /Time Management/iu });
     await hurdle.focus();
     await page.keyboard.press("ArrowDown");
-    await expect(page.getByRole("radio", { name: /Feeling ready for a test/iu })).toHaveAttribute(
+    await expect(page.getByRole("radio", { name: /Exam Stress/iu })).toHaveAttribute(
       "aria-checked",
       "true",
     );
-    await page.getByRole("radio", { name: /Working through a hard concept/iu }).click();
+    await page.getByRole("radio", { name: /Complex Concepts/iu }).click();
     await page.getByRole("button", { name: "Select learning hurdle" }).click();
 
     await expect(page.locator("[data-onboarding-step='schedule']")).toBeVisible();
-    await page.getByRole("radio", { name: /Evening/iu }).click();
+    await page.getByRole("radio", { name: /Late Night Sessions/iu }).click();
     await page.getByRole("button", { name: "Back" }).click();
-    await expect(page.getByRole("radio", { name: /Working through a hard concept/iu })).toHaveAttribute(
+    await expect(page.getByRole("radio", { name: /Complex Concepts/iu })).toHaveAttribute(
       "aria-checked",
       "true",
     );
     await page.getByRole("button", { name: "Select learning hurdle" }).click();
-    await expect(page.getByRole("radio", { name: /Evening/iu })).toHaveAttribute(
+    await expect(page.getByRole("radio", { name: /Late Night Sessions/iu })).toHaveAttribute(
       "aria-checked",
       "true",
     );
@@ -689,6 +759,34 @@ if (practiceSessionScenario) {
 }
 
 if (IS_FULL_MATRIX && dashboardScenario) {
+  test("the Connect Canvas action keeps its computed WCAG AA contrast", async ({
+    page,
+    screenDesign,
+  }) => {
+    await screenDesign.prepare(dashboardScenario);
+    await page.goto("/grades", { waitUntil: "domcontentloaded" });
+    await waitForScreenDesignReady(page);
+    await bodyIsHealthy(page);
+
+    const action = page.getByRole("link", { name: "Connect Canvas", exact: true });
+    await expect(action).toBeVisible();
+    const color = await action.evaluate((element) => {
+      const tracker = element.closest(".sd-mastery-tracker");
+      if (!tracker) throw new Error("Connect Canvas is outside the Mastery Tracker.");
+      return {
+        foreground: getComputedStyle(element).color,
+        background: getComputedStyle(tracker).backgroundColor,
+        label: element.textContent?.trim() ?? "",
+      };
+    });
+
+    expect(color.background).toBe("rgb(15, 23, 42)");
+    expect(
+      computedContrastRatio(color),
+      `${color.label} contrast: ${color.foreground} on ${color.background}`,
+    ).toBeGreaterThanOrEqual(4.5);
+  });
+
   test("assignment quick-action metadata keeps its computed WCAG AA contrast", async ({
     page,
     screenDesign,
@@ -865,6 +963,20 @@ if (IS_FULL_MATRIX) {
       const body = (await page.locator("body").innerText()).toLowerCase();
       expect(body).toMatch(/class|policy|available|limited/iu);
       expect(body).not.toMatch(/you failed|you were wrong|you missed/iu);
+    }
+
+    for (const id of ["paywall-standard:default", "paywall-social-proof:default"]) {
+      const scenario = guardedScenario(id);
+      const prepared = await screenDesign.prepare(scenario);
+      await page.goto(prepared.route, { waitUntil: "domcontentloaded" });
+      await waitForScreenDesignReady(page);
+      await bodyIsHealthy(page);
+      await expect(page.locator("body")).toContainText(
+        /Secure checkout is not configured|checkout is unavailable|Checkout appears only when/iu,
+      );
+      const action = primaryActionLocator(page, scenario);
+      await expect(action).toHaveAttribute("href", "/settings");
+      await expect(page.locator("a[href*='/api/billing/checkout']")).toHaveCount(0);
     }
 
     {

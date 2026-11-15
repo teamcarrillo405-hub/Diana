@@ -1,0 +1,12 @@
+# The worker bundles source only. No app assets, research samples or secrets.
+**
+!Dockerfile.worker
+!Dockerfile.worker.dockerignore
+!package.json
+!package-lock.json
+!tsconfig.json
+!scripts/
+!scripts/build-worker.mjs
+!scripts/run-diana-worker.ts
+!lib/
+!lib/**

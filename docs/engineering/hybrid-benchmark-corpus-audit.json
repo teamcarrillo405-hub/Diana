@@ -1,0 +1,23 @@
+{
+  "corpusSha256": "0bbffe2bd2b70db3ebe4995d1d3e6bc12affc951239ce3a73d7781d8be45762f",
+  "sourceSha256": "80ee82fc2bee2d266369c2b91b17ce74bbcfcde2a7c1018a801e50788c75fc3e",
+  "status": "engineering-audit-passed",
+  "independentOfAuthor": true,
+  "reviewer": "/root/integrity_verifier",
+  "reviewedAt": "2026-09-28T23:42:04.305Z",
+  "count": 96,
+  "scope": [
+    "Read every problem, student attempt, source, reference answer and evaluation criterion",
+    "Checked arithmetic and conditional conclusions against supplied inputs",
+    "Checked missing-input and conflicting-evidence distinctions",
+    "Inspected explicit model-input allowlist for evaluation-field leakage"
+  ],
+  "findings": [],
+  "limits": [
+    "AI engineering audit with prior project context",
+    "Reviewer is not a credentialed educator",
+    "Skill-conditioned tutoring because targetSkill and descriptive case IDs are visible",
+    "Does not establish grade-level validity or representative curriculum coverage",
+    "Does not establish model quality, student learning benefit or production readiness"
+  ]
+}

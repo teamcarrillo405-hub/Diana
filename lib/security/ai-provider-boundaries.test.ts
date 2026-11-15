@@ -31,11 +31,15 @@ describe("AI provider and logging boundaries", () => {
 
     for (const path of featureRoutes) {
       const feature = source(path);
-      expect(feature).toContain("runOpenAIHomeworkAdapter");
+      expect(feature).toContain(path.includes('history-scaffold') ? "runAssignmentScopedHomeworkAdapter" : "runOpenAIHomeworkAdapter");
       expect(feature).not.toContain('fetch("https://api.openai.com/v1/responses"');
       expect(feature).not.toContain("runSafeBudgetedAiCall({");
     }
 
+    const boundary = source("supabase/functions/_shared/learning/assignment-help-boundary.ts");
+    expect(boundary).toContain('from "../homework-adapter.ts"');
+    expect(boundary).toContain('return runOpenAIHomeworkAdapter({ ...input,');
+    expect(boundary).not.toContain('fetch(');
     const adapter = source("supabase/functions/_shared/homework-adapter.ts");
     const studentModel = source("supabase/functions/_shared/student-model.ts");
     expect(adapter).toContain("callSafeStudentTextModel");

@@ -1,0 +1,8 @@
+# Python 3.13 environment. Direct training dependencies are pinned; record the full
+# resolved environment in each run before treating experiments as comparable.
+torch==2.12.0
+transformers==5.17.0
+peft==0.21.0
+accelerate==1.15.0
+safetensors==0.5.3
+cryptography==46.0.7

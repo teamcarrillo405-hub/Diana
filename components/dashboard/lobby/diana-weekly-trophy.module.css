@@ -1,0 +1,61 @@
+.trophy {
+  position: relative;
+  isolation: isolate;
+  flex: none;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  contain: layout paint;
+  user-select: none;
+}
+
+.canvas,
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas {
+  opacity: 0;
+  background: transparent;
+}
+
+.trophy[data-trophy-status="ready"] .canvas { opacity: 1; }
+.trophy[data-trophy-status="ready"] .fallback { visibility: hidden; }
+
+.fallbackSymbol {
+  position: absolute;
+  top: 13%;
+  left: 10%;
+  display: block;
+  width: 80%;
+  height: 69%;
+  overflow: hidden;
+  filter: grayscale(1) brightness(1.65) drop-shadow(2px 3px 0 #56616b) drop-shadow(5px 8px 6px #0004);
+  transform: rotate(-3deg) scaleX(.93);
+}
+
+.fallbackPlinth {
+  position: absolute;
+  bottom: 9%;
+  left: 20%;
+  width: 60%;
+  height: 11%;
+  border-top: 2px solid #b7ab97;
+  border-radius: 45% 45% 14% 14% / 19% 19% 15% 15%;
+  background: linear-gradient(90deg, #15191d, #353c3d 44%, #15191d);
+  box-shadow: 0 6px 7px #0003, inset 0 3px 0 #4e5555;
+}
+
+.trophy[data-earned="false"] .fallbackSymbol { opacity: .72; }
+.trophy[data-earned="true"] .fallbackSymbol {
+  filter: drop-shadow(1px 0 1px #a4f3ff) drop-shadow(-1px 0 1px #ffc0e7) drop-shadow(0 0 4px #a0e9ff55) drop-shadow(4px 7px 5px #0004);
+}
+.trophy[data-earned="true"] .fallbackPlinth { border-top-color: #bceff7; }
+
+@media (forced-colors: active) {
+  .trophy { forced-color-adjust: none; }
+}

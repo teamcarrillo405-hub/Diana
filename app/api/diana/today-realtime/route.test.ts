@@ -2,12 +2,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   runSafe: vi.fn(),
+  authorize: vi.fn(),
+  record: vi.fn(),
   estimate: vi.fn(),
   log: vi.fn(),
   service: vi.fn(),
   signedIn: true,
 }));
 
+vi.mock('server-only', () => ({}));
+vi.mock("@/lib/learning-engine/today-assistance", async (original) => ({
+  ...await original<typeof import("@/lib/learning-engine/today-assistance")>(),
+  authorizeTodayAcademicScope: mocks.authorize, recordTodayAcademicAssistance: mocks.record,
+}));
 vi.mock("@/lib/ai/safety", () => ({
   estimateTokenReservation: mocks.estimate,
   logInteraction: mocks.log,
@@ -17,6 +24,7 @@ vi.mock("@/lib/supabase/ai-service", () => ({ createAiServiceClient: mocks.servi
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => makeSupabase() }));
 
 import { POST } from "./route";
+import { TodayAssistanceError } from "@/lib/learning-engine/today-assistance";
 
 function chain(result: unknown) {
   const api: any = {
@@ -54,6 +62,8 @@ describe("Today realtime route", () => {
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
     mocks.signedIn = true;
+    mocks.authorize.mockImplementation(async (_client, _owner, args) => args.assignmentId ?? null);
+    mocks.record.mockResolvedValue('realtime-bound-key');
     vi.stubEnv("OPENAI_API_KEY", "sk-test");
     mocks.estimate.mockReturnValue(640);
     mocks.service.mockReturnValue(accounting());
@@ -91,4 +101,55 @@ describe("Today realtime route", () => {
     expect(response.status).toBe(401);
     expect(fetch).not.toHaveBeenCalled();
   });
+  it("exposes optional academic scope and leaves a general session unscoped", async () => {
+    await POST(new Request("http://diana.test/api/diana/today-realtime", { method: "POST" }));
+    expect(mocks.authorize.mock.calls[0][2]).toEqual({});
+    expect(mocks.record.mock.calls[0][1].assignmentId).toBeNull();
+    const body = JSON.parse(String(vi.mocked(fetch).mock.calls[0][1]?.body));
+    expect(body.session.instructions).toContain('"academicAssignmentId":null');
+    expect(body.session.instructions).toContain('Never infer scope from Next Move');
+    for (const name of ['answer_complex_question', 'search_current_information']) {
+      const tool = body.session.tools.find((item: { name: string }) => item.name === name);
+      expect(tool.parameters.properties.assignmentId).toMatchObject({ type: 'string', format: 'uuid' });
+      expect(tool.parameters.required).not.toContain('assignmentId');
+    }
+  });
+
+  it("receipts an explicit assignment and exact session recipe before minting a secret", async () => {
+    const assignmentId = "11111111-1111-4111-8111-111111111111";
+    mocks.record.mockImplementationOnce(async () => { expect(fetch).not.toHaveBeenCalled(); return 'scoped-live-key'; });
+    const response = await POST(new Request("http://diana.test/api/diana/today-realtime", { method: "POST", body: JSON.stringify({ assignmentId }) }));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    const body = JSON.parse(String(vi.mocked(fetch).mock.calls[0][1]?.body));
+    expect(mocks.record.mock.calls[0][1]).toMatchObject({ assignmentId, surface: 'today-realtime', recipe: body });
+    expect(mocks.runSafe.mock.calls[0][0].idempotencyKey).toBe('scoped-live-key');
+    expect(mocks.log.mock.calls[0][0].assignmentId).toBe(assignmentId);
+    expect(body.session.instructions).toContain(assignmentId);
+  });
+
+  it("blocks session minting when its receipt fails", async () => {
+    mocks.record.mockRejectedValueOnce(new Error('receipt unavailable'));
+    const response = await POST(new Request("http://diana.test/api/diana/today-realtime", { method: "POST", body: JSON.stringify({ assignmentId: "11111111-1111-4111-8111-111111111111" }) }));
+    expect(response.status).toBe(503);
+    expect(mocks.runSafe).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects malformed session JSON before private context or provider dispatch", async () => {
+    const response = await POST(new Request("http://diana.test/api/diana/today-realtime", { method: "POST", body: "{" }));
+    expect(response.status).toBe(400);
+    expect(mocks.authorize).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it.each([400, 403, 404])("blocks live session dispatch on scope denial %s", async status => {
+    mocks.authorize.mockRejectedValueOnce(new TodayAssistanceError(status, "Scope unavailable."));
+    const response = await POST(new Request("http://diana.test/api/diana/today-realtime", { method: "POST", body: JSON.stringify({ assignmentId: "11111111-1111-4111-8111-111111111111" }) }));
+    expect(response.status).toBe(status);
+    expect(mocks.record).not.toHaveBeenCalled();
+    expect(mocks.runSafe).not.toHaveBeenCalled();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
 });

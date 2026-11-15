@@ -38,7 +38,7 @@ function toSubjectCard(
   assignments: readonly AssignmentRow[],
   gradeByCourse: ReadonlyMap<string, FinalGradeRow>,
 ): SubjectLibraryCardModel {
-  const classWork = assignments.filter((assignment) => assignment.class_id === cls.id);
+  const classWork = assignments.filter((assignment) => assignment.class_id === cls.id && assignment.status !== "abandoned");
   const completedCount = classWork.filter((assignment) => COMPLETED.has(assignment.status)).length;
   const progressPct =
     classWork.length === 0 ? 0 : Math.round((completedCount / classWork.length) * 100);
@@ -61,6 +61,7 @@ function toSubjectCard(
     href: `/classes/${cls.id}`,
     progressPct,
     openWorkCount,
+    submittedCount: completedCount,
     nextAssignmentTitle: nextAssignment?.title ?? null,
     gradeLabel: grade?.letter_grade ?? (grade ? `${Math.round(grade.final_percent)}%` : null),
     gradePercent: grade?.letter_grade ? Math.round(grade.final_percent) : null,
@@ -78,7 +79,7 @@ export default async function ClassesPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: classes }, { data: assignments }, { data: finalGrades }, { data: profile }] = await Promise.all([
+  const [{ data: classes, error: classError }, { data: assignments, error: workError }, { data: finalGrades }, { data: profile }] = await Promise.all([
     supabase
       .from("classes")
       .select("id, name, teacher, created_at, course_mode_course_id")
@@ -124,6 +125,7 @@ export default async function ClassesPage({
       createForm={createForm}
       createOpen={createOpen}
       profile={navProfile}
+      unavailable={Boolean(classError || workError)}
     />
   ) : (
     <MyClassesGrid
@@ -131,6 +133,8 @@ export default async function ClassesPage({
       createForm={createForm}
       createOpen={createOpen}
       profile={navProfile}
+      unavailable={Boolean(classError || workError)}
     />
   );
 }
+

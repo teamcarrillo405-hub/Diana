@@ -37,7 +37,7 @@ describe("ArtifactFlashcards", () => {
     fireEvent.change(screen.getByLabelText("Card 1 front"), {
       target: { value: "Edited question" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Save to Flashcards" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add to Quiz" }));
 
     await waitFor(() =>
       expect(saveArtifactFlashcards).toHaveBeenCalledWith({
@@ -45,9 +45,9 @@ describe("ArtifactFlashcards", () => {
         cards: [expect.objectContaining({ front: "Edited question" })],
       }),
     );
-    expect(await screen.findByRole("link", { name: /Review cards/u })).toHaveAttribute(
+    expect(await screen.findByRole("link", { name: "Start recall" })).toHaveAttribute(
       "href",
-      "/study",
+      "/study/recall?source=artifact-1",
     );
   });
 });

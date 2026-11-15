@@ -21,6 +21,11 @@ export function contentSecurityPolicy(nonce: string, production: boolean): strin
     "'self'",
     supabaseOrigin,
     "https://api.openai.com",
+    // Public pinned model downloads. Recognition source files stay on-device.
+    "https://huggingface.co",
+    "https://cas-bridge.xethub.hf.co",
+    "https://cdn-lfs.hf.co",
+    "https://us.aws.cdn.hf.co",
     production ? null : "ws://127.0.0.1:*",
   ].filter(
     (source): source is string => Boolean(source),
@@ -30,7 +35,7 @@ export function contentSecurityPolicy(nonce: string, production: boolean): strin
     // Next.js emits same-origin runtime chunks that are not consistently
     // nonce-tagged. Keep inline scripts nonce-bound while allowing those
     // external application chunks explicitly.
-    `script-src 'self' 'nonce-${nonce}'${production ? "" : " 'unsafe-eval'"}`,
+    `script-src 'self' 'wasm-unsafe-eval' 'nonce-${nonce}'${production ? "" : " 'unsafe-eval'"}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",

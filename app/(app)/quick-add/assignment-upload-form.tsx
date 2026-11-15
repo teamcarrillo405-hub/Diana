@@ -12,12 +12,12 @@ import {
 type ClassOption = { id: string; name: string; color: string };
 type IntakeMode = "file" | "text";
 
-export function AssignmentUploadForm({ classes }: { classes: readonly ClassOption[] }) {
+export function AssignmentUploadForm({ classes, initialClassId }: { classes: readonly ClassOption[]; initialClassId?: string }) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, startTransition] = useTransition();
   const [mode, setMode] = useState<IntakeMode>("file");
-  const [classId, setClassId] = useState(classes[0]?.id ?? "");
+  const [classId, setClassId] = useState(classes.some(course=>course.id===initialClassId) ? initialClassId! : classes[0]?.id ?? "");
   const [title, setTitle] = useState("");
   const [instructions, setInstructions] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -86,11 +86,11 @@ export function AssignmentUploadForm({ classes }: { classes: readonly ClassOptio
 
   return (
     <form className="sd-assignment-upload-form" onSubmit={submit}>
-      <div className="sd-assignment-upload-tabs" role="tablist" aria-label="How to add an assignment">
-        <button type="button" role="tab" aria-selected={mode === "file"} onClick={() => { setMode("file"); setError(null); }}>
+      <div className="sd-assignment-upload-tabs" role="tablist" aria-label="How to add an assignment" onKeyDown={event=>{if (!["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) return; event.preventDefault(); const next = event.key === "Home" ? "file" : event.key === "End" ? "text" : mode === "file" ? "text" : "file"; setMode(next); setError(null); (event.currentTarget.querySelector(`[data-mode="${next}"]`) as HTMLButtonElement)?.focus();}}>
+        <button type="button" role="tab" data-mode="file" tabIndex={mode === "file" ? 0 : -1} aria-selected={mode === "file"} disabled={pending} onClick={() => { setMode("file"); setError(null); }}>
           <Upload aria-hidden="true" /> Upload file
         </button>
-        <button type="button" role="tab" aria-selected={mode === "text"} onClick={() => { setMode("text"); setError(null); }}>
+        <button type="button" role="tab" data-mode="text" tabIndex={mode === "text" ? 0 : -1} aria-selected={mode === "text"} disabled={pending} onClick={() => { setMode("text"); setError(null); }}>
           <Keyboard aria-hidden="true" /> Paste instructions
         </button>
       </div>
@@ -109,7 +109,7 @@ export function AssignmentUploadForm({ classes }: { classes: readonly ClassOptio
       </div>
 
       {mode === "file" ? (
-        <section className="sd-assignment-dropzone" aria-labelledby="assignment-upload-title">
+        <section className="sd-assignment-dropzone" aria-labelledby="assignment-upload-title" onDragOver={event=>event.preventDefault()} onDrop={event=>{event.preventDefault();if(!pending)selectFile(event.dataTransfer.files[0] ?? null);}}>
           <input
             ref={fileInput}
             type="file"

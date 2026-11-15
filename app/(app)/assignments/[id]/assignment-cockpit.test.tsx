@@ -99,10 +99,6 @@ describe("AssignmentCockpit", () => {
       expect(mocks.transitionAssignment).toHaveBeenCalledWith({ id: assignmentId, from: "todo", to: "drafting" });
       expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}/workspace`);
     });
-    expect(screen.getByRole("link", { name: /review assignment directions/i })).toHaveAttribute(
-      "href",
-      `/assignments/${assignmentId}/workspace`,
-    );
   });
 
   it("rolls a drill checkbox back when persistence is unavailable", async () => {

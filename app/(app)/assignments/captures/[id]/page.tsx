@@ -1,13 +1,11 @@
-import { ArrowLeft, CheckCircle2, FileText, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle2, FileText } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { DianaWordmark } from "@/components/screen-design/primitives";
-import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import styles from "@/components/student-shell/capture.module.css";
 import { createClient } from "@/lib/supabase/server";
-import { ConfirmForm } from "./confirm-form";
-
-// Canonical capture review surface. The old inbox route is retired.
+import { ConfirmForm } from "@/app/(app)/inbox/[id]/confirm-form";
 
 async function CaptureReviewPage({
   params,
@@ -52,35 +50,28 @@ async function CaptureReviewPage({
     item.suggestion_confidence >= 0.7;
 
   return (
-    <ScreenDesignViewport className="sd-capture-work-screen sd-inbox-review diana-current-page">
-      <header className="sd-inbox-review-header">
-        <Link href="/assignments" aria-label="Back to work">
-          <ArrowLeft aria-hidden="true" />
-        </Link>
-        <DianaWordmark />
-        <span aria-hidden="true" />
-      </header>
-
-      <main>
+    <StudentShell active="Work" className={styles.root} version="12">
+      <main id="main-content" className={styles.main}>
+        <Link href="/assignments"><ArrowLeft size={18} aria-hidden="true" /> Back to Work</Link>
         {item.status === "converted" && item.assignment_id ? (
           <section className="sd-inbox-terminal-state">
             <CheckCircle2 aria-hidden="true" />
-            <p>Play confirmed</p>
-            <h1>This capture is on your work board.</h1>
+            <p>Assignment added</p>
+            <h1>Ready to start</h1>
             <Link href={`/assignments/${item.assignment_id}`}>Open assignment</Link>
           </section>
         ) : item.status === "dismissed" ? (
           <section className="sd-inbox-terminal-state">
             <FileText aria-hidden="true" />
-            <p>Capture set aside</p>
-            <h1>This capture is no longer waiting for review.</h1>
+            
+            <h1>Capture set aside</h1>
             <Link href="/assignments">Return to Work</Link>
           </section>
         ) : (
           <>
             <section className="sd-inbox-capture-copy">
-              <span>What you captured</span>
-              <h1>{item.raw.replace(/^\[Grayson demo\]\s*/iu, "")}</h1>
+              <h1>Review capture</h1>
+              <p>{item.raw.replace(/^\[Grayson demo\]\s*/iu, "")}</p>
               <time dateTime={item.created_at}>
                 {new Intl.DateTimeFormat("en-US", {
                   month: "short",
@@ -100,18 +91,6 @@ async function CaptureReviewPage({
               />
             ) : null}
 
-            <section className="sd-inbox-suggestion">
-              <span>
-                <Sparkles aria-hidden="true" />
-                Diana read
-              </span>
-              <p>
-                {hasSuggestion
-                  ? `This looks like ${item.suggested_kind?.replaceAll("_", " ") ?? "schoolwork"}. Check the fields before it moves to your board.`
-                  : "Choose the class, work type, and date that fit this capture."}
-              </p>
-            </section>
-
             <ConfirmForm
               inboxItemId={item.id}
               classes={classes ?? []}
@@ -122,7 +101,7 @@ async function CaptureReviewPage({
           </>
         )}
       </main>
-    </ScreenDesignViewport>
+    </StudentShell>
   );
 }
 

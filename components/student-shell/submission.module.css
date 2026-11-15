@@ -1,0 +1,65 @@
+.root.root.root { color-scheme:dark; }
+.root.root.root :global(.sd-assignment-submit-main) { width:min(100%,1320px); margin:auto; padding:24px 40px 64px; background:transparent; border:0; }
+.root.root.root :global(.sd-assignment-submit-back) { display:inline-flex; align-items:center; gap:8px; min-height:44px; color:#c8d8cf; font-size:12px; text-decoration:none; }
+.root.root.root :global(.sd-assignment-submit-title-row) header { margin:16px 0 24px; }
+.root.root.root h1 { margin:8px 0; font:700 42px/1.15 var(--font-saira-condensed),sans-serif; text-transform:uppercase; }
+.root.root.root h2 { font:700 26px/1.2 var(--font-saira-condensed),sans-serif; text-transform:uppercase; }
+.root.root.root :global(.sd-assignment-submit-title-row) p { color:#b4c9bd; font-size:12px; }
+.root.root.root :global(.sd-assignment-submit-summary) { display:flex; flex-wrap:wrap; gap:24px; margin-bottom:24px; color:#bed1c5; font-size:12px; }
+.root.root.root :global(.sd-assignment-submit-summary) > div { display:flex; align-items:center; gap:10px; }
+.root.root.root :global(.sd-assignment-submit-summary) strong { color:#edf5ef; }
+.root.root.root :global(.sd-submission-preview-heading), .root.root.root :global(.sd-submit-checklist-heading) { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; margin:24px 0; }
+.root.root.root :global(.sd-submission-preview-heading) > div { display:flex; align-items:center; gap:12px; }
+.root.root.root button:not([role="tab"]) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; border:0; border-radius:3px; padding:10px 16px; background:#7853d2; color:#fff; box-shadow:none; font:500 12px/1.5 var(--font-lexend),sans-serif; cursor:pointer; }
+.root.root.root button:disabled { opacity:.5; cursor:default; }
+.root.root.root :global(.sd-submission-preview-facts) { display:flex; flex-wrap:wrap; gap:24px; margin:16px 0 24px; font-size:12px; }
+.root.root.root dt { color:#b4c9bd; margin-bottom:5px; }
+.root.root.root dd { margin:0; overflow-wrap:anywhere; }
+.root.root.root :global(.sd-submission-problems) { display:grid; gap:20px; }
+.root.root.root :global(.sd-submission-problem), .root.root.root :global(.sd-submission-text-payload) { padding:28px; background:#f5f5ec; color:#25342d; border:0; border-radius:3px; }
+.root.root.root :global(.sd-submission-problem) header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.root.root.root :global(.sd-submission-problem) h3 { font-weight:600; font-size:16px; }
+.root.root.root :global(.sd-submission-problem) header span { font-size:11px; color:#316b4b; }
+.root.root.root :global(.sd-submission-problem-prompt) { color:#54645b; font-size:13px; line-height:1.7; margin-bottom:22px; }
+.root.root.root :global(.sd-submission-typed-work) strong { display:block; margin:16px 0 8px; font-size:11px; color:#66746c; }
+.root.root.root pre { white-space:pre-wrap; overflow-wrap:anywhere; font:400 14px/1.8 var(--font-lexend),sans-serif; }
+.root.root.root :global(.sd-submission-ink-preview) { margin:20px 0 0; border:1px solid #a7b6ac; background:#fff; }
+.root.root.root :global(.sd-submission-ink-preview) svg { width:100%; height:auto; }
+.root.root.root :global(.sd-submission-ink-preview) polyline { fill:none; stroke:#25342d; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round; }
+.root.root.root :global(.sd-submission-preview-heading) > a { display:inline-flex; align-items:center; gap:8px; padding:12px 18px; min-height:44px; border-radius:3px; color:#fff; background:#7853d2; font-size:12px; text-decoration:none; }
+.root.root.root :global(.sd-submission-ink-preview) figcaption { padding:8px; font-size:11px; }
+.root.root.root :global(.sd-submission-empty-work) { color:#68746d; font-size:12px; }
+.root.root.root :global(.sd-submission-incomplete), .root.root.root :global(.sd-source-calm-error) { margin:16px 0; padding:14px; border-left:3px solid #efbc64; color:#f5dcae; background:#49392188; font-size:13px; }
+.handoff { display:grid; grid-template-columns:1.2fr 1fr; gap:48px; margin-top:24px; }
+.root.root.root :global(.sd-submit-checklist) ul { list-style:none; padding:0; margin:0; }
+.root.root.root :global(.sd-submit-checklist) li { display:flex; align-items:center; gap:8px; border-top:1px solid #b9d3c733; }
+.root.root.root :global(.sd-submit-checklist) li button { background:transparent; padding:16px 4px; color:#e2eee6; }
+.root.root.root :global(.sd-submit-checklist) li button[role="checkbox"] { flex:1; justify-content:flex-start; text-align:left; }
+.root.root.root :global(.sd-submit-checklist) li strong { display:block; font-weight:500; }
+.root.root.root :global(.sd-submit-checklist) li small { display:block; color:#afc6b8; font-size:11px; }
+.root.root.root :global(.sd-submit-checklist) li em { margin-left:auto; color:#b8cbbf; font-size:9px; font-style:normal; }
+.root.root.root :global(.sd-submit-checkbox) { display:grid; place-items:center; width:22px; height:22px; flex-shrink:0; border:1px solid #88a494; border-radius:3px; }
+.root.root.root :global(.sd-submit-checkbox)[data-checked="true"] { background:#abdabf; color:#183427; }
+.root.root.root :global(.sd-submit-options) { margin:24px 0; padding-top:18px; border-top:1px solid #b9d3c733; font-size:12px; }
+.root.root.root summary { cursor:pointer; min-height:40px; }
+.root.root.root label { display:block; margin:10px 0; font-size:12px; }
+.root.root.root input:not([type="checkbox"]) { width:100%; border:1px solid #aec5b85c; padding:12px; border-radius:3px; background:#142c26; color:#edf5ef; }
+.root.root.root :global(.sd-submit-options) form > div { display:flex; gap:8px; }
+.root.root.root :global(.sd-submit-confirmation) { display:flex; align-items:flex-start; gap:10px; line-height:1.7; margin:20px 0; }
+.root.root.root input[type="checkbox"] { width:20px; height:20px; flex-shrink:0; accent-color:#b894ee; }
+.root.root.root :global(.sd-submit-footer) > button { width:100%; }
+.root.root.root :global(.sd-provider-handoff) { padding:24px 0; color:#d2e2d7; font-size:13px; line-height:1.7; }
+.root.root.root :global(.sd-provider-handoff) p { margin:14px 0; }
+.root.root.root :global(.sd-provider-handoff) a { color:#d9c7ff; text-decoration:underline; text-underline-offset:4px; }
+.root.root.root :global(.sd-provider-handoff-heading), .root.root.root :global(.sd-provider-confirmation-heading) { display:flex; align-items:center; gap:10px; }
+.root.root.root :global(.sd-provider-actions) { display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+.root.root.root :global(.sd-provider-confirmation) { border-top:1px solid #b9d3c733; border-bottom:1px solid #b9d3c733; margin:20px 0; padding:20px 0; }
+.root.root.root :global(.sd-assignment-receipt) { max-width:720px; margin:48px auto; }
+.root.root.root :global(.sd-assignment-receipt) > svg { color:#b0e6c6; margin-bottom:24px; }
+.root.root.root :global(.sd-assignment-receipt) > p { font-size:12px; color:#b0e6c6; }
+.root.root.root :global(.sd-assignment-receipt) dl { display:grid; gap:20px; margin:32px 0; padding:24px 0; border-block:1px solid #b9d3c733; font-size:13px; }
+.root.root.root :global(.sd-assignment-receipt-actions) { display:flex; flex-wrap:wrap; gap:16px; margin:24px 0; }
+.root.root.root :global(.sd-assignment-receipt-actions) a { padding:14px 24px; background:#7853d2; border-radius:3px; text-decoration:none; font-size:12px; }
+.root.root.root :global(.sd-assignment-receipt) details { color:#aec5b8; font-size:11px; }
+@media(max-width:760px) { .root.root.root :global(.sd-assignment-submit-main) { padding:20px 18px 40px; } .root.root.root h1 { font-size:30px; } .handoff { grid-template-columns:1fr; gap:12px; } .root.root.root :global(.sd-submission-problem) { padding:18px; } }
+

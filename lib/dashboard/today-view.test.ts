@@ -25,7 +25,7 @@ describe("live Today data", () => {
     const ranked = [assignment("priority"), assignment("later", { due_at: "2026-09-12T19:00:00Z" }), assignment("today", { due_at: "2026-09-09T09:00:00Z" })].map(a => ({ ...a, effective_minutes: 25 })) as ScoredAssignment[];
     const data = buildTodayView({ ...input, ranked });
     expect(data.plan.map(a => a.id)).toEqual(["priority", "today"]);
-    expect(data.plan[0].href).toBe("/assignments/priority?focus=next-step");
+    expect(data.plan[0].href).toBe("/assignments/priority/workspace");
     expect(data.plan[0].minutes).toBe(25);
   });
 

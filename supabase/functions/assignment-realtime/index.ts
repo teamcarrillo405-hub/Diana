@@ -7,6 +7,7 @@ import {
 } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { withStudentSecurity } from "../_shared/student-handler.ts";
+import { recordEdgeAssignmentHelp } from "../_shared/learning/assignment-help-boundary.ts";
 
 const REALTIME_TTL_SECONDS = 600;
 const MAX_OUTPUT_TOKENS = 450;
@@ -98,25 +99,13 @@ function inputBytes(value: string): number {
   return new TextEncoder().encode(value).byteLength;
 }
 
-async function createRealtimeClientSecret(args: {
-  apiKey: string;
-  model: string;
-  instructions: string;
-  idempotencyKey: string;
-}) {
-  const response = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${args.apiKey}`,
-      "Content-Type": "application/json",
-      "X-Client-Request-Id": args.idempotencyKey,
-    },
-    body: JSON.stringify({
+function realtimeSessionRecipe(model: string, instructions: string) {
+  return {
       expires_after: { anchor: "created_at", seconds: REALTIME_TTL_SECONDS },
       session: {
         type: "realtime",
-        model: args.model,
-        instructions: args.instructions,
+        model: model,
+        instructions: instructions,
         output_modalities: ["audio"],
         max_output_tokens: MAX_OUTPUT_TOKENS,
         tool_choice: "auto",
@@ -151,7 +140,23 @@ async function createRealtimeClientSecret(args: {
           output: { voice: safeRealtimeVoice(), speed: 0.95 },
         },
       },
-    }),
+    };
+}
+
+async function createRealtimeClientSecret(args: {
+  apiKey: string;
+  model: string;
+  recipe: ReturnType<typeof realtimeSessionRecipe>;
+  idempotencyKey: string;
+}) {
+  const response = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${args.apiKey}`,
+      "Content-Type": "application/json",
+      "X-Client-Request-Id": args.idempotencyKey,
+    },
+    body: JSON.stringify(args.recipe),
   });
   let payload: RealtimeSecretResponse = {};
   try {
@@ -199,10 +204,15 @@ Deno.serve(withStudentSecurity("assignment-realtime", async (request: Request) =
     });
     const model = safeRealtimeModel();
     const instructions = buildRealtimeInstructions(context);
+    const recipe = realtimeSessionRecipe(model, instructions);
     const estimatedTokens = estimateTokenReservation({
       systemPrompt: REALTIME_TUTOR_SYSTEM,
       input: context,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
+    });
+    // Persist broad assistance before issuing a capability that can generate speech.
+    await recordEdgeAssignmentHelp({ request, body, feature: "assignment-realtime" }, {
+      ownerId, idempotencyKey, kind: "guide", recipe,
     });
     const guarded = await runSafeBudgetedAiCall({
       ownerId,
@@ -211,7 +221,7 @@ Deno.serve(withStudentSecurity("assignment-realtime", async (request: Request) =
       systemPrompt: REALTIME_TUTOR_SYSTEM,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       idempotencyKey,
-      invoke: () => createRealtimeClientSecret({ apiKey, model, instructions, idempotencyKey }),
+      invoke: () => createRealtimeClientSecret({ apiKey, model, recipe, idempotencyKey }),
       getTokens: () => estimatedTokens,
       getOutput: (value) => ({ sessionId: value.sessionId, model: value.model, expiresAt: value.expiresAt }),
     });
@@ -265,6 +275,7 @@ Deno.serve(withStudentSecurity("assignment-realtime", async (request: Request) =
       realtimeUrl: "https://api.openai.com/v1/realtime/calls",
     });
   } catch (error) {
+    if (error instanceof Response) return error;
     const code = error instanceof RealtimeProviderError ? error.code : "realtime_provider_unavailable";
     const message = code === "realtime_model_unavailable"
       ? "Voice Diana is not enabled for this OpenAI project yet."

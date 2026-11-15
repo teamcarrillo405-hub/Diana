@@ -7,7 +7,7 @@ import {
   finishFocusSession,
   reconcileFocusSession,
   startFocusSession,
-} from "@/app/(app)/assignments/[id]/focus-actions";
+} from "@/app/(app)/timer/actions";
 import {
   ASSIGNMENT_FOCUS_BLOCK_MS,
   assignmentFocusDurationMilliseconds,

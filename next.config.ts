@@ -42,7 +42,21 @@ const config: NextConfig = {
     tsconfigPath: resolveTypeScriptConfigPath(),
   },
   // node-ical uses BigInt internally — exclude from webpack bundling
-  serverExternalPackages: ["node-ical"],
+  serverExternalPackages: ["node-ical", "pdfjs-dist"],
+  // Public assets are served by Next/Vercel's static layer. Keep the private
+  // policy check from pulling the public media tree into functions. The root
+  // cinematic landing deliberately retains only its HTML, CSS, and JS sources
+  // in its trace during postbuild so its server render can parse them.
+  outputFileTracingExcludes: {
+    "/*": ["./public/**/*"],
+  },
+  outputFileTracingIncludes: {
+    "/api/learning/ingest": ["./lib/learning-engine/pdf-worker.mjs", "./node_modules/pdfjs-dist/**/*"],
+    "/assignments/*/workspace": ["./lib/learning-engine/pdf-worker.mjs", "./node_modules/pdfjs-dist/**/*"],
+    "/api/materials/textbook": ["./content/textbooks/**/*"],
+    "/api/diana/study-buddy": ["./content/textbooks/**/*"],
+    "/classes/*/reference/*": ["./content/textbooks/**/*"],
+  },
   outputFileTracingRoot: projectRoot,
   experimental: {
     serverActions: {
@@ -55,6 +69,10 @@ const config: NextConfig = {
   async headers() {
     return [
       {
+        source: "/assets/today-now/:asset([a-z0-9-]+\\.[a-f0-9]{12}\\.(?:webp|webm))",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
+      {
         source: "/assets/landing-cinematic-v3/:asset*",
         headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
       },
@@ -62,6 +80,7 @@ const config: NextConfig = {
   },
   async redirects() {
     return [
+    { source: "/terms.html", destination: "/privacy.html#terms", permanent: true },
     { source: "/trust.html", destination: "/privacy.html#privacy", permanent: true },
     ];
   },

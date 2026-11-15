@@ -17,11 +17,11 @@ const LEARNING_HURDLE_ERROR = "Choose the challenge that feels closest today.";
 const STUDY_SCHEDULE_ERROR = "Choose a study time that feels workable.";
 
 export const LearningHurdleSchema = z.enum(LEARNING_HURDLE_IDS, {
-  error: LEARNING_HURDLE_ERROR,
+  errorMap: () => ({ message: LEARNING_HURDLE_ERROR }),
 });
 
 export const StudySchedulePreferenceSchema = z.enum(STUDY_SCHEDULE_PREFERENCE_IDS, {
-  error: STUDY_SCHEDULE_ERROR,
+  errorMap: () => ({ message: STUDY_SCHEDULE_ERROR }),
 });
 
 export const ScreenDesignOnboardingAnswersSchema = z.object({

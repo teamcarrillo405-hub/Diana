@@ -11,7 +11,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -95,7 +95,7 @@ Deno.serve(withStudentSecurity("writing-aid", async (req: Request) => {
       { role: "user" as const, content: prompt as string },
     ];
 
-    const ai = await runOpenAIHomeworkAdapter({
+    const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "writing-aid" }, {
       task: "writing_aid",
       ownerId,
       supabase,

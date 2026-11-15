@@ -86,7 +86,7 @@ describe("beta educational evaluation manifest validator", () => {
     missing.cases.pop();
     expect(validationIssues(() =>
       validateBetaEducationalEvaluationCorpusManifest(missing)).join("\n"))
-      .toMatch(/cases: .*exactly 996/u);
+      .toContain("Array must contain exactly 996 element");
 
     const duplicate = mutableCorpus();
     duplicate.cases[1].caseId = duplicate.cases[0].caseId;
@@ -135,3 +135,4 @@ describe("beta educational evaluation manifest validator", () => {
       .toContain("selectionRole does not match");
   });
 });
+

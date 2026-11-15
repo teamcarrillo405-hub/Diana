@@ -92,7 +92,8 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-describe("beta local gate lifecycle", () => {
+// Real Git and filesystem operations need a bounded integration-test budget.
+describe("beta local gate lifecycle", { timeout: 30_000 }, () => {
   it("runs the fixed gates in order and writes only structured receipts", () => {
     const projectRoot = createProject();
     const runId = "beta-success-001";
@@ -199,7 +200,7 @@ describe("beta local gate lifecycle", () => {
       "Local gate receipts verified: **blocked**",
     );
     expect(readBetaReleaseReportStatus(projectRoot, runId)).toBe("blocked");
-  }, 60_000);
+  }, 30_000);
 
   it("stops after the first failure and marks later gates blocked", () => {
     const projectRoot = createProject();

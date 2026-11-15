@@ -25,3 +25,4 @@ try {
   console.error(USAGE);
   process.exitCode = 2;
 }
+

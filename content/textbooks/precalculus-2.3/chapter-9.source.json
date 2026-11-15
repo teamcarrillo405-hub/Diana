@@ -1,0 +1,40 @@
+{
+  "number": 9,
+  "title": "Conics",
+  "pages": 62,
+  "blocks": 610,
+  "chunks": 564,
+  "assetHash": "b1b25d72f41a286e45358b5eb7ee8316d23f636b975275d2f6d48bc6b409299e",
+  "indexHash": "ed1858ed74ed88f7aa4799a29a507ccdd47434e7072d375335383dcd0c6bdd91",
+  "pdfBytes": 2801822,
+  "indexBytes": 78800,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=9&format=pdf",
+  "retrieval": [
+    {
+      "query": "ellipse hyperbola",
+      "matches": 6,
+      "pages": [
+        29,
+        45,
+        54,
+        19,
+        55,
+        38
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "parabola polar coordinates",
+      "matches": 6,
+      "pages": [
+        52,
+        56,
+        56,
+        54,
+        55,
+        58
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

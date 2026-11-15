@@ -100,7 +100,8 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-describe("beta resource cleanup safety", () => {
+// Real Git and filesystem operations need a bounded integration-test budget.
+describe("beta resource cleanup safety", { timeout: 30_000 }, () => {
   it("removes only the validated disposable registry and preserves immutable evidence", () => {
     const { projectRoot, runDirectory } = createCompletedRun("beta-cleanup-001");
     const reportPath = path.join(runDirectory, "report.md");

@@ -1,81 +1,18 @@
-import { NextResponse } from "next/server";
-import { hasValidWorkerBearer } from "@/lib/worker-tier/worker-api-auth";
-import {
-  completeWorkerJob,
-  isWorkerOperationalErrorCode,
-  markWorkerJobError,
-  sanitizeWorkerErrorMetadata,
-  WorkerJobTenantScopeError,
-} from "@/lib/worker-tier/worker-queue";
+import { NextResponse } from 'next/server';
+import { hasValidWorkerBearer } from '@/lib/worker-tier/worker-api-auth';
+import { createAiServiceClient } from '@/lib/supabase/ai-service';
+import { finishWorkerExecution, WorkerExecutionError } from '@/lib/worker-tier/worker-execution-server';
 
 export async function POST(request: Request) {
-  if (!hasValidWorkerBearer(request)) {
-    return NextResponse.json({ ok: false, error: "Worker authorization required." }, { status: 401 });
-  }
-
-  const body = await request.json().catch(() => null) as {
-    traceId?: unknown;
-    tenantId?: unknown;
-    status?: unknown;
-    result?: unknown;
-    errorCode?: unknown;
-    errorMetadata?: unknown;
-  } | null;
-  const traceId = typeof body?.traceId === "string" ? body.traceId.trim() : "";
-  const tenantId = typeof body?.tenantId === "string" ? body.tenantId.trim() : "";
-  const status = body?.status;
-  if (!traceId) {
-    return NextResponse.json({ ok: false, error: "Trace id is required." }, { status: 400 });
-  }
-  if (!tenantId) {
-    return NextResponse.json({ ok: false, error: "Tenant id is required." }, { status: 400 });
-  }
-
+  const headers = { 'Cache-Control': 'no-store' };
+  if (!hasValidWorkerBearer(request)) return NextResponse.json({ ok: false }, { status: 401, headers });
   try {
-    if (status === "succeeded") {
-      const result = body?.result && typeof body.result === "object"
-        ? body.result as Record<string, unknown>
-        : {};
-      await completeWorkerJob({
-        traceId,
-        tenantId,
-        result: {
-          status: "succeeded",
-          response: typeof result.response === "string" ? result.response : undefined,
-          responseChars: typeof result.responseChars === "number" ? result.responseChars : undefined,
-          provider: typeof result.provider === "string" ? result.provider : undefined,
-          model: typeof result.model === "string" ? result.model : undefined,
-          workerId: typeof result.workerId === "string" ? result.workerId : undefined,
-          imageSha: typeof result.imageSha === "string" ? result.imageSha : undefined,
-          durationMs: typeof result.durationMs === "number" ? result.durationMs : undefined,
-        },
-      });
-      return NextResponse.json({ ok: true });
-    }
-
-    if (status === "error") {
-      if (!isWorkerOperationalErrorCode(body?.errorCode)) {
-        return NextResponse.json(
-          { ok: false, error: "Worker error code is not supported." },
-          { status: 400 },
-        );
-      }
-      await markWorkerJobError({
-        traceId,
-        tenantId,
-        errorCode: body.errorCode,
-        errorMetadata: sanitizeWorkerErrorMetadata(body.errorMetadata),
-      });
-      return NextResponse.json({ ok: true });
-    }
-
-    return NextResponse.json({ ok: false, error: "Worker status is not supported." }, { status: 400 });
+    const client = createAiServiceClient();
+    if (!client) throw new WorkerExecutionError(503);
+    await finishWorkerExecution(client, await request.json());
+    return NextResponse.json({ ok: true }, { headers });
   } catch (error) {
-    if (error instanceof WorkerJobTenantScopeError) {
-      return NextResponse.json({ ok: false, error: "Worker job was not found for that tenant." }, { status: 404 });
-    }
-    return NextResponse.json({ ok: false, error: "Worker completion is unavailable right now." }, { status: 503 });
+    return NextResponse.json({ ok: false }, { status: error instanceof WorkerExecutionError ? error.status : 503, headers });
   }
 }
-
-export const runtime = "nodejs";
+export const runtime = 'nodejs';

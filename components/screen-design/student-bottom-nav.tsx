@@ -18,7 +18,7 @@ import {
 } from "@/lib/navigation";
 
 const STUDENT_NAV_ICONS: Readonly<Record<StudentNavLabel, LucideIcon>> = {
-  Today: LayoutGrid,
+  Lobby: LayoutGrid,
   Work: Swords,
   Classes: BookOpen,
   Calendar: CalendarDays,

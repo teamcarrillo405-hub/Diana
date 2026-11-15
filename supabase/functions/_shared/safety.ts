@@ -24,6 +24,8 @@ export interface LogParams {
   ownerId: string;
   assignmentId?: string | null;
   feature:
+    | "curriculum_embedding"
+    | "learning_experiment"
     | "math_step"
     | "writing_aid"
     | "writing_cowrite"
@@ -90,7 +92,7 @@ export type ProviderCallContext = {
 };
 
 type BudgetKind = "token" | "media_cost_unit";
-type UsageState = "consumed" | "not_consumed";
+type UsageState = "consumed" | "not_consumed" | "rejected";
 
 export type AiGuardFailure = {
   ok: false;
@@ -747,6 +749,12 @@ export async function runSafeBudgetedAiCall<T>({
     throw error;
   }
 
+  // An explicit validation rejection confirms generation never started.
+  if (getUsageState?.(value) === "rejected") {
+    await releaseKnownNotConsumedBudget("token", reservation.reservationId, providerStartKey, supabase);
+    return { ok: true, value, reservationId: reservation.reservationId };
+  }
+
   // A response marked as a local fallback still follows a provider request.
   // Keep the full reservation when the provider does not report usage.
   const reportedTokens = getUsageState?.(value) === "not_consumed"
@@ -868,6 +876,7 @@ export async function callSafeStudentTextModel({
   timeoutMs,
   moderator,
   reservationUnits,
+  idempotencyKey,
 }: {
   ownerId: string;
   supabase: SupabaseLike;
@@ -881,6 +890,7 @@ export async function callSafeStudentTextModel({
   timeoutMs?: number;
   moderator?: StructuredModerator;
   reservationUnits?: number;
+  idempotencyKey?: string;
 }): Promise<StudentModelResult> {
   const textParts =
     parts?.filter((part) => part.type === "text").map((part) => part.text) ??
@@ -915,9 +925,10 @@ export async function callSafeStudentTextModel({
       }),
     getOutput: (value) => value.moderationContent ?? value.content,
     getUsageState: (value) =>
-      value.model.endsWith(":fallback") ? "not_consumed" : "consumed",
+      value.requestRejected ? "rejected" : value.model.endsWith(":fallback") ? "not_consumed" : "consumed",
     moderator,
     reservationUnits,
+    idempotencyKey,
   });
 
   if (!guarded.ok) throw aiGuardFailureResponse(guarded);

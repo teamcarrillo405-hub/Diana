@@ -48,6 +48,7 @@ export interface EducationalEvaluationRoutingContractInput {
   readonly route: EducationalEvaluationRoute;
   readonly stressKind: EducationalEvaluationStressKind | null;
 }
+
 export function expectedEducationalEvaluationTier(
   input: EducationalEvaluationRoutingContractInput,
 ): EducationalEvaluationTier {
@@ -63,3 +64,4 @@ export function expectedEducationalEvaluationTier(
   }
   return DEFAULT_TIER_BY_ROUTE[input.route];
 }
+

@@ -34,9 +34,9 @@ test("Add opens the shared note capture flow", async ({ page }) => {
   await page.screenshot({ path: "test-results/note-audio-file-desktop.png", fullPage: false });
 });
 
-test("voice note capture opens with Record selected", async ({ page }) => {
+test("legacy voice route opens note capture with Record selected", async ({ page }) => {
   await openQaSession(page, { variant: "grayson" });
-  await page.goto("/notes/new?mode=voice", { waitUntil: "networkidle" });
+  await page.goto("/voice", { waitUntil: "networkidle" });
 
   await expect(page).toHaveURL(/\/notes\/new\?mode=voice/u);
   await expect(page.getByRole("button", { name: "Record", exact: true })).toHaveClass(/is-active/u);

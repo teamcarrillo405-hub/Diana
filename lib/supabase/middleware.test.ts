@@ -66,7 +66,25 @@ describe("Supabase middleware", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
-  it.each(["/", "/how-it-works", "/student-control", "/trust", "/offline", "/robots.txt", "/sitemap.xml"])(
+  it.each([
+    "worker.js", "worker.js.LEGAL.txt", "runtime-manifest.json",
+    "ort-wasm-simd-threaded.mjs", "ort-wasm-simd-threaded.wasm",
+    "ort-wasm-simd-threaded.jsep.mjs", "ort-wasm-simd-threaded.jsep.wasm",
+  ])("serves public recognition runtime %s without a login redirect", async (asset) => {
+    const response = await updateSession(requestFor(`/vendor/diana-recognition/${asset}`));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it.each(["/vendor/diana-recognition/private.json", "/api/learning/local-recognition", "/api/learning/course-practice"])(
+    "does not make private or unknown recognition path %s public", async (path) => {
+      const response = await updateSession(requestFor(path));
+      expect(response.status).toBe(307);
+      expect(response.headers.get("location")).toContain("/login");
+    },
+  );
+
+  it.each(["/", "/how-it-works", "/student-control", "/trust", "/robots.txt", "/sitemap.xml"])(
     "keeps public marketing route %s outside the login wall",
     async (path) => {
       const response = await updateSession(requestFor(path));
@@ -128,22 +146,6 @@ describe("Supabase middleware", () => {
 
   it("returns a public 404 for an unknown top-level URL", async () => {
     const response = await updateSession(requestFor("/not-a-real-page"));
-
-    expect(response.status).toBe(404);
-    expect(response.headers.get("location")).toBeNull();
-  });
-
-  it.each([
-    "/concepts/linear-functions",
-    "/export",
-    "/grades",
-    "/inbox",
-    "/insights",
-    "/study-buddy",
-    "/timer",
-    "/voice",
-  ])("returns a public 404 for retired route %s", async (path) => {
-    const response = await updateSession(requestFor(path));
 
     expect(response.status).toBe(404);
     expect(response.headers.get("location")).toBeNull();

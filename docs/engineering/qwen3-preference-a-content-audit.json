@@ -1,0 +1,857 @@
+{
+  "schema": "diana-qwen3-preference-author-audit-v1",
+  "reviewerId": "preference-a-independent-content-reviewer",
+  "independentReviewer": true,
+  "educatorReviewed": false,
+  "approvedForTraining": true,
+  "reviewMethod": "Independent AI review of all 100 author A source passages, questions, chosen and rejected completions, answerability labels, preference categories, and anchor expectations. No previous training, development, final evaluation cases, model outputs, or other authors data were inspected. This is research content review, not educator or curriculum validation.",
+  "sourceSha256": "51a1c78a3eeb34f9d1aef171f2bd6a2c888a3437c0422d804ff286931bdae30c",
+  "canonicalRowsSha256": "60b799638ba5af59455a98091cc1e8f92839df835c285cae358e2a4c763bb29e",
+  "unresolvedFindings": [],
+  "resolvedFindings": [
+    {
+      "id": "pref-a-reading-orchard-path-unresolved",
+      "finding": "Entrance location labels did not establish the gate's facing direction.",
+      "proposedFix": "Make the conflicting source claims explicitly describe gate orientation.",
+      "resolution": "Source now says the map gives west-facing and the guide gives south-facing orientation; compass check addresses those claims.",
+      "rechecked": true
+    },
+    {
+      "id": "pref-a-reading-bell-comparison-stated",
+      "finding": "NEXT supplied the central interpretation that the bell's sound spreads.",
+      "proposedFix": "Ask for a textual comparison without naming the interpretation.",
+      "resolution": "NEXT now compares the action word scattered with movement and fading in the following line.",
+      "rechecked": true
+    },
+    {
+      "id": "pref-a-reading-hidden-key-stated",
+      "finding": "NEXT supplied Lio's toddler-safety motive.",
+      "proposedFix": "Locate the purpose phrase without stating the motive.",
+      "resolution": "NEXT now asks how the phrase introduced by to connects placement with purpose.",
+      "rechecked": true
+    },
+    {
+      "id": "pref-a-english-contrast-transition-stated",
+      "finding": "NEXT named contrast, the full relationship requested by the question.",
+      "proposedFix": "Ask the learner to compare sentence content before identifying the relationship.",
+      "resolution": "NEXT now compares the route description with the effect on the walker without naming contrast.",
+      "rechecked": true
+    },
+    {
+      "id": "pref-a-english-audience-leaflet-unresolved",
+      "finding": "The question implied an instructional effect but NEXT sought only post-reading comprehension.",
+      "proposedFix": "Narrow the question to observed comprehension or seek an appropriate baseline.",
+      "resolution": "The question now asks whether readers could accurately explain compost after reading; NEXT supports that bounded outcome.",
+      "rechecked": true
+    },
+    {
+      "id": "pref-a-science-evaporation-lids-stated",
+      "finding": "NEXT supplied open versus sealed and air contact, fully revealing the requested treatment difference.",
+      "proposedFix": "Ask for setup-column comparison without naming the differing condition.",
+      "resolution": "NEXT now asks for separate jar setup entries and comparison to identify the varied condition.",
+      "rechecked": true
+    }
+  ],
+  "caseReviews": [
+    {
+      "id": "pref-a-math-tile-crates-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact quote establishes four equal groups of 18. Repeated addition is a concrete calculation without the total; the rejected NEXT only repeats the total question.",
+      "pairHash": "4a0a8c060e59042c3a2fe9a09a412fa3479fa119dd266a41497c82a6f538cc3b"
+    },
+    {
+      "id": "pref-a-math-tile-crates-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Undated loose-tile counts conflict. A fresh shelf inventory seeks the current count and compares records; the rejected NEXT offers no way to resolve them.",
+      "pairHash": "9dd989d59764128883cf37eda3184eb4b55c7ca97f3744912a42c2c2c3de6424"
+    },
+    {
+      "id": "pref-a-math-tank-label-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies five intervals and six liters per interval. Multiplication is useful and leaves the volume uncomputed; the rejected NEXT repeats the requested volume.",
+      "pairHash": "61d2fecada5876dc66fb286314d88de47f85460b93fa9b1aa19f4f7624c67339"
+    },
+    {
+      "id": "pref-a-math-tank-label-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A partial waterline cannot settle conflicting full-capacity labels. Manufacturer specifications provide a relevant capacity datum; the rejected NEXT merely reasks capacity.",
+      "pairHash": "11bf6273377535f5b69e1ac4e619a7bb644cb804785158196aacc628c9fffb8f"
+    },
+    {
+      "id": "pref-a-math-bus-fare-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Both quoted fares support comparing ten singles against one book. Multiplication followed by subtraction leaves the savings to the learner; the rejection simply echoes savings.",
+      "pairHash": "e6aea7d762428c5856d827da830f09f1c144d4be71e6be355501cdd788b7b0b8"
+    },
+    {
+      "id": "pref-a-math-bus-fare-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Discount rate and eligibility are absent. The named transit notice would supply those inputs for the ten-ride book; asking its discounted price again is circular.",
+      "pairHash": "dae7ae17c0d1bfea69a359da29346a34e586323ca6578f7def1e87b7bc6e591e"
+    },
+    {
+      "id": "pref-a-math-mural-ribbon-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote states equal sharing of 3.6 meters into six pieces. Division with units is an actionable scaffold without the result; the rejected NEXT only requests the length.",
+      "pairHash": "992f5f1cd1b0e6896d21b33cb161decc8bbe9efaa099b7109510c598cc69503e"
+    },
+    {
+      "id": "pref-a-math-mural-ribbon-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Bead price and package quantity are absent. A supplier listing would supply the purchase inputs for six pieces; the rejection reasks the unsupported cost.",
+      "pairHash": "b46642fc2a5ed6ac6ae4911f4b75dd03a7a87348fd071b89aa543fa73a516ec5"
+    },
+    {
+      "id": "pref-a-math-ramp-plan-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact scale and drawn measurement support conversion to planned meters. The preferred NEXT applies that conversion; the rejection fabricates a measured construction error.",
+      "pairHash": "ac6873fa4ab18716870da8d3625b504e24a5ccce85b77a5ea569b6e2ba1e63e7"
+    },
+    {
+      "id": "pref-a-math-ramp-plan-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Actual built length is unmeasured. An end-to-end measurement would supply it for comparison; the rejection invents a prior tape reading and a shorter result.",
+      "pairHash": "f54b642e8302334924fee71fdb6907db939b248009ba85ca0ff7361384a74a91"
+    },
+    {
+      "id": "pref-a-math-seed-trays-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote establishes 72 seeds shared equally across eight trays. Partitioning identifies the operation without giving its result; the rejected NEXT invents replacement seeds.",
+      "pairHash": "2224f077e4c1b814c651108604d16324cd0d01c138141aba36e06c4278ed0816"
+    },
+    {
+      "id": "pref-a-math-seed-trays-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The sprout column is blank. Recording and summing one-week tray counts supplies the numerator for comparison with 72; the rejection invents 54 sprouts.",
+      "pairHash": "8e526ca6bd4716a3fb571ab7cdc76183a94ca31df87bbe288de2c1b7d8dc2884"
+    },
+    {
+      "id": "pref-a-math-kite-diagonal-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote contains both diagonals and the half-product rule. Substitution with area units is useful without a numerical answer; adding lengths addresses the wrong quantity.",
+      "pairHash": "accd02954be85d3c4c578e97d323dfe97036a917c3ff6c224b6116922d7b3397"
+    },
+    {
+      "id": "pref-a-math-kite-diagonal-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Price and purchase minimum are missing. The shop listing could establish relevant cost terms; color sorting cannot help calculate this material cost.",
+      "pairHash": "e38d49df0a01b547a39103ae0eb0933d7598ae21a50ed1cdb9a636a6dec52011"
+    },
+    {
+      "id": "pref-a-math-library-sample-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies 14 of 40 respondents. Fraction-to-percent conversion leaves the answer uncomputed; alphabetizing activities does not address the survey proportion.",
+      "pairHash": "56142d4beee1cf7d41c96a1b33d8ddb069bafda3dbcb837b37f7320bdbed5298"
+    },
+    {
+      "id": "pref-a-math-library-sample-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The sample cannot establish the exact membership-wide percentage. Collecting wider preference counts supplies relevant evidence; shelf height measurements are unrelated.",
+      "pairHash": "b6797b5eb268be0c200594ad4b3aa81b013723e4b5c62c44c750becfcc618127"
+    },
+    {
+      "id": "pref-a-math-pump-trial-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact quote supplies trial volume, time, and steady rate. Division can establish the recorded unit rate; the rejected abstention unnecessarily demands a new trial.",
+      "pairHash": "4c489fd8d36127fc3d642030b1db1ca96da431047a7c8cfe7f26ffaa00203e67"
+    },
+    {
+      "id": "pref-a-math-pump-trial-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Maintenance separates the known trial from the unknown later rate. Measuring post-adjustment volume over time addresses that gap; the rejection improperly transfers old measurements.",
+      "pairHash": "64be6c4c87e423ecc15d23f673b2819f8131744023d9f864758a4b83060ee5d6"
+    },
+    {
+      "id": "pref-a-math-recipe-portion-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies 450 grams and nine equal portions. Equal allocation supports the requested portion mass; the rejected abstention wrongly requires supplier evidence.",
+      "pairHash": "5aa55e3038fb659840d27f3929869a5bc75d0468dec8a2b26ca8c92252ee7263"
+    },
+    {
+      "id": "pref-a-math-recipe-portion-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Mass alone cannot establish calories. Actual package energy-per-gram information supplies the missing conversion; the rejected response mislabels a mass calculation as calories.",
+      "pairHash": "5e61dd97513f76b6c46f654e2746d3c3f5f5e5f383c3e370daa8b92a138a7ab1"
+    },
+    {
+      "id": "pref-a-reading-harbor-letter-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted purpose clause supports Ana's intention. Locating words after 'so' is a concrete reading operation; the rejected NEXT repeats the same motive question.",
+      "pairHash": "20b323186ae73e413e1bf8067f4841bf227f794737e2d5d0b7a2818bae5eec58"
+    },
+    {
+      "id": "pref-a-reading-harbor-letter-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Conflicting undated accounts do not establish actual departure. A dated harbor departure log could adjudicate them; the rejected NEXT only repeats the unknown time.",
+      "pairHash": "21a4decce087c8d91527c77eac2a6429852fbb7998aa5ffd33c2478cce077649"
+    },
+    {
+      "id": "pref-a-reading-orchard-path-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies spatial and light details supporting a sheltered impression. Grouping those kinds of wording aids inference; the rejected NEXT merely repeats the interpretation task.",
+      "pairHash": "96e98fb74ef6e1f61b3d76c7554891f58fb929dcdc051c71f4610d72ac0ce4d6"
+    },
+    {
+      "id": "pref-a-reading-orchard-path-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The revised source explicitly gives conflicting gate-facing directions. A compass reading provides the relevant orientation datum; the rejected either-or question cannot resolve the conflict.",
+      "pairHash": "47a93495d949c1666cb76effb4c342686d1d4ff3c5e0156ea250fdd684fcc03c"
+    },
+    {
+      "id": "pref-a-reading-spare-chair-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Bringing a towel before requesting a name supports an inference about immediate care. Comparing that action order is concrete; the rejection repeats the requested inference.",
+      "pairHash": "6b62370d0a027d3ce07a16d8626592fbcc919ff019bee1a4a8a56c527dd169a7"
+    },
+    {
+      "id": "pref-a-reading-spare-chair-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The excerpt stops before identifying a pocket object. A continuation describing removal could establish it; the rejected NEXT offers no route beyond repeating the question.",
+      "pairHash": "93f7d25bada40b4ad5d48394ac9f34ccbce5cfad0c658b0c301952f33c328a1a"
+    },
+    {
+      "id": "pref-a-reading-bell-comparison-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact image supports interpretation of the bell's sound. The revised NEXT compares textual action and the following line without supplying the sound's behavior; the rejection echoes the interpretation.",
+      "pairHash": "f3bf2c428cbb631b47af742362c221cab86228646809de3720641300f7e26a21"
+    },
+    {
+      "id": "pref-a-reading-bell-comparison-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No composition date is supplied. Manuscript or publication records could supply a date while distinguishing composition from printing; the rejection simply asks the missing year again.",
+      "pairHash": "534c07627808ffa7db90f6faf9c107ec759238ec5c30c4405f7698aac8cbac2a"
+    },
+    {
+      "id": "pref-a-reading-hidden-key-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The source explicitly supplies Lio's purpose. The revised NEXT locates the purpose phrase without stating that motive; the rejected NEXT fabricates theft and concealment from the aunt.",
+      "pairHash": "97c4e482ccda579e0f151ad59bbb336131f411157495542ac4528c0cdd405c09"
+    },
+    {
+      "id": "pref-a-reading-hidden-key-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No later removal is reported. Seeking a scene that would show removal is appropriately conditional; the rejected NEXT invents an aunt's confession and a completed theft.",
+      "pairHash": "b3dc3304bdfb6ed2c7c88f786307f30484e5bbb3144b5e900093176fde4d6179"
+    },
+    {
+      "id": "pref-a-reading-cracked-cup-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted causal clause supports keeping the cup for a remembered experience. Connecting that clause with memory scaffolds interpretation; the rejection invents an auction valuation and sale refusal.",
+      "pairHash": "5e8662f621fef78d8a1eb9e7f5289ed0fb650945e986e3ac140b56fc4b9959a5"
+    },
+    {
+      "id": "pref-a-reading-cracked-cup-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The letter's recipient is absent. A salutation or envelope could supply its addressee; the rejected NEXT assumes an unreported reply from the grandmother.",
+      "pairHash": "6adb63e87d21f44392a21965d116ee83f18ce6e017c324a3f53b8e5d610f293c"
+    },
+    {
+      "id": "pref-a-reading-market-silence-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Both opening sounds and later shared pause are quoted. Comparing the actions supports textual contrast without composing the answer; the rejected time arithmetic is unrelated.",
+      "pairHash": "4efd0c8faa3e4217d288645bcf5bf23036e30a369f601f88b1672ea1a7c80d6c"
+    },
+    {
+      "id": "pref-a-reading-market-silence-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No instrument is described. A fuller shape or playing-action description would supply identifying clues; comparing apple prices does not address the musician's instrument.",
+      "pairHash": "5ca6abc82d4fd7a809c446505969f32585a2df64e6b5a1d1f5258e3c6b529ba3"
+    },
+    {
+      "id": "pref-a-reading-folded-map-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact sentence names the fold's result. Locating the result clause gives a useful reading step while leaving route identification to the learner; ranking mountains is irrelevant.",
+      "pairHash": "417ffeaed61880c39e8c9092887db5dad2334206000658c2b2e22756b24fcbdc"
+    },
+    {
+      "id": "pref-a-reading-folded-map-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The earlier trip has no destination. A flashback or itinerary naming its endpoint would provide relevant evidence; counting present map folds cannot establish it.",
+      "pairHash": "7cd2b0d184019a5c293ef363d96a61e50497691c88d271c79c7c8d39cb7d209b"
+    },
+    {
+      "id": "pref-a-reading-garden-message-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote explicitly gives the intended purpose of the arrow. Extracting the intended action after 'so' is sufficient; the rejected abstention improperly requires an interview.",
+      "pairHash": "cab8b0abd65a91af8ea1d1dbc29794d4093f9f35d44513b4b5d2af7319055e01"
+    },
+    {
+      "id": "pref-a-reading-garden-message-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The driver has not arrived in the excerpt. A later scene or report of using the arrow would establish success; the rejection confuses Bo's intention with outcome.",
+      "pairHash": "a8a3f7c35561c20a93c7f2f6976db2eb944363e19dc972897d486a6ba37808aa"
+    },
+    {
+      "id": "pref-a-reading-storm-shutters-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted causal clause identifies the weather warning motivating closure. Locating that clause is actionable; the rejected abstention unnecessarily requires an eyewitness.",
+      "pairHash": "79fa1eaea76d33ba132a2348dd1a2429a28583dbb94eeafce5563ff077944d79"
+    },
+    {
+      "id": "pref-a-reading-storm-shutters-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A warning does not establish hail at the house. A later location-specific observation would test occurrence; the rejected response treats a forecast as a confirmed event.",
+      "pairHash": "4cdeb777c257165373ea5f2d1c5378be42491536ebb39765243f63669d96c36d"
+    },
+    {
+      "id": "pref-a-english-semicolon-draft-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote includes the sentence and joining rule. Separating its clauses and checking subjects and predicates supports analysis; the rejection merely reasks the semicolon's function.",
+      "pairHash": "45d6a9ffb1a3eb52a7c226c656bb0fa9669474f7d8d4caabfcdac85035559037"
+    },
+    {
+      "id": "pref-a-english-semicolon-draft-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Undated editorial cards disagree about final punctuation. A dated author-approved proof could resolve the mark; the rejected NEXT repeats the unknown choice.",
+      "pairHash": "46126c72da903520c2b622ae0ce5546d2b44abf330538770ace3e7e8b5d86b38"
+    },
+    {
+      "id": "pref-a-english-pile-agreement-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies the sentence and agreement rule. Bracketing the modifying phrase isolates the head noun without naming it; the rejected NEXT only repeats why the verb is used.",
+      "pairHash": "be26b02888c4223c7d9ab0d3ef3fdb7661c855e33bffdf4746c3939fbeeeaf1a"
+    },
+    {
+      "id": "pref-a-english-pile-agreement-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The title slips conflict. A signed final manuscript provides a concrete source for the final title; the rejected NEXT cannot resolve the conflict by reasking.",
+      "pairHash": "78d4fad6fdcaa24463dc5735351c5c5bb64ba1bcd10a71c1cb19578792e568fc"
+    },
+    {
+      "id": "pref-a-english-quotation-boundary-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact quote supplies dialogue and boundary rule. Tracing paired quotation marks identifies the speech through a concrete operation; the rejection simply repeats the identification request.",
+      "pairHash": "30a12b01e45a4c7c16519c0209ba9cc987446ef478400d60d5bd3c741ab5c667"
+    },
+    {
+      "id": "pref-a-english-quotation-boundary-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Basket contents are unreported. An illustration brief or descriptive sentence could supply them; the rejected NEXT requests those absent objects without an evidence source.",
+      "pairHash": "6877514acc1fd155ffaff6d9b23521235e145bad4b671c2aa2ae4a58c670aa71"
+    },
+    {
+      "id": "pref-a-english-simile-workshop-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote provides the comparison and simile definition. Matching the comparison marker to that definition leaves its identification to the learner; the rejection restates the classification question.",
+      "pairHash": "f9234d01f42a08b776e3fe3e3ec2f41e8d3f7e404ea5978445daade38120bee5"
+    },
+    {
+      "id": "pref-a-english-simile-workshop-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The building type is unspecified. Surrounding prose or scene notes could identify the setting; the rejected NEXT repeats the unknown building type.",
+      "pairHash": "25d21013edbcf0226ab853fd92df9dc475acb59f8c8c6c3b523e0254165a9fb4"
+    },
+    {
+      "id": "pref-a-english-passive-notice-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact quoted rule supports beginning a passive transformation. The NEXT supplies the source sentence and asks for its receiver; the rejection invents a second committee vote.",
+      "pairHash": "7776827602e83dce4d3e2b984457477cf43eac9192a6c0efc957c7ee74f821c4"
+    },
+    {
+      "id": "pref-a-english-passive-notice-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Only emailing is proposed. Sent-message evidence and replies would establish delivery and acceptance separately; the rejected NEXT invents unanimous acceptance.",
+      "pairHash": "0b9e81c96e0bfd74db5a27547ce4a3399d8d5c2b9f756e32fc77f6b7459875ad"
+    },
+    {
+      "id": "pref-a-english-contrast-transition-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote provides both sentences and the transition rule. The revised NEXT compares their descriptions without naming the requested relationship; the rejected NEXT invents unanimous survey preferences.",
+      "pairHash": "6748347f8c38de18716f705580c6195de0c0b666cf5baaa1f35f48efeaedfe47"
+    },
+    {
+      "id": "pref-a-english-contrast-transition-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The excerpt supplies no walking times. Individual times and participant count are appropriate mean inputs; the rejected NEXT fabricates a 90-minute outlier.",
+      "pairHash": "057b18faa9dc548923ca05c040518c2e6e0c3e6b02c32938e4c39f3335c5afb9"
+    },
+    {
+      "id": "pref-a-english-paragraph-focus-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote contains the claim and three supporting details. Mapping each into a claim-and-support outline addresses organization; counting letters in a word is unrelated.",
+      "pairHash": "38b6aacb7de72a2b3a95f282541a593957183e1a49481c00d19990a194667d68"
+    },
+    {
+      "id": "pref-a-english-paragraph-focus-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No gardener or interview is supplied. A named transcript passage could establish attribution and wording; choosing paint colors cannot identify the speaker.",
+      "pairHash": "4bfe412a833a028e4ec1f421cfd542cd7a3eba61e185a7c19ff8d76bbb66127b"
+    },
+    {
+      "id": "pref-a-english-modifier-attachment-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted note explicitly provides two possible readings. Drawing alternative attachment arrows concretely illustrates ambiguity; conjugating a separate verb does not analyze attachment.",
+      "pairHash": "b281e64130fafa7ab5cbf6050b7128f613a0c29392fcd1e00986486b1e2dcd29"
+    },
+    {
+      "id": "pref-a-english-modifier-attachment-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The writer selected no interpretation. Asking who used or carried the binoculars retrieves a discriminating intention datum; alphabetizing nouns cannot choose the intended meaning.",
+      "pairHash": "9a79c7d9bb1a0ccad27f982229f3730f95580a3bc2a9394e49cf744aa72f0880"
+    },
+    {
+      "id": "pref-a-english-revision-request-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact editorial instruction establishes the requested change. Identifying the vague word and needed specificity is actionable; the rejected abstention wrongly demands another interview.",
+      "pairHash": "789b50f587e27a05d3bd518a3af8617fb2b65c66457eee0a6188f4c6499336f8"
+    },
+    {
+      "id": "pref-a-english-revision-request-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The revised wording is absent. A conditional check of the next draft at the original word location could establish inserted nouns; the rejection treats an instruction as completed revision evidence.",
+      "pairHash": "4652005f915410fbc815bb2177034fcade16864e78cffcfc882adf5acc1c45e9"
+    },
+    {
+      "id": "pref-a-english-audience-leaflet-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted plan states the audience-based reason for an opening definition. Connecting its causal clause to placement supports analysis; audience testing is unnecessary to identify that stated reason.",
+      "pairHash": "1c75475acabbfa09be64e46c5e97166b0b5cf13e87f3f28a36af75617c0fa8a0"
+    },
+    {
+      "id": "pref-a-english-audience-leaflet-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No reader responses exist. The revised question concerns readers' post-reading explanation; eliciting and comparing those explanations addresses that gap, while teaching intention alone proves no comprehension.",
+      "pairHash": "1f2f9b8754b3ed2f776c7f440330b70b3f81f625dbf680597604fcc1373c5e96"
+    },
+    {
+      "id": "pref-a-science-ice-covers-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact quote describes matched setups and a differing feature. A comparison table supports variable identification without naming the answer; the rejected NEXT simply repeats it.",
+      "pairHash": "f4c7e16f7562650efb68a127783dc2513f7570674cad33ead6546b29d4ed3e4c"
+    },
+    {
+      "id": "pref-a-science-ice-covers-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Melt reports conflict and lack starting times. Video or log timestamps could support a fair timing comparison; the rejected NEXT provides no adjudicating evidence.",
+      "pairHash": "0ac4ae0640d9da4107c4a9a46cdc4e68f2c1d29b11c866ea6b47fc1d59073e33"
+    },
+    {
+      "id": "pref-a-science-rock-labels-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote records motion toward a nearby magnet without contact. Locating direction wording supports the observation claim; the rejected NEXT only repeats the evidence question.",
+      "pairHash": "c742d82de689e0ae848aeae102361d5f47b33b836f8334ab7837ada80e6f338a"
+    },
+    {
+      "id": "pref-a-science-rock-labels-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Two undated mass records disagree. A fresh zeroed-balance measurement supplies current sample mass; the rejected NEXT repeats the missing value without resolving the records.",
+      "pairHash": "79e4d6c22830999ecd28f101dd99b36dc4f4fd68701159f5e7fca7e748b7c03e"
+    },
+    {
+      "id": "pref-a-science-lamp-seedlings-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact watering sentence supplies amount and frequency. Copying those into both groups' control columns identifies the constant; the rejection simply reasks the same condition.",
+      "pairHash": "bc1f98c28a49e1e74c9728bb77e92aeb9d7a9217712068a17bdc481b68de307b"
+    },
+    {
+      "id": "pref-a-science-lamp-seedlings-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Starting and final heights are absent. Recording individual changes and averaging by group supplies the needed comparison; the rejected NEXT repeats the unknown growth result.",
+      "pairHash": "bcb3576a7394e6884a2a0c9376a72b41dde0be8f3f38664b7486df4730e6098a"
+    },
+    {
+      "id": "pref-a-science-salt-water-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supports a before-and-after change in visibility. A comparison table preserves observation limits without asserting disappearance of matter; the rejected NEXT only repeats the change question.",
+      "pairHash": "3e7695f34e08a7a424a960d0925001f80e2be726307bcfe9d005cb10d65939d9"
+    },
+    {
+      "id": "pref-a-science-salt-water-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Drying is proposed and unobserved. A dated procedure entry and residue description could establish completion and outcome; the rejected NEXT merely requests the missing residue.",
+      "pairHash": "35ffcc48b3e8671f981d11af61a042cfc3b25c4ab83be93b1b734b8eda46e6f5"
+    },
+    {
+      "id": "pref-a-science-soil-windows-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote explicitly identifies jointly changing light and location. Comparing setup conditions supports confound detection; the rejected NEXT fabricates a measured three-degree temperature difference.",
+      "pairHash": "d178c371bfb6678c6510d54205768c1895ec985192f65f51cd4c6b5dc62de90a"
+    },
+    {
+      "id": "pref-a-science-soil-windows-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Only starting masses are recorded. Next-day labeled-cup measurements support calculating loss; the rejected NEXT invents a 12-gram cupboard-cup result.",
+      "pairHash": "c8a10c187565c2c01ef6542a8f9d42ec49e0122d0f6cde878c4e293d28bb1311"
+    },
+    {
+      "id": "pref-a-science-circuit-gap-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies the wire interruption and complete-loop requirement. Tracing the circuit provides a concrete locating operation; the rejected NEXT invents voltage measurements and a broken switch.",
+      "pairHash": "05c8733fca05049f838cc3e7b0b42d79b3271842b8c06a34657330ef5758035b"
+    },
+    {
+      "id": "pref-a-science-circuit-gap-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The circuit has not been assembled. An assembled test with the switch closed could establish actual light output; the rejected NEXT invents a flickering observation.",
+      "pairHash": "4298be981d773f0a0c57df1039f9813ac6f9e017a25782fda178496bef416147"
+    },
+    {
+      "id": "pref-a-science-evaporation-lids-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact quote states the jar treatment difference. The revised NEXT compares setup entries without supplying the answer; the rejected shelf-hardness operation is irrelevant.",
+      "pairHash": "cafa98dc2fa860aca8b4696aa3df612579179e3fac655ddb910fc8cb0c0da7b1"
+    },
+    {
+      "id": "pref-a-science-evaporation-lids-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The result cells are empty. Starting and day-three mass comparison with jar mass accounted for could quantify water loss; the rejected reflection-angle measurement cannot do so.",
+      "pairHash": "195d25407680eabd4d96633361b7c312dc6cbc6bfcd1d3d4802fe579f8e8b9ce"
+    },
+    {
+      "id": "pref-a-science-pond-arrows-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies arrows and their interpretation key. Following the arrow ending at snails leaves food identification to the learner; measuring pond depth does not interpret the diagram.",
+      "pairHash": "79adfb32b745805a326941e788fa37ed91b588cd2a9d3d3bf36104458ce124cb"
+    },
+    {
+      "id": "pref-a-science-pond-arrows-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No population counts or removal event observations exist. Before-and-after counts tied to a documented removal supply relevant inputs; sorting algae colors cannot establish numerical change.",
+      "pairHash": "2bfa8e05818a2e3c1e8b5e242661445dbc38751988dbe87da453f9a2fcdae0b0"
+    },
+    {
+      "id": "pref-a-science-shade-screen-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact plan explicitly states its research question. Extracting treatment and measured variable reports that intention; the rejected abstention incorrectly requires outcome data.",
+      "pairHash": "3ba3e4a78f687ba9128e072907bb5841893144f0177c7c2388907b36f9e65de5"
+    },
+    {
+      "id": "pref-a-science-shade-screen-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Installation and temperatures are unlogged. Matched readings after installation could establish the bed comparison; the rejected response treats a planned effect as observed cooling.",
+      "pairHash": "760dfadbbc7da36adc69b3e0999705822254103adf2cf474a4c6240dfaa5d330"
+    },
+    {
+      "id": "pref-a-science-sand-filter-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted definition and source procedure support naming the separation method. Matching filter-paper instructions to that definition is concrete; the rejected abstention incorrectly requires trial results.",
+      "pairHash": "6bd007e8830991b0f3a1fc3e9784eb4f34bf98fe72d32b0140ec0b05aeb89bbf"
+    },
+    {
+      "id": "pref-a-science-sand-filter-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No retained residue mass is observed. Subtracting dry unused filter mass from dry used filter plus sand would quantify retention; the rejection mistakes a definition for measured yield.",
+      "pairHash": "e17ff06fc66e0d727c34df68e5988fa17e3902fbe883ed8b97607668d13e6059"
+    },
+    {
+      "id": "pref-a-history-guild-charter-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact charter clause supplies eligibility conditions. Extracting them into a checklist supports rule interpretation without stating the qualifying duration; the rejected NEXT repeats the eligibility question.",
+      "pairHash": "343c09b613c86f7123fa96a736703327a835b96cc82147a4c4d7609b5be6daa3"
+    },
+    {
+      "id": "pref-a-history-guild-charter-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The ratification dates conflict. An original signed ratification sheet could supply a corroborating year; the rejected NEXT provides no way to adjudicate 1841 versus 1843.",
+      "pairHash": "58651085b24ac97b5502a932c192700de144c03330ab928914e1be3ae8ecb394"
+    },
+    {
+      "id": "pref-a-history-supply-dispatch-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote gives ordered transport and cargo. Separating them into columns supports extraction and leaves cargo identification to the learner; the rejected NEXT simply echoes the request.",
+      "pairHash": "ad3edb98191cb47048677d7aecb42cf91f3bb7165c02ec4ba183a883db16752b"
+    },
+    {
+      "id": "pref-a-history-supply-dispatch-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Arrival records disagree. A receipt signed and dated at delivery could corroborate the day; the rejected NEXT repeats the disputed arrival question.",
+      "pairHash": "f79ba756b14f9ecd22bc15a0ece30a8c75560731ba93f117e9bfa8a7a25e2931"
+    },
+    {
+      "id": "pref-a-history-canal-notice-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote gives the notice's stated revenue purpose. Underlining that use supports bounded interpretation without claiming actual spending; the rejected NEXT merely reasks the justification.",
+      "pairHash": "636944753b31593b617a13a78ea36a74ff6799ca406bba425c9a05f513a61156"
+    },
+    {
+      "id": "pref-a-history-canal-notice-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No spending records exist in the packet. East-lock treasury and contractor entries would support a toll-funded spending total; the rejected NEXT simply requests the unavailable total.",
+      "pairHash": "7adeaae698cb1941f9a4e29d16b1f8a096a461c1dd4e5837862d91e7065b98e2"
+    },
+    {
+      "id": "pref-a-history-market-diary-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted diary gives one writer's perceived benefit. Locating its causal phrase preserves personal scope and supports interpretation; the rejected NEXT merely repeats the benefit question.",
+      "pairHash": "1121cb9ea54da953322f727067beb8697ee015bd0f33fcc9231689e95be34712"
+    },
+    {
+      "id": "pref-a-history-market-diary-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "One household cannot establish a majority view. Broad resident responses or relevant vote totals would supply wider evidence; the rejected NEXT repeats the unsupported majority question.",
+      "pairHash": "81292fa7ae7c7884c44d4e0c0068e91917c764155ff1d8d3e8e36e08a998f08c"
+    },
+    {
+      "id": "pref-a-history-bridge-petition-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote contains the requested structure and its stated purpose. Separating those components supports document reading; the rejected NEXT invents a ferry accident.",
+      "pairHash": "78a8f49ffec2058b5e79b0c40130ecc1072262e31b155535f8a303df8559cf10"
+    },
+    {
+      "id": "pref-a-history-bridge-petition-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Submission proves neither authorization nor construction. Council and works records would establish those distinct events; the rejected NEXT assumes an absent bridge-opening announcement.",
+      "pairHash": "ae0ca7820e47c75653071bde1ab7b815b047c69a34993ef9b5c7e4d073f41cab"
+    },
+    {
+      "id": "pref-a-history-council-agenda-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact quote states the planned debate and later vote. Placing actions on a timeline using the ordering word is concrete; the rejection fabricates a mayoral objection and delay.",
+      "pairHash": "4d316e33e1b4783804512da1f67f2b22e8fc64067939999943129d85ff5eb139"
+    },
+    {
+      "id": "pref-a-history-council-agenda-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The vote result is blank and occurrence unconfirmed. Minutes or a signed tally could establish occurrence and counts; the rejected NEXT invents abstentions and defeat.",
+      "pairHash": "3529af83b3aedff59a8cf4268b31d2be8eda0943052227680ce8565ebed2a2be"
+    },
+    {
+      "id": "pref-a-history-census-definition-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies the archive's household definition. Applying that grouping rule to a practice form is useful; calculating a hut's roof area does not establish household membership.",
+      "pairHash": "3dba4392acdeb44d8430b5804d7d1ad05262987b7c9b3294d7ca1ddfce421a5f"
+    },
+    {
+      "id": "pref-a-history-census-definition-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Instructions alone give no migration count. Dated arrival or linked household records could distinguish movement from regrouping; classifying hearth rocks is unrelated.",
+      "pairHash": "94b819a3a43b337138c3f54bedb63201fa00bdcfbef01a7d1e51135a584d16bc"
+    },
+    {
+      "id": "pref-a-history-apprentice-poster-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote includes direct address identifying intended participants. Examining that opening separates participants from assisting employers; measuring paper thickness cannot answer audience identity.",
+      "pairHash": "e118cbe40b5a601eeb02810f02e0b51122a74c9343735cbed0d47126d2e4f86d"
+    },
+    {
+      "id": "pref-a-history-apprentice-poster-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No attendance evidence is provided. A meeting-specific register or organizer count could establish apprentices present; punctuation counts cannot establish attendance.",
+      "pairHash": "06e9898dea3d700d4746f387c991e89c7f984918ededc602d54b4f203b88575c"
+    },
+    {
+      "id": "pref-a-history-boundary-accord-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quoted accord supplies the agreed boundary and stated purpose. Labeling and underlining those components preserves distinction from outcomes; the rejected abstention wrongly demands later court evidence.",
+      "pairHash": "505e5ef4086472f96e69e1eb177fc35416b0c08aa1e517a2b9444fce91660543"
+    },
+    {
+      "id": "pref-a-history-boundary-accord-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A signed intention does not establish later peace. Subsequent petitions and village accounts could reveal renewed disputes; the rejected response treats the promise as demonstrated success.",
+      "pairHash": "789f7dd2f79801461e8402ca580396604dbac9f13792136267b3bc4c73142446"
+    },
+    {
+      "id": "pref-a-history-mill-offer-stated",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The quote supplies an offered concession and its condition. Separating wording at 'if' supports interpretation; the rejected abstention unnecessarily requires a completed settlement.",
+      "pairHash": "f943ce42f231ab37cc6ab78666edaed8fe17dadca60ae039576e4f49d193dc1e"
+    },
+    {
+      "id": "pref-a-history-mill-offer-unresolved",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The outgoing offer establishes neither acceptance nor resumed production. Worker response and Monday production records address both events separately; the rejected response substitutes the proposal for outcomes.",
+      "pairHash": "df707685f2a31351e02b06c48983cb0fa69fc740b7cd2fcafcb64d34d06a762d"
+    }
+  ]
+}

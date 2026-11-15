@@ -32,6 +32,7 @@ async function main() {
     checks.push(await checkLogin(baseUrl));
     checks.push(await checkDianaStatusRequiresAuth(baseUrl));
     checks.push(await checkWorkerPostRequiresAuth(baseUrl, "/api/workers/claim", "Worker claim requires bearer auth"));
+    checks.push(await checkWorkerPostRequiresAuth(baseUrl, "/api/workers/authorize", "Worker authorization requires bearer auth"));
     checks.push(await checkWorkerPostRequiresAuth(baseUrl, "/api/workers/complete", "Worker complete requires bearer auth"));
     checks.push(await checkMetricsRequiresAuth(baseUrl));
     checks.push(await checkPrometheusMetricsRequiresAuth(baseUrl));
@@ -164,10 +165,10 @@ async function checkWorkerCompleteAuthorizedValidation(baseUrl: string, token: s
       },
       body: "{}",
     });
-    const json = await response.json().catch(() => null) as { error?: string } | null;
+    const json = await response.json().catch(() => null) as { ok?: boolean } | null;
     return {
       name: "Worker complete bearer auth reaches validation",
-      ok: response.status === 400 && json?.error === "Trace id is required.",
+      ok: response.status === 400 && json?.ok === false,
       detail: `status ${response.status}`,
     };
   } catch (error) {

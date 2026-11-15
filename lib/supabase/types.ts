@@ -2102,6 +2102,12 @@ export type Database = {
           },
         ]
       }
+      personal_calendar_events: {
+        Row: { id: string; owner_id: string; event: Json; time_zone: string; photo_key: string | null; deleted_at: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; owner_id: string; event: Json; time_zone?: string; photo_key?: string | null; deleted_at?: string | null; created_at?: string; updated_at?: string }
+        Update: { event?: Json; time_zone?: string; photo_key?: string | null; deleted_at?: string | null; updated_at?: string }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           all_day: boolean
@@ -8406,3 +8412,4 @@ export type Accommodation =
   | "breaks"
   | "quiet_setting"
   | "other"
+

@@ -1,0 +1,96 @@
+.performance {
+  --ink: #f4f8f5;
+  --muted: #c0d0cb;
+  --mint: #39e8ad;
+  --ring-track: #afc6bd30;
+  --ring-glow: none;
+  --runway-grid: #d8ece51a;
+  --runway-planned: #6fc8e2;
+  --runway-study: #39e8ad;
+  --runway-focus: #e7fff4;
+  color: var(--ink);
+}
+.performance.performance.performance .heading { margin: 0 0 28px; }
+.performance.performance.performance .heading p { color: var(--muted); font-size: 12px; margin: 0 0 8px; text-transform: uppercase; }
+.performance.performance.performance .heading h2 { font: 700 48px/1.05 var(--font-saira-condensed), sans-serif; text-transform: uppercase; color: var(--ink); margin: 0; overflow-wrap: anywhere; }
+.weekSummary { display: grid; grid-template-columns: 184px minmax(0, 1fr); gap: 34px; align-items: center; padding: 0 0 30px; }
+.performance.performance.performance .goalRing > div { width: 184px; max-width: 100%; }
+.performance.performance.performance .goalRing strong { color: var(--ink); font: 600 48px/1 var(--font-saira-condensed), sans-serif; }
+.performance.performance.performance .goalRing strong span { font-size: 23px; }
+.performance.performance.performance .goalRing > div > div > span { color: var(--muted); }
+.weekTotals { margin: 0; display: grid; min-width: 0; border-block: 1px solid #e2f2e940; }
+.weekTotals > div { padding: 14px 0 15px; }
+.weekTotals > div + div { border-top: 1px solid #e2f2e926; }
+.performance.performance.performance .weekTotals dt { font-size: 11px; line-height: 1.5; color: var(--muted); margin: 0 0 5px; text-transform: uppercase; }
+.performance.performance.performance .weekTotals dd { font: 600 38px/1.05 var(--font-saira-condensed), sans-serif; font-variant-numeric: tabular-nums; margin: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 3px 7px; }
+.performance.performance.performance .weekTotals dd span { font: 400 12px/1.5 var(--font-lexend, sans-serif); color: var(--muted); }
+.runway { position: relative; margin: 0; padding: 19px 0 0; border-top: 1px solid #e2f2e940; }
+.runwayHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 10px; line-height: 1.4; text-transform: uppercase; }
+.runwayHeading > span:first-child { color: var(--ink); font-size: 12px; font-weight: 600; }
+.runwayPlot { position: relative; height: 166px; margin-top: 14px; }
+.runwayGrid { position: absolute; inset: 0 0 24px; border-bottom: 1px solid #e2f2e94d; background: repeating-linear-gradient(to top, var(--runway-grid) 0 1px, transparent 1px calc(100% / 3)); pointer-events: none; }
+.runwayColumns { position: relative; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); height: 100%; gap: 3px; }
+.performance.performance.performance .runwayDay { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) 24px; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--muted); text-align: center; }
+.performance.performance.performance .runwayDay::after { content: ""; position: absolute; right: 14%; bottom: 24px; left: 14%; height: 2px; background: #c8e0d533; transition: background 140ms ease, box-shadow 140ms ease; }
+.runwayColumn { position: relative; display: block; height: 100%; min-height: 0; }
+.runwayPlanned,.runwayStudied { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); display: block; transition: height 180ms ease, border-color 140ms ease, box-shadow 140ms ease, opacity 140ms ease; }
+.runwayPlanned { width: clamp(24px, 2.45vw, 30px); min-height: 1px; border: 2px solid var(--runway-planned); background: #6fc8e22b; box-shadow: inset 0 1px 0 #cff6ff3d; }
+.runwayStudied { width: clamp(10px, 1.12vw, 14px); min-height: 0; background: var(--runway-study); box-shadow: 0 0 16px #39e8ad55; }
+.runwayLabel { align-self: end; min-width: 0; color: inherit; font: 600 11px/1 var(--font-saira-condensed), sans-serif; letter-spacing: .04em; text-transform: uppercase; transition: color 140ms ease; }
+.performance.performance.performance .runwayDay[data-current="true"] .runwayLabel::before { content: ""; display: inline-block; width: 4px; height: 4px; margin: 0 4px 1px 0; background: var(--runway-planned); vertical-align: middle; }
+.performance.performance.performance .runwayDay[aria-pressed="true"]::after { background: var(--runway-focus); box-shadow: 0 0 12px #e7fff44a; }
+.performance.performance.performance .runwayDay[aria-pressed="true"] .runwayLabel { color: var(--runway-focus); }
+.performance.performance.performance .runwayDay[aria-pressed="true"] .runwayPlanned { border-color: var(--runway-focus); box-shadow: inset 0 1px 0 #e7fff44d, 0 0 10px #6fc8e22e; }
+.performance.performance.performance .runwayDay[aria-pressed="true"] .runwayStudied { box-shadow: 0 0 17px #39e8ad66; }
+.performance.performance.performance .runwayDay:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.runwayFooter { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-top: 8px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.runwayLegend { display: inline-flex; flex: none; align-items: center; gap: 5px; text-transform: uppercase; font-size: 9px; }
+.runwayLegend i { width: 9px; height: 3px; background: var(--runway-planned); }
+.runwayLegend i:nth-of-type(2) { background: var(--runway-study); box-shadow: 0 0 7px #39e8ad4d; }
+.runwayFooter p { min-height: 17px; margin: 0; text-align: right; }
+.performance.performance.performance .runwayFooter b { color: var(--ink); font-weight: 600; }
+.runwayFooter p span { margin: 0 2px; }
+.performance.performance.performance .status { margin: 16px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+@media (min-width: 761px) and (max-width: 1000px) {
+  .performance.performance.performance .heading h2 { font-size: 38px; }
+  .weekSummary { grid-template-columns: 142px minmax(0, 1fr); gap: 24px; }
+  .performance.performance.performance .goalRing > div { width: 142px; }
+  .performance.performance.performance .goalRing strong { font-size: 38px; }
+  .performance.performance.performance .weekTotals dd { font-size: 29px; }
+  .runwayPlot { height: 154px; }
+}
+@media (max-width: 760px) {
+  .performance { --ink: #18272b; --muted: #415458; --mint: #087f60; --ring-track: #274c4126; --runway-grid: #26423520; --runway-planned: #52758b; --runway-study: #087f60; --runway-focus: #143d35; }
+  .performance.performance.performance .heading { margin-bottom: 18px; }
+  .performance.performance.performance .heading h2 { font-size: 30px; }
+  .performance.performance.performance .heading p { font-size: 11px; margin-bottom: 5px; }
+  .weekSummary { grid-template-columns: 125px minmax(0, 1fr); gap: 18px; padding-bottom: 20px; }
+  .performance.performance.performance .goalRing > div { width: 125px; }
+  .performance.performance.performance .goalRing strong { font-size: 38px; }
+  .weekTotals { gap: 14px; }
+  .performance.performance.performance .weekTotals dd { font-size: 29px; }
+  .performance.performance.performance .weekTotals dt { font-size: 11px; }
+  .runway { padding-top: 16px; border-top-color: #355e4d38; }
+  .runwayPlot { height: 146px; margin-top: 12px; }
+  .performance.performance.performance .runwayDay:focus-visible { outline-color: #1b594d; }
+}
+@media (max-width: 370px) {
+  .weekSummary { grid-template-columns: 110px minmax(0, 1fr); gap: 12px; }
+  .performance.performance.performance .goalRing > div { width: 110px; }
+  .performance.performance.performance .goalRing strong { font-size: 32px; }
+  .performance.performance.performance .goalRing strong span { font-size: 18px; }
+  .performance.performance.performance .goalRing > div > div { gap: 3px; }
+  .performance.performance.performance .goalRing > div > div > span { font-size: 10px; line-height: 1.2; }
+  .performance.performance.performance .weekTotals dd { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .runwayPlanned, .runwayStudied, .performance.performance.performance .runwayDay::after, .runwayLabel { transition: none; }
+}
+@media (forced-colors: active) {
+  .performance { --ink: CanvasText; --muted: CanvasText; --mint: Highlight; --ring-track: GrayText; --runway-grid: CanvasText; --runway-planned: CanvasText; --runway-study: Highlight; --runway-focus: Highlight; }
+  .performance.performance.performance .runwayDay:focus-visible { outline-color: Highlight; }
+  .goalRing svg { forced-color-adjust: none; }
+  .runwayGrid { background: Canvas; border-color: CanvasText; }
+  .runwayPlanned { forced-color-adjust: none; background: Canvas; border-color: CanvasText; box-shadow: none; }
+  .runwayStudied { forced-color-adjust: none; background: Highlight; box-shadow: none; }
+}

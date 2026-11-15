@@ -3,7 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Clock3, FileCheck2 } from "lucide-react";
 
 import { AssignmentSubmissionPreview } from "@/components/assignment-submission-preview";
-import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import { SectionTabs } from "@/components/student-shell/section-tabs";
+import styles from "@/components/student-shell/submission.module.css";
 import { loadAssignmentSubmissionBundle } from "@/lib/assignment-submission-server";
 import { createClient } from "@/lib/supabase/server";
 import { ExternalSubmissionSync } from "../external-submission-sync";
@@ -52,9 +54,8 @@ function SubmittedAssignmentReceipt({ assignmentId, title, className, status, su
   const graded = status === "graded";
   const handoffSaved = syncStatus === "marked_submitted";
   return (
-    <div className="sd-assignment-submit-screen">
-      <StudentDesktopNav active="Work" />
-      <main className="sd-assignment-submit-main">
+    <StudentShell active="Work" className={styles.root} version="12">
+      <main id="main-content" className="sd-assignment-submit-main">
         <Link href="/assignments" className="sd-assignment-submit-back"><ArrowLeft size={18} aria-hidden="true" />Back to work</Link>
         <section className="sd-assignment-receipt" aria-labelledby="submission-receipt-title">
           <CheckCircle2 size={42} aria-hidden="true" />
@@ -73,13 +74,13 @@ function SubmittedAssignmentReceipt({ assignmentId, title, className, status, su
             <Link href="/proof">Open Record</Link>
             <Link href="/assignments">Back to Work</Link>
           </div>
-          <small>
+          <details><summary>Receipt details</summary><small>
             Receipt ID {(artifactReceipt?.id ?? assignmentId).slice(0, 8).toUpperCase()}
             {artifactReceipt ? ` · Payload ${artifactReceipt.payloadDigest.slice(0, 12).toUpperCase()}` : ""}
-          </small>
+          </small></details>
         </section>
       </main>
-    </div>
+    </StudentShell>
   );
 }
 
@@ -152,9 +153,8 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
     : null;
 
   return (
-    <div className="sd-assignment-submit-screen">
-      <StudentDesktopNav active="Work" />
-      <main className="sd-assignment-submit-main">
+    <StudentShell active="Work" className={styles.root} version="12">
+      <main id="main-content" className="sd-assignment-submit-main">
         <div className="sd-assignment-submit-title-row">
           <Link href={`/assignments/${id}/workspace`} className="sd-assignment-submit-back"><ArrowLeft size={18} aria-hidden="true" />Back to workspace</Link>
           <header>
@@ -168,9 +168,10 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
           <div><Clock3 size={20} aria-hidden="true" /><span><strong>{formatMinutes(timeSpent)}</strong> focused time</span></div>
         </section>
 
-        <AssignmentSubmissionPreview preview={preview} />
+        <SectionTabs id="submission" label="Submission" sections={[
+          { id: "review", label: "Review", content: <AssignmentSubmissionPreview preview={preview} /> },
+          { id: "hand-in", label: "Hand in", content: <div className={styles.handoff}>
         <SubmitChecklist assignmentId={id} items={checklist} currentUrl={assignment.submission_url} showFinalConfirmation={!connectedProvider} />
-
         {connectedProvider ? (
           <ExternalSubmissionSync
             assignmentId={id}
@@ -183,12 +184,14 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
           />
         ) : (
           <section className="sd-provider-handoff sd-provider-handoff--manual">
-            <h2>School handoff</h2>
-            <p>Diana cannot submit this assignment directly. Download the verified PDF above, then use the teacher’s required hand-in method.</p>
+            <h2>Hand in at school</h2>
+            <p>Download your PDF from Review, then hand it in using your teacher&apos;s required method.</p>
             {assignment.external_url ? <a href={assignment.external_url} target="_blank" rel="noreferrer">Open school assignment</a> : null}
           </section>
         )}
+          </div> },
+        ]} />
       </main>
-    </div>
+    </StudentShell>
   );
 }

@@ -2,6 +2,7 @@
 .claude/
 .claude-flow/
 .codex/
+.codex-temp/
 .planning/
 .qa/
 .swarm/
@@ -13,7 +14,7 @@
 .gstack/
 node_modules/
 test-results/
-vendor/
+/vendor/
 /external/
 export/diana-backend/
 /out/
@@ -25,6 +26,8 @@ tests/
 .env.*
 *.log
 *.tsbuildinfo
+**/__pycache__/
+*.pyc
 ruvector.db
 transcribe-note/
 artifacts/
@@ -84,7 +87,6 @@ public/images/diana-loading-atrium.png
 public/images/diana-loading-studio.png
 public/images/record-gamer-gallery.png
 public/images/today-future-academy-4k.webp
-!public/images/today-future-academy-4k.webp
 public/images/today-future-academy.jpg
 public/images/today-high-school.jpg
 public/images/today-open-academy.jpg

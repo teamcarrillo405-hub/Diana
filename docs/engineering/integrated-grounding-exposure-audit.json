@@ -1,0 +1,97 @@
+{
+  "schemaVersion": "integrated-grounding-exposure-audit-v1",
+  "agent": "/root/large_model_benchmark",
+  "purpose": "Disclose an overbroad metadata search during engineering-plan preparation without reproducing evaluation content",
+  "search": {
+    "root": "scripts/learning",
+    "pattern": "exclusion|family|development.*hash|development.*sha|training.*sha",
+    "filenameGlobs": [
+      "*contract*.py",
+      "*evaluation*.py",
+      "qwen3_fresh_evaluation.py"
+    ],
+    "mechanism": "rg returned matching source lines; no module was imported or executed"
+  },
+  "exposure": [
+    {
+      "path": "scripts/learning/synthetic_lora_v3_evaluation.py",
+      "lines": [
+        20,
+        24,
+        25,
+        93,
+        132
+      ],
+      "actualCaseContentLines": [
+        93,
+        132
+      ],
+      "metadataEvidence": "docs/engineering/grounding-v3-test-manifest.json",
+      "classification": "Earlier v3 independent 100-case test module, not ordinary development data",
+      "manifestVersion": "diana-grounding-v3-independent-100-1",
+      "manifestSourceSha256": "62e8c41366d1af1bb5b1b31d44ed9ad51f3248bbc85372cd44188c8b24901194",
+      "manifestRowsSha256": "81b996eb8385acafec93be8980dce0a99848d127e26d7ac5dfdd7563e9fea5c2"
+    },
+    {
+      "path": "scripts/learning/qwen3_fresh_evaluation.py",
+      "lines": [
+        15,
+        18
+      ],
+      "actualCaseContentLines": [],
+      "metadataEvidence": "docs/engineering/qwen3-fresh-test-manifest.json",
+      "classification": "Current sealed fresh 100-case final module; matching output exposed constructor signature and field assignment only, not authored case values",
+      "manifestSourceSha256": "e5b11cb1972db7b40aa54eead763b1c6ba925c29d15ba506575ec858c4ff8efb",
+      "manifestRowsSha256": "0f167df4eebea0ac93a6074a1f2aa074d7a766ba036541665c1320dc261b88c4"
+    },
+    {
+      "path": "scripts/learning/test_synthetic_lora_v3_evaluation.py",
+      "lines": [
+        19
+      ],
+      "actualCaseContentLines": [],
+      "classification": "Schema-field assertion only"
+    },
+    {
+      "path": "scripts/learning/test_qwen3_fresh_evaluation.py",
+      "lines": [
+        30,
+        73
+      ],
+      "actualCaseContentLines": [],
+      "classification": "Schema-field lists/assertions only"
+    },
+    {
+      "path": "supabase/functions/_shared/learning/hybrid-approved-fixtures.ts",
+      "lines": [
+        3
+      ],
+      "classification": "Generated development registry incidentally matched during later assistance coverage audit",
+      "actualCaseContentLines": [
+        3
+      ],
+      "mechanism": "Source-only coverage search returned generated development line; no sealed final cases opened, no rows authored, no module executed"
+    }
+  ],
+  "limits": [
+    "Classification uses existing manifest metadata only; no subsequent corpus/source-case inspection occurred",
+    "This records exposure scope, not a declaration about the global exposure history of any evaluation set",
+    "No evaluation rows were authored, imported, executed or changed in this task",
+    "This agent must not claim fresh-context case authorship or independent untouched-test review"
+  ],
+  "actions": [
+    "Reported exposure to root immediately",
+    "Stopped corpus/source-case searches",
+    "Restricted remaining plan work to interfaces, CLI filenames and documented protocol",
+    "Require a separate fresh author and independent family review for future held-out content",
+    "Preserved all existing evaluation artifacts unchanged"
+  ],
+  "additionalAgentContext": [
+    {
+      "agent": "/root/hybrid_response_reviewer_fresh",
+      "recordedAt": "2026-09-29T05:33:30.116835+00:00",
+      "freshContext": false,
+      "context": "Inherited project and previous engineering/audit work. During production-interface discovery, a broad symbol search emitted part of the already-known generated development registry supabase/functions/_shared/learning/hybrid-approved-fixtures.ts line 3. No held-out case file opened, no registry import/execution, no new teaching cases authored, no frozen evaluation changes. Search stopped and root informed; subsequent reads limited to explicit production interfaces and opaque protocol fixtures."
+    }
+  ]
+}

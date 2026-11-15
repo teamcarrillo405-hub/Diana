@@ -43,6 +43,13 @@ test("Each Settings tab keeps the shared readable desktop treatment", async ({ p
   }
 });
 
+test("Legacy goals route opens the shared Settings goals tab", async ({ page }) => {
+  await openQaSession(page, { variant: "grayson" });
+  await page.goto("/settings/goals", { waitUntil: "networkidle" });
+  await expect(page).toHaveURL(/\/settings\?section=goals/u);
+  await expect(page.getByRole("heading", { name: "Goals", level: 1 })).toBeVisible();
+});
+
 test("Accessibility keeps voice choices compact when read aloud is enabled", async ({ page }) => {
   await page.setViewportSize({ width: 1600, height: 1000 });
   await openQaSession(page, { variant: "grayson" });

@@ -1,0 +1,40 @@
+{
+  "number": 7,
+  "title": "Trigonometric Equations and Identities",
+  "pages": 44,
+  "blocks": 399,
+  "chunks": 364,
+  "assetHash": "c1d6456a40c0c4d252b55859bdc27e4f40608fb446a59ac2d1395c192eaab168",
+  "indexHash": "ab7c4df9fb88ad3edafbfe822d0d3ef3eed9851b83874b0399b1c222485df137",
+  "pdfBytes": 1472824,
+  "indexBytes": 53313,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=7&format=pdf",
+  "retrieval": [
+    {
+      "query": "trigonometric identities",
+      "matches": 6,
+      "pages": [
+        26,
+        33,
+        20,
+        30,
+        9,
+        13
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "double angle identities",
+      "matches": 6,
+      "pages": [
+        26,
+        31,
+        25,
+        30,
+        31,
+        27
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

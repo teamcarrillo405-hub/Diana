@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, Loader2, Send, Trash2 } from "lucide-react";
 import {
@@ -38,6 +38,8 @@ export function SubmitChecklist({
   const [pending, startTransition] = useTransition();
   const [newItemLabel, setNewItemLabel] = useState("");
   const [confirmed, setConfirmed] = useState(false);
+  const [handedIn, setHandedIn] = useState(false);
+  useEffect(() => setItems(initial), [initial]);
   const requiredOk = items.filter((item) => item.required).every((item) => item.checked);
 
   function toggle(item: Item) {
@@ -87,7 +89,7 @@ export function SubmitChecklist({
 
   function confirmSubmission() {
     setError(null);
-    if (confirmed) return;
+    if (confirmed || !handedIn) return;
     if (!requiredOk) {
       setError("Check each required item when you are ready.");
       return;
@@ -100,6 +102,7 @@ export function SubmitChecklist({
       });
       if ("error" in result && result.error) return setError(result.error);
       setConfirmed(true);
+      router.refresh();
     });
   }
 
@@ -114,7 +117,7 @@ export function SubmitChecklist({
           <ul>
             {items.map((item) => (
               <li key={item.id}>
-                <button type="button" onClick={() => toggle(item)} disabled={pending}>
+                <button type="button" role="checkbox" aria-checked={item.checked} onClick={() => toggle(item)} disabled={pending}>
                   <span className="sd-submit-checkbox" data-checked={item.checked} aria-hidden="true">
                     {item.checked ? <Check size={16} strokeWidth={3} /> : null}
                   </span>
@@ -164,10 +167,11 @@ export function SubmitChecklist({
       </section>
 
       {showFinalConfirmation ? <div className="sd-submit-footer">
+        <label className="sd-submit-confirmation"><input type="checkbox" checked={handedIn} disabled={pending || confirmed} onChange={event => setHandedIn(event.target.checked)} />I handed this in using my teacher&apos;s required method.</label>
         <button
           type="button"
           onClick={confirmSubmission}
-          disabled={pending || !requiredOk || confirmed}
+          disabled={pending || !requiredOk || !handedIn || confirmed}
           aria-label="Confirm submission"
         >
           {pending ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}

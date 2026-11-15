@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { hasValidWorkerBearer } from "@/lib/worker-tier/worker-api-auth";
+import { hasValidWorkerBearer, workerBearerScope, workerMayAccessQueue, WINDOWS_WORKER_SMOKE_QUEUE } from "@/lib/worker-tier/worker-api-auth";
 import { isAllowedWorkerQueueName, VOICE_CANDIDATE_QUEUE } from "@/lib/worker-tier/production-worker-tier";
 import {
   formatWorkerQueueMetricsPrometheus,
@@ -12,9 +12,12 @@ export async function GET(request: Request) {
   }
 
   const url = new URL(request.url);
-  const queueName = url.searchParams.get("queueName")?.trim() || VOICE_CANDIDATE_QUEUE;
+  const queueName = url.searchParams.get("queueName")?.trim() || (workerBearerScope(request) === 'windows_host' ? WINDOWS_WORKER_SMOKE_QUEUE : VOICE_CANDIDATE_QUEUE);
   if (!isAllowedWorkerQueueName(queueName)) {
     return NextResponse.json({ ok: false, error: "Worker queue is not supported." }, { status: 400 });
+  }
+  if (!workerMayAccessQueue(request, queueName)) {
+    return NextResponse.json({ ok: false, error: "Worker queue is outside this credential's scope." }, { status: 403 });
   }
 
   const rawWindowMinutes = Number(url.searchParams.get("windowMinutes") ?? 15);

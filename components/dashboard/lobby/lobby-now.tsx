@@ -1,0 +1,14 @@
+"use client";
+import Link from "next/link";
+import { Clock3, Play } from "lucide-react";
+import type { TodayTask } from "@/lib/dashboard/today-view";
+import styles from "./today-now-proof.module.css";
+
+export function LobbyNow({ task, unavailable, onRetry }: { task?: TodayTask; unavailable: boolean; onRetry: () => void }) {
+  return <div className={styles.nowLayout} data-now-layout><div className={styles.briefing} data-now-briefing>
+    {unavailable ? <div className={styles.empty} data-now-empty><h2>Your plan could not load</h2><button className={styles.start} data-now-start onClick={onRetry}>Try again</button></div> : task ? <>
+      <div data-now-heading><div data-now-identity><div className={styles.subject} data-now-subject><span>{task.subject}</span></div></div><h2 className={styles.assignmentTitle} data-now-title data-long-title={task.title.length > 60}>{task.title}</h2></div>
+      <div data-now-action><div className={styles.meta} data-now-meta><span><Clock3 size={16} aria-hidden="true" />{task.minutes ? `${task.minutes} min estimated` : "No time estimate"}</span><span>{task.due}</span></div><Link className={styles.start} data-now-start href={task.href}><Play size={17} fill="currentColor" aria-hidden="true" /><span>{task.ready ? "Review submission" : task.resumable ? "Resume" : "Start"}</span></Link></div>
+    </> : <div className={styles.empty} data-now-empty><h2>A little room to plan</h2><Link className={styles.start} data-now-start href="/quick-add">Add assignment</Link></div>}
+  </div></div>;
+}

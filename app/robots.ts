@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { resolvePublicSiteUrl } from "@/lib/public-site-url";
+import { publicAppUrl } from "@/lib/public-site";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = resolvePublicSiteUrl();
+  const baseUrl = publicAppUrl();
   return {
     rules: {
       userAgent: "*",

@@ -1,13 +1,13 @@
 # Diana Cinematic Landing Design Contract
 
-Status: approved 95+ direction, implementation and release contract
+Status: approved 95+ direction, implementation and release contract  
 Last grounded against the repository: 2026-09-17
 
 ## Purpose
 
 This document freezes the user-approved direction for Diana's public landing page. The page must feel like a premium student product, not a generic AI landing page: one cinematic school-night story, real Diana product proof, clear student ownership, and a direct early-access action.
 
-The active route is `app/page.tsx` -> `components/canonical-public-landing/canonical-public-landing.jsx` -> `components/canonical-public-landing/cinematic-v3/cinematic-landing.tsx`. The cinematic narrative, motion, and asset bundle are published under `public/assets/landing-cinematic-v3`. This is the only public landing implementation in the checkout.
+The active route is `app/page.tsx` -> `components/canonical-public-landing/canonical-public-landing.jsx` -> `components/canonical-public-landing/cinematic-v3/cinematic-landing.tsx`. The cinematic narrative, motion, and asset bundle live in `.codex-candidates/c28-diana-curved-work` and are published under `public/assets/landing-cinematic-v3`. `NEXT_PUBLIC_LANDING_VARIANT=legacy` retains `public-landing-v2.jsx` as the rollback path. Older landing components are reference material, not the default implementation.
 
 ## Experience Contract
 
@@ -36,7 +36,7 @@ The header and opening story may fill most of the first viewport, but at least 2
 
 ## Palette
 
-The shared public-page tokens in `app/public-pages.css` are the baseline:
+The source tokens in `app/public-landing-v2.css` are the baseline:
 
 | Role | Token | Value | Use |
 | --- | --- | --- | --- |

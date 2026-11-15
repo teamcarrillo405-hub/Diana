@@ -5,6 +5,7 @@ on:
     branches: ["**"]
     paths:
       - Dockerfile.worker
+      - Dockerfile.worker.dockerignore
       - .dockerignore
       - .env.worker.example
       - .env.worker-canary.example
@@ -28,6 +29,10 @@ on:
       - scripts/run-diana-worker.ts
       - scripts/build-worker.mjs
       - scripts/smoke-worker-runtime.mjs
+      - scripts/verify-worker-container.mjs
+      - scripts/verify-worker-credential-boundary.mjs
+      - supabase/migrations/*worker_execution_capabilities.sql
+      - lib/worker-tier/worker-packaging.test.ts
       - scripts/run-worker-tenant-canary.ts
       - scripts/run-worker-e2e-smoke.ts
       - scripts/run-worker-deployed-canary.ts
@@ -41,6 +46,7 @@ on:
   pull_request:
     paths:
       - Dockerfile.worker
+      - Dockerfile.worker.dockerignore
       - .dockerignore
       - .env.worker.example
       - .env.worker-canary.example
@@ -64,6 +70,10 @@ on:
       - scripts/run-diana-worker.ts
       - scripts/build-worker.mjs
       - scripts/smoke-worker-runtime.mjs
+      - scripts/verify-worker-container.mjs
+      - scripts/verify-worker-credential-boundary.mjs
+      - supabase/migrations/*worker_execution_capabilities.sql
+      - lib/worker-tier/worker-packaging.test.ts
       - scripts/run-worker-tenant-canary.ts
       - scripts/run-worker-e2e-smoke.ts
       - scripts/run-worker-deployed-canary.ts
@@ -102,7 +112,7 @@ jobs:
         id: setup_node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
-          node-version: "22"
+          node-version: "24"
           cache: npm
 
       - name: Install dependencies
@@ -120,6 +130,13 @@ jobs:
       - name: Smoke compiled worker runtime
         id: runtime_smoke
         run: npm run worker:runtime-smoke
+
+      - name: Prove compiled worker capability protocol offline
+        id: credential_proof
+        run: |
+          set -o pipefail
+          mkdir -p worker-image-evidence
+          npm run worker:credential-proof | tee worker-image-evidence/credential-proof.log
 
       - name: Build worker image
         id: build_image
@@ -149,12 +166,20 @@ jobs:
       - name: Smoke worker command path
         id: command_smoke
         run: |
-          docker run --rm \
+          IMAGE_ID="$(node -p "require('./worker-image-evidence/summary.json').imageId")"
+          docker run --rm --pull=never --network none \
             -e WORKER_API_TOKEN=ci-worker-token \
             -e DIANA_WORKER_BASE_URL=http://127.0.0.1:3000 \
             -e OPENJARVIS_BASE_URL=http://openjarvis:8000 \
-            diana-worker:${{ github.sha }} \
+            "$IMAGE_ID" \
             node dist/worker/run-diana-worker.cjs --check-config
+
+      - name: Prove complete protocol inside the restricted image
+        id: container_proof
+        run: |
+          set -o pipefail
+          IMAGE_ID="$(node -p "require('./worker-image-evidence/summary.json').imageId")"
+          node scripts/verify-worker-container.mjs "$IMAGE_ID" | tee worker-image-evidence/container-proof.log
 
       - name: Login to GitHub Container Registry
         id: login_registry
@@ -167,9 +192,21 @@ jobs:
         run: |
           IMAGE_REPOSITORY="$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
           IMAGE="ghcr.io/${IMAGE_REPOSITORY}/diana-worker:${{ github.sha }}"
-          docker tag diana-worker:${{ github.sha }} "$IMAGE"
+          IMAGE_ID="$(node -p "require('./worker-image-evidence/summary.json').imageId")"
+          docker tag "$IMAGE_ID" "$IMAGE"
           docker push "$IMAGE"
           echo "$IMAGE" > worker-image-evidence/pushed-image.txt
+          docker image inspect "$IMAGE" > worker-image-evidence/pushed-inspect.json
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const summary = JSON.parse(fs.readFileSync('worker-image-evidence/summary.json', 'utf8'));
+          const actual = JSON.parse(fs.readFileSync('worker-image-evidence/pushed-inspect.json', 'utf8'))[0];
+          if (actual.Id !== summary.imageId) throw new Error('Pushed tag drifted from tested image');
+          const repository = summary.remoteImage.slice(0, summary.remoteImage.lastIndexOf(':'));
+          const matches = (actual.RepoDigests || []).filter(value => value.startsWith(repository + '@sha256:'));
+          if (matches.length !== 1 || !/^sha256:[a-f0-9]{64}$/.test(matches[0].split('@')[1])) throw new Error('Missing unique pushed repository digest');
+          fs.writeFileSync('worker-image-evidence/pushed-image.json', JSON.stringify({ remoteImage: summary.remoteImage, imageId: actual.Id, repositoryDigest: matches[0] }) + '\n', { flag: 'wx' });
+          NODE
 
       - name: Write worker image outcome
         if: always()
@@ -188,9 +225,11 @@ jobs:
               "deploymentCheck": "${{ steps.deployment_check.outcome }}",
               "workerTests": "${{ steps.worker_tests.outcome }}",
               "runtimeSmoke": "${{ steps.runtime_smoke.outcome }}",
+              "credentialProof": "${{ steps.credential_proof.outcome }}",
               "buildImage": "${{ steps.build_image.outcome }}",
               "recordImageEvidence": "${{ steps.record_image_evidence.outcome }}",
               "commandSmoke": "${{ steps.command_smoke.outcome }}",
+              "containerProof": "${{ steps.container_proof.outcome }}",
               "loginRegistry": "${{ steps.login_registry.outcome }}",
               "pushImage": "${{ steps.push_image.outcome }}"
             }

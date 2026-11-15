@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   getValidGoogleToken: vi.fn(),
   hydrateLmsConnectionForRuntime: vi.fn(),
   persistLmsTokenRefreshForRuntime: vi.fn(),
+  extractNativeAssignmentSource:vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -17,6 +18,7 @@ vi.mock("@/lib/supabase/service", () => ({ createServiceClient: vi.fn() }));
 vi.mock("@/lib/lms/canvas", () => ({ getValidCanvasToken: vi.fn() }));
 vi.mock("@/lib/lms/google", () => ({ getValidGoogleToken: mocks.getValidGoogleToken }));
 vi.mock("@/lib/lms/materials", () => ({ materializeAssignmentMaterial: mocks.materializeAssignmentMaterial }));
+vi.mock("@/lib/learning-engine/native-source",()=>({extractNativeAssignmentSource:mocks.extractNativeAssignmentSource,NATIVE_SOURCE_REVIEW_MESSAGE:"Text is ready. Compare equations, tables and diagrams with the original file before using them."}));
 vi.mock("@/lib/lms/credential-policy", () => ({
   hydrateLmsConnectionForRuntime: mocks.hydrateLmsConnectionForRuntime,
   persistLmsTokenRefreshForRuntime: mocks.persistLmsTokenRefreshForRuntime,
@@ -63,6 +65,7 @@ describe("connected assignment source materialization retries", () => {
     vi.clearAllMocks();
     mocks.getValidGoogleToken.mockResolvedValue({ token: "google-token", refreshed: null });
     mocks.hydrateLmsConnectionForRuntime.mockImplementation(async (_ownerId, connection) => connection);
+    mocks.extractNativeAssignmentSource.mockResolvedValue({status:"provider_required",reason:"unreadable"});
   });
 
   it("moves ready to partial and imports it on the next retry", async () => {
@@ -150,6 +153,39 @@ describe("connected assignment source materialization retries", () => {
     expect(harness.upload).not.toHaveBeenCalled();
     expect(harness.invoke).toHaveBeenCalledTimes(1);
   });
+
+  it("materializes a native text PDF with zero model calls and retains layout review",async()=>{
+    const harness=createHarness();
+    mocks.materializeAssignmentMaterial.mockResolvedValue(downloaded);
+    mocks.extractNativeAssignmentSource.mockResolvedValue({status:"extracted",text:"[Page 1]\nNative source text requiring original layout review.",pageCount:1,reviewRequired:true});
+    const result=await materializeConnectedAssignmentSources({assignmentId:ASSIGNMENT_ID});
+    expect(result).toEqual({ok:true,imported:0,partial:1});
+    expect(harness.invoke).not.toHaveBeenCalled();
+    expect(harness.source.extracted_text).toBe("[Page 1]\nNative source text requiring original layout review.");
+    expect(harness.source.error_message).toContain("Compare equations");
+    expect(harness.source.materialization_claim_token).toBeNull();
+    expect(harness.assignment.source_import_status).toBe("partial");
+  });
+
+  it("retains a retryable partial source when the original storage read is unavailable",async()=>{
+    const harness=createHarness({storage_key:`${OWNER_ID}/assignments/${ASSIGNMENT_ID}/source-${SOURCE_ID}.pdf`,mime_type:"application/pdf"});
+    harness.download.mockResolvedValue({data:null,error:{message:"File unavailable"}});
+    expect(await materializeConnectedAssignmentSources({assignmentId:ASSIGNMENT_ID})).toEqual({ok:true,imported:0,partial:1});
+    expect(harness.source.extracted_text).toBeNull();expect(harness.invoke).not.toHaveBeenCalled();
+    expect(mocks.extractNativeAssignmentSource).not.toHaveBeenCalled();
+    expect(harness.source.materialization_claim_token).toBeNull();
+  });
+
+  it("does not write native text after another worker takes the materialization claim",async()=>{
+    const harness=createHarness({storage_key:`${OWNER_ID}/assignments/${ASSIGNMENT_ID}/source-${SOURCE_ID}.pdf`,mime_type:"application/pdf"});
+    mocks.extractNativeAssignmentSource.mockImplementation(async()=>{
+      harness.source.materialization_claim_token="different-worker";
+      return {status:"extracted",text:"Native source text that must not overwrite another worker.",pageCount:1,reviewRequired:true};
+    });
+    expect(await materializeConnectedAssignmentSources({assignmentId:ASSIGNMENT_ID})).toEqual({ok:true,imported:0,partial:1});
+    expect(harness.source.extracted_text).toBeNull();expect(harness.invoke).not.toHaveBeenCalled();
+    expect(harness.source.materialization_claim_token).toBe("different-worker");
+  });
 });
 
 describe("assignment source materialization claim migration", () => {
@@ -217,6 +253,7 @@ function createHarness(
     ? { data: { size: downloaded.bytes.length, contentType: downloaded.mimeType }, error: null }
     : { data: null, error: { status: 404, message: "not found" } });
   const invoke = vi.fn();
+  const download=vi.fn().mockResolvedValue({data:new Blob(["%PDF-1.7\nworksheet"],{type:"application/pdf"}),error:null});
 
   const rpc = vi.fn(async (name: string, args: Record<string, unknown>) => {
     if (name === "renew_assignment_source_materialization_claim") {
@@ -250,11 +287,11 @@ function createHarness(
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: OWNER_ID } } }) },
     from,
     rpc,
-    storage: { from: vi.fn(() => ({ upload, info })) },
+    storage: { from: vi.fn(() => ({ upload, info, download })) },
     functions: { invoke },
   });
 
-  return { assignment, source, upload, invoke, rpc };
+  return { assignment, source, upload, invoke, rpc, download };
 }
 
 function queryFor(

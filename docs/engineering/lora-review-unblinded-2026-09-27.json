@@ -1,0 +1,12 @@
+{
+  "reviewSha256": "8e5836069cd4c5e92e5112da335670de49d302ba20831023a38dfb210dbe9578",
+  "packetSha256": "ce274bb64d24f7cd36cf74373a7da0af2f93d9a4ec052880c7175f8a4227bb47",
+  "counts": {
+    "base": 1,
+    "adapter": 14,
+    "tie": 0,
+    "neither": 5
+  },
+  "qualification": "Independent AI preference on 20 synthetic cases; not educator approval, readiness or learning evidence.",
+  "productionEligible": false
+}

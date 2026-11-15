@@ -3,6 +3,7 @@ import {
   buildFallbackStudyArtifact,
   extractStudyTerms,
   parseStudyArtifactResponse,
+  isUsableGeneratedArtifact,
   withEditedCards,
 } from "./artifacts";
 
@@ -61,7 +62,7 @@ describe("study artifacts", () => {
       sourceText,
     });
 
-    expect(artifact.title).toContain("Flashcards");
+    expect(artifact.title).toContain("Recall");
     expect(artifact.cards.length).toBeGreaterThan(0);
     expect(artifact.authorshipReceipt).toContain("Student source material");
   });
@@ -136,5 +137,20 @@ describe("study artifacts", () => {
     expect(edited.editState.cardsEdited).toBe(1);
     expect(edited.reviewLoop.masterySignal).toBe("getting_there");
     expect(edited.authorshipReceiptDetail.studentActions.join(" ")).toContain("Edited card wording");
+  });
+});
+
+describe("generated artifact validation", () => {
+  it("rejects missing, duplicate, or incomplete questions without filling them with fallback text", () => {
+    expect(isUsableGeneratedArtifact("not json", "practice_test", 3)).toBe(false);
+    expect(isUsableGeneratedArtifact(JSON.stringify({quiz:[null]}), "practice_test")).toBe(false);
+    expect(isUsableGeneratedArtifact(JSON.stringify({quiz:[{question:"A?",answer:"B"},{question:"A?",answer:"C"}]}), "practice_test",2)).toBe(false);
+    expect(isUsableGeneratedArtifact(JSON.stringify({quiz:[{question:"A?",answer:"B"}]}), "practice_test",3)).toBe(false);
+  });
+  it("keeps all twenty distinct generated questions", () => {
+    const raw = JSON.stringify({quiz:Array.from({length:20},(_,index)=>({question:`Question ${index+1}?`,answer:`Answer ${index+1}`}))});
+    expect(isUsableGeneratedArtifact(raw,"practice_test",20)).toBe(true);
+    const artifact = parseStudyArtifactResponse(raw,{type:"practice_test",sourceTitle:"Biology",sourceType:"note",mode:"retrieval_quiz",sourceText:"Cell structure material",questionCount:20});
+    expect(artifact.quiz).toHaveLength(20);
   });
 });

@@ -1,0 +1,1600 @@
+{
+  "schemaVersion": 1,
+  "reviewerId": "/root/revision_b_content_audit",
+  "independentReviewer": true,
+  "educatorReviewed": false,
+  "reviewedAt": "2026-09-28T18:35:34.809614+00:00",
+  "sourcePath": "scripts/learning/qwen3_grounding_revision_b.py",
+  "sourceSha256": "43207795fd55ed551ab6697331118fb1d0e8251ca0022a19ab7d21ab67db7323",
+  "canonicalRowsSha256": "195374534740bea0246472b28c554fb86e35f3153b14adcfe40a50f369fbfece",
+  "canonicalRowsEncoding": "json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')",
+  "reviewMethod": "Independent manual semantic reading of all 100 source contexts and all 300 question-target pairs, recorded individually below; mechanical assertions supplement the reading. The reviewer reported findings to the coordinator, did not edit training rows, and reread the five corrected targets before final hash binding.",
+  "readBoundary": {
+    "revisionBTrainingSourceRead": true,
+    "trainingARead": false,
+    "developmentEvaluationRead": false,
+    "finalEvaluationRead": false,
+    "modelOutputsRead": false,
+    "otherReviewerResultsRead": false
+  },
+  "scope": {
+    "rowCount": 300,
+    "contextCount": 100,
+    "subjects": {
+      "math": 60,
+      "reading": 60,
+      "English": 60,
+      "science": 60,
+      "history": 60
+    },
+    "answerability": {
+      "answerable": 150,
+      "missing": 110,
+      "conflicting": 40
+    },
+    "fictionalSourceContexts": true,
+    "gradeBandsValidated": false
+  },
+  "criteria": [
+    "Answerable EVIDENCE is an exact, complete, relevant source quotation.",
+    "insufficient is used for unavailable facts and unresolved conflicts; conflicting sources are not arbitrarily resolved.",
+    "NEXT is one useful question tied to the task and does not merely repeat the learner question.",
+    "NEXT does not invent outcomes, records, motives, source authority, or unsupported presuppositions.",
+    "Missing-evidence requests describe needed evidence without claiming that it exists."
+  ],
+  "mechanicalVerification": {
+    "uniqueRowIds": true,
+    "allAnswerableQuotesExactSourceSubstrings": true,
+    "allExpectedAbstentionsMatchTargets": true,
+    "allAcceptedQuotesMatchEvidence": true,
+    "allNextAnchorsPresent": true,
+    "oneQuestionMarkPerNext": true,
+    "allFiveCorrectionsVerified": true,
+    "sourceUnchangedDuringHashBinding": true
+  },
+  "resolvedFindings": [
+    {
+      "id": "train-r2b-history-travel-diary-3",
+      "reason": "Original NEXT requested only resident winter views while the visitor's winter opinion was also absent.",
+      "correction": "What visitor and resident winter accounts, if available, would you need before comparing their views?",
+      "status": "resolved",
+      "verifiedInFinalSource": true
+    },
+    {
+      "id": "train-r2b-reading-chapter-title-2",
+      "reason": "Original NEXT changed an empty chair into the chair's absence or use, although a title alone cannot establish the literal referent.",
+      "correction": "What chapter passage would help establish what the title refers to and why the chair is described as empty?",
+      "status": "resolved",
+      "verifiedInFinalSource": true
+    },
+    {
+      "id": "train-r2b-reading-repeated-gate-1",
+      "reason": "Original NEXT called the observed pause and retreat hesitation, introducing an unstated mental interpretation.",
+      "correction": "How could you compare the opening pause and retreat with the action at the close?",
+      "status": "resolved",
+      "verifiedInFinalSource": true
+    },
+    {
+      "id": "train-r2b-math-area-scale-1",
+      "reason": "Original NEXT moved from outline dimensions to area without a stated rectangular shape.",
+      "correction": "How could you record the drawn dimensions while keeping grid units explicit?",
+      "status": "resolved",
+      "verifiedInFinalSource": true
+    },
+    {
+      "id": "train-r2b-history-map-boundary-1",
+      "reason": "Original NEXT named a land-use legend when the source documented shading conventions and only explicitly identified a road legend.",
+      "correction": "How could you use the land-use shading to compare the mapped areas?",
+      "status": "resolved",
+      "verifiedInFinalSource": true
+    }
+  ],
+  "unresolvedFindings": [],
+  "caseReviews": [
+    {
+      "id": "train-r2b-math-map-units-1",
+      "passed": true,
+      "notes": "The full scale sentence explicitly supplies two meters per horizontal step; axis labeling applies that stated scale."
+    },
+    {
+      "id": "train-r2b-math-map-units-2",
+      "passed": true,
+      "notes": "The quoted pond coordinate is exact; checking coordinate order is a supported plotting step."
+    },
+    {
+      "id": "train-r2b-math-map-units-3",
+      "passed": true,
+      "notes": "The entrance is absent, so no distance is determined; requesting entrance location and distance convention addresses both gaps."
+    },
+    {
+      "id": "train-r2b-math-reflection-rule-1",
+      "passed": true,
+      "notes": "The complete reflection rule preserves y and reverses x; applying that sign change is grounded."
+    },
+    {
+      "id": "train-r2b-math-reflection-rule-2",
+      "passed": true,
+      "notes": "The listed original vertex is quoted exactly; marking it supports checking the reflected point."
+    },
+    {
+      "id": "train-r2b-math-reflection-rule-3",
+      "passed": true,
+      "notes": "Two original vertices are absent; obtaining them is necessary before reflecting the whole triangle."
+    },
+    {
+      "id": "train-r2b-math-spinner-sectors-1",
+      "passed": true,
+      "notes": "Equal likelihood is explicitly stated and supports a single-spin denominator discussion."
+    },
+    {
+      "id": "train-r2b-math-spinner-sectors-2",
+      "passed": true,
+      "notes": "The full sector inventory identifies three blue sectors out of eight; part-whole representation is useful."
+    },
+    {
+      "id": "train-r2b-math-spinner-sectors-3",
+      "passed": true,
+      "notes": "No spins were recorded, so an observed gold fraction cannot be supplied; requesting results targets the missing evidence."
+    },
+    {
+      "id": "train-r2b-math-replacement-draw-1",
+      "passed": true,
+      "notes": "Replacement and remixing are directly quoted; reasoning about unchanged counts follows the procedure."
+    },
+    {
+      "id": "train-r2b-math-replacement-draw-2",
+      "passed": true,
+      "notes": "The square and round inventory is exact; a probability table organizes the supplied counts."
+    },
+    {
+      "id": "train-r2b-math-replacement-draw-3",
+      "passed": true,
+      "notes": "There is no observation log, so the first two actual shapes are unknown; asking for that log is appropriate."
+    },
+    {
+      "id": "train-r2b-math-recursive-pattern-1",
+      "passed": true,
+      "notes": "The start and add-four instruction are quoted together; extending one position at a time applies them."
+    },
+    {
+      "id": "train-r2b-math-recursive-pattern-2",
+      "passed": true,
+      "notes": "One-based indexing is explicit; labeling position one supports later formula construction."
+    },
+    {
+      "id": "train-r2b-math-recursive-pattern-3",
+      "passed": true,
+      "notes": "The rule is limited to this sheet; obtaining the neighboring group's rule avoids transferring it without evidence."
+    },
+    {
+      "id": "train-r2b-math-alternating-tiles-1",
+      "passed": true,
+      "notes": "The exact black-white-white block is quoted; bracketing it supports tracking positions."
+    },
+    {
+      "id": "train-r2b-math-alternating-tiles-2",
+      "passed": true,
+      "notes": "The first black tile and fixed orientation establish the start; numbering from it is grounded."
+    },
+    {
+      "id": "train-r2b-math-alternating-tiles-3",
+      "passed": true,
+      "notes": "No dimensions or total length are given; dimensions and total tile count are useful missing quantities."
+    },
+    {
+      "id": "train-r2b-math-slope-meaning-1",
+      "passed": true,
+      "notes": "Minutes and liters are explicitly assigned to the axes; labeling them preserves rate units."
+    },
+    {
+      "id": "train-r2b-math-slope-meaning-2",
+      "passed": true,
+      "notes": "The complete slope definition is exact; finding the change in liters is a useful component step."
+    },
+    {
+      "id": "train-r2b-math-slope-meaning-3",
+      "passed": true,
+      "notes": "No plotted points are available, so a numerical slope is unavailable; recovering points addresses the gap."
+    },
+    {
+      "id": "train-r2b-math-median-paired-1",
+      "passed": true,
+      "notes": "The complete even-list median instruction is quoted; identifying its middle pair is useful."
+    },
+    {
+      "id": "train-r2b-math-median-paired-2",
+      "passed": true,
+      "notes": "All six ordered observations and their units are preserved; indexing them locates the middle pair."
+    },
+    {
+      "id": "train-r2b-math-median-paired-3",
+      "passed": true,
+      "notes": "Names are absent; a person-to-time record is needed to identify the longest waiter."
+    },
+    {
+      "id": "train-r2b-math-sampling-frame-1",
+      "passed": true,
+      "notes": "Random selection from the afternoon roster is accurately quoted; describing eligibility is appropriate."
+    },
+    {
+      "id": "train-r2b-math-sampling-frame-2",
+      "passed": true,
+      "notes": "Morning members are expressly excluded; discussing the club-wide inference limitation is grounded."
+    },
+    {
+      "id": "train-r2b-math-sampling-frame-3",
+      "passed": true,
+      "notes": "Neither responses nor preferences are supplied; completed responses are necessary for a popularity tally."
+    },
+    {
+      "id": "train-r2b-math-distance-definition-1",
+      "passed": true,
+      "notes": "The distance convention counts orthogonal grid steps; separate counting applies the rule."
+    },
+    {
+      "id": "train-r2b-math-distance-definition-2",
+      "passed": true,
+      "notes": "The no-diagonal rule is quoted exactly; rewriting a proposed diagonal as allowed moves is a useful hypothetical."
+    },
+    {
+      "id": "train-r2b-math-distance-definition-3",
+      "passed": true,
+      "notes": "Customer coordinates are erased, preventing a shortest-distance answer; retrieving them is appropriate."
+    },
+    {
+      "id": "train-r2b-math-unlabeled-quadrilateral-1",
+      "passed": true,
+      "notes": "Missing angle, length, and parallel marks support uncertainty about classification; checking a property is useful."
+    },
+    {
+      "id": "train-r2b-math-unlabeled-quadrilateral-2",
+      "passed": true,
+      "notes": "A rectangle cannot be verified from a generic quadrilateral; interior-angle evidence is pertinent."
+    },
+    {
+      "id": "train-r2b-math-unlabeled-quadrilateral-3",
+      "passed": true,
+      "notes": "No side lengths are given; measurements and scale are required for a perimeter in centimeters."
+    },
+    {
+      "id": "train-r2b-math-frequency-no-total-1",
+      "passed": true,
+      "notes": "Twelve observed red outcomes are directly quoted; keeping counts distinct from probabilities is useful."
+    },
+    {
+      "id": "train-r2b-math-frequency-no-total-2",
+      "passed": true,
+      "notes": "The draw total is omitted, so the empirical probability cannot be computed; requesting the denominator is exact."
+    },
+    {
+      "id": "train-r2b-math-frequency-no-total-3",
+      "passed": true,
+      "notes": "The initial inventory and draw assumptions are absent; both are needed for the first-draw chance."
+    },
+    {
+      "id": "train-r2b-math-finite-sequence-1",
+      "passed": true,
+      "notes": "The explicit multiple-rules qualification is fully quoted; naming a candidate rule preserves conditional reasoning."
+    },
+    {
+      "id": "train-r2b-math-finite-sequence-2",
+      "passed": true,
+      "notes": "A finite list without a rule does not uniquely require a next number; asking for a generating rule is useful."
+    },
+    {
+      "id": "train-r2b-math-finite-sequence-3",
+      "passed": true,
+      "notes": "The intended continuation cannot be established from numbers alone; author-provided instructions could resolve it."
+    },
+    {
+      "id": "train-r2b-math-area-scale-1",
+      "passed": true,
+      "notes": "The exact drawn dimensions are quoted; corrected follow-up records dimensions with explicit grid units and no longer presupposes a rectangular area."
+    },
+    {
+      "id": "train-r2b-math-area-scale-2",
+      "passed": true,
+      "notes": "Actual metric scale is absent; requesting the missing scale key addresses conversion."
+    },
+    {
+      "id": "train-r2b-math-area-scale-3",
+      "passed": true,
+      "notes": "Flooring price needs actual area and unit price, neither provided; the question asks for needed inputs rather than inventing a cost."
+    },
+    {
+      "id": "train-r2b-math-scatter-causality-1",
+      "passed": true,
+      "notes": "No assignment or size control is explicitly documented; considering town size tests a plausible confound without claiming causation."
+    },
+    {
+      "id": "train-r2b-math-scatter-causality-2",
+      "passed": true,
+      "notes": "The observational association gives no causal visits-per-bench effect; seeking a controlled comparison is appropriate."
+    },
+    {
+      "id": "train-r2b-math-scatter-causality-3",
+      "passed": true,
+      "notes": "Data are absent, so exact correlation is unavailable; paired town measurements are needed."
+    },
+    {
+      "id": "train-r2b-math-net-incomplete-1",
+      "passed": true,
+      "notes": "Six cube faces are directly stated; comparison against the five-square sketch explains incompleteness."
+    },
+    {
+      "id": "train-r2b-math-net-incomplete-2",
+      "passed": true,
+      "notes": "The sixth square's placement is unspecified; inspecting it is a useful prerequisite to checking the whole net."
+    },
+    {
+      "id": "train-r2b-math-net-incomplete-3",
+      "passed": true,
+      "notes": "No edge length is given, so volume is unavailable; requesting the length is appropriate."
+    },
+    {
+      "id": "train-r2b-math-conflict-point-1",
+      "passed": true,
+      "notes": "Both conflicting positions are quoted with their source labels; plotting both preserves the disagreement."
+    },
+    {
+      "id": "train-r2b-math-conflict-point-2",
+      "passed": true,
+      "notes": "Neither equally dated copy is privileged; independent location evidence is needed."
+    },
+    {
+      "id": "train-r2b-math-conflict-point-3",
+      "passed": true,
+      "notes": "The discrepancy's cause is unknown; requesting production evidence avoids asserting a coordinate swap."
+    },
+    {
+      "id": "train-r2b-math-conflict-dice-total-1",
+      "passed": true,
+      "notes": "The differing throw totals are fully quoted; comparing their effect on the shared numerator is useful."
+    },
+    {
+      "id": "train-r2b-math-conflict-dice-total-2",
+      "passed": true,
+      "notes": "Conflicting denominators prevent a verified proportion; evidence for the actual total is necessary."
+    },
+    {
+      "id": "train-r2b-math-conflict-dice-total-3",
+      "passed": true,
+      "notes": "The extra-observation accusation is unsupported; provenance or event evidence could distinguish explanations."
+    },
+    {
+      "id": "train-r2b-math-conflict-rule-1",
+      "passed": true,
+      "notes": "Both rules are quoted; comparing later terms reveals their divergence without choosing authority."
+    },
+    {
+      "id": "train-r2b-math-conflict-rule-2",
+      "passed": true,
+      "notes": "Both cards claim currency, with no precedence; authoritative clarification is required."
+    },
+    {
+      "id": "train-r2b-math-conflict-rule-3",
+      "passed": true,
+      "notes": "The official fifth term depends on the unresolved rule; obtaining a verified rule is the right next step."
+    },
+    {
+      "id": "train-r2b-math-conflict-rectangle-1",
+      "passed": true,
+      "notes": "Both widths are quoted exactly; showing the disputed dimension before area estimates is grounded."
+    },
+    {
+      "id": "train-r2b-math-conflict-rectangle-2",
+      "passed": true,
+      "notes": "Conflicting widths prevent a verified area; a repeat width measurement is a useful resolution step."
+    },
+    {
+      "id": "train-r2b-math-conflict-rectangle-3",
+      "passed": true,
+      "notes": "No instruments or cause are identified; instrument records and calibration evidence are relevant without assuming which caused the discrepancy."
+    },
+    {
+      "id": "train-r2b-reading-window-narrator-1",
+      "passed": true,
+      "notes": "The first-person scene sentence directly establishes narrator participation; discussing viewpoint follows its wording."
+    },
+    {
+      "id": "train-r2b-reading-window-narrator-2",
+      "passed": true,
+      "notes": "The explicit inability to know Mira's thoughts is quoted fully; it supports limits on viewpoint claims."
+    },
+    {
+      "id": "train-r2b-reading-window-narrator-3",
+      "passed": true,
+      "notes": "Mira's motive is absent; asking for Mira-focused evidence avoids inventing a reason."
+    },
+    {
+      "id": "train-r2b-reading-repair-flashback-1",
+      "passed": true,
+      "notes": "The backward jump and return are both preserved in the quote; tracing those shifts addresses structure."
+    },
+    {
+      "id": "train-r2b-reading-repair-flashback-2",
+      "passed": true,
+      "notes": "The opening bell discovery is exact; asking how it might prepare readers is a conditional interpretive step."
+    },
+    {
+      "id": "train-r2b-reading-repair-flashback-3",
+      "passed": true,
+      "notes": "No later repair is described; a later passage, if available, is necessary to establish the outcome."
+    },
+    {
+      "id": "train-r2b-reading-bridge-contrast-1",
+      "passed": true,
+      "notes": "The complete old-bridge description supports atmosphere; examining its adjectives is relevant."
+    },
+    {
+      "id": "train-r2b-reading-bridge-contrast-2",
+      "passed": true,
+      "notes": "The replacement's contrasting adjectives are exact; pairing descriptions supports comparison."
+    },
+    {
+      "id": "train-r2b-reading-bridge-contrast-3",
+      "passed": true,
+      "notes": "Neither engineer nor credit is supplied; a design credit or project record could identify one."
+    },
+    {
+      "id": "train-r2b-reading-storm-sensory-1",
+      "passed": true,
+      "notes": "The complete sound-and-smell sentence is exact; exploring possible mood effects remains interpretive."
+    },
+    {
+      "id": "train-r2b-reading-storm-sensory-2",
+      "passed": true,
+      "notes": "Both visible actions are preserved; the follow-up explicitly separates observed action from motive."
+    },
+    {
+      "id": "train-r2b-reading-storm-sensory-3",
+      "passed": true,
+      "notes": "No thoughts or fear are given; seeking thought evidence avoids accepting the learner's fear premise."
+    },
+    {
+      "id": "train-r2b-reading-two-letter-order-1",
+      "passed": true,
+      "notes": "The printing order and earlier date are both quoted; chronological rearrangement is supported."
+    },
+    {
+      "id": "train-r2b-reading-two-letter-order-2",
+      "passed": true,
+      "notes": "The relationship across both letters is directly quoted; considering later knowledge's effect is interpretive."
+    },
+    {
+      "id": "train-r2b-reading-two-letter-order-3",
+      "passed": true,
+      "notes": "The destination is unstated; destination evidence is needed to name a future home."
+    },
+    {
+      "id": "train-r2b-reading-limited-observer-1",
+      "passed": true,
+      "notes": "The inability to hear is fully preserved; limiting claims about the exchange is appropriate."
+    },
+    {
+      "id": "train-r2b-reading-limited-observer-2",
+      "passed": true,
+      "notes": "The balcony-only observational boundary is directly stated; discussing withheld information is grounded."
+    },
+    {
+      "id": "train-r2b-reading-limited-observer-3",
+      "passed": true,
+      "notes": "Envelope contents are never shown; message text or a later disclosure would be needed."
+    },
+    {
+      "id": "train-r2b-reading-problem-response-1",
+      "passed": true,
+      "notes": "Loss of well access is exactly quoted; naming that organizing problem is useful."
+    },
+    {
+      "id": "train-r2b-reading-problem-response-2",
+      "passed": true,
+      "notes": "The hillside water response is exact; connecting it to the problem and stated reopening is supported."
+    },
+    {
+      "id": "train-r2b-reading-problem-response-3",
+      "passed": true,
+      "notes": "Later preparedness is expressly unreported; a later record is needed before claiming changes."
+    },
+    {
+      "id": "train-r2b-reading-repeated-gate-1",
+      "passed": true,
+      "notes": "The pause, locked gate, and retreat are exact; corrected follow-up compares observable pause and retreat without assigning an unstated hesitant mental state."
+    },
+    {
+      "id": "train-r2b-reading-repeated-gate-2",
+      "passed": true,
+      "notes": "The open gate and crossing are quoted together; a possible ending effect is a supported interpretive question."
+    },
+    {
+      "id": "train-r2b-reading-repeated-gate-3",
+      "passed": true,
+      "notes": "The next day is absent; requesting a continuation identifies the missing source."
+    },
+    {
+      "id": "train-r2b-reading-parallel-departures-1",
+      "passed": true,
+      "notes": "Alternating preparations and locations are directly quoted; a two-column outline tracks them."
+    },
+    {
+      "id": "train-r2b-reading-parallel-departures-2",
+      "passed": true,
+      "notes": "The recurring hourly clock is exact; explaining its connection across locations is useful."
+    },
+    {
+      "id": "train-r2b-reading-parallel-departures-3",
+      "passed": true,
+      "notes": "Destinations are not identified; obtaining both destination details is necessary to compare them."
+    },
+    {
+      "id": "train-r2b-reading-hesitant-memory-1",
+      "passed": true,
+      "notes": "The entire quoted qualification preserves clear setting memory and uncertain order; confidence in chronology is pertinent."
+    },
+    {
+      "id": "train-r2b-reading-hesitant-memory-2",
+      "passed": true,
+      "notes": "Curtains and bowl are explicitly setting details; separating them from sequence evidence is useful."
+    },
+    {
+      "id": "train-r2b-reading-hesitant-memory-3",
+      "passed": true,
+      "notes": "No independent chronology is supplied; seeking one avoids treating uncertain memory as established order."
+    },
+    {
+      "id": "train-r2b-reading-unfinished-dialogue-1",
+      "passed": true,
+      "notes": "The excerpt's cutoff before removal or speech is directly quoted; the unresolved action explains the ending."
+    },
+    {
+      "id": "train-r2b-reading-unfinished-dialogue-2",
+      "passed": true,
+      "notes": "No object is removed in the supplied text; requesting continuation of the pocket action identifies the information needed."
+    },
+    {
+      "id": "train-r2b-reading-unfinished-dialogue-3",
+      "passed": true,
+      "notes": "Neither culprit nor explanation is supplied; asking for disappearance evidence avoids assigning responsibility."
+    },
+    {
+      "id": "train-r2b-reading-anonymous-poem-1",
+      "passed": true,
+      "notes": "The full direct-address description is quoted; discussing speaker-setting relationship is interpretive."
+    },
+    {
+      "id": "train-r2b-reading-anonymous-poem-2",
+      "passed": true,
+      "notes": "The mountain is not identified; authorial or publication context could help, without naming a real setting."
+    },
+    {
+      "id": "train-r2b-reading-anonymous-poem-3",
+      "passed": true,
+      "notes": "No composition date exists in the packet; dated manuscript evidence would be necessary."
+    },
+    {
+      "id": "train-r2b-reading-omitted-return-1",
+      "passed": true,
+      "notes": "The explicit omission of intervening years is exact; its effect on pacing is a relevant interpretation."
+    },
+    {
+      "id": "train-r2b-reading-omitted-return-2",
+      "passed": true,
+      "notes": "Employment in the missing years is unknown; asking for an account does not invent a job."
+    },
+    {
+      "id": "train-r2b-reading-omitted-return-3",
+      "passed": true,
+      "notes": "The resident is not named; an identifying detail is needed."
+    },
+    {
+      "id": "train-r2b-reading-single-reviewer-1",
+      "passed": true,
+      "notes": "The reviewer's complete judgment is quoted; distinguishing it from audience opinion preserves attribution."
+    },
+    {
+      "id": "train-r2b-reading-single-reviewer-2",
+      "passed": true,
+      "notes": "One review gives no majority audience result; audience responses are needed."
+    },
+    {
+      "id": "train-r2b-reading-single-reviewer-3",
+      "passed": true,
+      "notes": "The director is omitted; production credit would establish identity."
+    },
+    {
+      "id": "train-r2b-reading-door-metaphor-1",
+      "passed": true,
+      "notes": "The full door metaphor is preserved; asking what possibility it could suggest is qualified interpretation."
+    },
+    {
+      "id": "train-r2b-reading-door-metaphor-2",
+      "passed": true,
+      "notes": "No language is named; an identifying detail is required."
+    },
+    {
+      "id": "train-r2b-reading-door-metaphor-3",
+      "passed": true,
+      "notes": "Study duration is unstated; a timeline is needed before naming a number of months."
+    },
+    {
+      "id": "train-r2b-reading-chapter-title-1",
+      "passed": true,
+      "notes": "The source expressly limits the page to titles and page numbers; treating predictions as provisional is appropriate."
+    },
+    {
+      "id": "train-r2b-reading-chapter-title-2",
+      "passed": true,
+      "notes": "Title alone cannot establish the chair's referent or cause of emptiness; corrected follow-up requests chapter text and checks what the title refers to without turning emptiness into absence."
+    },
+    {
+      "id": "train-r2b-reading-chapter-title-3",
+      "passed": true,
+      "notes": "An invitation sender is unreported; requesting the relevant scene seeks missing evidence rather than naming a sender."
+    },
+    {
+      "id": "train-r2b-reading-conflict-bell-1",
+      "passed": true,
+      "notes": "Both same-evening claims are quoted; comparing them without deciding truth preserves the conflict."
+    },
+    {
+      "id": "train-r2b-reading-conflict-bell-2",
+      "passed": true,
+      "notes": "No corroboration resolves ringing versus silence; independent evidence could."
+    },
+    {
+      "id": "train-r2b-reading-conflict-bell-3",
+      "passed": true,
+      "notes": "Contradiction alone does not prove knowing deception; knowledge and intent evidence are explicitly requested."
+    },
+    {
+      "id": "train-r2b-reading-conflict-letter-ending-1",
+      "passed": true,
+      "notes": "Both incompatible outcomes are quoted; considering their effects on interpretation is appropriate."
+    },
+    {
+      "id": "train-r2b-reading-conflict-letter-ending-2",
+      "passed": true,
+      "notes": "Neither version is final; editorial or manuscript evidence could identify final authorial choice."
+    },
+    {
+      "id": "train-r2b-reading-conflict-letter-ending-3",
+      "passed": true,
+      "notes": "The reason for divergence is unstated; revision evidence could explain it without inventing an author motive."
+    },
+    {
+      "id": "train-r2b-reading-conflict-story-order-1",
+      "passed": true,
+      "notes": "Both event orders are preserved; a side-by-side sequence display is useful."
+    },
+    {
+      "id": "train-r2b-reading-conflict-story-order-2",
+      "passed": true,
+      "notes": "Neither recollection is verified; contemporaneous timing evidence could establish order."
+    },
+    {
+      "id": "train-r2b-reading-conflict-story-order-3",
+      "passed": true,
+      "notes": "No cause of memory divergence is supplied; earlier accounts and retellings are proposed evidence, not asserted causes."
+    },
+    {
+      "id": "train-r2b-reading-conflict-identity-1",
+      "passed": true,
+      "notes": "The competing witness identifications are exactly quoted; their effect on reader uncertainty is grounded."
+    },
+    {
+      "id": "train-r2b-reading-conflict-identity-2",
+      "passed": true,
+      "notes": "No unmasking or confirmation occurs; identity-confirming evidence is needed."
+    },
+    {
+      "id": "train-r2b-reading-conflict-identity-3",
+      "passed": true,
+      "notes": "No witness intent is established; knowledge and intent evidence would be needed for deliberate invention."
+    },
+    {
+      "id": "train-r2b-english-claim-survey-1",
+      "passed": true,
+      "notes": "The later-study-hour proposal is exact; restating it clearly is a useful claim-writing step."
+    },
+    {
+      "id": "train-r2b-english-claim-survey-2",
+      "passed": true,
+      "notes": "The 18-of-25 survey is quoted accurately; naming debate-club sampling qualifies its scope."
+    },
+    {
+      "id": "train-r2b-english-claim-survey-3",
+      "passed": true,
+      "notes": "No costs exist; staffing and building costs are relevant inputs for the threshold question."
+    },
+    {
+      "id": "train-r2b-english-counterargument-seat-1",
+      "passed": true,
+      "notes": "The concern and wall-placement response are quoted together; explaining their relationship preserves the argument."
+    },
+    {
+      "id": "train-r2b-english-counterargument-seat-2",
+      "passed": true,
+      "notes": "The bench recommendation is exact; seeking a supporting reason adds a useful writing step."
+    },
+    {
+      "id": "train-r2b-english-counterargument-seat-3",
+      "passed": true,
+      "notes": "Exact space requires measurements that are absent; courtyard and bench dimensions address the gap."
+    },
+    {
+      "id": "train-r2b-english-agreement-subject-1",
+      "passed": true,
+      "notes": "The complete subject-agreement rule is quoted; locating the subject outside the modifier applies it."
+    },
+    {
+      "id": "train-r2b-english-agreement-subject-2",
+      "passed": true,
+      "notes": "The entire draft sentence is exact; separating 'of markers' supports identifying the agreement issue."
+    },
+    {
+      "id": "train-r2b-english-agreement-subject-3",
+      "passed": true,
+      "notes": "No paragraph exists in the source; requesting it is necessary to assess tense consistency."
+    },
+    {
+      "id": "train-r2b-english-pronoun-ambiguity-1",
+      "passed": true,
+      "notes": "The complete ambiguous sentence is quoted; marking pronoun and antecedents is useful."
+    },
+    {
+      "id": "train-r2b-english-pronoun-ambiguity-2",
+      "passed": true,
+      "notes": "The editor explicitly identifies two possible referents; a name replacement is conditioned on knowing intent."
+    },
+    {
+      "id": "train-r2b-english-pronoun-ambiguity-3",
+      "passed": true,
+      "notes": "The giver is not identified; writer clarification is required rather than choosing a name."
+    },
+    {
+      "id": "train-r2b-english-parallel-list-1",
+      "passed": true,
+      "notes": "The matching-form principle is exact; making forms parallel while preserving activities is appropriate."
+    },
+    {
+      "id": "train-r2b-english-parallel-list-2",
+      "passed": true,
+      "notes": "The entire mixed-form list is quoted; identifying the odd phrase directly advances revision."
+    },
+    {
+      "id": "train-r2b-english-parallel-list-3",
+      "passed": true,
+      "notes": "No member preferences are supplied; preference data is necessary for a count."
+    },
+    {
+      "id": "train-r2b-english-quotation-context-1",
+      "passed": true,
+      "notes": "The complete spoken claim retains dry-day scope and missing rainy results; preserving that qualification is essential."
+    },
+    {
+      "id": "train-r2b-english-quotation-context-2",
+      "passed": true,
+      "notes": "The selective quotation and all-days claim are exact; comparing them with the speaker's scope is useful."
+    },
+    {
+      "id": "train-r2b-english-quotation-context-3",
+      "passed": true,
+      "notes": "Rain performance is expressly unknown; rainy comparisons are needed before extension."
+    },
+    {
+      "id": "train-r2b-english-transition-contrast-1",
+      "passed": true,
+      "notes": "The contrast relationship between immediate expense and later benefit is fully quoted; selecting such a transition applies it."
+    },
+    {
+      "id": "train-r2b-english-transition-contrast-2",
+      "passed": true,
+      "notes": "Purchase cost and fare savings are both quoted; preserving the distinct ideas is useful."
+    },
+    {
+      "id": "train-r2b-english-transition-contrast-3",
+      "passed": true,
+      "notes": "No prices appear; purchase price and per-trip savings are necessary for the break-even calculation."
+    },
+    {
+      "id": "train-r2b-english-evidence-relevance-1",
+      "passed": true,
+      "notes": "The dry-books claim is exactly quoted; asking for relevant rain-protection evidence is useful."
+    },
+    {
+      "id": "train-r2b-english-evidence-relevance-2",
+      "passed": true,
+      "notes": "The sole mascot fact is quoted without treating it as valid support; checking its relevance addresses the defect."
+    },
+    {
+      "id": "train-r2b-english-evidence-relevance-3",
+      "passed": true,
+      "notes": "No roof or outcome measurements exist; the next question requests observations under a specified design."
+    },
+    {
+      "id": "train-r2b-english-semicolon-rule-1",
+      "passed": true,
+      "notes": "The complete semicolon rule is exact; checking clause independence before applying it is useful."
+    },
+    {
+      "id": "train-r2b-english-semicolon-rule-2",
+      "passed": true,
+      "notes": "The punctuation-only constraint is preserved; locating a clause boundary supports the allowed revision."
+    },
+    {
+      "id": "train-r2b-english-semicolon-rule-3",
+      "passed": true,
+      "notes": "The broader scene is absent; scene context is needed to explain emptiness, without assuming everyone previously occupied the field."
+    },
+    {
+      "id": "train-r2b-english-summary-scope-1",
+      "passed": true,
+      "notes": "The complete one-week comparison and warmer covered-bin result are retained; preserving that scope is appropriate."
+    },
+    {
+      "id": "train-r2b-english-summary-scope-2",
+      "passed": true,
+      "notes": "The source-scope instruction is exact; checking each claim against it applies the rule."
+    },
+    {
+      "id": "train-r2b-english-summary-scope-3",
+      "passed": true,
+      "notes": "Winter growth is unobserved; relevant winter plant-growth observations would be required."
+    },
+    {
+      "id": "train-r2b-english-anonymous-statistic-1",
+      "passed": true,
+      "notes": "The lack of traceable support is explicitly quoted; seeking preference evidence advances revision."
+    },
+    {
+      "id": "train-r2b-english-anonymous-statistic-2",
+      "passed": true,
+      "notes": "No survey or count exists; results and sample size are necessary for a share."
+    },
+    {
+      "id": "train-r2b-english-anonymous-statistic-3",
+      "passed": true,
+      "notes": "No age comparisons exist; age-group preference counts would be needed."
+    },
+    {
+      "id": "train-r2b-english-citation-missing-1",
+      "passed": true,
+      "notes": "All omitted bibliographic details are quoted; finding source identity precedes a citation."
+    },
+    {
+      "id": "train-r2b-english-citation-missing-2",
+      "passed": true,
+      "notes": "The author is missing; original source records could establish authorship."
+    },
+    {
+      "id": "train-r2b-english-citation-missing-3",
+      "passed": true,
+      "notes": "Both bibliographic information and required style are absent; requesting both is necessary."
+    },
+    {
+      "id": "train-r2b-english-unknown-audience-1",
+      "passed": true,
+      "notes": "Greeting and invitation requirements are directly quoted; outlining them before audience wording is useful."
+    },
+    {
+      "id": "train-r2b-english-unknown-audience-2",
+      "passed": true,
+      "notes": "The recipient's title and relationship are absent; requesting them avoids inventing 'Professor'."
+    },
+    {
+      "id": "train-r2b-english-unknown-audience-3",
+      "passed": true,
+      "notes": "No date is supplied; obtaining the schedule is necessary before adding one."
+    },
+    {
+      "id": "train-r2b-english-missing-comparison-1",
+      "passed": true,
+      "notes": "The explicit-comparison instruction is exact; naming the comparator is conditioned on knowing it."
+    },
+    {
+      "id": "train-r2b-english-missing-comparison-2",
+      "passed": true,
+      "notes": "The comparator is not named; writer context would be needed to identify it."
+    },
+    {
+      "id": "train-r2b-english-missing-comparison-3",
+      "passed": true,
+      "notes": "Neither distance is given; requesting both permits a justified difference."
+    },
+    {
+      "id": "train-r2b-english-passive-agent-1",
+      "passed": true,
+      "notes": "The conditional active-voice instruction is preserved; maintaining meaning until identity is established is appropriate."
+    },
+    {
+      "id": "train-r2b-english-passive-agent-2",
+      "passed": true,
+      "notes": "The repairer is not named; repair records or clarification could identify the active subject."
+    },
+    {
+      "id": "train-r2b-english-passive-agent-3",
+      "passed": true,
+      "notes": "No method is documented; method evidence is required rather than assuming glass replacement."
+    },
+    {
+      "id": "train-r2b-english-conclusion-absent-1",
+      "passed": true,
+      "notes": "The claim and two planned sections are fully quoted; relating sections back to the claim is useful."
+    },
+    {
+      "id": "train-r2b-english-conclusion-absent-2",
+      "passed": true,
+      "notes": "The conclusion is blank; completed text is needed to assess a new argument."
+    },
+    {
+      "id": "train-r2b-english-conclusion-absent-3",
+      "passed": true,
+      "notes": "No completed examples exist; requesting essay examples identifies what is needed before comparison."
+    },
+    {
+      "id": "train-r2b-english-conflict-style-1",
+      "passed": true,
+      "notes": "Both opposing comma rules are quoted; querying the editor accurately represents the conflict."
+    },
+    {
+      "id": "train-r2b-english-conflict-style-2",
+      "passed": true,
+      "notes": "There is no priority rule; an editorial decision is needed."
+    },
+    {
+      "id": "train-r2b-english-conflict-style-3",
+      "passed": true,
+      "notes": "The current policy is unresolved; confirming it is necessary before judging omission."
+    },
+    {
+      "id": "train-r2b-english-conflict-quotation-1",
+      "passed": true,
+      "notes": "The entire positive-versus-negative transcript conflict is preserved; examining 'not' identifies its effect."
+    },
+    {
+      "id": "train-r2b-english-conflict-quotation-2",
+      "passed": true,
+      "notes": "Both transcripts are unverified; recording or speaker confirmation could establish wording."
+    },
+    {
+      "id": "train-r2b-english-conflict-quotation-3",
+      "passed": true,
+      "notes": "The favorable quotation cannot be accurately attributed yet; verified wording is needed."
+    },
+    {
+      "id": "train-r2b-english-conflict-referent-1",
+      "passed": true,
+      "notes": "The two competing helper names are directly quoted; presenting both supports clarification."
+    },
+    {
+      "id": "train-r2b-english-conflict-referent-2",
+      "passed": true,
+      "notes": "Neither unsigned note establishes intent; author confirmation is needed before replacement."
+    },
+    {
+      "id": "train-r2b-english-conflict-referent-3",
+      "passed": true,
+      "notes": "No revision history explains divergence; requesting it avoids inventing a cause."
+    },
+    {
+      "id": "train-r2b-english-conflict-assignment-1",
+      "passed": true,
+      "notes": "Both same-date word limits are preserved; concise clarification accurately represents the disagreement."
+    },
+    {
+      "id": "train-r2b-english-conflict-assignment-2",
+      "passed": true,
+      "notes": "Both claim finality, so the maximum is unknown; instructor confirmation resolves authority."
+    },
+    {
+      "id": "train-r2b-english-conflict-assignment-3",
+      "passed": true,
+      "notes": "An 800-word draft satisfies only one disputed limit; obtaining the authoritative version is necessary."
+    },
+    {
+      "id": "train-r2b-science-cart-force-1",
+      "passed": true,
+      "notes": "The full net-force definition is quoted; choosing a sign convention is a useful application step."
+    },
+    {
+      "id": "train-r2b-science-cart-force-2",
+      "passed": true,
+      "notes": "Both opposing directions are exact; labeled arrows represent the supplied forces."
+    },
+    {
+      "id": "train-r2b-science-cart-force-3",
+      "passed": true,
+      "notes": "Magnitude and mass are missing; requesting them enables an acceleration calculation."
+    },
+    {
+      "id": "train-r2b-science-closed-water-1",
+      "passed": true,
+      "notes": "The complete condensation definition is quoted; relating it to the stated cooler lid is grounded."
+    },
+    {
+      "id": "train-r2b-science-closed-water-2",
+      "passed": true,
+      "notes": "The sealed boundary is explicitly preserved; discussing internal water movement follows it."
+    },
+    {
+      "id": "train-r2b-science-closed-water-3",
+      "passed": true,
+      "notes": "No mass reading exists; requesting a condensed-water measurement is necessary."
+    },
+    {
+      "id": "train-r2b-science-insulation-control-1",
+      "passed": true,
+      "notes": "Equal volume and temperature are quoted together; discussing control of starting conditions is appropriate."
+    },
+    {
+      "id": "train-r2b-science-insulation-control-2",
+      "passed": true,
+      "notes": "Sleeve difference and shared room are exact; identifying the changed variable is grounded."
+    },
+    {
+      "id": "train-r2b-science-insulation-control-3",
+      "passed": true,
+      "notes": "There are no results; ten-minute readings are needed without assuming that the sleeved cup was warmer."
+    },
+    {
+      "id": "train-r2b-science-food-web-1",
+      "passed": true,
+      "notes": "The arrow convention is quoted exactly; tracing a food-to-consumer pathway applies it."
+    },
+    {
+      "id": "train-r2b-science-food-web-2",
+      "passed": true,
+      "notes": "Both algae-snail and snail-fish links are quoted; describing the pathway follows the key."
+    },
+    {
+      "id": "train-r2b-science-food-web-3",
+      "passed": true,
+      "notes": "There are no population or post-change records; counts after a specified algae decline would be needed for an observed outcome."
+    },
+    {
+      "id": "train-r2b-science-quadrat-boundary-1",
+      "passed": true,
+      "notes": "The full rooted-stem inclusion rule is preserved; applying it at edges is useful."
+    },
+    {
+      "id": "train-r2b-science-quadrat-boundary-2",
+      "passed": true,
+      "notes": "The exclusion of leaf overlap is exact; avoiding duplicate counting from overhanging leaves is a relevant hypothetical."
+    },
+    {
+      "id": "train-r2b-science-quadrat-boundary-3",
+      "passed": true,
+      "notes": "No counts or habitat estimate are supplied; sample counts and area are needed for extrapolation."
+    },
+    {
+      "id": "train-r2b-science-measurement-resolution-1",
+      "passed": true,
+      "notes": "One-millimeter marks and intact zero are exact; relating spacing to reported length is useful."
+    },
+    {
+      "id": "train-r2b-science-measurement-resolution-2",
+      "passed": true,
+      "notes": "The left-edge-at-zero procedure is quoted; checking alignment precedes reading."
+    },
+    {
+      "id": "train-r2b-science-measurement-resolution-3",
+      "passed": true,
+      "notes": "No right-edge location is recorded; asking for that reading addresses the missing length evidence."
+    },
+    {
+      "id": "train-r2b-science-series-circuit-1",
+      "passed": true,
+      "notes": "The stated single-path definition is exact; tracing the path applies it."
+    },
+    {
+      "id": "train-r2b-science-series-circuit-2",
+      "passed": true,
+      "notes": "The battery, switch, and lamp are all preserved; labeling them is useful."
+    },
+    {
+      "id": "train-r2b-science-series-circuit-3",
+      "passed": true,
+      "notes": "No assembled state or lamp observation is available; seeking those observations avoids assuming illumination."
+    },
+    {
+      "id": "train-r2b-science-dissolving-variable-1",
+      "passed": true,
+      "notes": "The compared dissolving-time outcome with equal masses and volumes is exact; defining its endpoint supports consistent measurement."
+    },
+    {
+      "id": "train-r2b-science-dissolving-variable-2",
+      "passed": true,
+      "notes": "Temperature-only change and constant stirring are preserved; table labels support the experiment plan."
+    },
+    {
+      "id": "train-r2b-science-dissolving-variable-3",
+      "passed": true,
+      "notes": "No timings exist; paired times are needed to calculate any difference without assuming faster dissolving."
+    },
+    {
+      "id": "train-r2b-science-erosion-deposition-1",
+      "passed": true,
+      "notes": "The complete deposition definition is quoted; identifying visible settling is an appropriate future observation."
+    },
+    {
+      "id": "train-r2b-science-erosion-deposition-2",
+      "passed": true,
+      "notes": "The tray-to-basin layout is exact; diagram labels describe the apparatus rather than an observed deposit."
+    },
+    {
+      "id": "train-r2b-science-erosion-deposition-3",
+      "passed": true,
+      "notes": "The model has not run; post-run measurements would be needed to identify a thickest deposit."
+    },
+    {
+      "id": "train-r2b-science-repeatability-1",
+      "passed": true,
+      "notes": "Ten swings and five repeated setups are exact; consistent counting supports repeatability."
+    },
+    {
+      "id": "train-r2b-science-repeatability-2",
+      "passed": true,
+      "notes": "The purpose of revealing variation is directly quoted; comparing variation is conditioned on collecting timings."
+    },
+    {
+      "id": "train-r2b-science-repeatability-3",
+      "passed": true,
+      "notes": "No timings exist; all five trial timings are required for their average."
+    },
+    {
+      "id": "train-r2b-science-single-seedling-1",
+      "passed": true,
+      "notes": "Missing shade comparison and unrecorded conditions are preserved; controlled comparison is relevant to causality."
+    },
+    {
+      "id": "train-r2b-science-single-seedling-2",
+      "passed": true,
+      "notes": "No comparable shaded result is supplied; seeking comparable shade observations advances the counterfactual comparison."
+    },
+    {
+      "id": "train-r2b-science-single-seedling-3",
+      "passed": true,
+      "notes": "Temperature was not recorded; a record is needed rather than inferred from the windowsill."
+    },
+    {
+      "id": "train-r2b-science-unidentified-metal-1",
+      "passed": true,
+      "notes": "Only observed shine and bending are quoted; separating observation from tentative identity is appropriate."
+    },
+    {
+      "id": "train-r2b-science-unidentified-metal-2",
+      "passed": true,
+      "notes": "Mass and volume are absent; those measurements are needed for density."
+    },
+    {
+      "id": "train-r2b-science-unidentified-metal-3",
+      "passed": true,
+      "notes": "Appearance and flexibility do not establish purity; composition evidence would be needed."
+    },
+    {
+      "id": "train-r2b-science-sound-distance-1",
+      "passed": true,
+      "notes": "Sight-before-sound observation is quoted fully; separating sequence from measured time is useful."
+    },
+    {
+      "id": "train-r2b-science-sound-distance-2",
+      "passed": true,
+      "notes": "Neither distance nor delay exists; requesting both is necessary for a speed estimate."
+    },
+    {
+      "id": "train-r2b-science-sound-distance-3",
+      "passed": true,
+      "notes": "The delay was not recorded; timed evidence is needed to verify half a second."
+    },
+    {
+      "id": "train-r2b-science-lake-single-sample-1",
+      "passed": true,
+      "notes": "Location and time of the single sample are preserved; limiting whole-lake claims is appropriate."
+    },
+    {
+      "id": "train-r2b-science-lake-single-sample-2",
+      "passed": true,
+      "notes": "No analysis result is supplied; an oxygen result is required."
+    },
+    {
+      "id": "train-r2b-science-lake-single-sample-3",
+      "passed": true,
+      "notes": "A single collection cannot establish spatial uniformity; measurements across sites are needed."
+    },
+    {
+      "id": "train-r2b-science-spring-extension-1",
+      "passed": true,
+      "notes": "The unloaded reference position is explicitly quoted; marking it before loading is useful."
+    },
+    {
+      "id": "train-r2b-science-spring-extension-2",
+      "passed": true,
+      "notes": "Neither unloaded nor loaded reading exists; requesting both permits extension calculation."
+    },
+    {
+      "id": "train-r2b-science-spring-extension-3",
+      "passed": true,
+      "notes": "No mass is given; mass and gravitational field value are required for weight."
+    },
+    {
+      "id": "train-r2b-science-habitat-return-1",
+      "passed": true,
+      "notes": "The document is explicitly pre-planting; distinguishing plan from outcome is essential."
+    },
+    {
+      "id": "train-r2b-science-habitat-return-2",
+      "passed": true,
+      "notes": "No baseline or follow-up exists; before-and-after counts are needed rather than assuming an increase."
+    },
+    {
+      "id": "train-r2b-science-habitat-return-3",
+      "passed": true,
+      "notes": "No survival survey exists; inventory and survey are proposed necessary evidence, not asserted records."
+    },
+    {
+      "id": "train-r2b-science-conflict-thermometers-1",
+      "passed": true,
+      "notes": "Both colocated readings are preserved; recording disagreement avoids choosing one."
+    },
+    {
+      "id": "train-r2b-science-conflict-thermometers-2",
+      "passed": true,
+      "notes": "No reference verifies either temperature; calibrated reference evidence is needed."
+    },
+    {
+      "id": "train-r2b-science-conflict-thermometers-3",
+      "passed": true,
+      "notes": "No calibration exists; requesting results for both instruments avoids blaming one without evidence."
+    },
+    {
+      "id": "train-r2b-science-conflict-nest-count-1",
+      "passed": true,
+      "notes": "Both same-time occupied counts are exact; flagging the discrepancy preserves it."
+    },
+    {
+      "id": "train-r2b-science-conflict-nest-count-2",
+      "passed": true,
+      "notes": "No verification resolves 14 versus 19; time-matched evidence could establish the count."
+    },
+    {
+      "id": "train-r2b-science-conflict-nest-count-3",
+      "passed": true,
+      "notes": "No classifications are available; nest-level evidence is needed without accepting the empty-nest accusation."
+    },
+    {
+      "id": "train-r2b-science-conflict-cooling-log-1",
+      "passed": true,
+      "notes": "Both disputed ten-minute temperatures are quoted; marking the point unresolved preserves uncertainty."
+    },
+    {
+      "id": "train-r2b-science-conflict-cooling-log-2",
+      "passed": true,
+      "notes": "Raw sensor evidence is absent; requesting it could verify temperature."
+    },
+    {
+      "id": "train-r2b-science-conflict-cooling-log-3",
+      "passed": true,
+      "notes": "The two readings lie on opposite sides of 40 C; verification is necessary for the threshold judgment."
+    },
+    {
+      "id": "train-r2b-science-conflict-germination-1",
+      "passed": true,
+      "notes": "The 12-versus-17 final count conflict is quoted; documenting it is useful."
+    },
+    {
+      "id": "train-r2b-science-conflict-germination-2",
+      "passed": true,
+      "notes": "Neither summary is verified; original observation evidence is needed."
+    },
+    {
+      "id": "train-r2b-science-conflict-germination-3",
+      "passed": true,
+      "notes": "The conflicting counts straddle fifteen; a verified tally is required for the threshold claim."
+    },
+    {
+      "id": "train-r2b-history-council-petition-1",
+      "passed": true,
+      "notes": "The fictional repair request and date are exactly quoted; discussing its stated purpose is grounded."
+    },
+    {
+      "id": "train-r2b-history-council-petition-2",
+      "passed": true,
+      "notes": "Twelve merchant signatories are exact; distinguishing them from all residents preserves scope."
+    },
+    {
+      "id": "train-r2b-history-council-petition-3",
+      "passed": true,
+      "notes": "A request alone does not establish repair; decision or work evidence would advance outcome verification."
+    },
+    {
+      "id": "train-r2b-history-chronology-ledger-1",
+      "passed": true,
+      "notes": "Both fictional dated openings are preserved; timeline placement uses supplied chronology."
+    },
+    {
+      "id": "train-r2b-history-chronology-ledger-2",
+      "passed": true,
+      "notes": "Contemporary writing dates are explicitly stated; evaluating that timing is appropriate."
+    },
+    {
+      "id": "train-r2b-history-chronology-ledger-3",
+      "passed": true,
+      "notes": "No causes are provided; planning or trade evidence could investigate the claim without asserting it."
+    },
+    {
+      "id": "train-r2b-history-artifact-context-1",
+      "passed": true,
+      "notes": "The sealed layer under a later floor is quoted fully; it supports relative ordering."
+    },
+    {
+      "id": "train-r2b-history-artifact-context-2",
+      "passed": true,
+      "notes": "Soot at the nozzle is an explicit observation; cautious interpretation of use is appropriate."
+    },
+    {
+      "id": "train-r2b-history-artifact-context-3",
+      "passed": true,
+      "notes": "No owner is named; inscription or associated records could support identity."
+    },
+    {
+      "id": "train-r2b-history-travel-diary-1",
+      "passed": true,
+      "notes": "The brief, dated visitor perspective is exact; discussing limits on generalization is appropriate."
+    },
+    {
+      "id": "train-r2b-history-travel-diary-2",
+      "passed": true,
+      "notes": "Inn and market focus is directly quoted; considering selection of activities follows it."
+    },
+    {
+      "id": "train-r2b-history-travel-diary-3",
+      "passed": true,
+      "notes": "Neither visitor nor resident winter views are supplied; corrected follow-up conditionally requests both before comparing perspectives."
+    },
+    {
+      "id": "train-r2b-history-poster-purpose-1",
+      "passed": true,
+      "notes": "The ticket-purchase appeal and deadline are preserved; purpose-based interpretation is grounded."
+    },
+    {
+      "id": "train-r2b-history-poster-purpose-2",
+      "passed": true,
+      "notes": "The company publisher is explicitly named; considering its interests is useful."
+    },
+    {
+      "id": "train-r2b-history-poster-purpose-3",
+      "passed": true,
+      "notes": "No causal sales attribution is supplied; sales and attribution evidence is required rather than a traveler count guess."
+    },
+    {
+      "id": "train-r2b-history-oral-history-time-1",
+      "passed": true,
+      "notes": "Recording and recalled-event dates are both exact; assessing memory interval is appropriate."
+    },
+    {
+      "id": "train-r2b-history-oral-history-time-2",
+      "passed": true,
+      "notes": "Daily-task rather than wage focus is explicit; relating questions to coverage is supported."
+    },
+    {
+      "id": "train-r2b-history-oral-history-time-3",
+      "passed": true,
+      "notes": "No wage amount appears; a wage record or explicit recollection would be needed."
+    },
+    {
+      "id": "train-r2b-history-map-boundary-1",
+      "passed": true,
+      "notes": "Both land-use shading conventions are quoted; corrected follow-up refers to supplied shading without assuming a separate land-use legend."
+    },
+    {
+      "id": "train-r2b-history-map-boundary-2",
+      "passed": true,
+      "notes": "Dashed lines are explicitly proposals; distinguishing proposal from completion is grounded."
+    },
+    {
+      "id": "train-r2b-history-map-boundary-3",
+      "passed": true,
+      "notes": "No later completion evidence exists; a later survey or construction record could establish it."
+    },
+    {
+      "id": "train-r2b-history-coin-evidence-1",
+      "passed": true,
+      "notes": "The ruler name and ship design are exact; research questions based on these features are useful."
+    },
+    {
+      "id": "train-r2b-history-coin-evidence-2",
+      "passed": true,
+      "notes": "The mixed disturbed layer is preserved; its effect on association-based dating is appropriate."
+    },
+    {
+      "id": "train-r2b-history-coin-evidence-3",
+      "passed": true,
+      "notes": "No mint date is supplied; minting evidence is necessary for an exact year."
+    },
+    {
+      "id": "train-r2b-history-law-and-practice-1",
+      "passed": true,
+      "notes": "The fictional sunset closing rule is quoted; separating norm from compliance is appropriate."
+    },
+    {
+      "id": "train-r2b-history-law-and-practice-2",
+      "passed": true,
+      "notes": "The market clerk's inspection role is exact; it can guide an administrative source search."
+    },
+    {
+      "id": "train-r2b-history-law-and-practice-3",
+      "passed": true,
+      "notes": "No actual enforcement or merchant reports exist; seeking them is necessary for compliance claims."
+    },
+    {
+      "id": "train-r2b-history-shipping-manifest-1",
+      "passed": true,
+      "notes": "All three cargo categories and departure context are preserved; organizing them is appropriate."
+    },
+    {
+      "id": "train-r2b-history-shipping-manifest-2",
+      "passed": true,
+      "notes": "Fee assessment is directly quoted; discussing how purpose shapes recorded details is grounded."
+    },
+    {
+      "id": "train-r2b-history-shipping-manifest-3",
+      "passed": true,
+      "notes": "No sales or cost records exist; obtaining purchase costs and sales evidence is a useful prerequisite to assessing profit."
+    },
+    {
+      "id": "train-r2b-history-undated-photograph-1",
+      "passed": true,
+      "notes": "The missing identifying documentation is quoted; listing those gaps is useful."
+    },
+    {
+      "id": "train-r2b-history-undated-photograph-2",
+      "passed": true,
+      "notes": "No location is known; identifiable landmarks or archive records could establish it."
+    },
+    {
+      "id": "train-r2b-history-undated-photograph-3",
+      "passed": true,
+      "notes": "No event evidence is given; a caption or contemporary account would be needed."
+    },
+    {
+      "id": "train-r2b-history-fragment-treaty-1",
+      "passed": true,
+      "notes": "The surviving toll-free clause is complete; acknowledging the fragment's limits preserves its scope."
+    },
+    {
+      "id": "train-r2b-history-fragment-treaty-2",
+      "passed": true,
+      "notes": "Signatures and treaty identity are absent; party-identifying evidence is required."
+    },
+    {
+      "id": "train-r2b-history-fragment-treaty-3",
+      "passed": true,
+      "notes": "Ratification and enforcement are unknown; implementation records could establish practical effects."
+    },
+    {
+      "id": "train-r2b-history-unlocated-tool-1",
+      "passed": true,
+      "notes": "Missing find location and excavation record are fully quoted; interpretation limits follow."
+    },
+    {
+      "id": "train-r2b-history-unlocated-tool-2",
+      "passed": true,
+      "notes": "The donor's label is unsubstantiated; wear or contextual evidence is needed to assess use."
+    },
+    {
+      "id": "train-r2b-history-unlocated-tool-3",
+      "passed": true,
+      "notes": "No dating evidence is supplied; reliable dating is required before assigning a century."
+    },
+    {
+      "id": "train-r2b-history-population-boundary-1",
+      "passed": true,
+      "notes": "The explicit outer-settlement exclusion is quoted; labeling the inside-wall scope is appropriate."
+    },
+    {
+      "id": "train-r2b-history-population-boundary-2",
+      "passed": true,
+      "notes": "The outer count is absent; it is necessary for adding to the stated inside-wall count."
+    },
+    {
+      "id": "train-r2b-history-population-boundary-3",
+      "passed": true,
+      "notes": "No earlier census exists; a comparable 1840 record is needed before inferring growth."
+    },
+    {
+      "id": "train-r2b-history-building-reuse-1",
+      "passed": true,
+      "notes": "The report's relative sequence is preserved as its interpretation; a sequence diagram need not invent dates."
+    },
+    {
+      "id": "train-r2b-history-building-reuse-2",
+      "passed": true,
+      "notes": "No alteration year exists; dated alteration evidence is necessary."
+    },
+    {
+      "id": "train-r2b-history-building-reuse-3",
+      "passed": true,
+      "notes": "The purpose is not supplied; requesting purpose evidence avoids assuming defensive intent."
+    },
+    {
+      "id": "train-r2b-history-copied-chronicle-1",
+      "passed": true,
+      "notes": "The copyist's damaged-original statement is preserved with attribution; considering transmission uncertainty is appropriate."
+    },
+    {
+      "id": "train-r2b-history-copied-chronicle-2",
+      "passed": true,
+      "notes": "Specific omissions cannot be established; an independent textual witness could reveal possible ones."
+    },
+    {
+      "id": "train-r2b-history-copied-chronicle-3",
+      "passed": true,
+      "notes": "No corroboration exists; independently dated sources could test the copied dates."
+    },
+    {
+      "id": "train-r2b-history-conflict-inauguration-1",
+      "passed": true,
+      "notes": "Both conflicting opening years and source types are quoted; preserving both avoids silent preference."
+    },
+    {
+      "id": "train-r2b-history-conflict-inauguration-2",
+      "passed": true,
+      "notes": "Neither record resolves the opening date; contemporary evidence could."
+    },
+    {
+      "id": "train-r2b-history-conflict-inauguration-3",
+      "passed": true,
+      "notes": "No production history explains the discrepancy; plaque and event records are needed before calling it a carving error."
+    },
+    {
+      "id": "train-r2b-history-conflict-cargo-1",
+      "passed": true,
+      "notes": "Both manifest sack totals are preserved; keeping each copy's claim distinct is appropriate."
+    },
+    {
+      "id": "train-r2b-history-conflict-cargo-2",
+      "passed": true,
+      "notes": "Original and loading receipts are missing; independent loading evidence could establish actual cargo."
+    },
+    {
+      "id": "train-r2b-history-conflict-cargo-3",
+      "passed": true,
+      "notes": "Disagreement alone proves no fraud; production and intent evidence would be needed."
+    },
+    {
+      "id": "train-r2b-history-conflict-road-direction-1",
+      "passed": true,
+      "notes": "Both east-versus-west depictions are exactly quoted; marking the disagreement is useful."
+    },
+    {
+      "id": "train-r2b-history-conflict-road-direction-2",
+      "passed": true,
+      "notes": "No verification establishes which side; survey or physical evidence could."
+    },
+    {
+      "id": "train-r2b-history-conflict-road-direction-3",
+      "passed": true,
+      "notes": "No copying cause is established; map-making evidence is needed before asserting reversal."
+    },
+    {
+      "id": "train-r2b-history-conflict-vote-1",
+      "passed": true,
+      "notes": "Both opposite council outcomes are quoted; stating them as unresolved is appropriate."
+    },
+    {
+      "id": "train-r2b-history-conflict-vote-2",
+      "passed": true,
+      "notes": "Signed copies disagree and no tally resolves them; a verified vote record is necessary."
+    },
+    {
+      "id": "train-r2b-history-conflict-vote-3",
+      "passed": true,
+      "notes": "No reason for opposing minutes is provided; production or correction records could investigate the cause."
+    }
+  ],
+  "passed": true,
+  "limitations": [
+    "This is an independent AI content audit, not educator review or grade-band validation.",
+    "Passing applies to the reviewed extraction and follow-up-question contract; it does not establish student learning effectiveness, training adequacy, or model performance."
+  ]
+}

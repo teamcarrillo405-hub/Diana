@@ -14,6 +14,7 @@ const mocks = vi.hoisted(() => ({
   startStudentStudy: vi.fn(),
   previewProblemsFromAssignmentSources: vi.fn(),
   confirmProblemQueueFromPreview: vi.fn(),
+  confirmAssignmentProblemText: vi.fn(),
   markProblemReviewed: vi.fn(),
   markProblemDone: vi.fn(),
   reviewPanelProps: vi.fn(),
@@ -29,6 +30,7 @@ vi.mock("@/lib/supabase/client", () => ({
 }));
 vi.mock("@/app/(app)/assignments/[id]/hm-actions", () => ({
   addProblem: vi.fn(),
+  confirmAssignmentProblemText: mocks.confirmAssignmentProblemText,
   confirmProblemQueueFromPreview: mocks.confirmProblemQueueFromPreview,
   previewProblemsFromAssignmentSources: mocks.previewProblemsFromAssignmentSources,
   prepareAssignmentReview: mocks.prepareAssignmentReview,
@@ -107,7 +109,7 @@ describe("AssignmentWorkspace reliability", () => {
       studentWork: {},
     }]} />);
 
-    expect(screen.getByText(/Claim of 1/, { selector: ".sd-assignment-problem-card .sd-assignment-mode-title" })).toBeTruthy();
+    expect(screen.getByText("Claim", { selector: ".sd-assignment-problem-card .sd-assignment-mode-title" })).toHaveTextContent("Claim 1 of 1");
     expect(screen.queryByText("Writing document")).toBeNull();
     expect(mocks.reviewPanelProps).toHaveBeenCalledWith(expect.objectContaining({
       template: "writing",
@@ -212,7 +214,7 @@ describe("AssignmentWorkspace reliability", () => {
     const details = screen.getByText("Assignment details");
 
     expect(problem.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(screen.getByText(/Problem\s*1\s*of\s*1/, { selector: ".sd-assignment-problem-card .sd-assignment-mode-title" })).toBeTruthy();
+    expect(screen.getByText("Problem 1", { selector: ".sd-assignment-problem-card .sd-assignment-mode-title" })).toHaveTextContent("Problem 1 1 of 1");
   });
   it("reviews imported math problems before creating the problem queue", async () => {
     render(<AssignmentWorkspace
@@ -292,11 +294,38 @@ describe("AssignmentWorkspace reliability", () => {
       ok: true,
       problems: [{ id: "55555555-5555-4555-8555-555555555555", problemNumber: 1, problemText: "1. Solve 3x + 5 = 20" }],
     });
+    mocks.confirmAssignmentProblemText.mockResolvedValue({ ok: true });
   });
 
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("confirms an imported problem and prepares its search index", async () => {
+    const problemId = "22222222-2222-4222-8222-222222222222";
+    vi.stubGlobal("fetch", vi.fn(async () => new Response(JSON.stringify({ ok: true }), { status: 200 })));
+    render(<AssignmentWorkspace {...baseProps} initialProblems={[{
+      id: problemId, problemNumber: 1, problemText: "Solve 2x = 10", source: "assignment_source", unitType: "problem", studentWork: {},
+    }]} />);
+    fireEvent.click(screen.getByRole("button", { name: "I checked the wording" }));
+    await waitFor(() => expect(mocks.confirmAssignmentProblemText).toHaveBeenCalledWith({
+      assignmentId, problemId, expectedText: "Solve 2x = 10",
+    }));
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/learning/ingest", expect.objectContaining({ method: "POST" })));
+    const body = JSON.parse((fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
+    expect(body).toEqual({ assignmentId, sourceId: "assignment-problems", subject: "english" });
+    expect(screen.queryByRole("button", { name: "I checked the wording" })).toBeNull();
+  });
+
+  it("does not present source confirmation for a generated work step", () => {
+    render(<AssignmentWorkspace {...baseProps} initialProblems={[{
+      id: "22222222-2222-4222-8222-222222222222", problemNumber: 1,
+      problemText: "Identify what each source says and why it matters.",
+      source: "assignment_source", unitType: "source", studentWork: {},
+    }]} />);
+    expect(screen.queryByRole("button", { name: "I checked the wording" })).toBeNull();
   });
 
   it("flushes the latest unit edit before opening submission review", async () => {

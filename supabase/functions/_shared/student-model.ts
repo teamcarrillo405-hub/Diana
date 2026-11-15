@@ -1,3 +1,5 @@
+import { buildStudentResponseRequest, type StudentModelPart } from "./student-response-request.ts";
+export type { StudentModelPart } from "./student-response-request.ts";
 export type StudentModelQuality = "fast" | "quality" | "complex";
 
 export type HomeworkReviewRoutingInput = {
@@ -9,16 +11,12 @@ export type HomeworkReviewRoutingInput = {
   signals?: string;
 };
 
-export type StudentModelPart =
-  | { type: "text"; text: string }
-  | { type: "image"; mediaType: string; data: string }
-  | { type: "file"; mediaType: string; data: string; filename: string };
-
 export type StudentModelResult = {
   content: string;
   moderationContent?: string;
   model: string;
   tokens: number;
+  requestRejected?: boolean;
 };
 
 const FAST_TIMEOUT_MS = 12_000;
@@ -29,12 +27,6 @@ const OPENAI_DEFAULT_MODELS: Record<StudentModelQuality, string> = {
   fast: "gpt-5.6-luna",
   quality: "gpt-5.6-terra",
   complex: "gpt-5.6-sol",
-};
-
-const OPENAI_REASONING_EFFORT: Record<StudentModelQuality, "low" | "medium" | "high"> = {
-  fast: "low",
-  quality: "medium",
-  complex: "high",
 };
 
 const COMPLEX_REVIEW_TEMPLATES = new Set(["research", "history", "lab", "coding", "project"]);
@@ -132,20 +124,7 @@ async function callOpenAiStudentModel({
         "Authorization": `Bearer ${openAiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model: openAiModel,
-        instructions: system,
-        input: [
-          {
-            role: "user",
-            content: parts ? toOpenAiResponseParts(parts) : [{ type: "input_text", text: user }],
-          },
-        ],
-        max_output_tokens: maxTokens,
-        reasoning: { effort: OPENAI_REASONING_EFFORT[quality] },
-        ...(json ? { text: { format: { type: "json_object" } } } : {}),
-        store: false,
-      }),
+      body: JSON.stringify(buildStudentResponseRequest({ model: openAiModel, system, user, maxTokens, quality, json, parts })), 
     });
   } catch (error) {
     console.error("student model OpenAI request did not complete", {
@@ -167,6 +146,7 @@ async function callOpenAiStudentModel({
     console.error("student model OpenAI response did not complete", {
       status: openAiRes.status,
       responseBytes: new TextEncoder().encode(providerError).byteLength,
+      ...providerErrorMetadata(providerError),
       correlationId: openAiRes.headers.get("x-request-id") ?? "unavailable",
     });
     const fallback = fallbackStudentContent(user, json, fallbackContent);
@@ -175,6 +155,7 @@ async function callOpenAiStudentModel({
       moderationContent: fallback,
       model: `${openAiModel}:fallback`,
       tokens: 0,
+      requestRejected: openAiRes.status === 400,
     };
   }
 
@@ -207,6 +188,16 @@ async function callOpenAiStudentModel({
     tokens: Number(data.usage?.input_tokens ?? data.usage?.prompt_tokens ?? 0) +
       Number(data.usage?.output_tokens ?? data.usage?.completion_tokens ?? 0),
   };
+}
+
+export function providerErrorMetadata(body: string): { code: string | null; param: string | null } {
+  try {
+    const error = JSON.parse(body)?.error;
+    const safeToken = (value: unknown) => typeof value === "string" && /^[a-zA-Z0-9_.\[\]-]{1,80}$/u.test(value) ? value : null;
+    return { code: safeToken(error?.code), param: safeToken(error?.param) };
+  } catch {
+    return { code: null, param: null };
+  }
 }
 
 function normalizeJsonContent(content: string, user: string, fallbackContent?: string): string {
@@ -373,22 +364,6 @@ function fallbackStudentContent(user: string, json: boolean, fallbackContent?: s
   });
 }
 
-
-function toOpenAiResponseParts(parts: StudentModelPart[]) {
-  return parts.map((part) => part.type === "text"
-    ? { type: "input_text", text: part.text }
-    : part.type === "file"
-    ? {
-      type: "input_file",
-      file_data: `data:${part.mediaType};base64,${part.data}`,
-      filename: part.filename,
-    }
-    : {
-      type: "input_image",
-      image_url: `data:${part.mediaType};base64,${part.data}`,
-      detail: "high",
-    });
-}
 
 function sanitizeStudentModelContent(content: string): string {
   return content

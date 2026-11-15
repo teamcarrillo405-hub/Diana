@@ -55,6 +55,7 @@ export async function logActivity(
   await maintainWellnessHistory(supabase);
 
   revalidatePath("/wellness");
+  revalidatePath("/settings/goals");
   revalidatePath("/settings");
   return { ok: true };
 }
@@ -82,6 +83,7 @@ export async function saveWellnessGoal(
   if (error) return { ok: false, error: "The goal could not be saved yet. Try again when you are ready." };
 
   revalidatePath("/wellness");
+  revalidatePath("/settings/goals");
   revalidatePath("/settings");
   return { ok: true };
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Bell, Download, RefreshCcw, WifiOff } from "lucide-react";
-import { offlineQueueCounts, registerOfflineSync } from "@/lib/offline/store";
+import Link from "next/link";
+import { offlineQueueCounts, quarantinedOfflineCount, registerOfflineSync,getOfflineAssignmentStatuses,removeOfflineAssignmentStatus,type OfflineAssignmentStatus } from "@/lib/offline/store";
 
 const REMINDER_KEY = "diana_pwa_reminders";
 
@@ -16,6 +17,9 @@ export function PwaSettings() {
   const [reminders, setReminders] = useState(false);
   const [counts, setCounts] = useState({ notes: 0, assignments: 0, flashcards: 0 });
   const [serviceWorkerReady, setServiceWorkerReady] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [quarantined, setQuarantined] = useState(0);
+  const [statuses,setStatuses]=useState<OfflineAssignmentStatus[]>([]);
 
   useEffect(() => {
     setReminders(window.localStorage.getItem(REMINDER_KEY) === "on");
@@ -30,11 +34,21 @@ export function PwaSettings() {
       setInstallPrompt(event as BeforeInstallPromptEvent);
     }
     window.addEventListener("beforeinstallprompt", onPrompt);
-    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
+    function onSyncStatus(event: Event) {
+      const message: unknown = (event as CustomEvent).detail?.message;
+      if (typeof message === "string") setSyncMessage(message);
+    }
+    window.addEventListener("diana-offline-sync-status", onSyncStatus);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onPrompt);
+      window.removeEventListener("diana-offline-sync-status", onSyncStatus);
+    };
   }, []);
 
   async function refreshCounts() {
     setCounts(await offlineQueueCounts());
+    setQuarantined(await quarantinedOfflineCount());
+    setStatuses(await getOfflineAssignmentStatuses());
   }
 
   async function install() {
@@ -56,7 +70,8 @@ export function PwaSettings() {
   }
 
   async function syncNow() {
-    await registerOfflineSync();
+    window.dispatchEvent(new Event("diana-request-offline-sync"));
+    void registerOfflineSync();
     await refreshCounts();
   }
 
@@ -102,6 +117,9 @@ export function PwaSettings() {
           {reminders ? "Turn reminders off" : "Turn reminders on"}
         </button>
       </div>
+      {syncMessage && <p role="status" className="text-sm text-amber-700">{syncMessage}</p>}
+      {statuses.map(item=><div key={item.tempId} className="flex flex-wrap items-center gap-3 text-sm"><Link href={"/assignments/"+item.assignmentId+"/workspace"}>Review saved status: {item.to.replaceAll("_"," ")}</Link><button type="button" onClick={()=>void removeOfflineAssignmentStatus(item.tempId).then(refreshCounts)}>Dismiss status request</button></div>)}
+      {quarantined > 0 && <p className="text-sm text-muted">Older device saves need an account review before they can sync.</p>}
     </section>
   );
 }

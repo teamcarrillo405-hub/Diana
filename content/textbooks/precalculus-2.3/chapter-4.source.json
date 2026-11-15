@@ -1,0 +1,40 @@
+{
+  "number": 4,
+  "title": "Exponential and Logarithmic Functions",
+  "pages": 88,
+  "blocks": 642,
+  "chunks": 532,
+  "assetHash": "be203973c66ca836d517069a95a998baa9745a6927090877b0aa9826d210acf5",
+  "indexHash": "8853696a81f17e638f82b5d61f4b065a67e608ff84c6526d0458940da362b9ca",
+  "pdfBytes": 2986408,
+  "indexBytes": 95327,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=4&format=pdf",
+  "retrieval": [
+    {
+      "query": "exponential growth decay",
+      "matches": 6,
+      "pages": [
+        13,
+        3,
+        26,
+        60,
+        14,
+        5
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "logarithmic properties",
+      "matches": 6,
+      "pages": [
+        51,
+        45,
+        51,
+        45,
+        51,
+        38
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

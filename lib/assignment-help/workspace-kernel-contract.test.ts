@@ -22,9 +22,9 @@ describe("homework kernel route contracts", () => {
     expect(source).not.toContain("resolveDianaHomeworkTrust");
   });
 
-  it("keeps study entry and artifact generation on the same assignment understanding", () => {
+  it("keeps study entry and study-buddy prefill on the same assignment understanding", () => {
     const studyActions = readWorkspaceSource("app/(app)/study/actions.ts");
-    const studyArtifactActions = readWorkspaceSource("app/(app)/study-artifacts/actions.ts");
+    const studyBuddyPage = readWorkspaceSource("app/(app)/assignments/[id]/workspace/page.tsx");
 
     expect(studyActions).toContain("loadAssignmentHomeworkKernel({");
     expect(studyActions).toContain('eventSource: "study_router"');
@@ -34,10 +34,9 @@ describe("homework kernel route contracts", () => {
     expect(studyActions).not.toContain("resolveAssignmentProfile");
     expect(studyActions).not.toContain("resolveDianaHomeworkTrust");
 
-    expect(studyArtifactActions).toContain("loadAssignmentHomeworkKernel({");
-    expect(studyArtifactActions).toContain('eventSource: "study_artifacts"');
-    expect(studyArtifactActions).toContain("formatHomeworkKernelForTutor(kernel");
-    expect(studyArtifactActions).not.toContain("buildSourcePacket");
+    expect(studyBuddyPage).toContain("loadAssignmentHomeworkKernel({");
+    expect(studyActions).toContain("/workspace#ask-diana");
+    expect(studyBuddyPage).not.toContain("buildSourcePacket");
   });
 
   it("keeps workspace save and review actions aligned to the shared profile", () => {

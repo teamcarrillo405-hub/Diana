@@ -82,12 +82,21 @@ const workerRunner = read("lib/worker-tier/worker-runner.ts");
 const voiceCandidateRoute = read("app/api/diana/voice-candidate/route.ts");
 const voiceCandidateStatusRoute = read("app/api/diana/voice-candidate/status/route.ts");
 const workerVersionRoute = read("app/api/workers/version/route.ts");
+const voiceCommandSurface = read("app/(app)/voice/voice-command-surface.tsx");
 const supabaseMiddleware = read("lib/supabase/middleware.ts");
 const loadSmoke = read("scripts/run-worker-load-smoke.ts");
 const dianaStatusSmoke = read("scripts/run-diana-status-polling-smoke.ts");
 const productionPreflight = read("scripts/worker-production-preflight.ts");
 const evidenceVerifier = read("scripts/verify-worker-gate-evidence.ts");
 const imageEvidenceVerifier = read("scripts/verify-worker-image-evidence.ts");
+const containerVerifier = read("scripts/verify-worker-container.mjs");
+const imageWorkflow = parseAllDocuments(workflow)[0]?.toJSON();
+const imageSteps: Record<string, unknown>[] = getPath(imageWorkflow, ["jobs", "build-worker-image", "steps"]) as Record<string, unknown>[] ?? [];
+const containerStep = imageSteps.find(step => step.id === "container_proof");
+const containerIndex = imageSteps.findIndex(step => step.id === "container_proof");
+const pushIndex = imageSteps.findIndex(step => step.id === "push_image");
+const expectedContainerRun = ['set -o pipefail', 'IMAGE_ID="$(node -p "require(\'./worker-image-evidence/summary.json\').imageId")"',
+  'node scripts/verify-worker-container.mjs "$IMAGE_ID" | tee worker-image-evidence/container-proof.log'].join('\n');
 const kubernetesDeployEvidenceVerifier = read("scripts/verify-worker-kubernetes-deploy-evidence.ts");
 const parsedDeployment = parseKubernetesManifests(deployment);
 const parsedPrometheus = parseKubernetesManifests(prometheus);
@@ -119,10 +128,11 @@ const checks: Check[] = [
     "Worker image uses compiled runtime entrypoint",
     includesAll(dockerfile, [
       "npm run worker:build",
-      "npm ci --omit=dev",
+      "COPY --from=deps --chown=node:node /app/dist/worker/run-diana-worker.cjs",
+      "USER node",
       "node\", \"dist/worker/run-diana-worker.cjs",
-    ]) && !dockerfile.includes("npm ci --include=dev"),
-    "Dockerfile.worker must compile the worker in a build stage and run production dependencies only.",
+    ]) && !/\b(?:npm|npx)\b/.test(dockerfile.split(/AS worker\s/i)[1] ?? "npm"),
+    "Dockerfile.worker must run the standalone compiled bundle as a non-root user without installing web-app dependencies in the runtime stage.",
   ),
   check(
     "Worker pod has OpenJarvis target",
@@ -253,7 +263,7 @@ const checks: Check[] = [
   check(
     "Worker runner enforces job timeout constraints",
     includesAll(workerRunner, [
-      "extractWorkerTimeoutMs(claimed.constraints)",
+      "Math.min(timeoutMs, expiresAt - Date.now())",
       "runWithWorkerTimeout",
       "AbortController",
       'WorkerCycleFailure("provider_timeout"',
@@ -290,6 +300,10 @@ const checks: Check[] = [
         "const supabase = await createClient()",
       ]) &&
       includesAll(workerTier, ["STUDENT_RUNTIME_READ_TOOLS"]) &&
+      includesAll(voiceCommandSurface, [
+        "/api/diana/voice-candidate/status?traceId=",
+        "pollQueuedCandidate",
+      ]) &&
       includesAll(voiceCandidateStatusRoute, [
         "return NextResponse.json({",
         "response,",
@@ -319,12 +333,13 @@ const checks: Check[] = [
       "QA_USER_EMAIL",
       "QA_USER_PASSWORD",
       "chromium.launch",
-      "completeThroughWorkerApi",
+      "runCompiledWorkerOnce",
       "argValue(\"auth\")",
       "argValue(\"complete-with\")",
-      "worker-api",
+      "compiled-worker",
+      "--allow-server-moderation",
     ]),
-    "Diana status smoke must support real QA browser auth and worker-API completion for production-gate CI.",
+    "Diana status smoke must support real QA browser auth and the server-authorized compiled-worker protocol for production-gate CI.",
   ),
   check(
     "Worker KEDA manifest parses",
@@ -484,6 +499,23 @@ const checks: Check[] = [
     "Worker image workflow must prove the compiled worker runs before Docker build.",
   ),
   check(
+    "Worker image requires restricted container proof before publishing",
+    imageSteps.filter(step => step.id === "container_proof").length === 1 && containerIndex >= 0 && pushIndex > containerIndex && containerStep?.if === undefined &&
+      (containerStep?.["continue-on-error"] === undefined || containerStep["continue-on-error"] === false) &&
+      typeof containerStep?.run === "string" && containerStep.run.trim().replaceAll('\r\n', '\n') === expectedContainerRun &&
+      imageSteps[pushIndex]?.if === "env.PUSH_WORKER_IMAGE == 'true'" &&
+      includesAll(workflow, ['"containerProof": "${{ steps.container_proof.outcome }}"', 'docker tag "$IMAGE_ID" "$IMAGE"', 'pushed-image.json']) &&
+      includesAll(containerVerifier, ["metadata.Id, '-e'", "metadata.Id, '/opt/worker-proof.mjs'", "'--pull=never'", "'--network', 'none'", "'--read-only'", "'--entrypoint', 'node'"]) &&
+      includesAll(imageEvidenceVerifier, ['"containerProof"', '"container-proof.log"', 'proof.imageId === summary.imageId', '"pushed-image.json"']),
+    "Unconditional restricted-image proof must precede publishing, execute the inspected ID, and bind pushed digest evidence to that same image.",
+  ),
+  check(
+    "Worker image requires a complete credential-free protocol proof",
+    includesAll(workflow, ["id: credential_proof", "npm run worker:credential-proof | tee worker-image-evidence/credential-proof.log", "steps.credential_proof.outcome", "scripts/verify-worker-credential-boundary.mjs", "supabase/migrations/*worker_execution_capabilities.sql"]) &&
+      includesAll(imageEvidenceVerifier, ['"credentialProof"', '"credential-proof.log"', '"loopback_synthetic_only"', '"WORKER_API_TOKEN"']),
+    "Image evidence must prove compiled claim, authorization, bounded sidecar execution and completion with a synthetic worker token.",
+  ),
+  check(
     "Package exposes compiled runtime smoke",
     includesAll(packageJson, [
       "worker:runtime-smoke",
@@ -560,7 +592,7 @@ const checks: Check[] = [
       "npm run worker:e2e-smoke",
       "npm run worker:deployed-canary -- --timeout-ms=120000",
       "npx playwright install --with-deps chromium",
-      "npm run worker:diana-status-smoke -- --auth=browser --complete-with=worker-api --timeout-ms=120000",
+      "npm run worker:diana-status-smoke -- --auth=browser --complete-with=compiled-worker --allow-server-moderation --timeout-ms=120000",
       "npm run worker:load-smoke -- --count=",
       "worker-gate-evidence/tenant-canary.log",
       "worker-gate-evidence/e2e-smoke.log",
@@ -709,7 +741,7 @@ const checks: Check[] = [
       "--require-pushed",
       "pushRequested",
       "pushed-image.txt",
-      "ghcr.io/",
+      "repositoryDigest",
       "sha256:",
       "artifact summary and outcome metadata match",
       "baseRequiredSteps",

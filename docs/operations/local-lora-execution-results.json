@@ -1,0 +1,94 @@
+{
+  "schema": "diana-synthetic-lora-results-v1",
+  "productionEligible": false,
+  "resultsNotPooledAcrossDifferentTestSets": true,
+  "runs": [
+    {
+      "schema": "diana-synthetic-lora-decision-v1",
+      "run": "run-001",
+      "partition": "development-after-correction-decision",
+      "reportSha256": "a102f7e16785d061b03b2f1ca8218ef4a7f251dc8523715c046240be5ed06266",
+      "reloadSha256": "920ae25458ee8346efd01cad2a58f31dad656689356881c4a671e9cc00a8ca77",
+      "adapterWeightsSha256": "4363e2e81617652970fcccf0fc06f7c211a32d4958069d2cf959f9fae73cb78e",
+      "trainDataSha256": "4d1ccd01b88b1307fb57dcd00a85563aba231b7c1756f334ddfa08cab6b4b8dc",
+      "testDataSha256": "a9734e91124c7ec4b160ab34d3c354673e076b903fe5db24eaedbcbe6b5c0ee9",
+      "optimizerSteps": 48,
+      "elapsedSeconds": 143.7,
+      "answerableCases": 6,
+      "baselineFalseAbstentions": 0,
+      "adapterFalseAbstentions": 6,
+      "baseline": {
+        "targetTokenLoss": 1.6267923083570268,
+        "diagnosticCounts": {
+          "twoLineFormat": 6,
+          "exactSourceQuoteOrAbstention": 0,
+          "oneQuestion": 4,
+          "abstained": 0,
+          "expectedAbstentionMatched": 6
+        }
+      },
+      "adapter": {
+        "targetTokenLoss": 2.6271924379314036,
+        "diagnosticCounts": {
+          "twoLineFormat": 8,
+          "exactSourceQuoteOrAbstention": 8,
+          "oneQuestion": 8,
+          "abstained": 8,
+          "expectedAbstentionMatched": 2
+        }
+      },
+      "nonRegressionVerdict": "rejected",
+      "reasons": [
+        "Target token loss worsened",
+        "False abstentions increased on answerable cases"
+      ],
+      "productionEligible": false,
+      "productionGate": "blocked-synthetic-research-without-independent-review",
+      "educatorReviewed": false,
+      "savedAdapterReproducedAllCases": true
+    },
+    {
+      "schema": "diana-synthetic-lora-decision-v1",
+      "run": "run-002",
+      "partition": "subsequent-test",
+      "reportSha256": "1214f4bd6063dfad9d885776ad53ad6cd0b48823fab25aadc4e5500d264eaf4f",
+      "reloadSha256": "cbab909b126a16e8bba3a85364a8a83b815445376fb76174d4ef064b270f1bb5",
+      "adapterWeightsSha256": "8e74a0199c6104f8e65102014ab0a376da06bb50ec99dd1ab07c93f0116f0540",
+      "trainDataSha256": "4d1ccd01b88b1307fb57dcd00a85563aba231b7c1756f334ddfa08cab6b4b8dc",
+      "testDataSha256": "de2f09e2db8c79df989f5d1b51cda4834c25c790da96991ff090722232417a4f",
+      "optimizerSteps": 16,
+      "elapsedSeconds": 79.14,
+      "answerableCases": 6,
+      "baselineFalseAbstentions": 0,
+      "adapterFalseAbstentions": 2,
+      "baseline": {
+        "targetTokenLoss": 1.4963044090115505,
+        "diagnosticCounts": {
+          "twoLineFormat": 8,
+          "exactSourceQuoteOrAbstention": 0,
+          "oneQuestion": 3,
+          "abstained": 0,
+          "expectedAbstentionMatched": 6
+        }
+      },
+      "adapter": {
+        "targetTokenLoss": 1.0825067572295666,
+        "diagnosticCounts": {
+          "twoLineFormat": 8,
+          "exactSourceQuoteOrAbstention": 4,
+          "oneQuestion": 6,
+          "abstained": 4,
+          "expectedAbstentionMatched": 6
+        }
+      },
+      "nonRegressionVerdict": "rejected",
+      "reasons": [
+        "False abstentions increased on answerable cases"
+      ],
+      "productionEligible": false,
+      "productionGate": "blocked-synthetic-research-without-independent-review",
+      "educatorReviewed": false,
+      "savedAdapterReproducedAllCases": true
+    }
+  ]
+}

@@ -11,7 +11,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -126,7 +126,7 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
     const userMessage = messages
       .map((message) => `${message.role === "assistant" ? "Tutor" : "Student"}: ${message.content}`)
       .join("\n\n");
-    const modelResult = await runOpenAIHomeworkAdapter({
+    const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "math-step" }, {
       task: "math_step",
       ownerId,
       supabase,

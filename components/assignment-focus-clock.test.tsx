@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   reconcileFocusSession: vi.fn(),
 }));
 
-vi.mock("@/app/(app)/assignments/[id]/focus-actions", () => ({
+vi.mock("@/app/(app)/timer/actions", () => ({
   startFocusSession: mocks.startFocusSession,
   finishFocusSession: mocks.finishFocusSession,
   reconcileFocusSession: mocks.reconcileFocusSession,

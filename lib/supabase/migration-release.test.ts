@@ -16,9 +16,30 @@ const historicalContentHashes = {
 } as const;
 const correctiveMigrationName =
   "20260831110000_assignment_problem_progress_contract.sql";
-const stagingHead = "20260902215000";
-const releaseHead = "20260902215000";
-const expectedPendingVersions: readonly string[] = [];
+const stagingHead = "20260925172424";
+const releaseHead = "20260925172424";
+// The historical beta gate remains pinned to its release head. Later forward
+// migrations are tracked here, regardless of whether staging has applied them.
+const expectedPostReleaseVersions: readonly string[] = [
+  "20260925201612",
+  "20260925202654",
+  "20260925203216",
+  "20260926035237",
+  "20260926051828",
+  "20260926052006",
+  "20260926071222",
+  "20260926072354",
+  "20260926110000",
+  "20260926113000",
+  "20260926120000",
+  "20260928043131",
+  "20260928043147",
+  "20260929003416",
+  "20260929034718",
+  "20260929035711",
+  "20260929135915",
+  "20260929141355",
+];
 const sequentialTypeMigrations = [
   "20260901200000_assignment_provider_missing_tombstone.sql",
   "20260901210000_authoritative_lms_transition_service_boundary.sql",
@@ -145,7 +166,7 @@ describe("beta migration release", () => {
     expect(migration).not.toMatch(/\b(insert|update|delete|truncate)\b/iu);
   });
 
-  it("pins the release head and expected local-only migration set", () => {
+  it("pins the historical release head and later forward migration set", () => {
     const migrationVersions = readdirSync(migrationsDirectory)
       .filter((name) => name.endsWith(".sql"))
       .map((name) => name.split("_", 1)[0])
@@ -159,7 +180,7 @@ describe("beta migration release", () => {
       "utf8",
     );
 
-    expect(migrationVersions).toEqual(expectedPendingVersions);
+    expect(migrationVersions).toEqual(expectedPostReleaseVersions);
     expect(
       readdirSync(migrationsDirectory).some((name) => name.startsWith(`${releaseHead}_`)),
     ).toBe(true);

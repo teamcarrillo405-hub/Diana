@@ -1,0 +1,373 @@
+{
+  "schema_version": 1,
+  "dataset_id": "qwen3-fresh-educational-grounding-100-v1",
+  "revision": 2,
+  "authored_date": "2026-09-28",
+  "sealed_at_utc": "2026-09-28T18:13:43.178201+00:00",
+  "seal_stage": "sealed_after_independent_content_audit_before_final_inference",
+  "source_path": "scripts/learning/qwen3_fresh_evaluation.py",
+  "source_sha256": "e5b11cb1972db7b40aa54eead763b1c6ba925c29d15ba506575ec858c4ff8efb",
+  "canonical_rows_sha256": "0f167df4eebea0ac93a6074a1f2aa074d7a766ba036541665c1320dc261b88c4",
+  "canonical_serialization": "json.dumps(rows(), sort_keys=True, separators=(',', ':'), ensure_ascii=False).encode('utf-8')",
+  "integrity_tests_path": "scripts/learning/test_qwen3_fresh_evaluation.py",
+  "integrity_tests_sha256": "9ff829ccb0e763b55b43b87c2bf0f6389ec1b53ea08bace9ed86f19a57e9e56b",
+  "contract_path": "docs/engineering/qwen3-grounding-evaluation-contract.md",
+  "contract_sha256": "29802e4c98c88151cde03f2f8f2ba332cf42414f58b888e398eb0f5158b437f8",
+  "metadata_seal_policy": "SHA-256 of this manifest file is reported separately; no self-referential manifest hash is embedded.",
+  "counts": {
+    "total": 100,
+    "by_subject": {
+      "math": 20,
+      "reading": 20,
+      "english": 20,
+      "science": 20,
+      "history": 20
+    },
+    "by_level": {
+      "grades 6–8": 25,
+      "grades 9–12": 25,
+      "introductory college": 25,
+      "advanced college": 25
+    },
+    "by_answerability": {
+      "answerable": 60,
+      "missing": 25,
+      "conflicting": 15
+    },
+    "by_subject_and_level": [
+      {
+        "subject": "math",
+        "level": "grades 6–8",
+        "count": 5
+      },
+      {
+        "subject": "math",
+        "level": "grades 9–12",
+        "count": 5
+      },
+      {
+        "subject": "math",
+        "level": "introductory college",
+        "count": 5
+      },
+      {
+        "subject": "math",
+        "level": "advanced college",
+        "count": 5
+      },
+      {
+        "subject": "reading",
+        "level": "grades 6–8",
+        "count": 5
+      },
+      {
+        "subject": "reading",
+        "level": "grades 9–12",
+        "count": 5
+      },
+      {
+        "subject": "reading",
+        "level": "introductory college",
+        "count": 5
+      },
+      {
+        "subject": "reading",
+        "level": "advanced college",
+        "count": 5
+      },
+      {
+        "subject": "english",
+        "level": "grades 6–8",
+        "count": 5
+      },
+      {
+        "subject": "english",
+        "level": "grades 9–12",
+        "count": 5
+      },
+      {
+        "subject": "english",
+        "level": "introductory college",
+        "count": 5
+      },
+      {
+        "subject": "english",
+        "level": "advanced college",
+        "count": 5
+      },
+      {
+        "subject": "science",
+        "level": "grades 6–8",
+        "count": 5
+      },
+      {
+        "subject": "science",
+        "level": "grades 9–12",
+        "count": 5
+      },
+      {
+        "subject": "science",
+        "level": "introductory college",
+        "count": 5
+      },
+      {
+        "subject": "science",
+        "level": "advanced college",
+        "count": 5
+      },
+      {
+        "subject": "history",
+        "level": "grades 6–8",
+        "count": 5
+      },
+      {
+        "subject": "history",
+        "level": "grades 9–12",
+        "count": 5
+      },
+      {
+        "subject": "history",
+        "level": "introductory college",
+        "count": 5
+      },
+      {
+        "subject": "history",
+        "level": "advanced college",
+        "count": 5
+      }
+    ],
+    "source_instruction_attacks": 5,
+    "distinct_families": 100,
+    "distinct_sources": 100,
+    "maximum_accepted_quote_characters": 128
+  },
+  "authorship": {
+    "type": "independent machine authorship",
+    "author_role": "fresh evaluation author subagent",
+    "model": "Codex GPT-6",
+    "research_inputs_consulted": [
+      "docs/engineering/qwen3-grounding-evaluation-contract.md"
+    ],
+    "training_data_inspected": false,
+    "development_data_inspected": false,
+    "historical_test_data_inspected": false,
+    "model_outputs_inspected": false,
+    "model_metrics_inspected": false,
+    "other_reviews_inspected": false,
+    "external_sources_consulted": false,
+    "copied_textbooks_or_student_content": false,
+    "educator_approved": false,
+    "representative_course_coverage_claimed": false,
+    "self_review": {
+      "date": "2026-09-28",
+      "reviewed_case_count": 100,
+      "reviewed_case_ids": [
+        "fresh-001",
+        "fresh-002",
+        "fresh-003",
+        "fresh-004",
+        "fresh-005",
+        "fresh-006",
+        "fresh-007",
+        "fresh-008",
+        "fresh-009",
+        "fresh-010",
+        "fresh-011",
+        "fresh-012",
+        "fresh-013",
+        "fresh-014",
+        "fresh-015",
+        "fresh-016",
+        "fresh-017",
+        "fresh-018",
+        "fresh-019",
+        "fresh-020",
+        "fresh-021",
+        "fresh-022",
+        "fresh-023",
+        "fresh-024",
+        "fresh-025",
+        "fresh-026",
+        "fresh-027",
+        "fresh-028",
+        "fresh-029",
+        "fresh-030",
+        "fresh-031",
+        "fresh-032",
+        "fresh-033",
+        "fresh-034",
+        "fresh-035",
+        "fresh-036",
+        "fresh-037",
+        "fresh-038",
+        "fresh-039",
+        "fresh-040",
+        "fresh-041",
+        "fresh-042",
+        "fresh-043",
+        "fresh-044",
+        "fresh-045",
+        "fresh-046",
+        "fresh-047",
+        "fresh-048",
+        "fresh-049",
+        "fresh-050",
+        "fresh-051",
+        "fresh-052",
+        "fresh-053",
+        "fresh-054",
+        "fresh-055",
+        "fresh-056",
+        "fresh-057",
+        "fresh-058",
+        "fresh-059",
+        "fresh-060",
+        "fresh-061",
+        "fresh-062",
+        "fresh-063",
+        "fresh-064",
+        "fresh-065",
+        "fresh-066",
+        "fresh-067",
+        "fresh-068",
+        "fresh-069",
+        "fresh-070",
+        "fresh-071",
+        "fresh-072",
+        "fresh-073",
+        "fresh-074",
+        "fresh-075",
+        "fresh-076",
+        "fresh-077",
+        "fresh-078",
+        "fresh-079",
+        "fresh-080",
+        "fresh-081",
+        "fresh-082",
+        "fresh-083",
+        "fresh-084",
+        "fresh-085",
+        "fresh-086",
+        "fresh-087",
+        "fresh-088",
+        "fresh-089",
+        "fresh-090",
+        "fresh-091",
+        "fresh-092",
+        "fresh-093",
+        "fresh-094",
+        "fresh-095",
+        "fresh-096",
+        "fresh-097",
+        "fresh-098",
+        "fresh-099",
+        "fresh-100"
+      ],
+      "dimensions": [
+        "source support",
+        "answerability",
+        "useful next step",
+        "no extra completed solution",
+        "no fabricated claims or question premises"
+      ],
+      "preseal_corrections": [
+        {
+          "case_ids": [
+            "fresh-037"
+          ],
+          "reason": "Removed an unnecessary interpretive assumption from the next question."
+        },
+        {
+          "case_ids": [
+            "fresh-075",
+            "fresh-079",
+            "fresh-094",
+            "fresh-095"
+          ],
+          "reason": "Tightened questions to request evidence without presupposing its existence or a causal result."
+        },
+        {
+          "case_ids": [
+            "fresh-043"
+          ],
+          "reason": "Selected a more directly useful exact evidence span."
+        },
+        {
+          "case_ids": [
+            "fresh-005",
+            "fresh-030"
+          ],
+          "reason": "Made mechanical next-question anchors more case-specific."
+        }
+      ],
+      "limitation": "Author self-review is not an independent audit or educator validation."
+    },
+    "exposure_fields_scope": "Initial case authorship before independent content audit; subsequent revisions used only delivered reviewer findings and correction acceptance.",
+    "post_authorship_revision_inputs": [
+      "Independent content audit findings F001-F005 and reviewer acceptance of corrected next questions."
+    ]
+  },
+  "independent_content_audit": {
+    "status": "passed_after_pre_inference_corrections",
+    "path": "docs/engineering/qwen3-fresh-evaluation-content-audit.json",
+    "sha256": "3641ad7824961bec23e07e190a9585e3aba7aa96a99940b3a7e1f14fb29690d9",
+    "reviewed_case_count": 100,
+    "findings_resolved": 5,
+    "findings_open": 0,
+    "cases_removed": 0,
+    "independent_of_case_author": true,
+    "reviewer_type": "machine reviewer",
+    "reviewer_current_task_training_data_access": false,
+    "reviewer_current_task_development_data_access": false,
+    "reviewer_current_qwen3_model_outputs_access": false,
+    "reviewer_historical_v3_v4_exposure": true,
+    "reviewer_historically_development_blind": false,
+    "reviewer_exposure_disclosure": "The reviewer disclosed historical v3/v4 exposure, while reporting no current-task training, development, or Qwen3-output access. This audit is independent of the case author, not historically development-blind.",
+    "source_sha256_independently_rechecked": "e5b11cb1972db7b40aa54eead763b1c6ba925c29d15ba506575ec858c4ff8efb",
+    "canonical_rows_sha256_independently_rechecked": "0f167df4eebea0ac93a6074a1f2aa074d7a766ba036541665c1320dc261b88c4",
+    "acceptance_provided_before_reseal": true,
+    "educator_approval": false
+  },
+  "revision_history": [
+    {
+      "revision": 1,
+      "source_sha256": "4c1836f227fb79111aa1cc17b7ca5bc970b9a347ec1adf41b8e960d112177015",
+      "canonical_rows_sha256": "a0f8c8cbcdb054ce64b6e978af9f7eaa7948ec2629dfbdffc2448f1e66a3cc0b",
+      "manifest_sha256": "36a5f0f2f933ff19ee2f0d284a60f7e28e5bbc0157b49b8a4d74d6eded980a7d",
+      "integrity_tests_sha256": "9ff829ccb0e763b55b43b87c2bf0f6389ec1b53ea08bace9ed86f19a57e9e56b",
+      "preserved_artifacts_directory": "artifacts/learning-engine/research/qwen3-fresh-evaluation-initial-seal",
+      "preservation_confirmed_by": "experiment root agent before corrections",
+      "revision_reason": "Independent content audit identified five next-question premises implying confirmation existed. Questions now request whether clarification is available; matched anchors were updated.",
+      "case_ids": [
+        "fresh-005",
+        "fresh-045",
+        "fresh-055",
+        "fresh-060",
+        "fresh-080"
+      ],
+      "changed_fields": [
+        "target",
+        "nextStepAnchors"
+      ],
+      "sources_questions_labels_distributions_preserved": true,
+      "model_inference_before_revision": false
+    }
+  ],
+  "handling": {
+    "experiment_owner_receives": "Metadata only until the frozen final comparison.",
+    "model_inference_performed_by_author": false,
+    "open_only_after": "A frozen eligible checkpoint and independent development semantic review supporting the 95 percent target, following the contract.",
+    "pre_inference_corrections": "Preserve original source and manifest, record audit corrections and provenance, reseal all artifacts before any final inference.",
+    "post_inference_corrections": "Any correction or experiment after final outputs consumes this set and requires a newly locked final evaluation for a later claim."
+  },
+  "limitations": [
+    "Original machine-authored convenience sample; no educator approval, representative curriculum coverage, or learner validation.",
+    "Source-only fictional contexts do not measure broad factual knowledge, student learning gains, or production readiness.",
+    "Many evidence gaps and conflicts are deliberately explicit; results should not be extrapolated to subtle real-world ambiguity.",
+    "The 60 answerable cases permit multiple useful responses; exact quote and substring-anchor checks are incomplete proxies for meaning.",
+    "Integrity tests check structure, distribution, exact target adherence, and hashes only; they perform no model inference or semantic grading.",
+    "No overlap comparison was performed by this independent author; automated overlap reports cannot prove semantic independence.",
+    "Level labels indicate plausible subject contexts, not independently validated learner difficulty or curricular alignment.",
+    "Independent machine content review is not educator approval and is not historically development-blind: reviewer disclosed prior v3/v4 exposure."
+  ]
+}

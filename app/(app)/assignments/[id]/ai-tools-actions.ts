@@ -32,6 +32,7 @@ import {
 } from "@/lib/ap/command";
 import { parseMathScaffoldResponse, type MathScaffoldResult, type MathSubject } from "@/lib/math/scaffold";
 import { createLinearEquationReview } from "@/lib/math/linear-equation-tutor";
+import { studyBuddyEligibility } from "@/lib/assignment-help/study-buddy-eligibility";
 import { parseScienceScaffoldResponse, type ScienceScaffoldMode, type ScienceScaffoldResult } from "@/lib/science/scaffold";
 import { parseWritingCoauthorResponse, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
 import {
@@ -39,8 +40,10 @@ import {
   type AssignmentReviewResult,
   type AssignmentReviewTemplate,
 } from "@/lib/assignment-review";
-import { resolveDianaHomeworkTrust, type DianaHomeworkAiMode } from "@/lib/ai/diana-trust-rules";
-import { runOpenAIHomeworkJson, type OpenAIHomeworkMessage } from "@/lib/ai/openai-homework-adapter";
+import { assertDianaHomeworkAllowed, resolveDianaHomeworkTrust, type DianaHomeworkAiMode } from "@/lib/ai/diana-trust-rules";
+import { openAIHomeworkModel, selectOpenAIHomeworkQuality, runOpenAIHomeworkJson, type OpenAIHomeworkMessage } from "@/lib/ai/openai-homework-adapter";
+import { recordAssignmentAssistance, type StudyBuddyAssistanceClient } from "@/lib/learning-engine/study-buddy-assistance";
+import { assignmentDispatchSnapshot, assignmentHelpDispatchKey, assignmentHelpRequestId } from "@/lib/learning-engine/assignment-assistance-dispatch";
 import {
   formatHomeworkKernelForTutor,
   homeworkModelRouting,
@@ -62,6 +65,7 @@ const HistoryItem = z.object({
 const apSubjectIds = AP_SUBJECTS.map((subject) => subject.id) as [ApSubjectId, ...ApSubjectId[]];
 
 const MathStepInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid().nullable(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   prompt: z.string().min(1).max(2000),
@@ -69,12 +73,14 @@ const MathStepInput = z.object({
 });
 
 const WritingAidInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid().nullable(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   prompt: z.string().min(1).max(2000),
 });
 
 const WritingCoauthorInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   mode: z.enum(["essay_scaffold", "cowrite", "transition", "evidence", "argument", "readability", "tone"]),
@@ -89,6 +95,7 @@ const AcceptWritingSuggestionInput = z.object({
 });
 
 const ScienceScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   mode: z.enum(["hypothesis", "lab_report", "method", "formula", "chemistry_balance", "diagram", "frq"]),
@@ -96,6 +103,7 @@ const ScienceScaffoldInput = z.object({
 });
 
 const HistoryScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   mode: z.enum(["primary_source", "cause_effect", "happ", "dbq", "compare", "current_events"]),
@@ -103,12 +111,14 @@ const HistoryScaffoldInput = z.object({
 });
 
 const HistoryMapInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   storageKey: z.string().min(1).max(500),
 });
 
 const CsScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   mode: z.enum(["error_hint", "pseudocode_bridge", "code_review", "debug_log", "project_scaffold"]),
@@ -119,6 +129,7 @@ const CsScaffoldInput = z.object({
 });
 
 const LanguageScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   mode: z.enum(["vocabulary", "conjugation", "reading", "speaking", "writing", "culture"]),
@@ -130,6 +141,7 @@ const LanguageScaffoldInput = z.object({
 });
 
 const ArtsScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   mode: z.enum(["art_reflection", "music_theory", "drama_speech", "art_history", "storyboard"]),
@@ -137,6 +149,7 @@ const ArtsScaffoldInput = z.object({
 });
 
 const HealthScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   mode: z.enum(["health_question", "movement_goal", "cpr_first_aid", "sleep_recovery"]),
@@ -144,6 +157,7 @@ const HealthScaffoldInput = z.object({
 });
 
 const ApScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   subject: z.enum(apSubjectIds),
@@ -152,6 +166,7 @@ const ApScaffoldInput = z.object({
 });
 
 const CitationInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid().nullable(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   sourceType: z.enum(["url", "book", "paste"]),
@@ -159,6 +174,7 @@ const CitationInput = z.object({
   formats: z.array(z.enum(["mla", "apa", "chicago"])).min(1),
 });
 const AssignmentReviewInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   template: z.enum(["writing", "math", "worksheet", "research", "history", "lab", "reading", "language", "coding", "art", "project", "handoff"]),
   focus: z.string().trim().min(1).max(800),
@@ -178,6 +194,20 @@ async function getOwnerId(): Promise<string | null> {
 }
 
 type HomeworkKernel = NonNullable<Awaited<ReturnType<typeof loadAssignmentHomeworkKernel>>>;
+
+// Edge owns the authoritative provider recipe and records assistance there. Forward a
+// stable key rather than recording a second, differently hashed receipt in this proxy.
+async function invokeHomeworkAction(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  feature: string,
+  options: { body: { ownerId: string; assignmentId: string | null; requestId?: string; [key: string]: unknown } },
+) {
+  const { requestId, ...body } = options.body;
+  if (body.aiMode !== "green") return { data: null, error: new Error("AI not available") };
+  return supabase.functions.invoke(feature, { body: { ...body,
+    idempotencyKey: assignmentHelpDispatchKey(feature, body.ownerId, body, requestId),
+  } });
+}
 
 async function loadAssignmentAiMode(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -322,7 +352,7 @@ export async function requestMathStep(
     ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
     : directHomeworkAiMode();
   if (!aiMode) return { error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("math-step", {
+  const { data, error } = await invokeHomeworkAction(supabase, "math-step", {
     body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
@@ -342,7 +372,7 @@ export async function requestWritingAid(
     ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
     : directHomeworkAiMode();
   if (!aiMode) return { error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("writing-aid", {
+  const { data, error } = await invokeHomeworkAction(supabase, "writing-aid", {
     body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
@@ -364,7 +394,7 @@ export async function requestWritingCoauthor(
     ? await loadWritingEvidenceContext(supabase, ownerId, parsed.data.assignmentId)
     : "";
 
-  const { data, error } = await supabase.functions.invoke("writing-cowrite", {
+  const { data, error } = await invokeHomeworkAction(supabase, "writing-cowrite", {
     body: { ownerId, ...parsed.data, aiMode, evidenceContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -457,6 +487,8 @@ async function runLocalAssignmentReview({
   specialistContext,
   sourceAnchors,
   kernel,
+  requestId,
+  deterministicFallback,
 }: {
   ownerId: string;
   assignmentId: string;
@@ -469,7 +501,9 @@ async function runLocalAssignmentReview({
   specialistContext: string;
   sourceAnchors: string[];
   kernel: HomeworkKernel;
-}): Promise<{ ok: true; result: AssignmentReviewResult; sourceAnchors: string[] } | { ok: false; error: string }> {
+  requestId?: string;
+  deterministicFallback: AssignmentReviewResult | null;
+}): Promise<{ ok: true; result: AssignmentReviewResult; sourceAnchors: string[] } | { ok: false; error: string; assistanceBlocked?: boolean }> {
   const messages: OpenAIHomeworkMessage[] = [
     { role: "system", content: LOCAL_ASSIGNMENT_REVIEW_PROMPT },
     {
@@ -486,7 +520,24 @@ async function runLocalAssignmentReview({
     },
   ];
 
+  const routing = homeworkModelRouting(kernel, {
+    visibleWork: fields.map((field) => field.value).join("\n"),
+    signals: [focus, question].filter(Boolean).join("\n"),
+  });
+  const quality = selectOpenAIHomeworkQuality({ task: "assignment_review", ...routing });
+  const recipe = assignmentDispatchSnapshot({
+    surface: "assignment-review", channel: "api", task: "assignment_review",
+    messages, routing, model: openAIHomeworkModel(quality), quality, maxOutputTokens: 850,
+    json: true, kernel, deterministicFallback,
+  });
+  const idempotencyKey = assignmentHelpDispatchKey("assignment-review", ownerId, recipe, requestId);
+  let assistanceReady = false;
   try {
+    await recordAssignmentAssistance(supabase as unknown as StudyBuddyAssistanceClient, {
+      ownerId, assignmentId, requestId: assignmentHelpRequestId(idempotencyKey),
+      selectedProblemId: null, channel: "api", kind: "check",
+    }, recipe);
+    assistanceReady = true;
     const result = await runOpenAIHomeworkJson({
       ownerId,
       assignmentId,
@@ -496,17 +547,13 @@ async function runLocalAssignmentReview({
       maxOutputTokens: 850,
       fallback: fallbackAssignmentReviewValue(template),
       validate: isAssignmentReviewResult,
-      idempotencyKey: `assignment-review:${assignmentId}:${crypto.randomUUID()}`,
-      routing: homeworkModelRouting(kernel, {
-        visibleWork: fields.map((field) => field.value).join("\n"),
-        signals: [focus, question].filter(Boolean).join("\n"),
-      }),
+      idempotencyKey,
+      routing,
     });
     if (!result.ok) return { ok: false, error: result.error };
     return { ok: true, result: result.value, sourceAnchors };
-  } catch (error) {
-    console.warn("local assignment review unavailable", error instanceof Error ? error.message : error);
-    return { ok: false, error: "Diana help is unavailable right now. Try again in a moment." };
+  } catch {
+    return { ok: false, error: "Diana help is unavailable right now. Try again in a moment.", assistanceBlocked: !assistanceReady };
   }
 }
 export async function requestAssignmentReview(
@@ -518,6 +565,10 @@ export async function requestAssignmentReview(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const eligibility = await studyBuddyEligibility(supabase, {
+    ownerId, assignmentId: parsed.data.assignmentId, classId: null,
+  });
+  if (!eligibility.ok) return { ok: false, error: eligibility.error };
   const kernel = await loadAssignmentHomeworkKernel({
     supabase,
     ownerId,
@@ -525,10 +576,22 @@ export async function requestAssignmentReview(
     eventSource: "assignment_review",
   });
   if (!kernel) return { ok: false, error: "Assignment not found." };
-  if (parsed.data.template === "math" && !process.env.OPENAI_API_KEY?.trim()) {
-    const deterministicReview = createLinearEquationReview(parsed.data.fields, parsed.data.question);
-    if (deterministicReview) {
+  const trust = assertDianaHomeworkAllowed(kernel.trustDecision);
+  if (!trust.ok) return { ok: false, error: trust.error };
+  const deterministicReview = parsed.data.template === "math"
+    ? createLinearEquationReview(parsed.data.fields, parsed.data.question) : null;
+  if (deterministicReview && !process.env.OPENAI_API_KEY?.trim()) {
+    const recipe = assignmentDispatchSnapshot({ surface: "assignment-review", channel: "local",
+      algorithm: "linear-equation-review-v1", input: parsed.data, kernel, result: deterministicReview });
+    const key = assignmentHelpDispatchKey("assignment-review", ownerId, recipe, parsed.data.requestId);
+    try {
+      await recordAssignmentAssistance(supabase as unknown as StudyBuddyAssistanceClient, {
+        ownerId, assignmentId: parsed.data.assignmentId, requestId: assignmentHelpRequestId(key),
+        selectedProblemId: null, channel: "local", kind: "check",
+      }, recipe);
       return { ok: true, result: deterministicReview, sourceAnchors: [] };
+    } catch {
+      return { ok: false, error: "Diana help is unavailable right now. Try again in a moment." };
     }
   }
 
@@ -571,12 +634,13 @@ export async function requestAssignmentReview(
     specialistContext,
     sourceAnchors,
     kernel,
+    requestId: parsed.data.requestId,
+    deterministicFallback: deterministicReview,
   });
   if (localReview.ok) return localReview;
 
-  if (template === "math") {
-    const deterministicReview = createLinearEquationReview(parsed.data.fields, parsed.data.question);
-    if (deterministicReview) return { ok: true, result: deterministicReview, sourceAnchors: [] };
+  if (!localReview.assistanceBlocked && deterministicReview) {
+    return { ok: true, result: deterministicReview, sourceAnchors: [] };
   }
 
   return { ok: false, error: localReview.error };
@@ -648,7 +712,7 @@ export async function requestScienceScaffold(
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
   const classContext = await loadScienceClassContext(supabase, ownerId, parsed.data.assignmentId);
-  const { data, error } = await supabase.functions.invoke("science-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "science-scaffold", {
     body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -674,7 +738,7 @@ export async function requestHistoryScaffold(
   const classContext = await loadHistoryClassContext(supabase, ownerId, parsed.data.assignmentId);
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("history-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "history-scaffold", {
     body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -724,8 +788,8 @@ export async function requestHistoryMapAnnotation(
   const supabase = await createClient();
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("history-scaffold", {
-    body: { ownerId, assignmentId: parsed.data.assignmentId, aiMode, mode: "map_annotation", storageKey: parsed.data.storageKey },
+  const { data, error } = await invokeHomeworkAction(supabase, "history-scaffold", {
+    body: { ownerId, assignmentId: parsed.data.assignmentId, requestId: parsed.data.requestId, aiMode, mode: "map_annotation", storageKey: parsed.data.storageKey },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -744,7 +808,7 @@ export async function requestCsScaffold(
   const classContext = await loadCsClassContext(supabase, ownerId, parsed.data.assignmentId);
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("cs-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "cs-scaffold", {
     body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -770,7 +834,7 @@ export async function requestLanguageScaffold(
   const classContext = await loadLanguageClassContext(supabase, ownerId, parsed.data.assignmentId);
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("language-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "language-scaffold", {
     body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -796,7 +860,7 @@ export async function requestArtsScaffold(
   const supabase = await createClient();
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("arts-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "arts-scaffold", {
     body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -823,7 +887,7 @@ export async function requestHealthScaffold(
   const classContext = await loadHealthClassContext(supabase, ownerId, parsed.data.assignmentId);
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("health-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "health-scaffold", {
     body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -850,7 +914,7 @@ export async function requestApScaffold(
   const classContext = await loadApClassContext(supabase, ownerId, parsed.data.assignmentId);
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("ap-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "ap-scaffold", {
     body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
@@ -879,7 +943,7 @@ export async function requestCitation(
     ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
     : directHomeworkAiMode();
   if (!aiMode) return { error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("citation-gen", {
+  const { data, error } = await invokeHomeworkAction(supabase, "citation-gen", {
     body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
@@ -893,6 +957,7 @@ export async function requestCitation(
 import { parseStepsFromContent, type BreakdownStep } from "@/lib/task-breakdown/parse";
 
 const TaskBreakdownInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   title: z.string().min(1).max(500),
@@ -923,7 +988,7 @@ export async function requestTaskBreakdown(
   const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
   if (!aiMode) return { error: "Assignment not found." };
 
-  const { data, error } = await supabase.functions.invoke("task-breakdown", {
+  const { data, error } = await invokeHomeworkAction(supabase, "task-breakdown", {
     body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
@@ -984,6 +1049,7 @@ const ToggleStepInput = z.object({
 // ─── F6: AP Math worked example ──────────────────────────────────────────────
 
 const MathExampleInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid().nullable(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   problem: z.string().min(1).max(2000),
@@ -1001,6 +1067,7 @@ const MathSubjectInput = z.enum([
 ]);
 
 const MathScaffoldInput = z.object({
+  requestId: z.string().uuid().optional(),
   assignmentId: z.string().uuid().nullable(),
   aiMode: z.enum(["red", "yellow", "green"]).default("green"),
   subject: MathSubjectInput.default("algebra"),
@@ -1023,7 +1090,7 @@ export async function requestMathExample(
     ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
     : directHomeworkAiMode();
   if (!aiMode) return { error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("math-example", {
+  const { data, error } = await invokeHomeworkAction(supabase, "math-example", {
     body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
@@ -1068,7 +1135,7 @@ export async function requestMathScaffold(
     ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
     : directHomeworkAiMode();
   if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("math-scaffold", {
+  const { data, error } = await invokeHomeworkAction(supabase, "math-scaffold", {
     body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { ok: false, error: calmError(error.message) };

@@ -101,7 +101,9 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-describe("beta preflight evidence", () => {
+// These contracts create real Git repositories. Windows process startup can
+// exceed the unit-test default even when every operation completes normally.
+describe("beta preflight evidence", { timeout: 30_000 }, () => {
   it("creates a new owned manifest without overwriting an existing run", () => {
     const projectRoot = createProject();
     const now = () => new Date("2026-08-30T12:00:00.000Z");

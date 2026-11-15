@@ -1,0 +1,2 @@
+.error.error.error.error { color: #ffd083; }
+@media (forced-colors: active) { .error.error.error.error { color: CanvasText; } }

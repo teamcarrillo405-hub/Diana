@@ -1,0 +1,102 @@
+.checkIn {
+  --check-ink: #f4f8f5;
+  --check-muted: #c0d0cb;
+  --check-rule: #dcece738;
+  --check-cyan: #70d5e5;
+  --check-track: #99b3b559;
+  --check-selected: #70d5e516;
+  --check-hover: #dcece70b;
+  --check-complete: #51ecc0;
+  --check-saved: #102c2580;
+  --check-control-line: 2px;
+  --check-control-time: 120ms;
+  position: relative;
+  isolation: isolate;
+  color: var(--check-ink);
+}
+/* A feathered scrim protects the controls without introducing a panel edge. */
+@media (min-width: 761px) {
+  .checkIn::before { content: ""; position: absolute; z-index: -1; pointer-events: none; inset: -40px -64px -40px -32px; background: linear-gradient(90deg, transparent, #09111380 8%, #091113a3 72%, #09111380 88%, transparent); mask-image: linear-gradient(transparent, #000 14%, #000 86%, transparent); }
+}
+.checkIn.checkIn.checkIn .heading { margin-bottom: 24px; }
+.checkIn.checkIn.checkIn .heading p { margin: 0 0 8px; color: var(--check-muted); font-size: 12px; line-height: 1.5; text-transform: uppercase; }
+.checkIn.checkIn.checkIn .heading h2 { margin: 0; color: var(--check-ink); font: 700 48px/1.05 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.energySection { display: grid; grid-template-columns: 80px minmax(0, 1fr); align-items: center; gap: 16px; padding: 14px 0 16px; border-top: 1px solid var(--check-rule); }
+.checkIn.checkIn.checkIn .energySection h3 { margin: 0; font: 600 22px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; color: var(--check-ink); }
+.energyChoices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.checkIn.checkIn.checkIn .energyChoices button { position: relative; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 52px; padding: 8px; color: var(--check-muted); background: transparent; border: 0; border-bottom: var(--check-control-line) solid var(--check-rule); border-radius: 0; box-shadow: none; font: 600 22px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; transition: background var(--check-control-time) ease, color var(--check-control-time) ease, border-color var(--check-control-time) ease; }
+.checkIn.checkIn.checkIn .energyChoices button + button { border-left: 1px solid var(--check-rule); }
+.checkIn.checkIn.checkIn .energyChoices button:hover { background: var(--check-hover); color: var(--check-ink); }
+.checkIn.checkIn.checkIn .energyChoices button[aria-pressed="true"] { color: var(--check-cyan); background: var(--check-selected); border-bottom-color: var(--check-cyan); }
+.section { padding: 14px 0 16px; border-bottom: 1px solid var(--check-rule); }
+.valueRow { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+.checkIn.checkIn.checkIn .label { display: flex; align-items: center; gap: 10px; color: var(--check-ink); font: 600 22px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.label svg { flex: none; color: var(--check-muted); }
+.energyChoices svg { flex: none; }
+.checkIn.checkIn.checkIn .value { display: flex; flex: none; align-items: baseline; justify-content: flex-end; min-width: 110px; gap: 8px; color: var(--check-cyan); font: 600 44px/1 var(--font-saira-condensed), sans-serif; font-variant-numeric: tabular-nums; }
+.checkIn.checkIn.checkIn .value > span { font: 400 12px/1 var(--font-lexend), sans-serif; color: var(--check-muted); }
+.checkIn.checkIn.checkIn .range { display: block; appearance: none; -webkit-appearance: none; width: 100%; height: 44px; min-height: 44px; margin: 5px 0 0; padding: 0; border: 0; border-radius: 0; box-shadow: none; background: transparent; color: var(--check-cyan); cursor: pointer; }
+.range::-webkit-slider-runnable-track { height: 10px; border-radius: 2px; background: linear-gradient(to right, var(--check-cyan) 0 var(--fill), var(--check-track) var(--fill) 100%); }
+.range::-moz-range-track { height: 10px; border-radius: 2px; background: linear-gradient(to right, var(--check-cyan) 0 var(--fill), var(--check-track) var(--fill) 100%); }
+.range::-webkit-slider-thumb { appearance: none; -webkit-appearance: none; width: 24px; height: 24px; margin-top: -7px; border: var(--check-control-line) solid var(--check-cyan); border-radius: 50%; background: #f4f8f5; box-shadow: 0 0 0 2px #091113; }
+.range::-moz-range-thumb { box-sizing: border-box; width: 24px; height: 24px; border: var(--check-control-line) solid var(--check-cyan); border-radius: 50%; background: #f4f8f5; box-shadow: 0 0 0 2px #091113; }
+.scale { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 6px; color: var(--check-muted); font-size: 10px; line-height: 1.3; font-variant-numeric: tabular-nums; }
+.scale > span:nth-child(2) { text-align: center; }
+.scale > span:last-child { text-align: right; }
+.movement { min-width: 0; flex: 1; }
+.selectWrap { position: relative; width: 180px; max-width: 100%; margin-top: 7px; }
+.checkIn.checkIn.checkIn .selectWrap select { display: block; width: 100%; height: 52px; min-height: 44px; appearance: none; border: 0; border-bottom: var(--check-control-line) solid var(--check-cyan); border-radius: 0; padding: 8px 32px 8px 10px; background: var(--check-selected); box-shadow: none; color: var(--check-cyan); font: 600 22px/1 var(--font-saira-condensed), sans-serif; cursor: pointer; transition: background var(--check-control-time) ease, border-color var(--check-control-time) ease; }
+.checkIn.checkIn.checkIn .selectWrap select:hover { background: var(--check-hover); border-bottom-color: var(--check-ink); }
+.selectWrap > svg { position: absolute; right: 8px; top: 16px; pointer-events: none; color: var(--check-cyan); }
+.selectWrap option { color: #f4f8f5; background: #17272c; }
+.footer { margin-top: 20px; }
+.checkIn.checkIn.checkIn .save { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 224px; max-width: 100%; height: 56px; padding: 0 16px; border: 1px solid #bb7fff; border-bottom-width: var(--check-control-line); border-radius: 0; background: #8924f6; color: #fff; font: 700 24px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; box-shadow: inset 0 1px 0 #ffffff40; transition: background var(--check-control-time) ease, border-color var(--check-control-time) ease; }
+.checkIn.checkIn.checkIn .save:hover:not([aria-disabled="true"]) { background: #9c3aff; border-color: #c795ff; }
+.checkIn.checkIn.checkIn .save:active:not([aria-disabled="true"]) { background: #711ad4; }
+.checkIn.checkIn.checkIn .save[data-state="saved"] { color: var(--check-complete); border-color: var(--check-complete); background: var(--check-saved); box-shadow: none; cursor: default; }
+.checkIn.checkIn.checkIn :is(button, select, input):focus-visible { outline: var(--check-control-line) solid var(--check-ink); outline-offset: 4px; }
+.srOnly { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (min-width: 1001px) {
+  .movement { display: flex; align-items: center; gap: 20px; }
+  .selectWrap { width: 160px; min-width: 0; margin-top: 0; }
+}
+@media (min-width: 761px) and (max-width: 1000px) {
+  .checkIn.checkIn.checkIn .heading h2 { font-size: 38px; }
+  .energySection { grid-template-columns: 60px minmax(0, 1fr); gap: 12px; }
+  .checkIn.checkIn.checkIn .energyChoices button { gap: 8px; font-size: 20px; }
+  .checkIn.checkIn.checkIn .energyChoices svg { width: 23px; }
+}
+@media (max-width: 760px) {
+  .checkIn { --check-ink: #18272b; --check-muted: #415458; --check-rule: #355e4d38; --check-cyan: #176775; --check-track: #17677529; --check-selected: #17677512; --check-hover: #ffffff40; --check-complete: #087f60; --check-saved: #087f600d; }
+  .checkIn.checkIn.checkIn .heading { margin-bottom: 20px; }
+  .checkIn.checkIn.checkIn .heading h2 { font-size: 30px; }
+  .checkIn.checkIn.checkIn .heading p { font-size: 10px; }
+  .energySection { display: block; }
+  .checkIn.checkIn.checkIn .energySection h3 { margin-bottom: 12px; }
+  .checkIn.checkIn.checkIn .energyChoices button { gap: 8px; font-size: 20px; }
+  .checkIn.checkIn.checkIn .energyChoices svg { width: 23px; }
+  .checkIn.checkIn.checkIn .value { min-width: 94px; font-size: 38px; }
+  .checkIn.checkIn.checkIn .label, .checkIn.checkIn.checkIn .energySection h3 { font-size: 20px; }
+  .valueRow { gap: 16px; }
+  .selectWrap { width: 154px; }
+  .selectWrap option { color: #18272b; background: #edf4f2; }
+  .checkIn.checkIn.checkIn .save { height: 52px; font-size: 22px; }
+}
+@media (max-width: 360px) {
+  .checkIn.checkIn.checkIn .energyChoices button { gap: 5px; padding-inline: 4px; font-size: 19px; }
+  .checkIn.checkIn.checkIn .energyChoices svg { width: 21px; }
+  .checkIn.checkIn.checkIn .value { min-width: 86px; gap: 5px; }
+  .valueRow { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .checkIn { --check-control-time: 0ms; }
+}
+@media (forced-colors: active) {
+  .checkIn { --check-ink: CanvasText; --check-muted: CanvasText; --check-rule: GrayText; --check-cyan: Highlight; --check-track: GrayText; --check-selected: Canvas; --check-hover: Canvas; --check-complete: CanvasText; --check-saved: Canvas; }
+  .range::-webkit-slider-runnable-track { forced-color-adjust: none; }
+  .range::-moz-range-track { forced-color-adjust: none; }
+  .range::-webkit-slider-thumb { background: Canvas; forced-color-adjust: none; }
+  .range::-moz-range-thumb { background: Canvas; forced-color-adjust: none; }
+  .checkIn.checkIn.checkIn .save { background: ButtonFace; color: ButtonText; border-color: ButtonText; }
+  .checkIn.checkIn.checkIn :is(button, select, input):focus-visible { outline-color: Highlight; }
+}

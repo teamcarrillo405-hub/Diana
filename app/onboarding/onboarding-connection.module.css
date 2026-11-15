@@ -429,3 +429,12 @@
     transition: none;
   }
 }
+
+/* Shared production setup controls. */
+.topbar { color:#eff5ef; background:#0e171abf; box-shadow:none; }
+.providerCard { background:#183326a6; border:1px solid #b4d0c340; border-radius:3px; box-shadow:none; backdrop-filter:blur(18px); }
+.providerIcon { background:transparent; color:#c7afea; box-shadow:none; }
+.providerCard h2 { color:#eff5ef; }.providerCard p,.canvasForm label { color:#c4d5c8; }
+.primaryAction { background:#7951d5; border-radius:3px; box-shadow:none; padding:12px 20px; }
+.canvasForm input[type=url] { background:#193025; color:#eff5ef; border:1px solid #b4d0c350; box-shadow:none; border-radius:3px; font-size:16px; }
+.backButton { color:#eff5ef; background:transparent; box-shadow:none; border:1px solid #b4d0c350; border-radius:3px; }

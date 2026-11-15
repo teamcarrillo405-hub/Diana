@@ -58,15 +58,15 @@ describe("ScreenDesignOnboarding", () => {
   it("supports keyboard selection in both preference groups", async () => {
     render(<ScreenDesignOnboarding />);
 
-    const examStress = screen.getByRole("radio", { name: /Feeling ready for a test/iu });
+    const examStress = screen.getByRole("radio", { name: /Exam Stress/iu });
     examStress.focus();
     fireEvent.keyDown(examStress, { key: "ArrowDown" });
-    expect(screen.getByRole("radio", { name: /Working through a hard concept/iu })).toHaveAttribute(
+    expect(screen.getByRole("radio", { name: /Complex Concepts/iu })).toHaveAttribute(
       "aria-checked",
       "true",
     );
 
-    await waitFor(() => expect(screen.getByRole("radio", { name: /Working through a hard concept/iu })).toHaveFocus());
+    await waitFor(() => expect(screen.getByRole("radio", { name: /Complex Concepts/iu })).toHaveFocus());
 
     const afterPractice = screen.getByRole("radio", { name: /Afternoon/iu });
     afterPractice.focus();
@@ -88,7 +88,7 @@ describe("ScreenDesignOnboarding", () => {
 
     const continueButton = screen.getByRole("button", { name: "Continue" });
     expect(continueButton).toBeDisabled();
-    fireEvent.click(screen.getByRole("radio", { name: /Working through a hard concept/iu }));
+    fireEvent.click(screen.getByRole("radio", { name: /Complex Concepts/iu }));
     expect(continueButton).toBeDisabled();
     fireEvent.click(screen.getByRole("radio", { name: /Morning/iu }));
     expect(continueButton).toBeEnabled();
@@ -98,7 +98,7 @@ describe("ScreenDesignOnboarding", () => {
     vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({ ok: true });
     render(<ScreenDesignOnboarding />);
 
-    fireEvent.click(screen.getByRole("radio", { name: /Finding time/iu }));
+    fireEvent.click(screen.getByRole("radio", { name: /Time Management/iu }));
     fireEvent.click(screen.getByRole("radio", { name: /Morning/iu }));
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 

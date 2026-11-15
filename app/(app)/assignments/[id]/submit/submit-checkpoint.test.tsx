@@ -53,6 +53,10 @@ describe("SubmitChecklist checkpoint", () => {
       />,
     );
 
+    expect(screen.getByRole("button", { name: "Confirm submission" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm submission" }));
+    expect(mocks.transitionAssignment).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("checkbox", { name: /I handed this in/ }));
     fireEvent.click(screen.getByRole("button", { name: "Confirm submission" }));
     await waitFor(() => {
       expect(mocks.transitionAssignment).toHaveBeenCalledWith({

@@ -1,4 +1,3 @@
-import { loadEnvConfig } from "@next/env";
 import { hostname } from "node:os";
 import { setTimeout as delay } from "node:timers/promises";
 import {
@@ -7,7 +6,8 @@ import {
 } from "../lib/worker-tier/worker-runner";
 import { resolveDianaVoiceSidecarConfig } from "../lib/integrations/diana-voice-sidecar";
 
-loadEnvConfig(process.cwd());
+// A replica must receive only explicit worker settings. Never load an operator's
+// .env.local, which can contain Supabase, provider and QA credentials.
 
 let stopping = false;
 process.once("SIGINT", () => {

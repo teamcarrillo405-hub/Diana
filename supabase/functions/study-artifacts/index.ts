@@ -8,7 +8,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -86,6 +86,18 @@ Study modes:
 - visual_breakdown: use boards, timelines, compare cards, or concept maps in guide sections.
 - retrieval_quiz: focus on recall and test-like questions.
 - flashcard_builder: focus on term/idea cards the student should edit before saving.`;
+
+const QUIZ_PROMPT = `Create a concise practice quiz from the student's provided class material.
+Use only the provided source and class context. Ask varied recall, reasoning, or application questions.
+Test the subject knowledge and skills, not formatting rules, due dates, checklists, or how many answers to submit.
+When assignment problems are provided, use their underlying concepts. For mathematics, create fresh numerical
+examples of the same skill and verify each correct answer. Do not give the answers to the original homework.
+Create exactly the requested number of distinct questions. Include four choices for each question,
+one unambiguous answer copied exactly from its choices, a short hint, and a source anchor.
+Keep wording brief and age-appropriate. This is practice, not final assignment work.
+Return ONLY a valid JSON object with this shape:
+{"title":string,"summary":string,"quiz":[{"question":string,"choices":string[],"answer":string,"hint":string,"sourceAnchor":string}],"practiceSettings":{"questionCount":number,"difficulty":"standard","questionTypes":["multiple_choice"]}}
+Do not add guide sections, cards, review plans, or other metadata.`;
 
 const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, content-type",
@@ -271,7 +283,7 @@ Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
     const { allowed } = await checkTokenBudget(ownerId, supabase);
     if (!allowed) return json({ error: "You've used your AI quota for today - resets at midnight." }, 429);
 
-    const system = composeSystemPrompt(ARTIFACT_PROMPT, {
+    const system = composeSystemPrompt(artifactType === "practice_test" ? QUIZ_PROMPT : ARTIFACT_PROMPT, {
       includeRefuseRedirect: true,
       includeFrustration: true,
       includeMinorSafety: true,
@@ -295,18 +307,22 @@ Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
       sourceTitle,
       questionCount: requestedQuestionCount,
     });
-    const modelResult = await runOpenAIHomeworkAdapter({
+    const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "study-artifacts" }, {
       task: "study_artifacts",
       ownerId,
       supabase,
       system,
       user: userMessage,
-      maxTokens: artifactType === "practice_test" ? 3000 : 2400,
+      maxTokens: artifactType === "practice_test" ? Math.min(10000, 3000 + (requestedQuestionCount ?? 6) * 300) : 5000,
       routing: homeworkRouting,
       json: true,
       fallbackContent,
-      timeoutMs: 30_000,
+      timeoutMs: 45_000,
     });
+    if (modelResult.model.endsWith(":fallback") || modelResult.content === fallbackContent) {
+      console.warn("study-artifacts response unavailable", { tokens: modelResult.tokens, providerFallback: modelResult.model.endsWith(":fallback") });
+      return json({ error: "Study service is temporarily unavailable. Your source is still saved." }, 503);
+    }
     const content = modelResult.content;
     const tokens = modelResult.tokens;
 

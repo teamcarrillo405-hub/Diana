@@ -26,33 +26,18 @@ describe("SmartLoading", () => {
     );
   });
 
-  it("uses one logo focal point and one route-safe loading message", () => {
+  it("uses one wordmark and one route-safe message", () => {
     render(<SmartLoading label="Getting your next view ready" />);
-
-    expect(screen.getByText("Getting your next view ready")).toBeVisible();
-    expect(screen.getByText("Loading")).toBeVisible();
-    expect(screen.queryByText("Diana is readying your space")).toBeNull();
-    expect(componentSource).not.toMatch(/<header className="diana-cinematic-loading-header"/u);
-    expect(componentSource).not.toMatch(/<div className="diana-cinematic-loading-orb"/u);
+    expect(screen.getAllByRole("img", { name: "Diana" })).toHaveLength(1);
+    expect(screen.getByRole("main")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByRole("status")).toHaveTextContent("Getting your next view ready");
   });
-
-  it("uses a visible static reduced-motion fallback and no artificial delay", () => {
-    expect(componentSource).toMatch(
-      /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*\.diana-cinematic-loading \*\s*\{\s*animation:\s*none !important;/u,
-    );
+  it("keeps loading honest without artificial delays and supports reduced motion", () => {
+    const css = readFileSync(join(process.cwd(), "components/student-shell/recovery.module.css"), "utf8");
+    expect(css).toContain("@media(prefers-reduced-motion:reduce)");
+    expect(css).toContain("animation:none");
+    expect(css).toContain("loading-progress-forward 3.6s linear forwards");
+    expect(css).not.toContain("infinite alternate");
     expect(componentSource).not.toMatch(/setTimeout|setInterval|requestAnimationFrame/u);
-    expect(componentSource).not.toMatch(/Diana is readying your space/u);
-  });
-
-  it("uses a single forward progress fill instead of a reversing loop", () => {
-    expect(componentSource).toMatch(/animation:\s*loading-progress-forward\s+3\.6s\s+linear\s+forwards/u);
-    expect(componentSource).toMatch(/@keyframes\s+loading-progress-forward[\s\S]*to\s*\{\s*width:\s*90%;/u);
-    expect(componentSource).not.toMatch(/loading-progress\s+1\.7s\s+ease-in-out\s+infinite/u);
-  });
-
-  it("uses the same desktop frame width limit as Today", () => {
-    expect(componentSource).toMatch(
-      /\.diana-cinematic-loading-main\s*\{[\s\S]*max-width:\s*1800px;/u,
-    );
   });
 });

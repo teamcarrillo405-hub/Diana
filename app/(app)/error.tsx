@@ -28,5 +28,5 @@ export default function AppError({
     reportClientError(error, window.location.pathname);
   }, [error]);
 
-  return <DianaRecoveryScreen eyebrow="Connection paused" title="Let&apos;s reset this view." message="Your work is still here. Refresh the page, or return to Today and continue from there." backHref="/dashboard" backLabel="Back to Today" onRetry={retry} />;
+  return <DianaRecoveryScreen eyebrow="Connection paused" title="This page needs another try." message="Try refreshing. Changes that were not saved may need to be entered again." backHref="/dashboard" backLabel="Back to Lobby" onRetry={retry} />;
 }

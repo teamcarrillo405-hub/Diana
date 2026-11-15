@@ -10,6 +10,8 @@ export interface LogParams {
   ownerId: string;
   assignmentId?: string | null;
   feature:
+    | "curriculum_embedding"
+    | "learning_experiment"
     | "math_step"
     | "writing_aid"
     | "writing_cowrite"

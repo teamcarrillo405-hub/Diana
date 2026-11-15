@@ -88,7 +88,8 @@ export type LobbyNextMove = Readonly<{
 export type LobbyAttentionKey =
   | "tests"
   | "due_earlier"
-  | "not_submitted";
+  | "not_submitted"
+  | "feedback";
 
 export type LobbyAttentionCard = Readonly<{
   key: LobbyAttentionKey;
@@ -96,7 +97,7 @@ export type LobbyAttentionCard = Readonly<{
   count: number;
   description: string;
   href: string;
-  tone: "purple" | "orange" | "yellow";
+  tone: "purple" | "orange" | "yellow" | "green";
   assignmentTitle: string;
   className: string;
   contextLabel: string;
@@ -109,6 +110,7 @@ export type LobbyDashboardView = Readonly<{
   hasNextMove: boolean;
   nextMove: LobbyNextMove;
   attention: readonly [
+    LobbyAttentionCard,
     LobbyAttentionCard,
     LobbyAttentionCard,
     LobbyAttentionCard,
@@ -125,6 +127,7 @@ export type LobbyDashboardViewInput = Readonly<{
   rankedAssignments: readonly ScoredAssignment[];
   assignments: readonly Assignment[];
   reminders: readonly LobbyReminder[];
+  feedbackCount?: number;
   weeklyHomeworkCompletionPercent?: number;
   weeklyHomeworkCompletedCount?: number;
   weeklyHomeworkTotalCount?: number;
@@ -481,6 +484,7 @@ export function buildLobbyDashboardView({
   rankedAssignments,
   assignments,
   reminders,
+  feedbackCount = 0,
   weeklyHomeworkCompletionPercent = 0,
   weeklyHomeworkCompletedCount = 0,
   weeklyHomeworkTotalCount = 0,
@@ -588,6 +592,24 @@ export function buildLobbyDashboardView({
         contextLabel: notSubmitted[0] ? "Ready to submit" : "Nothing waiting",
         actionLabel: "Open",
         additionalItemCount: Math.max(0, notSubmitted.length - 1),
+      },
+      {
+        key: "feedback",
+        label: "Feedback",
+        count: feedbackCount,
+        description: countLabel(
+          feedbackCount,
+          "new note from a teacher",
+          "new notes from teachers",
+          "No new teacher feedback",
+        ),
+        href: "/notifications",
+        tone: "green",
+        assignmentTitle: "Teacher feedback",
+        className: "Notifications",
+        contextLabel: feedbackCount > 0 ? "New feedback available" : "No new feedback",
+        actionLabel: "Open",
+        additionalItemCount: Math.max(0, feedbackCount - 1),
       },
     ],
     studyProgress,

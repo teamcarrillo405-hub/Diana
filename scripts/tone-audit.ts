@@ -45,6 +45,8 @@ const SKIP_PATH_PREFIXES = [
   "lib/social/",            // copy validators and data rules, not rendered UI copy
   "lib/syllabus/",          // parser vocabulary matches source documents, not UI copy
   "lib/teen-testing/",      // internal QA scorecard language, not rendered UI copy
+  "lib/learning-engine/hybrid-benchmark-contract.ts", // research accounting receipt states, never student copy
+  "scripts/learning/review-hybrid-benchmark.ts", // offline review outcome counts, never student copy
   "scripts/tone-audit.ts",  // the script itself names the banned words
   "AGENTS.md",              // project config/instructions — not student-facing UI copy
   "CLAUDE.md",              // project config/instructions — not student-facing UI copy

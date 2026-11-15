@@ -12,7 +12,7 @@ describe("assignment Edge Function ownership contracts", () => {
     expect(source).toContain("const ownerId = authData.user.id");
     expect(source).not.toContain("const ownerId = typeof body.ownerId");
     expect(source).toContain('.eq("owner_id", ownerId)');
-    expect(source).toContain('runOpenAIHomeworkAdapter({');
+    expect(source).toContain('runAssignmentScopedHomeworkAdapter(');
     expect(source).toContain('task: "assignment_review"');
     expect(source).toContain("buildServerReviewMethodologyContext");
     expect(source).toContain("Shared Diana homework method");
@@ -50,12 +50,16 @@ describe("assignment Edge Function ownership contracts", () => {
 
     for (const functionName of migratedFunctions) {
       const source = read(`../supabase/functions/${functionName}/index.ts`);
-      expect(source, functionName).toContain('runOpenAIHomeworkAdapter({');
+      expect(source, functionName).toContain(functionName === 'note-tags' ? 'runOpenAIHomeworkAdapter({' : 'runAssignmentScopedHomeworkAdapter(');
       expect(source, functionName).not.toMatch(/aiMode\s*===\s*"red"/u);
       expect(source, functionName).not.toMatch(/aiMode\s*===\s*"yellow"/u);
       expect(source, functionName).not.toContain("AI not available for this class");
     }
 
+    const boundary = read("../supabase/functions/_shared/learning/assignment-help-boundary.ts");
+    expect(boundary).toContain('from "../homework-adapter.ts"');
+    expect(boundary).toContain('return runOpenAIHomeworkAdapter({ ...input,');
+    expect(boundary).toContain('await recordEdgeAssignmentHelp(context,');
     const adapter = read("../supabase/functions/_shared/homework-adapter.ts");
     expect(adapter).toContain('DIANA_HOMEWORK_PRODUCT_TIER');
     expect(adapter).toContain('callSafeStudentTextModel({');
@@ -134,10 +138,14 @@ describe("assignment Edge Function ownership contracts", () => {
       expect(source).not.toContain("classes(ai_mode)");
       expect(source).not.toContain("effectiveAiMode");
     }
-    expect(assignmentPage).toContain("resolveDianaHomeworkTrust().aiMode");
+    expect(assignmentPage).toContain('.eq("owner_id", user.id)');
+    expect(assignmentPage).toContain("assignmentDestination(");
     expect(notesActions).toContain("resolveDianaHomeworkTrust().aiMode");
     expect(studentState).toContain("resolveDianaHomeworkTrust().aiMode");
-    expect(readingActions).toContain("resolveDianaHomeworkTrust().aiMode");
+    expect(readingActions).toContain("let trust = resolveDianaHomeworkTrust()");
+    expect(readingActions).toContain("loadAssignmentHomeworkKernel({");
+    expect(readingActions).toContain("trust = kernel.trustDecision");
+    expect(readingActions).toContain("if (!trust.allowed)");
   });
   it("keeps atomic workspace patch functions in the migration contract", () => {
     const migration = read("../supabase/migrations/20260729110000_assignment_workspace_reliability.sql");

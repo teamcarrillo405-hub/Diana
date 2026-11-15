@@ -1,0 +1,74 @@
+{
+  "projectId": "oitipayrriupcitgmzju",
+  "readOnly": true,
+  "liveWritesPerformed": false,
+  "migrationFile": "supabase/migrations/20260929001000_learning_task_assistance.sql",
+  "migrationSha256": "5ecb750cbd59fc1ef8eb75c799b10356c6357a4a1e9a0b28b8c5ca78cbf05252",
+  "checkedAt": "2026-09-29T00:20:49.141725+00:00",
+  "dependents": [],
+  "definitions": [
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "learning_start_independent",
+      "owner": "postgres",
+      "arguments": "p_owner uuid, p_assignment uuid, p_problem text",
+      "bodySha256": "e9c2946dd25589e3ae407d4b06238e00dbaa139819bb5f22a1d48afef19adcf8",
+      "searchPath": [
+        "search_path=public, pg_temp"
+      ],
+      "securityDefiner": true
+    },
+    {
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "name": "learning_record_attempt",
+      "owner": "postgres",
+      "arguments": "p_owner uuid, p_attempt jsonb, p_hash text, p_assessment jsonb",
+      "bodySha256": "6a9b14f6c9b3842166f81c1070ccc9e519c1a8e1c80dda168420710ff9b01550",
+      "searchPath": [
+        "search_path=public, pg_temp"
+      ],
+      "securityDefiner": true
+    }
+  ],
+  "textualCallers": [],
+  "newNameCollisions": [],
+  "controlTableExists": false,
+  "defaultFunctionPrivileges": [
+    {
+      "owner": "postgres",
+      "schema_name": "public",
+      "object_type": "f",
+      "default_acl": "{postgres=X/postgres,service_role=X/postgres}"
+    },
+    {
+      "owner": "supabase_admin",
+      "schema_name": "public",
+      "object_type": "f",
+      "default_acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}"
+    }
+  ],
+  "predecessorLocalMigration": "supabase/migrations/20260925203216_learning_assisted_history.sql",
+  "normalizedBodiesMatch": true,
+  "normalization": "CRLF to LF; trim leading/trailing whitespace",
+  "verification": {
+    "postgres": "16, isolated loopback port 55449, minimal earlier dependencies with actual predecessor migrations",
+    "supabaseLikeServiceDefaultExecute": true,
+    "behaviorSql": "passed",
+    "stagingAndProvisioningSql": "passed",
+    "twoConnectionOrderingCases": 4,
+    "receiptUnitTests": 11,
+    "lint": "passed",
+    "independentReview": "integrity_verifier read-only code review; author executed SQL tests"
+  },
+  "deploymentReadiness": "staged-only, after active benchmark completes and root review; enforcement defaults false",
+  "activationReady": false,
+  "activationBlockers": [
+    "all substantive-help surfaces must persist and verify receipts, including direct Edge and local tutor/material practice",
+    "operator authorization of genuine new source/reference plus provisioned reachable transfer required"
+  ],
+  "limitations": [
+    "Catalog dependence and textual-call scans do not prove absence of dynamically constructed external SQL.",
+    "No full production-schema replay was performed by this agent.",
+    "Existing generic AI assistance guards remain conservative."
+  ]
+}

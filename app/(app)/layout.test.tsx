@@ -15,8 +15,6 @@ vi.mock("@/lib/profile", () => ({
   loadProfile: mocks.loadProfile,
   profileBodyClass: vi.fn(() => ""),
 }));
-vi.mock("@/components/overwhelmed-button", () => ({ OverwhelmedButton: () => null }));
-vi.mock("@/components/quick-capture", () => ({ QuickCapture: () => null }));
 vi.mock("@/components/platform-analytics-tracker", () => ({
   PlatformAnalyticsTracker: () => null,
 }));
@@ -24,7 +22,6 @@ vi.mock("@/components/pwa-runtime", () => ({ PwaRuntime: () => null }));
 vi.mock("@/components/session-handoff-tracker", () => ({
   SessionHandoffTracker: () => null,
 }));
-vi.mock("@/components/agent-fab", () => ({ AgentFab: () => null }));
 
 import AppLayout from "./layout";
 

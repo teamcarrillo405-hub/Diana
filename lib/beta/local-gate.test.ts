@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 describe("trusted npm execution", () => {
-  it.runIf(process.platform === "win32")("uses the npm CLI bundled with the running Node installation on Windows", () => {
+  it("uses the npm CLI bundled with the running Node installation on Windows", () => {
     const directory = mkdtempSync(path.join(tmpdir(), "diana-beta-fake-npm-"));
     temporaryDirectories.push(directory);
     const fakeNpmCli = path.join(directory, "node_modules", "npm", "bin", "npm-cli.js");

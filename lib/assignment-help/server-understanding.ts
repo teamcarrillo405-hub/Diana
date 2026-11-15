@@ -8,7 +8,7 @@ import {
 } from "@/lib/assignment-help/methodology";
 import { resolveAssignmentProfile, type AssignmentWorkProfile } from "@/lib/assignment-profile";
 import { buildSourcePacket, type AssignmentSourcePacket } from "@/lib/assignment-sources";
-import { resolveDianaHomeworkTrust, type DianaHomeworkTrustDecision } from "@/lib/ai/diana-trust-rules";
+import { normalizeDianaAiMode, resolveDianaHomeworkTrust, type DianaHomeworkTrustDecision } from "@/lib/ai/diana-trust-rules";
 import {
   resolveHomeworkAcademicBand,
   type HomeworkAcademicBand,
@@ -233,12 +233,26 @@ export async function loadAssignmentHomeworkKernel(args: {
 }): Promise<AssignmentHomeworkKernel | null> {
   const assignmentResult = await args.supabase
     .from("assignments")
-    .select("id, title, description, rubric_text, kind, class_id, work_profile, work_profile_source, assignment_profile, source_import_status, classes(name)")
+    .select("id, owner_id, title, description, rubric_text, kind, class_id, ai_mode_override, work_profile, work_profile_source, assignment_profile, source_import_status, classes(id, owner_id, name, ai_mode)")
     .eq("id", args.assignmentId)
     .eq("owner_id", args.ownerId)
     .maybeSingle();
-  const assignment = normalizeAssignment(dataOf<unknown>(assignmentResult, "assignment"));
+  const rawAssignment = dataOf<Record<string, unknown>>(assignmentResult, "assignment");
+  const assignment = normalizeAssignment(rawAssignment);
   if (!assignment) return null;
+  if (assignment.id !== args.assignmentId || rawAssignment?.owner_id !== args.ownerId) return null;
+  const override = rawAssignment.ai_mode_override;
+  if (override !== null && !normalizeDianaAiMode(override)) throw new Error("homework_policy_unavailable");
+  let classAiMode: string | null = null;
+  if (assignment.class_id) {
+    const joined = rawAssignment.classes;
+    const course = Array.isArray(joined) && joined.length === 1 ? joined[0] : joined;
+    if (!course || typeof course !== "object" || Array.isArray(course)
+      || course.id !== assignment.class_id || course.owner_id !== args.ownerId
+      || !normalizeDianaAiMode(course.ai_mode)) throw new Error("homework_policy_unavailable");
+    classAiMode = course.ai_mode;
+  }
+  const trustDecision = resolveDianaHomeworkTrust({ classAiMode, assignmentAiModeOverride: override });
   const contextIssues: string[] = [];
 
   const since = new Date((args.now ?? new Date()).getTime() - 24 * 60 * 60 * 1000).toISOString();
@@ -401,7 +415,7 @@ export async function loadAssignmentHomeworkKernel(args: {
     sources,
     profile,
     understanding,
-    trustDecision: resolveDianaHomeworkTrust(),
+    trustDecision,
     readiness,
     supportIntensity,
     attemptSignals,

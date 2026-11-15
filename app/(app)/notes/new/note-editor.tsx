@@ -32,13 +32,17 @@ export function NoteEditor({
   const router = useRouter();
   const [noteId, setNoteId] = useState<string | null>(null);
   const noteIdRef = useRef<string | null>(null);
+  const creationRef = useRef<Promise<string | null> | null>(null);
+  const offlineDraftId = useRef(`new-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const [finishing, setFinishing] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [title, setTitle] = useState("Untitled note");
   const [body, setBody] = useState("");
   const [tab, setTab] = useState<NoteCaptureMode>(initialMode);
   const [classId, setClassId] = useState<string | null>(initialClassId);
 
   const queueLocalDraft = useCallback(async (targetNoteId: string | null, source: NoteSource) => {
-    const tempId = targetNoteId ?? `new-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const tempId = targetNoteId ?? offlineDraftId.current;
     await queueOfflineNoteSave({
       tempId,
       noteId: targetNoteId,
@@ -53,63 +57,54 @@ export function NoteEditor({
     return { ok: true as const };
   }, [assignmentId, body, classId, title]);
 
-  // The saver closure uses the latest title/body/classId and creates the row on first call.
+  const ensureNoteId = useCallback(async (source: NoteSource = sourceForTab(tab)): Promise<string | null> => {
+    if (noteIdRef.current) return noteIdRef.current;
+    if (creationRef.current) return creationRef.current;
+    if (!navigator.onLine) return null;
+    creationRef.current = (async () => {
+      try {
+        const res = await createNote({ title, assignmentId, classId, source });
+        if (!res.ok) { setSaveError(res.error); return null; }
+        noteIdRef.current = res.id;
+        setNoteId(res.id);
+        return res.id;
+      } finally { creationRef.current = null; }
+    })();
+    return creationRef.current;
+  }, [assignmentId, classId, tab, title]);
+
   const saver = useCallback(async () => {
     const source = sourceForTab(tab);
     try {
-      if (!noteId) {
-        const res = await createNote({ title, assignmentId, classId, source });
-        if (!res.ok) {
-          return !navigator.onLine
-            ? queueLocalDraft(null, source)
-            : { ok: false as const, error: res.error };
-        }
-        setNoteId(res.id);
-        noteIdRef.current = res.id;
-        const upd = await saveNote({
-          id:         res.id,
-          title,
-          bodyText:   body,
-          classId,
-          source,
-        });
-        if (!upd.ok && !navigator.onLine) return queueLocalDraft(res.id, source);
-        return upd.ok ? { ok: true as const } : { ok: false as const, error: upd.error };
-      }
-      const upd = await saveNote({ id: noteId, title, bodyText: body, classId });
-      if (!upd.ok && !navigator.onLine) return queueLocalDraft(noteId, source);
-      return upd.ok ? { ok: true as const } : { ok: false as const, error: upd.error };
+      if (!navigator.onLine) return queueLocalDraft(noteIdRef.current, source);
+      const id = await ensureNoteId(source);
+      if (!id) return { ok: false as const, error: "Your note could not be created. Try again." };
+      const result = await saveNote({ id, title, bodyText: body, classId, source });
+      if (!result.ok && !navigator.onLine) return queueLocalDraft(id, source);
+      return result;
     } catch (error) {
-      if (!navigator.onLine) return queueLocalDraft(noteId, source);
+      if (!navigator.onLine) return queueLocalDraft(noteIdRef.current, source);
       return { ok: false as const, error: error instanceof Error ? error.message : "Save paused." };
     }
-  }, [assignmentId, body, classId, noteId, queueLocalDraft, tab, title]);
+  }, [body, classId, ensureNoteId, queueLocalDraft, tab, title]);
 
   const { status, save, flushNow } = useAutoSaveNote(saver);
-
-  /** Called by upload tabs before upload. Creates the note row if it doesn't exist yet. */
-  const ensureNoteId = useCallback(async (source: NoteSource = sourceForTab(tab)): Promise<string | null> => {
-    if (noteId) return noteId;
-    if (noteIdRef.current) return noteIdRef.current;
-    if (!navigator.onLine) {
-      await queueLocalDraft(null, source);
-      return null;
-    }
-    const res = await createNote({ title, assignmentId, classId, source });
-    if (!res.ok) return null;
-    setNoteId(res.id);
-    noteIdRef.current = res.id;
-    return res.id;
-  }, [assignmentId, classId, noteId, queueLocalDraft, tab, title]);
 
   // Schedule a save whenever title or body changes (after first character).
   useEffect(() => {
     if (title === "Untitled note" && body === "") return;
     save();
-  }, [title, body, save]);
+  }, [title, body, classId, save]);
 
   async function handleDone() {
-    await flushNow();
+    setFinishing(true);
+    setSaveError(null);
+    const result = await flushNow();
+    if (!result.ok) {
+      setSaveError(result.error ?? "Your note could not be saved. Try again.");
+      setFinishing(false);
+      return;
+    }
     const id = noteId ?? noteIdRef.current;
     if (id) {
       router.push(`/notes/${id}`);
@@ -126,6 +121,7 @@ export function NoteEditor({
           <span>Class <small>optional</small></span>
           <select
             value={classId ?? "__choose_class__"}
+            disabled={finishing}
             onChange={(e) => {
               if (e.target.value !== "__choose_class__") setClassId(e.target.value || null);
             }}
@@ -145,6 +141,7 @@ export function NoteEditor({
         <input
           type="text"
           value={title}
+          disabled={finishing}
           onChange={(e) => setTitle(e.target.value)}
           className="notes-editor-input notes-editor-title"
           placeholder="Note title"
@@ -152,11 +149,24 @@ export function NoteEditor({
       </label>
 
       {/* One capture surface: words, voice, and attached source material. */}
-      <div className="notes-tab-control">
+      <div className="notes-tab-control" role="tablist" aria-label="Capture format">
         {(["text", "voice", "photo-pdf", "audio"] as const).map((t) => (
           <button
             key={t}
             type="button"
+            role="tab"
+            aria-selected={tab === t}
+            tabIndex={tab === t ? 0 : -1}
+            disabled={finishing}
+            onKeyDown={(event) => {
+              const tabs = ["text", "voice", "photo-pdf", "audio"] as const;
+              const index = tabs.indexOf(t);
+              const next = event.key === "Home" ? 0 : event.key === "End" ? 3 : event.key === "ArrowRight" ? (index + 1) % 4 : event.key === "ArrowLeft" ? (index + 3) % 4 : null;
+              if (next === null) return;
+              event.preventDefault();
+              setTab(tabs[next]);
+              (event.currentTarget.parentElement?.children[next] as HTMLButtonElement)?.focus();
+            }}
             onClick={() => setTab(t)}
             className={tab === t ? "is-active" : undefined}
           >
@@ -171,6 +181,8 @@ export function NoteEditor({
       {tab === "text" && (
         <textarea
           value={body}
+          disabled={finishing}
+          aria-label="Note"
           onChange={(e) => setBody(e.target.value)}
           rows={12}
           className="notes-editor-textarea"
@@ -206,18 +218,20 @@ export function NoteEditor({
       )}
 
       <div className="notes-editor-footer">
-        <p>
-          {status === "pending" && "Will save in a few seconds\u2026"}
+        <p role="status">
+          {saveError}
+          {!saveError && status === "pending" && "Will save in a few seconds\u2026"}
           {status === "saving"  && "Saving\u2026"}
-          {status === "saved"   && "Saved."}
-          {status === "error"   && "Saving when you're back online: nothing lost."}
+          {!saveError && status === "saved" && (navigator.onLine ? "Saved." : "Saved on this device. Syncs when online.")}
+          {!saveError && status === "error" && "Your note could not be saved. Try Done again."}
         </p>
         <button
           type="button"
           onClick={handleDone}
+          disabled={finishing}
           className="notes-editor-done"
         >
-          Done
+          {finishing ? "Saving…" : "Done"}
         </button>
       </div>
     </div>

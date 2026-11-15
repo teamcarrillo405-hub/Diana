@@ -52,11 +52,9 @@ export function WellnessClient({ today, summary }: WellnessHistoryClientProps) {
   return (
     <main className={styles.main} id="main-content">
       <section className={styles.frame} aria-labelledby="wellness-title">
-        <div className={styles.topNotch} aria-hidden="true" />
         <header className={styles.heading}>
           <div>
-            <p className={styles.eyebrow}>DAILY WELLNESS</p>
-            <h1 id="wellness-title">Your wellness record</h1>
+            <h1 id="wellness-title">Wellness</h1>
           </div>
           <p className={styles.retention}>Daily details are kept for three months.</p>
         </header>
@@ -71,8 +69,7 @@ export function WellnessClient({ today, summary }: WellnessHistoryClientProps) {
         <section className={styles.recordSection} aria-labelledby="daily-record-title">
           <div className={styles.recordHeader}>
             <div>
-              <p className={styles.eyebrow}>HISTORY</p>
-              <h2 id="daily-record-title">Daily information</h2>
+              <h2 id="daily-record-title">Check-ins</h2>
             </div>
             <div className={styles.segmented} role="group" aria-label="Choose record view">
               <button type="button" aria-pressed={mode === "week"} onClick={() => changeMode("week")}>Week</button>
@@ -90,7 +87,6 @@ export function WellnessClient({ today, summary }: WellnessHistoryClientProps) {
             {dates.map((date) => <DayRecord key={date} date={date} record={recordsByDate.get(date) ?? null} compact={mode === "month"} />)}
           </div>
         </section>
-        <div className={styles.bottomNotch} aria-hidden="true" />
       </section>
     </main>
   );

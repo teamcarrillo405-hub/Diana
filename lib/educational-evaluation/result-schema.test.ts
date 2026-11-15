@@ -115,7 +115,7 @@ describe("educational evaluation result input validation", () => {
       ...makeAlignedEducationalEvaluationResultBundle(),
       corpusVersion: "mutable-corpus",
     };
-    expect(validationIssues(wrongVersion).some((issue) => issue.startsWith("corpusVersion:")))
+    expect(validationIssues(wrongVersion).some((issue) => issue.includes("Invalid literal value")))
       .toBe(true);
 
     const badRun = {

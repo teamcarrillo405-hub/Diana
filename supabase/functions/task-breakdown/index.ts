@@ -13,7 +13,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -109,7 +109,7 @@ Deno.serve(withStudentSecurity("task-breakdown", async (req: Request) => {
     ].filter(Boolean).join("\n");
 
     // 7. Use the shared fast student model.
-    const modelResult = await runOpenAIHomeworkAdapter({
+    const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "task-breakdown" }, {
       task: "task_breakdown",
       ownerId,
       supabase,

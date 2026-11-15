@@ -22,17 +22,22 @@ mkdirSync(dirname(target), { recursive: true });
 copyFileSync(source, target);
 
 const env = {
-  ...process.env,
-  WORKER_API_TOKEN: process.env.WORKER_API_TOKEN ?? "runtime-smoke-token",
-  DIANA_WORKER_BASE_URL: process.env.DIANA_WORKER_BASE_URL ?? "http://127.0.0.1:3000",
-  OPENJARVIS_BASE_URL: process.env.OPENJARVIS_BASE_URL ?? "http://openjarvis:8000",
-  OPENJARVIS_MODEL: process.env.OPENJARVIS_MODEL ?? "llama3.2:3b",
+  // This check never uses an operator's provider, database, proxy, or QA settings.
+  PATH: process.env.PATH,
+  SystemRoot: process.env.SystemRoot,
+  TEMP: tmpdir(), TMP: tmpdir(), NODE_ENV: "production",
+  WORKER_API_TOKEN: "runtime-smoke-token",
+  DIANA_WORKER_BASE_URL: "http://127.0.0.1:3000",
+  OPENJARVIS_BASE_URL: "http://127.0.0.1:8000",
+  OPENJARVIS_MODEL: "synthetic-runtime-model",
 };
 
 const result = spawnSync(process.execPath, [target, "--check-config"], {
   cwd: tempRoot,
   env,
   encoding: "utf8",
+  windowsHide: true,
+  timeout: 10_000,
 });
 
 try {
@@ -41,13 +46,13 @@ try {
       ok: false,
       tempRoot,
       status: result.status,
-      stdout: result.stdout.trim(),
-      stderr: result.stderr.trim(),
+      stdout: (result.stdout ?? "").trim(),
+      stderr: (result.stderr ?? "").trim(),
     }));
     process.exit(result.status ?? 1);
   }
 
-  const stdout = result.stdout.trim();
+  const stdout = (result.stdout ?? "").trim();
   const json = JSON.parse(stdout.split(/\r?\n/).at(-1) ?? "{}");
   const ok = json.status === "configured" &&
     json.sidecarProvider === "openjarvis" &&

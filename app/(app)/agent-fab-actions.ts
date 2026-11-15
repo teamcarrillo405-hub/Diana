@@ -97,5 +97,7 @@ export async function requestAgentCoach(
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: calmError(String(data.error)) };
 
-  return { ok: true, content: String(data?.content ?? "") };
+  const content = typeof data?.content === "string" ? data.content.trim() : "";
+  if (!content) return { ok: false, error: calmError(undefined) };
+  return { ok: true, content };
 }

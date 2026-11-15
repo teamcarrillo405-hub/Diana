@@ -23,9 +23,9 @@ const PROVENANCE_MANIFEST_PATH = path.join(
   "screendesign-asset-provenance.json",
 );
 
-const EXPECTED_SCREEN_COUNT = 25;
-const EXPECTED_SCREENDESIGN_COUNT = 15;
-const EXPECTED_AVATAR_COUNT = 0;
+const EXPECTED_SCREEN_COUNT = 46;
+const EXPECTED_SCREENDESIGN_COUNT = 24;
+const EXPECTED_AVATAR_COUNT = 4;
 const EXPECTED_DERIVED_COUNT = 1;
 const EXPECTED_ASSET_COUNT =
   EXPECTED_SCREENDESIGN_COUNT + EXPECTED_AVATAR_COUNT + EXPECTED_DERIVED_COUNT;
@@ -101,6 +101,22 @@ const ASSET_SPECS = Object.freeze([
     alphaIntent: "preserve",
   },
   {
+    id: "knowledge-graph-base",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/fbc2ea3fa03545f2aac757387b1b7b10_screen_image_knowledge_graph_base_910943a448.png",
+    localPath: "/screendesign/instructional/knowledge-graph-base.png",
+    semanticRole: "Knowledge graph instructional base",
+    alphaIntent: "preserve",
+  },
+  {
+    id: "krebs-cycle-visual",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/4c61eebb75574accb2e9b55aed4cfe44_screen_image_krebs_cycle_visual_7988172144.jpg",
+    localPath: "/screendesign/instructional/krebs-cycle.jpg",
+    semanticRole: "Krebs cycle instructional visual",
+    alphaIntent: "opaque",
+  },
+  {
     id: "supply-demand-graph",
     sourceUrl:
       "https://media.screensdesign.com/gasset/126e460a7ea54a3ca7fcd1be06f61ace_screen_image_supply_demand_graph_bdf56001d4.jpg",
@@ -149,6 +165,22 @@ const ASSET_SPECS = Object.freeze([
     alphaIntent: "opaque",
   },
   {
+    id: "portfolio-calculus-project",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/22ef85f899c142f2b79241e250f8f777_screen_image_portfolio_calc_59e4c464c7.jpg",
+    localPath: "/screendesign/portfolio/calculus-project.jpg",
+    semanticRole: "Calculus portfolio project thumbnail",
+    alphaIntent: "opaque",
+  },
+  {
+    id: "portfolio-biology-project",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/8664fa3a11d645c88f089c1dc9e925ce_screen_image_portfolio_biology_a9ec2f8e6a.jpg",
+    localPath: "/screendesign/portfolio/biology-project.jpg",
+    semanticRole: "Biology portfolio project thumbnail",
+    alphaIntent: "opaque",
+  },
+  {
     id: "student-profile-avatar",
     sourceUrl:
       "https://media.screensdesign.com/gasset/54a2c8030d624dcbb174237b15a97dd9_screen_image_profile_avatar_user_bed6cb99cf.jpg",
@@ -162,6 +194,74 @@ const ASSET_SPECS = Object.freeze([
       "https://media.screensdesign.com/gasset/42564a5c07e94d97875236b5d537b023_screen_image_user_avatar_a51849b9e3.jpg",
     localPath: "/screendesign/social/search-student-avatar.jpg",
     semanticRole: "Student search result avatar",
+    alphaIntent: "opaque",
+  },
+  {
+    id: "study-room-background",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/28c0f4e049664836991e771149c4bec3_screen_image_study_room_bg_texture_39fad1e5c4.jpg",
+    localPath: "/screendesign/social/study-room-background.jpg",
+    semanticRole: "Study room background texture",
+    alphaIntent: "opaque",
+  },
+  {
+    id: "study-room-jordan-avatar",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/c907709a42d94b0eb316ec75f3bba9c5_screen_image_avatar_jordan_2600ffc3ce.jpg",
+    localPath: "/screendesign/social/study-room-jordan-avatar.jpg",
+    semanticRole: "Study room Jordan avatar",
+    alphaIntent: "opaque",
+  },
+  {
+    id: "social-proof-marcus-avatar",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/b535350695c446df9c13cc9aeb1014c7_screen_image_athlete_avatar_marcus_cb35ef781c.jpg",
+    localPath: "/screendesign/social/social-proof-marcus-avatar.jpg",
+    semanticRole: "Community social proof avatar",
+    alphaIntent: "opaque",
+  },
+  {
+    id: "community-sarah-avatar",
+    sourceUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+    localPath: "/screendesign/social/community-sarah.svg",
+    semanticRole: "Community Sarah avatar",
+    alphaIntent: "preserve",
+  },
+  {
+    id: "community-felix-avatar",
+    sourceUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+    localPath: "/screendesign/social/community-felix.svg",
+    semanticRole: "Community Felix avatar",
+    alphaIntent: "preserve",
+  },
+  {
+    id: "community-leo-avatar",
+    sourceUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo",
+    localPath: "/screendesign/social/community-leo.svg",
+    semanticRole: "Community Leo avatar",
+    alphaIntent: "preserve",
+  },
+  {
+    id: "community-buster-avatar",
+    sourceUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=Buster",
+    localPath: "/screendesign/social/community-buster.svg",
+    semanticRole: "Community Buster avatar",
+    alphaIntent: "preserve",
+  },
+  {
+    id: "tutor-math-expert",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/f8252e55bcef4329a1dbd000c4d23a7f_screen_image_tutor_math_expert_1b3db9a69c.jpg",
+    localPath: "/screendesign/tutors/math-expert.jpg",
+    semanticRole: "Math tutor portrait",
+    alphaIntent: "opaque",
+  },
+  {
+    id: "tutor-science-expert",
+    sourceUrl:
+      "https://media.screensdesign.com/gasset/ff915cddfbdf4204a2fb188546fca366_screen_image_tutor_science_expert_6c46f17496.jpg",
+    localPath: "/screendesign/tutors/science-expert.jpg",
+    semanticRole: "Science tutor portrait",
     alphaIntent: "opaque",
   },
 ]);
@@ -352,9 +452,9 @@ const inventoryCanonicalSources = async () => {
   const folderScreens = SCREEN_DESIGN_SCREENS.filter((screen) =>
     path.resolve(screen.source).startsWith(`${path.resolve(SCREEN_DESIGN_EXPORT_DIR)}${path.sep}`),
   );
-  if (folderScreens.length !== 24) {
+  if (folderScreens.length !== 45) {
     throw new Error(
-      `Expected 24 canonical folder exports; received ${folderScreens.length}`,
+      `Expected 45 canonical folder exports; received ${folderScreens.length}`,
     );
   }
 

@@ -1,0 +1,81 @@
+{
+  "reviewerId": "run009-independent-adjudicator",
+  "reviewerKind": "ai",
+  "disputePacketHash": "ec5296e37e6663c9d1fa984ea927497c058591d17183cfb3e369be1fc607d93f",
+  "guidanceSha256": "23ca00ad1c2e32b5024e221521085549e650f5757d4251293fde267c5d4d2681",
+  "savedAtUtc": "2026-09-28T21:22:23.363472Z",
+  "ratings": [
+    {
+      "id": "validation-v3-2-present",
+      "arm": "A",
+      "caseHash": "e77ae5174622a78125e08454d685a09f28d3a143861ecc1d4a25cd1fb57321f6",
+      "responseHash": "20898aee4c3a8333465fb523405af0603047dbc2b1895f2c9271866b9462dabe",
+      "decisions": {
+        "usefulNextStep": false
+      },
+      "notes": "The evidence already identifies the first and third quartiles as the values to compare. NEXT asks which first and third quartile values to compare again, without identifying a dataset to inspect, requesting that dataset, or adding a next operation. In this supplied task it repeats the resolved comparison rather than providing a concrete advance."
+    },
+    {
+      "id": "validation-v3-3-missing",
+      "arm": "B",
+      "caseHash": "8c1b0d74403097b10dc7d1c5387bfe5737d4e6224e9568059efa89481f08a0c0",
+      "responseHash": "72aa1834cbf7d627fca210624c21a64105a316841b5593baa9e4b44f0bf644e7",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "The insufficiency line invents no output. However, NEXT refers to a provided table even though the source supplies only a general definition and no table. The alternative of checking a function definition is reasonable, but it does not make the asserted availability of a provided table supported; that option is not framed conditionally."
+    },
+    {
+      "id": "validation-v3-4-missing",
+      "arm": "B",
+      "caseHash": "7db1a23aea38fad8de6a32af7b0aa2ad160fa4213c0fe9052d1df18c35869e3e",
+      "responseHash": "3a775bbf050454d9011f4dcb15141bbda0a2cdaf87b91cd6918ecb291066af26",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "NEXT describes an original function as provided in the source material. The sole source sentence defines what a derivative describes and supplies no particular function. This is an unsupported assertion about available evidence, rather than a conditional request to obtain the missing function."
+    },
+    {
+      "id": "validation-v3-12-missing",
+      "arm": "B",
+      "caseHash": "36fdeda096472a601b520cc11b4e13b67c054e69d05b9556334b06a36c4e18db",
+      "responseHash": "891f43a4f4c04bae52c25b311bef9f7ab6bb47947d3461f39c0e300a74ba530c",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "NEXT calls the scientific report or observational data provided. The supplied source is only a general statement about rock transport and provides neither a particular glacier report nor movement observations. Inspecting such data could be a proposal, but asserting those data have been provided is unsupported."
+    },
+    {
+      "id": "validation-v3-16-missing",
+      "arm": "A",
+      "caseHash": "320027529a9f5ff36dead051e319ffbcd7a9a6b0667adcfdec9059b022fd2e00",
+      "responseHash": "1e15238527452e7cb0bf2df575991228afc0f7392c0b8c2dc78d906429c89248",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "The source gives a general dominant/recessive relationship, with no individual allele pair. NEXT presupposes that this individual's allele pairings can be inspected in the provided model. The existence of that individual information is unsupported by the general model sentence."
+    },
+    {
+      "id": "validation-v3-19-missing",
+      "arm": "B",
+      "caseHash": "0c12956bb296714c98b0eed8052dc2d8452cb1ccca9f9698f4f54f8ae72d72b5",
+      "responseHash": "a03d5192006086574a1538f2a370b3b3958a98dea453146b2efff3e1790bd498",
+      "decisions": {
+        "noFabricatedClaims": false
+      },
+      "notes": "The editorial advocates expansion, establishing neither an actual project nor a completed expansion. NEXT refers to the official project timeline and seeks the completion date as an existing fact, without conditioning this route on whether the advocated expansion occurred. Those assumptions exceed the evidence from the invented editorial."
+    },
+    {
+      "id": "validation-v3-21-missing",
+      "arm": "B",
+      "caseHash": "9e36e54a55a416a764e4a745903953f34cf2c7d6e74db60248e4f454973d32f5",
+      "responseHash": "88288ea61d4377a579cf98843222cfa3594e03deb743ae1c1d51d153d03d7ef3",
+      "decisions": {
+        "usefulNextStep": true
+      },
+      "notes": "NEXT asks one concrete question that compares the original sample label with identities and pH or indicator entries in the two notes. Checking whether the conflicting records describe the same sample is a relevant investigative advance. It need not independently establish acidity in this one step, and it does not claim that the proposed inspection will already prove the sample acidic."
+    }
+  ],
+  "blindingStatement": "Only the assigned dispute packet, reviewer guidance, and pure adjudication schema were inspected. No arm key, complete primary review, training data, final cases, prior chats, or result summaries were accessed. All seven disputed responses were manually reviewed before this save. Arm identities remain unknown.",
+  "qualificationStatement": "Independent AI adjudication only; no claim of educator validation, student-learning evidence, or population accuracy."
+}

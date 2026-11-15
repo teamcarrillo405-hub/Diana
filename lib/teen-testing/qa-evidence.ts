@@ -9,8 +9,8 @@ export const TEEN_UX_REQUIRED_QA_ROUTES = [
   "/dashboard",
   "/assignments",
   "/notes",
-  "/study",
-  "/settings?section=ai",
+  "/flashcards",
+  "/settings/ai-history",
   "/sharing",
 ] as const;
 
@@ -19,8 +19,8 @@ export const TEEN_UX_AUTHENTICATED_QA_ROUTES = [
   "/dashboard",
   "/assignments",
   "/notes",
-  "/study",
-  "/settings?section=ai",
+  "/flashcards",
+  "/settings/ai-history",
   "/sharing",
 ] as const;
 

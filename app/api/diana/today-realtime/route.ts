@@ -4,6 +4,7 @@ import { estimateTokenReservation, logInteraction, runSafeBudgetedAiCall } from 
 import { createAiServiceClient } from "@/lib/supabase/ai-service";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
+import { authorizeTodayAcademicScope, recordTodayAcademicAssistance, TodayAssistanceError } from "@/lib/learning-engine/today-assistance";
 
 const REALTIME_TTL_SECONDS = 600;
 const MAX_OUTPUT_TOKENS = 500;
@@ -13,6 +14,8 @@ const TODAY_PROMPT = [
   "Speak in short, calm sentences. Ask one question at a time and use plain language that works well for ADHD and dyslexia.",
   "Use the provided Today context before calling a tool. Read-only tools may run immediately.",
   "For current facts, use search_current_information. For weather, use get_weather. Never invent current information.",
+  "For substantive academic help, use answer_complex_question or search_current_information. Pass assignmentId only when the student explicitly identifies that assignment in the session or the session has an explicit academicAssignmentId. Use the owned assignment ID from Today context or list_assignments; ask if the reference is ambiguous. Never infer scope from Next Move, ordering, or a similar title. Omit assignmentId for general questions.",
+  "Assistance here is assisted work. Never claim it proves independent mastery or independent authorship.",
   "Opening a destination, starting a focus session, or creating a quick capture always requires confirmation.",
   "When an action tool returns confirmation_required, ask the student to say yes or use the visible Confirm button, then call confirm_action with the token.",
   "Never submit school work, delete data, send messages, change settings, or expose another student's information.",
@@ -54,9 +57,11 @@ const TODAY_TOOLS = [
   }),
   tool("search_current_information", "Search the web for current information when freshness matters.", {
     query: { type: "string", minLength: 2, maxLength: 300 },
+    assignmentId: { type: "string", format: "uuid", description: "Explicit owned assignment being discussed; omit for general questions." },
   }, ["query"]),
   tool("answer_complex_question", "Use Diana's strongest configured reasoning model for a complex academic or general question.", {
     question: { type: "string", minLength: 2, maxLength: 1200 },
+    assignmentId: { type: "string", format: "uuid", description: "Explicit owned assignment being discussed; omit for general questions." },
   }, ["question"]),
   tool("open_destination", "Prepare to open a safe Diana destination. This requires student confirmation.", {
     destination: { type: "string", enum: ["next_move", "work", "calendar", "classes", "wellness", "search", "settings"] },
@@ -124,20 +129,13 @@ async function loadTodayContext(ownerId: string) {
   };
 }
 
-async function createRealtimeClientSecret(args: { apiKey: string; model: string; instructions: string; idempotencyKey: string }) {
-  const response = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${args.apiKey}`,
-      "Content-Type": "application/json",
-      "X-Client-Request-Id": args.idempotencyKey,
-    },
-    body: JSON.stringify({
+function realtimeRequestBody(model: string, instructions: string) {
+  return {
       expires_after: { anchor: "created_at", seconds: REALTIME_TTL_SECONDS },
       session: {
         type: "realtime",
-        model: args.model,
-        instructions: args.instructions,
+        model: model,
+        instructions: instructions,
         output_modalities: ["audio"],
         max_output_tokens: MAX_OUTPUT_TOKENS,
         tool_choice: "auto",
@@ -153,7 +151,18 @@ async function createRealtimeClientSecret(args: { apiKey: string; model: string;
           output: { voice: safeRealtimeVoice(), speed: 0.96 },
         },
       },
-    }),
+    };
+}
+
+async function createRealtimeClientSecret(args: { apiKey: string; model: string; body: ReturnType<typeof realtimeRequestBody>; idempotencyKey: string }) {
+  const response = await fetch("https://api.openai.com/v1/realtime/client_secrets", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${args.apiKey}`,
+      "Content-Type": "application/json",
+      "X-Client-Request-Id": args.idempotencyKey,
+    },
+    body: JSON.stringify(args.body),
   });
   const payload = await response.json().catch(() => ({})) as RealtimeSecretResponse;
   if (!response.ok || typeof payload.value !== "string" || !payload.value.startsWith("ek_")) {
@@ -178,14 +187,22 @@ export async function POST(request: Request) {
   const accounting = createAiServiceClient();
   if (!accounting) return NextResponse.json({ ok: false, error: "Diana Live is unavailable right now." }, { status: 503 });
 
-  const context = await loadTodayContext(user.id);
-  const contextText = JSON.stringify(context);
-  const instructions = `${TODAY_PROMPT}\n\nPrivate Today context for this session:\n${contextText}`;
-  const model = safeRealtimeModel();
-  const idempotencyKey = request.headers.get("x-idempotency-key")?.trim().slice(0, 128) || crypto.randomUUID();
-  const estimatedTokens = estimateTokenReservation({ systemPrompt: TODAY_PROMPT, input: contextText, maxOutputTokens: MAX_OUTPUT_TOKENS });
-
   try {
+    const rawBody = await request.text();
+    let scope: unknown = {};
+    try { scope = rawBody.trim() ? JSON.parse(rawBody) : {}; }
+    catch { throw new TodayAssistanceError(400, "Choose a valid assignment for this question."); }
+    const assignmentId = await authorizeTodayAcademicScope(supabase, user.id, scope);
+    const context = { ...await loadTodayContext(user.id), academicAssignmentId: assignmentId };
+    const contextText = JSON.stringify(context);
+    const instructions = `${TODAY_PROMPT}\n\nPrivate Today context for this session:\n${contextText}`;
+    const model = safeRealtimeModel();
+    const body = realtimeRequestBody(model, instructions);
+    const callId = request.headers.get("x-idempotency-key")?.trim().slice(0, 128) || crypto.randomUUID();
+    const idempotencyKey = await recordTodayAcademicAssistance(supabase, {
+      ownerId: user.id, assignmentId, surface: "today-realtime", callId, recipe: body,
+    });
+    const estimatedTokens = estimateTokenReservation({ systemPrompt: TODAY_PROMPT, input: contextText, maxOutputTokens: MAX_OUTPUT_TOKENS });
     const guarded = await runSafeBudgetedAiCall({
       ownerId: user.id,
       supabase: accounting,
@@ -193,7 +210,7 @@ export async function POST(request: Request) {
       systemPrompt: TODAY_PROMPT,
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       idempotencyKey,
-      invoke: () => createRealtimeClientSecret({ apiKey, model, instructions, idempotencyKey }),
+      invoke: () => createRealtimeClientSecret({ apiKey, model, body, idempotencyKey }),
       getTokens: () => estimatedTokens,
       getOutput: (value) => ({ sessionId: value.sessionId, model: value.model }),
     });
@@ -202,14 +219,14 @@ export async function POST(request: Request) {
     const value = guarded.value;
     void accounting.from("authorship_log").insert({
       owner_id: user.id,
-      assignment_id: null,
+      assignment_id: assignmentId,
       actor: "diana",
       event_type: "today_realtime_started",
       payload: { model: value.model, sessionId: value.sessionId, expiresAt: value.expiresAt, route: "today-realtime" } as Json,
     });
     void logInteraction({
       ownerId: user.id,
-      assignmentId: null,
+      assignmentId,
       feature: "assignment_realtime",
       model: value.model,
       correlationId: idempotencyKey,
@@ -225,8 +242,9 @@ export async function POST(request: Request) {
       sessionId: value.sessionId,
       model: value.model,
       realtimeUrl: "https://api.openai.com/v1/realtime/calls",
-    });
+    }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
+    if (error instanceof TodayAssistanceError) return NextResponse.json({ ok: false, error: error.message }, { status: error.status, headers: { "Cache-Control": "no-store" } });
     const message = error instanceof Error && error.message === "realtime_rate_limited"
       ? "Diana Live is busy. Try again in a moment."
       : "Diana Live could not start. Try again.";
