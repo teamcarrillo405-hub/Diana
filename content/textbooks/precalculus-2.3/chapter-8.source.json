@@ -1,0 +1,40 @@
+{
+  "number": 8,
+  "title": "Further Applications of Trigonometry",
+  "pages": 82,
+  "blocks": 551,
+  "chunks": 489,
+  "assetHash": "060da5298d1c21a87065b84b905b865dc8e329bf7cf291679a8f150b4dc3746c",
+  "indexHash": "f782c1b51d3b34d1140f14d544b80964966b981c3cc9ef1b98c9eb878c6ca3be",
+  "pdfBytes": 3034477,
+  "indexBytes": 85602,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=8&format=pdf",
+  "retrieval": [
+    {
+      "query": "law of sines cosines",
+      "matches": 6,
+      "pages": [
+        4,
+        5,
+        3,
+        11,
+        12,
+        11
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "vectors dot product",
+      "matches": 6,
+      "pages": [
+        64,
+        64,
+        58,
+        62,
+        59,
+        60
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

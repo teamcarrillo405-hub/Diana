@@ -1,0 +1,55 @@
+// @vitest-environment jsdom
+import React from "react";
+import {afterEach,beforeEach,expect,it,vi} from "vitest";
+import {act,cleanup,fireEvent,render,screen,waitFor} from "@testing-library/react";
+const browser=vi.hoisted(()=>({cached:vi.fn(),run:vi.fn(),remove:vi.fn()}));
+const crop=vi.hoisted(()=>({decode:vi.fn(),encode:vi.fn()}));
+vi.mock('@/lib/learning-engine/handwriting-line-crop',async importOriginal=>({...await importOriginal<typeof import('@/lib/learning-engine/handwriting-line-crop')>(),decodeHandwritingCropImage:crop.decode,cropHandwritingLine:crop.encode}));
+vi.mock("@/lib/learning-engine/browser-recognition",()=>({supportsBrowserRecognition:()=>true,browserModelCached:browser.cached,runBrowserRecognition:browser.run,removeBrowserModel:browser.remove,browserRecognitionModels:{speech:{label:"English speech",bytes:44500564},handwriting_line:{label:"Handwritten English line",bytes:69467490}}}));
+import {LocalRecognitionCapture} from "./local-recognition-capture";
+beforeEach(()=>{browser.cached.mockResolvedValue(false);browser.run.mockReset();browser.remove.mockResolvedValue(undefined);vi.spyOn(globalThis,"fetch").mockResolvedValue(Response.json({}, {status:503}));});
+afterEach(()=>{cleanup();vi.restoreAllMocks();vi.unstubAllGlobals();});
+it('reads only the explicitly selected line in the browser and invalidates it when the source changes',async()=>{
+  browser.cached.mockResolvedValue(true);browser.run.mockResolvedValue('Selected browser line.');
+  const selected=new File(['selected pixels'],'handwriting-line.png',{type:'image/png'}),onDraft=vi.fn();
+  crop.decode.mockResolvedValue({width:720,height:120,close:vi.fn()});crop.encode.mockResolvedValue(selected);
+  vi.spyOn(HTMLCanvasElement.prototype,'getContext').mockReturnValue({drawImage:vi.fn()} as never);
+  vi.stubGlobal('URL',class extends URL {static createObjectURL=vi.fn(()=>'blob:local-crop');static revokeObjectURL=vi.fn();});
+  render(<LocalRecognitionCapture contextKey="handwriting:1" kind="handwriting_line" disabled={false} onDraft={onDraft}/>);
+  await screen.findByRole('button',{name:'Remove downloaded model'});
+  const input=screen.getByLabelText('Optional offline handwriting line');
+  fireEvent.change(input,{target:{files:[new File(['original full image'],'source.jpg',{type:'image/jpeg'})]}});
+  await screen.findByRole('img',{name:/Handwriting preview/});
+  await waitFor(()=>expect((screen.getByRole('button',{name:'Use selected line'}) as HTMLButtonElement).disabled).toBe(false));
+  expect((screen.getByRole('button',{name:'Read into response'}) as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.change(screen.getByLabelText('Height (pixels)'),{target:{value:'50'}});
+  fireEvent.click(screen.getByRole('button',{name:'Use selected line'}));await screen.findByAltText('Selected handwritten line to transcribe');
+  expect(browser.run).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{name:'Read into response'}));
+  await waitFor(()=>expect(onDraft).toHaveBeenCalledWith('Selected browser line.',null));
+  expect(browser.run).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({kind:'handwriting_line',operation:'recognize',file:selected}));
+  expect(vi.mocked(fetch).mock.calls.some(([,options])=>options?.method==='POST')).toBe(false);
+  expect(screen.getByText(/Browser recognition is unverified/)).toBeTruthy();
+  fireEvent.change(input,{target:{files:[new File(['another full image'],'another.png',{type:'image/png'})]}});
+  expect((screen.getByRole('button',{name:'Read into response'}) as HTMLButtonElement).disabled).toBe(true);
+  expect(screen.queryByAltText('Selected handwritten line to transcribe')).toBeNull();
+});
+it("requires explicit download consent and never posts the source to the server",async()=>{
+  browser.run.mockImplementation(async({operation})=>operation==="prepare"?null:"Recognized browser draft.");const onDraft=vi.fn();
+  render(<LocalRecognitionCapture contextKey="a:1" kind="speech" disabled={false} onDraft={onDraft}/>);
+  await screen.findByRole("button",{name:"Download for offline use"});expect(browser.run).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole("button",{name:"Download for offline use"}));await screen.findByRole("button",{name:"Remove downloaded model"});
+  fireEvent.change(screen.getByLabelText("Optional offline speech file"),{target:{files:[new File(["audio"],"source.wav",{type:"audio/wav"})]}});
+  fireEvent.click(screen.getByRole("button",{name:"Read into response"}));await waitFor(()=>expect(onDraft).toHaveBeenCalledWith("Recognized browser draft.",null));
+  expect(vi.mocked(fetch).mock.calls.some(([,options])=>options?.method==="POST")).toBe(false);
+  expect(screen.getByRole("status").textContent).toContain("Browser recognition is unverified");
+});
+it("ignores canceled browser recognition after context changes",async()=>{
+  browser.cached.mockResolvedValue(true);let resolve!:(text:string)=>void;browser.run.mockImplementation(()=>new Promise<string>(yes=>{resolve=yes;}));const onDraft=vi.fn();
+  const view=render(<LocalRecognitionCapture contextKey="a:1" kind="speech" disabled={false} onDraft={onDraft}/>);
+  await screen.findByRole("button",{name:"Remove downloaded model"});
+  fireEvent.change(screen.getByLabelText("Optional offline speech file"),{target:{files:[new File(["audio"],"source.wav",{type:"audio/wav"})]}});fireEvent.click(screen.getByRole("button",{name:"Read into response"}));
+  const signal=browser.run.mock.calls[0][0].signal as AbortSignal;
+  view.rerender(<LocalRecognitionCapture contextKey="b:2" kind="speech" disabled={false} onDraft={onDraft}/>);expect(signal.aborted).toBe(true);
+  await act(async()=>resolve("Old draft"));expect(onDraft).not.toHaveBeenCalled();
+});

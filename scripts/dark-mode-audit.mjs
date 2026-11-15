@@ -8,7 +8,7 @@ const baseUrl = process.env.QA_BASE_URL ?? "http://localhost:3210";
 const outDir = join(process.cwd(), ".planning", "qa-screenshots", "dark-mode-audit-2026-06-09");
 mkdirSync(outDir, { recursive: true });
 
-const routes = ["/", "/dashboard", "/assignments", "/notes", "/study-artifacts", "/settings"];
+const routes = ["/", "/dashboard", "/assignments", "/notes", "/flashcards", "/study-buddy", "/settings", "/timer"];
 
 const run = async () => {
   const browser = await chromium.launch();

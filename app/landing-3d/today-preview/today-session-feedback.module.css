@@ -1,0 +1,49 @@
+.recordingError {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #c38c2b;
+  border-radius: 4px;
+  background: #fff0cd;
+  color: #62430a;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.recordingError .actions button {
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px;
+  border: 1px solid #a6741e;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+}
+
+.actions button svg {
+  flex-shrink: 0;
+}
+
+.recordingError.recordingError.recordingError.recordingError .actions button:focus-visible {
+  outline: 2px solid #62430a;
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .recordingError.recordingError.recordingError.recordingError .actions button:focus-visible { outline-color: Highlight; }
+}

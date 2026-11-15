@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   EducationalEvaluationResultValidationError,
+  educationalEvaluationResultBundleSchema,
   validateEducationalEvaluationResultInput,
 } from "./result-schema";
 import { makeAlignedEducationalEvaluationResultBundle } from "./test-fixtures";
@@ -111,12 +112,19 @@ describe("educational evaluation result input validation", () => {
   });
 
   it("rejects wrong versions, malformed run IDs, and malformed source IDs", () => {
+    const complete = makeAlignedEducationalEvaluationResultBundle();
     const wrongVersion = {
-      ...makeAlignedEducationalEvaluationResultBundle(),
+      ...complete,
       corpusVersion: "mutable-corpus",
     };
-    expect(validationIssues(wrongVersion).some((issue) => issue.startsWith("corpusVersion:")))
-      .toBe(true);
+    expect(validationIssues(wrongVersion))
+      .toEqual([expect.stringMatching(/^corpusVersion:/u)]);
+    expect(educationalEvaluationResultBundleSchema.safeParse(wrongVersion).error?.issues)
+      .toEqual([expect.objectContaining({
+        code: "invalid_value",
+        path: ["corpusVersion"],
+        values: [complete.corpusVersion],
+      })]);
 
     const badRun = {
       ...makeAlignedEducationalEvaluationResultBundle(),

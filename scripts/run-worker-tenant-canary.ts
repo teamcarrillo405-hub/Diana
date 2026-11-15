@@ -31,11 +31,11 @@ async function main() {
     result: { responseChars: 0, workerId: "tenant-canary" },
   });
   if (missingTenant.status !== 400) {
-    throw new Error(`Expected missing-tenant canary to return 400, got ${missingTenant.status}.`);
+    throw new Error(`Expected missing-capability canary to return 400, got ${missingTenant.status}.`);
   }
 
   const results: Record<string, unknown> = {
-    missingTenantStatus: missingTenant.status,
+    missingCapabilityStatus: missingTenant.status,
     queueName,
   };
 
@@ -51,24 +51,22 @@ async function main() {
     const crossTenant = await postComplete(baseUrl, token, {
       traceId,
       tenantId: crossTenantId === tenantId ? `${crossTenantId}-other` : crossTenantId,
+      workerId: "tenant-canary", capability: "0".repeat(64),
       status: "succeeded",
-      result: { responseChars: 0, workerId: "tenant-canary" },
+      result: { response: "Synthetic canary.", provider: "openjarvis", model: "canary-local" },
     });
-    if (crossTenant.status !== 404) {
-      throw new Error(`Expected cross-tenant canary to return 404, got ${crossTenant.status}.`);
+    if (crossTenant.status !== 409) {
+      throw new Error(`Expected cross-tenant canary to return 409, got ${crossTenant.status}.`);
     }
     results.crossTenantStatus = crossTenant.status;
 
-    const cleanup = await postComplete(baseUrl, token, {
-      traceId,
-      tenantId,
-      status: "error",
-      errorSummary: "Tenant canary completed its boundary check.",
-    });
-    if (!cleanup.ok) {
-      throw new Error(`Tenant canary cleanup returned ${cleanup.status}.`);
-    }
-    results.cleanupStatus = cleanup.status;
+    if (seed && traceId === `dw-${runId}`) {
+      const admin = createServiceClient();
+      if (!admin) throw new Error('Operator service client is required to clean up its own canary fixture.');
+      const cleanup = await admin.from('worker_jobs').delete().eq('trace_id', traceId).eq('queue_name', queueName);
+      if (cleanup.error) throw new Error('Canary fixture cleanup unavailable.');
+      results.cleanupStatus = 'operator-deleted-owned-synthetic-fixture';
+    } else results.cleanupStatus = 'not-mutated';
   } else {
     results.crossTenantStatus = "skipped-no-known-job";
   }

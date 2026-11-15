@@ -29,6 +29,7 @@ import {
   validateUpload,
 } from "@/lib/security/upload-validation";
 import { removeAndConfirmStorageObjectAbsent } from "@/lib/storage/object-absence";
+import type {NativeAssignmentSource} from "@/lib/learning-engine/native-source";
 
 type DbError = { message: string } | null;
 type SourceInsertResult = { data: { id: string } | null; error: DbError };
@@ -64,6 +65,7 @@ async function setAssignmentImportStatus(
   await store.from("assignments").update({ source_import_status: status }).eq("id", assignmentId).eq("owner_id", ownerId);
 }
 const SOURCE_IMPORT_ERROR_STATE = ["fai", "led"].join("") as Parameters<typeof setAssignmentImportStatus>[3];
+const NATIVE_SOURCE_REVIEW_MESSAGE="Text is ready. Compare equations, tables and diagrams with the original file before using them.";
 
 function providerCredentialRejection(error: unknown): boolean {
   return error instanceof Error && /\b(?:401|403)\b/u.test(error.message);
@@ -86,13 +88,53 @@ function extractionResultError(value: unknown): string | null {
     : null;
 }
 
+async function readNativeAssignmentSource(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  assignmentId: string,
+  ownerId: string,
+  source: AssignmentSourceReference,
+  storageKey: string | null | undefined,
+):Promise<NativeAssignmentSource|{status:"unavailable"}>{
+  if(source.mimeType!=="application/pdf")return {status:"provider_required",reason:"unreadable"};
+  if(!storageKey||storageKey.includes("\\")||storageKey.split("/").includes("..")
+    ||!(storageKey.startsWith(`${ownerId}/assignments/${assignmentId}/`)
+      ||isScopedAssignmentSourceStorageKey(ownerId,assignmentId,source.id,storageKey)))return {status:"unavailable"};
+  try{
+    const file=await supabase.storage.from("note-docs").download(storageKey);
+    if(file.error||!file.data||file.data.size>30_000_000)return {status:"unavailable"};
+    const {extractNativeAssignmentSource}=await import("@/lib/learning-engine/native-source");
+    return extractNativeAssignmentSource(new Uint8Array(await file.data.arrayBuffer()));
+  }catch{return {status:"unavailable"};}
+}
+
 async function extractAssignmentSource(
   supabase: Awaited<ReturnType<typeof createClient>>,
   store: WorkspaceStore,
   assignmentId: string,
   ownerId: string,
   source: AssignmentSourceReference,
+  storageKey: string | null | undefined,
 ) {
+  const native=await readNativeAssignmentSource(supabase,assignmentId,ownerId,source,storageKey);
+  if(native.status==="extracted"){
+    const saved=await supabase.from("assignment_sources").update({
+      extracted_text:native.text,import_status:"partial",error_message:NATIVE_SOURCE_REVIEW_MESSAGE,
+      source_location:`Native PDF text, ${native.pageCount} ${native.pageCount===1?"page":"pages"}; original layout needs review`,
+      updated_at:new Date().toISOString(),
+    }).eq("id",source.id).eq("assignment_id",assignmentId).eq("owner_id",ownerId).select("id").maybeSingle();
+    if(!saved.error&&saved.data?.id===source.id){
+      await setAssignmentImportStatus(store,assignmentId,ownerId,"partial");
+      revalidatePath(`/assignments/${assignmentId}/workspace`);
+      return {ok:true as const,source,extractionStatus:"partial" as const};
+    }
+    return {ok:false as const,error:"The file was added, but its text could not be saved yet.",source,extractionStatus:"partial" as const};
+  }
+  if(native.status==="unavailable"){
+    await store.from("assignment_sources").update({import_status:SOURCE_IMPORT_ERROR_STATE,error_message:"The original file is unavailable. Reopen the attachment and try again."}).eq("id",source.id);
+    await setAssignmentImportStatus(store,assignmentId,ownerId,SOURCE_IMPORT_ERROR_STATE);
+    revalidatePath(`/assignments/${assignmentId}/workspace`);
+    return {ok:false as const,error:"The original file is unavailable. Reopen the attachment and try again.",source,extractionStatus:SOURCE_IMPORT_ERROR_STATE};
+  }
   const { data: extraction, error: extractError } = await supabase.functions.invoke("extract-assignment-source", {
     body: { sourceId: source.id },
   });
@@ -266,7 +308,7 @@ export async function addAssignmentSourceFile(formData: FormData) {
       id: source.id,
       title: file.name,
       mimeType,
-    });
+    },storageKey);
   }
   revalidatePath(`/assignments/${assignmentId}/workspace`);
   return {
@@ -307,7 +349,7 @@ export async function retryAssignmentSourceExtraction(input: z.infer<typeof Retr
     id: source.id,
     title: source.title,
     mimeType: source.mime_type ?? "application/octet-stream",
-  });
+  },source.storage_key);
 }
 
 const MediaUploadDeclaration = z.object({
@@ -1507,6 +1549,19 @@ export async function materializeConnectedAssignmentSources(input: z.infer<typeo
     }
 
     if (!await renewSourceMaterializationClaim(providerStore, assignment.id, source.id, claimToken)) {
+      continue;
+    }
+    const native=await readNativeAssignmentSource(supabase,assignment.id,user.id,{
+      id:source.id,title:source.title,mimeType:source.mime_type??"application/octet-stream",
+    },source.storage_key);
+    if(native.status!=="provider_required"){
+      partial+=1;
+      // The claim fences this write. Native text never approves the source's layout
+      // or seeds a trusted problem queue; the original remains available for review.
+      await updateClaimedSource(providerStore,source,user.id,claimToken,native.status==="extracted"?{
+        extracted_text:native.text,import_status:"partial",error_message:NATIVE_SOURCE_REVIEW_MESSAGE,
+        source_location:`Native PDF text, ${native.pageCount} ${native.pageCount===1?"page":"pages"}; original layout needs review`,
+      }:{import_status:"partial",error_message:MATERIALIZATION_RETRY_MESSAGE},true);
       continue;
     }
     const { data: extraction, error: extractError } = await supabase.functions.invoke("extract-assignment-source", { body: { sourceId: source.id } });

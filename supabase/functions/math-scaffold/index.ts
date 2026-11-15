@@ -13,6 +13,7 @@ import {
   type SafetyMediaInput,
 } from "../_shared/safety.ts";
 import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -245,7 +246,7 @@ Deno.serve(withStudentSecurity("math-scaffold", async (req: Request) => {
       problemText,
     ].filter(Boolean).join("\n");
 
-    const ai = await runOpenAIHomeworkAdapter({
+    const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "math-scaffold" }, {
 
       task: "math_scaffold",
       ownerId,

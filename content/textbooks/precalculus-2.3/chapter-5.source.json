@@ -1,0 +1,40 @@
+{
+  "number": 5,
+  "title": "Trigonometric Functions of Angles",
+  "pages": 58,
+  "blocks": 366,
+  "chunks": 321,
+  "assetHash": "0160638fe6ad606276652a7372d749decc8dc1a733fe19270ca46e8bd7b4a901",
+  "indexHash": "1ff08290a00606be9d60096608da920161d63ba912837648bfc14fa4fceea8ea",
+  "pdfBytes": 1769373,
+  "indexBytes": 58072,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=5&format=pdf",
+  "retrieval": [
+    {
+      "query": "sine cosine circle",
+      "matches": 6,
+      "pages": [
+        30,
+        40,
+        30,
+        29,
+        28,
+        34
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "right triangle trigonometry",
+      "matches": 6,
+      "pages": [
+        51,
+        50,
+        53,
+        53,
+        50,
+        49
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

@@ -14,7 +14,7 @@ Purpose: test whether high school students get unstuck faster than with a generi
 ## Teen-Native UX Sections
 
 - First screen clarity: the student can name the one next academic move without opening a generic chat prompt.
-- Mobile thumb flow: the student can reach Today, Work, Classes, Calendar, and More without hunting through secondary routes.
+- Mobile thumb flow: the student can use Focus, Assignments, Notes, Study, and More without hunting through secondary routes.
 - Unstuck speed: the first useful academic action happens faster than the same task in a generic chat tool.
 - Teen voice and control: the product feels student-owned, private, useful, and not judgmental.
 - Embedded study loop: the student can turn assignment or note material into cards, practice, review, or a study guide.

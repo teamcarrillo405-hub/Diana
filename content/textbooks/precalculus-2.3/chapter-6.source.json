@@ -1,0 +1,40 @@
+{
+  "number": 6,
+  "title": "Periodic Functions",
+  "pages": 58,
+  "blocks": 338,
+  "chunks": 291,
+  "assetHash": "135f8450d6f1bd41e3691453d9452a91fdc2da6fdc6e2dbb30adf6ef5006e652",
+  "indexHash": "8b044391e982c4c7dd98fd5d3feff5365326b71b538db1d4ff1ab8adb95977fc",
+  "pdfBytes": 2512961,
+  "indexBytes": 55751,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=6&format=pdf",
+  "retrieval": [
+    {
+      "query": "sinusoidal amplitude period",
+      "matches": 6,
+      "pages": [
+        13,
+        14,
+        12,
+        9,
+        10,
+        17
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "inverse trigonometric functions",
+      "matches": 6,
+      "pages": [
+        47,
+        31,
+        28,
+        51,
+        50,
+        47
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

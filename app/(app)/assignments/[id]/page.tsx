@@ -1,39 +1,14 @@
 import { notFound, redirect } from "next/navigation";
-
-import { AiWritingCoach } from "@/components/screen-design/ai-writing-coach";
-import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
+import { assignmentDestination } from "@/lib/assignment-navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function AssignmentDetailPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ sdState?: string }>;
-}) {
+export default async function AssignmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { sdState } = await searchParams;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
-
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, status, saved_work, classes(name)")
-    .eq("id", id)
-    .eq("owner_id", user.id)
-    .maybeSingle();
+  const { data: assignment, error } = await supabase.from("assignments").select("id, status").eq("id", id).eq("owner_id", user.id).maybeSingle();
+  if (error) throw new Error("Unable to open this assignment. Please try again.");
   if (!assignment) notFound();
-
-  if (sdState?.startsWith("writing-coach")) {
-    const savedWork = assignment.saved_work && typeof assignment.saved_work === "object" && !Array.isArray(assignment.saved_work)
-      ? assignment.saved_work as Record<string, unknown>
-      : {};
-    return <AiWritingCoach assignmentId={assignment.id} assignmentTitle={assignment.title} courseLabel={assignment.classes?.name ?? "Assignment"} initialDraft={typeof savedWork.draft === "string" ? savedWork.draft : ""} aiMode={resolveDianaHomeworkTrust().aiMode} />;
-  }
-
-  if (sdState === "submit" && assignment.status === "exporting") {
-    redirect(`/assignments/${id}/submit`);
-  }
-  redirect(`/assignments/${id}/workspace`);
+  redirect(assignmentDestination(assignment.id, assignment.status));
 }

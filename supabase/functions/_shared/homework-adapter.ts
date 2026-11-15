@@ -113,6 +113,7 @@ export async function runOpenAIHomeworkAdapter({
   quality,
   routing,
   reservationUnits,
+  idempotencyKey,
 }: {
   ownerId: string;
   supabase: SupabaseLike;
@@ -127,6 +128,7 @@ export async function runOpenAIHomeworkAdapter({
   quality?: StudentModelQuality;
   routing?: Parameters<typeof homeworkQualityForTask>[1];
   reservationUnits?: number;
+  idempotencyKey?: string;
 }): Promise<StudentModelResult> {
   return callSafeStudentTextModel({
     ownerId,
@@ -140,5 +142,6 @@ export async function runOpenAIHomeworkAdapter({
     fallbackContent,
     timeoutMs,
     reservationUnits,
+    idempotencyKey,
   });
 }

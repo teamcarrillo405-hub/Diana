@@ -1,0 +1,30 @@
+{
+  "background": {
+    "src": "/assets/today-now/diana-studio-fidelity-5504.b238dc5f582a.webp",
+    "srcSet": "/assets/today-now/diana-studio-fidelity-1280.b23f9e3ddfa5.webp 1280w, /assets/today-now/diana-studio-fidelity-1920.40f70588870c.webp 1920w, /assets/today-now/diana-studio-fidelity-2560.471209e82728.webp 2560w, /assets/today-now/diana-studio-fidelity-3840.9905c1c834a2.webp 3840w, /assets/today-now/diana-studio-fidelity-5504.b238dc5f582a.webp 5504w",
+    "mobileSrcSet": "/assets/today-now/diana-studio-fidelity-1280.b23f9e3ddfa5.webp 1280w, /assets/today-now/diana-studio-fidelity-1920.40f70588870c.webp 1920w",
+    "width": 5504,
+    "height": 3072,
+    "sha256": "b238dc5f582a2d371fd8f7253633057a9cfd27ca19b2ba8f85abdf2e4a2d9420",
+    "bytes": 2755810
+  },
+  "originalPose": {
+    "src": "/assets/today-now/diana-still-scene-v1.00ed417566be.webp",
+    "sha256": "00ed417566be852b4b0d66c8500f15885997eae389186b95e5a9f11153caf824",
+    "bytes": 100630
+  },
+  "matchingPoster": {
+    "src": "/assets/today-now/diana-poster-native-v2.4362e1eb3b33.webp",
+    "width": 752,
+    "height": 1920,
+    "sha256": "4362e1eb3b3383c249bcd6c1e99d654db42e6a8053bcad12ab531c01119ff25f",
+    "bytes": 96430
+  },
+  "motion": {
+    "src": "/assets/today-now/diana-idle-native-v2.b91c93e50fe5.webm",
+    "width": 752,
+    "height": 1920,
+    "sha256": "b91c93e50fe5554ff4e98af5cbafa12cba69d9c75d1b55e822bc479b1dcc9425",
+    "bytes": 2027444
+  }
+}

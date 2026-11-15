@@ -100,7 +100,9 @@ afterEach(() => {
   for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-describe("beta resource cleanup safety", () => {
+// Cleanup fixtures execute the full gate lifecycle with real Git checkpoints.
+// Keep a finite integration budget even when filesystem workers overlap.
+describe("beta resource cleanup safety", { timeout: 120_000 }, () => {
   it("removes only the validated disposable registry and preserves immutable evidence", () => {
     const { projectRoot, runDirectory } = createCompletedRun("beta-cleanup-001");
     const reportPath = path.join(runDirectory, "report.md");

@@ -1,0 +1,133 @@
+.root.root { --pink: #f339a7; --violet: #8c24ff; --mint: #6cebbb; --muted: #b8c7c7; position: relative; isolation: isolate; min-height: 100dvh; color: #f1f7f4; background: #101719; font-family: var(--font-lexend), sans-serif; letter-spacing: 0; }
+.root.root * { box-sizing: border-box; letter-spacing: 0; }
+.root.root button, .root.root input, .root.root select { font: inherit; }
+.root.root button { cursor: pointer; box-shadow: none; width: auto; min-height: 0; border-radius: 0; }
+.root.root svg { width: 18px; height: 18px; flex-shrink: 0; }
+.root.root :is(h1, h2, h3, h4, strong, b, p, li) { color: inherit; }
+.root.root button:disabled { opacity: .35; cursor: default; }
+.root.root :is(button, a, input, select):focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+.root.root button:focus:not(:focus-visible), .root.root .main:focus { outline: none; }
+.root.root h1, .root.root h2, .root.root h3, .root.root p { margin: 0; }
+.root.root .world { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center; opacity: .52; }
+.root.root::before { position: absolute; z-index: -1; inset: 0; content: ""; background: linear-gradient(90deg, rgb(10 18 20 / .95) 0%, rgb(10 18 20 / .78) 55%, rgb(10 18 20 / .54)), linear-gradient(0deg, #0d1519 0%, transparent 70%); pointer-events: none; }
+.root.root .globalNav { display: flex; align-items: center; gap: 50px; min-height: 70px; padding: 0 32px; border-bottom: 1px solid #bfdace30; background: #0d171bea; }
+.root.root .brand { display: flex; align-items: center; width: 142px; flex: none; }
+.root.root .brand img { width: 140px; height: 46px; object-fit: contain; }
+.root.root .globalNav nav { display: flex; gap: 30px; align-self: stretch; }
+.root.root .globalNav nav a { display: flex; align-items: center; position: relative; color: #bdc9c7; text-decoration: none; font: 700 25px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.root.root .globalNav nav a[aria-current] { color: #fff; }
+.root.root .globalNav nav a[aria-current]::after { content: ""; position: absolute; bottom: -1px; height: 3px; left: 0; right: 0; background: var(--pink); }
+.root.root .exit { margin-left: auto; display: flex; gap: 8px; align-items: center; color: #d3dfdb; text-decoration: none; font-size: 12px; min-height: 44px; }
+.root.root .reviewBar { min-height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 32px; background: #0b131b99; border-bottom: 1px solid #dce9e316; }
+.root.root .reviewLabel { font-size: 10px; font-weight: 600; }
+.root.root .reviewLabel > span { color: #9aadae; }
+.root.root .conceptSwitch { display: flex; border: 1px solid #bdc7c948; border-radius: 4px; padding: 3px; }
+.root.root .conceptSwitch button { border: 0; padding: 9px 14px; min-height: 38px; color: #d3dfdc; background: transparent; display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; border-radius: 2px; }
+.root.root .conceptSwitch button span { font: 700 18px/1 var(--font-saira-condensed); opacity: .6; }
+.root.root .conceptSwitch button[aria-pressed="true"] { color: #111c1d; background: #edf4ee; }
+.root.root .main { width: min(100%, 1540px); margin: 0 auto; padding: 28px 36px 44px; }
+.root.root .pageHeading { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 20px; }
+.root.root .pageHeading h1 { font: 800 44px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .pageHeading > p { font: 600 14px/1.2 var(--font-barlow), sans-serif; color: #c3d0cc; }
+.root.root .pageHeading > p > span { color: var(--pink); margin: 0 4px; }
+.root.root .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-bottom: 20px; margin-bottom: 24px; border-bottom: 1px solid #e9f3e93d; }
+.root.root .categories { display: flex; gap: 18px; flex-wrap: wrap; }
+.root.root .categories button { position: relative; isolation: isolate; display: flex; gap: 7px; align-items: center; border: 0; padding: 8px 5px; background: transparent; color: #c0ceca; font: 700 20px/1 var(--font-saira-condensed); text-transform: uppercase; min-height: 44px; }
+.root.root .categories button > span { font: 500 10px/1 var(--font-lexend); color: #a8b8b4; }
+.root.root .categories button[aria-pressed="true"] { color: #fff; }
+.root.root .categories button[aria-pressed="true"]::after { position: absolute; content: ""; height: 3px; background: var(--pink); left: 5px; right: 5px; bottom: 0; }
+.root.root .filters { display: flex; align-items: center; gap: 12px; }
+.root.root .search { display: flex; align-items: center; width: 185px; gap: 8px; min-height: 40px; border-bottom: 1px solid #b8ccc36b; color: #b7c9c5; }
+.root.root .search input { min-width: 0; width: 100%; border: 0; background: transparent; color: #fff; font-size: 12px; height: 40px; }
+.root.root .search input::placeholder { color: #b7c9c5; }
+.root.root .search button { background: none; border: 0; padding: 4px; color: #fff; }
+.root.root .filters select { color: #d6e1dc; background: #142326e0; border: 1px solid #b8ccc34d; border-radius: 2px; padding: 10px; font-size: 12px; min-height: 40px; }
+.root.root .franchise { display: grid; grid-template-columns: 220px minmax(0, 1fr) 228px; gap: 28px; align-items: start; }
+.root.root .eyebrow { color: #b8c8c3; text-transform: uppercase; font-size: 10px; font-weight: 600; line-height: 1.4; }
+.root.root .assignmentRail > p { padding: 0 9px; display: flex; justify-content: space-between; }
+.root.root .railItems { display: grid; gap: 12px; padding: 16px 0; }
+.root.root .railItems button { display: grid; gap: 5px; text-align: left; border: 0; background: transparent; padding: 12px 11px; position: relative; isolation: isolate; min-height: 83px; color: #b9c7c6; }
+.root.root .railItems button small { font: 500 10px/1.2 var(--font-lexend); text-transform: uppercase; }
+.root.root .railItems button { justify-content: stretch; justify-items: start; }
+.root.root .railItems button strong { font: 700 26px/1 var(--font-saira-condensed); text-transform: uppercase; overflow-wrap: anywhere; }
+.root.root .railItems button[aria-selected="true"] { color: white; }
+.root.root .railItems button[aria-selected="true"]::before { z-index: -1; position: absolute; inset: 0 -5px; content: ""; background: #bb066e; mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; -webkit-mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; mask-mode: luminance; }
+.root.root .railItems button:hover:not([aria-selected="true"]) { color: white; background: #cbd8d20b; }
+.root.root .mobilePicker { display: none; }
+.root.root .featureColumn { min-width: 0; }
+.root.root .schedule { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 14px; margin-bottom: 17px; }
+.root.root .schedule button { display: grid; gap: 5px; background: transparent; padding: 0 0 10px; text-align: left; border: 0; border-bottom: 2px solid #d9e7df24; color: #a9bfbb; min-height: 46px; }
+.root.root .schedule button > span { font: 600 12px/1 var(--font-barlow); }
+.root.root .schedule button { justify-content: stretch; justify-items: start; }
+.root.root .schedule button strong { font: 700 18px/1 var(--font-saira-condensed); text-transform: uppercase; overflow-wrap: anywhere; }
+.root.root .schedule button[aria-pressed="true"] { color: #fff; border-color: #eff7f2; }
+.root.root .featureArt { position: relative; isolation: isolate; height: 300px; overflow: hidden; background: #1e2b2d; border-top: 3px solid var(--subject-color); animation: contentArrival 220ms ease-out; }
+.root.root .featureArt > img { position: absolute; width: 100%; height: 100%; inset: 0; object-fit: cover; }
+.root.root .featureArt::after { position: absolute; inset: 0; z-index: 1; content: ""; background: linear-gradient(0deg, rgb(5 15 20 / .97), rgb(5 15 20 / .45) 43%, transparent 75%); }
+.root.root .featureOverlay { z-index: 2; position: absolute; left: 26px; right: 26px; bottom: 22px; }
+.root.root .subjectLabel { color: var(--subject-color); font: 700 17px/1.2 var(--font-saira-condensed); text-transform: uppercase; }
+.root.root .featureOverlay h2 { font: 800 44px/.98 var(--font-saira-condensed); text-transform: uppercase; max-width: 520px; margin: 7px 0 14px; overflow-wrap: anywhere; }
+.root.root .featureOverlay > p { display: flex; align-items: center; gap: 7px; font-size: 12px; color: #fff; }
+.root.root .launchBand { display: flex; justify-content: space-between; gap: 28px; align-items: center; padding: 22px 0 18px; border-bottom: 1px solid #dcefe036; }
+.root.root .savedProgress { min-width: 128px; max-width: 230px; flex: 1; }
+.root.root .savedProgress > strong { display: flex; align-items: baseline; gap: 4px; font: 700 31px/1 var(--font-saira-condensed); color: var(--mint); margin: 6px 0 11px; }
+.root.root .savedProgress > strong > span { color: #bacbc4; font-size: 21px; }
+.root.root .savedProgress > strong > small { color: #bacbc4; font: 400 10px/1.4 var(--font-lexend); margin-left: 6px; }
+.root.root .progressTrack { display: flex; gap: 4px; height: 4px; }
+.root.root .progressTrack > span { background: #b6c9c83b; flex: 1; }
+.root.root .progressTrack > span[data-complete="true"] { background: var(--mint); }
+.root.root .launchGroup { display: grid; justify-items: end; gap: 7px; }
+.root.root .launchGroup > span { font-size: 10px; color: #c4d0c9; }
+.root.root .launch { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 12px 26px; border: 1px solid #cb9aff; border-radius: 3px; background: var(--violet); color: #fff; font: 700 22px/1 var(--font-saira-condensed) !important; text-transform: uppercase; transition: background 120ms ease, transform 120ms ease; white-space: nowrap; }
+.root.root .launch:hover { background: #9d48ff; }
+.root.root .launch:active { transform: translateY(1px); }
+.root.root .continuity { display: flex; align-items: center; gap: 8px; color: #bbcec9; padding-top: 14px; font-size: 10px; }
+.root.root .continuity svg { color: var(--mint); flex: none; }
+.root.root .brief { min-width: 0; padding-top: 63px; }
+.root.root .brief h3 { font: 700 28px/1 var(--font-saira-condensed); margin: 6px 0 14px; }
+.root.root .description { font-size: 12px; line-height: 1.7; color: #d2dfd7; }
+.root.root .requirements { list-style: none; padding: 0; margin: 20px 0 24px; }
+.root.root .requirements li { display: flex; gap: 12px; padding: 13px 0; border-top: 1px solid #bbd1c834; font-size: 12px; line-height: 1.5; }
+.root.root .requirementIndex { color: #83b0b2; font: 600 14px/1.5 var(--font-barlow); flex: none; }
+.root.root .brief h4 { display: flex; justify-content: space-between; margin: 0 0 12px; text-transform: uppercase; font: 700 19px/1 var(--font-saira-condensed); }
+.root.root .brief h4 span { color: #bdd0c9; }
+.root.root .materials { list-style: none; margin: 0; padding: 0; color: #c5d6d0; }
+.root.root .materials li { display: flex; gap: 8px; padding: 7px 0; font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.root.root .materials svg { flex: none; color: #9cb8b9; }
+.root.root .collectionHeading { display: flex; align-items: center; justify-content: space-between; margin: 0 0 8px; }
+.root.root .collectionHeading > p { display: flex; align-items: center; gap: 24px; }
+.root.root .collectionHeading > p > span { color: #fff; font: 600 19px/1 var(--font-barlow); }
+.root.root .collectionTools { display: flex; gap: 9px; }
+.root.root .iconButton { display: grid; place-items: center; width: 44px; height: 44px; background: #152528bd; color: #e5ece7; border: 1px solid #b6cec13b; border-radius: 2px; }
+.root.root .iconButton:not(:disabled):hover { background: #284047; }
+.root.root .cards { display: grid; grid-auto-flow: column; grid-auto-columns: 29%; gap: 18px; overflow-x: auto; padding: 9px 5px 24px; scroll-snap-type: x mandatory; scrollbar-color: #9fb2ab #1c2c2c; scrollbar-width: thin; }
+.root.root .assignmentCard { display: flex; flex-direction: column; align-items: stretch; width: 100%; min-width: 0; border: 2px solid #a3c4bd40; padding: 0; text-align: left; color: #fff; background: #101d20e8; scroll-snap-align: start; border-radius: 3px; transition: border-color 140ms, transform 140ms; }
+.root.root .assignmentCard[aria-selected="true"] { border-color: var(--pink); transform: translateY(-4px); }
+.root.root .assignmentCard:hover { border-color: #e2efe4; }
+.root.root .assignmentCard[aria-selected="true"]:hover { border-color: var(--pink); }
+.root.root .cardImage { position: relative; display: block; height: 170px; overflow: hidden; border-bottom: 2px solid var(--subject-color); }
+.root.root .cardImage img { width: 100%; height: 100%; object-fit: cover; }
+.root.root .cardImage > span { position: absolute; left: 14px; top: 14px; padding: 5px 9px; font: 700 16px/1 var(--font-saira-condensed); text-transform: uppercase; background: #111c21ed; color: var(--subject-color); }
+.root.root .cardCopy { display: grid; width: 100%; padding: 16px 19px; gap: 10px; }
+.root.root .cardCopy > small { font: 500 9px/1.4 var(--font-lexend); color: #b9cdc4; }
+.root.root .cardCopy > strong { min-height: 64px; font: 700 32px/1.03 var(--font-saira-condensed); text-transform: uppercase; overflow-wrap: anywhere; }
+.root.root .cardCopy > span { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; font: 400 10px/1.5 var(--font-lexend); color: #c7d6ce; }
+.root.root .cardCopy > span > span { color: #e3eee7; }
+.root.root .cardGrid { grid-auto-flow: row; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-columns: auto; overflow: visible; }
+.root.root .carouselDetail { display: grid; grid-template-columns: minmax(0, 1fr) 210px auto; gap: 36px; align-items: center; padding: 23px 5px 0; border-top: 1px solid #bdcdc23b; }
+.root.root .carouselDetail h2 { font: 700 28px/1.1 var(--font-saira-condensed); text-transform: uppercase; margin: 4px 0 8px; }
+.root.root .carouselDetail > div > p:not(.eyebrow) { font-size: 12px; line-height: 1.7; color: #bfcfc8; max-width: 560px; }
+.root.root .empty { padding: 70px 20px; text-align: center; min-height: 420px; }
+.root.root .empty h2 { font: 700 34px/1.1 var(--font-saira-condensed); margin: 0 0 24px; }
+.root.root .secondary { min-height: 44px; padding: 12px 20px; color: #fff; background: transparent; border: 1px solid #b3c8bd; border-radius: 3px; }
+.root.root .dialog { padding: 34px; background: #17262df5; backdrop-filter: blur(20px); color: #fff; border: 1px solid #bedbc56b; border-radius: 6px; max-width: min(480px, calc(100% - 32px)); }
+.root.root .dialog::backdrop { background: #060a10c9; backdrop-filter: blur(6px); }
+.root.root .dialog h2 { font: 700 36px/1 var(--font-saira-condensed); text-transform: uppercase; margin: 12px 0 20px; }
+.root.root .dialog > p:not(.eyebrow) { font-size: 14px; line-height: 1.7; margin-bottom: 24px; color: #cad7d0; }
+.root.root .dialogClose { position: absolute; right: 8px; top: 8px; width: 38px; height: 38px; display: grid; place-items: center; background: transparent; color: #fff; border: 0; }
+@keyframes contentArrival { from { opacity: .45; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 1440px) { .root.root .main { padding-top: 40px; } .root.root .franchise { grid-template-columns: 245px minmax(0, 1fr) 260px; gap: 38px; } .root.root .featureArt { min-height: 340px; } .root.root .featureOverlay h2 { font-size: 54px; } .root.root .cardImage { height: 250px; } }
+@media (max-width: 1190px) { .root.root .franchise { grid-template-columns: 185px minmax(0, 1fr) 190px; gap: 23px; } .root.root .toolbar { flex-wrap: wrap; gap: 12px; } .root.root .filters { margin-left: auto; } .root.root .featureOverlay h2 { font-size: 39px; } .root.root .featureOverlay { left: 21px; right: 21px; } .root.root .railItems button strong { font-size: 24px; } .root.root .brief h3 { font-size: 25px; } .root.root .launch { padding-inline: 20px; } .root.root .savedProgress > strong > small { max-width: 60px; } }
+@media (max-width: 950px) { .root.root .globalNav { gap: 28px; padding-inline: 22px; } .root.root .globalNav nav { gap: 22px; } .root.root .globalNav nav a { font-size: 22px; } .root.root .brand, .root.root .brand img { width: 112px; } .root.root .reviewBar { padding-inline: 22px; } .root.root .reviewLabel > span { display: block; padding-top: 4px; } .root.root .main { padding-inline: 24px; } .root.root .toolbar { align-items: stretch; } .root.root .categories { justify-content: space-between; width: 100%; } .root.root .filters { margin-left: 0; width: 100%; } .root.root .search { flex: 1; } .root.root .franchise { grid-template-columns: 175px minmax(0, 1fr); gap: 26px; } .root.root .brief { grid-column: 2; padding-top: 0; } .root.root .requirements { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 15px; } .root.root .requirements li { flex-direction: column; gap: 6px; } .root.root .materials { display: flex; flex-wrap: wrap; gap: 20px; } .root.root .cards { grid-auto-columns: 42%; } .root.root .cardGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .root.root .carouselDetail { grid-template-columns: minmax(0, 1fr) auto; gap: 20px; } .root.root .carouselDetail > div:first-child { grid-column: 1 / -1; } .root.root .featureArt { min-height: 310px; } }
+@media (max-width: 640px) { .root.root .globalNav { min-height: 62px; padding: 0 18px; gap: 20px; flex-wrap: wrap; } .root.root .globalNav nav { order: 3; width: 100%; height: 44px; justify-content: space-between; gap: 12px; } .root.root .globalNav nav a { font-size: 21px; padding-bottom: 6px; } .root.root .brand { margin-top: 5px; } .root.root .exit { padding-top: 5px; } .root.root .reviewBar { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 18px; } .root.root .reviewLabel { font-size: 9px; } .root.root .reviewLabel > span { display: inline; } .root.root .conceptSwitch { align-self: stretch; } .root.root .conceptSwitch button { justify-content: center; flex: 1; padding-inline: 8px; } .root.root .main { padding: 24px 18px 34px; } .root.root .pageHeading { gap: 14px; margin-bottom: 12px; } .root.root .pageHeading h1 { font-size: 36px; } .root.root .pageHeading > p { font-size: 11px; } .root.root .categories { gap: 7px; } .root.root .categories button { font-size: 17px; gap: 4px; padding-inline: 0; } .root.root .categories button > span { font-size: 9px; } .root.root .filters { gap: 9px; } .root.root .filters select { max-width: 125px; font-size: 11px; } .root.root .search input { font-size: 11px; } .root.root .toolbar { margin-bottom: 20px; padding-bottom: 14px; } .root.root .franchise { display: flex; flex-direction: column; gap: 20px; } .root.root .assignmentRail { display: none; } .root.root .mobilePicker { display: grid; width: 100%; gap: 8px; font-size: 10px; color: #bbcfc4; text-transform: uppercase; } .root.root .mobilePicker select { background: #15242deb; color: #fff; border: 1px solid #acbfb857; padding: 12px; min-height: 46px; border-radius: 3px; width: 100%; font-size: 13px; } .root.root .featureColumn { width: 100%; } .root.root .schedule { gap: 10px; margin-bottom: 12px; } .root.root .schedule button strong { font-size: 17px; } .root.root .schedule button > span { font-size: 10px; } .root.root .featureArt { min-height: 300px; aspect-ratio: 1.1; } .root.root .featureOverlay { left: 20px; bottom: 22px; } .root.root .featureOverlay h2 { font-size: 39px; } .root.root .launchBand { gap: 14px; } .root.root .launch { padding-inline: 20px; font-size: 20px !important; } .root.root .savedProgress { min-width: 0; } .root.root .savedProgress > strong { font-size: 28px; } .root.root .savedProgress > strong > small { max-width: 62px; } .root.root .brief { padding-top: 12px; width: 100%; } .root.root .requirements { display: block; } .root.root .requirements li { flex-direction: row; gap: 14px; } .root.root .cards { grid-auto-columns: 86%; gap: 14px; } .root.root .cardImage { height: 210px; } .root.root .cardCopy > strong { font-size: 32px; } .root.root .cardGrid { grid-template-columns: minmax(0, 1fr); } .root.root .collectionHeading > p { gap: 10px; font-size: 9px; } .root.root .collectionHeading > p > span { font-size: 16px; } .root.root .collectionTools { gap: 5px; } .root.root .iconButton { width: 42px; height: 42px; } .root.root .carouselDetail { column-gap: 15px; } .root.root .empty { min-height: 250px; padding: 50px 0; } }
+@media (prefers-reduced-motion: reduce) { .root.root *, .root.root *::before, .root.root *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

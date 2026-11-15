@@ -31,19 +31,26 @@ describe("AI provider and logging boundaries", () => {
 
     for (const path of featureRoutes) {
       const feature = source(path);
-      expect(feature).toContain("runOpenAIHomeworkAdapter");
+      expect(feature).toContain(path.includes('history-scaffold') ? "runAssignmentScopedHomeworkAdapter" : "runOpenAIHomeworkAdapter");
       expect(feature).not.toContain('fetch("https://api.openai.com/v1/responses"');
       expect(feature).not.toContain("runSafeBudgetedAiCall({");
     }
 
+    const boundary = source("supabase/functions/_shared/learning/assignment-help-boundary.ts");
+    expect(boundary).toContain('from "../homework-adapter.ts"');
+    expect(boundary).toContain('return runOpenAIHomeworkAdapter({ ...input,');
+    expect(boundary).not.toContain('fetch(');
     const adapter = source("supabase/functions/_shared/homework-adapter.ts");
     const studentModel = source("supabase/functions/_shared/student-model.ts");
+    const studentRequest = source("supabase/functions/_shared/student-response-request.ts");
     expect(adapter).toContain("callSafeStudentTextModel");
     expect(studentModel).toContain('fetch("https://api.openai.com/v1/responses"');
     expect(studentModel).not.toContain("api.anthropic.com/v1/messages");
     expect(studentModel).not.toContain("ANTHROPIC_API_KEY");
-    expect(studentModel).toContain('type: "file"');
-    expect(studentModel).toContain("file_data");
+    expect(studentModel).toContain('from "./student-response-request.ts"');
+    expect(studentModel).toContain("JSON.stringify(buildStudentResponseRequest(");
+    expect(studentRequest).toContain('type: "file"');
+    expect(studentRequest).toContain("file_data");
     expect(studentModel).toContain("markProviderUsage?.();");
   });
 

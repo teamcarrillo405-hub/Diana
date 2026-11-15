@@ -1,39 +1,88 @@
-# Diana Public Claim Ledger
+# Diana Landing Claim Ledger
 
-Scope: the canonical public route, `/`.
+Last repository review: 2026-09-17  
+Canonical public route: `/`
 
-The public page is one cinematic implementation:
+## Status Rules
 
-`app/page.tsx` -> `components/canonical-public-landing/canonical-public-landing.jsx` -> `components/canonical-public-landing/cinematic-v3/cinematic-landing.tsx`.
+- **VERIFIED**: implemented in the current product surface and backed by concrete repository evidence. A focused run on 2026-09-17 passed 6 test files and 46 tests covering ranking, source packets, assignment review, universal subject coverage, submission safety, and early-access security.
+- **PLANNED**: represented in the approved landing direction or local implementation, but release wording must remain future-tense or conditional until the named smoke/acceptance gate passes.
+- **BLOCKED**: must not ship as a product claim. A required external dependency, approval, implementation, or evidence artifact is absent.
 
-The published story, styles, and media are under `public/assets/landing-cinematic-v3`. No alternate public landing or legacy rollback route remains in this checkout.
+Source and unit tests do not prove a deployed third-party integration, production email delivery, visual quality, or real-device performance. Those require their own smoke evidence.
 
-## Claim status
+## Canonical Evidence Boundary
 
-| Claim | Status | Evidence and release boundary |
-| --- | --- | --- |
-| Your AI Tutor | VERIFIED | The canonical narrative supplies the page `h1` and hero copy. This is a product category, not a claim of human or certified tutoring. |
-| Homework organization and a clear next step | VERIFIED | The public narrative shows the Lobby and Work surfaces; the product logic is in `lib/scoring/next-five-minutes.ts` and the assignment workspace. Do not promise completion or an always-optimal rank. |
-| Help that keeps student thinking and turn-in decisions in student control | VERIFIED | The public narrative, `app/student-control/page.tsx`, the assignment state machine, and authorship logging all preserve the student's control. Do not present AI output as the student's work. |
-| Support across classes | VERIFIED, bounded | Diana supports a shared assignment workflow. Do not claim equal specialist depth, accredited instruction, or universal tool parity. |
-| File and source context | VERIFIED | The current quick-add and assignment workspace flows accept supported sources and preserve their context. Browser and device upload smoke remains release QA. |
-| Google Classroom and Canvas connections | PLANNED | Local flows and deterministic coverage exist, but a disposable staging OAuth, sync, submit, reconciliation, and cleanup receipt is required before present-tense marketing. |
-| Live realtime help | PLANNED | The public narrative may describe it as planned or conditional only until deployed service, authorization, latency, failure, and real-browser evidence are complete. |
-| Pricing, subscription tiers, and launch date | PLANNED | Do not treat the page's future-facing FAQ wording as a binding release or pricing commitment without owner approval. |
-| Early-access signup | IMPLEMENTED, deployment pending | The shared `EarlyAccessForm` invokes the early-access Edge Function. Do not promise an invite or email delivery until a deployed lifecycle smoke passes. |
-| Native iOS and Android availability | PLANNED | Do not show app-store badges or launch dates until store approvals and supported-device testing exist. |
-| Food, meal, calorie, diet, or nutrition tracking | BLOCKED | It is not a Diana landing capability and must not be introduced without a separate safety, privacy, and product review. |
+`app/page.tsx` renders `CanonicalPublicLanding`, which renders the cinematic v3 landing by default. The accessible narrative adapter is `components/canonical-public-landing/cinematic-v3/cinematic-landing.tsx`; client motion, analytics, and waitlist integration live in `cinematic-landing-client.tsx`. The built motion assets are published at `public/assets/landing-cinematic-v3`. `NEXT_PUBLIC_LANDING_VARIANT=legacy` is the rollback switch.
 
-## Release evidence still required
+`tests/public-home-desktop.spec.ts` and `tests/public-home-funnel.spec.ts` now assert the cinematic narrative, viewport budget, reverse scroll, mobile overflow, Q&A, reduced motion, local waitlist validation, progressive 3D loading, and zero critical or serious Axe violations. They are necessary evidence but do not replace deployed performance evidence, independent review, or student testing.
 
-1. Canonical desktop and mobile browser smoke for navigation, waitlist validation, legal links, reduced motion, keyboard access, and no horizontal overflow.
-2. A production performance check against the budgets in `docs/design/diana-cinematic-landing.md`.
-3. Disposable Google Classroom and Canvas staging receipts before either connection is marketed as live.
-4. A deployed early-access signup, confirmation, unsubscribe, rate-limit, and failure-state smoke.
-5. Student comprehension evidence and independent visual review before calling the landing production-ready.
+## Current Local Release Evidence
 
-## Non-negotiable wording limits
+Verified on 2026-09-17 against the canonical `/` route:
 
-- Do not promise grades, time savings, submission success, or guaranteed lifestyle outcomes.
-- Do not describe Diana as a human tutor, plagiarism detector, medical advisor, or food-tracking service.
-- Keep AI-policy and teacher-rule limits visible wherever a workflow could affect schoolwork authorship.
+- Production build and TypeScript checking pass.
+- Focused middleware and local review-route coverage passes: 55 tests across 3 files.
+- Canonical desktop, mobile, reduced-motion, and accessibility browser coverage passes: 4 Playwright tests.
+- Anonymous requests return `200` for the cinematic stylesheet and JavaScript instead of redirecting to login.
+- Desktop 1440x900, tablet 768x1024, and mobile 390x844 were inspected from the current checkout with no horizontal overflow.
+- Route JavaScript is 13.4 KB plus 104 KB shared framework code. The 206 KB gzip Three.js cinematic engine is deferred until the first pointer, wheel, touch, or keyboard intent and is never requested for reduced-motion users.
+- Cinematic CSS is 6.6 KB gzip. The mobile poster is 48 KB and the optimized desktop poster is 109 KB, both within the landing design contract.
+
+These checks do not complete the independent 95+ review, the five-student silent comprehension test, real-device frame-time measurement, or the deployed early-access email lifecycle.
+
+## Claim Ledger
+
+| Landing claim | Status | Allowed release wording | Concrete repository evidence | Remaining gate or restriction |
+| --- | --- | --- | --- | --- |
+| **Your AI Tutor** | VERIFIED | Use as the product category, paired with concrete coaching and student-control evidence. Do not imply a human or certified tutor. | Route: `/`; narrative: `public/assets/landing-cinematic-v3/index.html`; coaching workspace: `app/(app)/assignments/[id]/assignment-cockpit.tsx`; safety: `lib/ai/safety.ts`. | Student-comprehension testing is still required for 95+ acceptance. |
+| **Homework That Fits Your Life** | VERIFIED | Use as background positioning, not a guaranteed outcome. | Pixel-wall narrative: `.codex-candidates/c28-diana-curved-work/screen.mjs`; planning logic: `lib/scoring/next-five-minutes.ts`; test: `lib/scoring/next-five-minutes.test.ts`. | The visible first-viewport category statement remains `Your AI Tutor`. |
+| **Homework, Organized / Your Homework Workspace** | VERIFIED | Diana keeps the assignment, first move, work area, and review context together. | Components: `public-landing-v2.jsx`, `app/(app)/assignments/[id]/assignment-cockpit.tsx`, `components/assignment-workspace.tsx`; asset: `public/assets/homework/diana-workspace-source-analysis-today.png`; tests: `components/assignment-workspace.test.tsx`, `lib/assignment-workspace.test.ts`. | Do not imply that every school system is already connected. |
+| **Upload PDFs, photos, and paper assignments** | VERIFIED | Students can bring in supported PDF/image assignment sources and preserve source context. | Routes/components: `app/(app)/quick-add/assignment-upload-form.tsx`, `app/(app)/assignments/[id]/workspace/source-actions.ts`; tests: `source-actions.upload.test.ts`, `source-actions.problem-import.test.ts`, `lib/assignment-sources.test.ts`. | Browser/device upload smoke is still part of release QA. |
+| **Connect Google Classroom** | PLANNED | "Google Classroom support is planned" or "Connect Google Classroom after certification." | UI/routes: `app/onboarding/screendesign-onboarding.tsx`, `app/api/lms/google-oauth/*`, `app/api/lms/classroom-sync/route.ts`; deterministic tests: `lib/lms/google.test.ts`, `lib/lms/provider-canary*.test.ts`; boundary: `docs/BETA_LMS_CERTIFICATION.md`. | The current present-tense landing copy must be changed or hidden. Keep planned until a disposable Google Classroom staging smoke passes OAuth, import, Drive attach, turn-in, reconciliation, and cleanup. Mock tests do not satisfy this gate. |
+| **Connect Canvas** | PLANNED | "Canvas support is planned" or "Connect Canvas after certification." | UI/routes: `app/onboarding/screendesign-onboarding.tsx`, `app/api/lms/canvas-oauth/*`, `app/api/lms/canvas-sync/route.ts`; deterministic tests: `lib/lms/canvas.test.ts`, `lib/lms/provider-canary*.test.ts`; boundary: `docs/BETA_LMS_CERTIFICATION.md`. | The current present-tense landing copy must be changed or hidden. Keep planned until a disposable Canvas staging smoke passes OAuth, import, text/file submission, reconciliation, and cleanup. Mock tests do not satisfy this gate. |
+| **Connect your school portal** | BLOCKED | Remove from release copy unless a named, supported portal is defined. | Current unsupported copy: `public-landing-v2.jsx`; no generic portal adapter or smoke suite was found. | Define the provider, implement it, and retain a passing integration smoke receipt. |
+| **See the next move** | VERIFIED | Diana ranks a useful next assignment and keeps the first action visible. | Product: `lib/scoring/next-five-minutes.ts`, `lib/dashboard/today-view.ts`, `app/(app)/dashboard/page.tsx`; tests: `lib/scoring/next-five-minutes.test.ts`, `lib/dashboard/today-view.test.ts`, `lib/dashboard/lobby-view.test.ts`. | Avoid claims that the ranking is always optimal or guarantees completion. |
+| **Plan around energy and sleep** | VERIFIED | Diana can use a student's energy and sleep check-in to adjust pacing and task order. | Product: `app/(app)/dashboard/lobby-check-in.tsx`, `lib/dashboard/lobby-check-in.ts`, `lib/scoring/next-five-minutes.ts`; tests: `app/(app)/dashboard/lobby-check-in.test.tsx`, `lib/dashboard/lobby-check-in.test.ts`, `lib/scoring/academic-consequence.test.ts`. | Frame as student-controlled pacing context, not medical or diagnostic advice. |
+| **Keep assignments, class notes, due dates, and progress in view** | VERIFIED | Use the concrete workspace wording; do not claim universal LMS freshness. | Components: `public-landing-v2.jsx`, `app/(app)/dashboard/today-dashboard-panels.tsx`; source model: `lib/assignment-sources.ts`; tests: `lib/assignment-sources.test.ts`, `lib/dashboard/today-view.test.ts`. | Connected-provider freshness inherits the LMS planned status above. |
+| **Turn directions into steps** | VERIFIED | Diana can break supported assignment directions into actionable steps. | Route: `app/api/diana/break-down/route.ts`; components: `components/assignment-plan-panel.tsx`, assignment cockpit checklist; tests: `app/api/diana/break-down/route.test.ts`, `app/(app)/assignments/[id]/assignment-cockpit.test.tsx`. | Do not imply that generated steps replace teacher instructions. |
+| **Use your class notes and sources** | VERIFIED | Diana can keep imported instructions, rubrics, materials, citations, and student notes attached to the assignment context. | Product: `lib/assignment-sources.ts`, `app/(app)/assignments/[id]/workspace/source-actions.ts`; tests: `lib/assignment-sources.test.ts`, `source-actions.materialize.test.ts`. | Unread or failed links must remain reference-only, as the source-packet test requires. |
+| **Practice before the real problem / Ready For The Test** | VERIFIED | Diana offers practice workflows and optional hints; readiness is not guaranteed. | Components: `app/(app)/study-artifacts/[id]/practice-session.tsx`, `components/test-prep-panel.tsx`; hero asset: `story-preview/practice-*.png`; tests: `practice-session.test.tsx`, `lib/study-helper/quiz-support-fading.test.ts`. | Never promise a score, mastery, or test result. |
+| **Check against the rubric** | VERIFIED | Diana can review work against available rubric criteria and surface missing pieces. | Product: `lib/assignment-review.ts`, `components/rubric-panel.tsx`; tests: `lib/assignment-review.test.ts`, `components/rubric-panel.test.tsx`; media: `public/assets/help-fit/check-against-rubric.webp`. | Review is guidance, not teacher grading or guaranteed compliance. |
+| **Plan tonight** | VERIFIED | Diana can rank work and estimate a practical sequence for the current day. | Product: `lib/scoring/next-five-minutes.ts`, `lib/dashboard/today-view.ts`; tests: `lib/scoring/next-five-minutes.test.ts`, `lib/dashboard/today-view.test.ts`; media: `public/assets/help-fit/plan-your-time.webp`. | Avoid exact time-saving or completion guarantees. |
+| **Every Subject, Same Flow** | VERIFIED | "A usable universal workspace across supported subjects" is allowed. | Component: `landing-10k/subject-rail.tsx`; registry: `lib/assignment-universal-coverage.ts`; test: `lib/assignment-universal-coverage.test.ts`; assets: `public/assets/landing-10k/subjects/*`. | Do not imply equal specialist depth, accredited course delivery, or full tool parity. The universal-coverage test explicitly preserves capability limitations. |
+| **This Isn't Just a ChatBot** | VERIFIED | Diana combines assignment context, source context, planning, practice, and work surfaces rather than offering chat alone. | Components: `public-landing-v2.jsx`, `components/assignment-workspace.tsx`, `app/(app)/assignments/[id]/assignment-cockpit.tsx`; tests: `lib/assignment-workspace.test.ts`, `lib/assignment-sources.test.ts`. | This is positioning, not a claim that human tutoring is provided. Prefer "not just chat" in legal or technical copy. |
+| **Live help while you work** | PLANNED | Describe as conditional beta functionality, not always available. | Components/routes: `components/assignment-realtime-tutor.tsx`, `app/api/diana/assignment-realtime/*`, `app/(app)/study-buddy/page.tsx`; tests: `components/assignment-realtime-tutor.test.tsx`, `lib/security/assignment-realtime-edge-routing.test.ts`. | Requires deployed OpenAI Realtime, permission, auth, latency, failure, and browser smoke evidence. |
+| **Diana guides; you write; you decide** | VERIFIED | Use exactly as an authorship and control principle. | Component: `public-landing-v2.jsx`; safety: `lib/ai/safety.ts`, `supabase/functions/_shared/safety.ts`; ownership assets: `public/assets/landing-10k/ownership/*`; tests: `lib/ai/safety.test.ts`, `lib/assignment-review.test.ts`. | Do not promise that AI output is always accurate. Keep sources and guidance visible. |
+| **Turn-in happens only after student confirmation** | VERIFIED | Diana separates done from submitted and requires an explicit student-controlled attempt. | State/actions: `lib/state-machine/*`, `app/(app)/assignments/[id]/actions.ts`, `delivery-actions.ts`; tests: `actions.submission.test.ts`, `delivery-actions.test.ts`, `submit/page.test.tsx`. | Actual Canvas/Classroom delivery remains planned until provider smoke tests pass. |
+| **Homework help that keeps the work yours** | VERIFIED | Allowed as the umbrella trust claim when paired with the authorship and confirmation evidence above. | Footer: `public-landing-v2.jsx`; authorship logging: `app/(app)/assignments/[id]/hm-actions.ts`; tests: `hm-actions.progress.test.ts`, `lib/security/study-buddy-edge-routing.test.ts`. | Do not expand this into a plagiarism-detection or legal ownership guarantee. |
+| **Make the game / show up for your club** | PLANNED | Keep only as illustrative student-life storytelling: "help designed to fit around the rest of your day." | Component/content: `landing-10k/content.ts`; media: `public/assets/help-modes/make-the-game.*`, `show-up-for-your-club.*`; provenance: `public/assets/help-modes/SOURCES.md`. | Validate with students. Never promise that Diana will finish work in time or produce a lifestyle outcome. |
+| **Beyond Homework Higgsfield film** | VERIFIED | Use as illustrative student-life storytelling only: Diana helps schoolwork fit around basketball, football, debate, and friends. | Approved generation job `15f2b603-d313-4fde-9488-6363e4779ada`; source master `.codex-candidates/higgsfield-beyond-homework/beyond-homework-higgsfield-4k.mp4`; production asset `public/assets/landing-cinematic-v3/beyond-homework.mp4`; poster `public/assets/landing-cinematic-v3/beyond-homework-poster.webp`; source config `.codex-candidates/c28-diana-curved-work/content.mjs`. | Still requires student validation and final visual acceptance. Do not imply Diana guarantees time savings, event attendance, or lifestyle outcomes. No further paid variants are authorized. |
+| **Coming to iOS and Android** | PLANNED | Future-tense only. | Current copy: `public-landing-v2.jsx`; web/PWA metadata: `app/layout.tsx` and manifest. | Native store builds, listing approvals, supported-device testing, and launch dates are not evidenced in this review. Do not show app-store badges. |
+| **Join the Diana waitlist / early-access signup** | PLANNED | The form may invite signups; do not promise delivery of an invitation until deployment smoke passes. | Shared component: `components/canonical-public-landing/early-access-form.tsx`; cinematic mount: `cinematic-v3/cinematic-landing-client.tsx`; Edge Function: `supabase/functions/early-access-signup/index.ts`; tests: `lib/security/early-access-functions.test.ts`. | Local validation is verified. Run an anonymous deployed signup, confirmation-email, confirm, unsubscribe, rate-limit, and failure-state smoke. |
+| **Early Access Opens November 1, 2026** | PLANNED | Use only while the launch owner confirms this date. | Current copy: `public-landing-v2.jsx`; no independent dated launch approval artifact was found. | Product, legal, support, staging, and owner sign-off must bind the date. Remove or update it if the schedule changes. |
+| **Privacy, Terms, Trust & Safety, and Accessibility links** | VERIFIED | The footer may state that these documents are available. | Footer/config: `public-landing-v2.jsx`, `config/site.js`; documents: `public/privacy.html`, `public/trust.html`. | Link availability does not itself certify policy completeness or regulatory compliance. |
+| **Current landing is a 95+ experience** | PLANNED | Do not publish the score. Treat 95+ as an internal acceptance target. | Contract: `docs/design/diana-cinematic-landing.md`; current local build, browser, reduced-motion, overflow, and Axe gates pass; earlier non-current review: `docs/LANDING_CINEMATIC_MEDIA_REVIEW.md` scored 93/100. | Requires real-device performance evidence, two independent current-route scores >=95, and the five-student silent comprehension test. |
+| **Food, meal, calorie, diet, or nutrition tracking** | BLOCKED | Removed from the landing claim set. Do not describe Diana as tracking food or meals. | The active canonical files have no food-tracking claim. A non-canonical legacy line remains in `components/canonical-public-landing/data/dianaStory.js` and must not be revived. | Any future health-adjacent claim requires a separate product, safety, privacy, and evidence review. |
+
+## Required Release Evidence
+
+Before launch, retain all of the following against the same candidate SHA and deployment URL:
+
+1. Canonical `/` desktop and mobile smoke tests for current headings, navigation, carousels, hotspots, waitlist states, legal links, and no horizontal overflow.
+2. Reduced-motion and keyboard-only browser smoke for the cinematic story, chapter navigation, product dialog, Q&A, and shared waitlist form.
+3. Lighthouse or equivalent evidence meeting the budgets in `docs/design/diana-cinematic-landing.md`.
+4. Disposable Google Classroom and Canvas staging receipts, including cleanup, before changing either status from PLANNED.
+5. A deployed early-access email lifecycle smoke before claiming the first invite can be delivered.
+6. Student comprehension evidence and an independent current-route visual score of at least 95.
+
+## Unsupported Claims Remaining
+
+- Generic school-portal connectivity has no adapter or smoke evidence.
+- Google Classroom and Canvas have deterministic local coverage but no passing disposable staging smoke receipt, so both remain planned.
+- Live realtime help lacks deployed service and real-browser smoke evidence.
+- Native iOS/Android availability and store readiness are not evidenced.
+- The November 1, 2026 date lacks a separate release-owner approval artifact.
+- The public waitlist lacks a deployed confirmation-email lifecycle receipt.
+- The current canonical landing has route-specific Playwright, reduced-motion, accessibility, and payload evidence, but still lacks real-device frame-time evidence, two independent 95+ scores, and the five-student comprehension result.
+- Food tracking is intentionally removed and must not be reintroduced as a claim.

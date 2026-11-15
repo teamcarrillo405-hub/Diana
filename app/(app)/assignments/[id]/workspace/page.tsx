@@ -90,7 +90,7 @@ export default async function AssignmentWorkspacePage({
 
   const { data: assignment } = await supabase
     .from("assignments")
-    .select("id, title, description, rubric_text, kind, status, saved_work, work_profile, work_profile_source, assignment_profile, assignment_profile_version, source_import_status, external_url, external_source, estimated_minutes, ai_mode_override, classes(name, ai_mode)")
+    .select("id, class_id, title, description, rubric_text, kind, status, saved_work, work_profile, work_profile_source, assignment_profile, assignment_profile_version, source_import_status, external_url, external_source, estimated_minutes, ai_mode_override, classes(name, ai_mode)")
     .eq("id", id)
     .eq("owner_id", user.id)
     .maybeSingle();
@@ -113,7 +113,7 @@ export default async function AssignmentWorkspacePage({
       .maybeSingle(),
     supabase
       .from("assignment_problems")
-      .select("id, problem_number, problem_text, student_work, scaffold, progress_status, reviewed_at, completed_at")
+      .select("id, problem_number, problem_text, source, unit_type, student_work, scaffold, progress_status, reviewed_at, completed_at")
       .eq("assignment_id", id)
       .eq("owner_id", user.id)
       .order("problem_number", { ascending: true }),
@@ -202,13 +202,14 @@ export default async function AssignmentWorkspacePage({
           unitMetadata: unit.metadata ?? {},
         } as unknown as Json,
       })))
-      .select("id, problem_number, problem_text, student_work, scaffold, progress_status, reviewed_at, completed_at");
+      .select("id, problem_number, problem_text, source, unit_type, student_work, scaffold, progress_status, reviewed_at, completed_at");
     if (!createUnitsError && created) workspaceProblems = created;
   }
 
   return (
     <AssignmentWorkspace
       assignmentId={assignment.id}
+      classId={assignment.class_id}
       title={assignment.title}
       courseLabel={className}
       kind={assignment.kind as AssignmentKind}
@@ -236,6 +237,8 @@ export default async function AssignmentWorkspacePage({
         id: problem.id,
         problemNumber: problem.problem_number,
         problemText: problem.problem_text,
+        source: problem.source,
+        unitType: problem.unit_type,
         studentWork: asSavedWork(problem.student_work),
         scaffold: asSavedWork(problem.scaffold),
         progressStatus: problem.progress_status as "not_started" | "in_progress" | "done",

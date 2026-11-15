@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 
-import { emailAiHistoryExport } from "@/app/(app)/settings/privacy-actions";
+import { emailAiHistoryExport } from "@/app/(app)/export/actions";
 
 export function AiHistoryExport() {
   const [pending, startTransition] = useTransition();

@@ -159,14 +159,8 @@ describe("checkpoint provenance validation", { timeout: 30_000 }, () => {
   });
 
   it("matches protected directories and globbed media without Git pathspec magic", () => {
-    expect(protectedPathspecMatches(
-      "public/assets/help-modes",
-      "public/assets/help-modes/make-the-game.mp4",
-    )).toBe(true);
-    expect(protectedPathspecMatches(
-      "public/assets/help-modes",
-      "public/assets/video/diana-work-stays-yours-film-poster-v2.webp",
-    )).toBe(false);
+    expect(protectedPathspecMatches("app/landing-3d", "app/landing-3d/logo-mask/page.tsx")).toBe(true);
+    expect(protectedPathspecMatches("app/landing-3d", "app/landing/page.tsx")).toBe(false);
     expect(protectedPathspecMatches(
       ":(glob)public/assets/dashboard/diana-dashboard-desktop-*.webp",
       "public/assets/dashboard/diana-dashboard-desktop-1440.webp",

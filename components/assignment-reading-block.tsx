@@ -37,7 +37,7 @@ export function AssignmentReadingBlock({
           <AccessibleReadingText text={text} prefs={readingPrefs} />
         </div>
       </VocabHoverProvider>
-      <ReadingLevelAdapter text={text} aiMode={aiMode} />
+      <ReadingLevelAdapter text={text} aiMode={aiMode} source={{ sourceType: "assignment", sourceId: assignmentId }} />
       <ReadingAnnotationControl selectedText={selectedText} sourceType="assignment" sourceId={assignmentId} />
     </div>
   );

@@ -133,11 +133,13 @@ export async function createDianaVoiceCandidate({
   config = resolveDianaVoiceSidecarConfig(),
   fetchImpl = fetch,
   signal,
+  maxOutputTokens,
 }: {
   input: DianaVoiceCandidateInput;
   config?: LocalAiSidecarConfig;
   fetchImpl?: typeof fetch;
   signal?: AbortSignal;
+  maxOutputTokens?: number;
 }): Promise<DianaVoiceCandidateResult> {
   const workRequest = createStudentDianaVoiceSidecarRequest({
     id: `voice-sidecar-${Date.now()}`,
@@ -153,6 +155,13 @@ export async function createDianaVoiceCandidate({
   }
 
   const chatRequest = createSidecarChatRequest(config, buildDianaVoiceSidecarMessages(input));
+  if (maxOutputTokens !== undefined) {
+    if (!Number.isInteger(maxOutputTokens) || maxOutputTokens < 1 || maxOutputTokens > 500) {
+      throw new DianaVoiceProviderError("provider_boundary_invalid");
+    }
+    const body = JSON.parse(chatRequest.init.body as string);
+    chatRequest.init.body = JSON.stringify({ ...body, max_tokens: maxOutputTokens });
+  }
   let response: Response;
   try {
     response = await fetchImpl(chatRequest.url, { ...chatRequest.init, signal });

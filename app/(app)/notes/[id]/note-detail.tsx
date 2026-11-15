@@ -1,16 +1,16 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, BookOpen, Brain, ChevronDown, Plus, Save, Sparkles, Tags, Trash2, X } from "lucide-react";
+import { ArrowLeft, ChevronDown, Plus, Save, Sparkles, Tags, Trash2, X } from "lucide-react";
 import { AccessibleReadingText, type ReadingPrefs } from "@/components/accessible-reading-text";
 import { TtsHighlightButton } from "@/components/tts-highlight-button";
 import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import { ReadingAnnotationControl } from "@/components/reading-annotation-control";
 import { ReadingLevelAdapter } from "@/components/reading-level-adapter";
 import { StudyArtifactPanel } from "@/components/study-artifact-panel";
-import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
-import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import styles from "@/components/student-shell/notes.module.css";
 import type { RelatedNote } from "@/lib/notes/related";
 import type { TtsProvider } from "@/lib/supabase/types";
 import type { OutlineNode } from "@/lib/notes/types";
@@ -25,54 +25,6 @@ import {
   updateNoteClass,
   updateNoteTags,
 } from "./actions";
-
-const NOTE_DETAIL_STYLES = `
-  .sd-note-detail { min-height:100dvh; background:linear-gradient(rgb(214 218 214 / .84),rgb(214 218 214 / .9)),url("/images/classes-high-tech-classroom.png") center/cover fixed; color:#182126; font-family:var(--font-lexend),Lexend,system-ui,sans-serif; }
-  .sd-note-detail-main { width:calc(100% - (2 * clamp(24px,3.5vw,72px))); max-width:1680px; margin:0 auto; padding:clamp(34px,4vw,64px) 0 clamp(52px,6vw,96px); }
-  .sd-note-detail-frame { width:min(100%,1240px); margin:0 auto; }
-  .sd-note-detail-back { display:inline-flex; align-items:center; gap:8px; min-height:44px; color:#182126; font-size:14px; font-weight:600; text-decoration:none; }
-  .sd-note-detail-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(300px,350px); gap:24px; align-items:start; }
-  .sd-note-detail-editor,.sd-note-detail-rail,.sd-note-detail-tools { border:1px solid rgb(255 255 255 / .76); background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46)); box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 14px 34px rgb(24 33 38 / .12); backdrop-filter:blur(24px) saturate(1.04); }
-  .sd-note-detail-editor { border-radius:12px 20px 12px 20px; padding:clamp(22px,2.8vw,34px); }
-  .sd-note-detail-kicker { margin:0 0 7px; color:#53615c; font-size:14px; font-weight:600; }
-  .sd-note-detail-editor h1 { margin:0; color:#182126; font-size:clamp(30px,3vw,42px); font-weight:620; line-height:1.14; letter-spacing:0; }
-  .sd-note-detail-editor textarea { box-sizing:border-box; width:100%; min-height:390px; margin-top:24px; resize:vertical; border:1px solid rgb(24 33 38 / .22); border-radius:10px; outline:0; background:rgb(255 255 255 / .68); padding:18px; color:#182126; font:400 16px/1.65 var(--font-lexend),Lexend,sans-serif; }
-  .sd-note-detail-editor textarea:focus-visible,.sd-note-detail-rail select:focus-visible { outline:3px solid rgb(24 33 38 / .28); outline-offset:2px; }
-  .sd-note-detail-save-row { display:flex; align-items:center; gap:12px; margin-top:14px; }
-  .sd-note-detail-save-row button { min-height:44px; border:1px solid #c6d23f; border-radius:8px; background:#e8f56b; padding:0 18px; color:#141d20; font:600 14px var(--font-lexend),Lexend,sans-serif; cursor:pointer; }
-  .sd-note-detail-save-row span { color:#53615c; font-size:14px; }
-  .sd-note-detail-rail { display:grid; gap:18px; border-radius:12px; padding:22px; }
-  .sd-note-detail-rail label { display:grid; gap:8px; color:#53615c; font-size:14px; font-weight:600; }
-  .sd-note-detail-rail select { min-height:44px; border:1px solid rgb(24 33 38 / .22); border-radius:8px; background:rgb(255 255 255 / .7); padding:0 12px; color:#182126; font:400 16px var(--font-lexend),Lexend,sans-serif; }
-  .sd-note-detail-rail .sd-notes-chat { display:grid; gap:12px; }
-  .sd-note-detail-rail .sd-notes-chat-head { display:grid; gap:4px; }
-  .sd-note-detail-rail .sd-notes-chat-head h2 { display:flex; align-items:center; gap:8px; margin:0; font-size:20px; font-weight:620; }
-  .sd-note-detail-rail .sd-notes-chat-head p,.sd-note-detail-rail .sd-notes-chat-history > p { margin:0; color:#53615c; font-size:14px; line-height:1.55; }
-  .sd-note-detail-rail .sd-notes-chat-history { display:grid; gap:10px; min-height:72px; }
-  .sd-note-detail-rail .sd-notes-chat-turn { border:1px solid rgb(24 33 38 / .16); border-radius:10px; padding:12px; color:#182126; font-size:15px; line-height:1.6; white-space:pre-wrap; }
-  .sd-note-detail-rail .sd-notes-chat-turn--student { background:#182126; color:#fff; }
-  .sd-note-detail-rail .sd-notes-chat-turn--diana { background:rgb(255 255 255 / .52); }
-  .sd-note-detail-rail .sd-notes-chat-composer { display:grid; gap:8px; border:1px solid rgb(24 33 38 / .2); border-radius:10px; background:rgb(255 255 255 / .5); padding:10px; }
-  .sd-note-detail-rail .sd-notes-chat-composer textarea { width:100%; min-height:78px; resize:vertical; border:0; outline:0; background:transparent; color:#182126; font:400 15px/1.55 var(--font-lexend),Lexend,sans-serif; }
-  .sd-note-detail-rail .sd-notes-chat-actions { display:flex; justify-content:flex-end; }
-  .sd-note-detail-rail .sd-notes-chat-actions button { display:grid; width:44px; height:44px; place-items:center; border:1px solid #c6d23f; border-radius:8px; background:#e8f56b; color:#141d20; cursor:pointer; }
-  .sd-note-detail-tools { display:none!important; }
-  .sd-note-detail-tools > summary { display:flex; min-height:54px; align-items:center; justify-content:space-between; padding:0 22px; color:#182126; font-size:16px; font-weight:600; cursor:pointer; list-style:none; }
-  .sd-note-detail-tools > summary::-webkit-details-marker { display:none; }
-  .sd-note-detail-tools[open] > summary { border-bottom:1px solid rgb(24 33 38 / .14); }
-  .sd-note-detail-tools[open] > summary svg { transform:rotate(180deg); }
-  .sd-note-detail-tools-inner { display:grid; gap:18px; padding:22px; }
-  .sd-note-detail-tools-inner > .notes-detail-class-picker { display:none!important; }
-  .sd-note-detail .notes-remember-panel,.sd-note-detail .notes-tags-panel,.sd-note-detail .notes-related-panel,.sd-note-detail .notes-reading-section,.sd-note-detail .notes-transcript-action,.sd-note-detail .notes-delete-panel,.sd-note-detail .space-y-2 { display:grid; gap:12px; border:1px solid rgb(24 33 38 / .16); border-radius:10px; background:rgb(255 255 255 / .42); padding:18px; clip-path:none; }
-  .sd-note-detail .notes-remember-panel > p,.sd-note-detail .notes-tags-head h2,.sd-note-detail .notes-reading-section > h2,.sd-note-detail .notes-related-panel > h2 { margin:0; color:#53615c; font:600 14px var(--font-lexend),Lexend,sans-serif; letter-spacing:0; text-transform:none; }
-  .sd-note-detail .notes-remember-panel h2 { margin:0; color:#182126; font-size:22px; font-weight:620; }
-  .sd-note-detail .notes-remember-panel > div { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-  .sd-note-detail .notes-remember-panel > div > div { border:1px solid rgb(24 33 38 / .12); background:rgb(255 255 255 / .34); padding:12px; }
-  .sd-note-detail .notes-support-button { min-height:40px; border:1px solid rgb(24 33 38 / .22); border-radius:8px; background:rgb(255 255 255 / .6); color:#182126; clip-path:none; font:600 14px var(--font-lexend),Lexend,sans-serif; }
-  .sd-note-detail .notes-tag-chip { border-radius:8px; color:#182126; font-family:var(--font-lexend),Lexend,sans-serif; letter-spacing:0; text-transform:none; }
-  .sd-note-detail .sd-student-bottom-nav { display:none; }
-  @media (max-width:900px) { .sd-note-detail-main { width:calc(100% - 32px); padding:28px 0 108px; } .sd-note-detail-grid { grid-template-columns:1fr; } .sd-note-detail-rail,.sd-note-detail-tools { grid-column:auto; } .sd-note-detail-editor textarea { min-height:300px; } .sd-note-detail .sd-student-bottom-nav { display:flex; } }
-`;
 
 export function NoteDetail({
   id,
@@ -118,7 +70,7 @@ export function NoteDetail({
   classes: { id: string; name: string }[];
 }) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
+  const [pending, startTransition] = useTransition();
   const [transcribing, setTranscribing] = useState(false);
   const [askingDelete, setAskingDelete] = useState(false);
   const [classId, setClassId] = useState<string | null>(initialClassId);
@@ -129,6 +81,8 @@ export function NoteDetail({
   const [cardStatus, setCardStatus] = useState<string | null>(null);
   const [tagStatus, setTagStatus] = useState<string | null>(null);
   const [body, setBody] = useState(bodyText);
+  const bodyRef = useRef(bodyText);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
 
   function handleSave() {
@@ -141,14 +95,15 @@ export function NoteDetail({
         classId,
         source: normalizeNoteSource(source),
       });
-      setSaveStatus(result.ok ? "Saved" : result.error);
+      setSaveStatus(result.ok ? (bodyRef.current === body ? "Saved" : "Unsaved changes") : result.error);
     });
   }
 
   function handleClassChange(newId: string | null) {
     setClassId(newId);
     startTransition(async () => {
-      await updateNoteClass({ id, classId: newId });
+      const result = await updateNoteClass({ id, classId: newId });
+      if (!result.ok) { setClassId(classId); setSaveStatus(result.error); }
     });
   }
 
@@ -166,6 +121,7 @@ export function NoteDetail({
     startTransition(async () => {
       const res = await deleteNote({ id });
       if (res.ok) router.push("/notes");
+      else setDeleteError(res.error);
     });
   }
 
@@ -229,10 +185,8 @@ export function NoteDetail({
   }
 
   return (
-    <div className="sd-note-detail diana-current-page" aria-label="Notes surface">
-      <style>{NOTE_DETAIL_STYLES}</style>
-      <StudentDesktopNav active="More" />
-      <main className="sd-note-detail-main">
+    <StudentShell active="More" className={styles.root} version="12">
+      <main id="main-content" className="sd-note-detail-main">
         <div className="sd-note-detail-frame">
           <Link href="/notes" className="sd-note-detail-back"><ArrowLeft size={18} aria-hidden="true" /> Back to notes</Link>
           <div className="sd-note-detail-grid">
@@ -242,11 +196,11 @@ export function NoteDetail({
           <textarea
             aria-label="Note body"
             value={body}
-            onChange={(event) => setBody(event.target.value)}
+            onChange={(event) => { bodyRef.current = event.target.value; setBody(event.target.value); setSaveStatus("Unsaved changes"); }}
             placeholder="Add the ideas you want to remember..."
           />
           <div className="sd-note-detail-save-row">
-            <button type="button" onClick={handleSave} aria-label="Save note">
+            <button type="button" disabled={pending} onClick={handleSave} aria-label="Save note">
               <Save size={14} aria-hidden="true" /> Save note
             </button>
             {saveStatus ? <span role="status" aria-live="polite">{saveStatus}</span> : null}
@@ -257,7 +211,7 @@ export function NoteDetail({
           {classes.length > 0 && (
             <label>
               <span>Class</span>
-              <select value={classId ?? ""} onChange={(event) => handleClassChange(event.target.value || null)}>
+              <select disabled={pending} value={classId ?? ""} onChange={(event) => handleClassChange(event.target.value || null)}>
                 <option value="">No class</option>
                 {classes.map((course) => <option key={course.id} value={course.id}>{course.name}</option>)}
               </select>
@@ -269,40 +223,6 @@ export function NoteDetail({
         <details className="notes-detail-workspace sd-note-detail-tools">
           <summary>Study tools <ChevronDown size={18} aria-hidden="true" /></summary>
           <div className="sd-note-detail-tools-inner">
-      {/* Retained for the existing class-save behavior; the active picker is in the right rail. */}
-      {classes.length > 0 && (
-        <label className="notes-detail-class-picker">
-          <span>Class</span>
-          <select
-            value={classId ?? ""}
-            onChange={(e) => handleClassChange(e.target.value || null)}
-            className="notes-editor-input"
-          >
-            <option value="">No class</option>
-            {classes.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </label>
-      )}
-
-      <section className="notes-remember-panel">
-        <p>
-          Remember bar
-        </p>
-        <h2>Turn notes into practice</h2>
-        <div>
-          <div>
-            <Brain size={15} />
-            <p className="text-sm text-muted">Use a selected line for recall, not rereading.</p>
-          </div>
-          <div>
-            <BookOpen size={15} />
-            <p className="text-sm text-muted">Highlight one term or fact, then save it as a card.</p>
-          </div>
-        </div>
-      </section>
-
       <StudyArtifactPanel
         sourceType="note"
         sourceId={id}
@@ -408,7 +328,7 @@ export function NoteDetail({
             )}
           </div>
         </VocabHoverProvider>
-        <ReadingLevelAdapter text={body} aiMode={aiMode} />
+        <ReadingLevelAdapter text={body} aiMode={aiMode} source={{ sourceType: "note", sourceId: id }} />
         <SelectionCardControl
           selectedText={selectedText}
           cardStatus={cardStatus}
@@ -456,7 +376,7 @@ export function NoteDetail({
               </div>
             </div>
           </VocabHoverProvider>
-          <ReadingLevelAdapter text={transcriptText} aiMode={aiMode} />
+          <ReadingLevelAdapter text={transcriptText} aiMode={aiMode} source={{ sourceType: "note", sourceId: id }} />
           <SelectionCardControl
             selectedText={selectedText}
             cardStatus={cardStatus}
@@ -524,6 +444,7 @@ export function NoteDetail({
 
       {/* Delete — single confirmation, calm copy */}
       <section className="notes-delete-panel">
+        {deleteError ? <p role="alert">{deleteError}</p> : null}
         {!askingDelete ? (
           <button
             type="button"
@@ -538,6 +459,7 @@ export function NoteDetail({
             <span className="text-muted">Delete this note?</span>
             <button
               type="button"
+              disabled={pending}
               onClick={handleDelete}
               className="touch-target rounded-xl bg-danger px-3 py-1 text-sm font-medium text-white"
             >
@@ -558,8 +480,7 @@ export function NoteDetail({
           </div>
         </div>
       </main>
-      <StudentBottomNav />
-    </div>
+    </StudentShell>
   );
 }
 
@@ -581,7 +502,7 @@ function SelectionCardControl({
         className="touch-target inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-raised px-3 py-1.5 text-xs text-muted hover:bg-surface-soft disabled:opacity-50"
       >
         <Plus size={13} />
-        Create card from highlight
+        Add highlight to recall
       </button>
       {selectedText && (
         <span className="max-w-full truncate text-xs text-muted">

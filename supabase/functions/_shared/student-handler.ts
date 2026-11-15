@@ -59,13 +59,23 @@ export function withStudentSecurity(
       });
     }
 
+    // A caller may request a stricter traffic light, but can never grant
+    // permission over the stored policy checked by requireStudentContext.
+    if (body?.aiMode === "red" || body?.aiMode === "yellow") {
+      return new Response(JSON.stringify({ error: "AI is not available for this request.", code: "ai_policy_blocked" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+      });
+    }
+
     const auth = await requireStudentContext(request, {
       suppliedOwnerId: body.ownerId,
       assignmentId: body.assignmentId,
       classId: body.classId,
       noteId: body.noteId,
       ownedResource: ownedResourceFor(functionName, body),
-      requireAiGreen: Deno.env.get("DIANA_HOMEWORK_PRODUCT_TIER") === "school_tier",
+      // Stored class/assignment policy applies in every product tier.
+      requireAiGreen: true,
     });
     if (auth instanceof Response) return auth;
 

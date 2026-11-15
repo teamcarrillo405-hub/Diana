@@ -1,0 +1,30 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { authorizeWorkerExecution, finishWorkerExecution, issueWorkerExecution, executionIdentity } from './worker-execution-server';
+const eligibility = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/assignment-help/study-buddy-eligibility', () => ({ studyBuddyEligibility: eligibility }));
+const identity = { traceId:'dw-1', workerId:'worker-a', capability:'a'.repeat(64) };
+const job = { feature:'diana.voice_candidate',queue_mode:'managed_queue',queue_name:'student-ai-candidate',owner_id:'owner-a',payload:{input:{transcript:'Help me begin this equation.',source:'typed'}},constraints:{} };
+function setup() {
+  const events:string[]=[];
+  const rpc=vi.fn(async (_name:string,args:Record<string,unknown>)=>{events.push(String(args.p_action));return {error:null,data:args.p_action==='begin'||args.p_action==='begin_complete'?job:args.p_action==='dispatch'?{authorized:true,expiresAt:new Date(Date.now()+60000).toISOString()}:args.p_action==='finish'?{completed:true}:{expiresAt:new Date(Date.now()+60000).toISOString()}};});
+  const moderator=vi.fn(async()=>{events.push('moderation');return {safe:true} as const;});
+  return {client:{rpc} as never,rpc,moderator,events};
+}
+beforeEach(()=>eligibility.mockReset().mockResolvedValue({ok:true}));
+describe('job-bound server execution',()=>{
+  it('stores only a hash of a random capability',async()=>{const s=setup();const issued=await issueWorkerExecution(s.client,'dw-1','worker-a');expect(issued.capability).toMatch(/^[a-f0-9]{64}$/);expect(s.rpc.mock.calls[0][1].p_capability_hash).not.toBe(issued.capability);expect(JSON.stringify(s.rpc.mock.calls)).not.toContain(issued.capability);});
+  it.each([{...identity,capability:''},{...identity,workerId:'../bad'},{...identity,traceId:123}])('rejects malformed execution identity %j',body=>{expect(()=>executionIdentity(body)).toThrow();});
+  it('screens stored input before atomic reserve/mark dispatch and returns only the permit',async()=>{const s=setup();const permit=await authorizeWorkerExecution(s.client,{...identity,input:{transcript:'injected'}},s.moderator);expect(s.events).toEqual(['begin','moderation','dispatch']);expect(permit.input.transcript).toBe(job.payload.input.transcript);expect(s.moderator).toHaveBeenCalledWith({phase:'input',text:job.payload.input.transcript+'\n'});expect(s.rpc.mock.calls[1][1]).toMatchObject({p_data:{requestedTokens:expect.any(Number)}});expect(permit).not.toHaveProperty('owner_id');});
+  it('denies revoked consent before screening or budget reservation',async()=>{const s=setup();eligibility.mockResolvedValue({ok:false});await expect(authorizeWorkerExecution(s.client,identity,s.moderator)).rejects.toThrow();expect(s.events).toEqual(['begin']);});
+  it('denies malformed stored scope without moderation',async()=>{const s=setup();s.rpc.mockResolvedValueOnce({error:null,data:{...job,payload:{input:{transcript:'hello',assignmentId:33}}}} as never);await expect(authorizeWorkerExecution(s.client,identity,s.moderator)).rejects.toThrow();expect(s.moderator).not.toHaveBeenCalled();});
+  it('does not return a permit when moderation is unavailable',async()=>{const s=setup();s.moderator.mockRejectedValue(new Error());await expect(authorizeWorkerExecution(s.client,identity,s.moderator)).rejects.toThrow();expect(s.events).toEqual(['begin']);});
+  it('does not return input on lease/budget transition failure',async()=>{const s=setup();s.rpc.mockResolvedValueOnce({error:null,data:job}).mockResolvedValueOnce({error:{},data:null} as never);await expect(authorizeWorkerExecution(s.client,identity,s.moderator)).rejects.toThrow();});
+  const completion={...identity,status:'succeeded',result:{response:'Which quantity do you know?',provider:'openjarvis',model:'local-model'}};
+  it('screens output before atomic settlement/audit/result storage',async()=>{const s=setup();await finishWorkerExecution(s.client,completion,s.moderator);expect(s.events).toEqual(['begin_complete','moderation','finish']);expect(s.rpc.mock.calls[1][1]).toMatchObject({p_data:{result:{status:'succeeded',response:completion.result.response}}});});
+  it('never stores output after a policy revocation',async()=>{const s=setup();eligibility.mockResolvedValue({ok:false});await finishWorkerExecution(s.client,completion,s.moderator);expect(s.moderator).not.toHaveBeenCalled();expect(s.rpc.mock.calls[1][1]).toMatchObject({p_data:{result:{status:'error',errorCode:'student_eligibility_denied'}}});expect(JSON.stringify(s.rpc.mock.calls[1])).not.toContain(completion.result.response);});
+  it('settles a screening outage with no raw output in the result',async()=>{const s=setup();s.moderator.mockRejectedValue(new Error());await finishWorkerExecution(s.client,completion,s.moderator);expect(s.rpc.mock.calls[1][1]).toMatchObject({p_data:{result:{status:'error',errorCode:'safety_screen_unavailable'}}});});
+  it('acknowledges exact completed replay without moderation or another write',async()=>{const s=setup();s.rpc.mockResolvedValueOnce({error:null,data:{replayed:true}} as never);await finishWorkerExecution(s.client,completion,s.moderator);expect(s.events).toEqual([]);expect(s.rpc).toHaveBeenCalledTimes(1);expect(s.moderator).not.toHaveBeenCalled();});
+  it('rejects stale/changed completion before screening',async()=>{const s=setup();s.rpc.mockResolvedValueOnce({error:{},data:null} as never);await expect(finishWorkerExecution(s.client,completion,s.moderator)).rejects.toThrow();expect(s.moderator).not.toHaveBeenCalled();});
+  it('rejects overlong output before touching state',async()=>{const s=setup();await expect(finishWorkerExecution(s.client,{...completion,result:{...completion.result,response:'x'.repeat(1201)}},s.moderator)).rejects.toThrow();expect(s.rpc).not.toHaveBeenCalled();});
+  it('reports failure when atomic settlement/audit cannot commit',async()=>{const s=setup();s.rpc.mockResolvedValueOnce({error:null,data:job}).mockResolvedValueOnce({error:{},data:null} as never);await expect(finishWorkerExecution(s.client,completion,s.moderator)).rejects.toThrow();});
+});

@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("server-only",()=>({}));
+vi.mock("@/lib/learning-engine/server",()=>({learningAccess:async()=>false}));
 
 const mocks = vi.hoisted(() => ({
   taskSignalInserts: [] as Array<Record<string, unknown>>,
+  ownerFilters: [] as Array<{ table: string; ownerId: unknown }>,
   cookieClient: vi.fn(),
   accountingClient: vi.fn(),
   invoke: vi.fn(),
@@ -50,6 +53,7 @@ describe("Study Buddy assignment context", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.taskSignalInserts = [];
+    mocks.ownerFilters = [];
     vi.stubEnv("DIANA_OPENJARVIS_SIDECAR_ENABLED", "false");
     mocks.accountingClient.mockReturnValue(accountingClient());
     mocks.invoke.mockResolvedValue({
@@ -86,6 +90,10 @@ describe("Study Buddy assignment context", () => {
     const response = await POST(studyRequest());
 
     expect(response.status).toBe(200);
+    expect(mocks.ownerFilters).toEqual(expect.arrayContaining([
+      { table: "assignments", ownerId: "student-1" },
+      { table: "classes", ownerId: "student-1" },
+    ]));
     const providerInput = String(mocks.invoke.mock.calls[0]?.[1]?.body?.source ?? "");
     expect(providerInput).toContain("Trusted assignment");
     expect(providerInput).toContain("Use the assigned primary source.");
@@ -217,6 +225,20 @@ describe("Study Buddy assignment context", () => {
     expect(response.status).toBe(404);
     expect(mocks.invoke).not.toHaveBeenCalled();
   });
+
+  it("blocks tutoring when the owned assignment's class does not allow it", async () => {
+    mocks.cookieClient.mockReturnValue(cookieClient({
+      id: assignmentId,
+      class_id: "22222222-2222-4222-8222-222222222222",
+      ai_mode_override: null,
+    }, { classMode: "yellow" }));
+
+    const response = await POST(studyRequest());
+
+    expect(response.status).toBe(403);
+    expect(mocks.invoke).not.toHaveBeenCalled();
+    expect(mocks.ownerFilters).toContainEqual({ table: "classes", ownerId: "student-1" });
+  });
 });
 
 function studyRequest(overrides: { question?: string; conversation?: Array<{ role: "assistant" | "student"; text: string }> } = {}) {
@@ -236,11 +258,16 @@ function studyRequest(overrides: { question?: string; conversation?: Array<{ rol
 function cookieClient(assignment: Record<string, unknown> | null, options: {
   snapshot?: Record<string, unknown> | null;
   artifactBlocks?: Array<Record<string, unknown>>;
+  classMode?: "green" | "yellow";
 } = {}) {
   const assignmentQuery: any = {
     select: () => assignmentQuery,
-    eq: () => assignmentQuery,
-    maybeSingle: () => Promise.resolve({ data: assignment, error: null }),
+    eq: (field: string, value: unknown) => {
+      if (field === "owner_id") mocks.ownerFilters.push({ table: "assignments", ownerId: value });
+      return assignmentQuery;
+    },
+    maybeSingle: () => Promise.resolve({ data: assignment ? { owner_id: "student-1", ai_mode_override: null, ...assignment,
+      classes: { id: assignment.class_id, owner_id: "student-1", ai_mode: options.classMode ?? "green" } } : null, error: null }),
   };
   const sourceQuery: any = {
     select: () => sourceQuery,
@@ -271,13 +298,23 @@ function cookieClient(assignment: Record<string, unknown> | null, options: {
   };
   const classQuery: any = {
     select: () => classQuery,
-    eq: () => classQuery,
-    maybeSingle: () => Promise.resolve({ data: { ai_mode: "green" }, error: null }),
+    eq: (field: string, value: unknown) => {
+      if (field === "owner_id") mocks.ownerFilters.push({ table: "classes", ownerId: value });
+      return classQuery;
+    },
+    maybeSingle: () => Promise.resolve({ data: { id: assignment?.class_id, owner_id: "student-1", ai_mode: options.classMode ?? "green" }, error: null }),
   };
   const profileQuery: any = {
     select: () => profileQuery,
     eq: () => profileQuery,
-    maybeSingle: () => Promise.resolve({ data: { school_year: 9, tutor_complexity: "balanced" }, error: null }),
+    maybeSingle: () => Promise.resolve({ data: { age_bracket: "13_to_17", consent_ai: true, school_year: 9, tutor_complexity: "balanced" }, error: null }),
+  };
+  const deletionQuery: any = {
+    select: () => deletionQuery,
+    eq: () => deletionQuery,
+    not: () => deletionQuery,
+    limit: () => deletionQuery,
+    maybeSingle: () => Promise.resolve({ data: null, error: null }),
   };
   const courseMaterialQuery: any = {
     select: () => courseMaterialQuery,
@@ -322,6 +359,7 @@ function cookieClient(assignment: Record<string, unknown> | null, options: {
       if (table === "rubrics" || table === "class_syllabi") return courseMaterialQuery;
       if (table === "mastery_concepts") return masteryQuery;
       if (table === "profiles") return profileQuery;
+      if (table === "data_deletion_requests") return deletionQuery;
       return profileQuery;
     },
     functions: { invoke: mocks.invoke },

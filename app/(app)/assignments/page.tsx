@@ -12,6 +12,7 @@ import {
 type AssignmentRow = {
   id: string;
   title: string;
+  description: string | null;
   due_at: string | null;
   status: AssignmentStatus;
   estimated_minutes: number | null;
@@ -29,7 +30,8 @@ type RankedAssignment = AssignmentRow & {
   effective_minutes: number | null;
 };
 
-export default async function AssignmentsPage() {
+export default async function AssignmentsPage({searchParams}:{searchParams:Promise<{view?:string}>}) {
+  const {view}=await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,12 +43,12 @@ export default async function AssignmentsPage() {
   const fourHoursAgoIso = new Date(
     fixedNow.getTime() - 4 * 60 * 60 * 1000,
   ).toISOString();
-  const [{ data: assignments }, { data: signals }] =
+  const [{ data: assignments, error: assignmentsError }, { data: signals }, captures] =
     await Promise.all([
       supabase
         .from("assignments")
         .select(
-          "id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)",
+          "id, title, description, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name, color)",
         )
         .eq("owner_id", user.id)
         .neq("status", "abandoned")
@@ -58,6 +60,7 @@ export default async function AssignmentsPage() {
         .in("kind", ["started", "completed"])
         .gte("occurred_at", fourHoursAgoIso)
         .order("occurred_at", { ascending: false }),
+      supabase.from("inbox_items").select("id",{count:"exact",head:true}).eq("owner_id",user.id).in("status",["unclassified","classified"]),
     ]);
 
   const rows = (assignments ?? []) as AssignmentRow[];
@@ -75,23 +78,24 @@ export default async function AssignmentsPage() {
       extra_time_pct: profile?.extra_time_pct ?? 0,
     },
   ) as RankedAssignment[];
-  const focusTasks = ranked.filter(
-    (assignment) => !["submitted", "graded"].includes(assignment.status),
-  );
+  const collection = [...ranked, ...rows.filter(assignment => ["submitted", "graded"].includes(assignment.status))];
 
   return (
     <WorkCommandCenter
-      assignments={focusTasks.map(
+      initialCategory={view === "review" || view === "ready" || view === "submitted" ? view : "active"}
+      captureCount={captures.count ?? 0}
+      assignments={collection.map(
         (assignment): WorkCommandItem => ({
           id: assignment.id,
           title: assignment.title,
+          description: assignment.description,
           className: assignment.classes?.name ?? "Class",
           classColor: safeClassColor(assignment.classes?.color),
           dueAt: assignment.due_at,
-          minutes: workMinutes(assignment),
+          minutes: workMinutes(assignment as RankedAssignment),
           kind: assignment.kind,
           status: assignment.status,
-          reasons: assignment.reasons,
+          reasons: "reasons" in assignment ? (assignment as RankedAssignment).reasons : [],
         }),
       )}
       displayName={profile?.display_name}
@@ -99,6 +103,8 @@ export default async function AssignmentsPage() {
       photoOffsetX={profile?.photo_offset_x}
       photoOffsetY={profile?.photo_offset_y}
       nowIso={fixedNow.toISOString()}
+      timeZone={profile?.timezone || "America/Los_Angeles"}
+      unavailable={Boolean(assignmentsError)}
     />
   );
 }

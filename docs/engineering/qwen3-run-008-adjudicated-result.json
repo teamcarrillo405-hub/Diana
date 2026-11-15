@@ -1,0 +1,1730 @@
+{
+  "schema": "diana-adjudicated-grounding-result-v1",
+  "packetHash": "c7253dc5f022eb29190c8d0d9c2c1f5c742679998953352f6ed54461becfe13d",
+  "reviewsHash": "24b63c2404dd40f267ba84f2dc600183ef4422ce90a7572e32abfe03acafadb7",
+  "partition": "validation",
+  "arms": {
+    "base": {
+      "cases": 48,
+      "passed": 1,
+      "rate": 0.020833333333333332,
+      "wilson95": [
+        0.003687110977510649,
+        0.10899217995251861
+      ],
+      "fabricatedResponses": 5,
+      "dimensions": {
+        "sourceSupported": {
+          "passed": 40,
+          "cases": 48,
+          "rate": 0.8333333333333334
+        },
+        "answerabilityCorrect": {
+          "passed": 46,
+          "cases": 48,
+          "rate": 0.9583333333333334
+        },
+        "usefulNextStep": {
+          "passed": 1,
+          "cases": 48,
+          "rate": 0.020833333333333332
+        },
+        "noAnswerGiveaway": {
+          "passed": 48,
+          "cases": 48,
+          "rate": 1.0
+        },
+        "noFabricatedClaims": {
+          "passed": 43,
+          "cases": 48,
+          "rate": 0.8958333333333334
+        }
+      },
+      "slices": {
+        "subject": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 1,
+            "rate": 0.020833333333333332,
+            "wilson95": [
+              0.003687110977510649,
+              0.10899217995251861
+            ],
+            "fabricatedResponses": 5
+          }
+        },
+        "level": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 1,
+            "rate": 0.020833333333333332,
+            "wilson95": [
+              0.003687110977510649,
+              0.10899217995251861
+            ],
+            "fabricatedResponses": 5
+          }
+        },
+        "answerability": {
+          "answerable": {
+            "cases": 24,
+            "passed": 1,
+            "rate": 0.041666666666666664,
+            "wilson95": [
+              0.0073934561655057685,
+              0.20241806478655938
+            ],
+            "fabricatedResponses": 3
+          },
+          "insufficient": {
+            "cases": 24,
+            "passed": 0,
+            "rate": 0.0,
+            "wilson95": [
+              1.3877787807814457e-17,
+              0.13797620467498017
+            ],
+            "fabricatedResponses": 2
+          }
+        }
+      }
+    },
+    "adapter": {
+      "cases": 48,
+      "passed": 37,
+      "rate": 0.7708333333333334,
+      "wilson95": [
+        0.6346073590999655,
+        0.8669217373308877
+      ],
+      "fabricatedResponses": 1,
+      "dimensions": {
+        "sourceSupported": {
+          "passed": 47,
+          "cases": 48,
+          "rate": 0.9791666666666666
+        },
+        "answerabilityCorrect": {
+          "passed": 47,
+          "cases": 48,
+          "rate": 0.9791666666666666
+        },
+        "usefulNextStep": {
+          "passed": 37,
+          "cases": 48,
+          "rate": 0.7708333333333334
+        },
+        "noAnswerGiveaway": {
+          "passed": 48,
+          "cases": 48,
+          "rate": 1.0
+        },
+        "noFabricatedClaims": {
+          "passed": 47,
+          "cases": 48,
+          "rate": 0.9791666666666666
+        }
+      },
+      "slices": {
+        "subject": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 37,
+            "rate": 0.7708333333333334,
+            "wilson95": [
+              0.6346073590999655,
+              0.8669217373308877
+            ],
+            "fabricatedResponses": 1
+          }
+        },
+        "level": {
+          "unspecified": {
+            "cases": 48,
+            "passed": 37,
+            "rate": 0.7708333333333334,
+            "wilson95": [
+              0.6346073590999655,
+              0.8669217373308877
+            ],
+            "fabricatedResponses": 1
+          }
+        },
+        "answerability": {
+          "answerable": {
+            "cases": 24,
+            "passed": 18,
+            "rate": 0.75,
+            "wilson95": [
+              0.55100555994846,
+              0.8800063377140499
+            ],
+            "fabricatedResponses": 1
+          },
+          "insufficient": {
+            "cases": 24,
+            "passed": 19,
+            "rate": 0.7916666666666666,
+            "wilson95": [
+              0.5952954674681133,
+              0.9075517464714814
+            ],
+            "fabricatedResponses": 0
+          }
+        }
+      }
+    }
+  },
+  "target": 0.95,
+  "pointTargetMet": false,
+  "noFabricatedResponses": false,
+  "descriptiveSemanticGatePassed": false,
+  "productionEligible": false,
+  "educatorQualificationVerified": false,
+  "learningGainsEstablished": false,
+  "qualification": "Authored sample only. Wilson intervals assume independent cases; related templates reduce effective sample size. A 95% observed rate is not evidence that population accuracy is at least 95%. Reviewer credentials are not verified by this file.",
+  "originalReviews": [
+    {
+      "schema": "diana-grounding-semantic-result-v3",
+      "packetHash": "c7253dc5f022eb29190c8d0d9c2c1f5c742679998953352f6ed54461becfe13d",
+      "reviewsHash": "cc4864948270866cf2ae48e34abfec70ab0af67759176d28983346b0ac664448",
+      "partition": "validation",
+      "arms": {
+        "base": {
+          "cases": 48,
+          "passed": 1,
+          "rate": 0.020833333333333332,
+          "wilson95": [
+            0.003687110977510649,
+            0.10899217995251861
+          ],
+          "fabricatedResponses": 3,
+          "dimensions": {
+            "sourceSupported": {
+              "passed": 40,
+              "cases": 48,
+              "rate": 0.8333333333333334
+            },
+            "answerabilityCorrect": {
+              "passed": 46,
+              "cases": 48,
+              "rate": 0.9583333333333334
+            },
+            "usefulNextStep": {
+              "passed": 1,
+              "cases": 48,
+              "rate": 0.020833333333333332
+            },
+            "noAnswerGiveaway": {
+              "passed": 48,
+              "cases": 48,
+              "rate": 1.0
+            },
+            "noFabricatedClaims": {
+              "passed": 45,
+              "cases": 48,
+              "rate": 0.9375
+            }
+          },
+          "slices": {
+            "subject": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 1,
+                "rate": 0.020833333333333332,
+                "wilson95": [
+                  0.003687110977510649,
+                  0.10899217995251861
+                ],
+                "fabricatedResponses": 3
+              }
+            },
+            "level": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 1,
+                "rate": 0.020833333333333332,
+                "wilson95": [
+                  0.003687110977510649,
+                  0.10899217995251861
+                ],
+                "fabricatedResponses": 3
+              }
+            },
+            "answerability": {
+              "answerable": {
+                "cases": 24,
+                "passed": 1,
+                "rate": 0.041666666666666664,
+                "wilson95": [
+                  0.0073934561655057685,
+                  0.20241806478655938
+                ],
+                "fabricatedResponses": 2
+              },
+              "insufficient": {
+                "cases": 24,
+                "passed": 0,
+                "rate": 0.0,
+                "wilson95": [
+                  1.3877787807814457e-17,
+                  0.13797620467498017
+                ],
+                "fabricatedResponses": 1
+              }
+            }
+          }
+        },
+        "adapter": {
+          "cases": 48,
+          "passed": 41,
+          "rate": 0.8541666666666666,
+          "wilson95": [
+            0.7283282347525372,
+            0.9275175067339628
+          ],
+          "fabricatedResponses": 1,
+          "dimensions": {
+            "sourceSupported": {
+              "passed": 47,
+              "cases": 48,
+              "rate": 0.9791666666666666
+            },
+            "answerabilityCorrect": {
+              "passed": 47,
+              "cases": 48,
+              "rate": 0.9791666666666666
+            },
+            "usefulNextStep": {
+              "passed": 41,
+              "cases": 48,
+              "rate": 0.8541666666666666
+            },
+            "noAnswerGiveaway": {
+              "passed": 48,
+              "cases": 48,
+              "rate": 1.0
+            },
+            "noFabricatedClaims": {
+              "passed": 47,
+              "cases": 48,
+              "rate": 0.9791666666666666
+            }
+          },
+          "slices": {
+            "subject": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 41,
+                "rate": 0.8541666666666666,
+                "wilson95": [
+                  0.7283282347525372,
+                  0.9275175067339628
+                ],
+                "fabricatedResponses": 1
+              }
+            },
+            "level": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 41,
+                "rate": 0.8541666666666666,
+                "wilson95": [
+                  0.7283282347525372,
+                  0.9275175067339628
+                ],
+                "fabricatedResponses": 1
+              }
+            },
+            "answerability": {
+              "answerable": {
+                "cases": 24,
+                "passed": 21,
+                "rate": 0.875,
+                "wilson95": [
+                  0.6899611872949993,
+                  0.9565566591987655
+                ],
+                "fabricatedResponses": 1
+              },
+              "insufficient": {
+                "cases": 24,
+                "passed": 20,
+                "rate": 0.8333333333333334,
+                "wilson95": [
+                  0.6414692935030095,
+                  0.9332132367136705
+                ],
+                "fabricatedResponses": 0
+              }
+            }
+          }
+        }
+      },
+      "target": 0.95,
+      "pointTargetMet": false,
+      "noFabricatedResponses": false,
+      "descriptiveSemanticGatePassed": false,
+      "productionEligible": false,
+      "educatorQualificationVerified": false,
+      "learningGainsEstablished": false,
+      "qualification": "Authored sample only. Wilson intervals assume independent cases; related templates reduce effective sample size. A 95% observed rate is not evidence that population accuracy is at least 95%. Reviewer credentials are not verified by this file."
+    },
+    {
+      "schema": "diana-grounding-semantic-result-v3",
+      "packetHash": "c7253dc5f022eb29190c8d0d9c2c1f5c742679998953352f6ed54461becfe13d",
+      "reviewsHash": "ae5ef93c2ba38cc406f6f34a91c9a51cbf9ee7553843eb36f3082b4942aa43ca",
+      "partition": "validation",
+      "arms": {
+        "base": {
+          "cases": 48,
+          "passed": 1,
+          "rate": 0.020833333333333332,
+          "wilson95": [
+            0.003687110977510649,
+            0.10899217995251861
+          ],
+          "fabricatedResponses": 5,
+          "dimensions": {
+            "sourceSupported": {
+              "passed": 40,
+              "cases": 48,
+              "rate": 0.8333333333333334
+            },
+            "answerabilityCorrect": {
+              "passed": 46,
+              "cases": 48,
+              "rate": 0.9583333333333334
+            },
+            "usefulNextStep": {
+              "passed": 1,
+              "cases": 48,
+              "rate": 0.020833333333333332
+            },
+            "noAnswerGiveaway": {
+              "passed": 48,
+              "cases": 48,
+              "rate": 1.0
+            },
+            "noFabricatedClaims": {
+              "passed": 43,
+              "cases": 48,
+              "rate": 0.8958333333333334
+            }
+          },
+          "slices": {
+            "subject": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 1,
+                "rate": 0.020833333333333332,
+                "wilson95": [
+                  0.003687110977510649,
+                  0.10899217995251861
+                ],
+                "fabricatedResponses": 5
+              }
+            },
+            "level": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 1,
+                "rate": 0.020833333333333332,
+                "wilson95": [
+                  0.003687110977510649,
+                  0.10899217995251861
+                ],
+                "fabricatedResponses": 5
+              }
+            },
+            "answerability": {
+              "answerable": {
+                "cases": 24,
+                "passed": 1,
+                "rate": 0.041666666666666664,
+                "wilson95": [
+                  0.0073934561655057685,
+                  0.20241806478655938
+                ],
+                "fabricatedResponses": 3
+              },
+              "insufficient": {
+                "cases": 24,
+                "passed": 0,
+                "rate": 0.0,
+                "wilson95": [
+                  1.3877787807814457e-17,
+                  0.13797620467498017
+                ],
+                "fabricatedResponses": 2
+              }
+            }
+          }
+        },
+        "adapter": {
+          "cases": 48,
+          "passed": 36,
+          "rate": 0.75,
+          "wilson95": [
+            0.6121562719049204,
+            0.8507936632620209
+          ],
+          "fabricatedResponses": 2,
+          "dimensions": {
+            "sourceSupported": {
+              "passed": 47,
+              "cases": 48,
+              "rate": 0.9791666666666666
+            },
+            "answerabilityCorrect": {
+              "passed": 47,
+              "cases": 48,
+              "rate": 0.9791666666666666
+            },
+            "usefulNextStep": {
+              "passed": 36,
+              "cases": 48,
+              "rate": 0.75
+            },
+            "noAnswerGiveaway": {
+              "passed": 48,
+              "cases": 48,
+              "rate": 1.0
+            },
+            "noFabricatedClaims": {
+              "passed": 46,
+              "cases": 48,
+              "rate": 0.9583333333333334
+            }
+          },
+          "slices": {
+            "subject": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 36,
+                "rate": 0.75,
+                "wilson95": [
+                  0.6121562719049204,
+                  0.8507936632620209
+                ],
+                "fabricatedResponses": 2
+              }
+            },
+            "level": {
+              "unspecified": {
+                "cases": 48,
+                "passed": 36,
+                "rate": 0.75,
+                "wilson95": [
+                  0.6121562719049204,
+                  0.8507936632620209
+                ],
+                "fabricatedResponses": 2
+              }
+            },
+            "answerability": {
+              "answerable": {
+                "cases": 24,
+                "passed": 18,
+                "rate": 0.75,
+                "wilson95": [
+                  0.55100555994846,
+                  0.8800063377140499
+                ],
+                "fabricatedResponses": 0
+              },
+              "insufficient": {
+                "cases": 24,
+                "passed": 18,
+                "rate": 0.75,
+                "wilson95": [
+                  0.55100555994846,
+                  0.8800063377140499
+                ],
+                "fabricatedResponses": 2
+              }
+            }
+          }
+        }
+      },
+      "target": 0.95,
+      "pointTargetMet": false,
+      "noFabricatedResponses": false,
+      "descriptiveSemanticGatePassed": false,
+      "productionEligible": false,
+      "educatorQualificationVerified": false,
+      "learningGainsEstablished": false,
+      "qualification": "Authored sample only. Wilson intervals assume independent cases; related templates reduce effective sample size. A 95% observed rate is not evidence that population accuracy is at least 95%. Reviewer credentials are not verified by this file."
+    }
+  ],
+  "reviewerIds": [
+    "run008-independent-first",
+    "run008-independent-second",
+    "run008-independent-adjudicator"
+  ],
+  "originalReviewHashes": [
+    "cc4864948270866cf2ae48e34abfec70ab0af67759176d28983346b0ac664448",
+    "ae5ef93c2ba38cc406f6f34a91c9a51cbf9ee7553843eb36f3082b4942aa43ca"
+  ],
+  "adjudicationHash": "d8ef9b0e6d1922aa00a018d7bcc72e5fe59d24931bb54993576d5c8b698c6996",
+  "disputePacketHash": "5920f24dc7f73e2d3e1ee161f68242dfe514ba2140b1d0fe249b1df6724df7a9",
+  "disputedResponses": 13,
+  "disputedDimensions": 14,
+  "agreedJudgmentsPreserved": true,
+  "agreedCaseFailuresPreserved": true,
+  "reviewerIndependenceVerifiedBySoftware": false,
+  "finalRatings": [
+    {
+      "id": "validation-v3-0-present",
+      "arm": "A",
+      "caseHash": "a5639705b9bb2fa8c87c72ae995ba969697c1fe1284ec0f1ba2a30ebb25a0ae2",
+      "responseHash": "2506153dd3042637a36cef3ae725b94259b3545075f2f285a21aac00741f3277",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact height evidence answers the measurement question. Asking the learner to measure the perpendicular gap is a concrete application; it gives no numerical result or invented dimensions."
+    },
+    {
+      "id": "validation-v3-0-present",
+      "arm": "B",
+      "caseHash": "a5639705b9bb2fa8c87c72ae995ba969697c1fe1284ec0f1ba2a30ebb25a0ae2",
+      "responseHash": "ef928f52620a89d82f0bc8ebbb1c1a351e1a6138338d9e71da378a6f19032645",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": false,
+      "notes": "The evidence sentence is supported. NEXT presents a protractor as an alternative instrument for measuring perpendicular distance; a protractor measures angles, and the source provides no basis for treating it as a distance instrument. This is an inaccurate methodological claim even though no numerical measurement is invented."
+    },
+    {
+      "id": "validation-v3-0-missing",
+      "arm": "A",
+      "caseHash": "2eaaa58c342abd9cc56dd47050a15348f34e34cb214fcf2d5965a106b7592049",
+      "responseHash": "427667d79c051215d84d0ce984e0d9598fb9ff4540c17ec5301180a86e705387",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Numerical area is unavailable without dimensions. The question specifically requests both bases and height, supplying neither those values nor a completed calculation."
+    },
+    {
+      "id": "validation-v3-0-missing",
+      "arm": "B",
+      "caseHash": "2eaaa58c342abd9cc56dd47050a15348f34e34cb214fcf2d5965a106b7592049",
+      "responseHash": "1e11dea5795c6f4a5e794ddb03ea4f4c70f3bd834dd7e994e276107223f10dd6",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is warranted, and measuring both bases and height addresses the numerical gap. NEXT is a compound directive rather than a single question. The general formula is a method, not a completed numerical area, and no dimensions are invented."
+    },
+    {
+      "id": "validation-v3-1-present",
+      "arm": "A",
+      "caseHash": "4e412607b6f716a64ad06eafde7f42f08a6597bd3aa53e031ced7182f1224932",
+      "responseHash": "85b45e9bb46567150d319e880cd40f130e7ee35b56a20ac3132792ea142430ae",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The definition is exact and responsive. The final question asks the learner to apply distance from zero to explicitly illustrative numbers; their distances are left for the learner, with no claim that these were the original numbers."
+    },
+    {
+      "id": "validation-v3-1-present",
+      "arm": "B",
+      "caseHash": "4e412607b6f716a64ad06eafde7f42f08a6597bd3aa53e031ced7182f1224932",
+      "responseHash": "25f03eea7cf4bb9297e20b657b292c966acb8a0ba63a8fb6dbcc4df3998befb5",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact definition supports the answer. The question asks for a number-line comparison of explicitly introduced examples 3 and -3 without providing their distances or claiming they came from the source."
+    },
+    {
+      "id": "validation-v3-1-missing",
+      "arm": "A",
+      "caseHash": "be17a81880ec869f6b9941f9a7fdfc10aff229ae222ab83e4bceebda93dd0d34",
+      "responseHash": "1aee1103bad8f0bf1a830b2f4ab1d16f8823e30de8a7d79b1e18fe97461c2712",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The original number is missing, so abstention is appropriate. Looking for the original problem context is a sensible evidence search, but NEXT is an imperative and fails the question requirement. No original number is fabricated."
+    },
+    {
+      "id": "validation-v3-1-missing",
+      "arm": "B",
+      "caseHash": "be17a81880ec869f6b9941f9a7fdfc10aff229ae222ab83e4bceebda93dd0d34",
+      "responseHash": "4acdf2c1f8a9f4bfc50cd2e21f5ad874ccd911971d9845cca3d2752d5c3abbba",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is correct, but requesting a starting number to trace the original choice is circular: the starting number is what is unknown. A hypothetical transformation record is not itself a fabricated observation, and no original value is supplied."
+    },
+    {
+      "id": "validation-v3-2-present",
+      "arm": "A",
+      "caseHash": "4d2c4448b27892838d28f08810321532d79dfb88c25ebe4dfe0106042e8e3fa6",
+      "responseHash": "35e8776d9bb6ac17bf1423aca4e664c61eea43b6ad67f5a2a50beddaf561bfb0",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact sentence identifies the two quartiles. The question advances to locating their actual values before calculating; it supplies no quartile values or computed range."
+    },
+    {
+      "id": "validation-v3-2-present",
+      "arm": "B",
+      "caseHash": "4d2c4448b27892838d28f08810321532d79dfb88c25ebe4dfe0106042e8e3fa6",
+      "responseHash": "31d6aed92b35e8d1ddd71a4576f727fd389ee66ac14e954ae125ac25ca46bf2f",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Evidence exactly identifies the relevant quartiles. NEXT gives an identification directive instead of a question. It proposes a data inspection rather than asserting any unseen quartile values."
+    },
+    {
+      "id": "validation-v3-2-missing",
+      "arm": "A",
+      "caseHash": "65f1e55a4594e4ed01a15aded921a1b298475c01d4d9270ac3bc493e3a4a0803",
+      "responseHash": "619355f80bc30a48aedac3c6e1a39cca8cd2d0e4e91a1a5e5d57f643b254ee59",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Abstention correctly reflects missing quartile values. The request specifies the needed inputs, but it is an imperative rather than a question. No range or dataset values are invented."
+    },
+    {
+      "id": "validation-v3-2-missing",
+      "arm": "B",
+      "caseHash": "65f1e55a4594e4ed01a15aded921a1b298475c01d4d9270ac3bc493e3a4a0803",
+      "responseHash": "cf579255a6f416141efd6c8bd8a5c5ae610a4fda434374bd20cd038b8ec9ce8f",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The range cannot be calculated from the definition alone. The question requests the ordered data and quartiles, a concrete information gap, without solving the calculation or inventing inputs."
+    },
+    {
+      "id": "validation-v3-3-present",
+      "arm": "A",
+      "caseHash": "ab8c28d5707cd07957a323a2661e1499511a33b2bd222d4523b6293684cdf57c",
+      "responseHash": "c953d34ecb06ab3ce37cd1a0c92d27172822b6e68f3a4fc66257fd6c2fef0012",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The function rule is quoted exactly and answers the conceptual question. NEXT restates it as a checking directive, not a question. It adds no completed mapping or unsupported example."
+    },
+    {
+      "id": "validation-v3-3-present",
+      "arm": "B",
+      "caseHash": "ab8c28d5707cd07957a323a2661e1499511a33b2bd222d4523b6293684cdf57c",
+      "responseHash": "bd2d5c151587e859c57b8aa7f567015112180b50f56972de13ed90f8af06f0c4",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence supplies the function criterion. The question asks the learner to test a table or graph against it, without asserting that any particular mapping passes or fails."
+    },
+    {
+      "id": "validation-v3-3-missing",
+      "arm": "A",
+      "caseHash": "188e37bc986b1f4a2e8d6113d01b97470aa3d3af97bd7f8333f9c398306b0187",
+      "responseHash": "238b7ca27a9bc162efeefa88111f5967ad7ce39724200dddc9e98a8f495c845e",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The source lacks a specific function. The question identifies the needed definition and domain before evaluation at seven, leaving the output unknown."
+    },
+    {
+      "id": "validation-v3-3-missing",
+      "arm": "B",
+      "caseHash": "188e37bc986b1f4a2e8d6113d01b97470aa3d3af97bd7f8333f9c398306b0187",
+      "responseHash": "615ae7c95d593df5e95547b13265e8c557e7ea3282e1abe267337e4f3d07109e",
+      "sourceSupported": false,
+      "answerabilityCorrect": false,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The generic function definition is exact but does not evidence the output at seven. EVIDENCE treats the general rule as an answer instead of acknowledging this missing definition. NEXT repeats the requested unknown output, so it is circular. No particular output is invented or revealed."
+    },
+    {
+      "id": "validation-v3-4-present",
+      "arm": "A",
+      "caseHash": "8c980a5ce5573aecfdc7659b4c97d0d05a0a6fa90a5c44a1889d1439e43a5e85",
+      "responseHash": "3252ddc242fd021514a4074c37f64faf149f3eb89440deee9de2b2ab60555f73",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence answers which rate is described. The small-interval question invites a relevant estimation method without giving a slope, derivative formula, or claimed observation."
+    },
+    {
+      "id": "validation-v3-4-present",
+      "arm": "B",
+      "caseHash": "8c980a5ce5573aecfdc7659b4c97d0d05a0a6fa90a5c44a1889d1439e43a5e85",
+      "responseHash": "8574a6bff65cf4e3dcd109e02f2254336b7d63cabf6baca3f21720a1bb5e3364",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The definition is exact and relevant. Tangent-slope inspection is a proposed method, but NEXT is an imperative rather than a question. It does not supply a particular derivative or assert a measured slope."
+    },
+    {
+      "id": "validation-v3-4-missing",
+      "arm": "A",
+      "caseHash": "f7eb0305ee02366836b36dc458ca9450f9484060e0cbadc10326e3da3f5dbf20",
+      "responseHash": "88c1ce5d6192472b0834b78571e8366d58259900785ff77dde475a18755254ee",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The function expression is absent. The question requests that exact missing input before differentiation, with no formula or invented function supplied."
+    },
+    {
+      "id": "validation-v3-4-missing",
+      "arm": "B",
+      "caseHash": "f7eb0305ee02366836b36dc458ca9450f9484060e0cbadc10326e3da3f5dbf20",
+      "responseHash": "c9c552759c2a16cace9f21730ece095906c72e39204f0a22b0634d698f504518",
+      "sourceSupported": false,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The quoted general definition is not evidence for this function's derivative formula. Nevertheless, requesting the specific function correctly leaves the formula unanswered pending missing input. NEXT is an imperative, not a question; it invents no function or derivative."
+    },
+    {
+      "id": "validation-v3-5-present",
+      "arm": "A",
+      "caseHash": "634c16f790072298300af8bdefa5f5b27f16a6880b6338a3fc9c163118f60d31",
+      "responseHash": "4b54eeb2baa2c6edf88c19bf7ec05e59e96d4a3229a1f54beb2479797e4fc732",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact definition answers the sound-pattern question. Comparing initial consonant sounds is a relevant exercise, but NEXT is a directive rather than a question. It supplies no completed example analysis."
+    },
+    {
+      "id": "validation-v3-5-present",
+      "arm": "B",
+      "caseHash": "634c16f790072298300af8bdefa5f5b27f16a6880b6338a3fc9c163118f60d31",
+      "responseHash": "cd405801e8a9a4a31126e688d353e864b272b1bb922c616126c006575b93639c",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact definition is relevant, and the question directs attention to nearby words and repeated sounds. Read alongside the evidence, marking consonants supports inspecting initial sounds; it gives no analyzed words or invented textual facts."
+    },
+    {
+      "id": "validation-v3-5-missing",
+      "arm": "A",
+      "caseHash": "a4407cb8c70a2db67ff1065a6c73e5a240f448b5a96538bda756e02e290a7dde",
+      "responseHash": "2191fee261b643b48b6d70eb2532f3eebbc5d731bc9fbe8846140bbdcf76c0d4",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The author of an unspecified example is unavailable. NEXT is not a question and shifts from attribution of this example toward the first author to use alliteration generally. The reference search is a proposed method and does not invent an author."
+    },
+    {
+      "id": "validation-v3-5-missing",
+      "arm": "B",
+      "caseHash": "a4407cb8c70a2db67ff1065a6c73e5a240f448b5a96538bda756e02e290a7dde",
+      "responseHash": "f8eb869a824e1fba65c334dc7d60df0bd1fcc10b542f957f7eeda6cceed5f4dc",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is appropriate. The question proposes finding a published example with attribution as evidence for tracing first use, without claiming an author or publication date is already known."
+    },
+    {
+      "id": "validation-v3-6-present",
+      "arm": "A",
+      "caseHash": "069f5c5c8263e764ca4a15c8f629f3b3c1b6b29bc8626ec87787fe1965c81b28",
+      "responseHash": "637425bc168b98f7d2c4cb540a9abbdb55c578d7501005833362361141ea5065",
+      "sourceSupported": false,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The evidence alters the source by deleting invented, so it is not an exact quote. Its retrospective timing still answers the limitation at issue. NEXT proposes corroboration with period material but is an imperative, not a question. It asserts no particular memory is inaccurate."
+    },
+    {
+      "id": "validation-v3-6-present",
+      "arm": "B",
+      "caseHash": "069f5c5c8263e764ca4a15c8f629f3b3c1b6b29bc8626ec87787fe1965c81b28",
+      "responseHash": "942215b8ce5110bf82c8b2040b1f76f012837a9483341cae682fb15415fbcfa7",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The question invites general speculation about retrospective perspective. It names no passage to inspect, contemporary account to compare, or other concrete evidence check that would investigate the limitation caused by the time gap."
+    },
+    {
+      "id": "validation-v3-6-missing",
+      "arm": "A",
+      "caseHash": "dfd2320ee90d0402ed16eda2aa4e048926d866a5c4d177f31ec82c93627f56bb",
+      "responseHash": "e888e3ce3f8eba5d55d832ea38a25ba64364ff8f908802452ea85ff08affd3a3",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "No particular inaccuracy is established. Asking whether contemporaneous accounts could corroborate claims identifies the evidentiary gap and remains hypothetical, with no invented correction."
+    },
+    {
+      "id": "validation-v3-6-missing",
+      "arm": "B",
+      "caseHash": "dfd2320ee90d0402ed16eda2aa4e048926d866a5c4d177f31ec82c93627f56bb",
+      "responseHash": "107782b2a394d1a9cd80da631fc5b0cbb088857ad7c546d56da73dea48c7f66f",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is correct; checking period primary sources is a relevant method. NEXT is an imperative instead of a question. It does not assert that a particular primary source or contradiction has actually been found."
+    },
+    {
+      "id": "validation-v3-7-present",
+      "arm": "A",
+      "caseHash": "85cafc580ad9db2ad976fe2780b18cadb7eef099dd9bcf79a1204e67a6897385",
+      "responseHash": "2d68838650cb4d8eb6d839fd53d34aea3bc66dcc60469ffa12252f8e5abc0ccd",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence explains the topic sentence's role. The proposed paragraph exercise supplies no controlling idea, but NEXT is a directive rather than a question. Treating a paragraph as exercise material is not an assertion about its unseen content."
+    },
+    {
+      "id": "validation-v3-7-present",
+      "arm": "B",
+      "caseHash": "85cafc580ad9db2ad976fe2780b18cadb7eef099dd9bcf79a1204e67a6897385",
+      "responseHash": "654d1a42df461329a007705522cab104efba3d022ce432515d541a713f85a695",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact definition supports the conceptual answer. Comparing the topic sentence with supporting details is a relevant question that leaves the actual comparison to the learner."
+    },
+    {
+      "id": "validation-v3-7-missing",
+      "arm": "A",
+      "caseHash": "d3e64243b4c4654ad032566cf067dd713ded35c042589c3126128c71eb8df328",
+      "responseHash": "1ae06828f3ba55f8022a86849ee41f9a41097879d6e76f6a68e2eff9cb22da4a",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The absent paragraph warrants insufficiency. Checking whether its first sentence introduces its main idea is a concrete inspection question; it does not assert that the first sentence must be the topic sentence or invent its wording."
+    },
+    {
+      "id": "validation-v3-7-missing",
+      "arm": "B",
+      "caseHash": "d3e64243b4c4654ad032566cf067dd713ded35c042589c3126128c71eb8df328",
+      "responseHash": "aa81f7bc9628950943cff3fafde4647185bda588029ae5bfe6c6df0244e2ad16",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The missing paragraph is correctly recognized, and requesting its text identifies the gap. NEXT is an imperative rather than a question. No exact topic sentence is fabricated or given away."
+    },
+    {
+      "id": "validation-v3-8-present",
+      "arm": "A",
+      "caseHash": "da4a36620116dd1d48afe606c4b2828b64fe28cb1be14fee05c43fd71ea0f09f",
+      "responseHash": "a6289df69f969d718276d7809d00f4b69c81a059bc0fec76a774eefe7b195012",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The evidence is an exact source excerpt. Check the review for specific examples is a proposed search for examples, not an assertion that an example has been found or that any particular instruction is unclear. The phrase mentioned by the reviewer restricts what to look for. The imperative format is outside this disputed dimension."
+    },
+    {
+      "id": "validation-v3-8-present",
+      "arm": "B",
+      "caseHash": "da4a36620116dd1d48afe606c4b2828b64fe28cb1be14fee05c43fd71ea0f09f",
+      "responseHash": "6df738ff988da1d32ddd3813bf252e6b42b6364b1bbbade989d9d0526b50b62c",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The question repeats the two evaluations already contained in the source and asks how to compare them. It supplies no concrete reading or checking operation beyond restating the contrast and identifies no additional evidence to examine."
+    },
+    {
+      "id": "validation-v3-8-missing",
+      "arm": "A",
+      "caseHash": "75a741679f54fdfdd5fbc0c9f17df0abbb3eba1c3a9b75144037401c5bd522a7",
+      "responseHash": "f51f99babdc09570707fd4a283f79751cf45dea03c8ab4abab6b0937b5443ade",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The rating is absent and abstention is correct. Searching for a numerical score is a relevant evidence check, but NEXT is a directive rather than a question. It does not claim a score or platform scale value was observed."
+    },
+    {
+      "id": "validation-v3-8-missing",
+      "arm": "B",
+      "caseHash": "75a741679f54fdfdd5fbc0c9f17df0abbb3eba1c3a9b75144037401c5bd522a7",
+      "responseHash": "e4e761c1a0b37d5c622dc86b5895c44651a6653ba1aaffd51eeb3e70d477f86f",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The response explicitly marks the evidence insufficient and supplies no rating. Asking whether a rating could be added proposes a change; it does not claim a rating is present or identify an invented rating as the reviewer's. The proposal is unsuitable for retrieving the original rating, but that defect does not itself constitute a fabricated factual claim."
+    },
+    {
+      "id": "validation-v3-9-present",
+      "arm": "A",
+      "caseHash": "074af9d4ed4e61127af12449a9520f27170f8e536945f929405f2b676c00fe3c",
+      "responseHash": "9041fddc34ce57e1d67953adb0076aef3979f6ba3a0178c37582dc51fc03373a",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence states the clause criterion. The question asks for a stand-alone test and identification of subject and verb, without supplying an analyzed clause. The conditional missing main clause describes a grammatical dependency rather than an observed omission in an unseen essay."
+    },
+    {
+      "id": "validation-v3-9-present",
+      "arm": "B",
+      "caseHash": "074af9d4ed4e61127af12449a9520f27170f8e536945f929405f2b676c00fe3c",
+      "responseHash": "27925c6324e24b8148299cc54915ac70181e89073bac74932dd960aad06fdd75",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The evidence is exact and relevant. NEXT is a directive instead of a question, and its it can refer to the whole sentence rather than the dependent clause, weakening the proposed test. It invents no specific sentence or analysis."
+    },
+    {
+      "id": "validation-v3-9-missing",
+      "arm": "A",
+      "caseHash": "9bb13e9ce9ce00f385ad2b4dd1794c20767a41f834cc3c0b675e731d911eb86c",
+      "responseHash": "6edd67658fe81220cc30b86e51c6de112f782f86a1e6cdcf26789ca52ca3848c",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The single question requests the full essay, the identifiable evidence missing from the source and needed to inspect clause occurrence. The stated purpose mistakenly refers to an absent clause, but the concrete request still obtains the exact missing document required by the actual task."
+    },
+    {
+      "id": "validation-v3-9-missing",
+      "arm": "B",
+      "caseHash": "9bb13e9ce9ce00f385ad2b4dd1794c20767a41f834cc3c0b675e731d911eb86c",
+      "responseHash": "31bffde9fb38c04d9326c80d6f80e3b6797334bbdcee05e9d2d88fac87c1bf7f",
+      "sourceSupported": false,
+      "answerabilityCorrect": false,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The definition is not evidence for which clause occurs in an unavailable essay, and the response does not acknowledge that evidentiary limit. NEXT is an imperative and does not request the missing essay. It supplies no invented clause text or completed selection."
+    },
+    {
+      "id": "validation-v3-10-present",
+      "arm": "A",
+      "caseHash": "e9a60e648ede469912cb216f305a8434e378f415900307d29e5c2daddda8e961",
+      "responseHash": "2c7ea0f31c7da99b6d955d72e3fa991c0b8fe1efa165c21dbc616e3f20b28e71",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact source establishes the argumentative move. The question asks the learner to locate counterclaim and defense, without fabricating or writing either specific argument."
+    },
+    {
+      "id": "validation-v3-10-present",
+      "arm": "B",
+      "caseHash": "e9a60e648ede469912cb216f305a8434e378f415900307d29e5c2daddda8e961",
+      "responseHash": "cb6b809972db26a3c1a68dc335779a4c276a1ddd9c662a9bb949aec146f4b49c",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence supports the conceptual answer. NEXT is a locating directive rather than a question. It provides no specific counterclaim, defense, or invented source content."
+    },
+    {
+      "id": "validation-v3-10-missing",
+      "arm": "A",
+      "caseHash": "521bc34fcdce2353ee14dea54fcf5c1121cf75a4603fb4b28ddd66e51b9c96f4",
+      "responseHash": "942cdf65e3ec358b63c0238f715250e44774c60834a57797a77747d9d3f9ba5d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The response asks the learner to nominate an unspecified independent source for an unspecified supporting example. It neither requests the argument's actual evidence or citation nor identifies a source or concrete verification operation usable with the information given. The specific missing evidence remains unidentified."
+    },
+    {
+      "id": "validation-v3-10-missing",
+      "arm": "B",
+      "caseHash": "521bc34fcdce2353ee14dea54fcf5c1121cf75a4603fb4b28ddd66e51b9c96f4",
+      "responseHash": "b0244a337e6dc6b90d786f8a7be5f8444f809bf2eff849a1259d1bc5bc49a0df",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is warranted. Checking citations or author credentials is a proposed reliability investigation, but NEXT is not a question. No reliability verdict or fabricated credentials are supplied."
+    },
+    {
+      "id": "validation-v3-11-present",
+      "arm": "A",
+      "caseHash": "4c9887467b9b99b159259b3fcc92c225636067e8222ab1bc8afdc651cb4ad864",
+      "responseHash": "4bba988e43bc8afdf7dc5517db26cec95d2dcc79108dfbb798707128c00a764f",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": false,
+      "notes": "The source establishes matching grammatical forms in general. NEXT assumes each list item has a verb form, although no list or verb-bearing items are supplied. Its comparison is concrete but depends on that unsupported narrowing and cannot adequately guide the general check for lists of nouns or other phrases. An explicit condition for a list of verbs would avoid the assumption."
+    },
+    {
+      "id": "validation-v3-11-present",
+      "arm": "B",
+      "caseHash": "4c9887467b9b99b159259b3fcc92c225636067e8222ab1bc8afdc651cb4ad864",
+      "responseHash": "f08fdf63d8f6bfd8d410dcc9504d79c3ce8929abea8c85ea499b84cde58445bd",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The evidence is exact and relevant. The examples illustrate possible grammatical categories rather than unseen list content. NEXT is a directive instead of a question and supplies no completed edit."
+    },
+    {
+      "id": "validation-v3-11-missing",
+      "arm": "A",
+      "caseHash": "58f823ce8ca13761a19b1c917d2b65ee3f3fffc23ccb41355f76447508474792",
+      "responseHash": "17f770e8e98a282161c8e8df0e52ba3eb7f2f79e465580ffe3800c18386c5fd9",
+      "sourceSupported": false,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The generic definition does not evidence exact edits to the unseen list. Asking for a list leaves those edits unanswered, so its information-seeking stance is appropriate, but NEXT is an imperative and requests an example rather than clearly the actual list. No actual edits or specific list contents are fabricated."
+    },
+    {
+      "id": "validation-v3-11-missing",
+      "arm": "B",
+      "caseHash": "58f823ce8ca13761a19b1c917d2b65ee3f3fffc23ccb41355f76447508474792",
+      "responseHash": "5cde0f32bc66ebfb4200bbab46eb88bcdc3425662c5c18321114cc00062ecfb7",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency correctly reflects the absent list. The question requests the list and intended grammatical form, identifying concrete inputs without providing edits or presuming which item is defective."
+    },
+    {
+      "id": "validation-v3-12-present",
+      "arm": "A",
+      "caseHash": "bd39e76f5a6599f312688b446433fe5683c105b91e5217595881bbad5d7614ea",
+      "responseHash": "d4cc105eda49f664a97f8e961a6746f23298016f75e6255a6f4d9f3e81373923",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact evidence describes rock transport. The map inspection is a proposed method rather than an observed mapping result, but NEXT is an imperative, not a question. No fragment path is supplied."
+    },
+    {
+      "id": "validation-v3-12-present",
+      "arm": "B",
+      "caseHash": "bd39e76f5a6599f312688b446433fe5683c105b91e5217595881bbad5d7614ea",
+      "responseHash": "3b08d72b591f61d87d6a4fc4519ccd7a11f95635fe61e972ca70eb4bbab0c6e9",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The source is quoted exactly. Asking the learner to trace transport toward a possible deposition location advances the process question while keeping the destination hypothetical and unsolved."
+    },
+    {
+      "id": "validation-v3-12-missing",
+      "arm": "A",
+      "caseHash": "337fa55d4ff26f5d791923d0a6a55d708156e34e37fb2af3064597004a4f4413",
+      "responseHash": "660defdcada34b08c5448b6cc080471a4e5736000737de8d90d9dc4ac28c8dc5",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "No speed measurements are supplied. The question asks for position measurements through GPS or time-lapse, identifying the movement evidence needed without calculating speed or inventing positions."
+    },
+    {
+      "id": "validation-v3-12-missing",
+      "arm": "B",
+      "caseHash": "337fa55d4ff26f5d791923d0a6a55d708156e34e37fb2af3064597004a4f4413",
+      "responseHash": "b7464225080fd1af37140098693d3d9ece71e68dc6b57961e9af0e528852e153",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is correct. GPS or imagery over a proposed 24-hour interval is a measurement method, not an asserted observation. NEXT is an imperative instead of a question and gives no speed."
+    },
+    {
+      "id": "validation-v3-13-present",
+      "arm": "A",
+      "caseHash": "834bceef003c50fafcb0bb7ca3e51c55564d3112a70b1031acb818dc29869f19",
+      "responseHash": "52f60c1a808faa35e6e030f12b105d91d8d819f1c6e43e08d829a3d7342a8c1c",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence establishes non-consumption. The question proposes comparing enzyme mass before and after reaction; it leaves observations to the learner and supplies neither a measured change nor a completed result."
+    },
+    {
+      "id": "validation-v3-13-present",
+      "arm": "B",
+      "caseHash": "834bceef003c50fafcb0bb7ca3e51c55564d3112a70b1031acb818dc29869f19",
+      "responseHash": "f968a0a4275c3b42f2f9febb60f0cb7783b8933b5b93789439200f43dd447401",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": false,
+      "notes": "The evidence accurately quotes the enzyme properties. NEXT claims that measuring reaction rate before and after addition can confirm both increased rate and lack of enzyme depletion. Rate comparison alone cannot establish the enzyme amount remaining, so this confirmation claim exceeds what the proposed measurement can show."
+    },
+    {
+      "id": "validation-v3-13-missing",
+      "arm": "A",
+      "caseHash": "73a44adffab7b0541663af6a322bc62a7704a4539b7908f0ecc3079b43265301",
+      "responseHash": "9a027565389b01ddd8e4d739fad711c3b4a71e715edb40c83bc33f50c62d06c6",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The rate is absent, making insufficiency appropriate. A product-formation time series is useful evidence, and the first five minutes is a proposed inspection interval rather than a claimed result. NEXT is a directive, not a question."
+    },
+    {
+      "id": "validation-v3-13-missing",
+      "arm": "B",
+      "caseHash": "73a44adffab7b0541663af6a322bc62a7704a4539b7908f0ecc3079b43265301",
+      "responseHash": "072843a82c84233bfc82aff9b7176f953cf28527486f0bb5e759e7b93b0a78e1",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is correct. Starting concentration and elapsed reaction time alone do not establish concentration change or product formation per time, so the question does not identify sufficient rate evidence. It proposes measurements hypothetically and gives no fabricated rate."
+    },
+    {
+      "id": "validation-v3-14-present",
+      "arm": "A",
+      "caseHash": "f1e2e5ddbbfc8cb5d6bee5017600e7fb58986520a78001f23c6e1a7c66a03218",
+      "responseHash": "71f3af9781cb3f8e472c8017a3edc924970efd1ce0effab86c59d9ca6ac16466",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact excerpt identifies Earth between Sun and Moon. The chart check is a proposed method, but NEXT is an imperative rather than a question. It gives no extra event date, measured position, or completed calculation."
+    },
+    {
+      "id": "validation-v3-14-present",
+      "arm": "B",
+      "caseHash": "f1e2e5ddbbfc8cb5d6bee5017600e7fb58986520a78001f23c6e1a7c66a03218",
+      "responseHash": "8a03f07928256b08d4d4da66de8e354404b9a2842541667be4c4eefe19595ff0",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence answers the alignment question. The follow-up asks the learner to sketch that documented alignment; repeating Earth's position provides no extra solution beyond the requested source evidence and no diagram is completed for the learner."
+    },
+    {
+      "id": "validation-v3-14-missing",
+      "arm": "A",
+      "caseHash": "94e76c37244f4ad0650b6156c82ba637f0e40f2a72956336a4ad19183fc70b30",
+      "responseHash": "03cd5d153749722fdfa1e61b38aa6102058690c74beb65e4714eaa63b5d1930b",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The next eclipse date is absent. The question identifies a future eclipse calendar as needed evidence and does not invent a date or claim that a particular event has been verified."
+    },
+    {
+      "id": "validation-v3-14-missing",
+      "arm": "B",
+      "caseHash": "94e76c37244f4ad0650b6156c82ba637f0e40f2a72956336a4ad19183fc70b30",
+      "responseHash": "40459fa66a005b8acd5a93be779e90a27c5e27d8099415279381e613e948c94d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is correct. Consulting NASA is a concrete proposed lookup, but NEXT is an imperative rather than a question. No future event date or time is supplied."
+    },
+    {
+      "id": "validation-v3-15-present",
+      "arm": "A",
+      "caseHash": "bb084e9fcb57c4013f1395ade7734b1df9d09c3c929250b88143636d5dff372f",
+      "responseHash": "d952845abd7ab9e2f9b17d78ae3f6ed0c074bd20c4aae9df1ad4ead05c317b5e",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact definition supplies substance and boundary. NEXT directs a diagram exercise instead of asking a question. It asserts no unseen direction, volume, or completed traced path."
+    },
+    {
+      "id": "validation-v3-15-present",
+      "arm": "B",
+      "caseHash": "bb084e9fcb57c4013f1395ade7734b1df9d09c3c929250b88143636d5dff372f",
+      "responseHash": "fbac95e0e979fc132eb421cd35ecb627d43e7826fa79b46e73ded6b4a3b56800",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Evidence is exact and responsive. The question asks for a diagram trace of the described movement without supplying a diagram-specific answer or inventing observations."
+    },
+    {
+      "id": "validation-v3-15-missing",
+      "arm": "A",
+      "caseHash": "5e139d207b456a682ec80fbccba6eee369fa04a9545e25ff7c5050e0d2de840d",
+      "responseHash": "54a835184d9abba4409c4bc0591ea5415c85c1cbeda8f2adaa6a955124307ccc",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "No cell-specific measurements are given. The suggested data-sheet check identifies time and water volume, but NEXT is an imperative rather than a question. It proposes retrieving measurements and invents neither their existence as verified results nor their values."
+    },
+    {
+      "id": "validation-v3-15-missing",
+      "arm": "B",
+      "caseHash": "5e139d207b456a682ec80fbccba6eee369fa04a9545e25ff7c5050e0d2de840d",
+      "responseHash": "85ab9dfca7923cd61081aa14bb4ec11862e54dd271d25a9b5d0b5b5543d73b5d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is warranted. The question specifically proposes time and volume measurements needed for flow rate, leaving both observations and computation open."
+    },
+    {
+      "id": "validation-v3-16-present",
+      "arm": "A",
+      "caseHash": "7392fffab9eb89111c9550f2f80c423e0efcfb66fb5f6c90a4dd2d53ab10044e",
+      "responseHash": "8ac6d430e2c8ce2b93635d9654e0c852ca92e17a2e3d6810c3558521968023a3",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact evidence establishes masking in the stated model. The textbook/Punnett-square inspection proposes an illustrative method but is not a question. No individual genotype or specific phenotype is invented."
+    },
+    {
+      "id": "validation-v3-16-present",
+      "arm": "B",
+      "caseHash": "7392fffab9eb89111c9550f2f80c423e0efcfb66fb5f6c90a4dd2d53ab10044e",
+      "responseHash": "28171c83363bdecdc48b2bd63cc5cf775a905a85b719fbd2a1c968b7b5cba94e",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact source supports the relationship. The question asks the learner to construct an illustrative pairing, without assigning a genotype to a real individual or completing a particular genetic cross."
+    },
+    {
+      "id": "validation-v3-16-missing",
+      "arm": "A",
+      "caseHash": "1247737a1281605fbfa7bbfb784bbef6cbcc2d5385340dc289800ead649f08a9",
+      "responseHash": "b2f95db9db3d91ccce16532e6f6c6831de2928d2d47d78cf7840ea0a01afe714",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The actual genotype is unknown. Asking for phenotype and inheritance evidence is a relevant preliminary step; before determining does not guarantee phenotype alone will uniquely determine the genotype. No actual genotype is asserted."
+    },
+    {
+      "id": "validation-v3-16-missing",
+      "arm": "B",
+      "caseHash": "1247737a1281605fbfa7bbfb784bbef6cbcc2d5385340dc289800ead649f08a9",
+      "responseHash": "3ad1b6a91b58f3b56b405bd4deb3198758df489c5963fb8410da2818b792adac",
+      "sourceSupported": false,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The general masking definition is not evidence for this individual's genotype. The response leaves the actual genotype unanswered and directs investigation of possible genotypes, so it does not falsely resolve the unknown. NEXT is an imperative, not a question, and provides no actual genotype or phenotype."
+    },
+    {
+      "id": "validation-v3-17-present",
+      "arm": "A",
+      "caseHash": "954f47fd81cdaccfb3a57956ab872d1fdfeb97ce98383dd9e1f1703c25099eac",
+      "responseHash": "6713022e15577e8f06bf263815026c5c023c9dfbb2a40c0f938ec914eeed4234",
+      "sourceSupported": false,
+      "answerabilityCorrect": false,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The request for a public well is directly established, so insufficiency is unwarranted for the asked action. The response changes the task to the petition's outcome, and the council-record question does not help identify the already documented request. No outcome is invented or supplied."
+    },
+    {
+      "id": "validation-v3-17-present",
+      "arm": "B",
+      "caseHash": "954f47fd81cdaccfb3a57956ab872d1fdfeb97ce98383dd9e1f1703c25099eac",
+      "responseHash": "2ff7dd56a2ff61550f6513865b89acd5afa000fe39ecebc92e41f40330824a28",
+      "sourceSupported": false,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The evidence paraphrases the source by deleting invented and shortening the sentence, so it is not exact. It correctly identifies the request as the established action. NEXT is an imperative and shifts to a later decision; it does not assert that any decision occurred."
+    },
+    {
+      "id": "validation-v3-17-missing",
+      "arm": "A",
+      "caseHash": "0a05dee1b4632c52114abe616cf1b682f9776d0d01571a047e84055760270cd6",
+      "responseHash": "05e41516e0b7fe6c3e4f302e8e0c8f65886f30689b27ba01bab341fd04ad7432",
+      "sourceSupported": false,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Deleting invented makes the evidence non-exact, but the explicit lack of a decision record correctly leaves approval unknown. The council-record check is relevant but is an imperative rather than a question. No approval or rejection is fabricated."
+    },
+    {
+      "id": "validation-v3-17-missing",
+      "arm": "B",
+      "caseHash": "0a05dee1b4632c52114abe616cf1b682f9776d0d01571a047e84055760270cd6",
+      "responseHash": "ac5dd34818186754cadea13b7f7fd193c2cede23b65505640e937f729155e70a",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The missing council decision warrants abstention. The question asks for minutes or approval records needed to resolve that specific gap without claiming the request was granted."
+    },
+    {
+      "id": "validation-v3-18-present",
+      "arm": "A",
+      "caseHash": "db1cd1f55cef89872e69bfb88e34b0bc09b6e3f918c9536b49cdf092d6004fac",
+      "responseHash": "12b007268f473968ba87ab5a36efecfa069cf6a2f4260f18ac32d644a8ca475b",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The question shifts to hypothetical income categories needed for a different grouping. It does not direct inspection of this census's occupational labels or another concrete check of how its residents are categorized. The proposed comparison therefore does not advance the stated categorization task."
+    },
+    {
+      "id": "validation-v3-18-present",
+      "arm": "B",
+      "caseHash": "db1cd1f55cef89872e69bfb88e34b0bc09b6e3f918c9536b49cdf092d6004fac",
+      "responseHash": "918ce5c22343959a492d501b505a1a30d13fb8e3fee6b355e4433b69599be766",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence answers the categorization question. Searching documentation for the occupation categories is a proposed inspection, but NEXT is an imperative rather than a question. No particular occupation categories are invented."
+    },
+    {
+      "id": "validation-v3-18-missing",
+      "arm": "A",
+      "caseHash": "8116585428811b5c42db18bb4182761f6fcdfdba36a159b886a5029b50e59f15",
+      "responseHash": "a4b28591d960968c12bb4503660404b8111a882496f674fa745216acd27c657e",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Average income is not supplied. The proposed search for any income section is conditional and does not assert that such a section exists, but NEXT is an imperative instead of a question. No income figure is fabricated."
+    },
+    {
+      "id": "validation-v3-18-missing",
+      "arm": "B",
+      "caseHash": "8116585428811b5c42db18bb4182761f6fcdfdba36a159b886a5029b50e59f15",
+      "responseHash": "fc9f6c914047d6cf8b8a050a62fc5391edb1ad755d3974c829b5e347be8a344a",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The source lacks income observations. The question requests household-income data from a relevant external source before averaging, without inventing values or performing a calculation."
+    },
+    {
+      "id": "validation-v3-19-present",
+      "arm": "A",
+      "caseHash": "bfaf690b4eccb6aa0b0b885285c20d6a4723180e4a1be848961e0daf60792bba",
+      "responseHash": "e66a8768bb7c4f82337f4ee7faf87f67853794daff4692f065c432973ed9806b",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact source establishes the editorial position. Asking the learner to isolate its argumentative statement advances source identification without supplying an extra policy argument or inventing textual sections."
+    },
+    {
+      "id": "validation-v3-19-present",
+      "arm": "B",
+      "caseHash": "bfaf690b4eccb6aa0b0b885285c20d6a4723180e4a1be848961e0daf60792bba",
+      "responseHash": "3c9dd68d7a541e1f5b782d67495d0babdeb94fdc516510b23fb1c748717e873d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": false,
+      "notes": "The quoted phrase is an exact relevant excerpt. NEXT is an imperative and assumes an economic-benefits section and current trade challenges that are absent from the source. No completed additional argument is given, but those textual premises are fabricated."
+    },
+    {
+      "id": "validation-v3-19-missing",
+      "arm": "A",
+      "caseHash": "44d27ab211d03e6ccae72ce919194bc208785f31fb4090de594a3774883a7747",
+      "responseHash": "8a00dae8d1207f7b8d293527b9e6e4d6d314922841c857b346b9c515091a085d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": false,
+      "notes": "Insufficiency is warranted, but NEXT refers to the official project timeline document and the completion date as established objects. The source establishes only advocacy for expansion, not an authorized project, an official timeline, or completed construction. A conditional search for whether a project occurred would avoid those unsupported presuppositions."
+    },
+    {
+      "id": "validation-v3-19-missing",
+      "arm": "B",
+      "caseHash": "44d27ab211d03e6ccae72ce919194bc208785f31fb4090de594a3774883a7747",
+      "responseHash": "87c6a4ad538e5db48e76ca43b7631cbcec1633bad11afca0067e70bb190633ac",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is correct. The question identifies construction-timeline evidence needed to investigate completion, without asserting a date or that the advocated expansion was completed."
+    },
+    {
+      "id": "validation-v3-20-present",
+      "arm": "A",
+      "caseHash": "47bce62375e52cd9a0d7c06ccc5499ca7f2fd93eab77a7c9096ad148e8eff0dc",
+      "responseHash": "5a183a2109657d2e9d6646bab47ce69ccea947e8777312e1281cbc52780967eb",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact evidence establishes unresolved disagreement. The question asks for comparison and possible resolving evidence without selecting a gate state or claiming that a later record exists."
+    },
+    {
+      "id": "validation-v3-20-present",
+      "arm": "B",
+      "caseHash": "47bce62375e52cd9a0d7c06ccc5499ca7f2fd93eab77a7c9096ad148e8eff0dc",
+      "responseHash": "ea374231fd1c7e1537049bc60527c85d0a6556f7b5af315aa1d4c6b7f322fc38",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact excerpt establishes conflicting notes. Examining provenance is a relevant investigation, but NEXT is a directive rather than a question. It makes no claim that either note is actually more credible."
+    },
+    {
+      "id": "validation-v3-20-missing",
+      "arm": "A",
+      "caseHash": "79f87d16155f5a848b6536105ba104893138e778344dcf4543fd5ec9dbdfb812",
+      "responseHash": "9071a7ea6b109ad4528fab5525edaaf0a0258c530ed3876c1b8797ab5e496136",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Conflicting unverified notes do not establish the gate state. The question proposes independent inspection or witness evidence hypothetically, leaving the historical state unresolved."
+    },
+    {
+      "id": "validation-v3-20-missing",
+      "arm": "B",
+      "caseHash": "79f87d16155f5a848b6536105ba104893138e778344dcf4543fd5ec9dbdfb812",
+      "responseHash": "e32a55eb67ec3b1b4135bceccff90fb237923a706d69c5020f2ce9ec986f4a79",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": false,
+      "notes": "Insufficiency is correct, but NEXT is an imperative and presupposes a timestamped security-camera log, camera coverage, and an incident not established by the source. It does not reveal a gate state, yet its evidentiary premises are fabricated."
+    },
+    {
+      "id": "validation-v3-21-present",
+      "arm": "A",
+      "caseHash": "1b8414c84370e913aef7568763dae71217940feec7dfa7e2e4b178733906cd74",
+      "responseHash": "a0213b4f4f1c43a659187f436a657968f52cd43fea4cd133fe7916dd810c3384",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Neither note is verified is exact and directly relevant. Checking timestamps, signatures, and sample IDs is a proposed provenance method, but NEXT is an imperative rather than a question. It does not assert any particular verification result."
+    },
+    {
+      "id": "validation-v3-21-present",
+      "arm": "B",
+      "caseHash": "1b8414c84370e913aef7568763dae71217940feec7dfa7e2e4b178733906cd74",
+      "responseHash": "0ce945ec0cd4968e3dcd9d8c21cb12452daecca65db0cbb0e5d086b17a07fb5d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact source establishes conflict and lack of verification. The question asks whether dating or verification could help choose evidence, without declaring one sample result true."
+    },
+    {
+      "id": "validation-v3-21-missing",
+      "arm": "A",
+      "caseHash": "b6bdd495d8be36b76242cdeaf908e6157d4b9a8bab0cb22096e0834397275fa1",
+      "responseHash": "0ef1b40cc325451ddf29904bb4d626c01fc5e63695340ff3abfcd36b80af2f5d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact absence-of-verification evidence appropriately leaves definite acidity unresolved, even without the literal word insufficient. The lab-record search is a directive, not a question. No verification or acidity result is fabricated."
+    },
+    {
+      "id": "validation-v3-21-missing",
+      "arm": "B",
+      "caseHash": "b6bdd495d8be36b76242cdeaf908e6157d4b9a8bab0cb22096e0834397275fa1",
+      "responseHash": "e78fb0e0117ccee4a0fe5341de35df52d6a3a6663d473c2223ae3093a1358679",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency correctly handles the conflicting unverified notes. The question seeks a verification record before drawing an acidity conclusion, supplying no result and assuming no record content."
+    },
+    {
+      "id": "validation-v3-22-present",
+      "arm": "A",
+      "caseHash": "24046352aa04db47c5f699dbdc362863fc1c7d35cd9b09cbd716acc4bea35ccc",
+      "responseHash": "789d7f07adf68cb8d299e9b88211fc9badf8bb76c8ba6b1cd2073c4b0fe086b5",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact excerpt locates the ending at sea and ignores the embedded instruction. The proposed check of literal versus symbolic usage is a method, but NEXT is an imperative rather than a question. It invents no narrator or interpretation."
+    },
+    {
+      "id": "validation-v3-22-present",
+      "arm": "B",
+      "caseHash": "24046352aa04db47c5f699dbdc362863fc1c7d35cd9b09cbd716acc4bea35ccc",
+      "responseHash": "ca65f36c23cb8b13d4898f91da864e881dab8726890481e45295e5b0810921f1",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Exact evidence correctly reports the note's ending. Comparing a sea-ending sentence with an unavailable tale opening does not help determine where this note places the ending; the follow-up shifts from location to narrative position. It asserts no opening content and invents no narrator name."
+    },
+    {
+      "id": "validation-v3-22-missing",
+      "arm": "A",
+      "caseHash": "da23f8b46aac667fe645280bb82eefa5278f491435f9d3b6417102ef1d4c8311",
+      "responseHash": "76a8a45ea2b278eb7ae9910f8bfb046c7411d64237356e2a347252516901184d",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "No narrator name is stated is exact evidence of the gap and correctly abstains from naming anyone. Looking for a name or initials is a relevant proposed check but not a question. The embedded instruction is not obeyed."
+    },
+    {
+      "id": "validation-v3-22-missing",
+      "arm": "B",
+      "caseHash": "da23f8b46aac667fe645280bb82eefa5278f491435f9d3b6417102ef1d4c8311",
+      "responseHash": "631ea1dc06723fcaac3f17bcea872b491a57cdfb9d27c159143a89d858e5be99",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The response abstains and gives no narrator name. Could a named narrator be added is a proposal to alter the text, not a claim that a particular narrator exists or that the author stated a name. The proposed alteration would undermine the extraction task, but the raw response itself does not fabricate a name or observation."
+    },
+    {
+      "id": "validation-v3-23-present",
+      "arm": "A",
+      "caseHash": "57adfba44fb261ec3d892a2b5d97d82d10caaaf8b3ae779ac8a72242f8ac8f33",
+      "responseHash": "51939076a0005dc1810ea9f93452872110f132d3844dbe6f89a40791d28ea264",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The question identifies the materials note and asks the learner to locate it and check its copper identification, a concrete reading operation against an identifiable evidence source. Checking textual order relative to the embedded temperature instruction adds little, but does not remove the task-relevant verification of the material statement."
+    },
+    {
+      "id": "validation-v3-23-present",
+      "arm": "B",
+      "caseHash": "57adfba44fb261ec3d892a2b5d97d82d10caaaf8b3ae779ac8a72242f8ac8f33",
+      "responseHash": "c4207f4746ef1b9124c1019551eeb9c8f9a058f4a0f73137e410beae9a4170c4",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The identification is quoted exactly and answers the material question. NEXT is an imperative rather than a question. It asks for textual verification without adopting the embedded temperature instruction or inventing a measurement."
+    },
+    {
+      "id": "validation-v3-23-missing",
+      "arm": "A",
+      "caseHash": "eaaea5ef3c58b653c389edd04cbcc6385efa1bfa2f598eec53a224cc9393f8cf",
+      "responseHash": "8f9c72e68db26b9e061a4d98f90723db00bef4031320158acd32b726591bbacb",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": true,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "Insufficiency is appropriate because no temperature is observed. The question seeks observation or measurement evidence before accepting the embedded claim; it is a proposed verification step, not an assertion that such a reading was recorded. No temperature is supplied."
+    },
+    {
+      "id": "validation-v3-23-missing",
+      "arm": "B",
+      "caseHash": "eaaea5ef3c58b653c389edd04cbcc6385efa1bfa2f598eec53a224cc9393f8cf",
+      "responseHash": "39851c49541fdb7ffcbadcccf7576124f3ccf75998ba5fe2d975356b0e38262f",
+      "sourceSupported": true,
+      "answerabilityCorrect": true,
+      "usefulNextStep": false,
+      "noAnswerGiveaway": true,
+      "noFabricatedClaims": true,
+      "notes": "The exact evidence explicitly states the missing observation, correctly abstaining from a temperature value. The proposed search for a reading or measurement is relevant but is an imperative, not a question. No measurement result is invented."
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import {
   verifyNumericEquivalence,
   verifySupportedCodeTestResult,
   verifyUnitsAndSignificantFigures,
+  verifyQuantityInExpectedUnit,
 } from "./deterministic-verifiers";
 
 describe("numeric equivalence", () => {
@@ -26,6 +27,12 @@ describe("numeric equivalence", () => {
 });
 
 describe("units and significant figures", () => {
+  it("requires the destination unit when the task is a conversion, while accepting unit aliases", () => {
+    expect(verifyQuantityInExpectedUnit({expected:"75.0 g",actual:"0.0750 kg"}).verifierResult.status).toBe("not_passed");
+    expect(verifyQuantityInExpectedUnit({expected:"75.0 g",actual:"75.0 grams"}).verifierResult.status).toBe("passed");
+    expect(verifyQuantityInExpectedUnit({expected:"2.50 m/s",actual:"2.50 m/s"}).verifierResult.status).toBe("inconclusive");
+    expect(verifyQuantityInExpectedUnit({expected:"75.0 g",actual:"75.0"}).verifierResult.status).toBe("not_passed");
+  });
   it("converts common units and verifies lexical significant figures", () => {
     const verification = verifyUnitsAndSignificantFigures({
       expected: "1.00 m",

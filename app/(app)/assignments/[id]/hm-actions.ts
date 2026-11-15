@@ -302,6 +302,30 @@ export async function prepareAssignmentReview(input: z.infer<typeof WorkspaceLif
 }
 
 const AddProblemInput = z.object({ assignmentId: z.string().uuid(), problemText: z.string().min(1).max(4000) });
+const ConfirmProblemTextInput = z.object({
+  assignmentId: z.string().uuid(), problemId: z.string().uuid(), expectedText: z.string().min(1).max(4000),
+}).strict();
+
+export async function confirmAssignmentProblemText(input: z.infer<typeof ConfirmProblemTextInput>): Promise<ActionResult> {
+  const parsed = ConfirmProblemTextInput.safeParse(input);
+  if (!parsed.success) return { ok: false, error: "Reopen this problem before confirming its text." };
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sign in again before confirming this problem." };
+  const { data, error } = await supabase.from("assignment_problems")
+    .update({ source: "student_confirmed_source", updated_at: new Date().toISOString() })
+    .eq("id", parsed.data.problemId)
+    .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", user.id)
+    .eq("problem_text", parsed.data.expectedText)
+    .eq("unit_type", "problem")
+    .in("source", ["assignment_source", "photo_scan"])
+    .select("id").maybeSingle();
+  if (error) return { ok: false, error: "Problem text could not be confirmed right now." };
+  if (!data) return { ok: false, error: "This problem changed. Reopen it before confirming the wording." };
+  revalidatePath(`/assignments/${parsed.data.assignmentId}/workspace`);
+  return { ok: true };
+}
 
 export async function addProblem(input: z.infer<typeof AddProblemInput>): Promise<{ ok: true; id: string; problemNumber: number } | { ok: false; error: string }> {
   const parsed = AddProblemInput.safeParse(input);
@@ -419,7 +443,7 @@ async function insertConfirmedProblems(
     assignment_id: assignmentId,
     problem_number: nextNumber + index + 1,
     problem_text: problemText,
-    source: "assignment_source",
+    source: "student_confirmed_source",
   }));
   const { data: inserted, error } = await supabase.from("assignment_problems").insert(toInsert).select("id, problem_number, problem_text");
   if (error || !inserted) return { ok: false, error: error?.message ?? "Couldn't import those problems." };

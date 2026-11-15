@@ -123,7 +123,7 @@ export function UpcomingDeadlinesCard({
       <header className="today-dashboard-panel-heading">
         <div>
           <p>Next seven days</p>
-          <h2 id="upcoming-deadlines-title">Upcoming due dates</h2>
+          <h2 id="upcoming-deadlines-title">Upcoming Deadlines</h2>
         </div>
         <Link href="/assignments" className="today-panel-link">All work</Link>
       </header>
@@ -145,7 +145,7 @@ export function UpcomingDeadlinesCard({
       ) : (
         <div className="today-panel-empty">
           <CheckCircle2 size={24} aria-hidden="true" />
-          <p>No due dates in the next seven days.</p>
+          <p>No deadlines in the next seven days.</p>
         </div>
       )}
     </section>

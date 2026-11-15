@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   invoke: vi.fn(),
   classAiMode: "green",
+  assignmentOwner: "student-1",
   assignment: {
     id: "11111111-1111-4111-8111-111111111111",
     title: "Algebra practice",
@@ -46,7 +47,8 @@ function makeSupabase() {
     auth: { getUser: async () => ({ data: { user: { id: "student-1" } } }) },
     functions: { invoke: mocks.invoke },
     from: (table: string) => {
-      if (table === "assignments") return chain({ data: mocks.assignment, error: null });
+      if (table === "assignments") return chain({ data: { ...mocks.assignment, owner_id: mocks.assignmentOwner, ai_mode_override: null,
+        classes: { id: mocks.assignment.class_id, owner_id: "student-1", ai_mode: mocks.classAiMode } }, error: null });
       if (table === "classes") return chain({ data: { ai_mode: mocks.classAiMode }, error: null });
       if (table === "assignment_sources") return chain({ data: mocks.sources, error: null });
       return chain({ data: null, error: null });
@@ -67,6 +69,7 @@ describe("assignment realtime route", () => {
     vi.clearAllMocks();
     vi.unstubAllEnvs();
     mocks.classAiMode = "green";
+    mocks.assignmentOwner = "student-1";
     mocks.invoke.mockResolvedValue({
       data: {
         ok: true,
@@ -115,6 +118,19 @@ describe("assignment realtime route", () => {
     const response = await POST(request({ assignmentId: "not-valid", fields: [] }));
 
     expect(response.status).toBe(400);
+    expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+
+  it("rejects a returned assignment owned by another student before invoking realtime", async () => {
+    mocks.assignmentOwner = "another-student";
+    expect((await POST(request())).status).toBe(404);
+    expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+
+  it("enforces the actual class policy for the school tier before invoking realtime", async () => {
+    vi.stubEnv("DIANA_HOMEWORK_PRODUCT_TIER", "school_tier");
+    mocks.classAiMode = "red";
+    expect((await POST(request())).status).toBe(403);
     expect(mocks.invoke).not.toHaveBeenCalled();
   });
 

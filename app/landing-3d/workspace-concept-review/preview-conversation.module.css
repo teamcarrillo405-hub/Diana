@@ -1,0 +1,42 @@
+.conversation.conversation { color: #ecf3ef; background: #172222f2; border-block: 1px solid #d1e4d833; }
+.conversation.conversation :is(h2,h3,p) { margin: 0; color: inherit; }
+.conversation.conversation :is(button,textarea) { font-family: var(--font-lexend),sans-serif; box-shadow: none; }
+.header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 22px 0; }
+.conversation.conversation .header h2 { font: 600 23px/1.1 var(--font-saira-condensed),sans-serif; }
+.header > span { color: #b7c7c1; font-size: 10px; }
+.feed { padding: 18px 22px; max-height: 190px; overflow-y: auto; }
+.feed article + article { margin-top: 16px; padding-top: 12px; border-top: 1px solid #d1e4d825; }
+.feed article > span { font-size: 10px; color: #a9cbc0; }
+.conversation.conversation .feed p { font-size: 14px; line-height: 1.7; margin-top: 6px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.studentMessage { margin-left: 32px; }
+.composer { padding: 0 22px 16px; }
+.conversation.conversation .composer textarea { width: 100%; min-height: 68px; max-height: 200px; margin: 0; padding: 12px 14px; resize: vertical; background: #f0f4f0; color: #24362e; color-scheme: light; border: 1px solid #a8c1b6; border-radius: 3px 3px 0 0; font-size: 14px; line-height: 1.6; display: block; }
+.conversation.conversation .composer textarea::placeholder { color: #566960; opacity: 1; }
+.controls { display: flex; align-items: center; gap: 8px; padding-top: 6px; }
+.conversation.conversation button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; min-width: 44px; padding: 8px 10px; background: transparent; color: #e5eee9; border: 1px solid #c9dcd642; border-radius: 3px; font-size: 12px; }
+.conversation.conversation button:hover:not(:disabled) { background: #31443b; }
+.conversation.conversation button:disabled { opacity: .45; cursor: default; }
+.conversation.conversation.conversation button[aria-expanded="true"] { border-color: #d8eee5; background: #31443b; color: #e5eee9; }
+.conversation.conversation .send { margin-left: auto; background: #8224e3; color: #fff; border-color: #b988eb; }
+.conversation.conversation .primary { background: #8224e3; border-color: #b988eb; }
+.conversation.conversation .primary:hover:not(:disabled), .conversation.conversation .send:hover:not(:disabled) { background: #983bf0; }
+.conversation.conversation :is(button,textarea,[tabindex]):focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.conversation.conversation textarea:focus-visible { outline-color: #fff; }
+.toolPreview { display: flex; align-items: flex-start; gap: 16px; margin: 0 22px 18px; padding: 16px 0 0; border-top: 1px solid #c9dcd642; }
+.toolPreview > button { margin-left: auto; }
+.conversation.conversation .toolPreview strong { color: #f0d49c; font-size: 12px; font-weight: 500; }
+.conversation.conversation .toolPreview p { margin: 8px 0 12px; font-size: 12px; line-height: 1.7; color: #b9cfc4; }
+.attachment { display: flex; align-items: center; gap: 8px; margin: 0 22px 14px; font-size: 11px; }
+.attachment > button { margin-left: auto; }
+.review { margin: 0 22px 18px; padding: 16px; border-left: 2px solid #a8d5c1; background: #283a31; }
+.review > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.conversation.conversation .review h3 { font: 600 22px/1.2 var(--font-saira-condensed),sans-serif; }
+.conversation.conversation .review p { font-size: 12px; line-height: 1.7; color: #c3d4cc; }
+.review ul { margin: 12px 0; padding-left: 20px; }
+.conversation.conversation .review li { color: #e2eee7; font-size: 12px; line-height: 1.8; }
+.conversation.conversation .review label { display: flex; align-items: flex-start; gap: 10px; font-size: 12px; line-height: 1.7; margin: 12px 0; }
+.conversation.conversation .review input { width: 22px; height: 22px; min-width: 22px; min-height: 22px; padding: 0; margin: 0; background: none; box-shadow: none; accent-color: #8224e3; }
+.reviewActions { display: flex; flex-wrap: wrap; gap: 10px; margin-block: 12px; }
+@media(max-width:760px) { .header, .feed { padding-inline: 16px; } .composer { padding-inline: 16px; } .header { flex-wrap: wrap; } .header > span { font-size: 10px; } .controls { flex-wrap: wrap; gap: 6px; } .conversation.conversation .controls button { font-size: 11px; padding: 8px; gap: 6px; } .conversation.conversation .composer textarea { font-size: 16px; } .toolPreview, .attachment, .review { margin-inline: 16px; } }
+@media(max-width:400px) { .conversation.conversation .controls button span { display: none; } .controls { gap: 10px; } }
+@media(prefers-reduced-motion:reduce) { .conversation * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

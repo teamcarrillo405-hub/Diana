@@ -1,3 +1,4 @@
+import { workerReplicaEnvironment } from "../lib/worker-tier/worker-replica-env";
 import { loadEnvConfig } from "@next/env";
 import { chromium, request, type APIRequestContext } from "@playwright/test";
 import { spawn } from "node:child_process";
@@ -20,7 +21,7 @@ type SidecarRequest = {
   model?: unknown;
   messages?: unknown;
 };
-type CompletionMode = "compiled-worker" | "worker-api";
+type CompletionMode = "compiled-worker" | "operator-fixture";
 type AuthMode = "qa-bootstrap" | "browser";
 
 function argValue(name: string): string | null {
@@ -55,9 +56,15 @@ async function main() {
   const pollMs = Math.max(250, numberArg("poll-ms", 1_000));
   const authMode = authModeArg();
   const completionMode = completionModeArg();
+  if (completionMode === 'compiled-worker' && !process.argv.includes('--allow-server-moderation')) {
+    throw new Error('Compiled worker canaries use server moderation. Pass --allow-server-moderation only after approving that call.');
+  }
+  if (completionMode === 'operator-fixture' && !['localhost','127.0.0.1','[::1]'].includes(new URL(baseUrl).hostname)) {
+    throw new Error('Operator fixture is local-only; select an explicitly approved compiled-worker canary for a remote app.');
+  }
   const runId = `status-smoke-${Date.now().toString(36)}`;
-  const workerId = completionMode === "worker-api"
-    ? `${runId}-worker-api`
+  const workerId = completionMode === "operator-fixture"
+    ? `${runId}-operator-fixture`
     : `${runId}-compiled-worker`;
   const model = argValue("model") ?? "status-smoke-fake-model";
   const auth = await createAuthenticatedApiContext({ baseUrl, authMode });
@@ -98,10 +105,10 @@ async function main() {
     }
     assertStudentSafeStatusBody(queuedJson, "queued status response");
 
-    if (completionMode === "worker-api") {
-      await completeThroughWorkerApi({
+    if (completionMode === "operator-fixture") {
+      await completeOperatorFixture({
+        admin,
         baseUrl,
-        token,
         traceId,
         tenantId: job.tenant_id,
         workerId,
@@ -173,8 +180,9 @@ function authModeArg(): AuthMode {
 
 function completionModeArg(): CompletionMode {
   const value = argValue("complete-with");
-  if (value === "worker-api" || value === "compiled-worker") return value;
-  return "worker-api";
+  if (value === "operator-fixture" || value === "compiled-worker") return value;
+  if (value) throw new Error("Use --complete-with=operator-fixture (local synthetic only) or compiled-worker (server moderation applies).");
+  return "operator-fixture";
 }
 
 async function createAuthenticatedApiContext({
@@ -314,45 +322,18 @@ async function waitForCompletedStatus({
   throw new Error(`Diana status smoke timed out after ${timeoutMs}ms. Last status: ${JSON.stringify(last)}`);
 }
 
-async function completeThroughWorkerApi({
-  baseUrl,
-  token,
-  traceId,
-  tenantId,
-  workerId,
-}: {
-  baseUrl: string;
-  token: string;
-  traceId: string;
-  tenantId: string;
-  workerId: string;
+async function completeOperatorFixture({ admin, baseUrl, traceId, tenantId, workerId }: {
+  admin: NonNullable<ReturnType<typeof createServiceClient>>; baseUrl: string; traceId: string; tenantId: string; workerId: string;
 }) {
-  const responseText =
-    "Open the assignment and write one sentence about what the teacher asked for.";
-  const response = await fetch(new URL("/api/workers/complete", baseUrl), {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      traceId,
-      tenantId,
-      status: "succeeded",
-      result: {
-        response: responseText,
-        responseChars: responseText.length,
-        provider: "status-smoke",
-        model: "worker-api",
-        workerId,
-        durationMs: 0,
-      },
-    }),
-  });
-  const json = await response.json().catch(() => null) as { ok?: boolean; error?: string } | null;
-  if (!response.ok || json?.ok !== true) {
-    throw new Error(`Worker API completion returned ${response.status}: ${JSON.stringify(json)}`);
+  if (!['localhost','127.0.0.1','[::1]'].includes(new URL(baseUrl).hostname)) {
+    throw new Error('Synthetic operator completion is restricted to a local app; use the real compiled-worker protocol for an approved remote canary.');
   }
+  const response = 'Open the assignment and write one sentence about what the teacher asked for.';
+  const result = await admin.from('worker_jobs').update({ status: 'succeeded',
+    result_payload: { status: 'succeeded', response, responseChars: response.length, provider: 'status-smoke', model: 'operator-fixture', workerId, durationMs: 0, syntheticFixture: true },
+    completed_at: new Date().toISOString(), locked_by: null, locked_at: null, locked_until: null,
+  }).eq('trace_id', traceId).eq('tenant_id', tenantId).eq('status','queued').select('trace_id').single();
+  if (result.error || !result.data) throw new Error('Operator fixture did not match its queued synthetic job.');
 }
 
 function assertStudentSafeStatusBody(body: unknown, label: string) {
@@ -468,12 +449,7 @@ async function runCompiledWorkerOnce({
     "--lease-seconds=60",
   ], {
     cwd: process.cwd(),
-    env: {
-      ...process.env,
-      WORKER_API_TOKEN: token,
-      OPENJARVIS_BASE_URL: sidecarBaseUrl,
-      OPENJARVIS_MODEL: model,
-    },
+    env: workerReplicaEnvironment(process.env, { token, sidecarBaseUrl, model }),
     stdio: ["ignore", "pipe", "pipe"],
   });
 

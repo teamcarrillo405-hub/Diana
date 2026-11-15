@@ -9,7 +9,7 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
 vi.mock("@/lib/assignment-help/server-understanding", () => ({ loadAssignmentHomeworkKernel: vi.fn() }));
 vi.mock("./actions", () => ({ transitionAssignment: vi.fn() }));
 
-import { markProblemDone, markProblemReviewed } from "./hm-actions";
+import { confirmAssignmentProblemText, markProblemDone, markProblemReviewed } from "./hm-actions";
 
 const problemId = "11111111-1111-4111-8111-111111111111";
 const assignmentId = "22222222-2222-4222-8222-222222222222";
@@ -19,11 +19,13 @@ function fluentResult(data: unknown) {
     select: vi.fn(),
     update: vi.fn(),
     eq: vi.fn(),
+    in: vi.fn(),
     maybeSingle: vi.fn().mockResolvedValue({ data, error: null }),
   };
   query.select.mockReturnValue(query);
   query.update.mockReturnValue(query);
   query.eq.mockReturnValue(query);
+  query.in.mockReturnValue(query);
   return query;
 }
 
@@ -49,6 +51,25 @@ function clientForRows(rows: unknown[]) {
 
 describe("assignment problem progress actions", () => {
   beforeEach(() => vi.clearAllMocks());
+
+  it("binds imported text confirmation to the owner, assignment and exact saved wording", async () => {
+    const { queries } = clientForRows([{ id: problemId }]);
+    await expect(confirmAssignmentProblemText({ assignmentId, problemId, expectedText: "Solve 7x = 21" })).resolves.toEqual({ ok: true });
+    expect(queries[0].update).toHaveBeenCalledWith(expect.objectContaining({ source: "student_confirmed_source" }));
+    expect(queries[0].eq).toHaveBeenCalledWith("id", problemId);
+    expect(queries[0].eq).toHaveBeenCalledWith("assignment_id", assignmentId);
+    expect(queries[0].eq).toHaveBeenCalledWith("owner_id", "student-1");
+    expect(queries[0].eq).toHaveBeenCalledWith("problem_text", "Solve 7x = 21");
+    expect(queries[0].eq).toHaveBeenCalledWith("unit_type", "problem");
+    expect(queries[0].in).toHaveBeenCalledWith("source", ["assignment_source", "photo_scan"]);
+  });
+
+  it("does not confirm a changed or inaccessible imported problem", async () => {
+    const { queries } = clientForRows([null]);
+    await expect(confirmAssignmentProblemText({ assignmentId, problemId, expectedText: "Solve 7x = 21" }))
+      .resolves.toEqual({ ok: false, error: "This problem changed. Reopen it before confirming the wording." });
+    expect(queries[0].update).toHaveBeenCalledTimes(1);
+  });
 
   it("records a Diana review without completing the problem", async () => {
     const reviewedAt = "2026-08-11T12:00:00.000Z";

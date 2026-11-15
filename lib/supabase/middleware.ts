@@ -16,6 +16,15 @@ const PUBLIC_EXACT = new Set([
   "/robots.txt",
   "/sitemap.xml",
   "/manifest.webmanifest",
+  // Public, same-origin recognition code only. No student media or model
+  // weights live here; keep every other vendor path behind the default gate.
+  "/vendor/diana-recognition/worker.js",
+  "/vendor/diana-recognition/worker.js.LEGAL.txt",
+  "/vendor/diana-recognition/runtime-manifest.json",
+  "/vendor/diana-recognition/ort-wasm-simd-threaded.mjs",
+  "/vendor/diana-recognition/ort-wasm-simd-threaded.wasm",
+  "/vendor/diana-recognition/ort-wasm-simd-threaded.jsep.mjs",
+  "/vendor/diana-recognition/ort-wasm-simd-threaded.jsep.wasm",
   // Read-only, key-safe deployment identity used by the release SHA verifier.
   "/api/build-info",
   "/api/health",
@@ -29,6 +38,7 @@ const PUBLIC_EXACT = new Set([
   "/api/diana/voice-candidate/status",
   // Backend worker endpoints use WORKER_API_TOKEN bearer auth, not Supabase sessions.
   "/api/workers/claim",
+  "/api/workers/authorize",
   "/api/workers/complete",
   "/api/workers/metrics",
   "/api/workers/metrics/prometheus",
@@ -42,6 +52,7 @@ const PUBLIC_PREFIXES = [
   "/signup",
   "/auth",
   "/icon",
+  "/landing-3d",
   "/share",
   "/assets/landing-cinematic-v3",
 ];
@@ -50,7 +61,12 @@ const PRIVATE_ROUTE_ROOTS = new Set([
   "assignments",
   "calendar",
   "classes",
+  "concepts",
   "dashboard",
+  "export",
+  "grades",
+  "inbox",
+  "insights",
   "more",
   "notes",
   "onboarding",
@@ -61,6 +77,9 @@ const PRIVATE_ROUTE_ROOTS = new Set([
   "sharing",
   "study",
   "study-artifacts",
+  "study-buddy",
+  "timer",
+  "voice",
   "wellness",
 ]);
 

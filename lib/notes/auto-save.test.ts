@@ -96,4 +96,29 @@ describe("useAutoSaveNote", () => {
     await act(async () => { await Promise.resolve(); });
     expect(result.current.status).toBe("error");
   });
+
+  it("waits for edits made during a save before resolving Done", async () => {
+    const resolvers: Array<(result: SaveResult) => void> = [];
+    const saver = vi.fn(() => new Promise<SaveResult>(resolve => resolvers.push(resolve)));
+    const { result } = renderHook(() => useAutoSaveNote(saver));
+    act(() => { result.current.save(); });
+    await act(async () => { await vi.advanceTimersByTimeAsync(30000); });
+    act(() => { result.current.save(); });
+    let finished = false;
+    const done = result.current.flushNow().then(value => { finished = true; return value; });
+    await act(async () => { resolvers[0]({ ok: true }); });
+    expect(saver).toHaveBeenCalledTimes(2);
+    expect(finished).toBe(false);
+    await act(async () => { resolvers[1]({ ok: true }); await done; });
+    expect(finished).toBe(true);
+    expect(result.current.status).toBe("saved");
+  });
+
+  it("returns save errors so the editor can keep the draft open", async () => {
+    const saver = vi.fn(async () => ({ ok: false, error: "Storage unavailable" }));
+    const { result } = renderHook(() => useAutoSaveNote(saver));
+    await act(async () => {
+      expect(await result.current.flushNow()).toEqual({ ok: false, error: "Storage unavailable" });
+    });
+  });
 });

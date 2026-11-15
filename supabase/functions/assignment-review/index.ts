@@ -4,7 +4,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import { checkTokenBudget, incrementTokens, logInteraction, resetBudgetIfNewDay } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
 const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
@@ -244,7 +244,7 @@ Deno.serve(withStudentSecurity("assignment-review", async (req) => {
       ? assignmentProfile.subjectDomain
       : null;
     // Keep escalation deterministic so model cost and review behavior remain auditable.
-    const result = await runOpenAIHomeworkAdapter({
+    const result = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "assignment-review" }, {
       task: "assignment_review",
       ownerId,
       supabase,

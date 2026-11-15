@@ -1,0 +1,226 @@
+.root.root { --course-color: #6cebbb; }
+.root.root .reviewBar { min-height: 44px; padding-block: 10px; }
+.root.root .main { width: min(100%, 1540px); margin: 0 auto; padding: 28px 36px 44px; }
+.root.root .main:focus { outline: none; }
+.root.root .pageHeading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; padding-bottom: 24px; margin-bottom: 26px; border-bottom: 1px solid #d5e4dd36; }
+.root.root .pageHeading h1 { font: 800 44px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .pageHeading p { color: #c2ceca; font: 600 14px/1.3 var(--font-barlow), sans-serif; }
+.root.root .pageHeading p span { margin-inline: 8px; color: var(--pink); }
+.root.root .composition { display: grid; grid-template-columns: 214px minmax(0, 1fr); gap: 38px; align-items: start; }
+.root.root .lineup { min-width: 0; }
+.root.root .lineupHeading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+.root.root .lineupHeading h2, .root.root .lineupHeading > span { font: 600 11px/1.3 var(--font-lexend), sans-serif; color: #b7c9c4; text-transform: uppercase; }
+.root.root .search { display: flex; align-items: center; gap: 9px; border-bottom: 1px solid #c5d6cd4d; min-height: 40px; color: #b7c7c2; }
+.root.root .search input { width: 100%; min-width: 0; border: 0; border-radius: 0; padding: 8px 0; height: 40px; background: transparent; box-shadow: none; color: #edf4ee; font-size: 12px; }
+.root.root .search input::placeholder { color: #a9bdb6; }
+.root.root .search button { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; color: #fff; border: 0; background: transparent; }
+.root.root .classTabs { display: grid; gap: 9px; margin-top: 17px; }
+.root.root .classTabs button { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; justify-content: stretch; min-height: 68px; padding: 11px 8px; background: transparent; border: 0; color: #afc2bc; text-align: left; isolation: isolate; position: relative; }
+.root.root .classTabs button > span:last-child { display: grid; gap: 5px; }
+.root.root .classTabs small { font-size: 9px; line-height: 1.2; text-transform: uppercase; }
+.root.root .classTabs strong { font: 700 27px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.root.root .classTabs button[aria-selected="true"] { color: #fff; }
+.root.root .classTabs button[aria-selected="true"]::before { content: ""; position: absolute; z-index: -1; inset: 0 -7px; background: #bd076f; mask: url('/assets/today-now/selection-brush-v1.webp') center / 100% 100% no-repeat; -webkit-mask: url('/assets/today-now/selection-brush-v1.webp') center / 100% 100% no-repeat; mask-mode: luminance; }
+.root.root .classTabs button:hover:not([aria-selected="true"]) { color: #fff; background: #d1e8da0b; }
+.root.root .mobilePicker { display: none; }
+.root.root .profile { min-width: 0; }
+.root.root .identity { display: grid; grid-template-columns: minmax(0, 1fr) 206px; gap: 30px; animation: courseArrival 240ms ease-out; }
+.root.root .courseArt { min-width: 0; height: 294px; overflow: hidden; position: relative; isolation: isolate; border-top: 3px solid var(--course-color); background: #101e20; }
+.root.root .courseArt > img { width: 100%; height: 100%; object-fit: cover; object-position: center 43%; position: absolute; inset: 0; z-index: -2; }
+.root.root .courseArt::after { content: ""; z-index: -1; position: absolute; inset: 0; background: linear-gradient(0deg, #081419 0%, #081419b5 25%, #08141915 72%), linear-gradient(90deg, #07151b60, transparent 75%); }
+.root.root .courseCode { position: absolute; left: 24px; top: 20px; color: #fff; background: #0d1b20da; padding: 6px 9px; font: 600 12px/1.2 var(--font-barlow), sans-serif; text-transform: uppercase; }
+.root.root .courseCode > span { color: var(--course-color); padding-inline: 8px; }
+.root.root .courseTitle { position: absolute; bottom: 22px; left: 26px; right: 24px; }
+.root.root .courseTitle h2 { font: 800 68px/.96 var(--font-saira-condensed), sans-serif; text-transform: uppercase; margin-bottom: 12px; overflow-wrap: anywhere; }
+.root.root .courseTitle p { display: flex; flex-wrap: wrap; gap: 9px; font-size: 12px; line-height: 1.5; color: #dce8e1; }
+.root.root .courseTitle p span { color: var(--course-color); }
+.root.root .snapshot { padding: 3px 0 0; min-width: 0; }
+.root.root .snapshot h3 { font: 600 11px/1.3 var(--font-lexend), sans-serif; color: #b7c9c4; text-transform: uppercase; margin: 0 0 17px; }
+.root.root .grade { min-height: 83px; }
+.root.root .grade > span, .root.root .nextDue > span { display: block; font-size: 10px; color: #b1c4bb; margin-bottom: 6px; }
+.root.root .grade > strong { display: flex; align-items: baseline; gap: 14px; font: 700 31px/1 var(--font-saira-condensed), sans-serif; color: #eef6f0; }
+.root.root .grade > strong small { font: 500 17px/1 var(--font-barlow), sans-serif; color: #bdcec5; }
+.root.root .grade p { margin-top: 6px; color: #a9c0b5; font-size: 10px; line-height: 1.4; }
+.root.root .grade .unavailable { margin-top: 14px; font-size: 13px; color: #d0dcd5; }
+.root.root .workStats { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; border-block: 1px solid #cee7d532; padding-block: 14px; margin-bottom: 14px; }
+.root.root .workStats strong { display: block; font: 700 42px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .workStats > div:last-child strong { color: var(--mint); }
+.root.root .workStats span { color: #bdcdc5; font-size: 10px; }
+.root.root .nextDue strong { font: 700 25px/1.1 var(--font-saira-condensed), sans-serif; color: #f5d597; }
+.root.root .sections { display: flex; gap: 30px; border-bottom: 1px solid #c3dacc42; margin-top: 26px; }
+.root.root .sections button { display: flex; align-items: center; justify-content: center; position: relative; min-height: 54px; border: 0; padding: 7px 0 14px; background: transparent; color: #b5c9bf; font: 700 23px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.root.root .sections button[aria-selected="true"] { color: #fff; }
+.root.root .sections button[aria-selected="true"]::after { content: ""; position: absolute; height: 3px; bottom: -1px; left: 0; right: 0; background: var(--pink); }
+.root.root .sections button:hover { color: #fff; }
+.root.root .sectionPanel { padding-top: 22px; min-height: 234px; }
+.root.root .sectionPanel[hidden] { display: none; }
+.root.root .overview { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 34px; }
+.root.root .overview > section { min-width: 0; }
+.root.root .sectionHeading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 12px; min-height: 28px; }
+.root.root .sectionHeading h3 { font: 700 22px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.root.root .sectionHeading > svg { color: var(--course-color); }
+.root.root .count { color: #b2c7bc; font-size: 11px; white-space: nowrap; }
+.root.root .textAction { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; border: 0; padding: 4px 0; color: #d9e6de; background: transparent; font: 500 11px/1.4 var(--font-lexend), sans-serif; }
+.root.root .textAction:hover { color: #fff; text-decoration: underline; text-underline-offset: 4px; }
+.root.root .workRows { list-style: none; padding: 0; margin: 0; }
+.root.root .workRows > li { display: grid; grid-template-columns: 64px minmax(0, 1fr) 38px; align-items: center; gap: 15px; min-height: 82px; border-top: 1px solid #c5dbcd2b; padding: 12px 0; }
+.root.root .workDate { display: grid; gap: 5px; }
+.root.root .workDate > small { color: #abc1b4; font-size: 9px; text-transform: uppercase; }
+.root.root .workDate > strong { color: #d3e1d9; font: 600 16px/1 var(--font-barlow), sans-serif; }
+.root.root .workName { display: grid; gap: 7px; min-width: 0; }
+.root.root .workName > strong { font: 600 17px/1.2 var(--font-barlow), sans-serif; overflow-wrap: anywhere; }
+.root.root .workName > span { font-size: 10px; line-height: 1.4; color: #abc5b8; }
+.root.root .workName > span[data-state="ready"] { color: #f5d597; }
+.root.root .workName > span[data-state="submitted"] { color: var(--mint); }
+.root.root .separator { margin-inline: 8px; opacity: .55; }
+.root.root .rowAction { display: grid; place-items: center; width: 38px; min-height: 44px; background: #192d30; border: 1px solid #a9cabb48; color: #d9e9de; padding: 0; }
+.root.root .rowAction:hover { background: #2c4547; border-color: #daebe0; }
+.root.root .resourceRows { list-style: none; margin: 0; padding: 0; }
+.root.root .resourceRows > li { border-top: 1px solid #c5dbcd2b; }
+.root.root .resourceRows button { width: 100%; display: grid; grid-template-columns: 36px minmax(0, 1fr) 18px; align-items: center; gap: 13px; min-height: 82px; border: 0; padding: 14px 0; background: transparent; color: #edf4ef; text-align: left; }
+.root.root .resourceRows button:hover strong { text-decoration: underline; text-underline-offset: 4px; }
+.root.root .resourceIcon { display: grid; place-items: center; width: 36px; height: 44px; border: 1px solid #afd0bf3b; background: #d5eee109; color: var(--course-color); }
+.root.root .resourceRows button > span:nth-child(2) { display: grid; gap: 7px; min-width: 0; }
+.root.root .resourceRows strong { font: 500 14px/1.4 var(--font-lexend), sans-serif; overflow-wrap: anywhere; }
+.root.root .resourceRows small { font-size: 10px; line-height: 1.4; color: #b1c7ba; }
+.root.root .resourceRows button > svg { color: #b0cbbd; }
+.root.root .latest .resourceRows button { gap: 10px; grid-template-columns: 30px minmax(0, 1fr) 16px; }
+.root.root .latest .resourceIcon { width: 30px; }
+.root.root .latest .resourceRows strong { font-size: 12px; }
+.root.root .libraryAction { display: flex; align-items: center; gap: 9px; min-height: 44px; width: 100%; margin-top: 8px; padding: 8px 0; border: 0; border-top: 1px solid #c5dbcd2b; color: #c4d8cb; background: transparent; font: 400 11px/1.5 var(--font-lexend), sans-serif; text-align: left; }
+.root.root .libraryAction > svg:last-child { margin-left: auto; }
+.root.root .libraryAction:hover { color: #fff; }
+.root.root .sectionHeading select { padding: 8px 12px; border: 1px solid #bdd3c644; background: #162a2c; color: #e0eee3; border-radius: 2px; min-height: 38px; font-size: 12px; }
+.root.root .libraryTools { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-block: 5px 14px; }
+.root.root .filters { display: flex; gap: 7px; }
+.root.root .filters button { min-height: 38px; padding: 8px 13px; border: 1px solid transparent; background: transparent; color: #adc5b8; font-size: 12px; }
+.root.root .filters button[aria-pressed="true"] { border-color: #d9ecdf63; color: #fff; background: #e3f7e70a; }
+.root.root .libraryTools .search { width: min(42%, 280px); }
+.root.root .practiceSet { display: grid; grid-template-columns: 60px minmax(0, 1fr) auto; gap: 22px; align-items: center; border-block: 1px solid #c5dbcd2b; padding: 28px 0; }
+.root.root .practiceNumber { font: 700 54px/1 var(--font-saira-condensed), sans-serif; color: var(--course-color); }
+.root.root .practiceSet h3 { font: 700 31px/1.1 var(--font-saira-condensed), sans-serif; margin: 6px 0 10px; text-transform: uppercase; }
+.root.root .practiceSet p { color: #abc4b4; font-size: 11px; line-height: 1.6; }
+.root.root .emptyWork { padding: 16px 0 12px; border-top: 1px solid #c5dbcd2b; }
+.root.root .emptyWork > svg { color: var(--mint); margin-bottom: 10px; width: 24px; height: 24px; }
+.root.root .emptyWork h3 { font: 600 22px/1.1 var(--font-saira-condensed), sans-serif; margin-bottom: 10px; }
+.root.root .emptyWork p, .root.root .emptyResult { font-size: 12px; line-height: 1.7; color: #b3c9bc; }
+.root.root .emptyResult { padding-block: 24px; }
+.root.root .emptySearch { min-height: 430px; padding: 100px 30px; text-align: center; }
+.root.root .emptySearch h2 { font: 700 34px/1 var(--font-saira-condensed), sans-serif; margin-bottom: 24px; }
+.root.root .dialog { width: 580px; max-width: calc(100% - 36px); max-height: calc(100dvh - 36px); overflow: auto; }
+.root.root .dialog h2 { padding-right: 10px; overflow-wrap: anywhere; }
+.root.root .dialog .close { padding: 0; }
+.root.root .dialog .close svg { width: 22px; height: 22px; max-width: none; }
+.root.root .dialog .document p { font-size: 14px; line-height: 1.8; color: #d8e6dc; margin: 0 0 20px; }
+.root.root .dialog .document p:last-child { margin-bottom: 0; }
+.root.root .dialog .sampleNotice { font-size: 12px; color: #b7cbbb; }
+.root.root .practiceRound fieldset { padding: 0; margin: 0 0 18px; border: 0; min-width: 0; }
+.root.root .practiceRound legend { font: 500 18px/1.5 var(--font-lexend), sans-serif; margin-bottom: 18px; }
+.root.root .questionCount { font: 600 11px/1.3 var(--font-barlow), sans-serif; color: #bdcec2; margin-bottom: 15px; }
+.root.root .answers { display: grid; gap: 9px; }
+.root.root .answers label { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 12px; border: 1px solid #bdcfbf55; background: #c9e0d306; cursor: pointer; font: 400 13px/1.5 var(--font-lexend), sans-serif; text-transform: none; letter-spacing: 0; }
+.root.root .answers label::before, .root.root .answers label::after { display: none; content: none; }
+.root.root .answers label > span { font: inherit; text-transform: none; letter-spacing: 0; }
+.root.root .answers input { appearance: auto; width: 17px; height: 17px; min-height: 0; flex: none; margin: 0; padding: 0; border: 0; box-shadow: none; accent-color: #d8ede1; }
+.root.root .answers label[data-selected="true"] { border-color: #f2faf5; background: #c9e0d319; }
+.root.root .answers label[data-checked="true"] { border-color: var(--mint); }
+.root.root .answers label > svg { margin-left: auto; color: var(--mint); }
+.root.root .feedback { font-size: 13px; line-height: 1.7; padding: 14px 0 14px 14px; border-left: 2px solid #edcc8d; margin-bottom: 20px; color: #e2d5b5; }
+.root.root .feedback[data-correct="true"] { border-color: var(--mint); color: #bce7ce; }
+.root.root .practiceComplete { padding-top: 8px; }
+.root.root .practiceComplete > svg { width: 32px; height: 32px; color: var(--mint); margin-bottom: 16px; }
+.root.root .practiceComplete h3 { font: 700 30px/1.1 var(--font-saira-condensed), sans-serif; margin-bottom: 10px; }
+.root.root .practiceComplete p { font-size: 14px; color: #c4d8ca; margin-bottom: 12px; }
+@keyframes courseArrival { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 1440px) {
+  .root.root .main { padding-top: 36px; }
+  .root.root .courseArt { height: 310px; }
+  .root.root .identity { grid-template-columns: minmax(0, 1fr) 230px; gap: 34px; }
+  .root.root .courseTitle h2 { font-size: 76px; }
+}
+@media (max-width: 1190px) {
+  .root.root .composition { grid-template-columns: 188px minmax(0, 1fr); gap: 26px; }
+  .root.root .identity { grid-template-columns: minmax(0, 1fr) 170px; gap: 22px; }
+  .root.root .courseTitle h2 { font-size: 58px; }
+  .root.root .sections { gap: 25px; }
+  .root.root .sections button { font-size: 21px; }
+  .root.root .overview { gap: 24px; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .root.root .workRows > li { gap: 10px; grid-template-columns: 53px minmax(0, 1fr) 36px; }
+  .root.root .workName > strong { font-size: 16px; }
+  .root.root .practiceSet { grid-template-columns: 42px minmax(0, 1fr); gap: 18px; }
+  .root.root .practiceSet > button { grid-column: 2; justify-self: start; }
+}
+@media (max-width: 950px) {
+  .root.root .main { padding-inline: 24px; }
+  .root.root .composition { grid-template-columns: 160px minmax(0, 1fr); gap: 26px; }
+  .root.root .classTabs strong { font-size: 24px; }
+  .root.root .classTabs button { grid-template-columns: 16px minmax(0, 1fr); gap: 7px; }
+  .root.root .identity { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .root.root .courseArt { height: 268px; }
+  .root.root .snapshot { display: grid; grid-template-columns: 1fr 1.2fr 1fr; align-items: start; gap: 16px; padding: 0; }
+  .root.root .snapshot > h3 { display: none; }
+  .root.root .grade { min-height: 0; }
+  .root.root .grade > strong { font-size: 27px; gap: 8px; }
+  .root.root .grade > strong small { font-size: 14px; }
+  .root.root .grade p { font-size: 9px; }
+  .root.root .grade .unavailable { font-size: 12px; margin-top: 8px; }
+  .root.root .workStats { margin: 0; padding: 0 12px; border-block: 0; border-inline: 1px solid #cee7d532; gap: 12px; }
+  .root.root .workStats strong { font-size: 35px; }
+  .root.root .workStats span { font-size: 9px; }
+  .root.root .nextDue strong { font-size: 24px; }
+  .root.root .sections { gap: 19px; margin-top: 22px; }
+  .root.root .sections button { font-size: 20px; min-height: 50px; }
+  .root.root .overview { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .root.root .latest { max-width: none; }
+  .root.root .latest .resourceRows button { min-height: 67px; }
+  .root.root .libraryAction { margin-top: 0; }
+}
+@media (max-width: 640px) {
+  .root.root .reviewBar { flex-direction: row; align-items: center; gap: 10px; }
+  .root.root .main { padding: 24px 18px 34px; }
+  .root.root .pageHeading { padding-bottom: 18px; margin-bottom: 18px; gap: 12px; }
+  .root.root .pageHeading h1 { font-size: 36px; }
+  .root.root .pageHeading p { font-size: 11px; }
+  .root.root .pageHeading p span { margin-inline: 4px; }
+  .root.root .composition { display: block; }
+  .root.root .lineup { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-bottom: 20px; }
+  .root.root .lineupHeading, .root.root .classTabs { display: none; }
+  .root.root .lineup > .search { display: none; }
+  .root.root .mobilePicker { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 15px; align-items: center; font-size: 10px; color: #c4d4c9; text-transform: uppercase; }
+  .root.root .mobilePicker select { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; background: #12252de6; color: #edf5ef; border: 1px solid #bfd6c750; border-radius: 2px; font-size: 14px; }
+  .root.root .courseArt { height: 254px; }
+  .root.root .courseCode { left: 17px; top: 16px; font-size: 10px; }
+  .root.root .courseTitle { left: 20px; right: 18px; bottom: 20px; }
+  .root.root .courseTitle h2 { font-size: 49px; }
+  .root.root .courseTitle p { font-size: 11px; }
+  .root.root .snapshot { gap: 15px 24px; grid-template-columns: 1fr 1fr; }
+  .root.root .grade > strong { font-size: 31px; gap: 10px; }
+  .root.root .grade > strong small { font-size: 16px; }
+  .root.root .grade > span, .root.root .nextDue > span { font-size: 11px; }
+  .root.root .grade p { font-size: 10px; }
+  .root.root .grade .unavailable { font-size: 12px; }
+  .root.root .workStats { grid-column: 1 / -1; grid-row: 2; padding: 12px 0 0; border-inline: 0; border-top: 1px solid #cee7d532; gap: 24px; }
+  .root.root .workStats > div { display: flex; align-items: center; gap: 13px; }
+  .root.root .workStats strong { font-size: 30px; }
+  .root.root .workStats span { font-size: 11px; }
+  .root.root .nextDue strong { font-size: 29px; }
+  .root.root .sections { display: grid; grid-template-columns: auto auto; gap: 0 20px; margin-top: 22px; }
+  .root.root .sections button { justify-content: flex-start; padding-block: 12px; min-height: 46px; font-size: 20px; }
+  .root.root .sections button[aria-selected="true"]::after { right: auto; width: 30px; }
+  .root.root .sectionPanel { padding-top: 20px; }
+  .root.root .sectionHeading h3 { font-size: 21px; }
+  .root.root .workRows > li { grid-template-columns: 51px minmax(0, 1fr) 36px; }
+  .root.root .workName > strong { font-size: 17px; }
+  .root.root .libraryTools { flex-wrap: wrap; gap: 10px; }
+  .root.root .libraryTools .search { width: 100%; }
+  .root.root .practiceNumber { font-size: 44px; }
+  .root.root .practiceSet h3 { font-size: 28px; }
+  .root.root .practiceSet p { font-size: 10px; }
+  .root.root .dialog { padding: 27px 22px; }
+  .root.root .dialog h2 { font-size: 31px; }
+  .root.root .practiceRound legend { font-size: 16px; }
+  .root.root .emptySearch { min-height: 260px; padding: 50px 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root.root *, .root.root *::before, .root.root *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

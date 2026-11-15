@@ -21,20 +21,23 @@ describe("Study Buddy provider boundary", () => {
 
   it("keeps the provider key and chemistry-aware tutoring in the protected edge function", () => {
     const edge = source("supabase/functions/study-buddy/index.ts");
+    const prompt = source("supabase/functions/_shared/study-buddy-prompt.ts");
     const adapter = source("supabase/functions/_shared/homework-adapter.ts");
 
     expect(edge).toContain('withStudentSecurity("study-buddy"');
     expect(edge).toContain('task: "study_buddy"');
-    expect(edge).toContain("For chemistry");
-    expect(edge).toContain("Keep the final submitted work student-owned");
+    expect(edge).toContain('from "../_shared/study-buddy-prompt.ts"');
+    expect(edge).toContain("buildUserPrompt({");
+    expect(prompt).toContain("For chemistry");
+    expect(prompt).toContain("Keep the final submitted work student-owned");
     expect(edge).toContain("providerDegraded");
     expect(edge).toContain("evidence,");
     expect(edge).toContain("providerState,");
-    expect(edge).toContain("Exact source excerpts from the protected homework route");
+    expect(prompt).toContain("Exact source excerpts from the protected homework route");
     expect(edge).toContain("boundedUtf8Text(body.specialistContext, 96_000)");
-    expect(edge).toContain("Canonical specialist artifact context from the owner-scoped Diana route");
+    expect(prompt).toContain("Canonical specialist artifact context from the owner-scoped Diana route");
     expect(edge).toContain("academicBand: normalizeHomeworkAcademicBand(raw.academicBand)");
-    expect(edge).toContain("Academic band:");
+    expect(prompt).toContain("Academic band:");
     expect(edge).not.toContain("OPENAI_API_KEY");
     expect(adapter).toContain('| "study_buddy"');
     expect(adapter).toContain('from "./homework-model-tier.ts"');

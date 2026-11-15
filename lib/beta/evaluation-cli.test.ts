@@ -25,6 +25,7 @@ afterEach(() => {
     rmSync(roots.pop()!, { recursive: true, force: true });
   }
 });
+
 function createRoot(): string {
   const root = mkdtempSync(path.join(tmpdir(), "diana-evaluation-harness-"));
   roots.push(root);
@@ -157,3 +158,4 @@ describe("beta educational evaluation harness CLI", () => {
     expect(outcome.stderr).toContain("outcome fields are forbidden");
   });
 });
+

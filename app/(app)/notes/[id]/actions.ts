@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { assignmentHelpDispatchKey } from "@/lib/learning-engine/assignment-assistance-dispatch";
 import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
 import { createCard } from "@/lib/fsrs/fsrs";
 import { normalizeNoteTags, suggestTagsFromText } from "@/lib/notes/tags";
@@ -33,11 +34,13 @@ const SelectionCardInput = z.object({
 });
 
 const VisualToolInput = z.object({
+  requestId: z.string().uuid().optional(),
   noteId: z.string().uuid(),
   mode: z.enum(["mind_map", "concept_graph", "timeline", "comparison_table"]),
 });
 
 const DiagramInput = z.object({
+  requestId: z.string().uuid().optional(),
   noteId: z.string().uuid(),
   storageKey: z.string().min(1).max(500),
 });
@@ -184,6 +187,8 @@ export async function generateVisualTool(
       mode: parsed.data.mode,
       noteTitle: note.title,
       text,
+      idempotencyKey: assignmentHelpDispatchKey("note-visual-tool", user.id,
+        { noteId: note.id, mode: parsed.data.mode, noteTitle: note.title, text, aiMode }, parsed.data.requestId),
     },
   });
 
@@ -260,6 +265,8 @@ export async function annotateDiagram(
       mode: "diagram_annotation",
       storageKey: parsed.data.storageKey,
       bucket: "note-docs",
+      idempotencyKey: assignmentHelpDispatchKey("note-diagram", user.id,
+        { noteId: note.id, storageKey: parsed.data.storageKey, bucket: "note-docs", aiMode }, parsed.data.requestId),
     },
   });
 

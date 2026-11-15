@@ -128,14 +128,30 @@ same clean release commit.
 
 ## Protected CI handoff
 
-After a successful staging deployment, place the exact receipt JSON in the
-GitHub `staging` environment secret named
-`STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON`. The receipt itself is secret-free, but
-the protected environment prevents an untrusted workflow from replacing the
-release evidence.
+Before adding credentials, configure the GitHub `staging` environment with
+reviewer protection and deployment access restricted to `main`. The environment
+name alone does not provide these protections. It must target a staging backend
+distinct from production, as required by the deployment command above.
 
-On each push to `main`, `staging-edge-parity` writes that value to a temporary
-mode-600 file and runs content parity against `github.sha`. The job fails for:
+After a successful staging deployment, place the exact receipt JSON in the
+`staging` environment secret named `STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON`,
+alongside `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`. The receipt itself
+contains no access token or secret value.
+
+Run the **Staging Edge qualification** workflow manually from `main`, supplying
+the full `release_sha` recorded in that receipt. A separate validation job
+requires the selected commit to be reachable from `main` and checks out that
+exact SHA before any staging credentials or package scripts are used. The
+`staging-edge-parity` job then writes the receipt to a temporary mode-600 file
+and runs content parity against that SHA. Missing credentials or a missing
+receipt fail qualification; they never cause a successful skip.
+
+Routine pushes to `main` run source CI without this live staging check. A green
+source CI run or a production deployment is not staging qualification or beta
+certification. The beta gate still requires signed `edge-parity` and
+`edge-deployment-content` certifications for its exact candidate.
+
+The qualification job also fails for:
 
 - an unclassified local function, missing managed or local-only source, or a
   deprecated function that appears locally

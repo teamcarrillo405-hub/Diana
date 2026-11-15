@@ -11,7 +11,7 @@ import {
   resetBudgetIfNewDay,
   type SafetyMediaInput,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter, type AssignmentHelpContext } from "../_shared/learning/assignment-help-boundary.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -123,12 +123,13 @@ async function loadMapImage(
 }
 
 async function runMapAnnotation(
+  assistance: AssignmentHelpContext,
   ownerId: string,
   // deno-lint-ignore no-explicit-any
   supabase: any,
   image: SafetyMediaInput,
 ): Promise<{ content: string; tokens: number; model: string }> {
-  const ai = await runOpenAIHomeworkAdapter({
+  const ai = await runAssignmentScopedHomeworkAdapter(assistance, {
     task: "visual_tool",
     ownerId,
     supabase,
@@ -191,7 +192,7 @@ Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
       const bucket = typeof body.bucket === "string" && body.bucket.length > 0 ? body.bucket : "note-docs";
       if (!storageKey) return jsonResponse({ error: "storageKey required" }, 400);
       const image = await loadMapImage(supabase, storageKey, bucket);
-      const result = await runMapAnnotation(ownerId, supabase, image);
+      const result = await runMapAnnotation({ request: req, body, feature: "history-scaffold" }, ownerId, supabase, image);
       content = result.content;
       tokens = result.tokens;
       model = result.model;
@@ -212,7 +213,7 @@ Deno.serve(withStudentSecurity("history-scaffold", async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const ai = await runOpenAIHomeworkAdapter({
+      const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "history-scaffold" }, {
         task: "history_scaffold",
         ownerId,
         supabase,

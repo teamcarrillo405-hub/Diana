@@ -196,6 +196,25 @@ describe("AssignmentReviewPanel math chat", () => {
     expect(screen.queryByText(/Why this helps/)).toBeNull();
   });
 
+  it("sends the selected problem to Ask Diana", async () => {
+    render(<AssignmentReviewPanel
+      assignmentId="11111111-1111-4111-8111-111111111111"
+      problemId="22222222-2222-4222-8222-222222222222"
+      template="math"
+      aiMode="green"
+      fields={fields}
+    />);
+    fireEvent.change(screen.getByLabelText("Message Diana"), { target: { value: "Check this step" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+    await waitFor(() => expect(fetch).toHaveBeenCalledWith("/api/diana/study-buddy/stream", expect.objectContaining({ method: "POST" })));
+    const call = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls.find((entry) => entry[0] === "/api/diana/study-buddy/stream");
+    expect(JSON.parse(call?.[1].body)).toEqual(expect.objectContaining({
+      assignmentId: "11111111-1111-4111-8111-111111111111",
+      problemId: "22222222-2222-4222-8222-222222222222",
+      question: "Check this step",
+    }));
+  });
+
   it("visibly labels a successful response when the provider is degraded", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => sseResponse([
       { type: "thinking" },

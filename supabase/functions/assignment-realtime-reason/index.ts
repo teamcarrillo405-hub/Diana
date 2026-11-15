@@ -1,9 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  runOpenAIHomeworkAdapter,
   type HomeworkAdapterRoutingInput,
 } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { normalizeHomeworkAcademicBand } from "../_shared/homework-model-tier.ts";
 import { logInteraction } from "../_shared/safety.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
@@ -102,7 +102,7 @@ Deno.serve(withStudentSecurity("assignment-realtime-reason", async (request: Req
       question,
       reason ? `Why advanced help was requested:\n${reason}` : "",
     ].filter(Boolean).join("\n\n");
-    const result = await runOpenAIHomeworkAdapter({
+    const result = await runAssignmentScopedHomeworkAdapter({ request, body, feature: "assignment-realtime-reason" }, {
       ownerId,
       supabase,
       task: "realtime",

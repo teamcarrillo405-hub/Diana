@@ -1,0 +1,42 @@
+.lobby { --lobby-rule: #dcece738; }
+
+/* The consolidated preview owns these overrides; earlier review routes keep their layout. */
+@media (min-width: 761px) {
+  .lobby.lobby.lobby.lobby.lobby:not([data-lobby-mode="now"])::before { background: #080d11b3; }
+  .lobby.lobby.lobby.lobby.lobby [data-today-stage-image] { transition: opacity 160ms ease; }
+  .lobby.lobby.lobby.lobby.lobby:not([data-lobby-mode="now"]) [data-today-stage-image] { opacity: 0; pointer-events: none; }
+  .lobby.lobby.lobby.lobby.lobby [data-lobby-progress],
+  .lobby.lobby.lobby.lobby.lobby [data-lobby-achievements] { width: 100%; max-width: 1120px; padding-right: 32px; }
+  .lobby.lobby.lobby.lobby.lobby [data-lobby-achievements] { max-width: 920px; }
+}
+
+.checkInAccess { display: flex; align-items: center; gap: 20px; width: min(100%, 340px); margin-top: 36px; padding-top: 17px; border-top: 1px solid var(--lobby-rule); }
+.lobby.lobby.lobby.lobby.lobby .checkInTrigger { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 4px; border: 0; border-radius: 0; background: transparent; color: #e2ede9; font: 600 20px/1.2 var(--font-saira-condensed), sans-serif; text-transform: uppercase; cursor: pointer; }
+.lobby.lobby.lobby.lobby.lobby .checkInTrigger:hover { color: #fff; }
+.lobby.lobby.lobby.lobby.lobby .checkInTrigger:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
+.optional { color: #bfd0ca; font-size: 11px; }
+.checkInDialog { position: fixed; margin: auto; width: min(540px, calc(100% - 32px)); max-height: calc(100svh - 32px); padding: 36px; border: 1px solid #e3f2ec50; border-radius: 6px; background: #112026f5; color: #f4f8f5; box-shadow: 0 24px 80px #0007; overflow: auto; }
+.checkInDialog::backdrop { background: #060e14a6; backdrop-filter: blur(10px); }
+.lobby.lobby.lobby.lobby.lobby .checkInDialog > div::before { display: none; }
+.lobby.lobby.lobby.lobby.lobby .checkInDialog h2 { font-size: 36px; }
+.lobby.lobby.lobby.lobby.lobby .close { position: absolute; top: 18px; right: 18px; display: grid; place-items: center; width: 36px; height: 36px; padding: 0; border: 1px solid transparent; border-radius: 0; background: transparent; color: inherit; cursor: pointer; }
+.lobby.lobby.lobby.lobby.lobby .close:hover { background: #e3f2ec15; }
+.lobby.lobby.lobby.lobby.lobby .close:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+@media (max-width: 760px) {
+  .lobby { --lobby-rule: #355e4d38; }
+  .checkInAccess { width: calc(100% - 40px); margin: 4px 20px 16px; padding-top: 12px; }
+  .lobby.lobby.lobby.lobby.lobby .checkInTrigger { color: #243e39; }
+  .lobby.lobby.lobby.lobby.lobby .checkInTrigger:hover { color: #172d27; }
+  .optional { color: #415458; }
+  .checkInDialog { padding: 28px 24px; background: #edf4f2f7; color: #18272b; }
+  .lobby.lobby.lobby.lobby.lobby .checkInDialog h2 { font-size: 30px; }
+  .lobby.lobby.lobby.lobby.lobby .close:hover { background: #183d3010; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lobby.lobby.lobby.lobby.lobby [data-today-stage-image] { transition: none; }
+}
+@media (forced-colors: active) {
+  .checkInDialog { background: Canvas; color: CanvasText; border-color: CanvasText; }
+  .optional, .lobby.lobby.lobby.lobby.lobby .checkInTrigger { color: CanvasText; }
+}

@@ -63,25 +63,17 @@ async function main() {
     if (!claimed.traceId.startsWith(`dw-${runId}-`)) {
       throw new Error(`Worker load smoke claimed an unexpected trace ${claimed.traceId}.`);
     }
-    const complete = await postComplete(baseUrl, token, {
-      traceId: claimed.traceId,
-      tenantId: claimed.tenantId,
-      status: "succeeded",
-      result: {
-        responseChars: 0,
-        provider: "load-smoke",
-        model: "queue-api",
-        workerId,
-        durationMs: 0,
-      },
-    });
-    if (!complete.ok) {
-      throw new Error(`Worker load smoke completion returned ${complete.status}.`);
-    }
+    // Operator-owned synthetic queue fixture, not evidence of provider execution.
+    // Never authorize a paid moderation request merely to manufacture load data.
+    const complete = await admin.from('worker_jobs').update({ status: 'succeeded',
+      result_payload: { status: 'succeeded', syntheticFixture: true, provider: 'load-smoke', model: 'queue-fixture', workerId, durationMs: 0 },
+      completed_at: new Date().toISOString(), locked_by: null, locked_at: null, locked_until: null,
+    }).eq('trace_id', claimed.traceId).eq('tenant_id', claimed.tenantId).eq('locked_by', workerId).eq('status', 'running').select('trace_id').single();
+    if (complete.error || !complete.data) throw new Error('Synthetic load fixture completion did not match its lease.');
     results.push({
       traceId: claimed.traceId,
       tenantId: claimed.tenantId,
-      completeStatus: complete.status,
+      completeStatus: "operator-synthetic-fixture",
     });
   }
 
@@ -94,6 +86,7 @@ async function main() {
     count,
     durationMs: Date.now() - startedAt,
     completed: results.length,
+    evidenceScope: "synthetic_queue_claim_metrics_only_no_provider_or_moderation",
     metrics: metrics.metrics,
   }));
 }
@@ -138,17 +131,6 @@ async function claimJob(
     throw new Error("Worker load smoke did not receive a claimed job.");
   }
   return { traceId: json.job.traceId, tenantId: json.job.tenantId };
-}
-
-async function postComplete(baseUrl: string, token: string, body: Record<string, unknown>) {
-  return fetch(new URL("/api/workers/complete", baseUrl), {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${token}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
 }
 
 async function getMetrics(baseUrl: string, token: string, queueName: string) {

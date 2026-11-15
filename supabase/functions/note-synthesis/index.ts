@@ -8,7 +8,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const SYNTHESIS_PROMPT = `You synthesize a student's own class notes.
@@ -202,7 +202,7 @@ Deno.serve(withStudentSecurity("note-synthesis", async (req: Request) => {
       includeMinorSafety: true,
     });
 
-    const ai = await runOpenAIHomeworkAdapter({
+    const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "note-synthesis", sourceNoteIds: notes.map(note => note.id) }, {
 
       task: "note_synthesis",
       ownerId,

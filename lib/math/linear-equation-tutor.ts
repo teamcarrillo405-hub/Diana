@@ -12,8 +12,7 @@ type LinearEquation = {
 
 function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return "";
-  if (Math.abs(value) < 1e-9) return "0";
-  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(3)));
+  return String(value);
 }
 
 function gcd(a: number, b: number): number {
@@ -32,21 +31,20 @@ function formatFraction(numerator: number, denominator: number): string {
   return `${formatNumber(numerator / divisor)}/${formatNumber(denominator / divisor)}`;
 }
 
-function formatMixedNumber(value: number): string {
-  if (!Number.isFinite(value)) return "";
-  if (Number.isInteger(value)) return String(value);
-  const sign = value < 0 ? "-" : "";
-  const absolute = Math.abs(value);
-  const whole = Math.floor(absolute);
-  const denominator = 12;
-  const numerator = Math.round((absolute - whole) * denominator);
-  if (numerator === 0) return `${sign}${whole}`;
-  if (numerator === denominator) return `${sign}${whole + 1}`;
-  const fraction = formatFraction(numerator, denominator);
+function formatMixedNumber(numerator: number, denominator: number): string {
+  const sign = numerator / denominator < 0 ? "-" : "";
+  const absolute = Math.abs(numerator);
+  const divisor = Math.abs(denominator);
+  const whole = Math.floor(absolute / divisor);
+  const remainder = absolute % divisor;
+  if (remainder === 0) return `${sign}${whole}`;
+  const fraction = formatFraction(remainder, divisor);
   return whole > 0 ? `${sign}${whole} ${fraction}` : `${sign}${fraction}`;
 }
 function nearlyEqual(a: number, b: number): boolean {
-  return Math.abs(a - b) < 1e-9;
+  // Bounded integer equations and exact parsed rational answers need no tolerance.
+  // A nearby decimal is not an exact solution.
+  return a === b;
 }
 
 function parseCoefficient(raw: string): number {
@@ -56,34 +54,46 @@ function parseCoefficient(raw: string): number {
   return Number(compact);
 }
 
+// Deliberately narrow domain: one complete ax +/- b = c equation, integer
+// operands bounded by 1,000,000. Unsupported syntax must never yield a suffix.
+const MAX_OPERAND = 1_000_000;
 export function parseLinearEquation(text: string): LinearEquation | null {
-  return parseLinearEquations(text)[0] ?? null;
+  if (text.length > 256 || /[\r\n]/u.test(text.trim())) return null;
+  const normalized = text.trim().replace(/[\u2013\u2014\u2212]/gu, "-");
+  const match = normalized.match(/^(?:Solve(?:\s+for\s+x\s*:)?\s+)?([+-]?\s*\d*)\s*x\s*([+-]\s*\d+)?\s*=\s*([+-]?\d+)\s*[.?]?$/iu);
+  if (!match) return null;
+  const coefficient = parseCoefficient(match[1]);
+  const constant = match[2] ? Number(match[2].replace(/\s/gu, "")) : 0;
+  const rhs = Number(match[3]);
+  if (coefficient === 0 || ![coefficient, constant, rhs].every(value => Number.isSafeInteger(value) && Math.abs(value) <= MAX_OPERAND)) return null;
+  const isolatedRhs = rhs - constant;
+  if (Math.abs(isolatedRhs) > MAX_OPERAND) return null;
+  return { original: normalized, coefficient, constant, rhs, isolatedRhs, solution: isolatedRhs / coefficient };
 }
 
 function parseLinearEquations(text: string): LinearEquation[] {
-  const normalized = text.replace(/[\u002d\u2013\u2014]/gu, "-");
-  const matches = normalized.matchAll(/(^|[^a-z])([+-]?\s*\d*)\s*x\s*([+-]\s*\d+(?:\.\d+)?)?\s*=\s*([+-]?\d+(?:\.\d+)?)/giu);
-  const equations: LinearEquation[] = [];
-  for (const match of matches) {
-    const coefficient = parseCoefficient(match[2] ?? "");
-    const constant = match[3] ? Number(match[3].replace(/\s/gu, "")) : 0;
-    const rhs = Number(match[4]);
-    if (!Number.isFinite(coefficient) || coefficient === 0 || !Number.isFinite(constant) || !Number.isFinite(rhs)) continue;
-    const isolatedRhs = rhs - constant;
-    equations.push({
-      original: match[0].trim(),
-      coefficient,
-      constant,
-      rhs,
-      isolatedRhs,
-      solution: isolatedRhs / coefficient,
-    });
-  }
-  return equations;
+  return text.split(/\r?\n/u).flatMap(line => {
+    const cleaned = line.replace(/^\s*(?:Student work|Student answer):\s*/iu, "")
+      .replace(/\s+is what i get[.!]?$/iu, "");
+    const equation = parseLinearEquation(cleaned);
+    return equation ? [equation] : [];
+  });
+}
+
+// This selects syntax, not ownership. The route must supply the owner-scoped
+// current exercise separately from retrieved/reference/conversation material.
+function sourceProblem(source: string): LinearEquation | null {
+  const lines = source.split(/\r?\n/u);
+  const problems = lines.filter(line => /^\s*Problem:/iu.test(line));
+  if (problems.length === 0) return parseLinearEquation(source);
+  if (problems.length !== 1) return null;
+  if (lines.some(line => line.includes("=") && !/^\s*(?:Problem|Student work|Student answer):/iu.test(line))) return null;
+  return parseLinearEquation(problems[0].replace(/^\s*Problem:\s*/iu, ""));
 }
 
 function problemText(fields: AssignmentReviewField[]): string {
-  return fields.map((field) => `${field.label}: ${field.value}`).join("\n");
+  const problems = fields.filter(field => /^(?:problem|prompt|assignment)$/iu.test(field.label.trim()));
+  return problems.length === 1 ? problems[0].value : "";
 }
 
 function studentWorkText(fields: AssignmentReviewField[]): string {
@@ -97,29 +107,26 @@ function studentAnswerText(fields: AssignmentReviewField[]): string {
 }
 
 function parseStudentAnswer(value: string): number | null {
-  const normalized = value.replace(/,/gu, "").trim();
-  const mixed = normalized.match(/(?:x\s*=\s*)?([+-]?\d+)\s+([0-9]+)\s*\/\s*([1-9][0-9]*)/iu);
+  const normalized = value.trim().replace(/^(?:x\s*=|(?:my\s+)?answer\s*(?:is|=)|i\s+got)\s*/iu, "");
+  const mixed = normalized.match(/^([+-]?\d+)\s+(\d+)\s*\/\s*([1-9]\d*)$/u);
+  const fraction = normalized.match(/^([+-]?\d+)\s*\/\s*([1-9]\d*)$/u);
+  const bounded = (parts: number[]) => parts.every(part => Number.isSafeInteger(part) && Math.abs(part) <= MAX_OPERAND);
   if (mixed) {
-    const whole = Number(mixed[1]);
-    const numerator = Number(mixed[2]);
-    const denominator = Number(mixed[3]);
-    if (Number.isFinite(whole) && Number.isFinite(numerator) && Number.isFinite(denominator)) {
-      return whole < 0 ? whole - numerator / denominator : whole + numerator / denominator;
-    }
+    const [whole, numerator, denominator] = mixed.slice(1).map(Number);
+    if (!bounded([whole, numerator, denominator]) || numerator >= denominator) return null;
+    const sign = mixed[1].startsWith("-") ? -1 : 1;
+    return sign * (Math.abs(whole) * denominator + numerator) / denominator;
   }
-  const fraction = normalized.match(/(?:x\s*=\s*)?([+-]?[0-9]+)\s*\/\s*([1-9][0-9]*)/iu);
   if (fraction) {
-    const numerator = Number(fraction[1]);
-    const denominator = Number(fraction[2]);
-    if (Number.isFinite(numerator) && Number.isFinite(denominator)) return numerator / denominator;
+    const [numerator, denominator] = fraction.slice(1).map(Number);
+    return bounded([numerator, denominator]) ? numerator / denominator : null;
   }
-  const match = normalized.match(/(?:x\s*=\s*)?([+-]?\d+(?:\.\d+)?)/iu);
-  if (!match) return null;
-  const parsed = Number(match[1]);
-  return Number.isFinite(parsed) ? parsed : null;
+  if (!/^[+-]?\d+(?:\.\d{1,6})?$/u.test(normalized)) return null;
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) && Math.abs(parsed) <= MAX_OPERAND ? parsed : null;
 }
 function latestStudentChatText(input: StudyHelperInput): string {
-  return input.conversation?.filter((turn) => turn.role === "student").at(-1)?.text ?? input.question;
+  return input.question;
 }
 
 function parseChatAnswer(input: StudyHelperInput): number | null {
@@ -138,7 +145,10 @@ function answerMismatchMessage(answer: number, equation: LinearEquation, answerL
 }
 
 function hasIsolatedEquation(work: string, equation: LinearEquation): boolean {
-  return parseLinearEquations(work).some((parsed) => nearlyEqual(parsed.coefficient, equation.coefficient) && nearlyEqual(parsed.constant, 0) && nearlyEqual(parsed.rhs, equation.isolatedRhs));
+  const equationLines = work.split(/\r?\n/u).filter(line => line.includes("="));
+  if (equationLines.length !== 1) return false;
+  const [parsed] = parseLinearEquations(equationLines[0]);
+  return !!parsed && nearlyEqual(parsed.coefficient, equation.coefficient) && nearlyEqual(parsed.constant, 0) && nearlyEqual(parsed.rhs, equation.isolatedRhs);
 }
 
 function asksAboutSubtractingFromX(question: string, equation: LinearEquation): boolean {
@@ -147,8 +157,8 @@ function asksAboutSubtractingFromX(question: string, equation: LinearEquation): 
 }
 
 function mentionsSolution(work: string, equation: LinearEquation): boolean {
-  const solution = formatNumber(equation.solution).replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
-  return new RegExp(`\\bx\\s*=\\s*${solution}\\b`, "iu").test(work.replace(/\s+/gu, " "));
+  return work.split(/\r?\n/u).some(line => /^\s*x\s*=/iu.test(line)
+    && parseStudentAnswer(line) === equation.solution);
 }
 
 function equationLine(equation: LinearEquation): string {
@@ -193,15 +203,16 @@ function response(main: string, equation: LinearEquation, steps: string[] = []):
   return {
     title: "Guided step",
     main,
-    reason: "Diana is checking the last thing you answered before moving on.",
+    reason: "This step uses the selected integer linear equation.",
     steps,
     anchor: "This help is anchored to: Student work",
     visualAid: visualAid(equation),
   };
 }
 
-function lastAssistantAsked(input: StudyHelperInput, pattern: RegExp): boolean {
-  return pattern.test(latestAssistantChatText(input));
+function lastAssistantIncludes(input: StudyHelperInput, expected: string): boolean {
+  const normalize = (text: string) => text.toLowerCase().replace(/\s+/gu, "");
+  return normalize(latestAssistantChatText(input)).includes(normalize(expected));
 }
 
 function visualAid(equation: LinearEquation) {
@@ -257,15 +268,15 @@ export function createLinearEquationReview(fields: AssignmentReviewField[], ques
   const coefficient = formatNumber(equation.coefficient);
   const constant = formatNumber(Math.abs(equation.constant));
   const isolatedRhs = formatNumber(equation.isolatedRhs);
-  const solution = formatNumber(equation.solution);
+  const solution = formatMixedNumber(equation.isolatedRhs, equation.coefficient);
 
   if (asksAboutSubtractingFromX(question, equation)) {
     return {
       title: "Diana review",
       strength: "You found the number that needs to be undone first.",
-      improvement: `Keep ${coefficient}x together. Subtract ${constant} from both whole sides, not from ${coefficient}x.`,
-      nextMove: `Write ${coefficient}x + ${constant} - ${constant} = ${formatNumber(equation.rhs)} - ${constant}.`,
-      question: `After the +${constant} and -${constant} cancel, what equation is left?`,
+      improvement: `Keep ${coefficient}x together. ${inverseVerb(equation) === "add" ? "Add" : "Subtract"} ${constant} on both whole sides, not on ${coefficient}x.`,
+      nextMove: `Write ${equationWithInverseLine(equation)}.`,
+      question: `After the constant and its opposite cancel, what equation is left?`,
       evidenceAnchor: "Student work",
       visualAid: visualAid(equation),
     };
@@ -300,24 +311,23 @@ export function createLinearEquationReview(fields: AssignmentReviewField[], ques
     title: "Diana review",
     strength: "You have the equation in front of you.",
     improvement: `Start by undoing the ${equation.constant >= 0 ? "+" : "-"}${constant} on both sides.`,
-    nextMove: `Subtract ${constant} from both sides so the ${coefficient}x term is by itself.`,
-    question: `What equation is left after you subtract ${constant} from both sides?`,
+    nextMove: `${inverseVerb(equation) === "add" ? "Add" : "Subtract"} ${constant} on both sides so the ${coefficient}x term is by itself.`,
+    question: `What equation is left after you ${inverseVerb(equation)} ${constant} on both sides?`,
     evidenceAnchor: "Student work",
     visualAid: visualAid(equation),
   };
 }
 
 export function createLinearEquationStudyResponse(input: StudyHelperInput): StudyHelperResult | null {
-  const combined = `${input.source}\n${input.question}`;
-  const equation = parseLinearEquation(combined);
+  const equation = sourceProblem(input.source);
   if (!equation) return null;
   const sourceAnswer = parseStudentAnswer(input.source.match(/Student answer:\s*([^\n]+)/iu)?.[1] ?? "");
   const chatAnswer = parseChatAnswer(input);
-  const studentAnswer = sourceAnswer ?? chatAnswer;
+  const studentAnswer = chatAnswer ?? sourceAnswer;
   const coefficient = formatNumber(equation.coefficient);
   const constant = formatNumber(Math.abs(equation.constant));
   const isolatedRhs = formatNumber(equation.isolatedRhs);
-  const solutionText = formatMixedNumber(equation.solution);
+  const solutionText = formatMixedNumber(equation.isolatedRhs, equation.coefficient);
   const studentText = latestStudentText(input);
   const inverse = inverseVerb(equation);
   const rhs = formatNumber(equation.rhs);
@@ -339,7 +349,7 @@ export function createLinearEquationStudyResponse(input: StudyHelperInput): Stud
     ].join("\n"), equation);
   }
 
-  if (lastAssistantAsked(input, /what does\s+[+-]?\d+(?:\.\d+)?\s*[+-]\s*\d+(?:\.\d+)?\s+equal/iu)) {
+  if (lastAssistantIncludes(input, constantArithmeticQuestion(equation))) {
     if (chatAnswer !== null && nearlyEqual(chatAnswer, equation.isolatedRhs)) {
       return response([
         "Correct.",
@@ -359,8 +369,8 @@ export function createLinearEquationStudyResponse(input: StudyHelperInput): Stud
     ].join("\n"), equation);
   }
 
-  if (lastAssistantAsked(input, /undo multiplying|multiplying by\s*\d+/iu)) {
-    if (/divid/iu.test(studentText)) {
+  if (lastAssistantIncludes(input, `${coefficient}x = ${isolatedRhs}`) && lastAssistantIncludes(input, `undo multiplying by ${coefficient}?`)) {
+    if (["divide", "division", `divide by ${coefficient}`, "divide both sides", `divide both sides by ${coefficient}`].includes(studentText.toLowerCase().replace(/[.!]$/u, ""))) {
       return response([
         "Correct. Division undoes multiplication.",
         "",
@@ -380,7 +390,7 @@ export function createLinearEquationStudyResponse(input: StudyHelperInput): Stud
     }
   }
 
-  if (lastAssistantAsked(input, /what is\s*[+-]?\d+(?:\.\d+)?\s*(?:\/|divided by)\s*\d+/iu)) {
+  if ((lastAssistantIncludes(input, `What is ${isolatedRhs} / ${coefficient}?`) || lastAssistantIncludes(input, `What is ${isolatedRhs} divided by ${coefficient}?`))) {
     if (chatAnswer !== null && nearlyEqual(chatAnswer, equation.solution)) {
       return response([
         `Correct. ${isolatedRhs} / ${coefficient} = ${solutionText}.`,
@@ -406,13 +416,13 @@ export function createLinearEquationStudyResponse(input: StudyHelperInput): Stud
     return response([
       "Close. Let's keep the division visible.",
       "",
-      `${isolatedRhs} / ${coefficient} does not divide evenly, so leave it as a fraction or mixed number.`,
+      `${isolatedRhs} / ${coefficient} is the division to check. Keep it as a fraction until you simplify it.`,
       "",
       `How could you write ${isolatedRhs} / ${coefficient} as a fraction or mixed number?`,
     ].join("\n"), equation);
   }
 
-  if (lastAssistantAsked(input, /fraction|mixed number/iu)) {
+  if (lastAssistantIncludes(input, `How could you write ${isolatedRhs} / ${coefficient} as a fraction or mixed number?`)) {
     if (chatAnswer !== null && nearlyEqual(chatAnswer, equation.solution)) {
       return response([
         `Correct. ${isolatedRhs} / ${coefficient} = ${solutionText}.`,
@@ -426,7 +436,7 @@ export function createLinearEquationStudyResponse(input: StudyHelperInput): Stud
     }
   }
 
-  if (lastAssistantAsked(input, /what is\s*\d+\s*x\s*/iu)) {
+  if (lastAssistantIncludes(input, `what is ${coefficient} x ${solutionText}?`)) {
     if (chatAnswer !== null && nearlyEqual(chatAnswer, equation.isolatedRhs)) {
       return response([
         "Correct.",
@@ -452,24 +462,24 @@ export function createLinearEquationStudyResponse(input: StudyHelperInput): Stud
     };
   }
 
-  if (hasIsolatedEquation(combined, equation)) {
+  if (hasIsolatedEquation(`${input.source.split(/\r?\n/u).filter(line => /^\s*Student work:/iu.test(line)).join("\n")}\n${input.question}`, equation)) {
     const answerMismatch = studentAnswer !== null && !nearlyEqual(studentAnswer, equation.solution);
     const chatAnswerCorrect = chatAnswer !== null && nearlyEqual(chatAnswer, equation.solution);
     return {
       title: "Guided step",
       main: chatAnswerCorrect
-        ? `Yes, ${formatNumber(chatAnswer)} works for x after ${coefficient}x = ${isolatedRhs}.`
+        ? `Yes, ${solutionText} works for x after ${coefficient}x = ${isolatedRhs}.`
         : answerMismatch
         ? answerMismatchMessage(studentAnswer, equation, chatAnswer !== null ? "answer" : "answer box")
         : `Yes. From ${coefficient}x = ${isolatedRhs}, divide both sides by ${coefficient}.`,
       reason: chatAnswerCorrect
-        ? `Because ${isolatedRhs} divided by ${coefficient} equals ${formatNumber(equation.solution)}.`
+        ? `Because ${isolatedRhs} divided by ${coefficient} equals ${solutionText}.`
         : answerMismatch
-        ? `A quick check shows ${coefficient} times ${formatNumber(studentAnswer)} plus ${constant} does not make ${formatNumber(equation.rhs)}.`
+        ? `A quick check shows ${coefficient} times ${formatNumber(studentAnswer)} ${equation.constant >= 0 ? "plus" : "minus"} ${constant} does not make ${formatNumber(equation.rhs)}.`
         : "Division undoes the multiplication attached to x.",
       steps: chatAnswerCorrect ? [
-        `Write x = ${formatNumber(equation.solution)}.`,
-        `Check: ${coefficient}(${formatNumber(equation.solution)}) + ${constant} = ${formatNumber(equation.rhs)}.`,
+        `Write x = ${solutionText}.`,
+        `Check: ${coefficient}(${solutionText}) ${equation.constant >= 0 ? "+" : "-"} ${constant} = ${formatNumber(equation.rhs)}.`,
         "Put the checked answer in the answer box.",
       ] : [
         `Write ${coefficient}x / ${coefficient} = ${isolatedRhs} / ${coefficient}.`,
@@ -477,6 +487,17 @@ export function createLinearEquationStudyResponse(input: StudyHelperInput): Stud
         "Check your x value in the original equation.",
       ],
       anchor: "This help is anchored to: Student work",
+      visualAid: visualAid(equation),
+    };
+  }
+
+  if (equation.constant === 0) {
+    return {
+      title: "Guided step",
+      main: `Divide both sides of ${coefficient}x = ${rhs} by ${coefficient}.`,
+      reason: "Division undoes multiplication; this is a proposed next step.",
+      steps: [`Write ${coefficient}x / ${coefficient} = ${rhs} / ${coefficient}.`, "Simplify each side.", "Check your value in the original equation."],
+      anchor: "This help is anchored to: Problem",
       visualAid: visualAid(equation),
     };
   }

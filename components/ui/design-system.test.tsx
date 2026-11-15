@@ -52,11 +52,11 @@ describe("Diana design-system components", () => {
   it("renders shared action, metric, alert, empty, and class-card surfaces", () => {
     const html = renderToStaticMarkup(
       <div>
-        <HeroCtaButton href="/quick-add">Add assignment</HeroCtaButton>
+        <HeroCtaButton href="/assignments/new">Add assignment</HeroCtaButton>
         <MetricTile label="Due soon" value={2} detail="3-day window" tone="gold" />
         <AlertStrip tone="warning">Two items to review</AlertStrip>
         <EmptyState title="Nothing open" description="Add a task when it arrives." />
-        <SlantedActionButton href="/notes/new?mode=voice">Record a note</SlantedActionButton>
+        <SlantedActionButton href="/voice">Talk to Diana</SlantedActionButton>
         <ClassCard card={CLASS_CARD} />
       </div>,
     );

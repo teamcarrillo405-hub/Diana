@@ -20,7 +20,6 @@ export function NoteSynthesisPanel({
   scopeLabel?: string;
   generalOnly?: boolean;
 }) {
-  const subjectScoped = Boolean(classId || generalOnly);
   const [query, setQuery] = useState("");
   const [turns, setTurns] = useState<ChatTurn[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -78,7 +77,6 @@ export function NoteSynthesisPanel({
             ) : null}
           </div>
         ))}
-        {turns.length === 0 ? <p>Ask a question about {subjectScoped ? "this subject's notes" : "your notes"}.</p> : null}
       </div>
       <div className="sd-notes-chat-composer">
         <label>

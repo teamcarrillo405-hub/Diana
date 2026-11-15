@@ -10,7 +10,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -118,7 +118,7 @@ Deno.serve(withStudentSecurity("cs-scaffold", async (req: Request) => {
       personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
     });
 
-    const ai = await runOpenAIHomeworkAdapter({
+    const ai = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "cs-scaffold" }, {
 
       task: "cs_scaffold",
       ownerId,

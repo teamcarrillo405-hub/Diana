@@ -1,67 +1,28 @@
 // @vitest-environment jsdom
-
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen } from "@testing-library/react";
-import { usePathname } from "next/navigation";
-import { afterEach, describe, expect, it, vi } from "vitest";
-
-import {
-  EmptyClassLibrary,
-  MyClassesGrid,
-  type SubjectLibraryCardModel,
-} from "./my-classes-grid";
-
-vi.mock("next/navigation", () => ({
-  usePathname: vi.fn(),
-}));
-
-const CARD: SubjectLibraryCardModel = {
-  id: "physics",
-  name: "AP Physics",
-  teacher: "Dr. Rivera",
-  href: "/classes/physics",
-  progressPct: 88,
-  openWorkCount: 1,
-  nextAssignmentTitle: "Momentum lab report",
-};
-
-afterEach(() => {
-  cleanup();
-  vi.clearAllMocks();
-});
-
-describe("ScreenDesign class library states", () => {
-  it("renders the honest empty roster as its own canonical composition", () => {
-    vi.mocked(usePathname).mockReturnValue("/classes");
-
-    render(
-      <EmptyClassLibrary createForm={<div>Real class form</div>} createOpen={false} />,
-    );
-
-    expect(screen.getByRole("heading", { name: "Your classes, in one place" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Add a class" })).toHaveAttribute("href", "/classes?create=1");
-    expect(screen.queryByText("Real class form")).not.toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Classes" })[0]).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
+import { EmptyClassLibrary, MyClassesGrid, type SubjectLibraryCardModel } from "./my-classes-grid";
+const CARD: SubjectLibraryCardModel = { id:"physics", name:"AP Physics", teacher:"Dr. Rivera", href:"/classes/physics", progressPct:88, openWorkCount:1, submittedCount:2, nextAssignmentTitle:"Momentum lab report" };
+afterEach(cleanup);
+describe("Connected Classes", () => {
+  it("offers actual class creation for an empty roster", () => {
+    render(<EmptyClassLibrary createForm={<div>Class form</div>} createOpen={false} />);
+    expect(screen.getByRole("heading", { name:"Add your first class" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name:"Add class" }).every(link => link.getAttribute("href") === "/classes?create=1")).toBe(true);
+    expect(screen.queryByText("Class form")).not.toBeInTheDocument();
   });
-
-  it("renders owner-scoped subjects with truthful progress and real routes", () => {
-    vi.mocked(usePathname).mockReturnValue("/classes");
-
-    render(
-      <MyClassesGrid
-        cards={[CARD]}
-        createForm={<div>Real class form</div>}
-        createOpen
-      />,
-    );
-
-    expect(screen.getByRole("heading", { name: "CLASSES" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: CARD.name })).toBeInTheDocument();
-    expect(screen.getByText("Momentum lab report")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: `Open ${CARD.name} class` })).toHaveAttribute("href", CARD.href);
-    expect(document.querySelector(".ds-class-card")).not.toBeInTheDocument();
+  it("changes the real class destination with selection and keyboard focus", () => {
+    render(<MyClassesGrid cards={[CARD,{...CARD,id:"english",name:"English",href:"/classes/english"}]} createForm={<div>Class form</div>} createOpen />);
+    expect(screen.getByRole("link",{name:"Open class"})).toHaveAttribute("href",CARD.href);
+    fireEvent.keyDown(screen.getByRole("tab",{name:"AP Physics"}), {key:"ArrowDown"});
+    expect(screen.getByRole("tab",{name:"English"})).toHaveFocus();
+    expect(screen.getByRole("link",{name:"Open class"})).toHaveAttribute("href","/classes/english");
+    expect(screen.getByText("Class form")).toBeInTheDocument();
+  });
+  it("does not show empty success when loading is unavailable", () => {
+    render(<EmptyClassLibrary createForm={null} createOpen={false} unavailable />);
+    expect(screen.getByRole("status")).toHaveTextContent("Classes could not load");
+    expect(screen.queryByText("Add your first class")).not.toBeInTheDocument();
   });
 });

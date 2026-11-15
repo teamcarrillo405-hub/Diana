@@ -41,7 +41,7 @@ export function LobbyDashboard({
       <style>{LOBBY_STYLES + TODAY_CANONICAL_STYLES + TODAY_DASHBOARD_REDESIGN_STYLES}</style>
       <LobbyPageBackground />
       <StudentDesktopNav
-        active="Today"
+        active="Lobby"
         displayName={profile.displayName}
         photoUrl={profile.photoUrl}
         photoOffsetX={profile.photoOffsetX}

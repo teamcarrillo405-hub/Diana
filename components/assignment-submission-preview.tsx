@@ -98,7 +98,7 @@ export function AssignmentSubmissionPreview({ preview }: { preview: SubmissionPr
   return (
     <section className="sd-submission-preview" aria-labelledby="submission-preview-title">
       <div className="sd-submission-preview-heading">
-        <div><FileText size={22} aria-hidden="true" /><div><p>Outgoing work</p><h2 id="submission-preview-title">Review exactly what will be submitted</h2></div></div>
+        <div><FileText size={22} aria-hidden="true" /><h2 id="submission-preview-title">Your work</h2></div>
         <a href="#" aria-disabled={pending} onClick={downloadPreparedPdf}>
           <Download size={18} aria-hidden="true" /> {pending ? "Preparing PDF" : "Download PDF"}
         </a>

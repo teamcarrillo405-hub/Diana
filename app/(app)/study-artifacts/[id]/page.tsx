@@ -1,14 +1,15 @@
 import Link from "next/link";
-import { ArrowLeft, BookOpenCheck, CheckCircle2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 
-import { DianaWordmark } from "@/components/screen-design/primitives";
-import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import styles from "@/components/student-shell/collection.module.css";
 import { completeStudyArtifact } from "@/lib/study-helper/artifacts";
 import { normalizePracticeProgress } from "@/lib/study-helper/practice-progress";
 import { scorePracticeTest } from "@/lib/study-helper/practice-scoring";
 import { normalizeQuizSupportState } from "@/lib/study-helper/quiz-support-fading";
 import { createClient } from "@/lib/supabase/server";
+import { authorizeSavedArtifactDisclosure } from "@/lib/learning-engine/saved-artifact-assistance";
 
 import { PracticeTestSession } from "./practice-session";
 import { ArtifactFlashcards } from "./artifact-flashcards";
@@ -28,7 +29,7 @@ export default async function StudyArtifactDetailPage({
 
   const { data: row } = await supabase
     .from("study_artifacts")
-    .select("id, owner_id, title, artifact_type, study_mode, source_type, source_id, payload, practice_settings, authorship_receipt, ai_policy, created_at")
+    .select("id, owner_id, title, artifact_type, study_mode, source_type, source_id, payload, cards_saved_count, practice_settings, authorship_receipt, ai_policy, created_at")
     .eq("id", id)
     .eq("owner_id", user.id)
     .maybeSingle();
@@ -50,6 +51,19 @@ export default async function StudyArtifactDetailPage({
       (isRecord(row.authorship_receipt) ? row.authorship_receipt : undefined),
   });
 
+  let assignmentId: string | null;
+  try {
+    ({ assignmentId } = await authorizeSavedArtifactDisclosure(supabase, user.id, row, {
+      storedPayload: row.payload, artifact,
+    }));
+  } catch {
+    return <StudentShell active="More"><main id="main-content" className={styles.main}>
+      <h1>Study support is unavailable right now</h1>
+      <p>Your saved work is still here. Try opening it again in a moment.</p>
+      <Link href="/study?view=saved">Back to saved practice</Link>
+    </main></StudentShell>;
+  }
+
   if (row.artifact_type === "practice_test") {
     const progress = normalizePracticeProgress(rawPayload.practiceProgress);
     const result = Object.keys(progress.responses).length > 0
@@ -59,7 +73,7 @@ export default async function StudyArtifactDetailPage({
       <PracticeTestSession
         artifactId={row.id}
         artifactTitle={artifact.title}
-        assignmentId={row.source_type === "assignment" ? row.source_id : null}
+        assignmentId={assignmentId}
         quiz={artifact.quiz}
         initialProgress={progress}
         initialResult={result}
@@ -68,50 +82,11 @@ export default async function StudyArtifactDetailPage({
     );
   }
 
-  return (
-    <ScreenDesignViewport className="sd-artifact-detail">
-      <header className="sd-artifact-detail-header">
-        <Link href="/study-artifacts" aria-label="Back to study lab">
-          <ArrowLeft aria-hidden="true" />
-        </Link>
-        <DianaWordmark />
-        <span aria-hidden="true" />
-      </header>
-
-      <main className="sd-artifact-detail-scroll">
-        <div className="sd-artifact-detail-title">
-          <span>{artifact.type.replaceAll("_", " ")}</span>
-          <h1>{artifact.title}</h1>
-          <p>{artifact.summary}</p>
-        </div>
-
-        <section className="sd-artifact-authorship">
-          <CheckCircle2 aria-hidden="true" />
-          <div>
-            <h2>Authorship check</h2>
-            <p>{artifact.authorshipReceipt}</p>
-          </div>
-        </section>
-
-        {artifact.type === "study_guide" ? (
-          <section className="sd-artifact-detail-sections" aria-label="Study guide sections">
-            {artifact.guide.map((section) => (
-              <article key={section.heading}>
-                <h2>{section.heading}</h2>
-                <ul>{section.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
-              </article>
-            ))}
-          </section>
-        ) : <ArtifactFlashcards artifactId={row.id} cards={artifact.cards} />}
-
-        <section className="sd-artifact-next-review">
-          <BookOpenCheck aria-hidden="true" />
-          <div>
-            <h2>Next review</h2>
-            <p>{artifact.reviewLoop.nextReviewAction}</p>
-          </div>
-        </section>
-      </main>
-    </ScreenDesignViewport>
-  );
+  return <StudentShell active="More"><main id="main-content" className={styles.main}>
+    <Link href="/study?view=saved" className={styles.muted}><ArrowLeft size={16} aria-hidden="true" /> Back to Quiz</Link>
+    <header className={styles.heading}><h1>{artifact.title}</h1></header>
+    {artifact.type === "study_guide" ? <section className={styles.reading} aria-label="Study guide sections">{artifact.guide.map(section=><article key={section.heading}><h2>{section.heading}</h2><ul>{section.bullets.map(bullet=><li key={bullet}>{bullet}</li>)}</ul></article>)}</section> : <ArtifactFlashcards artifactId={row.id} cards={artifact.cards} savedCount={row.cards_saved_count ?? 0} />}
+    <div className={styles.actions}><Link href={`/study?source=${row.source_type}:${row.source_id}`}>Create quiz from this source</Link><Link href={row.source_type === "assignment" ? `/assignments/${row.source_id}/workspace` : `/notes/${row.source_id}`}>Open source</Link></div>
+    <details className={styles.muted}><summary>How Diana helped</summary><p>{artifact.authorshipReceipt}</p></details>
+  </main></StudentShell>;
 }

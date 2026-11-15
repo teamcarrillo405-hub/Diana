@@ -12,9 +12,15 @@ import {
   removeOfflineAssignmentStatus,
   removeOfflineFlashcardReview,
   removeOfflineNoteSave,
+  quarantinedOfflineCount,
+  clearOfflineAccount,
 } from "./store";
 
 const store = new Map<string, unknown>();
+let owner: string | null = "student-a";
+vi.mock("@/lib/supabase/client", () => ({
+  createClient: () => ({ auth: { getSession: async () => ({ data: { session: owner ? { user: { id: owner } } : null } }) } }),
+}));
 
 vi.mock("idb-keyval", () => ({
   get: vi.fn(async (key: string) => store.get(key)),
@@ -30,6 +36,7 @@ vi.mock("idb-keyval", () => ({
 describe("offline store", () => {
   beforeEach(() => {
     store.clear();
+    owner = "student-a";
   });
 
   it("queues and removes note saves", async () => {
@@ -90,5 +97,22 @@ describe("offline store", () => {
 
     const cached = await getCachedOfflineFlashcards("due");
     expect(cached?.cards[0].front).toBe("Front");
+  });
+
+  it("isolates accounts, quarantines ownerless work and refuses signed-out writes", async () => {
+    store.set("diana-offline:note:legacy", { title: "Private legacy note" });
+    await queueOfflineFlashcardReview({ tempId: "a", cardId: "card-a", rating: 3, queuedAt: "2026-09-24" });
+    owner = "student-b";
+    expect(await getOfflineFlashcardReviews()).toEqual([]);
+    expect(await getOfflineNoteSaves()).toEqual([]);
+    expect(await quarantinedOfflineCount()).toBe(1);
+    await removeOfflineFlashcardReview("a", "student-a");
+    owner = "student-a";
+    expect(await getOfflineFlashcardReviews()).toHaveLength(1);
+    await clearOfflineAccount("student-a");
+    expect(await getOfflineFlashcardReviews()).toEqual([]);
+    expect(await quarantinedOfflineCount()).toBe(1);
+    owner = null;
+    await expect(queueOfflineFlashcardReview({ tempId: "b", cardId: "b", rating: 2, queuedAt: "today" })).rejects.toThrow("Sign in");
   });
 });

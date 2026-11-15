@@ -6442,10 +6442,10 @@ body[data-experience-mode="future"] .future-wave-bar {
 .diana-kicker,
 .signal-eyebrow,
 .brain-state-title,
-.diana-app summary,
-.diana-app label > span:not(.sr-only),
-.diana-app th,
-.diana-app small {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) summary,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) label > span:not(.sr-only),
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) th,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) small {
   font-family: var(--font-diana-mono), ui-monospace, monospace;
   font-weight: 700;
   letter-spacing: 0.16em;
@@ -6474,7 +6474,7 @@ body[data-experience-mode="future"] .future-wave-bar {
 .student-signal-poster h2,
 .diana-focus-pane h2,
 .proof-stage h1,
-.diana-app h1 {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) h1 {
   color: #182126;
   font-family: var(--font-lexend), Lexend, system-ui, sans-serif;
   font-weight: 620;
@@ -6488,8 +6488,8 @@ body[data-experience-mode="future"] .future-wave-bar {
 .diana-app-title,
 .right-now-copy h2,
 .next-move-artifact .right-now-copy h2,
-.diana-app h2,
-.diana-app h3 {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) h2,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) h3 {
   color: #182126;
   font-family: var(--font-lexend), Lexend, system-ui, sans-serif;
   font-weight: 620;
@@ -6500,13 +6500,13 @@ body[data-experience-mode="future"] .future-wave-bar {
 .diana-copy,
 .diana-copy,
 .signal-copy,
-.diana-app p,
-.diana-app li {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) p,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) li {
   color: #53615c;
 }
 
-.diana-app strong,
-.diana-app b {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) strong,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) b {
   color: #182126;
 }
 
@@ -6516,11 +6516,11 @@ body[data-experience-mode="future"] .future-wave-bar {
 .signal-pill-secondary,
 .diana-device-action,
 .right-now-action,
-.diana-app button,
-.diana-app a[class*="bg-brand"],
-.diana-app a[class*="bg-accent"],
-.diana-app button[class*="bg-brand"],
-.diana-app button[class*="bg-accent"] {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) a[class*="bg-brand"],
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) a[class*="bg-accent"],
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button[class*="bg-brand"],
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button[class*="bg-accent"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -6541,9 +6541,9 @@ body[data-experience-mode="future"] .future-wave-bar {
 }
 
 .diana-button-primary,
-.diana-app button[type="submit"],
-.diana-app button[class*="bg-brand"],
-.diana-app button[class*="bg-accent"] {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button[type="submit"],
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button[class*="bg-brand"],
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button[class*="bg-accent"] {
   border-color: #c6d23f;
   background: #e8f56b;
   color: #141d20;
@@ -6562,8 +6562,8 @@ body[data-experience-mode="future"] .future-wave-bar {
   color: #182126;
 }
 
-.diana-app button:hover:not(:disabled),
-.diana-app a[class*="bg-brand"]:hover,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button:hover:not(:disabled),
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) a[class*="bg-brand"]:hover,
 .diana-button:hover:not(:disabled),
 .diana-button:hover,
 .signal-pill-primary:hover,
@@ -6574,15 +6574,15 @@ body[data-experience-mode="future"] .future-wave-bar {
   transform: none;
 }
 
-.diana-app button:disabled {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button:disabled {
   cursor: not-allowed;
   opacity: 0.54;
 }
 
 .diana-input,
-.diana-app input,
-.diana-app textarea,
-.diana-app select {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) input,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) textarea,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) select {
   border-radius: 8px;
   border: 1px solid rgb(24 33 38 / 0.28);
   background: rgb(255 255 255 / 0.70);
@@ -6594,8 +6594,8 @@ body[data-experience-mode="future"] .future-wave-bar {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.68);
 }
 
-.diana-app input::placeholder,
-.diana-app textarea::placeholder {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) input::placeholder,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) textarea::placeholder {
   color: #65736d;
 }
 
@@ -6671,13 +6671,13 @@ body[data-experience-mode="future"] .future-wave-bar {
   background: rgb(var(--diana-surface-rgb) / 0.76);
 }
 
-.diana-app th,
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) th,
 .diana-app td {
   border-bottom: 1px solid rgb(248 243 255 / 0.09);
   padding: 0.78rem;
 }
 
-.diana-app th {
+.diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) th {
   color: var(--diana-gold);
   background: rgb(var(--diana-gold-rgb) / 0.07);
 }
@@ -7123,8 +7123,8 @@ body[data-experience-mode="future"] .future-wave-bar {
   }
 
   .diana-button,
-  .diana-app a.diana-button,
-  .diana-app button.diana-button {
+  .diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) a.diana-button,
+  .diana-app:not(:has([data-student-shell][data-version="12"], [data-entry-shell], [data-public-shell])) button.diana-button {
     min-height: 2.75rem;
   }
 

@@ -20,6 +20,16 @@ describe("Edge Function tenant boundary", () => {
   it("routes every student-callable handler through the shared security guard", () => {
     expect(studentFunctions.length).toBeGreaterThan(20);
     for (const fn of studentFunctions) {
+      if (fn.name === "learning-integrated-execution") {
+        // The research handler additionally binds a server-owned plan and
+        // repeats the shared authentication/policy check before each release.
+        expect(fn.source).toContain("Deno.serve(withStudentCors(");
+        expect(fn.source).toContain("createIntegratedExecutionHandler({");
+        expect(fn.source).toContain("requireStudentContext(request, { assignmentId, requireAiGreen: true })");
+        expect(fn.source).toContain("runSafeBudgetedAiCall({");
+        expect(fn.source).toContain("recordIntegratedResearchAssistance(auth.serviceClient, auth.ownerId, plan, row)");
+        continue;
+      }
       expect(fn.source, `${fn.name} must import the shared handler`).toContain(
         'from "../_shared/student-handler.ts"',
       );
@@ -27,6 +37,19 @@ describe("Edge Function tenant boundary", () => {
         `Deno.serve(withStudentSecurity("${fn.name}"`,
       );
     }
+  });
+
+  it("keeps the research execution handler scoped to its approved operator and current owned sources", () => {
+    const handler = readFileSync(join(functionsRoot, "_shared/learning/integrated-execution-handler.ts"), "utf8");
+    expect(handler).toContain("request.method !== 'POST'");
+    expect(handler).toContain("deps.env('DIANA_INTEGRATED_EXECUTION_ENABLED') !== 'true'");
+    expect(handler).toContain("auth.ownerId !== plan.operatorId");
+    expect(handler).toContain("await deps.authenticate(request, row.assignmentId)");
+    expect(handler).toContain("await deps.verifySources(auth, row)");
+    expect(handler).toContain("await deps.recordAssistance(current, row,");
+    expect(handler).toContain("policy_changed_before_screening");
+    expect(handler).toContain("policy_or_approval_changed");
+    expect(handler).toContain("beforeRelease.ownerId !== plan.operatorId");
   });
 
   it("keeps the compatibility entry pointed at the guarded implementation", () => {

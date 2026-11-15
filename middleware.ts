@@ -1,6 +1,7 @@
 import { updateSession } from "@/lib/supabase/middleware";
 import { createNonce, securityHeaders } from "@/lib/security/response-headers";
-import type { NextRequest } from "next/server";
+import { currentStudentDestination, isRetiredStudentRoute } from "@/lib/student-route-policy";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   const nonce = createNonce();
@@ -14,6 +15,23 @@ export async function middleware(request: NextRequest) {
     "Content-Security-Policy",
     headersForResponse["Content-Security-Policy"],
   );
+
+  const destination = currentStudentDestination(request.nextUrl.pathname);
+  if (destination) {
+    const response = NextResponse.redirect(new URL(destination, request.url), 307);
+    for (const [name, value] of Object.entries(headersForResponse)) response.headers.set(name,value);
+    return response;
+  }
+
+  if (isRetiredStudentRoute(request.nextUrl.pathname)) {
+    const response = NextResponse.rewrite(new URL("/not-found", request.url), {
+      status: 404,
+    });
+    for (const [name, value] of Object.entries(headersForResponse)) {
+      response.headers.set(name, value);
+    }
+    return response;
+  }
 
   const response = await updateSession(request, requestHeaders);
   for (const [name, value] of Object.entries(headersForResponse)) {

@@ -1,3 +1,4 @@
+import { DianaRecoveryScreen } from "@/components/screen-design/diana-recovery-screen";
 import { createServiceClient } from "@/lib/supabase/service";
 import { digestShareToken } from "@/lib/sharing/token";
 import type {
@@ -80,27 +81,7 @@ export default async function SharePage({
 }
 
 function NotActive() {
-  return (
-    <main id="main-content" className="sd-share-inactive">
-      <div>
-        <span aria-hidden="true">D</span>
-        <p>Private student share</p>
-        <h1>Shared link unavailable</h1>
-        <p>
-          This link may have expired or been turned off. Ask the student for a new
-          link if they still want to share this information.
-        </p>
-      </div>
-      <style>{`
-        .sd-share-inactive { display:grid; min-height:max(100dvh,852px); place-items:center; overflow:hidden; background:radial-gradient(circle at 50% 22%,rgb(116 192 255 / .13),transparent 18rem),#0f172a; padding:32px; color:#f8fafc; }
-        .sd-share-inactive > div { display:grid; width:min(100%,340px); justify-items:center; gap:12px; border:1px solid rgb(255 255 255 / .1); border-radius:28px; background:rgb(255 255 255 / .045); padding:36px 24px; text-align:center; box-shadow:0 24px 70px rgb(0 0 0 / .34); }
-        .sd-share-inactive span { display:grid; width:58px; height:58px; place-items:center; border-radius:17px; background:linear-gradient(135deg,#74c0ff,#ff79da); color:#0f172a; font:italic 950 30px/1 var(--font-display),Arial,sans-serif; }
-        .sd-share-inactive p { margin:0; color:#94a3b8; font-size:11px; line-height:1.55; }
-        .sd-share-inactive p:first-of-type { color:#74c0ff; font-size:9px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; }
-        .sd-share-inactive h1 { margin:8px 0 0; font:italic 950 34px/.92 var(--font-display),Arial,sans-serif; letter-spacing:-.04em; text-transform:uppercase; }
-      `}</style>
-    </main>
-  );
+  return <DianaRecoveryScreen eyebrow="Private report" title="Link unavailable" message="This link may have expired or been turned off. Ask the student for a new link." backHref="/" backLabel="Diana home" />;
 }
 
 async function buildParentSummary(

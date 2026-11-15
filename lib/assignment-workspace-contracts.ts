@@ -2,6 +2,7 @@ import type { StudyHelperResult } from "@/lib/integrations/diana-study-helper-si
 import type { TutorResponseEvidence } from "@/lib/ai/tutor-response-evidence";
 import type { VisibleTutorProviderState } from "@/lib/assignment-help/provider-state";
 import type { CanonicalRenderDocument } from "@/lib/specialist-artifacts/render-blocks";
+import type { ReferenceEvidence } from "@/lib/learning-engine/textbook-tutor";
 
 export type ProblemProgressStatus = "not_started" | "in_progress" | "done";
 
@@ -50,6 +51,9 @@ export type StudyBuddyRouteSuccess = {
   response: StudyHelperResult;
   evidence: TutorResponseEvidence;
   providerState: VisibleTutorProviderState;
+  references?: ReferenceEvidence;
+  provider?: { called: boolean; responseOrigin: "local" | "api"; tokens: number };
+  routing?: { localCapability: string | null };
 };
 
 export type StudyBuddyRouteFailure = {
@@ -69,6 +73,8 @@ export type StudyBuddyStreamEvent =
       response: StudyHelperResult;
       evidence: TutorResponseEvidence;
       providerState: VisibleTutorProviderState;
+      provider?: StudyBuddyRouteSuccess["provider"];
+      routing?: StudyBuddyRouteSuccess["routing"];
     }
   | {
       type: "interrupted";

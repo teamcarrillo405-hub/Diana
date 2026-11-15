@@ -1,0 +1,33 @@
+.root { width:100%; max-width:960px; background:#172222f2; border-block:1px solid #d1e4d833; color:#ecf3ef; }
+.root.root :global(.sd-tutor-chat-feed) { display:block; position:static; max-height:none; min-height:140px; padding:22px; overflow:visible; background:transparent; }
+.root.root :global(.sd-tutor-source) { margin:0 0 24px; padding:0 0 18px; border:0; border-bottom:1px solid #d1e4d833; background:transparent; border-radius:0; color:#d9e8df; }
+.root.root :global(.sd-tutor-source) summary { display:flex; align-items:center; gap:8px; cursor:pointer; min-height:44px; font-size:13px; }
+.root.root :global(.sd-tutor-source) textarea { width:100%; min-height:76px; margin-top:12px; padding:12px 14px; border:1px solid #a8c1b6; border-radius:3px; background:#f0f4f0; color:#24362e; font-size:14px; line-height:1.6; }
+.reference { display:grid; gap:6px; padding:14px 0; font-size:13px; }
+.reference > span { color:#b4cabe; }
+.reference > div { display:flex; align-items:center; flex-wrap:wrap; gap:20px; }
+.reference a,.reference button { display:inline-flex; align-items:center; min-height:44px; color:#d9e8df; font-size:12px; }
+.reference button { border:0; padding:0; background:transparent; cursor:pointer; text-decoration:underline; text-underline-offset:4px; }
+.citations { display:flex; flex-wrap:wrap; align-items:center; gap:8px 18px; margin-top:14px; padding-top:10px; font-size:12px; }
+.citations > span { width:100%; color:#b4cabe; }
+.citations a { display:inline-flex; align-items:center; min-height:44px; color:#d9e8df; text-underline-offset:4px; }
+.citations p { color:#efd9ad; }
+.root.root :global(.sd-tutor-bubble) { width:auto; max-width:100%; margin:0; padding:20px 0; border:0; border-bottom:1px solid #d1e4d833; border-radius:0; background:transparent; box-shadow:none; color:#ecf3ef; font-size:14px; line-height:1.75; overflow-wrap:anywhere; }
+.root.root :global(.sd-tutor-bubble) > span { display:block; margin-bottom:8px; color:#b4cabe; font-size:12px; }
+.root.root :global(.sd-tutor-bubble-student) { padding-left:16px; border-left:3px solid #b90b68; }
+.root.root :global(.sd-tutor-bubble) small { display:block; margin-top:10px; color:#b4cabe; line-height:1.6; }
+.root.root :global(.sd-tutor-bubble) ol { padding-left:22px; }
+.root.root :global(.sd-tutor-composer) { position:static; padding:0 22px 22px; background:transparent; border:0; }
+.root.root :global(.sd-tutor-modes) { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:12px; }
+.root.root :global(.sd-tutor-modes) button { min-height:44px; padding:8px 14px; color:#d9e8df; background:transparent; border:1px solid #c9dcd642; border-radius:3px; font-size:12px; }
+.root.root :global(.sd-tutor-modes) button[aria-pressed="true"] { background:#b90b68; border-color:#df78af; color:#fff; }
+.root.root :global(.sd-tutor-input-row) { display:flex; align-items:flex-end; gap:12px; padding:0; border:0; background:transparent; border-radius:0; }
+.root.root :global(.sd-tutor-input-row) > svg { display:none; }
+.root.root :global(.sd-tutor-input-row) textarea { flex:1; width:100%; min-width:0; min-height:76px; max-height:240px; margin:0; padding:12px 14px; border:1px solid #a8c1b6; border-radius:3px; background:#f0f4f0; color:#24362e; font-size:14px; line-height:1.6; }
+.root.root :global(.sd-tutor-input-row) button { display:flex; align-items:center; justify-content:center; position:static; min-width:48px; min-height:48px; padding:12px; background:#8224e3; color:#fff; border:1px solid #b988eb; border-radius:3px; }
+.root.root :global(.sd-tutor-composer) > small { display:block; padding-top:12px; color:#b4cabe; font-size:11px; }
+.root.root :global(.sd-tutor-error) { color:#efd9ad; padding:12px 16px; background:#332b23; border-left:3px solid #e7b560; font-size:13px; }
+.root.root :global(.sd-tutor-thinking) { display:flex; align-items:center; gap:8px; padding:16px 0; color:#b4cabe; }
+.root button:disabled { opacity:.5; cursor:default; }
+.root :is(button,a,textarea,summary):focus-visible { outline:2px solid #d5c4fa; outline-offset:3px; }
+@media(max-width:760px) { .root.root :global(.sd-tutor-chat-feed),.root.root :global(.sd-tutor-composer) { padding-inline:16px; } .root.root :global(.sd-tutor-input-row) textarea,.root.root :global(.sd-tutor-source) textarea { font-size:16px; } }

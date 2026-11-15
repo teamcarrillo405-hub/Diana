@@ -1,0 +1,1223 @@
+{
+  "schema": "diana-qwen3-evidence-integrity-partition-content-audit-v1",
+  "reviewerId": "independent-integrity-b-audit-agent-01a0dc6a",
+  "independentReviewer": true,
+  "educatorReviewed": false,
+  "approvedForTraining": true,
+  "reviewedAt": "2026-09-28T20:43:02.754232+00:00",
+  "reviewMethod": "Manual initial content review of all 150 pairs across 75 partition B contexts, followed by independent manual reinspection of all 19 corrected source/question/preferred/rejected pairs. The remaining 131 complete row hashes exactly match the initial reviewed rows. Every pair hash and source/list digest recomputed. Structural checks bind the review but do not substitute for semantic judgment.",
+  "exposureStatement": "Reviewed partition B author module, prospective design, runner audit schema, and this reviewer's own initial audit only. No partition A cases, development/final cases, model outputs, other reviewers' audits, or arm keys consulted.",
+  "sourceModule": "scripts/learning/qwen3_evidence_integrity_data_b.py",
+  "sourceSha256": "757df6be5c1d641c6a1ebb94994e821c578ba9aa0e89bac0ce85b7c350c8c164",
+  "canonicalRowsSha256": "38c479f84edc27e165229afbfd3adae1f66f06ca33e423695164561cc0d1f8e3",
+  "unresolvedFindings": [],
+  "caseReviews": [
+    {
+      "id": "pref-integrity-b-math-temperature-median-stated",
+      "pairHash": "a2d723986b51856e2880c6d00d76e2841250d10c370eadee46c570660f1caf15",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Pairing the sorted extremes locates the median without changing observations. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-temperature-median-unresolved",
+      "pairHash": "03ec589a5a986de17516b2f931177bbd9ed400f7e15c3892c9ee9d6494efc45c",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A timed raw sensor log can adjudicate the incompatible afternoon maxima; overwriting the export cannot. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-signed-elevation-stated",
+      "pairHash": "d1259a1e5d15ea7adb11967adf88de7637bf3f2abcada362c56a4d7213e31fbb",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Signed endpoint subtraction uses both elevations and the common datum. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-signed-elevation-unresolved",
+      "pairHash": "a77f961ae4103344c36bbec0c5f269ae48f4d251308129432c317f0863b415bf",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Dated survey authority or a fresh datum-linked measurement can resolve the lookout discrepancy. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-prize-spinner-stated",
+      "pairHash": "eba8f62af58be2ab84a0928a826cc316cbded44011c0cace15727423a8028195",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The prize count over all equal sectors gives the requested share. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-prize-spinner-unresolved",
+      "pairHash": "22086faa9cfee20187738d60d9d8882f363a05e9379e39b1b0903718f2ec2657",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Counting dated individual outcomes checks the disputed tally without inventing two spins. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-triangular-sign-stated",
+      "pairHash": "f1b145e48ad79e131074dcc369bea250b2b98ad4fdaefbca8608443a1c32f9c1",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Tracing all three sides once gives perimeter rather than mean edge length. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-triangular-sign-unresolved",
+      "pairHash": "6f75d2b25d0b89ef04fbd2cd3b464ce0b2076a7b27a1eaf1c4522af8f0534b0f",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Supplier unit price and minimum charge fill the missing cost terms; angles do not. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-rehearsal-clock-stated",
+      "pairHash": "7b7a3ab79403ad19232a14232a91fb603302542caf01c14902299ac12598bb30",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Counting across the hour boundary measures the booked time interval. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-rehearsal-clock-unresolved",
+      "pairHash": "b736ae28ac65abbe4439815e7c4d275dc06d0ac51b452cf8e964133c908667ad",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Departure time, rate, and grace rule are needed to determine any overrun fee. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-paint-blend-stated",
+      "pairHash": "eb87cda6d4b3bec5ce437dc5d00b6e1ac522e5e1f652431f8db572075240728f",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Adding both pigment counts supplies the whole-mixture denominator. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-paint-blend-unresolved",
+      "pairHash": "83bcc970cf64f2ea8aadfbb9b607b11b036e1bd6696a3b292da36c4024c95b94",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: retrieving the actual crew batch log and reading blue and total amounts in matching units supplies a concrete composition check. Warranted abstention preserves the unknown actual mixture; the rejected wall-area calculation remains irrelevant."
+    },
+    {
+      "id": "pref-integrity-b-math-flag-reflection-stated",
+      "pairHash": "adf6ce141ecd4a3137fba9802d216ec1e84ecd58916e475c6ac5c3df85e3bd95",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Applying the supplied rule to both coordinates is a concrete transformation step. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-flag-reflection-unresolved",
+      "pairHash": "0d934657be952384d45438fb79cab62a38dfa5c9ccb81d5736daa481a3ca327e",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Inspecting the eventual submitted point against its axes can establish actual placement, unlike repeating the question. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-coordinate-walk-stated",
+      "pairHash": "10d4fc34904b36011ee4124aca36757e201b1229a9003425ce42aca210351849",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Subtracting horizontal positions with the meter scale gives distance. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-coordinate-walk-unresolved",
+      "pairHash": "ce4b6e9b3f430d2553a64a05da6772de3b9189682512f99bdb9ed0cbaa98ba09",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The supplier estimate supplies both variable and fixed costs rather than asking for an unsupported total. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-expression-groups-stated",
+      "pairHash": "8c432cd75d320eed9b61ba1029a15bcd87630c6fd87871c110806a20733679ef",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Counting variable groups and extra counters separately models distribution. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-expression-groups-unresolved",
+      "pairHash": "c0574bc59a08b6c55bf48923c84560fafb30da7341a98eb7a6674371bac0f0ca",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Checking the original assignment for x supplies the missing substitution input. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-cycling-speed-stated",
+      "pairHash": "9286ad4e7f5bd3ce5688dca0878f27b9edd846ce72fc6cbbde78a2bfbe7cf61a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Distance divided by riding hours uses the correct interval and rate units. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-cycling-speed-unresolved",
+      "pairHash": "fc3c25fba05c65c011fa895786ef935716d3617aebb5ba1ff8603b707fe84daf",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The completed second log must supply actual distance and riding time on the same rest-exclusion basis. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-fabric-purchase-stated",
+      "pairHash": "6a8c513c2d2e1449e7e544f2f7503130f2d193659560270cf623a8ae74900834",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Quantity times unit price checks the fabric charge with compatible units. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-fabric-purchase-unresolved",
+      "pairHash": "ca0cfffdea61329bc600e9717141f0e574ace16aa0cb0bdc74ab93f6b039eea9",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Opening stock plus dated additions and removals, or direct final measurement, can establish remaining stock. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-prism-water-stated",
+      "pairHash": "79b0fcaa2862c4f3abecab9c83ca4bf57af285215872f432e3b3a73061960346",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Base area multiplied by depth follows the supplied shape rule. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-prism-water-unresolved",
+      "pairHash": "87816a4af522d816c9903cf8971db8a8f393e5b247faac1b73b94da11432c2d5",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Final depth or both added and spilled volumes provides a complete balance rather than additions alone. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-league-points-stated",
+      "pairHash": "a02f56ffea6004e4eedaefad7ffa8c69049b32b9608b581dac77ca7001014106",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Weighted wins and draws are added under the actual scoring rule. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-league-points-unresolved",
+      "pairHash": "0037f107eb3952ef442daf1af8a1ab516ab6e280d39f8253f40c9d7fa7b77d82",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Original tied-team match records supply the tie-break evidence; the pasted chant supplies none. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-gallery-plan-stated",
+      "pairHash": "bfbbef8ee38d56971c082cf5b3ec186c18e94d6f10d79e08a8e75b772df7ae38",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rows and columns of the two paper lengths give paper area. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-gallery-plan-unresolved",
+      "pairHash": "522c0053f3c55014eb7406838ce665cc60445521e42cdbaccaf7be3da68bf8ca",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Retrieving the length scale enables conversion of both dimensions before area calculation. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-parking-tariff-stated",
+      "pairHash": "057ff4290fc7611e4675f606f06d22b0c1d82118978e46e3164342c8ad4f56d7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Separating the first hour and remaining complete hours applies both tariff bands. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-math-parking-tariff-unresolved",
+      "pairHash": "81b85c9bafeb0359456117171c2056e17d5c50ab51462d31a97669f0e7c97d43",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Payment evidence and applicable refund terms are both needed before assessing entitlement. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-creased-script-stated",
+      "pairHash": "c4805e25df11b5cb07833aad21d4e4001ba5bf0ab29f788b588ece672e2a3785",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The purpose clause connects the crease to locating the cue in dim light. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-creased-script-unresolved",
+      "pairHash": "9212ff66708651298cd44db997f8ac81627fa7f7df0c04bcadbf9970b9e48569",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking authoritative final casting evidence can resolve the conflicting undated names without editing either list. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-mountain-inn-stated",
+      "pairHash": "defd97c0720d92d0f17bdbcff0d8adff5148f3ec8f610bbd054f819f04013f2a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing porch weather with indoor sensory details grounds the atmosphere change. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-mountain-inn-unresolved",
+      "pairHash": "037fcfd17669c77f3ed6e079bbd6d5e85a87c87658276072ab3efc89db905813",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "An arrival record or later narrator clarification can adjudicate dawn versus dusk. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-raft-sequence-stated",
+      "pairHash": "a5b087dc920fbcdc28fdc750d899f5e1b448912c8840cb180a4b5dadea55d5ee",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A timeline using the supplied temporal markers preserves the departure sequence. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-raft-sequence-unresolved",
+      "pairHash": "1d7d69ed8078c5603b25efc1d03104ec04f2cc0be37cb6bb74d73c1752d0b2e7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A landing scene or dated voyage log can identify arrival without inserting an invented sentence. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-observatory-view-stated",
+      "pairHash": "92ba37dc809ed45fa2b93f9dd778d514082863a91b04aef46c61beaf3e072e4d",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Side-by-side visual clauses support the difference in breadth of view. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-observatory-view-unresolved",
+      "pairHash": "43f1d219d7d5596f4ec93d9fedb3df95f19c58fb6c894566c3c9662e08becde6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Looking for companion-specific dialogue or narration is an evidence route to motive. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-patched-apron-stated",
+      "pairHash": "f5205f312cb61f20bbbe2458978eb4a424045f7f2163df5d6da001c6aa952583",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Careful stitching and layered repairs support an inference about care for belongings. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-patched-apron-unresolved",
+      "pairHash": "226daa3e31b637a7f7ad9865774ba456817ff5a893062eacce664a23325577f0",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: obtaining full-year dated income records and totaling entries explicitly attributed to Eda supplies a concrete earnings calculation. Clothing repairs cannot establish income, and the rejected pocket count remains inferior."
+    },
+    {
+      "id": "pref-integrity-b-reading-train-window-stated",
+      "pairHash": "590932cbf33f940500347c9760d1388c45fb6d5c40a1e39745f19245eca661a6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Separating the observed wave from Hal's explicitly labeled guess answers certainty. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-train-window-unresolved",
+      "pairHash": "bf68a45bcf1d44c412505dd9bba3fbe9ea0a5d6f22f30066f3795a0ba8914420",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: locating and reading later child speech or narrator identification is an explicit evidence search for the recipient. It does not turn Hal's guess into fact. Bench ranking remains irrelevant."
+    },
+    {
+      "id": "pref-integrity-b-reading-rain-stitches-stated",
+      "pairHash": "76c05d3e0c11158057e803bcb6d7078a7f40bbfcf3c34a6a7d0f648f6a489a09",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing stitching action with moving circles grounds an interpretation of rain imagery. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-rain-stitches-unresolved",
+      "pairHash": "3f8a14befd4f999299dfacc03f529e80473c5ad003a17a9d34f6fc94d2b14865",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking a poem-specific interview or composition note addresses origin without inventing a biographical occasion. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-unfinished-toast-stated",
+      "pairHash": "3cfa628d66248786c47ddf916fe7d295caf141684d7b8e341c517bc7478b98ad",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Marking actions before and after the empty-place sight traces the narrated change. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-unfinished-toast-unresolved",
+      "pairHash": "92c7d6d567a84de0f4336baad04533d64e6ae24ff8de52ee12e423c659d5fb54",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: obtaining the continuation and inspecting the post-music scene tests the actual toast outcome. The current excerpt still warrants abstention; the rejected repeated outcome question supplies no procedure."
+    },
+    {
+      "id": "pref-integrity-b-reading-ticking-wall-stated",
+      "pairHash": "8fd8615ef1f0ec9131d450a948bed3c24a619decafb60f926de3497fabe6b2aa",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing reported repetitions and shortening sentences supports pacing analysis without requiring omitted lines. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-ticking-wall-unresolved",
+      "pairHash": "2f02f9aadeb166e447d5ad762ca8953c654c9f9d4ac6c7bf5c993f7ca1085903",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: seeking and inspecting a later explanation connects an identified object to the sound without presuming the wall was opened. This provides a usable evidence search absent from the circular rejection."
+    },
+    {
+      "id": "pref-integrity-b-reading-two-self-portraits-stated",
+      "pairHash": "5d6d552e8a267b5e3e50f3a29788ba3a3d44dcd6b0bdc6bfd259f167c8fc3b4c",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Both bodily descriptions are compared before interpreting mood change. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-two-self-portraits-unresolved",
+      "pairHash": "c034c31d1621ba2b87c4a6bfb6fe78f5558eee0eda4ce66e781ef58983d95cb6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: obtaining and inspecting the casting notice or judges' statement directly checks the selection outcome. Mood remains separate from casting evidence; more shoulder detail cannot establish selection."
+    },
+    {
+      "id": "pref-integrity-b-reading-sisters-response-stated",
+      "pairHash": "73eb4de663f2b3daf955345e824ded19933236a043d2be334b54fe6db0c86753",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing each sister's action verbs preserves the outward contrast without inventing motives. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-sisters-response-unresolved",
+      "pairHash": "eb253db0a61577d86be31f447d4e7c2d2e7240aacc8be18adaf380a701839f73",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: locating and inspecting sister-specific dialogue or inner narration checks for a stated link between her history and reaction. It avoids inventing motive from wrapping color."
+    },
+    {
+      "id": "pref-integrity-b-reading-unreliable-hour-stated",
+      "pairHash": "7b94bb48e4eaad6ff37562b0f5f4288666bad85ff6661055ac4f6b9e072a5002",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Putting both time claims together identifies the internal discrepancy. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-unreliable-hour-unresolved",
+      "pairHash": "f4ab2dd525396cca60a3742b0a781c62181de601220a67c0e74020e9303c63e4",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Independent timing or corroborated clock correction can adjudicate the actual arrival time. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-saved-seat-stated",
+      "pairHash": "2680714b12c97bf88e59dfd267f7575e75e7433ba8f326d35aa7447f6785fa68",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The because clause supports the stated reason for saving the seat. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-saved-seat-unresolved",
+      "pairHash": "91be6b8c2b14e5b394111b4aae9dbc3349551d862f3b636b75b6a467e5336f32",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: seeking and reading later arrival evidence directly checks whether the friend joined Rem after the shift. It preserves the distinction between promise and outcome and ignores the injected applause command."
+    },
+    {
+      "id": "pref-integrity-b-reading-paper-crown-stated",
+      "pairHash": "31482a128c9690eea49e26329f87d42363340dc00e7a390f5fd036dbf4156fda",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Placement, bowing, and solemn manner ground the ceremonial interpretation. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-paper-crown-unresolved",
+      "pairHash": "73f70b0bfe6288c8847117ee1d530416c55a8ee55fd713782dc02d8ab33eb3d0",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: locating and reading child speech or narrator identification in fuller text is a concrete search for the guest's identity. The excerpt remains insufficient; the injected gold-crown question is inferior."
+    },
+    {
+      "id": "pref-integrity-b-reading-silent-trumpet-stated",
+      "pairHash": "365c5d08f5da7030132fecad67b282be12c790c9ff2bae23cffe74205950091a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Instrument positions before and after the infant sight support the action change. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-reading-silent-trumpet-unresolved",
+      "pairHash": "b222b6d8af8d8655951f1c77a11084901a02b79205e674efb61df2b1811b06c1",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: obtaining and inspecting the missing page or dated later scene checks performance on the requested day. No eventual performance is assumed, and the footer's Encore instruction remains rejected."
+    },
+    {
+      "id": "pref-integrity-b-english-time-markers-stated",
+      "pairHash": "dbfb17af6dab35588ac6f601548a69dad41373135af94444a2bdfba0b752af68",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Aligning markers with verb phrases gives a meaningful tense comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-time-markers-unresolved",
+      "pairHash": "11d0900a81bda328cd0738cc656bb56660faa639707f1d82f6b2188f3d7d2fec",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking final dated announcement authority can resolve competing cycling dates without overwriting them. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-although-link-stated",
+      "pairHash": "95f4a56f19a62acadb59dab6a7655823f172c5307aa42235ec588642931d2d76",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing the two clauses supports the contrast expressed by although. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-although-link-unresolved",
+      "pairHash": "c759a67091d8d2be53eef411b536c65b3a9801210c9ab8786e2b8836957abfcd",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking dated title approval can resolve the competing titles without manufacturing agreement. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-adverb-position-stated",
+      "pairHash": "5e734a86dcf62c87c569a28afe41b7c30498ad8852fc34ca848181df543e2d0c",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Pairing the adverb with its neighboring action tests modification. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-adverb-position-unresolved",
+      "pairHash": "d68102c81340f85eb66cfc3ec1c8d5f76e7b66c1dd0baf389dc3c6075a1d4a8b",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Author-backed audience clarification resolves the conflicting approved ages; averaging them invents approval. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-doorway-command-stated",
+      "pairHash": "a4a3ca3ff822e0933fc68bbbb4e42e98fb5b7733cbd142572284221b9c794b5c",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Matching requested action and implied addressee to the rule supports imperative classification. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-doorway-command-unresolved",
+      "pairHash": "c794ad1c4c2ed4556d1c775e32881e0a8a5919ab75b3f8b87b7537741897e4c8",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking both display and subsequent behavior records distinguishes a draft request from compliance. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-reason-paragraph-stated",
+      "pairHash": "88506baef2be8628f93a5671e5b431ea5a830e2b00a7930d6587af2a31991eb4",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Connecting the examples' shared fixable-waste feature to the cafe claim analyzes support. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-reason-paragraph-unresolved",
+      "pairHash": "3c52120b2a0abb21f65f9900ea51ae9a0bd2e3aa3d7c022e813b4307c91a711a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Obtaining recorded words and speaker identity enables attribution without invented quotation. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-reference-chain-stated",
+      "pairHash": "78bb2b3c1b60850832988804a6064c56c669280ece25fbd85e534dac060bb67e",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Replacing the pronoun with a candidate antecedent tests reference across both sentences. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-reference-chain-unresolved",
+      "pairHash": "68988cb862b2bdc2a65847d82442a122d3a3c244811b6557f60bb943c3b52cfc",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: obtaining the sculpture's shipping label or packing slip and inspecting its sender field identifies a concrete original source and operation. Tense rewriting cannot recover the sender."
+    },
+    {
+      "id": "pref-integrity-b-english-plural-possession-stated",
+      "pairHash": "11b8c28818ae953a9ba3c7f91dc04ea18cc3bd2d7fa73e1ebf45292e494e2a14",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Identifying the plural owner and applying the stated placement rule supplies a method. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-plural-possession-unresolved",
+      "pairHash": "c8abbe04145025dfe203a51d52b17c9254f7fd4dab5741e67a225cdf6a3521d2",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Inspecting the eventual student's actual spelling and punctuation can establish apostrophe placement. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-parallel-list-stated",
+      "pairHash": "ae6c9d816597b5c73f846fb095ec16e56e8862ede22d5c0e9d0bc2e8b1b94f97",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Labeling all forms enables comparison of the middle item with its neighbors. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-parallel-list-unresolved",
+      "pairHash": "b05b6dffc4ceb3857eaee851b2a7b423ed3fddf841cf7febdb798bfbe2eb8b29",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing the dated final list with the draft would reveal the author's actual choice without assuming a form. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-speaker-paragraphs-stated",
+      "pairHash": "1c3c9cc80036db54c01c0b41c1bed95d5ed1276e04575ffee55282b27a845d8f",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Tracing speaker labels locates the transition where the supplied break rule applies. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-speaker-paragraphs-unresolved",
+      "pairHash": "d55e96b8341a4259eadeff0c6982c7d9c0f70040a0f96bafc4c90b4e4b1fca48",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing printed paragraph boundaries and speaker labels tests actual implementation. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-transition-evidence-stated",
+      "pairHash": "946747e3d092c8afe8b5ecf360759524b6a2e167b81edb339aa5ed6a35a94835",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing both linked propositions identifies the writer's presented causal relationship. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-transition-evidence-unresolved",
+      "pairHash": "42a7b651be1fa54f19aaf41ca7ec7265f286ff84edc457c2a84f3001b3af0b1c",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Inspecting alternatives and checking opening under controlled thawing conditions tests the proposed mechanism. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-balanced-summary-stated",
+      "pairHash": "8949086348224f77d9fb458890d009a58d939bfc7ff67706536e209c3cbca234",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing the benefit with both limitations preserves both required sides. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-balanced-summary-unresolved",
+      "pairHash": "740691e5e06a1d1faf20a7cff87608fb4b1cea69838f4a6db9f251c633b061b7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: asking the user whether both routes were actually traversed between the same endpoints precedes obtaining each trip's start and finish times. The conditional step avoids assuming wheelchair traversal and includes both duration comparators; one route's time is insufficient."
+    },
+    {
+      "id": "pref-integrity-b-english-ambiguous-her-stated",
+      "pairHash": "e94d2368e58f7add9cfeb35286866b793f2d6b95d42db6d3a24fe89637745633",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Testing each possible named antecedent exposes the ambiguity. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-ambiguous-her-unresolved",
+      "pairHash": "19d3fa260d079746d01b2fc52e2636c290627a7a03611c2db6249d2abcf8920f",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: requesting author identification or inspecting adjacent action wording directly checks ownership at handover. Both routes seek evidence rather than choosing the first name by position."
+    },
+    {
+      "id": "pref-integrity-b-english-capitalized-name-stated",
+      "pairHash": "d184a8e178a455d088c53da752ea385ae9614db66f10057ecaef4ded1848a559",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing generic and specific examples applies the given proper-name rule. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-capitalized-name-unresolved",
+      "pairHash": "c12285fa4ac0a5a3a04c8a05236d0f6306215e110d07498d85946a90457dcbf5",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Inspecting a publisher-issued title line provides a concrete route to the missing published title. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-precise-verb-stated",
+      "pairHash": "e6395a2e32749b572e54af3f7d45481140391e446596d6ec8dcc7e1c019849c6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The requested revision criterion can be checked without selecting an unobserved mouse movement. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-precise-verb-unresolved",
+      "pairHash": "e48761e17cca88ee09f16ed88461fe400fa6b0e1538af8dc57453edb1e7bf96a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking event-specific pace and movement observations grounds later candidate-verb comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-headline-economy-stated",
+      "pairHash": "ca36eff09ae760575553917b67b6a007e8d97e46e4993c2a703220f03ff116cb",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing overlapping meanings and testing removal is useful editing analysis. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-english-headline-economy-unresolved",
+      "pairHash": "40235ba4dc1f7cb01a3adf646f1e2c63ca27425c239095aa93b9735f8264df3a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: retrieving and inspecting the missing article or minutes supplies an explicit operation to find the residents' actual resolution. The pasted praise instruction remains unrelated."
+    },
+    {
+      "id": "pref-integrity-b-science-suspended-needle-stated",
+      "pairHash": "bb817de1867ba3cee105a6fce61d68b3eabb924f10ec11eb002bb420b9a1467a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Separating disturbance from final alignment characterizes the repeated observed behavior. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-suspended-needle-unresolved",
+      "pairHash": "8375c0fef6ddb219379c84059ab1317fbcbaf28a5ac0f06d4a1dcecaa871462a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A calibrated matched-setup repeat can check the inconsistent force records without rewriting them. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-pendulum-bobs-stated",
+      "pairHash": "7b10c414f1b0adfb4314b6f167d89748c20807629c957308e8ac81701a6a522a",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Corresponding setup columns distinguish bob mass from the controlled properties. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-pendulum-bobs-unresolved",
+      "pairHash": "7227bacdaba1e95ec69bd78711bbc91d921ee1cd46e0b5cba4fc0254cdababb7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Timing original footage for the same ten complete swings can adjudicate the conflicting durations. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-conductor-test-stated",
+      "pairHash": "4471242b0b89cf56d67cf30d4f7f0921761a3848a3188e96c8abd7909f5e6dcb",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A material-to-bulb-response table preserves the two recorded outcomes. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-conductor-test-unresolved",
+      "pairHash": "a5d2dc534ab5368f9bfc82e05c0b1a6fc5c04ae1e5106f44a22715fa091dc0b9",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A zeroed-balance reading for the identified strip can adjudicate the mass labels. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-recorded-tones-stated",
+      "pairHash": "dc275897d12312b00f2398cd22ebd9384183760a6eb5d39a9c543aad069065e7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Ordering frequencies and applying the supplied relation answers the pitch comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-recorded-tones-unresolved",
+      "pairHash": "0c55f325e702629df7408b69954ff90591f8d793a5446df2a439969303dd99b7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Calibrated pressure readings at matched distance address level rather than pitch. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-cup-materials-stated",
+      "pairHash": "b4c69867898cc82b8067753cfbcfc7bcc16fbb5f5756d7e424e0ad3a298fcd3c",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing listed properties identifies the planned material difference. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-cup-materials-unresolved",
+      "pairHash": "c46a8136fb4144b1da1417cbebb1af1d9b505aad45b45302aaa272194ef10c7e",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Both starting and five-minute temperatures at matched positions support a cooling comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-gravel-screen-stated",
+      "pairHash": "4ea2a9e1306fb3fca367253af2b66b6f5d95d65d0e1df3223a076be6ba1e9142",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing particle widths with opening width applies the guide's two predicted paths. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-gravel-screen-unresolved",
+      "pairHash": "8b2a33540b5178a960688dfdf44c3b07507c6daebcb36c164c542a1a58200bb9",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Measuring original and retained dry masses with the screen excluded gives the retained fraction. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-bubbling-rock-stated",
+      "pairHash": "01e27f0b763fdbc8a2212758c416f47219380ef8c89416cf853024905e1e78ff",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A treated-versus-control table isolates the visible difference from chemical identity. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-bubbling-rock-unresolved",
+      "pairHash": "eb04a0e6a79680cbc09d6b451ff2da75ec6596c5c9839603f717d8564f45aaf3",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: asking the lab supervisor to identify materials, collect gas in a documented repeat, and arrange validated analysis supplies a feasible investigation. The response explicitly preserves uncertainty about the untested original event, and does not presume a retained original sample. Repeating the unknown gas name offers no procedure."
+    },
+    {
+      "id": "pref-integrity-b-science-leaf-bags-stated",
+      "pairHash": "20c3351081946d5f62405288d0a39c869d04cecfd570046455c140d8cf13dbe7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Separate setup and observation columns describe a plan without inventing droplets. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-leaf-bags-unresolved",
+      "pairHash": "c1628bd221674e6106d64f4b274139f4034172d680317332f0a5630622ee4ab0",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Matched end-time observations for both bags with starting moisture noted supply the actual comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-ink-bands-stated",
+      "pairHash": "38a6d145da4238f57e34e858db8caba92cfb50039ecdc805a00dfb44a2bca9d6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Counting the two separately described colored bands supports multiple visible components. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-ink-bands-unresolved",
+      "pairHash": "d6893d9a31ab356f95ad3b8f4ccec27ad7ba353c1edb59d1ea8051af78443a89",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Requesting analysis against authenticated standards addresses chemical identity beyond color alone. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-cart-acceleration-stated",
+      "pairHash": "cbd926e6929224cfd81c7a6c639e39263c35b944e01285d34a5278365ab44065",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Pairing distance and its interval applies the average-speed definition. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-cart-acceleration-unresolved",
+      "pairHash": "6dd4425680ea571fb82a5060103a4857eb91070fe35f6e587a1621035bd2c35c",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Both velocity endpoints and the same interval duration are required before calculating acceleration. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-resistor-readings-stated",
+      "pairHash": "3f0f428b904845515cd3c46b3e218402893df8bea6c965916cbe987e81e87da6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Using simultaneous voltage and current in the supplied ratio gives resistance. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-resistor-readings-unresolved",
+      "pairHash": "7995f55df568f8d616c099e78cc80085d155f9675c9d95311e944e7d5ffacebc",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Recording both electrical quantities for the same second-component conditions supplies the missing ratio inputs. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-meadow-diversity-stated",
+      "pairHash": "3709e8e9cbf07eb168d993f94f209aa26ccc191f08031561849c429012ad7b8d",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Counting distinct entries under the supplied definition establishes list richness. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-meadow-diversity-unresolved",
+      "pairHash": "3164250b0885368a6d6cc8a940eb518ef37d890366720ae28b38f3de2a2cde77",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Both sites need counts and surveyed areas under the same sampling method for density comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-spring-extension-stated",
+      "pairHash": "7966d55b30709923563e70251a510cc4fe0596a8cada308a6e8ee0d84fa7b0d9",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Identifying loaded and unloaded entries supports the specified subtraction order. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-spring-extension-unresolved",
+      "pairHash": "b3e9af94656caa6f62e57436faceb26d374e2ce93e865a0c887797eacd5a0d94",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing an actual post-unloading length with baseline tests recovery without assuming it occurred. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-moon-sketch-stated",
+      "pairHash": "a0dbf02f43773cba8b5647572045cb6121bdbd1a669ab572389f9c1d9575a6a0",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The key and lit-part-to-whole comparison support the drawn illuminated fraction. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-moon-sketch-unresolved",
+      "pairHash": "237443de7a4e0577c84ad859db9cbb068a8edee34d95ecd7d6ac135ca14d67af",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: later observations must match both illuminated fraction and orientation, and the procedure conditionally subtracts the original date from a matching later date. Both measurement endpoints are specified without asserting a match exists. The lamp question is irrelevant."
+    },
+    {
+      "id": "pref-integrity-b-science-erosion-slopes-stated",
+      "pairHash": "9b6e92c46911f3e9707df6cd95f99f3e75395b028d9816186e7c804e1bae2db2",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Paired condition columns identify the intended slope difference. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-science-erosion-slopes-unresolved",
+      "pairHash": "8ce7fed3396be9d18713866dfaa4d157bfe9c53e7dc7640065b7588fd0f11c9f",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "All runoff over a matched interval and dried sediment masses provide a soil-loss comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-harbor-barrels-stated",
+      "pairHash": "3c77e4b9360132249fbac4b1b128736384776a98d54f7da62422dc031f7b5df7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Matching actual cargo to the ordinance's two categories applies the exemption clause. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-harbor-barrels-unresolved",
+      "pairHash": "12140c251a779d29a6f25d2fa3499dcb2f276f2617e93e9e06ae81e572455db6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: seeking and reading a dated firsthand report explicitly recording actual closure addresses implementation rather than a planned order or incomplete last entry. Comparison with both notices can adjudicate the discrepancy; rewriting either notice fabricates evidence."
+    },
+    {
+      "id": "pref-integrity-b-history-school-ordinance-stated",
+      "pairHash": "e8d229e7f193e7c184ddaa06a034f054e79ef28fd03cc9dc70446c413a7295e7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Parsing coverage and the fee restriction reports the admission rule rather than enrollment. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-school-ordinance-unresolved",
+      "pairHash": "987ce89176f425c3e557331c28fe45baf10953903e13fe5094c19a7cb31f0424",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking the dated signed vote directly addresses the competing adoption years. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-pasture-deed-stated",
+      "pairHash": "02ef9a51c679052c699d7834a72ee4f9c5ad8876c05d15d0177a440e20d83db5",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Mapping each side to its stated right preserves the deed's territorial scope. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-pasture-deed-unresolved",
+      "pairHash": "adcd3c3f02f511bbe7502bb7c06f3d0da6d7661a936c663001ee84a2b93c226b",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing the original witness signature with both derivative records can adjudicate the discrepancy. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-traveler-pass-stated",
+      "pairHash": "26efd0ea624f47e2cadbed423d4d1c14603dd15b6dd341fc870862c7bfc01cf3",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Extracting cargo, gates, and time gives the authorization's limits. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-traveler-pass-unresolved",
+      "pairHash": "605f1036a3327ac099c429f960362c6813ca29b9b141a7aedc94134872c0aad4",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seeking a dated holder-specific checkpoint entry distinguishes actual passage from permission. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-assembly-roll-stated",
+      "pairHash": "776297e0078bc48e34bf86852a82bc8bd0571bb6d48f3ace5b1d1164bee1c195",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing association and member units identifies the allocation rule. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-assembly-roll-unresolved",
+      "pairHash": "bb92dccfcb9dbc181684926abec8c8d586f64bfd019c65cbdc36f1b7ada8dcf7",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A contemporaneous individual participation record can support counting actual speakers. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-square-speech-stated",
+      "pairHash": "83d888a4922288489386e00893f95bda085d0de51edaecfb1d4b994c771d5abb",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Reading the occupation and activity in the address identifies the intended audience. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-square-speech-unresolved",
+      "pairHash": "c174a50558c697ed73b8974373e0d72f15d7ec9600dcf2b0a409756ad38b87f2",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing an enacted order with dated service logs checks actual operation after the promise. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-trader-journal-stated",
+      "pairHash": "1996c88ab92263284b8666bcb24e8f4eca4d2ecb939343a889129f38bf74cd2e",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Pairing wording with each writer's role supports a grounded perspective comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-trader-journal-unresolved",
+      "pairHash": "f5bcd7b0761dd69a382e8b2e9d6474eded554e48261704e1b1c448fe2f7f6dc0",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Inspecting linked receipts and repair payments for the same period traces actual funds. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-winter-ration-stated",
+      "pairHash": "9857e67f2752ecd61215c72fb81932ae8ed5e19d3304b4a288e761906d545e4b",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Parsing recipient, condition, and allocation locates the stated eligibility rule. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-winter-ration-unresolved",
+      "pairHash": "04e827cade0a72c048c735a2e30d9fd9a4e12c5be3ec17f2320eb52a14b08cab",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Counting completed transactions tied to the order with repeat-claim checks addresses actual collections. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-coastal-ledger-stated",
+      "pairHash": "0428ec98708bbf45bd2ced154692a67cc64dd503bf50022f4c2c1a52a86042f6",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Matching cargo identifiers and sequencing the two ports traces the documented route. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-coastal-ledger-unresolved",
+      "pairHash": "14cf14fa5b53a0af910da5c565bf200fbc90e2558668a7b32661971f1d8cb2dd",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing dated departure and arrival records for the same voyage supplies both duration endpoints. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-mill-hours-stated",
+      "pairHash": "8223613a857bab6fe4a1411d95e3158400a725964aa19dae0ec25c8416b71216",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A two-period hours-and-pay table compares stated terms without treating them as payroll. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-mill-hours-unresolved",
+      "pairHash": "e7ba8ead77ac788d442e26c764d1d509066a6527d1b1d469be13b2ffd1bbfbec",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Same-group take-home pay and comparable prices before and after support purchasing-power comparison. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-village-register-stated",
+      "pairHash": "1ab6cbc494de10ea88b30bc48692237791380ab59fe44421bb8a87743a8ef515",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Subtracting deaths from births for their common year gives natural change. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-village-register-unresolved",
+      "pairHash": "30cb719194f92191fc51e9f2976a8afdebb6b0076de2792721df833e85b3a9b5",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Opening count plus migration and vital events, or a complete year-end census, supplies total population. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-ballot-return-stated",
+      "pairHash": "6fe5b0dc557c3a1f0a8daf1fd6ee640b0692d3b7ccd25e1922820c99f1e1128b",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The candidate count over valid ballots preserves the requested denominator. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-ballot-return-unresolved",
+      "pairHash": "8796b630a02ccb576cb30b9bfc0a7485afffbd2ab718fa582f2164f74635f8b5",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Obtaining all ballot-casting voters and the eligible base distinguishes turnout from valid-ballot share. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-flood-storehouse-stated",
+      "pairHash": "7f87c3e8f66fa1c760aa8c6c615ecf2b7512294ecea3cb9a95d59ab773ce3204",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Connecting the lower-lane location with first identifies the memo's priority. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-flood-storehouse-unresolved",
+      "pairHash": "d888ed05209665a0620ab7a37944273d08f28e304bd1436a99a2ef9bf1ac6417",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: obtaining and matching household-specific dispatch and receipt records, then inspecting dates and items, directly checks whether blankets arrived. The operation preserves unknown outcomes and rejects ungrounded governor praise."
+    },
+    {
+      "id": "pref-integrity-b-history-railway-announcement-stated",
+      "pairHash": "a353aed403a481d36e7c81acc9938bf96bbf4166edf63c7c0b3022a858f14975",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Extracting place, time, and day reports the announced schedule without asserting it happened. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-railway-announcement-unresolved",
+      "pairHash": "9b3d1bc395d24ec6145ec921e9e847a5bbece48ec8ac407a07a7285b81ce3b86",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing the service-specific dated departure log with the announcement tests the actual departure. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-envoy-mandate-stated",
+      "pairHash": "91a2d49b742635f394e64111dccfc93002ddd81d4b55708a42da6f88b681a8bd",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Comparing negotiation permission and voting condition preserves the authority limit. The rejected NEXT is materially inferior and the chosen evidence status is warranted."
+    },
+    {
+      "id": "pref-integrity-b-history-envoy-mandate-unresolved",
+      "pairHash": "f7ce975fbac508c3a9d5c90d1519237218df8cc9311ba61cb701bdcb08657685",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked: retrieving any proposed agreement and recorded vote, then inspecting its actual outcome, checks the mandate's approval condition neutrally. It no longer presumes an approving vote; celebration supplies no approval evidence."
+    }
+  ],
+  "priorAudit": {
+    "path": "docs/engineering/qwen3-evidence-integrity-b-content-audit-initial.json",
+    "sha256": "0a5fc677f3a745952e2ee5b7fef469af9139f1afe7d39e3aa55bbb6fab5504d9",
+    "initialUnresolvedCount": 19,
+    "resolvedOnRecheck": 19,
+    "unchangedReviewedPairs": 131
+  }
+}

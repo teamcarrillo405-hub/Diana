@@ -69,6 +69,7 @@ describe("buildLobbyDashboardView", () => {
       rankedAssignments: [next],
       assignments: [next, quiz, readyToSubmit] as Assignment[],
       reminders: [reminder({ id: "assignment-overdue", title: "Vocabulary notes" })],
+      feedbackCount: 3,
       now,
     });
 
@@ -106,6 +107,12 @@ describe("buildLobbyDashboardView", () => {
         description: "1 done, not submitted",
         href: "/assignments/assignment-ready",
       }),
+      expect.objectContaining({
+        key: "feedback",
+        count: 3,
+        description: "3 new notes from teachers",
+        href: "/notifications",
+      }),
     ]);
     expect(() => JSON.stringify(view)).not.toThrow();
   });
@@ -134,13 +141,15 @@ describe("buildLobbyDashboardView", () => {
       weeklyCompletedCount: 0,
       weeklyTotalCount: 0,
     });
-    expect(view.attention.map(({ count }) => count)).toEqual([0, 0, 0]);
+    expect(view.attention.map(({ count }) => count)).toEqual([0, 0, 0, 0]);
     expect(view.attention.map(({ description }) => description)).toEqual([
       "Nothing coming up this week",
       "Nothing past the due date",
       "Everything ready is submitted",
+      "No new teacher feedback",
     ]);
-    expect(view.attention.every(({ href }) => href === "/assignments")).toBe(true);
+    expect(view.attention.slice(0, 3).every(({ href }) => href === "/assignments")).toBe(true);
+    expect(view.attention[3].href).toBe("/notifications");
   });
 
   it("formats long next moves in hours and minutes", () => {

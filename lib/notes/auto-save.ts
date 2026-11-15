@@ -22,7 +22,7 @@ export interface UseAutoSaveNoteApi {
   /** Mark dirty; server call will fire after debounceMs. */
   save: () => void;
   /** Bypass debounce — fire server call now (e.g. on unmount / route change). */
-  flushNow: () => Promise<void>;
+  flushNow: () => Promise<SaveResult>;
 }
 
 /**
@@ -41,35 +41,47 @@ export function useAutoSaveNote(
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const saverRef = useRef(saver);
-  const inFlightRef = useRef(false);
+  const inFlightRef = useRef<Promise<SaveResult> | null>(null);
+  const revisionRef = useRef(0);
 
   // Always call the latest saver closure.
   useEffect(() => {
     saverRef.current = saver;
   }, [saver]);
 
-  const fire = useCallback(async () => {
-    if (inFlightRef.current) return;
-    inFlightRef.current = true;
-    setStatus("saving");
-    try {
-      const result = await saverRef.current();
-      if (result.ok) {
+  const fire = useCallback((): Promise<SaveResult> => {
+    if (inFlightRef.current) return inFlightRef.current;
+    const pending = (async (): Promise<SaveResult> => {
+      setStatus("saving");
+      try {
+        let savedRevision: number;
+        do {
+          savedRevision = revisionRef.current;
+          const result = await saverRef.current();
+          if (!result.ok) {
+            setStatus("error");
+            return result;
+          }
+          setLastSavedAt(new Date());
+        } while (savedRevision !== revisionRef.current);
         setStatus("saved");
-        setLastSavedAt(new Date());
-      } else {
+        return { ok: true };
+      } catch {
         setStatus("error");
+        return { ok: false, error: "Your note could not be saved. Try again." };
+      } finally {
+        inFlightRef.current = null;
       }
-    } catch {
-      setStatus("error");
-    } finally {
-      inFlightRef.current = false;
-    }
+    })();
+    inFlightRef.current = pending;
+    return pending;
   }, []);
 
   const save = useCallback(() => {
+    revisionRef.current += 1;
     setStatus("pending");
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (inFlightRef.current) return;
     timerRef.current = setTimeout(() => {
       timerRef.current = null;
       void fire();
@@ -81,7 +93,7 @@ export function useAutoSaveNote(
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
-    await fire();
+    return fire();
   }, [fire]);
 
   useEffect(() => {

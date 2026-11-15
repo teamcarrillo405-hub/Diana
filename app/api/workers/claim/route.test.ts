@@ -1,10 +1,15 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { claimWorkerJob } from "@/lib/worker-tier/worker-queue";
 import { POST } from "./route";
 
 vi.mock("@/lib/worker-tier/worker-queue", () => ({
   claimWorkerJob: vi.fn(),
+  markWorkerJobError: vi.fn().mockResolvedValue(undefined),
 }));
+vi.mock('@/lib/worker-tier/worker-execution-server', () => ({ rejectWorkerClaim: vi.fn().mockResolvedValue(undefined), issueWorkerExecution: vi.fn().mockResolvedValue({ traceId: 'dw-1', capability: 'a'.repeat(64), expiresAt: '2026-06-28T04:01:00.000Z' }) }));
+const eligibility = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/assignment-help/study-buddy-eligibility', () => ({ studyBuddyEligibility: eligibility }));
+vi.mock('@/lib/supabase/ai-service', () => ({ createAiServiceClient: () => ({ from: vi.fn() }) }));
 
 function request(body: unknown, token = "worker-secret") {
   return new Request("http://diana.test/api/workers/claim", {
@@ -18,6 +23,7 @@ function request(body: unknown, token = "worker-secret") {
 }
 
 describe("worker claim route", () => {
+  beforeEach(() => eligibility.mockResolvedValue({ ok: true }));
   afterEach(() => {
     vi.unstubAllEnvs();
     vi.clearAllMocks();
@@ -71,14 +77,15 @@ describe("worker claim route", () => {
       workerId: "worker-a",
       leaseSeconds: 45,
     });
+    expect(response.headers.get('cache-control')).toBe('no-store');
+    expect(json.job).not.toHaveProperty('payload');
+    expect(json.job).not.toHaveProperty('ownerId');
+    expect(json.job.capability).toHaveLength(64);
     expect(json).toMatchObject({
       ok: true,
       job: {
-        id: "job-row-1",
         traceId: "dw-1",
         tenantId: "personal:student-1",
-        ownerId: "student-1",
-        status: "running",
       },
     });
   });
@@ -114,5 +121,16 @@ describe("worker claim route", () => {
     expect(response.status).toBe(400);
     expect(json.error).toBe("Worker queue is not supported.");
     expect(claimWorkerJob).not.toHaveBeenCalled();
+  });
+
+  it('withholds a queued transcript after consent or class policy changes', async () => {
+    vi.stubEnv('WORKER_API_TOKEN', 'worker-secret');
+    vi.mocked(claimWorkerJob).mockResolvedValue({ trace_id: 'dw-denied', tenant_id: 'personal:student-1', owner_id: 'student-1', feature: 'diana.voice_candidate', queue_name: 'student-ai-candidate', payload: { input: { transcript: 'Private work', assignmentId: 'assignment-1' } } } as never);
+    eligibility.mockResolvedValue({ ok: false, status: 403 });
+    const response = await POST(request({ workerId: 'worker-a' }));
+    expect(await response.json()).toEqual({ ok: true, job: null });
+    expect(eligibility).toHaveBeenCalledWith(expect.anything(), { ownerId: 'student-1', assignmentId: 'assignment-1', classId: null });
+    const { rejectWorkerClaim } = await import('@/lib/worker-tier/worker-execution-server');
+    expect(rejectWorkerClaim).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ workerId: 'worker-a', capability: 'a'.repeat(64) }));
   });
 });

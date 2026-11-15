@@ -79,12 +79,17 @@ function postJson(url: string, body: Record<string, unknown>) {
 function routeToFeature(route: string): string {
   if (route.startsWith("/assignments")) return "assignments";
   if (route.startsWith("/notes")) return "notes";
-  if (route.startsWith("/study-artifacts")) return "study_artifacts";
+  if (route.startsWith("/flashcards")) return "flashcards";
+  if (route.startsWith("/timer")) return "timer";
   if (route.startsWith("/calendar")) return "calendar";
   if (route.startsWith("/classes")) return "classes";
+  if (route.startsWith("/portfolio")) return "portfolio";
   if (route.startsWith("/wellness")) return "wellness";
   if (route.startsWith("/ap")) return "ap";
   if (route.startsWith("/sharing")) return "sharing_portal";
+  if (route.startsWith("/teacher-share")) return "teacher_portal";
+  if (route.startsWith("/parent-share")) return "parent_portal";
+  if (route.startsWith("/insights")) return "insights";
   if (route.startsWith("/settings")) return "settings";
   return "dashboard";
 }

@@ -75,19 +75,19 @@ export function linearEquationTutorEvidence(
   limitations: readonly string[] = [],
 ): TutorResponseEvidence {
   return createTutorResponseEvidence({
-    verificationLevel: "tool_checked",
-    confidence: 0.98,
+    verificationLevel: "ai_guidance",
+    confidence: 0,
     validatedAnchors: context.validatedAnchors,
     verifierResult: {
       verifier: "linear_equation_step",
-      status: "passed",
-      summary: "The deterministic linear-equation helper checked the current transformation and next operation.",
+      status: "not_run",
+      summary: "A local linear-equation helper proposed a next step; no separate verification receipt was produced.",
       observations: [],
       limitations: [
-        "This check covers the supported linear-equation state, not every possible algebra method.",
+        "A proposed next step does not establish a verified student answer or independent mastery.",
       ],
     },
-    limitations,
+    limitations: [...limitations, "The confidence field is uncalibrated and is not a measured probability of correctness."],
     escalationReason: null,
   });
 }

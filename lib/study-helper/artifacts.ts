@@ -86,8 +86,26 @@ export type StudyArtifact = {
 
 export function artifactLabel(type: StudyArtifactType): string {
   if (type === "study_guide") return "Study guide";
-  if (type === "practice_test") return "Practice test";
-  return "Flashcards";
+  if (type === "practice_test") return "Quiz";
+  return "Recall";
+}
+
+/** New generated work must contain usable content. Legacy recovery stays separate. */
+export function isUsableGeneratedArtifact(raw: string, type: StudyArtifactType, questionCount?: number): boolean {
+  const value = parseJson(raw);
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const draft = value as Record<string, unknown>;
+  const filled = (value: unknown): value is string => typeof value === "string" && value.trim().length > 0;
+  const rows = draft[type === "practice_test" ? "quiz" : type === "study_guide" ? "guide" : "cards"];
+  if (!Array.isArray(rows) || !rows.length) return false;
+  if (type === "practice_test" && questionCount && rows.length !== questionCount) return false;
+  if (!rows.every(row => {
+    if (!row || typeof row !== "object") return false;
+    if (type === "study_guide") return filled(row.heading) && Array.isArray(row.bullets) && row.bullets.some(filled);
+    if (type === "flashcard_set") return filled(row.front) && filled(row.back);
+    return filled(row.question) && filled(row.answer);
+  })) return false;
+  return type !== "practice_test" || new Set(rows.map(row => row.question.trim().toLowerCase())).size === rows.length;
 }
 
 export function parseStudyArtifactResponse(
@@ -421,6 +439,7 @@ export function buildArtifactReviewLoop(input: {
 function normalizeGuide(value: unknown, fallback: StudyArtifactGuideSection[]): StudyArtifactGuideSection[] {
   if (!Array.isArray(value)) return fallback;
   const guide = value
+    .filter((item) => item && typeof item === "object")
     .map((item) => item as Record<string, unknown>)
     .map((item) => ({
       heading: cleanString(item.heading, "", 90),
@@ -434,6 +453,7 @@ function normalizeGuide(value: unknown, fallback: StudyArtifactGuideSection[]): 
 function normalizeQuiz(value: unknown, fallback: StudyArtifactQuizItem[]): StudyArtifactQuizItem[] {
   if (!Array.isArray(value)) return fallback;
   const quiz = value
+    .filter((item) => item && typeof item === "object")
     .map((item) => item as Record<string, unknown>)
     .map((item) => ({
       question: cleanString(item.question, "", 220),
@@ -443,13 +463,14 @@ function normalizeQuiz(value: unknown, fallback: StudyArtifactQuizItem[]): Study
       sourceAnchor: cleanString(item.sourceAnchor, "Source material", 120),
     }))
     .filter((item) => item.question && item.answer)
-    .slice(0, 8);
+    .slice(0, 20);
   return quiz.length > 0 ? quiz : fallback;
 }
 
 function normalizeCards(value: unknown, fallback: StudyArtifactCard[]): StudyArtifactCard[] {
   if (!Array.isArray(value)) return fallback;
   const cards = value
+    .filter((item) => item && typeof item === "object")
     .map((item) => item as Record<string, unknown>)
     .map((item) => ({
       front: cleanString(item.front, "", 240),

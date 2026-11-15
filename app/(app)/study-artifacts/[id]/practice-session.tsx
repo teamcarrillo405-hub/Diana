@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { CheckCircle2, Circle, Loader2, Send, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 
-import { DianaWordmark } from "@/components/screen-design/primitives";
-import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
-import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import styles from "@/components/student-shell/quiz.module.css";
 import type { StudyArtifactQuizItem } from "@/lib/study-helper/artifacts";
 import type { PracticeProgress } from "@/lib/study-helper/practice-progress";
 import type { PracticeScoreSummary } from "@/lib/study-helper/practice-scoring";
@@ -35,12 +34,10 @@ type QuizChatMessage =
 function QuizReviewChat({
   assignmentId,
   source,
-  prompt = "Talk through the question before your next pass.",
   onStudentTurn,
 }: {
   assignmentId: string | null;
   source: string;
-  prompt?: string;
   onStudentTurn?: () => void;
 }) {
   const [messages, setMessages] = useState<QuizChatMessage[]>([]);
@@ -101,12 +98,9 @@ function QuizReviewChat({
 
   return (
     <section className="sd-quiz-review-chat" aria-label="Ask Diana about this quiz">
-      <header>
-        <span>Ask Diana</span>
-        <p>{prompt}</p>
-      </header>
+      <header><h2>Ask Diana</h2></header>
       <div className="sd-quiz-review-chat-messages" aria-live="polite">
-        {messages.length === 0 ? <p>Tell Diana which question or step felt unclear.</p> : messages.map((message) => message.role === "student" ? (
+        {messages.map((message) => message.role === "student" ? (
           <article key={message.id} data-role="student"><p>{message.text}</p></article>
         ) : (
           <article key={message.id} data-role="assistant">
@@ -140,172 +134,77 @@ function QuizReviewChat({
   );
 }
 
-export function PracticeTestSession({
-  artifactId,
-  artifactTitle,
-  assignmentId,
-  quiz,
-  initialProgress,
-  initialResult,
-  initialSupportState,
-}: {
-  artifactId: string;
-  artifactTitle: string;
-  assignmentId: string | null;
-  quiz: StudyArtifactQuizItem[];
-  initialProgress: PracticeProgress;
-  initialResult: PracticeScoreSummary | null;
-  initialSupportState?: QuizSupportState;
+export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, quiz, initialProgress, initialResult, initialSupportState }: {
+  artifactId: string; artifactTitle: string; assignmentId: string | null; quiz: StudyArtifactQuizItem[]; initialProgress: PracticeProgress; initialResult: PracticeScoreSummary | null; initialSupportState?: QuizSupportState;
 }) {
   const router = useRouter();
   const [isSaving, startTransition] = useTransition();
-  const [currentQuestion, setCurrentQuestion] = useState(() =>
-    Math.min(initialProgress.currentQuestion, Math.max(quiz.length - 1, 0)),
-  );
-  const [responses, setResponses] = useState<Record<string, string>>(
-    initialProgress.responses,
-  );
+  const [currentQuestion, setCurrentQuestion] = useState(Math.min(initialProgress.currentQuestion, Math.max(quiz.length-1,0)));
+  const [responses, setResponses] = useState(initialProgress.responses);
+  const [drafts, setDrafts] = useState<Record<string,string>>({});
   const [completed, setCompleted] = useState(initialProgress.completed);
   const [result, setResult] = useState(initialResult);
   const [showHint, setShowHint] = useState(false);
   const [status, setStatus] = useState("");
-  const [supportState, setSupportState] = useState(() => normalizeQuizSupportState(initialSupportState));
-  const [supportUsage, setSupportUsage] = useState<QuizSupportUsage>({ hintViews: 0, dianaTurns: 0 });
-  const supportPresentation = quizSupportCopy(supportState.stage);
-  const [supportEnabled, setSupportEnabled] = useState(() => !supportPresentation.startsQuiet);
-
-  const answeredCount = useMemo(
-    () => Object.values(responses).filter((response) => response.trim().length > 0).length,
-    [responses],
-  );
+  const [supportState, setSupportState] = useState(()=>normalizeQuizSupportState(initialSupportState));
+  const [supportUsage, setSupportUsage] = useState<QuizSupportUsage>({hintViews:0,dianaTurns:0});
+  const [supportEnabled, setSupportEnabled] = useState(()=>!quizSupportCopy(supportState.stage).startsQuiet);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const questionButtons = useRef(new Map<number,HTMLButtonElement>());
+  const answeredCount = Object.values(responses).filter(value=>value.trim()).length;
   const item = quiz[currentQuestion];
-  const response = responses[String(currentQuestion)] ?? "";
-  const returnHref = assignmentId
-    ? `/assignments/${assignmentId}/workspace`
-    : "/study-artifacts";
-  const returnLabel = assignmentId ? "Back to assignment" : "Back to study lab";
-  const needsReviewHelp = result?.percentage !== null && (result?.percentage ?? 100) < 70;
-  const quizReviewSource = useMemo(() => [
-    `Quiz: ${artifactTitle}`,
-    ...quiz.map((question, index) => {
-      const scored = result?.results[index];
-      return [
-        `Question ${index + 1}: ${question.question}`,
-        `Student response: ${responses[String(index)] || "No response recorded"}`,
-        scored ? `Review status: ${scored.category}. Source: ${question.sourceAnchor}.` : `Source: ${question.sourceAnchor}.`,
-      ].join("\n");
-    }),
-  ].join("\n\n"), [artifactTitle, quiz, responses, result]);
-  const activeQuizSource = `${quizReviewSource}\n\nCurrent question: ${item?.question ?? ""}`;
+  const response = drafts[String(currentQuestion)] ?? responses[String(currentQuestion)] ?? "";
+  const returnHref = assignmentId ? `/assignments/${assignmentId}/workspace` : "/study?view=saved";
+  const returnLabel = assignmentId ? "Back to assignment" : "Back to Quiz";
+  const quizSource = useMemo(()=>[`Quiz: ${artifactTitle}`,...quiz.map((question,index)=>`Question ${index+1}: ${question.question}\nStudent response: ${responses[String(index)] || "No saved response"}\nSource: ${question.sourceAnchor}`)].join("\n\n"),[artifactTitle,quiz,responses]);
+  const hasUnsaved = Object.entries(drafts).some(([key,value])=>value !== (responses[key] ?? ""));
 
-  if (completed) {
-    return (
-      <ScreenDesignViewport className="sd-assignment-workspace sd-practice-session sd-practice-complete" data-version="11">
-        <StudentDesktopNav active="Classes" />
-        <main className="sd-assignment-workspace-main">
-          <section className="sd-assignment-gamer-shell sd-quiz-complete-shell">
-            <div className="sd-assignment-workspace-topline"><Link href={returnHref} className="sd-assignment-workspace-back">{returnLabel}</Link></div>
-            <div className="sd-quiz-complete-room">
-              <aside className="sd-assignment-math-left" aria-label="Quiz review"><div className="sd-assignment-mission-heading"><p>{artifactTitle}</p></div><div className="sd-assignment-math-left-heading"><p>Questions</p><span>{answeredCount}/{quiz.length}</span></div><div className="sd-assignment-problem-queue">{quiz.map((question, index) => <button key={`${index}-${question.question}`} type="button" onClick={() => { setCurrentQuestion(index); setCompleted(false); }} className="sd-assignment-problem-tab"><span className="sd-assignment-problem-tab-heading"><span>Question {index + 1}</span><CheckCircle2 size={16} aria-hidden="true" /></span><small>Saved</small></button>)}</div></aside>
-              <section className="sd-quiz-complete-center" aria-label="Quiz result"><div className="sd-quiz-complete-mark"><CheckCircle2 aria-hidden="true" /></div><p>Quiz complete</p><h1>{artifactTitle}</h1><span>{answeredCount} response{answeredCount === 1 ? "" : "s"} saved as your work.</span><strong>{result?.percentage == null ? "Your source-based review is ready." : `${result.percentage}% on auto-checked questions`}</strong><small>{quizSupportCopy(supportState.stage).label} is ready for the next pass.</small>{status ? <p className="sd-quiz-complete-status" role="status">{status}</p> : null}<button type="button" disabled={isSaving} onClick={() => { startTransition(async () => { const restart = await restartPracticeTest(artifactId); if (!restart.ok) { setStatus(restart.error); return; } const restartedSupport = normalizeQuizSupportState(restart.supportState); setCurrentQuestion(0); setResponses({}); setCompleted(false); setResult(null); setSupportState(restartedSupport); setSupportUsage({ hintViews: 0, dianaTurns: 0 }); setSupportEnabled(!quizSupportCopy(restartedSupport.stage).startsQuiet); setStatus("A new practice pass is ready."); router.refresh(); }); }}>Try another pass</button></section>
-              <aside className="sd-assignment-math-right" aria-label="Quiz review details"><section className="sd-quiz-workspace-tool"><span>Review</span><strong>{result ? "Your responses" : "Saved responses"}</strong><p>Open a question from the left rail to look back through your work.</p></section>{result ? <section className="sd-quiz-workspace-tool"><span>Next step</span><p>{result.percentage == null || result.percentage < 70 ? "Review the questions that still need another look." : "You are ready to move on or practice again."}</p></section> : null}{needsReviewHelp ? <QuizReviewChat assignmentId={assignmentId} source={quizReviewSource} /> : null}</aside>
-            </div>
-          </section>
-        </main>
-      </ScreenDesignViewport>
-    );
-  }
-
-  if (!item) {
-    return (
-      <ScreenDesignViewport className="sd-practice-session sd-practice-complete">
-        <DianaWordmark />
-        <p>Practice session</p>
-        <h1>This set has no questions yet.</h1>
-        <span>Open the source or create another practice set when you are ready.</span>
-        <Link href={returnHref}>{returnLabel}</Link>
-      </ScreenDesignViewport>
-    );
-  }
-
-  const finalQuestion = currentQuestion === quiz.length - 1;
-
-  function updateResponse(nextResponse: string) {
-    setResponses((current) => ({
-      ...current,
-      [String(currentQuestion)]: nextResponse,
-    }));
-    setStatus("");
-  }
-
-  function submitResponse() {
-    const cleaned = response.trim();
-    if (!cleaned || isSaving) {
-      setStatus("Add your own response before saving this practice step.");
-      return;
-    }
-    const nextQuestion = finalQuestion ? currentQuestion : currentQuestion + 1;
-    setStatus("Saving your response…");
-    startTransition(async () => {
-      const result = await savePracticeTestProgress({
-        artifactId,
-        currentQuestion: nextQuestion,
-        responses: [{ questionIndex: currentQuestion, response: cleaned }],
-        completed: finalQuestion,
-        supportUsage,
-      });
-      if (!result.ok) {
-        setStatus(result.error);
-        return;
-      }
-      setResponses(result.progress.responses);
-      setCompleted(result.progress.completed);
-      setResult(result.result);
-      setSupportState(normalizeQuizSupportState(result.supportState));
-      if (!result.progress.completed) {
-        setCurrentQuestion(nextQuestion);
-        setShowHint(false);
-        setStatus("Response saved. The next question is ready.");
-      } else {
-        setStatus("Practice saved.");
-      }
-      router.refresh();
+  function chooseQuestion(index: number) { setCurrentQuestion(index); setShowHint(false); }
+  function restart() {
+    startTransition(async()=>{
+      const next = await restartPracticeTest(artifactId);
+      if (!next.ok) { setStatus(next.error); return; }
+      const support = normalizeQuizSupportState(next.supportState);
+      setCurrentQuestion(0); setResponses({}); setDrafts({}); setCompleted(false); setResult(null); setSupportState(support); setSupportUsage({hintViews:0,dianaTurns:0}); setSupportEnabled(!quizSupportCopy(support.stage).startsQuiet); setStatus(""); router.refresh();
     });
   }
-
-  return (
-    <ScreenDesignViewport className="sd-assignment-workspace sd-practice-session" data-version="11">
-      <StudentDesktopNav active="Classes" />
-      <main className="sd-assignment-workspace-main">
-        <section className="sd-assignment-gamer-shell sd-quiz-workspace-shell">
-          <div className="sd-assignment-workspace-topline">
-            <Link href={returnHref} className="sd-assignment-workspace-back">{returnLabel}</Link>
-          </div>
-          <div className="sd-quiz-workspace-room">
-            <aside className="sd-assignment-math-left" aria-label="Quiz questions">
-              <div className="sd-assignment-mission-heading"><p>{artifactTitle}</p></div>
-              <div className="sd-assignment-math-left-heading"><p>Questions</p><span>{answeredCount}/{quiz.length}</span></div>
-              <div className="sd-assignment-problem-queue">
-                {quiz.map((question, index) => {
-                  const answered = Boolean(responses[String(index)]?.trim());
-                  return <button key={`${index}-${question.question}`} type="button" onClick={() => { setCurrentQuestion(index); setShowHint(false); }} className="sd-assignment-problem-tab" aria-current={index === currentQuestion ? "step" : undefined}><span className="sd-assignment-problem-tab-heading"><span>Question {index + 1}</span>{answered ? <CheckCircle2 size={16} aria-label="Response saved" /> : <Circle size={16} aria-hidden="true" />}</span><small>{answered ? "Saved" : index === currentQuestion ? "Current" : "Not started"}</small></button>;
-                })}
-              </div>
-            </aside>
-            <section className="sd-quiz-workspace-center" aria-label="Current quiz question">
-              <header><span>Question {currentQuestion + 1} of {quiz.length}</span><h1>{item.question}</h1></header>
-              {showHint ? <p className="sd-quiz-workspace-hint">{item.hint}</p> : null}
-              {item.choices.length > 0 ? <div className="sd-quiz-workspace-choices" role="group" aria-label="Quiz choices">{item.choices.map((choice, index) => <button type="button" key={`${index}-${choice}`} onClick={() => updateResponse(choice)} aria-pressed={response === choice}><span>{String.fromCharCode(65 + index)}. {choice}</span>{response === choice ? <CheckCircle2 aria-hidden="true" /> : <Circle aria-hidden="true" />}</button>)}</div> : <label className="sd-quiz-workspace-response"><span>Your response</span><textarea value={response} onChange={(event) => updateResponse(event.target.value)} rows={8} maxLength={2_000} aria-label="Practice response" placeholder="Write what you know. Diana will save each answer as you continue." /></label>}
-              <div className="sd-quiz-workspace-actions"><button type="button" onClick={submitResponse} disabled={isSaving || response.trim().length === 0}>{isSaving ? "Saving…" : finalQuestion ? "Finish quiz" : "Save and continue"}</button><p aria-live="polite">{status}</p></div>
-            </section>
-              <aside className="sd-assignment-math-right" aria-label="Quiz tools">
-              <section className="sd-quiz-workspace-tool"><span>Quiz progress</span><strong>{answeredCount} of {quiz.length} answered</strong><p>{result?.percentage == null ? "Your review appears after you finish." : `${result.percentage}% on auto-checked questions`}</p></section>
-              <section className="sd-quiz-workspace-tool"><span>{supportPresentation.label}</span><p>{supportPresentation.description}</p>{supportEnabled ? <button type="button" onClick={() => setShowHint((visible) => { if (!visible) setSupportUsage((usage) => ({ ...usage, hintViews: usage.hintViews + 1 })); return !visible; })}><Sparkles size={16} aria-hidden="true" /> {showHint ? "Hide hint" : "Show hint"}</button> : <button type="button" onClick={() => setSupportEnabled(true)}><Sparkles size={16} aria-hidden="true" /> Turn support on</button>}</section>
-              {supportEnabled ? <QuizReviewChat assignmentId={assignmentId} source={activeQuizSource} prompt="Ask about the question you are working on." onStudentTurn={() => setSupportUsage((usage) => ({ ...usage, dianaTurns: usage.dianaTurns + 1 }))} /> : null}
-            </aside>
-          </div>
+  function saveResponse(finish: boolean) {
+    if (isSaving || !response.trim()) return;
+    const questionIndex = currentQuestion;
+    const pendingResponses: Record<string,string> = {...drafts,[String(questionIndex)]:response};
+    const updates = Object.entries(pendingResponses).filter(([,value])=>value.trim()).map(([index,value])=>({questionIndex:Number(index),response:value.trim()}));
+    const nextResponses = {...responses,...Object.fromEntries(updates.map(answer=>[String(answer.questionIndex),answer.response]))};
+    if (finish && quiz.some((_,index)=>!nextResponses[String(index)]?.trim())) { setStatus("Add a response to each question before finishing."); return; }
+    setStatus("Saving your response");
+    startTransition(async()=>{
+      const saved = await savePracticeTestProgress({artifactId,currentQuestion:finish ? questionIndex : Math.min(questionIndex+1,quiz.length-1),responses:updates,completed:finish,supportUsage});
+      if (!saved.ok) { setStatus(saved.error); return; }
+      setResponses(saved.progress.responses); setDrafts({}); setCompleted(saved.progress.completed); setResult(saved.result); setSupportState(normalizeQuizSupportState(saved.supportState)); setCurrentQuestion(saved.progress.currentQuestion); setShowHint(false); setStatus(saved.progress.completed ? "Quiz saved." : "Response saved."); router.refresh();
+      requestAnimationFrame(()=>heading.current?.focus());
+    });
+  }
+  return <StudentShell active="More" version="12" className={styles.root}>
+    <main id="main-content" className={styles.main}>
+      <Link className={styles.back} href={returnHref}>{returnLabel}</Link>
+      <header className={styles.heading}><div><p>Quiz</p><h1>{artifactTitle}</h1></div><Link href="/study?view=saved">Saved practice</Link></header>
+      {!item ? <section className={styles.paper}><h2>No questions yet</h2><Link href="/study">Choose work to create a quiz</Link></section> : completed ? <div className={styles.results}>
+        <section className={styles.paper} aria-label="Quiz result"><CheckCircle2 size={28} aria-hidden="true" /><p>Quiz complete</p><h2 ref={heading} tabIndex={-1}>Your answers</h2><p>{answeredCount} responses saved</p>{result?.percentage != null ? <strong>{result.percentage}% on auto-checked questions</strong> : null}
+          <div className={styles.answers}>{quiz.map((question,index)=>{const score=result?.results[index]; return <article key={index}><h3>Question {index+1}</h3><p>{question.question}</p><blockquote>{responses[String(index)] || "No response saved"}</blockquote><span>{score?.category === "matched" ? "Checked" : score?.category === "check_again" ? "Review again" : "Written response saved"}</span>{score?.scored ? <p>Answer: {score.expectedAnswer}</p> : <p className={styles.quiet}>This response has no automatic score.</p>}<small>{question.sourceAnchor}</small></article>;})}</div>
+          <button className={styles.primary} disabled={isSaving} onClick={restart}>Try another pass</button><p role="status">{status}</p>
         </section>
-      </main>
-    </ScreenDesignViewport>
-  );
+        <aside className={styles.tools}><QuizReviewChat assignmentId={assignmentId} source={quizSource} /></aside>
+      </div> : <div className={styles.room}>
+        <aside className={styles.rail} aria-label="Quiz questions"><h2>Questions</h2><p>{answeredCount} of {quiz.length} saved</p><nav aria-label="Question navigation">{quiz.map((question,index)=>{
+          const draft=drafts[String(index)]; const saved=Boolean(responses[String(index)]?.trim()); const dirty=draft !== undefined && draft !== (responses[String(index)] ?? "");
+          return <button key={`${index}-${question.question}`} ref={el=>{if(el)questionButtons.current.set(index,el);else questionButtons.current.delete(index);}} type="button" disabled={isSaving} onClick={()=>chooseQuestion(index)} aria-current={index===currentQuestion ? "step" : undefined} tabIndex={index===currentQuestion ? 0 : -1} onKeyDown={event=>{const direction=event.key==="ArrowDown"?1:event.key==="ArrowUp"?-1:0;if(!direction)return;event.preventDefault();const next=(index+direction+quiz.length)%quiz.length;chooseQuestion(next);questionButtons.current.get(next)?.focus();}}><strong>Question {index+1}</strong><small>{dirty ? "Draft" : saved ? "Saved" : index===currentQuestion ? "Current" : "Not started"}</small>{saved && !dirty ? <CheckCircle2 size={16} aria-label="Response saved" /> : <Circle size={16} aria-hidden="true" />}</button>;
+        })}</nav></aside>
+        <section className={styles.paper} aria-label="Current quiz question"><p className={styles.eyebrow}>{item.choices.length ? "Choose" : "Your words"} · {currentQuestion+1} of {quiz.length}</p><h2 ref={heading} tabIndex={-1}>{item.question}</h2>
+          {showHint ? <p className={styles.hint}>{item.hint}</p> : null}
+          {item.choices.length ? <fieldset className={styles.choices}><legend className="sr-only">Quiz choices</legend>{item.choices.map((choice,index)=><label key={`${index}-${choice}`} data-selected={response===choice}><input type="radio" name={`question-${currentQuestion}`} value={choice} checked={response===choice} disabled={isSaving} onChange={()=>setDrafts(current=>({...current,[currentQuestion]:choice}))} />{choice}</label>)}</fieldset> : <label className={styles.response}>Your response<textarea aria-label="Practice response" value={response} disabled={isSaving} onChange={event=>setDrafts(current=>({...current,[currentQuestion]:event.target.value}))} maxLength={2000} rows={7} placeholder="Write your answer" /></label>}
+          <div className={styles.actions}><button disabled={isSaving || currentQuestion===0} onClick={()=>chooseQuestion(currentQuestion-1)}>Previous</button><button className={styles.primary} disabled={isSaving || !response.trim()} onClick={()=>saveResponse(currentQuestion===quiz.length-1)}>{isSaving ? "Saving" : currentQuestion===quiz.length-1 ? "Finish quiz" : "Save and continue"}</button></div><p role="status" className={styles.quiet}>{status || (hasUnsaved ? "Draft · Save to keep your answers" : "")}</p>
+        </section>
+        <aside className={styles.tools} aria-label="Quiz tools"><button className={styles.support} onClick={()=>supportEnabled ? setShowHint(visible=>{if(!visible)setSupportUsage(usage=>({...usage,hintViews:usage.hintViews+1}));return !visible;}) : setSupportEnabled(true)}><Sparkles size={16} aria-hidden="true" />{supportEnabled ? showHint ? "Hide hint" : "Show hint" : "Turn support on"}</button>{supportEnabled ? <QuizReviewChat assignmentId={assignmentId} source={`${quizSource}\nCurrent question: ${item.question}`} onStudentTurn={()=>setSupportUsage(usage=>({...usage,dianaTurns:usage.dianaTurns+1}))} /> : null}<details><summary>Source</summary><p>{item.sourceAnchor}</p></details></aside>
+      </div>}
+    </main>
+  </StudentShell>;
 }

@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { studyBuddyEligibility } from "@/lib/assignment-help/study-buddy-eligibility";
+import { recordVoiceCandidateAssistance } from "@/lib/learning-engine/voice-candidate-assistance";
+import type { StudyBuddyAssistanceClient } from "@/lib/learning-engine/study-buddy-assistance";
 import {
   createDianaVoiceCandidate,
   createDianaVoiceCandidateAuditPayload,
@@ -32,6 +35,10 @@ import {
 } from "@/lib/worker-tier/worker-queue";
 
 export async function POST(request: Request) {
+  const requestKey = request.headers.get("x-idempotency-key")?.trim();
+  if (request.headers.has("x-idempotency-key") && (!requestKey || requestKey.length > 128)) {
+    return NextResponse.json({ ok: false, error: "Use a valid request identifier." }, { status: 400 });
+  }
   if (!isDianaVoiceSidecarEnabled()) {
     return NextResponse.json(
       { ok: false, error: "Diana candidate help is off right now." },
@@ -69,6 +76,8 @@ export async function POST(request: Request) {
       { status: 404 },
     );
   }
+  const eligibility = await studyBuddyEligibility(supabase, { ownerId: user.id, assignmentId, classId: null });
+  if (!eligibility.ok) return NextResponse.json({ ok: false, error: eligibility.error }, { status: eligibility.status });
 
   const accounting = createAiServiceClient();
   if (!accounting) {
@@ -94,7 +103,7 @@ export async function POST(request: Request) {
       tenantId,
       sessionId: request.headers.get("x-diana-session-id") ?? "voice-session",
       queueMode: resolveVoiceCandidateQueueMode({ tenantId }),
-      idempotencyKey: request.headers.get("x-idempotency-key") ?? undefined,
+      idempotencyKey: requestKey,
     });
     assertProductionWorkerBoundary(workerJob);
 
@@ -117,6 +126,12 @@ export async function POST(request: Request) {
         { status: 429 },
       );
     }
+
+    await recordVoiceCandidateAssistance(supabase as unknown as StudyBuddyAssistanceClient, {
+      ownerId: user.id, assignmentId, phase: "dispatch", key: requestKey ?? workerJob.traceId,
+      context: { input: inputWithLearnedContext, feature: workerJob.feature, queueMode: workerJob.queueMode,
+        constraints: workerJob.constraints },
+    });
 
     if (workerJob.queueMode === "managed_queue") {
       await enqueueWorkerJob(workerJob, "queued");
@@ -270,7 +285,7 @@ export async function POST(request: Request) {
 
 function boundedIdempotencyKey(request: Request): string | undefined {
   const value = request.headers.get("x-idempotency-key")?.trim();
-  return value ? value.slice(0, 128) : undefined;
+  return value || undefined;
 }
 
 async function verifiedAssignmentId(

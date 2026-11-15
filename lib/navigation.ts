@@ -2,9 +2,10 @@ import {
   SCREEN_DESIGN_SCREENS,
   type ScreenDesignScreen,
 } from "@/lib/screendesign/screens";
+import { isRetiredStudentRoute } from "@/lib/student-route-policy";
 
 export const STUDENT_NAV_DESTINATIONS = Object.freeze([
-  Object.freeze({ label: "Today", href: "/dashboard" }),
+  Object.freeze({ label: "Lobby", href: "/dashboard" }),
   Object.freeze({ label: "Work", href: "/assignments" }),
   Object.freeze({ label: "Classes", href: "/classes" }),
   Object.freeze({ label: "Calendar", href: "/calendar" }),
@@ -28,9 +29,11 @@ export function getStudentNavOwner(pathname: string): StudentNavLabel {
 
 export const SCREEN_DESIGN_NAV_OWNERS: ReadonlyMap<string, StudentNavLabel> =
   new Map(
-    SCREEN_DESIGN_SCREENS
-      .filter((screen) => screen.authClass === "authenticated")
-      .map((screen) => [screen.id, getStudentNavOwner(screen.route)] as const),
+    SCREEN_DESIGN_SCREENS.filter(
+      (screen) =>
+        screen.authClass === "authenticated" &&
+        !isRetiredStudentRoute(screen.route),
+    ).map((screen) => [screen.id, getStudentNavOwner(screen.route)] as const),
   );
 
 export function screenDesignStateKey(screen: ScreenDesignScreen): string {

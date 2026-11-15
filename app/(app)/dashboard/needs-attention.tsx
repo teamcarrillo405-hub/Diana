@@ -6,6 +6,7 @@ const ATTENTION_ORDER: Record<LobbyAttentionCard["key"], number> = {
   due_earlier: 0,
   not_submitted: 1,
   tests: 2,
+  feedback: 3,
 };
 
 function displayLabel(category: LobbyAttentionCard): string {
@@ -19,7 +20,8 @@ export function NeedsAttention({
 }: {
   categories: readonly LobbyAttentionCard[];
 }) {
-  const assignmentCategories = [...categories]
+  const assignmentCategories = categories
+    .filter((category) => category.key !== "feedback")
     .sort((a, b) => ATTENTION_ORDER[a.key] - ATTENTION_ORDER[b.key])
     .slice(0, 3);
   const total = assignmentCategories.reduce((sum, category) => sum + category.count, 0);

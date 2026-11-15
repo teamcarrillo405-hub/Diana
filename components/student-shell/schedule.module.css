@@ -1,0 +1,122 @@
+.root.root { --line: #c9dfd633; }
+.root.root [hidden] { display: none !important; }
+.root.root .reviewBar { min-height: 43px; }
+.root.root .reviewName { font: 600 11px/1.4 var(--font-barlow), sans-serif; color: #b6c7c7; }
+.root.root .main { max-width: 1600px; margin: auto; padding: 24px 36px 32px; outline: none; }
+.root.root .heading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; margin-bottom: 14px; }
+.root.root .heading h1 { font: 800 44px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .heading > span { font: 600 12px/1.5 var(--font-barlow), sans-serif; color: #c5d5cf; }
+.root.root .heading > span > span { margin: 0 8px; color: var(--pink); }
+.root.root .toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.root.root .period { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+.root.root .period h2 { font: 600 25px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.root.root .periodActions { display: flex; gap: 3px; align-items: center; }
+.root.root .periodActions button { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; color: #d1e1da; background: #1d2a2a85; border: 1px solid #aec9ba33; }
+.root.root .periodActions .today { width: auto; padding: 0 14px; font-size: 11px; }
+.root.root .periodActions button:hover { background: #324441; color: #fff; }
+.root.root .viewTabs { display: flex; gap: 25px; }
+.root.root .viewTabs button { position: relative; border: 0; padding: 9px 2px; min-height: 40px; color: #b5c9c0; background: transparent; font: 700 21px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.root.root .viewTabs button[aria-selected="true"] { color: white; }
+.root.root .viewTabs button[aria-selected="true"]::after { content: ""; height: 2px; background: var(--pink); position: absolute; bottom: 0; left: 0; right: 0; }
+.root.root .dayRibbon { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); padding: 16px 0 22px; gap: 12px; }
+.root.root .dayRibbon button { position: relative; display: grid; justify-content: stretch; justify-items: start; gap: 4px; padding: 10px 14px 12px; min-height: 116px; border: 0; border-top: 1px solid #c8d9d63b; background: #0e181b70; color: #b9cbc6; text-align: left; transition: background 120ms ease; }
+.root.root .dayRibbon button:hover { background: #253a38ba; }
+.root.root .dayRibbon button[aria-selected="true"] { color: #fff; border-top-color: #f339a7; background: #e2f8ef0c; }
+.root.root .dayRibbon button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 7px; background: var(--pink); mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; -webkit-mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; mask-mode: luminance; }
+.root.root .dayTop { width: 100%; display: flex; justify-content: space-between; gap: 5px; align-items: center; font: 600 14px/1 var(--font-barlow), sans-serif; text-transform: uppercase; }
+.root.root .dayTop > span { font-size: 9px; color: #b3c9c3; }
+.root.root .dayRibbon button > strong { font: 700 39px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .daySubject { font-size: 11px; margin-top: 4px; max-width: 100%; overflow-wrap: anywhere; }
+.root.root .dayCount { font-size: 10px; color: #b1c4c0; }
+.root.root .mobileCount { display: none; }
+.root.root .composition { display: grid; grid-template-columns: 210px minmax(0, 1fr); gap: 30px; align-items: start; }
+.root.root .agendaHeading { display: flex; align-items: center; justify-content: space-between; padding: 0 9px 16px; border-bottom: 1px solid var(--line); }
+.root.root .agendaHeading h2 { font: 700 24px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.root.root .agendaHeading > span { font: 500 14px/1 var(--font-barlow), sans-serif; color: #abc5ba; }
+.root.root .agendaItems { display: grid; gap: 10px; padding: 14px 0; }
+.root.root .agendaItems button { position: relative; isolation: isolate; display: grid; justify-items: start; justify-content: stretch; gap: 7px; padding: 15px 11px; border: 0; color: #c3d5cf; background: transparent; text-align: left; }
+.root.root .agendaItems button small { font: 500 10px/1.5 var(--font-barlow), sans-serif; }
+.root.root .agendaItems button small span { opacity: .6; padding: 0 3px; }
+.root.root .agendaItems button > strong { font: 700 26px/1.02 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.root.root .agendaItems button > span { font-size: 10px; }
+.root.root .agendaItems button[aria-selected="true"] { color: #fff; }
+.root.root .agendaItems button[aria-selected="true"]::before { content: ""; position: absolute; z-index: -1; inset: 0 -5px; background: #b60b6b; mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; -webkit-mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; mask-mode: luminance; }
+.root.root .agendaItems button:hover:not([aria-selected="true"]) { color: white; background: #d6ebdf0a; }
+.root.root .agendaFoot { display: flex; gap: 8px; color: #b7ccc1; font-size: 10px; align-items: center; padding: 17px 9px; border-top: 1px solid var(--line); }
+.root.root .agendaFoot svg { width: 15px; height: 15px; }
+.root.root .agendaEmpty { font-size: 12px; color: #bccdc7; padding: 25px 9px; line-height: 1.6; }
+.root.root .selectedEvent { min-width: 0; }
+.root.root .eventComposition { display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 30px; animation: eventArrival 260ms ease-out both; }
+.root.root .feature { min-width: 0; }
+.root.root .featureArt { position: relative; isolation: isolate; height: 360px; overflow: hidden; background: #1d2a2c; border-top: 3px solid var(--event-color); }
+.root.root .featureArt img { width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; }
+.root.root .featureArt::after { content: ""; position: absolute; z-index: 1; inset: 0; background: linear-gradient(0deg, #061318f7, #07101692 33%, transparent 75%); pointer-events: none; }
+.root.root .eventKind { position: absolute; z-index: 2; top: 20px; left: 22px; padding: 6px 9px; color: #eaf5ef; background: #0d171ae8; font: 600 11px/1.3 var(--font-barlow), sans-serif; text-transform: uppercase; }
+.root.root .featureTitle { position: absolute; z-index: 2; left: 25px; right: 25px; bottom: 26px; }
+.root.root .featureTitle > span { color: var(--event-color); font: 700 20px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.root.root .featureTitle h2 { font: 800 54px/.98 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; margin-top: 9px; }
+.root.root .eventSummary { display: flex; gap: 14px; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.root.root .eventSummary p { font-size: 12px; line-height: 1.7; color: #c7d7cf; max-width: 620px; }
+.root.root .summaryIcon { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border: 1px solid #bcd8ca42; color: var(--event-color); }
+.root.root .details { min-width: 0; display: flex; flex-direction: column; align-items: stretch; }
+.root.root .details h3 { font: 700 24px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; padding: 1px 0 18px; border-bottom: 1px solid var(--line); }
+.root.root .facts { margin: 0; padding: 0; }
+.root.root .facts > div { padding: 12px 0; border-bottom: 1px solid var(--line); }
+.root.root .facts dt { font: 500 10px/1.4 var(--font-lexend), sans-serif; color: #b6c9bf; text-transform: uppercase; margin-bottom: 6px; }
+.root.root .facts dd { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 5px; margin: 0; font: 600 17px/1.3 var(--font-barlow), sans-serif; color: #ebf3ee; overflow-wrap: anywhere; }
+.root.root .facts dd > strong { display: block; width: 100%; font: 700 32px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .facts dd[data-ready="true"] { color: #ffcf7c; }
+.root.root .facts dd[data-submitted="true"] { color: #6cebbb; }
+.root.root .openAction { width: 100%; margin-top: 23px; padding-inline: 10px; font-size: 21px !important; white-space: normal; }
+.root.root .openDay { min-height: 385px; display: flex; align-items: flex-start; flex-direction: column; justify-content: center; gap: 16px; padding: 30px; background: #d9f7e605; border-top: 1px solid var(--line); }
+.root.root .openDay > svg { width: 38px; height: 38px; color: #a8c9bc; }
+.root.root .openDay > span { font-size: 12px; color: #bdcfc9; }
+.root.root .openDay h2 { font: 800 48px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .openDay > p { color: #bdcfc9; font-size: 14px; }
+.root.root .textAction { display: flex; align-items: center; gap: 12px; color: #f5f9f3; background: transparent; border: 0; border-bottom: 1px solid #9bb5a8; padding: 10px 0; font-size: 13px; }
+.root.root .weekRecord { display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 30px; row-gap: 12px; margin-top: 22px; padding: 16px 0 0; border-top: 1px solid var(--line); }
+.root.root .weekRecord > span { font: 700 19px/1 var(--font-saira-condensed), sans-serif; color: #cadbd1; }
+.root.root .weekRecord p { display: flex; align-items: baseline; gap: 8px; color: #b5c7be; font-size: 11px; }
+.root.root .weekRecord strong { color: #f2f8f3; font: 700 25px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .weekView { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); margin-top: 26px; min-height: 470px; }
+.root.root .weekDay { min-width: 0; padding: 0 12px; border-left: 1px solid var(--line); }
+.root.root .weekDay:first-child { border-left: 0; padding-left: 0; }
+.root.root .weekDayTitle { width: 100%; display: flex; justify-content: flex-start; gap: 9px; align-items: baseline; background: transparent; color: #c6d5cd; padding: 12px 0 17px; border: 0; border-bottom: 2px solid #d4eadd30; text-transform: uppercase; }
+.root.root .weekDayTitle > span { font: 600 12px/1 var(--font-barlow), sans-serif; }
+.root.root .weekDayTitle > strong { font: 700 34px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .weekDayTitle > small { margin-left: auto; font-size: 9px; color: #fff; }
+.root.root .weekDay[data-today="true"] .weekDayTitle { border-color: var(--pink); color: white; }
+.root.root .weekGroup { padding: 19px 0 5px; }
+.root.root .weekGroup h3 { font-size: 10px; font-weight: 500; color: #b8cfc0; text-transform: uppercase; }
+.root.root .weekGroup button { display: grid; justify-content: stretch; justify-items: start; width: 100%; gap: 7px; text-align: left; background: #091819ab; color: #f4faf3; border: 0; border-left: 2px solid var(--event-color); padding: 12px 10px; margin-top: 14px; }
+.root.root .weekGroup button:hover { background: #314642; }
+.root.root .weekGroup button > strong { font: 700 24px/1.1 var(--font-saira-condensed), sans-serif; overflow-wrap: anywhere; }
+.root.root .weekGroup button > small { font: 500 10px/1.4 var(--font-barlow), sans-serif; color: #d0e1d4; }
+.root.root .weekGroup button > span { color: var(--event-color); font-size: 10px; line-height: 1.5; }
+.root.root .emptyDay { font-size: 11px; line-height: 1.5; color: #b0c6b9; margin-top: 10px; }
+.root.root .monthView { padding-top: 24px; }
+.root.root .monthLabels, .root.root .monthGrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.root.root .monthLabels > span { padding: 0 14px 15px; color: #c3d8ca; font: 600 14px/1 var(--font-barlow), sans-serif; text-transform: uppercase; }
+.root.root .monthGrid { border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+.root.root .monthGrid > button { position: relative; display: flex; align-items: stretch; flex-direction: column; justify-content: flex-start; gap: 9px; min-height: 120px; padding: 12px; background: #142126c7; color: #f4f8f2; border: 0; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); text-align: left; }
+.root.root .monthGrid > button:hover { background: #31483c; }
+.root.root .monthGrid > button[data-today="true"] { box-shadow: inset 0 3px var(--pink); }
+.root.root .monthGrid > button[data-outside="true"] { background: #0c171ab3; color: #8da89b; }
+.root.root .monthGrid > button > strong { font: 600 25px/1 var(--font-saira-condensed), sans-serif; }
+.root.root .monthEntries { display: grid; gap: 6px; }
+.root.root .monthEntries > span { padding-left: 6px; border-left: 2px solid var(--event-color); font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+.root.root .monthEntries small { font-size: 10px; color: #b7cdbe; }
+.root.root .monthCount { display: none; }
+.root.root .dialog { width: 480px; }
+.root.root .dialog .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 20px; margin-bottom: 20px; }
+.root.root .dialog .facts dd > strong { font-size: 25px; }
+.root.root .dialog .previewNotice { font-size: 12px; }
+.root.root .close { padding: 0; }
+.root.root .close svg { width: 22px; height: 22px; max-width: none; }
+@keyframes eventArrival { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (min-width: 1440px) { .root.root .composition { grid-template-columns: 240px minmax(0, 1fr); gap: 36px; } .root.root .eventComposition { grid-template-columns: minmax(0, 1fr) 250px; gap: 36px; } .root.root .featureArt { height: 400px; } .root.root .featureTitle h2 { font-size: 58px; } }
+@media (max-width: 1190px) { .root.root .main { padding-inline: 26px; } .root.root .composition { grid-template-columns: 178px minmax(0, 1fr); gap: 24px; } .root.root .eventComposition { grid-template-columns: minmax(0, 1fr) 200px; gap: 22px; } .root.root .featureTitle h2 { font-size: 43px; } .root.root .featureTitle { left: 20px; right: 20px; } .root.root .agendaItems button > strong { font-size: 24px; } .root.root .dayRibbon { gap: 8px; } .root.root .dayRibbon button { padding-inline: 10px; } .root.root .dayTop { font-size: 12px; } .root.root .details h3 { font-size: 22px; } .root.root .weekDay { padding-inline: 8px; } .root.root .weekDayTitle { flex-wrap: wrap; } .root.root .weekDayTitle > small { width: 100%; margin-left: 0; } }
+@media (max-width: 950px) { .root.root .eventComposition { grid-template-columns: minmax(0, 1fr); gap: 20px; } .root.root .featureArt { min-height: 330px; aspect-ratio: 1.5; } .root.root .details .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 25px; } .root.root .details h3 { font-size: 25px; } .root.root .openAction { align-self: flex-end; width: auto; min-width: 200px; } .root.root .dayTop > span { display: none; } .root.root .dayCount { font-size: 9px; } .root.root .daySubject { font-size: 10px; } .root.root .weekView { grid-template-columns: repeat(4, minmax(0, 1fr)); row-gap: 28px; } .root.root .weekDay { border-left: 0; border-right: 1px solid var(--line); } .root.root .weekDayTitle { flex-wrap: nowrap; } .root.root .weekDayTitle > small { width: auto; margin-left: auto; } .root.root .monthEntries > span { font-size: 10px; } }
+@media (max-width: 640px) { .root.root .main { padding: 22px 18px 30px; } .root.root .reviewBar { flex-direction: row; align-items: center; min-height: 38px; padding-block: 8px; } .root.root .reviewName { font-size: 9px; } .root.root .reviewBar .reviewLabel { font-size: 9px; } .root.root .reviewBar .reviewLabel > span { display: block; } .root.root .heading { align-items: center; gap: 15px; } .root.root .heading h1 { font-size: 36px; } .root.root .heading > span { font-size: 10px; text-align: right; max-width: 130px; } .root.root .heading > span > span { margin: 0 4px; } .root.root .toolbar { gap: 16px; padding-bottom: 10px; } .root.root .period { width: 100%; justify-content: space-between; gap: 10px; } .root.root .period h2 { font-size: 23px; } .root.root .periodActions button { width: 32px; height: 36px; } .root.root .periodActions .today { padding-inline: 8px; } .root.root .viewTabs { width: 100%; gap: 27px; } .root.root .dayRibbon { padding-top: 16px; padding-bottom: 22px; gap: 4px; } .root.root .dayRibbon button { padding: 9px 2px 12px; align-content: start; min-height: 88px; justify-items: center; gap: 6px; } .root.root .dayRibbon .dayTop { justify-content: center; font-size: 10px; } .root.root .dayRibbon button > strong { font-size: 28px; } .root.root .daySubject { display: none; } .root.root .dayCount { font-size: 0; min-height: 4px; } .root.root .dayCount::after { content: ""; display: block; width: 14px; height: 2px; background: #b6ccc4; } .root.root .composition { display: block; } .root.root .agendaHeading { padding: 0 0 12px; } .root.root .agendaHeading h2 { font-size: 23px; } .root.root .agendaItems { display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px 18px; margin-inline: -5px; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: #76988b #142525; } .root.root .agendaItems button { flex: 0 0 74%; min-height: 104px; padding: 13px 10px; scroll-snap-align: start; } .root.root .agendaItems button > strong { font-size: 24px; } .root.root .agendaFoot { display: none; } .root.root .featureArt { min-height: 335px; aspect-ratio: 1.04; } .root.root .featureTitle h2 { font-size: 43px; } .root.root .featureTitle { bottom: 22px; } .root.root .eventKind { top: 17px; left: 20px; font-size: 10px; } .root.root .eventSummary p { font-size: 12px; } .root.root .eventComposition { gap: 12px; } .root.root .details h3 { font-size: 23px; padding-bottom: 14px; } .root.root .facts dd { font-size: 16px; } .root.root .facts dd > strong { font-size: 28px; } .root.root .openAction { width: 100%; } .root.root .weekRecord { column-gap: 18px; row-gap: 14px; } .root.root .weekRecord > span { width: 100%; } .root.root .weekRecord p { font-size: 10px; } .root.root .weekRecord strong { font-size: 22px; } .root.root .openDay { min-height: 330px; padding: 25px 10px; } .root.root .openDay h2 { font-size: 37px; } .root.root .weekView { display: block; margin-top: 12px; } .root.root .weekDay { border: 0; padding: 14px 0 20px; } .root.root .weekDayTitle { gap: 12px; padding-block: 6px 12px; } .root.root .weekDayTitle > span { font-size: 15px; } .root.root .weekDayTitle > small { font-size: 11px; } .root.root .weekGroup { padding-top: 15px; } .root.root .weekGroup button { padding: 14px; } .root.root .weekGroup button > strong { font-size: 27px; } .root.root .weekGroup button > span, .root.root .weekGroup button > small { font-size: 11px; } .root.root .monthLabels > span { padding: 0 0 12px; font-size: 11px; text-align: center; } .root.root .monthGrid > button { min-height: 70px; padding: 9px 5px; gap: 9px; align-items: center; } .root.root .monthGrid > button > strong { font-size: 24px; } .root.root .monthEntries { display: none; } .root.root .monthCount { display: block; color: #9dddc7; font-size: 10px; } }
+@media (max-width: 640px) { .root.root .dayCount { display: none; } .root.root .mobileCount { display: block; min-height: 12px; font: 500 10px/1.2 var(--font-lexend), sans-serif; color: #b5cec3; } }
+@media (prefers-reduced-motion: reduce) { .root.root *, .root.root *::before, .root.root *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

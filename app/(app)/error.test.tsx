@@ -32,8 +32,8 @@ describe("AppError", () => {
     const reset = vi.fn();
     render(<AppError error={new Error("dashboard reload needed")} reset={reset} />);
 
-    expect(screen.getByRole("heading", { name: "Let's reset this view." })).toBeVisible();
-    expect(screen.getByRole("link", { name: "Back to Today" })).toHaveAttribute("href", "/dashboard");
+    expect(screen.getByRole("heading", { name: "This page needs another try." })).toBeVisible();
+    expect(screen.getByRole("link", { name: "Back to Lobby" })).toHaveAttribute("href", "/dashboard");
 
     fireEvent.click(screen.getByRole("button", { name: "Refresh page" }));
 

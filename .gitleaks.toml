@@ -27,3 +27,15 @@ description = "Fixed redaction credential fixture"
 condition = "AND"
 paths = ['''(^|[\\/])lib[\\/]beta[\\/]run-id-redaction\.test\.ts$''']
 regexes = ['''^sk-proj-1234567890abcdef$''']
+
+[[allowlists]]
+description = "Pinned public tokenizer blob hashes for local handwriting preparation"
+condition = "AND"
+paths = ['''(^|[\\/])scripts[\\/]learning[\\/]prepare-local-handwriting-smoke\.py$''']
+regexes = ['''^(?:e97d1993365bb21c88f390e8703e4c1af564821f|8a1587ff662748498a14db272b5c3eb58ec7da95)$''']
+
+[[allowlists]]
+description = "Pinned public tokenizer checksums for synthetic LoRA training"
+condition = "AND"
+paths = ['''(^|[\\/])scripts[\\/]learning[\\/]train_synthetic_lora\.py$''']
+regexes = ['''^(?:c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539|5b5d4f65d0acd3b2d56a35b56d374a36cbc1c8fa5cf3b3febbbfabf22f359583)$''']

@@ -7,6 +7,96 @@ const fields = [
 ];
 
 describe("linear equation tutor guardrail", () => {
+  it.each([
+    "0.5x + 1 = 2", "1/2x + 1 = 2", "x² + 2x = 8", "x + x = 2",
+    "3x = 2 + 4", "3x = 2y", "3x = 1e6", "3x = 1/2", "3x = 2.5",
+    "0x + 1 = 2", "1000001x = 2", "9007199254740993x = 2",
+    "x - 1000000 = 1000000", "3x=6\n4x=8", "Example: 3x=6",
+  ])("declines unsupported or out-of-bound equation syntax: %s", equation => {
+    expect(parseLinearEquation(equation)).toBeNull();
+  });
+
+  it.each([5, 7, 8, -7])("keeps exact rational solutions for coefficient %s", coefficient => {
+    const answer = coefficient < 0 ? `-1/${-coefficient}` : `1/${coefficient}`;
+    const result = createLinearEquationStudyResponse({
+      source: `Problem: Solve ${coefficient}x + 1 = 2\nStudent work: ${coefficient}x=1`,
+      question: answer, mode: "guide",
+    });
+    expect(result?.main).toContain(`${answer} works for x`);
+    expect(result?.steps[0]).toBe(`Write x = ${answer}.`);
+    expect(result?.steps[1]).toBe(`Check: ${coefficient}(${answer}) + 1 = 2.`);
+  });
+
+  it("uses the current answer rather than stale conversation or answer-box text", () => {
+    const result = createLinearEquationStudyResponse({
+      source: "Problem: 3x+5=20\nStudent work: 3x=15\nStudent answer: 4",
+      question: "5", mode: "guide",
+      conversation: [{ role: "student", text: "4" }],
+    });
+    expect(result?.main).toContain("5 works for x");
+  });
+
+  it.each(["1/0", "1/5 + 2", "0.200001", "0.2000000001", "I got 1 then 2", "1,0", "1e0"])("does not accept malformed or approximate answers: %s", question => {
+    const result = createLinearEquationStudyResponse({ source: "Problem: 5x+1=2\nStudent work: 5x=1", question, mode: "guide" });
+    expect(result?.main).not.toContain("works for x");
+    expect(result?.steps).not.toContain("Put the checked answer in the answer box.");
+  });
+
+  it("preserves the sign of a negative mixed-number zero", () => {
+    const result = createLinearEquationStudyResponse({ source: "Problem: 2x+1=0\nStudent work: 2x=-1", question: "-0 1/2", mode: "guide" });
+    expect(result?.main).toContain("-1/2 works for x");
+  });
+
+  it("preserves a negative constant in both a check and review instructions", () => {
+    const source = "Problem: 3x-5=10\nStudent work: 3x=15";
+    const result = createLinearEquationStudyResponse({ source, question: "5", mode: "guide" });
+    expect(result?.steps[1]).toBe("Check: 3(5) - 5 = 10.");
+    const mismatch = createLinearEquationStudyResponse({ source, question: "4", mode: "guide" });
+    expect(mismatch?.reason).toContain("minus 5");
+    const review = createLinearEquationReview([{ label: "Problem", value: "3x-5=10" }]);
+    expect(review?.nextMove).toContain("Add 5");
+  });
+
+  it.each([
+    "Problem: 3x+5=20\nProblem: 4x+1=9",
+    "Example: 3x+5=20\nThe current problem has not been selected.",
+    "Problem: 3x+5=20\nReference: 4x+1=9",
+    "Student work: 3x=15",
+  ])("does not pick an equation from ambiguous or unselected context", source => {
+    expect(createLinearEquationStudyResponse({ source, question: "help", mode: "guide" })).toBeNull();
+  });
+
+  it("does not treat a problem statement itself as student work", () => {
+    const result = createLinearEquationStudyResponse({ source: "Problem: 3x=15", question: "help", mode: "guide" });
+    expect(result?.main).not.toMatch(/Yes|Correct/u);
+    expect(result?.reason).not.toContain("checking the last thing");
+  });
+
+  it("does not approve one isolated line while ignoring a conflicting line", () => {
+    const result = createLinearEquationStudyResponse({ source: "Problem: 3x+5=20\nStudent work: 3x=15", question: "3x=14", mode: "guide" });
+    expect(result?.main).not.toMatch(/Yes|Correct/u);
+  });
+
+  it("does not grade answers to an unrelated prior arithmetic question", () => {
+    const result = createLinearEquationStudyResponse({ source: "Problem: 3x+5=20", question: "15", mode: "guide", conversation: [{ role: "assistant", text: "What does 8 - 2 equal?" }] });
+    expect(result?.main).not.toMatch(/Correct|Close/u);
+  });
+
+  it("does not assert a whole-number quotient is nonintegral", () => {
+    const result = createLinearEquationStudyResponse({ source: "Problem: 3x+5=20", question: "4", mode: "guide", conversation: [{ role: "assistant", text: "What is 15 / 3?" }] });
+    expect(result?.main).not.toContain("does not divide evenly");
+  });
+
+  it.each(["do not divide", "divide by 4"])("does not approve an unrelated division instruction: %s", question => {
+    const result = createLinearEquationStudyResponse({ source: "Problem: 3x+5=20", question, mode: "guide", conversation: [{ role: "assistant", text: "Now 3x = 15. What operation should we use to undo multiplying by 3?" }] });
+    expect(result?.main).not.toContain("Correct");
+  });
+
+  it("assignment review does not select the student's equation as the original problem", () => {
+    expect(createLinearEquationReview([{ label: "Student work", value: "3x=15" }])).toBeNull();
+    expect(createLinearEquationReview([{ label: "Problem", value: "3x=15" }, { label: "Assignment", value: "4x=20" }])).toBeNull();
+  });
+
   it("parses a two-step linear equation", () => {
     expect(parseLinearEquation("Solve 3x + 5 = 20")).toEqual(expect.objectContaining({
       coefficient: 3,

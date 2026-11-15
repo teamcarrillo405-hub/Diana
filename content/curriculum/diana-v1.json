@@ -1,0 +1,1934 @@
+{
+  "version": "diana-curriculum-v1.0.0",
+  "contentDigest": "4258f9edf526e9c6bc91e7cb8768f70ec35470e2551b7b76a183ebc547211b26",
+  "createdAt": "2026-09-25T19:00:00Z",
+  "authorship": "ai_engineering_authored",
+  "learningGains": "not_established",
+  "skills": [
+    {
+      "id": "math.functions",
+      "revision": 1,
+      "contentDigest": "ed43ae9ece892fd62e24fdc0bafabdd030754a27098234c0541bf0aaf9579d7b",
+      "previousVersion": null,
+      "title": "Functions and evaluation",
+      "subject": "math",
+      "chapters": [
+        1
+      ],
+      "aliases": [
+        "function notation",
+        "function evaluation",
+        "input output"
+      ],
+      "objective": "Evaluate a function at a given input and distinguish an input from its resulting output.",
+      "prerequisites": [],
+      "misconceptions": [
+        {
+          "id": "math.functions.common_confusion",
+          "signal": "Treating f(x) as f multiplied by x.",
+          "checkQuestion": "In f(4), which number replaces x?",
+          "response": "Read f(4) as the output of f at input 4.",
+          "remediationSkillId": "math.functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify the input, rule and requested output.",
+        "studentAction": "Write the substitution before calculating.",
+        "hints": [
+          "Replace every x with the same input in parentheses.",
+          "Follow the order of operations after substitution."
+        ],
+        "independentCheck": "For g(x)=2x+5, find g(-3) and explain the input."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "For f(x)=3x-2, find f(4).",
+        "steps": [
+          "Substitute 4 for x: f(4)=3(4)-2.",
+          "Multiply first, then subtract: 12-2=10."
+        ],
+        "answer": "f(4) = 10."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "function_value",
+        "limits": "One-variable polynomials of degree at most eight, exact rational input."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.domain_range",
+      "revision": 1,
+      "contentDigest": "0bdbf5a7243d21088487eaf995e3415de2869ffd1fa586e44f5a1145dbffdeea",
+      "previousVersion": null,
+      "title": "Domain and range",
+      "subject": "math",
+      "chapters": [
+        1
+      ],
+      "aliases": [
+        "domain restrictions",
+        "domain and range",
+        "input restrictions",
+        "square root domain"
+      ],
+      "objective": "State which inputs and outputs a function allows, preserving restrictions from the original rule.",
+      "prerequisites": [
+        "math.functions"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.domain_range.common_confusion",
+          "signal": "Reporting all real inputs when a square root or denominator restricts them.",
+          "checkQuestion": "Which inputs would make this original expression undefined?",
+          "response": "Check the original denominator and each even root before simplifying.",
+          "remediationSkillId": "math.functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "Separate allowed inputs from resulting outputs.",
+        "studentAction": "List restrictions imposed by the original formula.",
+        "hints": [
+          "A denominator cannot equal zero.",
+          "A real square root needs a nonnegative radicand."
+        ],
+        "independentCheck": "Find the real domain of sqrt(x+4)/(x-1) and retain both restrictions."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find the real domain of h(x)=sqrt(x-2)/(x+1).",
+        "steps": [
+          "The square root requires x-2>=0, so x>=2.",
+          "The denominator excludes -1; that value is already outside x>=2."
+        ],
+        "answer": "The real domain is [2, infinity)."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "polynomial_domain",
+        "limits": "All-real domain of a polynomial only; not range or arbitrary function domains."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.composition",
+      "revision": 1,
+      "contentDigest": "82340c18f0270d7654e73374c64a46327ac173cf7d92b0c209965beacb718264",
+      "previousVersion": null,
+      "title": "Composition of functions",
+      "subject": "math",
+      "chapters": [
+        1
+      ],
+      "aliases": [
+        "composition of functions",
+        "composite function",
+        "inner function"
+      ],
+      "objective": "Evaluate the inner function first and apply the outer function to its output.",
+      "prerequisites": [
+        "math.functions",
+        "math.domain_range"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.composition.common_confusion",
+          "signal": "Using the outer rule before evaluating the inner rule.",
+          "checkQuestion": "Which function receives the original input first?",
+          "response": "Work from the innermost parentheses outward.",
+          "remediationSkillId": "math.functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify the inner and outer function.",
+        "studentAction": "Draw two input-output boxes in the required order.",
+        "hints": [
+          "Calculate the inner output first.",
+          "Use that output as the input to the outer rule."
+        ],
+        "independentCheck": "Compare f(g(2)) and g(f(2)) for f(x)=x+3 and g(x)=2x."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Let f(x)=2x+1 and g(x)=x^2. Find f(g(3)).",
+        "steps": [
+          "Evaluate g(3)=9.",
+          "Apply f to 9: f(9)=2(9)+1=19."
+        ],
+        "answer": "f(g(3)) = 19."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.inverse_functions",
+      "revision": 1,
+      "contentDigest": "cfc13a2b6b21f87347770dc2592cd5e41a4432df883193cdd8dc31ba5fde9fc9",
+      "previousVersion": null,
+      "title": "Inverse functions",
+      "subject": "math",
+      "chapters": [
+        1
+      ],
+      "aliases": [
+        "inverse function",
+        "one to one",
+        "inverse composition"
+      ],
+      "objective": "Find an inverse when the function is one-to-one on its stated domain and check by composition.",
+      "prerequisites": [
+        "math.functions",
+        "math.domain_range",
+        "math.composition"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.inverse_functions.common_confusion",
+          "signal": "Treating an inverse function as the reciprocal of the output.",
+          "checkQuestion": "Does your proposed rule undo the original rule?",
+          "response": "An inverse reverses input and output; it is not generally 1/f(x).",
+          "remediationSkillId": "math.composition"
+        }
+      ],
+      "scaffold": {
+        "orient": "Check the domain on which the rule can be reversed.",
+        "studentAction": "Write y=f(x), then solve for x.",
+        "hints": [
+          "Swap input-output roles only after noting domain restrictions.",
+          "Compose the proposed inverse with the original rule."
+        ],
+        "independentCheck": "Find the inverse of 5x+10 and verify one input through both rules."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find the inverse of f(x)=3x-6.",
+        "steps": [
+          "Write y=3x-6 and solve: x=(y+6)/3.",
+          "Replace the input label y with x and check f((x+6)/3)=x."
+        ],
+        "answer": "f inverse(x) = (x+6)/3."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.linear_equations",
+      "revision": 1,
+      "contentDigest": "6775f765cb7359cc0fe2af6f554c4f043e7b6c45d8474bbb5459fb95866cd0ac",
+      "previousVersion": null,
+      "title": "Linear equations",
+      "subject": "math",
+      "chapters": [
+        2
+      ],
+      "aliases": [
+        "linear equation",
+        "solve for x",
+        "balance equation"
+      ],
+      "objective": "Solve a one-variable linear equation by equivalent operations and check the candidate in the original equation.",
+      "prerequisites": [],
+      "misconceptions": [
+        {
+          "id": "math.linear_equations.common_confusion",
+          "signal": "Changing one side without changing the other.",
+          "checkQuestion": "What operation did you apply to each side?",
+          "response": "Use the same operation on both sides to preserve equality.",
+          "remediationSkillId": "math.linear_equations"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify the variable term and the constant term.",
+        "studentAction": "Write one equivalent equation per line.",
+        "hints": [
+          "Undo addition or subtraction before undoing multiplication.",
+          "Substitute the candidate into the original equation."
+        ],
+        "independentCheck": "Solve 4x-3=17, then show the substitution check."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Solve 3x+7=22.",
+        "steps": [
+          "Subtract 7 from each side: 3x=15.",
+          "Divide both sides by 3: x=5; check 3(5)+7=22."
+        ],
+        "answer": "The unique solution is x = 5."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "equation_value",
+        "limits": "Exact rational candidate values; no graph or modeling interpretation."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.linear_functions",
+      "revision": 1,
+      "contentDigest": "8dafc87e12d48dc0e2d418134c5851c7965e2ededc8b3c028cd60f5ab775d3aa",
+      "previousVersion": null,
+      "title": "Slope and linear functions",
+      "subject": "math",
+      "chapters": [
+        2
+      ],
+      "aliases": [
+        "slope",
+        "rate of change",
+        "linear function",
+        "slope intercept"
+      ],
+      "objective": "Calculate rate of change consistently and connect slope and intercept to a linear situation.",
+      "prerequisites": [
+        "math.functions",
+        "math.linear_equations"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.linear_functions.common_confusion",
+          "signal": "Using change in x over change in y for slope.",
+          "checkQuestion": "Which quantity changes in the numerator, and what are its units?",
+          "response": "Use change in output divided by change in input in one consistent point order.",
+          "remediationSkillId": "math.functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "Name the input and output quantities.",
+        "studentAction": "Write both coordinate differences in the same order.",
+        "hints": [
+          "Slope is delta y divided by delta x.",
+          "Use one point to find an intercept if needed."
+        ],
+        "independentCheck": "Find the slope through (1,4) and (5,16), including its units if supplied."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find the slope through (2,5) and (6,13).",
+        "steps": [
+          "Calculate change in y: 13-5=8 and change in x: 6-2=4.",
+          "Divide: slope=8/4=2."
+        ],
+        "answer": "The slope is 2 output units per input unit."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.systems",
+      "revision": 1,
+      "contentDigest": "fda50cb69bdcf4172b29ff7804c194fdf23ac353a414e6e17c93a0ff8feb3d6b",
+      "previousVersion": null,
+      "title": "Systems of linear equations",
+      "subject": "math",
+      "chapters": [
+        2
+      ],
+      "aliases": [
+        "system of equations",
+        "linear system",
+        "elimination",
+        "substitution method"
+      ],
+      "objective": "Find an ordered pair satisfying both linear equations and distinguish unique, absent and infinitely many solutions.",
+      "prerequisites": [
+        "math.linear_equations"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.systems.common_confusion",
+          "signal": "Checking an ordered pair in only one equation.",
+          "checkQuestion": "Does this pair satisfy the second equation too?",
+          "response": "A solution to a system must satisfy every equation together.",
+          "remediationSkillId": "math.linear_equations"
+        }
+      ],
+      "scaffold": {
+        "orient": "Choose substitution or elimination based on the coefficients.",
+        "studentAction": "Plan an operation that removes one variable.",
+        "hints": [
+          "Apply the operation to both sides of each equation involved.",
+          "Check the final pair in both original equations."
+        ],
+        "independentCheck": "Solve x+y=9 and x-y=3, then check both equations."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Solve x+y=7 and x-y=1.",
+        "steps": [
+          "Add the equations: 2x=8, so x=4.",
+          "Substitute into x+y=7 to get y=3; both equations hold."
+        ],
+        "answer": "The unique ordered pair is (4, 3)."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "linear_system",
+        "limits": "Two linear equations with a unique solution; rational coefficients."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.absolute_value",
+      "revision": 1,
+      "contentDigest": "85dfc29b8453e9506eea230ca033787c026269b8fc2f9f658ec9b1a5296672a1",
+      "previousVersion": null,
+      "title": "Absolute value equations",
+      "subject": "math",
+      "chapters": [
+        2
+      ],
+      "aliases": [
+        "absolute value",
+        "distance from zero",
+        "absolute value equation"
+      ],
+      "objective": "Interpret absolute value as distance and consider both branches when the distance is positive.",
+      "prerequisites": [
+        "math.linear_equations"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.absolute_value.common_confusion",
+          "signal": "Keeping only the positive branch.",
+          "checkQuestion": "What two positions lie this distance from the center?",
+          "response": "A positive distance can correspond to a value on either side of the center.",
+          "remediationSkillId": "math.linear_equations"
+        }
+      ],
+      "scaffold": {
+        "orient": "Read the expression inside the bars as a signed displacement.",
+        "studentAction": "Identify the center and the required nonnegative distance.",
+        "hints": [
+          "For a positive distance, write one positive and one negative branch.",
+          "Check each candidate in the original absolute value statement."
+        ],
+        "independentCheck": "Solve |x+1|=4 and locate the solutions relative to -1."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Solve |x-2|=5.",
+        "steps": [
+          "Write x-2=5 or x-2=-5.",
+          "Solve each branch to get 7 or -3; each is five units from 2."
+        ],
+        "answer": "The solution set is {-3, 7}."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.polynomials",
+      "revision": 1,
+      "contentDigest": "018615b549d8f1a676eb7d2c1a3e1fe0c40c4efa49b280b3d27dfc6537c50cb9",
+      "previousVersion": null,
+      "title": "Polynomial structure",
+      "subject": "math",
+      "chapters": [
+        3
+      ],
+      "aliases": [
+        "polynomial",
+        "factoring",
+        "expand",
+        "distribute"
+      ],
+      "objective": "Use distribution and like terms to expand or factor a polynomial while preserving equality.",
+      "prerequisites": [
+        "math.linear_equations"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.polynomials.common_confusion",
+          "signal": "Omitting the two middle products when multiplying binomials.",
+          "checkQuestion": "Has every term in the first factor multiplied every term in the second?",
+          "response": "List all products before combining like terms.",
+          "remediationSkillId": "math.linear_equations"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify factors, terms and the requested form.",
+        "studentAction": "Write the products explicitly before collecting terms.",
+        "hints": [
+          "Keep a term's sign attached during distribution.",
+          "Combine only terms with the same variable powers."
+        ],
+        "independentCheck": "Expand (x+4)(x-1), then use one numerical input as a check."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Expand (x+2)(x-3).",
+        "steps": [
+          "Distribute: x^2-3x+2x-6.",
+          "Combine the x terms: -3x+2x=-x."
+        ],
+        "answer": "The equivalent polynomial is x^2-x-6."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "equivalent_expression",
+        "limits": "Polynomial identities through degree eight."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.quadratics",
+      "revision": 1,
+      "contentDigest": "9bd6a7a938f26e5f52868fec1fe7472a4d71aeeb4efd47e3e8d51af4d4d5518d",
+      "previousVersion": null,
+      "title": "Quadratic equations",
+      "subject": "math",
+      "chapters": [
+        3
+      ],
+      "aliases": [
+        "quadratic equation",
+        "quadratic roots",
+        "zero product",
+        "quadratic formula"
+      ],
+      "objective": "Find every real solution of a quadratic using a suitable method and check the complete solution set.",
+      "prerequisites": [
+        "math.polynomials",
+        "math.linear_equations"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.quadratics.common_confusion",
+          "signal": "Returning one root after finding two factors.",
+          "checkQuestion": "What does each factor imply when their product is zero?",
+          "response": "Apply the zero-product property to every factor.",
+          "remediationSkillId": "math.polynomials"
+        }
+      ],
+      "scaffold": {
+        "orient": "Put the quadratic in a form suitable for factoring or another method.",
+        "studentAction": "Choose a method and state why it fits.",
+        "hints": [
+          "When factoring works, set each factor equal to zero.",
+          "Substitute all candidates and state whether the set is complete."
+        ],
+        "independentCheck": "Solve x^2-7x+12=0 and check every listed solution."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Solve x^2-5x+6=0.",
+        "steps": [
+          "Factor as (x-2)(x-3)=0.",
+          "Set each factor to zero: x=2 or x=3; these exhaust the quadratic roots."
+        ],
+        "answer": "The complete real solution set is {2, 3}."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "solution_set",
+        "limits": "Complete real solution sets through degree two with rational roots."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.rational_expressions",
+      "revision": 1,
+      "contentDigest": "14cdc46604da6a77ede748602dae570f8130903f56524a39e8e9fc877eb57a34",
+      "previousVersion": null,
+      "title": "Rational expressions and domains",
+      "subject": "math",
+      "chapters": [
+        3
+      ],
+      "aliases": [
+        "rational expression",
+        "denominator",
+        "domain exclusion",
+        "removable discontinuity"
+      ],
+      "objective": "Simplify a rational expression while retaining the original real-domain exclusions.",
+      "prerequisites": [
+        "math.polynomials",
+        "math.domain_range"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.rational_expressions.common_confusion",
+          "signal": "Removing a denominator factor and forgetting its excluded input.",
+          "checkQuestion": "Which values were excluded before any cancellation?",
+          "response": "Record the original restrictions before simplifying the factors.",
+          "remediationSkillId": "math.domain_range"
+        }
+      ],
+      "scaffold": {
+        "orient": "List the denominator's excluded inputs.",
+        "studentAction": "Factor numerator and denominator without changing their domains.",
+        "hints": [
+          "Cancel common factors only where the denominator is nonzero.",
+          "State the simplified form together with the original restrictions."
+        ],
+        "independentCheck": "Simplify (x^2-9)/(x-3) and state its excluded value."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Simplify (x^2-4)/(x-2) while retaining its domain.",
+        "steps": [
+          "The original denominator excludes x=2; factor the numerator as (x-2)(x+2).",
+          "Cancel the common factor only for x not equal to 2."
+        ],
+        "answer": "The expression equals x+2 on the original domain x != 2."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "rational_expression",
+        "limits": "Exact identities and domain exclusions when denominator roots are supported."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.exponential_functions",
+      "revision": 1,
+      "contentDigest": "7ac73c006b7200fd3788696d9203df91085e7b3399ad4d82833573443cbac53a",
+      "previousVersion": null,
+      "title": "Exponential growth and decay",
+      "subject": "math",
+      "chapters": [
+        4
+      ],
+      "aliases": [
+        "exponential growth",
+        "exponential decay",
+        "growth factor",
+        "exponential function"
+      ],
+      "objective": "Distinguish repeated multiplicative change from additive change and interpret the factor over a stated time unit.",
+      "prerequisites": [
+        "math.functions",
+        "math.polynomials"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.exponential_functions.common_confusion",
+          "signal": "Using a percentage rate directly as the growth factor.",
+          "checkQuestion": "What fraction of the old amount remains after one period?",
+          "response": "For 25 percent growth, the next amount is 1.25 times the previous amount.",
+          "remediationSkillId": "math.functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify the initial amount and the time unit.",
+        "studentAction": "Convert the stated percent change into a multiplicative factor.",
+        "hints": [
+          "Apply the factor once per period, not once for the whole interval.",
+          "Keep exact values until the final reporting step."
+        ],
+        "independentCheck": "Find the amount after two periods starting at 100 with 10 percent decay each period."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "An amount starts at 80 and grows by 25 percent each period. Find it after two periods.",
+        "steps": [
+          "Use a factor of 1.25 each period: 80(1.25)^2.",
+          "Compute 80 times 1.5625 to obtain 125."
+        ],
+        "answer": "The amount after two periods is 125."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "integer_power",
+        "limits": "Rational base raised to an integer from -12 through 12; not general exponential equations."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.logarithms",
+      "revision": 1,
+      "contentDigest": "0423196245f8fcb96cd532196ade0407c677ed123599cb6c678f671c0fdaa5c9",
+      "previousVersion": null,
+      "title": "Logarithms and inverse exponentials",
+      "subject": "math",
+      "chapters": [
+        4
+      ],
+      "aliases": [
+        "logarithm",
+        "logarithmic",
+        "exponential form",
+        "log properties"
+      ],
+      "objective": "Translate logarithms into exponent questions and apply logarithmic properties only on valid domains.",
+      "prerequisites": [
+        "math.exponential_functions",
+        "math.inverse_functions"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.logarithms.common_confusion",
+          "signal": "Splitting the logarithm of a sum into a sum of logarithms.",
+          "checkQuestion": "Which product or quotient property applies to this expression?",
+          "response": "Logarithm product rules describe products, not general sums.",
+          "remediationSkillId": "math.exponential_functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "State the base and the positive argument.",
+        "studentAction": "Rewrite log_b(a)=c as b^c=a.",
+        "hints": [
+          "Check the restrictions b>0, b!=1 and a>0 in real arithmetic.",
+          "Verify the result by raising the base to the proposed exponent."
+        ],
+        "independentCheck": "Evaluate log_3(27) by writing the equivalent exponential equation."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Evaluate log_2(8).",
+        "steps": [
+          "Ask which exponent makes 2 raised to that power equal 8.",
+          "Since 2^3=8, that exponent is 3."
+        ],
+        "answer": "log_2(8) = 3."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "integer_log",
+        "limits": "Real valid base, positive argument, integer result from -12 through 12."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.geometry_measurement",
+      "revision": 1,
+      "contentDigest": "9c9749d8e2f354ecf8ef5a848e13fb49ae6a6250734cd0dda1b060cb3d8d48da",
+      "previousVersion": null,
+      "title": "Geometric measurement",
+      "subject": "math",
+      "chapters": [
+        5
+      ],
+      "aliases": [
+        "triangle area",
+        "rectangle area",
+        "measurement units",
+        "square units"
+      ],
+      "objective": "Use stated dimensions in an appropriate measurement formula and report units consistent with the quantity.",
+      "prerequisites": [],
+      "misconceptions": [
+        {
+          "id": "math.geometry_measurement.common_confusion",
+          "signal": "Using a slanted side in place of a perpendicular height for triangle area.",
+          "checkQuestion": "Which segment is perpendicular to the chosen base?",
+          "response": "Area uses the perpendicular height associated with the selected base.",
+          "remediationSkillId": "math.geometry_measurement"
+        }
+      ],
+      "scaffold": {
+        "orient": "Name the quantity and label the given dimensions.",
+        "studentAction": "Check that the dimensions match the selected formula.",
+        "hints": [
+          "For a triangle, use one half times base times perpendicular height.",
+          "Area has squared length units; angle measure does not."
+        ],
+        "independentCheck": "Find a triangle's area from base 10 cm and perpendicular height 6 cm."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find the area of a triangle with base 8 cm and perpendicular height 5 cm.",
+        "steps": [
+          "Use A=(1/2)bh with the given perpendicular height.",
+          "Calculate (1/2)(8)(5)=20."
+        ],
+        "answer": "The area is 20 cm^2."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "geometry_measure",
+        "limits": "Explicit rectangle/triangle area, triangle angle, and rational right-triangle hypotenuse with units."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.geometry_reasoning",
+      "revision": 1,
+      "contentDigest": "6275126c4b3a82e451be46fd622ecc687cb39712569c756def56dee8063cc3c1",
+      "previousVersion": null,
+      "title": "Geometric relationships",
+      "subject": "math",
+      "chapters": [
+        5
+      ],
+      "aliases": [
+        "triangle angles",
+        "angle sum",
+        "similar triangles",
+        "geometric relationship"
+      ],
+      "objective": "Use an explicitly stated geometric relationship and distinguish given facts from a drawing's appearance.",
+      "prerequisites": [
+        "math.geometry_measurement"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.geometry_reasoning.common_confusion",
+          "signal": "Assuming an angle is a right angle because it looks square.",
+          "checkQuestion": "Is the right angle stated or marked in the original source?",
+          "response": "Use supplied markings and facts, and ask for missing dimensions or relationships.",
+          "remediationSkillId": "math.geometry_measurement"
+        }
+      ],
+      "scaffold": {
+        "orient": "List what is stated and what is only suggested by the drawing.",
+        "studentAction": "Name the relationship that connects the known and unknown values.",
+        "hints": [
+          "For a Euclidean triangle, the interior angles total 180 degrees.",
+          "Check the result against the stated relationship."
+        ],
+        "independentCheck": "Find the third angle when a triangle's other angles are 35 and 80 degrees."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Two interior angles of a triangle are 42 and 68 degrees. Find the third.",
+        "steps": [
+          "Add the known angles: 42+68=110 degrees.",
+          "Subtract from 180 degrees: 180-110=70 degrees."
+        ],
+        "answer": "The third angle is 70 degrees."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "geometry_measure",
+        "limits": "Supports numeric triangle-angle checks from stated givens; similarity, congruence and general proofs require reviewed reasoning."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.angle_measure",
+      "revision": 1,
+      "contentDigest": "c5ccdacb04bb697c9a6db0c9aa99447c5d7ae18acb77e5f32bc30b6461df769b",
+      "previousVersion": null,
+      "title": "Radians and degrees",
+      "subject": "math",
+      "chapters": [
+        5
+      ],
+      "aliases": [
+        "radian",
+        "degree conversion",
+        "arc length",
+        "angle measure"
+      ],
+      "objective": "Convert between radians and degrees and relate radian measure to arc length divided by radius.",
+      "prerequisites": [
+        "math.geometry_reasoning"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.angle_measure.common_confusion",
+          "signal": "Treating pi radians as one full turn.",
+          "checkQuestion": "How many radians are in a half turn?",
+          "response": "A half turn is pi radians and a full turn is 2pi radians.",
+          "remediationSkillId": "math.geometry_reasoning"
+        }
+      ],
+      "scaffold": {
+        "orient": "State whether the angle is in degrees or radians.",
+        "studentAction": "Use a conversion ratio that cancels the original unit.",
+        "hints": [
+          "Multiply degrees by pi/180 to obtain radians.",
+          "Keep exact multiples of pi when the task requests exact values."
+        ],
+        "independentCheck": "Convert 210 degrees to radians and identify its quadrant."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Convert 150 degrees to radians.",
+        "steps": [
+          "Multiply 150 by pi/180.",
+          "Reduce 150/180 to 5/6."
+        ],
+        "answer": "150 degrees equals 5pi/6 radians."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.unit_circle",
+      "revision": 1,
+      "contentDigest": "924b168cd1533d98cd906b8ed9d6a6136d846cad212293a21da29be54d00479c",
+      "previousVersion": null,
+      "title": "Unit circle coordinates",
+      "subject": "math",
+      "chapters": [
+        5
+      ],
+      "aliases": [
+        "unit circle",
+        "special angle",
+        "sine cosine coordinates",
+        "quadrant"
+      ],
+      "objective": "Use unit-circle coordinates to identify cosine and sine with signs matching the angle's quadrant.",
+      "prerequisites": [
+        "math.angle_measure",
+        "math.functions"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.unit_circle.common_confusion",
+          "signal": "Swapping the sine and cosine coordinates.",
+          "checkQuestion": "Which coordinate is horizontal on the unit circle?",
+          "response": "Cosine is the horizontal coordinate and sine is the vertical coordinate.",
+          "remediationSkillId": "math.functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "Locate the angle on the unit circle.",
+        "studentAction": "Read the ordered pair as (cos(theta), sin(theta)).",
+        "hints": [
+          "Use the quadrant to check each coordinate's sign.",
+          "Confirm whether a tangent value is defined before dividing."
+        ],
+        "independentCheck": "Find cosine and sine at pi/2 using the unit-circle point."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find cosine and sine at pi radians.",
+        "steps": [
+          "Pi radians is the point (-1,0) on the unit circle.",
+          "Cosine is its x-coordinate and sine is its y-coordinate."
+        ],
+        "answer": "cos(pi) = -1 and sin(pi) = 0."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "special_angle",
+        "limits": "Declared rational-value sin/cos/tan special angles in degrees; no general or radical-valued trig."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.trig_ratios",
+      "revision": 1,
+      "contentDigest": "b6f64ea5cce8cf483142408a631a74b3cea83520bf9011d78373d9227f6390f3",
+      "previousVersion": null,
+      "title": "Right-triangle trigonometry",
+      "subject": "math",
+      "chapters": [
+        5
+      ],
+      "aliases": [
+        "trigonometric ratio",
+        "opposite hypotenuse",
+        "right triangle trigonometry",
+        "sine ratio"
+      ],
+      "objective": "Choose sine, cosine or tangent relative to the specified angle and the appropriate triangle sides.",
+      "prerequisites": [
+        "math.geometry_measurement",
+        "math.unit_circle"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.trig_ratios.common_confusion",
+          "signal": "Keeping opposite and adjacent labels fixed after changing the reference angle.",
+          "checkQuestion": "Which side faces the angle you are using now?",
+          "response": "Relabel opposite and adjacent relative to the selected angle.",
+          "remediationSkillId": "math.geometry_measurement"
+        }
+      ],
+      "scaffold": {
+        "orient": "Mark the reference angle and identify the hypotenuse.",
+        "studentAction": "Label the other sides relative to that angle.",
+        "hints": [
+          "Select the ratio containing the given and requested quantities.",
+          "Check that the hypotenuse remains the longest side."
+        ],
+        "independentCheck": "For opposite 5 and adjacent 12, identify all three ratios using a 13-unit hypotenuse."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "For one angle, opposite=3, adjacent=4 and hypotenuse=5. Find the three ratios.",
+        "steps": [
+          "Use sine=opposite/hypotenuse and cosine=adjacent/hypotenuse.",
+          "Use tangent=opposite/adjacent."
+        ],
+        "answer": "sin(theta)=3/5, cos(theta)=4/5 and tan(theta)=3/4."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.sinusoidal_functions",
+      "revision": 1,
+      "contentDigest": "4d2227d15359a8a8340273bdd3d430159dd6fb530500fce67cf0dd7cccc17f4d",
+      "previousVersion": null,
+      "title": "Sinusoidal models",
+      "subject": "math",
+      "chapters": [
+        6
+      ],
+      "aliases": [
+        "amplitude",
+        "sinusoidal",
+        "period",
+        "midline"
+      ],
+      "objective": "Identify amplitude, midline and period from a sinusoidal rule and connect them to the modeled quantities.",
+      "prerequisites": [
+        "math.functions",
+        "math.trig_ratios",
+        "math.angle_measure"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.sinusoidal_functions.common_confusion",
+          "signal": "Using the coefficient of x itself as the period.",
+          "checkQuestion": "What input change makes the angle inside sine increase by 2pi?",
+          "response": "For sin(Bx), the period is 2pi/|B| when x is in radians.",
+          "remediationSkillId": "math.angle_measure"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify the vertical scale, horizontal frequency and vertical shift.",
+        "studentAction": "Write amplitude and midline before finding the period.",
+        "hints": [
+          "Amplitude is the absolute value of the vertical coefficient.",
+          "Solve for the input change that completes one full cycle."
+        ],
+        "independentCheck": "For y=4cos(3x)+2, find amplitude, midline and period."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Identify amplitude, period and midline of y=3sin(2x)-1.",
+        "steps": [
+          "The vertical coefficient gives amplitude 3 and the shift gives midline y=-1.",
+          "The period is 2pi/2=pi."
+        ],
+        "answer": "Amplitude 3; period pi; midline y=-1."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "sinusoid_measure",
+        "limits": "Nonconstant a*sin(b*x) or a*cos(b*x), radian input; amplitude and period as rational multiple of pi."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.inverse_trig",
+      "revision": 1,
+      "contentDigest": "ffe3210ef96b5abee77d4f893e2a19614e060d0bdb34c7a44dd0907cc75d66fd",
+      "previousVersion": null,
+      "title": "Inverse trigonometric values",
+      "subject": "math",
+      "chapters": [
+        6
+      ],
+      "aliases": [
+        "inverse sine",
+        "inverse cosine",
+        "arcsin",
+        "arccos",
+        "arctan"
+      ],
+      "objective": "Use the principal output range of an inverse trigonometric function and distinguish one inverse value from all equation solutions.",
+      "prerequisites": [
+        "math.inverse_functions",
+        "math.trig_ratios",
+        "math.unit_circle"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.inverse_trig.common_confusion",
+          "signal": "Listing every angle when asked for a principal inverse value.",
+          "checkQuestion": "Which output range defines this inverse function?",
+          "response": "Choose the one angle in the inverse function's stated principal range.",
+          "remediationSkillId": "math.inverse_functions"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify the inverse function and its principal range.",
+        "studentAction": "Find an angle with the requested trigonometric value.",
+        "hints": [
+          "Restrict the result to the principal range.",
+          "Keep all-solution equation work separate from inverse evaluation."
+        ],
+        "independentCheck": "Find arccos(1/2) and explain why a full set of coterminal angles is not the requested output."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Evaluate arcsin(1/2).",
+        "steps": [
+          "The principal range of arcsin is [-pi/2,pi/2].",
+          "Pi/6 lies in that range and has sine 1/2."
+        ],
+        "answer": "arcsin(1/2) = pi/6."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.trig_identities",
+      "revision": 1,
+      "contentDigest": "abc90c745809d1be96cf7e3e7a998e9983175efd24760d36c74b9eea477d2169",
+      "previousVersion": null,
+      "title": "Trigonometric identities",
+      "subject": "math",
+      "chapters": [
+        7
+      ],
+      "aliases": [
+        "trigonometric identity",
+        "pythagorean identity",
+        "sin squared",
+        "cos squared"
+      ],
+      "objective": "Use a stated identity through equivalent transformations, respecting domain and sign information.",
+      "prerequisites": [
+        "math.polynomials",
+        "math.trig_ratios"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.trig_identities.common_confusion",
+          "signal": "Choosing a positive square root without checking the angle's quadrant.",
+          "checkQuestion": "Which sign does the quadrant allow?",
+          "response": "An identity can determine a squared value; the quadrant determines the sign.",
+          "remediationSkillId": "math.unit_circle"
+        }
+      ],
+      "scaffold": {
+        "orient": "Name the identity that connects the given quantities.",
+        "studentAction": "Transform one expression at a time with justified equalities.",
+        "hints": [
+          "Keep track of exclusions introduced by division.",
+          "Use quadrant or interval information when taking a square root."
+        ],
+        "independentCheck": "Given sin(theta)=3/5 in quadrant II, find cosine and justify its sign."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Given cos(theta)=3/5 and theta in quadrant I, find sin(theta).",
+        "steps": [
+          "Use sin^2(theta)=1-cos^2(theta)=1-9/25=16/25.",
+          "Quadrant I requires a positive sine, so sin(theta)=4/5."
+        ],
+        "answer": "sin(theta) = 4/5 under the stated quadrant condition."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "named_identity",
+        "limits": "Value of the named sin-squared plus cos-squared identity only; no arbitrary identity proof."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.trig_equations",
+      "revision": 1,
+      "contentDigest": "c1833124db2b43a44e6fd861abed3c8bd4631467c9bd8b9ddbfb0e5525fd79b8",
+      "previousVersion": null,
+      "title": "Trigonometric equations",
+      "subject": "math",
+      "chapters": [
+        7
+      ],
+      "aliases": [
+        "trigonometric equation",
+        "solve sine",
+        "solve cosine",
+        "reference angle"
+      ],
+      "objective": "Find all trigonometric equation solutions in the stated interval and check endpoints and periodicity.",
+      "prerequisites": [
+        "math.linear_equations",
+        "math.inverse_trig",
+        "math.trig_identities"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.trig_equations.common_confusion",
+          "signal": "Keeping only the calculator's principal inverse value.",
+          "checkQuestion": "Which other angle in the interval has the same sine or cosine?",
+          "response": "Use unit-circle symmetry and the requested interval after finding a reference angle.",
+          "remediationSkillId": "math.unit_circle"
+        }
+      ],
+      "scaffold": {
+        "orient": "State the interval and isolate the trigonometric expression.",
+        "studentAction": "Find the reference angle or principal value.",
+        "hints": [
+          "Use symmetry to list every solution in the interval.",
+          "Check endpoints and remove values outside the interval."
+        ],
+        "independentCheck": "Solve cos(x)=1/2 on [0,2pi) and explain why there are two solutions."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Solve sin(x)=1/2 on [0,2pi).",
+        "steps": [
+          "The reference angle is pi/6 and sine is positive in quadrants I and II.",
+          "The interval contains pi/6 and pi-pi/6=5pi/6."
+        ],
+        "answer": "The solution set on [0,2pi) is {pi/6, 5pi/6}."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.laws_of_sines_cosines",
+      "revision": 1,
+      "contentDigest": "499483b39f8521315016d4b8790ab9da1f6bf642c745d11c0d4c21df5ca26f9a",
+      "previousVersion": null,
+      "title": "Oblique triangle relationships",
+      "subject": "math",
+      "chapters": [
+        8
+      ],
+      "aliases": [
+        "law of sines",
+        "law of cosines",
+        "included angle",
+        "oblique triangle"
+      ],
+      "objective": "Choose the law of sines or cosines from the stated side-angle information and recognize possible ambiguous cases.",
+      "prerequisites": [
+        "math.geometry_reasoning",
+        "math.trig_ratios"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.laws_of_sines_cosines.common_confusion",
+          "signal": "Using the law of sines without a known opposite side-angle pair.",
+          "checkQuestion": "Which known side is opposite a known angle?",
+          "response": "Inspect the known pairs; two sides and their included angle directly fit the law of cosines.",
+          "remediationSkillId": "math.trig_ratios"
+        }
+      ],
+      "scaffold": {
+        "orient": "Sketch and label the stated sides and opposite angles.",
+        "studentAction": "Classify the given information before choosing a law.",
+        "hints": [
+          "For two sides and their included angle, use the cosine relationship.",
+          "For side-side-angle data, check whether zero, one or two triangles are possible."
+        ],
+        "independentCheck": "Find the opposite side when two sides are 4 and 6 with included angle 60 degrees."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Two sides are 5 and 7 with included angle 60 degrees. Find the opposite side c.",
+        "steps": [
+          "Use c^2=5^2+7^2-2(5)(7)cos(60 degrees).",
+          "Since cos(60 degrees)=1/2, c^2=25+49-35=39."
+        ],
+        "answer": "The opposite side is sqrt(39) length units."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.vectors",
+      "revision": 1,
+      "contentDigest": "4cf6aacd359b9082db321112417901468815c7f343da0ec6b4e7aa4083414171",
+      "previousVersion": null,
+      "title": "Vector components and dot products",
+      "subject": "math",
+      "chapters": [
+        8
+      ],
+      "aliases": [
+        "vector",
+        "dot product",
+        "vector components",
+        "orthogonal"
+      ],
+      "objective": "Combine vector components consistently and interpret the scalar result of a dot product.",
+      "prerequisites": [
+        "math.linear_equations",
+        "math.trig_ratios"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.vectors.common_confusion",
+          "signal": "Treating a dot product as another ordered pair.",
+          "checkQuestion": "Does the operation request a scalar or a vector?",
+          "response": "Multiply matching components and add them for a scalar dot product.",
+          "remediationSkillId": "math.linear_equations"
+        }
+      ],
+      "scaffold": {
+        "orient": "Write both vectors in the same coordinate basis.",
+        "studentAction": "Pair corresponding components.",
+        "hints": [
+          "Multiply matching components and sum for a dot product.",
+          "Keep the scalar dot product distinct from vector addition."
+        ],
+        "independentCheck": "Compute (1,2) dot (4,-2) and interpret the zero result for nonzero vectors."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Compute (2,-1) dot (3,4).",
+        "steps": [
+          "Multiply matching components: 2(3)=6 and (-1)(4)=-4.",
+          "Add the products: 6+(-4)=2."
+        ],
+        "answer": "The scalar dot product is 2."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "vector_dot",
+        "limits": "Two-dimensional rational dot products only."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.polar_coordinates",
+      "revision": 1,
+      "contentDigest": "2120b389b3c94f58989d51422ab20ffed399112af853b630bd1804c9cba2210c",
+      "previousVersion": null,
+      "title": "Polar coordinates",
+      "subject": "math",
+      "chapters": [
+        8
+      ],
+      "aliases": [
+        "polar coordinate",
+        "cartesian coordinate",
+        "polar conversion",
+        "polar radius"
+      ],
+      "objective": "Convert between polar and Cartesian coordinates while recognizing that polar representations need not be unique.",
+      "prerequisites": [
+        "math.functions",
+        "math.unit_circle"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.polar_coordinates.common_confusion",
+          "signal": "Assuming each point has only one polar coordinate pair.",
+          "checkQuestion": "How does adding a full turn change the represented point?",
+          "response": "Angles differing by full turns can represent the same position; negative radii need an additional direction change.",
+          "remediationSkillId": "math.unit_circle"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify radius and angle with their units.",
+        "studentAction": "Use x=r cos(theta) and y=r sin(theta).",
+        "hints": [
+          "Check signs from the angle and radius.",
+          "When converting back, use quadrant information rather than arctangent alone."
+        ],
+        "independentCheck": "Convert (r,theta)=(3,pi) to Cartesian coordinates."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Convert polar coordinates (2,pi/2) to Cartesian coordinates.",
+        "steps": [
+          "Compute x=2cos(pi/2)=0.",
+          "Compute y=2sin(pi/2)=2."
+        ],
+        "answer": "The Cartesian point is (0, 2)."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.conics",
+      "revision": 1,
+      "contentDigest": "56c339e958f430e05d573f2a3777e0af0bfd8ed929d006618d0b56fa8bc3e4ba",
+      "previousVersion": null,
+      "title": "Conic structure and centers",
+      "subject": "math",
+      "chapters": [
+        9
+      ],
+      "aliases": [
+        "conic",
+        "conic center",
+        "ellipse equation",
+        "hyperbola equation"
+      ],
+      "objective": "Classify a conic in canonical form and interpret shifts and squared terms before calculating its features.",
+      "prerequisites": [
+        "math.functions",
+        "math.quadratics"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.conics.common_confusion",
+          "signal": "Reading the center's signs directly from the parentheses.",
+          "checkQuestion": "What x and y values make the shifted terms zero?",
+          "response": "The center uses the values that zero the expressions x-h and y-k.",
+          "remediationSkillId": "math.quadratics"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify squared terms and their signs.",
+        "studentAction": "Compare the equation with a stated canonical form.",
+        "hints": [
+          "Read each shift by finding where its parenthesis is zero.",
+          "Distinguish the equation's coefficients from the lengths obtained by square roots."
+        ],
+        "independentCheck": "Find the center of (x+3)^2/16+(y-4)^2/9=1."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find the center of (x-1)^2/9+(y+2)^2/4=1.",
+        "steps": [
+          "Set x-1=0 to find the horizontal shift 1.",
+          "Set y+2=0 to find the vertical shift -2."
+        ],
+        "answer": "The ellipse center is (1, -2)."
+      },
+      "verification": {
+        "mode": "bounded_exact_result",
+        "checker": "conic_measure",
+        "limits": "Center and rational x/y semiaxis lengths from canonical ellipse/hyperbola specifications."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.parabolas",
+      "revision": 1,
+      "contentDigest": "d5555f81fab329512648ceefd6bedde0e5a29f372e071b2e0a74b0c64dac9bc3",
+      "previousVersion": null,
+      "title": "Parabola features",
+      "subject": "math",
+      "chapters": [
+        9
+      ],
+      "aliases": [
+        "parabola",
+        "vertex form",
+        "parabola vertex",
+        "axis of symmetry"
+      ],
+      "objective": "Read a parabola's vertex and orientation from a stated form without confusing its scale with a horizontal shift.",
+      "prerequisites": [
+        "math.conics",
+        "math.quadratics"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.parabolas.common_confusion",
+          "signal": "Using the coefficient outside the square as a coordinate of the vertex.",
+          "checkQuestion": "Where does the squared term equal zero?",
+          "response": "The vertex occurs where the squared displacement vanishes.",
+          "remediationSkillId": "math.quadratics"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify the squared variable and the displacement inside its parentheses.",
+        "studentAction": "Find the input that makes the squared term zero.",
+        "hints": [
+          "Evaluate the remaining constant at that input.",
+          "Use the sign of the coefficient to determine opening direction."
+        ],
+        "independentCheck": "Find the vertex and opening direction of y=-3(x+2)^2+5."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find the vertex of y=2(x-3)^2+1.",
+        "steps": [
+          "The squared displacement is zero at x=3.",
+          "Then y=1, and positive coefficient 2 makes the parabola open upward."
+        ],
+        "answer": "The vertex is (3, 1); the parabola opens upward."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "math.ellipses_hyperbolas",
+      "revision": 1,
+      "contentDigest": "6cbe46d1d7f3ecdea72242ab556eefb60d732f617cffb513e3b48efdfb516367",
+      "previousVersion": null,
+      "title": "Ellipse and hyperbola features",
+      "subject": "math",
+      "chapters": [
+        9
+      ],
+      "aliases": [
+        "ellipse",
+        "hyperbola",
+        "semiaxis",
+        "asymptote"
+      ],
+      "objective": "Use canonical ellipse or hyperbola structure to find axes, vertices and appropriate asymptotes.",
+      "prerequisites": [
+        "math.conics",
+        "math.polynomials"
+      ],
+      "misconceptions": [
+        {
+          "id": "math.ellipses_hyperbolas.common_confusion",
+          "signal": "Treating the denominator under a squared term as an axis length.",
+          "checkQuestion": "Is the denominator a length or a squared length?",
+          "response": "Take the appropriate positive square root to obtain the semiaxis length.",
+          "remediationSkillId": "math.conics"
+        }
+      ],
+      "scaffold": {
+        "orient": "Classify the equation using the sum or difference of squared terms.",
+        "studentAction": "Read the center and identify the relevant axis direction.",
+        "hints": [
+          "Take square roots of the squared-length parameters.",
+          "Apply asymptote formulas only to the matching hyperbola orientation."
+        ],
+        "independentCheck": "For x^2/25-y^2/4=1, find the vertices and asymptotes."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Find the vertices and asymptotes of x^2/16-y^2/9=1.",
+        "steps": [
+          "The center is (0,0), the transverse direction is horizontal and a=4, b=3.",
+          "Vertices are (plus or minus 4,0); asymptote slopes are plus or minus b/a."
+        ],
+        "answer": "Vertices: (-4,0), (4,0). Asymptotes: y=3x/4 and y=-3x/4."
+      },
+      "verification": {
+        "mode": "review_required",
+        "limits": "This skill's complete reasoning and topic coverage are not certified by a deterministic checker. Authored routines and examples await educator review."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "reading.evidence",
+      "revision": 1,
+      "contentDigest": "e75ad6a664a4aa53ed12dff9f85521508939f6455e24a64b2bf6a89bad594981",
+      "previousVersion": null,
+      "title": "Textual evidence",
+      "subject": "reading",
+      "chapters": [],
+      "aliases": [
+        "textual evidence",
+        "source detail",
+        "quotation",
+        "quote"
+      ],
+      "objective": "Select a relevant exact source detail and explain its connection to a claim.",
+      "prerequisites": [],
+      "misconceptions": [
+        {
+          "id": "reading.evidence.common_confusion",
+          "signal": "Treating any quotation as support for the claim.",
+          "checkQuestion": "Which words in this detail connect to your specific claim?",
+          "response": "Explain the connection; a quotation's presence alone does not establish relevance.",
+          "remediationSkillId": "reading.evidence"
+        }
+      ],
+      "scaffold": {
+        "orient": "State the claim before selecting a detail.",
+        "studentAction": "Choose a short source passage and keep its exact wording.",
+        "hints": [
+          "Check that the quoted words appear in the source.",
+          "Explain how those words support your claim."
+        ],
+        "independentCheck": "Use a different detail from the same passage and explain its relevance."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Original passage: 'Mina packed a raincoat after hearing thunder.' Give evidence that Mina anticipated rain.",
+        "steps": [
+          "Select the detail 'packed a raincoat'.",
+          "Connect the raincoat to preparation for rain, while noting that anticipation is an inference."
+        ],
+        "answer": "The phrase 'packed a raincoat' supports the inference that Mina prepared for possible rain."
+      },
+      "verification": {
+        "mode": "source_correspondence_only",
+        "checker": "exact_quote",
+        "limits": "Checks exact quotation correspondence only; relevance, interpretation and reasoning require educator evaluation."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "reading.central_idea",
+      "revision": 1,
+      "contentDigest": "70c16b63e632b2850b3000506898a8275caf921f9b980fcfc19af798c8d8ca47",
+      "previousVersion": null,
+      "title": "Central idea and summary",
+      "subject": "reading",
+      "chapters": [],
+      "aliases": [
+        "central idea",
+        "main idea",
+        "summary",
+        "theme"
+      ],
+      "objective": "Express the passage's main idea at an appropriate scope and connect it to representative supporting details.",
+      "prerequisites": [
+        "reading.evidence"
+      ],
+      "misconceptions": [
+        {
+          "id": "reading.central_idea.common_confusion",
+          "signal": "Replacing the central idea with one interesting detail.",
+          "checkQuestion": "Does your statement cover most of the passage or just one moment?",
+          "response": "Broaden or narrow the statement until it accounts for the passage's main development.",
+          "remediationSkillId": "reading.evidence"
+        }
+      ],
+      "scaffold": {
+        "orient": "Identify what the passage repeatedly develops.",
+        "studentAction": "Draft one sentence about the whole passage.",
+        "hints": [
+          "Choose details from more than one part when available.",
+          "Exclude unsupported opinions from a summary."
+        ],
+        "independentCheck": "Write a second possible summary and compare which covers the passage more fully."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Original passage: 'A class planted a garden. Students shared watering duties and recorded each plant's growth.' State a central idea.",
+        "steps": [
+          "Notice that both sentences connect gardening with shared student work.",
+          "Summarize the repeated idea rather than listing every gardening detail."
+        ],
+        "answer": "The class learns through a shared gardening project."
+      },
+      "verification": {
+        "mode": "source_correspondence_only",
+        "checker": "exact_quote",
+        "limits": "Checks exact quotation correspondence only; relevance, interpretation and reasoning require educator evaluation."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "reading.inference",
+      "revision": 1,
+      "contentDigest": "06260723fbc2258dabc2f22c02a208f541931bad19c7e73be655c08a6e02ee70",
+      "previousVersion": null,
+      "title": "Evidence-based inference",
+      "subject": "reading",
+      "chapters": [],
+      "aliases": [
+        "inference",
+        "infer",
+        "implied",
+        "reasonable conclusion"
+      ],
+      "objective": "Distinguish explicit statements from reasonable inferences and identify what the evidence leaves uncertain.",
+      "prerequisites": [
+        "reading.evidence"
+      ],
+      "misconceptions": [
+        {
+          "id": "reading.inference.common_confusion",
+          "signal": "Presenting a possible explanation as a fact stated in the text.",
+          "checkQuestion": "Which part is directly stated, and which part did you infer?",
+          "response": "Label the inference and consider whether another explanation could fit.",
+          "remediationSkillId": "reading.evidence"
+        }
+      ],
+      "scaffold": {
+        "orient": "Separate the exact source statement from your interpretation.",
+        "studentAction": "Name the detail that led to your inference.",
+        "hints": [
+          "Explain the reasoning connecting detail and inference.",
+          "Keep the conclusion no stronger than the available evidence."
+        ],
+        "independentCheck": "Propose another plausible interpretation and identify evidence that could distinguish them."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Original passage: 'Leo checked the clock twice and tightened his shoelaces by the door.' Offer a cautious inference.",
+        "steps": [
+          "Checking the clock and preparing shoes suggest concern about leaving.",
+          "The passage does not state his destination or prove that he is late."
+        ],
+        "answer": "Leo may be preparing to leave soon; the destination and timing remain uncertain."
+      },
+      "verification": {
+        "mode": "source_correspondence_only",
+        "checker": "exact_quote",
+        "limits": "Checks exact quotation correspondence only; relevance, interpretation and reasoning require educator evaluation."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "reading.vocabulary",
+      "revision": 1,
+      "contentDigest": "8e8dca9a917e4e475e8080d52597a85c318c60fc21d73fb0c414538e25d2a282",
+      "previousVersion": null,
+      "title": "Vocabulary in context",
+      "subject": "reading",
+      "chapters": [],
+      "aliases": [
+        "context clue",
+        "vocabulary",
+        "word meaning",
+        "contextual meaning"
+      ],
+      "objective": "Infer a word's contextual meaning from nearby language and test a replacement without overstating certainty.",
+      "prerequisites": [],
+      "misconceptions": [
+        {
+          "id": "reading.vocabulary.common_confusion",
+          "signal": "Choosing a familiar dictionary sense that does not fit the passage.",
+          "checkQuestion": "Does your replacement preserve this sentence's meaning?",
+          "response": "Use the surrounding situation to choose among possible senses.",
+          "remediationSkillId": "reading.vocabulary"
+        }
+      ],
+      "scaffold": {
+        "orient": "Read the target sentence and nearby sentences.",
+        "studentAction": "Underline a contextual clue before proposing a meaning.",
+        "hints": [
+          "Substitute a simple candidate meaning into the sentence.",
+          "Check whether the tone and events still make sense."
+        ],
+        "independentCheck": "Try two possible meanings and explain which better fits the local context."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Original passage: 'After the long climb, Imani was weary and rested on a rock.' Explain 'weary' in context.",
+        "steps": [
+          "A long climb and a need to rest are clues about physical tiredness.",
+          "Substitute 'tired' and check that the sentence still fits."
+        ],
+        "answer": "In this context, 'weary' means tired."
+      },
+      "verification": {
+        "mode": "source_correspondence_only",
+        "checker": "exact_quote",
+        "limits": "Checks exact quotation correspondence only; relevance, interpretation and reasoning require educator evaluation."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "reading.argument",
+      "revision": 1,
+      "contentDigest": "cffc4bee832f66121b99370f68a72a77e96bb34328f68fac04350cf297a5f4f9",
+      "previousVersion": null,
+      "title": "Purpose, claims and reasoning",
+      "subject": "reading",
+      "chapters": [],
+      "aliases": [
+        "author purpose",
+        "argument",
+        "claim evidence",
+        "rhetorical purpose"
+      ],
+      "objective": "Identify a claim or purpose and evaluate how the source's reasons and evidence support it.",
+      "prerequisites": [
+        "reading.evidence",
+        "reading.central_idea"
+      ],
+      "misconceptions": [
+        {
+          "id": "reading.argument.common_confusion",
+          "signal": "Treating an assertion as proof of itself.",
+          "checkQuestion": "What reason or evidence supports the claim beyond repeating it?",
+          "response": "Separate the claim, the offered reason and the supporting evidence.",
+          "remediationSkillId": "reading.evidence"
+        }
+      ],
+      "scaffold": {
+        "orient": "State the author's apparent purpose as a supported interpretation.",
+        "studentAction": "Identify the main claim and its reasons.",
+        "hints": [
+          "Check which reasons have evidence and what remains an assertion.",
+          "Consider a limitation or counterpoint without inventing source content."
+        ],
+        "independentCheck": "Identify one additional piece of evidence that could strengthen the argument."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Original passage: 'The library should open earlier because several buses arrive before its doors open.' Identify the claim and reason.",
+        "steps": [
+          "The proposed change is that the library open earlier.",
+          "The bus schedule is offered as a reason related to students waiting."
+        ],
+        "answer": "Claim: open earlier. Reason: buses arrive before opening; demand and staffing evidence would help evaluate the proposal."
+      },
+      "verification": {
+        "mode": "source_correspondence_only",
+        "checker": "exact_quote",
+        "limits": "Checks exact quotation correspondence only; relevance, interpretation and reasoning require educator evaluation."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    },
+    {
+      "id": "reading.comparison",
+      "revision": 1,
+      "contentDigest": "d11a81fe2b99b87d909974966a38889211e13a245855adf507afdf3d4694c4ee",
+      "previousVersion": null,
+      "title": "Comparison across ideas and texts",
+      "subject": "reading",
+      "chapters": [],
+      "aliases": [
+        "compare",
+        "contrast",
+        "both texts",
+        "similarity difference"
+      ],
+      "objective": "Compare two ideas or sources using a shared dimension and evidence from both.",
+      "prerequisites": [
+        "reading.evidence",
+        "reading.central_idea"
+      ],
+      "misconceptions": [
+        {
+          "id": "reading.comparison.common_confusion",
+          "signal": "Describing one source in detail without using the other.",
+          "checkQuestion": "What evidence from each source addresses the same comparison point?",
+          "response": "Choose one shared dimension and support both sides.",
+          "remediationSkillId": "reading.evidence"
+        }
+      ],
+      "scaffold": {
+        "orient": "Choose the dimension of comparison before collecting details.",
+        "studentAction": "Select evidence from each source on that same dimension.",
+        "hints": [
+          "Describe a specific similarity or difference.",
+          "Explain why that comparison matters for the question."
+        ],
+        "independentCheck": "Compare a second shared dimension using new evidence from each source."
+      },
+      "example": {
+        "authorship": "original_ai_engineering_example",
+        "prompt": "Text A: 'The club funds trips by selling snacks.' Text B: 'The club funds trips with monthly membership fees.' Compare funding methods.",
+        "steps": [
+          "Both clubs raise money for trips.",
+          "Text A uses sales, whereas Text B collects recurring member payments."
+        ],
+        "answer": "Both fund trips; their funding methods differ between snack sales and membership fees."
+      },
+      "verification": {
+        "mode": "source_correspondence_only",
+        "checker": "exact_quote",
+        "limits": "Checks exact quotation correspondence only; relevance, interpretation and reasoning require educator evaluation."
+      },
+      "authorship": "ai_engineering_authored",
+      "review": {
+        "status": "pending"
+      }
+    }
+  ]
+}

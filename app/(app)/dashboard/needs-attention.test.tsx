@@ -48,10 +48,23 @@ const categories: readonly LobbyAttentionCard[] = [
     actionLabel: "Open",
     additionalItemCount: 0,
   },
+  {
+    key: "feedback",
+    label: "Feedback",
+    count: 7,
+    description: "7 new notes from teachers",
+    href: "/notifications",
+    tone: "green",
+    assignmentTitle: "Teacher feedback",
+    className: "Notifications",
+    contextLabel: "New feedback available",
+    actionLabel: "Open",
+    additionalItemCount: 6,
+  },
 ];
 
 describe("NeedsAttention", () => {
-  it("always shows the three student work states", () => {
+  it("always shows the three student work states and omits feedback", () => {
     render(<NeedsAttention categories={categories} />);
 
     expect(screen.getByRole("link", { name: "Late: Vocabulary notes, History, Due yesterday. Open" })).toBeTruthy();
@@ -63,6 +76,7 @@ describe("NeedsAttention", () => {
     expect(screen.getByText("Ready to Turn In")).toBeTruthy();
     expect(screen.queryByText("Nothing coming up this week")).toBeNull();
     expect(screen.queryByText("Everything ready is submitted")).toBeNull();
+    expect(screen.queryByText("Feedback")).toBeNull();
   });
 
   it("shows three quiet clear states when there is nothing actionable", () => {
@@ -77,6 +91,7 @@ describe("NeedsAttention", () => {
     expect(screen.getByLabelText("Late: nothing due")).toBeTruthy();
     expect(screen.getByLabelText("Ready to Turn In: nothing due")).toBeTruthy();
     expect(screen.getByLabelText("Quizzes & Tests: nothing due")).toBeTruthy();
+    expect(screen.queryByText("Feedback")).toBeNull();
   });
 
   it("orders visible rows by urgency", () => {
@@ -84,7 +99,7 @@ describe("NeedsAttention", () => {
       <NeedsAttention
         categories={categories.map((category, index) => ({
           ...category,
-          count: index + 1,
+          count: index < 3 ? index + 1 : 0,
         }))}
       />,
     );

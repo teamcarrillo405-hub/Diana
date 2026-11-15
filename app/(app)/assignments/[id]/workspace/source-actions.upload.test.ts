@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
   createServiceClient: vi.fn(),
+  extractNativeAssignmentSource:vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -11,6 +12,7 @@ vi.mock("@/lib/supabase/service", () => ({ createServiceClient: mocks.createServ
 vi.mock("@/lib/lms/canvas", () => ({ getValidCanvasToken: vi.fn() }));
 vi.mock("@/lib/lms/google", () => ({ getValidGoogleToken: vi.fn() }));
 vi.mock("@/lib/lms/materials", () => ({ materializeAssignmentMaterial: vi.fn() }));
+vi.mock("@/lib/learning-engine/native-source",()=>({extractNativeAssignmentSource:mocks.extractNativeAssignmentSource,NATIVE_SOURCE_REVIEW_MESSAGE:"Text is ready. Compare equations, tables and diagrams with the original file before using them."}));
 
 import {
   addAssignmentSourceFile,
@@ -75,6 +77,7 @@ describe("signed assignment media upload authorization", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.unstubAllGlobals();
+    mocks.extractNativeAssignmentSource.mockResolvedValue({status:"provider_required",reason:"unreadable"});
   });
 
   afterEach(() => {
@@ -109,6 +112,44 @@ describe("signed assignment media upload authorization", () => {
     expect(clients.insert).toHaveBeenCalledTimes(1);
     expect(invoke).toHaveBeenCalledTimes(2);
     expect(invoke).toHaveBeenNthCalledWith(2, "extract-assignment-source", { body: { sourceId } });
+  });
+
+  it("reads a native PDF without invoking a model and keeps the source pending layout review",async()=>{
+    const sourceId="88888888-8888-4888-8888-888888888888";
+    const invoke=vi.fn();
+    const clients=attachmentSourceClient({sourceId,invoke});
+    mocks.extractNativeAssignmentSource.mockResolvedValue({status:"extracted",text:"[Page 1]\nA native paragraph copied from the original file.",pageCount:1,reviewRequired:true});
+    const formData=new FormData();formData.set("assignmentId",ASSIGNMENT_ID);
+    formData.set("file",new File([Buffer.from("%PDF-1.7\nworksheet")],"worksheet.pdf",{type:"application/pdf"}));
+    const result=await addAssignmentSourceFile(formData);
+    expect(result).toMatchObject({ok:true,extractionStatus:"partial"});
+    expect(invoke).not.toHaveBeenCalled();
+    expect(clients.download).toHaveBeenCalledTimes(1);
+    expect(clients.update).toHaveBeenCalledWith(expect.objectContaining({
+      extracted_text:"[Page 1]\nA native paragraph copied from the original file.",import_status:"partial",
+      error_message:expect.stringContaining("Compare equations"),source_location:expect.stringContaining("original layout needs review"),
+    }));
+    expect(clients.sourceUpdate.eq).toHaveBeenCalledWith("owner_id",OWNER_ID);
+    expect(clients.sourceUpdate.eq).toHaveBeenCalledWith("assignment_id",ASSIGNMENT_ID);
+  });
+
+  it("does not claim extraction or contact the provider when original storage is unavailable",async()=>{
+    const sourceId="88888888-8888-4888-8888-888888888888";
+    const invoke=vi.fn();const clients=attachmentSourceClient({sourceId,invoke});
+    clients.download.mockResolvedValue({data:null,error:{message:"Object unavailable"}});
+    const result=await retryAssignmentSourceExtraction({assignmentId:ASSIGNMENT_ID,sourceId});
+    expect(result).toMatchObject({ok:false,extractionStatus:"failed"});
+    expect(mocks.extractNativeAssignmentSource).not.toHaveBeenCalled();expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("does not report native success when the scoped text write was not persisted",async()=>{
+    const sourceId="88888888-8888-4888-8888-888888888888";
+    const invoke=vi.fn();const clients=attachmentSourceClient({sourceId,invoke});
+    mocks.extractNativeAssignmentSource.mockResolvedValue({status:"extracted",text:"Native text with sufficient original words.",pageCount:1,reviewRequired:true});
+    clients.sourceUpdate.maybeSingle.mockResolvedValue({data:null,error:{message:"Storage write unavailable"}});
+    const result=await retryAssignmentSourceExtraction({assignmentId:ASSIGNMENT_ID,sourceId});
+    expect(result).toMatchObject({ok:false,error:"The file was added, but its text could not be saved yet."});
+    expect(invoke).not.toHaveBeenCalled();
   });
 
   it("rejects a spoofed recording before loading the signed-in user", async () => {
@@ -932,21 +973,23 @@ function attachmentSourceClient({ sourceId, invoke }: { sourceId: string; invoke
       single: vi.fn().mockResolvedValue({ data: { id: sourceId }, error: null }),
     }),
   });
-  const update = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
+  const sourceUpdate=queryFor({id:sourceId});
+  const update = vi.fn().mockReturnValue(sourceUpdate);
   const sourceTable = {
     insert,
     update,
     select: vi.fn().mockReturnValue(sourceLookup),
   };
   const upload = vi.fn().mockResolvedValue({ error: null });
+  const download=vi.fn().mockResolvedValue({data:new Blob(["%PDF-1.7\nworksheet"],{type:"application/pdf"}),error:null});
   const client = {
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: OWNER_ID } } }) },
     from: vi.fn((table: string) => table === "assignments" ? assignmentQuery : sourceTable),
-    storage: { from: vi.fn(() => ({ upload, remove: vi.fn().mockResolvedValue({ error: null }) })) },
+    storage: { from: vi.fn(() => ({ upload, download, remove: vi.fn().mockResolvedValue({ error: null }) })) },
     functions: { invoke },
   };
   mocks.createClient.mockResolvedValue(client);
-  return { client, upload, insert, update };
+  return { client, upload, download, insert, update, sourceUpdate };
 }
 
 function deferred<T>() {

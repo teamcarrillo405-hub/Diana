@@ -1,0 +1,313 @@
+{
+  "schema": "learning-recovered-regression-contract-v1",
+  "sourceCommit": "f5aca1d1078c64915d58a278422688a84e091507",
+  "evidenceScope": "Regression snapshot from the recovered program. Not an external review receipt or production qualification.",
+  "sourceNormalization": "CRLF to LF only",
+  "sources": [
+    {
+      "path": "supabase/functions/_shared/study-buddy-prompt.ts",
+      "sha256": "59254235c97ef560a59bdc9d42db66565b7344ab677fe1b15fa03d25ec23f8f4"
+    },
+    {
+      "path": "supabase/functions/_shared/student-response-request.ts",
+      "sha256": "5d2b1ae661034e7f5cca9e88d7d73f950cb7d0fa74e1e43e51f9fe9ceb392048"
+    },
+    {
+      "path": "supabase/functions/_shared/learning/integrated-provider-response.ts",
+      "sha256": "3b2ecb64e18c8e829a3d639647e3caef303c9260a1aaf09972f8a85fd72bf91b"
+    }
+  ],
+  "parserBodySha256": "97147d763756ad55be653aa9341242c30937812908583a7db8db4bb240f5f221",
+  "systemPromptSha256": "7e0f578b31e4b9a8a0eafb90d2cedf01ffc85edcfa1d40299e1e0c89cd18031f",
+  "prompts": [
+    {
+      "size": 0,
+      "mode": "hint",
+      "sha256": "5a1f5d0494d7932344d8ce3a8925bdea3aa52fbcde503ed9f125d7a206d0ec83"
+    },
+    {
+      "size": 0,
+      "mode": "quiz",
+      "sha256": "279784da172c8261b4c7c23b8525d24817ef6c16edfcb0cae518fe5e2d235655"
+    },
+    {
+      "size": 0,
+      "mode": "guide",
+      "sha256": "f1a488c3af404bc1d57a8a3fb35b8c4f8efc3f1c511b8d37fee6f2901e335676"
+    },
+    {
+      "size": 1,
+      "mode": "hint",
+      "sha256": "58c25ed2ff7b99fb75852caadddd9e0d2c4d6d8e0be43152973cc3dec09a3887"
+    },
+    {
+      "size": 1,
+      "mode": "quiz",
+      "sha256": "f94ba33536f2723715c685ea30172f2c445671e488778ee17bea49b71e53348a"
+    },
+    {
+      "size": 1,
+      "mode": "guide",
+      "sha256": "cb5ccc212da3420123d2ebb9d5b6a64b4afcf240bd573963356fc349b8ecc028"
+    },
+    {
+      "size": 799,
+      "mode": "hint",
+      "sha256": "fd6cde589ef5a32dd6d6e0e56b7557016d85af7c91d4ed92b09f14f34f241cc5"
+    },
+    {
+      "size": 799,
+      "mode": "quiz",
+      "sha256": "d1ba14b70d7ceec51498208279f8eab7ab21c71f8444b6266c7f61ca6107b44a"
+    },
+    {
+      "size": 799,
+      "mode": "guide",
+      "sha256": "0b384abbe0ce9a9414f017b4ee8b8d94f0bdba8d9dc2d004e7310ebc0cdb7432"
+    },
+    {
+      "size": 1000,
+      "mode": "hint",
+      "sha256": "a2adf136ec3550f80180aaed4162ff03d953fdde636a4b065f8d9ca9f0b7ca48"
+    },
+    {
+      "size": 1000,
+      "mode": "quiz",
+      "sha256": "5d5798c391bd3f23e227f9f4fd6ff588766a50b6b98092cf15295a423cf62be7"
+    },
+    {
+      "size": 1000,
+      "mode": "guide",
+      "sha256": "c1d8ec5fe396b7494f1f8fd73da3d59be43df2c825523348f399a25e79f678e7"
+    },
+    {
+      "size": 20000,
+      "mode": "hint",
+      "sha256": "48e3005b0683505fcb720134a67006eae719916951cd42890c8d6cc26ca2ff32"
+    },
+    {
+      "size": 20000,
+      "mode": "quiz",
+      "sha256": "396505403a4729c0b1b8341c76b184085dfc38bb803c8ec4f56bb9b684a31808"
+    },
+    {
+      "size": 20000,
+      "mode": "guide",
+      "sha256": "d73830d0baeba9fd3471923bf6f3c978f4795491a97738bb367aa7cbf1503cb0"
+    },
+    {
+      "size": 20001,
+      "mode": "hint",
+      "sha256": "14bc09a2fc1aa86fb9ebdedccabf0fe4dea3b9c811333f2688f3c9c6c08bfc1b"
+    },
+    {
+      "size": 20001,
+      "mode": "quiz",
+      "sha256": "06de15d15c46fbd657e8eccc6267869ed0b4f11ae3b0c3c24a0980724a5cbaec"
+    },
+    {
+      "size": 20001,
+      "mode": "guide",
+      "sha256": "29746fa901afda4338a69514a74dbf7a87f7b30484dee31359c023deb4364b26"
+    }
+  ],
+  "parses": [
+    {
+      "raw": "{}",
+      "result": {
+        "response": {
+          "title": "One next move",
+          "main": "Tell me which word, number, formula, or direction is stopping you, and I will work that part with you.",
+          "reason": "Starting with the exact sticking point keeps the explanation focused.",
+          "steps": [
+            "Point to the part that is unclear.",
+            "Share the step you have already tried.",
+            "What should we look at first?"
+          ],
+          "anchor": "Diana is using the student's latest message."
+        },
+        "usedFallback": true
+      }
+    },
+    {
+      "raw": "bad-json",
+      "result": {
+        "response": {
+          "title": "One next move",
+          "main": "Tell me which word, number, formula, or direction is stopping you, and I will work that part with you.",
+          "reason": "Starting with the exact sticking point keeps the explanation focused.",
+          "steps": [
+            "Point to the part that is unclear.",
+            "Share the step you have already tried.",
+            "What should we look at first?"
+          ],
+          "anchor": "Diana is using the student's latest message."
+        },
+        "usedFallback": true
+      }
+    },
+    {
+      "raw": "{\"title\":\"T\",\"main\":\"M\",\"reason\":\"R\",\"anchor\":\"A\",\"steps\":[\"a\",\"b\",\"c\"]}",
+      "result": {
+        "response": {
+          "title": "T",
+          "main": "M",
+          "reason": "R",
+          "steps": [
+            "a",
+            "b",
+            "c"
+          ],
+          "anchor": "A"
+        },
+        "usedFallback": false
+      }
+    }
+  ],
+  "requests": [
+    {
+      "quality": "fast",
+      "json": true,
+      "partIndex": 0,
+      "sha256": "5d97c48bcf13b9b7aa7bea766476913a09a41c25fac4eaa6d061f2b42dea32f6"
+    },
+    {
+      "quality": "fast",
+      "json": true,
+      "partIndex": 1,
+      "sha256": "fd11b553b0dc717c922e159a6d5963204aa25a0b9612494495b642f34bd3d6c3"
+    },
+    {
+      "quality": "fast",
+      "json": true,
+      "partIndex": 2,
+      "sha256": "e4fe8ce42f7ab8101ef0fbacdbe94be20516e8fe56db3df27e9617f04e490e30"
+    },
+    {
+      "quality": "fast",
+      "json": true,
+      "partIndex": 3,
+      "sha256": "cd20d18c5dd0bc1ace0021862196e6bfa300a26ab5acbc11a22c4e09501a8971"
+    },
+    {
+      "quality": "fast",
+      "json": false,
+      "partIndex": 0,
+      "sha256": "3f78c8b25a17c664bbf1369d3f7fbf844272bb0a7bf9128998c6038a2bf0a215"
+    },
+    {
+      "quality": "fast",
+      "json": false,
+      "partIndex": 1,
+      "sha256": "e9474e605a71a795db957ef0c1e2552396f54cdfc1452b0f6c5585f7b57efba1"
+    },
+    {
+      "quality": "fast",
+      "json": false,
+      "partIndex": 2,
+      "sha256": "1badc033701edaeb84d4f7c009cbcc1337622c9a9d28a7463978a2b8c84fe6a8"
+    },
+    {
+      "quality": "fast",
+      "json": false,
+      "partIndex": 3,
+      "sha256": "233f75a65896506ba47b9a9e3766cca0b4d43d30790dd465a415ba7fdcda2aa3"
+    },
+    {
+      "quality": "quality",
+      "json": true,
+      "partIndex": 0,
+      "sha256": "7d382b7ab14824c9a7d0649b2b00520953942b733f8fe7a48548d90801b17d88"
+    },
+    {
+      "quality": "quality",
+      "json": true,
+      "partIndex": 1,
+      "sha256": "5f56433d605dd4090f7a35257d7e4fc6aa6e18def6e521ac986bb4008d9772c7"
+    },
+    {
+      "quality": "quality",
+      "json": true,
+      "partIndex": 2,
+      "sha256": "9b7e42b0aac4a4fc70a41bda258918c2ff11651de392e3217cc6d373b521cf67"
+    },
+    {
+      "quality": "quality",
+      "json": true,
+      "partIndex": 3,
+      "sha256": "7d745cbc57d6006a44b7a2205f313d0f63d81070788c14be78a70dccbf161f23"
+    },
+    {
+      "quality": "quality",
+      "json": false,
+      "partIndex": 0,
+      "sha256": "e21c09e6bb2e0ec1579fcde46adfa57855954fd1fab181cb49b68c3e75c4052a"
+    },
+    {
+      "quality": "quality",
+      "json": false,
+      "partIndex": 1,
+      "sha256": "3ba610a476d72a17a931e125f4135eecac844d53a01eff7a8899ee31725a3955"
+    },
+    {
+      "quality": "quality",
+      "json": false,
+      "partIndex": 2,
+      "sha256": "2f0e62def779efb3b60d18f492c5797146468e2373c09dea0b6d13ff1951b3d6"
+    },
+    {
+      "quality": "quality",
+      "json": false,
+      "partIndex": 3,
+      "sha256": "48df62da24fde7904dcdf35aa21d28f0110530e2661b29b393c039cc11c2d999"
+    },
+    {
+      "quality": "complex",
+      "json": true,
+      "partIndex": 0,
+      "sha256": "ce4cb3fde964f93cb8e66a69df514e0964ed410b18ec026b6e26147f433515e6"
+    },
+    {
+      "quality": "complex",
+      "json": true,
+      "partIndex": 1,
+      "sha256": "c37ca99c967c7296324bb11d26ffe1efdc774e123b22f1fa84ae25c1798e285c"
+    },
+    {
+      "quality": "complex",
+      "json": true,
+      "partIndex": 2,
+      "sha256": "486f3c162ad4857b7be0aa26cd601d4db0c64c23f7871ad0ac1e3c3aeb7c22af"
+    },
+    {
+      "quality": "complex",
+      "json": true,
+      "partIndex": 3,
+      "sha256": "5d6e6dfa4412dfe92061db3610d2ddbfa63e6238c346ef3f74dd1e98aa046fef"
+    },
+    {
+      "quality": "complex",
+      "json": false,
+      "partIndex": 0,
+      "sha256": "108d77d22155e83917fac1453a42c479f15638cb42805ea89609743b7b56ca6e"
+    },
+    {
+      "quality": "complex",
+      "json": false,
+      "partIndex": 1,
+      "sha256": "c231204bed3452be9cc2f26b7ea0d77a384def615568454f1b6ca46e38757b41"
+    },
+    {
+      "quality": "complex",
+      "json": false,
+      "partIndex": 2,
+      "sha256": "a667f443faef499fa0ed7c47985fcc8e845e8adaf758b9bdc5b913c1821897d4"
+    },
+    {
+      "quality": "complex",
+      "json": false,
+      "partIndex": 3,
+      "sha256": "afd918eb48b8912d0cbe41e7cc0d71d714116d407503d7bf1c90b4ac57bc6eb9"
+    }
+  ]
+}

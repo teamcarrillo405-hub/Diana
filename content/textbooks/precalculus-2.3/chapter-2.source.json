@@ -1,0 +1,40 @@
+{
+  "number": 2,
+  "title": "Linear Functions",
+  "pages": 58,
+  "blocks": 429,
+  "chunks": 355,
+  "assetHash": "b4a43ce237751b4b40aa6955bee8d375d11fbda778d1b461ba99aa9eb329efe4",
+  "indexHash": "1c0ca09227df78010827e4ff962f6781912e859f005065fdf6046cfa8d75420a",
+  "pdfBytes": 2178657,
+  "indexBytes": 65604,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=2&format=pdf",
+  "retrieval": [
+    {
+      "query": "slope rate of change",
+      "matches": 6,
+      "pages": [
+        15,
+        29,
+        20,
+        8,
+        8,
+        3
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "absolute value functions",
+      "matches": 6,
+      "pages": [
+        55,
+        53,
+        53,
+        53,
+        57,
+        57
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

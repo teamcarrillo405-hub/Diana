@@ -8,7 +8,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const VOCAB_PROMPT = `You are Diana's vocabulary scaffold for a high-school student.
@@ -89,7 +89,7 @@ Deno.serve(withStudentSecurity("vocab-hover", async (req: Request) => {
       interests.length > 0 ? `Student interests: ${interests.join(", ")}` : "",
     ].filter(Boolean).join("\n");
 
-    const modelResult = await runOpenAIHomeworkAdapter({
+    const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "vocab-hover" }, {
 
       task: "vocab_hover",
       ownerId,

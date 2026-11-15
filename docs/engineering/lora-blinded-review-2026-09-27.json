@@ -1,0 +1,580 @@
+{
+  "schema": "diana-independent-blinded-ai-review-v1",
+  "reviewDate": "2026-09-27",
+  "reviewer": "Independent delegated AI engineering reviewer",
+  "inputPacket": "artifacts/learning-engine/research/local-lora-execution/run-003-v2/blinded-audit-packet.json",
+  "inputExperimentReportSha256": "98c3d443fc3e7c2eefb1d3f22211a8214c06a578f238a7d543bb901b2a126a40",
+  "blinding": {
+    "modelKeyRead": false,
+    "otherTrainingMetricsOrReportsRead": false,
+    "ratingsFinalizedBeforeUnblinding": true,
+    "positionCounterbalancingAcknowledged": true
+  },
+  "scope": "All 20 synthetic cases and all 40 responses. Supplementary AI engineering review only, not educator approval or a blinded human study.",
+  "rubric": {
+    "sourceFidelity": "2 = exact and faithful source excerpt or justified insufficient-evidence marker; 1 = faithful paraphrase, minor quote deviation, or too-weak excerpt; 0 = false/unsupported source assertion, fabricated quote, or unjustified abstention. This score combines quote compliance and semantic fidelity; notes distinguish them.",
+    "instructionalUsefulness": "2 = focused, answerable next-step question that advances reasoning, or required missing-evidence question; 1 = related but broad/weak question or useful instruction that is not a question; 0 = absent, misleading, unanswerable, circular, or non-instructional next step.",
+    "evidenceHandling": "2 = justified use of sufficient evidence or correct abstention; 1 = partially grounded but weakly targeted or overextended; 0 = unjustified abstention, failure to recognize missing evidence, or materially misleading evidence use.",
+    "winner": "Comparative engineering preference A/B; neither when both miss the intended task without a sufficiently sound path forward. A preference does not imply contract compliance, readiness, or educator acceptance. Tie reserved for equivalent usable responses.",
+    "quoteRules": "Exact contiguous substring permits omission of final punctuation, but case changes, rewritten sentences, and combined noncontiguous terms are noted. Correct paraphrase is distinguished from hallucination."
+  },
+  "summary": {
+    "cases": 20,
+    "responses": 40,
+    "winnerCounts": {
+      "A": 8,
+      "B": 7,
+      "tie": 0,
+      "neither": 5
+    },
+    "correctRequiredAbstentionResponses": [
+      "test-missing-2/A"
+    ],
+    "missingEvidenceCases": 4,
+    "noProductionAuthorization": true,
+    "limitations": [
+      "Small synthetic set; no population estimate or statistical inference.",
+      "No educator review, learner study, or learning-gain evidence.",
+      "A/B positions are counterbalanced; position counts cannot be interpreted as model-arm counts.",
+      "No inference about proprietary quality, model identity, activation, or production readiness."
+    ]
+  },
+  "cases": [
+    {
+      "id": "test-unit-rate",
+      "winner": "neither",
+      "reason": "A repeats the learner question with an incomplete evidence fragment; B asks for another source despite sufficient evidence.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "case_changed_fragment",
+        "flags": [
+          "incomplete_evidence",
+          "repeats_question"
+        ],
+        "notes": "'One minute' omits pages per minute and changes source capitalization. NEXT repeats the question verbatim."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "unnecessary_source_request"
+        ],
+        "notes": "Adds 'The' to the first sentence and fails to use the explicit unit-rate definition. Another source is unnecessary."
+      }
+    },
+    {
+      "id": "test-negative-product",
+      "winner": "B",
+      "reason": "B avoids A's misleading sign-rule guidance, but its question is underspecified.",
+      "A": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "unsupported_generalization",
+        "flags": [
+          "mathematical_misguidance",
+          "not_a_question",
+          "task_answering"
+        ],
+        "notes": "'Negative numbers multiply to make a negative result' is overgeneralized. NEXT chooses negative-times-negative for an expression containing a negative and a positive."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "weak_evidence",
+          "underspecified_question"
+        ],
+        "notes": "'negative' is exact but fails to quote the sign rule. Asking which numbers give a negative result is related but less focused than identifying the two signs in this expression."
+      }
+    },
+    {
+      "id": "test-median",
+      "winner": "A",
+      "reason": "A supplies exact relevant evidence and asks the learner to locate the middle without providing the median.",
+      "A": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 2,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [],
+        "notes": "Quote is a contiguous source excerpt; question directly applies the middle-position rule."
+      },
+      "B": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "unnecessary_source_request"
+        ],
+        "notes": "Exact ordered-data quote, but NEXT unnecessarily seeks a new source despite the supplied median definition."
+      }
+    },
+    {
+      "id": "test-graph-axis",
+      "winner": "A",
+      "reason": "A gives faithful evidence and a focused question about matching quantities to axes.",
+      "A": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 2,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [],
+        "notes": "Accurate contiguous excerpt and answerable quantity-to-axis question."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "not_a_question",
+          "unnecessary_source_request"
+        ],
+        "notes": "EVIDENCE accurately paraphrases instead of quoting. NEXT is a vague statement about other graphs and does not help read these axes."
+      }
+    },
+    {
+      "id": "test-tone",
+      "winner": "B",
+      "reason": "B at least asks the learner to reason about tone; A's NEXT is a statement.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 2,
+        "quoteStatus": "noncontiguous_terms",
+        "flags": [
+          "not_exact_contiguous_quote",
+          "not_a_question"
+        ],
+        "notes": "Both quoted words occur in SOURCE, but this is not one contiguous excerpt. NEXT says 'I can use this information' instead of asking a focused next-step question."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "weak_evidence",
+          "broad_question"
+        ],
+        "notes": "'favorable' quotes the source's interpretation, rather than the descriptive words that support it. NEXT is relevant but broad."
+      }
+    },
+    {
+      "id": "test-contrast-signal",
+      "winner": "B",
+      "reason": "B remains relevant to contrast; A falsely claims missing evidence.",
+      "A": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "abstention",
+        "flags": [
+          "unjustified_abstention",
+          "not_a_question"
+        ],
+        "notes": "SOURCE explicitly says 'However introduces a contrast between ideas.' EVIDENCE: insufficient is unjustified; NEXT is a source statement."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "partly_repeats_task"
+        ],
+        "notes": "'contrasts ideas' does not appear exactly in SOURCE. The next question can elicit 'however' but only weakly advances understanding of the contrast."
+      }
+    },
+    {
+      "id": "test-revision-detail",
+      "winner": "A",
+      "reason": "A quotes the revision principle and asks the learner to choose an action verb.",
+      "A": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 2,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [],
+        "notes": "Useful focused revision prompt; it avoids supplying a replacement verb."
+      },
+      "B": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "not_a_question",
+          "unnecessary_source_request"
+        ],
+        "notes": "Exact quote, but NEXT sends the learner to other contexts instead of identifying the general verb already supplied."
+      }
+    },
+    {
+      "id": "test-quoted-support",
+      "winner": "B",
+      "reason": "B provides exact evidence and a question; A omits NEXT and alters the supplied detail.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "mixed_quote_and_paraphrase",
+        "flags": [
+          "missing_next",
+          "changes_plural_to_singular"
+        ],
+        "notes": "Changes plural carts to a singular cart and adds a narration frame. The inner phrase is exact, but no next-step question is present."
+      },
+      "B": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "weak_instructional_connection"
+        ],
+        "notes": "Exact relevant quote. 'How do you know the carts are rattling?' repeats a supplied fact rather than asking how that detail supports noisy."
+      }
+    },
+    {
+      "id": "test-force-balance",
+      "winner": "A",
+      "reason": "A gives a relevant comparison step; B introduces an unsupported motion scenario.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "case_changed_substring",
+        "flags": [
+          "not_exact_quote",
+          "not_a_question"
+        ],
+        "notes": "Changes capital 'Balanced' to lowercase. NEXT is a relevant instruction, but does not ask a question or explicitly separate force size and direction."
+      },
+      "B": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "not_a_question",
+          "unsupported_scenario"
+        ],
+        "notes": "SOURCE does not say the cart moves at constant speed or sits on a flat surface. These additions are unjustified as facts about this cart."
+      }
+    },
+    {
+      "id": "test-cell-boundary",
+      "winner": "B",
+      "reason": "B faithfully quotes the function, although its next question requests detail absent from SOURCE.",
+      "A": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 1,
+        "quoteStatus": "unsupported_expansion",
+        "flags": [
+          "not_exact_quote",
+          "unsupported_source_claim",
+          "vague_question"
+        ],
+        "notes": "'maintaining the internal environment' is not supplied evidence. It may be related background knowledge, but cannot be presented as the source quote."
+      },
+      "B": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "unanswerable_followup"
+        ],
+        "notes": "The source names no particular substance. Asking 'Which substance' requires information beyond the supplied text."
+      }
+    },
+    {
+      "id": "test-earth-rotation",
+      "winner": "A",
+      "reason": "A offers a coherent if broad explanatory question; B refers to answer options that do not exist.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "broad_question"
+        ],
+        "notes": "Accurate paraphrase. NEXT invites explanation of the day-night relation, but could more concretely ask how sunlight exposure changes."
+      },
+      "B": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "missing_answer_options"
+        ],
+        "notes": "'Which of these' presupposes a choice set absent from the packet, making the follow-up incomplete."
+      }
+    },
+    {
+      "id": "test-sampling",
+      "winner": "A",
+      "reason": "A asks a useful question tied to the actual sampled group; B unnecessarily abstains.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 2,
+        "evidenceHandling": 2,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote"
+        ],
+        "notes": "'limited sampling' is not an exact quote, but NEXT specifically links chess-club-only sampling to generalization."
+      },
+      "B": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "abstention",
+        "flags": [
+          "unjustified_abstention",
+          "not_a_question",
+          "overbroad_advice"
+        ],
+        "notes": "SOURCE provides the relevant sampling limitation. NEXT gives general advice rather than a question; simply including many diverse groups does not ensure generalizability."
+      }
+    },
+    {
+      "id": "test-archive-audience",
+      "winner": "B",
+      "reason": "B lets the learner identify the audience; A states the result in NEXT.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 2,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "not_a_question",
+          "task_answering"
+        ],
+        "notes": "EVIDENCE shortens and rewrites the source sentence. NEXT supplies 'the town's traders' instead of eliciting identification."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "weak_evidence",
+          "partly_repeats_task"
+        ],
+        "notes": "'intended audience' is exact but not the strongest evidentiary detail. The question is answerable, but largely restates the task."
+      }
+    },
+    {
+      "id": "test-corroboration",
+      "winner": "B",
+      "reason": "B stays concise and grounded in checking another record; neither NEXT is a question.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "not_a_question",
+          "multiple_steps"
+        ],
+        "notes": "Discrepancies, weather, and eyewitness records are suggestions rather than invented facts, but the response introduces multiple checks and fails the focused-question requirement."
+      },
+      "B": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "not_a_question"
+        ],
+        "notes": "Exact evidence and relevant checking instruction; convert the instruction into one focused question."
+      }
+    },
+    {
+      "id": "test-map-key",
+      "winner": "neither",
+      "reason": "A's NEXT is circular and not a question; B's question confuses the source's symbol mapping.",
+      "A": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 1,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "not_a_question",
+          "unnecessary_source_request"
+        ],
+        "notes": "Correctly paraphrases the dashed-line mapping, but an 'official definition' of walking path is neither supplied nor needed to read the map key."
+      },
+      "B": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "misleading_presupposition",
+          "off_target_question"
+        ],
+        "notes": "'What other type of road does solid line represent in addition to walking paths?' suggests solid lines also represent walking paths, contrary to the supplied distinction."
+      }
+    },
+    {
+      "id": "test-source-date",
+      "winner": "A",
+      "reason": "A remains grounded in the date limitation; B invents an external source.",
+      "A": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 2,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "broad_question"
+        ],
+        "notes": "Exact temporal excerpt, but the question should more specifically ask which period the image can and cannot document."
+      },
+      "B": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "not_a_question",
+          "fabricated_source"
+        ],
+        "notes": "Nothing links the fictional photograph to 'The New York Times.' 'likely' does not make that attribution evidence-based."
+      }
+    },
+    {
+      "id": "test-missing-0",
+      "winner": "neither",
+      "reason": "Neither acknowledges that mass alone cannot determine volume; A additionally confuses density and mass.",
+      "A": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "unsupported_expansion",
+        "flags": [
+          "missing_required_abstention",
+          "false_density_claim",
+          "assumes_calculation_possible"
+        ],
+        "notes": "Calls density 'equivalent to the mass of an object.' The formula is external to SOURCE and cannot yield volume without density; NEXT assumes a calculation using the given information."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 0,
+        "quoteStatus": "case_changed_substring",
+        "flags": [
+          "missing_required_abstention",
+          "insufficient_evidence_presented"
+        ],
+        "notes": "Mass is real source information, but not evidence of volume. The conceptual question does not explicitly request missing density/volume evidence or acknowledge insufficiency."
+      }
+    },
+    {
+      "id": "test-missing-1",
+      "winner": "neither",
+      "reason": "A diverts to an unsupported identity question; B invents quoted letter content.",
+      "A": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "missing_required_abstention",
+          "irrelevant_unanswerable_followup"
+        ],
+        "notes": "An exact hometown-source quote does not establish age. 'Who wrote the letter?' is not answerable here and does not directly obtain age evidence."
+      },
+      "B": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 1,
+        "evidenceHandling": 0,
+        "quoteStatus": "fabricated_quote",
+        "flags": [
+          "missing_required_abstention",
+          "fabricated_source_text",
+          "prompt_like_text"
+        ],
+        "notes": "Claims the letter mentions 'followed by a short exact quote from SOURCE,' which is absent from SOURCE. The generic source request is appropriate alone but does not repair the fabricated evidence."
+      }
+    },
+    {
+      "id": "test-missing-2",
+      "winner": "A",
+      "reason": "A correctly recognizes missing evidence and uses the required next question.",
+      "A": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 2,
+        "evidenceHandling": 2,
+        "quoteStatus": "justified_abstention",
+        "flags": [],
+        "notes": "Temperature over time cannot establish wind speed. Both required abstention lines are correct."
+      },
+      "B": {
+        "sourceFidelity": 1,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "paraphrase",
+        "flags": [
+          "not_exact_quote",
+          "missing_required_abstention",
+          "unsupported_inference_prompt"
+        ],
+        "notes": "Asks the learner to determine wind speed from a graph containing only temperature over time, implying an unsupported inference is possible."
+      }
+    },
+    {
+      "id": "test-missing-3",
+      "winner": "neither",
+      "reason": "A presupposes painter information exists; B fabricates both painter and quotation.",
+      "A": {
+        "sourceFidelity": 2,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "exact_substring",
+        "flags": [
+          "missing_required_abstention",
+          "unsupported_presupposition"
+        ],
+        "notes": "'Who is mentioned as painting' presupposes a person appears in a source that only describes a blue door."
+      },
+      "B": {
+        "sourceFidelity": 0,
+        "instructionalUsefulness": 0,
+        "evidenceHandling": 0,
+        "quoteStatus": "fabricated_quote",
+        "flags": [
+          "fabricated_identity",
+          "fabricated_source_text",
+          "missing_required_abstention",
+          "missing_next",
+          "task_answering"
+        ],
+        "notes": "Invents 'a skilled artist named Diana' and concludes Diana painted the door. Neither the person nor the quoted sentence exists in SOURCE."
+      }
+    }
+  ]
+}

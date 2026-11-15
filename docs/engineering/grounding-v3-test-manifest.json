@@ -1,0 +1,30 @@
+{
+  "version": "diana-grounding-v3-independent-100-1",
+  "sealedAt": "2026-09-28T16:15:33.648829+00:00",
+  "modulePath": "scripts/learning/synthetic_lora_v3_evaluation.py",
+  "moduleSha256": "62e8c41366d1af1bb5b1b31d44ed9ad51f3248bbc85372cd44188c8b24901194",
+  "testRowsSha256": "81b996eb8385acafec93be8980dce0a99848d127e26d7ac5dfdd7563e9fea5c2",
+  "testCases": 100,
+  "minimumGroundingAccuracy": 0.95,
+  "statusCounts": {
+    "answerable": 60,
+    "missing": 25,
+    "conflicting": 15
+  },
+  "subjectCounts": {
+    "Math": 20,
+    "Reading": 20,
+    "English": 20,
+    "Science": 20,
+    "History": 20
+  },
+  "levelCounts": {
+    "grades-6-8": 25,
+    "grades-9-12": 25,
+    "intro-college": 25,
+    "advanced-college": 25
+  },
+  "serialization": "json.dumps(rows, sort_keys=True, separators=(comma, colon), ensure_ascii=False).encode(utf-8)",
+  "gate": "Do not import or evaluate until checkpoint frozen and development validation grounding >= 0.95",
+  "authorship": "Independent AI-authored original synthetic diagnostic; not educator validation"
+}

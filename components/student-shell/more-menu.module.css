@@ -1,0 +1,92 @@
+.root.root.root { --menu-rule: rgb(222 237 229 / .24); background: #101719; }
+.root.root.root .world { position: fixed; height: 100dvh; opacity: .94; object-position: 70% center; }
+.root.root.root::before { position: fixed; background: linear-gradient(90deg, rgb(10 16 18 / .95), rgb(10 16 18 / .8) 48%, rgb(10 16 18 / .18)), linear-gradient(0deg, rgb(10 16 18 / .5), transparent 55%); }
+.root.root.root .reviewBar { width: min(100%, 1744px); margin-inline: auto; min-height: 70px; padding-inline: 48px; background: none; border: 0; }
+.root.root.root .main { display: grid; grid-template-columns: 228px minmax(0, 650px); column-gap: 80px; width: min(100%, 1744px); min-height: calc(100dvh - 140px); margin: 0 auto; padding: 56px 48px 80px; outline: none; }
+.root.root.root .rail h1 { margin: 0 0 27px 13px; color: #c3ceca; font: 500 12px/1.4 var(--font-lexend), sans-serif; text-transform: uppercase; }
+.tabs { display: grid; gap: 10px; }
+.shortLabel { display: none; }
+.root.root.root .tabs button { position: relative; isolation: isolate; display: flex; align-items: center; justify-content: flex-start; min-height: 58px; width: 100%; margin: 0; border: 0; padding: 10px 13px; color: #bbc6c1; background: none; font: 700 31px/1.05 var(--font-saira-condensed), sans-serif; text-align: left; text-transform: uppercase; transition: color 120ms ease-out; }
+.root.root.root .tabs button::before { position: absolute; z-index: -1; inset: 3px -6px; content: ""; background: #bd086f; mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; mask-mode: luminance; opacity: 0; }
+.root.root.root .tabs button[aria-selected="true"]::before { opacity: 1; }
+.root.root.root .tabs button[aria-selected="true"], .root.root.root .tabs button:hover { color: #fff; }
+.root.root.root .tabs button:focus-visible { outline: 2px solid #fff; outline-offset: 5px; }
+.stage { min-width: 0; padding-top: 0; }
+.panel:not([hidden]) { animation: menuArrival 200ms cubic-bezier(.2,.7,.2,1) both; }
+.panel[hidden] { display: none; }
+.root.root.root .panelHeading { margin-bottom: 34px; }
+.root.root.root .panelHeading p { margin: 0 0 10px; color: #c3ceca; font: 500 12px/1.4 var(--font-lexend), sans-serif; text-transform: uppercase; }
+.root.root.root .panelHeading h2 { font: 700 64px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.searchForm { margin-bottom: 38px; }
+.root.root.root .searchForm label { display: block; margin-bottom: 12px; color: #cad3cf; font-size: 12px; text-transform: uppercase; }
+.searchField { display: flex; min-height: 60px; gap: 4px; border: 1px solid #d6e4de5e; background: rgb(21 30 31 / .76); backdrop-filter: blur(16px); }
+.root.root.root .searchField input { min-width: 0; width: 100%; border: 0; border-radius: 0; padding: 16px 20px; outline-offset: -3px; background: transparent; color: #f3f7f4; font: 400 16px/1.4 var(--font-lexend), sans-serif; }
+.searchField input::placeholder { color: #aebbba; opacity: 1; }
+.searchField input::-webkit-search-cancel-button { display: none; }
+.root.root.root .searchField button { display: grid; flex: none; place-items: center; border: 0; padding: 0; min-height: 52px; align-self: center; }
+.root.root.root .searchField button:focus-visible { outline-offset: -4px; }
+.root.root.root .clear { width: 44px; background: none; color: #dce7e0; }
+.root.root.root .searchAction { width: 56px; margin: 3px; background: #8622ed; color: white; }
+.root.root.root .searchAction:hover { background: #9a3ff8; }
+.root.root.root .searchAction svg { width: 24px; height: 24px; }
+.destinations { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--menu-rule); }
+.destinations li { min-width: 0; border-bottom: 1px solid var(--menu-rule); }
+.root.root.root .destinations a { display: grid; grid-template-columns: 30px minmax(0, 1fr) 24px; align-items: center; column-gap: 20px; min-height: 76px; padding: 17px 4px; color: #edf4ef; text-decoration: none; transition: background 120ms ease-out, color 120ms ease-out; }
+.root.root.root .destinations a > span { font: 600 28px/1.15 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.root.root.root .destinationIcon { width: 27px; height: 27px; color: #aac2c0; }
+.root.root.root .openIcon { width: 21px; height: 21px; color: #afc1bb; }
+.root.root.root .destinations a:hover, .root.root.root .destinations a:focus-visible { background: rgb(218 235 226 / .08); color: #fff; }
+.root.root.root .destinations a:focus-visible { outline-offset: -2px; }
+.root.root.root .destinations a:hover .openIcon, .root.root.root .destinations a:focus-visible .openIcon { color: #fff; }
+@keyframes menuArrival { from { opacity: .4; transform: translateX(8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 1200px) {
+  .root.root.root .main { grid-template-columns: 190px minmax(0, 650px); column-gap: 54px; padding: 40px 32px 64px; }
+  .root.root.root .reviewBar { padding-inline: 32px; }
+  .root.root.root .tabs button { font-size: 29px; }
+  .root.root.root .panelHeading h2 { font-size: 56px; }
+}
+@media (max-width: 950px) {
+  .root.root.root .main { grid-template-columns: 170px minmax(0, 1fr); column-gap: 32px; padding-inline: 24px; }
+  .root.root.root .tabs button { font-size: 27px; }
+  .root.root.root .destinations a { min-height: 72px; }
+  .root.root.root .panelHeading h2 { font-size: 48px; }
+}
+@media (max-width: 760px) {
+  .root.root.root > header { flex-wrap: wrap; gap: 20px; padding-inline: 20px; }
+  .root.root.root > header nav { order: 3; width: 100%; min-height: 44px; justify-content: space-between; gap: 12px; }
+  .root.root.root::before { background: linear-gradient(90deg, rgb(10 16 18 / .91), rgb(10 16 18 / .72)); }
+  .root.root.root .main { display: block; min-height: calc(100dvh - 176px); padding: 14px 20px 40px; }
+  .root.root.root .reviewBar { min-height: 56px; padding: 10px 20px; }
+  .root.root.root .rail h1 { margin: 0 0 14px; }
+  .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 6px 0 12px; }
+  .wideLabel { display: none; }
+  .shortLabel { display: inline; }
+  .root.root.root .tabs button { justify-content: center; min-width: 0; min-height: 45px; width: 100%; padding: 8px 3px; font-size: 15px; white-space: nowrap; }
+  .root.root.root .tabs button::before { inset: 2px -4px; }
+  .stage { margin-top: 30px; }
+  .root.root.root .panelHeading { margin-bottom: 25px; }
+  .root.root.root .panelHeading h2 { font-size: 43px; }
+  .root.root.root .panelHeading p { font-size: 10px; margin-bottom: 8px; }
+  .searchForm { margin-bottom: 30px; }
+  .root.root.root .searchField input { padding: 12px; }
+  .root.root.root .destinations a { column-gap: 16px; min-height: 70px; }
+  .root.root.root .destinations a > span { font-size: 25px; }
+  .root.root.root .destinationIcon { width: 25px; height: 25px; }
+}
+@media (max-width: 370px) {
+  .root.root.root .tabs button { font-size: 18px; padding-inline: 2px; }
+  .root.root.root > header { padding-inline: 16px; }
+  .root.root.root > header nav { gap: 8px; }
+  .root.root.root > header nav a { font-size: 18px; }
+  .root.root.root .main { padding-inline: 16px; }
+  .root.root.root .panelHeading h2 { font-size: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root.root.root *, .root.root.root *::before { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+@media (forced-colors: active) {
+  .root.root.root .tabs button[aria-selected="true"] { outline: 2px solid Highlight; outline-offset: -2px; }
+  .root.root.root .tabs button::before { display: none; }
+  .destinations, .destinations li, .searchField { border-color: CanvasText; }
+  .root.root.root .searchAction { border: 1px solid ButtonText; }
+}

@@ -19,6 +19,7 @@ export default function SignupPage() {
   const [displayName, setDisplayName] = useState("");
   const [dob, setDob] = useState("");
   const [pending, setPending] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
@@ -47,7 +48,7 @@ export default function SignupPage() {
       // Some privacy modes block the storage getter. Direct signup still works.
     }
     const supabase = createClient();
-    const { error: signupError } = await supabase.auth.signUp({
+    const { data, error: signupError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -74,19 +75,21 @@ export default function SignupPage() {
     } catch {
       // Account creation succeeded, so unavailable browser storage is non-blocking.
     }
+    if (!data.session) { setConfirmationSent(true); return; }
     router.push("/dashboard");
     router.refresh();
   }
 
+  if (confirmationSent) return <div><h1>Check your email</h1><p>Use the confirmation link to finish creating your account.</p><Link href="/login">Back to sign in</Link></div>;
+
   return (
     <div>
-      <header className="sd-auth-card-header">
-        <p className="sd-kicker">Get started</p>
-        <h2>Create your account</h2>
-        <p>Set up your private space for classes, study tools, and visible sources.</p>
+      <header className="entry-card-header">
+        
+        <h1>Create account</h1>
       </header>
 
-      <form onSubmit={onSubmit} className="sd-auth-form">
+      <form onSubmit={onSubmit} className="entry-form">
         <Field label="Email" htmlFor="email">
           <input
             id="email"
@@ -110,7 +113,7 @@ export default function SignupPage() {
             className="sd-input"
           />
         </Field>
-        <Field label="Name" htmlFor="display_name" hint="Optional display name.">
+        <Field label="Name" htmlFor="display_name" hint="Optional">
           <input
             id="display_name"
             type="text"
@@ -120,7 +123,7 @@ export default function SignupPage() {
             className="sd-input"
           />
         </Field>
-        <Field label="Date of birth" htmlFor="dob" hint="Required for age defaults.">
+        <Field label="Date of birth" htmlFor="dob" hint="Diana is for students age 13 and older.">
           <input
             id="dob"
             type="date"
@@ -132,7 +135,7 @@ export default function SignupPage() {
         </Field>
 
         {error && (
-          <div className="sd-auth-error" role="status">
+          <div className="entry-error" role="status">
             {error}
           </div>
         )}
@@ -140,20 +143,20 @@ export default function SignupPage() {
         <button
           type="submit"
           disabled={pending}
-          className="sd-button sd-button-primary sd-auth-submit"
+          className="entry-submit"
         >
           {pending ? "Creating account..." : "Create account"}
         </button>
       </form>
 
-      <p className="sd-auth-link-row">
+      <p className="entry-link-row">
         Already have an account?{" "}
         <Link href="/login">
           Log in
         </Link>
       </p>
 
-      <p className="sd-auth-assurance">Diana supports students age 13 and older. Your information stays private by default.</p>
+      <p className="entry-assurance">Your information stays private by default.</p>
     </div>
   );
 }

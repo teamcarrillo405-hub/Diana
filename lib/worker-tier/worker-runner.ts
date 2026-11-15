@@ -1,412 +1,75 @@
-import {
-  createDianaVoiceCandidate,
-  createDianaVoiceCandidateAuditPayload,
-  DianaVoiceProviderError,
-  normalizeDianaVoiceCandidateInput,
-  type DianaVoiceCandidateInput,
-  type DianaVoiceCandidateResult,
-} from "@/lib/integrations/diana-voice-sidecar";
-import {
-  runSafeBudgetedAiCall,
-  type AiGuardFailure,
-  type StructuredModerator,
-} from "@/lib/ai/safety";
-import { createAiServiceClient } from "@/lib/supabase/ai-service";
-import type { Json } from "@/lib/supabase/types";
-import {
-  sanitizeWorkerErrorMetadata,
-  type WorkerErrorMetadata,
-  type WorkerOperationalErrorCode,
-} from "./worker-queue";
+import { createDianaVoiceCandidate, DianaVoiceProviderError, normalizeDianaVoiceCandidateInput,
+  type DianaVoiceCandidateInput, type DianaVoiceCandidateResult } from '@/lib/integrations/diana-voice-sidecar';
+import { sanitizeWorkerErrorMetadata, type WorkerErrorMetadata, type WorkerOperationalErrorCode } from './worker-protocol';
 
-export type DianaWorkerConfig = {
-  baseUrl: string;
-  token: string;
-  workerId: string;
-  imageSha?: string;
-  queueName: string;
-  leaseSeconds: number;
-};
-
-export type ClaimedWorkerJob = {
-  traceId: string;
-  tenantId: string;
-  ownerId: string;
-  feature: string;
-  payload: unknown;
-  constraints: unknown;
-};
-
-type ExecuteVoiceCandidate = (args: {
-  input: DianaVoiceCandidateInput;
-  signal?: AbortSignal;
-}) => Promise<DianaVoiceCandidateResult>;
-
-type AiServiceClient = NonNullable<ReturnType<typeof createAiServiceClient>>;
-
-export type DianaWorkerCycleResult =
-  | { status: "idle" }
-  | { status: "completed"; traceId: string; tenantId: string; responseChars: number }
-  | {
-      status: "error";
-      traceId: string;
-      tenantId: string;
-      errorCode: WorkerOperationalErrorCode;
-      errorMetadata: WorkerErrorMetadata;
-    };
-
+export type DianaWorkerConfig = { baseUrl: string; token: string; workerId: string; imageSha?: string; queueName: string; leaseSeconds: number };
+export type ClaimedWorkerJob = { traceId: string; tenantId: string; capability: string; expiresAt: string };
+export type DianaWorkerCycleResult = { status: 'idle' } | { status: 'completed'; traceId: string; tenantId: string; responseChars: number }
+  | { status: 'error'; traceId: string; tenantId: string; errorCode: WorkerOperationalErrorCode; errorMetadata: WorkerErrorMetadata };
 class WorkerCycleFailure extends Error {
-  readonly code: WorkerOperationalErrorCode;
-  readonly metadata: WorkerErrorMetadata;
-
-  constructor(code: WorkerOperationalErrorCode, metadata: WorkerErrorMetadata = {}) {
-    super(code);
-    this.name = "WorkerCycleFailure";
-    this.code = code;
-    this.metadata = sanitizeWorkerErrorMetadata(metadata);
-  }
+  constructor(readonly code: WorkerOperationalErrorCode, readonly metadata: WorkerErrorMetadata = {}) { super(code); }
 }
-
-export async function runOneDianaWorkerCycle({
-  config,
-  fetchImpl = fetch,
-  executeVoiceCandidate = ({ input, signal }) => createDianaVoiceCandidate({ input, fetchImpl, signal }),
-  serviceClient = createAiServiceClient(),
-  moderator,
-}: {
-  config: DianaWorkerConfig;
-  fetchImpl?: typeof fetch;
-  executeVoiceCandidate?: ExecuteVoiceCandidate;
-  serviceClient?: AiServiceClient | null;
-  moderator?: StructuredModerator;
+export async function claimNextWorkerJob({ config, fetchImpl = fetch }: { config: DianaWorkerConfig; fetchImpl?: typeof fetch }): Promise<ClaimedWorkerJob | null> {
+  const response = await fetchImpl(new URL('/api/workers/claim', config.baseUrl), { method: 'POST', headers: workerHeaders(config.token),
+    body: JSON.stringify({ queueName: config.queueName, workerId: config.workerId, leaseSeconds: config.leaseSeconds }) });
+  if (!response.ok) throw new WorkerCycleFailure('worker_internal_error', { phase: 'claim', retryable: true });
+  const body = await response.json();
+  if (body?.ok !== true) throw new WorkerCycleFailure('invalid_job_payload', { phase: 'claim' });
+  if (body.job === null) return null;
+  const job = body.job;
+  if (!job || typeof job.traceId !== 'string' || typeof job.tenantId !== 'string'
+    || typeof job.capability !== 'string' || !/^[a-f0-9]{64}$/.test(job.capability)
+    || typeof job.expiresAt !== 'string' || !Number.isFinite(Date.parse(job.expiresAt))) {
+    throw new WorkerCycleFailure('invalid_job_payload', { phase: 'claim' });
+  }
+  return job;
+}
+export async function runOneDianaWorkerCycle({ config, fetchImpl = fetch,
+  executeVoiceCandidate = ({ input, signal }) => createDianaVoiceCandidate({ input, signal, fetchImpl, maxOutputTokens: 500 }),
+}: { config: DianaWorkerConfig; fetchImpl?: typeof fetch;
+  executeVoiceCandidate?: (args: { input: DianaVoiceCandidateInput; signal?: AbortSignal }) => Promise<DianaVoiceCandidateResult>;
 }): Promise<DianaWorkerCycleResult> {
-  const claimed = await claimNextWorkerJob({ config, fetchImpl });
-  if (!claimed) return { status: "idle" };
-
+  const job = await claimNextWorkerJob({ config, fetchImpl });
+  if (!job) return { status: 'idle' };
+  const identity = { traceId: job.traceId, workerId: config.workerId, capability: job.capability };
   const startedAt = Date.now();
-  let providerInvoked = false;
-  let completionAttempted = false;
+  let authorized = false;
+  let completing = false;
+  const post = (path: string, body: unknown) => fetchImpl(new URL(path, config.baseUrl), {
+    method: 'POST', headers: workerHeaders(config.token), body: JSON.stringify(body),
+  });
   try {
-    if (claimed.feature !== "diana.voice_candidate") {
-      throw new WorkerCycleFailure("unsupported_feature", { phase: "claim" });
+    const response = await post('/api/workers/authorize', identity);
+    if (!response.ok) throw new WorkerCycleFailure('accounting_unavailable', { phase: 'accounting', retryable: false });
+    const body = await response.json();
+    const input = normalizeDianaVoiceCandidateInput(body?.permit?.input);
+    const expiresAt = Date.parse(body?.permit?.expiresAt);
+    const timeoutMs = body?.permit?.timeoutMs;
+    if (body?.ok !== true || !input || !Number.isFinite(expiresAt) || expiresAt <= Date.now()
+      || !Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 30000) {
+      throw new WorkerCycleFailure('invalid_job_payload', { phase: 'input' });
     }
-
-    const input = normalizeClaimedVoiceCandidateInput(claimed.payload);
-    if (!input) {
-      throw new WorkerCycleFailure("invalid_job_payload", { phase: "input" });
-    }
-    if (!serviceClient) {
-      throw new WorkerCycleFailure("accounting_unavailable", { phase: "accounting", retryable: true });
-    }
-
-    const guarded = await runSafeBudgetedAiCall({
-      ownerId: claimed.ownerId,
-      supabase: serviceClient,
-      input: [input.transcript, input.learnedContext ?? ""],
-      systemPrompt: "Return one safe, student-owned next move. Never provide final homework or actionable harm.",
-      maxOutputTokens: 500,
-      idempotencyKey: `worker:${claimed.traceId}`.slice(0, 128),
-      invoke: () => {
-        providerInvoked = true;
-        return runWithWorkerTimeout(
-          (signal) => executeVoiceCandidate({ input, signal }),
-          extractWorkerTimeoutMs(claimed.constraints),
-        );
-      },
-      getOutput: (value) => value.response,
-      ...(moderator ? { moderator } : {}),
-    });
-    if (!guarded.ok) {
-      throw guardFailure(guarded, providerInvoked);
-    }
-
-    const result = guarded.value;
-    const durationMs = Date.now() - startedAt;
-    await recordManagedVoiceMetadata({
-      client: serviceClient,
-      claimed,
-      input,
-      result,
-      workerId: config.workerId,
-      imageSha: config.imageSha,
-      durationMs,
-    });
-
-    completionAttempted = true;
-    await completeWorkerJobViaApi({
-      config,
-      fetchImpl,
-      traceId: claimed.traceId,
-      tenantId: claimed.tenantId,
-      status: "succeeded",
-      result: {
-        response: result.response,
-        responseChars: result.response.length,
-        provider: result.trace.provider,
-        model: result.trace.model,
-        workerId: config.workerId,
-        imageSha: config.imageSha,
-        durationMs,
-      },
-    });
-
-    return {
-      status: "completed",
-      traceId: claimed.traceId,
-      tenantId: claimed.tenantId,
-      responseChars: result.response.length,
-    };
+    authorized = true;
+    // The server has screened the exact stored input and durably reserved/marked
+    // this job once. Never retry authorization or the local provider in a cycle.
+    const result = await runWithWorkerTimeout(signal => executeVoiceCandidate({ input, signal }), Math.min(timeoutMs, expiresAt - Date.now()));
+    completing = true;
+    const completed = await post('/api/workers/complete', { ...identity, status: 'succeeded', result: {
+      response: result.response, provider: result.trace.provider, model: result.trace.model,
+      durationMs: Date.now() - startedAt, imageSha: config.imageSha,
+    } });
+    if (!completed.ok) throw new WorkerCycleFailure('worker_completion_unavailable', { phase: 'completion', retryable: true });
+    return { status: 'completed', traceId: job.traceId, tenantId: job.tenantId, responseChars: result.response.length };
   } catch (error) {
-    const failure = operationalFailure(error, providerInvoked, completionAttempted);
-    if (!completionAttempted) {
-      await completeWorkerJobViaApi({
-        config,
-        fetchImpl,
-        traceId: claimed.traceId,
-        tenantId: claimed.tenantId,
-        status: "error",
-        errorCode: failure.code,
-        errorMetadata: failure.metadata,
-      });
+    const code = error instanceof WorkerCycleFailure || error instanceof DianaVoiceProviderError ? error.code : 'worker_internal_error';
+    const metadata = sanitizeWorkerErrorMetadata(error instanceof WorkerCycleFailure || error instanceof DianaVoiceProviderError ? error.metadata : { phase: 'provider' });
+    if (authorized && !completing) {
+      const response = await post('/api/workers/complete', { ...identity, status: 'error', errorCode: code, errorMetadata: metadata });
+      if (!response.ok) return { status: 'error', traceId: job.traceId, tenantId: job.tenantId,
+        errorCode: 'worker_completion_unavailable', errorMetadata: { phase: 'completion', retryable: true } };
     }
-    return {
-      status: "error",
-      traceId: claimed.traceId,
-      tenantId: claimed.tenantId,
-      errorCode: failure.code,
-      errorMetadata: failure.metadata,
-    };
+    return { status: 'error', traceId: job.traceId, tenantId: job.tenantId, errorCode: code, errorMetadata: metadata };
   }
-}
-
-export async function claimNextWorkerJob({
-  config,
-  fetchImpl = fetch,
-}: {
-  config: DianaWorkerConfig;
-  fetchImpl?: typeof fetch;
-}): Promise<ClaimedWorkerJob | null> {
-  const response = await fetchImpl(new URL("/api/workers/claim", config.baseUrl), {
-    method: "POST",
-    headers: workerHeaders(config.token),
-    body: JSON.stringify({
-      queueName: config.queueName,
-      workerId: config.workerId,
-      leaseSeconds: config.leaseSeconds,
-    }),
-  });
-  if (!response.ok) throw new WorkerCycleFailure("worker_internal_error", { phase: "claim", retryable: true });
-
-  const json = await response.json().catch(() => null) as {
-    ok?: boolean;
-    job?: {
-      traceId?: unknown;
-      tenantId?: unknown;
-      ownerId?: unknown;
-      feature?: unknown;
-      payload?: unknown;
-      constraints?: unknown;
-    } | null;
-  } | null;
-  if (!json?.ok || !json.job) return null;
-  if (
-    typeof json.job.traceId !== "string" ||
-    typeof json.job.tenantId !== "string" ||
-    typeof json.job.ownerId !== "string" ||
-    typeof json.job.feature !== "string"
-  ) {
-    throw new WorkerCycleFailure("invalid_job_payload", { phase: "claim" });
-  }
-  return {
-    traceId: json.job.traceId,
-    tenantId: json.job.tenantId,
-    ownerId: json.job.ownerId,
-    feature: json.job.feature,
-    payload: json.job.payload,
-    constraints: json.job.constraints,
-  };
-}
-
-async function completeWorkerJobViaApi({
-  config,
-  fetchImpl,
-  traceId,
-  tenantId,
-  status,
-  result,
-  errorCode,
-  errorMetadata,
-}: {
-  config: DianaWorkerConfig;
-  fetchImpl: typeof fetch;
-  traceId: string;
-  tenantId: string;
-  status: "succeeded" | "error";
-  result?: {
-    response?: string;
-    responseChars: number;
-    provider: DianaVoiceCandidateResult["trace"]["provider"];
-    model: string;
-    workerId: string;
-    imageSha?: string;
-    durationMs: number;
-  };
-  errorCode?: WorkerOperationalErrorCode;
-  errorMetadata?: WorkerErrorMetadata;
-}) {
-  const response = await fetchImpl(new URL("/api/workers/complete", config.baseUrl), {
-    method: "POST",
-    headers: workerHeaders(config.token),
-    body: JSON.stringify({ traceId, tenantId, status, result, errorCode, errorMetadata }),
-  });
-  if (!response.ok) {
-    throw new WorkerCycleFailure("worker_completion_unavailable", {
-      phase: "completion",
-      httpStatus: response.status,
-      retryable: true,
-    });
-  }
-}
-
-async function recordManagedVoiceMetadata({
-  client,
-  claimed,
-  input,
-  result,
-  workerId,
-  imageSha,
-  durationMs,
-}: {
-  client: AiServiceClient;
-  claimed: ClaimedWorkerJob;
-  input: DianaVoiceCandidateInput;
-  result: DianaVoiceCandidateResult;
-  workerId: string;
-  imageSha?: string;
-  durationMs: number;
-}) {
-  const sessionId = sessionIdFromPayload(claimed.payload);
-  const auditPayload = createDianaVoiceCandidateAuditPayload(input, result);
-  let authorshipError: unknown;
-  try {
-    ({ error: authorshipError } = await client.from("authorship_log").insert({
-      owner_id: claimed.ownerId,
-      assignment_id: input.assignmentId ?? null,
-      actor: "diana",
-      event_type: "local_voice_candidate",
-      payload: {
-        ...auditPayload,
-        workerJob: {
-          traceId: claimed.traceId,
-          feature: claimed.feature,
-          queueMode: "managed_queue",
-          tenantId: claimed.tenantId,
-          sessionId,
-          workerId: workerId.slice(0, 128),
-          imageSha: imageSha?.slice(0, 128),
-          durationMs: Math.max(0, Math.min(300_000, Math.floor(durationMs))),
-        },
-      } as unknown as Json,
-    }));
-  } catch {
-    authorshipError = true;
-  }
-  if (authorshipError) {
-    throw new WorkerCycleFailure("audit_write_unavailable", { phase: "audit", retryable: true });
-  }
-
-  const inputBytes = new TextEncoder().encode(input.transcript).byteLength;
-  const outputBytes = new TextEncoder().encode(result.response).byteLength;
-  let interactionError: unknown;
-  try {
-    ({ error: interactionError } = await client.from("ai_interactions").insert({
-      owner_id: claimed.ownerId,
-      assignment_id: input.assignmentId ?? null,
-      feature: "voice_candidate",
-      model: result.trace.model.slice(0, 128),
-      prompt_summary: [
-        "feature=voice_candidate",
-        `correlation_id=${safeIdentifier(claimed.traceId)}`,
-        `input_bytes=${Math.min(10_000_000, inputBytes)}`,
-        `output_bytes=${Math.min(10_000_000, outputBytes)}`,
-      ].join(";"),
-      tokens_used: Math.max(1, Math.ceil((inputBytes + outputBytes) / 4)),
-    }));
-  } catch {
-    interactionError = true;
-  }
-  if (interactionError) {
-    throw new WorkerCycleFailure("audit_write_unavailable", { phase: "audit", retryable: true });
-  }
-}
-
-function guardFailure(failure: AiGuardFailure, providerInvoked: boolean): WorkerCycleFailure {
-  if (failure.kind === "budget") {
-    return new WorkerCycleFailure("budget_exhausted", { phase: "accounting" });
-  }
-  if (failure.kind === "accounting") {
-    return new WorkerCycleFailure(
-      failure.code === "provider_start_not_recorded"
-        ? "provider_start_not_recorded"
-        : "accounting_unavailable",
-      { phase: "accounting", retryable: true },
-    );
-  }
-  if (failure.kind === "screening") {
-    return new WorkerCycleFailure("safety_screen_unavailable", {
-      phase: providerInvoked ? "output" : "input",
-      retryable: true,
-    });
-  }
-  return new WorkerCycleFailure(
-    providerInvoked ? "safety_output_blocked" : "safety_input_blocked",
-    { phase: providerInvoked ? "output" : "input" },
-  );
-}
-
-function operationalFailure(
-  error: unknown,
-  providerInvoked: boolean,
-  completionAttempted: boolean,
-): WorkerCycleFailure {
-  if (error instanceof WorkerCycleFailure) return error;
-  if (error instanceof DianaVoiceProviderError) {
-    return new WorkerCycleFailure(error.code, { phase: "provider", ...error.metadata, retryable: true });
-  }
-  if (completionAttempted) {
-    return new WorkerCycleFailure("worker_completion_unavailable", { phase: "completion", retryable: true });
-  }
-  if (providerInvoked) {
-    return new WorkerCycleFailure("settlement_reconciliation_pending", { phase: "settlement", retryable: true });
-  }
-  return new WorkerCycleFailure("worker_internal_error", { phase: "input", retryable: true });
-}
-
-function normalizeClaimedVoiceCandidateInput(payload: unknown) {
-  if (!payload || typeof payload !== "object") return null;
-  return normalizeDianaVoiceCandidateInput((payload as { input?: unknown }).input);
-}
-
-function sessionIdFromPayload(payload: unknown): string {
-  if (!payload || typeof payload !== "object") return "voice-session";
-  const value = (payload as { sessionId?: unknown }).sessionId;
-  return typeof value === "string" && /^[a-z0-9._:-]{1,128}$/iu.test(value)
-    ? value
-    : "voice-session";
-}
-
-function safeIdentifier(value: string): string {
-  const safe = value.trim().slice(0, 64);
-  return /^[a-z0-9._:-]+$/iu.test(safe) ? safe : "unavailable";
-}
-
-function extractWorkerTimeoutMs(constraints: unknown): number {
-  if (!constraints || typeof constraints !== "object") return 30_000;
-  const budget = (constraints as { budget?: unknown }).budget;
-  if (!budget || typeof budget !== "object") return 30_000;
-  const timeoutMs = (budget as { timeoutMs?: unknown }).timeoutMs;
-  if (typeof timeoutMs !== "number" || !Number.isFinite(timeoutMs)) return 30_000;
-  return Math.max(1, Math.min(30_000, Math.floor(timeoutMs)));
 }
 
 async function runWithWorkerTimeout<T>(

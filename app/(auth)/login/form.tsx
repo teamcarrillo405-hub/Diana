@@ -1,12 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
   const router = useRouter();
+  const search = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
@@ -20,18 +21,19 @@ export function LoginForm() {
     const { error: signinError } = await supabase.auth.signInWithPassword({ email, password });
     setPending(false);
     if (signinError) return setError(signinError.message);
-    router.push("/dashboard");
+    const destination = search.get("next");
+    const safe = destination?.startsWith("/") && !destination.startsWith("//") && !destination.includes("\\") && !/[\u0000-\u001f]/u.test(destination);
+    router.push(safe && destination ? destination : "/dashboard");
     router.refresh();
   }
 
   return (
     <div>
-      <header className="sd-auth-card-header">
-        <h2>Welcome back</h2>
-        <p>Your classes, notes, and next step are ready.</p>
+      <header className="entry-card-header">
+        <h1>Sign in</h1>
       </header>
 
-      <form onSubmit={onSubmit} className="sd-auth-form">
+      <form onSubmit={onSubmit} className="entry-form">
         <div className="sd-field">
           <label htmlFor="email">Email</label>
           <input
@@ -60,7 +62,7 @@ export function LoginForm() {
         </div>
 
         {error && (
-          <div className="sd-auth-error" role="status">
+          <div className="entry-error" role="status">
             {error}
           </div>
         )}
@@ -68,18 +70,18 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={pending}
-          className="sd-button sd-button-primary sd-auth-submit"
+          className="entry-submit"
         >
           {pending ? "Signing in..." : "Sign in"}
         </button>
       </form>
 
-      <div className="sd-auth-account">
+      <div className="entry-account">
         <span>New to Diana?</span>
         <Link href="/signup">Create an account</Link>
       </div>
 
-      <p className="sd-auth-assurance">Private by default. Your work, AI history, and authorship record stay under your account.</p>
+      <p className="entry-assurance">Your work stays private.</p>
     </div>
   );
 }

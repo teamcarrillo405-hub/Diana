@@ -141,11 +141,8 @@ export function PlayerPhoto({
 
   return (
     <section className="diana-panel diana-panel-dense space-y-3">
-      <span className="diana-kicker">Player photo</span>
-      <h2 className="text-xl font-semibold">Your lobby photo</h2>
       <p className="text-sm text-muted">
-        Upload a photo and Diana removes the background so it sits cleanly in your lobby. This runs privately on your
-        device, with no account or key needed. It syncs to your account, so it shows up on any device you sign in on.
+        Optional. Background removal happens on this device; your photo saves to your account.
       </p>
 
       <div className="flex items-center gap-4">

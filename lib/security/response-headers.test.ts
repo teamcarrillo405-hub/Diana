@@ -36,7 +36,7 @@ describe("browser response hardening", () => {
     expect(contentSecurityPolicy("n", true)).not.toContain("'unsafe-eval'");
   });
 
-  it("permits only the controlled OpenAI Realtime and Supabase connections", () => {
+  it("permits only the controlled Realtime, Supabase, and pinned recognition connections", () => {
     const previousSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     process.env.NEXT_PUBLIC_SUPABASE_URL = "https://diana-project.supabase.co/rest/v1";
 
@@ -45,10 +45,22 @@ describe("browser response hardening", () => {
         "'self'",
         "https://api.openai.com",
         "https://diana-project.supabase.co",
+        "https://huggingface.co",
+        "https://cas-bridge.xethub.hf.co",
+        "https://cdn-lfs.hf.co",
+        "https://us.aws.cdn.hf.co",
       ].sort());
     } finally {
       if (previousSupabaseUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
       else process.env.NEXT_PUBLIC_SUPABASE_URL = previousSupabaseUrl;
     }
+  });
+  it("permits same-origin WASM and pinned public model downloads without remote script execution",()=>{
+    const policy=contentSecurityPolicy("n",true);
+    expect(policy).toContain("'wasm-unsafe-eval'");expect(policy).not.toContain("'unsafe-eval'");
+    expect(policy).toContain("https://huggingface.co");expect(policy).toContain("https://cas-bridge.xethub.hf.co");
+    expect(policy).toContain("https://us.aws.cdn.hf.co");
+    const script=policy.split(";").find(part=>part.trim().startsWith("script-src"));
+    expect(script).not.toContain("https:");expect(policy).toContain("worker-src 'self' blob:");
   });
 });

@@ -1,0 +1,146 @@
+.root.root.root { --aw-ink:#edf4ef; --aw-muted:#b7c8bf; --aw-border:#c6dfd53d; color-scheme:dark; }
+.root.root.root :is(button,summary) { box-shadow:none; border-radius:3px; }
+.root.root.root :is(button,input,select,textarea,summary) { font-family:var(--font-lexend),sans-serif; }
+.root.root.root button:disabled { opacity:.5; }
+.root.root.root :global(.sd-assignment-workspace-main) { width:min(100%,1720px); max-width:none; padding:20px 32px 44px; margin:0 auto; background:transparent; }
+.root.root.root :global(.sd-assignment-workspace-back) { display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:0; color:#dce8e0; font-size:12px; text-decoration:none; }
+.heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:20px; margin:12px 0 28px; }
+.root.root.root .heading h1 { margin-top:6px; font:700 38px/1.15 var(--font-saira-condensed),sans-serif; text-transform:uppercase; overflow-wrap:anywhere; }
+.root.root.root .heading p { color:#bfd1c8; font-size:12px; }
+.root.root.root :global(.sd-assignment-workspace-body), .root.root.root :global(.sd-assignment-workspace-editor), .root.root.root :global(.sd-assignment-mode) { display:block; width:100%; min-width:0; padding:0; background:transparent; border:0; box-shadow:none; }
+.root.root.root :global(.sd-assignment-math-room) { display:grid; grid-template-columns:188px minmax(0,1fr) 244px; gap:24px; position:relative; background:transparent; border:0; padding:0; }
+.root.root.root :global(.sd-assignment-math-room) > * { min-width:0; }
+.root.root.root :global(.sd-assignment-math-left), .root.root.root :global(.sd-assignment-math-right) { position:static; width:auto; height:auto; max-height:none; border:0; border-radius:0; background:transparent; padding:8px 0; box-shadow:none; color:#e4eee7; }
+.root.root.root :global(.sd-assignment-math-main) { display:flex; flex-direction:column; gap:0; background:transparent; padding:0; border:0; border-radius:0; box-shadow:none; overflow:visible; }
+.root.root.root :global(.sd-assignment-math-left-heading) { display:block; padding:0; margin:0 0 22px; border:0; }
+.root.root.root :global(.sd-assignment-math-left-heading) p { margin-bottom:8px; font:700 26px/1.1 var(--font-saira-condensed),sans-serif; text-transform:uppercase; }
+.root.root.root :global(.sd-assignment-math-left-heading) span { font-size:11px; color:#b7c8bf; }
+.root.root.root :global(.sd-assignment-problem-queue) { display:grid; gap:10px; max-height:560px; overflow:auto; margin:0 -8px; padding:0 8px; }
+.root.root.root :global(.sd-assignment-problem-tab) { position:relative; isolation:isolate; display:block; width:100%; min-height:72px; padding:12px 7px; border:0; border-radius:0; background:transparent; color:#bcd0c5; text-align:left; box-shadow:none; }
+.root.root.root :global(.sd-assignment-problem-tab)::before { content:""; position:absolute; inset:0 -5px; z-index:-1; background:#b70a6e; mask:url('/assets/today-now/selection-brush-v1.webp') center/100% 100% no-repeat; mask-mode:luminance; opacity:0; }
+.root.root.root :global(.sd-assignment-problem-tab[data-active="true"]) { background:transparent; color:#fff; }
+.root.root.root :global(.sd-assignment-problem-tab[data-active="true"])::before { opacity:1; }
+.root.root.root :global(.sd-assignment-problem-tab-heading) { display:grid; gap:6px; }
+.root.root.root :global(.sd-assignment-problem-tab-heading) > span { font:600 24px/1.2 var(--font-saira-condensed),sans-serif; }
+.root.root.root :global(.sd-assignment-problem-tab-heading) em { display:flex; align-items:center; gap:5px; font-size:10px; font-style:normal; color:inherit; }
+.root.root.root :global(.sd-assignment-problem-tab-heading) em[data-state="done"] { color:#a5ffce; }
+.root.root.root :global(.sd-assignment-problem-tab) > small { display:none; }
+.root.root.root :global(.sd-assignment-add-problem-panel) { padding:12px 0; margin-top:22px; border-top:1px solid var(--aw-border); font-size:12px; }
+.root.root.root :global(.sd-assignment-add-problem-panel) > summary { padding:10px 0; min-height:44px; cursor:pointer; }
+.root.root.root :global(.sd-assignment-add-problem-panel) :is(button,textarea), .root.root.root :global(.sd-assignment-problem-preview) :is(button,textarea) { width:100%; margin:8px 0; border:1px solid #a6c7b95c; border-radius:2px; padding:10px; background:#172a25; color:#edf7f0; font-size:12px; min-height:44px; }
+.root.root.root :global(.sd-assignment-problem-card) { background:#1a2825ed; border:0; border-top:2px solid #aec5b7; border-radius:0; padding:18px 22px; color:#edf4ef; box-shadow:none; }
+.root.root.root :global(.sd-assignment-mode-title) { color:#b9cdc3; font-size:11px; margin:0 0 12px; }
+.root.root.root :global(.sd-assignment-problem-text) { font:600 24px/1.55 var(--font-barlow),sans-serif; color:#edf4ef; white-space:pre-wrap; overflow-wrap:anywhere; }
+.root.root.root :global(.sd-assignment-diana-chat) { display:block; position:static; width:100%; padding:0; border:0; border-block:1px solid #d1e4d833; border-radius:0; background:#172222f2; color:#ecf3ef; box-shadow:none; }
+.root.root.root :global(.sd-assignment-chat-heading) { padding:16px 22px 0; font:600 25px/1.1 var(--font-saira-condensed),sans-serif; color:#edf5ef; }
+.root.root.root :global(.sd-assignment-diana-chat-feed) { display:block; min-height:60px; max-height:260px; overflow:auto; padding:16px 22px; background:transparent; border:0; }
+.root.root.root :global(.sd-assignment-diana-message) { border:0; background:transparent; padding:0; box-shadow:none; border-radius:0; color:#e7f1ea; margin:0 0 16px; }
+.root.root.root :global(.sd-assignment-diana-message[data-role="student"]), .root.root.root :global(.sd-assignment-diana-message[data-role="user"]) { margin-left:26px; padding-left:14px; border-left:2px solid #b599cc; }
+.root.root.root :global(.sd-assignment-diana-message) p { font-size:14px; line-height:1.75; white-space:pre-wrap; overflow-wrap:anywhere; }
+.root.root.root :global(.sd-assignment-diana-empty) { color:#b8cec3; font-size:13px; }
+.root.root.root :global(.sd-assignment-diana-chat-input) { display:flex; flex-wrap:wrap; align-items:center; gap:8px; position:relative; padding:0 22px 18px; background:transparent; border:0; border-radius:0; }
+.root.root.root :global(.sd-assignment-diana-chat-input) > :global(.space-y-3) { width:100%; flex-basis:100%; min-width:0; }
+.root.root.root :global(.sd-assignment-diana-chat-input) textarea { display:block; width:100%; min-height:76px; max-height:240px; padding:12px 58px 12px 14px; margin:0; border:1px solid #a8c1b6; border-radius:3px; background:#f0f4f0; color:#24362e; color-scheme:light; font-size:14px; line-height:1.6; box-shadow:none; }
+.root.root.root :global(.sd-assignment-diana-chat-input) textarea::placeholder { color:#566960; opacity:1; }
+.root.root.root :global(.sd-assignment-diana-chat-input) button { display:inline-flex; position:static; align-items:center; justify-content:center; gap:8px; width:auto; min-width:44px; height:auto; min-height:44px; padding:8px 10px; border:1px solid #c9dcd642; background:#20352e; color:#e5eee9; border-radius:3px; box-shadow:none; }
+.root.root.root :global(.sd-assignment-diana-chat-input) > :global(.space-y-3) > :global(.relative) > button { position:absolute; right:5px; top:5px; background:#e1eae1; color:#354b3d; border-color:#9cafaa; }
+.root.root.root :global(.sd-assignment-diana-chat-input) :global(.sd-assignment-diana-send) { margin-left:auto; background:#8224e3; color:#fff; border-color:#b988eb; }
+.root.root.root :global(.sd-assignment-diana-status), .root.root.root :global(.sd-assignment-chat-retry), .root.root.root :global(.sd-assignment-source-confirmation), .root.root.root :global(.sd-assignment-workspace-feedback) { color:#efd9ad; font-size:12px; line-height:1.65; padding:12px 20px; background:#332b23; }
+.root.root.root :global(.sd-assignment-problem-card .sd-assignment-source-confirmation) { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; padding:10px 12px; }
+.root.root.root :global(.sd-assignment-problem-card .sd-assignment-source-confirmation button) { min-height:40px; padding:8px 12px; border:1px solid #d9b87c; background:#4c3b27; color:#fff1d1; font-size:12px; cursor:pointer; }
+.root.root.root :global(.sd-assignment-review-transition), .root.root.root :global(.sd-assignment-diana-quick-actions), .root.root.root :global(.sd-assignment-composer-attachments) { display:flex; flex-wrap:wrap; gap:10px; margin:12px 22px; }
+.root.root.root :global(.sd-assignment-review-transition) button, .root.root.root :global(.sd-assignment-problem-submission) { display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:10px 14px; border:1px solid #9dbcaa; border-radius:2px; background:#233d30; color:#edf6ef; font-size:12px; }
+.root.root.root :global(.sd-assignment-review-transition) button[data-primary], .root.root.root :global(.sd-assignment-problem-submission) { background:#8224e3; border-color:#b988eb; color:#fff; }
+.root.root.root :global(.sd-assignment-problem-submission) { width:100%; margin-top:20px; }
+.root.root.root :global(.sd-assignment-work-surface) { display:block; margin:0; padding:14px 18px 18px; background:#edf2eb; color:#283c30; border:0; border-radius:0; box-shadow:none; }
+.root.root.root :global(.sd-assignment-work-surface-header), .root.root.root :global(.sd-assignment-work-actions), .root.root.root :global(.sd-assignment-paper-control), .root.root.root :global(.sd-assignment-ink-tools) { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.root.root.root :global(.sd-assignment-work-surface-header) { justify-content:space-between; margin-bottom:12px; }
+.root.root.root :global(.sd-assignment-work-surface) :is(button,summary) { min-width:44px; min-height:44px; border:1px solid #92aa98; border-radius:3px; padding:8px 12px; background:#e6ede4; color:#2b4033; display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:12px; }
+.root.root.root :global(.sd-assignment-work-surface) button[aria-pressed="true"] { background:#314e3d; color:#fff; }
+.root.root.root :global(.sd-assignment-work-surface) :global(.sd-assignment-review-action):not(:disabled) { background:#8224e3; color:#fff; border-color:#6821ad; }
+.root.root.root :global(.sd-assignment-inline-save) { color:#475e4d; display:inline-flex; gap:5px; align-items:center; font-size:10px; }
+.root.root.root :global(.sd-assignment-review-help) { font-size:11px; color:#526353; margin:0 0 12px; }
+.root.root.root :global(.sd-assignment-work-tools), .root.root.root :global(.sd-assignment-work-more) { position:relative; }
+.root.root.root :global(.sd-assignment-work-tools-panel), .root.root.root :global(.sd-assignment-work-more) > div { position:absolute; z-index:20; top:48px; left:0; width:min(360px,calc(100vw - 76px)); padding:12px; background:#edf2eb; border:1px solid #91a998; border-radius:3px; box-shadow:0 12px 30px #0003; display:grid; gap:8px; }
+.root.root.root :global(.sd-assignment-work-more) > div { left:auto; right:0; width:170px; }
+.root.root.root :global(.sd-assignment-work-box) { position:relative; width:100%; height:var(--assignment-work-height,300px); min-height:220px; max-height:1200px; overflow:hidden; border:1px solid #aac0ae; border-radius:2px; background-color:#f5f7f1; touch-action:none; }
+.root.root.root :global(.sd-assignment-work-box[data-typing="true"]) { touch-action:pan-y; }
+.root.root.root :global(.sd-assignment-work-box[data-paper="lined"]) { background-image:linear-gradient(#7f998f24 1px,transparent 1px); background-size:100% 32px; }
+.root.root.root :global(.sd-assignment-work-box[data-paper="graph"]) { background-image:linear-gradient(#7f998f24 1px,transparent 1px),linear-gradient(90deg,#7f998f24 1px,transparent 1px); background-size:24px 24px; }
+.root.root.root :global(.sd-assignment-work-textarea), .root.root.root :global(.sd-assignment-ink-layer) { position:absolute; inset:0; width:100%; height:100%; }
+.root.root.root :global(.sd-assignment-work-textarea) { z-index:1; resize:none; border:0!important; background:transparent!important; padding:16px 18px 54px; color:#283c30; caret-color:#283c30; font-size:16px; line-height:2; box-shadow:none!important; }
+.root.root.root :global(.sd-assignment-work-textarea)::placeholder { color:#627267; }
+.root.root.root :global(.sd-assignment-ink-layer) { z-index:2; overflow:visible; pointer-events:none; }
+.root.root.root :global(.sd-assignment-ink-layer) rect { fill:transparent; stroke:none; }
+.root.root.root :global(.sd-assignment-ink-layer) polyline { fill:none; stroke:#283c30; stroke-linecap:round; stroke-linejoin:round; stroke-width:2.5; vector-effect:non-scaling-stroke; }
+.root.root.root :global(.sd-assignment-work-surface) :global(.sd-assignment-work-resize) { position:absolute; z-index:10; right:2px; bottom:2px; display:grid; place-items:center; width:44px; height:44px; border:0; padding:0; background:#eef4eced; color:#344d3b; cursor:ns-resize; touch-action:none; }
+.root.root.root :global(.sd-assignment-math-action-card) { border:0; border-bottom:1px solid var(--aw-border); border-radius:0; padding:0 0 18px; margin-bottom:20px; background:transparent; box-shadow:none; color:#dce8de; font-size:12px; line-height:1.8; }
+.root.root.root :global(.sd-assignment-math-action-card) > summary { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:44px; padding:8px 0; cursor:pointer; color:#edf5ef; font:600 24px/1.1 var(--font-saira-condensed),sans-serif; }
+.root.root.root :global(.sd-assignment-details-card-content) { display:grid; gap:20px; padding:14px 0; }
+.root.root.root :global(.sd-assignment-details-card-section) { display:grid; gap:8px; }
+.root.root.root :global(.sd-assignment-details-card-section) > strong { color:#bcd3c5; font-size:11px; }
+.root.root.root :global(.sd-assignment-source-card-list) { margin:0; padding-left:18px; }
+.root.root.root :global(.sd-assignment-source-card-list) li { margin-bottom:14px; overflow-wrap:anywhere; }
+.root.root.root :global(.sd-assignment-source-card-list) :is(a,small) { display:block; color:#d1e8dc; }
+.root.root.root :global(.sd-assignment-tools-toggle), .root.root.root :global(.sd-assignment-tools-close), .root.root.root :global(.sd-assignment-problems-toggle) { display:none; }
+.root.root.root :global(.sd-assignment-primary-tool) { padding:18px; background:#edf2eb; color:#24362e; border-top:1px solid #9cb5a144; }
+.root.root.root :global(.assignment-tool-light) { border:0; background:#e5ece2; color:#24362e; border-radius:2px; padding:18px; }
+.root.root.root :global(.assignment-tool-light) h2 { font:600 26px/1.2 var(--font-saira-condensed),sans-serif; }
+.root.root.root :global(.assignment-tool-light) :is(input,textarea,select) { color:#233e2d; background:#f5f8f2; border:1px solid #9ab3a0; border-radius:2px; min-height:44px; }
+.root.root.root :global(.assignment-tool-light) p { color:#526556; font-size:12px; line-height:1.7; }
+.root.root.root :global(.assignment-tool-light) button { min-height:44px; }
+.root.root.root :global(.sd-assignment-focus-clock) { display:flex; align-items:center; flex-wrap:wrap; gap:12px; position:static; width:auto; min-width:0; border:0; border-radius:0; background:transparent; color:#edf5ee; box-shadow:none; padding:0; }
+.root.root.root :global(.sd-assignment-focus-clock-actions) { display:flex; }
+.root.root.root :global(.sd-assignment-focus-clock-control) { width:44px; height:44px; display:grid; place-items:center; border:1px solid #986dbb; background:#2d2537; color:#f4eafd; padding:0; box-shadow:none; }
+.root.root.root :global(.sd-assignment-focus-clock-time) { color:#edf5ee; font:600 27px/1 var(--font-barlow),sans-serif; font-variant-numeric:tabular-nums; }
+.root.root.root :global(.sd-assignment-focus-clock-message) { width:100%; color:#c7d9cc; font-size:11px; }
+.root.root.root :global(.sd-assignment-empty-state) { padding:30px; background:#1a2825ed; border:1px solid var(--aw-border); color:#edf4ed; font-size:14px; }
+.root.root.root :global(.sd-assignment-empty-state) button { display:block; margin-top:20px; padding:12px 18px; min-height:44px; border:1px solid #b988eb; background:#8224e3; color:#fff; }
+@media(min-width:1450px) { .root.root.root :global(.sd-assignment-math-room) { grid-template-columns:210px minmax(0,1fr) 280px; gap:32px; } }
+@media(max-width:1100px) {
+  .root.root.root :global(.sd-assignment-math-room) { grid-template-columns:165px minmax(0,1fr); gap:22px; }
+  .root.root.root :global(.sd-assignment-tools-toggle) { grid-column:1/-1; justify-self:end; display:flex; align-items:center; gap:8px; border:1px solid #bad2c355; background:#172821; color:#e1eee5; padding:8px 14px; min-height:44px; }
+  .root.root.root :global(.sd-assignment-math-right) { display:none; }
+  .root.root.root :global(.sd-assignment-math-right[data-open]) { display:block; position:fixed; z-index:105; inset:0 0 0 auto; width:min(420px,100%); height:100dvh; max-height:100dvh; overflow:auto; background:#17251f; padding:20px; border-left:1px solid #759b81; }
+  .root.root.root :global(.sd-assignment-tools-close) { display:grid; place-items:center; width:44px; height:44px; margin:0 0 18px auto; background:#253c2f; color:#fff; border:1px solid #bcd2c155; padding:0; }
+  .root.root.root :global(.sd-assignment-tools-scrim) { position:fixed; z-index:104; inset:0; width:100%; height:100dvh; border:0; background:#06100cd0; }
+}
+@media(max-width:760px) {
+  .root.root.root :global(.sd-assignment-workspace-main) { padding:16px 18px 32px; }
+  .root.root.root .heading h1 { font-size:29px; }
+  .heading { margin-top:10px; margin-bottom:18px; }
+  .root.root.root :global(.sd-assignment-math-room) { display:flex; flex-direction:column; gap:0; }
+  .root.root.root :global(.sd-assignment-tools-toggle) { order:0; align-self:flex-end; margin-bottom:16px; }
+  .root.root.root :global(.sd-assignment-math-left) { display:block; order:1; width:100%; padding:0 0 18px; transform:none; }
+  .root.root.root :global(.sd-assignment-math-main) { order:2; width:100%; }
+  .root.root.root :global(.sd-assignment-math-left-heading) { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+  .root.root.root :global(.sd-assignment-math-left-heading) p { font-size:22px; margin:0; }
+  .root.root.root :global(.sd-assignment-problem-queue) { display:flex; overflow:auto; max-height:none; gap:14px; margin:0 -6px; padding:4px 6px 12px; }
+  .root.root.root :global(.sd-assignment-problem-tab) { flex:0 0 145px; width:145px; min-height:66px; }
+  .root.root.root :global(.sd-assignment-problem-tab):only-child { flex:1; }
+  .root.root.root :global(.sd-assignment-add-problem-panel) { margin-top:10px; padding:0; }
+  .root.root.root :global(.sd-assignment-diana-chat-feed), .root.root.root :global(.sd-assignment-chat-heading), .root.root.root :global(.sd-assignment-diana-chat-input) { padding-inline:16px; }
+  .root.root.root :global(.sd-assignment-diana-chat-input) textarea { font-size:16px; }
+  .root.root.root :global(.sd-assignment-problem-card) { padding:18px; }
+  .root.root.root :global(.sd-assignment-problem-text) { font-size:22px; }
+  .root.root.root :global(.sd-assignment-work-surface), .root.root.root :global(.sd-assignment-primary-tool) { padding:12px; }
+  .root.root.root :global(.sd-assignment-inline-save) { font-size:10px; }
+}
+.root.root.root :global(.sd-assignment-diana-chat) { min-height:0; max-height:none; overflow:visible; }
+.root.root.root :global(.sd-assignment-mode-title) { display:flex; justify-content:space-between; gap:16px; }
+.root.root.root :global(.sd-assignment-mode-title) > span { color:#bfd0c5; font-size:11px; text-transform:none; }
+.root.root.root :global(.sd-assignment-live-voice-overlay) { position:fixed; inset:0; z-index:150; display:grid; place-items:center; background:#0e211ef2; backdrop-filter:blur(20px); }
+.root.root.root :global(.sd-assignment-live-voice-overlay-content) { display:grid; justify-items:center; gap:24px; color:#ecf5ef; }
+.root.root.root :global(.sd-assignment-live-voice-orb-stage) { width:min(70vw,360px); aspect-ratio:1; }
+.root.root.root :global(.sd-assignment-live-voice-end) { width:60px; height:60px; border-radius:50%; display:grid; place-items:center; background:#b894ee; color:#171326; }
+.root.root.root :global(.sd-assignment-chat-attachment) { display:flex; align-items:center; gap:10px; padding:10px; border:1px solid #b3c9be55; font-size:11px; border-radius:3px; }
+.root.root.root :global(.sd-assignment-chat-attachment) img { width:48px; height:48px; object-fit:cover; }
+.root.root.root :global(.sd-assignment-chat-attachment) strong, .root.root.root :global(.sd-assignment-chat-attachment) small { display:block; overflow-wrap:anywhere; }
+.root.root.root :global(.sd-assignment-composer-attachments) { display:grid; gap:8px; padding:10px 20px; }
+.root.root.root :global(.sd-assignment-diana-message) { max-width:none; }
+.root.root.root :global(.sd-assignment-source-importer) { display:grid; gap:10px; margin-top:18px; }
+.root.root.root :global(.sd-assignment-source-importer) :is(input,textarea,select) { width:100%; padding:10px; min-height:44px; background:#14251e; border:1px solid #b8d2c355; color:#edf4ee; }
+.root.root.root :global(.sd-assignment-source-importer) button { padding:10px; min-height:44px; background:#243d30; border:1px solid #b8d2c355; color:#edf4ee; }
+.root.root.root :global(.sd-assignment-realtime-tutor) { padding:0; margin:0; background:transparent; color:#d9e8dd; border:0; }
+.root.root.root :global(.sd-assignment-diana-chat-input) :global(.sd-assignment-realtime-tutor) { display:inline-flex; }
+.root.root.root :global(.sd-assignment-diana-chat-input) :global(.sd-assignment-realtime-tutor) > div { position:absolute; z-index:30; left:16px; right:16px; bottom:64px; padding:18px; background:#14251e; border:1px solid #99b6a6; border-radius:3px; }

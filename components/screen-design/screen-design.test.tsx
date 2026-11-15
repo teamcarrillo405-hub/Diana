@@ -191,7 +191,7 @@ describe("StudentBottomNav", () => {
         href: link.getAttribute("href"),
       })),
     ).toEqual([
-      { label: "Today", href: "/dashboard" },
+      { label: "Lobby", href: "/dashboard" },
       { label: "Work", href: "/assignments" },
       { label: "Classes", href: "/classes" },
       { label: "Calendar", href: "/calendar" },
@@ -206,12 +206,12 @@ describe("StudentBottomNav", () => {
   });
 
   it.each([
-    ["/dashboard/lobby", "Today"],
+    ["/dashboard/lobby", "Lobby"],
     ["/assignments/assignment-1", "Work"],
     ["/classes/class-1", "Classes"],
     ["/calendar", "Calendar"],
-    ["/settings", "More"],
-    ["/wellness", "More"],
+    ["/settings/tutor", "More"],
+    ["/study-buddy", "More"],
   ])("derives exactly one active destination for %s", (pathname, label) => {
     vi.mocked(usePathname).mockReturnValue(pathname);
     render(<StudentBottomNav />);

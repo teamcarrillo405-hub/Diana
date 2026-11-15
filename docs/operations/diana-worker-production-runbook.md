@@ -186,7 +186,23 @@ npm run worker:runtime-smoke
 
 This copies only `dist/worker/run-diana-worker.cjs` into a clean temp directory
 and runs `--check-config` without repo `node_modules`, which catches bundling
-or runtime dependency regressions before Docker is involved.
+or runtime dependency regressions before Docker is involved. The smoke child receives
+only synthetic worker settings and required OS variables, never the operator's
+database, provider, QA, proxy, or Node injection settings.
+
+Also run the complete offline compiled protocol check:
+
+```bash
+npm run worker:credential-proof
+```
+
+This executes claim, capability authorization, bounded sidecar output, and
+completion against synthetic loopback HTTP fixtures. It makes no hosted model
+or database calls. The Worker image workflow requires this step before the image
+build and retains `credential-proof.log`; its evidence verifier rejects missing,
+skipped, failed, or incompatible proof. `--check-config` alone does not establish
+capability-protocol compatibility. Older image evidence without this proof must
+be rebuilt through the current workflow before a worker rollout.
 
 4. Verify the image command path before rollout:
 
@@ -233,7 +249,7 @@ WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> npm run worker:
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> npm run worker:deployed-canary
 QA_USER_EMAIL=<qa-email> QA_USER_PASSWORD=<qa-password> \
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> \
-npm run worker:diana-status-smoke -- --auth=browser --complete-with=worker-api --timeout-ms=120000
+npm run worker:diana-status-smoke -- --auth=browser --complete-with=compiled-worker --allow-server-moderation --timeout-ms=120000
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<staging-origin> npm run worker:load-smoke -- --count=25
 ```
 
@@ -363,7 +379,7 @@ WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<prod-origin> npm run worker:e2e
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<prod-origin> npm run worker:deployed-canary
 QA_USER_EMAIL=<qa-email> QA_USER_PASSWORD=<qa-password> \
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<prod-origin> \
-npm run worker:diana-status-smoke -- --auth=browser --complete-with=worker-api --timeout-ms=120000
+npm run worker:diana-status-smoke -- --auth=browser --complete-with=compiled-worker --allow-server-moderation --timeout-ms=120000
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<prod-origin> npm run worker:load-smoke -- --count=10
 WORKER_API_TOKEN=<secret> DIANA_WORKER_BASE_URL=<prod-origin> npm run worker:load-smoke -- --count=100
 ```
@@ -419,3 +435,31 @@ For queued voice requests, student-facing code may also call
 The browser may receive only the candidate text and public trace fields: trace
 id, queue mode, read-only flag, and policy mode. Provider details, worker ids,
 model names, and full traces stay in Diana backend logs and authorship receipts.
+
+
+### Next candidate: capability-based replicas
+
+The reviewed execution SQL is applied as `20260929035711_worker_execution_capabilities.sql` (historical frozen candidate version `20260929100000`, unchanged bytes); do not reapply the historical version. Matching server routes are deployed and independently verified in production (`dpl_7J1BfiVSyooabxm1UWonRK7X6Vc2`); the reviewed worker image still needs to be built, published and hosted. Managed routing remains inactive. Its status smoke uses the actual server authorization/moderation protocol; approve moderation calls explicitly before passing `--allow-server-moderation` or setting the production-gate input `allow_server_moderation=true`. No hosted rollout or activation is implied by this engineering candidate.
+
+Load smoke is an operator-owned synthetic queue/metrics fixture, not proof of moderation, accounting or provider execution. The local-only `--complete-with=operator-fixture` status mode is likewise synthetic. The tenant canary verifies that missing or invalid job capabilities cannot complete a job, and only deletes the exact fixture it seeded. Full protocol evidence comes from compiled-worker checks. See `docs/engineering/worker-credential-next-candidate.md` for the capability, replay and conservative accounting contract.
+
+
+### Worker host configuration check, 2026-09-29
+
+A read-only repository metadata check found no `KUBE_CONFIG_B64` Actions secret
+and no runs of `worker-kubernetes-deploy.yml`. The configured secret names include
+the worker token, operator Supabase credentials, and GHCR pull credentials; no
+secret values were read. This proves the documented GitHub deployment path is
+not configured, not that no unrelated host could exist elsewhere.
+
+The remaining host requirement is an explicitly selected, authorized Kubernetes
+cluster/namespace with an approved reachable OpenJarvis-compatible service and
+model, plus the deploy workflow's kubeconfig. Do not provision a cluster, install
+or activate a model, or enable managed routing as part of these offline checks.
+After that hosting decision, the release sequence is: publish a reviewed worker
+image using the current image gate; record its SHA/evidence; configure the target
+and matching app/server prerequisites; authorize the hosted moderation/canary
+run; then dispatch the deployment workflow with explicit origin/image/app SHA.
+Keep managed routing inactive until the hosted consumption evidence passes.
+The local Docker CLI was present during this check, but its Linux engine pipe
+was absent, so local bundle/protocol success is not a Docker image build result.

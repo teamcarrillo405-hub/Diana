@@ -1,0 +1,98 @@
+import type { HelpMode, ProductProof, SceneBeat } from "./types"
+
+export const heroBeats: readonly SceneBeat[] = [
+  { id: "life", start: 0, end: 4.5, caption: "Homework That Fits Your Life" },
+  { id: "bring", start: 4.5, end: 9, caption: "Bring It In" },
+  { id: "move", start: 9, end: 13.5, caption: "Find the Next Move" },
+  { id: "night", start: 13.5, end: 18, caption: "Make Your Night" },
+] as const
+
+export const heroProductProof: ProductProof = {
+  src: "/assets/homework/diana-workspace-source-analysis-today.png",
+  width: 1894,
+  height: 937,
+  alt: "Diana workspace showing the assignment, one guidance prompt, the student's work area, and review controls",
+}
+
+export const helpModes: readonly HelpMode[] = [
+  {
+    id: "directions",
+    title: "Turn Directions Into Steps",
+    outcome: "Find the first useful move",
+    mediaType: "image",
+    src: "/assets/help-fit/decode-the-ask.webp",
+    poster: "/assets/help-fit/decode-the-ask.webp",
+    objectPosition: "center center",
+    alt: "Student highlighting assignment directions and organizing the first steps",
+  },
+  {
+    id: "notes",
+    title: "Use Your Class Notes",
+    outcome: "Bring your own evidence into the work",
+    mediaType: "image",
+    src: "/assets/help-fit/use-your-sources.webp",
+    poster: "/assets/help-fit/use-your-sources.webp",
+    objectPosition: "center center",
+    alt: "Student comparing class notes with source material at a study table",
+  },
+  {
+    id: "practice",
+    title: "Study Lab",
+    outcome: "Practice before the real problem",
+    mediaType: "image",
+    src: "/assets/help-fit/practice-safely.webp",
+    poster: "/assets/help-fit/practice-safely.webp",
+    objectPosition: "center center",
+    alt: "Student practicing a problem with a tablet in a modern study space",
+  },
+  {
+    id: "rubric",
+    title: "Check Against the Rubric",
+    outcome: "See what is ready and what needs attention",
+    mediaType: "image",
+    src: "/assets/help-fit/check-against-rubric.webp",
+    poster: "/assets/help-fit/check-against-rubric.webp",
+    objectPosition: "center center",
+    alt: "Student checking written work against a rubric beside a laptop",
+  },
+  {
+    id: "tonight",
+    title: "Plan Tonight",
+    outcome: "Fit the work around the rest of your day",
+    mediaType: "image",
+    src: "/assets/help-fit/plan-your-time.webp",
+    poster: "/assets/help-fit/plan-your-time.webp",
+    objectPosition: "center center",
+    alt: "Student planning homework tasks in a paper planner beside a tablet",
+  },
+  {
+    id: "game",
+    title: "Make the Game",
+    outcome: "Finish the next move and make tipoff",
+    mediaType: "video",
+    src: "/assets/help-modes/make-the-game.mp4",
+    poster: "/assets/help-modes/make-the-game-poster.webp",
+    objectPosition: "center center",
+    alt: "High school student practicing basketball on an outdoor court",
+  },
+  {
+    id: "club",
+    title: "Show Up for Your Club",
+    outcome: "Get unstuck and make rehearsal",
+    mediaType: "video",
+    src: "/assets/help-modes/show-up-for-your-club.mp4",
+    poster: "/assets/help-modes/show-up-for-your-club-poster.webp",
+    objectPosition: "center center",
+    alt: "Student singer rehearsing with a school music group",
+  },
+  {
+    id: "student-edition",
+    title: "Diana Student Edition 01",
+    outcome: "Homework that fits your life",
+    mediaType: "cover",
+    src: "",
+    poster: "",
+    objectPosition: "center center",
+    alt: "Diana Student Edition 01 editorial cover about homework that fits a student's life",
+  },
+] as const

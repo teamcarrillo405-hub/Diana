@@ -1,0 +1,820 @@
+{
+  "reviewerId": "preference-b-independent-content-reviewer",
+  "independentReviewer": true,
+  "educatorReviewed": false,
+  "sourceSha256": "3a8af4830d34697d423300d6e403a81c89007b9d7ec9b366fc074c4e54f6e507",
+  "canonicalRowsSha256": "f82e7c412e9277ba9f595f885ef3bfa890a5cc4d8728cdaa963d8a241e21335e",
+  "unresolvedFindings": [],
+  "resolvedFindings": [
+    {
+      "id": "pref-b-adjective-role-insufficient",
+      "finding": "The question asks what explanation the note gives, but the source explicitly establishes that it gives no explanation. This can be answered as a known limitation, while the preferred response abstains. Asking for an omitted explanation also risks assuming an existing rationale.",
+      "proposedFix": "Ask what reason the author had for placing narrow before wooden; ask the author why that order was used, without presupposing an omitted explanation.",
+      "resolution": "Question changed to the author's reason for modifier order, NEXT asks the author why that order was used, and rationale distinguishes unknown reasoning from the stated omission. Corrected row reread and approved.",
+      "rechecked": true
+    }
+  ],
+  "caseReviews": [
+    {
+      "id": "pref-b-tile-order-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact 54-tile sentence answers the base-count question. Multiplying six rows by nine checks that count without supplying a second solution; the rejection merely repeats the count request.",
+      "pairHash": "72ff7425fcbc9f13944aa60e90efca34af057ff5e982da4f55e466c536ab4621"
+    },
+    {
+      "id": "pref-b-tile-order-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The source omits spare quantity, so total order is undetermined. Asking the maker for spares supplies the missing addend; the rejection only reasks the total.",
+      "pairHash": "1070dcb12ce3ec5d16a33ad1e82df7c5c257cbab2855b2b03a30fe6ea7f7b3f5"
+    },
+    {
+      "id": "pref-b-ribbon-revision-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact revision sentence supplies 55 centimeters and supersedes 40. Asking for their difference checks the change; the rejected NEXT repeats the revision question.",
+      "pairHash": "b875acc3420198d3fdcb6ad901774c19001fdcd341efca51f6153c606dc60f89"
+    },
+    {
+      "id": "pref-b-ribbon-revision-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No starting spool length is given. Measuring the remaining spool before the 55-centimeter cut supplies the needed subtraction input; the rejected remainder question does not.",
+      "pairHash": "84187007e1a0ca51cdb0876736fc7fd7bc871d8f7eca4384c8822bd9475835cb"
+    },
+    {
+      "id": "pref-b-seed-packets-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact packing instruction supplies 12 seeds per packet. Dividing 84 by seven verifies it; the rejection repeats the already answered seed-count question.",
+      "pairHash": "567032d8e90e176ed4f3f70263985305ead57d9983e11f6b4a5a283bbde0bf51"
+    },
+    {
+      "id": "pref-b-seed-packets-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Seed count provides neither seed nor packet mass. Weighing a filled packet directly supplies the missing measurement; the rejection repeats the mass request.",
+      "pairHash": "aad71d82a2cf14ddef9d3bcf1c5afd12bf0d0eb84b095e9cbed7b05eefae3340"
+    },
+    {
+      "id": "pref-b-ticket-share-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact cashier statement identifies three fifths. Comparing 30 advance tickets to 30 plus 20 verifies the denominator and numerator; the rejection just repeats the share question.",
+      "pairHash": "0f2b2c6ef687f0a0529d5c1168b506a710f0adef06c8998e40953cd07eea7e8a"
+    },
+    {
+      "id": "pref-b-ticket-share-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Advance revenue is unavailable without price. Asking the cashier for the advance-ticket price before multiplying by the stated 30 is concrete; the rejection seeks no missing input.",
+      "pairHash": "3f93772dc15a2c9caa9d7c65fed2498fcc8187d71922e52d96d5747a0bc03c29"
+    },
+    {
+      "id": "pref-b-crate-capacity-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact exterior-volume label answers two cubic meters. Multiplication uses supplied exterior dimensions; the rejected NEXT invents a successful packing trial that the source explicitly denies.",
+      "pairHash": "7ce33b278e6ef7d5872f2fb7435f9ef75d0b479bcdb7963a348c25b728547d4b"
+    },
+    {
+      "id": "pref-b-crate-capacity-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Exterior dimensions alone do not establish usable interior volume. Measuring all three interior dimensions is useful; the rejection fabricates a one-centimeter wall thickness.",
+      "pairHash": "72c9fb8a3b21d28908412ef6643435f32cad6d08488e62b63ff43f23ca5bfc28"
+    },
+    {
+      "id": "pref-b-fare-correction-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact ten-token correction is the current fare. Comparing it through subtraction with the old eight-token fare is grounded; the rejection falsely describes the increase as a decrease.",
+      "pairHash": "86a7534ae9fcec5b9a2990194d7b12192e5200ed24ff42b1c943f57b65726cb7"
+    },
+    {
+      "id": "pref-b-fare-correction-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Whole-group tokens need an uncollected rider count. Asking the organizer for that count is a concrete acquisition step; twelve confirmed riders in the rejection are invented.",
+      "pairHash": "09c17edc6fbbccfd32ecf30668027c78c4a443a66e7610d10fcd64078f074d52"
+    },
+    {
+      "id": "pref-b-walk-interval-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact log sentence states 35 minutes. Subtracting the stated 09:10 and 09:45 times verifies duration; bench-symbol counting does not address elapsed time.",
+      "pairHash": "04baab72c1f522e55e8ab7070eb85379663954256b314f0d996e201567763098"
+    },
+    {
+      "id": "pref-b-walk-interval-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Distance is absent despite a known duration. Measuring the walked route provides the numerator for speed; shoe color is irrelevant as the rationale states.",
+      "pairHash": "261aae34d509600d6307b51fe9b47d738f13b675d49c911a49d4e9ddcb6c11d1"
+    },
+    {
+      "id": "pref-b-paint-average-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact note states four cups per panel. Adding two, four, and six and dividing by three checks the mean; assessing the blue cup's shade is irrelevant.",
+      "pairHash": "e89bd00729480d42b424eccabac79250059579c27ad3c521ffae7f63c3fe210e"
+    },
+    {
+      "id": "pref-b-paint-average-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Paint quantities do not reveal application duration. The conditional request to workers seeks each panel's timing without asserting a record exists; ordering paint amounts cannot establish mean time.",
+      "pairHash": "c59649c8023d2e0bec9bbdfac4df1388e99f42d56bdd3ce02577afaf500fb462"
+    },
+    {
+      "id": "pref-b-jar-median-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact worksheet sentence directly gives the count median. Locating the middle ordered count verifies it; the otherwise identical rejected NEXT cannot cure an unnecessary evidence abstention.",
+      "pairHash": "122cf3ec83485bcf8837e8aed341720d6143c735e02a56dfea3f42e2a32358c7"
+    },
+    {
+      "id": "pref-b-jar-median-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No bead diameters are supplied. Measuring and ordering actual diameters is appropriate; the rejection substitutes a count median for a diameter median.",
+      "pairHash": "07c45e6512328a67b268c5b2aa377b4378d189cae6c6e81dc25d538ad5c76148"
+    },
+    {
+      "id": "pref-b-scale-update-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact replacement legend supplies one centimeter to four meters. Comparing old and new conversion units examines the correction; rejected abstention overlooks that explicit conversion.",
+      "pairHash": "5cb8dc72c8164618333b7914e2eebbab9a4e59cf1d0681d7628f4028890ef913"
+    },
+    {
+      "id": "pref-b-scale-update-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A conversion factor cannot give tower height without drawing length. Measuring the drawing in centimeters supplies that input; rejected evidence mistakes scale for a height answer.",
+      "pairHash": "b91977662b12e288d8ac4165fd06658e7f42b6e5e31cce2b4972182c3636b0c3"
+    },
+    {
+      "id": "pref-b-lantern-letter-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact purpose sentence explains helping the brother find the loose step after sunset. Connecting that phrase to the light's purpose is a concrete comprehension task; the rejection repeats the purpose request.",
+      "pairHash": "8410b8520ad333853c3132b8586da57aff00d8a6475c63c4e38e1d412acbee1e"
+    },
+    {
+      "id": "pref-b-lantern-letter-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Leaving a light does not establish that the brother saw it. Conditional inspection of his later account seeks the missing perception evidence; the rejection merely repeats the outcome question.",
+      "pairHash": "5bed85063a342e86d7195638c1fe09afbd2c1bb8b08404c0584614f5f1c4b267"
+    },
+    {
+      "id": "pref-b-map-caption-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact corrected comparison identifies the riverside route and retains the bridge-opening condition. Marking that condition is useful source analysis; rejected NEXT simply repeats the route request.",
+      "pairHash": "7bd8b017d285f8e6a6a792391eeb7748b16d5a809ab95ee227636f43965e8111"
+    },
+    {
+      "id": "pref-b-map-caption-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The passage supplies no opening date. Conditionally locating an opening notice targets that date without asserting a notice exists; the rejection only repeats the question.",
+      "pairHash": "b3d9c651f0f6a2b4f5e734054450edd5c5758e43744a31a2256df7b28e545187"
+    },
+    {
+      "id": "pref-b-garden-dialogue-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact reply supplies both loose hinge and restraining tie. Separating cause and temporary response examines the explanation; rejected NEXT asks for the same explanation again.",
+      "pairHash": "dbd89976bb344d60be908d0b83d947778e3ca874600f43764a0af605958cb38e"
+    },
+    {
+      "id": "pref-b-garden-dialogue-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Ora's movement toward the shed does not establish a repair. A possible continuation describing the hinge being fixed would supply the missing action; the rejection merely echoes the repair question.",
+      "pairHash": "6925fe721f85c3070da79b30b17e58bda91309429111507fd9f12a95a070454f"
+    },
+    {
+      "id": "pref-b-snow-description-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact sentence supplies the paper image. Comparing untouched snow with an unmarked sheet examines the stated visual connection; the rejection repeats image identification.",
+      "pairHash": "71e7ea69e4fe334c84274f8afb5caa73e93918e582ccacfec125c375327cabcc"
+    },
+    {
+      "id": "pref-b-snow-description-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No cart entry or track shape is described. The conditional later-scene check asks for actual wheel-track description; the rejected question provides no route to new evidence.",
+      "pairHash": "6526c1c5d3f9bbf03b696f9c762d34d535c932ea8231da294773e7090d600f0a"
+    },
+    {
+      "id": "pref-b-quiet-room-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact hope sentence answers intended prevention of an argument. Identifying 'hopes' preserves intention status; the rejection invents a successfully ended argument.",
+      "pairHash": "b59e0a3043180bed04c27480b6911081a51040baaedb1e90789fa767f7013292"
+    },
+    {
+      "id": "pref-b-quiet-room-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The roommate remains asleep and no response is supplied. Conditional later spoken or written response is a useful evidence source; a grateful smile after reading is invented in the rejection.",
+      "pairHash": "0af8a909c9f39b7238b98a9c8198c5133e5ecd03cb8f20f57be633d376d93aee"
+    },
+    {
+      "id": "pref-b-witness-window-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact correction identifies a red scarf on a chair. Comparing initial and revised identification respects changed understanding; the rejection retains a fox contrary to the correction.",
+      "pairHash": "d63fa234607c5067d50046d678aa624bcffce31e879ef7063f967fc9fab2c4eb"
+    },
+    {
+      "id": "pref-b-witness-window-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Scarf ownership is absent. A possible later attribution can resolve it; the rejection invents a sister and her ownership.",
+      "pairHash": "2214a08057fb31f3449df35f8bc0a3ec5c0d0896f925652c56b97d25dab899e5"
+    },
+    {
+      "id": "pref-b-river-simile-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact source calls the narrow river a silver thread. Comparing their narrow shapes examines that image; calculating reed growth has the wrong scope.",
+      "pairHash": "97288a59250e96cdad510b71d10164ce9976a5f35c0ceb8b192c866b8119dafe"
+    },
+    {
+      "id": "pref-b-river-simile-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Neither river country nor town is named. A conditional author setting note could name the country; counting color words cannot identify geography.",
+      "pairHash": "5648e2b3aeedf0b1c40bf82d3cefeb0a4a7d1484460bc78cb159ad884cfa4065"
+    },
+    {
+      "id": "pref-b-library-sequence-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact sentence states the atlas return preceded the moth-book request. Using 'before' to order these actions is concrete; estimating window height is unrelated.",
+      "pairHash": "c2618717d32bfb64a3ccb7df050e6a08dd1c45dc69cc7ef759f3402a78e6991d"
+    },
+    {
+      "id": "pref-b-library-sequence-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The passage stops before selection and gives no title. A conditional continuation describing a choice could supply the title; summarizing the earlier atlas return cannot.",
+      "pairHash": "fe14622eb48e369789616aceb145bbfd6570f66fee6d553f394c018c4853f0f8"
+    },
+    {
+      "id": "pref-b-bell-intention-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact intention sentence gives protection of new seeds as purpose. Underlining 'intended' separates plan and outcome; rejected abstention wrongly withholds an explicit purpose.",
+      "pairHash": "921e582fac783e65b5235983ad391b50034534068c319e37fa1e3cea30098914"
+    },
+    {
+      "id": "pref-b-bell-intention-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No bird reaction appears. Conditional later text describing hearing and departure would provide relevant observation; rejected evidence quotes purpose as if it demonstrated departure.",
+      "pairHash": "1ca99ddc81e4083fc6b3bec007324935dfeb3d9af5385ac12104bf88200457d4"
+    },
+    {
+      "id": "pref-b-door-correction-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact clarification replaces locked with swollen shut. Comparing the obstacles checks the correction; rejected abstention overlooks the explicit explanation.",
+      "pairHash": "771e83c4e9100f12ea37bb6ef2e85ff83b8d852cc629eaf9db94e5a19654d68e"
+    },
+    {
+      "id": "pref-b-door-correction-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The carpenter's work is not narrated. Conditional search for a described opening method is useful; the rejected evidence identifies the obstacle rather than a repair action.",
+      "pairHash": "1037a42d15149390455b9cf2aa36281230b3c7086541edae5d5ba73a41ceb456"
+    },
+    {
+      "id": "pref-b-verb-notice-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact answer note identifies flickered. Relating it to the lantern's action checks its role without rewriting the sentence; rejected NEXT repeats verb identification.",
+      "pairHash": "40d50c6fdb0764892385e3d18d0916504efe8f083634f43d1b364330f9d61240"
+    },
+    {
+      "id": "pref-b-verb-notice-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No earlier draft is supplied. A conditional comparison of that draft's predicate would reveal its verb; rejected NEXT repeats the unavailable draft question.",
+      "pairHash": "067be3dff189f5752f44c2c8798ed690453037c18f25301e5e7c15b35225b060"
+    },
+    {
+      "id": "pref-b-pronoun-revision-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact revised note assigns it to the floating crate. Comparing boat and crate annotations checks the replacement; rejected NEXT repeats the referent question.",
+      "pairHash": "35a041a415917cb7a6020d149b69a93674b265d5000760acae700d99a58b5100"
+    },
+    {
+      "id": "pref-b-pronoun-revision-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "An intended referent does not establish clarity of unseen prose. Obtaining the paragraph and inspecting possible preceding referents provides evidence; the rejection only repeats a clarity judgment.",
+      "pairHash": "17ea3a809b5075bc54a9c79349925fb02c44d8a50db5e0257e11ab590f8c5a82"
+    },
+    {
+      "id": "pref-b-plural-label-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact card sentence marks boxes as plural. Comparing it with the ordinary singular box examines the plural ending; rejected NEXT repeats noun identification.",
+      "pairHash": "0c51ba528664ad86ad07d564024f0fd8447a590a5678867338d416345fb4dd71"
+    },
+    {
+      "id": "pref-b-plural-label-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The back label is mentioned but not reproduced. Conditional access and transcription followed by inspection supplies missing words without inventing them; the rejection merely repeats the request.",
+      "pairHash": "03db72c39d7c0a6ea978e1d5931fad15fa7491e2aca34b8de90aac40588bd30c"
+    },
+    {
+      "id": "pref-b-comma-instruction-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact instruction places the comma after stopped. Locating the introductory-clause boundary explains that placement without completing the revision; rejected NEXT repeats the placement question.",
+      "pairHash": "edfcc257280cda46c6b4b6eb572dd1284496bbf1fab6b3e24517bc3f3505b604"
+    },
+    {
+      "id": "pref-b-comma-instruction-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Receipt of the instruction does not establish application. Conditional inspection of the returned revision for a comma after stopped targets the needed artifact; rejected NEXT merely reasks compliance.",
+      "pairHash": "456756f042a041a0fafeedaba0169a23b149b6a34bf87234f48a5dcd3f00f37c"
+    },
+    {
+      "id": "pref-b-voice-target-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact brief makes Ivo the requested subject. Identifying the actor in by Ivo prepares the change without supplying a completed rewrite; the rejection invents removal from a submitted sentence.",
+      "pairHash": "d61eeffb45470003ecafa33df989b139b215dd4bd8918d212aaaf8f00ba4d28d"
+    },
+    {
+      "id": "pref-b-voice-target-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No replacement sentence is submitted. Conditional subject-and-verb inspection seeks the actual future revision; the rejection presupposes an accepted submitted revision.",
+      "pairHash": "29f4636483d68fc824b54c9d2c8ee8064bc69aacb2a48fbcc9e055eeef4ed933"
+    },
+    {
+      "id": "pref-b-register-change-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact updated brief specifies a friendly greeting for volunteers. Comparing formal with friendly tracks the new register; the rejection incorrectly retains the old formal requirement.",
+      "pairHash": "b08ab71729141a9d896e7343179204ffc4e9ef43d5dc3eb09eef89335889fdaf"
+    },
+    {
+      "id": "pref-b-register-change-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No distribution or feedback has occurred. Collecting preferences after volunteers see the greeting is a concrete future observation; positive survey results in the rejection are fabricated.",
+      "pairHash": "c04a9e9bcebe6ac7fd338bcb1ac353143831242b47dada510ca22714e476935b"
+    },
+    {
+      "id": "pref-b-adjective-role-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact note labels narrow as an adjective modifying bridge. Linking it to that noun checks its role; estimating weather from a cloud sketch is irrelevant.",
+      "pairHash": "6a1ae3c0abcc7b583c0eb83c021a7b8f7969fae2e74e03b2d3bf1559f765d696"
+    },
+    {
+      "id": "pref-b-adjective-role-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rechecked the corrected pair: the question now asks the author's underlying reason, which the source does not provide. Asking the author why narrow precedes wooden seeks that missing reasoning without assuming an omitted explanation exists; drawing a wider bridge supplies no evidence about author reasoning.",
+      "pairHash": "0aa17256fd84a71e17c33865610a5fd7c175af15f10d3addac57262c5139a27c"
+    },
+    {
+      "id": "pref-b-quote-policy-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact house-style sentence requires double quotation marks. Identifying spoken words in a dialogue sample prepares applying that rule without inventing draft wording; choosing pen color is irrelevant.",
+      "pairHash": "b4cd52e486f8bbdee6b110e7e6a1512ece5952ca1c4bde528683a6db6c3fe101"
+    },
+    {
+      "id": "pref-b-quote-policy-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The draft's dialogue is unavailable. Obtaining a dialogue passage and inspecting marks targets punctuation compliance; measuring margins tests a different style requirement.",
+      "pairHash": "3dbb81df42a2b9dc4e26b4cff13b5d5bc6cc4c6b5984801d68dd319928f9133b"
+    },
+    {
+      "id": "pref-b-tense-annotation-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact note classifies will plant as a future-time phrase. Relating will to tomorrow checks that interpretation; rejected abstention discards the supplied classification.",
+      "pairHash": "0b02a5d5ff6b03dc5194aebb655449beff1372bc01d16f11f2e3a1da74d4a9c0"
+    },
+    {
+      "id": "pref-b-tense-annotation-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "An unavailable conclusion cannot be checked from one quoted sentence. Comparing its verb phrases and time words when available is useful; rejected evidence improperly treats local classification as conclusion evidence.",
+      "pairHash": "1b94b951e242a83a6dcc5b0fa99e4e73fae0ae1335d508f04dbd2e390b548709"
+    },
+    {
+      "id": "pref-b-heading-replacement-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact revision specifies Observations from the pond. Comparing its subject detail with Notes checks the change; rejected abstention overlooks a stated instruction.",
+      "pairHash": "a69b8f1edbdc58093e08265ce24383475509298ebdeca5939269701e18514bd6"
+    },
+    {
+      "id": "pref-b-heading-replacement-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The checklist does not certify the current manuscript heading. Direct page inspection targets the missing artifact; rejected evidence substitutes requested content for observed content.",
+      "pairHash": "17b730ebc2d44eb363c8ffc6a3804c524605c0d423f2a8f1732579912fa9e36f"
+    },
+    {
+      "id": "pref-b-shade-trial-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact plan identifies shade cover as the changed variable. Comparing cloth and uncovered tray setups checks that manipulation; rejected NEXT repeats the variable question.",
+      "pairHash": "849d294903dda17e6bdd9d5d274ca615a7c1b38ba30622b8c8910b832eec7856"
+    },
+    {
+      "id": "pref-b-shade-trial-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No leaf temperatures or cooling result exist in the source. Measuring both trays under trial conditions supplies comparable data; the rejection simply reasks whether cooling occurred.",
+      "pairHash": "7b47da2c3cbbcd6c5dabbfe1321ac669c5b349c32aaf365afa3a62b12a3174da"
+    },
+    {
+      "id": "pref-b-probe-correction-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact correction identifies water as the measured medium. Comparing air label and submerged probe tracks the correction; rejected NEXT repeats medium identification.",
+      "pairHash": "5dfab7560291a7b3c09e8d21be92cca7a5124da20ae544352666cf049827cfb0"
+    },
+    {
+      "id": "pref-b-probe-correction-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The correction supplies medium but no value. Conditional recovery of the original numerical reading and unit seeks the relevant observation; the rejection repeats the temperature request.",
+      "pairHash": "58c07023be9466b60e177265825487180458335a0baed4ca559148cb51a2501c"
+    },
+    {
+      "id": "pref-b-filter-plan-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact plan identifies water clarity as outcome. Choosing a common clarity assessment method prepares a fair comparison; rejected NEXT only reasks the outcome.",
+      "pairHash": "d9ad4869e5028f6376460cb9ed6c8fa145e1a9c57c7b5fd1938ccaf7125b522e"
+    },
+    {
+      "id": "pref-b-filter-plan-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Unfiltered samples provide no observed winner. Filtering equal samples and assessing both by the same clarity method is concrete and does not assume a winner; the rejection repeats the result request.",
+      "pairHash": "17deaed937e77a770a58bd3dc8a1708425acea204d94bd9193c985eecd89525d"
+    },
+    {
+      "id": "pref-b-rock-observation-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact field-note sentence reports layers across the exposed face. Sketching their recorded direction preserves the observation; rejected NEXT repeats structural identification.",
+      "pairHash": "357bbe90ddc4ce50bb10c3323e8e00d23494869e190e751eda351fba80d1df6d"
+    },
+    {
+      "id": "pref-b-rock-observation-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Visible layering does not establish constituent minerals. Obtaining analysis of a representative sample directly addresses composition; the rejected NEXT merely repeats the unknown composition.",
+      "pairHash": "b757715da89abf233cbabf0ceb7c95632caa380ce9dbc54846b67afe0892ff5f"
+    },
+    {
+      "id": "pref-b-magnet-purpose-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact plan tests which objects are attracted. Recording attraction separately by material when run is concrete and prospective; the rejection invents universal attraction of wooden chips in a completed trial.",
+      "pairHash": "6b70dc8cf1af6c97ff1aa75f38a059331e1c68a969f6287152eb3e618ba59f97"
+    },
+    {
+      "id": "pref-b-magnet-purpose-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No run or pin counts are supplied. Counting initial and recovered pins during an actual activity supplies the ratio inputs; ten out of twelve in the rejection are invented.",
+      "pairHash": "ca6a691e481a60696c6afc722c4c2d959f7b82324c5205776c364b9f37911b38"
+    },
+    {
+      "id": "pref-b-light-control-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact revised plan holds watering constant and varies lamp distance. Comparing designs identifies removal of the water confound; rejected NEXT contradicts the stated control.",
+      "pairHash": "1e110cdc48c87f355f95e8d421c7b60b693e544618eb38084082cfd1d758b69b"
+    },
+    {
+      "id": "pref-b-light-control-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No growth trial has started. Measuring each distance group's growth over the same interval supplies comparable outcomes; the rejected superior growth at twenty centimeters is fabricated.",
+      "pairHash": "19d2ba86271574632a2f5b3ea009bc9e9afd89f6acb1dcfec579f98fe8be7f91"
+    },
+    {
+      "id": "pref-b-evaporation-mass-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact instruction requests remaining water mass after an hour. Planning to account for empty-container mass prepares that measurement without inventing values; bench surface pattern is irrelevant.",
+      "pairHash": "e40752fd30c5cc88da51b1528cf1bb1495db64394dca14cd34ed59be8e92829f"
+    },
+    {
+      "id": "pref-b-evaporation-mass-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No final masses are available before the hour ends. Measuring remaining water after the interval and comparing with starting mass targets loss; counting containers does not provide evaporation data.",
+      "pairHash": "ed7b6d9f5900f9991c7e6f3f9248da65a3bced773cc419d4e49a46d6baed618d"
+    },
+    {
+      "id": "pref-b-sound-sensor-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact instruction fixes the speaker setting. Checking that setting before each reading maintains the named control; ranking tape brightness is unrelated.",
+      "pairHash": "2481ec584f642502f8ef30850f8bc8b89fad6054e35ea4df9700d9038fa536c5"
+    },
+    {
+      "id": "pref-b-sound-sensor-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No measured sound readings exist. Collecting sound level at all three marked distances with fixed speaker setting supplies the missing observations; cabinet shape cannot answer measured variation.",
+      "pairHash": "d8a9ac308d3516dae5e2cf7639fb1a59bc86a94f830543c50e8b0bc25f97f7d3"
+    },
+    {
+      "id": "pref-b-cooling-schedule-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact protocol specifies every two minutes for ten minutes. Laying out spaced observation times prepares that schedule; abstention in the rejection wrongly hides a known instruction.",
+      "pairHash": "faeec9ab6a8b65287596e17ac174aa7612cd099b96c23c40c0ea280baca871c0"
+    },
+    {
+      "id": "pref-b-cooling-schedule-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No starting or final temperatures are given. Measuring the first cup at zero and ten minutes supplies change inputs; quoting the schedule does not establish degrees cooled.",
+      "pairHash": "8c9c758aed4092dbae7e3133615199a9d64384839880497dc9bd0fca8ce71f3a"
+    },
+    {
+      "id": "pref-b-sample-identity-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact corrected label says collected rainwater. Comparing original and corrected labels tracks origin classification; rejected abstention ignores the explicit corrected identity.",
+      "pairHash": "a44601c7fe83f670a2d389f36191c0da6fcd96b99aaaf73af3b9a61ab752f26b"
+    },
+    {
+      "id": "pref-b-sample-identity-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Rainwater identity and immediate sealing do not establish concentration. Obtaining a dissolved-mineral measurement supplies the needed property; rejected evidence substitutes origin for chemistry.",
+      "pairHash": "6ecd6ee85f966990254e9f435d1ae9ad34770442d498c8c2badb64fac7c8bd80"
+    },
+    {
+      "id": "pref-b-market-charter-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact charter sentence authorizes Thursdays. Marking may operate analyzes permission without asserting the event occurred; rejected NEXT only repeats the authorized day.",
+      "pairHash": "98f8cfbd824ea84a88b74ac5ecc196eada357d30ed25fe47f448720117a51d74"
+    },
+    {
+      "id": "pref-b-market-charter-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No market occurrence or attendance is shown. A conditional surviving first-market record could supply a visitor count; the rejection asks the count without a means of obtaining it.",
+      "pairHash": "0abd77a24258ad7b3d21c9e85e26942297de2c76d1ab4b4e6db70236ec328445"
+    },
+    {
+      "id": "pref-b-bridge-dating-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact revised label gives year 419. Comparing 412 and 419 records the chronological change; rejected NEXT simply reasks the date.",
+      "pairHash": "feee36ce3232b21aecf901126c9aaa6ae41f53c5e4cff17ff8cb80838b8011c7"
+    },
+    {
+      "id": "pref-b-bridge-dating-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Neither label names builders. A conditional construction account is a relevant source for their names; the rejection merely repeats who rebuilt.",
+      "pairHash": "1006b7bea1b8b6311f84be951519f4799d9051d323b03c526568933368457afa"
+    },
+    {
+      "id": "pref-b-grain-decree-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact decree identifies households facing shortages as intended recipients. Identifying intended for preserves purpose status; rejected NEXT repeats group identification.",
+      "pairHash": "33bf2ccc3b703785fabaf898fdf4a07c8c92a4f41556c47020136858300176e7"
+    },
+    {
+      "id": "pref-b-grain-decree-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Intended recipients are not evidence of actual delivery. A conditional distribution list targets recorded household receipts; the rejection only reasks actual recipients.",
+      "pairHash": "ac6a7c4cbbbdf0f6708aeecbeb18cd2d7fe4d24673ad7aeb5ff306427d517634"
+    },
+    {
+      "id": "pref-b-merchant-letter-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact letter reports two days waiting. Attributing the duration to the writer preserves testimony status; the rejected NEXT merely repeats duration.",
+      "pairHash": "e9b57ab56aca30a574ffe3f6a6fd5c29e607b794306bb29122d9963bcb7a2fb4"
+    },
+    {
+      "id": "pref-b-merchant-letter-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The letter supplies a delay but no closure cause. Conditionally consulting an independent account for an explanation seeks missing causal evidence; the rejected NEXT repeats the cause request.",
+      "pairHash": "0667f61446b991a28a66968e8250d8225efe101cf0b63e45f43b161b8efc7a5e"
+    },
+    {
+      "id": "pref-b-canal-petition-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact petition predicts reduced delays. Identifying would preserves projected benefit; rejected NEXT invents completion and elimination of delays.",
+      "pairHash": "c19eca43465707db967ed9ecca99d5b37b14e18c6fc12cc52609181f11b9e20b"
+    },
+    {
+      "id": "pref-b-canal-petition-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Construction and actual shipping outcomes are absent. Conditional records checking occurrence and comparing delays provides relevant evidence; the rejection invents unanimous approval and mistakes approval for effect.",
+      "pairHash": "7e5452b2abcc89b52bae9090189847edd10fad5bac24d2cbf68ac004927588b0"
+    },
+    {
+      "id": "pref-b-fort-ownership-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact correction attributes construction to the Reed Assembly. Comparing attributions tracks the corrected builder; rejected NEXT falsely retains the Alder League as confirmed.",
+      "pairHash": "d6a55fdd6904ea9ff1e9e27e688fb94ccf908b550823d42fef4f54de579046df"
+    },
+    {
+      "id": "pref-b-fort-ownership-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "Construction attribution does not establish any transfer. The conditional source check explicitly asks whether transfer occurred before how; the rejection fabricates an Alder League siege.",
+      "pairHash": "a388da149e4af5212906c2291e16c40e906c4b46f7ac18bc0277bbfa63ca2d97"
+    },
+    {
+      "id": "pref-b-school-statute-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact statute assigns the opening duty to the town clerk. Connecting office to duty supports a responsibilities outline; shelf capacity is unrelated.",
+      "pairHash": "8c15dc4acc19d3e5156ba202b34c9effaafb7cb3fce6706cae6b7141a3556c73"
+    },
+    {
+      "id": "pref-b-school-statute-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A prescribed schedule supplies no first-week visitor count. Conditional consultation of the visitor register targets recorded attendance; handwriting comparison cannot supply it.",
+      "pairHash": "b39ab1eec1dbd352c6bef880d91de25b3ebe7d76ad757808cdcc01af2f52b729"
+    },
+    {
+      "id": "pref-b-coin-description-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact inventory identifies leaf and square on different faces. Recording each face separately preserves the observation; courtyard area is irrelevant.",
+      "pairHash": "828ddf36894ac26e0373bbfb950d9ffaea7a5a37fa56b7fb3f50357cfcf5bb3d"
+    },
+    {
+      "id": "pref-b-coin-description-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "No issuer or attributed comparison is given. Comparing both faces with attributed specimens if found is a relevant attribution step; copper-colored pot gardening does not identify an issuer.",
+      "pairHash": "3642143fc3606f42b50cdc4794b709ed830761445d2623cd3ab1738a367c224e"
+    },
+    {
+      "id": "pref-b-treaty-clause-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact clause specifies dawn. Identifying that time as an obligation separates text from compliance; rejected abstention wrongly withholds known permission.",
+      "pairHash": "a7af6381efa543d2f5bb94fee45399314888665098915c9b6d479fea95fec595"
+    },
+    {
+      "id": "pref-b-treaty-clause-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The treaty contains no evidence of consistent later conduct. Conditional accounts or enforcement reports recording allowed and denied passages address compliance; rejected evidence treats obligation as behavior.",
+      "pairHash": "fbb856226e85ff03ff89f6d86311da6c2194902f7b9ee3702b7077845b76b498"
+    },
+    {
+      "id": "pref-b-archive-relabel-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "The exact revised entry identifies a postponement request. Comparing request with receipt distinguishes appeal from payment evidence; rejected abstention misses the corrected document type.",
+      "pairHash": "2ca73e3dfffc163beaef4efe00a7cd8d68c05088c836f9931e76fcc549a75024"
+    },
+    {
+      "id": "pref-b-archive-relabel-insufficient",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "notes": "A request label provides no official decision. Conditional inspection of a surviving approval or denial targets disposition; rejected evidence mistakes a request classification for a granted postponement.",
+      "pairHash": "13608cdb265bf1f06d7a6a7ade86117aeeecac0d8f80b5911b5a40df8151e047"
+    }
+  ],
+  "approvedForTraining": true
+}

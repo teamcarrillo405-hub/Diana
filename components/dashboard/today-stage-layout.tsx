@@ -28,7 +28,7 @@ const PANELS: readonly PanelDefinition[] = [
   { id: "milestones", label: "Milestones" },
 ];
 
-export function TodayStageLayout({ children, imageSrc = "/images/today-future-academy-4k.webp", imageSizes = "(max-width: 760px) 100vw, 80vw", imageQuality = 75, artwork, railIndicator = false, labels, modes, title = "Today", onSelectionChange }: { children: ReactNode; imageSrc?: string; imageSizes?: string; imageQuality?: number; artwork?: ReactNode; railIndicator?: boolean; labels?: Partial<Record<TodayMode, string>>; modes?: readonly TodayMode[]; title?: string; onSelectionChange?: (mode: TodayMode) => void }) {
+export function TodayStageLayout({ children, imageSrc = "/images/today-future-academy-4k.webp", imageSizes = "(max-width: 760px) 100vw, 80vw", imageQuality = 75, artwork, railIndicator = false, labels, modes, title = "Today", railHeading, onSelectionChange }: { children: ReactNode; imageSrc?: string; imageSizes?: string; imageQuality?: number; artwork?: ReactNode; railIndicator?: boolean; labels?: Partial<Record<TodayMode, string>>; modes?: readonly TodayMode[]; title?: string; railHeading?: ReactNode; onSelectionChange?: (mode: TodayMode) => void }) {
   const definitions = useMemo(() => modes ? modes.map(id => PANELS.find(panel => panel.id === id)!) : PANELS, [modes]);
   const [activeId, setActiveId] = useState<TodayMode>("now");
   const [stageMode, setStageMode] = useState(false);
@@ -98,7 +98,7 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
 
   return <div className={styles.stageWorkspace} data-today-stage-workspace>
     <nav className={styles.stageRail} data-today-stage-rail aria-label={`${title} categories`} role="tablist" aria-orientation="vertical">
-      <p className={styles.railKicker}>{title}</p>
+      <p className={styles.railKicker}>{railHeading ?? title}</p>
       {railIndicator && <span data-today-rail-indicator aria-hidden="true" style={{ "--selected-index": definitions.findIndex(panel => panel.id === activeId) } as CSSProperties} />}
       {definitions.map((panel, index) => {
         const selected = activeId === panel.id;

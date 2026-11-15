@@ -9,10 +9,13 @@ import {
 } from "@/lib/worker-tier/worker-queue";
 
 const safetyMocks = vi.hoisted(() => ({
+  eligibility: vi.fn(), assistance: vi.fn(),
   runSafe: vi.fn(),
   log: vi.fn(),
   createAiServiceClient: vi.fn(),
 }));
+vi.mock("@/lib/assignment-help/study-buddy-eligibility", () => ({ studyBuddyEligibility: safetyMocks.eligibility }));
+vi.mock("@/lib/learning-engine/voice-candidate-assistance", () => ({ recordVoiceCandidateAssistance: safetyMocks.assistance }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
@@ -77,6 +80,8 @@ function mockSignedInSupabase({
 
 describe("Diana voice candidate route", () => {
   beforeEach(() => {
+    safetyMocks.eligibility.mockResolvedValue({ ok: true, classId: null });
+    safetyMocks.assistance.mockResolvedValue(null);
     vi.stubEnv("DIANA_OPENJARVIS_SIDECAR_ENABLED", "true");
     vi.stubEnv("DIANA_MANAGED_VOICE_WORKER_ENABLED", "true");
     safetyMocks.runSafe.mockImplementation(async (options: { invoke: () => Promise<unknown> }) => ({
@@ -85,6 +90,27 @@ describe("Diana voice candidate route", () => {
       reservationId: "reservation-voice",
     }));
     safetyMocks.log.mockResolvedValue(undefined);
+  });
+
+  it('rejects policy denial before a local or managed provider dispatch', async () => {
+    mockSignedInSupabase(); safetyMocks.eligibility.mockResolvedValue({ ok: false, status: 403, error: 'Tutoring is unavailable for this scope.' });
+    const response = await POST(jsonRequest({ transcript: 'Help me start.', source: 'typed' }));
+    expect(response.status).toBe(403); expect(enqueueWorkerJob).not.toHaveBeenCalled(); expect(safetyMocks.runSafe).not.toHaveBeenCalled();
+  });
+  it('does not enqueue or generate when assistance persistence rejects', async () => {
+    mockSignedInSupabase(); vi.stubEnv('DIANA_VOICE_QUEUE_MODE', 'managed_queue');
+    safetyMocks.assistance.mockRejectedValue(new Error('assistance_receipt_unavailable'));
+    const response = await POST(jsonRequest({ transcript: 'Help me start.', source: 'typed' }));
+    expect(response.status).toBe(503); expect(enqueueWorkerJob).not.toHaveBeenCalled(); expect(safetyMocks.runSafe).not.toHaveBeenCalled();
+  });
+  it('awaits assistance before managed enqueue', async () => {
+    mockSignedInSupabase(); vi.stubEnv('DIANA_VOICE_QUEUE_MODE', 'managed_queue');
+    let entered!: () => void, commit!: () => void;
+    const started = new Promise<void>(resolve => { entered = resolve; });
+    safetyMocks.assistance.mockImplementation(() => new Promise(resolve => { commit = () => resolve(null); entered(); }));
+    const pending = POST(jsonRequest({ transcript: 'Help me start.', source: 'typed' }));
+    await started; expect(enqueueWorkerJob).not.toHaveBeenCalled(); commit();
+    expect((await pending).status).toBe(202); expect(enqueueWorkerJob).toHaveBeenCalledOnce();
   });
 
   afterEach(() => {

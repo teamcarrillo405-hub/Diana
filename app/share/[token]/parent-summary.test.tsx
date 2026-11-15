@@ -35,7 +35,7 @@ describe("ParentSummaryView", () => {
     fireEvent.click(screen.getByRole("button", { name: "Print report" }));
 
     expect(print).toHaveBeenCalledOnce();
-    expect(screen.getByText("Shared progress report")).toBeInTheDocument();
+    expect(screen.getByText("Shared progress")).toBeInTheDocument();
     expect(screen.queryByText(/grade/iu)).not.toBeInTheDocument();
   });
 });

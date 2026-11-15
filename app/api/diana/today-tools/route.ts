@@ -3,13 +3,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { saveInboxItem } from "@/app/(app)/quick-add/actions";
-import { startFocusSession } from "@/app/(app)/assignments/[id]/focus-actions";
+import { startFocusSession } from "@/app/(app)/timer/actions";
 import { runOpenAIHomeworkText, openAIHomeworkModel } from "@/lib/ai/openai-homework-adapter";
 import { estimateTokenReservation, logInteraction, runSafeBudgetedAiCall } from "@/lib/ai/safety";
 import { isTodayVoiceToolName, type TodayConfirmedAction, type TodayVoiceToolName } from "@/lib/dashboard/today-voice";
 import { createAiServiceClient } from "@/lib/supabase/ai-service";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
+import { authorizeTodayAcademicScope, recordTodayAcademicAssistance, TodayAssistanceError } from "@/lib/learning-engine/today-assistance";
 
 const RequestInput = z.object({
   callId: z.string().trim().min(1).max(160),
@@ -149,24 +150,28 @@ function responsesText(payload: unknown): string {
   return (record.output ?? []).flatMap((item) => item.content ?? []).map((part) => typeof part.text === "string" ? part.text : "").filter(Boolean).join("\n");
 }
 
-async function searchCurrentInformation(ownerId: string, query: string) {
+async function searchCurrentInformation(ownerId: string, query: string, assignmentId: string | null,
+  callId: string, client: Awaited<ReturnType<typeof createClient>>) {
   const apiKey = process.env.OPENAI_API_KEY?.trim();
   const accounting = createAiServiceClient();
   if (!apiKey || !accounting) return { ok: false, message: "Current search is unavailable right now." };
   const model = openAIHomeworkModel("fast");
-  const idempotencyKey = crypto.randomUUID();
+  const systemPrompt = "Answer the student's current-information question briefly. Use web search and distinguish facts from uncertainty.";
+  const body = { model, tools: [{ type: "web_search" }], input: query, max_output_tokens: 450 };
+  const idempotencyKey = await recordTodayAcademicAssistance(client, { ownerId, assignmentId,
+    surface: 'today-search', callId, recipe: { body, systemPrompt } });
   const guarded = await runSafeBudgetedAiCall({
     ownerId,
     supabase: accounting,
     input: query,
-    systemPrompt: "Answer the student's current-information question briefly. Use web search and distinguish facts from uncertainty.",
+    systemPrompt,
     maxOutputTokens: 450,
     idempotencyKey,
     invoke: async () => {
       const response = await fetch("https://api.openai.com/v1/responses", {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model, tools: [{ type: "web_search" }], input: query, max_output_tokens: 450 }),
+        body: JSON.stringify(body),
       });
       if (!response.ok) throw new Error("today_search_unavailable");
       const payload = await response.json();
@@ -176,7 +181,7 @@ async function searchCurrentInformation(ownerId: string, query: string) {
     getOutput: (value) => value.text,
   });
   if (!guarded.ok) return { ok: false, message: guarded.message };
-  void logInteraction({ ownerId, assignmentId: null, feature: "agent_coach", model, correlationId: idempotencyKey, inputBytes: query.length, outputBytes: guarded.value.text.length, tokensUsed: 450 }, accounting);
+  void logInteraction({ ownerId, assignmentId, feature: "agent_coach", model, correlationId: idempotencyKey, inputBytes: query.length, outputBytes: guarded.value.text.length, tokensUsed: 450 }, accounting);
   return { ok: true, message: guarded.value.text || "I could not find a clear current answer." };
 }
 
@@ -280,30 +285,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, message: assignments[0] ? `Your Next Move is ${assignments[0].title}.` : "You are caught up.", data: { nextMove: assignments[0] ?? null, assignments } });
     }
     if (name === "search_current_information") {
+      const assignmentId = await authorizeTodayAcademicScope(supabase, user.id, args);
       const query = clippedString(args.query, 300);
-      return NextResponse.json(await searchCurrentInformation(user.id, query));
+      return NextResponse.json(await searchCurrentInformation(user.id, query, assignmentId, parsed.data.callId, supabase),
+        { headers: { 'Cache-Control': 'no-store' } });
     }
     if (name === "answer_complex_question") {
+      const assignmentId = await authorizeTodayAcademicScope(supabase, user.id, args);
       const question = clippedString(args.question, 1200);
       const accounting = createAiServiceClient();
       if (!accounting) return NextResponse.json({ ok: false, message: "Diana's reasoning service is unavailable right now." }, { status: 503 });
+      const messages = [
+        { role: 'system' as const, content: "Answer clearly for a high-school student. Use short sections, explain assumptions, and do not pretend uncertain facts are current." },
+        { role: 'user' as const, content: question },
+      ];
+      const idempotencyKey = await recordTodayAcademicAssistance(supabase, { ownerId: user.id, assignmentId,
+        surface: 'today-complex', callId: parsed.data.callId,
+        recipe: { task: 'assignment_review', quality: 'complex', model: openAIHomeworkModel('complex'), maxOutputTokens: 700, messages } });
       const result = await runOpenAIHomeworkText({
         ownerId: user.id,
-        assignmentId: null,
+        assignmentId,
         accounting,
         task: "assignment_review",
         quality: "complex",
         maxOutputTokens: 700,
-        idempotencyKey: parsed.data.callId,
-        messages: [
-          { role: "system", content: "Answer clearly for a high-school student. Use short sections, explain assumptions, and do not pretend uncertain facts are current." },
-          { role: "user", content: question },
-        ],
+        idempotencyKey,
+        messages,
       });
-      return NextResponse.json(result.ok ? { ok: true, message: result.value } : { ok: false, message: result.error });
+      return NextResponse.json(result.ok ? { ok: true, message: result.value } : { ok: false, message: result.error },
+        { headers: { 'Cache-Control': 'no-store' } });
     }
     return NextResponse.json({ ok: false, message: "That Diana tool is not available." }, { status: 400 });
-  } catch {
+  } catch (error) {
+    if (error instanceof TodayAssistanceError) return NextResponse.json({ ok: false, message: error.message }, { status: error.status });
     return NextResponse.json({ ok: false, message: "Diana could not complete that request. Try again." }, { status: 503 });
   }
 }

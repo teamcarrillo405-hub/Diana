@@ -12,7 +12,7 @@ import {
   finishFocusSession,
   reconcileFocusSession,
   startFocusSession,
-} from "@/app/(app)/assignments/[id]/focus-actions";
+} from "@/app/(app)/timer/actions";
 import {
   assignmentFocusDurationMinutes,
   assignmentFocusSessionMetadata,
@@ -186,7 +186,7 @@ describe("assignment focus timer actions", () => {
     });
     expect(supabase.from).toHaveBeenCalledWith("assignment_time_log");
     expect(openLog.insert).not.toHaveBeenCalled();
-    expect(mocks.revalidatePath).toHaveBeenCalledWith("/assignments");
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/timer");
   });
 
   it("validates and persists the exact adaptive target for a new session", async () => {

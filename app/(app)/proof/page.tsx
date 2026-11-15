@@ -1,17 +1,12 @@
-import {
-  ArrowRight,
-  CheckCircle2,
-  FolderOpen,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import { SectionTabs } from "@/components/student-shell/section-tabs";
+import { SelectionCollection, type CollectionItem } from "@/components/student-shell/selection-collection";
+import styles from "@/components/student-shell/collection.module.css";
+import support from "@/components/student-shell/support.module.css";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { DianaWordmark } from "@/components/screen-design/primitives";
-import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
-import { SourceMedia } from "@/components/screen-design/source-media";
-import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
-import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
 import { loadProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,122 +43,6 @@ type ShowcasePortfolioRow = {
   portfolio_items: ShowcaseItemRow[] | null;
 };
 
-const PROOF_STYLES = `
-  .diana-app-shell:has(.sd-proof-screen) .agent-fab-anchor,
-  .app-command-frame:has(.sd-proof-screen) .diana-mobile-command { display: none !important; }
-  .app-command-frame:has(.sd-proof-screen) { padding: 0 !important; }
-  .diana-app:has(.sd-proof-screen) nextjs-portal { display: none !important; }
-  .diana-app:has(.sd-proof-screen) .skip-link { transition: none; }
-  .diana-app:has(.sd-proof-screen) .skip-link:focus { transform: translateY(0) !important; }
-  .sd-proof-screen { min-height: max(100dvh, 852px); font-family: var(--font-body); background: #0b1428; }
-  .sd-proof-screen a { color: inherit; }
-  .sd-proof-scroll { min-height: calc(852px - 88px); padding: 30px 22px 26px; background: radial-gradient(circle at 88% 6%, rgb(255 121 218 / .11), transparent 30%), #0b1428; }
-  .sd-proof-content { width: 100%; margin: 0 auto; }
-  .sd-proof-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-  .sd-proof-lock { display: inline-flex; align-items: center; gap: 7px; color: #94a3b8; font-size: 10px; font-weight: 900; letter-spacing: .15em; text-transform: uppercase; }
-  .sd-proof-title { margin: 29px 0 0; font-family: var(--font-display); font-size: 39px; font-style: italic; font-weight: 950; letter-spacing: -.055em; line-height: .91; text-transform: uppercase; }
-  .sd-proof-title span { color: #ff79da; }
-  .sd-proof-section { margin-top: 25px; }
-  .sd-proof-section-title { margin: 0 0 11px; color: #74c0ff; font-size: 10px; font-weight: 950; letter-spacing: .18em; text-transform: uppercase; }
-  .sd-proof-card { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; align-items: center; margin-bottom: 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; padding: 14px; color: #0f172a; text-decoration: none; }
-  .sd-proof-card-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 8px; background: rgb(41 208 255 / .12); color: #0369a1; }
-  .sd-proof-card h2 { margin: 0; color: #0f172a; font-family: var(--font-display); font-size: 15px; font-style: italic; font-weight: 900; letter-spacing: -.02em; text-transform: uppercase; }
-  .sd-proof-card p { margin: 4px 0 0; color: #64748b; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-  .sd-proof-empty { border: 1px dashed #94a3b8; border-radius: 8px; background: #fff; padding: 22px; color: #0f172a; }
-  .sd-proof-empty h2 { margin: 0 0 7px; color: #0f172a; font-family: var(--font-display); font-size: 18px; font-style: italic; text-transform: uppercase; }
-  .sd-proof-empty p { margin: 0 0 16px; color: #475569; font-size: 12px; line-height: 1.55; }
-  .sd-proof-empty a { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #29d0ff; border-radius: 8px; background: #29d0ff; padding: 9px 12px; color: #0f172a; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; }
-  .sd-showcase-week { margin-top: 16px; }
-  .sd-showcase-week:first-of-type { margin-top: 0; }
-  .sd-showcase-week h3 { margin: 0 0 8px; color: #94a3b8; font-size: 9px; font-weight: 900; letter-spacing: .14em; text-transform: uppercase; }
-  .sd-showcase-item { display: grid; grid-template-columns: 42px minmax(0, 1fr) auto; gap: 12px; align-items: center; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; padding: 14px; color: #0f172a; text-decoration: none; }
-  .sd-showcase-item + .sd-showcase-item { margin-top: 9px; }
-  .sd-showcase-item-icon { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 8px; background: rgb(255 121 218 / .12); color: #be185d; }
-  .sd-showcase-item h4 { overflow: hidden; margin: 0; color: #0f172a; font-family: var(--font-display); font-size: 15px; font-style: italic; font-weight: 900; letter-spacing: -.02em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
-  .sd-showcase-item p { overflow: hidden; margin: 4px 0 0; color: #64748b; font-size: 10px; font-weight: 800; letter-spacing: .06em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
-  .sd-showcase-item > svg { color: #475569; }
-  .sd-milestone-screen { display: flex; min-height: max(100dvh, 852px); flex-direction: column; overflow: hidden; font-family: var(--font-body); background: radial-gradient(circle at 50% 38%, rgb(255 121 218 / .13), transparent 34%), #0b1428; }
-  .sd-milestone-confetti { pointer-events: none; position: absolute; inset: 0; overflow: hidden; }
-  .sd-milestone-confetti i { position: absolute; width: 5px; height: 13px; border-radius: 4px; background: #74c0ff; transform: rotate(21deg); animation: sd-confetti-float 5s ease-in-out infinite; }
-  .sd-milestone-confetti i:nth-child(2n) { background: #ff79da; transform: rotate(-31deg); }
-  .sd-milestone-confetti i:nth-child(3n) { background: #2dd4bf; }
-  .sd-milestone-confetti i:nth-child(1) { top: 8%; left: 9%; } .sd-milestone-confetti i:nth-child(2) { top: 13%; right: 12%; animation-delay: -.7s; }
-  .sd-milestone-confetti i:nth-child(3) { top: 31%; left: 5%; animation-delay: -1.8s; } .sd-milestone-confetti i:nth-child(4) { top: 35%; right: 7%; animation-delay: -2.5s; }
-  .sd-milestone-confetti i:nth-child(5) { top: 57%; left: 12%; animation-delay: -3.2s; } .sd-milestone-confetti i:nth-child(6) { top: 61%; right: 10%; animation-delay: -4s; }
-  @keyframes sd-confetti-float { 0%,100% { translate: 0 -5px; opacity: .45; } 50% { translate: 0 8px; opacity: 1; } }
-  .sd-milestone-main { position: relative; z-index: 1; display: flex; flex: 1; flex-direction: column; align-items: center; padding: 24px 25px 18px; text-align: center; }
-  .sd-milestone-main .sd-source-wordmark { height: 18px; align-self: center; }
-  .sd-milestone-kicker { margin: 31px 0 6px; color: #74c0ff; font-size: 11px; font-weight: 950; letter-spacing: .32em; text-transform: uppercase; }
-  .sd-milestone-main h1 { max-width: 330px; margin: 0; font-family: var(--font-display); font-size: 35px; font-style: italic; font-weight: 950; letter-spacing: -.05em; line-height: .95; text-transform: uppercase; }
-  .sd-milestone-main h1 span { display: block; color: #ff79da; }
-  .sd-milestone-ring { width: 206px; height: 206px; margin: 16px auto 9px; object-fit: contain; filter: drop-shadow(0 0 24px rgb(116 192 255 / .18)); }
-  .sd-milestone-label { margin: 0 0 10px; color: #ff79da; font-size: 9px; font-weight: 950; letter-spacing: .2em; text-transform: uppercase; }
-  .sd-milestone-facts { display: grid; width: 100%; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .sd-milestone-fact { min-width: 0; border: 1px solid rgb(255 255 255 / .11); border-radius: 14px; background: #162136; padding: 13px 12px; text-align: left; }
-  .sd-milestone-fact strong { display: block; overflow: hidden; color: #f8fafc; font-family: var(--font-display); font-size: 13px; font-style: italic; font-weight: 900; line-height: 1.15; text-overflow: ellipsis; text-transform: uppercase; }
-  .sd-milestone-fact span { display: block; margin-top: 5px; color: #71809c; font-size: 8px; font-weight: 900; letter-spacing: .09em; text-transform: uppercase; }
-  .sd-milestone-note { margin: 14px 12px 0; color: #94a3b8; font-size: 11px; font-style: italic; line-height: 1.45; }
-  .sd-milestone-footer { position: relative; z-index: 2; display: grid; grid-template-columns: 1fr auto; gap: 10px; border-top: 1px solid rgb(255 255 255 / .07); background: rgb(8 15 31 / .96); padding: 15px 20px max(18px, env(safe-area-inset-bottom)); }
-  .sd-milestone-share, .sd-milestone-continue { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 8px; border-radius: 15px; font-size: 12px; font-style: italic; font-weight: 950; text-decoration: none; text-transform: uppercase; }
-  .sd-milestone-share { background: linear-gradient(120deg, #74c0ff, #ff79da); color: #0b1428 !important; }
-  .sd-milestone-continue { border: 1px solid rgb(255 255 255 / .15); padding-inline: 17px; color: #f8fafc !important; }
-  @media (prefers-reduced-motion: reduce) { .sd-milestone-confetti i { animation: none; } }
-  @media (min-width: 700px) { .sd-proof-screen, .sd-milestone-screen { min-height: max(100dvh, 852px); } }
-  @media (min-width: 1100px) {
-    .sd-proof-screen .sd-student-desktop-nav { position: relative; }
-    .sd-proof-screen { min-height: 100dvh; }
-    .sd-proof-scroll { min-height: calc(100dvh - 58px); padding: 40px 48px 72px; }
-    .sd-proof-content { max-width: 960px; }
-    .sd-proof-header { display: none; }
-    .sd-proof-title { margin: 0; font-size: 56px; }
-    .sd-proof-section { margin-top: 30px; }
-  }
-
-  /* Current student visual system. This intentionally replaces the retired navy, neon, and condensed type treatment above. */
-  .sd-proof-screen:not(.sd-milestone-screen) { background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-scroll { background:transparent!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card h2,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty h2,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-week h3,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item h4 { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:620!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title { text-transform:uppercase!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title span,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-section-title { color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:16px!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-week,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46))!important; color:#182126!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card p,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty p,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item p { color:#53615c!important; font-size:14px!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card-icon,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item-icon { border-radius:8px!important; background:rgb(232 245 107 / .55)!important; color:#182126!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty a { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-weight:600!important; text-transform:none!important; }
-  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-artifact-card { background:#fff!important; }
-  .sd-proof-screen.sd-milestone-screen { min-height:100dvh!important; background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
-  .sd-milestone-confetti i { width:6px!important; height:14px!important; border-radius:3px!important; background:#8622ed!important; box-shadow:0 4px 10px rgb(134 34 237 / .24)!important; }
-  .sd-milestone-confetti i:nth-child(2n) { background:#e8f56b!important; }
-  .sd-milestone-confetti i:nth-child(3n) { background:#20d899!important; }
-  .sd-milestone-main { width:100%!important; align-items:center!important; padding:28px 20px 24px!important; background:linear-gradient(180deg,rgb(244 247 243 / .86),rgb(220 226 222 / .8))!important; }
-  .sd-milestone-main .sd-source-wordmark { height:22px!important; margin-bottom:10px!important; }
-  .sd-milestone-kicker { margin:22px 0 8px!important; color:#681ce0!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:12px!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-milestone-main h1 { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:clamp(32px,9vw,44px)!important; font-style:normal!important; font-weight:700!important; letter-spacing:0!important; line-height:1.05!important; text-transform:none!important; }
-  .sd-milestone-main h1 span { color:#8622ed!important; }
-  .sd-milestone-ring { filter:drop-shadow(0 14px 18px rgb(134 34 237 / .22))!important; }
-  .sd-milestone-label { margin-bottom:12px!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:13px!important; font-weight:550!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-milestone-facts { width:min(100%,560px)!important; gap:10px!important; }
-  .sd-milestone-fact { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .74),rgb(238 244 238 / .5))!important; padding:15px!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .78),0 10px 24px rgb(24 33 38 / .08)!important; backdrop-filter:blur(20px)!important; }
-  .sd-milestone-fact strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-milestone-fact span { color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:11px!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-milestone-note { max-width:42ch!important; margin:16px 12px 0!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; line-height:1.5!important; }
-  .sd-milestone-footer { grid-template-columns:minmax(0,1fr) auto!important; gap:10px!important; border-top:1px solid rgb(84 98 92 / .18)!important; background:rgb(235 240 236 / .9)!important; padding:14px 20px max(18px,env(safe-area-inset-bottom))!important; backdrop-filter:blur(20px)!important; }
-  .sd-milestone-share,.sd-milestone-continue { min-height:46px!important; border-radius:8px!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-milestone-share { border:1px solid #681ce0!important; background:#8622ed!important; color:#fff!important; box-shadow:0 8px 16px rgb(134 34 237 / .22)!important; }
-  .sd-milestone-continue { border:1px solid rgb(84 98 92 / .36)!important; background:rgb(255 255 255 / .62)!important; color:#182126!important; }
-  @media (min-width:1100px) {
-    .sd-proof-screen.sd-milestone-screen { background:linear-gradient(rgb(214 218 214 / .62),rgb(214 218 214 / .72)),url("/images/record-gamer-gallery-v2.png") center/cover fixed!important; }
-    .sd-milestone-main { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 166px)!important; margin:22px auto 0!important; border:7px solid #fff!important; border-radius:30px!important; padding:clamp(32px,4vw,56px)!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .76),0 18px 42px rgb(24 33 38 / .12)!important; }
-    .sd-milestone-footer { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; margin:0 auto 24px!important; border:1px solid rgb(255 255 255 / .76)!important; border-top:0!important; border-radius:0 0 22px 22px!important; padding:16px clamp(22px,3vw,42px)!important; }
-    .sd-proof-screen.sd-milestone-screen > .sd-student-bottom-nav { display:none!important; }
-  }
-  @media (min-width:1100px) {
-    .sd-proof-screen:not(.sd-milestone-screen) { background:linear-gradient(rgb(225 230 228 / .16),rgb(216 222 220 / .24)),#d9dcda url("/images/record-gamer-gallery-v2.png") center/cover fixed!important; }
-    .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-scroll { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 118px)!important; margin:22px auto 24px!important; border:7px solid #fff; border-radius:30px!important; padding:clamp(30px,3.2vw,48px) clamp(20px,3.2vw,54px) clamp(44px,5vw,78px)!important; }
-    .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-content { width:min(100%,920px)!important; max-width:920px!important; }
-    .sd-proof-screen:not(.sd-milestone-screen) > .sd-student-bottom-nav { display:none!important; }
-  }
-`;
-
 export default async function ProofPage({
   searchParams,
 }: {
@@ -176,7 +55,7 @@ export default async function ProofPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: completed }, { data: authorship }, { data: artifacts }, { data: showcasePortfolios }] =
+  const [{ data: completed, error: completedError }, { data: authorship }, { data: artifacts, error: artifactsError }, { data: showcasePortfolios, error: showcaseError }] =
     await Promise.all([
       supabase
         .from("task_signals")
@@ -204,6 +83,7 @@ export default async function ProofPage({
         .order("created_at", { ascending: false }),
     ]);
 
+  const unavailable = completedError || artifactsError || showcaseError;
   const completedRows = (completed ?? []) as unknown as CompletedProofRow[];
   const authorshipRows = (authorship ?? []) as AuthorshipRow[];
   const artifactRows = (artifacts ?? []) as ArtifactRow[];
@@ -223,181 +103,24 @@ export default async function ProofPage({
     authorship: authorshipRows,
   });
 
-  if (milestone) {
-    return (
-      <ScreenDesignViewport className="sd-proof-screen sd-milestone-screen diana-current-page">
-        <style>{PROOF_STYLES}</style>
-        <div className="sd-milestone-confetti" aria-hidden="true">
-          <i /><i /><i /><i /><i /><i />
-        </div>
-        <main className="sd-milestone-main">
-          <DianaWordmark tone="dark" />
-          <p className="sd-milestone-kicker">Mastered</p>
-          <h1>
-            Learning <span>milestone</span>
-          </h1>
-          <SourceMedia
-            assetId="academic-championship-ring"
-            width={256}
-            height={256}
-            alt="Academic milestone ring"
-            className="sd-milestone-ring"
-            priority
-          />
-          <p className="sd-milestone-label">Record updated</p>
-          <div className="sd-milestone-facts">
-            <div className="sd-milestone-fact">
-              <strong>{milestone.title}</strong>
-              <span>{formatKind(milestone.kind)}</span>
-            </div>
-            <div className="sd-milestone-fact">
-              <strong>
-                {milestone.hasAuthorshipReceipt ? "Authorship saved" : "Completion saved"}
-              </strong>
-              <span>{formatDate(milestone.occurredAt)}</span>
-            </div>
-          </div>
-          <p className="sd-milestone-note">
-            This completed work is now part of your private record.
-          </p>
-        </main>
-        <footer className="sd-milestone-footer">
-          <Link href="/sharing" className="sd-milestone-share">
-            Share privately <ShieldCheck size={16} aria-hidden="true" />
-          </Link>
-          <Link href="/proof" className="sd-milestone-continue" aria-label="Continue">
-            Continue <ArrowRight size={16} aria-hidden="true" />
-          </Link>
-        </footer>
-        <StudentBottomNav />
-      </ScreenDesignViewport>
-    );
-  }
-
   const profile = await loadProfile();
-
-  return (
-    <ScreenDesignViewport className="sd-proof-screen diana-current-page">
-      <style>{PROOF_STYLES}</style>
-      <StudentDesktopNav
-        active="More"
-        displayName={profile?.display_name}
-        photoUrl={profile?.photo_url}
-        photoOffsetX={profile?.photo_offset_x}
-        photoOffsetY={profile?.photo_offset_y}
-      />
-      <main className="sd-proof-scroll">
-        <div className="sd-proof-content">
-          <header className="sd-proof-header">
-          <DianaWordmark />
-          <span className="sd-proof-lock">
-            <ShieldCheck size={14} aria-hidden="true" /> Private
-          </span>
-          </header>
-          <h1 className="sd-proof-title">RECORD</h1>
-          <section className="sd-proof-section" aria-labelledby="proof-completed-title">
-          <p id="proof-completed-title" className="sd-proof-section-title">
-            Completed work
-          </p>
-          {completedRows.length === 0 ? (
-            <div className="sd-proof-empty">
-              <h2>No completed work yet.</h2>
-              <p>Complete work to add it to your record.</p>
-              <Link href="/assignments">
-                Open work <ArrowRight size={14} aria-hidden="true" />
-              </Link>
-            </div>
-          ) : (
-            completedRows.map((row) => {
-              const assignment = Array.isArray(row.assignments)
-                ? row.assignments[0]
-                : row.assignments;
-              if (!assignment?.id || !assignment.title) return null;
-              return (
-                <Link
-                  href={`/assignments/${assignment.id}`}
-                  className="sd-proof-card"
-                  key={String(row.id)}
-                >
-                  <span className="sd-proof-card-icon">
-                    <CheckCircle2 size={20} aria-hidden="true" />
-                  </span>
-                  <span>
-                    <h2>{assignment.title}</h2>
-                    <p>{formatDate(row.occurred_at)}</p>
-                  </span>
-                  <ArrowRight size={16} aria-hidden="true" />
-                </Link>
-              );
-            })
-          )}
-        </section>
-
-        {artifactRows.length > 0 ? (
-          <section className="sd-proof-section" aria-labelledby="proof-artifacts-title">
-            <p id="proof-artifacts-title" className="sd-proof-section-title">
-              Study artifacts
-            </p>
-            {artifactRows.map((artifact) => (
-              <Link
-                href={`/study-artifacts/${artifact.id}`}
-                className="sd-proof-card sd-proof-artifact-card"
-                key={artifact.id}
-              >
-                <span className="sd-proof-card-icon">
-                  <FolderOpen size={20} aria-hidden="true" />
-                </span>
-                <span>
-                  <h2>{artifact.title}</h2>
-                  <p>
-                    {formatKind(artifact.artifact_type)} · {artifact.source_anchor_count} source
-                    {artifact.source_anchor_count === 1 ? "" : "s"}
-                  </p>
-                </span>
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            ))}
-          </section>
-        ) : null}
-
-          <section id="showcase" className="sd-proof-section" aria-labelledby="showcase-title">
-          <p id="showcase-title" className="sd-proof-section-title">
-            Showcase
-          </p>
-          {showcaseWeeks.length === 0 ? (
-            <div className="sd-proof-empty">
-              <h2>No showcase work yet.</h2>
-              <p>Add a project or work sample to build your showcase.</p>
-            </div>
-          ) : (
-            showcaseWeeks.map((week) => (
-              <div className="sd-showcase-week" key={week.key}>
-                <h3>{week.label}</h3>
-                {week.items.map((item) => (
-                  <Link
-                    className="sd-showcase-item"
-                    href="#showcase"
-                    key={item.id}
-                  >
-                    <span className="sd-showcase-item-icon">
-                      <FolderOpen size={20} aria-hidden="true" />
-                    </span>
-                    <span>
-                      <h4>{item.title}</h4>
-                      <p>{item.portfolioTitle}</p>
-                    </span>
-                    <ArrowRight size={16} aria-hidden="true" />
-                  </Link>
-                ))}
-              </div>
-            ))
-          )}
-        </section>
-        </div>
-      </main>
-      <StudentBottomNav />
-    </ScreenDesignViewport>
-  );
+  const workItems: CollectionItem[] = completedRows.flatMap(row => {
+    const assignment = Array.isArray(row.assignments) ? row.assignments[0] : row.assignments;
+    if (!assignment?.id || !assignment.title) return [];
+    return [{ id: String(row.id), title: assignment.title, meta: `${formatKind(assignment.kind ?? "Assignment")} · ${formatDate(row.occurred_at)}`, content: <div className={styles.actions}><Link className={styles.primary} href={`/assignments/${assignment.id}`}>Open work</Link></div> }];
+  });
+  return <StudentShell active="More" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
+    <main id="main-content" className={styles.main}>
+      <header className={styles.heading}><h1>Record</h1><Link href="/sharing">Sharing</Link></header>
+      {milestone ? <p role="status" className={styles.notice}>Completed: {milestone.title}. Your work is saved.</p> : null}
+      {unavailable ? <p role="status">Some records could not load. <Link href="/proof">Try again</Link></p> : null}
+      <SectionTabs id="record" label="Record sections" sections={[
+        {id:"work",label:"Completed work",content:<SelectionCollection label="Completed work" items={workItems} empty={<><h2>No completed work yet</h2><Link href="/assignments">Open Work</Link></>} />},
+        {id:"practice",label:"Saved practice",content:<div className={support.results}>{artifactRows.map(artifact=><Link key={artifact.id} href={`/study-artifacts/${artifact.id}`}><span><strong>{artifact.title}</strong><small>{artifact.artifact_type === "study_guide" ? "Guide" : "Quiz"} · {formatDate(artifact.created_at)}</small></span><ArrowRight size={18} aria-hidden="true" /></Link>)}<Link href="/study?view=saved">All saved practice<ArrowRight size={18} aria-hidden="true" /></Link></div>},
+        {id:"showcase",label:"Showcase",content:<div className={support.results}>{showcaseWeeks.length ? showcaseWeeks.map(week=><section key={week.key}><h2>{week.label}</h2>{week.items.map(item=><details key={item.id}><summary>{item.title}</summary><p>{item.portfolioTitle}</p><p>{item.reflection_text || "No reflection saved."}</p></details>)}</section>) : <p>No showcase work saved yet.</p>}</div>},
+      ]} />
+    </main>
+  </StudentShell>;
 }
 
 function formatDate(value: string): string {

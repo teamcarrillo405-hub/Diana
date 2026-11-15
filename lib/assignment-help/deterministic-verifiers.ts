@@ -310,6 +310,38 @@ export function countSignificantFigures(value: string): number | null {
   return quantity?.significantFigures ?? null;
 }
 
+/** For conversion tasks that explicitly request a destination unit. */
+export function verifyQuantityInExpectedUnit(input: QuantityVerificationInput): QuantityVerification {
+  const result = verifyUnitsAndSignificantFigures(input);
+  const expected = parseQuantity(input.expected);
+  const actual = parseQuantity(input.actual);
+  if (!expected || !actual) return result;
+  const expectedUnit = unitDefinitionFor(expected.unitText);
+  const actualUnit = unitDefinitionFor(actual.unitText);
+  if (!expectedUnit || (!actualUnit && actual.unitText)) {
+    return {
+      ...result,
+      verifierResult: verifierResult(
+        "units_and_significant_figures", "inconclusive",
+        "This conversion needs a supported single unit.", [],
+        ["Compound units, custom units and offset temperatures are outside this check."],
+      ),
+    };
+  }
+  if (actualUnit && expectedUnit.canonical !== actualUnit.canonical) {
+    return {
+      ...result,
+      verifierResult: verifierResult(
+        "units_and_significant_figures", "not_passed",
+        `Use the requested unit: ${expectedUnit.canonical}.`,
+        [`Requested unit: ${expectedUnit.canonical}; observed unit: ${actualUnit.canonical}.`, ...result.verifierResult.observations],
+        result.verifierResult.limitations,
+      ),
+    };
+  }
+  return result;
+}
+
 export function verifyChemicalEquationBalance(
   equation: string,
 ): ChemicalEquationVerification {
@@ -673,6 +705,13 @@ function parseChemicalTerm(
     if (!partCounts || !mergeCounts(counts, partCounts, multiplier)) return null;
   }
   return counts.size > 0 ? { coefficient, counts } : null;
+}
+
+/** Bounded formula-only access for explicitly specified charged species. */
+export function chemicalSpeciesAtoms(formula: string): Record<string, number> | null {
+  if (!formula || formula.length > 120 || !/^[A-Za-z0-9()[\]]+$/u.test(formula)) return null;
+  const counts = parseFormula(formula);
+  return counts ? countsRecord(counts) : null;
 }
 
 function parseFormula(formula: string): ElementCounts | null {

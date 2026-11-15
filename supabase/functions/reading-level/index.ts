@@ -8,7 +8,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const TARGETS = ["simpler", "more_detail"] as const;
@@ -77,7 +77,7 @@ Deno.serve(withStudentSecurity("reading-level", async (req: Request) => {
       `Accommodations: ${arrayText(profile?.accommodations)}`,
       `Text:\n${text}`,
     ].join("\n");
-    const modelResult = await runOpenAIHomeworkAdapter({
+    const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "reading-level" }, {
       task: "reading_level",
       ownerId,
       supabase,

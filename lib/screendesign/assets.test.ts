@@ -64,8 +64,8 @@ const localFileFor = (localPath: string): string =>
 
 describe("ScreenDesign asset integrity", () => {
   it("resolves every typed asset id to frozen local-only rendering metadata", () => {
-    expect(SCREEN_DESIGN_ASSET_IDS).toHaveLength(16);
-    expect(new Set(SCREEN_DESIGN_ASSET_IDS).size).toBe(16);
+    expect(SCREEN_DESIGN_ASSET_IDS).toHaveLength(29);
+    expect(new Set(SCREEN_DESIGN_ASSET_IDS).size).toBe(29);
 
     for (const id of SCREEN_DESIGN_ASSET_IDS) {
       const asset = getScreenDesignAsset(id);
@@ -79,7 +79,7 @@ describe("ScreenDesign asset integrity", () => {
     }
   });
 
-  it("keeps dashboard layers and brand art distinct", () => {
+  it("keeps dashboard layers, brand art, tutors, and community avatars distinct", () => {
     const requiredIds = [
       "dashboard-stadium-background",
       "dashboard-athlete-cutout",
@@ -87,6 +87,12 @@ describe("ScreenDesign asset integrity", () => {
       "diana-logo",
       "diana-logo-tight",
       "diana-mascot",
+      "tutor-math-expert",
+      "tutor-science-expert",
+      "community-sarah-avatar",
+      "community-felix-avatar",
+      "community-leo-avatar",
+      "community-buster-avatar",
     ] as const;
 
     const required = requiredIds.map((id) => getScreenDesignAsset(id));
@@ -112,12 +118,12 @@ describe("ScreenDesign asset integrity", () => {
     const manifest = await loadManifest();
     expect(manifest).toMatchObject({
       schemaVersion: 1,
-      assetCount: 16,
-      screenDesignAssetCount: 15,
-      avatarAssetCount: 0,
+      assetCount: 29,
+      screenDesignAssetCount: 24,
+      avatarAssetCount: 4,
       derivedAssetCount: 1,
     });
-    expect(manifest.assets).toHaveLength(16);
+    expect(manifest.assets).toHaveLength(29);
 
     for (const entry of manifest.assets) {
       const buffer = await readFile(localFileFor(entry.localPath));

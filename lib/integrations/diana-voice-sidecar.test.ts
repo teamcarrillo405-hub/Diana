@@ -11,6 +11,17 @@ import {
 } from "./diana-voice-sidecar";
 
 describe("Diana voice sidecar candidate", () => {
+  it("enforces the managed worker output reservation without changing default callers", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ choices: [{ message: { content: "What do you know?" } }] }) });
+    const args = { input: { transcript: "Help me begin.", source: "typed" as const }, fetchImpl };
+    await createDianaVoiceCandidate({ ...args, maxOutputTokens: 500 });
+    expect(JSON.parse(fetchImpl.mock.calls[0][1].body).max_tokens).toBe(500);
+    await createDianaVoiceCandidate(args);
+    expect(JSON.parse(fetchImpl.mock.calls[1][1].body)).not.toHaveProperty('max_tokens');
+    await expect(createDianaVoiceCandidate({ ...args, maxOutputTokens: 501 })).rejects.toThrow();
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
   it("is off unless the server flag is explicitly enabled", () => {
     expect(isDianaVoiceSidecarEnabled(testEnv({}))).toBe(false);
     expect(isDianaVoiceSidecarEnabled(testEnv({ DIANA_OPENJARVIS_SIDECAR_ENABLED: "true" }))).toBe(true);

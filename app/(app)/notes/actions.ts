@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { assignmentHelpDispatchKey } from "@/lib/learning-engine/assignment-assistance-dispatch";
 import {
   hasOwnerStoragePrefix,
   ownerStorageKey,
@@ -17,6 +18,7 @@ const CreateInput = z.object({
 });
 
 const SynthesisInput = z.object({
+  requestId: z.string().uuid().optional(),
   query: z.string().min(3).max(4_000),
   classId: z.string().uuid().nullable().optional(),
   generalOnly: z.boolean().optional(),
@@ -75,13 +77,14 @@ export async function synthesizeNotes(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
-  const { data, error } = await supabase.functions.invoke("note-synthesis", {
-    body: {
+  const body = {
       ownerId: user.id,
       query: parsed.data.query,
       classId: parsed.data.classId ?? null,
       generalOnly: parsed.data.generalOnly === true,
-    },
+  };
+  const { data, error } = await supabase.functions.invoke("note-synthesis", {
+    body: { ...body, idempotencyKey: assignmentHelpDispatchKey("note-synthesis", user.id, body, parsed.data.requestId) },
   });
 
   if (error || !data?.summary) {

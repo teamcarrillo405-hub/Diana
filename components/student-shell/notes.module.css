@@ -1,0 +1,43 @@
+.root.root.root { color-scheme:dark; }
+.filters { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:18px 0 26px; }
+.root.root.root :is(input,select,textarea) { border:1px solid #bfd6c45c; padding:12px; border-radius:3px; background:#193025; color:#ebf3ed; min-height:44px; font:400 14px/1.7 var(--font-lexend),sans-serif; box-shadow:none; }
+.filters input { flex:1; min-width:180px; }
+.filters a { font-size:12px; }
+.root.root.root button:not([role="tab"]) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; border:1px solid #bfd6c45c; border-radius:3px; padding:10px 16px; color:#e3efe5; background:#254337; box-shadow:none; }
+.root.root.root button[role="tab"] { border:0; }
+.root.root.root button:disabled { opacity:.5; }
+.excerpt { font-size:14px; line-height:1.8; color:#c4d7c9; white-space:pre-wrap; }
+.chat { max-width:850px; padding:28px 0; }
+.root.root.root :global(.sd-notes-chat) { display:grid; gap:18px; font-size:13px; }
+.root.root.root :global(.sd-notes-chat-head) h2 { display:flex; gap:8px; align-items:center; margin-bottom:10px; font:700 26px/1.2 var(--font-saira-condensed),sans-serif; text-transform:uppercase; }
+.root.root.root :global(.sd-notes-chat-head) p { color:#b9cdbf; font-size:11px; }
+.root.root.root :global(.sd-notes-chat-history) { display:grid; gap:12px; max-height:440px; overflow:auto; }
+.root.root.root :global(.sd-notes-chat-turn) { padding:14px; background:#11261b99; line-height:1.8; white-space:pre-wrap; }
+.root.root.root :global(.sd-notes-chat-turn--student) { background:#48325c88; }
+.root.root.root :global(.sd-notes-chat-composer) { padding:12px; background:#f1f4e9; color:#203426; border-radius:3px; display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end; }
+.root.root.root :global(.sd-notes-chat-composer) textarea { width:100%; min-height:74px; border:0; background:transparent; color:#203426; resize:vertical; padding:0; }
+.root.root.root :global(.sd-notes-chat-composer) button { padding:0; width:42px; min-width:42px; height:42px; color:#fff; background:#7951d5; }
+.root.root.root :global(.sd-note-detail-main) { width:min(100%,1400px); padding:24px 36px 60px; margin:auto; }
+.root.root.root :global(.sd-note-detail-back) { display:inline-flex; gap:8px; align-items:center; min-height:44px; font-size:12px; color:#c8d9ce; margin-bottom:24px; }
+.root.root.root :global(.sd-note-detail-grid) { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:36px; align-items:start; }
+.root.root.root :global(.sd-note-detail-grid) > * { min-width:0; }
+.root.root.root :global(.sd-note-detail-editor) { border:0; padding:0; background:transparent; box-shadow:none; }
+.root.root.root :global(.sd-note-detail-kicker) { font-size:11px; color:#bcd1c2; margin-bottom:10px; }
+.root.root.root :global(.sd-note-detail-editor) h1 { font:700 38px/1.2 var(--font-saira-condensed),sans-serif; text-transform:uppercase; margin:0 0 24px; }
+.root.root.root :global(.sd-note-detail-editor) textarea { width:100%; min-height:390px; resize:vertical; padding:24px; border:0; background:#f4f4e8; color:#27392c; font-size:16px; line-height:1.8; }
+.root.root.root :global(.sd-note-detail-save-row) { display:flex; align-items:center; gap:16px; margin-top:16px; font-size:12px; }
+.root.root.root :global(.sd-note-detail-save-row) button { background:#7951d5; border:0; color:#fff; }
+.root.root.root :global(.sd-note-detail-rail) { display:grid; gap:26px; background:transparent; border:0; padding:0; box-shadow:none; }
+.root.root.root :global(.sd-note-detail-rail) label { display:grid; gap:10px; font-size:12px; }
+.root.root.root :global(.sd-note-detail-tools) { grid-column:1 / -1; border-top:1px solid #bfd6c43d; padding:20px 0; }
+.root.root.root :global(.sd-note-detail-tools) > summary { display:flex; justify-content:space-between; align-items:center; min-height:44px; cursor:pointer; font-size:14px; }
+.root.root.root :global(.sd-note-detail-tools-inner) { display:grid; gap:28px; margin-top:24px; max-width:950px; }
+.root.root.root :global(.sd-note-detail-tools-inner) > section { background:transparent; box-shadow:none; border:0; padding:0; }
+.root.root.root :global(.sd-note-detail-tools-inner) h2 { font:700 25px/1.2 var(--font-saira-condensed),sans-serif; margin-bottom:14px; }
+.root.root.root :global(.notes-reading-surface) { padding:24px; border-radius:3px; background:#f4f4e8; color:#27392c; }
+.root.root.root :global(.notes-tag-list),.root.root.root :global(.notes-tag-add) { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin:14px 0; }
+.root.root.root :global(.notes-tag-chip) { font-size:12px; min-height:36px; }
+.root.root.root :global(.notes-tags-head) { display:flex; justify-content:space-between; gap:20px; }
+.root.root.root :global(.notes-delete-panel) { border-top:1px solid #bfd6c43d; padding-top:20px; }
+.root.root.root :global(.bg-danger) { background:#be965a; color:#221b13; }
+@media(max-width:850px) { .root.root.root :global(.sd-note-detail-grid) { grid-template-columns:1fr; } .root.root.root :global(.sd-note-detail-main) { padding:20px 18px 40px; } .root.root.root :global(.sd-note-detail-editor) h1 { font-size:30px; } .root.root.root :is(input,textarea,select) { font-size:16px; } }

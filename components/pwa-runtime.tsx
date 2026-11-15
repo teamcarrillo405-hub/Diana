@@ -1,17 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { transitionAssignment } from "@/app/(app)/assignments/[id]/actions";
-import { rateCard } from "@/app/(app)/study-artifacts/flashcard-actions";
-import { createNote, saveNote } from "@/app/(app)/notes/actions";
+import {createClient} from "@/lib/supabase/client";
 import {
   getOfflineAssignmentStatuses,
   getOfflineFlashcardReviews,
   getOfflineNoteSaves,
   registerOfflineSync,
-  removeOfflineAssignmentStatus,
   removeOfflineFlashcardReview,
   removeOfflineNoteSave,
+  offlineOwner,
 } from "@/lib/offline/store";
 
 const REMINDER_KEY = "diana_pwa_reminders";
@@ -22,51 +20,43 @@ export function PwaRuntime() {
 
   const drain = useCallback(async () => {
     if (draining.current) return;
+    if (!navigator.onLine) return;
     draining.current = true;
     try {
-      for (const item of await getOfflineNoteSaves()) {
-        if (item.noteId) {
-          const result = await saveNote({
-            id: item.noteId,
-            title: item.title,
-            bodyText: item.bodyText,
-            classId: item.classId,
-            source: item.source,
-          });
-          if (result.ok) await removeOfflineNoteSave(item.tempId);
-        } else {
-          const created = await createNote({
-            title: item.title,
-            assignmentId: item.assignmentId,
-            classId: item.classId,
-            source: item.source,
-          });
-          if (created.ok) {
-            const saved = await saveNote({
-              id: created.id,
-              title: item.title,
-              bodyText: item.bodyText,
-              classId: item.classId,
-              source: item.source,
-            });
-            if (saved.ok) await removeOfflineNoteSave(item.tempId);
-          }
+      const ownerId = await offlineOwner();
+      if (!ownerId) return;
+      const sync = async (payload: unknown): Promise<boolean> => {
+        if (await offlineOwner() !== ownerId) return false;
+        const response = await fetch("/api/learning/sync", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }).catch(() => null);
+        const result = response?.ok ? await response.json().catch(() => null) : null;
+        if (!response?.ok) window.dispatchEvent(new CustomEvent("diana-offline-sync-status", {
+          detail: { message: response?.status === 409 ? "Saved work needs a review before syncing." : "Sync is paused. Your work is saved on this device." },
+        }));
+        return result?.status === "applied";
+      };
+      for (const item of await getOfflineNoteSaves(ownerId)) {
+        if (await sync({ ownerId, kind: "note", eventId: "note:" + item.tempId + ":" + item.updatedAt, item })) {
+          await removeOfflineNoteSave(item.tempId, ownerId, item.updatedAt);
         }
       }
 
-      for (const item of await getOfflineAssignmentStatuses()) {
-        const result = await transitionAssignment({
-          id: item.assignmentId,
-          from: item.from as never,
-          to: item.to as never,
-        });
-        if (!("error" in result)) await removeOfflineAssignmentStatus(item.tempId);
+      if ((await getOfflineAssignmentStatuses(ownerId)).length) {
+        window.dispatchEvent(new CustomEvent("diana-offline-sync-status", {
+          detail: { message: "Open your assignment to confirm its saved status change." },
+        }));
       }
 
-      for (const item of await getOfflineFlashcardReviews()) {
-        const result = await rateCard({ id: item.cardId, rating: item.rating });
-        if (result.ok) await removeOfflineFlashcardReview(item.tempId);
+      const reviews = (await getOfflineFlashcardReviews(ownerId)).sort((a,b) => a.queuedAt.localeCompare(b.queuedAt));
+      for (const item of reviews) {
+        if (await sync({ ownerId, kind: "review", eventId: "review:" + item.tempId, item })) {
+          await removeOfflineFlashcardReview(item.tempId, ownerId);
+        }
       }
+    } catch {
+      // Preserve queued data when storage, authentication or network is unavailable.
     } finally {
       draining.current = false;
     }
@@ -81,10 +71,11 @@ export function PwaRuntime() {
     // work. In dev, actively unregister any existing worker and drop its caches.
     if (process.env.NODE_ENV !== "production") {
       void navigator.serviceWorker.getRegistrations().then((regs) => {
-        regs.forEach((reg) => void reg.unregister());
+        regs.filter((reg) => [reg.active,reg.waiting,reg.installing].some((worker)=>worker?.scriptURL.endsWith("/sw.js")))
+          .forEach((reg) => void reg.unregister());
       });
       if ("caches" in window) {
-        void caches.keys().then((keys) => keys.forEach((key) => void caches.delete(key)));
+        void caches.keys().then((keys) => keys.filter((key) => key.startsWith("diana-pwa-")).forEach((key) => void caches.delete(key)));
       }
       return;
     }
@@ -106,7 +97,11 @@ export function PwaRuntime() {
       void showReminderIfEnabled();
     }
     window.addEventListener("online", onOnline);
-    return () => window.removeEventListener("online", onOnline);
+    function onSyncRequest(){void drain();}
+    window.addEventListener("diana-request-offline-sync",onSyncRequest);
+    window.addEventListener("focus",onSyncRequest);
+    const {data:{subscription}}=createClient().auth.onAuthStateChange(()=>{setTimeout(onSyncRequest,0);});
+    return () => {window.removeEventListener("online", onOnline);window.removeEventListener("diana-request-offline-sync",onSyncRequest);window.removeEventListener("focus",onSyncRequest);subscription.unsubscribe();};
   }, [drain]);
 
   useEffect(() => {

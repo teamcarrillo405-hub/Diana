@@ -58,7 +58,7 @@ describe("SignupPage age eligibility", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.readDraft.mockReturnValue(null);
-    mocks.signUp.mockResolvedValue({ error: null });
+    mocks.signUp.mockResolvedValue({ data: { user: { id: "new-student" }, session: null }, error: null });
     mocks.createClient.mockReturnValue({ auth: { signUp: mocks.signUp } });
   });
 
@@ -76,6 +76,8 @@ describe("SignupPage age eligibility", () => {
     expect(metadata).not.toHaveProperty("teen_guardian_permission_attested");
     expect(metadata).not.toHaveProperty("teen_guardian_permission_policy_version");
     expect(metadata).not.toHaveProperty("teen_guardian_permission_source");
+    expect(await screen.findByRole("heading", { name: "Check your email" })).toBeInTheDocument();
+    expect(mocks.push).not.toHaveBeenCalled();
   });
 
   it("rejects under-13 signup without offering the teen attestation", async () => {
@@ -111,5 +113,15 @@ describe("SignupPage age eligibility", () => {
     expect(metadata).not.toHaveProperty("teen_guardian_permission_attested");
     expect(metadata).not.toHaveProperty("teen_guardian_permission_policy_version");
     expect(metadata).not.toHaveProperty("teen_guardian_permission_source");
+    expect(await screen.findByRole("heading", { name: "Check your email" })).toBeInTheDocument();
+  });
+
+  it("opens the Lobby when signup returns an authenticated session", async () => {
+    mocks.signUp.mockResolvedValue({ data: { user: { id: "new-student" }, session: { access_token: "test-session" } }, error: null });
+    render(<SignupPage />);
+    fillSignup(dateOfBirthYearsAgo(18));
+    submitSignup();
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith("/dashboard"));
+    expect(mocks.refresh).toHaveBeenCalled();
   });
 });

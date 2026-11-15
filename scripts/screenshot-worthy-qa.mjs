@@ -16,7 +16,7 @@ const routes = [
   { path: "/assignments", name: "assignments", auth: true, selector: ".diana-page" },
   { path: "/proof", name: "proof", auth: true, selector: ".diana-page" },
   { path: "/me", name: "me", auth: true, selector: ".diana-page" },
-  { path: "/notes/new?mode=voice", name: "note-record", auth: true, selector: ".diana-page" },
+  { path: "/voice", name: "voice", auth: true, selector: ".future-card, .diana-page" },
 ];
 
 const viewports = [

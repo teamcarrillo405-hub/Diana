@@ -1,0 +1,1626 @@
+{
+  "schemaVersion": 1,
+  "reviewerId": "independent-agent-revision-a-content-audit",
+  "independentReviewer": true,
+  "educatorReviewed": false,
+  "status": "passed",
+  "sourcePath": "scripts/learning/qwen3_grounding_revision_a.py",
+  "sourceSha256": "3ef13b60d66a33ee669d30939cbc4966eb3e195f6c519c224475089f8a7db447",
+  "canonicalRowsSha256": "0a5195c55b963e4943e94822fae2863d146e3b097ef122c4c892b6989fe8fa67",
+  "datasetSha256": "0a5195c55b963e4943e94822fae2863d146e3b097ef122c4c892b6989fe8fa67",
+  "canonicalSerialization": "json.dumps(rows, ensure_ascii=False, sort_keys=True, separators=(',', ':')).encode('utf-8')",
+  "totalRows": 300,
+  "reviewedRows": 300,
+  "reviewScope": "Individual review of all 300 original revision A training rows, including each question's answerability, complete exact source evidence or insufficiency, and a single useful grounded next question.",
+  "reviewMethod": "Read every context and all three tasks in five batches of 20 contexts. Independently assessed each question against its complete source and next question. Reported 11 context-level findings to the author without editing training data. Re-read all 11 corrected contexts (33 rows), then checked evidence/anchor/question structure across all final rows. Row notes record individual semantic judgments, not generated test verdicts.",
+  "isolation": "Did not read development or final evaluation modules, model outputs, other review results, or revision B training data.",
+  "limitations": [
+    "Sources are fictional; review assesses internal consistency and question-specific grounding, not historical or empirical truth.",
+    "Grades 6-8 labels are author estimates and remain unvalidated.",
+    "Reviewer is an independent AI agent, not a human educator. Pedagogical effectiveness and grade suitability require educator review.",
+    "Passing this content audit does not establish trained-model behavior or downstream acceptance."
+  ],
+  "resolvedFindings": [
+    {
+      "context": "circle-string",
+      "rows": [
+        3
+      ],
+      "issue": "NEXT repeated requested length and assumed wrapping occurred.",
+      "resolution": "NEXT requests a record establishing whether wrapping occurred and, conditionally, its recorded length."
+    },
+    {
+      "context": "river-metaphor",
+      "rows": [
+        2
+      ],
+      "issue": "NEXT repeated requested river length.",
+      "resolution": "NEXT requests map scale and marked endpoints."
+    },
+    {
+      "context": "bread-sequence",
+      "rows": [
+        2
+      ],
+      "issue": "Learner asked for immediate precedence, exceeding stated temporal ordering.",
+      "resolution": "Learner now asks for the action stated to precede unlocking."
+    },
+    {
+      "context": "precise-wording",
+      "rows": [
+        3
+      ],
+      "issue": "NEXT repeated requested suitcase mass.",
+      "resolution": "NEXT requests a recorded scale reading and unit."
+    },
+    {
+      "context": "register-request",
+      "rows": [
+        2
+      ],
+      "issue": "NEXT repeated requested reservation date.",
+      "resolution": "NEXT requests schedule and room availability information."
+    },
+    {
+      "context": "audience-note",
+      "rows": [
+        2
+      ],
+      "issue": "NEXT repeated requested reporting location.",
+      "resolution": "NEXT requests coordinator instructions confirming location."
+    },
+    {
+      "context": "ship-cargo",
+      "rows": [
+        1,
+        2,
+        3
+      ],
+      "issue": "Wool and cotton could coexist, so original records were not necessarily conflicting.",
+      "resolution": "Both source records explicitly describe their claimed textile as the only textile cargo; all three rows rechecked."
+    },
+    {
+      "context": "pottery-fragment",
+      "rows": [
+        3
+      ],
+      "issue": "NEXT called the fragment unmarked although source only lacked mark information.",
+      "resolution": "NEXT refers to the fragment described in the excavation note."
+    },
+    {
+      "context": "migration-register",
+      "rows": [
+        2
+      ],
+      "issue": "Learner and NEXT introduced family relationships not present in the register.",
+      "resolution": "Both now refer to newcomers."
+    },
+    {
+      "context": "soil-drainage",
+      "rows": [
+        3
+      ],
+      "issue": "NEXT repeated requested sample masses.",
+      "resolution": "NEXT requests comparable balance readings with container mass excluded."
+    },
+    {
+      "context": "fair-ramp",
+      "rows": [
+        3
+      ],
+      "issue": "NEXT repeated requested travel distance.",
+      "resolution": "NEXT links marked heights and distances in a results table before selecting the lowest release."
+    }
+  ],
+  "unresolvedFindings": [],
+  "mechanicalVerification": {
+    "rowCount": 300,
+    "uniqueIds": 300,
+    "exactEvidenceOrInsufficient": true,
+    "oneQuestionPerNext": true,
+    "anchorContainedInNext": true,
+    "failures": []
+  },
+  "caseReviews": [
+    {
+      "id": "train-r2a-ramp-measurement-1",
+      "passed": true,
+      "notes": "Conflicting ramp lengths are explicitly quoted; NEXT uses shared measurement scope."
+    },
+    {
+      "id": "train-r2a-ramp-measurement-2",
+      "passed": true,
+      "notes": "Missing dates directly answer why recency cannot resolve the conflict; NEXT asks for dates."
+    },
+    {
+      "id": "train-r2a-ramp-measurement-3",
+      "passed": true,
+      "notes": "Neither ramp length is verified; NEXT requests a new measurement or correction."
+    },
+    {
+      "id": "train-r2a-bus-tally-1",
+      "passed": true,
+      "notes": "Entry-count definition directly explains repeat visits; NEXT distinguishes unique buses."
+    },
+    {
+      "id": "train-r2a-bus-tally-2",
+      "passed": true,
+      "notes": "18 and 21 are unresolved counts for the same interval; NEXT requests arrival evidence."
+    },
+    {
+      "id": "train-r2a-bus-tally-3",
+      "passed": true,
+      "notes": "Distinct bus identifiers are absent; NEXT identifies identifiers and entry times needed."
+    },
+    {
+      "id": "train-r2a-tile-area-1",
+      "passed": true,
+      "notes": "The source explicitly supplies incompatible areas for the same floor; NEXT preserves attribution."
+    },
+    {
+      "id": "train-r2a-tile-area-2",
+      "passed": true,
+      "notes": "Spare tiles are separately recorded; NEXT applies that distinction to area comparison."
+    },
+    {
+      "id": "train-r2a-tile-area-3",
+      "passed": true,
+      "notes": "Accurate floor area cannot be chosen; NEXT requests dimensions or correction."
+    },
+    {
+      "id": "train-r2a-spinner-trials-1",
+      "passed": true,
+      "notes": "Missing trial marks explain inability to verify counts; NEXT requests the individual outcomes."
+    },
+    {
+      "id": "train-r2a-spinner-trials-2",
+      "passed": true,
+      "notes": "Blue counts conflict, so no experimental fraction is verified; NEXT resolves numerator first."
+    },
+    {
+      "id": "train-r2a-spinner-trials-3",
+      "passed": true,
+      "notes": "Sector angles and blue allocation are absent; NEXT identifies the needed diagram information."
+    },
+    {
+      "id": "train-r2a-garden-scale-1",
+      "passed": true,
+      "notes": "Scale is explicitly one centimeter to two meters; NEXT applies it to the sides."
+    },
+    {
+      "id": "train-r2a-garden-scale-2",
+      "passed": true,
+      "notes": "Both drawn side lengths are quoted; NEXT organizes labels before conversion."
+    },
+    {
+      "id": "train-r2a-garden-scale-3",
+      "passed": true,
+      "notes": "Seeds per area are absent; NEXT connects planting density with ground area."
+    },
+    {
+      "id": "train-r2a-museum-median-1",
+      "passed": true,
+      "notes": "Median definition is explicit; NEXT orders the supplied counts."
+    },
+    {
+      "id": "train-r2a-museum-median-2",
+      "passed": true,
+      "notes": "40 is identifiable as busiest, but revenue is absent; NEXT requests ticket/revenue information."
+    },
+    {
+      "id": "train-r2a-museum-median-3",
+      "passed": true,
+      "notes": "Prior-week data are absent; NEXT requests comparable prior counts."
+    },
+    {
+      "id": "train-r2a-recipe-ratio-1",
+      "passed": true,
+      "notes": "Two white cups and three blue cups directly support the ratio; NEXT models parts."
+    },
+    {
+      "id": "train-r2a-recipe-ratio-2",
+      "passed": true,
+      "notes": "Preserving the ratio is the stated invariant; NEXT applies a common scale factor."
+    },
+    {
+      "id": "train-r2a-recipe-ratio-3",
+      "passed": true,
+      "notes": "Coverage is missing; NEXT asks for a coverage rate rather than inventing area."
+    },
+    {
+      "id": "train-r2a-elevator-graph-1",
+      "passed": true,
+      "notes": "Elapsed seconds are explicitly horizontal; NEXT applies the axis to the given interval."
+    },
+    {
+      "id": "train-r2a-elevator-graph-2",
+      "passed": true,
+      "notes": "Passenger counts are absent; NEXT specifies a time-matched passenger record."
+    },
+    {
+      "id": "train-r2a-elevator-graph-3",
+      "passed": true,
+      "notes": "Button events are absent; NEXT asks for destination-event evidence."
+    },
+    {
+      "id": "train-r2a-coupon-order-1",
+      "passed": true,
+      "notes": "Coupon applies to item price before delivery; NEXT identifies that base."
+    },
+    {
+      "id": "train-r2a-coupon-order-2",
+      "passed": true,
+      "notes": "Item and delivery amounts are directly quoted; NEXT keeps them separate."
+    },
+    {
+      "id": "train-r2a-coupon-order-3",
+      "passed": true,
+      "notes": "Tax details are missing; NEXT requests rate and taxable-charge rules."
+    },
+    {
+      "id": "train-r2a-negative-temperature-1",
+      "passed": true,
+      "notes": "Morning and afternoon temperatures are explicit; NEXT uses a number line."
+    },
+    {
+      "id": "train-r2a-negative-temperature-2",
+      "passed": true,
+      "notes": "Nighttime readings are absent; NEXT requests overnight observations."
+    },
+    {
+      "id": "train-r2a-negative-temperature-3",
+      "passed": true,
+      "notes": "Endpoint temperatures cannot locate the zero-crossing time; NEXT requests timed intermediate readings."
+    },
+    {
+      "id": "train-r2a-triangle-test-1",
+      "passed": true,
+      "notes": "Triangle inequality is explicit; NEXT tests the shortest-side sum."
+    },
+    {
+      "id": "train-r2a-triangle-test-2",
+      "passed": true,
+      "notes": "All three strip lengths are explicit; NEXT organizes them before applying the rule."
+    },
+    {
+      "id": "train-r2a-triangle-test-3",
+      "passed": true,
+      "notes": "No measured angle is available; NEXT requests a measurement or assembly observation."
+    },
+    {
+      "id": "train-r2a-data-sampling-1",
+      "passed": true,
+      "notes": "Vegetarian-line-only recruitment directly supports sampling concern; NEXT examines representation."
+    },
+    {
+      "id": "train-r2a-data-sampling-2",
+      "passed": true,
+      "notes": "Whole-school preference is not established; NEXT requests broader sampling."
+    },
+    {
+      "id": "train-r2a-data-sampling-3",
+      "passed": true,
+      "notes": "No soup counts or response totals exist; NEXT asks for numerator and denominator."
+    },
+    {
+      "id": "train-r2a-fraction-bench-1",
+      "passed": true,
+      "notes": "Denominator definition is explicit; NEXT applies eight equal sections."
+    },
+    {
+      "id": "train-r2a-fraction-bench-2",
+      "passed": true,
+      "notes": "Five of eight green sections directly support painted portion; NEXT models the fraction."
+    },
+    {
+      "id": "train-r2a-fraction-bench-3",
+      "passed": true,
+      "notes": "Physical length is absent; NEXT identifies total length needed for conversion."
+    },
+    {
+      "id": "train-r2a-rounding-weight-1",
+      "passed": true,
+      "notes": "Upward rounding direction is explicit; NEXT applies it to 2.3 kilograms."
+    },
+    {
+      "id": "train-r2a-rounding-weight-2",
+      "passed": true,
+      "notes": "Billing schedule is absent; NEXT requests price information after rounding."
+    },
+    {
+      "id": "train-r2a-rounding-weight-3",
+      "passed": true,
+      "notes": "Arrival time is absent; NEXT identifies service and delivery estimate."
+    },
+    {
+      "id": "train-r2a-pattern-machine-1",
+      "passed": true,
+      "notes": "Multiply then subtract is explicitly ordered; NEXT applies steps to four."
+    },
+    {
+      "id": "train-r2a-pattern-machine-2",
+      "passed": true,
+      "notes": "Inputs one, four and six are directly quoted; NEXT organizes their working."
+    },
+    {
+      "id": "train-r2a-pattern-machine-3",
+      "passed": true,
+      "notes": "Other-machine rule has no supporting data; NEXT asks for rule or example pairs."
+    },
+    {
+      "id": "train-r2a-circle-string-1",
+      "passed": true,
+      "notes": "Radius definition is explicit; NEXT marks center and edge."
+    },
+    {
+      "id": "train-r2a-circle-string-2",
+      "passed": true,
+      "notes": "No measured radius exists; NEXT specifies center-to-edge measurement."
+    },
+    {
+      "id": "train-r2a-circle-string-3",
+      "passed": true,
+      "notes": "No string-use length is recorded; revised NEXT checks whether wrapping occurred and requests recorded length."
+    },
+    {
+      "id": "train-r2a-train-unit-rate-1",
+      "passed": true,
+      "notes": "90 kilometers and 1.5 hours directly supply rate inputs; NEXT aligns units."
+    },
+    {
+      "id": "train-r2a-train-unit-rate-2",
+      "passed": true,
+      "notes": "Entire-interval scope is explicit; NEXT applies it to duration selection."
+    },
+    {
+      "id": "train-r2a-train-unit-rate-3",
+      "passed": true,
+      "notes": "Total distance and time cannot establish maximum speed; NEXT requests detailed speed readings."
+    },
+    {
+      "id": "train-r2a-net-folding-1",
+      "passed": true,
+      "notes": "Net definition is explicit; NEXT applies edge matching."
+    },
+    {
+      "id": "train-r2a-net-folding-2",
+      "passed": true,
+      "notes": "Pattern is omitted, so square-face count is unknown; NEXT requests a view or face list."
+    },
+    {
+      "id": "train-r2a-net-folding-3",
+      "passed": true,
+      "notes": "Pattern structure is absent; NEXT requests faces and edge connections."
+    },
+    {
+      "id": "train-r2a-coordinate-treasure-1",
+      "passed": true,
+      "notes": "Horizontal-first convention is explicit; NEXT traces that order."
+    },
+    {
+      "id": "train-r2a-coordinate-treasure-2",
+      "passed": true,
+      "notes": "Ordered pair is explicit; NEXT interprets the negative vertical coordinate."
+    },
+    {
+      "id": "train-r2a-coordinate-treasure-3",
+      "passed": true,
+      "notes": "Start and scale are absent; NEXT asks for both before planning distance."
+    },
+    {
+      "id": "train-r2a-boxplot-reading-1",
+      "passed": true,
+      "notes": "IQR definition is quoted completely; NEXT applies first and third quartiles."
+    },
+    {
+      "id": "train-r2a-boxplot-reading-2",
+      "passed": true,
+      "notes": "Both plots and quartiles are absent; NEXT requests quartiles for both groups."
+    },
+    {
+      "id": "train-r2a-boxplot-reading-3",
+      "passed": true,
+      "notes": "Median is absent; NEXT requests the relevant plot position or label."
+    },
+    {
+      "id": "train-r2a-station-witnesses-1",
+      "passed": true,
+      "notes": "Red and gray descriptions explicitly conflict; NEXT retains witness attribution."
+    },
+    {
+      "id": "train-r2a-station-witnesses-2",
+      "passed": true,
+      "notes": "Ticket-window location is shared; NEXT contrasts agreement with disagreement."
+    },
+    {
+      "id": "train-r2a-station-witnesses-3",
+      "passed": true,
+      "notes": "Actual color is unresolved; NEXT requests independent evidence."
+    },
+    {
+      "id": "train-r2a-trail-signs-1",
+      "passed": true,
+      "notes": "Both sources direct visitors to trailhead information; NEXT investigates there."
+    },
+    {
+      "id": "train-r2a-trail-signs-2",
+      "passed": true,
+      "notes": "Open and closed conflict for same date; NEXT requests a timed authoritative update."
+    },
+    {
+      "id": "train-r2a-trail-signs-3",
+      "passed": true,
+      "notes": "Publication hours are absent; NEXT asks for time evidence."
+    },
+    {
+      "id": "train-r2a-rehearsal-accounts-1",
+      "passed": true,
+      "notes": "Song and lighting-check openings conflict; NEXT compares attributed claims."
+    },
+    {
+      "id": "train-r2a-rehearsal-accounts-2",
+      "passed": true,
+      "notes": "Power interruption appears in both accounts; NEXT treats it as shared evidence."
+    },
+    {
+      "id": "train-r2a-rehearsal-accounts-3",
+      "passed": true,
+      "notes": "First activity cannot be verified; NEXT seeks evidence resolving the two claims."
+    },
+    {
+      "id": "train-r2a-ferry-memory-1",
+      "passed": true,
+      "notes": "Vessel and dock match in both sources; NEXT checks common trip identity."
+    },
+    {
+      "id": "train-r2a-ferry-memory-2",
+      "passed": true,
+      "notes": "Dawn and after-sunset claims conflict; NEXT requests sailing evidence."
+    },
+    {
+      "id": "train-r2a-ferry-memory-3",
+      "passed": true,
+      "notes": "Writer age is absent; NEXT requests biographical evidence tied to time."
+    },
+    {
+      "id": "train-r2a-orchard-decision-1",
+      "passed": true,
+      "notes": "Tying trees is explicit wind response; NEXT invites grounded priority inference."
+    },
+    {
+      "id": "train-r2a-orchard-decision-2",
+      "passed": true,
+      "notes": "Bringing sketch inside is explicit request; NEXT considers action sequence."
+    },
+    {
+      "id": "train-r2a-orchard-decision-3",
+      "passed": true,
+      "notes": "Scene ends before aftermath; NEXT asks for later orchard observations."
+    },
+    {
+      "id": "train-r2a-market-flyer-1",
+      "passed": true,
+      "notes": "Invitation to free exchange is explicit; NEXT uses it to identify purpose."
+    },
+    {
+      "id": "train-r2a-market-flyer-2",
+      "passed": true,
+      "notes": "No attendance results exist; NEXT asks for the relevant event record."
+    },
+    {
+      "id": "train-r2a-market-flyer-3",
+      "passed": true,
+      "notes": "No inspection results exist; NEXT asks for inspection findings."
+    },
+    {
+      "id": "train-r2a-quiet-library-1",
+      "passed": true,
+      "notes": "Stool choice is explicit behavioral evidence; NEXT treats consideration as inference with sleeping child."
+    },
+    {
+      "id": "train-r2a-quiet-library-2",
+      "passed": true,
+      "notes": "Sleeping child is directly described; NEXT explicitly labels interpretation as inference."
+    },
+    {
+      "id": "train-r2a-quiet-library-3",
+      "passed": true,
+      "notes": "Previous visit is unreported; NEXT asks for an earlier account."
+    },
+    {
+      "id": "train-r2a-seed-envelope-1",
+      "passed": true,
+      "notes": "Storage and labeling instructions are explicit; NEXT plans their use."
+    },
+    {
+      "id": "train-r2a-seed-envelope-2",
+      "passed": true,
+      "notes": "Seed species are unnamed; NEXT asks for identifying information."
+    },
+    {
+      "id": "train-r2a-seed-envelope-3",
+      "passed": true,
+      "notes": "Flower color is unsupported; NEXT asks for variety or flowering evidence."
+    },
+    {
+      "id": "train-r2a-bridge-letter-1",
+      "passed": true,
+      "notes": "Handrail request and purpose are explicit; NEXT uses request to state purpose."
+    },
+    {
+      "id": "train-r2a-bridge-letter-2",
+      "passed": true,
+      "notes": "Grocery sack and wind are stated personal evidence; NEXT links them to argument."
+    },
+    {
+      "id": "train-r2a-bridge-letter-3",
+      "passed": true,
+      "notes": "No decision or timetable exists; NEXT requests both."
+    },
+    {
+      "id": "train-r2a-night-watch-1",
+      "passed": true,
+      "notes": "Gate position limits view inside; NEXT reasons about that boundary."
+    },
+    {
+      "id": "train-r2a-night-watch-2",
+      "passed": true,
+      "notes": "No person is identified; NEXT explicitly allows no person caused the light."
+    },
+    {
+      "id": "train-r2a-night-watch-3",
+      "passed": true,
+      "notes": "Cause of disappearance is absent; NEXT asks about the light source."
+    },
+    {
+      "id": "train-r2a-bread-sequence-1",
+      "passed": true,
+      "notes": "Preparation sequence is explicit; NEXT constructs a sequence."
+    },
+    {
+      "id": "train-r2a-bread-sequence-2",
+      "passed": true,
+      "notes": "Display precedes unlocking; revised learner wording avoids unsupported immediacy."
+    },
+    {
+      "id": "train-r2a-bread-sequence-3",
+      "passed": true,
+      "notes": "Sales are absent; NEXT asks for a post-opening sales record."
+    },
+    {
+      "id": "train-r2a-river-metaphor-1",
+      "passed": true,
+      "notes": "Thread metaphor is directly quoted; NEXT links stitching to fields and bridges."
+    },
+    {
+      "id": "train-r2a-river-metaphor-2",
+      "passed": true,
+      "notes": "River length is absent; revised NEXT identifies map scale and endpoints for measurement."
+    },
+    {
+      "id": "train-r2a-river-metaphor-3",
+      "passed": true,
+      "notes": "Landscape imagery supplies no water safety evidence; NEXT requests water-quality evidence."
+    },
+    {
+      "id": "train-r2a-repair-manual-1",
+      "passed": true,
+      "notes": "Disconnect-before-removal rule is explicit; NEXT places it first."
+    },
+    {
+      "id": "train-r2a-repair-manual-2",
+      "passed": true,
+      "notes": "Shade support and retaining ring action are explicit; NEXT organizes their handling."
+    },
+    {
+      "id": "train-r2a-repair-manual-3",
+      "passed": true,
+      "notes": "Bulb specification is absent; NEXT requests compatibility information."
+    },
+    {
+      "id": "train-r2a-audition-ending-1",
+      "passed": true,
+      "notes": "Following-afternoon posting establishes pending result; NEXT considers its effect on the scene."
+    },
+    {
+      "id": "train-r2a-audition-ending-2",
+      "passed": true,
+      "notes": "No audition result appears; NEXT asks for the later notice."
+    },
+    {
+      "id": "train-r2a-audition-ending-3",
+      "passed": true,
+      "notes": "Private preferences are unavailable; NEXT requests individual feedback."
+    },
+    {
+      "id": "train-r2a-raincoat-choice-1",
+      "passed": true,
+      "notes": "Earlier showers explain raincoat choice; NEXT connects memory with preparation."
+    },
+    {
+      "id": "train-r2a-raincoat-choice-2",
+      "passed": true,
+      "notes": "Clear current weather supports sun-hat choice; NEXT compares present observation with memory."
+    },
+    {
+      "id": "train-r2a-raincoat-choice-3",
+      "passed": true,
+      "notes": "Walk weather is not described; NEXT asks for later observations."
+    },
+    {
+      "id": "train-r2a-archive-label-1",
+      "passed": true,
+      "notes": "Unsigned later copy limits certainty; NEXT considers that limitation."
+    },
+    {
+      "id": "train-r2a-archive-label-2",
+      "passed": true,
+      "notes": "Original authorship is unknown; NEXT asks for authorship evidence."
+    },
+    {
+      "id": "train-r2a-archive-label-3",
+      "passed": true,
+      "notes": "Original wording is unavailable; NEXT asks for comparison evidence without claiming accuracy."
+    },
+    {
+      "id": "train-r2a-festival-summary-1",
+      "passed": true,
+      "notes": "Closing statement explicitly supplies central idea; NEXT selects supporting work examples."
+    },
+    {
+      "id": "train-r2a-festival-summary-2",
+      "passed": true,
+      "notes": "Guiding, music and cooking support cooperation; NEXT groups those examples."
+    },
+    {
+      "id": "train-r2a-festival-summary-3",
+      "passed": true,
+      "notes": "Profit cannot be calculated without financial data; NEXT requests income and expenses."
+    },
+    {
+      "id": "train-r2a-lost-key-note-1",
+      "passed": true,
+      "notes": "Finder instruction is explicit; NEXT keeps finding conditional."
+    },
+    {
+      "id": "train-r2a-lost-key-note-2",
+      "passed": true,
+      "notes": "No finder is established; NEXT asks whether anyone found it before asking who."
+    },
+    {
+      "id": "train-r2a-lost-key-note-3",
+      "passed": true,
+      "notes": "Current location is unknown; NEXT asks for current sighting or handover evidence."
+    },
+    {
+      "id": "train-r2a-two-garden-voices-1",
+      "passed": true,
+      "notes": "Shelter and untidiness express different values; NEXT interprets priorities."
+    },
+    {
+      "id": "train-r2a-two-garden-voices-2",
+      "passed": true,
+      "notes": "Same leaf pile is a shared observation; NEXT distinguishes observation from interpretation."
+    },
+    {
+      "id": "train-r2a-two-garden-voices-3",
+      "passed": true,
+      "notes": "Later opinion is unavailable; NEXT requests a later statement."
+    },
+    {
+      "id": "train-r2a-clock-refrain-1",
+      "passed": true,
+      "notes": "Repeated clock detail is explicit; NEXT considers effect on perceived time."
+    },
+    {
+      "id": "train-r2a-clock-refrain-2",
+      "passed": true,
+      "notes": "No clock readings or completion timing exist; NEXT requests start and finish."
+    },
+    {
+      "id": "train-r2a-clock-refrain-3",
+      "passed": true,
+      "notes": "No completed repairs are reported; NEXT asks for completion evidence."
+    },
+    {
+      "id": "train-r2a-style-title-1",
+      "passed": true,
+      "notes": "Sentence-case and title-case rules conflict; NEXT preserves both claims."
+    },
+    {
+      "id": "train-r2a-style-title-2",
+      "passed": true,
+      "notes": "Same date and no supersession explain uncertainty; NEXT requests version information."
+    },
+    {
+      "id": "train-r2a-style-title-3",
+      "passed": true,
+      "notes": "Current policy is unresolved; NEXT seeks editor ruling or documented replacement."
+    },
+    {
+      "id": "train-r2a-speaker-attribution-1",
+      "passed": true,
+      "notes": "Missing audio limits attribution; NEXT requests it to check competing names."
+    },
+    {
+      "id": "train-r2a-speaker-attribution-2",
+      "passed": true,
+      "notes": "Robin and Jo attribution is unresolved; NEXT asks for identifying evidence."
+    },
+    {
+      "id": "train-r2a-speaker-attribution-3",
+      "passed": true,
+      "notes": "Approval is not recorded; NEXT requests Jo's approval record."
+    },
+    {
+      "id": "train-r2a-pronoun-editor-1",
+      "passed": true,
+      "notes": "Two candidate antecedents conflict; NEXT marks both as possible."
+    },
+    {
+      "id": "train-r2a-pronoun-editor-2",
+      "passed": true,
+      "notes": "Two groups plus no identifying description explains ambiguity; NEXT considers explicit naming."
+    },
+    {
+      "id": "train-r2a-pronoun-editor-3",
+      "passed": true,
+      "notes": "Author intention is unresolved; NEXT requests author clarification."
+    },
+    {
+      "id": "train-r2a-word-limit-1",
+      "passed": true,
+      "notes": "No version numbers or clarification exist; NEXT asks for version evidence."
+    },
+    {
+      "id": "train-r2a-word-limit-2",
+      "passed": true,
+      "notes": "500 and 700 are unresolved limits; NEXT requests organizer ruling."
+    },
+    {
+      "id": "train-r2a-word-limit-3",
+      "passed": true,
+      "notes": "Both story count and binding limit are needed; NEXT asks for both."
+    },
+    {
+      "id": "train-r2a-active-subject-1",
+      "passed": true,
+      "notes": "Active-voice definition is explicit; NEXT applies it to porter example."
+    },
+    {
+      "id": "train-r2a-active-subject-2",
+      "passed": true,
+      "notes": "Full example sentence is quoted; NEXT identifies subject and action."
+    },
+    {
+      "id": "train-r2a-active-subject-3",
+      "passed": true,
+      "notes": "Separate paragraph is absent; NEXT requests sentences for inspection."
+    },
+    {
+      "id": "train-r2a-comma-list-1",
+      "passed": true,
+      "notes": "List-comma policy is explicit; NEXT checks a three-item list."
+    },
+    {
+      "id": "train-r2a-comma-list-2",
+      "passed": true,
+      "notes": "Packing sentence is absent; NEXT checks whether an omission exists."
+    },
+    {
+      "id": "train-r2a-comma-list-3",
+      "passed": true,
+      "notes": "Sentence punctuation is absent; NEXT requests actual wording before counting changes."
+    },
+    {
+      "id": "train-r2a-transition-cause-1",
+      "passed": true,
+      "notes": "Cause-result relation is explicit instruction; NEXT selects a linking transition."
+    },
+    {
+      "id": "train-r2a-transition-cause-2",
+      "passed": true,
+      "notes": "Rain/ground/event chain is explicit; NEXT separates cause and resulting change."
+    },
+    {
+      "id": "train-r2a-transition-cause-3",
+      "passed": true,
+      "notes": "Attendance effects are unknown; NEXT requests attendance evidence."
+    },
+    {
+      "id": "train-r2a-audience-note-1",
+      "passed": true,
+      "notes": "First-time volunteers are explicit audience; NEXT considers unfamiliarity."
+    },
+    {
+      "id": "train-r2a-audience-note-2",
+      "passed": true,
+      "notes": "Reporting room is absent; revised NEXT seeks coordinator instructions to confirm it."
+    },
+    {
+      "id": "train-r2a-audience-note-3",
+      "passed": true,
+      "notes": "Finished note is absent; NEXT asks for text to inspect order."
+    },
+    {
+      "id": "train-r2a-thesis-focus-1",
+      "passed": true,
+      "notes": "Thesis role is explicitly defined; NEXT narrows a supportable claim."
+    },
+    {
+      "id": "train-r2a-thesis-focus-2",
+      "passed": true,
+      "notes": "Shaded seating is explicit topic; NEXT chooses aspect for claim."
+    },
+    {
+      "id": "train-r2a-thesis-focus-3",
+      "passed": true,
+      "notes": "Thesis and essay are absent; NEXT requests both for comparison."
+    },
+    {
+      "id": "train-r2a-verb-time-1",
+      "passed": true,
+      "notes": "Past-time frame is explicit; NEXT uses yesterday to guide verb choice."
+    },
+    {
+      "id": "train-r2a-verb-time-2",
+      "passed": true,
+      "notes": "No draft exists; NEXT avoids assuming a tense error and requests sentences."
+    },
+    {
+      "id": "train-r2a-verb-time-3",
+      "passed": true,
+      "notes": "Memory scene wording is absent; NEXT asks for scene and transition."
+    },
+    {
+      "id": "train-r2a-precise-wording-1",
+      "passed": true,
+      "notes": "Observable detail requirement is explicit; NEXT keeps carrying observation conditional."
+    },
+    {
+      "id": "train-r2a-precise-wording-2",
+      "passed": true,
+      "notes": "Requesting missing details is explicit; NEXT asks which observation to request."
+    },
+    {
+      "id": "train-r2a-precise-wording-3",
+      "passed": true,
+      "notes": "Exact mass is absent; revised NEXT identifies scale evidence and units."
+    },
+    {
+      "id": "train-r2a-dialogue-paragraphs-1",
+      "passed": true,
+      "notes": "New speaker/new paragraph rule is explicit; NEXT tracks known speaker roles."
+    },
+    {
+      "id": "train-r2a-dialogue-paragraphs-2",
+      "passed": true,
+      "notes": "Dialogue lines are absent; NEXT requests text and speaker attributions."
+    },
+    {
+      "id": "train-r2a-dialogue-paragraphs-3",
+      "passed": true,
+      "notes": "Turn count is unknown; NEXT asks for complete transcript."
+    },
+    {
+      "id": "train-r2a-quotation-omission-1",
+      "passed": true,
+      "notes": "Meaning-preservation rule is explicit; NEXT compares full and shortened text."
+    },
+    {
+      "id": "train-r2a-quotation-omission-2",
+      "passed": true,
+      "notes": "Playground during repairs is explicit comment topic; NEXT seeks surrounding context."
+    },
+    {
+      "id": "train-r2a-quotation-omission-3",
+      "passed": true,
+      "notes": "Both quotation versions are absent; NEXT asks for both before judging distortion."
+    },
+    {
+      "id": "train-r2a-parallel-headings-1",
+      "passed": true,
+      "notes": "Parallel forms are requested for scanning; NEXT applies them to booklet sections."
+    },
+    {
+      "id": "train-r2a-parallel-headings-2",
+      "passed": true,
+      "notes": "Actual headings are absent; NEXT checks whether any break the pattern."
+    },
+    {
+      "id": "train-r2a-parallel-headings-3",
+      "passed": true,
+      "notes": "Heading list is unavailable; NEXT requests complete list before assessing rewrites."
+    },
+    {
+      "id": "train-r2a-counterargument-plan-1",
+      "passed": true,
+      "notes": "Counterargument definition is explicit; NEXT applies it to staffing."
+    },
+    {
+      "id": "train-r2a-counterargument-plan-2",
+      "passed": true,
+      "notes": "Staffing concern is explicit; NEXT plans fair representation."
+    },
+    {
+      "id": "train-r2a-counterargument-plan-3",
+      "passed": true,
+      "notes": "Hiring requirement is unknown; NEXT asks for schedule and coverage estimates."
+    },
+    {
+      "id": "train-r2a-fragment-check-1",
+      "passed": true,
+      "notes": "Fragment concept is explicit; NEXT applies stand-alone structure check."
+    },
+    {
+      "id": "train-r2a-fragment-check-2",
+      "passed": true,
+      "notes": "Introduction is absent; NEXT asks whether it contains a fragment."
+    },
+    {
+      "id": "train-r2a-fragment-check-3",
+      "passed": true,
+      "notes": "Fragment and prior sentence are absent; NEXT requests both and keeps joining conditional."
+    },
+    {
+      "id": "train-r2a-definition-boundary-1",
+      "passed": true,
+      "notes": "Habitat definition is explicit; NEXT structures explanation around resources and place."
+    },
+    {
+      "id": "train-r2a-definition-boundary-2",
+      "passed": true,
+      "notes": "Nature-center visitors are explicit audience; NEXT adapts explanatory depth."
+    },
+    {
+      "id": "train-r2a-definition-boundary-3",
+      "passed": true,
+      "notes": "Pond inhabitants are unknown; NEXT requests survey before naming species."
+    },
+    {
+      "id": "train-r2a-revision-feedback-1",
+      "passed": true,
+      "notes": "Abrupt place change is explicitly identified; NEXT plans a connecting transition."
+    },
+    {
+      "id": "train-r2a-revision-feedback-2",
+      "passed": true,
+      "notes": "No revision is available; NEXT requests revised opening."
+    },
+    {
+      "id": "train-r2a-revision-feedback-3",
+      "passed": true,
+      "notes": "Reader reactions are unavailable; NEXT requests feedback on revision."
+    },
+    {
+      "id": "train-r2a-summary-boundary-1",
+      "passed": true,
+      "notes": "Summary/opinion boundary is explicit; NEXT checks source connection."
+    },
+    {
+      "id": "train-r2a-summary-boundary-2",
+      "passed": true,
+      "notes": "Three proposal topics are explicit; NEXT organizes them."
+    },
+    {
+      "id": "train-r2a-summary-boundary-3",
+      "passed": true,
+      "notes": "Public vote result is absent; NEXT asks for vote evidence rather than asserting approval."
+    },
+    {
+      "id": "train-r2a-register-request-1",
+      "passed": true,
+      "notes": "Courteous room request is explicit purpose; NEXT applies clear and courteous wording."
+    },
+    {
+      "id": "train-r2a-register-request-2",
+      "passed": true,
+      "notes": "Reservation date is absent; revised NEXT seeks schedule and availability evidence."
+    },
+    {
+      "id": "train-r2a-register-request-3",
+      "passed": true,
+      "notes": "Draft is absent; NEXT requests wording to assess tone."
+    },
+    {
+      "id": "train-r2a-water-probes-1",
+      "passed": true,
+      "notes": "Simultaneous same-sample readings conflict; NEXT reports both with shared conditions."
+    },
+    {
+      "id": "train-r2a-water-probes-2",
+      "passed": true,
+      "notes": "Calibration information is absent; NEXT investigates its relevance."
+    },
+    {
+      "id": "train-r2a-water-probes-3",
+      "passed": true,
+      "notes": "Neither probe is accepted as actual temperature; NEXT requests calibrated measurement."
+    },
+    {
+      "id": "train-r2a-seedling-ledgers-1",
+      "passed": true,
+      "notes": "Photo and count sheet are absent; NEXT requests direct count evidence."
+    },
+    {
+      "id": "train-r2a-seedling-ledgers-2",
+      "passed": true,
+      "notes": "Nine and eleven conflict for same tray/day; NEXT asks for day-six evidence."
+    },
+    {
+      "id": "train-r2a-seedling-ledgers-3",
+      "passed": true,
+      "notes": "Initial total and verified sprouts are missing; NEXT requests both percentage inputs."
+    },
+    {
+      "id": "train-r2a-rock-identification-1",
+      "passed": true,
+      "notes": "Two labels identify same specimen differently; NEXT treats them as hypotheses."
+    },
+    {
+      "id": "train-r2a-rock-identification-2",
+      "passed": true,
+      "notes": "Diagnostic observations are absent; NEXT requests grain or reaction observations."
+    },
+    {
+      "id": "train-r2a-rock-identification-3",
+      "passed": true,
+      "notes": "Identity remains unresolved; NEXT asks for discriminating tests."
+    },
+    {
+      "id": "train-r2a-battery-readings-1",
+      "passed": true,
+      "notes": "No image or discrepancy explanation exists; NEXT seeks original meter record."
+    },
+    {
+      "id": "train-r2a-battery-readings-2",
+      "passed": true,
+      "notes": "Voltage readings conflict; NEXT asks for evidence or correction."
+    },
+    {
+      "id": "train-r2a-battery-readings-3",
+      "passed": true,
+      "notes": "Current and time are missing and voltage disputed; NEXT requests all energy inputs."
+    },
+    {
+      "id": "train-r2a-evaporation-trays-1",
+      "passed": true,
+      "notes": "Exposed surface area is explicit changed variable; NEXT reasons about its comparison."
+    },
+    {
+      "id": "train-r2a-evaporation-trays-2",
+      "passed": true,
+      "notes": "Equal starting volumes are explicit control; NEXT considers interpretability."
+    },
+    {
+      "id": "train-r2a-evaporation-trays-3",
+      "passed": true,
+      "notes": "No final results exist; NEXT requests both final volumes."
+    },
+    {
+      "id": "train-r2a-shadow-tracking-1",
+      "passed": true,
+      "notes": "Time, length and direction are explicit recording fields; NEXT compares across day."
+    },
+    {
+      "id": "train-r2a-shadow-tracking-2",
+      "passed": true,
+      "notes": "Shortest shadow is unknown without entries; NEXT requests hourly lengths."
+    },
+    {
+      "id": "train-r2a-shadow-tracking-3",
+      "passed": true,
+      "notes": "Height is absent; NEXT allows direct or geometric evidence."
+    },
+    {
+      "id": "train-r2a-food-web-1",
+      "passed": true,
+      "notes": "Arrow energy direction is explicit; NEXT applies it to grass/rabbit."
+    },
+    {
+      "id": "train-r2a-food-web-2",
+      "passed": true,
+      "notes": "Both feeding arrows are supplied; NEXT traces energy route."
+    },
+    {
+      "id": "train-r2a-food-web-3",
+      "passed": true,
+      "notes": "Winter fox population is absent; NEXT requests seasonal survey."
+    },
+    {
+      "id": "train-r2a-soil-drainage-1",
+      "passed": true,
+      "notes": "Drainage holes and dryness are matched; NEXT reasons about fair comparison."
+    },
+    {
+      "id": "train-r2a-soil-drainage-2",
+      "passed": true,
+      "notes": "Drainage results are absent; NEXT requests readings for both samples."
+    },
+    {
+      "id": "train-r2a-soil-drainage-3",
+      "passed": true,
+      "notes": "Masses are absent; revised NEXT requests comparable balance readings with containers excluded."
+    },
+    {
+      "id": "train-r2a-magnet-sort-1",
+      "passed": true,
+      "notes": "Attraction criterion is explicit; NEXT applies no-contact movement observation."
+    },
+    {
+      "id": "train-r2a-magnet-sort-2",
+      "passed": true,
+      "notes": "Three test objects are explicitly listed; NEXT organizes distinct trial entries."
+    },
+    {
+      "id": "train-r2a-magnet-sort-3",
+      "passed": true,
+      "notes": "No trials are recorded; NEXT requests observations instead of predicting material behavior."
+    },
+    {
+      "id": "train-r2a-sound-comparison-1",
+      "passed": true,
+      "notes": "Length changes while material/tension stay fixed; NEXT reasons about controls."
+    },
+    {
+      "id": "train-r2a-sound-comparison-2",
+      "passed": true,
+      "notes": "Tested lengths and pitches are absent; NEXT requests paired results."
+    },
+    {
+      "id": "train-r2a-sound-comparison-3",
+      "passed": true,
+      "notes": "Agreement is unknown; NEXT asks for individual observer reports."
+    },
+    {
+      "id": "train-r2a-dissolving-control-1",
+      "passed": true,
+      "notes": "No-visible-crystals endpoint is explicit; NEXT compares consistent stopping rules."
+    },
+    {
+      "id": "train-r2a-dissolving-control-2",
+      "passed": true,
+      "notes": "Sugar masses and water volumes are matched; NEXT considers control."
+    },
+    {
+      "id": "train-r2a-dissolving-control-3",
+      "passed": true,
+      "notes": "No duration results exist; NEXT checks whether and how much durations differ."
+    },
+    {
+      "id": "train-r2a-bird-survey-1",
+      "passed": true,
+      "notes": "Visible-only rule is explicit; NEXT considers representativeness."
+    },
+    {
+      "id": "train-r2a-bird-survey-2",
+      "passed": true,
+      "notes": "Single-place/time sampling cannot yield all-park/day total; NEXT requests broader coverage."
+    },
+    {
+      "id": "train-r2a-bird-survey-3",
+      "passed": true,
+      "notes": "Evening comparison is unavailable; NEXT requests comparable evening observations."
+    },
+    {
+      "id": "train-r2a-insulation-design-1",
+      "passed": true,
+      "notes": "Wrapped/unwrapped contrast is explicit; NEXT reasons about reference condition."
+    },
+    {
+      "id": "train-r2a-insulation-design-2",
+      "passed": true,
+      "notes": "Starting volume and temperature are matched; NEXT interprets later measurements."
+    },
+    {
+      "id": "train-r2a-insulation-design-3",
+      "passed": true,
+      "notes": "No temperature results exist; NEXT requests both twenty-minute readings."
+    },
+    {
+      "id": "train-r2a-cloud-log-1",
+      "passed": true,
+      "notes": "Cloud-cover definition is explicit; NEXT estimates obscured fraction from sketch."
+    },
+    {
+      "id": "train-r2a-cloud-log-2",
+      "passed": true,
+      "notes": "No completed sketch exists; NEXT requests dated courtyard observation."
+    },
+    {
+      "id": "train-r2a-cloud-log-3",
+      "passed": true,
+      "notes": "Instructions do not predict rain; NEXT requests forecast evidence."
+    },
+    {
+      "id": "train-r2a-filter-comparison-1",
+      "passed": true,
+      "notes": "Observation scope is visible particles only; NEXT distinguishes chemical/microbial evidence."
+    },
+    {
+      "id": "train-r2a-filter-comparison-2",
+      "passed": true,
+      "notes": "Equal muddy-water input volumes are explicit; NEXT considers comparison."
+    },
+    {
+      "id": "train-r2a-filter-comparison-3",
+      "passed": true,
+      "notes": "Visual filtration cannot establish potable safety; NEXT requests appropriate safety testing."
+    },
+    {
+      "id": "train-r2a-moon-sketches-1",
+      "passed": true,
+      "notes": "Dark-disk shading and date are explicit; NEXT compares dated sketches."
+    },
+    {
+      "id": "train-r2a-moon-sketches-2",
+      "passed": true,
+      "notes": "Blank pages cannot establish Tuesday appearance; NEXT requests dated observation."
+    },
+    {
+      "id": "train-r2a-moon-sketches-3",
+      "passed": true,
+      "notes": "Moonrise requires local date/location/event information; NEXT identifies those missing inputs."
+    },
+    {
+      "id": "train-r2a-pendulum-plan-1",
+      "passed": true,
+      "notes": "Full-swing definition is explicit; NEXT applies side-and-return counting."
+    },
+    {
+      "id": "train-r2a-pendulum-plan-2",
+      "passed": true,
+      "notes": "Timing ten reduces relative reaction influence; NEXT plans consistent counting."
+    },
+    {
+      "id": "train-r2a-pendulum-plan-3",
+      "passed": true,
+      "notes": "Duration is missing; NEXT requests ten-swing time before averaging."
+    },
+    {
+      "id": "train-r2a-leaf-surfaces-1",
+      "passed": true,
+      "notes": "Coated surface is explicit varied condition; NEXT compares planned measurements."
+    },
+    {
+      "id": "train-r2a-leaf-surfaces-2",
+      "passed": true,
+      "notes": "Initial/final masses are absent; NEXT requests both leaves' readings."
+    },
+    {
+      "id": "train-r2a-leaf-surfaces-3",
+      "passed": true,
+      "notes": "Upper-leaf change cannot be computed; NEXT requests its initial/final masses."
+    },
+    {
+      "id": "train-r2a-mixture-definition-1",
+      "passed": true,
+      "notes": "Mixture definition is explicit; NEXT applies distinct components."
+    },
+    {
+      "id": "train-r2a-mixture-definition-2",
+      "passed": true,
+      "notes": "Rice and paper clips are explicit components; NEXT explores separation differences."
+    },
+    {
+      "id": "train-r2a-mixture-definition-3",
+      "passed": true,
+      "notes": "Percentage is unknown; NEXT requests component and total masses."
+    },
+    {
+      "id": "train-r2a-fair-ramp-1",
+      "passed": true,
+      "notes": "Same ball/no push is explicit consistent release; NEXT reasons about fair comparison."
+    },
+    {
+      "id": "train-r2a-fair-ramp-2",
+      "passed": true,
+      "notes": "Height/distance pairs are absent; NEXT requests matched results."
+    },
+    {
+      "id": "train-r2a-fair-ramp-3",
+      "passed": true,
+      "notes": "Lowest-release distance is unknown; revised NEXT pairs heights and distances before selecting lowest."
+    },
+    {
+      "id": "train-r2a-mill-opening-1",
+      "passed": true,
+      "notes": "Opening dates conflict for same event; NEXT attributes both dates."
+    },
+    {
+      "id": "train-r2a-mill-opening-2",
+      "passed": true,
+      "notes": "Building and owner match; NEXT uses them to compare records."
+    },
+    {
+      "id": "train-r2a-mill-opening-3",
+      "passed": true,
+      "notes": "Opening date is unresolved; NEXT requests corroboration or explanation."
+    },
+    {
+      "id": "train-r2a-petition-signatures-1",
+      "passed": true,
+      "notes": "Original petition sheets are missing; NEXT requests source-level checking."
+    },
+    {
+      "id": "train-r2a-petition-signatures-2",
+      "passed": true,
+      "notes": "Signature counts conflict; NEXT asks for signature evidence or correction."
+    },
+    {
+      "id": "train-r2a-petition-signatures-3",
+      "passed": true,
+      "notes": "Occupations and verified list are missing; NEXT asks for both proportion inputs."
+    },
+    {
+      "id": "train-r2a-ship-cargo-1",
+      "passed": true,
+      "notes": "Revised exclusive textile claims establish actual incompatibility; NEXT preserves attribution."
+    },
+    {
+      "id": "train-r2a-ship-cargo-2",
+      "passed": true,
+      "notes": "Same docking location/date are explicit agreement; NEXT uses arrival match."
+    },
+    {
+      "id": "train-r2a-ship-cargo-3",
+      "passed": true,
+      "notes": "Exclusive wool/cotton claims cannot be resolved; NEXT requests inspection/correction."
+    },
+    {
+      "id": "train-r2a-meeting-vote-1",
+      "passed": true,
+      "notes": "No ballot/roll-call record exists; NEXT seeks vote-level checking."
+    },
+    {
+      "id": "train-r2a-meeting-vote-2",
+      "passed": true,
+      "notes": "Unanimous and three opposing votes conflict; NEXT requests individual votes."
+    },
+    {
+      "id": "train-r2a-meeting-vote-3",
+      "passed": true,
+      "notes": "Construction and expenses are unknown; NEXT requests both without assuming construction."
+    },
+    {
+      "id": "train-r2a-canal-letter-1",
+      "passed": true,
+      "notes": "Rain delays explicitly motivate proposal support; NEXT interprets that connection."
+    },
+    {
+      "id": "train-r2a-canal-letter-2",
+      "passed": true,
+      "notes": "Investor audience and fundraising stage are explicit; NEXT considers persuasive emphasis."
+    },
+    {
+      "id": "train-r2a-canal-letter-3",
+      "passed": true,
+      "notes": "Opening and effects are unestablished; NEXT requests occurrence plus comparable times."
+    },
+    {
+      "id": "train-r2a-household-census-1",
+      "passed": true,
+      "notes": "Household heads and resident totals are explicit fields; NEXT keeps inference limited."
+    },
+    {
+      "id": "train-r2a-household-census-2",
+      "passed": true,
+      "notes": "Unnamed residents' occupations are absent; NEXT asks for occupational records."
+    },
+    {
+      "id": "train-r2a-household-census-3",
+      "passed": true,
+      "notes": "Later population is absent; NEXT requests comparable later census data."
+    },
+    {
+      "id": "train-r2a-union-pamphlet-1",
+      "passed": true,
+      "notes": "Shorter shifts are explicit demand; NEXT connects demand to meeting."
+    },
+    {
+      "id": "train-r2a-union-pamphlet-2",
+      "passed": true,
+      "notes": "Shared request is explicit collective action; NEXT interprets organizing purpose."
+    },
+    {
+      "id": "train-r2a-union-pamphlet-3",
+      "passed": true,
+      "notes": "No actual schedule change is reported; NEXT asks for later schedule or decision."
+    },
+    {
+      "id": "train-r2a-pottery-fragment-1",
+      "passed": true,
+      "notes": "Fragment position beneath wall is explicit; NEXT investigates site sequence."
+    },
+    {
+      "id": "train-r2a-pottery-fragment-2",
+      "passed": true,
+      "notes": "Manufacture year is unsupported; NEXT requests dating evidence."
+    },
+    {
+      "id": "train-r2a-pottery-fragment-3",
+      "passed": true,
+      "notes": "Maker is unknown; revised NEXT avoids claiming physical fragment is unmarked."
+    },
+    {
+      "id": "train-r2a-oral-market-1",
+      "passed": true,
+      "notes": "Childhood market visits are explicit recollection; NEXT considers personal perspective."
+    },
+    {
+      "id": "train-r2a-oral-market-2",
+      "passed": true,
+      "notes": "Memory rather than contemporary diary is explicit; NEXT distinguishes source basis."
+    },
+    {
+      "id": "train-r2a-oral-market-3",
+      "passed": true,
+      "notes": "Annual seller totals are absent; NEXT requests market registers or counts."
+    },
+    {
+      "id": "train-r2a-school-rule-1",
+      "passed": true,
+      "notes": "Comparable records are explicit goal; NEXT considers school comparison."
+    },
+    {
+      "id": "train-r2a-school-rule-2",
+      "passed": true,
+      "notes": "Rule does not demonstrate compliance; NEXT requests implementation evidence."
+    },
+    {
+      "id": "train-r2a-school-rule-3",
+      "passed": true,
+      "notes": "First-week attendance is absent; NEXT requests records across schools."
+    },
+    {
+      "id": "train-r2a-map-boundaries-1",
+      "passed": true,
+      "notes": "Lease boundaries are explicit purpose; NEXT considers selection of features."
+    },
+    {
+      "id": "train-r2a-map-boundaries-2",
+      "passed": true,
+      "notes": "Fields, road and crossing are explicit; NEXT uses landmarks for orientation."
+    },
+    {
+      "id": "train-r2a-map-boundaries-3",
+      "passed": true,
+      "notes": "Tenant views are absent; NEXT asks for testimony or objections."
+    },
+    {
+      "id": "train-r2a-ration-notice-1",
+      "passed": true,
+      "notes": "Delayed deliveries are explicit cause; NEXT connects them to restriction."
+    },
+    {
+      "id": "train-r2a-ration-notice-2",
+      "passed": true,
+      "notes": "No purchase/compliance results exist; NEXT checks whether exceedances occurred."
+    },
+    {
+      "id": "train-r2a-ration-notice-3",
+      "passed": true,
+      "notes": "Shortage outcome is unknown; NEXT requests later supply and demand."
+    },
+    {
+      "id": "train-r2a-railway-advert-1",
+      "passed": true,
+      "notes": "Comfort and quickest route are advertising claims; NEXT separates claims."
+    },
+    {
+      "id": "train-r2a-railway-advert-2",
+      "passed": true,
+      "notes": "Company funding is explicit; NEXT considers sponsor interest."
+    },
+    {
+      "id": "train-r2a-railway-advert-3",
+      "passed": true,
+      "notes": "Comparative superiority is unverified; NEXT asks for alternative journey times."
+    },
+    {
+      "id": "train-r2a-migration-register-1",
+      "passed": true,
+      "notes": "No motive columns limits explanation; NEXT distinguishes origin from reason."
+    },
+    {
+      "id": "train-r2a-migration-register-2",
+      "passed": true,
+      "notes": "Newcomer motives are absent; revised wording avoids unsupported family relationships."
+    },
+    {
+      "id": "train-r2a-migration-register-3",
+      "passed": true,
+      "notes": "Settlement places are absent; NEXT requests later residence records."
+    },
+    {
+      "id": "train-r2a-hospital-report-1",
+      "passed": true,
+      "notes": "Noon occupied beds are explicit count; NEXT distinguishes snapshots from admissions."
+    },
+    {
+      "id": "train-r2a-hospital-report-2",
+      "passed": true,
+      "notes": "Space planning is explicit purpose; NEXT applies occupancy information."
+    },
+    {
+      "id": "train-r2a-hospital-report-3",
+      "passed": true,
+      "notes": "Recovery proportion is unavailable; NEXT requests outcomes and defined cohort."
+    },
+    {
+      "id": "train-r2a-photo-street-1",
+      "passed": true,
+      "notes": "Crew and depot setting are explicit caption content; NEXT separates identification from inference."
+    },
+    {
+      "id": "train-r2a-photo-street-2",
+      "passed": true,
+      "notes": "Pay is absent; NEXT requests wage evidence."
+    },
+    {
+      "id": "train-r2a-photo-street-3",
+      "passed": true,
+      "notes": "Feelings are unsupported by caption; NEXT requests testimony."
+    },
+    {
+      "id": "train-r2a-forest-proposal-1",
+      "passed": true,
+      "notes": "Water protection is explicit rationale; NEXT connects recommendation and concern."
+    },
+    {
+      "id": "train-r2a-forest-proposal-2",
+      "passed": true,
+      "notes": "Fuelwood collection is explicit existing use; NEXT considers affected people."
+    },
+    {
+      "id": "train-r2a-forest-proposal-3",
+      "passed": true,
+      "notes": "Adoption and family views are unestablished; NEXT requests both rules and testimony."
+    },
+    {
+      "id": "train-r2a-postal-routes-1",
+      "passed": true,
+      "notes": "Scheduled versus completed distinction is explicit; NEXT seeks occurrence evidence."
+    },
+    {
+      "id": "train-r2a-postal-routes-2",
+      "passed": true,
+      "notes": "Tuesday completion is unknown; NEXT requests log or receipt."
+    },
+    {
+      "id": "train-r2a-postal-routes-3",
+      "passed": true,
+      "notes": "Snow cancellations are unknown; NEXT checks whether any occurred using paired records."
+    },
+    {
+      "id": "train-r2a-craft-apprentice-1",
+      "passed": true,
+      "notes": "Instruction and lodging are explicit master obligations; NEXT organizes them."
+    },
+    {
+      "id": "train-r2a-craft-apprentice-2",
+      "passed": true,
+      "notes": "Working-day attendance is explicit duty; NEXT compares parties' responsibilities."
+    },
+    {
+      "id": "train-r2a-craft-apprentice-3",
+      "passed": true,
+      "notes": "Signed contract does not establish completion; NEXT seeks end-of-term evidence."
+    },
+    {
+      "id": "train-r2a-memorial-speech-1",
+      "passed": true,
+      "notes": "Honoring ceremony is explicit occasion; NEXT considers celebratory emphasis."
+    },
+    {
+      "id": "train-r2a-memorial-speech-2",
+      "passed": true,
+      "notes": "Speech cannot establish universal agreement; NEXT seeks broader villagers' views."
+    },
+    {
+      "id": "train-r2a-memorial-speech-3",
+      "passed": true,
+      "notes": "Financial accounts are absent; NEXT requests expense records."
+    }
+  ]
+}

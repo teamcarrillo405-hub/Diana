@@ -1,0 +1,69 @@
+{
+  "version": 2,
+  "generatedAt": "2026-08-25T22:06:26.824Z",
+  "source": "comfyui_flux_seedance25_two_pass",
+  "scene": {
+    "id": "diana-homework-next-step-01",
+    "outputFilename": "diana-homework-next-step-01-comfyui-720p",
+    "profile": "production",
+    "text": "Vertical 9:16 real-life 4K no-face student-native homework moment. Camera from behind the student, only back of head, hoodie sleeve, hands, pencil, worksheet, phone timer, messy notes, and backpack visible. No side profile, no eyes, no nose, no mouth. A laptop or tablet on the desk has a blank softly glowing screen reserved for post-production Diana overlay. The student is stuck for one beat, then the scene shifts into calm focus as help arrives. Painfully relatable, not polished stock footage, natural room light, authentic teen study mess, cinematic close detail.",
+    "negativePrompt": "front-facing identity, side profile face, visible face, eyes, nose, mouth, adult teacher, dark blue old dashboard screenshot, generated app UI, fake readable text, gibberish text, warped Diana screen, distorted hands, extra fingers, over-smoothed AI skin, plastic devices, brand watermark, text overlay baked into video",
+    "overlay": {
+      "kicker": "Homework stuck point",
+      "headline": "You do not need to wait.",
+      "subheadline": "Diana shows the next step while the work is still in front of you.",
+      "cta": "Join the wait list"
+    },
+    "durationSeconds": 5,
+    "baseFps": 24,
+    "baseFrameCount": 120,
+    "remotionFps": 60,
+    "remotionFrameCount": 300,
+    "motionCoefficient": 0.35
+  },
+  "pass1": {
+    "model": "flux1-dev.safetensors",
+    "width": 832,
+    "height": 1216,
+    "steps": 28,
+    "guidance": 3.5,
+    "samplerCfg": 1,
+    "sampler": "euler",
+    "scheduler": "normal",
+    "texturePass": {
+      "enabled": true,
+      "node": "UltimateSDUpscale",
+      "upscaleModel": "4x-UltraSharp.pth",
+      "upscaleBy": 1,
+      "steps": 14,
+      "cfg": 1,
+      "denoise": 0.2,
+      "tileWidth": 512,
+      "tileHeight": 512,
+      "tilePadding": 32
+    },
+    "imagePath": "/assets/comfyui-i2v/diana-homework-next-step-01-comfyui-720p_pass1.png",
+    "absoluteImagePath": "C:\\Users\\glcar\\Diana\\public\\assets\\comfyui-i2v\\diana-homework-next-step-01-comfyui-720p_pass1.png"
+  },
+  "pass2": {
+    "engine": "seedance_2_5_reference",
+    "model": "Seedance 2.5",
+    "resolution": "720p",
+    "ratio": "9:16",
+    "generateAudio": false,
+    "referenceImageWidth": 1080,
+    "referenceImageHeight": 1920,
+    "videoPath": "/assets/comfyui-i2v/diana-homework-next-step-01-comfyui-720p_seedance25.mp4",
+    "absoluteVideoPath": "C:\\Users\\glcar\\Diana\\public\\assets\\comfyui-i2v\\diana-homework-next-step-01-comfyui-720p_seedance25.mp4"
+  },
+  "remotion": {
+    "compositionId": "DianaI2V",
+    "width": 1080,
+      "height": 1920,
+      "fps": 60,
+      "frameCount": 300,
+      "grainOpacity": 0.055,
+      "assetDirectory": "C:\\Users\\glcar\\Diana\\public\\assets\\comfyui-i2v",
+      "publicPath": "/assets/comfyui-i2v"
+    }
+}

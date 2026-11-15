@@ -9,9 +9,11 @@ type Target = "original" | "simpler" | "more_detail";
 export function ReadingLevelAdapter({
   text,
   aiMode,
+  source,
 }: {
   text: string;
   aiMode: "red" | "yellow" | "green";
+  source?: { sourceType: "note" | "assignment"; sourceId: string };
 }) {
   const [target, setTarget] = useState<Target>("original");
   const [adapted, setAdapted] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export function ReadingLevelAdapter({
       return;
     }
     startTransition(async () => {
-      const result = await adaptReadingLevel({ text, target: next, aiMode });
+      const result = await adaptReadingLevel({ text, target: next, aiMode, source });
       if (result.ok) {
         setAdapted(result.text);
         setStatus(result.fallback ? "Local version shown." : null);

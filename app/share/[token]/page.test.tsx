@@ -142,10 +142,10 @@ describe("public ScreenDesign share boundary", () => {
 
     const html = await renderShare();
 
-    expect(html).toContain("Verified student share");
+    expect(html).toContain("Selected student work");
     expect(html).toContain("Freshman portfolio");
     expect(html).toContain("Identity quote response");
-    expect(html).toContain("Open shared evidence");
+    expect(html).toContain("work samples");
     expect(html).not.toContain("GPA");
     expect(html).not.toContain("diagnos");
     expect(html).not.toContain("general student profile");
@@ -190,11 +190,11 @@ describe("public ScreenDesign share boundary", () => {
 
     const html = await renderShare();
 
-    expect(html).toContain("Academic report");
-    expect(html).toContain("Sessions");
+    expect(html).toContain("Shared progress");
+    expect(html).toContain("Completed work");
     expect(html).toContain("Study time");
-    expect(html).toContain("Tutor insights");
-    expect(html).toContain("Open shared report section");
+    expect(html).toContain("Progress notes");
+    expect(html).toContain("Concept confidence");
     expect(html).toContain("Print report");
     expect(html).not.toContain("assignment name");
     expect(html).not.toContain("private note");
@@ -207,7 +207,7 @@ describe("public ScreenDesign share boundary", () => {
 
       const html = await renderShare(inactiveToken);
 
-      expect(html).toContain("Shared link unavailable");
+      expect(html).toContain("Link unavailable");
       expect(html).not.toContain("Freshman portfolio");
       expect(queryCalls.filter((call) => call.method === "from")).toHaveLength(2);
       expect(callsFor("share_links", "eq")).toContainEqual(
@@ -239,7 +239,7 @@ describe("public ScreenDesign share boundary", () => {
 
     const html = await renderShare("legacy-active-token");
 
-    expect(html).toContain("Verified student share");
+    expect(html).toContain("Selected student work");
     expect(callsFor("share_links", "eq")).toContainEqual(
       expect.objectContaining({ args: ["token", "legacy-active-token"] }),
     );

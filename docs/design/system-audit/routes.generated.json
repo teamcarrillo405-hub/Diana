@@ -1,0 +1,2602 @@
+{
+  "generatedAt": "2026-09-16T22:41:36.919Z",
+  "evidence": "Source inventory only. Counts are route files, not distinct UI states or rendered verification. Area identifies source grouping, not anonymous reachability; onboarding is auth-gated and /me has a signed-out middleware 404 gap.",
+  "totals": {
+    "pageFiles": 77,
+    "retiredPageFiles": 22,
+    "activeStudentPageFiles": 25,
+    "publicAndAuthPageFiles": 13,
+    "reviewPageFiles": 16,
+    "qaPageFiles": 2,
+    "boundaries": 11,
+    "layouts": 5,
+    "additionalStaticScreens": 3
+  },
+  "records": [
+    {
+      "route": "/ap",
+      "kind": "page",
+      "source": "app/(app)/ap/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./ap-client",
+        "@/lib/ap/command",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "ApClient"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments/[id]",
+      "kind": "loading",
+      "source": "app/(app)/assignments/[id]/loading.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments/[id]",
+      "kind": "page",
+      "source": "app/(app)/assignments/[id]/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Assignment briefing",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/ai-writing-coach",
+        "@/lib/ai/diana-trust-rules",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "AiWritingCoach"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login",
+        "dynamic"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments/[id]/submit",
+      "kind": "page",
+      "source": "app/(app)/assignments/[id]/submit/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Explicit submission confirmation",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../external-submission-sync",
+        "./checklist",
+        "@/components/assignment-submission-preview",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/assignment-submission-server",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowLeft",
+        "AssignmentSubmissionPreview",
+        "CheckCircle2",
+        "Clock3",
+        "ExternalSubmissionSync",
+        "FileCheck2",
+        "Link",
+        "StudentDesktopNav",
+        "SubmitChecklist",
+        "SubmittedAssignmentReceipt"
+      ],
+      "literalHeadings": [
+        "School handoff"
+      ],
+      "redirectCalls": [
+        "/login",
+        "dynamic"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments/[id]/workspace",
+      "kind": "page",
+      "source": "app/(app)/assignments/[id]/workspace/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Active work HUD",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/assignment-workspace",
+        "@/lib/assignment-artifact",
+        "@/lib/assignment-help/server-understanding",
+        "@/lib/assignment-legacy-work",
+        "@/lib/assignment-profile",
+        "@/lib/assignment-subject-presentation",
+        "@/lib/assignment-workspace",
+        "@/lib/assignment-workspace-contracts",
+        "@/lib/course-mode/practical-gate",
+        "@/lib/supabase/server",
+        "@/lib/supabase/types",
+        "@/lib/task-breakdown/types",
+        "next/navigation"
+      ],
+      "components": [
+        "AssignmentWorkspace"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments/captures/[id]",
+      "kind": "page",
+      "source": "app/(app)/assignments/captures/[id]/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Source capture and review",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments",
+      "kind": "loading",
+      "source": "app/(app)/assignments/loading.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments/new",
+      "kind": "page",
+      "source": "app/(app)/assignments/new/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./form",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/student-bottom-nav",
+        "@/lib/supabase/server",
+        "@/lib/templates/templates",
+        "@/lib/time-budget/calibration",
+        "lucide-react",
+        "next/link"
+      ],
+      "components": [
+        "DianaWordmark",
+        "FilePlus2",
+        "Link",
+        "NewAssignmentForm",
+        "StudentBottomNav"
+      ],
+      "literalHeadings": [
+        "Add an assignment."
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/assignments",
+      "kind": "page",
+      "source": "app/(app)/assignments/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Work schedule and selection",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./work-command-center",
+        "@/lib/profile",
+        "@/lib/scoring/next-five-minutes",
+        "@/lib/supabase/server",
+        "@/lib/supabase/types",
+        "next/navigation"
+      ],
+      "components": [
+        "WorkCommandCenter"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/body-double",
+      "kind": "page",
+      "source": "app/(app)/body-double/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/timer?with=others"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/break-down",
+      "kind": "page",
+      "source": "app/(app)/break-down/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login",
+        "dynamic"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/calendar",
+      "kind": "page",
+      "source": "app/(app)/calendar/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Personal schedule and event detail",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./calendar-google-sync",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/calendar/schedule",
+        "@/lib/scoring/next-five-minutes",
+        "@/lib/supabase/server",
+        "date-fns",
+        "lucide-react",
+        "next/link",
+        "react"
+      ],
+      "components": [
+        "CalendarGoogleSync",
+        "ChevronLeft",
+        "ChevronRight",
+        "DianaWordmark",
+        "Link",
+        "Plus",
+        "ScreenDesignViewport",
+        "Settings2",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Study"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/classes/[id]",
+      "kind": "loading",
+      "source": "app/(app)/classes/[id]/loading.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/classes/[id]",
+      "kind": "page",
+      "source": "app/(app)/classes/[id]/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Class roster and profile",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./rubric-form",
+        "./syllabus-form",
+        "@/components/course-insight",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "CourseInsight",
+        "RubricForm",
+        "SyllabusForm"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/classes/[id]/settings",
+      "kind": "page",
+      "source": "app/(app)/classes/[id]/settings/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Class roster and profile",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./actions",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowLeft",
+        "DianaWordmark",
+        "Icon",
+        "Link",
+        "ScreenDesignViewport",
+        "ShieldCheck",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "AI rules for"
+      ],
+      "redirectCalls": [
+        "dynamic"
+      ],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": true
+    },
+    {
+      "route": "/classes",
+      "kind": "page",
+      "source": "app/(app)/classes/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Class roster and profile",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./class-form",
+        "./my-classes-grid",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "ClassForm",
+        "EmptyClassLibrary",
+        "MyClassesGrid"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/concepts/[id]",
+      "kind": "page",
+      "source": "app/(app)/concepts/[id]/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/source-media",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowLeft",
+        "BookOpenCheck",
+        "Brain",
+        "Clock3",
+        "DianaWordmark",
+        "Link",
+        "Network",
+        "PlayCircle",
+        "ScreenDesignViewport",
+        "Share2",
+        "SourceMedia",
+        "Sparkles"
+      ],
+      "literalHeadings": [
+        "Evidence summary",
+        "Game film breakdown",
+        "Key evidence",
+        "Mastery evidence",
+        "Practice timeline",
+        "Self-confidence"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/dashboard",
+      "kind": "layout",
+      "source": "app/(app)/dashboard/layout.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared shell and route guards",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/dashboard",
+      "kind": "loading",
+      "source": "app/(app)/dashboard/loading.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/dashboard",
+      "kind": "page",
+      "source": "app/(app)/dashboard/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Lobby and utility menu",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./last-shown-class-cookie",
+        "./lobby-check-in",
+        "@/components/dashboard/today-dashboard",
+        "@/lib/dashboard/lobby-check-in",
+        "@/lib/dashboard/today-view",
+        "@/lib/emotional/session",
+        "@/lib/learning-loop/server",
+        "@/lib/profile",
+        "@/lib/scoring/next-five-minutes",
+        "@/lib/supabase/server",
+        "@/lib/support/policy",
+        "@/lib/wellness/health",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "LastShownClassCookie",
+        "LobbyCheckIn",
+        "TodayDashboard"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/",
+      "kind": "error",
+      "source": "app/(app)/error.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/diana-recovery-screen",
+        "@/lib/error-recovery",
+        "@/lib/monitoring/client",
+        "next/navigation",
+        "react"
+      ],
+      "components": [
+        "DianaRecoveryScreen"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/inbox/[id]",
+      "kind": "page",
+      "source": "app/(app)/inbox/[id]/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./confirm-form",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowLeft",
+        "CheckCircle2",
+        "ConfirmForm",
+        "DianaWordmark",
+        "FileText",
+        "Link",
+        "ScreenDesignViewport",
+        "Sparkles"
+      ],
+      "literalHeadings": [
+        "This capture is no longer waiting for review.",
+        "This capture is on your work board."
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/inbox",
+      "kind": "page",
+      "source": "app/(app)/inbox/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/assignments"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/insights",
+      "kind": "page",
+      "source": "app/(app)/insights/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./insights-client",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/lib/insights/week-over-week",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "DianaWordmark",
+        "InsightsClient",
+        "Link",
+        "ScreenDesignViewport",
+        "Share2",
+        "StudentBottomNav"
+      ],
+      "literalHeadings": [
+        "Season"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/knowledge-graph",
+      "kind": "page",
+      "source": "app/(app)/knowledge-graph/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/source-media",
+        "@/components/screen-design/student-bottom-nav",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "BookOpen",
+        "CircleHelp",
+        "DianaWordmark",
+        "Link",
+        "Network",
+        "ScreenDesignViewport",
+        "SourceMedia",
+        "Sparkles",
+        "StudentBottomNav"
+      ],
+      "literalHeadings": [
+        "Class connections",
+        "Diana",
+        "Learning focus",
+        "Your map starts with practice"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/",
+      "kind": "layout",
+      "source": "app/(app)/layout.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared shell and route guards",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/agent-fab",
+        "@/components/overwhelmed-button",
+        "@/components/platform-analytics-tracker",
+        "@/components/pwa-runtime",
+        "@/components/quick-capture",
+        "@/components/session-handoff-tracker",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "AgentFab",
+        "OverwhelmedButton",
+        "PlatformAnalyticsTracker",
+        "PwaRuntime",
+        "QuickCapture",
+        "SessionHandoffTracker"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/",
+        "/login",
+        "/onboarding"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/",
+      "kind": "loading",
+      "source": "app/(app)/loading.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/me",
+      "kind": "page",
+      "source": "app/(app)/me/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Account and options menu",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../settings/profile-center",
+        "../settings/source-models",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "ProfileCenter"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/more",
+      "kind": "page",
+      "source": "app/(app)/more/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Lobby and utility menu",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowUpRight",
+        "DianaWordmark",
+        "Icon",
+        "Link",
+        "ScreenDesignViewport",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "MORE",
+        "Tools and settings"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/",
+      "kind": "not-found",
+      "source": "app/(app)/not-found.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/diana-recovery-screen"
+      ],
+      "components": [
+        "DianaRecoveryScreen"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/notes/[id]",
+      "kind": "page",
+      "source": "app/(app)/notes/[id]/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Notes library and editor",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./note-detail",
+        "@/lib/ai/diana-trust-rules",
+        "@/lib/notes/related",
+        "@/lib/notes/types",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "NoteDetail"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/notes",
+      "kind": "loading",
+      "source": "app/(app)/notes/loading.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/notes/new",
+      "kind": "page",
+      "source": "app/(app)/notes/new/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Notes library and editor",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./note-editor",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/notes/class-router",
+        "@/lib/profile",
+        "@/lib/supabase/server"
+      ],
+      "components": [
+        "NoteEditor",
+        "ScreenDesignViewport",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Capture a note."
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/notes",
+      "kind": "page",
+      "source": "app/(app)/notes/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Notes library and editor",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./note-synthesis-panel",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/notes/related",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "date-fns",
+        "lucide-react",
+        "next/link"
+      ],
+      "components": [
+        "ArrowRight",
+        "FileText",
+        "Link",
+        "NoteSynthesisPanel",
+        "Plus",
+        "Search",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": true
+    },
+    {
+      "route": "/notifications",
+      "kind": "page",
+      "source": "app/(app)/notifications/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/lib/screendesign/support-screens",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "CalendarClock",
+        "DianaWordmark",
+        "FileText",
+        "Link",
+        "RefreshCw",
+        "ScreenDesignViewport",
+        "Settings2",
+        "StudentBottomNav",
+        "UserRoundCheck"
+      ],
+      "literalHeadings": [
+        "Coming up",
+        "Needs attention",
+        "Playbook updates",
+        "Scouting"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/parent-share",
+      "kind": "page",
+      "source": "app/(app)/parent-share/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/sharing?tab=parent"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/proof",
+      "kind": "loading",
+      "source": "app/(app)/proof/loading.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/proof",
+      "kind": "page",
+      "source": "app/(app)/proof/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Evidence collection and record",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./proof-state",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/source-media",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowRight",
+        "CheckCircle2",
+        "DianaWordmark",
+        "FolderOpen",
+        "Link",
+        "ScreenDesignViewport",
+        "ShieldCheck",
+        "SourceMedia",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Learning",
+        "No completed work yet.",
+        "No showcase work yet.",
+        "RECORD"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/qa/smart-loading-preview",
+      "kind": "page",
+      "source": "app/(app)/qa/smart-loading-preview/page.tsx",
+      "area": "qa",
+      "retired": false,
+      "family": "Internal QA fixture",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/smart-loading",
+        "next/navigation"
+      ],
+      "components": [
+        "SmartLoading"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/qa/smart-loading-probe",
+      "kind": "page",
+      "source": "app/(app)/qa/smart-loading-probe/page.tsx",
+      "area": "qa",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/lib/qa/screendesign-suspense-gate",
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [
+        "Your next view is ready"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/quick-add",
+      "kind": "page",
+      "source": "app/(app)/quick-add/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Source capture and review",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./assignment-upload-form",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "AssignmentUploadForm",
+        "Link",
+        "ScreenDesignViewport",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Add a class first.",
+        "Upload an assignment."
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/search",
+      "kind": "page",
+      "source": "app/(app)/search/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Search directory",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./search-directory-results",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/source-media",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/screendesign/support-screens",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowLeft",
+        "DianaWordmark",
+        "History",
+        "Icon",
+        "Link",
+        "ScreenDesignViewport",
+        "Search",
+        "SearchDirectoryResults",
+        "SearchResultCard",
+        "SourceMedia",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Find anything in Diana."
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": true
+    },
+    {
+      "route": "/settings/ai-history",
+      "kind": "page",
+      "source": "app/(app)/settings/ai-history/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../source-models",
+        "./actions",
+        "./csv-export-button",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/source-media",
+        "@/components/screen-design/student-bottom-nav",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "CsvExportButton",
+        "DianaWordmark",
+        "FileText",
+        "HistoryCard",
+        "Link",
+        "PlayCircle",
+        "ScreenDesignViewport",
+        "Search",
+        "SourceMedia",
+        "StudentBottomNav",
+        "Trash2"
+      ],
+      "literalHeadings": [
+        "Game"
+      ],
+      "redirectCalls": [
+        "/export#ai-history-export"
+      ],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": true
+    },
+    {
+      "route": "/settings/goals",
+      "kind": "page",
+      "source": "app/(app)/settings/goals/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/settings?section=goals"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/settings",
+      "kind": "page",
+      "source": "app/(app)/settings/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Account and options menu",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./goals-panel",
+        "./profile-center",
+        "./source-models",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "ProfileCenter"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/settings/tutor",
+      "kind": "page",
+      "source": "app/(app)/settings/tutor/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./tutor-preferences",
+        "@/components/screen-design/screen-design-viewport",
+        "@/lib/profile"
+      ],
+      "components": [
+        "ScreenDesignViewport",
+        "TutorPreferences"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/sharing",
+      "kind": "page",
+      "source": "app/(app)/sharing/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Sharing and audience permissions",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./parent-view",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "DianaWordmark",
+        "ParentSharingView",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Sharing"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/study-artifacts/[id]",
+      "kind": "page",
+      "source": "app/(app)/study-artifacts/[id]/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Practice selection and study session",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./artifact-flashcards",
+        "./practice-session",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/lib/study-helper/artifacts",
+        "@/lib/study-helper/practice-progress",
+        "@/lib/study-helper/practice-scoring",
+        "@/lib/study-helper/quiz-support-fading",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowLeft",
+        "ArtifactFlashcards",
+        "BookOpenCheck",
+        "CheckCircle2",
+        "DianaWordmark",
+        "Link",
+        "PracticeTestSession",
+        "ScreenDesignViewport"
+      ],
+      "literalHeadings": [
+        "Authorship check",
+        "Next review"
+      ],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/study-artifacts/new",
+      "kind": "page",
+      "source": "app/(app)/study-artifacts/new/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Practice selection and study session",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../actions",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ArrowLeft",
+        "BookOpenCheck",
+        "ChevronRight",
+        "FileText",
+        "Link",
+        "ScreenDesignViewport",
+        "Sparkles",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "How many questions?"
+      ],
+      "redirectCalls": [
+        "/login",
+        "/study-artifacts",
+        "dynamic"
+      ],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": true
+    },
+    {
+      "route": "/study-artifacts",
+      "kind": "page",
+      "source": "app/(app)/study-artifacts/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Practice selection and study session",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./actions",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/source-media",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "ChevronRight",
+        "DianaWordmark",
+        "History",
+        "Link",
+        "Plus",
+        "ScreenDesignViewport",
+        "SourceMedia",
+        "Sparkles",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Add a source first",
+        "Saved artifacts",
+        "Study",
+        "Your study lab is ready."
+      ],
+      "redirectCalls": [
+        "/login",
+        "/study-artifacts?notice=choose-source",
+        "/study-artifacts?notice=creation-paused",
+        "dynamic"
+      ],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": false
+    },
+    {
+      "route": "/study-buddy",
+      "kind": "page",
+      "source": "app/(app)/study-buddy/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./study-buddy-client",
+        "@/lib/assignment-help/server-understanding",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "StudyBuddyClient"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/study?notice=assignment-not-found",
+        "dynamic"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/study-groups",
+      "kind": "page",
+      "source": "app/(app)/study-groups/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./study-groups-client",
+        "@/components/screen-design/screen-design-viewport",
+        "@/lib/social/collaboration",
+        "@/lib/supabase/server",
+        "next/navigation"
+      ],
+      "components": [
+        "ScreenDesignViewport",
+        "StudyGroupsClient"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/study",
+      "kind": "page",
+      "source": "app/(app)/study/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Practice selection and study session",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./actions",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link",
+        "next/navigation"
+      ],
+      "components": [
+        "BookOpenCheck",
+        "Clock3",
+        "DianaWordmark",
+        "FolderOpen",
+        "Link",
+        "ScreenDesignViewport",
+        "StudentBottomNav",
+        "StudentDesktopNav"
+      ],
+      "literalHeadings": [
+        "Caught up",
+        "Study"
+      ],
+      "redirectCalls": [
+        "/login?next=%2Fstudy"
+      ],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": true
+    },
+    {
+      "route": "/teacher-share",
+      "kind": "page",
+      "source": "app/(app)/teacher-share/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/sharing"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/templates",
+      "kind": "page",
+      "source": "app/(app)/templates/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/assignments/new"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/timer",
+      "kind": "page",
+      "source": "app/(app)/timer/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../body-double/body-double-ui",
+        "./timer-ui",
+        "@/components/screen-design/primitives",
+        "@/components/screen-design/screen-design-viewport",
+        "@/lib/executive/session",
+        "@/lib/profile",
+        "@/lib/supabase/server",
+        "lucide-react",
+        "next/link"
+      ],
+      "components": [
+        "BodyDoubleUi",
+        "DianaWordmark",
+        "Link",
+        "ScreenDesignViewport",
+        "TimerUi",
+        "X"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/upgrade",
+      "kind": "page",
+      "source": "app/(app)/upgrade/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./upgrade-screen",
+        "@/lib/billing/checkout"
+      ],
+      "components": [
+        "UpgradeScreen"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/voice",
+      "kind": "page",
+      "source": "app/(app)/voice/page.tsx",
+      "area": "student",
+      "retired": true,
+      "family": "Retired: preserve 404 boundary",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/notes/new?mode=voice"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/wellness",
+      "kind": "page",
+      "source": "app/(app)/wellness/page.tsx",
+      "area": "student",
+      "retired": false,
+      "family": "Private check-in history",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./wellness-client",
+        "@/components/screen-design/screen-design-viewport",
+        "@/components/screen-design/student-bottom-nav",
+        "@/components/screen-design/student-desktop-nav",
+        "@/lib/supabase/server",
+        "@/lib/wellness/health",
+        "@/lib/wellness/history",
+        "@/lib/wellness/retention",
+        "next/navigation"
+      ],
+      "components": [
+        "ScreenDesignViewport",
+        "StudentBottomNav",
+        "StudentDesktopNav",
+        "WellnessClient"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/",
+      "kind": "layout",
+      "source": "app/(auth)/layout.tsx",
+      "area": "auth",
+      "retired": false,
+      "family": "Shared shell and route guards",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/app-mark",
+        "lucide-react"
+      ],
+      "components": [
+        "AppMark",
+        "LockKeyhole"
+      ],
+      "literalHeadings": [
+        "Your day, ready when you are."
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/login",
+      "kind": "page",
+      "source": "app/(auth)/login/page.tsx",
+      "area": "auth",
+      "retired": false,
+      "family": "Entry and player setup",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./form",
+        "react"
+      ],
+      "components": [
+        "LoginForm",
+        "Suspense"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/signup",
+      "kind": "page",
+      "source": "app/(auth)/signup/page.tsx",
+      "area": "auth",
+      "retired": false,
+      "family": "Entry and player setup",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/lib/age",
+        "@/lib/learner-access-policy",
+        "@/lib/onboarding/public-draft",
+        "@/lib/onboarding/screendesign",
+        "@/lib/supabase/client",
+        "next/link",
+        "next/navigation",
+        "react"
+      ],
+      "components": [
+        "Field",
+        "Link"
+      ],
+      "literalHeadings": [
+        "Create your account"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [
+        "form"
+      ],
+      "inlineStyles": false
+    },
+    {
+      "route": "/early-access/confirm",
+      "kind": "page",
+      "source": "app/early-access/confirm/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Public product and trust",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/app/early-access/action-status"
+      ],
+      "components": [
+        "EarlyAccessActionStatus"
+      ],
+      "literalHeadings": [
+        "Confirm Early Access"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/early-access/unsubscribe",
+      "kind": "page",
+      "source": "app/early-access/unsubscribe/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Public product and trust",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/app/early-access/action-status"
+      ],
+      "components": [
+        "EarlyAccessActionStatus"
+      ],
+      "literalHeadings": [
+        "Early Access Preferences"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/",
+      "kind": "error",
+      "source": "app/error.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/diana-recovery-screen",
+        "@/lib/error-recovery",
+        "@/lib/monitoring/client",
+        "next/navigation",
+        "react"
+      ],
+      "components": [
+        "DianaRecoveryScreen"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/how-it-works",
+      "kind": "page",
+      "source": "app/how-it-works/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Public product and trust",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/#how-it-works"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/assignment-world",
+      "kind": "page",
+      "source": "app/landing-3d/assignment-world/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/canonical-public-landing/landing-10k/assignment-world-gate",
+        "next",
+        "next/navigation"
+      ],
+      "components": [
+        "AssignmentWorldGate"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/calendar-concept-review",
+      "kind": "page",
+      "source": "app/landing-3d/calendar-concept-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-now-assets/local-qa",
+        "./calendar-concept-review",
+        "./fixtures",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "CalendarConceptReview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/classes-concept-review",
+      "kind": "page",
+      "source": "app/landing-3d/classes-concept-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-now-assets/local-qa",
+        "./classes-concept-review",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "ClassesConceptReview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/hero-product-capture",
+      "kind": "page",
+      "source": "app/landing-3d/hero-product-capture/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/app/(app)/assignments/work-command-center",
+        "@/app/(app)/study-artifacts/[id]/practice-session",
+        "next",
+        "next/navigation"
+      ],
+      "components": [
+        "PracticeTestSession",
+        "WorkCommandCenter"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/logo-mask",
+      "kind": "layout",
+      "source": "app/landing-3d/logo-mask/layout.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Shared shell and route guards",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/font/google",
+        "react"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/logo-mask",
+      "kind": "page",
+      "source": "app/landing-3d/logo-mask/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./logo-mask-hero",
+        "next",
+        "next/navigation"
+      ],
+      "components": [
+        "LogoMaskHero"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/more-concept-review",
+      "kind": "page",
+      "source": "app/landing-3d/more-concept-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-now-assets/local-qa",
+        "./more-concept-review",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "MoreConceptReview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/onboarding-preview",
+      "kind": "page",
+      "source": "app/landing-3d/onboarding-preview/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/app/onboarding/screendesign-onboarding",
+        "next",
+        "next/navigation"
+      ],
+      "components": [
+        "ScreenDesignOnboarding"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/settings-concept-review",
+      "kind": "page",
+      "source": "app/landing-3d/settings-concept-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-now-assets/local-qa",
+        "./fixtures",
+        "./settings-concept-review",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "SettingsConceptReview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/today-motion-review",
+      "kind": "page",
+      "source": "app/landing-3d/today-motion-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-preview/today-design-preview",
+        "next",
+        "next/navigation"
+      ],
+      "components": [
+        "TodayDesignPreview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/today-now-assets",
+      "kind": "page",
+      "source": "app/landing-3d/today-now-assets/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-preview/today-design-preview",
+        "./diana-signature-background.json",
+        "./local-qa",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "TodayDesignPreview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/today-now-composition",
+      "kind": "page",
+      "source": "app/landing-3d/today-now-composition/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-preview/today-design-preview",
+        "next",
+        "next/navigation"
+      ],
+      "components": [
+        "TodayDesignPreview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/today-preview/integration",
+      "kind": "page",
+      "source": "app/landing-3d/today-preview/integration/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../preview-data",
+        "@/app/(app)/dashboard/layout",
+        "@/app/(app)/dashboard/lobby-check-in",
+        "@/components/dashboard/today-dashboard",
+        "@/lib/dashboard/today-view",
+        "next/navigation"
+      ],
+      "components": [
+        "DashboardLayout",
+        "LobbyCheckIn",
+        "TodayDashboard"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/today-preview",
+      "kind": "page",
+      "source": "app/landing-3d/today-preview/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./today-design-preview",
+        "next",
+        "next/navigation"
+      ],
+      "components": [
+        "TodayDesignPreview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/work-capture-review",
+      "kind": "page",
+      "source": "app/landing-3d/work-capture-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-now-assets/local-qa",
+        "./work-capture-review",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "WorkCaptureReview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/work-concept-review",
+      "kind": "page",
+      "source": "app/landing-3d/work-concept-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-now-assets/local-qa",
+        "./work-concept-review",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "WorkConceptReview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/landing-3d/workspace-concept-review",
+      "kind": "page",
+      "source": "app/landing-3d/workspace-concept-review/page.tsx",
+      "area": "review",
+      "retired": false,
+      "family": "Existing review reference",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../today-now-assets/local-qa",
+        "./fixtures",
+        "./workspace-concept-review",
+        "next",
+        "next/headers",
+        "next/navigation"
+      ],
+      "components": [
+        "WorkspaceConceptReview"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/",
+      "kind": "layout",
+      "source": "app/layout.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Shared shell and route guards",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "../tokens.css",
+        "./assignment-workspace.css",
+        "./canonical-public-landing.css",
+        "./globals.css",
+        "./public-landing-v2.css",
+        "./screendesign.css",
+        "@/components/accent-provider",
+        "@/components/theme-provider",
+        "@fontsource/atkinson-hyperlegible-next/400.css",
+        "@fontsource/atkinson-hyperlegible-next/700.css",
+        "@fontsource/opendyslexic",
+        "katex/dist/katex.min.css",
+        "next",
+        "next/font/google",
+        "next/headers"
+      ],
+      "components": [
+        "AccentProvider",
+        "ThemeProvider"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/",
+      "kind": "not-found",
+      "source": "app/not-found.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/diana-recovery-screen"
+      ],
+      "components": [
+        "DianaRecoveryScreen"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/offline",
+      "kind": "page",
+      "source": "app/offline/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/screen-design/diana-recovery-screen"
+      ],
+      "components": [
+        "DianaRecoveryScreen"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/onboarding/done",
+      "kind": "page",
+      "source": "app/onboarding/done/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Entry and player setup",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next/navigation"
+      ],
+      "components": [],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/dashboard"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/onboarding",
+      "kind": "page",
+      "source": "app/onboarding/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Entry and player setup",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./form",
+        "@/lib/onboarding/screendesign-step",
+        "@/lib/profile",
+        "next/navigation"
+      ],
+      "components": [
+        "OnboardingForm"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [
+        "/dashboard",
+        "/login"
+      ],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/",
+      "kind": "page",
+      "source": "app/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Public product and trust",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/canonical-public-landing/canonical-public-landing"
+      ],
+      "components": [
+        "CanonicalPublicLanding"
+      ],
+      "literalHeadings": [],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/public-not-found",
+      "kind": "page",
+      "source": "app/public-not-found/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Shared recovery and loading",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "next",
+        "next/link"
+      ],
+      "components": [
+        "Link"
+      ],
+      "literalHeadings": [
+        "That Page Is Not Here"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/share/[token]",
+      "kind": "page",
+      "source": "app/share/[token]/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Sharing and audience permissions",
+      "dynamic": true,
+      "evidence": "source-inventoried",
+      "imports": [
+        "./parent-summary",
+        "./teacher-snapshot",
+        "@/lib/sharing/token",
+        "@/lib/sharing/types",
+        "@/lib/supabase/service"
+      ],
+      "components": [
+        "NotActive",
+        "ParentSummaryView",
+        "TeacherSnapshotView"
+      ],
+      "literalHeadings": [
+        "Shared link unavailable"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": true
+    },
+    {
+      "route": "/student-control",
+      "kind": "page",
+      "source": "app/student-control/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Public product and trust",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/marketing/public-page-frame",
+        "next"
+      ],
+      "components": [
+        "PublicPageFrame"
+      ],
+      "literalHeadings": [
+        "Help stays beside the work",
+        "The draft is still the student’s",
+        "Turn-in is a student choice"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    },
+    {
+      "route": "/trust",
+      "kind": "page",
+      "source": "app/trust/page.tsx",
+      "area": "public",
+      "retired": false,
+      "family": "Public product and trust",
+      "dynamic": false,
+      "evidence": "source-inventoried",
+      "imports": [
+        "@/components/marketing/public-page-frame",
+        "next"
+      ],
+      "components": [
+        "PublicPageFrame"
+      ],
+      "literalHeadings": [
+        "Before accounts open",
+        "Early access",
+        "Questions",
+        "Student work"
+      ],
+      "redirectCalls": [],
+      "directUiElements": [],
+      "inlineStyles": false
+    }
+  ],
+  "staticScreens": [
+    {
+      "route": "/privacy.html",
+      "source": "public/privacy.html",
+      "kind": "static-html",
+      "status": "canonical"
+    },
+    {
+      "route": "/trust.html",
+      "source": "public/trust.html",
+      "kind": "static-html",
+      "status": "redirected by next.config.ts to /privacy.html#privacy"
+    },
+    {
+      "route": "/landing-3d/today-idle-review",
+      "source": "app/landing-3d/today-idle-review/route.ts",
+      "kind": "html-route-handler",
+      "status": "development review only"
+    }
+  ]
+}

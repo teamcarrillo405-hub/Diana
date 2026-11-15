@@ -1,3 +1,4 @@
+import { workerReplicaEnvironment } from "../lib/worker-tier/worker-replica-env";
 import { loadEnvConfig } from "@next/env";
 import { spawn } from "node:child_process";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
@@ -234,13 +235,7 @@ async function runCompiledWorkerOnce({
     "--lease-seconds=60",
   ], {
     cwd: process.cwd(),
-    env: {
-      ...process.env,
-      WORKER_API_TOKEN: token,
-      DIANA_WORKER_IMAGE_SHA: imageSha,
-      OPENJARVIS_BASE_URL: sidecarBaseUrl,
-      OPENJARVIS_MODEL: model,
-    },
+    env: workerReplicaEnvironment(process.env, { token, sidecarBaseUrl, model, imageSha }),
     stdio: ["ignore", "pipe", "pipe"],
   });
 

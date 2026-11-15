@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+vi.mock("server-only",()=>({}));
 
 const mocks = vi.hoisted(() => ({
   log: vi.fn(),
@@ -10,6 +11,12 @@ const mocks = vi.hoisted(() => ({
   assignmentKind: "math",
   authorshipInserts: [] as unknown[],
   authorshipInsertThrows: false,
+  referenceLookup: vi.fn(),
+  classMissing: false,
+  classFilters: [] as unknown[][],
+  problemFound: false,
+  problemSource: "assignment_source",
+  problemFilters: [] as unknown[][],
 }));
 
 vi.mock("@/lib/ai/safety", () => ({
@@ -23,8 +30,13 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/supabase/ai-service", () => ({
   createAiServiceClient: mocks.createAiServiceClient,
 }));
+vi.mock("@/lib/learning-engine/textbook-tutor", async (importOriginal) => ({
+  ...await importOriginal<typeof import("@/lib/learning-engine/textbook-tutor")>(),
+  retrieveTextbookForTutor: mocks.referenceLookup,
+}));
 
 import { POST } from "./route";
+import { learningAccess, tutorLearningContext } from "@/lib/learning-engine/server";
 
 function tableChain(result: unknown, options: {
   onInsert?: (value: unknown) => void;
@@ -32,6 +44,7 @@ function tableChain(result: unknown, options: {
   const chain: any = {
     select: () => chain,
     eq: () => chain,
+    not: () => chain,
     gte: () => chain,
     order: () => chain,
     limit: () => chain,
@@ -52,23 +65,32 @@ function makeSupabase() {
     { onInsert: (value) => mocks.authorshipInserts.push(value) },
   );
   const profiles = tableChain({
-    data: { school_year: 9, tutor_persona: "diana", tutor_style: "socratic", tutor_complexity: "balanced" },
+    data: { user_id: "student-1", age_bracket: "13_to_17", consent_ai: true, school_year: 9, tutor_persona: "diana", tutor_style: "socratic", tutor_complexity: "balanced" },
     error: null,
   });
   const assignments = tableChain({
     data: {
       id: "11111111-1111-4111-8111-111111111111",
+      owner_id: "student-1",
+      ai_mode_override: null,
       title: mocks.assignmentTitle,
       description: mocks.assignmentDescription,
       rubric_text: "Show your reasoning.",
       kind: mocks.assignmentKind,
       class_id: "22222222-2222-4222-8222-222222222222",
+      classes: { id: "22222222-2222-4222-8222-222222222222", owner_id: "student-1", ai_mode: mocks.classAiMode },
     },
     error: null,
   });
-  const classes = tableChain({ data: { ai_mode: mocks.classAiMode }, error: null });
+  const classes = tableChain({ data: mocks.classMissing ? null : { id:"22222222-2222-4222-8222-222222222222", owner_id:"student-1", ai_mode: mocks.classAiMode }, error: null });
+  classes.eq = (key:string,value:unknown) => {mocks.classFilters.push([key,value]);return classes;};
   const sources = tableChain({ data: [], error: null });
   const problems = tableChain({ data: [], error: null });
+  problems.eq = (key:string,value:unknown) => {mocks.problemFilters.push([key,value]);return problems;};
+  problems.maybeSingle = () => Promise.resolve({ data: mocks.problemFound ? {
+    id: "33333333-3333-4333-8333-333333333333", problem_number: 2,
+    problem_text: "Solve 7x = 21", source: mocks.problemSource, unit_label: "Problem 2", unit_type: "problem",
+  } : null, error: null });
   const artifactBlocks = tableChain({ data: [], error: null });
   const snapshots = tableChain({ data: null, error: null });
   const taskSignals = tableChain(
@@ -83,6 +105,7 @@ function makeSupabase() {
   return {
     auth: { getUser: async () => ({ data: { user: { id: "student-1" } } }) },
     from: (table: string) => {
+      if (table === "data_deletion_requests") return tableChain({ data: null, error: null });
       if (table === "profiles") return profiles;
       if (table === "assignments") return assignments;
       if (table === "classes") return classes;
@@ -135,6 +158,12 @@ describe("study buddy AI guard", () => {
     vi.clearAllMocks();
     mocks.authorshipInserts.length = 0;
     mocks.authorshipInsertThrows = false;
+    mocks.classMissing = false;
+    mocks.classFilters.length = 0;
+    mocks.problemFound = false;
+    mocks.problemSource = "assignment_source";
+    mocks.problemFilters.length = 0;
+    vi.stubEnv("DIANA_HOMEWORK_PRODUCT_TIER", "direct_to_student");
     vi.stubEnv("DIANA_OPENJARVIS_SIDECAR_ENABLED", "false");
     mocks.invoke.mockResolvedValue({
       data: {
@@ -174,11 +203,106 @@ describe("study buddy AI guard", () => {
       }),
     }));
     expect(mocks.log).not.toHaveBeenCalled();
+    expect(mocks.referenceLookup).not.toHaveBeenCalled();
     expect(await response.json()).toEqual(expect.objectContaining({
       ok: true,
       evidence: expect.objectContaining({ verificationLevel: "ai_guidance" }),
       providerState: expect.objectContaining({ availability: "available", visible: false }),
     }));
+  });
+
+  it("rejects a problem outside the owned assignment before invoking help", async () => {
+    const response = await POST(new Request("http://diana.test/api/diana/study-buddy", {
+      method: "POST",
+      body: JSON.stringify({ assignmentId: "11111111-1111-4111-8111-111111111111", problemId: "33333333-3333-4333-8333-333333333333", question: "Help with this step" }),
+    }));
+    expect(response.status).toBe(404);
+    expect(mocks.problemFilters).toEqual(expect.arrayContaining([
+      ["id", "33333333-3333-4333-8333-333333333333"],
+      ["assignment_id", "11111111-1111-4111-8111-111111111111"],
+      ["owner_id", "student-1"],
+    ]));
+    expect(mocks.invoke).not.toHaveBeenCalled();
+    expect(tutorLearningContext).not.toHaveBeenCalled();
+  });
+
+  it("selects learning support for the owned active problem", async () => {
+    mocks.problemFound = true;
+    mocks.problemSource = "student_confirmed_source";
+    vi.mocked(learningAccess).mockImplementation(async (feature) => feature === "assessment");
+    vi.mocked(tutorLearningContext).mockResolvedValue({
+      support: { version: "independent-evidence-v1", action: "hint", reason: "Offer one next step." },
+      supportPolicy: { source: "baseline", artifactHash: null },
+      supportScope: "active_problem",
+      skillEstimates: [],
+      evidenceStatus: "recorded",
+    } as Awaited<ReturnType<typeof tutorLearningContext>>);
+    const response = await POST(new Request("http://diana.test/api/diana/study-buddy", {
+      method: "POST",
+      body: JSON.stringify({ assignmentId: "11111111-1111-4111-8111-111111111111", problemId: "33333333-3333-4333-8333-333333333333", question: "Help with this step" }),
+    }));
+    expect(response.status).toBe(200);
+    expect(tutorLearningContext).toHaveBeenCalledWith(expect.objectContaining({
+      ownerId: "student-1",
+      assignmentId: "11111111-1111-4111-8111-111111111111",
+      problemId: "33333333-3333-4333-8333-333333333333",
+    }));
+    expect(mocks.invoke).toHaveBeenCalledWith("study-buddy", expect.objectContaining({
+      body: expect.objectContaining({ source: expect.stringContaining("Server-selected support step: hint") }),
+    }));
+    const source = String(mocks.invoke.mock.calls[0]?.[1]?.body?.source ?? "");
+    expect(source).toContain("Selected work unit from the owned assignment: Problem 2. Solve 7x = 21");
+    expect(source).toContain("Source state: The student confirmed this imported problem text");
+  });
+
+  it("asks for source confirmation before using imported problem text in targeted help", async () => {
+    mocks.problemFound = true;
+    const response = await POST(new Request("http://diana.test/api/diana/study-buddy", {
+      method: "POST",
+      body: JSON.stringify({ assignmentId: "11111111-1111-4111-8111-111111111111", problemId: "33333333-3333-4333-8333-333333333333", question: "Help with this step" }),
+    }));
+    expect(response.status).toBe(409);
+    expect(await response.json()).toMatchObject({ok:false,error:expect.stringContaining("Check the imported problem wording")});
+    expect(mocks.invoke).not.toHaveBeenCalled();
+    expect(tutorLearningContext).not.toHaveBeenCalled();
+  });
+
+  it("uses an explicitly selected book only after class ownership checks and preserves reference examples as context", async () => {
+    mocks.referenceLookup.mockResolvedValueOnce({bookId:"lippman-rasmussen-precalculus-2.3",title:"Precalculus",authors:"Lippman and Rasmussen",edition:"2.3",license:"CC BY-SA 4.0",licenseUrl:"https://creativecommons.org/licenses/by-sa/4.0/",status:"matched",passages:[{
+      id:"passage",chapter:4,versionId:"a".repeat(64),contentHash:"b".repeat(64),assetHash:"c".repeat(64),
+      location:{page:12,pageLabel:"12",startOffset:0,endOffset:31},exactText:"Example: solve 3x + 5 = 20.",readerUrl:"/assets/textbooks/precalculus-2.3/chapter-4.pdf#page=12",
+    }]});
+    const response=await POST(new Request("http://diana.test/api/diana/study-buddy",{method:"POST",body:JSON.stringify({source:"",question:"Explain logarithmic properties",classId:"22222222-2222-4222-8222-222222222222",referenceBook:{bookId:"lippman-rasmussen-precalculus-2.3",chapter:4}})}));
+    expect(response.status).toBe(200);
+    expect(mocks.classFilters).toEqual(expect.arrayContaining([["owner_id","student-1"],["id","22222222-2222-4222-8222-222222222222"]]));
+    expect(mocks.referenceLookup).toHaveBeenCalledWith("Explain logarithmic properties",{bookId:"lippman-rasmussen-precalculus-2.3",chapter:4});
+    expect(mocks.invoke).toHaveBeenCalledWith("study-buddy",expect.objectContaining({body:expect.objectContaining({source:expect.stringContaining("Example: solve 3x + 5 = 20.")})}));
+    const body=await response.json();
+    expect(body.references.status).toBe("matched");
+    expect(body.response.main).toBe("Name one source detail.");
+    expect(body.response.anchor).toBe("Textbook search match: Precalculus, 2.3, chapter 4, PDF page 12.");
+    expect(body.evidence.verificationLevel).toBe("ai_guidance");
+  });
+
+  it("rejects an unavailable class before book lookup or model use", async () => {
+    mocks.classMissing=true;
+    const response=await POST(new Request("http://diana.test/api/diana/study-buddy",{method:"POST",body:JSON.stringify({question:"What is a function?",classId:"22222222-2222-4222-8222-222222222222",referenceBook:{bookId:"lippman-rasmussen-precalculus-2.3"}})}));
+    expect(response.status).toBe(404);expect(mocks.referenceLookup).not.toHaveBeenCalled();expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+
+  it("retains school policy before book-backed model use", async () => {
+    vi.stubEnv("DIANA_HOMEWORK_PRODUCT_TIER","school_tier");mocks.classAiMode="red";
+    const response=await POST(new Request("http://diana.test/api/diana/study-buddy",{method:"POST",body:JSON.stringify({question:"What is a function?",classId:"22222222-2222-4222-8222-222222222222",referenceBook:{bookId:"lippman-rasmussen-precalculus-2.3"}})}));
+    expect(response.status).toBe(403);expect(mocks.referenceLookup).not.toHaveBeenCalled();expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    {bookId:"another-book"},
+    {bookId:"lippman-rasmussen-precalculus-2.3",chapter:10},
+    {bookId:"lippman-rasmussen-precalculus-2.3",path:"private.pdf"},
+  ])("rejects invalid book selection",async(referenceBook)=>{
+    const response=await POST(new Request("http://diana.test/api/diana/study-buddy",{method:"POST",body:JSON.stringify({question:"Explain a function",classId:"22222222-2222-4222-8222-222222222222",referenceBook})}));
+    expect(response.status).toBe(400);expect(mocks.referenceLookup).not.toHaveBeenCalled();expect(mocks.invoke).not.toHaveBeenCalled();
   });
 
   it("does not accept an Edge success without the reliability envelope", async () => {
@@ -397,12 +521,14 @@ describe("study buddy AI guard", () => {
     }));
     expect(mocks.log).not.toHaveBeenCalled();
     expect(await response.json()).toEqual(expect.objectContaining({
-      evidence: expect.objectContaining({ verificationLevel: "tool_checked" }),
+      evidence: expect.objectContaining({ verificationLevel: "ai_guidance", verifierResult: null }),
       providerState: expect.objectContaining({ availability: "available" }),
     }));
   });
 
-  it("keeps algebra chat working with a deterministic fallback when the edge function is unavailable", async () => {
+  it("uses only the confirmed owned selected equation for a local fallback", async () => {
+    mocks.problemFound = true;
+    mocks.problemSource = "student_confirmed_source";
     mocks.invoke.mockResolvedValueOnce({ data: null, error: new Error("unavailable") });
 
     const response = await POST(new Request("http://diana.test/api/diana/study-buddy", {
@@ -410,27 +536,37 @@ describe("study buddy AI guard", () => {
       headers: { "content-type": "application/json", "x-idempotency-key": "study-linear" },
       body: JSON.stringify({
         assignmentId: "11111111-1111-4111-8111-111111111111",
+        problemId: "33333333-3333-4333-8333-333333333333",
         source: "Problem: Solve 3x + 5 = 20\nStudent work: 3x=15",
-        question: "3x=15 is what i get",
+        question: "7x=21 is what i get",
         mode: "guide",
       }),
     }));
 
     expect(response.status).toBe(200);
     const json = await response.json();
-    expect(json.response.main).toContain("divide both sides by 3");
+    expect(json.response.main.toLowerCase()).toContain("divide both sides by 7");
     expect(JSON.stringify(json)).not.toContain("x = 4");
-    expect(json.evidence).toEqual(expect.objectContaining({ verificationLevel: "tool_checked" }));
+    expect(json.evidence).toEqual(expect.objectContaining({ verificationLevel: "ai_guidance",
+      verifierResult: expect.objectContaining({ status: "not_run" }) }));
     expect(json.providerState).toEqual(expect.objectContaining({
       availability: "degraded",
       visible: true,
       title: "Verification is limited right now",
     }));
     expect(mocks.invoke).toHaveBeenCalledTimes(1);
-    expect(mocks.log).toHaveBeenCalledWith(expect.objectContaining({
-      assignmentId: "11111111-1111-4111-8111-111111111111",
-      model: "deterministic-linear-equation",
-    }), expect.any(Object));
+    expect(mocks.log).not.toHaveBeenCalled();
+    expect(mocks.authorshipInserts).toContainEqual(expect.objectContaining({payload: expect.objectContaining({
+      model: "deterministic-linear-equation", responseOrigin: "local", responseProviderTokens: 0,
+    })}));
+  });
+
+  it("does not choose a problem from broad assignment context when the provider is unavailable", async () => {
+    mocks.invoke.mockResolvedValueOnce({ data: null, error: new Error("unavailable") });
+    const response = await POST(new Request("http://diana.test/api/diana/study-buddy", { method: "POST",
+      body: JSON.stringify({ assignmentId: "11111111-1111-4111-8111-111111111111",
+        source: "Problem: Solve 3x + 5 = 20", question: "What comes next?" }) }));
+    expect(response.status).toBe(503); expect((await response.json()).response).toBeUndefined();
   });
 
 
@@ -492,7 +628,7 @@ describe("study buddy AI guard", () => {
       }),
     }));
   });
-  it("keeps assignment chat working when the dormant class policy is yellow", async () => {
+  it("enforces stored yellow policy before assignment chat", async () => {
     mocks.classAiMode = "yellow";
 
     const response = await POST(new Request("http://diana.test/api/diana/study-buddy", {
@@ -506,8 +642,9 @@ describe("study buddy AI guard", () => {
       }),
     }));
 
-    expect(response.status).toBe(200);
-    expect(await response.json()).toEqual(expect.objectContaining({ ok: true }));
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual(expect.objectContaining({ ok: false }));
+    expect(mocks.invoke).not.toHaveBeenCalled();
   });
   it("preserves a calm safety redirect from the homework function", async () => {
     mocks.invoke.mockResolvedValueOnce({
@@ -528,3 +665,9 @@ describe("study buddy AI guard", () => {
     });
   });
 });
+vi.mock("@/lib/learning-engine/server", () => ({
+  learningAccess: vi.fn(async()=>false),
+  tutorLearningContext: vi.fn(),
+  retrieveForAssignment: vi.fn(),
+  curriculumPromptContext: vi.fn(() => ""),
+}));

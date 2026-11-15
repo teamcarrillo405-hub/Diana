@@ -10,7 +10,7 @@ import {
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
-import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
+import { runAssignmentScopedHomeworkAdapter } from "../_shared/learning/assignment-help-boundary.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -137,7 +137,7 @@ Deno.serve(withStudentSecurity("writing-cowrite", async (req: Request) => {
       }],
       authorshipNote: "Student wording stays primary.",
     });
-    const modelResult = await runOpenAIHomeworkAdapter({
+    const modelResult = await runAssignmentScopedHomeworkAdapter({ request: req, body, feature: "writing-cowrite" }, {
       task: "writing_cowrite",
       ownerId,
       supabase,

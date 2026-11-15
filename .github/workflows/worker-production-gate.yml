@@ -26,6 +26,11 @@ on:
           - "10"
           - "25"
           - "100"
+      allow_server_moderation:
+        description: Approve server moderation calls for synthetic worker execution checks
+        required: true
+        default: false
+        type: boolean
       seeded_checks:
         description: Run tenant canary and load smoke with Supabase service credentials
         required: true
@@ -52,7 +57,8 @@ concurrency:
 
 jobs:
   production-gate:
-    runs-on: ubuntu-latest
+    # Authenticated browser smoke uses Playwright 1.60's supported Ubuntu dependencies.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       DIANA_WORKER_BASE_URL: ${{ inputs.target_origin }}
@@ -98,6 +104,10 @@ jobs:
         id: required_secrets
         run: |
           test -n "$WORKER_API_TOKEN"
+          if [ "${{ inputs.seeded_checks }}" = "true" ] && [ "${{ inputs.allow_server_moderation }}" != "true" ]; then
+            echo "seeded_checks requires explicit allow_server_moderation approval" >&2
+            exit 1
+          fi
           if [ -n "$DIANA_WORKER_EXPECTED_IMAGE_SHA" ] && [ "${{ inputs.seeded_checks }}" != "true" ]; then
             echo "expected_worker_image_sha requires seeded_checks=true so deployed-worker canary can prove it" >&2
             exit 1
@@ -154,7 +164,7 @@ jobs:
         if: inputs.seeded_checks == 'true' && inputs.diana_status_smoke == 'true'
         run: |
           set -o pipefail
-          npm run worker:diana-status-smoke -- --auth=browser --complete-with=worker-api --timeout-ms=120000 | tee worker-gate-evidence/diana-status-smoke.log
+          npm run worker:diana-status-smoke -- --auth=browser --complete-with=compiled-worker --allow-server-moderation --timeout-ms=120000 | tee worker-gate-evidence/diana-status-smoke.log
 
       - name: Managed queue load smoke
         id: load_smoke

@@ -13,13 +13,7 @@ export type SupportSearchEntity =
   | Readonly<{ type: "class"; id: string; title: string; detail: string }>
   | Readonly<{ type: "assignment"; id: string; title: string; detail: string }>
   | Readonly<{ type: "note"; id: string; title: string; detail: string }>
-  | Readonly<{
-      type: "concept";
-      id: string;
-      classId: string | null;
-      title: string;
-      detail: string;
-    }>
+  | Readonly<{ type: "concept"; id: string; title: string; detail: string }>
   | Readonly<{ type: "artifact"; id: string; title: string; detail: string }>;
 
 export type SupportSearchResult = Readonly<{
@@ -53,17 +47,13 @@ export function buildSupportSearchResult(
   entity: SupportSearchEntity,
 ): SupportSearchResult {
   const id = encodeURIComponent(entity.id);
-  const route =
-    entity.type === "concept"
-      ? entity.classId
-        ? `/classes/${encodeURIComponent(entity.classId)}`
-        : "/classes"
-      : {
-          assignment: `/assignments/${id}`,
-          note: `/notes/${id}`,
-          class: `/classes/${id}`,
-          artifact: `/study-artifacts/${id}`,
-        }[entity.type];
+  const route = {
+    assignment: `/assignments/${id}`,
+    note: `/notes/${id}`,
+    class: `/classes/${id}`,
+    concept: `/concepts/${id}`,
+    artifact: `/study-artifacts/${id}`,
+  }[entity.type];
   const kind = {
     assignment: "Work",
     note: "Note",

@@ -1,0 +1,43 @@
+{
+  "verified": true,
+  "reportSha256": "98c3d443fc3e7c2eefb1d3f22211a8214c06a578f238a7d543bb901b2a126a40",
+  "syntheticQualityGatePassed": false,
+  "productionEligible": false,
+  "baseline": {
+    "cases": 20,
+    "targetTokenLoss": 1.546261306706961,
+    "counts": {
+      "twoLineFormat": 18,
+      "exactSourceQuoteOrAbstention": 3,
+      "oneQuestion": 7,
+      "abstained": 1,
+      "falseAbstention": 1,
+      "unsupportedAnswer": 4,
+      "expectedAbstentionMatched": 15,
+      "caseSpecificNextStep": 2,
+      "groundedCasePass": 0
+    }
+  },
+  "adapter": {
+    "cases": 20,
+    "targetTokenLoss": 0.9873789045717809,
+    "counts": {
+      "twoLineFormat": 20,
+      "exactSourceQuoteOrAbstention": 15,
+      "oneQuestion": 18,
+      "abstained": 1,
+      "falseAbstention": 0,
+      "unsupportedAnswer": 3,
+      "expectedAbstentionMatched": 17,
+      "caseSpecificNextStep": 11,
+      "groundedCasePass": 9
+    }
+  },
+  "testGates": {
+    "lossNonRegression": true,
+    "falseAbstentionNonRegression": true,
+    "unsupportedAnswerNonRegression": true,
+    "groundedCaseStrictImprovement": true,
+    "groundedCaseAtLeast80Percent": false
+  }
+}

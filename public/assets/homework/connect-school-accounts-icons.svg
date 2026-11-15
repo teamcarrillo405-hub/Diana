@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="768" viewBox="0 0 1024 768" role="img" aria-label="School account icons connected to a homework workspace">
+  <defs>
+    <linearGradient id="bg" x1="116" y1="48" x2="914" y2="724" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fbfdf8"/>
+      <stop offset=".56" stop-color="#eaf1e8"/>
+      <stop offset="1" stop-color="#dfe8de"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="180" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eef6ee"/>
+      <stop offset=".64" stop-color="#cedbd0"/>
+      <stop offset="1" stop-color="#aab8ad"/>
+    </linearGradient>
+    <linearGradient id="blueTile" x1="0" y1="0" x2="180" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c0cbe0"/>
+      <stop offset="1" stop-color="#8da0bf"/>
+    </linearGradient>
+    <linearGradient id="workspace" x1="205" y1="430" x2="820" y2="635" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#fbfffb"/>
+      <stop offset=".72" stop-color="#effaf4"/>
+      <stop offset="1" stop-color="#daf0e6"/>
+    </linearGradient>
+    <filter id="tileShadow" x="-25%" y="-25%" width="150%" height="165%">
+      <feDropShadow dx="0" dy="20" stdDeviation="16" flood-color="#243027" flood-opacity=".2"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#ffffff" flood-opacity=".9"/>
+    </filter>
+    <filter id="panelShadow" x="-22%" y="-25%" width="150%" height="165%">
+      <feDropShadow dx="0" dy="28" stdDeviation="24" flood-color="#334137" flood-opacity=".18"/>
+      <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="#ffffff" flood-opacity=".95"/>
+    </filter>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="26"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="768" fill="url(#bg)"/>
+  <circle cx="158" cy="146" r="210" fill="#ffffff" opacity=".6" filter="url(#glow)"/>
+  <circle cx="856" cy="598" r="240" fill="#c8e8d8" opacity=".5" filter="url(#glow)"/>
+  <rect x="42" y="46" width="940" height="676" rx="62" fill="#ffffff" opacity=".26" stroke="#ffffff" stroke-width="3"/>
+
+  <g stroke="#7d9d94" stroke-width="4" stroke-linecap="round" opacity=".62">
+    <path d="M177 331v128"/>
+    <path d="M400 331v128"/>
+    <path d="M623 331v128"/>
+    <path d="M846 331v128"/>
+  </g>
+  <g fill="#d7ff41" opacity=".78">
+    <circle cx="177" cy="459" r="5"/>
+    <circle cx="400" cy="459" r="5"/>
+    <circle cx="623" cy="459" r="5"/>
+    <circle cx="846" cy="459" r="5"/>
+  </g>
+
+  <g filter="url(#tileShadow)">
+    <rect x="91" y="119" width="172" height="190" rx="37" fill="url(#tile)" stroke="#fbfffb" stroke-width="4"/>
+    <rect x="314" y="119" width="172" height="190" rx="37" fill="url(#tile)" stroke="#fbfffb" stroke-width="4"/>
+    <rect x="537" y="119" width="172" height="190" rx="37" fill="url(#blueTile)" stroke="#f2f7ff" stroke-width="4"/>
+    <rect x="760" y="119" width="172" height="190" rx="37" fill="url(#tile)" stroke="#fbfffb" stroke-width="4"/>
+  </g>
+
+  <g transform="translate(124 152)">
+    <rect x="0" y="0" width="106" height="118" rx="24" fill="#fbfffa" stroke="#d3dfd7" stroke-width="5"/>
+    <path d="M74 0v28c0 8 7 15 15 15h17" fill="none" stroke="#d9e5dc" stroke-width="5"/>
+    <rect x="24" y="38" width="22" height="22" rx="6" fill="#ea4335"/>
+    <rect x="51" y="38" width="22" height="22" rx="6" fill="#fbbc04"/>
+    <rect x="24" y="68" width="22" height="22" rx="6" fill="#34a853"/>
+    <rect x="51" y="68" width="22" height="22" rx="6" fill="#4285f4"/>
+    <circle cx="85" cy="69" r="6" fill="#aab9af"/>
+    <circle cx="85" cy="90" r="6" fill="#aab9af"/>
+  </g>
+
+  <g transform="translate(352 156)" fill="#ff3b2f">
+    <rect x="0" y="0" width="52" height="52" rx="26"/>
+    <rect x="62" y="0" width="52" height="52" rx="26"/>
+    <rect x="0" y="62" width="52" height="52" rx="12"/>
+    <rect x="62" y="62" width="52" height="52" rx="12"/>
+  </g>
+
+  <g transform="translate(570 150)" fill="#09245c">
+    <path d="M53 0 111 36H-5L53 0Z"/>
+    <rect x="8" y="45" width="90" height="68" rx="9"/>
+    <rect x="21" y="61" width="16" height="36" rx="4" fill="#edf3f7"/>
+    <rect x="47" y="61" width="16" height="36" rx="4" fill="#edf3f7"/>
+    <rect x="73" y="61" width="16" height="36" rx="4" fill="#edf3f7"/>
+    <rect x="-2" y="120" width="110" height="12" rx="6"/>
+    <circle cx="53" cy="19" r="9"/>
+  </g>
+
+  <g transform="translate(791 151)" fill="none" stroke="#d7ff41" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M55 116V25" stroke-width="22"/>
+    <path d="M55 25 15 65" stroke-width="22"/>
+    <path d="M55 25 95 65" stroke-width="22"/>
+    <path d="M17 129h76" stroke-width="17" opacity=".72"/>
+  </g>
+
+  <g filter="url(#panelShadow)">
+    <rect x="205" y="444" width="614" height="186" rx="36" fill="url(#workspace)" stroke="#ffffff" stroke-width="4"/>
+    <circle cx="247" cy="483" r="8" fill="#bfd4c7"/>
+    <circle cx="276" cy="483" r="8" fill="#cddbd2"/>
+    <circle cx="305" cy="483" r="8" fill="#dce7df"/>
+    <circle cx="756" cy="483" r="10" fill="#9ccab5"/>
+    <circle cx="789" cy="483" r="10" fill="#bad9c9"/>
+    <g stroke="#9bb4aa" stroke-width="8" stroke-linecap="round" opacity=".38">
+      <path d="M302 527h160"/>
+      <path d="M302 564h280"/>
+      <path d="M302 601h226"/>
+      <path d="M640 527h104"/>
+      <path d="M640 564h104"/>
+      <path d="M640 601h104"/>
+    </g>
+    <g fill="#aec9bd" opacity=".68">
+      <circle cx="247" cy="527" r="8"/>
+      <circle cx="247" cy="564" r="8"/>
+      <circle cx="247" cy="601" r="8"/>
+    </g>
+    <g stroke="#6d887c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" opacity=".7">
+      <path d="M766 524l10 10 23-27"/>
+      <path d="M766 561l10 10 23-27"/>
+      <path d="M766 598l10 10 23-27"/>
+    </g>
+  </g>
+</svg>

@@ -108,6 +108,7 @@ type AssignmentState = {
   work_profile: string | null;
   assignment_profile: unknown;
   source_import_status: string;
+  ai_mode_override: "red" | "yellow" | "green" | null;
 };
 
 function createHarness(patch: Partial<AssignmentState>, initialSources: Array<Record<string, unknown>> = []) {
@@ -121,6 +122,7 @@ function createHarness(patch: Partial<AssignmentState>, initialSources: Array<Re
     work_profile: null,
     assignment_profile: null,
     source_import_status: "not_started",
+    ai_mode_override: null,
     ...patch,
   };
   const sources: Array<Record<string, unknown>> = [...initialSources];

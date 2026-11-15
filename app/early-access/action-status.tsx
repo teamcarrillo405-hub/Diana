@@ -13,11 +13,11 @@ export function EarlyAccessActionStatus({ action, token }: { action: "confirm" |
     }
     const supabase = createClient();
     supabase.functions.invoke(`early-access-${action}`, { body: { token } })
-      .then(({ error }) => setState(error ? "error" : "success"))
+      .then(({ data, error }) => setState(error || data?.error || data?.ok === false ? "error" : "success"))
       .catch(() => setState("error"));
   }, [action, token]);
 
-  if (state === "loading") return <p>Updating your early-access preferences...</p>;
-  if (state === "success") return <p>{action === "confirm" ? "Your early access is confirmed." : "You have been removed from the early-access list."}</p>;
-  return <p>We could not use this link. Please return to Diana and join the early-access list again.</p>;
+  if (state === "loading") return <p role="status">Updating your early-access preferences...</p>;
+  if (state === "success") return <p role="status">{action === "confirm" ? "Your email is confirmed. We will email you when your invitation is ready." : "You have been removed from the early-access list."}</p>;
+  return <p role="status">We could not use this link. Open the latest email from Diana or return to the early-access form.</p>;
 }

@@ -1,0 +1,23 @@
+/** Independent engineering answers for authored v3 tasks; never sent in the student catalog. */
+export const EXPANSION_GATE_ANSWERS: Readonly<Record<string, string>> = {
+  "course-practice-v2:math-rational-models:percent": "18",
+  "course-practice-v2:math-rational-models:signed": "-3/4",
+  "course-practice-v2:math-rational-models:finite-probability": "1/3",
+  "course-practice-v2:math-algebra-probability:expand": "-6",
+  "course-practice-v2:math-algebra-probability:average-change": "7",
+  "course-practice-v2:math-algebra-probability:conditional": "3/4",
+  "course-practice-v2:math-polynomial-calculus:derivative": "12*x^3-4*x+5",
+  "course-practice-v2:math-polynomial-calculus:tangent-slope": "10",
+  "course-practice-v2:math-polynomial-calculus:integral": "12",
+  "course-practice-v2:math-linear-multivariable-models:determinant": "25",
+  "course-practice-v2:math-linear-multivariable-models:partial": "7",
+  "course-practice-v2:math-linear-multivariable-models:expectation": "1",
+  "course-practice-v2:science-energy-ecosystems:energy": "30.0 J",
+  "course-practice-v2:science-energy-ecosystems:density": "3.00 g/cm^3",
+  "course-practice-v2:science-mechanics-cell-evidence:kinetic": "9.00 J",
+  "course-practice-v2:science-mechanics-cell-evidence:pressure": "8.00 Pa",
+  "course-practice-v2:science-physical-models:concentration": "0.300 mol/L",
+  "course-practice-v2:science-physical-models:spring": "1.00 J",
+  "course-practice-v2:science-transport-research:diffusive-flux": "6.00e-6 mol*m^-2*s^-1",
+  "course-practice-v2:science-transport-research:first-order-rate": "0.0600 mol*L^-1*s^-1",
+};

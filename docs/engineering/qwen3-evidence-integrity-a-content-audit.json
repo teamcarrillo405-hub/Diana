@@ -1,0 +1,1221 @@
+{
+  "schema": "diana-qwen3-evidence-integrity-audit-v1",
+  "partition": "A",
+  "reviewerId": "evidence-integrity-independent-a-reviewer",
+  "reviewerKind": "ai",
+  "approvedForTraining": true,
+  "independentReviewer": true,
+  "educatorReviewed": false,
+  "sourceSha256": "41552466da9b772e538f641d9a4140bcb7ddd099239b014e566c821f15ab510f",
+  "canonicalRowsSha256": "3a63bdc87d57eafc74a30bdcf880f9fab908fe5b66da201a2011819b450ec638",
+  "pairCount": 150,
+  "contextCount": 75,
+  "reviewedAt": "2026-09-28T20:40:32.268379+00:00",
+  "unresolvedFindings": [],
+  "caseReviews": [
+    {
+      "id": "pref-integrity-a-ribbon-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "aea10a410162f8f997ec20dfa7ecd95ed91ac26a34cc39f9ed5aeff94dd83c72",
+      "notes": "Exact pre-cut measurement; checking its unit interprets the stated quantity. Rejected NEXT invents remaining length from the original measurement."
+    },
+    {
+      "id": "pref-integrity-a-ribbon-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "63f0128cd30a2d2ff30d3c85da0810b47149a3bf2b7b0a3bcebb3f9a1fb184d3",
+      "notes": "Measuring the remaining piece in centimeters obtains the absent post-cut length. Rejected NEXT invents remaining length from the original measurement."
+    },
+    {
+      "id": "pref-integrity-a-marble_plan-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "b0f8c8df20134596fde256798e047054a75a0b5716a9cd383ddfc101140a92bc",
+      "notes": "Exact plan; comparing intention with completed counting preserves modality. Rejected NEXT edits a plan into completed action."
+    },
+    {
+      "id": "pref-integrity-a-marble_plan-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "e4ca9c776112bf0240449d836bbf73efda9ea6b576bb39d99d6658bad322a65f",
+      "notes": "Revised NEXT checks whether filling occurred, then conditionally obtains per-cup counts. Rejected NEXT edits a plan into completed action."
+    },
+    {
+      "id": "pref-integrity-a-tile_dispute-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "b92a975fbe72db75d41260ef19dde772cb8dd67690787ef932866d00ed19da23",
+      "notes": "Exact first worksheet width; comparison retains both record attributions. Rejected NEXT overwrites an unverified entry to force agreement."
+    },
+    {
+      "id": "pref-integrity-a-tile_dispute-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "47a27466a4518f8cdbcac781b18af0b5ab607eae96fb6d4a42a72f8de30c71de",
+      "notes": "Counting the original width in tiles can resolve both conflicting records. Rejected NEXT overwrites an unverified entry to force agreement."
+    },
+    {
+      "id": "pref-integrity-a-ticket_subtotal-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "6f614ce312f22d553e4d90dc116db2b2d420b898bd2067cb23e636c89ef5da2c",
+      "notes": "Exact student count and unit price; distinguishing these quantities advances interpretation. Rejected NEXT switches to poster and mascot design."
+    },
+    {
+      "id": "pref-integrity-a-ticket_subtotal-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "57bc6b0b5671f0c7c8cb22e73211654c9993f6d3b2ba985ee71b1028ec0f8469",
+      "notes": "Sales-log inspection seeks both missing adult-ticket inputs in compatible units. Rejected NEXT switches to poster and mascot design."
+    },
+    {
+      "id": "pref-integrity-a-number_path-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a2bf57caf1bb5126620a2c558e99a7ff5a0311e43297d7a532626c00e96cf3be",
+      "notes": "Exact starting point; distinguishing a later position preserves temporal scope. Rejected NEXT requests an unrelated biography."
+    },
+    {
+      "id": "pref-integrity-a-number_path-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "fe3da22f830bdfb05ffe604482dd0ab10055dfa31f715ae1547989d318681fc6",
+      "notes": "A signed move distance provides direction and magnitude for the ending position. Rejected NEXT requests an unrelated biography."
+    },
+    {
+      "id": "pref-integrity-a-median_cards-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3b2436491e08bcd4a5cb2a0000ecb720a16436ea67ec34ce2aa9259a75ce1cf2",
+      "notes": "Exact Neri copy; comparing middle entries identifies the disputed value. Rejected NEXT ranks student talent without relevant evidence."
+    },
+    {
+      "id": "pref-integrity-a-median_cards-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "496cb49675c580f9df1bf3112ecf1da8bfe43e988828e51361508dd646c2d5a7",
+      "notes": "Inspecting and ordering the original cards can establish the verified median. Rejected NEXT ranks student talent without relevant evidence."
+    },
+    {
+      "id": "pref-integrity-a-angle_rays-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a6b5983cddc85c79fd7fe444704c404cfcebe6bc05087ca695a97cc507ccc061",
+      "notes": "Exact ray labels; comparing their shared endpoint is a concrete geometry step. Rejected NEXT asks for a plausible guess."
+    },
+    {
+      "id": "pref-integrity-a-angle_rays-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ba191eb96b2b7a1ee5d9313fb4b64eb89c4333f4a1195a504a97ca8a5bec7f12",
+      "notes": "Seeking intended measure or a faithful drawing avoids measuring an unscaled sketch. Rejected NEXT asks for a plausible guess."
+    },
+    {
+      "id": "pref-integrity-a-jar_volume-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "60c28bc01fff79b5bddbbd0f288c5c2f57c00ce5126f4c8fb21b05d447b104fe",
+      "notes": "Exact shape label; linking it to a formula serves the stated volume task. Rejected NEXT supplies reflection without a measurement procedure."
+    },
+    {
+      "id": "pref-integrity-a-jar_volume-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "706d4a0ef1a35a8e904cd55caff86997fb2c19525f3ba39e71578b607f10f302",
+      "notes": "Interior shape is checked before obtaining radius and height in centimeters. Rejected NEXT supplies reflection without a measurement procedure."
+    },
+    {
+      "id": "pref-integrity-a-scale_logs-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a3819c8a9ea4c2bdff746e5deaffb8f4b95936e3aa7c3f742f3db5603d70ff45",
+      "notes": "Exact Tavi mass entry; comparing digit order preserves the record conflict. Rejected NEXT chooses by believability."
+    },
+    {
+      "id": "pref-integrity-a-scale_logs-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "51ce542d91861f48aa25184c83452c3c1f2732b46884410020291f70df4d0fb9",
+      "notes": "Calibration and reweighing the unchanged parcel can resolve its mass. Rejected NEXT chooses by believability."
+    },
+    {
+      "id": "pref-integrity-a-walking_rate-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1dec51a5472094c572401a18c7fba7eac11de332a4ddf063158ff4b8b6ee6dc6",
+      "notes": "Exact route endpoints; distinguishing start and finish interprets their relationship. Rejected NEXT obtains only elapsed time."
+    },
+    {
+      "id": "pref-integrity-a-walking_rate-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "4c88550b701d680adc0f7d1f938861a3575df2b447d3896aa196519c9b909755",
+      "notes": "The proposed record check obtains traveled meters and elapsed seconds for this trip. Rejected NEXT obtains only elapsed time."
+    },
+    {
+      "id": "pref-integrity-a-paint_discount-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "21dc743e5c03da8b2fa1967e1abbbafd77baff35d6bd3e6c2494f802ae37f778",
+      "notes": "Exact reduced-price description; distinguishing direction from percentage preserves evidence limits. Rejected NEXT omits the original price."
+    },
+    {
+      "id": "pref-integrity-a-paint_discount-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "14fc93bf3f85ffdf60463b9900298f9594cee900cbc8d2515ac5158bc5e0149f",
+      "notes": "Matching original and paid prices before tax in one currency provide both inputs. Rejected NEXT omits the original price."
+    },
+    {
+      "id": "pref-integrity-a-tank_change-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "f080398e681c5b1dfdbc357d3409720c1c0dccfc129cfa1d0bd8433b719658ed",
+      "notes": "Exact morning ledger entry; comparison exposes the competing baseline. Rejected NEXT seeks only the evening reading."
+    },
+    {
+      "id": "pref-integrity-a-tank_change-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "f1b046d05db744a551deb4e51a238df85610be08c9593be0bc7c8a30d8a8bd1f",
+      "notes": "A resolved morning reading and evening level for the same tank support net change. Rejected NEXT seeks only the evening reading."
+    },
+    {
+      "id": "pref-integrity-a-fraction_note-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "cadd1cdf2dea0869e321ad1ba1436e83fa1a735e29fae79f54d9f732aa471ab9",
+      "notes": "Exact shaded-share description; comparing selected sectors with the whole is relevant. Rejected NEXT follows the embedded renaming command."
+    },
+    {
+      "id": "pref-integrity-a-fraction_note-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "6f260a60fd6067e770e591f586d1303bfdff1ff570429e55f2d2a31fc1b492bd",
+      "notes": "Obtaining radius in centimeters adds the missing circle size needed for area. Rejected NEXT follows the embedded renaming command."
+    },
+    {
+      "id": "pref-integrity-a-coordinate_plan-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "bf91d394956b8083591a9c7fd864e51971dba32d27b97bca20056c554af17972",
+      "notes": "Exact fountain coordinate; horizontal versus vertical entries interpret the ordered pair. Rejected NEXT follows the injected title command."
+    },
+    {
+      "id": "pref-integrity-a-coordinate_plan-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "9d94909efc42ac5ff1e06aca424b594eace6ffc1fe80707b471cb9d3488e4965",
+      "notes": "The question obtains bench coordinates and grid scale before computing distance. Rejected NEXT follows the injected title command."
+    },
+    {
+      "id": "pref-integrity-a-triangle_labels-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "58b123f64c5dae4004defdaa151c1b272b199cb69b5604132265d3ca6e0e7a0c",
+      "notes": "Exact first base entry; comparing records preserves attribution. Rejected NEXT follows the crown-drawing instruction."
+    },
+    {
+      "id": "pref-integrity-a-triangle_labels-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "060938a81babcbd8f083da0c025fbe326a4dd1b89f6e2a722f01e2d2dd6f5620",
+      "notes": "Direct centimeter measurement of the original base can adjudicate both entries. Rejected NEXT follows the crown-drawing instruction."
+    },
+    {
+      "id": "pref-integrity-a-lantern_path-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "c8b2a6575a4535107a00338d21e5f0d315cb427e0e4a0e70b3b70bc254471d8d",
+      "notes": "Revised NEXT compares actual location and timing phrases rather than repeating placement identification. Rejected NEXT invents a sentence carrying the lantern home."
+    },
+    {
+      "id": "pref-integrity-a-lantern_path-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "626642d497ed47d0628692164aa1ae75157dc15f839e1faa2cf3b8bc90be642f",
+      "notes": "A continuation explicitly reporting later lantern location is a relevant proposed source. Rejected NEXT invents a sentence carrying the lantern home."
+    },
+    {
+      "id": "pref-integrity-a-letter_intent-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "b73503e72937980446992b8f64755089b3c801e0f838b872411581710a8871b8",
+      "notes": "Exact promise; interpreting promised separates commitment from observed delivery. Rejected NEXT rewrites promised delivery as completed delivery."
+    },
+    {
+      "id": "pref-integrity-a-letter_intent-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "098d48da7f6bbe8a596252ec3b63a19f7a854003cc379f3a74d874a8dd47cc20",
+      "notes": "A delivery scene or recipient account can establish both arrival and timing. Rejected NEXT rewrites promised delivery as completed delivery."
+    },
+    {
+      "id": "pref-integrity-a-bridge_accounts-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "89cb6862602852857db48a308797f20e6297b552a63fcf703c6909b86aacfe2f",
+      "notes": "Exact diary claim; comparing attributed time words preserves the disagreement. Rejected NEXT changes the watchkeeper account to force agreement."
+    },
+    {
+      "id": "pref-integrity-a-bridge_accounts-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "8ad95ce3023d5c5653340191bbd56af2370cf87c7fd0b62d9fb0cac68c2398a9",
+      "notes": "Independent evidence with a time marker can address dawn versus dusk. Rejected NEXT changes the watchkeeper account to force agreement."
+    },
+    {
+      "id": "pref-integrity-a-blue_scarf-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "8fecb317f44979d456f9904b45b497560722adb5173a155bb7703e6c6fdf78b2",
+      "notes": "Revised NEXT compares appearance with signaling purpose without inventing the unstated message. Rejected NEXT changes the task to an invented adventure."
+    },
+    {
+      "id": "pref-integrity-a-blue_scarf-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3bd914e26c595cf445c33e0d1e01867dfbea5a5ddf41aecd15214739e904c3cb",
+      "notes": "The earlier agreement is a specific source for the assigned signal meaning. Rejected NEXT changes the task to an invented adventure."
+    },
+    {
+      "id": "pref-integrity-a-quiet_stairs-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "30f603a5dba7f532f65c2a9663e28e7a76e2376fbabfaa75ddbbbeaed8d74b4e",
+      "notes": "Revised NEXT distinguishes pausing movement from listening without diagnosing an emotion. Rejected NEXT invents personality and future-decision judgments."
+    },
+    {
+      "id": "pref-integrity-a-quiet_stairs-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3a9c679c1d6062ccfd4765d6cce561ce635b8b4ef302e8ef342c74fb06c1ec70",
+      "notes": "A passage giving Ada thoughts or explanation could establish the otherwise unknown feeling. Rejected NEXT invents personality and future-decision judgments."
+    },
+    {
+      "id": "pref-integrity-a-key_witness-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "4c6f9a6e43c6e201c4e4b97870f52636ef6ca053fd2c6ac9c53b04ce56260964",
+      "notes": "Exact baker attribution; identifying each speaker preserves the conflicting reports. Rejected NEXT generalizes trustworthiness across occupations."
+    },
+    {
+      "id": "pref-integrity-a-key_witness-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "310d967242a9bf4f69a5c7a1e203e058af51614a40f636dd0e462c9a9130b13d",
+      "notes": "A direct account of the specific trip can help resolve the carrier. Rejected NEXT generalizes trustworthiness across occupations."
+    },
+    {
+      "id": "pref-integrity-a-window_noise-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "f6ac9931c74b1972c103053a92f8ef360779bcc79e9aacba849bf24507cc0aba",
+      "notes": "Exact limited location; examining somewhere highlights uncertainty in the wording. Rejected NEXT substitutes pondering for observation."
+    },
+    {
+      "id": "pref-integrity-a-window_noise-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "87add4e63f1986da140a934d3c47eae8f2905d82c13bf3b556daa656e811ad18",
+      "notes": "Inspecting a subsequent observation of the sound source is a concrete evidence search. Rejected NEXT substitutes pondering for observation."
+    },
+    {
+      "id": "pref-integrity-a-seed_box-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "d69194fa2e573d4e8982b9a3381053f2535fb00d734fc328dd72a6d2d026183e",
+      "notes": "Exact hope statement; separating desired growth from observation preserves source scope. Rejected NEXT requests only an opinion."
+    },
+    {
+      "id": "pref-integrity-a-seed_box-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1d279e00967bcce87edfd4c4d1c2b93cfe598c8bd8822d81a654ce408a24c667",
+      "notes": "A later dated observation of the same box could establish sprouting or its absence. Rejected NEXT requests only an opinion."
+    },
+    {
+      "id": "pref-integrity-a-door_color-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "68f26069c19de6b54dbaaeeae431f926e86d13354204fe287c43c7c5eefba948",
+      "notes": "Exact Kito recollection; comparing attributed color words preserves both accounts. Rejected NEXT chooses by intuition."
+    },
+    {
+      "id": "pref-integrity-a-door_color-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "d8488fef848131d9fdf0db2c057e5dffbd0a9602a45679fec7f6dc346bac2430",
+      "notes": "A dated image or direct description from that afternoon can resolve historical color. Rejected NEXT chooses by intuition."
+    },
+    {
+      "id": "pref-integrity-a-two_arrivals-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "d84fea9eb312073a1a4830938c760618b27fe317ab20491dde49745d6168bfe4",
+      "notes": "Exact temporal sentence; interpreting after identifies only the event order actually supplied. Rejected NEXT retrieves only the bell time."
+    },
+    {
+      "id": "pref-integrity-a-two_arrivals-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "802085c111e2fe7a484cb825d1023780b8f59a87738806cfd393937f5c0b78d2",
+      "notes": "Revised NEXT obtains both dated event times on one standard without assuming the same day. Rejected NEXT retrieves only the bell time."
+    },
+    {
+      "id": "pref-integrity-a-basket_sharing-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "51d2f5a70ad02da71f60d69085f73e978451e49b651508825c0881eb69526208",
+      "notes": "Exact offer; comparing intended rule with observed distribution preserves modality. Rejected NEXT obtains only apple count."
+    },
+    {
+      "id": "pref-integrity-a-basket_sharing-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "daa98db644cede8c5966f95a31b909b08e2c7e743c8db44cdbf55c6d136cdc26",
+      "notes": "The planned share requires both apple and participating-traveler counts, which are requested. Rejected NEXT obtains only apple count."
+    },
+    {
+      "id": "pref-integrity-a-race_recollections-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3b3a22e18136c8d83f511302c6ef7bcddf9a69c5ba3cb1dffe9514361140ef77",
+      "notes": "Exact first recollection; comparison preserves uncertainty about the true start. Rejected NEXT accepts the disputed first start."
+    },
+    {
+      "id": "pref-integrity-a-race_recollections-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "031eeea43c7c66392f632efb8d1d5b3d60fb74f7f82efe3caf0bb5c374b7b04f",
+      "notes": "Revised NEXT obtains a resolved start and finish with both dates on one time standard. Rejected NEXT accepts the disputed first start."
+    },
+    {
+      "id": "pref-integrity-a-paper_boat-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a875ad5e09baf0506a6b5aaa7dc2f10f5c4629e65d9af4ad0800244ed964b75e",
+      "notes": "Revised NEXT compares stream and mill location phrases to explain how they jointly narrow placement. Rejected NEXT follows the embedded title instruction."
+    },
+    {
+      "id": "pref-integrity-a-paper_boat-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "9a9ece3a9298133de64f4e75ca029c04f65b5bf15bcfde44bdb97cb54d115f96",
+      "notes": "A continuation following the same boat until it stops could establish its resting place. Rejected NEXT follows the embedded title instruction."
+    },
+    {
+      "id": "pref-integrity-a-song_request-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "0262b7f1c2c3c94a0b7d333a2fc7c0559dfaab65e1b5a3ac6ce3874c07fde14c",
+      "notes": "Exact request; distinguishing it from performance preserves the documented action. Rejected NEXT follows the paragraph-numbering command."
+    },
+    {
+      "id": "pref-integrity-a-song_request-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "81bae92aa9c5ee7afd3e1076fb9fde8423eecb6d09bed865ef72d9bcd5258cb0",
+      "notes": "An event account or afterward-annotated program can establish the songs actually performed. Rejected NEXT follows the paragraph-numbering command."
+    },
+    {
+      "id": "pref-integrity-a-parcel_rumor-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "e9b1629adc25c5efdd4495cdf2d2a04f8d8d796efcd0ca6e11d009d15d8c842a",
+      "notes": "Exact Daro claim; attributing shed and porch preserves the competing reports. Rejected NEXT obeys the story-renaming instruction."
+    },
+    {
+      "id": "pref-integrity-a-parcel_rumor-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ad642bb763843adc8804403a97ef0e0e00ff3054200898ec24b5da2fe3d2cac7",
+      "notes": "An account from the person who placed the parcel can address the location dispute. Rejected NEXT obeys the story-renaming instruction."
+    },
+    {
+      "id": "pref-integrity-a-poster_verb-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3cf9f4280d24c43907afa7dbac280ec432e34449176b6c02398b7a4724bebd34",
+      "notes": "Exact poster sentence; inspecting future wording does not claim planting occurred. Rejected NEXT edits future wording into completed action."
+    },
+    {
+      "id": "pref-integrity-a-poster_verb-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1247e713dee95e6b4fd9d2c03007181bf978b67b8740febff4703a37370c5e02",
+      "notes": "A dated report for the stated Friday can establish actual planting. Rejected NEXT edits future wording into completed action."
+    },
+    {
+      "id": "pref-integrity-a-speaker_tag-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3d1f26aeeca82f1eb2d27e480ef9b86cecbd979de841a101e22134b1dab76650",
+      "notes": "Exact script attribution; distinguishing script from performance is relevant. Rejected NEXT invents a performance note."
+    },
+    {
+      "id": "pref-integrity-a-speaker_tag-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "90adbfe41a529535182df625d7348ffbe9a35dfbf6f2a27d70a5cc9ae76e594f",
+      "notes": "A recording or checked performance transcript can establish the actual speaker. Rejected NEXT invents a performance note."
+    },
+    {
+      "id": "pref-integrity-a-draft_versions-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "78fd660a2e6d6906541d711e650998527de187d00d3071b71bd1d7c9abaa65fd",
+      "notes": "Exact Copy A closing; comparing labeled versions preserves provenance. Rejected NEXT overwrites the other copy."
+    },
+    {
+      "id": "pref-integrity-a-draft_versions-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "cf7f5af273c3fc29f49647569455ed1494149c88714cc656a348155b9f9ecdf8",
+      "notes": "Approval evidence and the sent invitation can establish authorized and used wording. Rejected NEXT overwrites the other copy."
+    },
+    {
+      "id": "pref-integrity-a-comma_draft-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "9fdca789169944940f60fe80892920c31d1ba05c24f460cd0abff7a856fc4e8a",
+      "notes": "Exact sentence; identifying its introductory phrase serves the stated editing focus without completing an edit. Rejected NEXT switches to fantasy-novel writing."
+    },
+    {
+      "id": "pref-integrity-a-comma_draft-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "864aa62c872f87bc6780784770d9ad46009b140e94bb8cef4c459799012000f9",
+      "notes": "The final author version can establish whether the specified comma was added. Rejected NEXT switches to fantasy-novel writing."
+    },
+    {
+      "id": "pref-integrity-a-word_choice-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1447c6eae4dbbd5e032b78641391109e50cde033312af8181db94e810091409a",
+      "notes": "Exact sensory phrase; distinguishing its qualities interprets wording without inventing temperature. Rejected NEXT requests unrelated business planning."
+    },
+    {
+      "id": "pref-integrity-a-word_choice-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "53cb0d65ccf3a6679d2db1687ead59e6b08c939ea8d0657bcbcf3f83efa31c25",
+      "notes": "A contemporaneous thermometer record is the appropriate proposed numerical source. Rejected NEXT requests unrelated business planning."
+    },
+    {
+      "id": "pref-integrity-a-quoted_motto-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "2b9409ecd4d392bdb60e01fa442c0b8b40fd3f35756dae6090f247054b7368bd",
+      "notes": "Exact first transcription; comparing care and courage identifies the specific disagreement. Rejected NEXT infers lifelong morality."
+    },
+    {
+      "id": "pref-integrity-a-quoted_motto-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "b9b2adce878fd25557d18f0c44ea8b4f787ee240c7062c5f9202181442ef762a",
+      "notes": "Original speech audio at the motto can adjudicate the spoken word. Rejected NEXT infers lifelong morality."
+    },
+    {
+      "id": "pref-integrity-a-pronoun_context-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "12898069acdf15cbec163a11f07924aa9997e0d9f2ecd4c3c41954d1d97cc49f",
+      "notes": "Exact sentence; comparing subject and object pronouns advances grammatical understanding. Rejected NEXT replaces contextual evidence with reflection."
+    },
+    {
+      "id": "pref-integrity-a-pronoun_context-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "33a60bc52ce263ea627f42dc01b19e8d360f210c74d38226ee2192ea2bfbc214",
+      "notes": "Preceding original-story sentences are a specific place to seek the missing antecedent. Rejected NEXT replaces contextual evidence with reflection."
+    },
+    {
+      "id": "pref-integrity-a-revision_intent-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "4873163102f8ab21eb0f5502032f4eaff623a961199163bedd92dd99752b95c9",
+      "notes": "Exact intention; distinguishing plan from completed editing preserves source scope. Rejected NEXT asks only whether shortening probably occurred."
+    },
+    {
+      "id": "pref-integrity-a-revision_intent-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "2a8e8b1b5db6c349562eebdd5c6b3f1b36186cb9e35ec54d3e4458212849d410",
+      "notes": "Comparing initial and final opening counts under one rule can establish actual shortening. Rejected NEXT asks only whether shortening probably occurred."
+    },
+    {
+      "id": "pref-integrity-a-tense_copies-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "e933041a61eff8a294e622eb182ce5f06af51d9a60111c7ac464de4524cc5b2a",
+      "notes": "Exact first copy; comparing walks and walked identifies the supplied tense difference. Rejected NEXT chooses wording by elegance."
+    },
+    {
+      "id": "pref-integrity-a-tense_copies-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "47482dbf671d51c8f67377cc9159d98684b57589952eb0a5051059f427305b9e",
+      "notes": "The archived original submission can resolve which verb form was submitted. Rejected NEXT chooses wording by elegance."
+    },
+    {
+      "id": "pref-integrity-a-essay_growth-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "263c8948e006c1a76a434cd59a77e06d25066bc3e868b9f7dbbce69ec12e4f09",
+      "notes": "Exact named section; distinguishing introduction from whole essay clarifies scope. Rejected NEXT counts only the final introduction."
+    },
+    {
+      "id": "pref-integrity-a-essay_growth-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "59a36d967279bf468d544723dc74f22f646f9e2b3b5f860538d93951ed3d57b1",
+      "notes": "Both drafts, matching boundaries, and one counting rule provide the required comparison. Rejected NEXT counts only the final introduction."
+    },
+    {
+      "id": "pref-integrity-a-speech_rate-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a2898414942c41d5e12fb12b553b54d28e58906818f8dec9a15f3d5d11f934b5",
+      "notes": "Exact title; interpreting Garden concerns the title without asserting an unseen transcript. Rejected NEXT uses only scheduled slot length."
+    },
+    {
+      "id": "pref-integrity-a-speech_rate-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "b9f5a19b6b5d20f435a54647938b18323bb4a4f15469710695b4fb0f24a0c754",
+      "notes": "Recording-based delivered words and speaking minutes excluding introductions support actual delivery rate. Rejected NEXT uses only scheduled slot length."
+    },
+    {
+      "id": "pref-integrity-a-paragraph_count-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "37f8e519b159553c305f5bc6cd7c1d2441c3534827c54fbf8ee7e388284d9431",
+      "notes": "Exact first inventory; comparison identifies the disputed initial count. Rejected NEXT obtains only final count."
+    },
+    {
+      "id": "pref-integrity-a-paragraph_count-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "62604ef3a310e1c2d591383ad0b0b321c2793d2f78df81d5c67c49c5d01a59ec",
+      "notes": "Both originals under one paragraph rule can resolve baseline and actual change. Rejected NEXT obtains only final count."
+    },
+    {
+      "id": "pref-integrity-a-adverb_line-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "03b574e6d57b49b7cce967867cacaecbe07fef4778fde6d1a23b4e04131fbe0a",
+      "notes": "Exact sentence; interpreting quietly as manner does not invent speed. Rejected NEXT follows the pasted heading command."
+    },
+    {
+      "id": "pref-integrity-a-adverb_line-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "4fd610649fcde48c621214bc22dec562729183c0042c7cd0f2b5557e6693aa45",
+      "notes": "An observation record with meters and elapsed seconds supplies both speed inputs. Rejected NEXT follows the pasted heading command."
+    },
+    {
+      "id": "pref-integrity-a-announcement_plan-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a105a69ee5de15d7da76bfdbe9504df8989e171a6b49effffd7083b8fcb98fab",
+      "notes": "Exact opening plan; distinguishing proposed month from actual opening preserves modality. Rejected NEXT follows the injected signature command."
+    },
+    {
+      "id": "pref-integrity-a-announcement_plan-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a86cce590b8d286411a99dc29b9228f542ec332257f22ca65806309106dbec31",
+      "notes": "A dated first-operation record can establish the actual opening month. Rejected NEXT follows the injected signature command."
+    },
+    {
+      "id": "pref-integrity-a-title_variants-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "5e030b53b5f220e15466ef64502aa666c1371684d4c358ba32645892add41491",
+      "notes": "Exact cover title; comparing attributed adjectives preserves the proof disagreement. Rejected NEXT obeys the decoration instruction."
+    },
+    {
+      "id": "pref-integrity-a-title_variants-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "feeb942060e6fe65a83e0b2c5029d01e6e8a811d63e63a1b7a5604d18e934582",
+      "notes": "The poet approval record for this poem can establish the authorized title. Rejected NEXT obeys the decoration instruction."
+    },
+    {
+      "id": "pref-integrity-a-sprout_plan-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "15c4b4c7b28f486f7e7fdf4c018a27f41c3c8e1320f206d70753c15e487293fd",
+      "notes": "Exact care schedule; distinguishing prescribed treatment from recorded watering preserves evidence limits. Rejected NEXT fabricates care-log checkmarks."
+    },
+    {
+      "id": "pref-integrity-a-sprout_plan-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "9491df81eaffedff7b2cba8f5e5270ade95e83f67917f5d6f80f29a6de785aea",
+      "notes": "The tray care log for each relevant morning is a concrete proposed observation source. Rejected NEXT fabricates care-log checkmarks."
+    },
+    {
+      "id": "pref-integrity-a-rock_surface-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1cafffb731358ce293a992342780632606a0b9c540396bb246fd2ed9faf17e83",
+      "notes": "Exact surface description; separating texture from color interprets the recorded observations. Rejected NEXT inserts an unsupported quartz label."
+    },
+    {
+      "id": "pref-integrity-a-rock_surface-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "11e68a6a5e12374bd7ef93aa2ac4ebe5d2272cf02e99dddd919a88f76be842a2",
+      "notes": "Instructor examination with recorded diagnostic tests can establish mineral identity. Rejected NEXT inserts an unsupported quartz label."
+    },
+    {
+      "id": "pref-integrity-a-thermometer_dispute-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "bf1217c966028408798c98da3ffb8b53779394eeeea420188dada284bafff6e3",
+      "notes": "Exact first reading; comparing Celsius entries preserves record attribution. Rejected NEXT overwrites a reading without verification."
+    },
+    {
+      "id": "pref-integrity-a-thermometer_dispute-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "995ff1a2c356e33982bc44f4231d2f36d67ff987df472f668d1f50be8e86e776",
+      "notes": "Original timestamped instrument evidence and calibration notes can resolve the discrepancy. Rejected NEXT overwrites a reading without verification."
+    },
+    {
+      "id": "pref-integrity-a-leaf_label-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a373feda810e88bc0a2ca8bcac0a02e3125d4412ec995e0b3f817d63da395f70",
+      "notes": "Revised NEXT compares plant identity with collected plant part rather than repeating specimen identification. Rejected NEXT replaces the task with park redesign."
+    },
+    {
+      "id": "pref-integrity-a-leaf_label-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "250c2af147f42bcc621cc8753271356c2331910400f2990b60ea78e33daebf4a",
+      "notes": "Revised NEXT obtains tree identity and collection date, then dated age evidence for historical age. Rejected NEXT replaces the task with park redesign."
+    },
+    {
+      "id": "pref-integrity-a-filter_proposal-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "2613eb50e06967772fbef72cfc60b81d39df6cc8d4cf489408c749c69eb79115",
+      "notes": "Exact proposal; distinguishing planned comparison from results preserves scope. Rejected NEXT changes the task to coat marketing."
+    },
+    {
+      "id": "pref-integrity-a-filter_proposal-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3cf508016451b969cbde96be6c2c0a26d99843918564ad688897b9ca94f739aa",
+      "notes": "Matched trials with paired particle counts in equal volumes for both materials supply comparative evidence. Rejected NEXT changes the task to coat marketing."
+    },
+    {
+      "id": "pref-integrity-a-moon_notes-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "bed3a06af8cc94d150ef007ff66f8063e64f9fe949825ed30f0336ee61a77275",
+      "notes": "Exact Observer A description; comparison preserves both attributed shapes. Rejected NEXT ranks observer intelligence."
+    },
+    {
+      "id": "pref-integrity-a-moon_notes-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1753dd6565f346e75f20871d3e566d8e4a9c4c612e6abd79a62344bae993500d",
+      "notes": "A verified corresponding image can resolve appearance at the stated time and place. Rejected NEXT ranks observer intelligence."
+    },
+    {
+      "id": "pref-integrity-a-soil_moisture-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "43cc7f8d142150de3d903712647fa3c1fb785e45474bdcd4536378abf35ed8fa",
+      "notes": "Exact touch observation; identifying its qualitative nature avoids a fabricated percentage. Rejected NEXT asks for an imagined percentage."
+    },
+    {
+      "id": "pref-integrity-a-soil_moisture-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "cbdc6705a608b7366a40902cfed95851edb52f6f3b90f0757af1ea42f889b603",
+      "notes": "The procedure excludes container mass, dries to constant mass, and compares water loss with dry mass. Rejected NEXT asks for an imagined percentage."
+    },
+    {
+      "id": "pref-integrity-a-magnet_claim-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "64128ebe969ccb50fccb54cdaf1da6d55665b27cd099758b7924f9474b4d7b2d",
+      "notes": "Exact planned action; distinguishing instruction from response avoids claiming an unreported test. Rejected NEXT asks the learner to imagine a response."
+    },
+    {
+      "id": "pref-integrity-a-magnet_claim-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ea2581299f93bebb745fbbd2d31f188d55f44c883ff88f9d2a33b4f0389ecfcc",
+      "notes": "A free-to-move object and recorded motion during the approach provide an observation. Rejected NEXT asks the learner to imagine a response."
+    },
+    {
+      "id": "pref-integrity-a-bird_count-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "5c573ee5e55e9e11a2b5d3858c20b0458a1f29753b5de2348a612411cf65095f",
+      "notes": "Exact north-window entry; comparing counts with observation locations retains provenance. Rejected NEXT selects by plausibility."
+    },
+    {
+      "id": "pref-integrity-a-bird_count-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "e4074ff146fb19c71c51441f51d0b9fafe0018287cbf1762db94136c8e434397",
+      "notes": "Timestamped feeder footage is a concrete proposed source for counting distinct birds at that instant. Rejected NEXT selects by plausibility."
+    },
+    {
+      "id": "pref-integrity-a-cooling_trial-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1531f5eca130927cb6a4c50ee5a2678a5aa1f2f4fb4698a4344823d5e703506b",
+      "notes": "Exact process statement; distinguishing it from rate preserves qualitative scope. Rejected NEXT retrieves only final temperature."
+    },
+    {
+      "id": "pref-integrity-a-cooling_trial-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a21310193215551bce67b36b6d55dc0fbd79c3766115b35299016a3c3501ad1f",
+      "notes": "The trial trace supplies both endpoint temperatures and times for change over interval. Rejected NEXT retrieves only final temperature."
+    },
+    {
+      "id": "pref-integrity-a-density_sample-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "499f2a38fc6a1464cd53144945fefb6f17b9e9fdd71cff3f0f16a68c385b18d6",
+      "notes": "Exact irregular-solid description; considering geometry is relevant to choosing a volume procedure. Rejected NEXT measures only mass."
+    },
+    {
+      "id": "pref-integrity-a-density_sample-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "36abb00961d9c4b8c552668aed7bf71d593e7a8d001a6f20e95e931d59b11deb",
+      "notes": "Mass and material-suitable displacement volume in compatible units provide both density inputs. Rejected NEXT measures only mass."
+    },
+    {
+      "id": "pref-integrity-a-plant_growth-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "4dcafe8b0fd2213743019df68d72d9b5dfba67d3f0b7f523366a6f1b90ddbf70",
+      "notes": "Exact first baseline; comparing entries preserves the unresolved difference. Rejected NEXT obtains only final height."
+    },
+    {
+      "id": "pref-integrity-a-plant_growth-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "cad9a0bbe5da9ff792e0295725a3721a2882ccaa556f0753b23ba79518b0ce06",
+      "notes": "A verified initial height, final height, and both dates supply average growth inputs. Rejected NEXT obtains only final height."
+    },
+    {
+      "id": "pref-integrity-a-evaporation_setup-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "96f2a2a0af3d747db80122cfffab9b95c3b26c0591dd16007a37f8f14185dbaf",
+      "notes": "Exact placement; interpreting uncovered and beside the window identifies stated setup conditions. Rejected NEXT follows the laboratory-renaming instruction."
+    },
+    {
+      "id": "pref-integrity-a-evaporation_setup-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ca21deb6d1e1a61c006ad7c424b4d256170ba1cf552087ef67efa98f878dbe23",
+      "notes": "Paired masses and times with additions or spills documented provide the relevant change evidence. Rejected NEXT follows the laboratory-renaming instruction."
+    },
+    {
+      "id": "pref-integrity-a-sound_prediction-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "dec5b11480fc9ed52cbef3a1668b6ffaf0d229ebfc1139dae953b3e1e1a5094d",
+      "notes": "Exact possibility; distinguishing may produce from observation preserves uncertainty. Rejected NEXT obeys the potato-drawing instruction."
+    },
+    {
+      "id": "pref-integrity-a-sound_prediction-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "3d21da38a2f246143e3d32f4fc37cfb1f3f185d478fa20f717c18efafd0c3299",
+      "notes": "Matched before/after hertz readings for the same band and conditions supply the needed comparison. Rejected NEXT obeys the potato-drawing instruction."
+    },
+    {
+      "id": "pref-integrity-a-solution_color-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "04d0efa4559293651dbd06bf123fd25d115b75098068cdcf392a57188e58f5b1",
+      "notes": "Exact Team A claim; attributing violet and yellow preserves the conflict. Rejected NEXT follows the conclusion-replacement instruction."
+    },
+    {
+      "id": "pref-integrity-a-solution_color-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "4045efd264908aab434acb8953ad84d764706d091cd2dcf7819e32c1109dbcdf",
+      "notes": "A contemporaneous calibrated image or suitable instrument record can resolve actual color. Rejected NEXT follows the conclusion-replacement instruction."
+    },
+    {
+      "id": "pref-integrity-a-canal_proposal-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "00c13fcfcc206754b701dd81d0d163ca2103b1827d898de23ce87c08a6a932d8",
+      "notes": "Exact council proposal; distinguishing it from construction completion preserves the stated action. Rejected NEXT inserts a fabricated completion notice."
+    },
+    {
+      "id": "pref-integrity-a-canal_proposal-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "6e4cf5a9adc850fe5658b1bf90371e94a7a8cf36df1dc3584949e0b73c23e024",
+      "notes": "A dated completion or construction record is a specific proposed source without assigning a year. Rejected NEXT inserts a fabricated completion notice."
+    },
+    {
+      "id": "pref-integrity-a-market_rule-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "885e765a98df0b2d9f31ca47d72a6b2d81b9dac4dc3f48b6e4189ef44c17e5d7",
+      "notes": "Exact decree; distinguishing required behavior from observed compliance preserves scope. Rejected NEXT appends unsupported universal compliance."
+    },
+    {
+      "id": "pref-integrity-a-market_rule-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "dc84e1ff7374defc31007045fdab69be4d67cd8a57c655dc180007f9956b83c9",
+      "notes": "A complete first-market register covering every trader targets the requested universal claim. Rejected NEXT appends unsupported universal compliance."
+    },
+    {
+      "id": "pref-integrity-a-fort_year-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "cebb3d9b145d077ea24cbc1352e511eb2a1e6e005e185260aa44aa691239bcae",
+      "notes": "Exact Chronicle A date; comparing attributed dates retains the disagreement. Rejected NEXT edits one chronicle to force agreement."
+    },
+    {
+      "id": "pref-integrity-a-fort_year-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "cd0ac08e22d4bba97608c0775811c38bbceb246ab590aca2df51e0d2254e9ed9",
+      "notes": "A dated primary charter or construction record can resolve the later copies. Rejected NEXT edits one chronicle to force agreement."
+    },
+    {
+      "id": "pref-integrity-a-harbor_letter-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "6c80c2aa51cbbb74baa94b55bc868b563cc4f0ca504612f25646b4d9c6839b76",
+      "notes": "Exact lamp request; distinguishing request, approval and installation preserves documentary scope. Rejected NEXT switches to modern vacation planning."
+    },
+    {
+      "id": "pref-integrity-a-harbor_letter-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "bbd3bf2a56d68654e04ad9463ae442388d79c77601ed56d8cf26b30e6fbd4340",
+      "notes": "The governor response and installation records are relevant to action and implementation. Rejected NEXT switches to modern vacation planning."
+    },
+    {
+      "id": "pref-integrity-a-guild_emblem-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "d46d042fa68f67b9b5a1952801010c8d2f176cf5cbe673b61721b7c2a895b05c",
+      "notes": "Exact emblem; separating depiction from symbolic interpretation advances source reading. Rejected NEXT judges every member artistic ability."
+    },
+    {
+      "id": "pref-integrity-a-guild_emblem-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "517f71ffe0cf333d268fcf27104e5b51e3a029936b4a9353e00c5786bdd0a006",
+      "notes": "An explicit guild charter or contemporary explanation can establish official meaning. Rejected NEXT judges every member artistic ability."
+    },
+    {
+      "id": "pref-integrity-a-assembly_site-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "762d23c798881152cc3d28f823fda53522d1a73fa7f422bef8926e0253eb7015",
+      "notes": "Exact Account A site; comparing attributed locations preserves the conflict. Rejected NEXT replaces location checking with comedy writing."
+    },
+    {
+      "id": "pref-integrity-a-assembly_site-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "6ed579a699fe3f69f5202164de414b3aee4f3b2bef5985e5d02584c4fab7ab01",
+      "notes": "Attendance or direct-witness evidence is a specific proposed resolver. Rejected NEXT replaces location checking with comedy writing."
+    },
+    {
+      "id": "pref-integrity-a-coin_mint-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ec8f667aca9c4ad0619084ec97b1f6cbb258ed2097b94578ffb208e6c1f4b03c",
+      "notes": "Exact appearance; distinguishing color and image analyzes recorded features without assigning origin. Rejected NEXT guesses from imagined preferences for birds."
+    },
+    {
+      "id": "pref-integrity-a-coin_mint-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1a834294a6732ba4f1b1211a436080be73abf42766cc62c5d94857b69ff4c0cb",
+      "notes": "Curator examination against authenticated mint references is a concrete identification procedure. Rejected NEXT guesses from imagined preferences for birds."
+    },
+    {
+      "id": "pref-integrity-a-school_petition-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "20bab7677ce20eeb2c0306081b19f2e0dbed15a55d3c013b21711ac32ce34de0",
+      "notes": "Exact school request; contrasting petitioning with operation preserves the documented action. Rejected NEXT substitutes optimism for checking."
+    },
+    {
+      "id": "pref-integrity-a-school_petition-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ce9922a919dfbb98c286c00128e908c6add0322210dfb1aa234c65f670c82695",
+      "notes": "Dated opening notices or attendance books directly seek operational evidence. Rejected NEXT substitutes optimism for checking."
+    },
+    {
+      "id": "pref-integrity-a-ship_manifest-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "05f7fc9b27ca564d268d16de70d3037be538fe8beecee768f26c358169f70483",
+      "notes": "Exact Manifest A cargo; comparing attributed claims preserves both copies. Rejected NEXT chooses typical-sounding cargo."
+    },
+    {
+      "id": "pref-integrity-a-ship_manifest-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "07d98e58fc325d218386455a220ac0d64c4ae69122d95c6d957f59a8c5a4f9e5",
+      "notes": "Signed receipts for that ship and voyage can establish actual loading. Rejected NEXT chooses typical-sounding cargo."
+    },
+    {
+      "id": "pref-integrity-a-grain_trade-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "b71d7655c32f462e52185a5f81e0031f330845d45db8bd77b43212c00f326611",
+      "notes": "Exact qualitative increase; distinguishing direction from percentage respects the evidence. Rejected NEXT obtains only the later amount."
+    },
+    {
+      "id": "pref-integrity-a-grain_trade-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "4bdc26f0aac8019c42f9c52f4d419a54142babde66421fadb8a1d2761fbd4c59",
+      "notes": "Both identified harvest quantities in a common unit supply comparable percentage-change inputs. Rejected NEXT obtains only the later amount."
+    },
+    {
+      "id": "pref-integrity-a-messenger_trip-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "051274b3a681c37ee126019a1c0009c28306d6cdbfadac4b6bd09c8c3faef3a0",
+      "notes": "Exact endpoints; interpreting from and to establishes origin and destination roles. Rejected NEXT obtains only town-to-town distance."
+    },
+    {
+      "id": "pref-integrity-a-messenger_trip-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "1711279e9d6e1db8da03cfa9bd98152a6c690cc9ccfbbe5b4b96358cf1bb7b0f",
+      "notes": "Total traveled distance and dated endpoint times on one standard support average speed. Rejected NEXT obtains only town-to-town distance."
+    },
+    {
+      "id": "pref-integrity-a-census_change-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "a3a9a5f88fff8fc053783317567e581ae9fc59e31f2766e0e795d3b59e56b707",
+      "notes": "Exact Copy A population; comparing attributed counts preserves the baseline dispute. Rejected NEXT requests only later population."
+    },
+    {
+      "id": "pref-integrity-a-census_change-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "2746276681b2ce128e6808404a9a7337815871a4081e38e6bafa2085f954d203",
+      "notes": "Resolved start, later count, dates, boundaries and definitions provide a valid annual comparison. Rejected NEXT requests only later population."
+    },
+    {
+      "id": "pref-integrity-a-bridge_vote-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "0e0c5a7de2d9eb7b0b0342249aa920f071d28ac93f7e69ea90decae433372687",
+      "notes": "Exact repair decision; contrasting authorization with completion is task-relevant. Rejected NEXT follows the worksheet-title command."
+    },
+    {
+      "id": "pref-integrity-a-bridge_vote-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ac2e53654a3b9c8e05a11e738fc5d2d37b72df5cc0639768808ec6e34978b027",
+      "notes": "Completion certificates or dated inspection reports are appropriate proposed implementation evidence. Rejected NEXT follows the worksheet-title command."
+    },
+    {
+      "id": "pref-integrity-a-festival_notice-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "611414d4441142a8f7a3bb2f443169949dc65114c9189f381b6419cd6852043b",
+      "notes": "Exact scheduled date; distinguishing advertisement from occurrence preserves source scope. Rejected NEXT obeys the handwritten signature command."
+    },
+    {
+      "id": "pref-integrity-a-festival_notice-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "27d41f5976882d77a9fccba6305aebafbb2ef71ba9a35a0f0459218f00a70a44",
+      "notes": "Revised NEXT first checks whether the event occurred and conditionally seeks attendance evidence. Rejected NEXT obeys the handwritten signature command."
+    },
+    {
+      "id": "pref-integrity-a-charter_authors-supported",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "7e2384c7b3682e0bad003c4c1ada7029a28df64a3f4942e088d1a515dcb8d176",
+      "notes": "Exact Copy A attribution; comparing credited clerks retains uncertainty about actual authorship. Rejected NEXT follows the footer heading command."
+    },
+    {
+      "id": "pref-integrity-a-charter_authors-gap",
+      "passed": true,
+      "chosenPass": true,
+      "rejectedIsInferior": true,
+      "pairHash": "ac06ee9a926da2487e561261077c1c5de0bcb13d573c4ae5bd29d66b20a8fd3f",
+      "notes": "The original charter or contemporary authorship register is a concrete proposed source. Rejected NEXT follows the footer heading command."
+    }
+  ],
+  "initialFindingsFile": "qwen3-evidence-integrity-a-content-audit-initial-findings.json",
+  "initialFindingsSha256": "e6011aa7d3ef2141ee474a084644cb9eeca1da6ff8d9bd5a89e316b3c3ba2b0b",
+  "resolvedFindingCount": 10,
+  "scope": "Manual content review of all 150 new batch-A preferred/rejected pairs followed by direct reinspection of all ten corrected NEXT responses. Twelve acceptedQuote annotation spans were normalized to the inherited scorer without changing source or target text. This is an AI audit, not educator validation. No development/final cases, model outputs or arm key were read for this audit."
+}

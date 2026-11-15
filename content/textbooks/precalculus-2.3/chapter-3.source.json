@@ -1,0 +1,40 @@
+{
+  "number": 3,
+  "title": "Polynomial and Rational Functions",
+  "pages": 90,
+  "blocks": 722,
+  "chunks": 608,
+  "assetHash": "bde8345a0d05e762cf787b341f6f62bfdbe8443769e5aae141ab2f95ef81259f",
+  "indexHash": "325f7b2bc3404f67b355b86de040a37950e41535e560852014079ad006be2b31",
+  "pdfBytes": 3593240,
+  "indexBytes": 103052,
+  "source": "https://www.opentextbookstore.com/precalc/current2.php?chapter=3&format=pdf",
+  "retrieval": [
+    {
+      "query": "polynomial zeros factors",
+      "matches": 6,
+      "pages": [
+        36,
+        57,
+        46,
+        38,
+        6,
+        29
+      ],
+      "anchorsValid": true
+    },
+    {
+      "query": "rational functions asymptotes",
+      "matches": 6,
+      "pages": [
+        77,
+        69,
+        77,
+        63,
+        71,
+        67
+      ],
+      "anchorsValid": true
+    }
+  ]
+}

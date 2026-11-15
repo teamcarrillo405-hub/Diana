@@ -32,7 +32,7 @@ describe("RootError", () => {
     const reset = vi.fn();
     render(<RootError error={new Error("login reload needed")} reset={reset} />);
 
-    expect(screen.getByRole("heading", { name: "Let's reset this view." })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "This page needs another try." })).toBeVisible();
     expect(screen.getByRole("link", { name: "Back to start" })).toHaveAttribute("href", "/");
 
     fireEvent.click(screen.getByRole("button", { name: "Refresh page" }));

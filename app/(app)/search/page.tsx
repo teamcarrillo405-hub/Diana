@@ -1,21 +1,10 @@
-import {
-  ArrowLeft,
-  BookOpen,
-  CheckSquare,
-  FileStack,
-  History,
-  Network,
-  NotebookPen,
-  Search,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import styles from "@/components/student-shell/collection.module.css";
+import support from "@/components/student-shell/support.module.css";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { DianaWordmark } from "@/components/screen-design/primitives";
-import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
-import { SourceMedia } from "@/components/screen-design/source-media";
-import { StudentBottomNav } from "@/components/screen-design/student-bottom-nav";
-import { StudentDesktopNav } from "@/components/screen-design/student-desktop-nav";
 import {
   buildSupportSearchResult,
   normalizeSupportSearchQuery,
@@ -24,138 +13,9 @@ import {
   type SupportSearchResult,
 } from "@/lib/screendesign/support-screens";
 import { createClient } from "@/lib/supabase/server";
+import { assignmentDestination } from "@/lib/assignment-navigation";
 
-import {
-  SearchDirectoryResults,
-  type SearchDirectoryItem,
-} from "./search-directory-results";
-
-const SEARCH_STYLES = `
-  .diana-authenticated-field:has(.sd-smart-search) { padding-bottom:0!important; }
-  .app-command-frame:has(.sd-smart-search) { padding:0!important; }
-  .app-command-frame:has(.sd-smart-search) .diana-mobile-command,
-  .diana-app-shell:has(.sd-smart-search) .agent-fab-anchor { display:none!important; }
-  .diana-app:has(.sd-smart-search) nextjs-portal { display:none!important; }
-  .diana-app:has(.sd-smart-search) .skip-link { transition:none; }
-  .diana-app:has(.sd-smart-search) .skip-link:focus { transform:translateY(0)!important; }
-  .sd-smart-search { display:flex; height:max(100dvh,852px); max-height:max(100dvh,852px); flex-direction:column; overflow:hidden; background:#0f172a; color:#fff; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
-  .sd-smart-search * { box-sizing:border-box; }
-  .sd-search-header { position:relative; z-index:30; flex:none; padding:52px 24px 14px; background:rgb(15 23 42 / .92); backdrop-filter:blur(12px); }
-  .sd-search-header-row { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:17px; }
-  .sd-search-brand { display:flex; align-items:center; gap:11px; }
-  .sd-search-back { display:grid; width:40px; height:40px; place-items:center; border:1px solid rgb(255 255 255 / .08); border-radius:999px; background:rgb(255 255 255 / .05); color:#fff; text-decoration:none; }
-  .sd-search-brand .sd-source-wordmark { width:auto; height:18px; }
-  .sd-search-avatar-ring { width:40px; height:40px; border-radius:999px; background:linear-gradient(135deg,#ff79da,#74c0ff); padding:1px; }
-  .sd-search-avatar { width:100%; height:100%; border-radius:999px; object-fit:cover; }
-  .sd-search-form { display:grid; grid-template-columns:20px minmax(0,1fr) auto; align-items:center; gap:9px; border:1px solid #cbd5e1; border-radius:16px; background:#fff; padding:4px 5px 4px 14px; }
-  .sd-search-form svg { color:#74c0ff; }
-  .sd-search-form input { min-width:0; border:0; outline:0; background:transparent; padding:10px 0; color:#0f172a; font:inherit; font-size:10px; font-style:italic; font-weight:900; letter-spacing:.025em; text-transform:uppercase; }
-  .sd-search-form input::placeholder { color:#64748b; }
-  .sd-search-form button { min-height:34px; border:0; border-radius:12px; background:#74c0ff; padding:0 10px; color:#0f172a; font:inherit; font-size:8px; font-style:italic; font-weight:950; text-transform:uppercase; }
-  .sd-search-filters { display:flex; gap:7px; overflow-x:auto; margin:11px -24px 0; padding:0 24px 2px; scrollbar-width:none; }
-  .sd-search-filters::-webkit-scrollbar { display:none; }
-  .sd-search-filter { flex:none; border:1px solid rgb(255 255 255 / .1); border-radius:999px; background:rgb(255 255 255 / .045); padding:7px 11px; color:#f8fafc; font-size:8px; font-weight:950; letter-spacing:.1em; text-decoration:none; text-transform:uppercase; }
-  .sd-search-filter[aria-current="page"] { border-color:#ff79da; background:#ff79da; color:#0f172a; }
-  .sd-search-scroll { min-height:0; flex:1; overflow-y:auto; padding:17px 24px 31px; scrollbar-width:none; }
-  .sd-search-scroll::-webkit-scrollbar { display:none; }
-  .sd-search-section { display:grid; gap:11px; margin-bottom:25px; }
-  .sd-search-section h1,.sd-search-section h2 { margin:0; color:#ff79da; font-size:10px; font-style:italic; font-weight:950; letter-spacing:.18em; text-transform:uppercase; }
-  .sd-search-section h2 { color:#94a3b8; }
-  .sd-search-featured { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px; }
-  .sd-search-featured-card { min-width:0; border:1px solid #cbd5e1; border-radius:17px; background:#fff; padding:11px; color:#0f172a; text-decoration:none; }
-  .sd-search-featured-media { position:relative; width:100%; height:73px; overflow:hidden; border-radius:10px; background:#17223a; }
-  .sd-search-featured-media .sd-source-media { width:100%; height:100%; object-fit:cover; opacity:.58; }
-  .sd-search-featured-kind { position:absolute; right:7px; bottom:6px; border-radius:999px; background:rgb(15 23 42 / .82); padding:4px 6px; color:#74c0ff; font-size:7px; font-weight:950; text-transform:uppercase; }
-  .sd-search-featured-card strong { display:-webkit-box; overflow:hidden; margin-top:9px; color:#0f172a; font-size:10px; font-style:italic; font-weight:950; line-height:1.15; text-transform:uppercase; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
-  .sd-search-featured-card small { display:block; overflow:hidden; margin-top:5px; color:#64748b; font-size:7px; font-weight:800; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
-  .sd-search-results { display:grid; gap:9px; }
-  .sd-search-result { display:grid; grid-template-columns:42px minmax(0,1fr) auto; align-items:center; gap:11px; border:1px solid #cbd5e1; border-radius:14px; background:#fff; padding:11px; color:#0f172a; text-decoration:none; }
-  .sd-search-result-icon { display:grid; width:42px; height:42px; place-items:center; border-radius:11px; background:rgb(116 192 255 / .1); color:#74c0ff; }
-  .sd-search-result[data-kind="Artifact"] .sd-search-result-icon,.sd-search-result[data-kind="Note"] .sd-search-result-icon { background:rgb(255 121 218 / .1); color:#ff79da; }
-  .sd-search-result strong { display:block; overflow:hidden; color:#0f172a; font-size:10px; font-style:italic; font-weight:950; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
-  .sd-search-result small { display:block; overflow:hidden; margin-top:4px; color:#64748b; font-size:8px; font-weight:800; text-overflow:ellipsis; text-transform:uppercase; white-space:nowrap; }
-  .sd-search-result > svg { color:#475569; }
-  .sd-search-empty { border:1px dashed rgb(116 192 255 / .25); border-radius:17px; background:rgb(116 192 255 / .04); padding:24px 18px; color:#94a3b8; font-size:11px; line-height:1.5; text-align:center; }
-  .sd-smart-search > .sd-student-bottom-nav { position:relative; z-index:60; flex:none; }
-  .sd-smart-search a:focus-visible,.sd-smart-search button:focus-visible,.sd-smart-search input:focus-visible { outline:2px solid #74c0ff; outline-offset:3px; }
-  .sd-search-desktop,.sd-smart-search > .sd-student-desktop-nav { display:none; }
-  @media (min-width:1100px) {
-    .sd-smart-search { width:100%; height:auto; max-height:none; min-height:100dvh; overflow:visible; background:radial-gradient(circle at 88% 6%,rgb(242 95 176 / .11),transparent 30%),#0b1428; }
-    .sd-smart-search > .sd-student-desktop-nav { display:block; flex:none; }
-    .sd-smart-search > .sd-search-header,.sd-smart-search > .sd-search-scroll,.sd-smart-search > .sd-student-bottom-nav { display:none; }
-    .sd-search-desktop { display:block; width:min(100%,1440px); margin:0 auto; padding:44px 34px 70px; }
-    .sd-search-desktop > h1 { margin:0 0 20px; color:#fff; font-family:var(--font-display),"Saira Condensed",sans-serif; font-size:34px; font-style:italic; font-weight:800; letter-spacing:0; line-height:1; text-transform:uppercase; }
-    .sd-search-desktop-form { position:relative; margin-bottom:10px; }
-    .sd-search-desktop-form > button { position:absolute; z-index:1; left:10px; top:50%; display:grid; width:36px; height:36px; place-items:center; transform:translateY(-50%); border:0; border-radius:8px; background:transparent; color:#64748b; cursor:pointer; }
-    .sd-search-desktop-form > button svg { width:20px; height:20px; }
-    .sd-search-desktop-form > input:not([type="hidden"]) { width:100%; min-height:54px; border:1px solid #cbd5e1; border-radius:13px; outline:0; background:#fff; padding:14px 18px 14px 50px; color:#0f172a; font:inherit; font-size:17px; }
-    .sd-search-desktop-form > input:not([type="hidden"])::placeholder { color:#64748b; }
-    .sd-search-desktop-form > input:not([type="hidden"]):focus { border-color:rgb(41 208 255 / .58); box-shadow:0 0 0 3px rgb(41 208 255 / .12); }
-    .sd-search-desktop-status { margin:0 0 26px; color:#7d88ad; font-size:13px; }
-    .sd-search-desktop-groups { display:grid; gap:24px; }
-    .sd-search-desktop-groups > section { display:grid; gap:12px; }
-    .sd-search-desktop-groups > section > header { display:flex; align-items:center; gap:10px; }
-    .sd-search-desktop-groups h2 { margin:0; color:#29d0ff; font-family:var(--font-display),"Saira Condensed",sans-serif; font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; }
-    .sd-search-desktop-groups [data-tone="green"] h2 { color:#36e07a; }
-    .sd-search-desktop-groups [data-tone="gold"] h2 { color:#ffd24a; }
-    .sd-search-desktop-groups [data-tone="pink"] h2 { color:#f25fb0; }
-    .sd-search-desktop-groups [data-tone="purple"] h2 { color:#b09cff; }
-    .sd-search-desktop-groups > section > header > span { height:1px; flex:1; background:rgb(120 150 220 / .18); }
-    .sd-search-desktop-groups > section > div { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
-    .sd-search-desktop-groups > section > div > a { display:block; min-width:0; min-height:84px; border:1px solid #cbd5e1; border-radius:13px; background:#fff; padding:16px 17px; color:#0f172a; text-decoration:none; transition:transform .15s ease,border-color .15s ease; }
-    .sd-search-desktop-groups > section > div > a:hover { border-color:rgb(41 208 255 / .3); transform:translateY(-2px); }
-    .sd-search-desktop-groups strong { display:block; overflow:hidden; color:#0f172a; font-family:var(--font-display),"Saira Condensed",sans-serif; font-size:15px; font-weight:700; letter-spacing:0; text-overflow:ellipsis; white-space:nowrap; }
-    .sd-search-desktop-groups a > span { display:-webkit-box; overflow:hidden; margin-top:4px; color:#64748b; font-size:12px; line-height:1.4; -webkit-box-orient:vertical; -webkit-line-clamp:2; }
-    .sd-search-desktop-empty { display:grid; gap:8px; border:1px dashed #94a3b8; border-radius:14px; background:#fff; padding:44px 28px; color:#0f172a; text-align:center; }
-    .sd-search-desktop-empty strong { color:#0f172a; font-family:var(--font-display),"Saira Condensed",sans-serif; font-size:22px; font-style:italic; font-weight:800; text-transform:uppercase; }
-    .sd-search-desktop-empty span { color:#64748b; font-size:13.5px; }
-  }
-  @media (prefers-reduced-motion:reduce) { .sd-smart-search * { scroll-behavior:auto!important; transition:none!important; } }
-
-  /* Current student visual system. This intentionally replaces the retired navy, neon, and condensed type treatment above. */
-  .sd-smart-search { background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
-  .sd-search-desktop h1,.sd-search-desktop-groups h2,.sd-search-desktop-empty strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:620!important; letter-spacing:0!important; text-transform:none!important; }
-  .sd-search-desktop > p,.sd-search-desktop-empty span,.sd-search-desktop-groups a > span { color:#53615c!important; }
-  .sd-search-desktop-form { border:1px solid rgb(255 255 255 / .76)!important; border-radius:12px!important; background:rgb(255 255 255 / .64)!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
-  .sd-search-desktop-form input { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:500!important; text-transform:none!important; }
-  .diana-app .sd-search-desktop-form button { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:600!important; text-transform:none!important; }
-  .sd-search-desktop-groups > section > header > span { background:rgb(24 33 38 / .18)!important; }
-  .sd-search-desktop-groups > section > div > a,.sd-search-desktop-empty { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46))!important; color:#182126!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
-  .sd-search-desktop-groups strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-weight:600!important; }
-  @media (max-width:1099px) {
-    .sd-smart-search { background:#d6dad6!important; }
-    .sd-search-header { border-bottom:1px solid rgb(255 255 255 / .76)!important; background:rgb(237 242 237 / .74)!important; box-shadow:0 10px 22px rgb(24 33 38 / .08)!important; backdrop-filter:blur(24px) saturate(1.04)!important; }
-    .sd-search-back { border:1px solid rgb(84 98 92 / .3)!important; border-radius:8px!important; background:rgb(255 255 255 / .54)!important; color:#182126!important; }
-    .sd-search-avatar-ring { background:linear-gradient(135deg,#8622ed,#e8f56b)!important; }
-    .sd-search-form { border:1px solid rgb(255 255 255 / .82)!important; border-radius:10px!important; background:rgb(255 255 255 / .78)!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .9),0 8px 18px rgb(24 33 38 / .08)!important; }
-    .sd-search-form svg { color:#681ce0!important; }
-    .sd-search-form input { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
-    .sd-search-form input::placeholder { color:#6b7772!important; }
-    .sd-search-form button { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:12px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
-    .sd-search-filters { margin-top:13px!important; }
-    .sd-search-filter { border:1px solid rgb(84 98 92 / .26)!important; border-radius:8px!important; background:rgb(255 255 255 / .42)!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:12px!important; font-weight:550!important; letter-spacing:0!important; text-transform:none!important; }
-    .sd-search-filter[aria-current="page"] { border-color:#681ce0!important; background:#8622ed!important; color:#fff!important; }
-    .sd-search-scroll { padding:20px 16px 32px!important; }
-    .sd-search-section { gap:12px!important; margin-bottom:28px!important; }
-    .sd-search-section h1,.sd-search-section h2 { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:16px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
-    .sd-search-section h2 { color:#53615c!important; font-size:14px!important; }
-    .sd-search-featured-card,.sd-search-result { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .76),rgb(238 244 238 / .5))!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 10px 24px rgb(24 33 38 / .09)!important; backdrop-filter:blur(20px)!important; }
-    .sd-search-featured-media { border-radius:8px!important; background:#2b3436!important; }
-    .sd-search-featured-kind { border-radius:6px!important; background:rgb(24 33 38 / .82)!important; color:#e8f56b!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:10px!important; font-weight:600!important; letter-spacing:0!important; text-transform:none!important; }
-    .sd-search-featured-card strong,.sd-search-result strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
-    .sd-search-featured-card small,.sd-search-result small { color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:11px!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
-    .sd-search-result { grid-template-columns:44px minmax(0,1fr) auto!important; padding:12px!important; }
-    .sd-search-result-icon { border-radius:8px!important; background:rgb(134 34 237 / .14)!important; color:#681ce0!important; }
-    .sd-search-result[data-kind="Artifact"] .sd-search-result-icon,.sd-search-result[data-kind="Note"] .sd-search-result-icon { background:rgb(232 245 107 / .64)!important; color:#182126!important; }
-    .sd-search-result > svg { color:#53615c!important; }
-    .sd-search-empty { border:1px dashed rgb(84 98 92 / .4)!important; border-radius:10px!important; background:rgb(255 255 255 / .4)!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; }
-    .sd-smart-search a:focus-visible,.sd-smart-search button:focus-visible,.sd-smart-search input:focus-visible { outline:3px solid #8622ed!important; outline-offset:3px!important; }
-  }
-  @media (min-width:1100px) {
-    .sd-smart-search { background:linear-gradient(rgb(214 218 214 / .84),rgb(214 218 214 / .9)),url("/images/classes-high-tech-classroom.png") center/cover fixed!important; }
-    .sd-search-desktop { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 118px); margin:22px auto 24px!important; border:7px solid #fff; border-radius:30px!important; padding:clamp(30px,3.2vw,48px) clamp(20px,3.2vw,54px) clamp(44px,5vw,78px)!important; }
-  }
-`;
+import type { SearchDirectoryItem } from "./search-directory-results";
 
 const FILTERS: ReadonlyArray<Readonly<{ value: SupportSearchKind; label: string }>> = [
   { value: "all", label: "All" },
@@ -163,27 +23,22 @@ const FILTERS: ReadonlyArray<Readonly<{ value: SupportSearchKind; label: string 
   { value: "work", label: "Work" },
   { value: "notes", label: "Notes" },
   { value: "classes", label: "Classes" },
-  { value: "artifacts", label: "Artifacts" },
+  { value: "artifacts", label: "Saved practice" },
 ];
 
 type DesktopSearchItem = SearchDirectoryItem;
 
-type DesktopSearchGroup = {
-  title: string;
-  tone: "cyan" | "green" | "gold" | "pink" | "purple";
-  items: DesktopSearchItem[];
-};
 
 const SEARCH_DIRECTORY: ReadonlyArray<DesktopSearchItem & { keywords: string }> = [
-  { key: "page-today", title: "Today", detail: "Next move and daily check-in", href: "/dashboard", keywords: "home lobby dashboard next move check in" },
+  { key: "page-today", title: "Lobby", detail: "Next move and daily check-in", href: "/dashboard", keywords: "home lobby dashboard next move check in" },
   { key: "page-work", title: "Work", detail: "Assignments and captured work", href: "/assignments", keywords: "homework assignments tasks captured" },
   { key: "page-classes", title: "Classes", detail: "Every class in one place", href: "/classes", keywords: "subjects courses teachers" },
   { key: "page-calendar", title: "Calendar", detail: "Month, week, and day schedule", href: "/calendar", keywords: "schedule dates events" },
   { key: "tool-capture", title: "Quick capture", detail: "Add work by text, photo, or voice", href: "/quick-add", keywords: "new assignment add capture photo voice" },
   { key: "tool-record", title: "Record", detail: "Completed work and showcase", href: "/proof", keywords: "proof evidence portfolio completed showcase" },
   { key: "tool-notes", title: "Notes", detail: "Class notes and study context", href: "/notes", keywords: "note write photograph" },
-  { key: "tool-study", title: "Study", detail: "Saved practice and review tools", href: "/study", keywords: "cards study review memorize" },
-  { key: "tool-artifacts", title: "Study artifacts", detail: "Guides, tests, and study cards", href: "/study-artifacts", keywords: "study guide practice generate" },
+  { key: "tool-study", title: "Quiz", detail: "Saved practice and review tools", href: "/study", keywords: "cards study review memorize" },
+  { key: "tool-artifacts", title: "Saved practice", detail: "Guides and saved quizzes", href: "/study?view=saved", keywords: "study guide practice generate" },
   { key: "page-wellness", title: "Wellness", detail: "Energy, sleep, meals, and movement", href: "/wellness", keywords: "health mood exercise" },
   { key: "page-sharing", title: "Sharing", detail: "Weekly parent digest", href: "/sharing", keywords: "parent digest share" },
   { key: "page-settings", title: "Settings", detail: "Profile, accessibility, and account", href: "/settings", keywords: "preferences accessibility profile account" },
@@ -195,7 +50,8 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   const params = await searchParams;
   const rawQuery = stringParam(params.q);
   const { query, pattern } = normalizeSupportSearchQuery(rawQuery);
-  const selectedKind = parseSupportSearchKind(params.type);
+  const requestedKind = parseSupportSearchKind(params.type);
+  const selectedKind = requestedKind === "concepts" ? "all" : requestedKind;
   const supabase = await createClient();
   const {
     data: { user },
@@ -221,12 +77,6 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
     .is("archived_at", null)
     .order("updated_at", { ascending: false })
     .limit(12);
-  let conceptsQuery = supabase
-    .from("mastery_concepts")
-    .select("id, class_id, name, mastery_level, updated_at")
-    .eq("owner_id", user.id)
-    .order("updated_at", { ascending: false })
-    .limit(12);
   let artifactsQuery = supabase
     .from("study_artifacts")
     .select("id, title, artifact_type, updated_at")
@@ -238,22 +88,19 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
     notesQuery = notesQuery.ilike("title", pattern);
     assignmentsQuery = assignmentsQuery.ilike("title", pattern);
     classesQuery = classesQuery.ilike("name", pattern);
-    conceptsQuery = conceptsQuery.ilike("name", pattern);
     artifactsQuery = artifactsQuery.ilike("title", pattern);
   }
 
   const [
-    { data: notes },
-    { data: assignments },
-    { data: classes },
-    { data: concepts },
-    { data: artifacts },
+    { data: notes, error: notesError },
+    { data: assignments, error: assignmentsError },
+    { data: classes, error: classesError },
+    { data: artifacts, error: artifactsError },
     { data: profile },
   ] = await Promise.all([
     notesQuery,
     assignmentsQuery,
     classesQuery,
-    conceptsQuery,
     artifactsQuery,
     supabase
       .from("profiles")
@@ -262,20 +109,14 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       .maybeSingle(),
   ]);
 
+  const unavailable = notesError || assignmentsError || classesError || artifactsError;
   const allResults: SupportSearchResult[] = [
-    ...(concepts ?? []).map((item) => buildSupportSearchResult({
-      type: "concept",
-      id: item.id,
-      classId: item.class_id,
-      title: item.name,
-      detail: `Practice evidence · level ${Number(item.mastery_level).toFixed(1)} of 4`,
-    })),
-    ...(assignments ?? []).map((item) => buildSupportSearchResult({
+    ...(assignments ?? []).map((item) => ({ ...buildSupportSearchResult({
       type: "assignment",
       id: item.id,
       title: item.title,
       detail: item.description || labelize(item.status),
-    })),
+    }), href: assignmentDestination(item.id, item.status) })),
     ...(notes ?? []).map((item) => buildSupportSearchResult({
       type: "note",
       id: item.id,
@@ -295,27 +136,11 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
       detail: labelize(item.artifact_type),
     })),
   ];
-  const results = allResults.filter((result) => resultMatchesKind(result, selectedKind));
-  const featured = results.slice(0, 2);
-  const recent = results.slice(2);
+  const results = allResults.filter((result) => result.kind !== "Concept" && resultMatchesKind(result, selectedKind));
   const directoryQuery = query.toLowerCase();
   const directoryMatches = query && selectedKind === "all"
-    ? SEARCH_DIRECTORY.filter((item) =>
-        (item.title + " " + item.detail + " " + item.keywords)
-          .toLowerCase()
-          .includes(directoryQuery),
-      )
+    ? SEARCH_DIRECTORY.filter(item => `${item.title} ${item.keywords}`.toLowerCase().includes(directoryQuery))
     : [];
-  const desktopGroups: DesktopSearchGroup[] = query ? [
-    { title: "Pages and tools", tone: "cyan", items: directoryMatches },
-    { title: "Concepts", tone: "green", items: results.filter((result) => result.kind === "Concept") },
-    { title: "Work", tone: "cyan", items: results.filter((result) => result.kind === "Work") },
-    { title: "Notes", tone: "pink", items: results.filter((result) => result.kind === "Note") },
-    { title: "Classes", tone: "purple", items: results.filter((result) => result.kind === "Class") },
-    { title: "Artifacts", tone: "gold", items: results.filter((result) => result.kind === "Artifact") },
-  ] : [];
-  const visibleDesktopGroups = desktopGroups.filter((group) => group.items.length > 0);
-  const desktopResultCount = visibleDesktopGroups.reduce((count, group) => count + group.items.length, 0);
   const navProfile = {
     displayName: profile?.display_name,
     photoUrl: profile?.photo_url,
@@ -323,146 +148,24 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
     photoOffsetY: profile?.photo_offset_y,
   };
 
-  return (
-    <ScreenDesignViewport className="sd-smart-search diana-current-page" aria-label="Smart search">
-      <style>{SEARCH_STYLES}</style>
-      <StudentDesktopNav {...navProfile} />
-      <section className="sd-search-desktop" aria-label="Search Diana">
-        <h1>Find anything in Diana.</h1>
-        <form className="sd-search-desktop-form" action="/search">
-          <button type="submit" aria-label="Search">
-            <Search aria-hidden="true" />
-          </button>
-          <input
-            name="q"
-            defaultValue={query}
-            placeholder="Search pages, tools, assignments..."
-            aria-label="Search Diana"
-            autoFocus
-          />
-          {selectedKind !== "all" ? <input type="hidden" name="type" value={selectedKind} /> : null}
-        </form>
-        <p className="sd-search-desktop-status" aria-live="polite">
-          {query
-            ? desktopResultCount + (desktopResultCount === 1 ? " result for " : " results for ") + query
-            : "Start typing to search your work, notes, and tools."}
-        </p>
-
-        <div className="sd-search-desktop-groups">
-          {visibleDesktopGroups.map((group) => (
-            <section key={group.title} data-tone={group.tone}>
-              <header>
-                <h2>{group.title}</h2>
-                <span aria-hidden="true" />
-              </header>
-              <div>
-                {group.items.map((item) => (
-                  <Link key={item.key} href={item.href}>
-                    <strong>{item.title}</strong>
-                    <span>{item.detail}</span>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
-
-        {query && desktopResultCount === 0 ? (
-          <div className="sd-search-desktop-empty">
-            <strong>No matches for &quot;{query}&quot;</strong>
-            <span>Try a class name, assignment, note, or tool.</span>
-          </div>
-        ) : null}
-      </section>
-      <header className="sd-search-header">
-        <div className="sd-search-header-row">
-          <div className="sd-search-brand">
-            <Link className="sd-search-back" href="/dashboard" aria-label="Back to dashboard"><ArrowLeft size={19} aria-hidden="true" /></Link>
-            <DianaWordmark tone="dark" />
-          </div>
-          <div className="sd-search-avatar-ring">
-            <SourceMedia assetId="search-student-avatar" width={80} height={80} alt="Student profile" className="sd-search-avatar" />
-          </div>
-        </div>
-        <form className="sd-search-form" action="/search">
-          <Search size={18} aria-hidden="true" />
-          <input name="q" defaultValue={query} placeholder="Find your class, work, or note..." aria-label="Search Diana" />
-          {selectedKind !== "all" ? <input type="hidden" name="type" value={selectedKind} /> : null}
-          <button type="submit">Search</button>
-        </form>
-        <nav className="sd-search-filters" aria-label="Search result types">
-          {FILTERS.map((filter) => (
-            <Link
-              key={filter.value}
-              className="sd-search-filter"
-              href={filterHref(filter.value, query)}
-              aria-current={filter.value === selectedKind ? "page" : undefined}
-            >
-              {filter.label}
-            </Link>
-          ))}
-        </nav>
-      </header>
-
-      <main className="sd-search-scroll" aria-live="polite">
-        <SearchDirectoryResults items={directoryMatches} />
-
-        {featured.length ? (
-          <section className="sd-search-section">
-            <h1>{query ? `Results for ${query}` : "Your next plays"}</h1>
-            <div className="sd-search-featured">
-              {featured.map((result, index) => (
-                <Link href={result.href} className="sd-search-featured-card" key={result.key}>
-                  <div className="sd-search-featured-media">
-                    <SourceMedia
-                      assetId={index === 0 ? "search-biology-graphic" : "search-economics-graphic"}
-                      width={180}
-                      height={120}
-                      decorative
-                    />
-                    <span className="sd-search-featured-kind">{result.kind}</span>
-                  </div>
-                  <strong>{result.title}</strong>
-                  <small>{result.detail}</small>
-                </Link>
-              ))}
-            </div>
-          </section>
-        ) : null}
-
-        {recent.length ? (
-          <section className="sd-search-section">
-            <h2>{query ? "More matches" : "Recent scouting"}</h2>
-            <div className="sd-search-results">
-              {recent.map((result) => <SearchResultCard key={result.key} result={result} />)}
-            </div>
-          </section>
-        ) : null}
-
-        {results.length === 0 && directoryMatches.length === 0 ? (
-          <div className="sd-search-empty">No match in your account yet. Try a shorter title or choose another result type.</div>
-        ) : null}
-      </main>
-      <StudentBottomNav />
-    </ScreenDesignViewport>
-  );
-}
-
-function SearchResultCard({ result }: { result: SupportSearchResult }) {
-  const Icon = {
-    Class: BookOpen,
-    Work: CheckSquare,
-    Note: NotebookPen,
-    Concept: Network,
-    Artifact: FileStack,
-  }[result.kind];
-  return (
-    <Link href={result.href} className="sd-search-result" data-kind={result.kind}>
-      <span className="sd-search-result-icon"><Icon size={18} aria-hidden="true" /></span>
-      <span><strong>{result.title}</strong><small>{result.kind} · {result.detail}</small></span>
-      <History size={15} aria-hidden="true" />
-    </Link>
-  );
+  return <StudentShell active="More" profile={navProfile}>
+    <main id="main-content" className={styles.main}>
+      <header className={styles.heading}><h1>Search</h1><Link href="/more">Back to More</Link></header>
+      <form className={support.search} action="/search">
+        <input name="q" defaultValue={query} placeholder="Class, assignment, note, or tool" aria-label="Search Diana" autoFocus />
+        {selectedKind !== "all" ? <input type="hidden" name="type" value={selectedKind} /> : null}
+        <button type="submit">Search</button>
+      </form>
+      <nav className={support.filters} aria-label="Search result types">{FILTERS.filter(filter=>filter.value !== "concepts").map(filter=><Link key={filter.value} href={filterHref(filter.value,query)} aria-current={filter.value===selectedKind?"page":undefined}>{filter.label}</Link>)}</nav>
+      {unavailable ? <p role="status">Some results could not load. Try searching again.</p> : null}
+      <p className={styles.muted} role="status">{query ? `${results.length + directoryMatches.length} matches for “${query}”` : "Recent work"}</p>
+      <div className={support.results}>
+        {directoryMatches.map(item=><Link key={item.key} href={item.href}><span><strong>{item.title}</strong><small>{item.detail}</small></span><ArrowRight size={18} aria-hidden="true" /></Link>)}
+        {results.map(result=><Link key={result.key} href={result.href}><span><small>{result.kind === "Artifact" ? "Saved practice" : result.kind}</small><strong>{result.title}</strong><small>{result.detail}</small></span><ArrowRight size={18} aria-hidden="true" /></Link>)}
+      </div>
+      {!results.length && !directoryMatches.length && !unavailable ? <p>No matches. Try a shorter title.</p> : null}
+    </main>
+  </StudentShell>;
 }
 
 function stringParam(value: string | string[] | undefined): string {

@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
+import { loadAssignmentHomeworkKernel } from "@/lib/assignment-help/server-understanding";
+import { studyBuddyEligibility } from "@/lib/assignment-help/study-buddy-eligibility";
+import { recordAssignmentAssistance, type StudyBuddyAssistanceClient } from "@/lib/learning-engine/study-buddy-assistance";
+import { assignmentDispatchSnapshot, assignmentHelpDispatchKey, assignmentHelpRequestId } from "@/lib/learning-engine/assignment-assistance-dispatch";
 import { createCard } from "@/lib/fsrs/fsrs";
 import {
   adaptReadingLevelFallback,
@@ -19,6 +23,8 @@ const SourceInput = z.object({
 });
 
 const ReadingLevelInput = z.object({
+  source: SourceInput.optional(),
+  requestId: z.string().uuid().optional(),
   text: z.string().min(20).max(8000),
   target: z.enum(["simpler", "more_detail"]),
   aiMode: AiModeInput,
@@ -46,38 +52,62 @@ export async function adaptReadingLevel(
 ): Promise<{ ok: true; text: string; fallback?: boolean } | { ok: false; error: string }> {
   const parsed = ReadingLevelInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid reading input." };
-  const trustAiMode = resolveDianaHomeworkTrust().aiMode;
-  if (trustAiMode !== "green") {
-    return { ok: false, error: "Reading support is unavailable for this assignment." };
-  }
-
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
+  const source = parsed.data.source
+    ? await resolveSource(supabase, user.id, parsed.data.source.sourceType, parsed.data.source.sourceId) : null;
+  if (parsed.data.source && !source) return { ok: false, error: "Text source not found." };
+  const eligibility = await studyBuddyEligibility(supabase, { ownerId: user.id,
+    assignmentId: source?.assignmentId ?? null, classId: source?.classId ?? null });
+  if (!eligibility.ok) return { ok: false, error: eligibility.error };
+  let trust = resolveDianaHomeworkTrust();
+  if (source?.assignmentId) {
+    const kernel = await loadAssignmentHomeworkKernel({ supabase, ownerId: user.id, assignmentId: source.assignmentId,
+      eventSource: "reading_level" });
+    if (!kernel) return { ok: false, error: "Text source not found." };
+    trust = kernel.trustDecision;
+  } else if (source?.classId) {
+    const course = await supabase.from("classes").select("ai_mode").eq("id", source.classId).eq("owner_id", user.id).maybeSingle();
+    if (course.error || !course.data) return { ok: false, error: "Text source not found." };
+    trust = resolveDianaHomeworkTrust({ classAiMode: course.data.ai_mode });
+  }
+  if (!trust.allowed) return { ok: false, error: "Reading support is unavailable for this assignment." };
+  const body = { ownerId: user.id, assignmentId: source?.assignmentId ?? null, noteId: source?.noteId ?? null,
+    aiMode: trust.aiMode, target: parsed.data.target, text: parsed.data.text };
+
   const { data, error } = await supabase.functions.invoke("reading-level", {
-    body: {
-      ownerId: user.id,
-      aiMode: trustAiMode,
-      target: parsed.data.target,
-      text: parsed.data.text,
-    },
+    body: { ...body, idempotencyKey: assignmentHelpDispatchKey("reading-level", user.id, body, parsed.data.requestId) },
   });
 
-  if (error || data?.error) {
-    return {
-      ok: true,
-      text: adaptReadingLevelFallback(parsed.data.text, parsed.data.target),
-      fallback: true,
-    };
+  // An explicit remote denial cannot be converted into substantive local help.
+  // Policy may have changed after the initial owner-scoped check.
+  const edgeStatus = error?.context instanceof Response ? error.context.status :
+    typeof error?.context?.status === "number" ? error.context.status : null;
+  if (data?.error || (edgeStatus !== null && edgeStatus >= 400)) {
+    return { ok: false, error: "Reading support is unavailable right now. Your original text is still here." };
+  }
+
+  const localFallback = Boolean(error || data?.error || typeof data?.text !== "string" || !data.text.trim());
+  const text = localFallback ? adaptReadingLevelFallback(parsed.data.text, parsed.data.target) : data.text.trim();
+  if (localFallback && source?.assignmentId) {
+    const recipe = assignmentDispatchSnapshot({ surface: "reading-level-fallback", source, input: body, text });
+    const key = assignmentHelpDispatchKey("reading-level-fallback", user.id, recipe, parsed.data.requestId);
+    try {
+      await recordAssignmentAssistance(supabase as unknown as StudyBuddyAssistanceClient, {
+        ownerId: user.id, assignmentId: source.assignmentId, selectedProblemId: null,
+        requestId: assignmentHelpRequestId(key), channel: "local", kind: "guide",
+      }, recipe);
+    } catch {
+      return { ok: false, error: "Reading support is unavailable right now. Your original text is still here." };
+    }
   }
 
   return {
     ok: true,
-    text: typeof data?.text === "string" && data.text.trim()
-      ? data.text.trim()
-      : adaptReadingLevelFallback(parsed.data.text, parsed.data.target),
-    fallback: Boolean(data?.fallback),
+    text,
+    fallback: localFallback || Boolean(data?.fallback),
   };
 }
 
@@ -181,11 +211,11 @@ async function resolveSource(
   if (sourceType === "note") {
     const { data } = await supabase
       .from("notes")
-      .select("id, owner_id, class_id")
+      .select("id, owner_id, class_id, assignment_id")
       .eq("id", sourceId)
       .single();
     if (!data || data.owner_id !== ownerId) return null;
-    return { noteId: data.id, assignmentId: null, classId: data.class_id ?? null };
+    return { noteId: data.id, assignmentId: data.assignment_id ?? null, classId: data.class_id ?? null };
   }
 
   const { data } = await supabase

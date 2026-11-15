@@ -213,7 +213,7 @@ export function AssignmentCockpit({
               </button>
             )) : (
               <Link
-                href={`/assignments/${assignmentId}/workspace`}
+                href={`/break-down?assignmentId=${encodeURIComponent(assignmentId)}`}
                 className="sd-assignment-drill sd-assignment-drill-empty"
               >
                 <span className="sd-assignment-drill-check" aria-hidden="true">

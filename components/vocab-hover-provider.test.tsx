@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { render, fireEvent, screen, waitFor, cleanup } from '@testing-library/react';
+vi.mock('./reading-support-actions', () => ({ saveVocabularyCard: vi.fn(async () => ({ ok: true })) }));
 import { VocabHoverProvider } from './vocab-hover-provider';
 
 function mockSelection(text: string) {
