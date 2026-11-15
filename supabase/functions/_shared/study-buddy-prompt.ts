@@ -37,7 +37,7 @@ Return only one JSON object with exactly these keys:
   "title": string,
   "main": string,
   "reason": string,
-  "steps": [string, string, string],
+  "steps": [string],
   "anchor": string
 }
 
@@ -45,7 +45,7 @@ Rules for the JSON:
 - title is a short conversational label.
 - main directly answers the latest student message in no more than 70 words.
 - reason is one short sentence explaining the learning connection.
-- steps contains exactly three concise moves. The final move should be the one question the student answers next.
+- steps contains one to three concise moves. Prefer one actionable next move, especially when the student is overwhelmed; use additional moves only when they help. The final move should be the one question the student answers next.
 - anchor names the relevant instruction, source, current problem, or visible work. If none exists, say that Diana is using the student's latest message.
 - No markdown fence and no text outside the JSON object.`;
 
@@ -114,15 +114,14 @@ export const FALLBACK_RESULT: StudyBuddyResult = {
 export function parseResult(content: string): { response: StudyBuddyResult; usedFallback: boolean } {
   try {
     const parsed = JSON.parse(content) as Record<string, unknown>;
-    const steps = Array.isArray(parsed.steps)
-      ? parsed.steps.filter((step): step is string => typeof step === "string" && step.trim().length > 0).slice(0, 3)
-      : [];
+    const steps = parsed.steps;
     if (
       typeof parsed.title !== "string" || !parsed.title.trim() ||
       typeof parsed.main !== "string" || !parsed.main.trim() ||
       typeof parsed.reason !== "string" || !parsed.reason.trim() ||
       typeof parsed.anchor !== "string" || !parsed.anchor.trim() ||
-      steps.length !== 3
+      !Array.isArray(steps) || steps.length < 1 || steps.length > 3 ||
+      !steps.every((step): step is string => typeof step === "string" && step.trim().length > 0)
     ) return { response: FALLBACK_RESULT, usedFallback: true };
     return {
       response: {

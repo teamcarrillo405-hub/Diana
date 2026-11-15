@@ -2,8 +2,8 @@
   "schema": "learning-current-primary-regression-contract-v1",
   "evidenceScope": "Synthetic source regression snapshot only. Not a provider run, qualification, execution approval, or replacement for the recovered historical contract.",
   "historicalContract": "recovered-primary-contract.json",
-  "purpose": "Intentional untrusted-source and consent-aware support-prompt hardening changes the current prompt and request bytes.",
-  "systemPromptSha256": "5e9e9c8d2470b6d974c212b894996f212d3485bcd5d0676551972bb0337a2ea5",
+  "purpose": "Intentional untrusted-source, consent-aware support, and flexible next-move changes alter the current prompt and request bytes; this does not qualify historic evaluations for the new recipe.",
+  "systemPromptSha256": "dc0937a8710a99ef0f71ab71a59d5e286fcc59bdb506784715ca03f5bb80429e",
   "prompts": [
     {
       "size": 0,

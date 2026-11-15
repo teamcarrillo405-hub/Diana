@@ -98,6 +98,34 @@ describe("student support at the direct tutoring boundary", () => {
     expect(provider.mock.calls[0][0].system).not.toContain("Student-selected support preferences");
   });
 
+  it.each([1, 2, 3])("returns a valid %i-step tutor response without adding extra steps", async (count) => {
+    auth.mockResolvedValue({ ownerId: owner, userClient: client(false), serviceClient: {} });
+    const steps = ["Choose one line.", "Name what it asks.", "What would you try?"].slice(0, count);
+    provider.mockResolvedValue({ model: "test-model", tokens: 10, content: JSON.stringify({
+      title: "Next step", main: "We can take this one piece at a time.",
+      reason: "A small start can help.", steps, anchor: "Assignment",
+    }) });
+    const response = await handler(request());
+    const result = await response.json();
+    expect(response.status).toBe(200);
+    expect(result.response.steps).toEqual(steps);
+    expect(provider.mock.calls[0][0].system).toContain("Prefer one actionable next move");
+  });
+
+  it.each([[], ["one", "two", "three", "four"], ["one", ""]])(
+    "does not return malformed or overflow steps as a normal tutoring success: %j",
+    async (...moves) => {
+      const steps = Array.isArray(moves[0]) ? moves[0] : moves;
+      auth.mockResolvedValue({ ownerId: owner, userClient: client(false), serviceClient: {} });
+      provider.mockResolvedValue({ model: "test-model", tokens: 10, content: JSON.stringify({
+        title: "Next step", main: "Start here.", reason: "One part at a time.", steps, anchor: "Assignment",
+      }) });
+      const response = await handler(request());
+      expect(response.status).toBe(503);
+      expect((await response.json()).ok).toBe(false);
+    },
+  );
+
   it("never looks up support or calls a provider when authorization fails", async () => {
     const userClient = client(true);
     auth.mockResolvedValue(new Response("denied", { status: 403 }));

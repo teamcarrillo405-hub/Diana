@@ -21,8 +21,24 @@ describe('exact primary Edge recipe extraction', () => {
       expect(expected).toBeDefined();
       expect(hash(buildUserPrompt(input))).toBe(expected!.sha256);
     }
+    // Historic examples remain stable; one- and two-step handling below is an
+    // intentional current change, not retroactive qualification of the old recipe.
     for (const { raw, result } of baseline.parses) expect(parseResult(raw)).toEqual(result);
   });
+  it.each([['one'], ['one', 'two'], ['one', 'two', 'three']])(
+    'accepts %j concise next moves without padding', (...steps) => {
+      const moves = Array.isArray(steps[0]) ? steps[0] : steps;
+      const parsed = parseResult(JSON.stringify({ title: 'T', main: 'M', reason: 'R', anchor: 'A', steps: moves }));
+      expect(parsed.usedFallback).toBe(false);
+      expect(parsed.response.steps).toEqual(moves);
+    },
+  );
+  it.each([[], ['one', 'two', 'three', 'four'], ['one', ''], ['one', 42]])(
+    'rejects empty, overflow or invalid steps %j rather than silently changing the response', (...steps) => {
+      const moves = Array.isArray(steps[0]) ? steps[0] : steps;
+      expect(parseResult(JSON.stringify({ title: 'T', main: 'M', reason: 'R', anchor: 'A', steps: moves })).usedFallback).toBe(true);
+    },
+  );
   it('matches exact recovered Responses bodies including multipart and JSON instruction bytes', () => {
     const variants: (StudentModelPart[] | undefined)[] = [undefined, [{ type: 'text', text: 'opaque' }],
       [{ type: 'image', mediaType: 'image/png', data: 'AA==' }],
