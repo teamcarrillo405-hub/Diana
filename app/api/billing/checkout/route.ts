@@ -9,13 +9,13 @@ export async function GET(request: NextRequest) {
   if (!user) return NextResponse.redirect(new URL("/login", request.url));
 
   const checkoutUrl = resolveBillingCheckoutUrl();
-  if (!checkoutUrl) return NextResponse.redirect(new URL("/upgrade?status=unavailable", request.url));
+  if (!checkoutUrl) return NextResponse.redirect(new URL("/settings", request.url));
 
   await supabase.from("analytics_events").insert({
     owner_id: user.id,
     event_name: "billing_checkout_opened",
     feature: "billing",
-    route: "/upgrade",
+    route: "/api/billing/checkout",
     metadata: {},
   });
 

@@ -5,9 +5,27 @@ import type {
   LineSpacing,
   ReadingSpacing,
   Tables,
+  TablesInsert,
+  TablesUpdate,
   TtsProvider,
   VisualPacing,
 } from "@/lib/supabase/types";
+import {
+  isTeenGuardianPermissionSource,
+  type TeenGuardianPermissionSource,
+} from "@/lib/learner-access-policy";
+
+export type TeenGuardianPermissionProfileFields = {
+  teen_guardian_permission_attested_at: string | null;
+  teen_guardian_permission_policy_version: string | null;
+  teen_guardian_permission_source: TeenGuardianPermissionSource | null;
+  teen_guardian_permission_withdrawn_at: string | null;
+};
+
+export type AppProfileInsert = TablesInsert<"profiles">
+  & Partial<TeenGuardianPermissionProfileFields>;
+export type AppProfileUpdate = TablesUpdate<"profiles">
+  & Partial<TeenGuardianPermissionProfileFields>;
 
 type ProfileRow = Pick<
   Tables<"profiles">,
@@ -61,7 +79,7 @@ type ProfileRow = Pick<
   | "tutor_complexity"
   | "learning_hurdle"
   | "study_schedule_preference"
->;
+> & TeenGuardianPermissionProfileFields;
 
 export type TutorPersona = "diana" | "xavier" | "maya";
 export type TutorStyle = "socratic" | "supportive" | "direct";
@@ -157,6 +175,11 @@ function normalizeProfile(row: ProfileRow): ProfilePrefs {
       row.study_schedule_preference,
       STUDY_SCHEDULE_PREFERENCES,
     ),
+    teen_guardian_permission_source: isTeenGuardianPermissionSource(
+      row.teen_guardian_permission_source,
+    )
+      ? row.teen_guardian_permission_source
+      : null,
   };
 }
 
@@ -164,35 +187,30 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("profiles")
-    .select(
-      "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, interests, mastery_signals, session_mood, last_mood_checkin_at, last_weekly_reflection_at, mood_checkin_disabled, rough_mode_until, ai_verbosity_by_subject, notification_preferences, privacy_preferences, bionic_reading, visual_pacing, line_focus, reading_letter_spacing, reading_word_spacing, font_size, line_spacing, learning_loop_paused, learning_loop_reset_at, dyslexia_font, reduced_motion, high_contrast, tts_enabled, tts_provider, tts_speed, tts_pitch, tts_voice, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date, photo_url, photo_offset_x, photo_offset_y, tutor_persona, tutor_style, tutor_complexity, learning_hurdle, study_schedule_preference",
-    )
+    .select("*")
     .eq("user_id", user.id)
     .single();
-  if (data) return normalizeProfile(data);
+  if (!data) return null;
 
-  // A checked-out app can briefly run ahead of its linked database while the
-  // timestamped onboarding migration is being applied. Keep existing profile
-  // settings available, but never invent values for the two new preferences.
-  if (
-    error &&
-    /learning_hurdle|study_schedule_preference/iu.test(error.message)
-  ) {
-    const { data: legacy } = await supabase
-      .from("profiles")
-      .select(
-        "user_id, display_name, age_bracket, class_count_hint, diagnoses, accommodations, school_year, extra_time_pct, interests, mastery_signals, session_mood, last_mood_checkin_at, last_weekly_reflection_at, mood_checkin_disabled, rough_mode_until, ai_verbosity_by_subject, notification_preferences, privacy_preferences, bionic_reading, visual_pacing, line_focus, reading_letter_spacing, reading_word_spacing, font_size, line_spacing, learning_loop_paused, learning_loop_reset_at, dyslexia_font, reduced_motion, high_contrast, tts_enabled, tts_provider, tts_speed, tts_pitch, tts_voice, onboarded_at, consent_ai, timezone, reading_font, daily_token_budget, tokens_used_today, token_reset_date, photo_url, photo_offset_x, photo_offset_y, tutor_persona, tutor_style, tutor_complexity",
-      )
-      .eq("user_id", user.id)
-      .single();
-    return legacy
-      ? normalizeProfile({ ...legacy, learning_hurdle: null, study_schedule_preference: null })
-      : null;
-  }
-
-  return null;
+  // The app-level fields intentionally stay outside generated database types.
+  // Missing columns are treated as no permission, so an app ahead of its
+  // migration fails closed for teen AI access.
+  const extended = data as typeof data & Partial<TeenGuardianPermissionProfileFields>;
+  return normalizeProfile({
+    ...data,
+    learning_hurdle: data.learning_hurdle ?? null,
+    study_schedule_preference: data.study_schedule_preference ?? null,
+    teen_guardian_permission_attested_at:
+      extended.teen_guardian_permission_attested_at ?? null,
+    teen_guardian_permission_policy_version:
+      extended.teen_guardian_permission_policy_version ?? null,
+    teen_guardian_permission_source:
+      extended.teen_guardian_permission_source ?? null,
+    teen_guardian_permission_withdrawn_at:
+      extended.teen_guardian_permission_withdrawn_at ?? null,
+  });
 }
 
 export function profileBodyClass(p: ProfilePrefs | null): string {

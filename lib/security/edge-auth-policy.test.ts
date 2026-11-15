@@ -14,11 +14,25 @@ describe("shared Edge Function authorization policy", () => {
       allowed: false,
       code: "under_13",
     });
-    expect(evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: false })).toEqual({
+    expect(evaluateProfileEligibility({ age_bracket: undefined, consent_ai: true })).toEqual({
+      allowed: false,
+      code: "age_bracket_invalid",
+    });
+    expect(evaluateProfileEligibility({ age_bracket: "unknown", consent_ai: true })).toEqual({
+      allowed: false,
+      code: "age_bracket_invalid",
+    });
+    expect(evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: true })).toEqual({
+      allowed: true,
+    });
+    expect(evaluateProfileEligibility({
+      age_bracket: "13_to_17",
+      consent_ai: false,
+    })).toEqual({
       allowed: false,
       code: "ai_consent_required",
     });
-    expect(evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: true })).toEqual({
+    expect(evaluateProfileEligibility({ age_bracket: "adult", consent_ai: true })).toEqual({
       allowed: true,
     });
     expect(isDeletionActive("requested")).toBe(true);

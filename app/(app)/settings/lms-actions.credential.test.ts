@@ -2,14 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   revalidatePath: vi.fn(),
-  saveLmsConnectionWithCredential: vi.fn(),
+  saveLmsConnectionForRuntime: vi.fn(),
   resolveCanvasInstitutionFromRequest: vi.fn(),
   from: vi.fn(),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: mocks.revalidatePath }));
-vi.mock("@/lib/integrations/credential-vault", () => ({
-  saveLmsConnectionWithCredential: mocks.saveLmsConnectionWithCredential,
+vi.mock("@/lib/lms/credential-policy", () => ({
+  saveLmsConnectionForRuntime: mocks.saveLmsConnectionForRuntime,
 }));
 vi.mock("@/lib/security/canvas-institutions", () => ({
   resolveCanvasInstitutionFromRequest: mocks.resolveCanvasInstitutionFromRequest,
@@ -39,7 +39,7 @@ describe("Canvas settings credential write", () => {
       id: "school-a",
       origin: "https://school.instructure.com",
     });
-    mocks.saveLmsConnectionWithCredential.mockResolvedValue({
+    mocks.saveLmsConnectionForRuntime.mockResolvedValue({
       id: "connection-a",
       atomic: true,
     });
@@ -51,11 +51,11 @@ describe("Canvas settings credential write", () => {
 
     expect(first).toEqual({ ok: true, message: "Canvas connected" });
     expect(retry).toEqual(first);
-    expect(mocks.saveLmsConnectionWithCredential).toHaveBeenCalledTimes(2);
-    expect(mocks.saveLmsConnectionWithCredential.mock.calls[0][1]).toEqual(
-      mocks.saveLmsConnectionWithCredential.mock.calls[1][1],
+    expect(mocks.saveLmsConnectionForRuntime).toHaveBeenCalledTimes(2);
+    expect(mocks.saveLmsConnectionForRuntime.mock.calls[0][1]).toEqual(
+      mocks.saveLmsConnectionForRuntime.mock.calls[1][1],
     );
-    expect(mocks.saveLmsConnectionWithCredential).toHaveBeenCalledWith(
+    expect(mocks.saveLmsConnectionForRuntime).toHaveBeenCalledWith(
       expect.any(Object),
       {
         ownerId: "owner-a",
@@ -72,7 +72,7 @@ describe("Canvas settings credential write", () => {
   });
 
   it("returns a retryable result without performing a second write path", async () => {
-    mocks.saveLmsConnectionWithCredential.mockRejectedValueOnce(new Error("rpc transaction rolled back"));
+    mocks.saveLmsConnectionForRuntime.mockRejectedValueOnce(new Error("rpc transaction rolled back"));
 
     const result = await connectCanvas(canvasForm());
 

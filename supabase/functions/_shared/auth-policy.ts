@@ -5,10 +5,19 @@ export type ProfileEligibility = {
 
 export type EligibilityResult =
   | { allowed: true }
-  | { allowed: false; code: "under_13" | "ai_consent_required" };
+  | {
+      allowed: false;
+      code:
+        | "under_13"
+        | "age_bracket_invalid"
+        | "ai_consent_required";
+    };
 
 export function evaluateProfileEligibility(profile: ProfileEligibility): EligibilityResult {
   if (profile.age_bracket === "under_13") return { allowed: false, code: "under_13" };
+  if (profile.age_bracket !== "13_to_17" && profile.age_bracket !== "adult") {
+    return { allowed: false, code: "age_bracket_invalid" };
+  }
   if (profile.consent_ai !== true) return { allowed: false, code: "ai_consent_required" };
   return { allowed: true };
 }

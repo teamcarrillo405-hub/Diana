@@ -9,27 +9,14 @@ const assetIds = [
   "onboarding-welcome-background",
   "onboarding-gpa-progress-chart",
   "academic-championship-ring",
-  "knowledge-graph-base",
-  "krebs-cycle-visual",
   "supply-demand-graph",
   "practice-test-visual",
   "study-guide-visual",
   "flashcard-batch-visual",
   "search-biology-graphic",
   "search-economics-graphic",
-  "portfolio-calculus-project",
-  "portfolio-biology-project",
   "student-profile-avatar",
   "search-student-avatar",
-  "study-room-background",
-  "study-room-jordan-avatar",
-  "social-proof-marcus-avatar",
-  "community-sarah-avatar",
-  "community-felix-avatar",
-  "community-leo-avatar",
-  "community-buster-avatar",
-  "tutor-math-expert",
-  "tutor-science-expert",
 ] as const;
 
 export const SCREEN_DESIGN_ASSET_IDS = Object.freeze(assetIds);
@@ -59,9 +46,9 @@ interface ManifestEntry extends ScreenDesignAsset {
   readonly sha256: string;
 }
 
-const EXPECTED_ASSET_COUNT = 29;
-const EXPECTED_SCREENDESIGN_COUNT = 24;
-const EXPECTED_AVATAR_COUNT = 4;
+const EXPECTED_ASSET_COUNT = 16;
+const EXPECTED_SCREENDESIGN_COUNT = 15;
+const EXPECTED_AVATAR_COUNT = 0;
 const EXPECTED_DERIVED_COUNT = 1;
 const MIME_TYPES = new Set<ScreenDesignAssetMimeType>([
   "image/jpeg",

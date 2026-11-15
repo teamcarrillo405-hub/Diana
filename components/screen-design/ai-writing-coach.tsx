@@ -8,7 +8,7 @@ import {
   requestWritingCoauthor,
 } from "@/app/(app)/assignments/[id]/ai-tools-actions";
 import { saveHandInField } from "@/app/(app)/assignments/[id]/hm-actions";
-import type { AiMode } from "@/lib/portal/teacher";
+import type { DianaHomeworkAiMode } from "@/lib/ai/diana-trust-rules";
 import type { WritingSuggestion } from "@/lib/writing/coauthor";
 
 import { DianaMascotMark, DianaWordmark } from "./primitives";
@@ -20,7 +20,7 @@ type AiWritingCoachProps = {
   assignmentTitle: string;
   courseLabel: string;
   initialDraft: string;
-  classAiMode: AiMode;
+  aiMode: DianaHomeworkAiMode;
 };
 
 export function AiWritingCoach({
@@ -28,7 +28,7 @@ export function AiWritingCoach({
   assignmentTitle,
   courseLabel,
   initialDraft,
-  classAiMode,
+  aiMode,
 }: AiWritingCoachProps) {
   const [draft, setDraft] = useState(initialDraft);
   const [suggestion, setSuggestion] = useState<WritingSuggestion | null>(null);
@@ -38,7 +38,7 @@ export function AiWritingCoach({
     () => draft.trim().split(/\s+/u).filter(Boolean).length,
     [draft],
   );
-  const writingAvailable = classAiMode === "green";
+  const writingAvailable = aiMode === "green";
 
   function saveDraft() {
     setMessage("Saving draft...");
@@ -54,7 +54,7 @@ export function AiWritingCoach({
     startTransition(async () => {
       const response = await requestWritingCoauthor({
         assignmentId,
-        aiMode: classAiMode,
+        aiMode,
         mode: "transition",
         draft,
         prompt: "Suggest one useful next move without replacing the student's voice.",
@@ -150,7 +150,7 @@ export function AiWritingCoach({
             </div>
           </div>
           <div className="sd-writing-mini-grid">
-            <article><span>Outline</span><strong>Claim → Evidence → Meaning</strong></article>
+            <article><span>Outline</span><strong>{"Claim -> Evidence -> Meaning"}</strong></article>
             <article><span>Sources</span><strong>Use your class notes</strong></article>
           </div>
         </section>
@@ -166,7 +166,7 @@ export function AiWritingCoach({
         <Sparkles size={20} aria-hidden="true" />
       </button>
       <p className="sd-writing-status" role="status" aria-live="polite">
-        {!writingAvailable ? "Writing Coach unavailable for this class" : message}
+        {!writingAvailable ? "Writing Coach is unavailable right now" : message}
       </p>
       <StudentBottomNav />
     </ScreenDesignViewport>

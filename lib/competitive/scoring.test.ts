@@ -63,6 +63,7 @@ describe("competitive scoring", () => {
     expect(scorecard.allRepoVerifiableBarsAtTen).toBe(false);
     expect(scorecard.bars.find((bar) => bar.id === "guided_visual_learning")?.score).toBe(8);
     expect(scorecard.nextBacklog.join(" ")).toContain("source-linked check prompt");
+    expect(new Set(scorecard.nextBacklog).size).toBe(scorecard.nextBacklog.length);
   });
 
   it("renders a markdown scorecard", () => {

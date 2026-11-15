@@ -14,6 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login");
 
   const profile = await loadProfile();
+  if (profile?.age_bracket === "under_13") redirect("/");
   if (profile && !profile.onboarded_at) redirect("/onboarding");
 
   return (
@@ -37,7 +38,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <PlatformAnalyticsTracker />
         <SessionHandoffTracker />
         <PwaRuntime />
-        {profile?.age_bracket !== "under_13" && <AgentFab />}
+        <AgentFab />
       </div>
     </div>
   );

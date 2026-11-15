@@ -65,7 +65,6 @@ async function main() {
     "run",
     "lib/integrations/diana-voice-sidecar.test.ts",
     "app/api/diana/voice-candidate/route.test.ts",
-    "app/(app)/voice/voice-command-surface.test.tsx",
     "app/api/workers/claim/route.test.ts",
     "app/api/workers/complete/route.test.ts",
     "app/api/workers/metrics/route.test.ts",

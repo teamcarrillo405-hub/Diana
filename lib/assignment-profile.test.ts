@@ -41,6 +41,24 @@ describe("assignment profile resolver", () => {
     }
   });
 
+  it("recognizes advanced biometrics as quantitative science instead of a generic workspace", () => {
+    const profile = resolveAssignmentProfile({
+      kind: "other",
+      className: "Biometrics 410",
+      title: "Evaluate false acceptance and false rejection rates",
+      description: "Plot an ROC curve and defend the classifier threshold.",
+    });
+
+    expect(profile.subjectDomain).toBe("science");
+    expect(profile.capabilities).toEqual(expect.arrayContaining([
+      "data_lab",
+      "equation_editor",
+      "graphing",
+      "spreadsheet",
+    ]));
+    expect(profile.confidence).toBeGreaterThanOrEqual(0.9);
+  });
+
   it("covers every declared subject domain through a rule or a fallback", () => {
     const resolved = new Set(SUBJECT_CASES.map(([domain]) => domain));
     resolved.add(resolveAssignmentProfile({ kind: "presentation", title: "Interdisciplinary capstone project" }).subjectDomain);

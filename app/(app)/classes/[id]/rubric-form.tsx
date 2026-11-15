@@ -3,8 +3,15 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { addRubric } from "./actions";
+import { CourseMaterialUpload } from "./course-material-upload";
 
-export function RubricForm({ classId }: { classId: string }) {
+export function RubricForm({
+  classId,
+  document,
+}: {
+  classId: string;
+  document?: { id: string; name: string; href: string | null } | null;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [title, setTitle] = useState("");
@@ -47,6 +54,7 @@ export function RubricForm({ classId }: { classId: string }) {
       <p>
         Save teacher expectations here so Diana can turn them into checkable moves at submission time.
       </p>
+      <CourseMaterialUpload classId={classId} kind="rubric" document={document} />
       {error && <p className="text-sm text-danger">{error}</p>}
       <div className="flex justify-end">
         <button type="submit" disabled={pending} className="diana-button diana-button-primary disabled:opacity-50">

@@ -11,6 +11,7 @@ describe("Supabase Storage absence confirmation", () => {
     { data: false, error: { status: 400, statusCode: "not_found" } },
     { data: false, error: { name: "StorageApiError", status: 400, statusCode: "object_not_found" } },
     { data: false, error: { name: "StorageApiError", status: 404, statusCode: "object_not_found" } },
+    { data: false, error: { name: "StorageApiError", status: 400, statusCode: "400", message: "Bad Request" } },
     { data: false, error: { originalError: { status: 404, code: "NoSuchKey" } } },
   ])("accepts an expected absent object result", (result) => {
     expect(isConfirmedStorageAbsence(result)).toBe(true);

@@ -33,51 +33,56 @@ function main() {
 
 function collectEvidence(): TeenNativeUxEvidence {
   const qa = latestQaResult();
-  const landing = read("components/landing/quiet-command-landing.tsx");
-  const dashboard = read("app/(app)/dashboard/page.tsx") + read("app/(app)/dashboard/today-game-plan.tsx");
-  const assignment = read("app/(app)/assignments/[id]/page.tsx") + read("app/(app)/assignments/[id]/homework-mission.tsx");
-  const mobileNav = read("app/(app)/mobile-tab-bar.tsx");
-  const desktopNav = read("app/(app)/app-top-nav.tsx");
-  const moreMenu = read("app/(app)/more-menu.tsx");
-  const subjectModes = read("lib/homework-mission/subjects.ts");
+  const landing = [
+    read("components/canonical-public-landing/cinematic-v3/cinematic-landing.tsx"),
+    read("components/canonical-public-landing/early-access-form.tsx"),
+    read("public/assets/landing-cinematic-v3/index.html"),
+  ].join("\n");
+  const dashboard = read("app/(app)/dashboard/page.tsx") + read("components/dashboard/today-dashboard.tsx");
+  const assignment = read("app/(app)/assignments/[id]/workspace/page.tsx") + read("components/assignment-workspace.tsx");
+  const mobileNav = read("components/screen-design/student-bottom-nav.tsx");
+  const desktopNav = read("components/screen-design/student-desktop-nav.tsx");
+  const moreHub = read("app/(app)/more/page.tsx");
+  const navigation = read("lib/navigation.ts");
+  const auth = read("app/(auth)/layout.tsx") + read("app/(auth)/login/form.tsx") + read("app/(auth)/signup/page.tsx");
 
   return {
-    landingNextFiveMinutes: landing.includes("five minutes") && landing.includes("Your clearest move") && landing.includes("Start free"),
-    landingProductIdentity: landing.includes("qc-focus-stage") && landing.includes("Preview of the Diana student workspace") && landing.includes("Student-owned"),
-    landingStudentEntryPath: landing.includes('href="/signup"') && landing.includes("Start free"),
-    dashboardRightNowCard: dashboard.includes("TodayGamePlan") && dashboard.includes("Today&apos;s") && dashboard.includes("Start now"),
-    assignmentNextStepEntry: dashboard.includes("?focus=next-step") && assignment.includes('focus === "next-step"') && assignment.includes("Start first focus"),
-    priorityMobileNav: ["Today", "Work", "Classes", "Calendar", "More"].every((label) => mobileNav.includes(label)) && mobileNav.includes('aria-label="Primary"'),
-    responsiveActionRows: fileIncludes("components/responsive-action-row.tsx", "sm:flex-row") && fileIncludes("components/responsive-action-row.tsx", "w-full"),
+    landingHeroNextMove: landing.includes("homework needs your attention") && landing.includes("thinking yours"),
+    landingTutorIdentity: landing.includes("Your AI Tutor") && landing.includes("DIANA"),
+    landingWaitlistEntry: landing.includes('href="#waitlist"') && landing.includes("Join the Waitlist"),
+    dashboardFirstMove: dashboard.includes("TodayDashboard") && dashboard.includes("First up"),
+    assignmentWorkStart: assignment.includes("<AssignmentWorkspace") && assignment.includes("data-work-first"),
+    priorityMobileNav: ["Today", "Work", "Classes", "Calendar", "More"].every((label) => navigation.includes(`label: "${label}"`)) && mobileNav.includes("STUDENT_NAV_DESTINATIONS") && mobileNav.includes('aria-label="Primary"'),
+    responsiveActionRows: mobileNav.includes("StudentBottomNav") && desktopNav.includes("Add study material"),
     responsiveQaClean: qa.exists && qa.total >= 50 && qa.overflowCount === 0 && qa.serverErrorCount === 0,
     authenticatedResponsiveQaClean: qa.exists && qa.authenticatedCoverageComplete && qa.overflowCount === 0 && qa.serverErrorCount === 0,
     authenticatedRoutesNoLoginRedirect: qa.exists && qa.loginRedirectCount === 0 && qa.authenticatedRouteCount >= 35,
-    compactDesktopPrimaryNav: desktopNav.includes("sd-top-nav") && desktopNav.includes("NAV_TABS") && desktopNav.includes("MoreMenu"),
-    secondaryDestinationDrawer: moreMenu.includes('aria-label="More destinations"') && moreMenu.includes("Evidence and growth") && moreMenu.includes("Connections and sharing"),
-    authScreenDesignShell: fileIncludes("app/(auth)/layout.tsx", "Private student space") && fileIncludes("app/(auth)/layout.tsx", "sd-auth-shell"),
-    authVisualSignals: fileIncludes("app/(auth)/layout.tsx", "Coach Diana") && fileIncludes("app/(auth)/signup/page.tsx", "Your information stays private"),
-    authPrivateAssurance: fileIncludes("app/(auth)/login/form.tsx", "Private by default") && fileIncludes("app/(auth)/signup/page.tsx", "private by default"),
-    authDashboardPreview: fileIncludes("app/(auth)/layout.tsx", "sd-auth-preview") && fileIncludes("app/(auth)/layout.tsx", "Diana dashboard preview"),
-    screenDesignAppShell: fileIncludes("app/layout.tsx", "screendesign.css") && fileIncludes("app/(app)/app-top-nav.tsx", "sd-top-nav") && fileIncludes("app/(app)/mobile-tab-bar.tsx", "sd-mobile-nav"),
-    screenDesignVisualLanguage: fileIncludes("app/screendesign.css", "--diana-blue") && fileIncludes("app/screendesign.css", "--diana-pink") && fileIncludes("app/screendesign.css", "--diana-teal"),
-    landingMobilePreviewAboveFold: landing.includes("qc-focus-stage") && landing.includes("Next 5 minutes") && landing.includes("qc-action-sheet"),
-    voiceCommandSurface: exists("app/(app)/voice/voice-command-surface.tsx") && fileIncludes("app/(app)/voice/page.tsx", "VoiceCommandSurface") && fileIncludes("app/(app)/voice/voice-command-surface.tsx", "Talk it through"),
+    sharedDesktopNavigation: desktopNav.includes("sd-student-desktop-nav") && desktopNav.includes("STUDENT_NAV_DESTINATIONS"),
+    moreToolsHub: moreHub.includes("Tools and settings") && ["/search", "/proof", "/wellness", "/sharing"].every((href) => moreHub.includes(`href: "${href}"`)),
+    authScreenDesignShell: auth.includes("Private student space") && auth.includes("sd-auth-shell"),
+    authVisualSignals: auth.includes("Your day, ready when you are.") && auth.includes("Your information stays private"),
+    authPrivateAssurance: auth.includes("Private by default") && auth.includes("private by default"),
+    authCalmEntry: auth.includes("AppMark") && auth.includes("Pick up your work, your sources, and the next step"),
+    sharedScreenDesignShell: fileIncludes("app/layout.tsx", "screendesign.css") && desktopNav.includes("sd-student-desktop-nav") && mobileNav.includes("sd-student-bottom-nav"),
+    screenDesignVisualTokens: fileIncludes("app/screendesign.css", "--diana-blue") && fileIncludes("app/screendesign.css", "--diana-pink") && fileIncludes("app/screendesign.css", "--diana-teal"),
+    landingHeroAboveFold: landing.includes('id="opening"') && landing.includes("Your AI Tutor") && landing.includes("Join the Waitlist"),
+    voiceCommandSurface: fileIncludes("components/assignment-review-panel.tsx", "VoiceTextarea") && fileIncludes("components/assignment-review-panel.tsx", 'dictationLabel="Dictate message"'),
     globalVoiceCaptureMic: fileIncludes("components/quick-capture.tsx", "VoiceTextarea") && fileIncludes("components/voice-textarea.tsx", "SpeechRecognition"),
-    teenVoicePlan: exists(".planning/TEEN_NATIVE_UX_10_PLAN.md") && fileIncludes("docs/research/teen-testing-protocol.md", "generic chat tool"),
+    teenVoicePlan: fileIncludes("docs/research/teen-testing-protocol.md", "generic chat tool") && fileIncludes("docs/research/teen-testing-protocol.md", "Teen voice and control"),
     noVisiblePressureCopy: qa.exists && qa.bannedCount === 0,
-    studentControlLanguage: fileIncludes("docs/ai-ethics.md", "student owns") && fileIncludes("app/(app)/proof/page.tsx", "Keep track of what is yours"),
+    studentControlLanguage: fileIncludes("docs/ai-ethics.md", "student owns") && fileIncludes("app/(app)/proof/page.tsx", "authorship_log"),
     genericChatComparisonTask: fileIncludes("lib/teen-testing/protocol.ts", "generic_chat_comparison") && fileIncludes("lib/teen-testing/protocol.ts", "fasterThanGenericChat"),
     timeToFirstActionMetric: fileIncludes("lib/benchmark/competitive.ts", "timeToFirstActionSeconds"),
     oneMoveSupport: fileIncludes("lib/support/policy.ts", "one_move") && fileIncludes("lib/student-state/model.ts", "Complete one visible academic move"),
-    subjectNativeHelpers: ["reading", "math", "science", "history", "english", "athletics"].every((mode) => subjectModes.includes(`${mode}:`)) && assignment.includes("SUBJECT_META") && assignment.includes("SUBJECT_FIELDS"),
-    subjectVisualBoards: assignment.includes("requestMathScaffold") && assignment.includes("requestTaskBreakdown") && fileIncludes("components/visual-breakdown-panel.tsx", "Show another way"),
-    studyArtifactsLoop: fileIncludes("components/study-artifact-panel.tsx", "editableCards") && fileIncludes("app/(app)/study-artifacts/actions.ts", "recordStudentStateSnapshot") && fileIncludes("app/(app)/flashcards/[id]/actions.ts", "recall_result"),
+    subjectNativeHelpers: assignment.includes("subjectPresentationFor") && assignment.includes("AssignmentNativeTools") && fileIncludes("lib/assignment-subject-presentation.ts", "PRIMARY_CAPABILITY"),
+    subjectWorkspaceVisuals: fileIncludes("components/assignment-review-panel.tsx", "MathCoachVisual") && fileIncludes("components/visual-breakdown-panel.tsx", "Show another way"),
+    studyArtifactsLoop: fileIncludes("components/study-artifact-panel.tsx", "editableCards") && fileIncludes("app/(app)/study-artifacts/actions.ts", "recordStudentStateSnapshot") && fileIncludes("app/(app)/study-artifacts/flashcard-actions.ts", "recall_result"),
     studyArtifactPrimaryActions: fileIncludes("components/study-artifact-panel.tsx", "Make cards") || fileIncludes("components/study-artifact-panel.tsx", "Review loop"),
     sourceAnchoredStudyOutput: fileIncludes("components/study-artifact-panel.tsx", "Source anchors") && fileIncludes("lib/study-helper/artifacts.ts", "sourceAnchorLabels"),
     ownershipMeter: exists("components/help-ownership-meter.tsx") && fileIncludes("components/study-artifact-panel.tsx", "HelpOwnershipMeter"),
     authorshipProof: fileIncludes("lib/study-helper/authorship.ts", "AuthorshipReceipt") && fileIncludes("lib/teen-testing/ux-scorecard.ts", "authorshipProof"),
-    finalWorkProtection: fileIncludes("lib/study-helper/guided-learning.ts", "asksForFinalWork") && assignment.includes("The ideas and final work stay yours"),
-    proofPanelVisible: fileIncludes("app/(app)/proof/page.tsx", "Proof Folder") && fileIncludes("app/(app)/proof/page.tsx", "ProofReceiptVisual") && fileIncludes("app/(app)/proof/page.tsx", "source anchors"),
+    finalWorkProtection: fileIncludes("lib/study-helper/guided-learning.ts", "asksForFinalWork") && fileIncludes("lib/study-helper/guided-learning.ts", "next student-owned line"),
+    recordSurfaceVisible: fileIncludes("app/(app)/proof/page.tsx", "RECORD") && fileIncludes("app/(app)/proof/page.tsx", "authorship_log") && fileIncludes("app/(app)/proof/page.tsx", "Record updated"),
     visualTeenValidationFields: fileIncludes("lib/teen-testing/protocol.ts", "looksMadeForMe") && fileIncludes("lib/teen-testing/protocol.ts", "loveTheLook") && fileIncludes("lib/teen-testing/protocol.ts", "wouldChooseOverGenericChat"),
     liveTeenValidationPassed: false,
   };

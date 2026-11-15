@@ -21,8 +21,8 @@ import { generateStudyArtifact } from "./actions";
 
 const ARTIFACT_META = {
   practice_test: {
-    label: "Practice test",
-    description: "A source-linked exam rehearsal from your current class material.",
+    label: "Quiz",
+    description: "A source-linked quiz you can make short or use for longer test prep.",
     assetId: "practice-test-visual" as const,
     Icon: FileText,
     tone: "blue",
@@ -135,7 +135,7 @@ export default async function StudyArtifactsPage({
     params.notice === "choose-source"
       ? "Choose real class material before creating a study artifact."
       : params.notice === "creation-paused"
-        ? "The study artifact is still open to try again. Check the source and class AI setting."
+        ? "The study artifact is still open to try again. Check the source and try again."
         : null;
   const selectedSource = sources.some((source) => source.value === params.source)
     ? params.source
@@ -144,7 +144,7 @@ export default async function StudyArtifactsPage({
     params.type && params.type in ARTIFACT_META ? params.type : "practice_test";
 
   return (
-    <ScreenDesignViewport className="sd-study-lab">
+    <ScreenDesignViewport className="sd-study-lab diana-current-page">
       <StudentDesktopNav
         active="More"
         displayName={profile?.display_name}
@@ -171,7 +171,7 @@ export default async function StudyArtifactsPage({
 
         {sources.length > 0 ? (
           <form action={createFromStudyLab} className="sd-study-lab-generator">
-            <label className="sd-study-lab-source">
+            <div className="sd-study-lab-source">
               <span>Build from</span>
               <select name="source" aria-label="Study source" defaultValue={selectedSource}>
                 {sources.map((source) => (
@@ -180,7 +180,7 @@ export default async function StudyArtifactsPage({
                   </option>
                 ))}
               </select>
-            </label>
+            </div>
 
             <fieldset className="sd-study-lab-types">
               <legend>Choose an artifact type</legend>

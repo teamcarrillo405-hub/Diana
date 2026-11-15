@@ -17,7 +17,12 @@ export function createNonce(): string {
 
 export function contentSecurityPolicy(nonce: string, production: boolean): string {
   const supabaseOrigin = safeOrigin(process.env.NEXT_PUBLIC_SUPABASE_URL);
-  const connectSources = ["'self'", supabaseOrigin, production ? null : "ws://127.0.0.1:*"].filter(
+  const connectSources = [
+    "'self'",
+    supabaseOrigin,
+    "https://api.openai.com",
+    production ? null : "ws://127.0.0.1:*",
+  ].filter(
     (source): source is string => Boolean(source),
   );
   const directives = [

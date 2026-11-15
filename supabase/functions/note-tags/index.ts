@@ -3,12 +3,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 
 const TAG_PROMPT = `You suggest short study-note tags for a high-school student.
@@ -68,16 +68,11 @@ Deno.serve(withStudentSecurity("note-tags", async (req: Request) => {
 
     const { data: note } = await supabase
       .from("notes")
-      .select("id, owner_id, title, body_text, transcript_text, class_id, classes(ai_mode)")
+      .select("id, owner_id, title, body_text, transcript_text, class_id")
       .eq("id", noteId)
       .single();
 
     if (!note || note.owner_id !== ownerId) return json({ error: "Note not found" }, 404);
-    const noteClasses = note.classes as unknown as { ai_mode?: string } | Array<{ ai_mode?: string }> | null;
-    const aiMode = Array.isArray(noteClasses) ? noteClasses[0]?.ai_mode : noteClasses?.ai_mode;
-    if (aiMode === "red" || aiMode === "yellow") {
-      return json({ error: "AI not available for this class" }, 403);
-    }
 
     await resetBudgetIfNewDay(ownerId, supabase);
     const { allowed } = await checkTokenBudget(ownerId, supabase);
@@ -93,7 +88,9 @@ Deno.serve(withStudentSecurity("note-tags", async (req: Request) => {
       `Text: ${(note.transcript_text || note.body_text || "").slice(0, 5000)}`,
     ].join("\n");
 
-    const modelResult = await callSafeStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+
+      task: "note_tags",
       ownerId,
       supabase,
       system,

@@ -2,6 +2,11 @@ import { defineConfig, devices } from "@playwright/test";
 
 const baseURL = process.env.QA_BASE_URL ?? "http://127.0.0.1:3005";
 const qaCreateUser = process.env.QA_CREATE_USER ?? "true";
+const qaPort = new URL(baseURL).port || "3005";
+const qaDistDir = process.env.QA_NEXT_DIST_DIR ?? `.next-playwright-${qaPort}`;
+const qaTypeScriptConfig = process.env.QA_TSCONFIG_PATH;
+const reuseExistingServer =
+  process.env.QA_REUSE_EXISTING_SERVER === "true" || !process.env.CI;
 
 // Responsive tests read these values during module initialization. Keep the
 // test process and its isolated web server on the same URL and QA mode.
@@ -49,13 +54,17 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run dev -- -p 3005",
+    command: `npm run dev -- -p ${qaPort}`,
     url: `${baseURL}/login`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer,
     timeout: 120_000,
     env: {
       ...process.env,
       QA_CREATE_USER: qaCreateUser,
+      NEXT_DIST_DIR: qaDistDir,
+      ...(qaTypeScriptConfig
+        ? { NEXT_TYPESCRIPT_CONFIG: qaTypeScriptConfig }
+        : {}),
     },
   },
   projects: [

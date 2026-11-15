@@ -15,12 +15,26 @@ afterEach(() => {
 
 describe("provider canary preflight", () => {
   it("runs every provider scenario with intercepted network and no credentials", async () => {
+    const externalFetch = vi.fn(async () => {
+      throw new Error("mock canary must not use the ambient network");
+    });
+    vi.stubGlobal("fetch", externalFetch);
+
     const report = await runProviderCanary({ mode: "mock", env: {} });
 
     expect(report.ok).toBe(true);
     expect(report.network).toBe("intercepted");
     expect(report.checks.map((check) => check.id)).toEqual([
       "scope-contract",
+      "feature-flags",
+      "oauth-scopes",
+      "pagination",
+      "assignment-variants",
+      "identity-removal",
+      "submission-capabilities",
+      "submission-digest",
+      "oauth-revoked",
+      "oauth-reconnect",
       "preview-cors",
       "canvas-import",
       "classroom-import",
@@ -32,6 +46,7 @@ describe("provider canary preflight", () => {
       "ambiguous-reconciliation",
     ]);
     expect(report.checks.every((check) => check.ok)).toBe(true);
+    expect(externalFetch).not.toHaveBeenCalled();
   });
 
   it("does not contact staging providers when the explicit staging contract is incomplete", async () => {

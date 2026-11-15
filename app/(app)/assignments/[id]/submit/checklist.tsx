@@ -24,10 +24,12 @@ export function SubmitChecklist({
   assignmentId,
   items: initial,
   currentUrl,
+  showFinalConfirmation = true,
 }: {
   assignmentId: string;
   items: Item[];
   currentUrl: string | null;
+  showFinalConfirmation?: boolean;
 }) {
   const router = useRouter();
   const [items, setItems] = useState(initial);
@@ -161,7 +163,7 @@ export function SubmitChecklist({
         {error ? <p className="sd-source-calm-error" role="status">{error}</p> : null}
       </section>
 
-      <footer className="sd-submit-footer">
+      {showFinalConfirmation ? <div className="sd-submit-footer">
         <button
           type="button"
           onClick={confirmSubmission}
@@ -171,7 +173,7 @@ export function SubmitChecklist({
           {pending ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}
           {pending ? "CONFIRMING" : confirmed ? "SUBMISSION CONFIRMED" : requiredOk ? "CONFIRM SUBMISSION" : "CHECK REQUIRED ITEMS"}
         </button>
-      </footer>
+      </div> : null}
     </div>
   );
 }

@@ -25,6 +25,10 @@ const SKIP_DIRS = new Set([
   ".claude",                          // worktrees and Claude tooling — not project source
   ".claude-flow",                     // Claude workflow orchestration — not project source
   ".codex",                           // Codex tooling metadata — not project source
+  ".codex-candidates",                // design proofs and review notes — not rendered application copy
+  ".tmp",                             // downloaded verification tools and their docs
+  "artifacts",                        // generated media and QA artifacts — not rendered application copy
+  "plugins",                          // vendored plugin code and documentation — not Diana UI copy
   "export",                           // generated handoff copies — audited in their source project
   "supabase/functions/node_modules",
 ]);

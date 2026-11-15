@@ -5,31 +5,64 @@ on:
     branches: ["**"]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Scan repository history for secrets
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   gates:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       # Build-time placeholders — real values live in Vercel. Client pages
       # only embed these; no network calls happen during build.
       NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder-key
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
           cache: npm
 
+      - name: Pin npm toolchain
+        run: |
+          npm install --global npm@11.11.0 --ignore-scripts
+          test "$(npm --version)" = "11.11.0"
+
       - name: Install dependencies
         run: npm ci
+
+      - name: Require deterministic lockfile install
+        run: git diff --exit-code -- package-lock.json
+
+      - name: Verify installed dependency contract
+        run: npm run beta:dependencies
 
       - name: Dependency vulnerability audit
         run: npm audit --audit-level=high
 
       - name: Typecheck
         run: npm run typecheck
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Verify disabled under-13 boundary and child-data registry
+        run: npm run guardian:gate
 
       - name: Unit tests
         run: npm run test:run
@@ -49,15 +82,145 @@ jobs:
       - name: Production build
         run: npm run build
 
+      - name: Generate CycloneDX SBOM
+        run: |
+          npm sbom --sbom-format cyclonedx > "${RUNNER_TEMP}/diana-sbom.cdx.json"
+          sha256sum "${RUNNER_TEMP}/diana-sbom.cdx.json" > "${RUNNER_TEMP}/diana-sbom.cdx.json.sha256"
+          printf '{"schemaVersion":1,"kind":"diana-sbom-provenance","releaseSha":"%s","workflowRunId":"%s","workflowRunAttempt":"%s"}\n' \
+            "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" \
+            > "${RUNNER_TEMP}/diana-sbom-provenance.json"
+
+      - name: Retain SBOM
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: diana-sbom-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/diana-sbom.cdx.json
+            ${{ runner.temp }}/diana-sbom.cdx.json.sha256
+            ${{ runner.temp }}/diana-sbom-provenance.json
+          if-no-files-found: error
+          retention-days: 90
+
+  full-migration-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+
+      - name: Pin npm toolchain
+        run: |
+          npm install --global npm@11.11.0 --ignore-scripts
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes postgresql-client
+
+      - name: Replay every migration in a disposable database
+        shell: pwsh
+        run: |
+          $workdir = Join-Path $env:RUNNER_TEMP "diana-full-migration-chain"
+          $migrationDirectory = Join-Path $workdir "supabase/migrations"
+          New-Item -ItemType Directory -Path $migrationDirectory -Force | Out-Null
+          @'
+          project_id = "diana-full-migration-chain"
+
+          [db]
+          major_version = 17
+          '@ | Set-Content -LiteralPath (Join-Path $workdir "supabase/config.toml") -Encoding ascii
+          Copy-Item -Path "supabase/migrations/*.sql" -Destination $migrationDirectory
+          try {
+            & npx --yes supabase@2.111.0 start --workdir $workdir `
+              -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor
+            if ($LASTEXITCODE -ne 0) {
+              throw "Full migration chain did not apply cleanly."
+            }
+            $status = (& npx --yes supabase@2.111.0 status --workdir $workdir -o env) -join "`n"
+            $databaseUrlMatch = [Regex]::Match($status, '(?m)^DB_URL="?([^"\r\n]+)"?$')
+            if (-not $databaseUrlMatch.Success) {
+              throw "Supabase status did not return DB_URL."
+            }
+            $expected = @(Get-ChildItem -LiteralPath $migrationDirectory -Filter "*.sql" -File |
+              ForEach-Object { ($_.BaseName -split "_", 2)[0] } |
+              Sort-Object -Unique)
+            $applied = @(& psql -X -A -t "--dbname=$($databaseUrlMatch.Groups[1].Value)" `
+              -c "select version from supabase_migrations.schema_migrations order by version;" |
+              ForEach-Object { $_.Trim() } |
+              Where-Object { $_ })
+            if (@(Compare-Object -ReferenceObject $expected -DifferenceObject $applied).Count -ne 0) {
+              throw "Applied migration ledger does not exactly match the repository."
+            }
+            & ./supabase/tests/scripts/guardian-under-13-boundary.ps1 `
+              -DatabaseUrl $databaseUrlMatch.Groups[1].Value
+            if ($LASTEXITCODE -ne 0) {
+              throw "Guardian under-13 database boundary did not pass."
+            }
+          }
+          finally {
+            & npx --yes supabase@2.111.0 stop --workdir $workdir --no-backup
+          }
+
+  staging-edge-parity:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: staging
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Pin npm toolchain
+        run: |
+          npm install --global npm@11.11.0 --ignore-scripts
+          test "$(npm --version)" = "11.11.0"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Require protected staging credentials and deployment receipt
+        env:
+          STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON: ${{ secrets.STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON }}
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN"
+          test -n "$SUPABASE_PROJECT_REF"
+          test -n "$STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON"
+          receipt_path="${RUNNER_TEMP}/staging-edge-deployment-receipt.json"
+          umask 077
+          printf '%s\n' "$STAGING_EDGE_DEPLOYMENT_RECEIPT_JSON" > "$receipt_path"
+          printf 'STAGING_EDGE_DEPLOYMENT_RECEIPT_PATH=%s\n' "$receipt_path" >> "$GITHUB_ENV"
+
+      - name: Require exact Edge Function content parity
+        run: >-
+          npm run edge-functions:parity --
+          --receipt="$STAGING_EDGE_DEPLOYMENT_RECEIPT_PATH"
+          --release-sha="$GITHUB_SHA"
+
   database-release-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 24
+
+      - name: Pin npm toolchain
+        run: |
+          npm install --global npm@11.11.0 --ignore-scripts
+          test "$(npm --version)" = "11.11.0"
 
       - name: Install PostgreSQL client
         run: |

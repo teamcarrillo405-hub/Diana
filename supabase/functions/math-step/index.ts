@@ -2,17 +2,16 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 
 // supabase/functions/math-step/index.ts
 // F09: Socratic math tutor — Haiku 4.5, never reveals the answer.
-// ai_mode: 'red' and 'yellow' both return 403 (math is highest Socratic concern).
 // Fire-and-forget: logInteraction + incrementTokens never block the response.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -47,7 +46,7 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
       stream?: unknown;
     };
 
-    const { ownerId, assignmentId, history, prompt, aiMode } = body;
+    const { ownerId, assignmentId, history, prompt } = body;
     const wantsStream = body.stream === true;
 
     if (typeof ownerId !== "string" || !ownerId) {
@@ -68,19 +67,7 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-
-    // 2. aiMode check — both 'red' and 'yellow' block math (yellow = citations only)
-    if (aiMode === "red" || aiMode === "yellow") {
-      return new Response(
-        JSON.stringify({ error: "AI not available for this class" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // 3. Supabase service-role client
+    // 2. Supabase service-role client
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -139,7 +126,8 @@ Deno.serve(withStudentSecurity("math-step", async (req: Request) => {
     const userMessage = messages
       .map((message) => `${message.role === "assistant" ? "Tutor" : "Student"}: ${message.content}`)
       .join("\n\n");
-    const modelResult = await callSafeStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+      task: "math_step",
       ownerId,
       supabase,
       system: systemPrompt,

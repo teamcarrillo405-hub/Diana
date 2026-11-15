@@ -6,8 +6,13 @@ import { createClient } from "@/lib/supabase/server";
 import { createCard } from "@/lib/fsrs/fsrs";
 import { normalizeConceptNames } from "@/lib/mastery/concepts";
 import { masteryLevelFromAiQuizResult } from "@/lib/mastery/concepts";
-import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
-import { buildSourcePacket } from "@/lib/assignment-sources";
+import type { DianaHomeworkAiMode } from "@/lib/ai/diana-trust-rules";
+import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
+import {
+  formatHomeworkKernelForTutor,
+  homeworkAuthorshipMetadata,
+  loadAssignmentHomeworkKernel,
+} from "@/lib/assignment-help/server-understanding";
 import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 import {
   buildFallbackStudyArtifact,
@@ -31,6 +36,12 @@ import {
   type PracticeScoreSummary,
 } from "@/lib/study-helper/practice-scoring";
 import {
+  advanceQuizSupport,
+  normalizeQuizSupportState,
+  normalizeQuizSupportUsage,
+  type QuizSupportState,
+} from "@/lib/study-helper/quiz-support-fading";
+import {
   normalizeStudyHelperMode,
   type StudyHelperMode,
 } from "@/lib/study-helper/modes";
@@ -42,6 +53,7 @@ const StudyArtifactInput = z.object({
   sourceId: z.string().uuid(),
   artifactType: z.enum(["study_guide", "practice_test", "flashcard_set"]),
   studyMode: z.enum(["guided_steps", "visual_breakdown", "retrieval_quiz", "flashcard_builder"]),
+  questionCount: z.number().int().min(3).max(20).optional(),
 });
 
 const SaveArtifactCardsInput = z.object({
@@ -62,6 +74,10 @@ const SavePracticeProgressInput = z.object({
     response: z.string().trim().min(1).max(2_000),
   })).max(20),
   completed: z.boolean(),
+  supportUsage: z.object({
+    hintViews: z.number().int().min(0).max(10_000),
+    dianaTurns: z.number().int().min(0).max(10_000),
+  }).optional(),
 });
 
 type StudySource = {
@@ -70,30 +86,10 @@ type StudySource = {
   title: string;
   text: string;
   classId: string | null;
-  aiMode: AiMode;
+  aiMode: DianaHomeworkAiMode;
   assignmentId: string | null;
   revalidatePath: string;
-};
-
-type AssignmentSourceRow = {
-  source_type: string;
-  title: string;
-  extracted_text: string | null;
-  source_location: string | null;
-};
-
-type AssignmentSourceQuery = {
-  eq(column: string, value: string): AssignmentSourceQuery;
-  order(
-    column: string,
-    options: { ascending: boolean },
-  ): Promise<{ data: AssignmentSourceRow[] | null }>;
-};
-
-type AssignmentSourceClient = {
-  from(table: "assignment_sources"): {
-    select(columns: string): AssignmentSourceQuery;
-  };
+  homeworkMetadata?: Record<string, unknown> | null;
 };
 
 type PracticeAttemptRpcClient = {
@@ -125,9 +121,6 @@ export async function generateStudyArtifact(
     : await loadNoteSource(supabase, user.id, parsed.data.sourceId);
   if (!source) return { ok: false, error: "Source material was not found." };
   if (source.text.trim().length < 20) return { ok: false, error: "Add a little more class material first." };
-  if (source.aiMode === "red" || source.aiMode === "yellow") {
-    return { ok: false, error: "AI study artifacts are off for this class. You can still make cards manually from your own highlights." };
-  }
 
   // Test Prep Engine: when the source is a quiz/test/final, scope class
   // context to the coverage window (since the previous test) so practice
@@ -173,6 +166,8 @@ export async function generateStudyArtifact(
         sourceTitle: source.title,
         sourceText: source.text,
         classContext,
+        homework: source.homeworkMetadata ?? null,
+        questionCount: parsed.data.questionCount ?? null,
       },
     });
 
@@ -181,13 +176,14 @@ export async function generateStudyArtifact(
     raw = String((data as { content?: unknown } | null)?.content ?? "");
   }
 
-  const artifact = raw
+  let artifact = raw
     ? parseStudyArtifactResponse(raw, {
         type: parsed.data.artifactType,
         sourceTitle: source.title,
         sourceType: source.sourceType,
         mode: parsed.data.studyMode,
         sourceText: source.text,
+        questionCount: parsed.data.questionCount,
       })
     : buildFallbackStudyArtifact({
         type: parsed.data.artifactType,
@@ -195,7 +191,12 @@ export async function generateStudyArtifact(
         sourceType: source.sourceType,
         mode: parsed.data.studyMode,
         sourceText: source.text,
+        questionCount: parsed.data.questionCount,
       });
+
+  if (parsed.data.artifactType === "practice_test" && parsed.data.questionCount) {
+    artifact = withRequestedQuizLength(artifact, parsed.data.questionCount);
+  }
 
   const { data: row, error: insertErr } = await supabase
     .from("study_artifacts")
@@ -236,7 +237,7 @@ export async function generateStudyArtifact(
     assignmentId: source.assignmentId,
     artifactId: row.id,
     eventType: "study_artifact_generated",
-    payload: artifact.authorshipReceiptDetail as unknown as Json,
+    payload: studyArtifactAuthorshipPayload(artifact.authorshipReceiptDetail, source.homeworkMetadata),
   });
   await recordStudentStateSnapshot({
     supabase,
@@ -247,8 +248,36 @@ export async function generateStudyArtifact(
 
   revalidatePath(source.revalidatePath);
   revalidatePath("/study-artifacts");
-  revalidatePath("/flashcards");
+  revalidatePath("/study");
   return { ok: true, id: row.id, artifact };
+}
+
+function withRequestedQuizLength(artifact: StudyArtifact, questionCount: number): StudyArtifact {
+  const requested = Math.max(3, Math.min(20, questionCount));
+  const seeded = artifact.quiz.length > 0
+    ? artifact.quiz
+    : buildFallbackStudyArtifact({
+        type: "practice_test",
+        sourceTitle: artifact.sourceTitle,
+        sourceType: artifact.sourceType,
+        mode: artifact.mode,
+        sourceText: artifact.summary,
+        questionCount: requested,
+      }).quiz;
+  const quiz = Array.from({ length: requested }, (_, index) => {
+    const item = seeded[index % seeded.length];
+    if (index < seeded.length) return item;
+    return {
+      ...item,
+      question: `${item.question} Use a different detail from the source for question ${index + 1}.`,
+    };
+  });
+
+  return {
+    ...artifact,
+    quiz,
+    practiceSettings: { ...artifact.practiceSettings, questionCount: requested },
+  };
 }
 
 export async function saveArtifactFlashcards(
@@ -369,7 +398,7 @@ export async function saveArtifactFlashcards(
     trigger: "artifact_cards_saved",
   });
 
-  revalidatePath("/flashcards");
+  revalidatePath("/study");
   revalidatePath(artifact.source_type === "assignment" ? `/assignments/${artifact.source_id}` : `/notes/${artifact.source_id}`);
   return { ok: true, count: cards.length };
 }
@@ -377,7 +406,7 @@ export async function saveArtifactFlashcards(
 export async function savePracticeTestProgress(
   input: z.input<typeof SavePracticeProgressInput>,
 ): Promise<
-  | { ok: true; progress: PracticeProgress; result: PracticeScoreSummary }
+  | { ok: true; progress: PracticeProgress; result: PracticeScoreSummary; supportState: QuizSupportState }
   | { ok: false; error: string }
 > {
   const parsed = SavePracticeProgressInput.safeParse(input);
@@ -425,9 +454,15 @@ export async function savePracticeTestProgress(
   });
   const completedArtifact = completeStudyArtifact(rawPayload);
   const practiceResult = scorePracticeTest(completedArtifact.quiz, progress.responses);
+  const supportUsage = normalizeQuizSupportUsage(parsed.data.supportUsage ?? rawPayload.quizSupportUsage);
+  const supportState = completed
+    ? advanceQuizSupport(rawPayload.quizSupportState, practiceResult, supportUsage)
+    : normalizeQuizSupportState(rawPayload.quizSupportState);
   const nextPayload = {
     ...mergePracticeProgress(rawPayload, progress),
     practiceResult,
+    quizSupportUsage: supportUsage,
+    quizSupportState: supportState,
     score: completed ? practiceResult.percentage : rawPayload.score ?? null,
   };
 
@@ -503,6 +538,9 @@ export async function savePracticeTestProgress(
       score: completed ? practiceResult.percentage : null,
       scoredCount: practiceResult.scoredCount,
       reviewCount: practiceResult.reviewTogetherCount,
+      quizSupportStage: supportState.stage,
+      quizHintViews: supportUsage.hintViews,
+      quizDianaTurns: supportUsage.dianaTurns,
     } as Json,
   });
   await recordStudentStateSnapshot({
@@ -515,12 +553,12 @@ export async function savePracticeTestProgress(
   revalidatePath(`/study-artifacts/${artifact.id}`);
   revalidatePath("/study-artifacts");
   revalidatePath("/dashboard");
-  return { ok: true, progress, result: practiceResult };
+  return { ok: true, progress, result: practiceResult, supportState };
 }
 
 export async function restartPracticeTest(
   artifactId: string,
-): Promise<{ ok: true; progress: PracticeProgress } | { ok: false; error: string }> {
+): Promise<{ ok: true; progress: PracticeProgress; supportState: QuizSupportState } | { ok: false; error: string }> {
   const parsed = z.string().uuid().safeParse(artifactId);
   if (!parsed.success) return { ok: false, error: "Practice set was not found." };
 
@@ -546,6 +584,7 @@ export async function restartPracticeTest(
       ? rawPayload.practiceAttemptNumber
       : 1;
   const progress = normalizePracticeProgress({});
+  const supportState = normalizeQuizSupportState(rawPayload.quizSupportState);
   const { error } = await supabase
     .from("study_artifacts")
     .update({
@@ -553,6 +592,8 @@ export async function restartPracticeTest(
         ...mergePracticeProgress(rawPayload, progress),
         practiceAttemptNumber: currentAttempt + 1,
         practiceResult: null,
+        quizSupportUsage: { hintViews: 0, dianaTurns: 0 },
+        quizSupportState: supportState,
         score: null,
       } as unknown as Json,
       loop_state: "generated",
@@ -563,7 +604,7 @@ export async function restartPracticeTest(
   if (error) return { ok: false, error: "The next practice pass is not ready yet." };
 
   revalidatePath(`/study-artifacts/${artifact.id}`);
-  return { ok: true, progress };
+  return { ok: true, progress, supportState };
 }
 
 async function loadAssignmentIdForNote(
@@ -686,46 +727,24 @@ async function loadAssignmentSource(
   ownerId: string,
   assignmentId: string,
 ): Promise<StudySource | null> {
-  const { data } = await supabase
-    .from("assignments")
-    .select("id, owner_id, title, description, class_id, kind, rubric_text, ai_mode_override, classes(ai_mode)")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!data) return null;
-
-  const classMode: AiMode = classAiMode(data.classes);
-  const override: AiMode | null =
-    data.ai_mode_override === "red" || data.ai_mode_override === "yellow" || data.ai_mode_override === "green"
-      ? data.ai_mode_override
-      : null;
-  const { data: importedSources } = await (supabase as unknown as AssignmentSourceClient)
-    .from("assignment_sources")
-    .select("source_type, title, extracted_text, source_location")
-    .eq("assignment_id", data.id)
-    .eq("owner_id", ownerId)
-    .order("created_at", { ascending: true });
-  const packet = buildSourcePacket({
-    description: data.description,
-    rubric_text: data.rubric_text,
-  }, importedSources ?? []);
+  const kernel = await loadAssignmentHomeworkKernel({
+    supabase,
+    ownerId,
+    assignmentId,
+    eventSource: "study_artifacts",
+  });
+  if (!kernel) return null;
 
   return {
     sourceType: "assignment",
-    sourceId: data.id,
-    title: data.title,
-    text: [
-      `Assignment: ${data.title}`,
-      `Kind: ${data.kind}`,
-      packet.directions ? `Directions:\n${packet.directions}` : "",
-      packet.rubric ? `Rubric:\n${packet.rubric}` : "",
-      packet.materialText ? `Imported class material:\n${packet.materialText}` : "",
-      packet.citations.length > 0 ? `Source locations:\n${packet.citations.join("\n")}` : "",
-    ].filter(Boolean).join("\n\n").slice(0, 20_000),
-    classId: data.class_id,
-    aiMode: effectiveAiMode(classMode, override),
-    assignmentId: data.id,
-    revalidatePath: `/assignments/${data.id}`,
+    sourceId: kernel.assignment.id,
+    title: kernel.assignment.title,
+    text: formatHomeworkKernelForTutor(kernel, { maxChars: 20_000 }),
+    classId: kernel.assignment.class_id,
+    aiMode: kernel.trustDecision.aiMode,
+    assignmentId: kernel.assignment.id,
+    revalidatePath: `/assignments/${kernel.assignment.id}`,
+    homeworkMetadata: homeworkAuthorshipMetadata(kernel, { route: "study-artifacts" }),
   };
 }
 
@@ -736,7 +755,7 @@ async function loadNoteSource(
 ): Promise<StudySource | null> {
   const { data } = await supabase
     .from("notes")
-    .select("id, owner_id, title, body_text, transcript_text, outline_json, class_id, assignment_id, classes(ai_mode)")
+    .select("id, owner_id, title, body_text, transcript_text, outline_json, class_id, assignment_id")
     .eq("id", noteId)
     .eq("owner_id", ownerId)
     .single();
@@ -753,7 +772,7 @@ async function loadNoteSource(
       outlineToText(data.outline_json),
     ].filter(Boolean).join("\n\n").slice(0, 10000),
     classId: data.class_id,
-    aiMode: classAiMode(data.classes),
+    aiMode: resolveDianaHomeworkTrust().aiMode,
     assignmentId: data.assignment_id ?? null,
     revalidatePath: `/notes/${data.id}`,
   };
@@ -768,7 +787,7 @@ async function loadClassContext(
   coveredSince: string | null = null,
 ): Promise<string> {
   // When a coverage window is set (test prep), include only material from
-  // the student's current curriculum position — and more of it.
+  // the student's current curriculum position - and more of it.
   let notesQuery = supabase
     .from("notes")
     .select("id, title, body_text, transcript_text, tags, ai_suggested_tags")
@@ -846,6 +865,12 @@ async function recordStudyArtifactSignal({
   });
 }
 
+function studyArtifactAuthorshipPayload(receipt: unknown, homeworkMetadata: Record<string, unknown> | null | undefined): Json {
+  return {
+    receipt,
+    homework: homeworkMetadata ?? null,
+  } as unknown as Json;
+}
 async function recordAuthorshipEvent({
   supabase,
   ownerId,
@@ -877,15 +902,6 @@ async function recordAuthorshipEvent({
   });
 }
 
-function classAiMode(classes: unknown): AiMode {
-  const cls = Array.isArray(classes) ? classes[0] : classes;
-  if (cls && typeof cls === "object" && "ai_mode" in cls) {
-    const mode = (cls as { ai_mode?: unknown }).ai_mode;
-    if (mode === "red" || mode === "yellow") return mode;
-  }
-  return "green";
-}
-
 function outlineToText(value: Json | null): string {
   if (!Array.isArray(value)) return "";
   return value
@@ -902,6 +918,6 @@ function outlineToText(value: Json | null): string {
 
 function calmArtifactError(message: string): string {
   if (message.includes("quota")) return "You've used your AI quota for today. Manual cards still work.";
-  if (message.includes("AI not available")) return "AI study artifacts are off for this class. Manual cards still work.";
+  if (message.includes("AI not available")) return "Study artifacts are unavailable right now. Manual cards still work.";
   return "Study artifacts are unavailable right now. Manual cards still work.";
 }

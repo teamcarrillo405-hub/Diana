@@ -32,7 +32,6 @@ const WORD_RE = /^[a-zA-Z][a-zA-Z'-]{0,31}$/;
 export function VocabHoverProvider({
   children,
   ownerId,
-  aiMode = "green",
   sourceType,
   sourceId,
 }: {
@@ -47,9 +46,9 @@ export function VocabHoverProvider({
 
   const lookupDefinition = useCallback(async (word: string, context: string, x: number, y: number) => {
     const clean = normalizeVocabularyWord(word);
-    if (!ownerId || aiMode === "red" || aiMode === "yellow") {
+    if (!ownerId) {
       setPopover((current) => current && current.word === clean
-        ? { ...current, loading: false, status: aiMode === "green" ? null : "Definition support is off for this class." }
+        ? { ...current, loading: false, status: null }
         : current);
       return;
     }
@@ -72,7 +71,7 @@ export function VocabHoverProvider({
       const res = await fetch(url, {
         method: "POST",
         headers,
-        body: JSON.stringify({ ownerId, aiMode, word: clean, context }),
+        body: JSON.stringify({ ownerId, aiMode: "green", word: clean, context }),
       });
       if (!res.ok) {
         setPopover((current) => current && current.word === clean ? { ...current, loading: false } : current);
@@ -95,7 +94,7 @@ export function VocabHoverProvider({
     } catch {
       setPopover((current) => current && current.word === clean ? { ...current, loading: false } : current);
     }
-  }, [aiMode, ownerId]);
+  }, [ownerId]);
 
   const openWord = useCallback((word: string, context: string, x: number, y: number, forceDefinition: boolean) => {
     const clean = normalizeVocabularyWord(word);

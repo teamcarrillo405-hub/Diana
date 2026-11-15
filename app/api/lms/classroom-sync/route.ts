@@ -3,14 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 import { syncLmsAssignments } from "@/lib/lms/sync";
 import { getValidGoogleToken, fetchClassroomAssignments, type GoogleClassroomConfig } from "@/lib/lms/google";
 import {
-  hydrateLmsConnectionCredentials,
-  persistLmsTokenRefresh,
-} from "@/lib/integrations/credential-vault";
+  hydrateLmsConnectionForRuntime,
+  persistLmsTokenRefreshForRuntime,
+} from "@/lib/lms/credential-policy";
+import { lmsOperationErrorDetails } from "@/lib/lms/errors";
+import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
+import { provisionCourseModeLmsStudentLinksFromImport } from "@/lib/lms/course-mode-identity";
 
 export async function POST(req: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Sign in to sync" }, { status: 401 });
+  try {
+    assertLmsProviderFeatureEnabled("google_import");
+  } catch (error) {
+    const detail = lmsOperationErrorDetails(error)!;
+    return NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status });
+  }
 
   const { connectionId } = (await req.json()) as { connectionId: string };
   if (!connectionId) {
@@ -28,40 +37,35 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Connection not found" }, { status: 404 });
   }
 
-  // Prefer the stored OAuth token (refreshed via refresh_token); fall back to the
-  // interactive Supabase Google session token for connections made the old way.
   let securedConnection;
   try {
-    securedConnection = await hydrateLmsConnectionCredentials(user.id, conn);
-  } catch {
-    return NextResponse.json({ error: "Connection credentials are not available" }, { status: 503 });
+    securedConnection = await hydrateLmsConnectionForRuntime(user.id, conn);
+  } catch (error) {
+    const detail = lmsOperationErrorDetails(error);
+    return detail
+      ? NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status })
+      : NextResponse.json({ error: "Connection credentials are not available" }, { status: 503 });
   }
   const cfg = securedConnection.config as GoogleClassroomConfig;
-  let token: string | null = null;
-  const valid = await getValidGoogleToken(cfg);
-  if (valid) {
-    token = valid.token;
+  try {
+    const valid = await getValidGoogleToken(cfg);
     if (valid.refreshed) {
-      await persistLmsTokenRefresh(supabase as any, {
+      await persistLmsTokenRefreshForRuntime(supabase as any, {
         ownerId: user.id,
         connection: securedConnection,
         accessToken: valid.refreshed.access_token,
         expiresAt: valid.refreshed.expires_at,
       });
     }
-  } else {
-    const { data: { session } } = await supabase.auth.getSession();
-    token = session?.provider_token ?? null;
-  }
-  if (!token) {
-    return NextResponse.json(
-      { error: "Reconnect Google Classroom: connect via the Google button to enable background sync" },
-      { status: 401 },
-    );
-  }
+    const { items, skipped } = await fetchClassroomAssignments(valid.token);
 
-  try {
-    const { items, skipped } = await fetchClassroomAssignments(token);
+    const identityProvisioning = await provisionCourseModeLmsStudentLinksFromImport({
+      studentId: user.id,
+      identityConnectionId: conn.id,
+      provider: "google_classroom",
+      token: valid.token,
+      assignments: items,
+    });
 
     const result = await syncLmsAssignments(supabase, user.id, "google_classroom", items, skipped);
     await supabase
@@ -69,8 +73,12 @@ export async function POST(req: Request) {
       .update({ last_synced_at: new Date().toISOString() })
       .eq("id", connectionId)
       .eq("owner_id", user.id);
-    return NextResponse.json(result);
+    return NextResponse.json({ ...result, courseModeLinks: identityProvisioning.linked });
   } catch (e) {
+    const detail = lmsOperationErrorDetails(e);
+    if (detail) {
+      return NextResponse.json({ error: detail.error, code: detail.code }, { status: detail.status });
+    }
     const message = e instanceof Error ? e.message : "Classroom import had a problem";
     return NextResponse.json({ error: message }, { status: 502 });
   }

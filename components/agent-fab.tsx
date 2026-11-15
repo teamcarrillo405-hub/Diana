@@ -24,10 +24,9 @@ const PAGE_LABELS: Record<string, string> = {
   "/assignments": "Work",
   "/classes": "Classes",
   "/calendar": "Calendar",
-  "/messages": "Messages",
   "/settings": "Settings",
   "/notes": "Notes",
-  "/flashcards": "Flashcards",
+  "/study": "Study",
   "/proof": "Record",
 };
 
@@ -45,9 +44,6 @@ export function openAgentFab() {
 
 export function AgentFab() {
   const pathname = usePathname() ?? "/";
-  const formalAssessmentOpen = /^\/course-mode\/assessments\/[^/]+\/?$/u.test(
-    pathname,
-  );
   const [open, setOpen] = useState(false);
   const [hover, setHover] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -67,8 +63,6 @@ export function AgentFab() {
     window.addEventListener(OPEN_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_EVENT, onOpen);
   }, []);
-
-  if (formalAssessmentOpen) return null;
 
   const bottomOffset = ownsScreenDesignNavigation(pathname) ? 26 : 96;
 
@@ -165,7 +159,6 @@ export function AgentFab() {
               padding: 0,
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/agent-robot-bust.png"
               alt="Diana AI agent"
@@ -235,7 +228,6 @@ export function AgentFab() {
                 overflow: "hidden",
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/agent-robot-bust.png"
                 alt="Diana AI agent"

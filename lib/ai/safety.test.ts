@@ -140,7 +140,6 @@ describe("checkTokenBudget", () => {
     const supabase = makeMockSupabase({
       profileData: { daily_token_budget: 50000, tokens_used_today: 0 },
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await checkTokenBudget("user-1", supabase as any);
     expect(result).toEqual({ allowed: true, remaining: 50000 });
   });
@@ -149,7 +148,6 @@ describe("checkTokenBudget", () => {
     const supabase = makeMockSupabase({
       profileData: { daily_token_budget: 50000, tokens_used_today: 50000 },
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await checkTokenBudget("user-1", supabase as any);
     expect(result).toEqual({ allowed: false, remaining: 0 });
   });
@@ -158,7 +156,6 @@ describe("checkTokenBudget", () => {
     const supabase = makeMockSupabase({
       profileData: { daily_token_budget: 50000, tokens_used_today: 49900 },
     });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await checkTokenBudget("user-1", supabase as any);
     expect(result).toEqual({ allowed: true, remaining: 100 });
   });
@@ -191,7 +188,6 @@ describe("resetBudgetIfNewDay", () => {
         return {};
       }),
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await resetBudgetIfNewDay("user-1", supabase as any);
     expect(updateMock).toHaveBeenCalledWith(
       expect.objectContaining({ tokens_used_today: 0 })
@@ -223,7 +219,6 @@ describe("resetBudgetIfNewDay", () => {
         return {};
       }),
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await resetBudgetIfNewDay("user-1", supabase as any);
     expect(updateMock).not.toHaveBeenCalled();
   });
@@ -232,7 +227,6 @@ describe("resetBudgetIfNewDay", () => {
 describe("logInteraction", () => {
   it("logs only bounded metadata and never the raw prompt", async () => {
     const supabase = makeMockSupabase();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await logInteraction(
       {
         ownerId: "user-1",
@@ -245,7 +239,6 @@ describe("logInteraction", () => {
         outputBytes: 81,
         tokensUsed: 150,
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       supabase as any
     );
     const aiTable = supabase.from.mock.results.find(
@@ -267,7 +260,6 @@ describe("logInteraction", () => {
   it("rejects unsafe metadata values instead of persisting them", async () => {
     const supabase = makeMockSupabase();
     const longSummary = "x".repeat(300);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await logInteraction(
       {
         ownerId: "user-1",
@@ -279,7 +271,6 @@ describe("logInteraction", () => {
         outputBytes: -9,
         tokensUsed: 200,
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       supabase as any
     );
     const aiTable = supabase.from.mock.results.find(
@@ -304,7 +295,6 @@ describe("logInteraction", () => {
           promptSummary: "test",
           tokensUsed: 50,
         },
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         supabase as any
       )
     ).resolves.toBeUndefined();

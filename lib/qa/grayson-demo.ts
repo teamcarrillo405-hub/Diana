@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildChecklist } from "@/lib/checklists/templates";
+import { TEEN_GUARDIAN_PERMISSION_POLICY_VERSION } from "@/lib/learner-access-policy";
+import type { AppProfileInsert } from "@/lib/profile";
 import {
   getScreenDesignFixtureScenario,
   SCREEN_DESIGN_FIXED_CLOCK,
@@ -64,6 +66,15 @@ const DEMO_EXTERNAL_SOURCE = "clever";
 const DEMO_EXTERNAL_ID_PREFIX = "grayson-demo";
 const DEMO_DIAGNOSES: Diagnosis[] = ["adhd", "dyslexia"];
 const timezone = "America/Los_Angeles";
+
+function syntheticTeenGuardianPermission(attestedAt: string) {
+  return {
+    teen_guardian_permission_attested_at: attestedAt,
+    teen_guardian_permission_policy_version: TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+    teen_guardian_permission_source: "synthetic_qa_fixture" as const,
+    teen_guardian_permission_withdrawn_at: null,
+  };
+}
 
 function addDays(date: Date, days: number) {
   return new Date(date.getTime() + days * 86_400_000);
@@ -843,57 +854,59 @@ async function seedAssignmentSupport(
 }
 
 async function seedProfile(client: AppSupabaseClient, ownerId: string, now: Date) {
+  const profile: AppProfileInsert = {
+    user_id: ownerId,
+    display_name: "Grayson",
+    date_of_birth: "2011-09-01",
+    age_bracket: "13_to_17",
+    timezone,
+    onboarded_at: now.toISOString(),
+    consent_ai: true,
+    ...syntheticTeenGuardianPermission(now.toISOString()),
+    school_year: 9,
+    class_count_hint: freshmanClasses.length,
+    diagnoses: DEMO_DIAGNOSES,
+    accommodations: ["extended_time", "breaks", "alternate_format", "quiet_setting"],
+    extra_time_pct: 50,
+    dyslexia_font: true,
+    line_focus: true,
+    bionic_reading: true,
+    tts_enabled: true,
+    tts_provider: "browser",
+    tts_voice: "nova",
+    tts_speed: 0.95,
+    tts_pitch: 1,
+    font_size: "normal",
+    line_spacing: "loose",
+    reading_letter_spacing: "wide",
+    reading_word_spacing: "wide",
+    visual_pacing: "line",
+    interests: ["basketball", "music", "digital_art", "technology"],
+    session_mood: "meh",
+    mastery_signals: {
+      source: "grayson-demo",
+      goal: "freshman readiness",
+      strongestModes: ["visual", "short practice", "read aloud"],
+    } as Json,
+    ai_verbosity_by_subject: {
+      default: "short",
+      English: "guided",
+      Algebra: "steps",
+      Biology: "visual",
+    } as Json,
+    notification_preferences: {
+      homeworkDigest: "evening",
+      quizPrepNudge: true,
+      quietHours: "21:30-07:00",
+    } as Json,
+    privacy_preferences: {
+      teacherSharesNeedReview: true,
+      parentSummary: "weekly",
+      showProofReceipts: true,
+    } as Json,
+  };
   const { error } = await client.from("profiles").upsert(
-    {
-      user_id: ownerId,
-      display_name: "Grayson",
-      date_of_birth: "2011-09-01",
-      age_bracket: "13_to_17",
-      timezone,
-      onboarded_at: now.toISOString(),
-      consent_ai: true,
-      school_year: 9,
-      class_count_hint: freshmanClasses.length,
-      diagnoses: DEMO_DIAGNOSES,
-      accommodations: ["extended_time", "breaks", "alternate_format", "quiet_setting"],
-      extra_time_pct: 50,
-      dyslexia_font: true,
-      line_focus: true,
-      bionic_reading: true,
-      tts_enabled: true,
-      tts_provider: "browser",
-      tts_voice: "nova",
-      tts_speed: 0.95,
-      tts_pitch: 1,
-      font_size: "normal",
-      line_spacing: "loose",
-      reading_letter_spacing: "wide",
-      reading_word_spacing: "wide",
-      visual_pacing: "line",
-      interests: ["basketball", "music", "digital_art", "technology"],
-      session_mood: "meh",
-      mastery_signals: {
-        source: "grayson-demo",
-        goal: "freshman readiness",
-        strongestModes: ["visual", "short practice", "read aloud"],
-      } as Json,
-      ai_verbosity_by_subject: {
-        default: "short",
-        English: "guided",
-        Algebra: "steps",
-        Biology: "visual",
-      } as Json,
-      notification_preferences: {
-        homeworkDigest: "evening",
-        quizPrepNudge: true,
-        quietHours: "21:30-07:00",
-      } as Json,
-      privacy_preferences: {
-        teacherSharesNeedReview: true,
-        parentSummary: "weekly",
-        showProofReceipts: true,
-      } as Json,
-    },
+    profile as TablesInsert<"profiles">,
     { onConflict: "user_id" },
   );
   expectNoError(error, "Seed Grayson profile");
@@ -1173,24 +1186,14 @@ export type ScreenDesignSeedTable =
   | "inbox_items"
   | "notes"
   | "flashcards"
-  | "flashcard_reviews"
   | "study_artifacts"
   | "mastery_concepts"
-  | "mastery_events"
-  | "ap_exam_plans"
-  | "ap_practice_attempts"
   | "lms_connections"
   | "portfolios"
   | "portfolio_items"
-  | "session_handoffs"
-  | "data_deletion_requests"
   | "wellness_activity_logs"
   | "wellness_goals"
   | "sleep_logs"
-  | "study_groups"
-  | "study_group_members"
-  | "study_group_sessions"
-  | "analytics_events"
   | "ai_interactions"
   | "authorship_log"
   | "share_links"
@@ -1238,27 +1241,19 @@ const SCREEN_DESIGN_RESET_TARGETS: readonly Readonly<{
   table: ScreenDesignSeedTable;
   ownerColumn: ScreenDesignOwnerColumn;
 }>[] = [
-  { table: "flashcard_reviews", ownerColumn: "owner_id" },
   { table: "authorship_log", ownerColumn: "owner_id" },
   { table: "ai_interactions", ownerColumn: "owner_id" },
-  { table: "mastery_events", ownerColumn: "owner_id" },
   { table: "task_signals", ownerColumn: "owner_id" },
   { table: "assignment_time_log", ownerColumn: "owner_id" },
   { table: "submission_checklist", ownerColumn: "owner_id" },
   { table: "assignment_checklists", ownerColumn: "owner_id" },
   { table: "assignment_steps", ownerColumn: "owner_id" },
-  { table: "ap_practice_attempts", ownerColumn: "owner_id" },
   { table: "portfolio_items", ownerColumn: "owner_id" },
-  { table: "study_group_sessions", ownerColumn: "owner_id" },
-  { table: "study_group_members", ownerColumn: "owner_id" },
   { table: "flashcards", ownerColumn: "owner_id" },
   { table: "study_artifacts", ownerColumn: "owner_id" },
   { table: "notes", ownerColumn: "owner_id" },
   { table: "inbox_items", ownerColumn: "owner_id" },
-  { table: "analytics_events", ownerColumn: "owner_id" },
   { table: "share_links", ownerColumn: "owner_id" },
-  { table: "data_deletion_requests", ownerColumn: "owner_id" },
-  { table: "session_handoffs", ownerColumn: "owner_id" },
   { table: "teacher_progress_notes", ownerColumn: "owner_id" },
   { table: "accommodation_confirmations", ownerColumn: "owner_id" },
   { table: "wellness_activity_logs", ownerColumn: "owner_id" },
@@ -1268,10 +1263,8 @@ const SCREEN_DESIGN_RESET_TARGETS: readonly Readonly<{
   { table: "class_syllabi", ownerColumn: "owner_id" },
   { table: "rubrics", ownerColumn: "owner_id" },
   { table: "mastery_concepts", ownerColumn: "owner_id" },
-  { table: "ap_exam_plans", ownerColumn: "owner_id" },
   { table: "lms_connections", ownerColumn: "owner_id" },
   { table: "portfolios", ownerColumn: "owner_id" },
-  { table: "study_groups", ownerColumn: "owner_id" },
   { table: "classes", ownerColumn: "owner_id" },
   { table: "profiles", ownerColumn: "user_id" },
 ];
@@ -1384,6 +1377,26 @@ function buildRowsForFactory(
             onboarded_at:
               values?.onboardedAt === null ? null : SCREEN_DESIGN_FIXED_CLOCK,
             consent_ai: booleanValue(values, "consentAi", true),
+            teen_guardian_permission_attested_at: stringValue(
+              values,
+              "teenGuardianPermissionAttestedAt",
+              SCREEN_DESIGN_FIXED_CLOCK,
+            ),
+            teen_guardian_permission_policy_version: stringValue(
+              values,
+              "teenGuardianPermissionPolicyVersion",
+              TEEN_GUARDIAN_PERMISSION_POLICY_VERSION,
+            ),
+            teen_guardian_permission_source: stringValue(
+              values,
+              "teenGuardianPermissionSource",
+              "synthetic_qa_fixture",
+            ),
+            teen_guardian_permission_withdrawn_at: nullableStringValue(
+              values,
+              "teenGuardianPermissionWithdrawnAt",
+              null,
+            ),
             school_year: numberValue(values, "schoolYear", 9),
             diagnoses: DEMO_DIAGNOSES,
             accommodations: ["extended_time", "breaks", "alternate_format"],
@@ -1468,8 +1481,12 @@ function buildRowsForFactory(
           owner_id: ownerId,
           class_id: dependencyId("class"),
           title: stringValue(values, "title", "Identity quote response"),
-          description: "Choose one quote and explain how it supports the claim.",
-          kind: "essay",
+          description: stringValue(
+            values,
+            "description",
+            "Choose one quote and explain how it supports the claim.",
+          ),
+          kind: stringValue(values, "kind", "essay"),
           status: stringValue(values, "status", "todo"),
           due_at: stringValue(values, "dueAt", "2026-09-15T22:30:00.000Z"),
           estimated_minutes: numberValue(values, "estimatedMinutes", 35),
@@ -1593,23 +1610,6 @@ function buildRowsForFactory(
           lapses: 0,
         }),
       ];
-    case "flashcard-review":
-      return [
-        row("flashcard_reviews", {
-          owner_id: ownerId,
-          card_id: dependencyId("flashcard"),
-          rating: numberValue(values, "rating", 3),
-          reviewed_at: stringValue(values, "reviewedAt", SCREEN_DESIGN_FIXED_CLOCK),
-          state: "review",
-          scheduled_for: "2026-09-17T16:30:00.000Z",
-          scheduled_days: 3,
-          elapsed_days: 1,
-          stability: 2.5,
-          difficulty: 5,
-          reps: 1,
-          lapses: 0,
-        }),
-      ];
     case "study-artifact": {
       const assignmentId = dependencyId("assignment");
       const noteId = dependencyId("note");
@@ -1645,51 +1645,6 @@ function buildRowsForFactory(
           mastery_level: numberValue(values, "masteryLevel", 1.8),
           self_confidence: 1.6,
           last_practiced_at: SCREEN_DESIGN_FIXED_CLOCK,
-        }),
-      ];
-    case "mastery-event":
-      return [
-        row("mastery_events", {
-          owner_id: ownerId,
-          concept_id: dependencyId("mastery-concept"),
-          source: stringValue(values, "source", "flashcard_review"),
-          rating: 3,
-          delta: 0.2,
-          evidence_text: stringValue(values, "evidence", "one supported practice pass"),
-          created_at: SCREEN_DESIGN_FIXED_CLOCK,
-        }),
-      ];
-    case "ap-exam-plan":
-      return [
-        row("ap_exam_plans", {
-          id: idFor(factory.alias),
-          owner_id: ownerId,
-          subject: stringValue(values, "subject", "english_language"),
-          exam_date: stringValue(values, "examDate", "2027-05-11"),
-          goal_band: stringValue(values, "targetBand", "3-4"),
-          current_focus: "Evidence commentary",
-          active: true,
-        }),
-      ];
-    case "ap-practice-attempt":
-      return [
-        row("ap_practice_attempts", {
-          id: idFor(factory.alias),
-          owner_id: ownerId,
-          plan_id: dependencyId("ap-exam-plan"),
-          subject: "english_language",
-          practice_type: stringValue(values, "practiceType", "frq"),
-          correct_count:
-            numberValue(values, "totalCount", 0) > 0
-              ? numberValue(values, "correctCount", 0)
-              : null,
-          total_count:
-            numberValue(values, "totalCount", 0) > 0
-              ? numberValue(values, "totalCount", 0)
-              : null,
-          score_band: nullableStringValue(values, "scoreBand", null),
-          notes: "Synthetic no-score practice evidence.",
-          practiced_at: SCREEN_DESIGN_FIXED_CLOCK,
         }),
       ];
     case "lms-connection":
@@ -1731,37 +1686,6 @@ function buildRowsForFactory(
           position: numberValue(values, "position", 0),
         }),
       ];
-    case "analytics-event":
-      return [
-        row("analytics_events", {
-          owner_id: ownerId,
-          event_name: stringValue(values, "eventName", "assignment_opened"),
-          feature: "screendesign_qa",
-          route: scenario.route.pathname,
-          metadata: { synthetic: true },
-          created_at: stringValue(values, "occurredAt", SCREEN_DESIGN_FIXED_CLOCK),
-        }),
-      ];
-    case "session-handoff":
-      return [
-        row("session_handoffs", {
-          owner_id: ownerId,
-          route: stringValue(values, "route", "/dashboard"),
-          context: { source: "screendesign-qa" },
-          updated_at: stringValue(values, "updatedAt", SCREEN_DESIGN_FIXED_CLOCK),
-        }),
-      ];
-    case "data-deletion-request":
-      return [
-        row("data_deletion_requests", {
-          id: idFor(factory.alias),
-          owner_id: ownerId,
-          status: stringValue(values, "status", "cancelled"),
-          requested_at: stringValue(values, "requestedAt", SCREEN_DESIGN_FIXED_CLOCK),
-          export_offered: true,
-          notes: "Synthetic QA privacy evidence.",
-        }),
-      ];
     case "wellness-activity":
       return [
         row("wellness_activity_logs", {
@@ -1797,46 +1721,6 @@ function buildRowsForFactory(
           sleep_quality: requestedQuality === "okay" ? "ok" : requestedQuality,
           sleep_hours: numberValue(values, "durationMinutes", 480) / 60,
           focus_note: "Use a lighter first move today.",
-        }),
-      ];
-      }
-    case "study-group":
-      return [
-        row("study_groups", {
-          id: idFor(factory.alias),
-          owner_id: ownerId,
-          name: stringValue(values, "name", "Freshman study room"),
-          subject: "English 9",
-          join_code: `${stringValue(values, "inviteCode", "QA-STUDY").slice(0, 11)}-${createHash("sha256")
-            .update(ownerId)
-            .digest("hex")
-            .slice(0, 8)}`,
-          visibility: "invite_only",
-        }),
-      ];
-    case "study-group-membership":
-      return [
-        row("study_group_members", {
-          group_id: dependencyId("study-group"),
-          owner_id: ownerId,
-          display_name: "Grayson",
-          role: stringValue(values, "role", "member"),
-          joined_at: SCREEN_DESIGN_FIXED_CLOCK,
-        }),
-      ];
-    case "study-group-session":
-      {
-        const requestedStatus = stringValue(values, "status", "planned");
-      return [
-        row("study_group_sessions", {
-          id: idFor(factory.alias),
-          group_id: dependencyId("study-group"),
-          owner_id: ownerId,
-          title: "Freshman focus room",
-          work_minutes: numberValue(values, "durationMinutes", 25),
-          break_minutes: 5,
-          starts_at: SCREEN_DESIGN_FIXED_CLOCK,
-          status: requestedStatus === "scheduled" ? "planned" : requestedStatus,
         }),
       ];
       }

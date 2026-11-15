@@ -4,8 +4,13 @@ import { describe, expect, it } from "vitest";
 
 const functionsRoot = join(process.cwd(), "supabase/functions");
 const compatibilityEntries = new Set(["assignment-review-v2"]);
+const publicTokenFunctions = new Set([
+  "early-access-confirm",
+  "early-access-signup",
+  "early-access-unsubscribe",
+]);
 const studentFunctions = readdirSync(functionsRoot, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory() && entry.name !== "_shared" && !compatibilityEntries.has(entry.name))
+  .filter((entry) => entry.isDirectory() && entry.name !== "_shared" && !compatibilityEntries.has(entry.name) && !publicTokenFunctions.has(entry.name))
   .map((entry) => ({
     name: entry.name,
     source: readFileSync(join(functionsRoot, entry.name, "index.ts"), "utf8"),
@@ -27,6 +32,31 @@ describe("Edge Function tenant boundary", () => {
   it("keeps the compatibility entry pointed at the guarded implementation", () => {
     const source = readFileSync(join(functionsRoot, "assignment-review-v2/index.ts"), "utf8");
     expect(source).toContain('import "../assignment-review/index.ts"');
+  });
+
+  it("keeps public confirmation separate from authenticated student handlers and scoped to an unguessable token", () => {
+    const source = readFileSync(join(functionsRoot, "early-access-confirm/index.ts"), "utf8");
+    expect(source).toContain('request.method !== "POST"');
+    expect(source).toContain("parseEarlyAccessToken(parsedBody.value)");
+    expect(source).toContain('.eq("confirmation_token", token)');
+    expect(source).toContain('.eq("status", "pending_confirmation")');
+    expect(source).toContain('.gte("confirmation_sent_at", confirmationCutoff)');
+    expect(source).not.toContain('"Access-Control-Allow-Origin": "*"');
+  });
+
+  it("keeps public early-access handlers method-limited, origin-scoped, and non-enumerating", () => {
+    for (const functionName of publicTokenFunctions) {
+      const source = readFileSync(join(functionsRoot, `${functionName}/index.ts`), "utf8");
+      expect(source, `${functionName} must require POST`).toContain('request.method !== "POST"');
+      expect(source, `${functionName} must not allow wildcard origins`).not.toContain('"Access-Control-Allow-Origin": "*"');
+    }
+    const signup = readFileSync(join(functionsRoot, "early-access-signup/index.ts"), "utf8");
+    expect(signup).toContain("reserveEarlyAccessRateLimits(supabase, rateLimitKeys)");
+    expect(signup).toContain("does not reveal whether the email was already on the list");
+    const unsubscribe = readFileSync(join(functionsRoot, "early-access-unsubscribe/index.ts"), "utf8");
+    expect(unsubscribe).toContain("parseEarlyAccessToken(parsedBody.value)");
+    expect(unsubscribe).toContain('.eq("confirmation_token", token)');
+    expect(unsubscribe).toContain('.in("status", ["pending_confirmation", "confirmed"])');
   });
 
   it("contains no wildcard CORS policy in a student handler", () => {

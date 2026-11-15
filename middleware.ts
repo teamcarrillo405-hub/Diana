@@ -29,7 +29,6 @@ export const config = {
   matcher: [
     // api/email, api/push/send-due, and cron endpoints have their own
     // CRON_SECRET bearer auth, so session middleware must not redirect them.
-    // design/ is the static mock-data reference used for side-by-side review.
-    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icons/|sw.js|design/|design$|api/email/|api/push/send-due|api/cron/lms-sync|api/cron/media-retention|api/cron/account-deletion|api/cron/ai-budget-reconciliation|api/cron/assignment-media-cleanup|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?)).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icons/|sw.js|api/email/|api/push/send-due|api/diana/openai-status|api/cron/lms-sync|api/cron/media-retention|api/cron/account-deletion|api/cron/ai-budget-reconciliation|api/cron/assignment-media-cleanup|.*\\.(?:svg|png|jpg|jpeg|gif|webp|woff2?|mp4|webm|html)).*)",
   ],
 };

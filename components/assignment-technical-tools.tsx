@@ -5,12 +5,30 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { acknowledgeAssignmentSafetyProtocol } from "@/app/(app)/assignments/[id]/workspace/safety-actions";
-import { CadModelViewer } from "@/components/cad-model-viewer";
+import { CadModelViewer, CadPrimitiveViewer } from "@/components/cad-model-viewer";
 import { ToolFrame, useBlockAutosave } from "@/components/assignment-native-tools";
+import { SpecialistDataChart } from "@/components/specialist-data-chart";
 import type { AssignmentArtifactBlockInput } from "@/lib/assignment-artifact";
 import type { AssignmentWorkProfile } from "@/lib/assignment-profile";
 import type { AssignmentPracticalGateView } from "@/lib/course-mode/practical-gate";
-import { cadExtension, validateDimensionedSketch, type DimensionedSketch } from "@/lib/native-tools/cad";
+import {
+  MAX_CAD_MODEL_BYTES,
+  createCadPrimitive,
+  validateCadModelFile,
+  validateDimensionedSketch,
+  type CadPrimitiveMesh,
+  type DimensionedSketch,
+  type ValidatedCadModel,
+} from "@/lib/native-tools/cad";
+import {
+  MAX_DELIMITED_BYTES,
+  MAX_DATA_ROWS,
+  datasetToLabRows,
+  normalizeDataChartConfig,
+  parseDelimitedDataset,
+  restoreImportedDataset,
+  type DataChartConfig,
+} from "@/lib/native-tools/data-runtime";
 import {
   completedProcedureCount,
   validateDataLabRows,
@@ -21,6 +39,13 @@ import {
   type EngineeringTest,
   type PerformanceLogEntry,
 } from "@/lib/native-tools/technical";
+import { activeRuntimeState } from "@/lib/specialist-artifacts/active-state";
+import type { SpecialistActiveRuntimeState } from "@/lib/specialist-artifacts/contracts";
+import {
+  mergeSpecialistEditorContent,
+  restoreSpecialistCadEditorMetadata,
+  specialistEditorRuntimeState,
+} from "@/lib/specialist-artifacts/editor-state";
 
 type Props = {
   assignmentId: string;
@@ -37,6 +62,7 @@ type ToolProps = {
 
 const text = (value: unknown) => typeof value === "string" ? value : "";
 const list = (value: unknown) => Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+const record = (value: unknown): Record<string, unknown> => value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const id = () => crypto.randomUUID();
 
 export function AssignmentTechnicalTools({ assignmentId, profile, initialBlocks, practicalGate }: Props) {
@@ -64,12 +90,13 @@ export function AssignmentTechnicalTools({ assignmentId, profile, initialBlocks,
 }
 
 function ApprovedProcedureTool({ assignmentId, artifactType, initial, practicalGate }: ToolProps & { practicalGate: AssignmentPracticalGateView }) {
+  const persistedContent = initial?.content;
   const router = useRouter();
   const [completed, setCompleted] = useState<number[]>(() => Array.isArray(initial?.content.completedIndexes) ? initial!.content.completedIndexes.filter((item): item is number => typeof item === "number") : []);
   const [message, setMessage] = useState("");
   const [pending, startTransition] = useTransition();
   const protocol = practicalGate.protocol;
-  const steps = protocol?.procedureSteps ?? [];
+  const steps = useMemo(() => protocol?.procedureSteps ?? [], [protocol]);
   const practicalAvailable = Boolean(
     protocol &&
     practicalGate.acknowledged &&
@@ -90,16 +117,16 @@ function ApprovedProcedureTool({ assignmentId, artifactType, initial, practicalG
     capability: "procedure_checklist",
     label: "Approved procedure",
     position: 300,
-    content: {
+    content: mergeSpecialistEditorContent(persistedContent, {
       protocolId: protocol?.id ?? null,
       protocolVersion: protocol?.version ?? null,
       completedIndexes: completed,
       practicalAvailable,
-    },
+    }),
     plainText: protocol
       ? `${protocol.title} v${protocol.version}\n${completedProcedureCount(steps, completed)} of ${steps.length} approved steps recorded`
       : "",
-  }), [completed, practicalAvailable, protocol, steps]);
+  }), [completed, persistedContent, practicalAvailable, protocol, steps]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const acknowledge = () => {
     if (!protocol) return;
@@ -141,7 +168,7 @@ function ApprovedProcedureTool({ assignmentId, artifactType, initial, practicalG
 }
 
 function DesignNotebookTool({ assignmentId, artifactType, initial }: ToolProps) {
-  const content = initial?.content ?? {};
+  const content = useMemo(() => initial?.content ?? {}, [initial?.content]);
   const [problem, setProblem] = useState(() => text(content.problem));
   const [stakeholders, setStakeholders] = useState(() => text(content.stakeholders));
   const [criteria, setCriteria] = useState<string[]>(() => list(content.criteria).length ? list(content.criteria) : [""]);
@@ -150,11 +177,14 @@ function DesignNotebookTool({ assignmentId, artifactType, initial }: ToolProps) 
   const [selectedAlternative, setSelectedAlternative] = useState(() => text(content.selectedAlternative));
   const [selectionReason, setSelectionReason] = useState(() => text(content.selectionReason));
   const [tests, setTests] = useState<EngineeringTest[]>(() => Array.isArray(content.tests) ? content.tests as EngineeringTest[] : [{ id: id(), method: "", result: "", revision: "" }]);
-  const notebook = { problem, stakeholders, criteria, constraints, alternatives, selectedAlternative, selectionReason, tests };
+  const notebook = useMemo(
+    () => ({ problem, stakeholders, criteria, constraints, alternatives, selectedAlternative, selectionReason, tests }),
+    [alternatives, constraints, criteria, problem, selectedAlternative, selectionReason, stakeholders, tests],
+  );
   const issues = validateDesignNotebook(notebook);
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "design-notebook", type: "design_notebook", capability: "design_notebook", label: "Design notebook", position: 310,
-    content: notebook,
+    content: mergeSpecialistEditorContent(content, notebook),
     plainText: [
       `Problem: ${problem}`,
       `Stakeholders: ${stakeholders}`,
@@ -165,7 +195,7 @@ function DesignNotebookTool({ assignmentId, artifactType, initial }: ToolProps) 
       selectionReason,
       ...tests.map((item) => `Test: ${item.method} | Result: ${item.result} | Revision: ${item.revision}`),
     ].filter((item) => item.replace(/^[^:]+:\s*$/u, "").trim()).join("\n"),
-  }), [alternatives, constraints, criteria, notebook, problem, selectedAlternative, selectionReason, stakeholders, tests]);
+  }), [alternatives, constraints, content, criteria, notebook, problem, selectedAlternative, selectionReason, stakeholders, tests]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const updateList = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number, value: string) => setter((current) => current.map((item, itemIndex) => itemIndex === index ? value : item));
   return (
@@ -195,29 +225,116 @@ function StringListEditor({ label, values, onChange, onAdd }: { label: string; v
 }
 
 function CadTool({ assignmentId, artifactType, initial }: ToolProps) {
-  const content = initial?.content ?? {};
-  const [units, setUnits] = useState<DimensionedSketch["units"]>(() => content.units === "cm" || content.units === "in" ? content.units : "mm");
-  const [width, setWidth] = useState(() => Number(content.width) || 100);
-  const [height, setHeight] = useState(() => Number(content.height) || 60);
-  const [depth, setDepth] = useState<number | null>(() => typeof content.depth === "number" ? content.depth : null);
+  const content = useMemo(() => initial?.content ?? {}, [initial?.content]);
+  const persistedDimensions = record(content.dimensions);
+  const [units, setUnits] = useState<DimensionedSketch["units"]>(() =>
+    content.units === "cm" || content.units === "in" || content.units === "m"
+      ? content.units
+      : "mm"
+  );
+  const [width, setWidth] = useState(() => Number(content.width ?? persistedDimensions.width) || 100);
+  const [height, setHeight] = useState(() => Number(content.height ?? persistedDimensions.height) || 60);
+  const [depth, setDepth] = useState<number | null>(() => {
+    const value = content.depth ?? persistedDimensions.depth;
+    return typeof value === "number" ? value : null;
+  });
   const [constraints, setConstraints] = useState<string[]>(() => list(content.constraints).length ? list(content.constraints) : [""]);
-  const [file, setFile] = useState<File | null>(null);
-  const extension = file ? cadExtension(file.name) : null;
-  const sketch = { units, width, height, depth, constraints };
+  const initialDesign = content.design && typeof content.design === "object" && !Array.isArray(content.design)
+    ? content.design as Record<string, unknown>
+    : {};
+  const [primitive, setPrimitive] = useState<"box" | "cylinder">(() => initialDesign.primitive === "cylinder" ? "cylinder" : "box");
+  const [model, setModel] = useState<ValidatedCadModel | null>(null);
+  const [modelMetadata, setModelMetadata] = useState(() =>
+    restoreSpecialistCadEditorMetadata(content)
+  );
+  const [modelMessage, setModelMessage] = useState("");
+  const [runtimeState, setRuntimeState] = useState<SpecialistActiveRuntimeState>(() =>
+    specialistEditorRuntimeState(
+      content,
+      activeRuntimeState("loading", ["Three.js", "JSCAD"]),
+    )
+  );
+  const sketch = useMemo(
+    () => ({ units, width, height, depth, constraints }),
+    [constraints, depth, height, units, width],
+  );
   const issues = validateDimensionedSketch(sketch);
+  const primitiveResult = useMemo(() => createCadPrimitive(primitive === "box"
+    ? { primitive, width, height, depth: depth ?? Math.max(1, Math.min(width, height) / 2) }
+    : { primitive, radius: width / 2, height: depth ?? height, segments: 32 }
+  ), [depth, height, primitive, width]);
+  const primitiveMesh: CadPrimitiveMesh | null = primitiveResult.ok ? primitiveResult.value : null;
+  const modelFileName = model?.fileName ?? modelMetadata.fileName;
+  const modelFormat = model?.extension ?? modelMetadata.format;
+  const modelStats = useMemo(() => model
+    ? {
+        byteLength: model.byteLength,
+        triangleCount: model.triangleCount,
+        vertexCount: model.vertexCount,
+      }
+    : modelMetadata.modelStats, [model, modelMetadata.modelStats]);
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "cad-workspace", type: "cad", capability: "cad_workspace", label: "CAD package", position: 320,
-    content: { ...sketch, modelFileName: file?.name ?? text(content.modelFileName), modelFormat: extension },
-    plainText: `Dimensioned sketch: ${width} x ${height}${depth ? ` x ${depth}` : ""} ${units}\nConstraints: ${constraints.filter(Boolean).join("; ")}${file ? `\nModel: ${file.name}` : ""}`,
-  }), [constraints, content.modelFileName, depth, extension, file, height, sketch, units, width]);
+    content: mergeSpecialistEditorContent(content, {
+      ...sketch,
+      dimensions: { width, height, depth },
+      design: primitiveMesh ? {
+        primitive: primitiveMesh.primitive,
+        dimensions: primitiveMesh.dimensions,
+        volume: primitiveMesh.volume,
+        polygonCount: primitiveMesh.polygonCount,
+        triangleCount: primitiveMesh.triangleCount,
+      } : null,
+      model: { fileName: modelFileName, format: modelFormat },
+      modelFileName,
+      modelFormat,
+      modelStats,
+      runtimeState,
+    }),
+    plainText: `Dimensioned ${primitive}: ${width} x ${height}${depth ? ` x ${depth}` : ""} ${units}\nConstraints: ${constraints.filter(Boolean).join("; ")}${modelFileName ? `\nValidated preview: ${modelFileName}` : ""}`,
+  }), [constraints, content, depth, height, modelFileName, modelFormat, modelStats, primitive, primitiveMesh, runtimeState, sketch, units, width]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
+  const importModel = async (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > MAX_CAD_MODEL_BYTES) {
+      setModelMessage("Keep CAD previews under 8 MB.");
+      return;
+    }
+    setModelMessage("Checking the model structure and geometry...");
+    try {
+      const result = await validateCadModelFile(file);
+      if (!result.ok) {
+        setModel(null);
+        setModelMessage(result.error);
+        return;
+      }
+      setModel(result.value);
+      setModelMetadata({
+        fileName: result.value.fileName,
+        format: result.value.extension,
+        modelStats: {
+          byteLength: result.value.byteLength,
+          triangleCount: result.value.triangleCount,
+          vertexCount: result.value.vertexCount,
+        },
+      });
+      setRuntimeState(activeRuntimeState("loading", ["Three.js", `${result.value.extension.toUpperCase()} loader`]));
+      setModelMessage(`${result.value.fileName} validated for this browser session.`);
+    } catch {
+      setModel(null);
+      setModelMessage("This model could not be read. The bounded dimensioned design remains available.");
+    }
+  };
   return (
-    <ToolFrame title="CAD workspace" description="Create a dimensioned sketch and inspect STL, OBJ, glTF, or GLB models. STEP editing is not enabled in this pilot." status={status}>
+    <ToolFrame title="CAD workspace" description="Create a controlled box or cylinder and inspect a validated STL, OBJ, glTF, or GLB model. Arbitrary JSCAD scripts, STEP editing, assemblies, simulation, and full CAD operations are not enabled." status={status}>
+      <label className="mb-3 block text-sm font-bold">Bounded shape
+        <select value={primitive} onChange={(event) => { setPrimitive(event.target.value === "cylinder" ? "cylinder" : "box"); setModel(null); }} className="mt-1 block min-h-10 border border-slate-400 bg-white px-3"><option value="box">Box</option><option value="cylinder">Cylinder</option></select>
+      </label>
       <div className="grid gap-2 sm:grid-cols-4">
-        <label className="text-sm font-bold">Width<input type="number" min="0" value={width} onChange={(event) => setWidth(Number(event.target.value))} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2" /></label>
+        <label className="text-sm font-bold">{primitive === "cylinder" ? "Diameter" : "Width"}<input type="number" min="0" value={width} onChange={(event) => setWidth(Number(event.target.value))} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2" /></label>
         <label className="text-sm font-bold">Height<input type="number" min="0" value={height} onChange={(event) => setHeight(Number(event.target.value))} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2" /></label>
         <label className="text-sm font-bold">Depth, optional<input type="number" min="0" value={depth ?? ""} onChange={(event) => setDepth(event.target.value ? Number(event.target.value) : null)} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2" /></label>
-        <label className="text-sm font-bold">Units<select value={units} onChange={(event) => setUnits(event.target.value as DimensionedSketch["units"])} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2"><option value="mm">mm</option><option value="cm">cm</option><option value="in">in</option></select></label>
+        <label className="text-sm font-bold">Units<select value={units} onChange={(event) => setUnits(event.target.value as DimensionedSketch["units"])} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2"><option value="mm">mm</option><option value="cm">cm</option><option value="in">in</option><option value="m">m</option></select></label>
       </div>
       <svg viewBox="0 0 600 280" className="mt-3 w-full border border-slate-300 bg-white" role="img" aria-label={`Rectangle ${width} by ${height} ${units}`}>
         <rect x="150" y="55" width="300" height="160" fill="#dbeafe" stroke="#0f172a" strokeWidth="3" />
@@ -227,43 +344,92 @@ function CadTool({ assignmentId, artifactType, initial }: ToolProps) {
         <text x="78" y="142" textAnchor="middle" fontSize="18" fill="#0f172a" transform="rotate(-90 78 142)">{height} {units}</text>
       </svg>
       <StringListEditor label="Design constraints" values={constraints} onChange={(index, value) => setConstraints((current) => current.map((item, itemIndex) => itemIndex === index ? value : item))} onAdd={() => setConstraints((current) => [...current, ""])} />
-      <label className="mt-4 inline-flex min-h-10 cursor-pointer items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Upload size={16} /> Choose model<input type="file" accept=".stl,.obj,.gltf,.glb" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="sr-only" /></label>
-      {file && !extension ? <p className="mb-0 mt-2 text-sm font-bold text-amber-900">Use STL, OBJ, glTF, or GLB for the safe viewer pilot.</p> : null}
-      {file && extension ? <CadModelViewer file={file} extension={extension} /> : null}
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Upload size={16} /> Inspect model<input type="file" accept=".stl,.obj,.gltf,.glb" onChange={(event) => { const input = event.currentTarget; void importModel(input.files?.[0]).finally(() => { input.value = ""; }); }} className="sr-only" /></label>
+        {model ? <button type="button" onClick={() => { setModel(null); setModelMessage("Showing the bounded design."); }} className="min-h-10 border border-slate-400 bg-white px-3 font-bold">Show bounded design</button> : null}
+        <span className="text-sm font-bold text-slate-700" aria-live="polite">{modelMessage}</span>
+      </div>
+      {model ? <CadModelViewer model={model} onRuntimeStateChange={setRuntimeState} /> : primitiveMesh ? <CadPrimitiveViewer mesh={primitiveMesh} onRuntimeStateChange={setRuntimeState} /> : null}
+      {!primitiveResult.ok ? <p className="mb-0 mt-3 text-sm font-bold text-amber-900">{primitiveResult.error}</p> : null}
       {issues.length > 0 ? <p className="mb-0 mt-3 text-sm font-bold text-amber-900">{issues.join(" ")}</p> : null}
     </ToolFrame>
   );
 }
 
 function DataLabTool({ assignmentId, artifactType, initial }: ToolProps) {
+  const persistedContent = initial?.content;
   const [rows, setRows] = useState<DataLabRow[]>(() => Array.isArray(initial?.content.rows) ? initial!.content.rows as DataLabRow[] : [{ id: id(), label: "", value: "", unit: "", uncertainty: "", observation: "" }]);
+  const [dataset, setDataset] = useState(() => restoreImportedDataset(initial?.content.dataset));
+  const [chartConfig, setChartConfig] = useState<DataChartConfig>(() => dataset
+    ? normalizeDataChartConfig(initial?.content.chartConfig, dataset)
+    : { type: "scatter", xColumn: 0, yColumn: 1 });
+  const [runtimeState, setRuntimeState] = useState<SpecialistActiveRuntimeState>(() =>
+    specialistEditorRuntimeState(
+      persistedContent,
+      activeRuntimeState(dataset ? "loading" : "idle", ["Papa Parse", "Apache ECharts"]),
+    )
+  );
+  const [importMessage, setImportMessage] = useState("");
   const issues = validateDataLabRows(rows);
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "data-lab", type: "data_table", capability: "data_lab", label: "Data lab", position: 330,
-    content: { rows },
+    content: mergeSpecialistEditorContent(persistedContent, {
+      rows,
+      dataset,
+      chartConfig,
+      runtimeState,
+    }),
     plainText: rows.map((row) => `${row.label}: ${row.value} ${row.unit}${row.uncertainty ? ` +/- ${row.uncertainty}` : ""} ${row.observation}`.trim()).join("\n"),
-  }), [rows]);
+  }), [chartConfig, dataset, persistedContent, rows, runtimeState]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const update = (rowId: string, patch: Partial<DataLabRow>) => setRows((current) => current.map((row) => row.id === rowId ? { ...row, ...patch } : row));
+  const importData = async (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > MAX_DELIMITED_BYTES) {
+      setImportMessage("Keep data imports under 1 MB for this beta workspace.");
+      return;
+    }
+    setImportMessage("Checking the data file...");
+    try {
+      const result = parseDelimitedDataset(await file.text(), file.name);
+      if (!result.ok) {
+        setImportMessage(result.error);
+        return;
+      }
+      setDataset(result.value);
+      setRows(datasetToLabRows(result.value));
+      setChartConfig(normalizeDataChartConfig({ type: "scatter", xColumn: 0, yColumn: 1 }, result.value));
+      setRuntimeState(activeRuntimeState("loading", ["Papa Parse", "Apache ECharts"]));
+      setImportMessage(`${result.value.rows.length} rows imported locally.`);
+    } catch {
+      setImportMessage("This data file could not be read. Typed lab rows remain available.");
+    }
+  };
   return (
-    <ToolFrame title="Lab data" description="Record measurements, units, uncertainty, and observations without changing the approved procedure." status={status}>
+    <ToolFrame title="Lab data" description="Record bounded measurements or import CSV or TSV data for a controlled local chart. Workbook macros, external links, and instrument control are not enabled." status={status}>
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Upload size={16} /> Import CSV or TSV<input type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" className="sr-only" onChange={(event) => { const input = event.currentTarget; void importData(input.files?.[0]).finally(() => { input.value = ""; }); }} /></label>
+        <span className="text-sm font-bold text-slate-700" aria-live="polite">{importMessage}</span>
+      </div>
       <div className="overflow-x-auto"><table className="w-full min-w-[760px] border-collapse text-sm"><thead><tr>{["Measurement", "Value", "Unit", "Uncertainty", "Observation"].map((label) => <th key={label} className="border border-slate-300 bg-slate-100 p-2 text-left">{label}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={row.id}><td className="border border-slate-300 bg-white p-1"><input aria-label={`Row ${index + 1} measurement`} value={row.label} onChange={(event) => update(row.id, { label: event.target.value })} className="min-h-9 w-full px-2" /></td><td className="border border-slate-300 bg-white p-1"><input aria-label={`Row ${index + 1} value`} value={row.value} onChange={(event) => update(row.id, { value: event.target.value })} className="min-h-9 w-full px-2" /></td><td className="border border-slate-300 bg-white p-1"><input aria-label={`Row ${index + 1} unit`} value={row.unit} onChange={(event) => update(row.id, { unit: event.target.value })} className="min-h-9 w-full px-2" /></td><td className="border border-slate-300 bg-white p-1"><input aria-label={`Row ${index + 1} uncertainty`} value={row.uncertainty} onChange={(event) => update(row.id, { uncertainty: event.target.value })} className="min-h-9 w-full px-2" /></td><td className="border border-slate-300 bg-white p-1"><input aria-label={`Row ${index + 1} observation`} value={row.observation} onChange={(event) => update(row.id, { observation: event.target.value })} className="min-h-9 w-full px-2" /></td></tr>)}</tbody></table></div>
-      <button type="button" onClick={() => setRows((current) => [...current, { id: id(), label: "", value: "", unit: "", uncertainty: "", observation: "" }])} className="mt-3 inline-flex min-h-10 items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Plus size={16} /> Add row</button>
+      <button type="button" disabled={rows.length >= MAX_DATA_ROWS} onClick={() => setRows((current) => current.length < MAX_DATA_ROWS ? [...current, { id: id(), label: "", value: "", unit: "", uncertainty: "", observation: "" }] : current)} className="mt-3 inline-flex min-h-10 items-center gap-2 bg-slate-950 px-3 font-bold text-white disabled:opacity-50"><Plus size={16} /> Add row</button>
+      {dataset ? <section className="mt-4 border-t border-slate-300 pt-4" aria-label="Lab data chart"><div className="grid gap-2 sm:grid-cols-3"><label className="text-sm font-bold">Chart type<select value={chartConfig.type} onChange={(event) => setChartConfig((current) => ({ ...current, type: event.target.value === "bar" || event.target.value === "line" ? event.target.value : "scatter" }))} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2"><option value="scatter">Scatter</option><option value="line">Line</option><option value="bar">Bar</option></select></label><label className="text-sm font-bold">Category column<select value={chartConfig.xColumn} onChange={(event) => setChartConfig((current) => ({ ...current, xColumn: Number(event.target.value) }))} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2">{dataset.columns.map((column, index) => <option key={`${column}-${index}`} value={index}>{column}</option>)}</select></label><label className="text-sm font-bold">Numeric column<select value={chartConfig.yColumn} onChange={(event) => setChartConfig((current) => ({ ...current, yColumn: Number(event.target.value) }))} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2">{dataset.columns.map((column, index) => <option key={`${column}-${index}`} value={index}>{column}</option>)}</select></label></div><SpecialistDataChart dataset={dataset} config={chartConfig} onRuntimeStateChange={setRuntimeState} /></section> : null}
       {issues.length > 0 ? <p className="mb-0 mt-3 text-sm font-bold text-amber-900">{issues.join(" ")}</p> : null}
     </ToolFrame>
   );
 }
 
 function PerformanceLogTool({ assignmentId, artifactType, initial, subjectDomain }: ToolProps & { subjectDomain: AssignmentWorkProfile["subjectDomain"] }) {
+  const persistedContent = initial?.content;
   const [entries, setEntries] = useState<PerformanceLogEntry[]>(() => Array.isArray(initial?.content.entries) ? initial!.content.entries as PerformanceLogEntry[] : []);
   const [draft, setDraft] = useState<PerformanceLogEntry>({ id: id(), occurredOn: new Date().toISOString().slice(0, 10), focus: "", durationMinutes: null, evidence: "", reflection: "", verifiedByTeacher: false });
   const subject = subjectDomain === "physical_education" ? "pe" : subjectDomain === "health" ? "health" : "performance";
   const issues = validatePerformanceEntry(draft, subject);
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "performance-log", type: "performance_log", capability: "performance_log", label: "Performance log", position: 340,
-    content: { entries },
+    content: mergeSpecialistEditorContent(persistedContent, { entries }),
     plainText: entries.map((entry) => `${entry.occurredOn} | ${entry.focus}${entry.durationMinutes ? ` | ${entry.durationMinutes} minutes` : ""}\nEvidence: ${entry.evidence}\nReflection: ${entry.reflection}`).join("\n\n"),
-  }), [entries]);
+  }), [entries, persistedContent]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const addEntry = () => {
     if (issues.length > 0) return;

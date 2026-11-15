@@ -2,17 +2,16 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 
 // supabase/functions/writing-aid/index.ts
 // F10: Writing coach — Sonnet 4.6, explains rules without editing student text.
-// ai_mode: 'red' and 'yellow' both return 403 (yellow = citations only).
 // Fire-and-forget: logInteraction + incrementTokens never block the response.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -47,7 +46,7 @@ Deno.serve(withStudentSecurity("writing-aid", async (req: Request) => {
       aiMode?: unknown;
     };
 
-    const { ownerId, assignmentId, prompt, aiMode } = body;
+    const { ownerId, assignmentId, prompt } = body;
 
     if (typeof ownerId !== "string" || !ownerId) {
       return new Response(JSON.stringify({ error: "ownerId required" }), {
@@ -61,19 +60,7 @@ Deno.serve(withStudentSecurity("writing-aid", async (req: Request) => {
         headers: { "Content-Type": "application/json" },
       });
     }
-
-    // 2. aiMode check — both 'red' and 'yellow' block writing-aid (yellow = citations only)
-    if (aiMode === "red" || aiMode === "yellow") {
-      return new Response(
-        JSON.stringify({ error: "AI not available for this class" }),
-        {
-          status: 403,
-          headers: { "Content-Type": "application/json" },
-        },
-      );
-    }
-
-    // 3. Supabase service-role client
+    // 2. Supabase service-role client
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
@@ -108,7 +95,8 @@ Deno.serve(withStudentSecurity("writing-aid", async (req: Request) => {
       { role: "user" as const, content: prompt as string },
     ];
 
-    const ai = await callSafeStudentTextModel({
+    const ai = await runOpenAIHomeworkAdapter({
+      task: "writing_aid",
       ownerId,
       supabase,
       system: systemPrompt,

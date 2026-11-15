@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createCard } from "@/lib/fsrs/fsrs";
 import { firstAidStudyCards, goalTextIsAllowed } from "@/lib/wellness/health";
+import { maintainWellnessHistory } from "@/lib/wellness/retention";
 
 const ActivityInput = z.object({
   activityType: z.enum(["walk", "run", "bike", "team_sport", "strength", "stretch", "dance", "other"]),
@@ -51,8 +52,10 @@ export async function logActivity(
   });
   if (error) return { ok: false, error: "The activity could not be saved yet. Try again when you are ready." };
 
+  await maintainWellnessHistory(supabase);
+
   revalidatePath("/wellness");
-  revalidatePath("/settings/goals");
+  revalidatePath("/settings");
   return { ok: true };
 }
 
@@ -79,7 +82,7 @@ export async function saveWellnessGoal(
   if (error) return { ok: false, error: "The goal could not be saved yet. Try again when you are ready." };
 
   revalidatePath("/wellness");
-  revalidatePath("/settings/goals");
+  revalidatePath("/settings");
   return { ok: true };
 }
 
@@ -102,6 +105,8 @@ export async function saveSleepLog(
     p_focus_note: parsed.data.focusNote || "",
   });
   if (error) return { ok: false, error: "The sleep check-in could not be saved yet. Try again when you are ready." };
+
+  await maintainWellnessHistory(supabase);
 
   revalidatePath("/wellness");
   revalidatePath("/dashboard");
@@ -129,6 +134,8 @@ export async function saveWellnessCheckIn(
   if (error) {
     return { ok: false, error: "The check-in could not be saved yet. Try again when you are ready." };
   }
+
+  await maintainWellnessHistory(supabase);
 
   revalidatePath("/wellness");
   revalidatePath("/dashboard");
@@ -161,7 +168,7 @@ export async function createFirstAidStudyCards(): Promise<{ ok: true; count: num
   const { error } = await supabase.from("flashcards").insert(rows);
   if (error) return { ok: false, error: "The study cards could not be added yet. Try again when you are ready." };
 
-  revalidatePath("/flashcards");
+  revalidatePath("/study");
   revalidatePath("/dashboard");
   revalidatePath("/wellness");
   return { ok: true, count: rows.length };

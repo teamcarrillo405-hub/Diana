@@ -5,7 +5,7 @@ import { ScreenDesignOnboarding } from "./screendesign-onboarding";
 
 export function OnboardingForm({
   initial,
-  initialStep = "welcome",
+  initialStep = "personalize",
 }: {
   readonly initial: ProfilePrefs;
   readonly initialStep?: ScreenDesignOnboardingStep;

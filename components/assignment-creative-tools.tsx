@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Pause, Play, Plus, Trash2, Upload } from "lucide-react";
+import { Pause, Play, Plus, Trash2, Upload } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import {
@@ -11,6 +11,8 @@ import {
   initiateAssignmentMediaUpload,
 } from "@/app/(app)/assignments/[id]/workspace/source-actions";
 import { ToolFrame, useBlockAutosave } from "@/components/assignment-native-tools";
+import { SpecialistMapRuntime } from "@/components/specialist-map-runtime";
+import { SpecialistNotationRuntime } from "@/components/specialist-notation-runtime";
 import type { AssignmentArtifactBlockInput } from "@/lib/assignment-artifact";
 import type { AssignmentWorkProfile } from "@/lib/assignment-profile";
 import { readUploadHeader, validateUpload } from "@/lib/security/upload-validation";
@@ -19,7 +21,6 @@ import {
   MUSIC_PITCHES,
   normalizeMediaAnnotations,
   normalizeStroke,
-  pitchFrequency,
   privacySafeMarker,
   validateStudentMap,
   type DrawingStroke,
@@ -27,6 +28,24 @@ import {
   type MediaAnnotation,
   type MusicNote,
 } from "@/lib/native-tools/creative";
+import {
+  MAX_GEOJSON_BYTES,
+  parseSchoolGeoJson,
+  restoreSchoolGeoJsonImport,
+  type SchoolGeoJsonImport,
+} from "@/lib/native-tools/map-runtime";
+import {
+  MAX_MUSIC_XML_BYTES,
+  playBoundedMusicSequence,
+  restoreMusicXmlImport,
+  validateMusicXml,
+} from "@/lib/native-tools/music-runtime";
+import { activeRuntimeState } from "@/lib/specialist-artifacts/active-state";
+import type { SpecialistActiveRuntimeState } from "@/lib/specialist-artifacts/contracts";
+import {
+  mergeSpecialistEditorContent,
+  specialistEditorRuntimeState,
+} from "@/lib/specialist-artifacts/editor-state";
 
 type Props = {
   assignmentId: string;
@@ -68,30 +87,91 @@ type ToolProps = {
 };
 
 function MapTool({ assignmentId, artifactType, initial }: ToolProps) {
+  const persistedContent = initial?.content;
   const [title, setTitle] = useState(() => String(initial?.content.title ?? ""));
   const [legend, setLegend] = useState(() => String(initial?.content.legend ?? ""));
+  const [scale, setScale] = useState(() => String(initial?.content.scale ?? ""));
   const [sourceAttribution, setSourceAttribution] = useState(() => String(initial?.content.sourceAttribution ?? ""));
   const [markers, setMarkers] = useState<MapMarker[]>(() => Array.isArray(initial?.content.markers) ? initial!.content.markers as MapMarker[] : [blankMarker()]);
-  const safeMarkers = markers.map((marker) => privacySafeMarker(marker, false));
-  const map = { title, legend, scale: "", sourceAttribution, markers: safeMarkers };
+  const [importedMap, setImportedMap] = useState<SchoolGeoJsonImport | null>(() => restoreSchoolGeoJsonImport(initial?.content.importedMap));
+  const [importMessage, setImportMessage] = useState("");
+  const [runtimeState, setRuntimeState] = useState<SpecialistActiveRuntimeState>(() =>
+    specialistEditorRuntimeState(
+      persistedContent,
+      activeRuntimeState("loading", ["MapLibre GL JS", "Turf"]),
+    )
+  );
+  const safeMarkers = useMemo(
+    () => markers.map((marker) => privacySafeMarker(marker, false)),
+    [markers],
+  );
+  const map = useMemo(
+    () => ({ title, legend, scale, sourceAttribution, markers: safeMarkers, importedMap, runtimeState }),
+    [importedMap, legend, runtimeState, safeMarkers, scale, sourceAttribution, title],
+  );
   const issues = validateStudentMap(map);
+  const bounds = useMemo<[number, number, number, number] | null>(() => {
+    const raw = importedMap?.analysis.bounds ?? (safeMarkers.length > 0
+      ? [
+          Math.min(...safeMarkers.map((marker) => marker.longitude)),
+          Math.min(...safeMarkers.map((marker) => marker.latitude)),
+          Math.max(...safeMarkers.map((marker) => marker.longitude)),
+          Math.max(...safeMarkers.map((marker) => marker.latitude)),
+        ] as [number, number, number, number]
+      : null);
+    if (!raw) return null;
+    const longitudePad = raw[0] === raw[2] ? 1 : 0;
+    const latitudePad = raw[1] === raw[3] ? 1 : 0;
+    return [raw[0] - longitudePad, raw[1] - latitudePad, raw[2] + longitudePad, raw[3] + latitudePad];
+  }, [importedMap, safeMarkers]);
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "map-workspace", type: "map", capability: "map_workspace", label: "Map", position: 200,
-    content: map,
-    plainText: [title, legend, sourceAttribution, ...safeMarkers.map((marker) => `${marker.label}: ${marker.latitude}, ${marker.longitude} (${marker.source})`)].filter(Boolean).join("\n"),
-  }), [legend, safeMarkers, sourceAttribution, title]);
+    content: mergeSpecialistEditorContent(persistedContent, map),
+    plainText: [
+      title,
+      legend,
+      scale ? `Scale: ${scale}` : "",
+      sourceAttribution,
+      importedMap ? `${importedMap.fileName}: ${importedMap.analysis.featureCount} features, ${importedMap.analysis.areaSquareKilometers} square kilometers, ${importedMap.analysis.lineLengthKilometers} line kilometers.` : "",
+      ...safeMarkers.map((marker) => `${marker.label}: ${marker.latitude}, ${marker.longitude} (${marker.source})`),
+    ].filter(Boolean).join("\n"),
+  }), [importedMap, legend, map, persistedContent, safeMarkers, scale, sourceAttribution, title]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const update = (index: number, patch: Partial<MapMarker>) => setMarkers((current) => current.map((marker, markerIndex) => markerIndex === index ? { ...marker, ...patch } : marker));
+  const importGeoJson = async (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > MAX_GEOJSON_BYTES) {
+      setImportMessage("Keep GeoJSON imports under 1 MB for this beta workspace.");
+      return;
+    }
+    setImportMessage("Checking the map data...");
+    try {
+      const result = parseSchoolGeoJson(await file.text(), file.name);
+      if (!result.ok) {
+        setImportMessage(result.error);
+        return;
+      }
+      setImportedMap(result.value);
+      setRuntimeState(activeRuntimeState("loading", ["MapLibre GL JS", "Turf"]));
+      setImportMessage(`${result.value.analysis.featureCount} features analyzed locally.`);
+    } catch {
+      setImportMessage("This map file could not be read. Coordinate markers remain available.");
+    }
+  };
   return (
-    <ToolFrame title="Map workspace" description="Coordinates save at coarse precision unless a teacher-authorized task requires more." status={status}>
-      <div className="grid gap-2 sm:grid-cols-3">
+    <ToolFrame title="Map workspace" description="Place privacy-rounded markers or inspect bounded local GeoJSON with school-level distance and area analysis. Basemap tiles, routing, and full GIS editing are not enabled." status={status}>
+      <div className="grid gap-2 sm:grid-cols-4">
         <input aria-label="Map title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Map title" className="min-h-10 border border-slate-400 bg-white px-2" />
         <input aria-label="Map legend" value={legend} onChange={(event) => setLegend(event.target.value)} placeholder="Legend" className="min-h-10 border border-slate-400 bg-white px-2" />
+        <input aria-label="Map scale" value={scale} onChange={(event) => setScale(event.target.value)} placeholder="Scale" className="min-h-10 border border-slate-400 bg-white px-2" />
         <input aria-label="Map source attribution" value={sourceAttribution} onChange={(event) => setSourceAttribution(event.target.value)} placeholder="Sources" className="min-h-10 border border-slate-400 bg-white px-2" />
       </div>
-      <div className="relative mt-3 aspect-[2/1] overflow-hidden border border-slate-300 bg-[linear-gradient(#dbeafe_1px,transparent_1px),linear-gradient(90deg,#dbeafe_1px,transparent_1px)] bg-[size:10%_10%]" role="img" aria-label={title || "Student map"}>
-        {safeMarkers.map((marker) => <div key={marker.id} className="absolute -translate-x-1/2 -translate-y-1/2 text-[#db2777]" style={{ left: `${((marker.longitude + 180) / 360) * 100}%`, top: `${((90 - marker.latitude) / 180) * 100}%` }} title={marker.label}><MapPin size={22} fill="currentColor" /></div>)}
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Upload size={16} /> Import GeoJSON<input type="file" accept=".geojson,.json,application/geo+json,application/json" className="sr-only" onChange={(event) => { const input = event.currentTarget; void importGeoJson(input.files?.[0]).finally(() => { input.value = ""; }); }} /></label>
+        <span className="text-sm font-bold text-slate-700" aria-live="polite">{importMessage}</span>
       </div>
+      <SpecialistMapRuntime title={title} markers={safeMarkers} importedData={importedMap?.data ?? null} bounds={bounds} onRuntimeStateChange={setRuntimeState} />
+      {importedMap ? <p className="mb-0 mt-2 text-sm text-slate-700">{importedMap.analysis.featureCount} features | {importedMap.analysis.coordinateCount} coordinates | {importedMap.analysis.areaSquareKilometers} km2 area | {importedMap.analysis.lineLengthKilometers} km line length</p> : null}
       <div className="mt-3 grid gap-2">{markers.map((marker, index) => <div key={marker.id} className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <input aria-label={`Marker ${index + 1} label`} value={marker.label} onChange={(event) => update(index, { label: event.target.value })} placeholder="Label" className="min-h-10 border border-slate-400 bg-white px-2" />
         <input aria-label={`Marker ${index + 1} latitude`} type="number" value={marker.latitude} onChange={(event) => update(index, { latitude: Number(event.target.value) })} placeholder="Latitude" className="min-h-10 border border-slate-400 bg-white px-2" />
@@ -105,12 +185,18 @@ function MapTool({ assignmentId, artifactType, initial }: ToolProps) {
 }
 
 function DrawingTool({ assignmentId, artifactType, initial }: ToolProps) {
+  const persistedContent = initial?.content;
   const [strokes, setStrokes] = useState<DrawingStroke[]>(() => Array.isArray(initial?.content.strokes) ? initial!.content.strokes as DrawingStroke[] : []);
   const activeId = useRef<string | null>(null);
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "drawing-canvas", type: "drawing", capability: "drawing_canvas", label: "Drawing", position: 210,
-    content: { strokes }, plainText: strokes.length > 0 ? `Student drawing with ${strokes.length} strokes.` : "",
-  }), [strokes]);
+    content: mergeSpecialistEditorContent(persistedContent, {
+      logicalWidth: 800,
+      logicalHeight: 400,
+      strokes,
+    }),
+    plainText: strokes.length > 0 ? `Student drawing with ${strokes.length} strokes.` : "",
+  }), [persistedContent, strokes]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const point = (event: React.PointerEvent<SVGSVGElement>) => {
     const box = event.currentTarget.getBoundingClientRect();
@@ -130,45 +216,87 @@ function DrawingTool({ assignmentId, artifactType, initial }: ToolProps) {
 }
 
 function MusicTool({ assignmentId, artifactType, initial }: ToolProps) {
+  const persistedContent = initial?.content;
   const [notes, setNotes] = useState<MusicNote[]>(() => Array.isArray(initial?.content.notes) ? initial!.content.notes as MusicNote[] : []);
   const [pitch, setPitch] = useState<(typeof MUSIC_PITCHES)[number]>("C4");
+  const [beats, setBeats] = useState<MusicNote["beats"]>(1);
+  const [musicXml, setMusicXml] = useState(() => restoreMusicXmlImport(initial?.content.musicXml));
   const [playing, setPlaying] = useState(false);
+  const [message, setMessage] = useState("");
+  const [runtimeState, setRuntimeState] = useState<SpecialistActiveRuntimeState>(() =>
+    specialistEditorRuntimeState(
+      persistedContent,
+      activeRuntimeState("loading", ["VexFlow", "Tone.js"]),
+    )
+  );
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "music-notation", type: "music_notation", capability: "music_notation", label: "Music notation", position: 220,
-    content: { notes }, plainText: notes.map((note) => `${note.pitch} ${note.beats} beat`).join("\n"),
-  }), [notes]);
+    content: mergeSpecialistEditorContent(persistedContent, {
+      notes,
+      musicXml,
+      runtimeState,
+    }),
+    plainText: [
+      ...notes.map((note) => `${note.pitch} ${note.beats} beat`),
+      musicXml ? `Imported MusicXML: ${musicXml.metadata.title || musicXml.metadata.fileName}, ${musicXml.metadata.partCount} parts, ${musicXml.metadata.measureCount} measures.` : "",
+    ].filter(Boolean).join("\n"),
+  }), [musicXml, notes, persistedContent, runtimeState]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const play = async () => {
     setPlaying(true);
-    const context = new AudioContext();
-    let start = context.currentTime;
-    for (const note of notes) {
-      const oscillator = context.createOscillator();
-      const gain = context.createGain();
-      oscillator.frequency.value = pitchFrequency(note.pitch);
-      gain.gain.setValueAtTime(0.12, start);
-      gain.gain.exponentialRampToValueAtTime(0.001, start + note.beats * 0.45);
-      oscillator.connect(gain).connect(context.destination);
-      oscillator.start(start); oscillator.stop(start + note.beats * 0.5);
-      start += note.beats * 0.5;
+    setRuntimeState(activeRuntimeState("running", ["VexFlow", "Tone.js"], "Playing the bounded note sequence locally."));
+    try {
+      const result = await playBoundedMusicSequence(notes);
+      setMessage(result.ok ? `Playback complete (${result.durationSeconds.toFixed(1)} seconds).` : result.error);
+      setRuntimeState(activeRuntimeState(
+        result.ok ? "complete" : "limited",
+        ["VexFlow", "Tone.js", ...(musicXml ? ["OpenSheetMusicDisplay"] : [])],
+        result.ok ? "Local notation playback completed." : result.error,
+      ));
+    } finally {
+      setPlaying(false);
     }
-    setTimeout(() => { setPlaying(false); void context.close(); }, Math.max(100, (start - context.currentTime) * 1000));
+  };
+  const importMusicXml = async (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > MAX_MUSIC_XML_BYTES) {
+      setMessage("Keep MusicXML imports under 512 KB for this beta viewer.");
+      return;
+    }
+    setMessage("Checking the score...");
+    try {
+      const result = validateMusicXml(await file.text(), file.name);
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      setMusicXml(result.value);
+      setRuntimeState(activeRuntimeState("loading", ["VexFlow", "Tone.js", "OpenSheetMusicDisplay"]));
+      setMessage(`${result.value.metadata.measureCount} measures imported for view-only rendering.`);
+    } catch {
+      setMessage("This score could not be read. The typed note sequence remains available.");
+    }
   };
   return (
-    <ToolFrame title="Music notation" description="Build a note sequence, inspect pitch and duration, then play it back." status={status}>
-      <div className="min-h-24 overflow-x-auto border border-slate-300 bg-white p-4" role="img" aria-label={`Score with ${notes.length} notes`}>
-        <div className="relative mt-6 h-12 min-w-[500px] bg-[repeating-linear-gradient(to_bottom,#64748b_0,#64748b_1px,transparent_1px,transparent_12px)]">{notes.map((note, index) => <span key={`${note.pitch}-${index}`} className="absolute flex h-5 w-5 items-center justify-center rounded-full bg-slate-950 text-[9px] text-white" style={{ left: `${20 + index * 34}px`, top: `${Math.max(-8, 38 - MUSIC_PITCHES.indexOf(note.pitch) * 3)}px` }}>{note.pitch}</span>)}</div>
+    <ToolFrame title="Music notation" description="Build and play a bounded note sequence or view uncompressed score-partwise MusicXML. Full engraving, compressed MXL, MIDI devices, and instrument control are not enabled." status={status}>
+      <div className="mb-3 flex flex-wrap items-center gap-3">
+        <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Upload size={16} /> Import MusicXML<input type="file" accept=".musicxml,.xml,application/vnd.recordare.musicxml+xml,application/xml,text/xml" className="sr-only" onChange={(event) => { const input = event.currentTarget; void importMusicXml(input.files?.[0]).finally(() => { input.value = ""; }); }} /></label>
+        <span className="text-sm font-bold text-slate-700" aria-live="polite">{message}</span>
       </div>
+      <SpecialistNotationRuntime notes={notes} musicXml={musicXml} onRuntimeStateChange={setRuntimeState} />
       <div className="mt-3 flex flex-wrap gap-2">
         <select aria-label="Pitch" value={pitch} onChange={(event) => setPitch(event.target.value as typeof pitch)} className="min-h-10 border border-slate-400 bg-white px-2">{MUSIC_PITCHES.map((item) => <option key={item}>{item}</option>)}</select>
-        <button type="button" onClick={() => setNotes((current) => [...current, { pitch, beats: 1 }])} className="inline-flex min-h-10 items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Plus size={16} /> Add note</button>
+        <select aria-label="Note duration" value={beats} onChange={(event) => setBeats(Number(event.target.value) as MusicNote["beats"])} className="min-h-10 border border-slate-400 bg-white px-2"><option value={0.25}>Sixteenth</option><option value={0.5}>Eighth</option><option value={1}>Quarter</option><option value={2}>Half</option><option value={4}>Whole</option></select>
+        <button type="button" onClick={() => setNotes((current) => current.length < 256 ? [...current, { pitch, beats }] : current)} className="inline-flex min-h-10 items-center gap-2 bg-slate-950 px-3 font-bold text-white"><Plus size={16} /> Add note</button>
         <button type="button" disabled={playing || notes.length === 0} onClick={() => void play()} className="inline-flex min-h-10 items-center gap-2 bg-[#db2777] px-3 font-bold text-white">{playing ? <Pause size={16} /> : <Play size={16} />} Play</button>
+        <button type="button" disabled={notes.length === 0} onClick={() => setNotes((current) => current.slice(0, -1))} className="inline-flex min-h-10 items-center gap-2 border border-slate-400 bg-white px-3 font-bold">Remove last</button>
       </div>
     </ToolFrame>
   );
 }
 
 function MediaTool({ assignmentId, artifactType, kind, initial }: ToolProps & { kind: "audio" | "video" }) {
+  const persistedContent = initial?.content;
   const [file, setFile] = useState<File | null>(null);
   const [consent, setConsent] = useState(false);
   const [media, setMedia] = useState<Record<string, unknown>>(() => initial?.content.media && typeof initial.content.media === "object" ? initial.content.media as Record<string, unknown> : {});
@@ -177,15 +305,24 @@ function MediaTool({ assignmentId, artifactType, kind, initial }: ToolProps & { 
   const [time, setTime] = useState(0);
   const [message, setMessage] = useState("");
   const [pending, startTransition] = useTransition();
-  const mediaId = typeof media.id === "string" ? media.id : "";
-  const mediaName = typeof media.file_name === "string"
-    ? media.file_name
+  const mediaId = typeof (media.id ?? media.assetId) === "string"
+    ? String(media.id ?? media.assetId)
+    : "";
+  const mediaName = typeof (media.file_name ?? media.fileName) === "string"
+    ? String(media.file_name ?? media.fileName)
     : "Assignment recording";
-  const normalized = normalizeMediaAnnotations(annotations, Number(media.durationSeconds) || 86_400);
+  const normalized = normalizeMediaAnnotations(
+    annotations,
+    Number(media.durationSeconds ?? media.duration_seconds) || 86_400,
+  );
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: `${kind}-review`, type: kind, capability: kind === "audio" ? "audio_review" : "video_review", label: `${kind === "audio" ? "Audio" : "Video"} review`, position: kind === "audio" ? 230 : 240,
-    content: { media, annotations: normalized }, plainText: [String(media.file_name ?? ""), ...normalized.map((item) => `${item.timeSeconds}s: ${item.note}`)].filter(Boolean).join("\n"),
-  }), [kind, media, normalized]);
+    content: mergeSpecialistEditorContent(persistedContent, {
+      media,
+      annotations: normalized,
+    }),
+    plainText: [String(media.file_name ?? media.fileName ?? ""), ...normalized.map((item) => `${item.timeSeconds}s: ${item.note}`)].filter(Boolean).join("\n"),
+  }), [kind, media, normalized, persistedContent]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
   const upload = () => startTransition(async () => {
     if (!file) return;

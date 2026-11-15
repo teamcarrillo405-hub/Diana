@@ -57,10 +57,20 @@ describe("ScreenDesign support screen contracts", () => {
       buildSupportSearchResult({
         type: "concept",
         id: "concept-1",
+        classId: "class-1",
         title: "Claim evidence reasoning",
         detail: "Practice evidence",
       }).href,
-    ).toBe("/concepts/concept-1");
+    ).toBe("/classes/class-1");
+    expect(
+      buildSupportSearchResult({
+        type: "concept",
+        id: "concept-without-class",
+        classId: null,
+        title: "Standalone concept",
+        detail: "Practice evidence",
+      }).href,
+    ).toBe("/classes");
     expect(
       buildSupportSearchResult({
         type: "artifact",

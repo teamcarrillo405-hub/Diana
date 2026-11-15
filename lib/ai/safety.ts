@@ -38,6 +38,7 @@ export interface LogParams {
     | "ap_scaffold"
     | "study_artifacts"
     | "study_buddy"
+    | "assignment_realtime"
     | "break_down"
     | "voice_candidate"
     | "agent_coach"

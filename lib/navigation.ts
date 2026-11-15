@@ -19,9 +19,6 @@ const primaryRoute = (pathname: string): string =>
 
 export function getStudentNavOwner(pathname: string): StudentNavLabel {
   const route = primaryRoute(pathname);
-  if (route === "/course-mode" || route.startsWith("/course-mode/")) {
-    return "Classes";
-  }
   const owner = STUDENT_NAV_DESTINATIONS.slice(0, -1).find(
     ({ href }) => route === href || route.startsWith(`${href}/`),
   );
@@ -31,9 +28,9 @@ export function getStudentNavOwner(pathname: string): StudentNavLabel {
 
 export const SCREEN_DESIGN_NAV_OWNERS: ReadonlyMap<string, StudentNavLabel> =
   new Map(
-    SCREEN_DESIGN_SCREENS.filter(
-      (screen) => screen.authClass === "authenticated",
-    ).map((screen) => [screen.id, getStudentNavOwner(screen.route)] as const),
+    SCREEN_DESIGN_SCREENS
+      .filter((screen) => screen.authClass === "authenticated")
+      .map((screen) => [screen.id, getStudentNavOwner(screen.route)] as const),
   );
 
 export function screenDesignStateKey(screen: ScreenDesignScreen): string {
@@ -70,38 +67,17 @@ export function ownsScreenDesignNavigation(pathname: string): boolean {
     pathname.startsWith("/notes/") ||
     pathname === "/classes" ||
     pathname.startsWith("/classes/") ||
-    pathname === "/course-mode" ||
-    pathname.startsWith("/course-mode/") ||
     pathname === "/calendar" ||
-    pathname === "/grades" ||
-    pathname.startsWith("/grades/") ||
-    pathname === "/inbox" ||
-    pathname.startsWith("/inbox/") ||
     pathname === "/proof" ||
-    pathname === "/flashcards" ||
-    pathname.startsWith("/flashcards/") ||
-    pathname === "/timer" ||
-    pathname === "/break-down" ||
-    pathname === "/study-buddy" ||
-    pathname === "/study-groups" ||
+    pathname === "/study" ||
     pathname === "/study-artifacts" ||
     pathname.startsWith("/study-artifacts/") ||
     pathname === "/search" ||
-    pathname === "/notifications" ||
-    pathname === "/knowledge-graph" ||
-    pathname.startsWith("/concepts/") ||
-    pathname === "/upgrade" ||
-    pathname === "/voice" ||
     pathname === "/quick-add" ||
-    pathname === "/portfolio" ||
     pathname === "/me" ||
     pathname === "/wellness" ||
-    pathname === "/export" ||
-    pathname === "/ap" ||
     pathname === "/sharing" ||
-    pathname === "/insights" ||
     pathname === "/more" ||
-    pathname === "/design/compare" ||
     pathname === "/settings" ||
     pathname.startsWith("/settings/")
   );

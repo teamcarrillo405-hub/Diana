@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "kind": "diana-beta-attestation-trust-root",
+  "registryPath": "config/beta-attestation-public-keys.json",
+  "registrySha256": "e97f3a0f1bb4991683915ea399c517ca1e8046a58b2b823e59eff12046da3eb0"
+}

@@ -4,7 +4,7 @@ import { canvaEnv } from "@/lib/integrations/canva";
 import { isCanvaConnected } from "@/lib/integrations/canva-server";
 import { CanvaDisconnectButton } from "./canva-disconnect-button";
 
-/** Canva (design tool) connection — distinct from the Canvas LMS sync. */
+/** Canva design workspace connection. This is separate from the Canvas school LMS. */
 export async function CanvaSection() {
   const env = canvaEnv();
   const supabase = await createClient();
@@ -13,11 +13,11 @@ export async function CanvaSection() {
   return (
     <section className="space-y-2 rounded-xl border border-border bg-card p-4">
       <h2 className="flex items-center gap-2 text-sm font-semibold">
-        <Palette size={15} className="text-brand" /> Canva
+        <Palette size={15} className="text-brand" /> Canva design workspace
       </h2>
       <p className="text-sm text-muted">
         For poster and slide assignments: Diana opens a draft in your Canva account with a brief
-        built from your rubric and notes. The design stays yours.
+        built from your rubric and notes. This is separate from Canvas LMS, where school assignments live.
       </p>
       {!env ? (
         <p className="text-xs text-muted">

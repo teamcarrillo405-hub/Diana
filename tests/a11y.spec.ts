@@ -11,7 +11,7 @@ const ROUTES = [
   "/assignments",
   "/classes",
   "/study-artifacts",
-  "/grades",
+  "/classes",
   "/settings",
 ] as const;
 

@@ -219,10 +219,17 @@ export function summarizeSyncAll(body: SyncAllResultBody): SyncBanner {
 }
 
 const SCHOOL_YEAR_LABELS: Readonly<Record<number, string>> = Object.freeze({
+  6: "Grade 6",
+  7: "Grade 7",
+  8: "Grade 8",
   9: "Freshman",
   10: "Sophomore",
   11: "Junior",
   12: "Senior",
+  13: "College year 1",
+  14: "College year 2",
+  15: "College year 3",
+  16: "College year 4",
 });
 
 export function profileSchoolYearLabel(schoolYear: number | null): string {

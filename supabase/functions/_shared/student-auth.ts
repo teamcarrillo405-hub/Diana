@@ -171,7 +171,9 @@ export async function requireStudentContext(
   const [profileResult, deletionResult] = await Promise.all([
     userClient
       .from("profiles")
-      .select("user_id, age_bracket, consent_ai")
+      .select(
+        "user_id, age_bracket, consent_ai",
+      )
       .eq("user_id", ownerId)
       .maybeSingle(),
     userClient
@@ -194,6 +196,8 @@ export async function requireStudentContext(
   if (!eligibility.allowed) {
     const message = eligibility.code === "under_13"
       ? "Diana AI is not available for under-13 accounts."
+      : eligibility.code === "age_bracket_invalid"
+      ? "Diana AI is unavailable until account age eligibility can be verified."
       : "AI consent is required before using Diana AI.";
     return failure(message, 403, eligibility.code);
   }

@@ -1,17 +1,21 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { rankAssignments } from "@/lib/scoring/next-five-minutes";
-import { buildLobbyDashboardView } from "@/lib/dashboard/lobby-view";
-import { lobbyCheckInFromSignalValue } from "@/lib/dashboard/lobby-check-in";
+import { buildTodayView, todayWeek } from "@/lib/dashboard/today-view";
+import { TodayDashboard } from "@/components/dashboard/today-dashboard";
+import {
+  lobbyCheckInDayKey,
+  lobbyCheckInFromSignalValue,
+} from "@/lib/dashboard/lobby-check-in";
 import { loadProfile } from "@/lib/profile";
 import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { sessionAdaptationForMood } from "@/lib/emotional/session";
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
 import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
-import { getReminderItems } from "./actions";
 import { LastShownClassCookie } from "./last-shown-class-cookie";
-import { LobbyDashboard } from "./lobby-dashboard";
+import { LobbyCheckIn } from "./lobby-check-in";
 
 export default async function DashboardPage({
   searchParams,
@@ -19,9 +23,13 @@ export default async function DashboardPage({
   searchParams: Promise<{ energy?: "low" | "medium" | "high" }>;
 }) {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
   const profile = await loadProfile();
   const search = await searchParams;
   const now = new Date();
+  const timeZone = profile?.timezone || "America/Los_Angeles";
+  const checkInDay = lobbyCheckInDayKey(now, timeZone);
 
   const learnerProfile = profile
     ? await getLearnerProfile({ supabase, ownerId: profile.user_id })
@@ -34,24 +42,26 @@ export default async function DashboardPage({
   );
   const cookieStore = await cookies();
   const lastShownClassId = cookieStore.get("diana_last_class")?.value ?? null;
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
+  const week = todayWeek(now, timeZone);
   const fourHoursAgoIso = new Date(
     now.getTime() - 4 * 60 * 60 * 1000,
   ).toISOString();
 
   const [
-    { data: assignments },
+    { data: assignments, error: assignmentsError },
     { data: signals },
-    { data: latestReadinessSignal },
+    { data: readinessSignals },
     { data: latestSleep },
-    reminderItems,
+    { data: weeklyAssignments, error: weeklyError },
+    { data: focusLogs, error: focusError },
+    { data: submittedAssignments, error: submittedError },
   ] = await Promise.all([
     supabase
       .from("assignments")
       .select(
         "id, title, due_at, status, estimated_minutes, difficulty, class_id, kind, reading_load, writing_load, classes(name)",
       )
+      .eq("owner_id", user.id)
       .neq("status", "submitted")
       .neq("status", "graded")
       .neq("status", "abandoned")
@@ -59,24 +69,45 @@ export default async function DashboardPage({
     supabase
       .from("task_signals")
       .select("assignment_id, occurred_at")
+      .eq("owner_id", user.id)
       .in("kind", ["started", "completed"])
       .gte("occurred_at", fourHoursAgoIso)
       .order("occurred_at", { ascending: false }),
     supabase
       .from("task_signals")
       .select("value, occurred_at")
+      .eq("owner_id", user.id)
       .eq("kind", "mood_checkin")
-      .gte("occurred_at", todayStart.toISOString())
+      .gte("occurred_at", new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString())
       .order("occurred_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
+      .limit(16),
     supabase
       .from("sleep_logs")
       .select("sleep_date, sleep_quality, sleep_hours")
+      .eq("owner_id", user.id)
       .order("sleep_date", { ascending: false })
       .limit(1)
       .maybeSingle(),
-    getReminderItems(),
+    supabase
+      .from("assignments")
+      .select("id, title, due_at, status, estimated_minutes, classes(name)")
+      .eq("owner_id", user.id)
+      .gte("due_at", week.start)
+      .lt("due_at", week.end)
+      .neq("status", "abandoned"),
+    supabase
+      .from("assignment_time_log")
+      .select("id, started_at, target_ends_at, ended_at, elapsed_minutes, focus_state")
+      .eq("owner_id", user.id)
+      .lt("started_at", week.end)
+      .or(`ended_at.is.null,ended_at.gte.${week.start}`),
+    supabase
+      .from("assignments")
+      .select("id, title, due_at, status, estimated_minutes, submitted_at, classes(name)")
+      .eq("owner_id", user.id)
+      .gte("submitted_at", week.start)
+      .lt("submitted_at", week.end)
+      .in("status", ["submitted", "graded"]),
   ]);
 
   const recentSignals = (signals ?? []).filter(
@@ -84,6 +115,9 @@ export default async function DashboardPage({
       signal,
     ): signal is { assignment_id: string; occurred_at: string } =>
       signal.assignment_id !== null,
+  );
+  const latestReadinessSignal = (readinessSignals ?? []).find(
+    (signal) => lobbyCheckInDayKey(signal.occurred_at, timeZone) === checkInDay,
   );
   const sleepAdjustment = sleepRecoveryAdjustment(
     latestSleep
@@ -117,12 +151,12 @@ export default async function DashboardPage({
     lastShownClassId,
     learnerProfile,
   );
-  const view = buildLobbyDashboardView({
-    displayName: profile?.display_name,
-    rankedAssignments: ranked,
-    assignments: assignments ?? [],
-    reminders: reminderItems,
-    now,
+  const data = buildTodayView({
+    now, timeZone, ranked,
+    assignments: assignmentsError ? null : assignments ?? [],
+    weeklyAssignments: weeklyError ? null : weeklyAssignments ?? [],
+    focusLogs: focusError ? null : focusLogs ?? [],
+    submittedAssignments: submittedError ? null : submittedAssignments ?? [],
   });
   const initialCheckIn = lobbyCheckInFromSignalValue(
     latestReadinessSignal?.value,
@@ -131,16 +165,15 @@ export default async function DashboardPage({
   return (
     <>
       <LastShownClassCookie classId={ranked[0]?.class_id ?? null} />
-      <LobbyDashboard
-        view={view}
+      <TodayDashboard
+        data={data}
         profile={{
           displayName: profile?.display_name,
           photoUrl: profile?.photo_url,
           photoOffsetX: profile?.photo_offset_x,
           photoOffsetY: profile?.photo_offset_y,
         }}
-        initialCheckIn={initialCheckIn}
-        today={now.toISOString().slice(0, 10)}
+        checkIn={<LobbyCheckIn key={checkInDay} initialValue={initialCheckIn} sleepDate={checkInDay} appearance="today" />}
       />
     </>
   );

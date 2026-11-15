@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
 import { createCard } from "@/lib/fsrs/fsrs";
 import {
   adaptReadingLevelFallback,
@@ -45,8 +46,9 @@ export async function adaptReadingLevel(
 ): Promise<{ ok: true; text: string; fallback?: boolean } | { ok: false; error: string }> {
   const parsed = ReadingLevelInput.safeParse(input);
   if (!parsed.success) return { ok: false, error: "Invalid reading input." };
-  if (parsed.data.aiMode === "red" || parsed.data.aiMode === "yellow") {
-    return { ok: false, error: "AI reading support is off for this class." };
+  const trustAiMode = resolveDianaHomeworkTrust().aiMode;
+  if (trustAiMode !== "green") {
+    return { ok: false, error: "Reading support is unavailable for this assignment." };
   }
 
   const supabase = await createClient();
@@ -56,7 +58,7 @@ export async function adaptReadingLevel(
   const { data, error } = await supabase.functions.invoke("reading-level", {
     body: {
       ownerId: user.id,
-      aiMode: parsed.data.aiMode,
+      aiMode: trustAiMode,
       target: parsed.data.target,
       text: parsed.data.text,
     },
@@ -165,7 +167,7 @@ export async function saveVocabularyCard(
   });
 
   if (vocabError) return { ok: false, error: vocabError.message };
-  revalidatePath("/flashcards");
+  revalidatePath("/study");
   revalidateSource(parsed.data.sourceType, parsed.data.sourceId);
   return { ok: true, id: card.id };
 }

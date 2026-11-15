@@ -1,5 +1,5 @@
-const CACHE_NAME = "diana-pwa-v32";
-const CORE_ROUTES = ["/", "/offline", "/dashboard", "/notes", "/assignments", "/flashcards"];
+const CACHE_NAME = "diana-pwa-v33";
+const CORE_ROUTES = ["/", "/offline", "/dashboard", "/notes", "/assignments", "/study-artifacts"];
 const SYNC_TAG = "diana-offline-sync";
 
 self.addEventListener("install", (event) => {

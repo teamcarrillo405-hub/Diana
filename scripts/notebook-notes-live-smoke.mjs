@@ -1,5 +1,4 @@
 import { createClient } from "@supabase/supabase-js";
-import { randomUUID } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 
 const env = loadEnv(".env.local");
@@ -143,6 +142,10 @@ async function ensureQaProfile(userId) {
     timezone: "America/Los_Angeles",
     onboarded_at: new Date().toISOString(),
     consent_ai: true,
+    teen_guardian_permission_attested_at: new Date().toISOString(),
+    teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+    teen_guardian_permission_source: "synthetic_qa_fixture",
+    teen_guardian_permission_withdrawn_at: null,
     daily_token_budget: 200_000,
     tokens_used_today: 0,
     token_reset_date: new Date().toISOString().slice(0, 10),

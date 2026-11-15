@@ -18,25 +18,25 @@ export type TeenNativeUxSection = {
 };
 
 export type TeenNativeUxEvidence = {
-  landingNextFiveMinutes: boolean;
-  landingProductIdentity: boolean;
-  landingStudentEntryPath: boolean;
-  dashboardRightNowCard: boolean;
-  assignmentNextStepEntry: boolean;
+  landingHeroNextMove: boolean;
+  landingTutorIdentity: boolean;
+  landingWaitlistEntry: boolean;
+  dashboardFirstMove: boolean;
+  assignmentWorkStart: boolean;
   priorityMobileNav: boolean;
   responsiveActionRows: boolean;
   responsiveQaClean: boolean;
   authenticatedResponsiveQaClean: boolean;
   authenticatedRoutesNoLoginRedirect: boolean;
-  compactDesktopPrimaryNav: boolean;
-  secondaryDestinationDrawer: boolean;
+  sharedDesktopNavigation: boolean;
+  moreToolsHub: boolean;
   authScreenDesignShell: boolean;
   authVisualSignals: boolean;
   authPrivateAssurance: boolean;
-  authDashboardPreview: boolean;
-  screenDesignAppShell: boolean;
-  screenDesignVisualLanguage: boolean;
-  landingMobilePreviewAboveFold: boolean;
+  authCalmEntry: boolean;
+  sharedScreenDesignShell: boolean;
+  screenDesignVisualTokens: boolean;
+  landingHeroAboveFold: boolean;
   voiceCommandSurface: boolean;
   globalVoiceCaptureMic: boolean;
   teenVoicePlan: boolean;
@@ -46,14 +46,14 @@ export type TeenNativeUxEvidence = {
   timeToFirstActionMetric: boolean;
   oneMoveSupport: boolean;
   subjectNativeHelpers: boolean;
-  subjectVisualBoards: boolean;
+  subjectWorkspaceVisuals: boolean;
   studyArtifactsLoop: boolean;
   studyArtifactPrimaryActions: boolean;
   sourceAnchoredStudyOutput: boolean;
   ownershipMeter: boolean;
   authorshipProof: boolean;
   finalWorkProtection: boolean;
-  proofPanelVisible: boolean;
+  recordSurfaceVisible: boolean;
   visualTeenValidationFields: boolean;
   liveTeenValidationPassed: boolean;
 };
@@ -117,9 +117,9 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     label: "First screen clarity",
     competitorEdge: "Quizlet and Gemini feel fast because the first useful action is obvious.",
     dianaTarget: "The first screen should make the next school move visible before the student has to prompt a chatbot.",
-    requiredSurfaces: ["landing preview", "dashboard Right now card", "assignment next-step entry"],
+    requiredSurfaces: ["landing hero", "dashboard first-move surface", "assignment work start"],
     requiredSignals: ["first_action_visible", "next_move_understood", "started_task"],
-    repoCriteria: ["landingNextFiveMinutes", "landingMobilePreviewAboveFold", "dashboardRightNowCard", "assignmentNextStepEntry"],
+    repoCriteria: ["landingHeroNextMove", "landingHeroAboveFold", "dashboardFirstMove", "assignmentWorkStart"],
     liveCriteria: ["4 of 5 students explain the next academic move in their own words."],
   },
   {
@@ -159,7 +159,7 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     dianaTarget: "Diana should turn the current assignment into source-linked cards, practice, review, and next support.",
     requiredSurfaces: ["subject helpers", "study artifact panel", "FSRS review"],
     requiredSignals: ["artifact_created", "source_anchor_seen", "recall_result"],
-    repoCriteria: ["subjectNativeHelpers", "subjectVisualBoards", "studyArtifactsLoop", "studyArtifactPrimaryActions", "sourceAnchoredStudyOutput"],
+    repoCriteria: ["subjectNativeHelpers", "subjectWorkspaceVisuals", "studyArtifactsLoop", "studyArtifactPrimaryActions", "sourceAnchoredStudyOutput"],
     liveCriteria: ["4 of 5 students create or start a study artifact during the test."],
   },
   {
@@ -169,7 +169,7 @@ export const TEEN_NATIVE_UX_SECTIONS: TeenNativeUxSection[] = [
     dianaTarget: "Diana should make help boundaries visible without making the experience feel like a warning screen.",
     requiredSurfaces: ["ownership meter", "authorship receipt", "final-work redirect"],
     requiredSignals: ["authorship_proof_found", "student_action_required", "final_work_confusion"],
-    repoCriteria: ["ownershipMeter", "authorshipProof", "finalWorkProtection", "proofPanelVisible"],
+    repoCriteria: ["ownershipMeter", "authorshipProof", "finalWorkProtection", "recordSurfaceVisible"],
     liveCriteria: ["0 students interpret Diana as doing final work.", "4 of 5 students find help proof."],
   },
 ];
@@ -182,16 +182,16 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     targetScore: 10,
     currentConfidence: "8.0-8.3 before this pass: clear and useful, but not yet iconic or voice-forward.",
     tenDefinition:
-      "Repo shows a teen-native identity, Future Path, polished auth entry, and clean responsive proof; live love still requires teen validation.",
+      "Repo shows a teen-native identity, cinematic landing, calm auth entry, and clean responsive proof; live love still requires teen validation.",
     repoCriteria: [
-      "landingProductIdentity",
-      "landingMobilePreviewAboveFold",
-      "landingStudentEntryPath",
+      "landingTutorIdentity",
+      "landingHeroAboveFold",
+      "landingWaitlistEntry",
       "authScreenDesignShell",
       "authVisualSignals",
-      "authDashboardPreview",
-      "screenDesignAppShell",
-      "screenDesignVisualLanguage",
+      "authCalmEntry",
+      "sharedScreenDesignShell",
+      "screenDesignVisualTokens",
       "voiceCommandSurface",
       "globalVoiceCaptureMic",
       "authenticatedResponsiveQaClean",
@@ -206,11 +206,11 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     tenDefinition:
       "The first viewport sells Diana as a student-owned next-move product with one obvious student start path.",
     repoCriteria: [
-      "landingNextFiveMinutes",
-      "landingProductIdentity",
-      "landingMobilePreviewAboveFold",
-      "landingStudentEntryPath",
-      "screenDesignAppShell",
+      "landingHeroNextMove",
+      "landingTutorIdentity",
+      "landingHeroAboveFold",
+      "landingWaitlistEntry",
+      "sharedScreenDesignShell",
       "responsiveQaClean",
     ],
   },
@@ -221,13 +221,13 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     targetScore: 10,
     currentConfidence: "7.5 before this pass: usable and calm, but too generic for a teen-native product entry.",
     tenDefinition:
-      "Auth pages feel like Diana: student-owned framing, voice/source/privacy cues, Future Mode access, and mobile-safe form hierarchy.",
+      "Auth pages feel like Diana: student-owned framing, voice/source/privacy cues, and mobile-safe form hierarchy.",
     repoCriteria: [
       "authScreenDesignShell",
       "authVisualSignals",
       "authPrivateAssurance",
-      "authDashboardPreview",
-      "screenDesignAppShell",
+      "authCalmEntry",
+      "sharedScreenDesignShell",
       "responsiveQaClean",
     ],
   },
@@ -240,7 +240,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     tenDefinition:
       "Authenticated screenshots show a polished Today surface with one primary action above the fold.",
     repoCriteria: [
-      "dashboardRightNowCard",
+      "dashboardFirstMove",
       "authenticatedResponsiveQaClean",
       "authenticatedRoutesNoLoginRedirect",
       "oneMoveSupport",
@@ -253,10 +253,10 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     targetScore: 10,
     currentConfidence: "The app shell should keep primary school moves visible and group secondary destinations without crowding the viewport.",
     tenDefinition:
-      "Desktop uses a compact top navigation for the main school moves and a grouped drawer for secondary destinations.",
+      "Desktop uses a compact top navigation for the main school moves and a grouped More hub for secondary destinations.",
     repoCriteria: [
-      "compactDesktopPrimaryNav",
-      "secondaryDestinationDrawer",
+      "sharedDesktopNavigation",
+      "moreToolsHub",
       "priorityMobileNav",
       "authenticatedResponsiveQaClean",
     ],
@@ -271,7 +271,7 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
       "Major subject helpers render as distinct visual learning boards, not generic AI panels.",
     repoCriteria: [
       "subjectNativeHelpers",
-      "subjectVisualBoards",
+      "subjectWorkspaceVisuals",
       "sourceAnchoredStudyOutput",
       "authenticatedResponsiveQaClean",
     ],
@@ -296,12 +296,12 @@ export const TEEN_VISUAL_CONFIDENCE_METRICS: TeenVisualConfidenceMetric[] = [
     label: "ScreenDesign visual coherence",
     baselineScore: 7.4,
     targetScore: 10,
-    currentConfidence: "The ScreenDesign system should stay coherent across focus, voice, proof, and Future Path without a competing experience mode.",
+    currentConfidence: "The ScreenDesign system should stay coherent across work, voice, record, and the cinematic public landing without a competing experience mode.",
     tenDefinition:
       "The ScreenDesign visual language is shared across the app shell, voice state, proof cues, and reduced-motion behavior.",
     repoCriteria: [
-      "screenDesignAppShell",
-      "screenDesignVisualLanguage",
+      "sharedScreenDesignShell",
+      "screenDesignVisualTokens",
       "voiceCommandSurface",
       "globalVoiceCaptureMic",
     ],
@@ -321,10 +321,10 @@ export function scoreTeenNativeUx(
   const repoScore = round((sectionScore + visualConfidenceScore) / 2);
   const repoTen = sections.every((section) => section.score === 10) &&
     visualConfidence.every((metric) => metric.score === 10);
-  const nextBacklog = [
+  const nextBacklog = unique([
     ...sections.flatMap((section) => section.missing),
     ...visualConfidence.flatMap((metric) => metric.missing),
-  ];
+  ]);
 
   return {
     generatedAt,
@@ -415,25 +415,25 @@ function scoreSection(section: TeenNativeUxSection, evidence: TeenNativeUxEviden
 }
 
 const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
-  landingNextFiveMinutes: "Make the landing page lead with the next 5 minutes ritual.",
-  landingProductIdentity: "Make the landing page show a memorable Diana product moment above the fold.",
-  landingStudentEntryPath: "Give students one clear public entry path into Diana.",
-  dashboardRightNowCard: "Make the dashboard Right now card the first useful surface.",
-  assignmentNextStepEntry: "Add a next-step entry point on assignment detail.",
+  landingHeroNextMove: "Make the landing hero explain the next useful school move.",
+  landingTutorIdentity: "Make the landing page show a memorable Diana tutoring identity above the fold.",
+  landingWaitlistEntry: "Give visitors one clear waitlist entry path into Diana.",
+  dashboardFirstMove: "Make the dashboard first-move surface easy to find.",
+  assignmentWorkStart: "Keep the student work start visible from assignment detail.",
   priorityMobileNav: "Keep mobile navigation to Today, Work, Classes, Calendar, and More.",
   responsiveActionRows: "Use stacked full-width action rows on small screens.",
   responsiveQaClean: "Run clean responsive QA with no horizontal overflow or server errors.",
   authenticatedResponsiveQaClean: "Run clean authenticated responsive QA for the app shell and core student routes.",
   authenticatedRoutesNoLoginRedirect: "Prevent authenticated-route screenshots from silently capturing the login page.",
-  compactDesktopPrimaryNav: "Keep core school moves in a compact desktop navigation.",
-  secondaryDestinationDrawer: "Group secondary destinations in the More drawer.",
+  sharedDesktopNavigation: "Keep core school moves in a shared compact desktop navigation.",
+  moreToolsHub: "Group secondary tools in the More hub.",
   authScreenDesignShell: "Make login and signup feel like Diana's private student space, not generic forms.",
   authVisualSignals: "Show voice, source, privacy, and student-control cues on auth pages.",
   authPrivateAssurance: "Show a clear private-by-default assurance on login and signup.",
-  authDashboardPreview: "Show a small Diana dashboard preview inside the authentication shell.",
-  screenDesignAppShell: "Apply the ScreenDesign shell consistently across authenticated routes.",
-  screenDesignVisualLanguage: "Use the ScreenDesign tokens and components as the single visual language.",
-  landingMobilePreviewAboveFold: "Show the product preview inside the first mobile viewport.",
+  authCalmEntry: "Keep the authentication entry calm, private, and recognizably Diana.",
+  sharedScreenDesignShell: "Apply the shared ScreenDesign shell consistently across authenticated routes.",
+  screenDesignVisualTokens: "Use ScreenDesign tokens and components as the single visual language.",
+  landingHeroAboveFold: "Keep the cinematic landing hero clear in the first mobile viewport.",
   voiceCommandSurface: "Replace the voice placeholder with a real voice command surface.",
   globalVoiceCaptureMic: "Make quick capture support speech input where the browser allows it.",
   teenVoicePlan: "Document teen-native voice and validation rules.",
@@ -443,17 +443,21 @@ const missingCopy: Partial<Record<keyof TeenNativeUxEvidence, string>> = {
   timeToFirstActionMetric: "Track time to first academic action in benchmarks.",
   oneMoveSupport: "Show one-move support when the student needs fewer choices.",
   subjectNativeHelpers: "Keep subject helpers distinct from a generic AI panel.",
-  subjectVisualBoards: "Render visual boards for subject helper modes.",
+  subjectWorkspaceVisuals: "Render visual, subject-specific work support without a generic AI panel.",
   studyArtifactsLoop: "Connect helper output to cards, practice, FSRS, and mastery.",
   studyArtifactPrimaryActions: "Keep cards, quiz, guide, review, and revise actions visually close to the source work.",
   sourceAnchoredStudyOutput: "Preserve source anchors through every study artifact.",
   ownershipMeter: "Render the help-without-taking-over meter.",
   authorshipProof: "Render authorship receipts and proof surfaces.",
   finalWorkProtection: "Redirect final-work requests into student-owned next steps.",
-  proofPanelVisible: "Show the teen UX scorecard on the proof page.",
+  recordSurfaceVisible: "Show authorship and completed-work evidence in the Record surface.",
   visualTeenValidationFields: "Capture teen visual-love and competitor-preference fields in the test protocol.",
 };
 
 function round(value: number): number {
   return Math.round(value * 10) / 10;
+}
+
+function unique(items: string[]): string[] {
+  return [...new Set(items)];
 }

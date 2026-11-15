@@ -49,7 +49,6 @@ describe("AssignmentCockpit", () => {
         estimate="35 min"
         briefText="Attach one quote and explain its meaning."
         status="todo"
-        classAiMode="green"
         hasApprovedPlan
         drills={[
           {
@@ -89,7 +88,6 @@ describe("AssignmentCockpit", () => {
         estimate="35 min"
         briefText="Attach one quote and explain its meaning."
         status="todo"
-        classAiMode="green"
         hasApprovedPlan={false}
         drills={[]}
       />,
@@ -101,6 +99,10 @@ describe("AssignmentCockpit", () => {
       expect(mocks.transitionAssignment).toHaveBeenCalledWith({ id: assignmentId, from: "todo", to: "drafting" });
       expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}/workspace`);
     });
+    expect(screen.getByRole("link", { name: /review assignment directions/i })).toHaveAttribute(
+      "href",
+      `/assignments/${assignmentId}/workspace`,
+    );
   });
 
   it("rolls a drill checkbox back when persistence is unavailable", async () => {
@@ -114,7 +116,6 @@ describe("AssignmentCockpit", () => {
         estimate={null}
         briefText="Attach one quote."
         status="drafting"
-        classAiMode="red"
         hasApprovedPlan
         drills={[
           {

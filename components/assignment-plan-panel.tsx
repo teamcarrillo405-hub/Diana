@@ -93,11 +93,11 @@ export function AssignmentPlanPanel({
     <section className="sd-assignment-plan-panel" aria-label="Optional assignment steps">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <p className="m-0 font-display text-sm font-extrabold uppercase">Break it into steps</p>
-          <p className="mb-0 mt-1 text-sm">Optional. Work directly or make a short plan first.</p>
+          <p className="m-0 font-display text-sm font-extrabold uppercase">Optional plan</p>
+          <p className="mb-0 mt-1 text-sm">Diana already picked a first move. Open this only if you want to adjust the plan.</p>
         </div>
         <button type="button" onClick={() => setOpen((value) => !value)} className="min-h-10 border border-slate-950 bg-slate-950 px-4 font-display text-sm font-extrabold uppercase text-white">
-          {open ? "Hide steps" : steps.length ? "View steps" : "Plan assignment"}
+          {open ? "Hide plan" : steps.length ? "View plan" : "Adjust plan"}
         </button>
       </div>
       {open ? <div className="mt-4 border-t border-slate-300 pt-4">
@@ -109,11 +109,11 @@ export function AssignmentPlanPanel({
             <span className={step.done ? "line-through opacity-60" : ""}>{step.action}</span>
             <span className="ml-auto text-xs font-bold uppercase text-slate-600">{step.minutes} min</span>
           </li>)}
-        </ol> : <p className="m-0 text-sm">Add your own first move, or use a suggested plan when AI is available for this class.</p>}
+        </ol> : <p className="m-0 text-sm">Add your own first move, or ask Diana for a suggested plan.</p>}
         {!accepted ? <div className="mt-4 flex flex-wrap gap-2">
           <input value={draftStep} onChange={(event) => setDraftStep(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addStep(); } }} placeholder="Add a first move" className="min-h-10 flex-1 border border-slate-400 px-3 text-sm" />
           <button type="button" onClick={addStep} disabled={!draftStep.trim()} className="inline-flex min-h-10 items-center gap-2 border border-slate-950 bg-white px-3 font-display text-sm font-extrabold uppercase disabled:opacity-40"><Plus size={16} /> Add</button>
-          {aiMode === "green" ? <button type="button" onClick={suggestSteps} disabled={pending} className="inline-flex min-h-10 items-center gap-2 border border-cyan-700 bg-cyan-300 px-3 font-display text-sm font-extrabold uppercase text-slate-950 disabled:opacity-40">{pending ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />} Suggest steps</button> : null}
+          <button type="button" onClick={suggestSteps} disabled={pending} className="inline-flex min-h-10 items-center gap-2 border border-cyan-700 bg-cyan-300 px-3 font-display text-sm font-extrabold uppercase text-slate-950 disabled:opacity-40">{pending ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />} Suggest plan</button>
           {steps.length ? <button type="button" onClick={savePlan} disabled={pending} className="min-h-10 border border-slate-950 bg-slate-950 px-3 font-display text-sm font-extrabold uppercase text-white disabled:opacity-40">Save plan</button> : null}
         </div> : null}
         {message ? <p role="status" className="mb-0 mt-3 text-sm">{message}</p> : null}

@@ -23,6 +23,10 @@ const connectionWriters = [
   "app/api/canva/callback/route.ts",
   "app/(app)/settings/lms-actions.ts",
 ].map((path) => readFileSync(join(process.cwd(), path), "utf8"));
+const credentialPolicy = readFileSync(
+  join(process.cwd(), "lib/lms/credential-policy.ts"),
+  "utf8",
+);
 
 describe("integration credential migration", () => {
   it("terminates every PL/pgSQL block before the dollar quote", () => {
@@ -156,9 +160,13 @@ describe("integration credential migration", () => {
   });
 
   it("pins the disposable database contract toolchain", () => {
+    const pinnedSupabaseVersions = ciWorkflow.match(/supabase@\d+\.\d+\.\d+/gu) ?? [];
+
     expect(ciWorkflow).toContain("postgresql-client-17");
     expect(ciWorkflow).toContain("major_version = 17");
-    expect(ciWorkflow.match(/supabase@2\.111\.0/gu)).toHaveLength(3);
+    expect(pinnedSupabaseVersions.length).toBeGreaterThanOrEqual(3);
+    expect(new Set(pinnedSupabaseVersions)).toEqual(new Set(["supabase@2.111.0"]));
+    expect(ciWorkflow).not.toMatch(/npx(?: --yes)? supabase(?!@2\.111\.0)/gu);
     expect(releaseContract).toContain("supabase@2.111.0 migration up");
   });
 
@@ -181,11 +189,14 @@ describe("integration credential migration", () => {
     expect(sql).not.toContain("raise log");
   });
 
-  it("routes OAuth and manual Canvas writes through atomic compatibility helpers", () => {
-    expect(connectionWriters[0]).toContain("saveLmsConnectionWithCredential");
-    expect(connectionWriters[1]).toContain("saveLmsConnectionWithCredential");
+  it("routes OAuth and manual Canvas writes through fail-closed atomic helpers", () => {
+    expect(connectionWriters[0]).toContain("saveLmsConnectionForRuntime");
+    expect(connectionWriters[1]).toContain("saveLmsConnectionForRuntime");
     expect(connectionWriters[2]).toContain("saveCanvaConnectionWithCredential");
-    expect(connectionWriters[3]).toContain("saveLmsConnectionWithCredential");
+    expect(connectionWriters[3]).toContain("saveLmsConnectionForRuntime");
+    expect(credentialPolicy).toContain("saveLmsConnectionWithCredential");
+    expect(credentialPolicy).toContain("atomicSaveConnection");
+    expect(credentialPolicy).toContain("LmsCredentialVaultUnavailableError");
     for (const source of connectionWriters) {
       expect(source).not.toContain("storeLmsCredential");
       expect(source).not.toContain("storeCanvaCredential");

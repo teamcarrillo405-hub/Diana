@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f2f4ef" />
+    <meta name="description" content="Plain-language privacy, terms, and safety notices for the Diana landing experience." />
+    <title>Diana | Privacy</title>
+    <script>document.documentElement.classList.add('js')</script>
+    <style>
+      @font-face {
+        font-family: "Outfit";
+        src: url("/assets/fonts/outfit-landing.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: swap;
+      }
+
+      :root {
+        --cream: #f6f0e6;
+        --cream-deep: #eee5d8;
+        --paper: #fffaf2;
+        --ink: #15131c;
+        --muted: #635e68;
+        --line: rgba(21, 19, 28, .16);
+        --cyan: #0e95a2;
+        --pink: #b6317f;
+        --display: "Outfit", "Trebuchet MS", sans-serif;
+        --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 320px;
+        overflow-x: clip;
+        background: var(--cream);
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100svh;
+        margin: 0;
+        overflow-x: clip;
+        color: var(--ink);
+        background:
+          linear-gradient(90deg, transparent calc(50% - 1px), rgba(21, 19, 28, .035) 50%, transparent calc(50% + 1px)),
+          var(--cream);
+        font-family: var(--body);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      a,
+      h1,
+      h2,
+      h3,
+      .eyebrow,
+      .policy-tabs,
+      .brand,
+      .notice-label {
+        font-family: var(--display);
+      }
+
+      .skip-link {
+        position: fixed;
+        z-index: 20;
+        top: .75rem;
+        left: .75rem;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        padding: 0;
+        border: 0;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+
+      .skip-link:focus-visible {
+        width: auto;
+        height: auto;
+        overflow: visible;
+        padding: .75rem 1rem;
+        border: 2px solid var(--ink);
+        border-radius: .5rem;
+        clip-path: none;
+        color: var(--paper);
+        background: var(--ink);
+      }
+
+      .site-header {
+        width: min(88rem, calc(100% - 2rem));
+        min-height: 5.25rem;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        gap: 1rem;
+        margin: 0 auto;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: .55rem;
+        justify-self: start;
+        color: var(--ink);
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -.055em;
+        line-height: 1;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        position: relative;
+        width: 1.45rem;
+        height: 1.65rem;
+        flex: 0 0 auto;
+      }
+
+      .brand-mark i {
+        position: absolute;
+        display: block;
+        width: .86rem;
+        height: 1.2rem;
+        border-radius: 58% 42% 55% 45%;
+        background: linear-gradient(155deg, #ff98d5 6%, #d67bff 48%, #50dcff 100%);
+        box-shadow: inset .15rem .14rem .28rem rgba(255, 255, 255, .5);
+        transform: rotate(-34deg);
+      }
+
+      .brand-mark i:last-child {
+        right: 0;
+        bottom: 0;
+        transform: rotate(28deg) scale(.78);
+      }
+
+      .policy-tabs {
+        display: flex;
+        align-items: stretch;
+        gap: 1.4rem;
+        justify-self: center;
+        align-self: stretch;
+      }
+
+      .policy-tabs a {
+        position: relative;
+        display: inline-flex;
+        min-width: 4rem;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+        font-size: .82rem;
+        font-weight: 750;
+        text-decoration: none;
+      }
+
+      .policy-tabs a::after {
+        position: absolute;
+        right: 0;
+        bottom: -1px;
+        left: 0;
+        height: 3px;
+        content: "";
+        background: var(--ink);
+        opacity: 0;
+        transform: scaleX(.25);
+        transition: opacity .18s ease, transform .18s ease;
+      }
+
+      .policy-tabs a:hover,
+      .policy-tabs a[aria-selected="true"] {
+        color: var(--ink);
+      }
+
+      .policy-tabs a[aria-selected="true"]::after {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+
+      .back-link {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        justify-self: end;
+        padding: .7rem 1rem;
+        border: 1px solid var(--ink);
+        border-radius: .55rem;
+        font-family: var(--display);
+        font-size: .78rem;
+        font-weight: 750;
+        text-decoration: none;
+        transition: color .18s ease, background-color .18s ease, transform .18s ease;
+      }
+
+      .back-link:hover {
+        color: var(--paper);
+        background: var(--ink);
+        transform: translateY(-1px);
+      }
+
+      :focus-visible {
+        outline: 3px solid var(--cyan);
+        outline-offset: 3px;
+      }
+
+      main {
+        width: min(88rem, calc(100% - 2rem));
+        margin: 0 auto;
+      }
+
+      .policy-hero {
+        min-height: clamp(19rem, 45vh, 28rem);
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(18rem, .75fr);
+        align-items: end;
+        gap: clamp(2rem, 8vw, 9rem);
+        padding: clamp(4rem, 9vw, 8rem) 0 clamp(3rem, 6vw, 5rem);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .eyebrow,
+      .notice-label {
+        margin: 0;
+        color: var(--pink);
+        font-size: .75rem;
+        font-weight: 800;
+        letter-spacing: .14em;
+        text-transform: uppercase;
+      }
+
+      .policy-hero h1 {
+        max-width: 10ch;
+        margin: .9rem 0 0;
+        font-size: clamp(3.5rem, 7.6vw, 7rem);
+        font-weight: 560;
+        letter-spacing: -.065em;
+        line-height: .88;
+        text-wrap: balance;
+      }
+
+      .hero-note {
+        max-width: 35rem;
+        margin: 0;
+        padding: 1.25rem 0 .2rem clamp(1.25rem, 4vw, 2.5rem);
+        border-left: 2px solid var(--ink);
+        color: var(--muted);
+        font-size: clamp(1rem, 1.6vw, 1.15rem);
+        line-height: 1.62;
+      }
+
+      .policy-workspace {
+        padding: clamp(2.5rem, 5vw, 5rem) 0 clamp(4rem, 8vw, 8rem);
+      }
+
+      .policy-panel {
+        display: grid;
+        grid-template-columns: minmax(17rem, .72fr) minmax(0, 1.28fr);
+        gap: clamp(1.5rem, 5vw, 5rem);
+        align-items: start;
+      }
+
+      .js .policy-panel[hidden] {
+        display: none;
+      }
+
+      .policy-summary {
+        position: sticky;
+        top: 1.5rem;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
+        border-radius: .7rem;
+        color: var(--paper);
+        background: var(--ink);
+        box-shadow: 0 1.4rem 3rem rgba(21, 19, 28, .14);
+      }
+
+      .policy-summary .notice-label {
+        color: #83e4ec;
+      }
+
+      .policy-summary h2 {
+        max-width: 10ch;
+        margin: 1rem 0;
+        font-size: clamp(2.35rem, 4vw, 4rem);
+        font-weight: 560;
+        letter-spacing: -.055em;
+        line-height: .94;
+        text-wrap: balance;
+      }
+
+      .policy-summary p {
+        margin: 0;
+        color: rgba(255, 250, 242, .72);
+        font-size: 1rem;
+        line-height: 1.62;
+      }
+
+      .policy-detail {
+        display: grid;
+        gap: 0;
+        border-top: 1px solid var(--ink);
+      }
+
+      .policy-section {
+        display: grid;
+        grid-template-columns: minmax(7rem, .34fr) minmax(0, 1fr);
+        gap: clamp(1rem, 3vw, 2.5rem);
+        padding: clamp(1.5rem, 3vw, 2.4rem) 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .policy-section h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 760;
+        letter-spacing: -.02em;
+        line-height: 1.2;
+      }
+
+      .policy-section__body {
+        max-width: 46rem;
+      }
+
+      .policy-section p,
+      .policy-section li {
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.68;
+      }
+
+      .policy-section p {
+        margin: 0;
+      }
+
+      .policy-section p + p {
+        margin-top: .9rem;
+      }
+
+      .policy-section ul {
+        display: grid;
+        gap: .72rem;
+        margin: 0;
+        padding-left: 1.2rem;
+      }
+
+      .policy-section strong {
+        color: var(--ink);
+      }
+
+      .bottom-line {
+        padding: clamp(1.4rem, 3vw, 2rem);
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--cyan);
+        border-radius: .55rem;
+        color: var(--ink);
+        background: var(--paper);
+      }
+
+      .policy-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem 1.5rem;
+        margin-top: 2rem;
+        color: var(--muted);
+        font-size: .78rem;
+        line-height: 1.5;
+      }
+
+      .site-footer {
+        width: min(88rem, calc(100% - 2rem));
+        min-height: 5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 auto;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: .82rem;
+      }
+
+      .site-footer a {
+        font-family: var(--display);
+        font-weight: 700;
+        text-decoration-thickness: 1px;
+        text-underline-offset: .2rem;
+      }
+
+      @media (max-width: 760px) {
+        .site-header {
+          grid-template-columns: 1fr auto;
+          padding-top: .5rem;
+        }
+
+        .policy-tabs {
+          width: 100%;
+          grid-column: 1 / -1;
+          grid-row: 2;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 0;
+          order: 3;
+        }
+
+        .policy-tabs a {
+          min-height: 3rem;
+        }
+
+        .policy-hero {
+          min-height: auto;
+          grid-template-columns: 1fr;
+          gap: 2rem;
+          padding: 4rem 0 3rem;
+        }
+
+        .policy-hero h1 {
+          font-size: clamp(3.65rem, 17vw, 5.4rem);
+        }
+
+        .hero-note {
+          padding: .2rem 0 .2rem 1rem;
+        }
+
+        .policy-panel {
+          grid-template-columns: 1fr;
+        }
+
+        .policy-summary {
+          position: static;
+        }
+
+        .policy-section {
+          grid-template-columns: 1fr;
+          gap: .75rem;
+        }
+
+        .site-footer {
+          min-height: 6rem;
+          align-items: flex-start;
+          flex-direction: column;
+          justify-content: center;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: .01ms !important;
+        }
+      }
+
+      /* Diana public landing visual system */
+      :root {
+        --cream: #f2f4ef;
+        --cream-deep: #e6ebe4;
+        --paper: #ffffff;
+        --ink: #141835;
+        --muted: #49536a;
+        --line: #d4dbd3;
+        --cyan: #27c1d1;
+        --pink: #566379;
+        --yellow: #eaf85a;
+        --night: #080b1c;
+        --display: "Outfit", Arial, sans-serif;
+        --body: "Outfit", Arial, sans-serif;
+      }
+
+      html { background: var(--cream); }
+
+      body {
+        color: var(--ink);
+        background: var(--cream);
+        font-family: var(--body);
+      }
+
+      .site-header {
+        position: sticky;
+        z-index: 10;
+        top: 0;
+        width: min(1680px, calc(100% - 48px));
+        min-height: 72px;
+        border-bottom: 1px solid color-mix(in srgb, var(--line) 76%, transparent);
+        background: color-mix(in srgb, var(--cream) 94%, transparent);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand { min-width: 112px; }
+      .brand img { display: block; width: 106px; height: auto; }
+
+      .policy-tabs { gap: 26px; }
+
+      .policy-tabs a {
+        min-width: auto;
+        min-height: 72px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .policy-tabs a::after {
+        right: 4px;
+        bottom: 15px;
+        left: 4px;
+        height: 2px;
+        background: var(--ink);
+      }
+
+      .policy-tabs a:hover,
+      .policy-tabs a[aria-selected="true"] { color: var(--ink); }
+
+      .back-link {
+        min-height: 42px;
+        border-color: color-mix(in srgb, var(--ink) 58%, transparent);
+        border-radius: 8px;
+        background: var(--yellow);
+        padding: 0 17px;
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .back-link:hover { color: var(--ink); background: #f3ff84; transform: translateY(1px); }
+      :focus-visible { outline-color: var(--cyan); }
+
+      main { width: min(1320px, calc(100% - 48px)); }
+
+      .policy-hero {
+        min-height: 0;
+        grid-template-columns: minmax(0, 1.08fr) minmax(18rem, .72fr);
+        gap: clamp(42px, 8vw, 124px);
+        padding: clamp(62px, 8vw, 108px) 0 clamp(42px, 6vw, 72px);
+        border-bottom-color: var(--line);
+      }
+
+      .notice-label { color: #566379; font-size: 12px; letter-spacing: .08em; }
+
+      .policy-hero h1 {
+        max-width: 11ch;
+        margin-top: 0;
+        color: var(--ink);
+        font-size: clamp(52px, 6vw, 84px);
+        font-weight: 600;
+        letter-spacing: 0;
+        line-height: 1.05;
+      }
+
+      .hero-note {
+        max-width: 28rem;
+        padding: 0;
+        border: 0;
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.58;
+      }
+
+      .policy-workspace { padding: clamp(42px, 5vw, 72px) 0 clamp(72px, 9vw, 120px); }
+
+      .policy-panel {
+        grid-template-columns: minmax(230px, .56fr) minmax(0, 1.44fr);
+        gap: clamp(36px, 5vw, 84px);
+        scroll-margin-top: 96px;
+      }
+
+      .policy-summary {
+        top: 96px;
+        padding: 24px 0 0;
+        border: 0;
+        border-top: 2px solid var(--ink);
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .policy-summary .notice-label { color: var(--cyan); }
+
+      .policy-summary h2 {
+        margin: 17px 0 16px;
+        color: var(--ink);
+        font-size: clamp(34px, 3.1vw, 48px);
+        font-weight: 600;
+        letter-spacing: 0;
+        line-height: 1.08;
+      }
+
+      .policy-summary p { color: var(--muted); font-size: 16px; line-height: 1.6; }
+      .policy-detail { border-top-color: var(--ink); }
+
+      .policy-section {
+        grid-template-columns: minmax(130px, .34fr) minmax(0, 1fr);
+        gap: clamp(18px, 3vw, 40px);
+        padding: clamp(22px, 3vw, 34px) 0;
+        border-bottom-color: var(--line);
+      }
+
+      .policy-section h3 { color: var(--ink); font-size: 15px; font-weight: 600; letter-spacing: 0; }
+      .policy-section p, .policy-section li { color: var(--muted); font-size: 16px; line-height: 1.62; }
+      .policy-section strong { color: var(--ink); }
+
+      .bottom-line {
+        padding: 18px 0 0;
+        border: 0;
+        border-top: 1px solid var(--line);
+        border-radius: 0;
+        background: transparent;
+      }
+
+      .policy-meta { color: var(--muted); font-size: 13px; }
+
+      .site-footer {
+        width: 100%;
+        min-height: 132px;
+        margin-top: 0;
+        padding: 28px max(24px, calc((100vw - 1680px) / 2));
+        border: 0;
+        background: var(--night);
+        color: #abb6ca;
+        font-size: 13px;
+      }
+
+      .site-footer img { display: block; width: 106px; height: auto; }
+      .site-footer a { color: #dce2ed; font-size: 13px; font-weight: 500; text-decoration: none; }
+      .site-footer a:hover, .site-footer a:focus-visible { color: var(--yellow); text-decoration: underline; text-underline-offset: 5px; }
+
+      @media (max-width: 760px) {
+        .site-header { width: min(100% - 32px, 640px); grid-template-columns: 1fr auto; min-height: 64px; }
+        .policy-tabs { grid-column: 1 / -1; gap: 0; }
+        .policy-tabs a { min-height: 48px; font-size: 13px; }
+        .policy-tabs a::after { right: 12px; bottom: 0; left: 12px; }
+        .back-link { min-height: 40px; padding: 0 12px; font-size: 13px; }
+        main { width: min(100% - 32px, 640px); }
+        .policy-hero { gap: 28px; padding: 44px 0 38px; }
+        .policy-hero h1 { font-size: clamp(44px, 13vw, 60px); }
+        .hero-note { padding: 0; font-size: 16px; }
+        .policy-workspace { padding: 34px 0 72px; }
+        .policy-panel { grid-template-columns: 1fr; scroll-margin-top: 132px; }
+        .policy-summary { position: static; top: auto; padding: 22px 0 0; }
+        .policy-summary h2 { font-size: 38px; }
+        .policy-section { grid-template-columns: 1fr; gap: 10px; padding: 24px 0; }
+        .policy-section p, .policy-section li { font-size: 15px; }
+        .site-footer { min-height: 140px; padding: 28px 16px; }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#policy-content">Skip to policy</a>
+
+    <header class="site-header">
+      <a class="brand" href="/#top" aria-label="Diana home">
+        <img src="/screendesign/brand/diana-logo-tight-dark-wordmark.png" alt="Diana" />
+      </a>
+
+      <nav class="policy-tabs" aria-label="Trust policies" role="tablist">
+        <a aria-controls="privacy" aria-selected="true" href="#privacy" id="privacy-tab" role="tab">Privacy</a>
+        <a aria-controls="terms" aria-selected="false" href="#terms" id="terms-tab" role="tab" tabindex="-1">Terms</a>
+        <a aria-controls="safety" aria-selected="false" href="#safety" id="safety-tab" role="tab" tabindex="-1">Safety</a>
+        <a aria-controls="accessibility" aria-selected="false" href="#accessibility" id="accessibility-tab" role="tab" tabindex="-1">Accessibility</a>
+      </nav>
+
+      <a class="back-link" href="/#top">Back to Diana</a>
+    </header>
+
+    <main id="policy-content">
+      <section class="policy-hero" aria-labelledby="policy-title">
+        <div>
+          <h1 id="policy-title">Student Control,<br />Clearly</h1>
+        </div>
+        <p class="hero-note">Privacy, terms, and safety for a homework workspace where students keep authorship, choice, and control.</p>
+      </section>
+
+      <div class="policy-workspace">
+        <article class="policy-panel" id="privacy" role="tabpanel" aria-labelledby="privacy-tab">
+          <aside class="policy-summary">
+            <p class="notice-label">Privacy</p>
+            <h2>School data stays private</h2>
+            <p>Diana uses student information to provide study support, never targeted advertising.</p>
+          </aside>
+
+          <div class="policy-detail">
+            <section class="policy-section">
+              <h3>Scope</h3>
+              <div class="policy-section__body">
+                <p>This notice explains how Diana handles personal information on the public website and in a Diana account. Diana is the operator referred to as "we," "us," or "our." A school or district may provide an additional notice when it offers Diana to students.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Public website</h3>
+              <div class="policy-section__body">
+                <ul>
+                  <li>The landing page can be viewed without entering a name, email, homework, grade, diagnosis, or school record.</li>
+                  <li>A browser setting may remember a motion preference on the device.</li>
+                  <li>Limited interaction events may record an action and its page location. Standard hosting logs may include an IP address, browser, device, request time, and referring page.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Account information</h3>
+              <div class="policy-section__body">
+                <p>When an account is used, Diana may process the following information:</p>
+                <ul>
+                  <li><strong>Account and age information:</strong> email address, password through the authentication provider, optional display name, date of birth, time zone, and account settings.</li>
+                  <li><strong>School and study information:</strong> classes, assignments, due dates, grades or feedback a student enters or imports, notes, flashcards, study plans, progress, mastery, authorship records, and learning preferences.</li>
+                  <li><strong>Files and media:</strong> documents, photos, PDFs, audio, voice recordings, transcripts, and other material a student chooses to upload.</li>
+                  <li><strong>AI activity:</strong> prompts, responses, feature used, model information, token counts, feedback, and safety or authorship logs.</li>
+                  <li><strong>Optional sensitive information:</strong> accommodations, learning challenges, sleep logs, wellness goals, and check-ins a student chooses to provide.</li>
+                  <li><strong>Connections and sharing:</strong> connected school-service details, imported course material, private share links, notification settings, and delivery information.</li>
+                  <li><strong>Security and technical information:</strong> sign-in records, device and browser details, error records, abuse-prevention signals, and service performance data.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Why we use it</h3>
+              <div class="policy-section__body">
+                <p>Diana uses personal information to create and secure an account, organize schoolwork, provide coaching and study tools, personalize pacing and accessibility, connect requested school services, deliver notifications, support sharing chosen by the student, prevent abuse, troubleshoot problems, and meet legal obligations.</p>
+                <p>Diana limits collection and use to what is reasonably needed for these purposes. A new use that is materially different will require an updated notice and, when required, consent.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Student data promises</h3>
+              <div class="policy-section__body">
+                <ul>
+                  <li>Diana does not sell student personal information.</li>
+                  <li>Diana does not use student information for targeted advertising or build advertising profiles.</li>
+                  <li>Diana does not use student schoolwork or sensitive information to train a general-purpose AI model.</li>
+                  <li>Diana does not disclose student records to a school, parent, or other person unless the student chooses to share, a school agreement authorizes the access, or law and safety require it.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Service providers</h3>
+              <div class="policy-section__body">
+                <p>Diana uses service providers only to operate requested features. The current technology stack includes Vercel for hosting, Supabase for authentication, databases, and file storage, OpenAI for AI and transcription features, ElevenLabs for enabled voice features, and email or push-notification providers when those features are turned on. Canvas and Google Classroom information is processed only when a student or school connects that service.</p>
+                <p>Providers may receive the information needed to perform their service. Contracts and settings must restrict them from using student information for their own advertising or model training.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>When information is shared</h3>
+              <div class="policy-section__body">
+                <p>Diana may disclose information to service providers, to a school or person the student has authorized, to protect a person or the service from serious harm, to comply with valid legal process, or as part of a business transaction that preserves the protections in this notice. Diana does not publish a student's work by default.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Health and wellness</h3>
+              <div class="policy-section__body">
+                <p>Sleep and wellness features are optional. This information is treated as sensitive, is used only to provide the feature and protect the service, and is not sold or used for advertising. Diana is not a medical provider, and this information is not a medical record or a substitute for professional care.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Age</h3>
+              <div class="policy-section__body">
+                <p>Diana accounts are for people age 13 or older. Diana asks for a date of birth to apply the age gate and blocks account creation for a person who reports being under 13. A person under the age of legal majority must have permission from a parent or legal guardian to use the account service unless a school agreement and applicable law provide another valid basis.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Schools and FERPA</h3>
+              <div class="policy-section__body">
+                <p>FERPA applies directly to eligible schools, not automatically to every consumer app. When a school provides education records to Diana under the school-official exception, a written agreement must place Diana under the school's direct control for those records, limit use to the authorized educational purpose, restrict redisclosure, provide access and correction support, and require deletion when the information is no longer needed.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Retention and deletion</h3>
+              <div class="policy-section__body">
+                <p>Diana keeps information only as long as reasonably needed for the service, safety, legal, and school-contract purposes described here. The current account-deletion workflow turns off AI access immediately and schedules account-owned database records for deletion after a 30-day recovery period.</p>
+                <p>A deletion request is not complete until stored files, authentication records, applicable provider records, and covered backups have also been deleted or isolated under a documented legal exception. Limited records may be retained when required for security, fraud prevention, legal compliance, or proof that a request was completed.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Your controls and rights</h3>
+              <div class="policy-section__body">
+                <p>The Diana privacy dashboard lets an account holder download a copy of covered account information, clear supported data categories, manage sharing and notifications, and request account deletion. Information can also be corrected through the relevant account feature. A school-provided user may make a request through the school.</p>
+                <p>Depending on where a person lives, additional rights may include access, correction, deletion, restriction, portability, withdrawal of consent, an appeal, and freedom from discrimination for using a privacy right. Diana will verify a request before acting on it.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Security</h3>
+              <div class="policy-section__body">
+                <p>Diana uses access controls, encrypted network connections, database row-level security, restricted service credentials, activity logging, and other safeguards designed for student information. No online service can promise perfect security. Diana will investigate suspected incidents and provide legally required notices.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Questions and requests</h3>
+              <div class="policy-section__body">
+                <p>Account holders can use the Data and Privacy area inside Diana. A student, parent, or eligible student using a school-provided account may also contact the school that provided access. The operator's verified legal name, mailing address, and public privacy contact must be displayed here before general public launch.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Bottom line</h3>
+              <div class="policy-section__body bottom-line">
+                <strong>Diana uses student information to provide the service, not to advertise to students or sell their data.</strong>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="policy-panel" id="terms" role="tabpanel" aria-labelledby="terms-tab">
+          <aside class="policy-summary">
+            <p class="notice-label">Terms</p>
+            <h2>Your work stays yours</h2>
+            <p>Diana can coach and organize. The student remains responsible for the work and every final choice.</p>
+          </aside>
+
+          <div class="policy-detail">
+            <section class="policy-section">
+              <h3>Agreement</h3>
+              <div class="policy-section__body">
+                <p>These terms apply to the Diana public website and account service. By creating an account or using the account service, a user agrees to these terms and the Privacy notice. A school-provided account may also be governed by a written school agreement. Mandatory law and the school agreement control if they conflict with these terms.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Age and permission</h3>
+              <div class="policy-section__body">
+                <p>A Diana account holder must be at least 13. A person under the age of legal majority confirms that a parent or legal guardian has permitted the account unless a school agreement and applicable law provide another valid basis. Do not provide false age or identity information.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Accounts</h3>
+              <div class="policy-section__body">
+                <p>Keep account credentials private and provide accurate information. Tell Diana or the school that provided the account if access may be unauthorized. A user is responsible for activity under the account unless applicable law says otherwise.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Academic integrity</h3>
+              <div class="policy-section__body">
+                <p>Use Diana for coaching, organization, practice, revision, and study support. Do not use Diana to cheat, impersonate another person, fabricate sources, evade school rules, or submit AI output as original work when that is not allowed. The student must review any work and confirm any submission or sharing action.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Acceptable use</h3>
+              <div class="policy-section__body">
+                <p>Do not misuse Diana to harass, threaten, exploit, or harm a person; create or distribute illegal or sexually exploitative material; obtain dangerous instructions; invade privacy; bypass safeguards; probe security without written permission; disrupt the service; scrape at scale; or infringe another person's rights.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Student content</h3>
+              <div class="policy-section__body">
+                <p>A student keeps ownership of schoolwork and other content the student creates. The student gives Diana limited permission to host, process, reproduce, and transmit that content only as needed to provide, secure, support, and legally operate the service. This permission ends when the content is deleted, subject to limited backup, security, and legal retention.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>AI limits</h3>
+              <div class="policy-section__body">
+                <p>AI output can be incomplete, inaccurate, or inappropriate. Diana is a study tool, not a teacher, school official, medical provider, therapist, lawyer, or emergency service. Verify important facts, sources, calculations, deadlines, and school requirements with a qualified person or original source.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Connected services</h3>
+              <div class="policy-section__body">
+                <p>A user may choose to connect a service such as Canvas or Google Classroom. The connected service has its own terms and privacy practices. The user authorizes Diana to access and use connected information only to provide the requested feature and may disconnect it subject to the provider's controls.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Availability and changes</h3>
+              <div class="policy-section__body">
+                <p>Diana may add, remove, or change features and may limit access for maintenance, security, legal compliance, or product changes. Illustrative screens on the public site are not a guarantee that every feature is available in every account. Material changes to these terms will be presented before they apply when notice or renewed agreement is required.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Suspension and deletion</h3>
+              <div class="policy-section__body">
+                <p>Diana may restrict or suspend access when reasonably necessary to protect a student, another person, a school, or the service; respond to unlawful use; or enforce these terms. When practical, Diana will provide notice and a way to ask for review. An account holder may request deletion through the account privacy dashboard.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Diana materials</h3>
+              <div class="policy-section__body">
+                <p>Diana's software, branding, designs, and original service materials are protected by intellectual-property law. These terms allow personal use of the service but do not transfer ownership or permit copying, resale, reverse engineering where prohibited by law, or use of Diana branding to imply endorsement.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Disclaimers</h3>
+              <div class="policy-section__body">
+                <p>To the extent allowed by law, Diana is provided "as is" and "as available." Diana does not promise a particular grade, school result, uninterrupted service, or error-free AI output. Nothing in these terms excludes a warranty or consumer right that cannot legally be excluded.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Liability</h3>
+              <div class="policy-section__body">
+                <p>To the extent allowed by law, Diana is not liable for indirect, incidental, special, consequential, or punitive damages arising from use of the service. This limit does not apply where prohibited, including liability that cannot be limited for fraud, willful misconduct, personal injury, or violation of mandatory privacy or consumer law.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Applicable law</h3>
+              <div class="policy-section__body">
+                <p>These terms are governed by applicable law. They do not require a student or consumer to give up a non-waivable right or remedy. The operator's verified legal name, principal location, and any governing-law or dispute terms must be supplied before general public launch.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Bottom line</h3>
+              <div class="policy-section__body bottom-line">
+                <strong>Diana supports learning. It does not replace the student's judgment, school rules, or responsibility for the work.</strong>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="policy-panel" id="safety" role="tabpanel" aria-labelledby="safety-tab">
+          <aside class="policy-summary">
+            <p class="notice-label">Safety</p>
+            <h2>Help keeps you in control</h2>
+            <p>Diana guides the next step while the student keeps authorship, privacy choices, and the final say.</p>
+          </aside>
+
+          <div class="policy-detail">
+            <section class="policy-section">
+              <h3>Core boundaries</h3>
+              <div class="policy-section__body">
+                <ul>
+                  <li>Diana should coach and scaffold rather than replace the student's work.</li>
+                  <li>A student must confirm submission, sharing, and other consequential actions.</li>
+                  <li>AI access can be limited by class or assignment rules.</li>
+                  <li>AI interactions and authorship events may be logged to support transparency and safety.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>AI safety</h3>
+              <div class="policy-section__body">
+                <p>Diana uses feature restrictions, safety instructions, access controls, and activity records designed for students. These controls reduce risk but cannot catch every inaccurate, biased, unsafe, or inappropriate response. A student should stop and ask a trusted adult when a response feels unsafe, confusing, or wrong.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Academic safety</h3>
+              <div class="policy-section__body">
+                <p>Diana should help a student understand, practice, plan, and revise. It should not impersonate the student, fabricate evidence, hide AI use, defeat a teacher's instructions, or complete prohibited work. School and teacher rules always matter.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Privacy and sharing</h3>
+              <div class="policy-section__body">
+                <p>Do not enter information that is not needed for the study task. Review a private share link before sending it, share only with the intended person, and remove access when it is no longer needed. Never post another person's school record, contact details, private messages, health information, or image without permission.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Wellness features</h3>
+              <div class="policy-section__body">
+                <p>Sleep and wellness tools are optional planning aids. They do not diagnose, treat, or monitor a medical or mental-health condition. Students should not rely on Diana for health decisions and should speak with a parent, guardian, school professional, or qualified provider when support is needed.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Prohibited conduct</h3>
+              <div class="policy-section__body">
+                <p>Do not use Diana for harassment, threats, sexual exploitation, self-harm encouragement, dangerous instructions, discrimination, stalking, impersonation, privacy invasion, illegal activity, security attacks, or attempts to bypass age, school, or safety controls.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Schools and adults</h3>
+              <div class="policy-section__body">
+                <p>Access by a school, teacher, parent, guardian, or other adult must follow the student's sharing choice, a valid school agreement, or applicable law. Diana should not promise that every adult can see everything or that every activity is invisible. The Privacy notice explains the allowed disclosures.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Reports and enforcement</h3>
+              <div class="policy-section__body">
+                <p>Diana may preserve relevant records, restrict a feature, suspend an account, notify an authorized school contact, or contact appropriate authorities when reasonably necessary to address serious misuse, a credible safety risk, or a legal duty. Reports should be reviewed by a trained person, with an appeal path when appropriate.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Not an emergency service</h3>
+              <div class="policy-section__body">
+                <p>Diana is not an emergency, crisis, medical, mental-health, or legal service. If someone may be in immediate danger, stop using Diana and contact a trusted adult or local emergency services. Do not wait for an app response.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Bottom line</h3>
+              <div class="policy-section__body bottom-line">
+                <strong>Diana should help a student move forward without taking over the work, the student's privacy choices, or the final decision.</strong>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <article class="policy-panel" id="accessibility" role="tabpanel" aria-labelledby="accessibility-tab">
+          <aside class="policy-summary">
+            <p class="notice-label">Accessibility</p>
+            <h2>Learning should stay usable</h2>
+            <p>Diana includes adjustable reading and motion settings so students can shape the experience without changing their schoolwork.</p>
+          </aside>
+
+          <div class="policy-detail">
+            <section class="policy-section">
+              <h3>Available preferences</h3>
+              <div class="policy-section__body">
+                <ul>
+                  <li>Students can adjust text size, line spacing, reading font, and letter and word spacing.</li>
+                  <li>Reading support includes bionic reading, line focus, and optional visual pacing.</li>
+                  <li>Read-aloud controls offer voice, speed, and pitch preferences where supported.</li>
+                  <li>Students can choose reduced motion and higher-contrast display preferences.</li>
+                </ul>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Getting support</h3>
+              <div class="policy-section__body">
+                <p>Accessibility preferences are available in account settings. If a student cannot use part of Diana or needs help with a specific access need, contact <a href="mailto:support@diana.app?subject=Accessibility%20support">support@diana.app</a>.</p>
+              </div>
+            </section>
+
+            <section class="policy-section">
+              <h3>Bottom line</h3>
+              <div class="policy-section__body bottom-line">
+                <strong>Diana should adapt to the student, not make the student adapt to the tool.</strong>
+              </div>
+            </section>
+          </div>
+        </article>
+
+        <div class="policy-meta">
+          <span>Effective July 30, 2026</span>
+          <span>Applies to the public site and account service</span>
+          <span>Version 1.0</span>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <img src="/screendesign/brand/diana-logo-tight.png" alt="Diana" />
+      <a href="/#top">Return to the landing page</a>
+    </footer>
+
+    <script>
+      (function () {
+        var ids = ["privacy", "terms", "safety", "accessibility"];
+        var tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+        var panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+
+        function activeId() {
+          var requested = window.location.hash.slice(1).toLowerCase();
+          return ids.includes(requested) ? requested : "privacy";
+        }
+
+        function activate(id, moveFocus) {
+          tabs.forEach(function (tab) {
+            var selected = tab.getAttribute("aria-controls") === id;
+            tab.setAttribute("aria-selected", String(selected));
+            tab.tabIndex = selected ? 0 : -1;
+            if (selected && moveFocus) tab.focus();
+          });
+
+          panels.forEach(function (panel) {
+            panel.hidden = panel.id !== id;
+          });
+
+          document.title = "Diana | " + id.charAt(0).toUpperCase() + id.slice(1);
+        }
+
+        function setActiveTab(id, moveFocus) {
+          window.history.pushState(null, "", "#" + id);
+          activate(id, moveFocus);
+        }
+
+        tabs.forEach(function (tab, index) {
+          tab.addEventListener("click", function (event) {
+            event.preventDefault();
+            setActiveTab(tab.getAttribute("aria-controls"), false);
+          });
+
+          tab.addEventListener("keydown", function (event) {
+            var targetIndex = index;
+            if (event.key === "ArrowRight") targetIndex = (index + 1) % tabs.length;
+            if (event.key === "ArrowLeft") targetIndex = (index - 1 + tabs.length) % tabs.length;
+            if (event.key === "Home") targetIndex = 0;
+            if (event.key === "End") targetIndex = tabs.length - 1;
+            if (targetIndex === index) return;
+
+            event.preventDefault();
+            var nextId = tabs[targetIndex].getAttribute("aria-controls");
+            setActiveTab(nextId, true);
+          });
+        });
+
+        window.addEventListener("hashchange", function () {
+          activate(activeId(), false);
+        });
+
+        var hasRequestedTab = ids.includes(window.location.hash.slice(1).toLowerCase());
+        if (!hasRequestedTab) {
+          window.history.replaceState(null, "", "#privacy");
+        }
+        activate(activeId(), false);
+        if (hasRequestedTab) {
+          window.requestAnimationFrame(function () {
+            window.scrollTo(0, 0);
+          });
+        }
+      }());
+    </script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 // app/(app)/assignments/[id]/ai-tools-actions.ts
 // Server actions wrapping math-step, writing-aid, and citation-gen Edge Functions.
-// All Anthropic and Supabase service-role calls stay server-side — never in the browser.
+// All Anthropic and Supabase service-role calls stay server-side - never in the browser.
 "use server";
 
 import { z } from "zod";
@@ -31,13 +31,25 @@ import {
   type ApSubjectId,
 } from "@/lib/ap/command";
 import { parseMathScaffoldResponse, type MathScaffoldResult, type MathSubject } from "@/lib/math/scaffold";
+import { createLinearEquationReview } from "@/lib/math/linear-equation-tutor";
 import { parseScienceScaffoldResponse, type ScienceScaffoldMode, type ScienceScaffoldResult } from "@/lib/science/scaffold";
 import { parseWritingCoauthorResponse, type WritingCoauthorMode, type WritingCoauthorResult } from "@/lib/writing/coauthor";
 import {
   parseAssignmentReviewResponse,
+  type AssignmentReviewResult,
   type AssignmentReviewTemplate,
 } from "@/lib/assignment-review";
-import { effectiveAiMode, type AiMode } from "@/lib/portal/teacher";
+import { resolveDianaHomeworkTrust, type DianaHomeworkAiMode } from "@/lib/ai/diana-trust-rules";
+import { runOpenAIHomeworkJson, type OpenAIHomeworkMessage } from "@/lib/ai/openai-homework-adapter";
+import {
+  formatHomeworkKernelForTutor,
+  homeworkModelRouting,
+  loadAssignmentHomeworkKernel,
+} from "@/lib/assignment-help/server-understanding";
+import {
+  formatCanonicalSpecialistContextsForPrompt,
+  loadCanonicalSpecialistContextsForAssignment,
+} from "@/lib/assignment-submission-server";
 import { ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/lib/supabase/types";
@@ -165,42 +177,75 @@ async function getOwnerId(): Promise<string | null> {
   return user?.id ?? null;
 }
 
+type HomeworkKernel = NonNullable<Awaited<ReturnType<typeof loadAssignmentHomeworkKernel>>>;
+
 async function loadAssignmentAiMode(
   supabase: Awaited<ReturnType<typeof createClient>>,
   ownerId: string,
   assignmentId: string,
-): Promise<AiMode | null> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("ai_mode_override, classes(ai_mode)")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .maybeSingle();
-  if (!assignment) return null;
+): Promise<DianaHomeworkAiMode | null> {
+  const kernel = await loadAssignmentHomeworkKernel({
+    supabase,
+    ownerId,
+    assignmentId,
+    eventSource: "ai_tools_mode",
+  });
+  return kernel?.trustDecision.aiMode ?? null;
+}
 
-  const classMode: AiMode = assignment.classes?.ai_mode === "red"
-    || assignment.classes?.ai_mode === "yellow"
-    ? assignment.classes.ai_mode
-    : "green";
-  const override: AiMode | null = assignment.ai_mode_override === "red"
-    || assignment.ai_mode_override === "yellow"
-    || assignment.ai_mode_override === "green"
-    ? assignment.ai_mode_override
-    : null;
-  return effectiveAiMode(classMode, override);
+async function loadHomeworkActionContext(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ownerId: string,
+  assignmentId: string,
+  options: { noteLimit?: number; noteChars?: number; maxChars?: number } = {},
+): Promise<{ kernel: HomeworkKernel; classContext: string } | null> {
+  const kernel = await loadAssignmentHomeworkKernel({
+    supabase,
+    ownerId,
+    assignmentId,
+    eventSource: "ai_tools_context",
+  });
+  if (!kernel) return null;
+
+  const noteLimit = options.noteLimit ?? 5;
+  const noteChars = options.noteChars ?? 450;
+  let notesText = "";
+  if (kernel.assignment.class_id) {
+    const { data: notes } = await supabase
+      .from("notes")
+      .select("title, body_text, transcript_text")
+      .eq("owner_id", ownerId)
+      .eq("class_id", kernel.assignment.class_id)
+      .order("updated_at", { ascending: false })
+      .limit(noteLimit);
+
+    notesText = (notes ?? []).map((note) => [
+      `Note: ${note.title}`,
+      (note.body_text ?? "").slice(0, noteChars),
+      (note.transcript_text ?? "").slice(0, noteChars),
+    ].filter(Boolean).join("\n")).join("\n\n");
+  }
+
+  const classContext = [
+    formatHomeworkKernelForTutor(kernel, { maxChars: options.maxChars ?? 12_000 }),
+    notesText ? `Recent class notes:\n${notesText}` : "",
+  ].filter(Boolean).join("\n\n").slice(0, options.maxChars ?? 12_000);
+
+  return { kernel, classContext };
 }
 
 // Map an Edge-Function error message to calm, student-facing copy.
-// Used identically by all three actions — the underlying Edge Function returns
-// plain English ("You've used your AI quota..."), supabase.functions.invoke wraps
-// it in error.message, and we surface it verbatim where we recognize it.
+// Used by these actions because Supabase wraps function errors in error.message.
+function directHomeworkAiMode(): DianaHomeworkAiMode {
+  return resolveDianaHomeworkTrust().aiMode;
+}
 function calmError(rawMessage: string | undefined): string {
   const m = rawMessage ?? "";
   if (m.includes("quota")) {
     return "You've used your AI quota for today: resets at midnight.";
   }
   if (m.includes("AI not available")) {
-    return "AI is off for this class. You can change that in class settings.";
+    return "Diana help is unavailable right now. Try again in a moment.";
   }
   return "AI is unavailable right now. Try again in a moment.";
 }
@@ -210,31 +255,11 @@ async function loadWritingEvidenceContext(
   ownerId: string,
   assignmentId: string,
 ): Promise<string> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, description, class_id")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!assignment?.class_id) return "";
-
-  const { data: notes } = await supabase
-    .from("notes")
-    .select("title, body_text, transcript_text")
-    .eq("owner_id", ownerId)
-    .eq("class_id", assignment.class_id)
-    .order("updated_at", { ascending: false })
-    .limit(8);
-
-  return [
-    `Assignment: ${assignment.title}`,
-    assignment.description ? `Prompt: ${assignment.description}` : "",
-    ...(notes ?? []).map((note) => [
-      `Note: ${note.title}`,
-      (note.body_text ?? "").slice(0, 600),
-      (note.transcript_text ?? "").slice(0, 600),
-    ].filter(Boolean).join("\n")),
-  ].filter(Boolean).join("\n\n").slice(0, 5000);
+  return (await loadHomeworkActionContext(supabase, ownerId, assignmentId, {
+    noteLimit: 8,
+    noteChars: 600,
+    maxChars: 14_000,
+  }))?.classContext ?? "";
 }
 
 async function loadScienceClassContext(
@@ -242,31 +267,7 @@ async function loadScienceClassContext(
   ownerId: string,
   assignmentId: string,
 ): Promise<string> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, description, class_id")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!assignment?.class_id) return "";
-
-  const { data: notes } = await supabase
-    .from("notes")
-    .select("title, body_text, transcript_text")
-    .eq("owner_id", ownerId)
-    .eq("class_id", assignment.class_id)
-    .order("updated_at", { ascending: false })
-    .limit(5);
-
-  return [
-    `Assignment: ${assignment.title}`,
-    assignment.description ?? "",
-    ...(notes ?? []).map((note) => [
-      `Note: ${note.title}`,
-      (note.body_text ?? "").slice(0, 450),
-      (note.transcript_text ?? "").slice(0, 450),
-    ].filter(Boolean).join("\n")),
-  ].filter(Boolean).join("\n\n").slice(0, 3000);
+  return (await loadHomeworkActionContext(supabase, ownerId, assignmentId, { noteLimit: 5, noteChars: 450, maxChars: 12_000 }))?.classContext ?? "";
 }
 
 async function loadHistoryClassContext(
@@ -274,31 +275,7 @@ async function loadHistoryClassContext(
   ownerId: string,
   assignmentId: string,
 ): Promise<string> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, description, class_id")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!assignment?.class_id) return "";
-
-  const { data: notes } = await supabase
-    .from("notes")
-    .select("title, body_text, transcript_text")
-    .eq("owner_id", ownerId)
-    .eq("class_id", assignment.class_id)
-    .order("updated_at", { ascending: false })
-    .limit(6);
-
-  return [
-    `Assignment: ${assignment.title}`,
-    assignment.description ?? "",
-    ...(notes ?? []).map((note) => [
-      `Note: ${note.title}`,
-      (note.body_text ?? "").slice(0, 500),
-      (note.transcript_text ?? "").slice(0, 500),
-    ].filter(Boolean).join("\n")),
-  ].filter(Boolean).join("\n\n").slice(0, 3500);
+  return (await loadHomeworkActionContext(supabase, ownerId, assignmentId, { noteLimit: 6, noteChars: 500, maxChars: 13_000 }))?.classContext ?? "";
 }
 
 async function loadCsClassContext(
@@ -306,31 +283,7 @@ async function loadCsClassContext(
   ownerId: string,
   assignmentId: string,
 ): Promise<string> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, description, class_id")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!assignment?.class_id) return "";
-
-  const { data: notes } = await supabase
-    .from("notes")
-    .select("title, body_text, transcript_text")
-    .eq("owner_id", ownerId)
-    .eq("class_id", assignment.class_id)
-    .order("updated_at", { ascending: false })
-    .limit(5);
-
-  return [
-    `Assignment: ${assignment.title}`,
-    assignment.description ?? "",
-    ...(notes ?? []).map((note) => [
-      `Note: ${note.title}`,
-      (note.body_text ?? "").slice(0, 450),
-      (note.transcript_text ?? "").slice(0, 450),
-    ].filter(Boolean).join("\n")),
-  ].filter(Boolean).join("\n\n").slice(0, 3000);
+  return (await loadHomeworkActionContext(supabase, ownerId, assignmentId, { noteLimit: 5, noteChars: 450, maxChars: 12_000 }))?.classContext ?? "";
 }
 
 async function loadHealthClassContext(
@@ -338,31 +291,7 @@ async function loadHealthClassContext(
   ownerId: string,
   assignmentId: string,
 ): Promise<string> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, description, class_id")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!assignment?.class_id) return "";
-
-  const { data: notes } = await supabase
-    .from("notes")
-    .select("title, body_text, transcript_text")
-    .eq("owner_id", ownerId)
-    .eq("class_id", assignment.class_id)
-    .order("updated_at", { ascending: false })
-    .limit(5);
-
-  return [
-    `Assignment: ${assignment.title}`,
-    assignment.description ?? "",
-    ...(notes ?? []).map((note) => [
-      `Note: ${note.title}`,
-      (note.body_text ?? "").slice(0, 450),
-      (note.transcript_text ?? "").slice(0, 450),
-    ].filter(Boolean).join("\n")),
-  ].filter(Boolean).join("\n\n").slice(0, 3000);
+  return (await loadHomeworkActionContext(supabase, ownerId, assignmentId, { noteLimit: 5, noteChars: 450, maxChars: 12_000 }))?.classContext ?? "";
 }
 
 async function loadApClassContext(
@@ -370,31 +299,7 @@ async function loadApClassContext(
   ownerId: string,
   assignmentId: string,
 ): Promise<string> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, description, class_id")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!assignment?.class_id) return "";
-
-  const { data: notes } = await supabase
-    .from("notes")
-    .select("title, body_text, transcript_text")
-    .eq("owner_id", ownerId)
-    .eq("class_id", assignment.class_id)
-    .order("updated_at", { ascending: false })
-    .limit(6);
-
-  return [
-    `Assignment: ${assignment.title}`,
-    assignment.description ?? "",
-    ...(notes ?? []).map((note) => [
-      `Note: ${note.title}`,
-      (note.body_text ?? "").slice(0, 450),
-      (note.transcript_text ?? "").slice(0, 450),
-    ].filter(Boolean).join("\n")),
-  ].filter(Boolean).join("\n\n").slice(0, 3500);
+  return (await loadHomeworkActionContext(supabase, ownerId, assignmentId, { noteLimit: 6, noteChars: 450, maxChars: 13_000 }))?.classContext ?? "";
 }
 
 async function loadLanguageClassContext(
@@ -402,33 +307,8 @@ async function loadLanguageClassContext(
   ownerId: string,
   assignmentId: string,
 ): Promise<string> {
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, title, description, class_id")
-    .eq("id", assignmentId)
-    .eq("owner_id", ownerId)
-    .single();
-  if (!assignment?.class_id) return "";
-
-  const { data: notes } = await supabase
-    .from("notes")
-    .select("title, body_text, transcript_text")
-    .eq("owner_id", ownerId)
-    .eq("class_id", assignment.class_id)
-    .order("updated_at", { ascending: false })
-    .limit(5);
-
-  return [
-    `Assignment: ${assignment.title}`,
-    assignment.description ?? "",
-    ...(notes ?? []).map((note) => [
-      `Note: ${note.title}`,
-      (note.body_text ?? "").slice(0, 450),
-      (note.transcript_text ?? "").slice(0, 450),
-    ].filter(Boolean).join("\n")),
-  ].filter(Boolean).join("\n\n").slice(0, 3000);
+  return (await loadHomeworkActionContext(supabase, ownerId, assignmentId, { noteLimit: 5, noteChars: 450, maxChars: 12_000 }))?.classContext ?? "";
 }
-
 export async function requestMathStep(
   input: z.infer<typeof MathStepInput>,
 ): Promise<{ content: string } | { error: string }> {
@@ -438,8 +318,12 @@ export async function requestMathStep(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = parsed.data.assignmentId
+    ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
+    : directHomeworkAiMode();
+  if (!aiMode) return { error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("math-step", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
   return { content: (data as { content: string }).content ?? "" };
@@ -456,7 +340,7 @@ export async function requestWritingAid(
   const supabase = await createClient();
   const aiMode = parsed.data.assignmentId
     ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
-    : parsed.data.aiMode;
+    : directHomeworkAiMode();
   if (!aiMode) return { error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("writing-aid", {
     body: { ownerId, ...parsed.data, aiMode },
@@ -495,6 +379,136 @@ export async function requestWritingCoauthor(
   };
 }
 
+const LOCAL_ASSIGNMENT_REVIEW_PROMPT = `You are Diana's assignment review coach for a high-school student.
+
+You receive the assignment directions, source packet, and the student's current visible work from Diana's workspace.
+Never write a finished answer, solve a problem outright, fabricate evidence, or replace the student's voice.
+Do not tell the student to paste work into another chat because you already have the relevant fields.
+
+Return exactly one JSON object:
+{
+  "title": string,
+  "strength": string,
+  "improvement": string,
+  "nextMove": string,
+  "question": string,
+  "evidenceAnchor": string,
+  "visualAid": {
+    "kind": "none" | "balance" | "equation_steps" | "number_line" | "coordinate_plane" | "fraction_bar" | "geometry" | "table" | "process",
+    "title": string,
+    "description": string,
+    "steps": string[]
+  }
+}
+
+Rules:
+- Be specific to the assignment, focus request, and named student fields.
+- Give one useful strength and one high-value improvement.
+- nextMove must be a small action the student can do now in their own work.
+- question should help the student think, not test or shame them.
+- evidenceAnchor must name the most relevant assignment direction, rubric, source page, or Student work.
+- For math, check the student's process and give the next operation or check, never the final answer.
+- For one-variable equations, prefer a vertical equation_steps visual that lines up the same operation under both sides before the simplified line.
+- Keep every value concise, calm, and student-led. No exclamation marks.`;
+
+function isAssignmentVisualAid(value: unknown): value is AssignmentReviewResult["visualAid"] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.kind === "string" &&
+    typeof candidate.title === "string" &&
+    typeof candidate.description === "string" &&
+    Array.isArray(candidate.steps) &&
+    candidate.steps.every((step) => typeof step === "string");
+}
+
+function isAssignmentReviewResult(value: unknown): value is AssignmentReviewResult {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.title === "string" &&
+    typeof candidate.strength === "string" &&
+    typeof candidate.improvement === "string" &&
+    typeof candidate.nextMove === "string" &&
+    typeof candidate.question === "string" &&
+    typeof candidate.evidenceAnchor === "string" &&
+    isAssignmentVisualAid(candidate.visualAid);
+}
+
+function fallbackAssignmentReviewValue(template: AssignmentReviewTemplate): AssignmentReviewResult {
+  return parseAssignmentReviewResponse("", template);
+}
+
+function sourceAnchorsForKernel(kernel: Awaited<ReturnType<typeof loadAssignmentHomeworkKernel>>): string[] {
+  if (!kernel) return [];
+  return [
+    ...kernel.sourcePacket.citations,
+    ...kernel.sources.flatMap((source) => [source.title, source.source_location].filter((item): item is string => typeof item === "string" && item.trim().length > 0)),
+  ].filter((anchor, index, anchors) => anchors.indexOf(anchor) === index).slice(0, 12);
+}
+
+async function runLocalAssignmentReview({
+  ownerId,
+  assignmentId,
+  supabase,
+  template,
+  focus,
+  question,
+  fields,
+  homeworkContext,
+  specialistContext,
+  sourceAnchors,
+  kernel,
+}: {
+  ownerId: string;
+  assignmentId: string;
+  supabase: Awaited<ReturnType<typeof createClient>>;
+  template: AssignmentReviewTemplate;
+  focus: string;
+  question: string;
+  fields: Array<{ label: string; value: string }>;
+  homeworkContext: string;
+  specialistContext: string;
+  sourceAnchors: string[];
+  kernel: HomeworkKernel;
+}): Promise<{ ok: true; result: AssignmentReviewResult; sourceAnchors: string[] } | { ok: false; error: string }> {
+  const messages: OpenAIHomeworkMessage[] = [
+    { role: "system", content: LOCAL_ASSIGNMENT_REVIEW_PROMPT },
+    {
+      role: "user",
+      content: [
+        `Template: ${template}`,
+        `Review focus: ${focus}`,
+        question ? `Student question: ${question}` : "",
+        sourceAnchors.length > 0 ? `Known source anchors: ${sourceAnchors.join("; ")}` : "Known source anchors: Student work only",
+        `Diana assignment understanding:\n${homeworkContext}`,
+        `Canonical specialist artifact contexts:\n${specialistContext}`,
+        `Current student work:\n${fields.map((field) => `${field.label}:\n${field.value}`).join("\n\n")}`,
+      ].filter(Boolean).join("\n\n"),
+    },
+  ];
+
+  try {
+    const result = await runOpenAIHomeworkJson({
+      ownerId,
+      assignmentId,
+      accounting: supabase,
+      task: "assignment_review",
+      messages,
+      maxOutputTokens: 850,
+      fallback: fallbackAssignmentReviewValue(template),
+      validate: isAssignmentReviewResult,
+      idempotencyKey: `assignment-review:${assignmentId}:${crypto.randomUUID()}`,
+      routing: homeworkModelRouting(kernel, {
+        visibleWork: fields.map((field) => field.value).join("\n"),
+        signals: [focus, question].filter(Boolean).join("\n"),
+      }),
+    });
+    if (!result.ok) return { ok: false, error: result.error };
+    return { ok: true, result: result.value, sourceAnchors };
+  } catch (error) {
+    console.warn("local assignment review unavailable", error instanceof Error ? error.message : error);
+    return { ok: false, error: "Diana help is unavailable right now. Try again in a moment." };
+  }
+}
 export async function requestAssignmentReview(
   input: z.infer<typeof AssignmentReviewInput>,
 ): Promise<{ ok: true; result: ReturnType<typeof parseAssignmentReviewResponse>; sourceAnchors: string[] } | { ok: false; error: string }> {
@@ -504,23 +518,68 @@ export async function requestAssignmentReview(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
-  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
-  if (!aiMode) return { ok: false, error: "Assignment not found." };
-  const { data, error } = await supabase.functions.invoke("assignment-review", {
-    body: { ownerId, ...parsed.data, aiMode },
+  const kernel = await loadAssignmentHomeworkKernel({
+    supabase,
+    ownerId,
+    assignmentId: parsed.data.assignmentId,
+    eventSource: "assignment_review",
   });
-  if (error) return { ok: false, error: calmError(error.message) };
-  if (data?.error) return { ok: false, error: String(data.error) };
-  return {
-    ok: true,
-    result: parseAssignmentReviewResponse(
-      String(data?.content ?? ""),
-      parsed.data.template as AssignmentReviewTemplate,
-    ),
-    sourceAnchors: Array.isArray(data?.sourceAnchors)
-      ? data.sourceAnchors.filter((anchor: unknown): anchor is string => typeof anchor === "string").slice(0, 12)
-      : [],
-  };
+  if (!kernel) return { ok: false, error: "Assignment not found." };
+  if (parsed.data.template === "math" && !process.env.OPENAI_API_KEY?.trim()) {
+    const deterministicReview = createLinearEquationReview(parsed.data.fields, parsed.data.question);
+    if (deterministicReview) {
+      return { ok: true, result: deterministicReview, sourceAnchors: [] };
+    }
+  }
+
+  const visibleWork = parsed.data.fields
+    .map((field) => `${field.label}:\n${field.value}`)
+    .join("\n\n");
+  const homeworkContext = formatHomeworkKernelForTutor(kernel, {
+    visibleWork,
+    maxChars: 16_000,
+  });
+  const specialistContexts = await loadCanonicalSpecialistContextsForAssignment({
+    supabase,
+    ownerId,
+    assignmentId: parsed.data.assignmentId,
+    consumer: "review",
+    profile: kernel.profile,
+    kernel,
+  });
+  if (!specialistContexts) return { ok: false, error: "Assignment not found." };
+  const specialistContext = formatCanonicalSpecialistContextsForPrompt(
+    specialistContexts,
+  );
+  const template = parsed.data.template as AssignmentReviewTemplate;
+  const sourceAnchors = [
+    ...sourceAnchorsForKernel(kernel),
+    ...specialistContexts.flatMap((context) => context.sourceAnchors.flatMap((anchor) => [
+      anchor.label,
+      anchor.location,
+    ].filter((value): value is string => Boolean(value?.trim())))),
+  ].filter((anchor, index, anchors) => anchors.indexOf(anchor) === index).slice(0, 12);
+  const localReview = await runLocalAssignmentReview({
+    ownerId,
+    assignmentId: parsed.data.assignmentId,
+    supabase,
+    template,
+    focus: parsed.data.focus,
+    question: parsed.data.question,
+    fields: parsed.data.fields,
+    homeworkContext,
+    specialistContext,
+    sourceAnchors,
+    kernel,
+  });
+  if (localReview.ok) return localReview;
+
+  if (template === "math") {
+    const deterministicReview = createLinearEquationReview(parsed.data.fields, parsed.data.question);
+    if (deterministicReview) return { ok: true, result: deterministicReview, sourceAnchors: [] };
+  }
+
+  return { ok: false, error: localReview.error };
 }
 export async function acceptWritingSuggestion(
   input: z.infer<typeof AcceptWritingSuggestionInput>,
@@ -613,8 +672,10 @@ export async function requestHistoryScaffold(
 
   const supabase = await createClient();
   const classContext = await loadHistoryClassContext(supabase, ownerId, parsed.data.assignmentId);
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("history-scaffold", {
-    body: { ownerId, ...parsed.data, classContext },
+    body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -661,8 +722,10 @@ export async function requestHistoryMapAnnotation(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("history-scaffold", {
-    body: { ownerId, assignmentId: parsed.data.assignmentId, aiMode: parsed.data.aiMode, mode: "map_annotation", storageKey: parsed.data.storageKey },
+    body: { ownerId, assignmentId: parsed.data.assignmentId, aiMode, mode: "map_annotation", storageKey: parsed.data.storageKey },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -679,8 +742,10 @@ export async function requestCsScaffold(
 
   const supabase = await createClient();
   const classContext = await loadCsClassContext(supabase, ownerId, parsed.data.assignmentId);
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("cs-scaffold", {
-    body: { ownerId, ...parsed.data, classContext },
+    body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -703,8 +768,10 @@ export async function requestLanguageScaffold(
 
   const supabase = await createClient();
   const classContext = await loadLanguageClassContext(supabase, ownerId, parsed.data.assignmentId);
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("language-scaffold", {
-    body: { ownerId, ...parsed.data, classContext },
+    body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -727,8 +794,10 @@ export async function requestArtsScaffold(
   if (!ownerId) return { ok: false, error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("arts-scaffold", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -752,8 +821,10 @@ export async function requestHealthScaffold(
 
   const supabase = await createClient();
   const classContext = await loadHealthClassContext(supabase, ownerId, parsed.data.assignmentId);
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("health-scaffold", {
-    body: { ownerId, ...parsed.data, classContext },
+    body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -777,8 +848,10 @@ export async function requestApScaffold(
 
   const supabase = await createClient();
   const classContext = await loadApClassContext(supabase, ownerId, parsed.data.assignmentId);
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("ap-scaffold", {
-    body: { ownerId, ...parsed.data, classContext },
+    body: { ownerId, ...parsed.data, aiMode, classContext },
   });
   if (error) return { ok: false, error: calmError(error.message) };
   if (data?.error) return { ok: false, error: String(data.error) };
@@ -802,16 +875,20 @@ export async function requestCitation(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = parsed.data.assignmentId
+    ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
+    : directHomeworkAiMode();
+  if (!aiMode) return { error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("citation-gen", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
   // citation-gen returns content as a JSON string per its system prompt;
-  // we surface it verbatim and let the client JSON.parse — keeps this layer dumb.
+  // we surface it verbatim and let the client JSON.parse - keeps this layer dumb.
   return { content: (data as { content: string }).content ?? "" };
 }
 
-// ─── F6: AI task breakdown ────────────────────────────────────────────────────
+// F6: AI task breakdown
 
 import { parseStepsFromContent, type BreakdownStep } from "@/lib/task-breakdown/parse";
 
@@ -834,12 +911,6 @@ const AcceptedBreakdownInput = z.object({
   })).min(1).max(12),
 });
 
-function assignmentClassAiMode(classes: { ai_mode?: string | null } | null): AiMode {
-  return classes?.ai_mode === "red" || classes?.ai_mode === "yellow"
-    ? classes.ai_mode
-    : "green";
-}
-
 export async function requestTaskBreakdown(
   input: z.infer<typeof TaskBreakdownInput>,
 ): Promise<{ steps: BreakdownStep[] } | { error: string }> {
@@ -849,24 +920,8 @@ export async function requestTaskBreakdown(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
-  const { data: assignment } = await supabase
-    .from("assignments")
-    .select("id, ai_mode_override, classes(ai_mode)")
-    .eq("id", parsed.data.assignmentId)
-    .eq("owner_id", ownerId)
-    .maybeSingle();
-  if (!assignment) return { error: "Assignment not found." };
-
-  const override: AiMode | null =
-    assignment.ai_mode_override === "red" ||
-    assignment.ai_mode_override === "yellow" ||
-    assignment.ai_mode_override === "green"
-      ? assignment.ai_mode_override
-      : null;
-  const aiMode = effectiveAiMode(assignmentClassAiMode(assignment.classes), override);
-  if (aiMode !== "green") {
-    return { error: "AI steps are not available for this assignment." };
-  }
+  const aiMode = await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId);
+  if (!aiMode) return { error: "Assignment not found." };
 
   const { data, error } = await supabase.functions.invoke("task-breakdown", {
     body: { ownerId, ...parsed.data, aiMode },
@@ -877,7 +932,6 @@ export async function requestTaskBreakdown(
   const steps = parseStepsFromContent(content);
   return { steps };
 }
-
 export async function acceptTaskBreakdown(
   input: z.infer<typeof AcceptedBreakdownInput>,
 ): Promise<{ ok: true } | { error: string }> {
@@ -965,8 +1019,12 @@ export async function requestMathExample(
   if (!ownerId) return { error: "Not signed in." };
 
   const supabase = await createClient();
+  const aiMode = parsed.data.assignmentId
+    ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
+    : directHomeworkAiMode();
+  if (!aiMode) return { error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("math-example", {
-    body: { ownerId, ...parsed.data },
+    body: { ownerId, ...parsed.data, aiMode },
   });
   if (error) return { error: calmError(error.message) };
   return { content: (data as { content: string }).content ?? "" };
@@ -1008,7 +1066,7 @@ export async function requestMathScaffold(
   const supabase = await createClient();
   const aiMode = parsed.data.assignmentId
     ? await loadAssignmentAiMode(supabase, ownerId, parsed.data.assignmentId)
-    : parsed.data.aiMode;
+    : directHomeworkAiMode();
   if (!aiMode) return { ok: false, error: "Assignment not found." };
   const { data, error } = await supabase.functions.invoke("math-scaffold", {
     body: { ownerId, ...parsed.data, aiMode },

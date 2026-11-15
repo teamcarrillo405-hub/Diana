@@ -93,16 +93,16 @@ describe("review gallery producer contract", () => {
   it("derives one canonical source, app, diff, and action path in registry order", () => {
     const plan = buildReviewCapturePlan();
 
-    expect(plan).toHaveLength(46);
+    expect(plan).toHaveLength(25);
     expect(plan.map((row) => row.id)).toEqual(SCREEN_DESIGN_CANONICAL_SCREEN_IDS);
-    expect(new Set(plan.flatMap((row) => Object.values(row.artifacts))).size).toBe(184);
+    expect(new Set(plan.flatMap((row) => Object.values(row.artifacts))).size).toBe(100);
     expect(plan[0]).toEqual({
-      id: "ai-history-log",
+      id: "ai-writing-coach",
       artifacts: {
-        source: "source/ai-history-log.png",
-        app: "app/ai-history-log.png",
-        diff: "diff/ai-history-log.png",
-        action: "actions/ai-history-log.json",
+        source: "source/ai-writing-coach.png",
+        app: "app/ai-writing-coach.png",
+        diff: "diff/ai-writing-coach.png",
+        action: "actions/ai-writing-coach.json",
       },
     });
   });
@@ -149,7 +149,7 @@ describe("review gallery producer contract", () => {
   it("requires tracked clean baseline history and an ancestor review commit", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "diana-review-git-"));
     const golden =
-      "tests/__screenshots__/screendesign-visual.spec.ts/screendesign-mobile/ai-history-log.png";
+      "tests/__screenshots__/screendesign-visual.spec.ts/screendesign-mobile/ai-writing-coach.png";
     await mkdir(path.dirname(path.join(root, golden)), { recursive: true });
     await writeFile(path.join(root, golden), "golden-v1");
     git(root, "init");
@@ -168,8 +168,8 @@ describe("review gallery producer contract", () => {
       projectRoot: root,
       goldenPath: golden,
       releaseSha,
-      owningPlan: "36-18",
-      fixtureScenario: "ai-history-log:default",
+      owningPlan: "36-12",
+      fixtureScenario: "ai-writing-coach:default",
       declaredTolerance: { maxDiffPixelRatio: 0.005, masks: [] },
     });
     expect(metadata.reviewCommit).toBe(reviewCommit);
@@ -181,8 +181,8 @@ describe("review gallery producer contract", () => {
         projectRoot: root,
         goldenPath: golden,
         releaseSha,
-        owningPlan: "36-18",
-        fixtureScenario: "ai-history-log:default",
+        owningPlan: "36-12",
+        fixtureScenario: "ai-writing-coach:default",
         declaredTolerance: { maxDiffPixelRatio: 0.005, masks: [] },
       }),
     ).toThrow(/dirty/iu);
@@ -195,8 +195,8 @@ describe("review gallery producer contract", () => {
         projectRoot: root,
         goldenPath: untracked,
         releaseSha,
-        owningPlan: "36-18",
-        fixtureScenario: "ai-history-log:default",
+        owningPlan: "36-12",
+        fixtureScenario: "ai-writing-coach:default",
         declaredTolerance: { maxDiffPixelRatio: 0.005, masks: [] },
       }),
     ).toThrow(/not tracked/iu);
@@ -214,8 +214,8 @@ describe("review gallery producer contract", () => {
         projectRoot: root,
         goldenPath: golden,
         releaseSha: unrelatedRelease,
-        owningPlan: "36-18",
-        fixtureScenario: "ai-history-log:default",
+        owningPlan: "36-12",
+        fixtureScenario: "ai-writing-coach:default",
         declaredTolerance: { maxDiffPixelRatio: 0.005, masks: [] },
       }),
     ).toThrow(/not an ancestor/iu);
@@ -233,7 +233,7 @@ describe("review gallery producer contract", () => {
 
     expect(index.schemaVersion).toBe(REVIEW_GALLERY_SCHEMA_VERSION);
     expect(index.complete).toBe(true);
-    expect(index.expectedCount).toBe(46);
+    expect(index.expectedCount).toBe(25);
     expect(index.rows).toEqual(rows);
     expect(() => assertCompleteReviewIndex(index, directorySets())).not.toThrow();
   });

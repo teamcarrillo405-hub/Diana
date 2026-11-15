@@ -59,7 +59,7 @@ interface ActionEvidence {
 }
 
 const usage =
-  "Usage: npx tsx scripts/generate-screendesign-review-gallery.ts --clean --expected 46 --run-id phase36-plan30";
+  "Usage: npx tsx scripts/generate-screendesign-review-gallery.ts --clean --expected 25 --run-id phase36-plan30";
 const RUN_ID_PATTERN = /^[a-z0-9][a-z0-9._-]*$/u;
 const SHA_PATTERN = /^[a-f0-9]{40}(?:[a-f0-9]{24})?$/u;
 
@@ -106,7 +106,7 @@ export const parseProducerArguments = (
   }
   if (!clean) throw new Error("--clean is required.");
   if (expected !== REVIEW_EXPECTED_COUNT) {
-    throw new Error("--expected must be exactly 46.");
+    throw new Error("--expected must be exactly 25.");
   }
   if (!RUN_ID_PATTERN.test(runId)) {
     throw new Error("--run-id must be a safe non-empty run id.");
@@ -178,8 +178,8 @@ const startReviewQaServer = async (projectRoot: string): Promise<ReviewQaServer>
   child.on("exit", (status) => {
     exitStatus = status;
   });
-  const deadline = Date.now() + 120_000;
-  while (Date.now() < deadline && !(await serverIsReady())) {
+  const readyUntil = Date.now() + 120_000;
+  while (Date.now() < readyUntil && !(await serverIsReady())) {
     invariant(exitStatus === undefined, `QA server exited early with ${String(exitStatus)}`);
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
@@ -355,7 +355,7 @@ const renderHtmlGallery = (input: {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Diana 46-screen release review</title>
+  <title>Diana 25-screen release review</title>
   <style>
     :root { color-scheme: dark; font-family: ui-sans-serif, system-ui, sans-serif; background: #080d1a; color: #f8fafc; }
     body { margin: 0; padding: 32px; }
@@ -375,7 +375,7 @@ const renderHtmlGallery = (input: {
 </head>
 <body>
   <header>
-    <h1>Diana 46-screen release review</h1>
+    <h1>Diana 25-screen release review</h1>
     <p>Run ${escapeHtml(input.runId)} | Release ${escapeHtml(input.releaseSha)} | Generated ${escapeHtml(input.generatedAt)}</p>
   </header>
   <main>

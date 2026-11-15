@@ -1,12 +1,45 @@
 export type LobbyEnergy = "low" | "okay" | "good";
-export type LobbySleep = "under_5" | "five_to_six" | "seven_to_nine";
-export type LobbyMeals = "not_yet" | "snack" | "meal";
+export type LobbyMovement =
+  | "walk"
+  | "run"
+  | "bike"
+  | "team_sport"
+  | "strength"
+  | "stretch"
+  | "dance"
+  | "other";
 
 export type LobbyCheckInValue = Readonly<{
   energy: LobbyEnergy;
-  sleep: LobbySleep;
-  meals: LobbyMeals;
+  sleepHours: number;
+  movementType: LobbyMovement;
+  movementMinutes: number;
 }>;
+
+const CHECK_IN_RESET_OFFSET_MS = 60 * 1000;
+
+export function lobbyCheckInDayKey(
+  value: Date | string,
+  timeZone: string,
+): string {
+  const date = value instanceof Date ? value : new Date(value);
+  const shifted = new Date(date.getTime() - CHECK_IN_RESET_OFFSET_MS);
+  const format = (zone: string) => new Intl.DateTimeFormat("en-US", {
+      timeZone: zone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(shifted);
+  let parts: Intl.DateTimeFormatPart[];
+  try {
+    parts = format(timeZone);
+  } catch {
+    parts = format("UTC");
+  }
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((item) => item.type === type)?.value ?? "";
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
 
 export function lobbyCheckInFromSignalValue(
   value: unknown,
@@ -15,25 +48,33 @@ export function lobbyCheckInFromSignalValue(
 
   const record = value as Record<string, unknown>;
   const energy = record.energy;
-  const sleep = record.sleep;
-  const meals = record.meals;
+  const sleepHours = record.sleepHours;
+  const movementType = record.movementType;
+  const movementMinutes = record.movementMinutes;
 
-  if (!isEnergy(energy) || !isSleep(sleep) || !isMeals(meals)) return null;
-  return { energy, sleep, meals };
+  if (
+    !isEnergy(energy) ||
+    !isSleepHours(sleepHours) ||
+    !isMovement(movementType) ||
+    !isMovementMinutes(movementMinutes)
+  ) return null;
+  return { energy, sleepHours, movementType, movementMinutes };
 }
 
 function isEnergy(value: unknown): value is LobbyEnergy {
   return value === "low" || value === "okay" || value === "good";
 }
 
-function isSleep(value: unknown): value is LobbySleep {
-  return (
-    value === "under_5" ||
-    value === "five_to_six" ||
-    value === "seven_to_nine"
-  );
+function isSleepHours(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 12;
 }
 
-function isMeals(value: unknown): value is LobbyMeals {
-  return value === "not_yet" || value === "snack" || value === "meal";
+function isMovement(value: unknown): value is LobbyMovement {
+  return value === "walk" || value === "run" || value === "bike" ||
+    value === "team_sport" || value === "strength" || value === "stretch" ||
+    value === "dance" || value === "other";
+}
+
+function isMovementMinutes(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= 180;
 }

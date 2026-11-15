@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { resolveDianaHomeworkTrust } from "@/lib/ai/diana-trust-rules";
 import { createCard } from "@/lib/fsrs/fsrs";
 import { normalizeNoteTags, suggestTagsFromText } from "@/lib/notes/tags";
 import { hasOwnerStoragePrefix, ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
@@ -160,16 +161,16 @@ export async function generateVisualTool(
 
   const { data: note, error: noteErr } = await supabase
     .from("notes")
-    .select("id, owner_id, title, body_text, transcript_text, classes(ai_mode)")
+    .select("id, owner_id, title, body_text, transcript_text")
     .eq("id", parsed.data.noteId)
     .single();
   if (noteErr || !note || note.owner_id !== user.id) {
     return { ok: false, error: "Note not found." };
   }
 
-  const aiMode = noteAiMode(note);
+  const aiMode = resolveDianaHomeworkTrust().aiMode;
   if (aiMode === "red" || aiMode === "yellow") {
-    return { ok: false, error: "AI is off for this class. You can change that in class settings." };
+    return { ok: false, error: "Diana visual support is unavailable for this note." };
   }
 
   const text = [note.body_text, note.transcript_text ?? ""].join("\n").trim();
@@ -236,7 +237,7 @@ export async function annotateDiagram(
 
   const { data: note, error: noteErr } = await supabase
     .from("notes")
-    .select("id, owner_id, classes(ai_mode)")
+    .select("id, owner_id")
     .eq("id", parsed.data.noteId)
     .single();
   if (noteErr || !note || note.owner_id !== user.id) {
@@ -246,9 +247,9 @@ export async function annotateDiagram(
     return { ok: false, error: "Choose an image from this account." };
   }
 
-  const aiMode = noteAiMode(note);
+  const aiMode = resolveDianaHomeworkTrust().aiMode;
   if (aiMode === "red" || aiMode === "yellow") {
-    return { ok: false, error: "AI is off for this class. You can change that in class settings." };
+    return { ok: false, error: "Diana visual support is unavailable for this note." };
   }
 
   const { data, error } = await supabase.functions.invoke("visual-tools", {
@@ -327,7 +328,7 @@ export async function createFlashcardFromSelection(
     .single();
 
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/flashcards");
+  revalidatePath("/study");
   revalidatePath(`/notes/${note.id}`);
   return { ok: true, id: data.id };
 }
@@ -362,16 +363,6 @@ async function resolveConceptForNote({
     .select("id")
     .single();
   return data?.id ?? null;
-}
-
-function noteAiMode(note: { classes?: unknown }): "red" | "yellow" | "green" {
-  const joined = note.classes;
-  const cls = Array.isArray(joined) ? joined[0] : joined;
-  if (cls && typeof cls === "object" && "ai_mode" in cls) {
-    const mode = (cls as { ai_mode?: unknown }).ai_mode;
-    if (mode === "red" || mode === "yellow") return mode;
-  }
-  return "green";
 }
 
 /**

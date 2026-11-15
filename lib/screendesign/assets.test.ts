@@ -9,7 +9,6 @@ import {
   SCREEN_DESIGN_ASSET_IDS,
   getScreenDesignAsset,
 } from "@/lib/screendesign/assets";
-import { SCREEN_DESIGN_SCREENS } from "@/lib/screendesign/screens";
 
 interface ManifestEntry {
   id: string;
@@ -60,22 +59,13 @@ const MANIFEST_PATH = path.resolve(
 const loadManifest = async (): Promise<AssetManifest> =>
   JSON.parse(await readFile(MANIFEST_PATH, "utf8")) as AssetManifest;
 
-const extractRemoteUrls = (html: string): Set<string> =>
-  new Set(
-    (
-      html.match(
-        /https:\/\/(?:media\.screensdesign\.com|api\.dicebear\.com)\/[^\s"'()<>]+/gu,
-      ) ?? []
-    ).map((value) => value.replaceAll("&amp;", "&")),
-  );
-
 const localFileFor = (localPath: string): string =>
   path.join(PUBLIC_ROOT, ...localPath.slice(1).split("/"));
 
 describe("ScreenDesign asset integrity", () => {
   it("resolves every typed asset id to frozen local-only rendering metadata", () => {
-    expect(SCREEN_DESIGN_ASSET_IDS).toHaveLength(29);
-    expect(new Set(SCREEN_DESIGN_ASSET_IDS).size).toBe(29);
+    expect(SCREEN_DESIGN_ASSET_IDS).toHaveLength(16);
+    expect(new Set(SCREEN_DESIGN_ASSET_IDS).size).toBe(16);
 
     for (const id of SCREEN_DESIGN_ASSET_IDS) {
       const asset = getScreenDesignAsset(id);
@@ -89,7 +79,7 @@ describe("ScreenDesign asset integrity", () => {
     }
   });
 
-  it("keeps dashboard layers, brand art, tutors, and community avatars distinct", () => {
+  it("keeps dashboard layers and brand art distinct", () => {
     const requiredIds = [
       "dashboard-stadium-background",
       "dashboard-athlete-cutout",
@@ -97,12 +87,6 @@ describe("ScreenDesign asset integrity", () => {
       "diana-logo",
       "diana-logo-tight",
       "diana-mascot",
-      "tutor-math-expert",
-      "tutor-science-expert",
-      "community-sarah-avatar",
-      "community-felix-avatar",
-      "community-leo-avatar",
-      "community-buster-avatar",
     ] as const;
 
     const required = requiredIds.map((id) => getScreenDesignAsset(id));
@@ -128,12 +112,12 @@ describe("ScreenDesign asset integrity", () => {
     const manifest = await loadManifest();
     expect(manifest).toMatchObject({
       schemaVersion: 1,
-      assetCount: 29,
-      screenDesignAssetCount: 24,
-      avatarAssetCount: 4,
+      assetCount: 16,
+      screenDesignAssetCount: 15,
+      avatarAssetCount: 0,
       derivedAssetCount: 1,
     });
-    expect(manifest.assets).toHaveLength(29);
+    expect(manifest.assets).toHaveLength(16);
 
     for (const entry of manifest.assets) {
       const buffer = await readFile(localFileFor(entry.localPath));
@@ -150,54 +134,4 @@ describe("ScreenDesign asset integrity", () => {
     }
   });
 
-  it("maps the complete canonical remote URL inventory to local assets and consumers", async () => {
-    const manifest = await loadManifest();
-    const remoteEntries = manifest.assets.filter(
-      (entry): entry is ManifestEntry & { sourceUrl: string } =>
-        typeof entry.sourceUrl === "string",
-    );
-    const manifestBySourceUrl = new Map(
-      remoteEntries.map((entry) => [entry.sourceUrl, entry]),
-    );
-    const consumersBySourceUrl = new Map<string, Set<string>>();
-
-    for (const screen of SCREEN_DESIGN_SCREENS) {
-      const html = await readFile(screen.source, "utf8");
-      for (const sourceUrl of extractRemoteUrls(html)) {
-        const consumers = consumersBySourceUrl.get(sourceUrl) ?? new Set<string>();
-        consumers.add(screen.id);
-        consumersBySourceUrl.set(sourceUrl, consumers);
-      }
-    }
-
-    expect(consumersBySourceUrl.size).toBe(28);
-    expect(
-      [...consumersBySourceUrl.keys()].filter((sourceUrl) =>
-        sourceUrl.startsWith("https://media.screensdesign.com/"),
-      ),
-    ).toHaveLength(24);
-    expect(
-      [...consumersBySourceUrl.keys()].filter((sourceUrl) =>
-        sourceUrl.startsWith("https://api.dicebear.com/"),
-      ),
-    ).toHaveLength(4);
-    expect([...manifestBySourceUrl.keys()].sort()).toEqual(
-      [...consumersBySourceUrl.keys()].sort(),
-    );
-    expect(manifest.assets.find((entry) => entry.id === "diana-logo-tight")).toMatchObject({
-      derivedFrom: "diana-logo",
-      transformation: "sharp.trim().png() transparent-bounds crop",
-      sha256: "ece835a67141b4c4b0af1edd0730cc0336c2ea28a7b1e596e0fae38b1cc6cada",
-      width: 950,
-      height: 301,
-      hasAlpha: true,
-    });
-
-    for (const [sourceUrl, consumers] of consumersBySourceUrl) {
-      const entry = manifestBySourceUrl.get(sourceUrl);
-      expect(entry, sourceUrl).toBeDefined();
-      expect(entry?.localPath, sourceUrl).toMatch(/^\/screendesign\//u);
-      expect(entry?.consumers, sourceUrl).toEqual([...consumers].sort());
-    }
-  });
 });

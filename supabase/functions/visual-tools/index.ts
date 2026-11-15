@@ -5,12 +5,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { buildPersonalizationPrompt, composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -121,7 +121,8 @@ async function runDiagramAnnotation(
     includeFrustration: false,
     includeMinorSafety: true,
   });
-  const modelResult = await callSafeStudentTextModel({
+  const modelResult = await runOpenAIHomeworkAdapter({
+    task: "visual_tool",
     ownerId,
     // The service client also provides the RPC surface used by the guard.
     // deno-lint-ignore no-explicit-any
@@ -167,11 +168,8 @@ Deno.serve(withStudentSecurity("visual-tools", async (req: Request) => {
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const noteId = typeof body.noteId === "string" ? body.noteId : null;
     const mode = typeof body.mode === "string" ? body.mode : "";
-    const aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
+    const _aiMode = typeof body.aiMode === "string" ? body.aiMode : "green";
     if (!ownerId) return jsonResponse({ error: "ownerId required" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") {
-      return jsonResponse({ error: "AI not available for this class" }, 403);
-    }
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -185,7 +183,7 @@ Deno.serve(withStudentSecurity("visual-tools", async (req: Request) => {
 
     let content = "";
     let tokens = 0;
-    let model = "claude-haiku-4-5";
+    let model = "gpt-5-mini";
     if (mode === "diagram_annotation") {
       const storageKey = typeof body.storageKey === "string" ? body.storageKey : "";
       const bucket = typeof body.bucket === "string" && body.bucket.length > 0 ? body.bucket : "note-docs";
@@ -214,7 +212,8 @@ Deno.serve(withStudentSecurity("visual-tools", async (req: Request) => {
         includeMinorSafety: true,
         personalization: [personalization, await adaptationLineForOwner(ownerId, supabase)].filter(Boolean).join("\n") || null,
       });
-      const modelResult = await callSafeStudentTextModel({
+      const modelResult = await runOpenAIHomeworkAdapter({
+        task: "visual_tool",
         ownerId,
         supabase,
         system: systemPrompt,

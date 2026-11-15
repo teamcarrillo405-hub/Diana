@@ -5,18 +5,14 @@ import { describe, expect, it } from "vitest";
 const read = (path: string) => readFileSync(resolve(process.cwd(), path), "utf8");
 
 describe("production route connectivity", () => {
-  it("routes visible capture actions to quick add", () => {
-    const flashcardReview = read("app/(app)/flashcards/[id]/review/review-session.tsx");
+  it("keeps quiz work free of the retired capture route", () => {
     const practiceSession = read("app/(app)/study-artifacts/[id]/practice-session.tsx");
 
-    expect(flashcardReview).toContain('href="/quick-add"');
-    expect(practiceSession).toContain('href="/quick-add"');
-    expect(flashcardReview).not.toContain('href="/capture"');
     expect(practiceSession).not.toContain('href="/capture"');
   });
 
-  it("routes inbox class creation to the supported classes state", () => {
-    const confirmForm = read("app/(app)/inbox/[id]/confirm-form.tsx");
+  it("routes capture class creation to the supported classes state", () => {
+    const confirmForm = read("app/(app)/assignments/captures/[id]/confirm-form.tsx");
 
     expect(confirmForm).toContain('router.push("/classes?create=1")');
     expect(confirmForm).not.toContain('router.push("/classes/new")');

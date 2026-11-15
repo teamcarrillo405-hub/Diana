@@ -23,7 +23,7 @@ interface CliArguments {
 }
 
 const usage =
-  "Usage: npx tsx scripts/validate-screendesign-review-gallery.ts --expected 46 --require-complete --expected-sha HEAD --run-id phase36-plan30 [--write-receipt test-results/screendesign-review/validation.json] [--require-file path]";
+  "Usage: npx tsx scripts/validate-screendesign-review-gallery.ts --expected 25 --require-complete --expected-sha HEAD --run-id phase36-plan30 [--write-receipt test-results/screendesign-review/validation.json] [--require-file path]";
 
 const takeValue = (argv: readonly string[], index: number, option: string): string => {
   const value = argv[index + 1];
@@ -76,7 +76,7 @@ export const parseValidationArguments = (argv: readonly string[]): CliArguments 
   }
 
   if (parsed.expected !== REVIEW_EXPECTED_COUNT) {
-    throw new Error("--expected must be exactly 46.");
+    throw new Error("--expected must be exactly 25.");
   }
   if (!parsed.requireComplete) throw new Error("--require-complete is required.");
   if (!parsed.expectedSha) throw new Error("--expected-sha is required.");

@@ -17,8 +17,9 @@ const CreateInput = z.object({
 });
 
 const SynthesisInput = z.object({
-  query: z.string().min(3).max(500),
+  query: z.string().min(3).max(4_000),
   classId: z.string().uuid().nullable().optional(),
+  generalOnly: z.boolean().optional(),
 });
 
 const SaveInput = z.object({
@@ -79,6 +80,7 @@ export async function synthesizeNotes(
       ownerId: user.id,
       query: parsed.data.query,
       classId: parsed.data.classId ?? null,
+      generalOnly: parsed.data.generalOnly === true,
     },
   });
 
@@ -142,6 +144,9 @@ export async function uploadNoteAudio(
 
   const file = formData.get("audio") as File | null;
   if (!file) return { ok: false, error: "No audio provided." };
+  const sourceValue = String(formData.get("source") ?? "audio_upload");
+  const source = z.enum(["voice", "audio_upload"]).safeParse(sourceValue);
+  if (!source.success) return { ok: false, error: "Invalid audio source." };
   const noteId = typeof formData.get("noteId") === "string" ? String(formData.get("noteId")) : "";
   if (!z.string().uuid().safeParse(noteId).success) return { ok: false, error: "Note not found." };
   const { data: note } = await supabase.from("notes").select("id").eq("id", noteId).eq("owner_id", user.id).maybeSingle();
@@ -155,6 +160,19 @@ export async function uploadNoteAudio(
     .upload(storageKey, file, { contentType: validation.value.mimeType });
 
   if (error) return { ok: false, error: error.message };
+  const { error: noteError } = await supabase
+    .from("notes")
+    .update({
+      audio_storage_key: storageKey,
+      source: source.data,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", noteId)
+    .eq("owner_id", user.id);
+  if (noteError) {
+    await supabase.storage.from("note-audio").remove([storageKey]);
+    return { ok: false, error: "Diana could not attach that audio to your note." };
+  }
   return { ok: true, storageKey };
 }
 
@@ -214,11 +232,17 @@ export async function triggerAudioTranscription(
     body: {
       audioStorageKey: parsed.data.storageKey,
       bucket:          "note-audio",
+      noteId:          parsed.data.noteId,
     },
   });
 
   if (error || !data?.ok || typeof data.text !== "string") {
-    return { ok: false, error: "We couldn't process your recording. Try again, or paste text." };
+    const message = typeof data?.message === "string"
+      ? data.message
+      : typeof data?.error === "string"
+        ? data.error
+        : "We couldn't process your recording. Try again, or paste text.";
+    return { ok: false, error: message };
   }
 
   const text = data.text.trim();

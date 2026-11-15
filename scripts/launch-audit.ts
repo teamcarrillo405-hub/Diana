@@ -1,4 +1,5 @@
 import { spawnSync } from "node:child_process";
+import { pathToFileURL } from "node:url";
 import {
   CRITICAL_PATH_TESTS,
   launchReadinessPasses,
@@ -7,11 +8,15 @@ import {
 
 const npmCli = process.env.npm_execpath;
 
-type Gate = {
+export type Gate = {
   id: string;
   label: string;
   args: readonly string[];
 };
+
+type Environment = Record<string, string | undefined>;
+
+const RELEASE_SHA_PATTERN = /^[a-f0-9]{40}$/u;
 
 const gates = [
   {
@@ -45,15 +50,38 @@ const gates = [
   },
 ] as const;
 
-const remoteGates = process.env.DIANA_VERIFY_EDGE_FUNCTION_PARITY === "true"
-  ? [
-      {
-        id: "edge-function-parity",
-        label: "Edge Function parity",
-        args: ["run", "edge-functions:parity"],
-      },
-    ] as const
-  : [];
+export function buildRemoteGates(environment: Environment): readonly Gate[] {
+  if (environment.DIANA_VERIFY_EDGE_FUNCTION_PARITY !== "true") return [];
+
+  const receiptPath = environment.STAGING_EDGE_DEPLOYMENT_RECEIPT_PATH?.trim() ?? "";
+  const releaseSha = environment.DIANA_BETA_RELEASE_SHA?.trim()
+    || environment.GITHUB_SHA?.trim()
+    || "";
+  if (!receiptPath) {
+    throw new Error(
+      "Edge Function parity requires STAGING_EDGE_DEPLOYMENT_RECEIPT_PATH.",
+    );
+  }
+  if (!RELEASE_SHA_PATTERN.test(releaseSha)) {
+    throw new Error(
+      "Edge Function parity requires a full release SHA in DIANA_BETA_RELEASE_SHA or GITHUB_SHA.",
+    );
+  }
+
+  return [
+    {
+      id: "edge-function-parity",
+      label: "Edge Function parity",
+      args: [
+        "run",
+        "edge-functions:parity",
+        "--",
+        `--receipt=${receiptPath}`,
+        `--release-sha=${releaseSha}`,
+      ],
+    },
+  ];
+}
 
 function runGate(gate: Gate): LaunchGateResult {
   console.log(`\n[launch-audit] ${gate.label}`);
@@ -75,8 +103,18 @@ function runGate(gate: Gate): LaunchGateResult {
   return { id: gate.id, passed };
 }
 
-function main() {
+export function main(environment: Environment = process.env): void {
   console.log("launch-audit: running deterministic repository gates (no production secrets required)");
+  let remoteGates: readonly Gate[];
+  try {
+    remoteGates = buildRemoteGates(environment);
+  } catch (error) {
+    console.error(
+      `launch-audit: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    process.exitCode = 1;
+    return;
+  }
   if (remoteGates.length === 0) {
     console.log("launch-audit: remote Edge Function parity skipped; set DIANA_VERIFY_EDGE_FUNCTION_PARITY=true for a staging release gate");
   }
@@ -91,4 +129,8 @@ function main() {
   console.log("\nlaunch-audit: ready");
 }
 
-main();
+const isDirectRun = process.argv[1]
+  ? import.meta.url === pathToFileURL(process.argv[1]).href
+  : false;
+
+if (isDirectRun) main();

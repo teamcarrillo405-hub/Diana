@@ -3,35 +3,20 @@ import { describe, expect, it } from "vitest";
 import { SCREEN_DESIGN_SCREENS } from "./screens";
 
 const EXPECTED_SOURCE_FILES = [
-  "ai_history_log.html",
   "ai_writing_coach.html",
-  "ap_command_center.html",
   "assignment_detail.html",
-  "concept_deep_dive.html",
   "dashboard_personalized (1).html",
   "external_scout_view.html",
-  "flashcards_review.html",
-  "focus_session_immersive.html",
-  "global_leaderboard.html",
-  "knowledge_graph.html",
   "library_empty_state.html",
   "lms_sync_center.html",
-  "mastery_tracker.html",
-  "mastery_transcript_view.html",
   "milestone_celebration.html",
   "mission_board.html",
   "notes_surface.html",
-  "notification_center.html",
   "onboarding_welcome.html",
   "onboarding_educational.html",
   "onboarding_quiz_challenge.html",
   "onboarding_quiz_schedule.html",
-  "paywall_social_proof.html",
-  "paywall_standard.html",
-  "portfolio_gallery.html",
   "practice_test_session.html",
-  "privacy_export_hub.html",
-  "progress_insights.html",
   "quick_add.html",
   "review_submit_checkpoint.html",
   "rubric_scout.html",
@@ -41,19 +26,13 @@ const EXPECTED_SOURCE_FILES = [
   "smart_search.html",
   "study_artifacts_hub.html",
   "study_calendar.html",
-  "study_goal_wizard.html",
-  "study_room_social.html",
   "subject_library.html",
-  "task_breakdown_modal.html",
-  "tutor_chat.html",
-  "tutor_gallery.html",
-  "tutor_personalization.html",
   "wellness_recovery_log.html",
 ] as const;
 
 describe("SCREEN_DESIGN_SCREENS", () => {
-  it("contains exactly the 46 canonical ScreenDesign sources in approved order", () => {
-    expect(SCREEN_DESIGN_SCREENS).toHaveLength(46);
+  it("contains exactly the 25 active ScreenDesign sources in approved order", () => {
+    expect(SCREEN_DESIGN_SCREENS).toHaveLength(25);
     expect(
       SCREEN_DESIGN_SCREENS.map((screen) => screen.source.split("/").at(-1)),
     ).toEqual(EXPECTED_SOURCE_FILES);
@@ -65,7 +44,7 @@ describe("SCREEN_DESIGN_SCREENS", () => {
       SCREEN_DESIGN_SCREENS.map((screen) => screen.source),
       SCREEN_DESIGN_SCREENS.map((screen) => screen.visualSnapshot),
     ]) {
-      expect(new Set(values).size).toBe(46);
+      expect(new Set(values).size).toBe(25);
     }
 
     expect(
@@ -131,9 +110,6 @@ describe("SCREEN_DESIGN_SCREENS", () => {
     for (const id of [
       "external-scout-view",
       "scout-share-view",
-      "paywall-social-proof",
-      "paywall-standard",
-      "global-leaderboard",
     ]) {
       expect(byId.get(id)?.securitySubstitution).toBeTruthy();
     }

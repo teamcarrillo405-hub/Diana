@@ -17,6 +17,13 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
   "";
 const MAX_AUDIO_BYTES = 20 * 1024 * 1024;
 
+class TranscriptionProviderError extends Error {
+  constructor(readonly status: number) {
+    super("openai_transcription_provider_error");
+    this.name = "TranscriptionProviderError";
+  }
+}
+
 const corsHeaders = {
   "Access-Control-Allow-Headers":
     "authorization, apikey, content-type, x-client-info",
@@ -145,7 +152,7 @@ Deno.serve(withStudentSecurity("transcribe-voice", async (req: Request) => {
             correlationId: openaiRes.headers.get("x-request-id") ??
               "unavailable",
           });
-          throw new Error("openai_whisper_provider_error");
+          throw new TranscriptionProviderError(openaiRes.status);
         }
 
         markProviderUsage();
@@ -181,8 +188,20 @@ Deno.serve(withStudentSecurity("transcribe-voice", async (req: Request) => {
     console.error("transcribe-voice request did not complete", {
       errorName: err instanceof Error ? err.name : "unknown",
     });
-    return new Response(JSON.stringify({ error: "Internal error" }), {
-      status: 500,
+    const message = err instanceof TranscriptionProviderError
+      ? err.status === 401 || err.status === 403
+        ? "Transcription is not connected right now. Please try again shortly."
+        : err.status === 429
+          ? "Transcription is taking a short pause. Please try again in a moment."
+          : "Transcription could not finish. Please try that recording again."
+      : "Transcription could not finish. Please try that recording again.";
+    return new Response(JSON.stringify({
+      ok: false,
+      code: "transcription_unavailable",
+      error: "transcription_unavailable",
+      message,
+    }), {
+      status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }

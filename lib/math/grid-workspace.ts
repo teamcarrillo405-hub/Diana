@@ -102,7 +102,7 @@ function buildStackedGrid(operation: "add" | "subtract" | "multiply", a: number,
           "Work left, one column at a time. The grid keeps the columns honest.",
         ];
 
-  return { rows: 4 + workRows, cols, cells, steps };
+  return { rows, cols, cells, steps };
 }
 
 /**

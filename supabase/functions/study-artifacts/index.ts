@@ -3,12 +3,12 @@ import { withStudentSecurity } from "../_shared/student-handler.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 import {
-  callSafeStudentTextModel,
   checkTokenBudget,
   incrementTokens,
   logInteraction,
   resetBudgetIfNewDay,
 } from "../_shared/safety.ts";
+import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
 import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { adaptationLineForOwner } from "../_shared/adaptation.ts";
 
@@ -78,7 +78,7 @@ Rules:
 
 Artifact expectations:
 - study_guide: 3 to 5 guide sections, 3 to 5 quiz items, 3 to 6 cards.
-- practice_test: 6 to 8 quiz items, each with a hint and source anchor.
+- practice_test: create exactly the requested question count when one is provided. Every item needs a hint and source anchor.
 - flashcard_set: 8 to 12 cards with concise student-editable wording.
 
 Study modes:
@@ -103,14 +103,18 @@ function buildStudyArtifactFallback({
   studyMode,
   sourceType,
   sourceTitle,
+  questionCount,
 }: {
   artifactType: string;
   studyMode: string;
   sourceType: string;
   sourceTitle: string;
+  questionCount: number | null;
 }) {
   const anchor = `${sourceType}: ${sourceTitle}`;
-  const questionCount = artifactType === "practice_test" ? 6 : 3;
+  const safeQuestionCount = artifactType === "practice_test"
+    ? Math.max(3, Math.min(20, questionCount ?? 6))
+    : 3;
   return JSON.stringify({
     title: `${sourceTitle} study support`,
     summary: "A source-anchored review scaffold is ready. Add your own wording as you work through it.",
@@ -124,15 +128,14 @@ function buildStudyArtifactFallback({
         ],
       },
     ],
-    quiz: [
-      {
+    quiz: Array.from({ length: safeQuestionCount }, (_, index) => ({
         question: "What does the source say directly?",
         choices: ["I can point to a source detail", "I need another look at the source"],
         answer: "I can point to a source detail",
         hint: "Keep the source open and choose one exact detail before answering.",
         sourceAnchor: anchor,
-      },
-    ],
+        ...(index > 0 ? { question: `Source check ${index + 1}: What detail can you explain in your own words?` } : {}),
+      })),
     cards: [
       {
         front: `What is one key idea in ${sourceTitle}?`,
@@ -144,7 +147,7 @@ function buildStudyArtifactFallback({
     trustNote: "This scaffold stays anchored to the material you provided.",
     authorshipReceipt: "Diana organized a review scaffold. The student supplies and checks the learning responses.",
     practiceSettings: {
-      questionCount,
+      questionCount: safeQuestionCount,
       difficulty: "standard",
       questionTypes: ["short_response", "evidence_check"],
     },
@@ -226,19 +229,29 @@ Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
       sourceTitle?: unknown;
       sourceText?: unknown;
       classContext?: unknown;
+      homework?: unknown;
+      questionCount?: unknown;
     };
 
     const ownerId = typeof body.ownerId === "string" ? body.ownerId : "";
     const assignmentId = typeof body.assignmentId === "string" ? body.assignmentId : null;
-    const aiMode = body.aiMode === "green" || body.aiMode === "yellow" || body.aiMode === "red"
-      ? body.aiMode
-      : "green";
     const artifactType = typeof body.artifactType === "string" ? body.artifactType : "";
     const studyMode = typeof body.studyMode === "string" ? body.studyMode : "";
     const sourceType = typeof body.sourceType === "string" ? body.sourceType : "";
     const sourceTitle = typeof body.sourceTitle === "string" ? body.sourceTitle.slice(0, 240) : "Class material";
     const sourceText = typeof body.sourceText === "string" ? body.sourceText.trim().slice(0, 10000) : "";
     const classContext = typeof body.classContext === "string" ? body.classContext.trim().slice(0, 5000) : "";
+    const homeworkContext = safeHomeworkContext(body.homework);
+    const homeworkRouting = homeworkRoutingFromContext(body.homework, {
+      sourceChars: sourceText.length,
+      signals: `${sourceTitle}\n${classContext}`,
+    });
+    const requestedQuestionCount = typeof body.questionCount === "number"
+      && Number.isInteger(body.questionCount)
+      && body.questionCount >= 3
+      && body.questionCount <= 20
+      ? body.questionCount
+      : null;
 
     if (!ownerId || sourceText.length < 20) return json({ error: "source material required" }, 400);
     if (!["study_guide", "practice_test", "flashcard_set"].includes(artifactType)) {
@@ -248,7 +261,6 @@ Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
       return json({ error: "study mode required" }, 400);
     }
     if (!["assignment", "note"].includes(sourceType)) return json({ error: "source type required" }, 400);
-    if (aiMode === "red" || aiMode === "yellow") return json({ error: "AI not available for this class" }, 403);
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -271,6 +283,8 @@ Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
       `Study mode: ${studyMode}`,
       `Source type: ${sourceType}`,
       `Source title: ${sourceTitle}`,
+      requestedQuestionCount ? `Requested quiz length: exactly ${requestedQuestionCount} questions.` : "",
+      homeworkContext ? `Diana assignment understanding:\n${homeworkContext}` : "",
       classContext ? `Class context:\n${classContext}` : "",
       `Source material:\n${sourceText}`,
     ].filter(Boolean).join("\n\n");
@@ -279,14 +293,16 @@ Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
       studyMode,
       sourceType,
       sourceTitle,
+      questionCount: requestedQuestionCount,
     });
-    const modelResult = await callSafeStudentTextModel({
+    const modelResult = await runOpenAIHomeworkAdapter({
+      task: "study_artifacts",
       ownerId,
       supabase,
       system,
       user: userMessage,
       maxTokens: artifactType === "practice_test" ? 3000 : 2400,
-      quality: "quality",
+      routing: homeworkRouting,
       json: true,
       fallbackContent,
       timeoutMs: 30_000,
@@ -315,3 +331,39 @@ Deno.serve(withStudentSecurity("study-artifacts", async (req: Request) => {
     return json({ error: "Internal error" }, 500);
   }
 }));
+function safeHomeworkContext(value: unknown): string {
+  if (!value || typeof value !== "object") return "";
+  const record = value as Record<string, unknown>;
+  const entries = [
+    ["subjectDomain", record.subjectDomain],
+    ["profileId", record.profileId],
+    ["sourceState", record.sourceState],
+    ["sourceItemCount", record.sourceItemCount],
+    ["trustAiMode", record.trustAiMode],
+    ["route", record.route],
+  ]
+    .filter(([, item]) => typeof item === "string" || typeof item === "number" || typeof item === "boolean")
+    .map(([key, item]) => `${key}: ${String(item)}`);
+
+  return entries.join("\n").slice(0, 1000);
+}
+
+function homeworkRoutingFromContext(value: unknown, fallback: {
+  sourceChars: number;
+  signals: string;
+}) {
+  const record = value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {};
+  return {
+    subjectDomain: typeof record.subjectDomain === "string" ? record.subjectDomain : null,
+    sourceChars: Math.max(fallback.sourceChars, finiteNumber(record.sourceChars)),
+    studentWorkChars: finiteNumber(record.visibleWorkChars),
+    hasRubric: record.hasRubric === true,
+    signals: fallback.signals.slice(0, 4_000),
+  };
+}
+
+function finiteNumber(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? Math.max(0, value) : 0;
+}

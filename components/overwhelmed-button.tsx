@@ -33,7 +33,7 @@ export function OverwhelmedButton({ placement = "fixed" }: { placement?: "fixed"
   }
 
   return (
-    <div className={placement === "inline" ? "relative" : "fixed bottom-6 right-6 z-50"}>
+    <div className={placement === "inline" ? "relative" : "diana-loading-overwhelmed fixed bottom-6 right-6 z-50"}>
       {open && (
         <div role="status" className="diana-panel mb-2 rounded-xl border border-border bg-card p-4 shadow-lg md:w-72">
           <p className="text-sm font-medium">Smallest next step</p>
@@ -58,10 +58,10 @@ export function OverwhelmedButton({ placement = "fixed" }: { placement?: "fixed"
               </Link>
             )}
             <Link
-              href="/timer?mode=rough"
+              href="/dashboard"
               className="touch-target rounded-xl border border-border px-3 py-2 text-sm hover:bg-surface-soft"
             >
-              Add timer
+              Return to today
             </Link>
             <button
               type="button"

@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import type { Assignment, ScoredAssignment } from "@/lib/scoring/next-five-minutes";
 import type { ReminderItem } from "@/app/(app)/dashboard/actions";
-import { buildLobbyDashboardView } from "./lobby-view";
+import {
+  buildLobbyDashboardView,
+  calculateWeeklyHomeworkCompletion,
+  calculateWeeklyHomeworkProgress,
+  normalizeDashboardAssignmentTitle,
+} from "./lobby-view";
 
 const now = new Date("2026-09-14T17:00:00.000Z");
 
@@ -64,7 +69,6 @@ describe("buildLobbyDashboardView", () => {
       rankedAssignments: [next],
       assignments: [next, quiz, readyToSubmit] as Assignment[],
       reminders: [reminder({ id: "assignment-overdue", title: "Vocabulary notes" })],
-      feedbackCount: 3,
       now,
     });
 
@@ -74,9 +78,14 @@ describe("buildLobbyDashboardView", () => {
       actionLabel: "English",
       ariaLabel: "Start your next move",
       className: "English",
+      completionPercent: 0,
+      dueLabel: "No due time listed",
       estimateLabel: "est. 60 min",
       href: "/assignments/assignment-next?focus=next-step",
       title: "Read pages 40-60",
+      fullTitle: "Read pages 40-60",
+      weeklyCompletedCount: 0,
+      weeklyTotalCount: 0,
     });
     expect(view.attention).toEqual([
       expect.objectContaining({
@@ -97,12 +106,6 @@ describe("buildLobbyDashboardView", () => {
         description: "1 done, not submitted",
         href: "/assignments/assignment-ready",
       }),
-      expect.objectContaining({
-        key: "feedback",
-        count: 3,
-        description: "3 new notes from teachers",
-        href: "/notifications",
-      }),
     ]);
     expect(() => JSON.stringify(view)).not.toThrow();
   });
@@ -122,18 +125,185 @@ describe("buildLobbyDashboardView", () => {
       actionLabel: "Caught up",
       ariaLabel: "You are caught up",
       className: "Your assignments are clear",
+      completionPercent: 100,
+      dueLabel: "Nothing is due now",
       estimateLabel: "Choose a class or add work",
       href: "/assignments",
       title: "Nothing needs an immediate start",
+      fullTitle: "Nothing needs an immediate start",
+      weeklyCompletedCount: 0,
+      weeklyTotalCount: 0,
     });
-    expect(view.attention.map(({ count }) => count)).toEqual([0, 0, 0, 0]);
+    expect(view.attention.map(({ count }) => count)).toEqual([0, 0, 0]);
     expect(view.attention.map(({ description }) => description)).toEqual([
       "Nothing coming up this week",
       "Nothing past the due date",
       "Everything ready is submitted",
-      "No new teacher feedback",
     ]);
-    expect(view.attention.slice(0, 3).every(({ href }) => href === "/assignments")).toBe(true);
-    expect(view.attention[3].href).toBe("/notifications");
+    expect(view.attention.every(({ href }) => href === "/assignments")).toBe(true);
+  });
+
+  it("formats long next moves in hours and minutes", () => {
+    const longAssignment = assignment({
+      id: "assignment-report",
+      title: "Three-page report",
+      effective_minutes: 432,
+    });
+
+    const view = buildLobbyDashboardView({
+      displayName: "Grayson",
+      rankedAssignments: [longAssignment],
+      assignments: [longAssignment],
+      reminders: [],
+      now,
+    });
+
+    expect(view.nextMove.estimateLabel).toBe("est. 7 hr 12 min");
+  });
+
+  it("clamps a factual assignment completion percentage", () => {
+    const next = assignment({ id: "assignment-progress", title: "Practice set" });
+    const view = buildLobbyDashboardView({
+      displayName: "Grayson",
+      rankedAssignments: [next],
+      assignments: [next],
+      reminders: [],
+      weeklyHomeworkCompletionPercent: 138,
+      now,
+    });
+
+    expect(view.nextMove.completionPercent).toBe(100);
+  });
+
+  it("calculates weekly completion from finished homework statuses", () => {
+    const assignments = [
+      { status: "done" },
+      { status: "submitted" },
+      { status: "in_progress" },
+      { status: "todo" },
+    ];
+    expect(calculateWeeklyHomeworkCompletion(assignments)).toBe(50);
+    expect(calculateWeeklyHomeworkProgress(assignments)).toEqual({
+      completed: 2,
+      total: 4,
+      percent: 50,
+    });
+    expect(calculateWeeklyHomeworkCompletion([])).toBe(0);
+  });
+
+  it("removes trailing question counts only from the dashboard title", () => {
+    expect(normalizeDashboardAssignmentTitle("Linear Equations: Three Questions")).toBe(
+      "Linear Equations",
+    );
+    expect(normalizeDashboardAssignmentTitle("Chemistry Review - 8 Questions")).toBe(
+      "Chemistry Review",
+    );
+    expect(normalizeDashboardAssignmentTitle("Why questions matter")).toBe(
+      "Why questions matter",
+    );
+  });
+
+  it("adds weekly counts and specific attention context", () => {
+    const next = assignment({
+      id: "assignment-next",
+      title: "Linear Equations - 3 Questions",
+    });
+    const overdue = assignment({
+      id: "assignment-overdue",
+      title: "Vocabulary notes",
+      due_at: "2026-09-12T17:00:00.000Z",
+      classes: { name: "History" },
+    });
+    const view = buildLobbyDashboardView({
+      displayName: "Grayson",
+      rankedAssignments: [next],
+      assignments: [next, overdue],
+      reminders: [reminder({ id: overdue.id, title: overdue.title, class_name: "History" })],
+      weeklyHomeworkCompletionPercent: 40,
+      weeklyHomeworkCompletedCount: 2,
+      weeklyHomeworkTotalCount: 5,
+      now,
+    });
+
+    expect(view.nextMove.title).toBe("Linear Equations");
+    expect(view.nextMove.fullTitle).toBe("Linear Equations - 3 Questions");
+    expect(view.nextMove.weeklyCompletedCount).toBe(2);
+    expect(view.nextMove.weeklyTotalCount).toBe(5);
+    expect(view.attention[1]).toEqual(expect.objectContaining({
+      assignmentTitle: "Vocabulary notes",
+      className: "History",
+      actionLabel: "Open",
+      additionalItemCount: 0,
+    }));
+  });
+
+  it("builds today planning, weekly progress, subject mix, and milestones from assignment data", () => {
+    const priority = assignment({
+      id: "assignment-today",
+      title: "Linear Equations - 3 Questions",
+      due_at: "2026-09-14T20:00:00.000Z",
+      estimated_minutes: 40,
+      classes: { name: "Math" },
+    });
+    const ready = assignment({
+      id: "assignment-ready",
+      title: "Reading response",
+      status: "done",
+      due_at: "2026-09-16T20:00:00.000Z",
+      estimated_minutes: 30,
+      classes: { name: "English" },
+    });
+    const deadline = assignment({
+      id: "assignment-deadline",
+      title: "Lab analysis",
+      due_at: "2026-09-18T20:00:00.000Z",
+      estimated_minutes: 50,
+      classes: { name: "Biology" },
+    });
+
+    const view = buildLobbyDashboardView({
+      displayName: "Grayson",
+      rankedAssignments: [priority],
+      assignments: [priority, ready, deadline] as Assignment[],
+      reminders: [],
+      weeklyHomeworkCompletionPercent: 33,
+      weeklyHomeworkCompletedCount: 1,
+      weeklyHomeworkTotalCount: 3,
+      weeklyAssignments: [
+        { ...priority, status: "todo" },
+        { ...ready, status: "submitted" },
+        { ...deadline, status: "todo" },
+      ],
+      now,
+    });
+
+    expect(view.todayPlan).toEqual([
+      expect.objectContaining({
+        id: "assignment-today",
+        title: "Linear Equations",
+        className: "Math",
+        isPriority: true,
+      }),
+    ]);
+    expect(view.upcomingDeadlines).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: "assignment-ready", kind: "ready", dueLabel: "Ready to turn in" }),
+      expect.objectContaining({ id: "assignment-deadline", kind: "deadline" }),
+    ]));
+    expect(view.studyProgress).toEqual(expect.objectContaining({
+      percent: 33,
+      completedAssignments: 1,
+      totalAssignments: 3,
+      completedMinutes: 30,
+      plannedMinutes: 120,
+    }));
+    expect(view.subjectOverview.subjects).toEqual(expect.arrayContaining([
+      expect.objectContaining({ name: "Math", share: 33 }),
+      expect.objectContaining({ name: "English", share: 25 }),
+    ]));
+    expect(view.achievements).toEqual(expect.arrayContaining([
+      expect.objectContaining({ key: "completed", value: 1 }),
+      expect.objectContaining({ key: "submitted", value: 1 }),
+      expect.objectContaining({ key: "planned_time", value: 30 }),
+    ]));
   });
 });

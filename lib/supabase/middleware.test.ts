@@ -41,12 +41,40 @@ describe("Supabase middleware", () => {
     }
   });
 
+  it("keeps public landing video files outside the session redirect", () => {
+    const matcher = middlewareConfig.matcher.join("\n");
+
+    expect(matcher).toContain("mp4");
+    expect(matcher).toContain("webm");
+  });
+
+  it.each([
+    "/assets/landing-cinematic-v3/style.css",
+    "/assets/landing-cinematic-v3/main.js",
+    "/assets/landing-cinematic-v3/media/notes-product-demo.mp4",
+  ])("keeps cinematic landing asset %s public", async (path) => {
+    const response = await updateSession(requestFor(path));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
   it("lets the read-only build identity route return public JSON", async () => {
     const response = await updateSession(requestFor("/api/build-info"));
 
     expect(response.status).toBe(200);
     expect(response.headers.get("location")).toBeNull();
   });
+
+  it.each(["/", "/how-it-works", "/student-control", "/trust", "/robots.txt", "/sitemap.xml"])(
+    "keeps public marketing route %s outside the login wall",
+    async (path) => {
+      const response = await updateSession(requestFor(path));
+
+      expect(response.status).toBe(200);
+      expect(response.headers.get("location")).toBeNull();
+    },
+  );
 
   it.each(["/api/health", "/api/readiness"])(
     "lets the deployment probe %s return public JSON",
@@ -96,5 +124,28 @@ describe("Supabase middleware", () => {
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toContain("/login");
     expect(response.headers.get("location")).toContain("next=%2Fsettings");
+  });
+
+  it("returns a public 404 for an unknown top-level URL", async () => {
+    const response = await updateSession(requestFor("/not-a-real-page"));
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it.each([
+    "/concepts/linear-functions",
+    "/export",
+    "/grades",
+    "/inbox",
+    "/insights",
+    "/study-buddy",
+    "/timer",
+    "/voice",
+  ])("returns a public 404 for retired route %s", async (path) => {
+    const response = await updateSession(requestFor(path));
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get("location")).toBeNull();
   });
 });

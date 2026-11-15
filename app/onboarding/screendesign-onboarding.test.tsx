@@ -19,6 +19,10 @@ vi.mock("./actions", () => ({
   completeScreenDesignOnboarding: vi.fn(),
 }));
 
+vi.mock("@/app/(app)/settings/player-photo-actions", () => ({
+  savePlayerPhoto: vi.fn(),
+}));
+
 describe("ScreenDesignOnboarding", () => {
   beforeEach(() => {
     push.mockReset();
@@ -28,154 +32,108 @@ describe("ScreenDesignOnboarding", () => {
 
   afterEach(cleanup);
 
-  it("maps only the four canonical evidence selectors to onboarding states", () => {
-    expect(resolveScreenDesignOnboardingStep("welcome")).toBe("welcome");
-    expect(resolveScreenDesignOnboardingStep("education")).toBe("educational");
-    expect(resolveScreenDesignOnboardingStep("challenge=1/4")).toBe("challenge");
-    expect(resolveScreenDesignOnboardingStep("schedule=2/4")).toBe("schedule");
-    expect(resolveScreenDesignOnboardingStep("schedule=4/4")).toBe("welcome");
-    expect(resolveScreenDesignOnboardingStep(["schedule=2/4"])).toBe("welcome");
+  it("maps retired account-setup links to the new first screen", () => {
+    expect(resolveScreenDesignOnboardingStep("personalize")).toBe("personalize");
+    expect(resolveScreenDesignOnboardingStep("personalize=1/2")).toBe("personalize");
+    expect(resolveScreenDesignOnboardingStep("challenge=1/4")).toBe("personalize");
+    expect(resolveScreenDesignOnboardingStep("schedule=2/4")).toBe("personalize");
+    expect(resolveScreenDesignOnboardingStep("connect=2/2")).toBe("connect");
+    expect(resolveScreenDesignOnboardingStep("connect=3/4")).toBe("connect");
+    expect(resolveScreenDesignOnboardingStep("welcome")).toBe("personalize");
+    expect(resolveScreenDesignOnboardingStep(["personalize=1/2"])).toBe("personalize");
   });
 
-  it("renders the local welcome source and advances to the educational source", () => {
+  it("shows the first of two Today-style account setup screens", () => {
     render(<ScreenDesignOnboarding />);
 
-    expect(screen.getByRole("heading", { name: /diana\s*ai tutor/iu })).toBeInTheDocument();
-    expect(
-      decodeURIComponent(screen.getByAltText("DIANA logo").getAttribute("src") ?? ""),
-    ).toContain("/screendesign/brand/diana-logo.png");
-    expect(document.querySelector('[src*="media.screensdesign.com"]')).not.toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "GET STARTED" }));
-
-    expect(screen.getByRole("heading", { name: "DID YOU KNOW?" })).toBeInTheDocument();
-    expect(
-      decodeURIComponent(screen.getByAltText("GPA progress chart").getAttribute("src") ?? ""),
-    ).toContain("/screendesign/onboarding/gpa-progress-chart.png");
+    expect(screen.getByRole("heading", { name: "Make it yours" })).toBeInTheDocument();
+    expect(screen.getByText("1 of 2")).toBeInTheDocument();
+    expect(screen.getByText("Optional")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add a photo" })).toBeInTheDocument();
+    expect(screen.getAllByRole("radio", { name: /./u })).toHaveLength(7);
+    expect(screen.queryByText("DID YOU KNOW?")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "GET STARTED" })).not.toBeInTheDocument();
   });
 
-  it("moves back and forward without completing onboarding early", () => {
-    render(<ScreenDesignOnboarding initialStep="educational" />);
+  it("supports keyboard selection in both preference groups", async () => {
+    render(<ScreenDesignOnboarding />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    expect(screen.getByRole("button", { name: "GET STARTED" })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "GET STARTED" }));
-    fireEvent.click(screen.getByRole("button", { name: "CONTINUE" }));
-
-    expect(screen.getByRole("heading", { name: /biggest hurdle/iu })).toBeInTheDocument();
-    expect(completeScreenDesignOnboarding).not.toHaveBeenCalled();
-    expect(push).not.toHaveBeenCalled();
-  });
-
-  it("keeps one hurdle and one schedule choice selected across back navigation", () => {
-    render(<ScreenDesignOnboarding initialStep="challenge" />);
-
-    expect(screen.getByText("1/4")).toBeInTheDocument();
-    expect(screen.getAllByRole("radio", { name: /./u })).toHaveLength(4);
-    expect(screen.getByRole("radio", { name: /Exam Stress/iu })).toHaveAttribute(
+    const examStress = screen.getByRole("radio", { name: /Feeling ready for a test/iu });
+    examStress.focus();
+    fireEvent.keyDown(examStress, { key: "ArrowDown" });
+    expect(screen.getByRole("radio", { name: /Working through a hard concept/iu })).toHaveAttribute(
       "aria-checked",
       "true",
     );
 
-    fireEvent.click(screen.getByRole("radio", { name: /Time Management/iu }));
-    fireEvent.click(screen.getByRole("button", { name: "Select learning hurdle" }));
+    await waitFor(() => expect(screen.getByRole("radio", { name: /Working through a hard concept/iu })).toHaveFocus());
 
-    expect(screen.getByText("2/4")).toBeInTheDocument();
-    expect(screen.getAllByRole("radio", { name: /./u })).toHaveLength(3);
-    expect(screen.getByRole("radio", { name: /After-Practice Grind/iu })).toHaveAttribute(
+    const afterPractice = screen.getByRole("radio", { name: /Afternoon/iu });
+    afterPractice.focus();
+    fireEvent.keyDown(afterPractice, { key: "ArrowRight" });
+    expect(screen.getByRole("radio", { name: /Evening/iu })).toHaveAttribute(
       "aria-checked",
       "true",
     );
-
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
-    expect(screen.getByRole("radio", { name: /Time Management/iu })).toHaveAttribute(
-      "aria-checked",
-      "true",
-    );
+    await waitFor(() => expect(screen.getByRole("radio", { name: /Evening/iu })).toHaveFocus());
   });
 
-  it("disables continuation until the current screen has a valid choice", () => {
-    const { rerender } = render(
+  it("waits for both account preferences before continuing", () => {
+    render(
       <ScreenDesignOnboarding
-        initialStep="challenge"
         initialLearningHurdle={null}
-      />,
-    );
-
-    expect(screen.getByRole("button", { name: "Select learning hurdle" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("radio", { name: /Complex Concepts/iu }));
-    expect(screen.getByRole("button", { name: "Select learning hurdle" })).toBeEnabled();
-
-    rerender(
-      <ScreenDesignOnboarding
-        key="schedule"
-        initialStep="schedule"
         initialStudySchedulePreference={null}
       />,
     );
-    expect(screen.getByRole("button", { name: "Select study schedule" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("radio", { name: /Morning Hustle/iu }));
-    expect(screen.getByRole("button", { name: "Select study schedule" })).toBeEnabled();
+
+    const continueButton = screen.getByRole("button", { name: "Continue" });
+    expect(continueButton).toBeDisabled();
+    fireEvent.click(screen.getByRole("radio", { name: /Working through a hard concept/iu }));
+    expect(continueButton).toBeDisabled();
+    fireEvent.click(screen.getByRole("radio", { name: /Morning/iu }));
+    expect(continueButton).toBeEnabled();
   });
 
-  it("supports arrow-key selection within both card groups", () => {
-    const { rerender } = render(<ScreenDesignOnboarding initialStep="challenge" />);
-    const examStress = screen.getByRole("radio", { name: /Exam Stress/iu });
-    examStress.focus();
-    fireEvent.keyDown(examStress, { key: "ArrowDown" });
-    expect(screen.getByRole("radio", { name: /Complex Concepts/iu })).toHaveAttribute(
-      "aria-checked",
-      "true",
-    );
-
-    rerender(<ScreenDesignOnboarding key="schedule" initialStep="schedule" />);
-    const afterPractice = screen.getByRole("radio", { name: /After-Practice Grind/iu });
-    afterPractice.focus();
-    fireEvent.keyDown(afterPractice, { key: "ArrowRight" });
-    expect(screen.getByRole("radio", { name: /Late Night Sessions/iu })).toHaveAttribute(
-      "aria-checked",
-      "true",
-    );
-  });
-
-  it("submits both selected ids once and redirects only after success", async () => {
+  it("saves preferences before offering the second optional school screen", async () => {
     vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({ ok: true });
-    render(<ScreenDesignOnboarding initialStep="schedule" />);
+    render(<ScreenDesignOnboarding />);
 
-    fireEvent.click(screen.getByRole("radio", { name: /Morning Hustle/iu }));
-    fireEvent.change(screen.getByLabelText("Sleep goal"), { target: { value: "9" } });
-    fireEvent.change(screen.getByLabelText("Movement goal"), { target: { value: "5" } });
-    fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
-    fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
+    fireEvent.click(screen.getByRole("radio", { name: /Finding time/iu }));
+    fireEvent.click(screen.getByRole("radio", { name: /Morning/iu }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() => expect(completeScreenDesignOnboarding).toHaveBeenCalledOnce());
     expect(completeScreenDesignOnboarding).toHaveBeenCalledWith({
-      learningHurdle: "exam_stress",
+      learningHurdle: "time_management",
       studySchedulePreference: "morning",
-      sleepGoal: 9,
-      movementGoal: 5,
+      sleepGoal: 8,
+      movementGoal: 4,
     });
-    expect(push).toHaveBeenCalledWith("/dashboard");
-    expect(refresh).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: "Connect your school" })).toBeInTheDocument();
+    expect(screen.getByText("2 of 2")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Connect Google Classroom" })).toHaveAttribute(
+      "href",
+      "/api/lms/google-oauth/start?return_to=/dashboard",
+    );
+    expect(screen.getByLabelText("Canvas school address")).toBeRequired();
+    expect(screen.queryByRole("heading", { name: "Profile photo Optional" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    expect(screen.getByRole("heading", { name: "Make it yours" })).toBeInTheDocument();
   });
 
-  it("keeps the schedule choice and route in place after a calm persistence error", async () => {
+  it("keeps the first screen in place after a calm persistence error", async () => {
     vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({
       ok: false,
       reason: "persistence",
       error: "Those choices did not save yet. Your other settings are still here.",
     });
-    render(<ScreenDesignOnboarding initialStep="schedule" />);
+    render(<ScreenDesignOnboarding />);
 
-    fireEvent.click(screen.getByRole("radio", { name: /Late Night Sessions/iu }));
-    fireEvent.click(screen.getByRole("button", { name: "Select study schedule" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     expect(await screen.findByText(/other settings are still here/iu)).toBeInTheDocument();
-    expect(screen.getByRole("radio", { name: /Late Night Sessions/iu })).toHaveAttribute(
-      "aria-checked",
-      "true",
-    );
+    expect(screen.getByRole("heading", { name: "Make it yours" })).toBeInTheDocument();
     expect(push).not.toHaveBeenCalled();
     expect(refresh).not.toHaveBeenCalled();
   });

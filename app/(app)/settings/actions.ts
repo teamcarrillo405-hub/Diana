@@ -25,7 +25,7 @@ const Prefs = z.object({
 
 const ProfileCenterInput = z.object({
   display_name: z.string().trim().min(1).max(80),
-  school_year: z.number().int().min(1).max(16).nullable(),
+  school_year: z.number().int().min(6).max(16).nullable(),
   timezone: z.string().trim().min(1).max(80),
   learning_hurdle: z
     .enum(["time_management", "exam_stress", "complex_concepts", "staying_consistent"])
@@ -68,9 +68,23 @@ export async function saveProfileCenter(
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Sign in again to save these settings." };
 
+  const { data: currentProfile, error: currentProfileError } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (currentProfileError || !currentProfile) {
+    return { ok: false, message: "Diana could not verify this profile yet. Try again in a moment." };
+  }
+  if (currentProfile.age_bracket === "under_13") {
+    return { ok: false, message: "Diana accounts are not available for students under 13." };
+  }
+
+  const profileValues = parsed.data;
+
   const { error } = await supabase
     .from("profiles")
-    .update(parsed.data)
+    .update(profileValues)
     .eq("user_id", user.id);
   if (error) {
     if (/learning_hurdle|study_schedule_preference/iu.test(error.message)) {
@@ -78,7 +92,7 @@ export async function saveProfileCenter(
         learning_hurdle: _learningHurdle,
         study_schedule_preference: _studySchedule,
         ...legacyProfileValues
-      } = parsed.data;
+      } = profileValues;
       const { error: legacyError } = await supabase
         .from("profiles")
         .update(legacyProfileValues)

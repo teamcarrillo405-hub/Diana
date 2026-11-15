@@ -25,25 +25,26 @@ test.describe("desktop Work command center", () => {
     await expect(
       desktopNav.getByRole("link", { name: "Work", exact: true }),
     ).toHaveAttribute("aria-current", "page");
-    await expect(page.getByRole("heading", { name: "Work", exact: true })).toBeVisible();
-    await expect(page.getByRole("heading", { name: /Up next/ })).toBeVisible();
-    expect(await page.locator(".sd-work-queue-row").count()).toBeGreaterThan(0);
+    await expect(page.getByRole("heading", { name: "Keep moving.", exact: true })).toBeVisible();
+    await expect(page.locator(".sd-work-feature")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Start Identity quote response/ })).toBeVisible();
+    await expect(page.getByText("Up next, in order")).toHaveCount(0);
     await expect(page.locator(".sd-student-bottom-nav:visible")).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Diana home" })).toBeVisible();
 
-    const firstRowColors = await page
-      .locator(".sd-work-queue-row")
-      .first()
+    const featureColors = await page
+      .locator(".sd-work-feature")
       .evaluate((row) => {
         const style = getComputedStyle(row);
-        const title = row.querySelector("strong");
+        const title = row.querySelector("h2");
         return {
           background: style.backgroundColor,
+          backgroundImage: style.backgroundImage,
           color: title ? getComputedStyle(title).color : "",
         };
       });
-    expect(firstRowColors.background).toBe("rgb(255, 255, 255)");
-    expect(firstRowColors.color).toBe("rgb(4, 8, 15)");
+    expect(featureColors.backgroundImage).not.toBe("none");
+    expect(featureColors.color).toBe("rgb(17, 24, 39)");
 
     const overflow = await page.evaluate(() => ({
       document: document.documentElement.scrollWidth - window.innerWidth,
@@ -53,6 +54,37 @@ test.describe("desktop Work command center", () => {
     }));
     expect(overflow.document).toBeLessThanOrEqual(1);
     expect(overflow.board).toBeLessThanOrEqual(1440);
+  });
+
+  test("shows the five-assignment preview inside the shared homework frame", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await openQaSession(page, { scenario: "assignment-detail:work-queue-five" });
+    await page.goto("/assignments", { waitUntil: "domcontentloaded" });
+
+    await expect(page.locator(".sd-work-hub")).toBeVisible();
+    await expect(page.getByText("5 active", { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /start linear equations practice set/iu }),
+    ).toBeVisible();
+    await expect(page.locator(".sd-work-queue-row")).toHaveCount(4);
+    await expect(page.getByRole("link", { name: /function graph practice/iu })).toBeVisible();
+    await expect(page.getByRole("link", { name: /nixon research outline/iu })).toBeVisible();
+    await expect(page.getByRole("link", { name: /balancing equations practice/iu })).toBeVisible();
+    await expect(page.getByRole("link", { name: /quiz: slope and intercepts/iu })).toBeVisible();
+
+    const frame = await page.locator(".sd-work-hub").evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        width: element.getBoundingClientRect().width,
+        borderTopWidth: style.borderTopWidth,
+        borderRadius: style.borderTopLeftRadius,
+      };
+    });
+    expect(frame.width).toBeGreaterThan(1_350);
+    expect(frame.borderTopWidth).toBe("7px");
+    expect(frame.borderRadius).toBe("30px");
   });
 });
 
@@ -70,12 +102,10 @@ test.describe("mobile Work command center", () => {
     await expect(
       page.locator('.sd-student-bottom-nav:visible a[aria-current="page"]'),
     ).toBeVisible();
-    await expect(
-      page.locator(".sd-work-mobile-heading:visible").first().getByText("Work", { exact: true }),
-    ).toBeVisible();
-    await expect(page.getByRole("link", { name: "Capture" }).first()).toBeVisible();
-    await expect(page.getByRole("link", { name: "Record" }).first()).toBeVisible();
-    expect(await page.locator(".sd-work-queue-row").count()).toBeGreaterThan(0);
+    await expect(page.getByRole("heading", { name: "Keep moving.", exact: true })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Add assignment" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Record voice note" }).first()).toBeVisible();
+    await expect(page.locator(".sd-work-feature")).toBeVisible();
 
     const sizes = await page.evaluate(() => {
       const board = document.querySelector(".sd-mission-board");
@@ -145,12 +175,18 @@ test.describe("Work assignment flow", () => {
       savedDraft,
     );
 
-    await page.getByRole("link", { name: "Practice test", exact: true }).click();
+    await page.getByRole("link", { name: "Study", exact: true }).click();
+    await expect(page).toHaveURL(/\/workspace#ask-diana$/u);
+    await expect(page.locator("#ask-diana")).toBeVisible();
+
+    const assignmentId = page.url().match(/\/assignments\/([0-9a-f-]+)\/workspace/u)?.[1];
+    expect(assignmentId).toBeTruthy();
+    await page.goto(`/study-artifacts?source=assignment:${assignmentId}&type=practice_test`, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/study-artifacts\?.*type=practice_test/u);
     await expect(
       page.getByRole("heading", { name: "Study Lab", exact: true }),
     ).toBeVisible();
-    await expect(page.getByLabel("Study source").locator("option:checked")).toContainText(
+    await expect(page.locator('select[name="source"] option:checked').first()).toContainText(
       "Identity quote response",
     );
     await expect(page.getByRole("radio", { name: /Practice test/ })).toBeChecked();
@@ -176,7 +212,8 @@ test.describe("Work assignment flow", () => {
       const finishing = (await submit.textContent())?.includes("Finish practice") ?? false;
       await submit.click();
       if (finishing) break;
-      await expect(page.getByText("Response saved. The next question is ready.")).toBeVisible();
+      await expect(page.getByText(/Response saved\. The next question is ready\.|Practice saved/u)).toBeVisible();
+      if (await page.getByText("Practice saved", { exact: true }).isVisible().catch(() => false)) break;
     }
 
     await expect(page.getByText("Practice saved", { exact: true })).toBeVisible();
@@ -191,6 +228,53 @@ test.describe("Work assignment flow", () => {
       page.getByRole("heading", { name: "Identity quote response" }),
     ).toBeVisible();
     expect(cspViolations, "The core assignment flow must not violate CSP").toEqual([]);
+  });
+
+  test("lets Algebra work with Diana using the visible problem and student work", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await openQaSession(page, { variant: "grayson", operation: "reset" });
+    await page.goto("/assignments", { waitUntil: "domcontentloaded" });
+
+    await page.getByRole("link", { name: /Linear equations practice set/ }).click();
+    await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
+    await expect(
+      page.getByRole("heading", { name: "Linear equations practice set" }),
+    ).toBeVisible();
+
+    const addPanel = page.locator(".sd-assignment-add-problem-panel");
+    if (await addPanel.isVisible().catch(() => false)) {
+      await addPanel.locator("summary").click();
+      await addPanel.getByRole("textbox").fill("Solve 3x + 5 = 20");
+      await addPanel.getByRole("button", { name: "Add problem" }).click();
+    }
+
+    await expect(page.locator(".sd-assignment-problem-text")).toHaveText("Solve 3x + 5 = 20");
+    await expect(page.getByRole("button", { name: /Voice Chat/i })).toBeVisible();
+    const problemCard = await page.locator(".sd-assignment-problem-card").boundingBox();
+    const dianaRail = await page.locator("#ask-diana").boundingBox();
+    expect(dianaRail?.x ?? 0).toBeGreaterThan((problemCard?.x ?? 0) + (problemCard?.width ?? 0) - 5);
+    const answerBox = page.getByRole("textbox", { name: "Your answer" });
+    await expect(answerBox).toHaveValue("");
+    await answerBox.fill("4");
+    await expect(answerBox).toHaveValue("4");
+    const workBox = page.getByRole("textbox", { name: "Show your work" });
+    await workBox.fill("3x = 15");
+    await expect(workBox).toHaveValue("3x = 15");
+
+    await page
+      .getByRole("textbox", { name: "Ask Diana about this step" })
+      .fill("3x=15 is what i get");
+    await page.getByRole("button", { name: "Send message" }).click();
+
+    await expect(
+      page.locator(".sd-assignment-diana-message[data-role='assistant']").last(),
+    ).toContainText(/Do not jump to 4|divide both sides by 3/i, { timeout: 30_000 });
+    await expect(page.locator(".sd-assignment-diana-equation-card").last()).toBeVisible();
+    await expect(page.locator(".sd-assignment-diana-equation-card").last()).toContainText("3x");
+    await expect(page.locator(".sd-assignment-diana-equation-card").last()).toContainText("15");
+    await expect(page.locator(".sd-assignment-diana-visual svg")).toHaveCount(0);
   });
 
   test("keeps a submitted assignment on a receipt with Work and Record destinations", async ({

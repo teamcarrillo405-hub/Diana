@@ -53,16 +53,12 @@ const REQUIRED_GUARDED_STATES = [
   "honest-empty",
   "ai-yellow",
   "ai-red",
-  "billing-unavailable",
-  "billing-configured",
   "lms-disconnected",
   "lms-error",
   "lms-connected",
   "share-active",
   "share-expired",
   "share-revoked",
-  "group-member",
-  "group-nonmember",
   "practice-no-score",
   "onboarding-invalid",
   "onboarding-valid",
@@ -75,11 +71,11 @@ describe("SCREEN_DESIGN_FIXTURE_SCENARIOS", () => {
       (scenario) => scenario.isDefault,
     );
 
-    expect(defaults).toHaveLength(46);
+    expect(defaults).toHaveLength(25);
     expect(defaults.map((scenario) => scenario.screenId).sort()).toEqual(
       SCREEN_DESIGN_SCREENS.map((screen) => screen.id).sort(),
     );
-    expect(new Set(defaults.map((scenario) => scenario.screenId)).size).toBe(46);
+    expect(new Set(defaults.map((scenario) => scenario.screenId)).size).toBe(25);
   });
 
   it("uses unique scenario ids and matches registry auth, route, state, and action contracts", () => {
@@ -198,6 +194,23 @@ describe("ScreenDesign owner-scoped seed contract", () => {
     }
   });
 
+  it("marks every AI-enabled teen profile as an explicit synthetic permission fixture", () => {
+    for (const scenario of SCREEN_DESIGN_FIXTURE_SCENARIOS) {
+      const profiles = buildScreenDesignSeedPlan(scenario, PRIMARY_OWNER_ID)
+        .filter((row) => row.table === "profiles" && row.values.consent_ai === true);
+
+      for (const profile of profiles) {
+        expect(profile.values, scenario.id).toMatchObject({
+          age_bracket: "13_to_17",
+          teen_guardian_permission_attested_at: SCREEN_DESIGN_FIXED_CLOCK,
+          teen_guardian_permission_policy_version: "teen_openai_beta_v1",
+          teen_guardian_permission_source: "synthetic_qa_fixture",
+          teen_guardian_permission_withdrawn_at: null,
+        });
+      }
+    }
+  });
+
   it("normalizes seeded rows to live database constraints and required relationships", () => {
     const allowedSignals = new Set([
       "energy",
@@ -224,14 +237,9 @@ describe("ScreenDesign owner-scoped seed contract", () => {
       submission_checklist: "assignment_id",
       task_signals: "assignment_id",
       assignment_time_log: "assignment_id",
-      flashcard_reviews: "card_id",
       study_artifacts: "source_id",
       mastery_concepts: "class_id",
-      mastery_events: "concept_id",
-      ap_practice_attempts: "plan_id",
       portfolio_items: "portfolio_id",
-      study_group_members: "group_id",
-      study_group_sessions: "group_id",
     };
 
     for (const scenario of SCREEN_DESIGN_FIXTURE_SCENARIOS) {
@@ -251,9 +259,6 @@ describe("ScreenDesign owner-scoped seed contract", () => {
         }
         if (row.table === "sleep_logs") {
           expect(["rested", "ok", "rough"]).toContain(row.values.sleep_quality);
-        }
-        if (row.table === "study_group_sessions") {
-          expect(["planned", "active", "done"]).toContain(row.values.status);
         }
       }
     }

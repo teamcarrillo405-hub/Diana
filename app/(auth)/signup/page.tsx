@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { ageBracket, yearsBetween } from "@/lib/age";
+import { validateDateOfBirth } from "@/lib/age";
+import { learnerAccessForAgeBracket } from "@/lib/learner-access-policy";
 import {
   clearPublicOnboardingDraft,
   readPublicOnboardingDraft,
@@ -24,16 +25,18 @@ export default function SignupPage() {
     e.preventDefault();
     setError(null);
 
-    if (!dob) return setError("Please enter your date of birth.");
-    const dobDate = new Date(dob + "T00:00:00");
-    if (Number.isNaN(dobDate.getTime())) return setError("That date of birth doesn't look right.");
+    const validatedDob = validateDateOfBirth(dob);
+    if (!validatedDob.valid) {
+      if (validatedDob.reason === "required") {
+        return setError("Please enter your date of birth.");
+      }
+      return setError("That date of birth doesn't look right.");
+    }
 
-    const years = yearsBetween(dobDate);
-    if (years < 0 || years > 120) return setError("That date of birth doesn't look right.");
-
-    const bracket = ageBracket(dobDate);
-    if (bracket === "under_13") {
-      return setError("Diana isn't available for users under 13 yet. Ask a parent or guardian to reach out.");
+    const bracket = validatedDob.bracket;
+    const access = learnerAccessForAgeBracket(bracket);
+    if (access.accountAccess !== "allowed") {
+      return setError("Diana is available to students age 13 and older.");
     }
 
     setPending(true);

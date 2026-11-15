@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   classifyAssignmentWorkProfile,
   classifyWorkspaceMode,
+  displayAssignmentWorkspaceTitle,
   firstMoveForWorkspace,
   parseWorkspaceMode,
   resolveWorkspaceMode,
@@ -11,6 +12,19 @@ import {
   WORKSPACE_MODES,
   workProfilePersistencePatch,
 } from "./assignment-workspace";
+
+describe("assignment workspace display title", () => {
+  it("keeps question counts in the Problems panel instead of the title", () => {
+    expect(displayAssignmentWorkspaceTitle("Linear Equations: Three Questions")).toBe("Linear Equations");
+    expect(displayAssignmentWorkspaceTitle("Chemistry review - 8 questions")).toBe("Chemistry review");
+    expect(displayAssignmentWorkspaceTitle("Nixon report (4 questions)")).toBe("Nixon report");
+  });
+
+  it("keeps titles that do not end with a question-count suffix unchanged", () => {
+    expect(displayAssignmentWorkspaceTitle("Questions about linear motion")).toBe("Questions about linear motion");
+    expect(displayAssignmentWorkspaceTitle("Question 3: Show your work")).toBe("Question 3: Show your work");
+  });
+});
 
 describe("assignment workspace registry", () => {
   it("defines metadata and signals for every supported mode", () => {

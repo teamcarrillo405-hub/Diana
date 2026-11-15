@@ -2,10 +2,10 @@ import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
 import { classCompletionAnalytics } from "@/lib/portal/teacher";
 import { IepImport } from "../settings/iep-import";
-import { TeacherPortalClient } from "../teacher-share/teacher-portal-client";
+import { TeacherPortalClient } from "./teacher-portal-client";
 
 // Teacher tab of /sharing. Student-controlled portal: classes, roster, AI policy,
-// progress notes, authorship receipts, IEP/504. Extracted from /teacher-share.
+// progress notes, authorship receipts, and IEP/504 setup.
 export async function TeacherSharingView() {
   const supabase = await createClient();
   const profile = await loadProfile();

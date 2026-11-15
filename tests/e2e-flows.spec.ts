@@ -3,14 +3,11 @@
 
 import { expect, test } from "@playwright/test";
 
-import {
-  openQaSession,
-  seedFormalAssessmentReleaseGate,
-} from "./helpers/qa";
+import { openQaSession } from "./helpers/qa";
 
 test.describe.configure({ mode: "serial" });
 
-test("new student completes the current onboarding challenge", async ({ page }) => {
+test("new student completes the current onboarding flow", async ({ page }) => {
   test.setTimeout(120_000);
 
   await openQaSession(page, { variant: "onboarding" });
@@ -22,28 +19,17 @@ test("new student completes the current onboarding challenge", async ({ page }) 
   await page.goto("/dashboard", { waitUntil: "domcontentloaded" });
   await page.waitForURL(/\/onboarding$/u, { timeout: 30_000 });
 
-  await expect(page.getByRole("heading", { name: /DIANA AI TUTOR/i })).toBeVisible();
-  await page.getByRole("button", { name: "GET STARTED" }).click();
-
-  await expect(page.getByRole("heading", { name: "DID YOU KNOW?" })).toBeVisible();
-  await expect(page.getByText("Save 10+ Hours/Week")).toBeVisible();
-  await page.getByRole("button", { name: "CONTINUE" }).click();
-
-  await expect(
-    page.getByRole("heading", { name: "WHAT'S YOUR BIGGEST HURDLE RIGHT NOW?" }),
-  ).toBeVisible();
-  await page.getByRole("radio", { name: /Complex Concepts/ }).click();
-  await expect(page.getByRole("radio", { name: /Complex Concepts/ })).toHaveAttribute(
+  await expect(page.getByRole("heading", { name: "Make it yours" })).toBeVisible();
+  await page.getByRole("radio", { name: /Working through a hard concept/ }).click();
+  await expect(page.getByRole("radio", { name: /Working through a hard concept/ })).toHaveAttribute(
     "aria-checked",
     "true",
   );
-  await page.getByRole("button", { name: "Select learning hurdle" }).click();
+  await page.getByRole("radio", { name: "Morning" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByRole("heading", { name: /WHEN ARE YOU MOST IN THE ZONE/ })).toBeVisible();
-  await page.getByRole("radio", { name: /Morning Hustle/ }).click();
-  await page.getByRole("slider", { name: "Sleep goal" }).fill("8.5");
-  await page.getByRole("slider", { name: "Movement goal" }).fill("5");
-  await page.getByRole("button", { name: "Select study schedule" }).click();
+  await expect(page.getByRole("heading", { name: "Connect your school" })).toBeVisible();
+  await page.getByRole("button", { name: "Skip for now" }).click();
 
   await page.waitForURL(/\/dashboard$/u, { timeout: 30_000 });
   await expect(
@@ -72,37 +58,4 @@ test("settings exposes the current profile and accessibility workspace", async (
     page.getByRole("heading", { name: "Accessibility", level: 1 }),
   ).toBeVisible();
   await expect(page.getByText("Adjust the reading experience", { exact: false })).toBeVisible();
-});
-
-test("formal assessment stays locked until its prerequisite is complete", async ({
-  page,
-}) => {
-  test.setTimeout(120_000);
-  const fixture = await seedFormalAssessmentReleaseGate(page);
-
-  try {
-    const assessmentPath = `/course-mode/assessments/${fixture.assessmentId}`;
-    await page.goto(assessmentPath, { waitUntil: "domcontentloaded" });
-    await expect(
-      page.getByRole("heading", { name: "Linear relationships check" }),
-    ).toBeVisible();
-    await page.getByRole("button", { name: "Start assessment" }).click();
-    await expect(page).toHaveURL(/status=not-started/u);
-    await expect(page.getByRole("status")).toHaveText(
-      "This assessment could not be started yet.",
-    );
-    await expect(page.getByRole("heading", { name: /Question 1 of/ })).toHaveCount(0);
-
-    await fixture.release();
-    await page.goto(assessmentPath, { waitUntil: "domcontentloaded" });
-    await page.getByRole("button", { name: "Start assessment" }).click();
-    await expect(page).toHaveURL(/status=started/u);
-    await expect(page.getByRole("status").first()).toHaveText(
-      "Your assessment is open. Responses save as you work.",
-    );
-    await expect(page.getByRole("heading", { name: "Question 1 of 1" })).toBeVisible();
-    await expect(page.getByText("Which value is the slope", { exact: false })).toBeVisible();
-  } finally {
-    await fixture.cleanup();
-  }
 });

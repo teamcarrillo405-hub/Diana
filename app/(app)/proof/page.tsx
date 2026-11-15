@@ -118,6 +118,50 @@ const PROOF_STYLES = `
     .sd-proof-title { margin: 0; font-size: 56px; }
     .sd-proof-section { margin-top: 30px; }
   }
+
+  /* Current student visual system. This intentionally replaces the retired navy, neon, and condensed type treatment above. */
+  .sd-proof-screen:not(.sd-milestone-screen) { background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-scroll { background:transparent!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card h2,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty h2,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-week h3,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item h4 { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:620!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title { text-transform:uppercase!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-title span,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-section-title { color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:16px!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-week,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46))!important; color:#182126!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card p,.sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty p,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item p { color:#53615c!important; font-size:14px!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-card-icon,.sd-proof-screen:not(.sd-milestone-screen) .sd-showcase-item-icon { border-radius:8px!important; background:rgb(232 245 107 / .55)!important; color:#182126!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-empty a { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-weight:600!important; text-transform:none!important; }
+  .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-artifact-card { background:#fff!important; }
+  .sd-proof-screen.sd-milestone-screen { min-height:100dvh!important; background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
+  .sd-milestone-confetti i { width:6px!important; height:14px!important; border-radius:3px!important; background:#8622ed!important; box-shadow:0 4px 10px rgb(134 34 237 / .24)!important; }
+  .sd-milestone-confetti i:nth-child(2n) { background:#e8f56b!important; }
+  .sd-milestone-confetti i:nth-child(3n) { background:#20d899!important; }
+  .sd-milestone-main { width:100%!important; align-items:center!important; padding:28px 20px 24px!important; background:linear-gradient(180deg,rgb(244 247 243 / .86),rgb(220 226 222 / .8))!important; }
+  .sd-milestone-main .sd-source-wordmark { height:22px!important; margin-bottom:10px!important; }
+  .sd-milestone-kicker { margin:22px 0 8px!important; color:#681ce0!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:12px!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-milestone-main h1 { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:clamp(32px,9vw,44px)!important; font-style:normal!important; font-weight:700!important; letter-spacing:0!important; line-height:1.05!important; text-transform:none!important; }
+  .sd-milestone-main h1 span { color:#8622ed!important; }
+  .sd-milestone-ring { filter:drop-shadow(0 14px 18px rgb(134 34 237 / .22))!important; }
+  .sd-milestone-label { margin-bottom:12px!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:13px!important; font-weight:550!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-milestone-facts { width:min(100%,560px)!important; gap:10px!important; }
+  .sd-milestone-fact { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .74),rgb(238 244 238 / .5))!important; padding:15px!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .78),0 10px 24px rgb(24 33 38 / .08)!important; backdrop-filter:blur(20px)!important; }
+  .sd-milestone-fact strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-milestone-fact span { color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:11px!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-milestone-note { max-width:42ch!important; margin:16px 12px 0!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; line-height:1.5!important; }
+  .sd-milestone-footer { grid-template-columns:minmax(0,1fr) auto!important; gap:10px!important; border-top:1px solid rgb(84 98 92 / .18)!important; background:rgb(235 240 236 / .9)!important; padding:14px 20px max(18px,env(safe-area-inset-bottom))!important; backdrop-filter:blur(20px)!important; }
+  .sd-milestone-share,.sd-milestone-continue { min-height:46px!important; border-radius:8px!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-milestone-share { border:1px solid #681ce0!important; background:#8622ed!important; color:#fff!important; box-shadow:0 8px 16px rgb(134 34 237 / .22)!important; }
+  .sd-milestone-continue { border:1px solid rgb(84 98 92 / .36)!important; background:rgb(255 255 255 / .62)!important; color:#182126!important; }
+  @media (min-width:1100px) {
+    .sd-proof-screen.sd-milestone-screen { background:linear-gradient(rgb(214 218 214 / .62),rgb(214 218 214 / .72)),url("/images/record-gamer-gallery-v2.png") center/cover fixed!important; }
+    .sd-milestone-main { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 166px)!important; margin:22px auto 0!important; border:7px solid #fff!important; border-radius:30px!important; padding:clamp(32px,4vw,56px)!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .76),0 18px 42px rgb(24 33 38 / .12)!important; }
+    .sd-milestone-footer { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; margin:0 auto 24px!important; border:1px solid rgb(255 255 255 / .76)!important; border-top:0!important; border-radius:0 0 22px 22px!important; padding:16px clamp(22px,3vw,42px)!important; }
+    .sd-proof-screen.sd-milestone-screen > .sd-student-bottom-nav { display:none!important; }
+  }
+  @media (min-width:1100px) {
+    .sd-proof-screen:not(.sd-milestone-screen) { background:linear-gradient(rgb(225 230 228 / .16),rgb(216 222 220 / .24)),#d9dcda url("/images/record-gamer-gallery-v2.png") center/cover fixed!important; }
+    .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-scroll { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 118px)!important; margin:22px auto 24px!important; border:7px solid #fff; border-radius:30px!important; padding:clamp(30px,3.2vw,48px) clamp(20px,3.2vw,54px) clamp(44px,5vw,78px)!important; }
+    .sd-proof-screen:not(.sd-milestone-screen) .sd-proof-content { width:min(100%,920px)!important; max-width:920px!important; }
+    .sd-proof-screen:not(.sd-milestone-screen) > .sd-student-bottom-nav { display:none!important; }
+  }
 `;
 
 export default async function ProofPage({
@@ -181,13 +225,13 @@ export default async function ProofPage({
 
   if (milestone) {
     return (
-      <ScreenDesignViewport className="sd-proof-screen sd-milestone-screen">
+      <ScreenDesignViewport className="sd-proof-screen sd-milestone-screen diana-current-page">
         <style>{PROOF_STYLES}</style>
         <div className="sd-milestone-confetti" aria-hidden="true">
           <i /><i /><i /><i /><i /><i />
         </div>
         <main className="sd-milestone-main">
-          <DianaWordmark />
+          <DianaWordmark tone="dark" />
           <p className="sd-milestone-kicker">Mastered</p>
           <h1>
             Learning <span>milestone</span>
@@ -233,7 +277,7 @@ export default async function ProofPage({
   const profile = await loadProfile();
 
   return (
-    <ScreenDesignViewport className="sd-proof-screen">
+    <ScreenDesignViewport className="sd-proof-screen diana-current-page">
       <style>{PROOF_STYLES}</style>
       <StudentDesktopNav
         active="More"
@@ -250,7 +294,7 @@ export default async function ProofPage({
             <ShieldCheck size={14} aria-hidden="true" /> Private
           </span>
           </header>
-          <h1 className="sd-proof-title">Record</h1>
+          <h1 className="sd-proof-title">RECORD</h1>
           <section className="sd-proof-section" aria-labelledby="proof-completed-title">
           <p id="proof-completed-title" className="sd-proof-section-title">
             Completed work
@@ -297,7 +341,7 @@ export default async function ProofPage({
             {artifactRows.map((artifact) => (
               <Link
                 href={`/study-artifacts/${artifact.id}`}
-                className="sd-proof-card"
+                className="sd-proof-card sd-proof-artifact-card"
                 key={artifact.id}
               >
                 <span className="sd-proof-card-icon">
@@ -332,7 +376,7 @@ export default async function ProofPage({
                 {week.items.map((item) => (
                   <Link
                     className="sd-showcase-item"
-                    href={`/portfolio?item=${item.id}`}
+                    href="#showcase"
                     key={item.id}
                   >
                     <span className="sd-showcase-item-icon">

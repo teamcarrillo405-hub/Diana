@@ -9,6 +9,10 @@
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { LmsProvider, NormalizedAssignment, SyncResult } from "./types";
+import {
+  planRemovedAssignmentReconciliation,
+  type ExistingLmsAssignment,
+} from "./reconciliation";
 
 const SHADOW_CLASS_TITLE: Record<LmsProvider, string> = {
   canvas: "Canvas (imported)",
@@ -160,6 +164,27 @@ async function syncAssignmentSources(
   }
 }
 
+async function persistProviderMissingAssignments(
+  supabase: SupabaseClient,
+  ownerId: string,
+  source: LmsProvider,
+  assignmentIds: readonly string[],
+  missingAt: string,
+): Promise<void> {
+  if (assignmentIds.length === 0) return;
+
+  const { error } = await supabase
+    .from("assignments")
+    .update({ provider_missing_at: missingAt })
+    .eq("owner_id", ownerId)
+    .eq("external_source", source)
+    .in("id", [...assignmentIds])
+    .is("provider_missing_at", null);
+  if (error) {
+    throw new Error(`persist provider-missing assignments: ${error.message}`);
+  }
+}
+
 export async function syncLmsAssignments(
   supabase: SupabaseClient,
   ownerId: string,
@@ -167,11 +192,40 @@ export async function syncLmsAssignments(
   items: NormalizedAssignment[],
   preSkipped = 0,
 ): Promise<SyncResult> {
+  const { data: existingRows, error: existingError } = await supabase
+    .from("assignments")
+    .select("id, external_id")
+    .eq("owner_id", ownerId)
+    .eq("external_source", source);
+  if (existingError) {
+    throw new Error(`load existing assignments: ${existingError.message}`);
+  }
+  const reconciliation = planRemovedAssignmentReconciliation({
+    provider: source,
+    existing: (existingRows ?? []) as ExistingLmsAssignment[],
+    incomingExternalIds: items.map((item) => item.external_id),
+    snapshot: "complete",
+  });
+  const now = new Date().toISOString();
+
+  await persistProviderMissingAssignments(
+    supabase,
+    ownerId,
+    source,
+    reconciliation.removed.map((assignment) => assignment.assignmentId),
+    now,
+  );
+
   if (items.length === 0) {
-    return { imported: 0, skipped: preSkipped, source };
+    return {
+      imported: 0,
+      skipped: preSkipped,
+      source,
+      removed: reconciliation.removed.length,
+      reconciliation: reconciliation.summary,
+    };
   }
 
-  const now = new Date().toISOString();
   const classIdByCourse = new Map<string, string>();
   let shadowClassId: string | null = null;
 
@@ -210,6 +264,7 @@ export async function syncLmsAssignments(
       external_url: i.external_url ?? null,
       rubric_text: i.rubric_text ?? null,
       last_synced_at: now,
+      provider_missing_at: null,
     });
   }
 
@@ -224,5 +279,11 @@ export async function syncLmsAssignments(
   // Persist the material packet only after assignment ids are stable.
   await syncAssignmentSources(supabase, ownerId, items, source);
 
-  return { imported: rows.length, skipped: preSkipped, source };
+  return {
+    imported: rows.length,
+    skipped: preSkipped,
+    source,
+    removed: reconciliation.removed.length,
+    reconciliation: reconciliation.summary,
+  };
 }

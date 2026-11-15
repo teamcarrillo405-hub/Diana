@@ -97,7 +97,7 @@ const validate = (
     directorySets: directorySets(),
     artifactHashes: hashesFor(index),
     actionEvidence: actionEvidenceFor(index),
-    expectedCount: 46,
+    expectedCount: 25,
     expectedRunId: RUN_ID,
     expectedReleaseSha: RELEASE_SHA,
     indexSha256: sha256Text(JSON.stringify(index)),
@@ -105,11 +105,11 @@ const validate = (
   });
 
 describe("release evidence validator", () => {
-  it("accepts only the exact complete 46-id producer document", () => {
+  it("accepts only the exact complete 25-id producer document", () => {
     const result = validate(makeIndex());
 
     expect(result.complete).toBe(true);
-    expect(result.count).toBe(46);
+    expect(result.count).toBe(25);
     expect(result.ids).toEqual(SCREEN_DESIGN_CANONICAL_SCREEN_IDS);
     expect(result.runId).toBe(RUN_ID);
     expect(result.releaseSha).toBe(RELEASE_SHA);
@@ -119,7 +119,7 @@ describe("release evidence validator", () => {
     const index = makeIndex();
     expect(() =>
       validate({ ...index, rows: index.rows.slice(1) }),
-    ).toThrow(/ai-history-log|46/iu);
+    ).toThrow(/ai-writing-coach|25/iu);
     expect(() =>
       validate(index, {
         directorySets: {
@@ -143,7 +143,7 @@ describe("release evidence validator", () => {
             : row,
         ),
       }),
-    ).toThrow(/ai-history-log|passing/iu);
+    ).toThrow(/ai-writing-coach|passing/iu);
     expect(() =>
       validate({
         ...index,
@@ -153,7 +153,7 @@ describe("release evidence validator", () => {
             : row,
         ),
       }),
-    ).toThrow(/ai-history-log|reviewer/iu);
+    ).toThrow(/ai-writing-coach|reviewer/iu);
   });
 
   it("rejects modified files, stale runs, stale SHAs, and nonpassing action documents", () => {
@@ -161,24 +161,24 @@ describe("release evidence validator", () => {
     const changedHashes = new Map(hashesFor(index));
     changedHashes.set(index.rows[0].artifacts.source.path, "0".repeat(64));
     expect(() => validate(index, { artifactHashes: changedHashes })).toThrow(
-      /ai-history-log|hash/iu,
+      /ai-writing-coach|hash/iu,
     );
     expect(() => validate(index, { expectedRunId: "other-run" })).toThrow(/run id/iu);
     expect(() =>
       validate(index, { expectedReleaseSha: "b".repeat(40) }),
     ).toThrow(/release sha/iu);
     const actionEvidence = new Map(actionEvidenceFor(index));
-    actionEvidence.set("ai-history-log", {
+    actionEvidence.set("ai-writing-coach", {
       schemaVersion: 1,
       status: "pass",
-      screenId: "ai-history-log",
-      scenarioId: "ai-history-log:default",
+      screenId: "ai-writing-coach",
+      scenarioId: "ai-writing-coach:default",
       producer: { runId: RUN_ID, releaseSha: RELEASE_SHA },
       primaryAction: { status: "pass" },
       navigation: { status: "skipped" },
     });
     expect(() => validate(index, { actionEvidence })).toThrow(
-      /ai-history-log.*navigation/iu,
+      /ai-writing-coach.*navigation/iu,
     );
   });
 

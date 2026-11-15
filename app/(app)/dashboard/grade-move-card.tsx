@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { Target } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { fetchCanvasGrades } from "@/lib/lms/canvas";
+import { fetchCanvasGrades, getValidCanvasToken } from "@/lib/lms/canvas";
+import {
+  hydrateLmsConnectionForRuntime,
+  persistLmsTokenRefreshForRuntime,
+} from "@/lib/lms/credential-policy";
+import { LmsReconnectRequiredError, lmsOperationErrorDetails } from "@/lib/lms/errors";
+import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
 import { recoveryMoves } from "@/lib/grades/insights";
-import { hydrateLmsConnectionCredentials } from "@/lib/integrations/credential-vault";
 
 const GRADE_FETCH_TIMEOUT_MS = 2500;
 
@@ -13,6 +18,11 @@ const GRADE_FETCH_TIMEOUT_MS = 2500;
  * Canvas — the dashboard never waits on a network call to an LMS.
  */
 export async function GradeMoveCard() {
+  try {
+    assertLmsProviderFeatureEnabled("canvas_import");
+  } catch {
+    return null;
+  }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
@@ -24,15 +34,40 @@ export async function GradeMoveCard() {
     .order("created_at", { ascending: false })
     .limit(1);
 
-  const securedConnection = data?.[0]
-    ? await hydrateLmsConnectionCredentials(user.id, data[0]).catch(() => null)
-    : null;
-  const config = securedConnection?.config as { base_url?: string; token?: string } | undefined;
-  if (!config?.base_url || !config?.token) return null;
-
   try {
+    if (!data?.[0]) return null;
+    const securedConnection = await hydrateLmsConnectionForRuntime(user.id, data[0]);
+    const config = securedConnection.config as {
+      institution_id?: string;
+      base_url?: string;
+      token?: string;
+      oauth?: boolean;
+      refresh_token?: string | null;
+      expires_at?: string | null;
+    };
+    if (!config.base_url) throw new LmsReconnectRequiredError("canvas");
+    const valid = await getValidCanvasToken({
+      institution_id: config.institution_id,
+      base_url: config.base_url,
+      token: config.token,
+      oauth: config.oauth,
+      refresh_token: config.refresh_token,
+      expires_at: config.expires_at,
+    });
+    if (valid.refreshed) {
+      await persistLmsTokenRefreshForRuntime(supabase as any, {
+        ownerId: user.id,
+        connection: securedConnection,
+        accessToken: valid.refreshed.token,
+        expiresAt: valid.refreshed.expires_at,
+      });
+    }
     const records = await withTimeout(
-      fetchCanvasGrades({ base_url: config.base_url, token: config.token }),
+      fetchCanvasGrades({
+        institution_id: config.institution_id,
+        base_url: config.base_url,
+        token: valid.token,
+      }),
       GRADE_FETCH_TIMEOUT_MS,
     );
     const move = recoveryMoves(records)[0];
@@ -40,7 +75,7 @@ export async function GradeMoveCard() {
 
     return (
       <Link
-        href="/grades"
+        href="/classes"
         style={{
           display: "flex",
           alignItems: "flex-start",
@@ -62,7 +97,17 @@ export async function GradeMoveCard() {
         </span>
       </Link>
     );
-  } catch {
+  } catch (error) {
+    const normalized = error instanceof Error && /\b(?:401|403)\b/u.test(error.message)
+      ? new LmsReconnectRequiredError("canvas")
+      : error;
+    if (lmsOperationErrorDetails(normalized)?.code === "reconnect_required") {
+      return (
+        <Link href="/settings?canvas=reconnect_required">
+          Reconnect Canvas to refresh grade insights.
+        </Link>
+      );
+    }
     return null;
   }
 }

@@ -37,7 +37,6 @@ type AssignmentCockpitProps = {
   estimate: string | null;
   briefText: string;
   status: AssignmentStatus;
-  classAiMode: "red" | "yellow" | "green";
   drills: readonly AssignmentCockpitDrill[];
   hasApprovedPlan: boolean;
   startRequested?: boolean;
@@ -51,9 +50,7 @@ export function AssignmentCockpit({
   estimate,
   briefText,
   status: initialStatus,
-  classAiMode,
   drills: initialDrills,
-  hasApprovedPlan,
   startRequested = false,
 }: AssignmentCockpitProps) {
   const router = useRouter();
@@ -216,7 +213,7 @@ export function AssignmentCockpit({
               </button>
             )) : (
               <Link
-                href={`/break-down?assignmentId=${encodeURIComponent(assignmentId)}`}
+                href={`/assignments/${assignmentId}/workspace`}
                 className="sd-assignment-drill sd-assignment-drill-empty"
               >
                 <span className="sd-assignment-drill-check" aria-hidden="true">

@@ -19,6 +19,15 @@ type ClassRow = {
 type AssignmentRow = {
   class_id: string | null;
   status: string;
+  title: string;
+  due_at: string | null;
+};
+
+type FinalGradeRow = {
+  course_id: string;
+  final_percent: number;
+  letter_grade: string | null;
+  confirmed_at: string;
 };
 
 const COMPLETED = new Set(["submitted", "graded"]);
@@ -27,22 +36,34 @@ const CLOSED = new Set(["submitted", "graded", "abandoned"]);
 function toSubjectCard(
   cls: ClassRow,
   assignments: readonly AssignmentRow[],
+  gradeByCourse: ReadonlyMap<string, FinalGradeRow>,
 ): SubjectLibraryCardModel {
   const classWork = assignments.filter((assignment) => assignment.class_id === cls.id);
   const completedCount = classWork.filter((assignment) => COMPLETED.has(assignment.status)).length;
   const progressPct =
     classWork.length === 0 ? 0 : Math.round((completedCount / classWork.length) * 100);
   const openWorkCount = classWork.filter((assignment) => !CLOSED.has(assignment.status)).length;
+  const nextAssignment = classWork
+    .filter((assignment) => !CLOSED.has(assignment.status))
+    .sort((left, right) => {
+      if (!left.due_at) return 1;
+      if (!right.due_at) return -1;
+      return left.due_at.localeCompare(right.due_at);
+    })[0];
+  const grade = cls.course_mode_course_id
+    ? gradeByCourse.get(cls.course_mode_course_id) ?? null
+    : null;
 
   return {
     id: cls.id,
     name: cls.name,
     teacher: cls.teacher,
-    href: cls.course_mode_course_id
-      ? `/course-mode/courses/${cls.course_mode_course_id}`
-      : `/classes/${cls.id}`,
+    href: `/classes/${cls.id}`,
     progressPct,
     openWorkCount,
+    nextAssignmentTitle: nextAssignment?.title ?? null,
+    gradeLabel: grade?.letter_grade ?? (grade ? `${Math.round(grade.final_percent)}%` : null),
+    gradePercent: grade?.letter_grade ? Math.round(grade.final_percent) : null,
   };
 }
 
@@ -57,7 +78,7 @@ export default async function ClassesPage({
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const [{ data: classes }, { data: assignments }, { data: profile }] = await Promise.all([
+  const [{ data: classes }, { data: assignments }, { data: finalGrades }, { data: profile }] = await Promise.all([
     supabase
       .from("classes")
       .select("id, name, teacher, created_at, course_mode_course_id")
@@ -66,9 +87,15 @@ export default async function ClassesPage({
       .order("created_at", { ascending: false }),
     supabase
       .from("assignments")
-      .select("class_id, status")
+      .select("class_id, status, title, due_at")
       .eq("owner_id", user.id)
       .not("class_id", "is", null),
+    supabase
+      .from("final_grade_records")
+      .select("course_id, final_percent, letter_grade, confirmed_at")
+      .eq("student_id", user.id)
+      .in("status", ["confirmed", "synced"])
+      .order("confirmed_at", { ascending: false }),
     supabase
       .from("profiles")
       .select("display_name, photo_url, photo_offset_x, photo_offset_y")
@@ -78,7 +105,11 @@ export default async function ClassesPage({
 
   const classRows = (classes ?? []) as ClassRow[];
   const assignmentRows = (assignments ?? []) as AssignmentRow[];
-  const cards = classRows.map((cls) => toSubjectCard(cls, assignmentRows));
+  const gradeByCourse = new Map<string, FinalGradeRow>();
+  for (const grade of (finalGrades ?? []) as FinalGradeRow[]) {
+    if (!gradeByCourse.has(grade.course_id)) gradeByCourse.set(grade.course_id, grade);
+  }
+  const cards = classRows.map((cls) => toSubjectCard(cls, assignmentRows, gradeByCourse));
   const createOpen = (await searchParams).create === "1";
   const createForm = <ClassForm />;
   const navProfile = {

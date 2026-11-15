@@ -210,8 +210,8 @@ describe("StudentBottomNav", () => {
     ["/assignments/assignment-1", "Work"],
     ["/classes/class-1", "Classes"],
     ["/calendar", "Calendar"],
-    ["/settings/tutor", "More"],
-    ["/study-buddy", "More"],
+    ["/settings", "More"],
+    ["/wellness", "More"],
   ])("derives exactly one active destination for %s", (pathname, label) => {
     vi.mocked(usePathname).mockReturnValue(pathname);
     render(<StudentBottomNav />);

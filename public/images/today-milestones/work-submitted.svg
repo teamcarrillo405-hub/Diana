@@ -1,0 +1,38 @@
+<svg width="128" height="140" viewBox="0 0 128 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Work submitted">
+<ellipse id="Contact shadow" opacity="0.09" cx="73.5" cy="134.5" rx="46.5" ry="3.5" fill="#285849"/>
+<g id="Submission flight path">
+<path id="Vector" d="M5 122C20 131 52 115 50 98C49 80 22 83 24 97C26 112 56 98 73 71" stroke="#00C987" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 6"/>
+</g>
+<g id="Folded paper edge">
+<path id="Vector_2" d="M94.6517 117.912C94.8337 118.366 95.1502 118.753 95.5586 119.022C95.967 119.29 96.4478 119.427 96.9365 119.415C97.4252 119.402 97.8984 119.241 98.2925 118.952C98.6866 118.662 98.9829 118.259 99.1414 117.797L130.287 26.7554C130.441 26.3308 130.47 25.8714 130.372 25.4308C130.273 24.9902 130.052 24.5867 129.733 24.2675C129.413 23.9483 129.01 23.7266 128.569 23.6283C128.129 23.5301 127.669 23.5594 127.245 23.7127L36.2029 54.8585C35.7405 55.0171 35.3377 55.3134 35.0485 55.7075C34.7593 56.1016 34.5976 56.5748 34.585 57.0635C34.5725 57.5522 34.7098 58.033 34.9784 58.4414C35.2471 58.8498 35.6342 59.1663 36.0879 59.3483L74.0858 74.5858C75.287 75.0668 76.3784 75.786 77.2942 76.7001C78.2099 77.6142 78.9311 78.7042 79.4142 79.9046L94.6517 117.912Z" fill="#00A972"/>
+</g>
+<g id="Mint folded plane / Lucide Send" filter="url(#filter0_d_2_7)">
+<path id="Vector_3" d="M91.6517 113.912C91.8337 114.366 92.1502 114.753 92.5586 115.022C92.967 115.29 93.4478 115.427 93.9365 115.415C94.4252 115.402 94.8984 115.241 95.2925 114.952C95.6866 114.662 95.9829 114.259 96.1414 113.797L127.287 22.7554C127.441 22.3308 127.47 21.8714 127.372 21.4308C127.273 20.9902 127.052 20.5867 126.733 20.2675C126.413 19.9483 126.01 19.7266 125.569 19.6283C125.129 19.5301 124.669 19.5594 124.245 19.7127L33.2029 50.8585C32.7405 51.0171 32.3377 51.3134 32.0485 51.7075C31.7593 52.1016 31.5976 52.5748 31.585 53.0635C31.5725 53.5522 31.7098 54.033 31.9784 54.4414C32.2471 54.8498 32.6342 55.1663 33.0879 55.3483L71.0858 70.5858C72.287 71.0668 73.3784 71.786 74.2942 72.7001C75.2099 73.6142 75.9311 74.7042 76.4142 75.9046L91.6517 113.912Z" fill="url(#paint0_linear_2_7)" stroke="#00A972" stroke-width="1.19792"/>
+<g id="Vector_4">
+<path d="M126.717 20.2877L74.2963 72.7037L126.717 20.2877Z" fill="black"/>
+<path d="M126.717 20.2877L74.2963 72.7037" stroke="white" stroke-width="2.63542" stroke-linecap="round"/>
+</g>
+</g>
+<circle id="Submission confirmed" cx="113" cy="113" r="14" fill="#009D6B" stroke="#69FFBD" stroke-width="2"/>
+<g id="Confirmed / Lucide Check">
+<path id="Vector_5" d="M119 108.5L110.75 116.75L107 113" stroke="white" stroke-width="1.875" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_2_7" x="17" y="10" width="125" height="125" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="5"/>
+<feGaussianBlur stdDeviation="2.5"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.141176 0 0 0 0 0.360784 0 0 0 0 0.278431 0 0 0 0.15 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_2_7"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_2_7" result="shape"/>
+</filter>
+<linearGradient id="paint0_linear_2_7" x1="31.5843" y1="19.5714" x2="127.429" y2="115.416" gradientUnits="userSpaceOnUse">
+<stop stop-color="#DBFFF1"/>
+<stop offset="0.48" stop-color="#48FFB9"/>
+<stop offset="1" stop-color="#00E99A"/>
+</linearGradient>
+</defs>
+</svg>

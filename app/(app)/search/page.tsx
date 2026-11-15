@@ -111,6 +111,50 @@ const SEARCH_STYLES = `
     .sd-search-desktop-empty span { color:#64748b; font-size:13.5px; }
   }
   @media (prefers-reduced-motion:reduce) { .sd-smart-search * { scroll-behavior:auto!important; transition:none!important; } }
+
+  /* Current student visual system. This intentionally replaces the retired navy, neon, and condensed type treatment above. */
+  .sd-smart-search { background:#d6dad6!important; color:#182126!important; font-family:var(--font-lexend),Lexend,system-ui,sans-serif!important; }
+  .sd-search-desktop h1,.sd-search-desktop-groups h2,.sd-search-desktop-empty strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:620!important; letter-spacing:0!important; text-transform:none!important; }
+  .sd-search-desktop > p,.sd-search-desktop-empty span,.sd-search-desktop-groups a > span { color:#53615c!important; }
+  .sd-search-desktop-form { border:1px solid rgb(255 255 255 / .76)!important; border-radius:12px!important; background:rgb(255 255 255 / .64)!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
+  .sd-search-desktop-form input { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:500!important; text-transform:none!important; }
+  .diana-app .sd-search-desktop-form button { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-style:normal!important; font-weight:600!important; text-transform:none!important; }
+  .sd-search-desktop-groups > section > header > span { background:rgb(24 33 38 / .18)!important; }
+  .sd-search-desktop-groups > section > div > a,.sd-search-desktop-empty { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .7),rgb(238 244 238 / .46))!important; color:#182126!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 12px 28px rgb(24 33 38 / .10)!important; backdrop-filter:blur(20px)!important; }
+  .sd-search-desktop-groups strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-weight:600!important; }
+  @media (max-width:1099px) {
+    .sd-smart-search { background:#d6dad6!important; }
+    .sd-search-header { border-bottom:1px solid rgb(255 255 255 / .76)!important; background:rgb(237 242 237 / .74)!important; box-shadow:0 10px 22px rgb(24 33 38 / .08)!important; backdrop-filter:blur(24px) saturate(1.04)!important; }
+    .sd-search-back { border:1px solid rgb(84 98 92 / .3)!important; border-radius:8px!important; background:rgb(255 255 255 / .54)!important; color:#182126!important; }
+    .sd-search-avatar-ring { background:linear-gradient(135deg,#8622ed,#e8f56b)!important; }
+    .sd-search-form { border:1px solid rgb(255 255 255 / .82)!important; border-radius:10px!important; background:rgb(255 255 255 / .78)!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .9),0 8px 18px rgb(24 33 38 / .08)!important; }
+    .sd-search-form svg { color:#681ce0!important; }
+    .sd-search-form input { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
+    .sd-search-form input::placeholder { color:#6b7772!important; }
+    .sd-search-form button { border:1px solid #c6d23f!important; border-radius:8px!important; background:#e8f56b!important; color:#141d20!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:12px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+    .sd-search-filters { margin-top:13px!important; }
+    .sd-search-filter { border:1px solid rgb(84 98 92 / .26)!important; border-radius:8px!important; background:rgb(255 255 255 / .42)!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:12px!important; font-weight:550!important; letter-spacing:0!important; text-transform:none!important; }
+    .sd-search-filter[aria-current="page"] { border-color:#681ce0!important; background:#8622ed!important; color:#fff!important; }
+    .sd-search-scroll { padding:20px 16px 32px!important; }
+    .sd-search-section { gap:12px!important; margin-bottom:28px!important; }
+    .sd-search-section h1,.sd-search-section h2 { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:16px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+    .sd-search-section h2 { color:#53615c!important; font-size:14px!important; }
+    .sd-search-featured-card,.sd-search-result { border:1px solid rgb(255 255 255 / .76)!important; border-radius:10px!important; background:linear-gradient(135deg,rgb(248 250 247 / .76),rgb(238 244 238 / .5))!important; box-shadow:inset 0 1px 0 rgb(255 255 255 / .72),0 10px 24px rgb(24 33 38 / .09)!important; backdrop-filter:blur(20px)!important; }
+    .sd-search-featured-media { border-radius:8px!important; background:#2b3436!important; }
+    .sd-search-featured-kind { border-radius:6px!important; background:rgb(24 33 38 / .82)!important; color:#e8f56b!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:10px!important; font-weight:600!important; letter-spacing:0!important; text-transform:none!important; }
+    .sd-search-featured-card strong,.sd-search-result strong { color:#182126!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:14px!important; font-style:normal!important; font-weight:650!important; letter-spacing:0!important; text-transform:none!important; }
+    .sd-search-featured-card small,.sd-search-result small { color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; font-size:11px!important; font-weight:500!important; letter-spacing:0!important; text-transform:none!important; }
+    .sd-search-result { grid-template-columns:44px minmax(0,1fr) auto!important; padding:12px!important; }
+    .sd-search-result-icon { border-radius:8px!important; background:rgb(134 34 237 / .14)!important; color:#681ce0!important; }
+    .sd-search-result[data-kind="Artifact"] .sd-search-result-icon,.sd-search-result[data-kind="Note"] .sd-search-result-icon { background:rgb(232 245 107 / .64)!important; color:#182126!important; }
+    .sd-search-result > svg { color:#53615c!important; }
+    .sd-search-empty { border:1px dashed rgb(84 98 92 / .4)!important; border-radius:10px!important; background:rgb(255 255 255 / .4)!important; color:#53615c!important; font-family:var(--font-lexend),Lexend,sans-serif!important; }
+    .sd-smart-search a:focus-visible,.sd-smart-search button:focus-visible,.sd-smart-search input:focus-visible { outline:3px solid #8622ed!important; outline-offset:3px!important; }
+  }
+  @media (min-width:1100px) {
+    .sd-smart-search { background:linear-gradient(rgb(214 218 214 / .84),rgb(214 218 214 / .9)),url("/images/classes-high-tech-classroom.png") center/cover fixed!important; }
+    .sd-search-desktop { width:calc(100% - (2 * clamp(12px,1.6vw,28px)))!important; max-width:1800px!important; min-height:calc(100dvh - 118px); margin:22px auto 24px!important; border:7px solid #fff; border-radius:30px!important; padding:clamp(30px,3.2vw,48px) clamp(20px,3.2vw,54px) clamp(44px,5vw,78px)!important; }
+  }
 `;
 
 const FILTERS: ReadonlyArray<Readonly<{ value: SupportSearchKind; label: string }>> = [
@@ -138,7 +182,7 @@ const SEARCH_DIRECTORY: ReadonlyArray<DesktopSearchItem & { keywords: string }> 
   { key: "tool-capture", title: "Quick capture", detail: "Add work by text, photo, or voice", href: "/quick-add", keywords: "new assignment add capture photo voice" },
   { key: "tool-record", title: "Record", detail: "Completed work and showcase", href: "/proof", keywords: "proof evidence portfolio completed showcase" },
   { key: "tool-notes", title: "Notes", detail: "Class notes and study context", href: "/notes", keywords: "note write photograph" },
-  { key: "tool-flashcards", title: "Flashcards", detail: "Spaced practice decks", href: "/flashcards", keywords: "cards study review memorize" },
+  { key: "tool-study", title: "Study", detail: "Saved practice and review tools", href: "/study", keywords: "cards study review memorize" },
   { key: "tool-artifacts", title: "Study artifacts", detail: "Guides, tests, and study cards", href: "/study-artifacts", keywords: "study guide practice generate" },
   { key: "page-wellness", title: "Wellness", detail: "Energy, sleep, meals, and movement", href: "/wellness", keywords: "health mood exercise" },
   { key: "page-sharing", title: "Sharing", detail: "Weekly parent digest", href: "/sharing", keywords: "parent digest share" },
@@ -179,7 +223,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
     .limit(12);
   let conceptsQuery = supabase
     .from("mastery_concepts")
-    .select("id, name, mastery_level, updated_at")
+    .select("id, class_id, name, mastery_level, updated_at")
     .eq("owner_id", user.id)
     .order("updated_at", { ascending: false })
     .limit(12);
@@ -222,6 +266,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
     ...(concepts ?? []).map((item) => buildSupportSearchResult({
       type: "concept",
       id: item.id,
+      classId: item.class_id,
       title: item.name,
       detail: `Practice evidence · level ${Number(item.mastery_level).toFixed(1)} of 4`,
     })),
@@ -279,7 +324,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
   };
 
   return (
-    <ScreenDesignViewport className="sd-smart-search" aria-label="Smart search">
+    <ScreenDesignViewport className="sd-smart-search diana-current-page" aria-label="Smart search">
       <style>{SEARCH_STYLES}</style>
       <StudentDesktopNav {...navProfile} />
       <section className="sd-search-desktop" aria-label="Search Diana">
@@ -324,7 +369,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
 
         {query && desktopResultCount === 0 ? (
           <div className="sd-search-desktop-empty">
-            <strong>No matches for "{query}"</strong>
+            <strong>No matches for &quot;{query}&quot;</strong>
             <span>Try a class name, assignment, note, or tool.</span>
           </div>
         ) : null}
@@ -333,7 +378,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Searc
         <div className="sd-search-header-row">
           <div className="sd-search-brand">
             <Link className="sd-search-back" href="/dashboard" aria-label="Back to dashboard"><ArrowLeft size={19} aria-hidden="true" /></Link>
-            <DianaWordmark />
+            <DianaWordmark tone="dark" />
           </div>
           <div className="sd-search-avatar-ring">
             <SourceMedia assetId="search-student-avatar" width={80} height={80} alt="Student profile" className="sd-search-avatar" />

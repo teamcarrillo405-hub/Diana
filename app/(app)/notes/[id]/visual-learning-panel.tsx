@@ -26,7 +26,6 @@ const MODES: Array<{ mode: VisualToolMode; label: string; icon: typeof Network }
 
 export function VisualLearningPanel({
   noteId,
-  title,
   text,
   outline,
 }: {

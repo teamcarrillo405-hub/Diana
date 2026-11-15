@@ -1,6 +1,6 @@
 import { loadProfile } from "@/lib/profile";
 
-import { ParentDigestForm } from "../parent-share/parent-digest-form";
+import { ParentDigestForm } from "./parent-digest-form";
 
 export async function ParentSharingView() {
   const profile = await loadProfile();

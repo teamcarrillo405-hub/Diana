@@ -10,10 +10,38 @@ function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
 }
 
-Deno.test("profile eligibility rejects under-13 and non-consenting profiles", () => {
-  assert(!evaluateProfileEligibility({ age_bracket: "under_13", consent_ai: false }).allowed, "under-13 profile passed");
-  assert(!evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: false }).allowed, "missing consent passed");
-  assert(evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: true }).allowed, "eligible profile blocked");
+Deno.test("profile eligibility requires an eligible age and AI consent", () => {
+  const under13 = evaluateProfileEligibility({
+    age_bracket: "under_13",
+    consent_ai: true,
+    ...CURRENT_PERMISSION,
+  });
+  assert(!under13.allowed && under13.code === "under_13", "under-13 profile passed");
+
+  const missingAge = evaluateProfileEligibility({ age_bracket: undefined, consent_ai: true });
+  assert(
+    !missingAge.allowed && missingAge.code === "age_bracket_invalid",
+    "missing age bracket passed",
+  );
+
+  const unknownAge = evaluateProfileEligibility({ age_bracket: "unknown", consent_ai: true });
+  assert(
+    !unknownAge.allowed && unknownAge.code === "age_bracket_invalid",
+    "unknown age bracket passed",
+  );
+
+  assert(
+    evaluateProfileEligibility({ age_bracket: "13_to_17", consent_ai: true }).allowed,
+    "eligible teen profile blocked",
+  );
+
+  const missingConsent = evaluateProfileEligibility({
+    age_bracket: "13_to_17",
+    consent_ai: false,
+    ...CURRENT_PERMISSION,
+  });
+  assert(!missingConsent.allowed && missingConsent.code === "ai_consent_required", "missing consent passed");
+  assert(evaluateProfileEligibility({ age_bracket: "adult", consent_ai: true }).allowed, "adult blocked");
 });
 
 Deno.test("active deletion statuses fail closed", () => {

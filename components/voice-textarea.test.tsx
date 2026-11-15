@@ -41,6 +41,7 @@ const devices = [
 
 describe("VoiceTextarea microphone controls", () => {
   beforeEach(() => {
+    Object.defineProperty(window, "isSecureContext", { configurable: true, value: true });
     Object.defineProperty(navigator, "mediaDevices", {
       configurable: true,
       value: {
@@ -96,4 +97,18 @@ describe("VoiceTextarea microphone controls", () => {
       expect(fakeTrack.stop).not.toHaveBeenCalled();
     });
   });
+
+  it("shows a visible explanation when the browser cannot record audio", async () => {
+    vi.stubGlobal("MediaRecorder", class {
+      constructor() {
+        throw new TypeError("MediaRecorder is not a constructor");
+      }
+    });
+    render(<VoiceTextarea provider="openai" aria-label="Voice note" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Start recording" }));
+
+    expect(await screen.findByText(/cannot record audio/i)).toBeInTheDocument();
+  });
+
 });

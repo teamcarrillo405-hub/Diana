@@ -6,9 +6,21 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { getValidCanvasToken } from "@/lib/lms/canvas";
+import {
+  hydrateLmsConnectionForRuntime,
+  persistLmsTokenRefreshForRuntime,
+} from "@/lib/lms/credential-policy";
+import {
+  LmsReconnectRequiredError,
+  lmsOperationErrorDetails,
+  type LmsOperationErrorCode,
+} from "@/lib/lms/errors";
 import { getValidGoogleToken, type GoogleClassroomConfig } from "@/lib/lms/google";
 import { materializeAssignmentMaterial, type MaterialProviderConfig } from "@/lib/lms/materials";
+import { assertLmsProviderFeatureEnabled } from "@/lib/lms/provider-features";
+import { subjectPresentationFor } from "@/lib/assignment-subject-presentation";
 import type { AssignmentSourceInput } from "@/lib/assignment-sources";
+import { loadAssignmentHomeworkKernel } from "@/lib/assignment-help/server-understanding";
 import {
   hasAssignmentStoragePrefix,
   ownerStorageKey,
@@ -16,10 +28,6 @@ import {
   validateFileUpload,
   validateUpload,
 } from "@/lib/security/upload-validation";
-import {
-  hydrateLmsConnectionCredentials,
-  persistLmsTokenRefresh,
-} from "@/lib/integrations/credential-vault";
 import { removeAndConfirmStorageObjectAbsent } from "@/lib/storage/object-absence";
 
 type DbError = { message: string } | null;
@@ -57,6 +65,103 @@ async function setAssignmentImportStatus(
 }
 const SOURCE_IMPORT_ERROR_STATE = ["fai", "led"].join("") as Parameters<typeof setAssignmentImportStatus>[3];
 
+function providerCredentialRejection(error: unknown): boolean {
+  return error instanceof Error && /\b(?:401|403)\b/u.test(error.message);
+}
+
+type AssignmentSourceReference = {
+  id: string;
+  title: string;
+  mimeType: string;
+};
+
+function extractionResultStatus(value: unknown): "imported" | "partial" {
+  if (value && typeof value === "object" && "status" in value && value.status === "partial") return "partial";
+  return "imported";
+}
+
+function extractionResultError(value: unknown): string | null {
+  return value && typeof value === "object" && "error" in value && typeof value.error === "string"
+    ? value.error
+    : null;
+}
+
+async function extractAssignmentSource(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  store: WorkspaceStore,
+  assignmentId: string,
+  ownerId: string,
+  source: AssignmentSourceReference,
+) {
+  const { data: extraction, error: extractError } = await supabase.functions.invoke("extract-assignment-source", {
+    body: { sourceId: source.id },
+  });
+  const extractionError = extractionResultError(extraction);
+  if (extractError || extractionError) {
+    await store.from("assignment_sources").update({
+      import_status: SOURCE_IMPORT_ERROR_STATE,
+      error_message: "Diana could not read this file.",
+    }).eq("id", source.id);
+    await setAssignmentImportStatus(store, assignmentId, ownerId, SOURCE_IMPORT_ERROR_STATE);
+    revalidatePath(`/assignments/${assignmentId}/workspace`);
+    return {
+      ok: false as const,
+      error: extractionError ?? extractError?.message ?? "The file was added, but Diana could not read it yet.",
+      source,
+      extractionStatus: SOURCE_IMPORT_ERROR_STATE,
+    };
+  }
+
+  const extractionStatus = extractionResultStatus(extraction);
+  revalidatePath(`/assignments/${assignmentId}/workspace`);
+  return { ok: true as const, source, extractionStatus };
+}
+
+type ExistingProblem = { problem_text: string; problem_number: number };
+
+async function autoSeedProblemQueueFromSources(
+  supabase: any,
+  assignmentId: string,
+  ownerId: string,
+): Promise<number> {
+  const kernel = await loadAssignmentHomeworkKernel({
+    supabase,
+    ownerId,
+    assignmentId,
+    eventSource: "source_problem_queue",
+  });
+  if (!kernel) return 0;
+  if (kernel.understanding.needsStudentConfirmation) return 0;
+  const presentation = subjectPresentationFor(kernel.profile, kernel.sourcePacket);
+  if (presentation.units.length === 0) return 0;
+
+  const { data: existing, error: existingError } = await supabase
+    .from("assignment_problems")
+    .select("problem_text, problem_number")
+    .eq("assignment_id", kernel.assignment.id)
+    .eq("owner_id", ownerId);
+  if (existingError) return 0;
+
+  const existingProblems = (existing ?? []) as ExistingProblem[];
+  const existingTexts = new Set(existingProblems.map((problem) => problem.problem_text.trim()));
+  const nextNumber = existingProblems.reduce((highest, problem) => Math.max(highest, problem.problem_number), 0);
+  const rows = presentation.units
+    .filter((unit) => !existingTexts.has(unit.prompt.trim()))
+    .map((unit, index) => ({
+      owner_id: ownerId,
+      assignment_id: kernel.assignment.id,
+      problem_number: nextNumber + index + 1,
+      problem_text: unit.prompt,
+      source: "assignment_source",
+      // `scaffold` keeps this usable before the optional work-unit migration is
+      // applied, and becomes the compatibility path for existing installations.
+      scaffold: { unitLabel: unit.label, unitType: unit.type, sourceAnchor: unit.sourceAnchor ?? null, unitMetadata: unit.metadata ?? {} },
+    }));
+  if (rows.length === 0) return 0;
+  const { error } = await supabase.from("assignment_problems").insert(rows);
+  return error ? 0 : rows.length;
+}
+
 
 export async function addAssignmentSourceText(input: z.infer<typeof TextSourceInput>) {
   const parsed = TextSourceInput.safeParse(input);
@@ -75,6 +180,48 @@ export async function addAssignmentSourceText(input: z.infer<typeof TextSourceIn
   }).select("id").single();
   if (error) return { ok: false as const, error: error.message };
   await setAssignmentImportStatus(store, parsed.data.assignmentId, user.id, "imported");
+  await autoSeedProblemQueueFromSources(supabase, assignment.id, user.id);
+  revalidatePath(`/assignments/${parsed.data.assignmentId}/workspace`);
+  return { ok: true as const };
+}
+
+const RemoveAssignmentSourceInput = z.object({
+  assignmentId: z.string().uuid(),
+  sourceId: z.string().uuid(),
+});
+
+export async function removeAssignmentSourceFile(input: z.infer<typeof RemoveAssignmentSourceInput>) {
+  const parsed = RemoveAssignmentSourceInput.safeParse(input);
+  if (!parsed.success) return { ok: false as const, error: "Choose an attachment to remove." };
+  const { supabase, user } = await ownerAndStore();
+  if (!user) return { ok: false as const, error: "Not signed in." };
+
+  const { data: source } = await supabase
+    .from("assignment_sources")
+    .select("id, storage_key")
+    .eq("id", parsed.data.sourceId)
+    .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+  if (!source) return { ok: true as const };
+
+  if (source.storage_key) {
+    const expectedPrefix = `${user.id}/assignments/${parsed.data.assignmentId}/`;
+    if (!source.storage_key.startsWith(expectedPrefix) || source.storage_key.includes("\\") || source.storage_key.split("/").includes("..")) {
+      return { ok: false as const, error: "Diana could not verify that attachment path." };
+    }
+    const removal = await removeAndConfirmStorageObjectAbsent(supabase.storage.from("note-docs"), source.storage_key);
+    if (!removal.absenceConfirmed) return { ok: false as const, error: "That attachment could not be removed yet. Try again." };
+  }
+
+  const { error } = await supabase
+    .from("assignment_sources")
+    .delete()
+    .eq("id", source.id)
+    .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", user.id);
+  if (error) return { ok: false as const, error: "That attachment could not be removed yet. Try again." };
+
   revalidatePath(`/assignments/${parsed.data.assignmentId}/workspace`);
   return { ok: true as const };
 }
@@ -113,19 +260,54 @@ export async function addAssignmentSourceFile(formData: FormData) {
     const text = await file.text();
     await store.from("assignment_sources").update({ extracted_text: text.slice(0, 50000), import_status: "imported", error_message: null }).eq("id", source.id);
     await setAssignmentImportStatus(store, assignmentId, user.id, "imported");
+    await autoSeedProblemQueueFromSources(supabase, assignment.id, user.id);
   } else {
-    const { data: extraction, error: extractError } = await supabase.functions.invoke("extract-assignment-source", { body: { sourceId: source.id } });
-    const extractionError = extraction && typeof extraction === "object" && "error" in extraction && typeof extraction.error === "string"
-      ? extraction.error
-      : null;
-    if (extractError || extractionError) {
-      await store.from("assignment_sources").update({ import_status: SOURCE_IMPORT_ERROR_STATE, error_message: "Diana could not read this file." }).eq("id", source.id);
-      await setAssignmentImportStatus(store, assignmentId, user.id, SOURCE_IMPORT_ERROR_STATE);
-      return { ok: false as const, error: extractionError ?? "The file was added, but Diana could not read it yet." };
-    }
+    return extractAssignmentSource(supabase, store, assignmentId, user.id, {
+      id: source.id,
+      title: file.name,
+      mimeType,
+    });
   }
   revalidatePath(`/assignments/${assignmentId}/workspace`);
-  return { ok: true as const };
+  return {
+    ok: true as const,
+    source: {
+      id: source.id,
+      title: file.name,
+      mimeType,
+    },
+    extractionStatus: "imported" as const,
+  };
+}
+
+const RetryAssignmentSourceExtractionInput = z.object({
+  assignmentId: z.string().uuid(),
+  sourceId: z.string().uuid(),
+});
+
+export async function retryAssignmentSourceExtraction(input: z.infer<typeof RetryAssignmentSourceExtractionInput>) {
+  const parsed = RetryAssignmentSourceExtractionInput.safeParse(input);
+  if (!parsed.success) return { ok: false as const, error: "Choose an attachment to retry." };
+  const { supabase, user, store } = await ownerAndStore();
+  if (!user || !store) return { ok: false as const, error: "Not signed in." };
+
+  const { data: source, error } = await supabase
+    .from("assignment_sources")
+    .select("id, title, mime_type, storage_key")
+    .eq("id", parsed.data.sourceId)
+    .eq("assignment_id", parsed.data.assignmentId)
+    .eq("owner_id", user.id)
+    .maybeSingle();
+  if (error || !source?.storage_key) {
+    return { ok: false as const, error: "That attachment is no longer available." };
+  }
+
+  await store.from("assignment_sources").update({ import_status: "extracting", error_message: null }).eq("id", source.id);
+  return extractAssignmentSource(supabase, store, parsed.data.assignmentId, user.id, {
+    id: source.id,
+    title: source.title,
+    mimeType: source.mime_type ?? "application/octet-stream",
+  });
 }
 
 const MediaUploadDeclaration = z.object({
@@ -402,7 +584,7 @@ async function cleanupExpiredMediaUploads(
 }
 
 export async function cleanupAssignmentMediaUploads() {
-  const { supabase, user } = await ownerAndStore();
+  const { user } = await ownerAndStore();
   if (!user) return { ok: false as const, error: "Not signed in." };
   const service = createServiceClient();
   if (!service) return { ok: false as const, error: "Diana could not clear private uploads yet." };
@@ -1037,7 +1219,10 @@ async function loadMaterialProviderConfig(
   providerStore: ProviderStore,
   ownerId: string,
   provider: ConnectedProvider,
-): Promise<{ ok: true; config: MaterialProviderConfig } | { ok: false; error: string }> {
+): Promise<
+  | { ok: true; config: MaterialProviderConfig }
+  | { ok: false; error: string; code: LmsOperationErrorCode }
+> {
   const providerLabel = provider === "canvas" ? "Canvas" : "Google Classroom";
   const { data: connection } = await providerStore
     .from("lms_connections")
@@ -1045,54 +1230,65 @@ async function loadMaterialProviderConfig(
     .eq("owner_id", ownerId)
     .eq("provider", provider)
     .maybeSingle();
-  if (!connection?.config) return { ok: false, error: `Reconnect ${providerLabel} to import assignment files.` };
-
-  let securedConnection;
-  try {
-    securedConnection = await hydrateLmsConnectionCredentials(ownerId, connection);
-  } catch {
-    return { ok: false, error: `Reconnect ${providerLabel} to import assignment files.` };
-  }
-
-  if (provider === "canvas") {
-    const config = securedConnection.config as { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
-    if (!config.institution_id || !config.base_url || !config.token) {
-      return { ok: false, error: "Reconnect Canvas to import assignment files." };
-    }
-    const valid = await getValidCanvasToken({
-      institution_id: config.institution_id,
-      base_url: config.base_url,
-      token: config.token,
-      oauth: config.oauth,
-      refresh_token: config.refresh_token,
-      expires_at: config.expires_at,
-    });
-    if (valid.refreshed) {
-      await persistLmsTokenRefresh(providerStore, {
-        ownerId,
-        connection: securedConnection,
-        accessToken: valid.refreshed.token,
-        expiresAt: valid.refreshed.expires_at,
-      });
-    }
+  if (!connection?.config) {
     return {
-      ok: true,
-      config: { provider: "canvas", institution_id: config.institution_id, base_url: config.base_url, token: valid.token },
+      ok: false,
+      code: "reconnect_required",
+      error: `Reconnect ${providerLabel} to import assignment files.`,
     };
   }
 
-  const config = securedConnection.config as GoogleClassroomConfig;
-  const valid = await getValidGoogleToken(config);
-  if (!valid) return { ok: false, error: "Reconnect Google Classroom to import assignment files." };
-  if (valid.refreshed) {
-    await persistLmsTokenRefresh(providerStore, {
-      ownerId,
-      connection: securedConnection,
-      accessToken: valid.refreshed.access_token,
-      expiresAt: valid.refreshed.expires_at,
-    });
+  try {
+    const securedConnection = await hydrateLmsConnectionForRuntime(ownerId, connection);
+    if (provider === "canvas") {
+      const config = securedConnection.config as { institution_id?: string; base_url?: string; token?: string; oauth?: boolean; refresh_token?: string | null; expires_at?: string | null };
+      if (!config.institution_id || !config.base_url) {
+        throw new LmsReconnectRequiredError("canvas");
+      }
+      const valid = await getValidCanvasToken({
+        institution_id: config.institution_id,
+        base_url: config.base_url,
+        token: config.token,
+        oauth: config.oauth,
+        refresh_token: config.refresh_token,
+        expires_at: config.expires_at,
+      });
+      if (valid.refreshed) {
+        await persistLmsTokenRefreshForRuntime(providerStore, {
+          ownerId,
+          connection: securedConnection,
+          accessToken: valid.refreshed.token,
+          expiresAt: valid.refreshed.expires_at,
+        });
+      }
+      return {
+        ok: true,
+        config: { provider: "canvas", institution_id: config.institution_id, base_url: config.base_url, token: valid.token },
+      };
+    }
+
+    const config = securedConnection.config as GoogleClassroomConfig;
+    const valid = await getValidGoogleToken(config);
+    if (valid.refreshed) {
+      await persistLmsTokenRefreshForRuntime(providerStore, {
+        ownerId,
+        connection: securedConnection,
+        accessToken: valid.refreshed.access_token,
+        expiresAt: valid.refreshed.expires_at,
+      });
+    }
+    return { ok: true, config: { provider: "google_classroom", token: valid.token } };
+  } catch (error) {
+    const normalized = providerCredentialRejection(error)
+      ? new LmsReconnectRequiredError(provider)
+      : error;
+    const detail = lmsOperationErrorDetails(normalized);
+    return {
+      ok: false,
+      code: detail?.code ?? "credential_vault_unavailable",
+      error: detail?.error ?? `Reconnect ${providerLabel} to import assignment files.`,
+    };
   }
-  return { ok: true, config: { provider: "google_classroom", token: valid.token } };
 }
 
 async function updateClaimedSource(
@@ -1161,6 +1357,18 @@ export async function materializeConnectedAssignmentSources(input: z.infer<typeo
   if (assignment.external_source !== "canvas" && assignment.external_source !== "google_classroom") {
     return { ok: true as const, imported: 0, partial: 0 };
   }
+  try {
+    assertLmsProviderFeatureEnabled(
+      assignment.external_source === "canvas" ? "canvas_import" : "google_import",
+    );
+  } catch (error) {
+    const detail = lmsOperationErrorDetails(error);
+    return {
+      ok: false as const,
+      code: detail?.code ?? "provider_feature_disabled",
+      error: detail?.error ?? "Assignment file import is not enabled.",
+    };
+  }
 
   const claimToken = crypto.randomUUID();
   const { data: claimedRows, error: claimError } = await providerStore.rpc(
@@ -1179,6 +1387,7 @@ export async function materializeConnectedAssignmentSources(input: z.infer<typeo
 
   let imported = 0;
   let partial = 0;
+  let operationError: { code: LmsOperationErrorCode; error: string } | null = null;
   let providerConfigResult: Awaited<ReturnType<typeof loadMaterialProviderConfig>> | null = null;
   for (const source of sources) {
     if (!await renewSourceMaterializationClaim(providerStore, assignment.id, source.id, claimToken)) {
@@ -1205,6 +1414,10 @@ export async function materializeConnectedAssignmentSources(input: z.infer<typeo
         assignment.external_source as ConnectedProvider,
       );
       if (!providerConfigResult.ok) {
+        operationError ??= {
+          code: providerConfigResult.code,
+          error: providerConfigResult.error,
+        };
         partial += 1;
         await updateClaimedSource(providerStore, source, user.id, claimToken, {
           import_status: "partial",
@@ -1218,6 +1431,14 @@ export async function materializeConnectedAssignmentSources(input: z.infer<typeo
         providerConfigResult.config,
       );
       if (result.status !== "downloaded") {
+        if (providerCredentialRejection(new Error(result.message))) {
+          operationError ??= {
+            code: "reconnect_required",
+            error: assignment.external_source === "canvas"
+              ? "Reconnect Canvas to import assignment files."
+              : "Reconnect Google Classroom to import assignment files.",
+          };
+        }
         partial += 1;
         await updateClaimedSource(providerStore, source, user.id, claimToken, {
           import_status: "partial",
@@ -1312,6 +1533,16 @@ export async function materializeConnectedAssignmentSources(input: z.infer<typeo
   }
 
   await refreshConnectedSourceImportStatus(providerStore, store, assignment.id, user.id);
+  if (imported > 0) await autoSeedProblemQueueFromSources(supabase, assignment.id, user.id);
   revalidatePath(`/assignments/${assignment.id}/workspace`);
+  if (operationError) {
+    return {
+      ok: false as const,
+      code: operationError.code,
+      error: operationError.error,
+      imported,
+      partial,
+    };
+  }
   return { ok: true as const, imported, partial };
 }

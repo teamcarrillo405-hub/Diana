@@ -85,7 +85,7 @@ function row(
   viewport: string,
   authState: QaEvidenceRow["authState"] = "public",
 ): QaEvidenceRow {
-  const fileRoute = route === "/" ? "landing" : route.replace(/^\//, "").replace(/\//g, "-");
+  const fileRoute = route === "/" ? "landing" : route.replace(/^\//, "").replace(/[^a-zA-Z0-9_-]+/g, "-");
   return {
     route,
     viewport,

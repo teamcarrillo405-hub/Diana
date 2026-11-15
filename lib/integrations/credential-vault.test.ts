@@ -90,7 +90,13 @@ describe("integration credential vault", () => {
       refresh_token: "legacy-refresh",
       expires_at: "2026-08-01T00:00:00.000Z",
     });
-    expect(publicLmsConfig({ token: "x", access_token: "y", refresh_token: "z", scope: "read" }))
+    expect(publicLmsConfig({
+      token: "x",
+      access_token: "y",
+      refresh_token: "z",
+      client_secret: "private",
+      scope: "read",
+    }))
       .toEqual({ scope: "read" });
   });
 

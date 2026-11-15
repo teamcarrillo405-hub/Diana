@@ -47,7 +47,7 @@ describe("ArtifactFlashcards", () => {
     );
     expect(await screen.findByRole("link", { name: /Review cards/u })).toHaveAttribute(
       "href",
-      "/flashcards",
+      "/study",
     );
   });
 });

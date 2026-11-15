@@ -5,10 +5,10 @@ import { createClient } from "@/lib/supabase/server";
 import { parseIepText } from "@/lib/iep/import";
 import { validateGitLabBaseUrl } from "@/lib/lms/gitlab";
 import { validateIcsUrl } from "@/lib/lms/ics";
+import { saveLmsConnectionForRuntime } from "@/lib/lms/credential-policy";
+import { lmsOperationErrorDetails } from "@/lib/lms/errors";
+import { lmsProviderCapabilities } from "@/lib/lms/provider-features";
 import { resolveCanvasInstitutionFromRequest } from "@/lib/security/canvas-institutions";
-import {
-  saveLmsConnectionWithCredential,
-} from "@/lib/integrations/credential-vault";
 import type { Json } from "@/lib/supabase/types";
 
 export async function connectCanvas(formData: FormData) {
@@ -19,6 +19,14 @@ export async function connectCanvas(formData: FormData) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, message: "Sign in to continue" };
+  const capabilities = lmsProviderCapabilities();
+  if (!capabilities.canvas.import && !capabilities.canvas.submission) {
+    return {
+      ok: false,
+      code: "provider_feature_disabled" as const,
+      message: "Canvas connections are not enabled.",
+    };
+  }
 
   let institution;
   try {
@@ -28,13 +36,15 @@ export async function connectCanvas(formData: FormData) {
   }
 
   try {
-    await saveLmsConnectionWithCredential(supabase, {
+    await saveLmsConnectionForRuntime(supabase, {
       ownerId: user.id,
       provider: "canvas",
       config: { institution_id: institution.id, base_url: institution.origin },
       accessToken: token,
     });
-  } catch {
+  } catch (error) {
+    const detail = lmsOperationErrorDetails(error);
+    if (detail) return { ok: false, code: detail.code, message: detail.error };
     return { ok: false, message: "Could not save the connection: try again in a moment" };
   }
 

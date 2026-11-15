@@ -41,7 +41,7 @@ const assignments: WorkCommandItem[] = [
     title: "Reading response",
     className: "English 9",
     classColor: "#f25fb0",
-    dueAt: "2026-07-23T21:00:00.000Z",
+    dueAt: "2026-07-30T21:00:00.000Z",
     minutes: 15,
     kind: "reading",
     status: "checking",
@@ -55,7 +55,7 @@ afterEach(() => {
 });
 
 describe("WorkCommandCenter", () => {
-  it("uses the first ranked assignment as the priority row", () => {
+  it("uses the first ranked assignment as the single featured action", () => {
     vi.mocked(usePathname).mockReturnValue("/assignments");
     const { container } = render(
       <WorkCommandCenter
@@ -65,26 +65,36 @@ describe("WorkCommandCenter", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "Work" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "WORK" })).toBeVisible();
+    expect(screen.queryByRole("heading", { name: "Keep moving." })).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /paragraph evidence check.*start/iu }),
+      screen.getByRole("link", { name: /start paragraph evidence check/iu }),
     ).toHaveAttribute("href", "/assignments/assignment-1/workspace");
-    expect(
-      screen.queryByRole("link", { name: "Break it into steps" }),
-    ).not.toBeInTheDocument();
-    expect(container.querySelector(".sd-work-mobile-capture")).toHaveAttribute(
-      "href",
-      "/quick-add",
-    );
-    expect(container.querySelector(".sd-work-mobile-record")).toHaveAttribute(
-      "href",
-      "/voice",
-    );
-    expect(screen.queryByText("Your next move")).not.toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "Start now" })).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Your assignments" })).toBeVisible();
+    expect(container.querySelectorAll(".sd-work-queue-row")).toHaveLength(2);
+    expect(screen.queryByText("Up next, in order")).not.toBeInTheDocument();
+    expect(screen.queryByText("Break it into steps")).not.toBeInTheDocument();
   });
 
-  it("labels test preparation as preparation instead of generic work", () => {
+  it("groups remaining work by time and preserves one route per assignment", () => {
+    vi.mocked(usePathname).mockReturnValue("/assignments");
+    render(
+      <WorkCommandCenter
+        assignments={assignments}
+        displayName="Grayson"
+        nowIso="2026-07-20T18:00:00.000Z"
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: "Today" })).toBeVisible();
+    expect(screen.getByRole("heading", { name: "This week" })).toBeVisible();
+    expect(screen.getByRole("link", { name: /unit 4 problem set.*in progress/iu }))
+      .toHaveAttribute("href", "/assignments/assignment-2/workspace");
+    expect(screen.getAllByRole("link", { name: /reading response.*ready to turn in/iu }).at(-1))
+      .toHaveAttribute("href", "/assignments/assignment-3/workspace");
+  });
+
+  it("routes test preparation into the same assignment workspace", () => {
     vi.mocked(usePathname).mockReturnValue("/assignments");
     render(
       <WorkCommandCenter
@@ -98,40 +108,11 @@ describe("WorkCommandCenter", () => {
       />,
     );
 
-    expect(screen.getByText("Prepare")).toBeVisible();
-    expect(screen.getByRole("link", { name: /quiz: slope and intercepts.*prepare/iu }))
-      .toHaveAttribute(
-        "href",
-        "/study-artifacts?source=assignment:assignment-1&type=practice_test",
-      );
+    expect(screen.getByRole("link", { name: /practice quiz: slope and intercepts/iu }))
+      .toHaveAttribute("href", "/assignments/assignment-1/workspace");
   });
 
-  it("keeps the full queue in ranked order without duplicate work tools", () => {
-    vi.mocked(usePathname).mockReturnValue("/assignments");
-    const { container } = render(
-      <WorkCommandCenter
-        assignments={assignments}
-        displayName="Grayson"
-        nowIso="2026-07-20T18:00:00.000Z"
-      />,
-    );
-
-    const rows = Array.from(container.querySelectorAll(".sd-work-queue-row"));
-    expect(rows).toHaveLength(3);
-    expect(rows.map((row) => row.getAttribute("href"))).toEqual([
-      "/assignments/assignment-1/workspace",
-      "/assignments/assignment-2/workspace",
-      "/assignments/assignment-3/workspace",
-    ]);
-    expect(rows[0]).toHaveAttribute("data-priority", "true");
-    expect(screen.getByText("Start")).toBeVisible();
-    expect(screen.getByText("In progress")).toBeVisible();
-    expect(screen.getByText("Turn in")).toBeVisible();
-    expect(screen.queryByText("Work tools")).not.toBeInTheDocument();
-    expect(screen.queryByText(/Diana keeps this order/iu)).not.toBeInTheDocument();
-  });
-
-  it("opens exporting work at submit while checking work stays in the workspace", () => {
+  it("keeps exporting work on submit while checking work stays in the workspace", () => {
     vi.mocked(usePathname).mockReturnValue("/assignments");
     render(
       <WorkCommandCenter
@@ -144,17 +125,24 @@ describe("WorkCommandCenter", () => {
       />,
     );
 
-    const turnInLinks = screen.getAllByRole("link", {
-      name: /reading response.*turn in/iu,
-    });
-    expect(turnInLinks[0]).toHaveAttribute(
-      "href",
-      "/assignments/checking-assignment/workspace",
+    expect(screen.getByRole("link", { name: /open reading response/iu }))
+      .toHaveAttribute("href", "/assignments/checking-assignment/workspace");
+    expect(screen.getByRole("link", { name: /reading response.*ready to turn in/iu }))
+      .toHaveAttribute("href", "/assignments/exporting-assignment/submit");
+  });
+
+  it("removes question counts from the visible assignment title", () => {
+    vi.mocked(usePathname).mockReturnValue("/assignments");
+    render(
+      <WorkCommandCenter
+        assignments={[{ ...assignments[0], title: "Algebra review: Three Questions" }]}
+        displayName="Grayson"
+        nowIso="2026-07-20T18:00:00.000Z"
+      />,
     );
-    expect(turnInLinks[1]).toHaveAttribute(
-      "href",
-      "/assignments/exporting-assignment/submit",
-    );
+
+    expect(screen.getByRole("heading", { name: "Algebra review" })).toBeVisible();
+    expect(screen.queryByText(/three questions/iu)).not.toBeInTheDocument();
   });
 
   it("keeps an actionable empty state when no work is queued", () => {
@@ -167,24 +155,27 @@ describe("WorkCommandCenter", () => {
       />,
     );
 
-    expect(
-      screen.getByRole("heading", { name: "Caught up." }),
-    ).toBeVisible();
-    expect(
-      screen.getByRole("link", { name: "Capture new work" }),
-    ).toHaveAttribute("href", "/quick-add");
+    expect(screen.getByRole("heading", { name: "Caught up." })).toBeVisible();
+    expect(screen.getAllByRole("link", { name: "Add assignment" }).at(-1)).toHaveAttribute(
+      "href",
+      "/quick-add",
+    );
   });
-  it("shows an overdue date without making planning a student prerequisite", () => {
+
+  it("uses a clear late state without making planning a prerequisite", () => {
     vi.mocked(usePathname).mockReturnValue("/assignments");
     render(
       <WorkCommandCenter
-        assignments={[{ ...assignments[0], dueAt: "2026-07-19T21:00:00.000Z" }]}
+        assignments={[
+          assignments[0],
+          { ...assignments[1], dueAt: "2026-07-19T21:00:00.000Z", status: "todo" },
+        ]}
         displayName="Grayson"
         nowIso="2026-07-20T18:00:00.000Z"
       />,
     );
 
-    expect(screen.getAllByText(/Due date passed/iu)).toHaveLength(2);
+    expect(screen.getByRole("link", { name: /unit 4 problem set.*late/iu })).toBeVisible();
     expect(screen.queryByText("Needs a new plan")).not.toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
+import { Upload } from "lucide-react";
 import {
   validateDocFile,
   ALLOWED_DOC_EXTENSIONS,
@@ -142,53 +143,49 @@ export function DocUploadTab({
     status.kind === "structuring";
 
   return (
-    <div className="space-y-3">
-      <label className="block">
-        <span className="block text-sm font-medium text-foreground mb-2">
-          Pick a photo of your notes or a PDF
-        </span>
+    <div className="notes-doc-capture">
+      <label className="notes-doc-file-picker">
+        <span><Upload size={16} aria-hidden="true" /> Pick a photo of your notes or a PDF</span>
         <input
           type="file"
           accept={ACCEPT_ATTR}
           onChange={handleFileSelect}
           disabled={disabled}
-          className="block w-full rounded-lg border border-border bg-card px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white focus:outline-none focus:ring-2 focus:ring-accent/50"
+          className="notes-doc-file-input"
         />
-        <p className="mt-1 text-xs text-muted">
-          Supports .jpg, .png, .heic, .webp, .gif, and .pdf. Photos work best under 10 MB.
-        </p>
+        <small>Supports .jpg, .png, .heic, .webp, .gif, and .pdf.</small>
       </label>
 
       {warning && (
-        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+        <p className="notes-doc-message is-warning">
           {warning}
         </p>
       )}
 
       {status.kind === "heicConverting" && (
-        <p className="text-sm text-muted">Converting photo format...</p>
+        <p className="notes-doc-message">Converting photo format...</p>
       )}
       {status.kind === "uploading" && (
-        <p className="text-sm text-muted">Uploading your file...</p>
+        <p className="notes-doc-message">Uploading your file...</p>
       )}
       {status.kind === "processing" && (
-        <p className="text-sm text-muted">Processing your file...</p>
+        <p className="notes-doc-message">Processing your file...</p>
       )}
       {status.kind === "structuring" && (
-        <p className="text-sm text-muted">
+        <p className="notes-doc-message">
           Got it. We&apos;re shaping the text into headings and bullets: refresh in a moment to see the outline.
         </p>
       )}
       {status.kind === "done" && (
-        <p className="text-sm text-muted">All set. Edit anything below, then tap Done.</p>
+        <p className="notes-doc-message">All set. Edit anything below, then tap Done.</p>
       )}
       {status.kind === "tooShort" && (
-        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+        <p className="notes-doc-message is-warning">
           We couldn&apos;t read enough text from that file. You can type or paste notes below instead.
         </p>
       )}
       {status.kind === "error" && (
-        <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
+        <p className="notes-doc-message is-warning">
           {status.message}
         </p>
       )}

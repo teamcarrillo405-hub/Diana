@@ -22,6 +22,7 @@ const CARD: SubjectLibraryCardModel = {
   href: "/classes/physics",
   progressPct: 88,
   openWorkCount: 1,
+  nextAssignmentTitle: "Momentum lab report",
 };
 
 afterEach(() => {
@@ -37,15 +38,10 @@ describe("ScreenDesign class library states", () => {
       <EmptyClassLibrary createForm={<div>Real class form</div>} createOpen={false} />,
     );
 
-    expect(screen.getByRole("heading", { name: /academic roster/iu })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Empty playbook?" })).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Diana assistant" })).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Add a class" })).toHaveLength(2);
-    for (const action of screen.getAllByRole("link", { name: "Add a class" })) {
-      expect(action).toHaveAttribute("href", "/classes?create=1");
-    }
+    expect(screen.getByRole("heading", { name: "Your classes, in one place" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Add a class" })).toHaveAttribute("href", "/classes?create=1");
     expect(screen.queryByText("Real class form")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Classes" })).toHaveAttribute(
+    expect(screen.getAllByRole("link", { name: "Classes" })[0]).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -62,17 +58,10 @@ describe("ScreenDesign class library states", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: /your classes/iu })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "CLASSES" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: CARD.name })).toBeInTheDocument();
-    expect(screen.getByText("88% complete")).toBeInTheDocument();
-    expect(screen.getByText("1 open move")).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: `Open ${CARD.name} class` })[0]).toHaveAttribute(
-      "href",
-      CARD.href,
-    );
-    expect(
-      document.querySelector('.sd-subject-card-actions a[href="/notes"]'),
-    ).toHaveAttribute("href", "/notes");
+    expect(screen.getByText("Momentum lab report")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: `Open ${CARD.name} class` })).toHaveAttribute("href", CARD.href);
     expect(document.querySelector(".ds-class-card")).not.toBeInTheDocument();
   });
 });
