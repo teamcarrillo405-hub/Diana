@@ -66,7 +66,7 @@ describe("Supabase middleware", () => {
     expect(response.headers.get("location")).toBeNull();
   });
 
-  it.each(["/", "/how-it-works", "/student-control", "/trust", "/robots.txt", "/sitemap.xml"])(
+  it.each(["/", "/how-it-works", "/student-control", "/trust", "/offline", "/robots.txt", "/sitemap.xml"])(
     "keeps public marketing route %s outside the login wall",
     async (path) => {
       const response = await updateSession(requestFor(path));

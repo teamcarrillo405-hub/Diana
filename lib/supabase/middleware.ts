@@ -10,6 +10,8 @@ const PUBLIC_EXACT = new Set([
   "/trust",
   "/early-access/unsubscribe",
   "/early-access/confirm",
+  // The offline recovery screen must remain reachable without a session.
+  "/offline",
   "/public-not-found",
   "/robots.txt",
   "/sitemap.xml",
