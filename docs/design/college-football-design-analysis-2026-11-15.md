@@ -29,6 +29,8 @@ Diana should borrow that deliberate composition and sense of belonging. The exis
 
 Madden's weekly management structure is useful for organizing decisions. Its XP, unlocks and career rewards are unsuitable for this brief.
 
+For Diana's next desktop composition, use the Dynasty hub's division of attention: a compact action list on the left, a quieter guide within an authored academic environment, and a task briefing with real course, due-date and source information. The selected task should have a solid, high-contrast surface like the reference's selected action, rather than relying on text over a detailed room. Add original course folders, annotated notes, campus materials and a restrained Diana identity to the setting. Avoid a generic stadium or unrelated football equipment. On mobile, lead with that same task briefing and action; compress the environment into supporting artwork. This would make the college influence visible in composition and materials while keeping the work itself academic.
+
 ## Retain and change
 
 | Element | Retain | Change |

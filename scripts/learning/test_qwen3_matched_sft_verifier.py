@@ -116,11 +116,7 @@ class MatchedVerifierTests(unittest.TestCase):
     def qualification_fixture(self, directory):
         root = directory / 'run'
         root.mkdir()
-        approved = Path(__file__).resolve().parents[2] / 'artifacts/learning-engine/research/qwen3-runtime/reviewed-environment-contract.json'
-        runtime = directory / 'qwen3-runtime'
-        runtime.mkdir()
-        (runtime / 'reviewed-environment-contract.json').write_bytes(approved.read_bytes())
-        (root / 'environment-contract.json').write_bytes(approved.read_bytes())
+        prior_tests.runtime_contract_fixture(self, root)
         (root / 'source').mkdir()
         (root / 'source/train_qwen3_matched_sft.py').write_text('synthetic qualification fixture')
         proof = {'schema': 'diana-qwen3-matched-sft-objective-qualification-v1', 'status': 'qualified',

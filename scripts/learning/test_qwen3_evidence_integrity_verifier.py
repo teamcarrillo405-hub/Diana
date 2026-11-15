@@ -12,6 +12,27 @@ from unittest.mock import patch
 from test_qwen3_evidence_integrity import fixture_directory
 
 
+def runtime_contract_fixture(testcase, root):
+    """Bind a synthetic contract only within this test, without private approvals.
+
+    Patch the expected canonical identity, never the verifier's raw-byte or
+    qualification checks. Preserve visibly different CRLF/pretty serialization
+    so equivalent-JSON tampering remains detectable on every platform.
+    """
+    contract = {'schema': 'synthetic-test-only-runtime', 'approved': False,
+                'environment': {'device': 'fixture'}, 'productionEligible': False}
+    raw = (json.dumps(contract, indent=2) + '\n').replace('\n', '\r\n').encode('utf-8')
+    runtime = root.parent / 'qwen3-runtime'
+    runtime.mkdir()
+    original = runtime / 'reviewed-environment-contract.json'
+    original.write_bytes(raw)
+    (root / 'environment-contract.json').write_bytes(raw)
+    mocked = patch.object(verify.base, 'CONTRACT_CANONICAL_SHA', verify.canonical(contract))
+    mocked.start()
+    testcase.addCleanup(mocked.stop)
+    return original
+
+
 class PreferenceVerifierTests(unittest.TestCase):
     @staticmethod
     def sequence(rejected=False):
@@ -254,13 +275,9 @@ class PreferenceVerifierTests(unittest.TestCase):
         with fixture_directory() as temp:
             root = Path(temp) / 'run'
             root.mkdir()
-            runtime = root.parent / 'qwen3-runtime'
-            runtime.mkdir()
-            approved = Path(__file__).resolve().parents[2] / 'artifacts/learning-engine/research/qwen3-runtime/reviewed-environment-contract.json'
-            (runtime / 'reviewed-environment-contract.json').write_bytes(approved.read_bytes())
+            runtime_contract_fixture(self, root)
             (root / 'source').mkdir()
             (root / 'source/train_qwen3_evidence_integrity.py').write_text('fixture', encoding='utf-8')
-            (root / 'environment-contract.json').write_bytes(approved.read_bytes())
             terms = verify.objective(-4., -5., -4., -5., 4)
             proof = {'schema': 'diana-qwen3-dpo-objective-qualification-v1', 'status': 'qualified',
                 'sourceSha256': verify.digest(root / 'source/train_qwen3_evidence_integrity.py'),
@@ -386,12 +403,8 @@ class PreferenceVerifierTests(unittest.TestCase):
         with fixture_directory() as temp:
             root = Path(temp) / 'run'
             root.mkdir()
-            runtime = root.parent / 'qwen3-runtime'
-            runtime.mkdir()
-            original = Path(__file__).resolve().parents[2] / 'artifacts/learning-engine/research/qwen3-runtime/reviewed-environment-contract.json'
-            (runtime / original.name).write_bytes(original.read_bytes())
+            original = runtime_contract_fixture(self, root)
             frozen = root / 'environment-contract.json'
-            frozen.write_bytes(original.read_bytes())
             verify.check_runtime_contract(root, verify.digest(original))
             frozen.write_text(json.dumps(json.loads(original.read_bytes())))
             with self.assertRaises(ValueError): verify.check_runtime_contract(root, verify.digest(original))
