@@ -240,7 +240,8 @@ jobs:
             sudo tee /etc/apt/sources.list.d/pgdg.sources > /dev/null
           sudo apt-get update
           sudo apt-get install --yes postgresql-client-17
-          psql --version | grep -E 'PostgreSQL\) 17\.'
+          /usr/lib/postgresql/17/bin/psql --version | grep -E 'PostgreSQL\) 17\.'
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
 
       - name: Prepare disposable Supabase baseline
         shell: pwsh
