@@ -90,6 +90,7 @@ const cleanupRoots = new Set<string>();
 const REAL_GITLEAKS = installedTestGitleaks();
 const realGitleaksIt = process.platform === "win32" && process.arch === "x64" ? it : it.skip;
 const posixLinuxIt = process.platform === "linux" ? it : it.skip;
+const windowsIt = process.platform === "win32" ? it : it.skip;
 let createCheckpoint: CreateCheckpoint;
 let resolvePosixScannerDescriptorPath: ResolvePosixScannerDescriptorPath;
 
@@ -584,7 +585,7 @@ describe("beta checkpoint security boundary", { timeout: 30_000 }, () => {
     expectNoCheckpoint(fixture, runId);
   }, 30_000);
 
-  it("rejects repository-local Git and Windows locator shadowing before scanning", () => {
+  windowsIt("rejects repository-local Git and Windows locator shadowing before scanning", () => {
     for (const executableName of ["git.exe", "where.exe", "gitleaks.exe"]) {
       const fixture = createFixture();
       const runId = `beta-shadow-${path.parse(executableName).name}`;
