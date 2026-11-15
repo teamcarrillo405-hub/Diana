@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mkdtempSync, readFileSync, rmSync, truncateSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, truncateSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { buildIntegratedReviewPacket } from './integrated-review-packet'
 import { buildIntegratedReviewFiles } from '../../scripts/learning/integrated-review-packet'
@@ -128,6 +128,7 @@ describe('offline blinded review packet', () => {
     expect(result.mapping.bindings.some(binding => binding.rawDoneReason === trace.response.doneReason)).toBe(true)
   })
   it('writes exclusive separated outputs and rejects oversized input and routing flags', async () => {
+    mkdirSync(resolve('artifacts'), { recursive: true })
     const directory = mkdtempSync(resolve('artifacts', 'integrated-review-contract-'))
     try {
       const bundle = await fixture(), input = resolve(directory, 'bundle.json'), output = resolve(directory, 'packet')

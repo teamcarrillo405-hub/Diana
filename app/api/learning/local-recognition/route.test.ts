@@ -1,4 +1,6 @@
 import {beforeEach,describe,expect,it,vi} from "vitest";
+import {tmpdir} from "node:os";
+import {join} from "node:path";
 
 const mocks=vi.hoisted(()=>({user:{id:"student"} as {id:string}|null,allowed:true,dbReady:true,run:vi.fn()}));
 vi.mock("@/lib/learning-engine/server",()=>({
@@ -16,8 +18,8 @@ function upload(bytes:Uint8Array=new Uint8Array([82,73,70,70])){
 beforeEach(()=>{
   vi.clearAllMocks();mocks.user={id:"student"};mocks.allowed=true;mocks.dbReady=true;
   process.env.DIANA_LOCAL_RECOGNITION_ENABLED="1";
-  process.env.DIANA_RECOGNITION_PYTHON="C:\\Python314\\python.exe";
-  process.env.DIANA_RECOGNITION_SPEECH_MANIFEST="C:\\private\\speech.json";
+  process.env.DIANA_RECOGNITION_PYTHON=join(tmpdir(),"diana-recognition-missing-fixture","python");
+  process.env.DIANA_RECOGNITION_SPEECH_MANIFEST=join(tmpdir(),"diana-recognition-missing-fixture","speech.json");
   process.env.DIANA_RECOGNITION_PROVENANCE_KEY="12".repeat(32);
   delete process.env.VERCEL;
   mocks.run.mockResolvedValue({version:"recognition-draft-v1",contentHash:"a".repeat(64),text:"a spoken answer",confirmedHash:null,

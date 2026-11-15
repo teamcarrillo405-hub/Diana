@@ -1,8 +1,9 @@
 """Adversarial synthetic checks. No publisher model, run outputs or final cases."""
 from copy import deepcopy
+import importlib.util
 import math
 import json
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from contextlib import contextmanager
 import shutil
 import types
@@ -65,6 +66,7 @@ class ObjectiveTests(unittest.TestCase):
             with self.subTest(key=key, value=value), self.assertRaises(ValueError):
                 runner.validate_objective_event(altered)
 
+    @unittest.skipUnless(importlib.util.find_spec("torch"), "Optional tiny tensor test requires existing torch; no installation")
     def test_scalar_tensor_gradient(self):
         import torch
         chosen = torch.tensor(-6.0, requires_grad=True)
@@ -76,6 +78,7 @@ class ObjectiveTests(unittest.TestCase):
 
 
 class MaskingTests(unittest.TestCase):
+    @unittest.skipUnless(importlib.util.find_spec("torch"), "Optional tiny tensor test requires existing torch; no installation")
     def test_prompt_end_tokens_and_shifted_mask(self):
         import torch
         item = fixture()
@@ -95,6 +98,7 @@ class MaskingTests(unittest.TestCase):
         self.assertEqual(model.call_count, 1)
         self.assertNotIn("labels", model.call_args.kwargs)
 
+    @unittest.skipUnless(importlib.util.find_spec("torch"), "Optional tiny tensor test requires existing torch; no installation")
     def test_nonfinite_target_logits_stop(self):
         import torch
         logits = torch.zeros((1, 6, 8))
@@ -243,9 +247,18 @@ class BoundaryTests(unittest.TestCase):
         self.assertTrue(recovered["fullParentLossRecovery"])
 
     def test_comparator_manifest_cannot_escape_root(self):
-        for name in ("../outside", "a/../../outside", "C:/outside", "a\\outside"):
+        for name in ("../outside", "a/../../outside", "C:/outside", "C:outside", "a\\outside"):
             with self.subTest(name=name), self.assertRaises(ValueError):
                 runner.bound_file(Path.cwd(), name)
+
+    def test_windows_drive_paths_are_rejected_even_with_posix_path_rules(self):
+        # A POSIX host treats drive-qualified strings as relative paths. The
+        # manifest boundary must reject them before filesystem access anyway.
+        for name in ("C:/outside", "C:outside", "a/file:stream"):
+            with self.subTest(name=name), patch.object(runner, "Path", PurePosixPath), \
+                    patch.object(runner, "safe_path") as check, self.assertRaises(ValueError):
+                runner.bound_file(Path.cwd(), name)
+            check.assert_not_called()
 
     def test_supervisor_terminates_and_reaps_own_process(self):
         child = Mock(pid=123)

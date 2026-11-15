@@ -29,6 +29,7 @@ interface Fixture {
 }
 
 async function fixture(): Promise<Fixture> {
+  mkdirSync(artifactParent, { recursive: true })
   const root = resolve(artifactParent, `hybrid-runner-test-${randomUUID()}`)
   mkdirSync(root)
   fixtureRoots.push(root)

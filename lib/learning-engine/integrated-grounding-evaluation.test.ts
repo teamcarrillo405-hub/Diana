@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { mkdtempSync, readFileSync, rmSync, truncateSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, truncateSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { integratedHash as h, integratedTraceDigest, renderIntegratedUser, verifyIntegratedEvaluation,
   type IntegratedBundle, type IntegratedTrace } from './integrated-grounding-evaluation'
@@ -133,6 +133,7 @@ describe('offline integrated contract, no held-out content or model IO', () => {
     expect(await verify(b)).toMatchObject({ confirmedFabrication: true, thresholdMet: false })
   })
   it('CLI writes an exclusive report and never overwrites source or existing output', async () => {
+    mkdirSync(resolve('artifacts'), { recursive: true })
     const dir = mkdtempSync(resolve('artifacts', 'integrated-contract-test-'))
     try {
       const b = await fixture(), input = resolve(dir, 'input.json'), output = resolve(dir, 'report.json')

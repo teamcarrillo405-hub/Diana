@@ -234,7 +234,7 @@ def validate_objective_event(event):
 
 
 def bound_file(root, name):
-    if not isinstance(name, str) or Path(name).is_absolute() or ".." in Path(name).parts or "\\" in name:
+    if not isinstance(name, str) or ":" in name or Path(name).is_absolute() or ".." in Path(name).parts or "\\" in name:
         raise ValueError("Unsafe comparator manifest path")
     path = root / name
     safe_path(path)

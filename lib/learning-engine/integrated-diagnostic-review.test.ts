@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mkdtemp, writeFile, rm, readFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, writeFile, rm, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { assembleIntegratedDiagnosticReview } from './integrated-diagnostic-review';
 import { prepareIntegratedRequestPlan } from './integrated-request-plan';
@@ -156,6 +156,7 @@ describe('diagnostic artifact binding', () => {
     expect(result.mapping.artifacts.envelopes[0].text).toBe(input.envelopes[0].text);
   });
   it('writes exclusive offline output and refuses rerun or descriptor tampering', async () => {
+    await mkdir(join(process.cwd(), 'artifacts'), { recursive: true });
     const directory = await mkdtemp(join(process.cwd(), 'artifacts', 'diagnostic-contract-'));
     try {
       const input = fixture(), files: Record<string, unknown> = { schema: 'integrated-diagnostic-review-files-v1', priorRuns: input.priorRuns };
