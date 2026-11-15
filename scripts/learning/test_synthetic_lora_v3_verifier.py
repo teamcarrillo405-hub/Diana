@@ -14,6 +14,33 @@ from verify_synthetic_lora_v3 import (
 )
 
 
+def sealed_manifest_fixture(source):
+    """Reconstruct the historically sealed CRLF bytes from either Git checkout.
+
+    The production verifier intentionally hashes exact evidence bytes. Its seal
+    must not change to accommodate a checkout's newline conversion. These test
+    fixtures restore only the known serialization and still reject content drift.
+    """
+    sealed = source.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+    if hashlib.sha256(sealed).hexdigest() != TEST_MANIFEST_SHA256:
+        raise ValueError("Test fixture differs from the historical sealed manifest")
+    return sealed
+
+
+class SealedManifestFixture(unittest.TestCase):
+    def test_lf_and_crlf_checkouts_reconstruct_the_same_frozen_bytes(self):
+        source = (Path(__file__).parents[2] / "docs/engineering/grounding-v3-test-manifest.json").read_bytes()
+        lf = source.replace(b"\r\n", b"\n")
+        crlf = lf.replace(b"\n", b"\r\n")
+        self.assertEqual(sealed_manifest_fixture(lf), sealed_manifest_fixture(crlf))
+        self.assertEqual(hashlib.sha256(sealed_manifest_fixture(lf)).hexdigest(), TEST_MANIFEST_SHA256)
+
+    def test_changed_manifest_content_does_not_receive_a_new_seal(self):
+        source = (Path(__file__).parents[2] / "docs/engineering/grounding-v3-test-manifest.json").read_bytes()
+        with self.assertRaisesRegex(ValueError, "historical sealed manifest"):
+            sealed_manifest_fixture(source.replace(b'"minimumGroundingAccuracy": 0.95', b'"minimumGroundingAccuracy": 0.94'))
+
+
 class ScoringBoundary(unittest.TestCase):
     def test_arbitrary_source_quote_and_false_abstention_cannot_pass(self):
         from synthetic_lora_v3_data import datasets
@@ -66,7 +93,7 @@ class RejectedRunEvidence(unittest.TestCase):
         for name in ("train_synthetic_lora_v3.py", "synthetic_lora_v3_data.py", "train_synthetic_lora.py", "prepare_synthetic_lora.py"):
             (self.root / "source" / name).write_bytes((scripts / name).read_bytes())
         manifest = scripts.parent.parent / "docs/engineering/grounding-v3-test-manifest.json"
-        (self.root / "test-manifest.json").write_bytes(manifest.read_bytes())
+        (self.root / "test-manifest.json").write_bytes(sealed_manifest_fixture(manifest.read_bytes()))
         train, validation = datasets()
         self.write("train.json", train)
         self.write("validation.json", validation)

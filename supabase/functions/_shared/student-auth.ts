@@ -224,6 +224,10 @@ export async function requireStudentContext(
   if (noteId) {
     const note = await requireOwnedNote(userClient, ownerId, noteId);
     if (note instanceof Response) return note;
+    if ((policyAssignmentId && note.assignmentId && policyAssignmentId !== note.assignmentId)
+      || (policyClassId && note.classId && policyClassId !== note.classId)) {
+      return failure("Resource scope does not match this request.", 403, "resource_scope_mismatch");
+    }
     policyAssignmentId ??= note.assignmentId;
     policyClassId ??= note.classId;
   }
@@ -237,6 +241,10 @@ export async function requireStudentContext(
     const resourceClassId = options.ownedResource.classIdColumn
       ? resource[options.ownedResource.classIdColumn]
       : null;
+    if ((policyAssignmentId && typeof resourceAssignmentId === "string" && policyAssignmentId !== resourceAssignmentId)
+      || (policyClassId && typeof resourceClassId === "string" && policyClassId !== resourceClassId)) {
+      return failure("Resource scope does not match this request.", 403, "resource_scope_mismatch");
+    }
     if (!policyAssignmentId && typeof resourceAssignmentId === "string") policyAssignmentId = resourceAssignmentId;
     if (!policyClassId && typeof resourceClassId === "string") policyClassId = resourceClassId;
   }
@@ -245,6 +253,9 @@ export async function requireStudentContext(
   if (policyAssignmentId) {
     const assignment = await requireOwnedAssignment(userClient, ownerId, policyAssignmentId);
     if (assignment instanceof Response) return assignment;
+    if (policyClassId && assignment.classId !== policyClassId) {
+      return failure("Assignment scope does not match this class.", 403, "resource_scope_mismatch");
+    }
     if (requireAiGreen && assignment.aiMode !== "green") {
       return failure("AI is not available for this assignment.", 403, "ai_policy_blocked");
     }

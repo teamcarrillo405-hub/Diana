@@ -6,6 +6,8 @@ const owner = "00000000-0000-4000-8000-000000000001";
 const assignmentId = "00000000-0000-4000-8000-000000000002";
 const classId = "00000000-0000-4000-8000-000000000003";
 const noteId = "00000000-0000-4000-8000-000000000004";
+const resourceId = "00000000-0000-4000-8000-000000000005";
+const otherId = "00000000-0000-4000-8000-000000000006";
 const tiers = [undefined, "consumer", "school_tier"] as const;
 const scopes = ["assignment", "class", "note"] as const;
 let bundle: string;
@@ -26,13 +28,18 @@ beforeAll(async () => {
 
 async function invoke(input: {
   tier?: string; scope: typeof scopes[number] | "unscoped"; classMode: unknown; assignmentOverride?: unknown; requestMode?: string;
+  feature?: string; extraBody?: Record<string, unknown>; noteAssignmentId?: string | null;
+  noteClassId?: string | null; resourceAssignmentId?: string;
 }) {
   const rows: Record<string, unknown> = {
     profiles: { user_id: owner, age_bracket: "adult", consent_ai: true },
     data_deletion_requests: null,
     assignments: { id: assignmentId, owner_id: owner, class_id: classId, ai_mode_override: input.assignmentOverride ?? null },
     classes: { id: classId, owner_id: owner, ai_mode: input.classMode },
-    notes: { id: noteId, owner_id: owner, assignment_id: assignmentId, class_id: classId },
+    notes: { id: noteId, owner_id: owner,
+      assignment_id: input.noteAssignmentId === undefined ? assignmentId : input.noteAssignmentId,
+      class_id: input.noteClassId === undefined ? classId : input.noteClassId },
+    assignment_sources: { id: resourceId, owner_id: owner, assignment_id: input.resourceAssignmentId ?? assignmentId },
   };
   const filters = vi.fn();
   const client = {
@@ -60,15 +67,37 @@ async function invoke(input: {
   };
   const providerHandler = vi.fn(async () => new Response(JSON.stringify({ ok: true })));
   const scope = input.scope === "assignment" ? { assignmentId } : input.scope === "class" ? { classId } : input.scope === "note" ? { noteId } : {};
-  const response = await api.withStudentSecurity("math-step", providerHandler)(new Request("https://synthetic.test/math-step", {
+  const response = await api.withStudentSecurity(input.feature ?? "math-step", providerHandler)(new Request("https://synthetic.test/math-step", {
     method: "POST", headers: { Authorization: "Bearer synthetic-session" },
     // A client claiming green must never override the stored policy.
-    body: JSON.stringify({ ownerId: owner, aiMode: input.requestMode ?? "green", ...scope }),
+    body: JSON.stringify({ ownerId: owner, aiMode: input.requestMode ?? "green", ...scope, ...input.extraBody }),
   }));
   return { response, providerHandler, createClient, filters };
 }
 
 describe("shared Edge policy enforcement", () => {
+  it.each([
+    { label: "note from a different assignment", extraBody: { noteId }, noteAssignmentId: otherId },
+    { label: "note from a different class", extraBody: { noteId, classId }, noteClassId: otherId },
+    { label: "class-only note combined with another assignment", extraBody: { noteId }, noteAssignmentId: null, noteClassId: otherId },
+    { label: "assignment combined with another class", extraBody: { classId: otherId } },
+    { label: "source from a different assignment", feature: "extract-assignment-source", extraBody: { sourceId: resourceId }, resourceAssignmentId: otherId },
+  ])("rejects $label before selecting a permissive policy or opening service access", async input => {
+    const result = await invoke({ ...input, scope: "assignment", classMode: "green" });
+    expect(result.response.status).toBe(403);
+    expect(await result.response.json()).toMatchObject({ code: "resource_scope_mismatch" });
+    expect(result.providerHandler).not.toHaveBeenCalled();
+    expect(result.createClient).toHaveBeenCalledTimes(1);
+  });
+
+  it("allows consistent assignment, class, note, and source identities", async () => {
+    const result = await invoke({ scope: "assignment", classMode: "green", feature: "extract-assignment-source",
+      extraBody: { noteId, classId, sourceId: resourceId } });
+    expect(result.response.status).toBe(200);
+    expect(result.providerHandler).toHaveBeenCalledOnce();
+    expect(result.filters).toHaveBeenCalledWith("assignment_sources", "owner_id", owner);
+  });
+
   it.each(tiers.flatMap(tier => ["red", "yellow"].map(requestMode => ({ tier, requestMode }))))
   ("honors an explicit $requestMode request without assignment scope in tier $tier", async input => {
     const result = await invoke({ ...input, scope: "unscoped", classMode: "green" });

@@ -63,15 +63,16 @@ function parseTrace(text, filename) {
 
 /**
  * Next 15 joins exclusion globs with native Windows backslashes, which picomatch
- * interprets as escapes. Apply the same public-only exclusion by resolved path
+ * interprets as escapes. Apply the same public/artifacts exclusions by resolved path
  * containment to the actual build artifacts, then run the unchanged strict gate.
  * Static assets stay in public and remain deployment inputs. No dependencies
- * outside that exact directory may be removed here.
+ * outside those exact directories may be removed here.
  */
 export async function applyPublicTraceExclusion(root, distDir = ".next") {
   const project = path.resolve(root), app = path.resolve(project, distDir, "server/app");
   const publicRoot = path.join(project, "public");
-  let changedTraces = 0, removedEntries = 0, restoredEntries = 0;
+  const artifactsRoot = path.join(project, "artifacts");
+  let changedTraces = 0, removedEntries = 0, removedArtifactEntries = 0, restoredEntries = 0;
   for (const trace of await traceFiles(app)) {
     const value = parseTrace(await readFile(trace, "utf8"), path.relative(project, trace));
     const additionalFiles = await rootCinematicTraceFiles(app, trace, publicRoot);
@@ -86,7 +87,10 @@ export async function applyPublicTraceExclusion(root, distDir = ".next") {
     const files = [];
     for (const file of mergedFiles) {
       const filename = path.resolve(path.dirname(trace), file.replaceAll("\\", "/"));
-      if (!isWithin(publicRoot, filename) || isRequiredCinematicLandingAsset(app, trace, publicRoot, filename)) {
+      if (isWithin(artifactsRoot, filename)) {
+        removedEntries++;
+        removedArtifactEntries++;
+      } else if (!isWithin(publicRoot, filename) || isRequiredCinematicLandingAsset(app, trace, publicRoot, filename)) {
         files.push(file);
       } else {
         removedEntries++;
@@ -100,8 +104,9 @@ export async function applyPublicTraceExclusion(root, distDir = ".next") {
   return {
     changedTraces,
     removedEntries,
+    removedArtifactEntries,
     restoredEntries,
-    exclusion: "public/**/* except the root cinematic landing source files",
+    exclusion: "artifacts/**/*; public/**/* except the root cinematic landing source files",
   };
 }
 
@@ -110,6 +115,7 @@ export async function auditFunctionTraces(root, distDir = ".next", limitBytes = 
   if (!Number.isSafeInteger(limitBytes) || limitBytes < 1) throw new Error("Invalid function trace limit.");
   const project = path.resolve(root), app = path.resolve(project, distDir, "server/app");
   const publicRoot = path.join(project, "public");
+  const artifactsRoot = path.join(project, "artifacts");
   const traces = await traceFiles(app);
   if (!traces.length) throw new Error("No server route traces found. Run the production build first.");
   const sizes = new Map();
@@ -120,6 +126,7 @@ export async function auditFunctionTraces(root, distDir = ".next", limitBytes = 
       path.resolve(path.dirname(trace), file.replaceAll("\\", "/")))])];
     let bytes = 0;
     const publicAssets = [];
+    const artifactAssets = [];
     for (const filename of paths) {
       if (!sizes.has(filename)) {
         const info = await stat(filename);
@@ -130,12 +137,16 @@ export async function auditFunctionTraces(root, distDir = ".next", limitBytes = 
       if (isWithin(publicRoot, filename) && !isRequiredCinematicLandingAsset(app, trace, publicRoot, filename)) {
         publicAssets.push(publicRelativePath(publicRoot, filename));
       }
+      if (isWithin(artifactsRoot, filename)) {
+        artifactAssets.push(path.relative(artifactsRoot, filename).replaceAll("\\", "/"));
+      }
     }
     rows.push({ route: path.relative(app, trace).replaceAll("\\", "/").replace(/\/(?:route|page)\.js\.nft\.json$/u, ""),
-      files: paths.length, bytes, exceedsLimit: bytes > limitBytes, publicAssetCount: publicAssets.length, publicAssets: publicAssets.slice(0, 10) });
+      files: paths.length, bytes, exceedsLimit: bytes > limitBytes, publicAssetCount: publicAssets.length, publicAssets: publicAssets.slice(0, 10),
+      artifactAssetCount: artifactAssets.length, artifactAssets: artifactAssets.slice(0, 10) });
   }
   rows.sort((left, right) => right.bytes - left.bytes);
-  const failures = rows.filter(row => row.exceedsLimit || row.publicAssets.length);
+  const failures = rows.filter(row => row.exceedsLimit || row.publicAssetCount || row.artifactAssetCount);
   return { version: "diana-function-trace-gate-v1", status: failures.length ? "blocked" : "passed", limitBytes,
     routes: rows.length, maximumBytes: rows[0].bytes, failures, largest: rows.slice(0, 10),
     qualification: "Local uncompressed trace estimate. Provider packaging adds overhead; deployment readiness still requires the provider's build result." };

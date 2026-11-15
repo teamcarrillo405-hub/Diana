@@ -54,6 +54,32 @@ describe("server function trace deployment gate", () => {
     await expect(auditFunctionTraces(root, ".next", 100)).rejects.toThrow();
   });
 
+  it("blocks and strips only the exact local artifacts root while retaining runtime dependencies", async () => {
+    const { root, route, trace, files } = await fixture();
+    const artifact = path.join(root, "artifacts/review/large-video.mp4");
+    const similarlyNamed = path.join(root, "artifacts-runtime/required.json");
+    const privateRuntime = path.join(root, "private-runtime.json");
+    await mkdir(path.dirname(artifact), { recursive: true });
+    await mkdir(path.dirname(similarlyNamed), { recursive: true });
+    await writeFile(artifact, "review");
+    await writeFile(similarlyNamed, "runtime");
+    await writeFile(privateRuntime, "private");
+    const artifactPath = path.relative(route, artifact);
+    const traversal = path.relative(route, root).replaceAll("\\", "/") + "/artifacts/../private-runtime.json";
+    const retained = [...files, path.relative(route, similarlyNamed), traversal];
+    await writeFile(trace, JSON.stringify({ version: 1, files: [
+      ...retained, artifactPath.replaceAll("/", "\\"), artifactPath.replaceAll("\\", "/"),
+    ] }));
+    const before = await auditFunctionTraces(root, ".next", 100);
+    expect(before.status).toBe("blocked");
+    expect(before.failures[0]).toMatchObject({ exceedsLimit: false, artifactAssetCount: 1, artifactAssets: ["review/large-video.mp4"] });
+    expect(await applyPublicTraceExclusion(root)).toMatchObject({ changedTraces: 1, removedEntries: 2, removedArtifactEntries: 2 });
+    expect(JSON.parse(await readFile(trace, "utf8")).files).toEqual(retained);
+    expect((await stat(artifact)).isFile()).toBe(true);
+    expect(await auditFunctionTraces(root, ".next", 100)).toMatchObject({ status: "passed", maximumBytes: 33 });
+    expect(await applyPublicTraceExclusion(root)).toMatchObject({ changedTraces: 0, removedEntries: 0, removedArtifactEntries: 0 });
+  });
+
   it("repairs actual Windows/POSIX public entries while retaining content, runtime and similarly named directories", async () => {
     const { root, route, trace, files } = await fixture();
     await mkdir(path.join(root, "public/vendor"), { recursive: true });
@@ -92,15 +118,19 @@ describe("server function trace deployment gate", () => {
       sourceFiles.push(path.relative(rootRoute, filename).replaceAll("\\", "/"));
     }
     const excludedMedia = path.join(cinematicRoot, "poster.mp4");
+    const localArtifact = path.join(root, "artifacts/review/poster.mp4");
     await writeFile(excludedMedia, "large media");
+    await mkdir(path.dirname(localArtifact), { recursive: true });
+    await writeFile(localArtifact, "local review media");
     await writeFile(trace, JSON.stringify({
       version: 1,
-      files: [path.relative(rootRoute, privateDependency), path.relative(rootRoute, excludedMedia)],
+      files: [path.relative(rootRoute, privateDependency), path.relative(rootRoute, excludedMedia), path.relative(rootRoute, localArtifact)],
     }));
 
     expect(await applyPublicTraceExclusion(root)).toMatchObject({
       changedTraces: 1,
-      removedEntries: 1,
+      removedEntries: 2,
+      removedArtifactEntries: 1,
       restoredEntries: 3,
     });
     const restored = JSON.parse(await readFile(trace, "utf8"));
