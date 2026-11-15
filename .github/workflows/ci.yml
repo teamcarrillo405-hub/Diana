@@ -176,7 +176,7 @@ jobs:
           Copy-Item -Path "supabase/migrations/*.sql" -Destination $migrationDirectory
           try {
             & npx --yes supabase@2.111.0 start --workdir $workdir `
-              -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor
+              -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor
             if ($LASTEXITCODE -ne 0) {
               throw "Full migration chain did not apply cleanly."
             }
@@ -271,7 +271,7 @@ jobs:
         shell: pwsh
         run: |
           & npx --yes supabase@2.111.0 start --workdir $env:DATABASE_CONTRACT_WORKDIR `
-            -x studio,imgproxy,inbucket,edge-runtime,logflare,vector,supavisor
+            -x studio,imgproxy,mailpit,edge-runtime,logflare,vector,supavisor
           if ($LASTEXITCODE -ne 0) {
             throw "Disposable Supabase baseline did not start."
           }

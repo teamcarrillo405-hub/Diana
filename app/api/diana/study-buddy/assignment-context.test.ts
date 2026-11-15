@@ -355,7 +355,7 @@ function cookieClient(assignment: Record<string, unknown> | null, options: {
     eq: () => snapshotQuery,
     order: () => snapshotQuery,
     limit: () => snapshotQuery,
-    maybeSingle: () => Promise.resolve({ data: options.snapshot === undefined ? { created_at: new Date().toISOString(), readiness: { body: "low", focus: "scattered" }, support_intensity: "guided", friction_signals: { incorrectAttempts: 1 } } : options.snapshot, error: null }),
+    maybeSingle: () => Promise.resolve({ data: options.snapshot === undefined ? { created_at: new Date(Date.now() - 60_000).toISOString(), readiness: { body: "low", focus: "scattered" }, support_intensity: "guided", friction_signals: { incorrectAttempts: 1 } } : options.snapshot, error: null }),
   };
   const taskSignalQuery: any = {
     select: () => taskSignalQuery,
