@@ -13,8 +13,9 @@ import "./canonical-public-landing.css";
 import "./public-pages.css";
 import { AccentProvider } from "@/components/accent-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { resolvePublicSiteUrl } from "@/lib/public-site-url";
 
-const publicSiteUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://diana.app";
+const publicSiteUrl = resolvePublicSiteUrl();
 const publicSiteStructuredData = {
   "@context": "https://schema.org",
   "@graph": [
@@ -59,7 +60,7 @@ const barlowSemiCondensed = Barlow_Semi_Condensed({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "https://diana.app"),
+  metadataBase: new URL(publicSiteUrl),
   title: {
     default: "Diana | Homework Workspace for Students",
     template: "%s | Diana",

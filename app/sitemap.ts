@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { resolvePublicSiteUrl } from "@/lib/public-site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://diana.app";
+  const baseUrl = resolvePublicSiteUrl();
   const lastModified = new Date("2026-08-25T00:00:00.000Z");
   return ["", "/student-control", "/trust"].map((path) => ({
     url: `${baseUrl}${path}`,

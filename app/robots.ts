@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { resolvePublicSiteUrl } from "@/lib/public-site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://diana.app";
+  const baseUrl = resolvePublicSiteUrl();
   return {
     rules: {
       userAgent: "*",
