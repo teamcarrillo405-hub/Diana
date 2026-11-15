@@ -4,6 +4,12 @@ import { describe, expect, it } from "vitest";
 
 import { contentSecurityPolicy, securityHeaders } from "./response-headers";
 
+function connectSources(policy: string): string[] {
+  const directive = policy.split("; ").find((value) => value.startsWith("connect-src "));
+  if (!directive) throw new Error("Content Security Policy is missing connect-src.");
+  return directive.split(" ").slice(1);
+}
+
 describe("browser response hardening", () => {
   it("binds scripts to the request nonce and denies framing", () => {
     const headers = securityHeaders("nonce-value", true);
@@ -30,7 +36,19 @@ describe("browser response hardening", () => {
     expect(contentSecurityPolicy("n", true)).not.toContain("'unsafe-eval'");
   });
 
-  it("permits the controlled OpenAI Realtime WebRTC connection", () => {
-    expect(contentSecurityPolicy("n", true)).toContain("connect-src 'self' https://api.openai.com");
+  it("permits only the controlled OpenAI Realtime and Supabase connections", () => {
+    const previousSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://diana-project.supabase.co/rest/v1";
+
+    try {
+      expect(connectSources(contentSecurityPolicy("n", true)).sort()).toEqual([
+        "'self'",
+        "https://api.openai.com",
+        "https://diana-project.supabase.co",
+      ].sort());
+    } finally {
+      if (previousSupabaseUrl === undefined) delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+      else process.env.NEXT_PUBLIC_SUPABASE_URL = previousSupabaseUrl;
+    }
   });
 });
