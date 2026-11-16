@@ -1,110 +1,134 @@
 .week.week.week.week.week.week.week {
-  --ink: #fff9ed; --muted: #d9e5dd; --runway-grid: #d7e4d226;
-  --runway-planned: #c4d7ce; --runway-study: #e4ce9c; --runway-focus: #fff9ed;
-  min-width: 0; color: var(--ink); font-family: var(--font-lexend), sans-serif;
+  --ink: var(--campus-ink, #fff9ed);
+  --muted: var(--campus-muted, #d9e5dd);
+  --week-rule: var(--campus-rule, #d6c99c70);
+  --runway-grid: #d7e4d226;
+  --runway-planned: #c4d7ce;
+  --runway-study: #e4ce9c;
+  --runway-focus: var(--ink);
+  min-width: 0;
+  color: var(--ink);
+  font-family: var(--font-lexend), sans-serif;
 }
-.week.week.week.week .heading { margin: 0 0 15px; }
-.week.week.week.week .eyebrow {
-  display: flex; align-items: center; flex-wrap: wrap; gap: 7px 10px; margin: 0 0 9px;
-  color: #fff9ed; font: italic 800 21px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase;
+
+.week.week.week.week .heading {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+  margin: 0 0 12px;
 }
-.eyebrow::before {
-  content: ""; flex: none; width: 30px; height: 20px;
-  background: linear-gradient(105deg, transparent 0 8%, var(--school-primary, #784080) 8% 23%, transparent 23% 37%, var(--school-primary, #784080) 37% 52%, transparent 52% 66%, var(--school-primary, #784080) 66% 81%, transparent 81%);
+.week.week.week.week .heading h2 {
+  margin: 0;
+  color: var(--ink);
+  font: var(--campus-title-font, italic 800 clamp(35px, 4.3vw, 55px)/1 var(--font-saira-condensed), sans-serif);
+  text-transform: uppercase;
 }
-.week.week.week.week .eyebrow span { color: #dfd2b4; font: 600 11px/1.4 var(--font-lexend), sans-serif; text-transform: none; }
-.week.week.week.week .heading h2 { margin: 0; color: #fff9ed; font: italic 800 clamp(38px, 4vw, 52px)/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
-.week.week.week.week .heading > p:last-child { margin: 5px 0 0; color: var(--muted); font: 400 12px/1.4 var(--font-lexend), sans-serif; text-transform: none; }
-.summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; background: #142720; border-block: 1px solid #cad5ca66; border-left: 4px solid var(--school-trim, var(--school-secondary, #d7be87)); }
-.summary > div { min-width: 0; padding: 12px; }
-.summary > div + div { border-left: 1px solid #cad5ca45; }
-.week.week.week.week .summary dt { margin: 0 0 5px; color: var(--muted); font: 600 11px/1.35 var(--font-lexend), sans-serif; }
-.week.week.week.week .summary dd { margin: 0; color: #fff9ed; font: 600 13px/1.25 var(--font-lexend), sans-serif; overflow-wrap: anywhere; }
-.week.week.week.week .summary dd strong { color: #fff9ed; font: 800 clamp(30px, 3.2vw, 40px)/1 var(--font-saira-condensed), sans-serif; font-variant-numeric: tabular-nums; }
-.week.week.week.week .summary dd span { color: var(--muted); font: 600 20px/1 var(--font-saira-condensed), sans-serif; }
-.week.week.week.week .summaryNote { margin: 8px 0 0; color: var(--muted); font: 400 11px/1.45 var(--font-lexend), sans-serif; }
-.workList { margin-top: 17px; border-top: 3px solid var(--school-trim, var(--school-secondary, #d5b889)); }
-.sectionHeader { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 10px 0; }
-.workList > .sectionHeader { border-bottom: 1px solid #cad5ca55; }
-.week.week.week.week .sectionHeader h3 { margin: 0; color: #fff9ed; font: italic 800 21px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
-.sectionHeader > span { color: var(--muted); font: 500 11px/1.4 var(--font-lexend), sans-serif; }
+.week.week.week.week .dates {
+  margin: 0;
+  color: var(--muted);
+  font: 500 13px/1.35 var(--font-lexend), sans-serif;
+  text-transform: none;
+}
+
+.workList { border-top: 2px solid var(--week-rule); }
 .assignmentList { list-style: none; margin: 0; padding: 0; }
-.assignmentList li { border-bottom: 1px solid #cad5ca3d; }
-.assignmentRow { display: flex; align-items: center; gap: 10px; min-height: 54px; padding: 8px 4px; color: #f7f8ef; text-decoration: none; }
+.assignmentList li { border-bottom: 1px solid var(--week-rule); }
+.assignmentRow { display: flex; align-items: center; gap: 8px; min-height: 54px; padding: 8px 4px; color: var(--ink); text-decoration: none; }
 a.assignmentRow:hover { background: #ffffff12; }
-a.assignmentRow:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
-.assignmentRow svg { flex: none; color: #e6d5af; }
+.assignmentRow svg, .recordLink svg { flex: none; color: var(--muted); }
 .assignmentIdentity { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; gap: 3px; }
-.week.week.week.week .assignmentIdentity strong { color: #fff9ed; font: 700 18px/1.1 var(--font-saira-condensed), sans-serif; overflow-wrap: anywhere; }
-.assignmentIdentity > span { color: var(--muted); font: 400 11px/1.35 var(--font-lexend), sans-serif; overflow-wrap: anywhere; }
-.assignmentStatus { flex: none; max-width: 38%; color: #e6dcc7; font: 700 15px/1.15 var(--font-saira-condensed), sans-serif; text-align: right; overflow-wrap: anywhere; }
-.week.week.week.week .listMessage, .week.week.week.week .listCaption { margin: 0; padding: 9px 0 0; color: var(--muted); font: 400 11px/1.45 var(--font-lexend), sans-serif; text-transform: none; }
-.recordLink {
-  position: relative; isolation: isolate; display: flex; align-items: center; justify-content: space-between; gap: 20px;
-  width: min(100%, 280px); min-height: 44px; margin-top: 12px; padding: 8px 18px;
-  color: var(--school-primary-text, #fff9ed); font: italic 800 19px/1.1 var(--font-saira-condensed), sans-serif;
-  text-decoration: none; text-transform: uppercase;
+.week.week.week.week .assignmentIdentity strong { color: var(--ink); font: 700 21px/1.08 var(--font-saira-condensed), sans-serif; overflow-wrap: anywhere; }
+.assignmentIdentity > span { color: var(--muted); font: 400 12px/1.35 var(--font-lexend), sans-serif; overflow-wrap: anywhere; }
+.assignmentStatus { flex: none; max-width: 36%; color: var(--muted); font: 500 12px/1.35 var(--font-lexend), sans-serif; text-align: right; overflow-wrap: anywhere; }
+.week.week.week.week .listMessage { margin: 0; padding: 12px 0; color: var(--muted); font: 400 13px/1.45 var(--font-lexend), sans-serif; text-transform: none; }
+
+.summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 12px 0 0; background: #142720; border-block: 1px solid var(--week-rule); }
+.summary > div { display: grid; grid-template-rows: auto 1fr; gap: 3px; min-width: 0; padding: 8px; }
+.summary > div + div { border-inline-start: 1px solid var(--week-rule); }
+.week.week.week.week .summary dt { margin: 0; color: var(--muted); font: 500 12px/1.3 var(--font-lexend), sans-serif; }
+.week.week.week.week .summary dd { align-self: end; margin: 0; color: var(--ink); font: 500 12px/1.3 var(--font-lexend), sans-serif; overflow-wrap: anywhere; }
+.week.week.week.week .summary dd strong { color: var(--ink); font: 650 16px/1.2 var(--font-lexend), sans-serif; font-variant-numeric: tabular-nums; }
+.week.week.week.week .summary dd span { color: var(--muted); }
+.relatedLinks { display: flex; flex-wrap: wrap; gap: 0 16px; margin-block: 2px; }
+.week.week.week.week .recordLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding-inline: 3px;
+  color: var(--ink);
+  font: 550 13px/1.35 var(--font-lexend), sans-serif;
+  text-transform: none;
+  text-decoration: none;
 }
-.recordLink::before {
-  position: absolute; z-index: -1; inset: 0; content: "";
-  background: linear-gradient(var(--school-primary, #64316f), var(--school-primary, #64316f)) center / calc(100% - 4px) calc(100% - 4px) no-repeat, var(--school-trim, var(--school-secondary, #d5b889));
-  clip-path: polygon(4% 0, 100% 0, 96% 100%, 0 100%);
+.week.week.week.week a.recordLink:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.studyDetails { border-block: 1px solid var(--week-rule); }
+.week.week.week.week .studyDetails > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  gap: 10px;
+  padding: 2px 4px;
+  color: var(--ink);
+  font: var(--campus-control-font, 650 14px/1.4 var(--font-lexend), sans-serif);
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+  list-style: none;
 }
-.recordLink svg { flex: none; }
-a.recordLink:hover::before { filter: brightness(1.18); }
-a.recordLink:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-.studyDetails { margin-top: 16px; border-block: 1px solid #cad5ca66; }
-.studyDetails summary { display: flex; align-items: center; justify-content: space-between; min-height: 48px; color: #fff9ed; font: italic 800 20px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; cursor: pointer; list-style: none; }
 .studyDetails summary::-webkit-details-marker { display: none; }
-.studyDetails summary svg { transition: transform 160ms ease; }
+.studyDetails summary svg { flex: none; transition: transform 160ms ease; }
 .studyDetails[open] summary svg { transform: rotate(180deg); }
-.studyDetails summary:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
-.week.week.week.week .target { margin: 0; color: var(--muted); font: 400 11px/1.45 var(--font-lexend), sans-serif; }
-.week.week.week.week .target b { color: #fff9ed; }
+.week.week.week.week :is(a.recordLink, a.assignmentRow, .studyDetails summary, [data-runway-plot] button):focus-visible { outline: 2px solid var(--campus-focus, #fff9ed); outline-offset: -2px; }
+.week.week.week.week .summaryNote, .week.week.week.week .target { color: var(--muted); font: 400 12px/1.45 var(--font-lexend), sans-serif; }
+.week.week.week.week .summaryNote { margin: 0 0 12px; }
+.week.week.week.week .target { margin: 0; }
+.week.week.week.week .target b { color: var(--ink); }
+
 .statistics { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; padding: 14px 0 16px; }
 .activity, .classes { min-width: 0; }
-.activity { padding-right: 20px; border-right: 1px solid #cad5ca45; }
+.activity { padding-inline-end: 20px; border-inline-end: 1px solid var(--week-rule); }
 .week.week.week.week .activity > section { padding: 0; border: 0; }
 .week.week.week.week [data-runway-heading] { display: flex; justify-content: space-between; gap: 8px; }
-.week.week.week.week [data-runway-heading] > span:first-child { color: #fff9ed; font: italic 800 21px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
-.week.week.week.week [data-runway-heading] > span:last-child { color: var(--muted); font: 600 10px/1.4 var(--font-lexend), sans-serif; }
+.week.week.week.week :is([data-runway-heading] > span:first-child, .sectionHeader h3) { margin: 0; color: var(--ink); font: italic 800 20px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.week.week.week.week :is([data-runway-heading] > span:last-child, .sectionHeader > span) { color: var(--muted); font: 500 12px/1.35 var(--font-lexend), sans-serif; text-transform: none; }
 .week.week.week.week [data-runway-plot] { height: 145px; margin-top: 10px; }
-.week.week.week.week [data-runway-label] { font-size: 11px; }
+.week.week.week.week [data-runway-plot] button { width: 100%; justify-self: stretch; }
+.week.week.week.week [data-runway-label] { font: 600 11px/1.2 var(--font-lexend), sans-serif; letter-spacing: normal; text-transform: none; }
 .week.week.week.week [data-runway-footer] { flex-wrap: wrap; gap: 5px; padding-top: 8px; }
-.week.week.week.week [data-runway-footer] p { margin: 0; color: var(--muted); font-size: 10px; }
-.classes .sectionHeader { padding-top: 0; }
+.week.week.week.week [data-runway-footer] p { margin: 0; color: var(--muted); font-size: 12px; }
+.week.week.week.week [data-runway-footer] > span { font-size: 11px; text-transform: none; }
+.sectionHeader { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 0 0 8px; }
 .classList { margin: 0; padding: 0; list-style: none; }
-.classList li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 4px 9px; min-height: 50px; padding: 8px 0; border-bottom: 1px solid #cad5ca45; }
+.classList li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; align-items: center; gap: 4px 9px; min-height: 50px; padding: 8px 0; border-bottom: 1px solid var(--week-rule); }
 .classList svg { grid-column: 1; grid-row: 1 / 3; align-self: start; color: var(--class-color); }
-.classList li > span:first-of-type { grid-column: 2; color: #fff9ed; font: 700 18px/1.1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
-.week.week.week.week .classList b { grid-column: 3; color: #fff9ed; font: 700 18px/1.1 var(--font-saira-condensed), sans-serif; white-space: nowrap; }
+.classList li > span:first-of-type { grid-column: 2; color: var(--ink); font: 600 13px/1.3 var(--font-lexend), sans-serif; overflow-wrap: anywhere; }
+.week.week.week.week .classList b { grid-column: 3; color: var(--ink); font: 650 13px/1.3 var(--font-lexend), sans-serif; white-space: nowrap; }
 .shareTrack { grid-column: 2; display: block; height: 4px; background: #ffffff20; }
 .shareTrack i { display: block; height: 100%; background: var(--class-color); }
-.classList small { grid-column: 3; color: var(--muted); font: 500 10px/1 var(--font-lexend), sans-serif; text-align: right; }
+.classList small { grid-column: 3; color: var(--muted); font: 500 11px/1.2 var(--font-lexend), sans-serif; text-align: right; }
+
 @media (max-width: 760px) {
-  .week.week.week.week .heading h2 { font-size: 38px; }
-  .summary > div { padding: 10px 8px; }
   .statistics { grid-template-columns: minmax(0, 1fr); gap: 16px; }
-  .activity { padding-right: 0; border-right: 0; }
-  .classes { padding-top: 14px; border-top: 1px solid #cad5ca45; }
+  .activity { padding-inline-end: 0; border-inline-end: 0; }
+  .classes { padding-top: 14px; border-top: 1px solid var(--week-rule); }
 }
 @media (max-width: 360px) {
-  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .summary > div:last-child { grid-column: 1 / -1; border-left: 0; border-top: 1px solid #cad5ca45; }
-  .week.week.week.week [data-runway-label] { font-size: 10px; }
+  .summary { grid-template-columns: minmax(0, 1fr); }
+  .summary > div { grid-template: auto / minmax(0, 1fr) auto; align-items: baseline; gap: 8px; padding: 5px 8px; }
+  .summary > div + div { border-inline-start: 0; border-block-start: 1px solid var(--week-rule); }
+  .summary dd { text-align: right; }
+  .relatedLinks { column-gap: 10px; }
 }
-:global(.dyslexia-font) .week.week.week.week :is(.heading h2, .eyebrow, .sectionHeader h3, [data-runway-heading] > span:first-child),
-:global(.dyslexia-font) .recordLink, :global(.dyslexia-font) .studyDetails summary { font-style: normal; line-height: 1.3; text-transform: none; }
+:global(.dyslexia-font) .week.week.week.week :is(.heading h2, .sectionHeader h3, [data-runway-heading] > span:first-child) { font-style: normal; line-height: 1.3; text-transform: none; }
 @media (prefers-reduced-motion: reduce) { .studyDetails summary svg { transition: none; } }
 @media (forced-colors: active) {
-  .week.week.week.week.week.week.week { --ink: CanvasText; --muted: CanvasText; --runway-planned: CanvasText; --runway-study: Highlight; --runway-focus: Highlight; color: CanvasText; }
-  .week.week.week.week :is(.heading h2, .heading > p, .eyebrow, .eyebrow span, .summary dt, .summary dd, .summary dd strong, .summary dd span, .summaryNote, .sectionHeader h3, .sectionHeader > span, .assignmentIdentity strong, .assignmentIdentity > span, .assignmentStatus, .listMessage, .listCaption, .target, .target b, .classList li > span, .classList b, .classList small, [data-runway-heading] > span) { color: CanvasText; }
-  .summary { background: Canvas; border-color: CanvasText; }
-  .summary > div, .workList, .workList > .sectionHeader, .assignmentList li, .studyDetails, .classes, .classList li { border-color: CanvasText; }
-  .studyDetails summary { color: CanvasText; }
-  .recordLink { color: ButtonText; background: ButtonFace; border: 2px solid ButtonText; }
-  .recordLink::before { display: none; }
-  a.recordLink:focus-visible, a.assignmentRow:focus-visible, .studyDetails summary:focus-visible { outline-color: Highlight; }
+  .week.week.week.week.week.week.week { --ink: CanvasText; --muted: CanvasText; --week-rule: CanvasText; --runway-planned: CanvasText; --runway-study: Highlight; --runway-focus: Highlight; }
+  .summary { background: Canvas; }
+  .week.week.week.week :is(a.recordLink, a.assignmentRow, .studyDetails summary, [data-runway-plot] button):focus-visible { outline-color: Highlight; }
   .shareTrack { border: 1px solid CanvasText; }
   .shareTrack i { background: Highlight; }
   .classList svg { color: CanvasText; }

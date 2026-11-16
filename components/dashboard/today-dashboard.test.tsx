@@ -27,6 +27,21 @@ describe("connected Lobby", () => {
     expect(container.querySelector("[data-today-stage-image] img, [data-today-stage-image] video")).toBeNull();
     expect(screen.queryByText(/sample data|local preview/i)).toBeNull();
   });
+
+  it("offers submission review before the empty state and keeps unfinished work first", () => {
+    const ready = { ...task, id: "review", ready: true, due: "Ready to submit", href: "/assignments/review/submit" };
+    const data = { ...empty(), otherReady: [ready] };
+    const { rerender } = render(<TodayDashboard data={data} profile={{}} checkIn={null} />);
+    expect(screen.getByRole("link", { name: "Review submission" })).toHaveAttribute("href", ready.href);
+    expect(screen.queryByRole("link", { name: "Add assignment" })).toBeNull();
+
+    rerender(<TodayDashboard data={{ ...data, plan: [{ ...task, resumable: true }] }} profile={{}} checkIn={null} />);
+    expect(screen.getByRole("link", { name: "Resume" })).toHaveAttribute("href", task.href);
+    expect(screen.queryByRole("link", { name: "Review submission" })).toBeNull();
+
+    rerender(<TodayDashboard data={empty()} profile={{}} checkIn={null} />);
+    expect(screen.getByRole("link", { name: "Add assignment" })).toHaveAttribute("href", "/quick-add");
+  });
   it("keeps check-in in its own optional tab and retains a draft when the student leaves", () => {
     render(<TodayDashboard data={{ ...empty(), plan: [task] }} profile={{}} checkIn={<input aria-label="Check-in note" defaultValue="Ready" />} />);
     const now = within(screen.getByRole("tabpanel", { name: "Now" }));

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildTodayView, todayWeek, type TodayAssignment, type TodayFocusLog } from "./today-view";
+import { buildTodayView, selectTodayLobbyTask, todayWeek, type TodayAssignment, type TodayFocusLog } from "./today-view";
 import type { ScoredAssignment } from "@/lib/scoring/next-five-minutes";
 
 const now = new Date("2026-09-09T20:00:00Z");
@@ -25,8 +25,36 @@ describe("live Today data", () => {
     const ranked = [assignment("priority"), assignment("later", { due_at: "2026-09-12T19:00:00Z" }), assignment("today", { due_at: "2026-09-09T09:00:00Z" })].map(a => ({ ...a, effective_minutes: 25 })) as ScoredAssignment[];
     const data = buildTodayView({ ...input, ranked });
     expect(data.plan.map(a => a.id)).toEqual(["priority", "today"]);
-    expect(data.plan[0].href).toBe("/assignments/priority/workspace");
-    expect(data.plan[0].minutes).toBe(25);
+    expect(selectTodayLobbyTask(data)).toMatchObject({ href: "/assignments/priority/workspace", ready: false, resumable: false, minutes: 25 });
+  });
+
+  it("resumes ranked unfinished work before offering a submission review", () => {
+    const ready = assignment("ready", { status: "exporting", due_at: "2026-09-08T19:00:00Z" });
+    const draft = assignment("draft", { status: "drafting" });
+    const ranked = [ready, draft].map(a => ({ ...a, effective_minutes: 25 })) as ScoredAssignment[];
+    const data = buildTodayView({ ...input, ranked, assignments: [ready, draft] });
+
+    expect(data.plan.map(task => task.id)).toEqual(["draft"]);
+    expect(selectTodayLobbyTask(data)).toMatchObject({ href: "/assignments/draft/workspace", ready: false, resumable: true });
+  });
+
+  it("offers the earliest submission review when the student has no unfinished work", () => {
+    const past = assignment("past", { status: "exporting", due_at: "2026-09-08T20:00:00Z" });
+    const soon = assignment("soon", { status: "exporting", due_at: "2026-09-11T19:00:00Z" });
+    const later = assignment("later/term", { status: "exporting", due_at: "2026-09-19T19:00:00Z" });
+    const undated = assignment("undated", { status: "exporting", due_at: null });
+    const legacy = assignment("legacy", { status: "done", due_at: "2026-09-07T20:00:00Z" });
+    const assignments = [undated, later, soon, past, past, legacy];
+    const data = buildTodayView({ ...input, assignments });
+
+    expect(data.plan).toEqual([]);
+    expect(data.earlierWork.filter(task => task.id === "past")).toHaveLength(1);
+    expect(data.earlierWork.find(task => task.id === "legacy")).toMatchObject({ ready: false, href: "/assignments/legacy/workspace" });
+    expect(selectTodayLobbyTask(data)).toMatchObject({ id: "past", ready: true, href: "/assignments/past/submit" });
+    expect(selectTodayLobbyTask(buildTodayView({ ...input, assignments: [undated, later, soon] }))?.id).toBe("soon");
+    expect(selectTodayLobbyTask(buildTodayView({ ...input, assignments: [undated, later] }))?.href).toBe("/assignments/later%2Fterm/submit");
+    expect(selectTodayLobbyTask(buildTodayView({ ...input, assignments: [undated] }))?.id).toBe("undated");
+    expect(selectTodayLobbyTask(buildTodayView({ ...input, assignments: [legacy] }))).toBeUndefined();
   });
 
   it("includes all of today through six more dates and keeps earlier and other ready work separate", () => {
@@ -106,6 +134,8 @@ describe("live Today data", () => {
   it("distinguishes unavailable sources from a new account", () => {
     const fresh = buildTodayView(input);
     const unavailable = buildTodayView({ ...input, assignments: null, weeklyAssignments: null, focusLogs: null, submittedAssignments: null });
+    expect(selectTodayLobbyTask(fresh)).toBeUndefined();
+    expect(selectTodayLobbyTask(unavailable)).toBeUndefined();
     expect(fresh.studyUnavailable).toBe(false);
     expect(unavailable.studyUnavailable).toBe(true);
     expect(unavailable.assignmentsUnavailable).toBe(true);

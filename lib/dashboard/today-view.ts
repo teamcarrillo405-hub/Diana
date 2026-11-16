@@ -1,8 +1,10 @@
 import type { Assignment, ScoredAssignment } from "@/lib/scoring/next-five-minutes";
+import { assignmentDestination } from "@/lib/assignment-navigation";
 import { normalizeDashboardAssignmentTitle } from "./lobby-view";
 import { isAssignmentFocusDurationMilliseconds } from "@/lib/timer/assignment-focus-actions";
 
 export const TODAY_COLORS = ["#9828ff", "#00bfff", "#00e99a", "#ffd42a", "#f242cf", "#ff9529"];
+export const TODAY_WEEK_RECORD_LIMIT = 5;
 const FINISHED = new Set(["done", "exporting", "submitted", "graded"]);
 const CLOSED = new Set(["submitted", "graded", "abandoned"]);
 const DAY = 86_400_000;
@@ -15,6 +17,14 @@ export type TodayData = ReturnType<typeof buildTodayView>;
 
 export function isTodayPlanCandidate(assignment: Pick<Assignment, "status">): boolean {
   return !FINISHED.has(assignment.status) && !CLOSED.has(assignment.status);
+}
+
+export function selectTodayLobbyTask(data: TodayData): TodayTask | undefined {
+  if (data.assignmentsUnavailable) return undefined;
+  return data.plan[0]
+    ?? data.earlierWork.find(task => task.ready)
+    ?? data.deadlines.find(task => task.ready)
+    ?? data.otherReady.find(task => task.ready);
 }
 
 export function formatMinutes(value: number) {
@@ -80,9 +90,9 @@ export function buildTodayView(input: {
   const dateLabel = (value: string | Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat("en-US", { ...options, timeZone: week.zone }).format(new Date(value));
   const task = (a: TodayAssignment, minutes = a.estimated_minutes ?? 0): TodayTask => {
     const key = a.due_at ? todayDateKey(a.due_at, week.zone) : "";
-    const ready = a.status === "done" || a.status === "exporting";
+    const ready = a.status === "exporting";
     const due = !key ? "No due date" : key === week.today ? "Today" : key === shiftDate(week.today, 1) ? "Tomorrow" : key < week.today ? "From earlier" : dateLabel(a.due_at!, { weekday: "short", month: "short", day: "numeric" });
-    return { id: a.id, title: normalizeDashboardAssignmentTitle(a.title), subject: subject(a), color: color(subject(a)), minutes: Math.max(0, Math.round(minutes)), due: ready ? "Ready to submit" : due, date: key ? dateLabel(a.due_at!, { month: "short", day: "numeric" }) : "No due date", day: key ? key.slice(-2).replace(/^0/, "") : "", month: key ? dateLabel(a.due_at!, { month: "short" }).toUpperCase() : "", ready, resumable: a.status === "drafting", href: `/assignments/${encodeURIComponent(a.id)}${ready ? "/submit" : "/workspace"}` };
+    return { id: a.id, title: normalizeDashboardAssignmentTitle(a.title), subject: subject(a), color: color(subject(a)), minutes: Math.max(0, Math.round(minutes)), due: ready ? "Ready to submit" : due, date: key ? dateLabel(a.due_at!, { month: "short", day: "numeric" }) : "No due date", day: key ? key.slice(-2).replace(/^0/, "") : "", month: key ? dateLabel(a.due_at!, { month: "short" }).toUpperCase() : "", ready, resumable: a.status === "drafting", href: assignmentDestination(a.id, a.status) };
   };
   const ranked = input.ranked.filter(isTodayPlanCandidate);
   const priority = ranked[0];
@@ -91,7 +101,7 @@ export function buildTodayView(input: {
   const sorted = active.sort((a, b) => (Date.parse(a.due_at ?? "") || Infinity) - (Date.parse(b.due_at ?? "") || Infinity));
   const deadlines = sorted.filter(a => a.due_at && todayDateKey(a.due_at, week.zone) >= week.today && todayDateKey(a.due_at, week.zone) < week.horizon).map(a => task(a));
   const earlierWork = sorted.filter(a => a.due_at && todayDateKey(a.due_at, week.zone) < week.today).map(a => task(a));
-  const otherReady = sorted.filter(a => (a.status === "done" || a.status === "exporting") && !deadlines.some(t => t.id === a.id) && !earlierWork.some(t => t.id === a.id)).map(a => task(a));
+  const otherReady = sorted.filter(a => a.status === "exporting" && !deadlines.some(t => t.id === a.id) && !earlierWork.some(t => t.id === a.id)).map(a => task(a));
   const subjects = subjectNames.map(name => ({ name, color: color(name), minutes: weekly.filter(a => subject(a) === name).reduce((sum, a) => sum + Math.max(0, a.estimated_minutes ?? 0), 0) })).filter(s => s.minutes > 0).sort((a, b) => b.minutes - a.minutes);
   const planned = Array<number>(7).fill(0);
   const studied = Array<number>(7).fill(0);
@@ -132,7 +142,7 @@ export function buildTodayView(input: {
       return { assignment: a, when, timing: `${isSubmitted ? "Submitted" : "Due"} ${dateLabel(when, { weekday: "short", month: "short", day: "numeric" })}` };
     })
     .sort((a, b) => Date.parse(a.when) - Date.parse(b.when) || a.assignment.title.localeCompare(b.assignment.title))
-    .slice(0, 5)
+    .slice(0, TODAY_WEEK_RECORD_LIMIT)
     .map(({ assignment: a, timing }) => ({ id: a.id, title: normalizeDashboardAssignmentTitle(a.title), subject: subject(a), status: statusLabel(a.status), timing, href: `/assignments/${encodeURIComponent(a.id)}` }));
   return { plan, deadlines, earlierWork, otherReady, subjects, weekRecords, total: weekly.length, finished: weekly.filter(a => FINISHED.has(a.status)).length, submitted, sessions, planned: planned.map(Math.round), studied: studied.map(Math.round), currentDay: week.weekday, today: week.today, dateLabel: dateLabel(input.now, { weekday: "long", month: "short", day: "numeric" }), weekLabel: `${dateLabel(new Date(week.boundaries[0]), { month: "short", day: "numeric" })} - ${dateLabel(new Date(week.boundaries[7] - 1), { month: "short", day: "numeric" })}`, horizonLabel: dateLabel(new Date(localMidnight(week.horizon, week.zone) - 1), { weekday: "long", month: "short", day: "numeric" }), assignmentsUnavailable: input.assignments === null, weeklyUnavailable: input.weeklyAssignments === null, studyUnavailable: input.focusLogs === null, submissionsUnavailable: input.submittedAssignments === null };
 }

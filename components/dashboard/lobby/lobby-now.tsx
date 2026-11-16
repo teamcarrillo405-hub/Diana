@@ -12,7 +12,7 @@ export function LobbyNow({ task, unavailable, onRetry, sample = false, checkInNo
       <div data-now-action><dl className={styles.meta} data-now-meta>
         <div className={styles.metaItem}><dt><Clock3 size={15} aria-hidden="true" /> Estimated time</dt><dd>{task.minutes ? `${task.minutes} min` : "Not set"}</dd></div>
         <div className={styles.metaItem}><dt><CalendarDays size={15} aria-hidden="true" /> {task.ready ? "Status" : "Due"}</dt><dd>{task.due}</dd></div>
-      </dl>{sample ? <span className={styles.start} data-now-start aria-disabled="true">{action}</span> : <Link className={styles.start} data-now-start href={task.href}>{action}</Link>}</div>
+      </dl>{sample ? <span className={styles.start} data-now-start data-submission-action={task.ready || undefined} aria-disabled="true">{action}</span> : <Link className={styles.start} data-now-start data-submission-action={task.ready || undefined} href={task.href}>{action}</Link>}</div>
     </> : <div className={styles.empty} data-now-empty><h2>A little room to plan</h2>{sample
       ? <span className={styles.start} data-now-start aria-disabled="true">Add assignment</span>
       : <Link className={styles.start} data-now-start href="/quick-add">Add assignment</Link>}</div>}

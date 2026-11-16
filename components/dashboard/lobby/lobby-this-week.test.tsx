@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { buildTodayView } from "@/lib/dashboard/today-view";
+import { buildTodayView, TODAY_WEEK_RECORD_LIMIT } from "@/lib/dashboard/today-view";
 import { LobbyThisWeek } from "./lobby-this-week";
 
 const fixture = () => buildTodayView({
@@ -22,10 +22,13 @@ describe("This Week", () => {
     expect(screen.getByText("Due this week marked done").closest("div")).toHaveTextContent("2 / 3");
     expect(screen.getByText("Submitted this week").closest("div")).toHaveTextContent("1");
     expect(screen.getByText("Completed focus time").closest("div")).toHaveTextContent("15m");
-    expect(screen.getByRole("link", { name: /History notes/ })).toHaveAttribute("href", "/assignments/one");
+    const assignment = screen.getByRole("link", { name: /History notes/ });
+    expect(assignment).toHaveAttribute("href", "/assignments/one");
+    expect(assignment.compareDocumentPosition(screen.getByLabelText("Weekly summary")) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getAllByRole("link", { name: "View completed work" })).toHaveLength(1);
     expect(screen.getByRole("link", { name: "View completed work" })).toHaveAttribute("href", "/proof");
-    expect(screen.getByText(/marking done and submitting are separate steps/i)).toBeVisible();
+    expect(screen.queryByRole("link", { name: "View all work" })).toBeNull();
+    expect(screen.getByText(/marking done and submitting are separate steps/i)).not.toBeVisible();
   });
 
   it("reveals interactive study activity only on request", () => {
@@ -34,13 +37,21 @@ describe("This Week", () => {
     expect(disclosure).not.toHaveAttribute("open");
     fireEvent.click(screen.getByText("Study details"));
     expect(disclosure).toHaveAttribute("open");
+    expect(screen.getByText(/marking done and submitting are separate steps/i)).toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: "Mon: 20 minutes session target, 15 minutes completed" }));
     expect(screen.getByText(/Mon.*session target/)).toHaveTextContent("20m session target / 15m completed");
   });
 
-  it("keeps sample records and completed-work action noninteractive", () => {
-    render(<LobbyThisWeek sample data={{ ...fixture(), weekRecords: [{ id: "sample", title: "Sample essay", subject: "English", status: "Marked done", timing: "Due Thursday", href: "/assignments/sample" }] }} />);
-    expect(screen.getByText("Sample essay").closest("a")).toBeNull();
+  it("links to all work at the list limit and keeps the sample links noninteractive", () => {
+    const data = { ...fixture(), weekRecords: Array.from({ length: TODAY_WEEK_RECORD_LIMIT }, (_, index) => ({
+      id: `sample-${index}`, title: `Sample essay ${index + 1}`, subject: "English", status: "Marked done",
+      timing: "Due Thursday", href: `/assignments/sample-${index}`,
+    })) };
+    const { rerender } = render(<LobbyThisWeek data={data} />);
+    expect(screen.getByRole("link", { name: "View all work" })).toHaveAttribute("href", "/assignments");
+    rerender(<LobbyThisWeek sample data={data} />);
+    expect(screen.getByText("Sample essay 1").closest("a")).toBeNull();
+    expect(screen.queryByRole("link", { name: /view all work/i })).toBeNull();
     expect(screen.queryByRole("link", { name: /view completed work/i })).toBeNull();
   });
 
