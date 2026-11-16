@@ -21,9 +21,9 @@ export default async function ReferenceTutorPage({params,searchParams}:{params:P
   const course=await client.from("classes").select("name").eq("id",classId.data).eq("owner_id",user.id).maybeSingle();
   if(!course.data)notFound();
   const profile=await loadProfile();
-  return <StudentShell active="Classes" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url}}>
+  return <StudentShell active="Classes" campus profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url}}>
     <main id="main-content" className={styles.main}>
-      <Link href={`/classes/${classId.data}?materials=1`}>{course.data.name} / Materials</Link>
+      <Link className={styles.back} href={`/classes/${classId.data}?materials=1`}>{course.data.name} / Materials</Link>
       <header className={styles.heading}><h1>Ask Diana</h1></header>
       <StudyBuddyClient layout="class" classId={classId.data} initialReferenceBook={{bookId:PRECALCULUS_BOOK.id,...(chapter===undefined?{}:{chapter})}} initialQuestion="" tutorName="Diana" tutorStyle={profile?.tutor_style} complexity={profile?.tutor_complexity}/>
     </main>

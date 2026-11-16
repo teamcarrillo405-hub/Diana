@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { createHash } from "node:crypto";
 import { z } from "zod";
 
 import { createClient } from "@/lib/supabase/server";
@@ -45,6 +46,7 @@ type WorkspaceStore = {
 
 const TextSourceInput = z.object({
   assignmentId: z.string().uuid(),
+  sourceId: z.string().uuid().optional(),
   title: z.string().trim().min(1).max(180),
   text: z.string().trim().min(2).max(50000),
 });
@@ -213,6 +215,7 @@ export async function addAssignmentSourceText(input: z.infer<typeof TextSourceIn
   const { data: assignment } = await supabase.from("assignments").select("id").eq("id", parsed.data.assignmentId).eq("owner_id", user.id).maybeSingle();
   if (!assignment) return { ok: false as const, error: "Assignment not found." };
   const { error } = await store.from("assignment_sources").insert({
+    ...(parsed.data.sourceId ? { id: parsed.data.sourceId } : {}),
     assignment_id: parsed.data.assignmentId,
     owner_id: user.id,
     source_type: "extracted_text",
@@ -220,7 +223,15 @@ export async function addAssignmentSourceText(input: z.infer<typeof TextSourceIn
     extracted_text: parsed.data.text,
     import_status: "imported",
   }).select("id").single();
-  if (error) return { ok: false as const, error: error.message };
+  if (error) {
+    if (!parsed.data.sourceId) return { ok: false as const, error: error.message };
+    const { data: saved } = await supabase.from("assignment_sources").select("id")
+      .eq("id", parsed.data.sourceId).eq("assignment_id", assignment.id).eq("owner_id", user.id)
+      .eq("source_type", "extracted_text").maybeSingle();
+    if (!saved) return { ok: false as const, error: "The instructions couldn’t be attached. Try again." };
+    await setAssignmentImportStatus(store, assignment.id, user.id, "imported");
+    return { ok: true as const };
+  }
   await setAssignmentImportStatus(store, parsed.data.assignmentId, user.id, "imported");
   await autoSeedProblemQueueFromSources(supabase, assignment.id, user.id);
   revalidatePath(`/assignments/${parsed.data.assignmentId}/workspace`);
@@ -270,8 +281,12 @@ export async function removeAssignmentSourceFile(input: z.infer<typeof RemoveAss
 
 export async function addAssignmentSourceFile(formData: FormData) {
   const assignmentId = typeof formData.get("assignmentId") === "string" ? String(formData.get("assignmentId")) : "";
+  const sourceId = formData.get("sourceId");
   const file = formData.get("file") as File | null;
-  if (!z.string().uuid().safeParse(assignmentId).success || !file) return { ok: false as const, error: "Choose a file first." };
+  if (!z.string().uuid().safeParse(assignmentId).success || !file || typeof file === "string"
+    || (sourceId !== null && (typeof sourceId !== "string" || !z.string().uuid().safeParse(sourceId).success))) {
+    return { ok: false as const, error: "Choose a file first." };
+  }
   const validation = await validateFileUpload("assignmentSource", file);
   if (!validation.ok) return { ok: false as const, error: validation.error };
   const { extension, mimeType } = validation.value;
@@ -281,26 +296,61 @@ export async function addAssignmentSourceFile(formData: FormData) {
   const { data: assignment } = await supabase.from("assignments").select("id").eq("id", assignmentId).eq("owner_id", user.id).maybeSingle();
   if (!assignment) return { ok: false as const, error: "Assignment not found." };
 
-  const storageKey = ownerStorageKey(user.id, "assignments", assignmentId, `${crypto.randomUUID()}.${extension}`);
-  const { error: uploadError } = await supabase.storage.from("note-docs").upload(storageKey, file, { contentType: mimeType });
-  if (uploadError) return { ok: false as const, error: uploadError.message };
+  // The retry identity covers both the source row and the uploaded bytes. It
+  // lets a repeat finish after an uncertain response without replacing a file.
+  const fileKey = sourceId
+    ? `${sourceId}-${createHash("sha256").update(new Uint8Array(await file.arrayBuffer())).digest("hex")}`
+    : crypto.randomUUID();
+  const storageKey = ownerStorageKey(user.id, "assignments", assignmentId, `${fileKey}.${extension}`);
+  const readSavedSource = () => supabase.from("assignment_sources").select("id, title, mime_type, storage_key, import_status")
+    .eq("id", sourceId!).eq("owner_id", user.id).eq("assignment_id", assignmentId).eq("source_type", "upload").maybeSingle();
+  function savedResult(saved: { id: string; title: string; mime_type: string | null; storage_key: string | null; import_status: string }) {
+    if (saved.storage_key !== storageKey) return { ok: false as const, error: "A different file is already attached to this assignment." };
+    const source = { id: saved.id, title: saved.title, mimeType: saved.mime_type ?? mimeType };
+    if (saved.import_status === "imported" || saved.import_status === "partial") {
+      return { ok: true as const, source, extractionStatus: saved.import_status };
+    }
+    return { ok: false as const, source, error: "The file is saved. You can check whether Diana can read it in the workspace." };
+  }
+  if (sourceId) {
+    const saved = await readSavedSource();
+    if (saved.error) return { ok: false as const, error: "Diana couldn’t check the file attachment. Try again." };
+    if (saved.data) return savedResult(saved.data);
+  }
+  const bucket = supabase.storage.from("note-docs");
+  const { error: uploadError } = await bucket.upload(storageKey, file, { contentType: mimeType });
+  if (uploadError && (!sourceId || !(await bucket.exists(storageKey)).data)) {
+    return { ok: false as const, error: "The file couldn’t be uploaded. Try again." };
+  }
+  const stableText = sourceId && extension === "txt" ? (await file.text()).slice(0, 50000) : null;
   const { data: source, error: sourceError } = await store.from("assignment_sources").insert({
+    ...(sourceId ? { id: sourceId } : {}),
     assignment_id: assignmentId,
     owner_id: user.id,
     source_type: "upload",
     title: file.name,
     storage_key: storageKey,
     mime_type: mimeType,
-    import_status: extension === "txt" ? "ready" : "extracting",
+    ...(stableText !== null ? { extracted_text: stableText } : {}),
+    import_status: stableText !== null ? "imported" : extension === "txt" ? "ready" : "extracting",
   }).select("id").single();
   if (sourceError || !source) {
-    await supabase.storage.from("note-docs").remove([storageKey]);
+    if (sourceId) {
+      const { data: saved } = await readSavedSource();
+      if (saved) return savedResult(saved);
+      // Keep the staged object if the database outcome is uncertain. It is
+      // owner-scoped and the same attempt can attach it on the next request.
+      return { ok: false as const, error: "Diana couldn’t confirm the file attachment. Try again." };
+    }
+    await bucket.remove([storageKey]);
     return { ok: false as const, error: sourceError?.message ?? "Couldn't add that source." };
   }
 
   if (extension === "txt") {
-    const text = await file.text();
-    await store.from("assignment_sources").update({ extracted_text: text.slice(0, 50000), import_status: "imported", error_message: null }).eq("id", source.id);
+    if (stableText === null) {
+      const text = await file.text();
+      await store.from("assignment_sources").update({ extracted_text: text.slice(0, 50000), import_status: "imported", error_message: null }).eq("id", source.id);
+    }
     await setAssignmentImportStatus(store, assignmentId, user.id, "imported");
     await autoSeedProblemQueueFromSources(supabase, assignment.id, user.id);
   } else {

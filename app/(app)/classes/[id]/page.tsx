@@ -56,7 +56,7 @@ export default async function ClassDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ materials?: string; rubric?: string }>;
+  searchParams: Promise<{ materials?: string; rubric?: string; work?: string }>;
 }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -133,6 +133,7 @@ export default async function ClassDetailPage({
   const currentGrade = ((gradeRows ?? []) as GradeRow[])[0] ?? null;
   const requestedView = await searchParams;
   const sourceOpen = requestedView.materials === "1" || requestedView.rubric === "scan";
+  const workOrigin = sourceOpen ? classAssignments.find(assignment => assignment.id === requestedView.work) : undefined;
   const assignmentIds=classAssignments.map(assignment=>assignment.id);
   const materialResult=assignmentIds.length?await supabase.from("assignment_sources")
     .select("id,title,assignment_id").eq("owner_id",user.id).in("assignment_id",assignmentIds).order("created_at",{ascending:false})
@@ -152,6 +153,7 @@ export default async function ClassDetailPage({
       rubricTitle={rubricRow?.title ?? null}
       grade={currentGrade ? { label: currentGrade.letter_grade ?? `${Math.round(currentGrade.final_percent)}%`, percent: currentGrade.letter_grade ? Math.round(currentGrade.final_percent) : null } : null}
       sourceOpen={sourceOpen}
+      workOrigin={workOrigin}
       timeZone={profile?.timezone ?? "UTC"}
       workUnavailable={Boolean(workError)}
       notesUnavailable={Boolean(notesError)}

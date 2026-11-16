@@ -49,7 +49,7 @@ vi.mock("@/components/assignment-plan-panel", () => ({ AssignmentPlanPanel: () =
 vi.mock("@/components/assignment-review-panel", () => ({
   AssignmentReviewPanel: (props: Record<string, unknown>) => {
     mocks.reviewPanelProps(props);
-    return null;
+    return <aside aria-label="Ask Diana" id="ask-diana" tabIndex={-1} />;
   },
 }));
 vi.mock("@/components/screen-design/student-bottom-nav", () => ({ StudentBottomNav: () => null }));
@@ -100,6 +100,34 @@ const baseProps = {
 };
 
 describe("AssignmentWorkspace reliability", () => {
+  it("opens checking work as its own step and flushes an edited draft before submission review", async () => {
+    const problemId = "22222222-2222-4222-8222-222222222222";
+    const classId = "33333333-3333-4333-8333-333333333333";
+    render(<AssignmentWorkspace {...baseProps} classId={classId} status="checking" initialProblems={[{
+      id: problemId,
+      problemNumber: 1,
+      problemText: "Draft the central claim.",
+      scaffold: { unitLabel: "Claim", unitType: "section" },
+      studentWork: { work: "Existing draft" },
+      progressStatus: "in_progress",
+    }]} />);
+
+    expect(screen.getByText("Review your work")).toBeVisible();
+    expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments?return=1");
+    expect(screen.getByRole("link", { name: "Class materials" })).toHaveAttribute("href", `/classes/${classId}?materials=1&work=${assignmentId}`);
+    const paper = screen.getByRole("textbox", { name: "Show your work" });
+    expect(paper).toHaveValue("Existing draft");
+    expect(paper.compareDocumentPosition(screen.getByRole("complementary", { name: "Ask Diana" })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    fireEvent.change(paper, { target: { value: "Updated draft" } });
+    fireEvent.click(screen.getByRole("button", { name: "Review submission" }));
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}/submit`));
+    expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({ problemId, patch: { work: "Updated draft" } });
+    expect(mocks.prepareAssignmentReview).toHaveBeenCalledWith({ assignmentId });
+    expect(mocks.saveProblemWorkPatch.mock.invocationCallOrder[0]).toBeLessThan(mocks.prepareAssignmentReview.mock.invocationCallOrder[0]);
+    expect(mocks.reviewPanelProps.mock.calls.at(-1)?.[0]).toMatchObject({ mathReviewSignal: 0 });
+  });
+
   it("uses the Algebra shell and the persistent Diana thread for a writing unit", () => {
     render(<AssignmentWorkspace {...baseProps} initialProblems={[{
       id: "99999999-9999-4999-8999-999999999999",
@@ -122,11 +150,13 @@ describe("AssignmentWorkspace reliability", () => {
     render(<AssignmentWorkspace
       {...baseProps}
       kind="problem_set"
+      sourcePacket={{ ...baseSourcePacket, directions: "Solve the equations from the worksheet." }}
       initialMode="math"
       assignmentProfile={profile}
       initialProblems={[]}
     />);
 
+    expect(screen.getByRole("region", { name: "Assignment prompt" })).toHaveTextContent("Solve the equations from the worksheet.");
     expect(screen.getByRole("button", { name: "Add or import problem" })).toBeTruthy();
   });
 
@@ -164,6 +194,7 @@ describe("AssignmentWorkspace reliability", () => {
         source_type: "upload",
         title: "Algebra worksheet",
         url: null,
+        originalHref: `/api/materials/source?assignmentId=${assignmentId}&sourceId=66666666-6666-4666-8666-666666666666`,
         extracted_text: sourcePacket.materialText,
         source_location: "page 1",
         import_status: "imported",
@@ -198,6 +229,8 @@ describe("AssignmentWorkspace reliability", () => {
     const details = screen.getByText("Assignment details").closest("details");
     expect(details).toBeTruthy();
     expect(details?.hasAttribute("open")).toBe(false);
+    details?.setAttribute("open", "");
+    expect(screen.getByRole("link", { name: "Open source: Algebra worksheet" })).toHaveAttribute("href", `/api/materials/source?assignmentId=${assignmentId}&sourceId=66666666-6666-4666-8666-666666666666`);
     expect(screen.queryByText("Diana picked this format")).toBeNull();
     expect(screen.queryByText("Study this assignment")).toBeNull();
   });
@@ -531,7 +564,7 @@ describe("AssignmentWorkspace reliability", () => {
     expect(screen.getByLabelText("Assignment problems").textContent).toContain("Done");
     fireEvent.change(screen.getByLabelText("Show your work"), { target: { value: "x = 5, checked" } });
     expect(screen.getByLabelText("Assignment problems").textContent).toContain("Current");
-    expect(screen.getByRole("button", { name: "Review" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Review with Diana" })).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Mark done" })).toBeNull();
   });
 

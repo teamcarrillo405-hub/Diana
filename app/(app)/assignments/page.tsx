@@ -30,8 +30,8 @@ type RankedAssignment = AssignmentRow & {
   effective_minutes: number | null;
 };
 
-export default async function AssignmentsPage({searchParams}:{searchParams:Promise<{view?:string}>}) {
-  const {view}=await searchParams;
+export default async function AssignmentsPage({ searchParams }: { searchParams: Promise<{ view?: string; return?: string }> }) {
+  const { view, return: returnToBoard } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -83,6 +83,9 @@ export default async function AssignmentsPage({searchParams}:{searchParams:Promi
   return (
     <WorkCommandCenter
       initialCategory={view === "review" || view === "ready" || view === "submitted" ? view : "active"}
+      studentId={user.id}
+      restoreContext={!view && returnToBoard === "1"}
+      schoolName={profile?.school_name}
       captureCount={captures.count ?? 0}
       assignments={collection.map(
         (assignment): WorkCommandItem => ({
@@ -110,12 +113,10 @@ export default async function AssignmentsPage({searchParams}:{searchParams:Promi
 }
 
 function workMinutes(assignment: RankedAssignment) {
-  return Math.max(
-    5,
-    Math.round(
-      assignment.effective_minutes ?? assignment.estimated_minutes ?? 10,
-    ),
-  );
+  const minutes = assignment.effective_minutes ?? assignment.estimated_minutes;
+  return typeof minutes === "number" && Number.isFinite(minutes) && minutes > 0
+    ? Math.max(1, Math.round(minutes))
+    : null;
 }
 
 function safeClassColor(value: string | null | undefined) {

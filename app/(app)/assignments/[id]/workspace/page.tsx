@@ -9,6 +9,7 @@ import {
   reconcileWorkspaceWithAssignmentProfile,
 } from "@/lib/assignment-profile";
 import { parseAssignmentPracticalGate } from "@/lib/course-mode/practical-gate";
+import { isOriginalMaterialType, originalMaterialUrl } from "@/lib/learning-engine/material-navigation";
 import { subjectPresentationFor } from "@/lib/assignment-subject-presentation";
 import {
   classifyWorkspaceMode,
@@ -98,7 +99,7 @@ export default async function AssignmentWorkspacePage({
 
   const artifactStore = supabase as unknown as ArtifactClient;
   const safetyStore = supabase as unknown as SafetyRpcClient;
-  const [homeworkKernel, { data: stepsRow }, { data: problems }, { data: artifactRows }, { data: practicalGateData }, { data: problemMessages }, { data: workspacePreferences }] = await Promise.all([
+  const [homeworkKernel, { data: stepsRow }, { data: problems }, { data: artifactRows }, { data: practicalGateData }, { data: problemMessages }, { data: workspacePreferences }, { data: navigationProfile }, { data: originalFiles }] = await Promise.all([
     loadAssignmentHomeworkKernel({
       supabase,
       ownerId: user.id,
@@ -136,6 +137,17 @@ export default async function AssignmentWorkspacePage({
       .select("problem_id, paper_style, work_height")
       .eq("assignment_id", id)
       .eq("owner_id", user.id),
+    supabase
+      .from("profiles")
+      .select("display_name, photo_url, photo_offset_x, photo_offset_y")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("assignment_sources")
+      .select("id, mime_type")
+      .eq("assignment_id", id)
+      .eq("owner_id", user.id)
+      .not("storage_key", "is", null),
   ]);
 
   if (!homeworkKernel) notFound();
@@ -147,6 +159,7 @@ export default async function AssignmentWorkspacePage({
   const presentation = subjectPresentationFor(assignmentProfile, sourcePacket);
   const assignmentUnderstanding = homeworkKernel.understanding;
   const sources = homeworkKernel.sources;
+  const originalFileIds = new Set(originalFiles?.filter((file) => isOriginalMaterialType(file.mime_type)).map((file) => file.id));
   const legacyMode = parseWorkspaceMode(savedWork.workspaceMode);
   const profileInput = {
     kind: assignment.kind as AssignmentKind,
@@ -210,6 +223,12 @@ export default async function AssignmentWorkspacePage({
     <AssignmentWorkspace
       assignmentId={assignment.id}
       classId={assignment.class_id}
+      navigationProfile={navigationProfile ? {
+        displayName: navigationProfile.display_name,
+        photoUrl: navigationProfile.photo_url,
+        photoOffsetX: navigationProfile.photo_offset_x,
+        photoOffsetY: navigationProfile.photo_offset_y,
+      } : undefined}
       title={assignment.title}
       courseLabel={className}
       kind={assignment.kind as AssignmentKind}
@@ -222,6 +241,7 @@ export default async function AssignmentWorkspacePage({
         source_type: source.source_type,
         title: source.title,
         url: source.url ?? null,
+        originalHref: source.id && originalFileIds.has(source.id) ? originalMaterialUrl(id, source.id) : null,
         extracted_text: source.extracted_text,
         source_location: source.source_location,
         import_status: source.import_status ?? "ready",

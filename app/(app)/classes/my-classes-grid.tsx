@@ -10,11 +10,11 @@ import shell from "@/components/student-shell/student-shell.module.css";
 import styles from "@/components/student-shell/classes.module.css";
 
 export type SubjectLibraryCardModel = { id: string; name: string; teacher: string | null; href: string; progressPct: number; openWorkCount: number; submittedCount?: number; nextAssignmentTitle: string | null; gradeLabel?: string | null; gradePercent?: number | null };
-type Props = { createForm: ReactNode; createOpen: boolean; profile?: StudentNavigationProfile; unavailable?: boolean };
+type Props = { createForm: ReactNode; createOpen: boolean; closeCreateHref?: string; profile?: StudentNavigationProfile; unavailable?: boolean };
 
 export function EmptyClassLibrary(props: Props) { return <MyClassesGrid {...props} cards={[]} />; }
 
-export function MyClassesGrid({ cards, createForm, createOpen, profile, unavailable = false }: Props & { cards: SubjectLibraryCardModel[] }) {
+export function MyClassesGrid({ cards, createForm, createOpen, closeCreateHref, profile, unavailable = false }: Props & { cards: SubjectLibraryCardModel[] }) {
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(cards[0]?.id);
   const refs = useRef(new Map<string, HTMLButtonElement>());
@@ -22,7 +22,7 @@ export function MyClassesGrid({ cards, createForm, createOpen, profile, unavaila
   const selected = visible.find(card => card.id === selectedId) ?? visible[0];
   return <StudentShell active="Classes" profile={profile} className={styles.root}>
     <main id="main-content" className={styles.main} tabIndex={-1}>
-      <header className={styles.pageHeading}><h1>Classes</h1><Link href={createOpen ? "/classes" : "/classes?create=1"} className={shell.secondary}>{createOpen ? "Close" : <><Plus size={18} aria-hidden="true" />Add class</>}</Link></header>
+      <header className={styles.pageHeading}><h1>Classes</h1><Link href={createOpen ? closeCreateHref ?? "/classes" : "/classes?create=1"} className={shell.secondary}>{createOpen ? closeCreateHref ? "Back to assignment setup" : "Close" : <><Plus size={18} aria-hidden="true" />Add class</>}</Link></header>
       {createOpen && <section className={styles.classForm} aria-label="Add a class"><h2>Add a class</h2>{createForm}</section>}
       {unavailable ? <div className={shell.empty} role="status"><h2>Classes could not load</h2><button className={shell.secondary} onClick={() => window.location.reload()}>Try again</button></div> : !cards.length ? <div className={shell.empty}><h2>Add your first class</h2>{!createOpen && <Link className={shell.primary} href="/classes?create=1">Add class <Plus aria-hidden="true" /></Link>}</div> : <div className={styles.composition}>
         <aside className={styles.lineup}>

@@ -29,6 +29,7 @@ vi.mock("./delivery-actions", () => ({
 
 import { ExternalSubmissionSync } from "./external-submission-sync";
 import type { AssignmentSubmissionPreview } from "@/lib/assignment-workspace-contracts";
+import { submissionCapabilities } from "@/lib/lms/submission-capabilities";
 import {
   buildCanonicalRenderDocument,
   toCanonicalRenderBlock,
@@ -134,6 +135,55 @@ describe("ExternalSubmissionSync", () => {
     expect(screen.queryByRole("button", { name: "Submit attached file" })).toBeNull();
     expect(screen.queryByRole("button", { name: "I submitted it in Google Classroom" })).toBeNull();
     expect(screen.getByRole("button", { name: "Review PDF submission" })).toBeTruthy();
+  });
+
+  it.each([
+    ["canvas", "Canvas", "https://canvas.example/a"],
+    ["google_classroom", "Google Classroom", "https://classroom.google.com/a"],
+  ])("settles disconnected %s to school handoff and a connection option", async (provider, label, url) => {
+    mocks.getState.mockResolvedValue({
+      ok: true,
+      capabilities: submissionCapabilities(provider),
+      receiptStatus: null,
+      receiptDetail: null,
+      connectionReady: false,
+      code: "reconnect_required",
+    });
+
+    render(<ExternalSubmissionSync
+      assignmentId={assignmentId}
+      assignmentTitle="Rhetorical analysis"
+      provider={provider}
+      externalUrl={url}
+      initialStatus="not_started"
+      deliveryFile={null}
+      preview={preview}
+    />);
+
+    expect(screen.getByText(`Checking available hand-in options for ${label}.`)).toBeInTheDocument();
+    expect(await screen.findByText(`Reconnect ${label} to hand in from Diana. You can still hand in at school.`)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: `Open in ${label}` })).toHaveAttribute("href", url);
+    expect(screen.getByRole("link", { name: "Manage school connections" })).toHaveAttribute("href", "/settings?section=connections");
+    expect(screen.queryByRole("button", { name: /review .* submission|confirm and send/i })).toBeNull();
+  });
+
+  it("settles a connection read error without presenting a dead-end button", async () => {
+    mocks.getState.mockRejectedValue(new Error("Offline"));
+    render(<ExternalSubmissionSync
+      assignmentId={assignmentId}
+      assignmentTitle="Rhetorical analysis"
+      provider="canvas"
+      externalUrl="javascript:alert(1)"
+      currentUrl="https://school.example/hand-in"
+      initialStatus="not_started"
+      deliveryFile={null}
+      preview={preview}
+    />);
+
+    expect(await screen.findByText(/Direct hand-in to Canvas is unavailable/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open saved submission link" })).toHaveAttribute("href", "https://school.example/hand-in");
+    expect(screen.queryByRole("link", { name: "Open in Canvas" })).toBeNull();
+    expect(screen.queryByRole("button", { name: /review canvas submission|direct submission unavailable/i })).toBeNull();
   });
 
   it("submits Google only with the stored Diana file and an idempotency key", async () => {

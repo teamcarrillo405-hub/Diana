@@ -2,20 +2,23 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { createHash } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { hasOwnerStoragePrefix, ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
 import { triggerClassification } from "../inbox/[id]/actions";
-import { createAssignment } from "../assignments/new/actions";
 import {
   addAssignmentSourceFile,
   addAssignmentSourceText,
 } from "../assignments/[id]/workspace/source-actions";
 
 const AssignmentIntake = z.object({
+  requestId: z.string().uuid(),
   classId: z.string().uuid(),
   title: z.string().trim().max(160).optional(),
-  instructions: z.string().trim().max(50000).optional(),
+  dueAt: z.iso.datetime().nullable(),
 });
+
+const PastedIntake = AssignmentIntake.extend({ instructions: z.string().trim().min(2).max(50000) });
 
 function sourceTitleFromFileName(fileName: string) {
   const base = fileName.replace(/\.[^.]+$/u, "").replace(/[_-]+/gu, " ").trim();
@@ -26,28 +29,41 @@ async function createAssignmentForIntake(input: z.infer<typeof AssignmentIntake>
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
-  const { data: course } = await supabase
+  // Scope the retry key to this owner and intake flow. A client-supplied key
+  // cannot name an existing assignment from a different flow or account.
+  const hash = createHash("sha256").update(`work-intake:${user.id}:${input.requestId.toLowerCase()}`).digest("hex");
+  const id = `${hash.slice(0, 8)}-${hash.slice(8, 12)}-8${hash.slice(13, 16)}-a${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+  const findSaved = () => supabase.from("assignments").select("id").eq("id", id).eq("owner_id", user.id).maybeSingle();
+  const existing = await findSaved();
+  if (existing.data) return { id };
+  if (existing.error) return { error: "Diana couldn’t check whether this assignment was saved. Try again.", uncertain: true };
+
+  const { data: course, error: courseError } = await supabase
     .from("classes")
     .select("id")
     .eq("id", input.classId)
     .eq("owner_id", user.id)
     .is("archived_at", null)
     .maybeSingle();
+  if (courseError) return { error: "Classes couldn’t be checked. Try again." };
   if (!course) return { error: "Choose one of your current classes." };
 
-  const title = input.title || "New assignment";
-  return createAssignment({
-    title,
-    classId: input.classId,
-    kind: "other",
-    dueAt: null,
-    estimate: null,
+  const created = await supabase.from("assignments").upsert({
+    id,
+    owner_id: user.id,
+    class_id: input.classId,
+    title: input.title || "New assignment",
+    due_at: input.dueAt,
     difficulty: 3,
-    readingLoad: 1,
-    writingLoad: 1,
-    description: null,
-    templateId: null,
-  });
+    reading_load: 1,
+    writing_load: 1,
+  }, { onConflict: "id", ignoreDuplicates: true }).select("id").maybeSingle();
+  if (created.data || (await findSaved()).data) {
+    revalidatePath("/assignments");
+    revalidatePath("/dashboard");
+    return { id };
+  }
+  return { error: "Diana couldn’t confirm that the assignment was saved. Try again.", uncertain: true };
 }
 
 export async function createAssignmentFromUpload(formData: FormData) {
@@ -63,17 +79,20 @@ export async function createAssignmentFromUpload(formData: FormData) {
   if (!validation.ok) return { ok: false as const, error: validation.error };
 
   const parsed = AssignmentIntake.safeParse({
+    requestId: formData.get("requestId"),
     classId,
     title: rawTitle || sourceTitleFromFileName(file.name),
+    dueAt: formData.get("dueAt") || null,
   });
   if (!parsed.success) return { ok: false as const, error: "Choose one of your classes and add a shorter title." };
 
   const created = await createAssignmentForIntake(parsed.data);
-  if (!("id" in created) || !created.id) return { ok: false as const, error: created.error ?? "Diana could not create this assignment yet." };
+  if (!created.id) return { ok: false as const, error: created.error ?? "Try saving this assignment again.", uncertain: created.uncertain };
   const assignmentId = created.id;
 
   const sourceForm = new FormData();
   sourceForm.set("assignmentId", assignmentId);
+  sourceForm.set("sourceId", assignmentId);
   sourceForm.set("file", file);
   const source = await addAssignmentSourceFile(sourceForm);
   if (source.ok) return { ok: true as const, assignmentId, warning: null };
@@ -96,24 +115,26 @@ export async function createAssignmentFromUpload(formData: FormData) {
 }
 
 export async function createAssignmentFromInstructions(input: {
+  requestId: string;
   classId: string;
   title: string;
+  dueAt: string | null;
   instructions: string;
 }) {
-  const parsed = AssignmentIntake.safeParse(input);
-  const instructions = parsed.success ? parsed.data.instructions : null;
-  if (!parsed.success || !instructions) {
-    return { ok: false as const, error: "Add a class, title, and a little of the assignment instructions." };
+  const parsed = PastedIntake.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false as const, error: "Choose a class and paste the assignment instructions." };
   }
 
   const created = await createAssignmentForIntake(parsed.data);
-  if (!("id" in created) || !created.id) return { ok: false as const, error: created.error ?? "Diana could not create this assignment yet." };
+  if (!created.id) return { ok: false as const, error: created.error ?? "Try saving this assignment again.", uncertain: created.uncertain };
   const assignmentId = created.id;
 
   const source = await addAssignmentSourceText({
     assignmentId,
+    sourceId: assignmentId,
     title: "Assignment instructions",
-    text: instructions,
+    text: parsed.data.instructions,
   });
   if (source.ok) return { ok: true as const, assignmentId, warning: null };
   return {

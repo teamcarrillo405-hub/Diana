@@ -1,5 +1,7 @@
 import type { AssignmentStatus } from "@/lib/supabase/types";
 
+export const WORK_RETURN_PATH = "/assignments?return=1";
+
 export type AssignmentCollectionState = "active" | "review" | "ready" | "submitted";
 
 export function assignmentCollectionState(status: AssignmentStatus): AssignmentCollectionState {

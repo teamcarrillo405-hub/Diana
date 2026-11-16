@@ -2,11 +2,13 @@
 
 import {
   ArrowLeft,
+  BookOpen,
   Check,
   ChevronDown,
   ChevronRight,
   Circle,
   CircleDot,
+  Clock3,
   Eye,
   PanelLeft,
   PenLine,
@@ -35,7 +37,9 @@ import { MathWorkSurface } from "@/components/assignment-math-work-surface";
 import { AssignmentSourceImporter } from "@/components/assignment-source-importer";
 import { AssignmentReviewPanel } from "@/components/assignment-review-panel";
 import { StudentShell } from "@/components/student-shell/student-shell";
+import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import styles from "@/components/student-shell/workspace.module.css";
+import { WORK_RETURN_PATH } from "@/lib/assignment-navigation";
 import {
   displayAssignmentWorkspaceTitle,
   type AssignmentWorkspaceMode,
@@ -96,7 +100,8 @@ type ProblemPreviewDraft = {
 };
 type AssignmentWorkspaceProps = {
   assignmentId: string;
-  classId?:string;
+  classId?: string;
+  navigationProfile?: StudentNavigationProfile;
   title: string;
   courseLabel: string;
   kind: AssignmentKind;
@@ -104,7 +109,7 @@ type AssignmentWorkspaceProps = {
   description: string;
   sourcePacket: AssignmentSourcePacket;
   assignmentUnderstanding: AssignmentUnderstanding;
-  sources: Array<{ id: string; source_type: string; title: string; url: string | null; extracted_text: string | null; source_location: string | null; import_status: string }>;
+  sources: Array<{ id: string; source_type: string; title: string; url: string | null; originalHref?: string | null; extracted_text: string | null; source_location: string | null; import_status: string }>;
   steps: BreakdownStep[];
   aiMode: "red" | "yellow" | "green";
   initialMode: AssignmentWorkspaceMode;
@@ -145,8 +150,10 @@ function starterQuestionForProblem(problemText: string): string {
 export function AssignmentWorkspace({
   assignmentId,
   classId,
+  navigationProfile,
   title,
   courseLabel,
+  status,
   description,
   sourcePacket,
   assignmentUnderstanding,
@@ -163,6 +170,7 @@ export function AssignmentWorkspace({
 }: AssignmentWorkspaceProps) {
   const displayTitle = displayAssignmentWorkspaceTitle(title);
   const mode = initialMode;
+  const reviewingWork = status === "checking";
   const [, setWorkspaceProblems] = useState(initialProblems);
   const flushMathWork = useRef<() => Promise<boolean>>(async () => true);
   const registerMathFlush = useCallback((flush: () => Promise<boolean>) => { flushMathWork.current = flush; }, []);
@@ -221,13 +229,14 @@ export function AssignmentWorkspace({
         ) : null}
         {sources.length > 0 ? (
           <ul className="sd-assignment-details-source-list">
-            {sources.map((source) => (
-              <li key={source.id}>
-                {source.url ? <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a> : <span>{source.title}</span>}
+            {sources.map((source) => {
+              const href = source.url || source.originalHref;
+              return <li key={source.id}>
+                {href ? <a href={href} target="_blank" rel="noreferrer" aria-label={source.originalHref && !source.url ? `Open source: ${source.title}` : undefined}>{source.title}</a> : <span>{source.title}</span>}
                 {source.source_location ? <small>{source.source_location}</small> : null}
                 {source.import_status === "partial" || source.import_status === "extracting" ? <em>needs check</em> : null}
-              </li>
-            ))}
+              </li>;
+            })}
           </ul>
         ) : (
           <small>Diana will use the directions already connected to this assignment.</small>
@@ -249,23 +258,29 @@ export function AssignmentWorkspace({
     : assignmentProfile.subjectDomain === "english_language_arts" ? (mode === "reading" ? "reading" : "english")
     : assignmentProfile.subjectDomain === "computer_science" ? "computing" : "other";
   return (
-    <StudentShell active="Work" className={`${styles.root} sd-assignment-workspace`} version="12">
+    <StudentShell active="Work" profile={navigationProfile} className={`${styles.root} sd-assignment-workspace`} version="12">
       <nav className="sd-assignment-skip-links" aria-label="Skip to workspace section">
-        <a href="#current-problem">Current problem</a>
+        <a href="#current-problem">Assignment prompt</a>
+        <a href="#assignment-work">Your work</a>
         <a href="#ask-diana">Ask Diana</a>
-        <a href="#assignment-work">Work</a>
       </nav>
       <main id="main-content" tabIndex={-1} className="sd-assignment-workspace-main">
-        <Link href="/assignments" className="sd-assignment-workspace-back"><ArrowLeft size={16} aria-hidden="true" /> Back to Work</Link>
-        {classId&&<Link href={`/classes/${classId}?materials=1`} className="sd-assignment-workspace-back">Class materials</Link>}
+        <nav aria-label="Assignment navigation" className={styles.routeNav}>
+          <Link href={WORK_RETURN_PATH} className="sd-assignment-workspace-back"><ArrowLeft size={16} aria-hidden="true" /> Back to Work</Link>
+          {classId ? <Link href={`/classes/${encodeURIComponent(classId)}?materials=1&work=${encodeURIComponent(assignmentId)}`} className="sd-assignment-workspace-back"><BookOpen size={16} aria-hidden="true" /> Class materials</Link> : null}
+        </nav>
         <header className={styles.heading}>
-          <div><p>{courseLabel}</p><h1>{displayTitle}</h1></div>
-          <div aria-label="Focus timer">
-          {focusClock}
+          <div className={styles.titleBlock}>
+            <p>{courseLabel}{reviewingWork ? <span className={styles.reviewState}>Review your work</span> : null}</p>
+            <h1>{displayTitle}</h1>
           </div>
+          <details className={styles.focusClock}>
+            <summary><Clock3 size={16} aria-hidden="true" /> Focus timer <ChevronDown size={14} aria-hidden="true" /></summary>
+            <div className={styles.focusClockPanel}>{focusClock}</div>
+          </details>
         </header>
         <div className="sd-assignment-workspace-body" data-work-first>
-          <section className="sd-assignment-workspace-editor" aria-live="polite">
+          <div className="sd-assignment-workspace-editor">
             <AssignmentWorkspaceShell
               assignmentId={assignmentId}
               learningSubject={learningSubject}
@@ -277,6 +292,9 @@ export function AssignmentWorkspace({
               onProblemsChange={setWorkspaceProblems}
               registerFlush={registerMathFlush}
               workspacePending={pending}
+              reviewingWork={reviewingWork}
+              assignmentDirections={(sourcePacket.directions || description).trim()}
+              starterMathPrompt={mode === "math" ? presentation.units.find((unit) => unit.type === "problem" && !unit.sourceAnchor)?.prompt : undefined}
               onReviewSubmission={reviewSubmission}
               assignmentDetails={assignmentDetailsCard}
               feedbackMessage={pending ? "Saving..." : message}
@@ -290,7 +308,7 @@ export function AssignmentWorkspace({
                 <WorkspaceTools assignmentId={assignmentId} title={title} profile={assignmentProfile} initialBlocks={initialArtifactBlocks} practicalGate={practicalGate} capabilities={presentation.optionalCapabilities} />
               ) : null}
             />
-          </section>
+          </div>
         </div>
       </main>
     </StudentShell>
@@ -314,7 +332,7 @@ function WorkspaceTools({ assignmentId, title, profile, initialBlocks, practical
   );
 }
 
-function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, onReviewSubmission, assignmentDetails, feedbackMessage, template, unitNoun, unitNounPlural, primaryTools, optionalTools }: {
+function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, reviewingWork, onReviewSubmission, assignmentDirections, assignmentDetails, starterMathPrompt, feedbackMessage, template, unitNoun, unitNounPlural, primaryTools, optionalTools }: {
   assignmentId: string;
   learningSubject: LearningDomain;
   initialProblems: Problem[];
@@ -325,8 +343,11 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   onProblemsChange(problems: Problem[]): void;
   registerFlush(flush: () => Promise<boolean>): void;
   workspacePending: boolean;
+  reviewingWork: boolean;
   onReviewSubmission(): void;
+  assignmentDirections: string;
   assignmentDetails: ReactNode;
+  starterMathPrompt?: string;
   feedbackMessage: string;
   template: AssignmentWorkspaceMode;
   unitNoun: string;
@@ -360,6 +381,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   const toolsPanelRef = useRef<HTMLElement | null>(null);
   const addProblemDetailsRef = useRef<HTMLDetailsElement | null>(null);
   const problemToggleRef = useRef<HTMLButtonElement | null>(null);
+  const problemCloseRef = useRef<HTMLButtonElement | null>(null);
   const problemPanelRef = useRef<HTMLElement | null>(null);
   const problemButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const active = problems[activeIndex] ?? null;
@@ -509,7 +531,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
 
   useEffect(() => {
     if (!problemSheetOpen) return;
-    problemButtonRefs.current[activeIndex]?.focus();
+    (problemButtonRefs.current[activeIndex] ?? problemCloseRef.current)?.focus();
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         setProblemSheetOpen(false);
@@ -536,7 +558,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   }, [activeIndex, problemSheetOpen]);
 
   async function switchProblem(index: number) {
-    if (active && !(await flushProblem(active.id))) return;
+    if (active && !(await flushProblem(active.id))) return false;
     setActiveIndex(index);
     const next = problems[index];
     setAnswer(savedText(next?.studentWork.answer));
@@ -544,6 +566,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
     setWorkInk(savedText(next?.studentWork.workInk));
     setClearUndo(null);
     if (clearUndoTimer.current) clearTimeout(clearUndoTimer.current);
+    return true;
   }
 
   function navigateProblemQueue(event: ReactKeyboardEvent<HTMLButtonElement>, index: number) {
@@ -554,7 +577,9 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
     else if (event.key === "End") nextIndex = problems.length - 1;
     if (nextIndex === null || nextIndex === index) return;
     event.preventDefault();
-    void switchProblem(nextIndex).then(() => problemButtonRefs.current[nextIndex ?? index]?.focus());
+    void switchProblem(nextIndex).then((switched) => {
+      if (switched) problemButtonRefs.current[nextIndex]?.focus();
+    });
   }
 
   function queueProblemSave(key: "answer" | "work" | "workInk", value: string) {
@@ -717,7 +742,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   const totalProblems = Math.max(problems.length, 1);
 
   function openAddProblem() {
-    setProblemSheetOpen(true);
+    if (window.matchMedia?.("(max-width: 900px)").matches) setProblemSheetOpen(true);
     window.requestAnimationFrame(() => {
       const details = addProblemDetailsRef.current;
       if (!details) return;
@@ -728,7 +753,13 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   const doneCount = problems.filter((problem) => problem.progressStatus === "done").length;
   const activeReviewed = Boolean(active?.reviewedAt);
   const activeDone = active?.progressStatus === "done";
-  const incompleteProblemNumbers = problems.filter((problem) => problem.progressStatus !== "done").map((problem) => problem.problemNumber);
+  const showSubmissionReview = reviewingWork || (problems.length > 0 && doneCount === problems.length);
+  const needsFirstProblem = Boolean(starterMathPrompt && active?.problemText === starterMathPrompt);
+
+  function closeProblemSheet() {
+    setProblemSheetOpen(false);
+    problemToggleRef.current?.focus();
+  }
 
   function unitLabel(problem: Problem): string {
     return savedText(problem.scaffold?.unitLabel) || `${unitNoun[0]?.toUpperCase() ?? "W"}${unitNoun.slice(1)} ${problem.problemNumber}`;
@@ -753,15 +784,16 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   return (
     <div className="sd-assignment-mode sd-assignment-mode--math">
       <div className="sd-assignment-math-room">
+        <div className={styles.compactTools}>
         <button
           ref={problemToggleRef}
           type="button"
           className="sd-assignment-problems-toggle"
           aria-expanded={problemSheetOpen}
           aria-controls="assignment-problem-rail"
-          onClick={() => setProblemSheetOpen((current) => !current)}
+          onClick={() => setProblemSheetOpen(true)}
         >
-          <PanelLeft size={18} aria-hidden="true" /> {unitNoun[0]?.toUpperCase() ?? "W"}{unitNoun.slice(1)} {active?.problemNumber ?? 0} of {problems.length}
+          <PanelLeft size={18} aria-hidden="true" /> {problems.length ? <span>{unitNoun[0]?.toUpperCase() ?? "W"}{unitNoun.slice(1)} {activeIndex + 1} of {problems.length}</span> : <span>{unitNounPlural}</span>}
         </button>
         <button
           ref={toolsToggleRef}
@@ -773,16 +805,25 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
         >
           <Settings2 size={18} aria-hidden="true" /> Tools
         </button>
-        {problemSheetOpen ? <button type="button" className="sd-assignment-problem-sheet-scrim" aria-label="Close problems" onClick={() => setProblemSheetOpen(false)} /> : null}
-        <aside ref={problemPanelRef} id="assignment-problem-rail" className="sd-assignment-math-left" aria-label={`Assignment ${unitNounPlural}`} data-open={problemSheetOpen || undefined}>
+        </div>
+        {problemSheetOpen ? <button type="button" className="sd-assignment-problem-sheet-scrim" aria-label={`Dismiss ${unitNounPlural}`} tabIndex={-1} onClick={closeProblemSheet} /> : null}
+        <aside ref={problemPanelRef} id="assignment-problem-rail" className="sd-assignment-math-left" aria-label={`Assignment ${unitNounPlural}`} role={problemSheetOpen ? "dialog" : undefined} aria-modal={problemSheetOpen || undefined} data-open={problemSheetOpen || undefined}>
+          <button ref={problemCloseRef} type="button" className="sd-assignment-problems-close" aria-label={`Close ${unitNounPlural}`} onClick={closeProblemSheet}><X size={20} aria-hidden="true" /></button>
           <div className="sd-assignment-math-left-heading">
-            <p>{unitNounPlural}</p>
+            <h2>{unitNounPlural}</h2>
             <span>{doneCount} of {problems.length} done</span>
           </div>
           {problems.length > 0 ? (
             <nav aria-label={unitNounPlural} className="sd-assignment-problem-queue">
               {problems.map((problem, index) => (
-                <button ref={(node) => { problemButtonRefs.current[index] = node; }} key={problem.id} type="button" data-active={index === activeIndex} aria-current={index === activeIndex ? "step" : undefined} tabIndex={index === activeIndex ? 0 : -1} onKeyDown={(event) => navigateProblemQueue(event, index)} onClick={() => { setProblemSheetOpen(false); void switchProblem(index); }} className="sd-assignment-problem-tab">
+                <button ref={(node) => { problemButtonRefs.current[index] = node; }} key={problem.id} type="button" data-active={index === activeIndex} aria-current={index === activeIndex ? "step" : undefined} tabIndex={index === activeIndex ? 0 : -1} onKeyDown={(event) => navigateProblemQueue(event, index)} onClick={() => {
+                  void switchProblem(index).then((switched) => {
+                    if (switched && problemSheetOpen) {
+                      setProblemSheetOpen(false);
+                      document.getElementById("current-problem")?.focus();
+                    }
+                  });
+                }} className="sd-assignment-problem-tab">
                   <span className="sd-assignment-problem-tab-heading">
                     <span>{unitLabel(problem)}</span>
                     <em data-state={problem.progressStatus === "done" ? "done" : problem.reviewedAt ? "reviewed" : "other"}>
@@ -794,17 +835,6 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                 </button>
               ))}
             </nav>
-          ) : null}
-          {problems.length > 0 && incompleteProblemNumbers.length === 0 ? (
-            <button
-              type="button"
-              className="sd-assignment-problem-submission"
-              data-primary="true"
-              disabled={workspacePending}
-              onClick={onReviewSubmission}
-            >
-              Review submission <ChevronRight size={17} aria-hidden="true" />
-            </button>
           ) : null}
           <details ref={addProblemDetailsRef} className="sd-assignment-add-problem-panel">
             <summary>Add or import</summary>
@@ -839,16 +869,52 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
           {problems.length > 0 && active ? (
             <>
               <section id="current-problem" className="sd-assignment-problem-card" aria-label={`Current ${unitNoun}`} tabIndex={-1}>
-                <p className="sd-assignment-mode-title">{unitLabel(active)} <span>{activeIndex + 1} of {totalProblems}</span></p>
-                <p className="sd-assignment-problem-text">{active.problemText}</p>
-                {active.unitType === "problem" && (active.source === "assignment_source" || active.source === "photo_scan") ? (
+                <h2 className="sd-assignment-mode-title">{unitLabel(active)} <span>{activeIndex + 1} of {totalProblems}</span></h2>
+                <p className="sd-assignment-problem-text">{needsFirstProblem && assignmentDirections ? assignmentDirections : active.problemText}</p>
+                {needsFirstProblem ? (
+                  <button type="button" className={styles.promptAction} onClick={openAddProblem}>Add or import {unitNoun}</button>
+                ) : active.unitType === "problem" && (active.source === "assignment_source" || active.source === "photo_scan") ? (
                   <div className="sd-assignment-source-confirmation">
                     <span>Check this wording against the assignment before Diana treats it as a confirmed source.</span>
                     <button type="button" disabled={problemPending} onClick={confirmActiveProblemText}>I checked the wording</button>
                   </div>
                 ) : null}
               </section>
-              {feedbackMessage ? <p className="sd-assignment-workspace-status-line" role="status" aria-live="polite">{feedbackMessage}</p> : null}
+              <MathWorkSurface
+                key={active.id}
+                assignmentId={assignmentId}
+                problemId={active.id}
+                work={work}
+                workInk={workInk}
+                onWorkChange={(value) => { setWork(value); queueProblemSave("work", value); }}
+                onInkChange={(value) => { setWorkInk(value); queueProblemSave("workInk", value); }}
+                onClear={clearActiveWork}
+                onUndoClear={undoClearActiveWork}
+                onReview={() => {
+                  document.getElementById("ask-diana")?.focus();
+                  setReviewSignal((current) => current + 1);
+                }}
+                reviewed={activeReviewed}
+                done={activeDone}
+                clearUndoAvailable={Boolean(clearUndo)}
+                saveState={draftState}
+                saveError={draftError}
+                onRetrySave={() => void flushAllProblems()}
+                initialPreference={preferencesByProblem.get(active.id)}
+              />
+              {showSubmissionReview ? (
+                <section className={styles.submissionReview} aria-labelledby="workspace-submission-review">
+                  <div>
+                    <h2 id="workspace-submission-review">Before you hand it in</h2>
+                    <p>Check what will be included. You’ll decide when to mark it submitted.</p>
+                  </div>
+                  <button type="button" className="sd-assignment-problem-submission" data-primary="true" disabled={workspacePending} onClick={onReviewSubmission}>
+                    Review submission <ChevronRight size={17} aria-hidden="true" />
+                  </button>
+                </section>
+              ) : null}
+              {feedbackMessage ? <p className="sd-assignment-workspace-status-line" role="status">{feedbackMessage}</p> : null}
+              {primaryTools ? <section className="sd-assignment-primary-tool" aria-label={`Primary ${unitNoun} tool`}>{primaryTools}</section> : null}
               <AssignmentReviewPanel
                 assignmentId={assignmentId}
                 problemId={active.id}
@@ -871,38 +937,19 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                 { label: "Student work", value: [work || answer, workInk ? "Handwritten work attached." : ""].filter(Boolean).join("\n") },
               ]}
               />
-              <MathWorkSurface
-                key={active.id}
-                assignmentId={assignmentId}
-                problemId={active.id}
-                work={work}
-                workInk={workInk}
-                onWorkChange={(value) => { setWork(value); queueProblemSave("work", value); }}
-                onInkChange={(value) => { setWorkInk(value); queueProblemSave("workInk", value); }}
-                onClear={clearActiveWork}
-                onUndoClear={undoClearActiveWork}
-                onReview={() => setReviewSignal((current) => current + 1)}
-                reviewed={activeReviewed}
-                done={activeDone}
-                clearUndoAvailable={Boolean(clearUndo)}
-                saveState={draftState}
-                saveError={draftError}
-                onRetrySave={() => void flushAllProblems()}
-                initialPreference={preferencesByProblem.get(active.id)}
-              />
-              {primaryTools ? <section className="sd-assignment-primary-tool" aria-label={`Primary ${unitNoun} tool`}>{primaryTools}</section> : null}
             </>
           ) : (
-            <div className="sd-assignment-empty-state">
-              <strong>Add the first {unitNoun}</strong>
-              <p className="mt-1 text-sm">Import from the assignment, or paste one {unitNoun}.</p>
+            <section id="current-problem" className="sd-assignment-empty-state" aria-label="Assignment prompt" tabIndex={-1}>
+              {assignmentDirections ? <p className="sd-assignment-problem-text">{assignmentDirections}</p> : null}
+              <h2>Add the first {unitNoun}</h2>
+              <p>Import from the assignment, or paste one {unitNoun}.</p>
               <button type="button" data-primary="true" onClick={openAddProblem}>Add or import {unitNoun}</button>
-            </div>
+            </section>
           )}
         </section>
 
-        {toolsOpen ? <button className="sd-assignment-tools-scrim" type="button" aria-label="Close assignment tools" onClick={() => { setToolsOpen(false); toolsToggleRef.current?.focus(); }} /> : null}
-        <aside ref={toolsPanelRef} id="assignment-utilities" className="sd-assignment-math-right" aria-label="Assignment actions" data-open={toolsOpen || undefined}>
+        {toolsOpen ? <button className="sd-assignment-tools-scrim" type="button" aria-label="Dismiss assignment tools" tabIndex={-1} onClick={() => { setToolsOpen(false); toolsToggleRef.current?.focus(); }} /> : null}
+        <aside ref={toolsPanelRef} id="assignment-utilities" className="sd-assignment-math-right" aria-label="Assignment actions" role={toolsOpen ? "dialog" : undefined} aria-modal={toolsOpen || undefined} data-open={toolsOpen || undefined}>
           <button
             ref={toolsCloseRef}
             type="button"

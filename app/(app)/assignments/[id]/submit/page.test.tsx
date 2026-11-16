@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -36,22 +36,32 @@ vi.mock("../external-submission-sync", () => ({
 }));
 
 vi.mock("./checklist", () => ({
-  SubmitChecklist: () => null,
+  SubmitChecklist: () => <section><h2>Final checks</h2><button type="button">Record hand-in in Diana</button></section>,
+}));
+
+vi.mock("../actions", () => ({ setSubmissionUrl: vi.fn() }));
+
+vi.mock("@/components/assignment-submission-preview", () => ({
+  AssignmentSubmissionPreview: () => <h2>Your work</h2>,
 }));
 
 import SubmitPage from "./page";
 
 const assignmentId = "11111111-1111-4111-8111-111111111111";
 
-function mockAssignment(status: string) {
+function mockAssignment(status: string, { source = "clever", savedLink = null, receipt = null }: {
+  source?: string;
+  savedLink?: string | null;
+  receipt?: Record<string, unknown> | null;
+} = {}) {
   mocks.loadBundle.mockResolvedValue({
     assignment: {
       id: assignmentId,
       title: "Identity quote response",
       status,
       submitted_at: "2026-07-31T12:00:00.000Z",
-      submission_url: null,
-      external_source: "clever",
+      submission_url: savedLink,
+      external_source: source,
       external_url: null,
       submission_sync_status: "marked_submitted",
       classes: { name: "English 9" },
@@ -77,16 +87,7 @@ function mockAssignment(status: string) {
     eq: vi.fn(),
     order: vi.fn(),
     limit: vi.fn(),
-    maybeSingle: vi.fn().mockResolvedValue({
-      data: {
-        id: "22222222-2222-4222-8222-222222222222",
-        submission_file_id: "33333333-3333-4333-8333-333333333333",
-        assignment_submission_files: {
-          filename: "identity-quote-response.pdf",
-          payload_digest: "a".repeat(64),
-        },
-      },
-    }),
+    maybeSingle: vi.fn().mockResolvedValue({ data: receipt }),
   };
   receiptQuery.select.mockReturnValue(receiptQuery);
   receiptQuery.eq.mockReturnValue(receiptQuery);
@@ -118,15 +119,64 @@ describe("assignment submission destination", () => {
   });
 
   it("renders submitted assignments as a read-only receipt with stable destinations", async () => {
+    mockAssignment("submitted", { source: "canvas", receipt: {
+      id: "22222222-2222-4222-8222-222222222222",
+      provider: "canvas",
+      provider_receipt_id: "canvas-submission-1",
+      assignment_submission_files: {
+        filename: "identity-quote-response.pdf",
+        payload_digest: "a".repeat(64),
+      },
+    } });
+    render(await SubmitPage({ params: Promise.resolve({ id: assignmentId }) }));
+
+    expect(screen.getByRole("heading", { name: "Submission confirmed" })).toBeTruthy();
+    expect(screen.getByText("Canvas confirmed this hand-in.")).toBeTruthy();
+    expect(screen.getByText("identity-quote-response.pdf")).toBeTruthy();
+    expect(screen.getByText("canvas-submission-1")).toBeTruthy();
+    expect(screen.getByText("22222222-2222-4222-8222-222222222222")).toBeTruthy();
+    expect(screen.getByText(/A{12}/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /Open Record/ })).toHaveAttribute("href", "/proof");
+    expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments?return=1");
+    expect(screen.queryByRole("link", { name: /assignment workspace/i })).toBeNull();
+  });
+
+  it("recognizes a provider text receipt without requiring a submitted file", async () => {
+    mockAssignment("submitted", { source: "canvas", receipt: {
+      id: "22222222-2222-4222-8222-222222222222",
+      provider: "canvas",
+      provider_receipt_id: "canvas-text-1",
+      assignment_submission_files: null,
+    } });
+    render(await SubmitPage({ params: Promise.resolve({ id: assignmentId }) }));
+
+    expect(screen.getByRole("heading", { name: "Submission confirmed" })).toBeTruthy();
+    expect(screen.getByText("canvas-text-1")).toBeTruthy();
+    expect(screen.queryByText("Submitted file")).toBeNull();
+  });
+
+  it("describes student-recorded hand-ins without inventing a school confirmation or receipt ID", async () => {
     mockAssignment("submitted");
     render(await SubmitPage({ params: Promise.resolve({ id: assignmentId }) }));
 
     expect(screen.getByRole("heading", { name: "Submission recorded" })).toBeTruthy();
-    expect(screen.getByText("Receipt saved")).toBeTruthy();
-    expect(screen.getByText("identity-quote-response.pdf")).toBeTruthy();
-    expect(screen.getByText(/Payload A{12}/)).toBeTruthy();
-    expect(screen.getByRole("link", { name: /Open Record/ })).toHaveAttribute("href", "/proof");
-    expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments");
-    expect(screen.queryByRole("link", { name: /assignment workspace/i })).toBeNull();
+    expect(screen.getByText("This hand-in is recorded in Diana.")).toBeTruthy();
+    expect(screen.queryByText("Receipt details")).toBeNull();
+    expect(screen.queryByText(assignmentId)).toBeNull();
+  });
+
+  it("shows the safe saved school link before checks and recording the hand-in", async () => {
+    mockAssignment("exporting", { savedLink: "https://school.example/hand-in" });
+    render(await SubmitPage({ params: Promise.resolve({ id: assignmentId }) }));
+    expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments?return=1");
+    expect(screen.getByRole("link", { name: "Edit in workspace" })).toHaveAttribute("href", `/assignments/${assignmentId}/workspace`);
+    fireEvent.click(screen.getByRole("tab", { name: "Hand in" }));
+
+    const destination = screen.getByRole("link", { name: "Open saved submission link" });
+    const checks = screen.getByRole("heading", { name: "Final checks" });
+    const record = screen.getByRole("button", { name: "Record hand-in in Diana" });
+    expect(destination).toHaveAttribute("href", "https://school.example/hand-in");
+    expect(destination.compareDocumentPosition(checks)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(checks.compareDocumentPosition(record)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });
 });

@@ -5,10 +5,13 @@ import { openQaSession } from "./helpers/qa";
 
 const viewports = [
   { name: "1600x1000", width: 1600, height: 1000 },
+  { name: "1440x900", width: 1440, height: 900 },
   { name: "1366x768", width: 1366, height: 768 },
   { name: "1280x800", width: 1280, height: 800 },
   { name: "1024x768", width: 1024, height: 768 },
+  { name: "768x1024", width: 768, height: 1024 },
   { name: "390x844", width: 390, height: 844 },
+  { name: "320x720", width: 320, height: 720 },
 ] as const;
 
 test("keeps the Algebra learning loop readable and recoverable at every supported size", async ({ page }, testInfo) => {
@@ -34,21 +37,25 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
 
   await openQaSession(page, { variant: "grayson", operation: "reset" });
   await page.goto("/assignments", { waitUntil: "networkidle" });
-  const assignmentLink = page.getByRole("link", { name: /Linear Equations: Three Questions|Linear equations practice set/i }).first();
-  const assignmentHref = await assignmentLink.getAttribute("href");
-  const assignmentId = assignmentHref?.match(/\/assignments\/([0-9a-f-]+)/u)?.[1];
-  expect(assignmentId).toBeTruthy();
-  await page.goto(`/assignments/${assignmentId}/workspace`, { waitUntil: "networkidle" });
+  const assignmentTitle = /Linear Equations: Three Questions|Linear equations practice set/i;
+  await page.getByRole("tab", { name: assignmentTitle }).first().click();
+  const assignmentHref = await page.getByRole("link", { name: assignmentTitle }).first().getAttribute("href");
+  expect(assignmentHref).toMatch(/^\/assignments\/[0-9a-f-]+\/workspace$/u);
+  await page.goto(assignmentHref!, { waitUntil: "networkidle", timeout: 60_000 });
   await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
-  await expect(page.locator('.sd-assignment-workspace[data-version="11"]')).toBeVisible();
+  await expect(page.locator('.sd-assignment-workspace[data-version="12"]')).toBeVisible();
 
   const emptyProblemState = page.getByRole("button", { name: "Add or import problem" });
   if (await emptyProblemState.isVisible().catch(() => false)) {
-    await emptyProblemState.click();
     const addProblemPanel = page.locator(".sd-assignment-add-problem-panel");
-    await expect(addProblemPanel).toHaveAttribute("open", "");
+    await expect(async () => {
+      if (await addProblemPanel.getAttribute("open") === null) await emptyProblemState.click();
+      expect(await addProblemPanel.getAttribute("open")).toBe("");
+    }).toPass({ timeout: 12_000 });
     await addProblemPanel.getByRole("textbox").fill("Solve 3x + 5 = 20");
     await addProblemPanel.getByRole("button", { name: "Add problem" }).click();
+    await expect(page.locator("#current-problem")).toContainText("Solve 3x + 5 = 20");
+    await addProblemPanel.locator("summary").click();
   }
   await expect(page.getByRole("textbox", { name: "Show your work" })).toBeVisible();
 
@@ -61,7 +68,9 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
       const chat = document.querySelector("#ask-diana")?.getBoundingClientRect();
       const composer = document.querySelector(".sd-assignment-diana-chat-input")?.getBoundingClientRect();
       const problem = document.querySelector("#current-problem")?.getBoundingClientRect();
-      const smallControls = [...document.querySelectorAll('.sd-assignment-workspace[data-version="11"] button, .sd-assignment-workspace[data-version="11"] summary')]
+      const routeLinks = [...document.querySelectorAll('[aria-label="Assignment navigation"] a')].map((link) => link.getBoundingClientRect());
+      const smallControls = [...document.querySelectorAll('.sd-assignment-workspace-main :is(button,summary)')]
+        .filter((node) => [...document.querySelectorAll("details:not([open])")].every((details) => !details.contains(node) || node === details.querySelector(":scope > summary")))
         .map((node) => ({ node, box: node.getBoundingClientRect(), style: getComputedStyle(node) }))
         .filter(({ box, style }) => box.width > 0 && box.height > 0 && style.display !== "none" && style.visibility !== "hidden")
         .filter(({ box }) => box.width < 44 || box.height < 44)
@@ -83,6 +92,7 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
         chat: chat ? { top: chat.top, bottom: chat.bottom, height: chat.height } : null,
         composer: composer ? { top: composer.top, bottom: composer.bottom } : null,
         problem: problem ? { top: problem.top, bottom: problem.bottom } : null,
+        routeLinkGap: routeLinks.length > 1 ? routeLinks[1].left - routeLinks[0].right : null,
         smallControls,
       };
     });
@@ -99,14 +109,16 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
 
     expect(metrics.documentWidth, `${viewport.name} must not scroll sideways`).toBeLessThanOrEqual(metrics.viewportWidth + 1);
     expect(metrics.workBox?.height, `${viewport.name} work surface height`).toBeGreaterThanOrEqual(220);
-    expect(metrics.chat?.height, `${viewport.name} bounded transcript height`).toBeGreaterThanOrEqual(210);
-    expect(metrics.composer?.top, `${viewport.name} composer follows transcript`).toBeGreaterThanOrEqual((metrics.problem?.bottom ?? 0) - 1);
+    expect(metrics.workBox?.top, `${viewport.name} paper follows prompt`).toBeGreaterThanOrEqual(metrics.problem?.bottom ?? 0);
+    expect(metrics.chat?.top, `${viewport.name} contextual help follows paper`).toBeGreaterThanOrEqual(metrics.workBox?.bottom ?? 0);
+    expect(metrics.composer?.top, `${viewport.name} composer follows conversation heading`).toBeGreaterThanOrEqual(metrics.chat?.top ?? 0);
+    expect(metrics.routeLinkGap, `${viewport.name} spacing between Work and Class materials`).toBeGreaterThanOrEqual(14);
     expect(metrics.smallControls, `${viewport.name} controls below 44px`).toEqual([]);
 
     expect(metrics.workBox?.top, `${viewport.name} work surface begins in the first viewport`).toBeLessThan(metrics.viewportHeight);
     expect(metrics.workBox?.visibleHeight, `${viewport.name} shows at least 220px of work`).toBeGreaterThanOrEqual(220);
 
-    if (viewport.width >= 1181) {
+    if (viewport.width > 1100) {
       await expect(page.locator(".sd-assignment-tools-toggle")).toBeHidden();
       await expect(page.locator(".sd-assignment-math-right")).toBeVisible();
     } else {
@@ -117,7 +129,7 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
     }
 
     const viewportAccessibility = await new AxeBuilder({ page })
-      .include('.sd-assignment-workspace[data-version="11"]')
+      .include('.sd-assignment-workspace-main')
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
       .analyze();
     expect(
@@ -142,6 +154,11 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
   await expect(page.locator("#assignment-problem-rail")).toHaveAttribute("data-open", "true");
   await page.keyboard.press("Escape");
   await expect(problemsToggle).toBeFocused();
+  await problemsToggle.click();
+  const problemQueue = page.getByRole("dialog", { name: "Assignment problems" });
+  await expect(problemQueue).toBeVisible();
+  await problemQueue.getByRole("button", { name: /Problem 1/ }).click();
+  await expect(page.getByRole("region", { name: "Current problem" })).toBeFocused();
 
   await page.setViewportSize({ width: 1366, height: 768 });
   const resizeHandle = page.getByRole("slider", { name: "Make the work area larger" });
@@ -150,6 +167,16 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
   await expect(resizeHandle).toHaveAttribute("aria-valuenow", String(Math.min(1_200, startingHeight + 40)));
   await resizeHandle.press("Home");
   await expect(resizeHandle).toHaveAttribute("aria-valuenow", "240");
+
+  const draft = "Subtract 5 from both sides, then divide by 3.";
+  const activeProblem = page.locator('.sd-assignment-problem-tab[aria-current="step"]');
+  const activeLabel = await activeProblem.locator(".sd-assignment-problem-tab-heading > span").textContent();
+  const paper = page.getByRole("textbox", { name: "Show your work" });
+  await paper.fill(draft);
+  await expect(page.locator(".sd-assignment-inline-save")).toHaveAttribute("data-state", "synced");
+  await page.reload({ waitUntil: "networkidle" });
+  await page.getByRole("navigation", { name: "problems" }).getByRole("button", { name: new RegExp(`^${activeLabel}\\b`) }).click();
+  await expect(paper).toHaveValue(draft);
 
   await page.setViewportSize({ width: 1366, height: 768 });
   const cumulativeLayoutShift = await page.evaluate(

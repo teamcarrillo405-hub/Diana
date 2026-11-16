@@ -1,163 +1,147 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { createAssignment } from "@/app/(app)/assignments/new/actions";
-
-const KIND = z.enum([
-  "essay",
-  "lab",
-  "problem_set",
-  "presentation",
-  "test_prep",
-  "reading",
-  "other",
-]);
+import { fileExtension, hasOwnerStoragePrefix, ownerStorageKey, validateFileUpload } from "@/lib/security/upload-validation";
+import { retryAssignmentSourceExtraction } from "@/app/(app)/assignments/[id]/workspace/source-actions";
 
 const ConfirmInput = z.object({
   classId: z.string().uuid(),
-  kind: KIND,
-  dueAt: z
-    .string()
-    .max(40)
-    .refine((value) => !Number.isNaN(Date.parse(value)), "Choose a valid date.")
-    .nullable(),
+  title: z.string().trim().min(1).max(160),
+  kind: z.enum(["essay", "lab", "problem_set", "presentation", "test_prep", "reading", "other"]),
+  dueAt: z.iso.datetime().nullable(),
 });
 
 const InboxItemId = z.string().uuid();
+const CaptureOutcome = z.object({
+  status: z.enum(["unavailable", "converted", "dismissed", "details", "class", "photo"]),
+  assignmentId: z.string().uuid().nullable().optional(),
+  photoSourceId: z.string().uuid().nullable().optional(),
+});
+const outcomeMessages = {
+  unavailable: "This capture is no longer available.",
+  converted: "The assignment from this capture is no longer available.",
+  dismissed: "This capture was set aside.",
+  details: "Check the assignment name and work type.",
+  class: "Choose one of your current classes.",
+  photo: "The captured photo couldn’t be attached. Try again.",
+} as const;
 
-export async function markInboxItemClassified(
-  inboxItemId: string,
-  _formData: FormData,
-): Promise<void> {
-  const parsedId = InboxItemId.safeParse(inboxItemId);
-  if (!parsedId.success) return;
-
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
-
-  await supabase
-    .from("inbox_items")
-    .update({ status: "classified" })
-    .eq("id", parsedId.data)
-    .eq("owner_id", user.id)
-    .eq("status", "unclassified");
-
+function refreshCapture(id: string) {
   revalidatePath("/assignments");
-  revalidatePath(`/assignments/captures/${parsedId.data}`);
+  revalidatePath("/assignments/captures");
+  revalidatePath(`/assignments/captures/${id}`);
+  revalidatePath("/dashboard");
+}
+
+async function stageCapturePhoto(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  ownerId: string,
+  captureId: string,
+  originalPath: string | null,
+) {
+  if (!originalPath || !hasOwnerStoragePrefix(ownerId, originalPath)) return null;
+  const extension = fileExtension(originalPath);
+  const { data: blob } = await supabase.storage.from("inbox-photos").download(originalPath);
+  if (!blob) return null;
+  const photo = new File([blob], `capture.${extension}`, { type: blob.type });
+  const validated = await validateFileUpload("quickAddPhoto", photo);
+  if (!validated.ok) return null;
+  const { mimeType } = validated.value;
+  const path = ownerStorageKey(ownerId, "assignments", captureId, `captured-photo.${extension === "jpeg" ? "jpg" : extension}`);
+  const bucket = supabase.storage.from("note-docs");
+  const { error } = await bucket.upload(path, photo, { contentType: mimeType });
+  return !error || (await bucket.exists(path)).data ? { mimeType, path } : null;
 }
 
 export async function confirmInboxItem(
   inboxItemId: string,
-  input: z.infer<typeof ConfirmInput>
+  input: z.infer<typeof ConfirmInput>,
 ): Promise<{ ok: true; assignmentId: string } | { ok: false; error: string }> {
   const parsed = ConfirmInput.safeParse(input);
-  if (!parsed.success) return { ok: false, error: "Invalid input." };
-
+  const id = InboxItemId.safeParse(inboxItemId);
+  if (!id.success || !parsed.success) return { ok: false, error: "Check the assignment name, class, and due date." };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
-  // Fetch the inbox item to get the raw text
   const { data: item, error: fetchError } = await supabase
     .from("inbox_items")
-    .select("id, raw, owner_id, status, assignment_id")
-    .eq("id", inboxItemId)
+    .select("id, capture_mode, photo_storage_key, status, assignment_id")
+    .eq("id", id.data)
     .eq("owner_id", user.id)
-    .single();
-
-  if (fetchError || !item) return { ok: false, error: "Item not found." };
-
-  if (item.status === "converted" && item.assignment_id) return { ok: true, assignmentId: item.assignment_id };
-  if (item.status === "dismissed") return { ok: false, error: "This capture was set aside." };
-
-  const { data: ownedClass } = await supabase
-    .from("classes")
-    .select("id")
-    .eq("id", parsed.data.classId)
-    .eq("owner_id", user.id)
-    .is("archived_at", null)
     .maybeSingle();
-  if (!ownedClass) return { ok: false, error: "Choose one of your classes." };
+  if (fetchError) return { ok: false, error: "This capture couldn’t be opened. Try again." };
+  if (!item) return { ok: false, error: outcomeMessages.unavailable };
+  if (item.status === "converted" && item.assignment_id) return { ok: true, assignmentId: item.assignment_id };
+  if (item.status === "converted" || item.status === "dismissed") return { ok: false, error: outcomeMessages[item.status] };
 
-  // Create the assignment using the capture raw text as the title
-  const assignmentResult = await createAssignment({
-    title: item.raw.slice(0, 160),
-    classId: parsed.data.classId,
-    kind: parsed.data.kind,
-    dueAt: parsed.data.dueAt ?? null,
-    estimate: null,
-    difficulty: 3,
-    readingLoad: 1,
-    writingLoad: 1,
-    description: item.raw,
-    templateId: null,
+  const photo = item.capture_mode === "photo"
+    ? await stageCapturePhoto(supabase, user.id, item.id, item.photo_storage_key)
+    : null;
+  if (item.capture_mode === "photo" && !photo) return { ok: false, error: outcomeMessages.photo };
+
+  const { data } = await supabase.rpc("confirm_work_capture", {
+    p_capture_id: item.id,
+    p_class_id: parsed.data.classId,
+    p_title: parsed.data.title,
+    p_kind: parsed.data.kind,
+    p_due_at: parsed.data.dueAt,
+    p_photo_mime: photo?.mimeType,
   });
-
-  if (assignmentResult.error) return { ok: false, error: assignmentResult.error };
-
-  // Update inbox item to converted
-  const { error: updateError } = await supabase
-    .from("inbox_items")
-    .update({
-      status: "converted",
-      assignment_id: assignmentResult.id,
-    })
-    .eq("id", inboxItemId)
-    .eq("owner_id", user.id);
-
-  if (updateError) return { ok: false, error: updateError.message };
-
-  revalidatePath("/assignments");
-  return { ok: true, assignmentId: assignmentResult.id! };
+  const outcome = CaptureOutcome.safeParse(data);
+  if (!outcome.success) return { ok: false, error: "Diana couldn’t confirm that the capture was added. Try again." };
+  refreshCapture(item.id);
+  const { status, assignmentId, photoSourceId } = outcome.data;
+  if (status === "converted" && assignmentId) {
+    if (photoSourceId) {
+      after(async () => {
+        try {
+          await retryAssignmentSourceExtraction({ assignmentId, sourceId: photoSourceId });
+        } catch {
+          // The original photo is already attached and can be read again in Work.
+        }
+      });
+    }
+    return { ok: true, assignmentId };
+  }
+  if (status === "dismissed" && photo) {
+    // A confirmation cannot use the staged copy after the terminal outcome.
+    await supabase.storage.from("note-docs").remove([photo.path]);
+  }
+  return { ok: false, error: outcomeMessages[status] };
 }
 
 export async function dismissInboxItem(
-  inboxItemId: string
+  inboxItemId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const id = InboxItemId.safeParse(inboxItemId);
+  if (!id.success) return { ok: false, error: outcomeMessages.unavailable };
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
-  const { error } = await supabase
-    .from("inbox_items")
-    .update({ status: "dismissed" })
-    .eq("id", inboxItemId)
-    .eq("owner_id", user.id);
-
-  if (error) return { ok: false, error: error.message };
-
-  revalidatePath("/assignments");
+  const { data } = await supabase.rpc("dismiss_work_capture", { p_capture_id: id.data });
+  const outcome = CaptureOutcome.safeParse(data);
+  if (!outcome.success) return { ok: false, error: "Diana couldn’t confirm that the capture was set aside. Try again." };
+  refreshCapture(id.data);
+  if (outcome.data.status === "converted") return { ok: false, error: "This capture is already in Work." };
+  if (outcome.data.status !== "dismissed") return { ok: false, error: outcomeMessages.unavailable };
   return { ok: true };
 }
 
-/**
- * Fire-and-forget: triggers AI classification for an inbox item.
- * Does NOT await the Edge Function result — classification is async.
- */
+/** Starts a classification request without delaying capture. */
 export async function triggerClassification(
-  inboxItemId: string
+  inboxItemId: string,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Not signed in." };
 
-  // Fire and forget — do not await the classification result
-  supabase.functions
-    .invoke("classify-inbox", { body: { inboxItemId } })
-    .catch(() => {
-      // Silent — classification failure does not block the user
-    });
-
+  supabase.functions.invoke("classify-inbox", { body: { inboxItemId } }).catch(() => {
+    // Classification can be skipped because the student can fill in the details.
+  });
   return { ok: true };
 }

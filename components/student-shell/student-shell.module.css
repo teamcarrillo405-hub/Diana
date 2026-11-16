@@ -23,3 +23,38 @@
 @media(max-width:1100px) { .main { padding:32px 28px 56px; } }
 @media(max-width:760px) { .main { padding:24px 18px 40px; } .root.root .heading h1 { font-size:43px; } .environment { background:linear-gradient(90deg,#0a1012ed,#0a1012ba),url('/assets/today-now/diana-signature-studio-v1-1280.webp') center/cover no-repeat; } }
 @media(prefers-reduced-motion:reduce) { .root.root *,.root.root *::before,.root.root *::after { scroll-behavior:auto; transition:none; animation:none; } }
+
+.root.root[data-campus-shell] {
+  --campus-ink:#fff8e8;
+  --campus-muted:#c8d2c9;
+  --campus-panel:#181f1b;
+  --campus-raised:#262e28;
+  --campus-rule:#b9b19b52;
+  --campus-border:#aca78e;
+  --campus-action:var(--school-primary,#5b365f);
+  --campus-action-text:var(--school-primary-text,#fff8e8);
+  --campus-focus:#f4d69b;
+  --campus-display:var(--font-saira-condensed),sans-serif;
+  --pink:var(--campus-focus);
+  --violet:var(--campus-action);
+  --muted:var(--campus-muted);
+  background:#111813;
+  color:var(--campus-ink);
+}
+.root.root[data-campus-shell] a { color:var(--campus-ink); }
+.root.root[data-campus-shell] :is(button,a,input,select,textarea,summary):focus-visible { outline-color:var(--campus-focus); }
+.root.root[data-campus-shell] .primary { background:var(--campus-action); color:var(--campus-action-text); border-color:var(--campus-border); box-shadow:none; }
+.root.root[data-campus-shell] .primary:hover { filter:brightness(1.16); }
+.root.root[data-campus-shell] .secondary { background:var(--campus-panel); border-color:var(--campus-rule); color:var(--campus-ink); }
+.root.root[data-campus-shell] .secondary:hover { background:var(--campus-raised); }
+.root.root[data-campus-shell] .environment { background:radial-gradient(ellipse at top right,#323d2c,#131a16 55%,#111813); }
+.root.root[data-campus-scene] .environment {
+  position:absolute;
+  background:linear-gradient(90deg,#0f1914 4%,#142019e6 43%,#1420198a 74%,#12191263),linear-gradient(0deg,#111813 1%,transparent 67%),url('/assets/today-now/diana-campus-study-v1.webp') right top/cover no-repeat;
+}
+@media(max-width:760px) {
+  .root.root[data-campus-scene] .environment { background-position:center,center,60% top; }
+}
+@media(forced-colors:active) {
+  .root.root[data-campus-shell] :is(button,a,input,select,textarea,summary):focus-visible { outline-color:Highlight; }
+}

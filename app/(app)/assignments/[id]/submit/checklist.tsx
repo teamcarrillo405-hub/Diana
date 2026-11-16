@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Loader2, Send, Trash2 } from "lucide-react";
+import { Check, ClipboardCheck, Loader2, Send, Trash2 } from "lucide-react";
+import styles from "@/components/student-shell/submission.module.css";
 import {
   addChecklistItem,
   deleteChecklistItem,
-  setSubmissionUrl,
   toggleChecklistItem,
   transitionAssignment,
 } from "../actions";
@@ -22,36 +22,34 @@ type Item = {
 
 export function SubmitChecklist({
   assignmentId,
-  items: initial,
-  currentUrl,
+  items: savedItems,
   showFinalConfirmation = true,
 }: {
   assignmentId: string;
   items: Item[];
-  currentUrl: string | null;
   showFinalConfirmation?: boolean;
 }) {
   const router = useRouter();
-  const [items, setItems] = useState(initial);
-  const [url, setUrl] = useState(currentUrl ?? "");
+  const [savedChanges, setSavedChanges] = useState<ReadonlyMap<string, boolean | null>>(() => new Map());
   const [error, setError] = useState<string | null>(null);
+  const [confirmationError, setConfirmationError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [newItemLabel, setNewItemLabel] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [handedIn, setHandedIn] = useState(false);
-  useEffect(() => setItems(initial), [initial]);
+  const items = savedItems.flatMap((item) => {
+    const checked = savedChanges.get(item.id);
+    return checked === null ? [] : [{ ...item, checked: checked ?? item.checked }];
+  });
   const requiredOk = items.filter((item) => item.required).every((item) => item.checked);
 
   function toggle(item: Item) {
     const checked = !item.checked;
     setError(null);
-    setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, checked } : entry));
     startTransition(async () => {
       const result = await toggleChecklistItem({ itemId: item.id, checked });
-      if (result?.error) {
-        setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, checked: !checked } : entry));
-        setError(result.error);
-      }
+      if (result?.error) return setError(result.error);
+      setSavedChanges((current) => new Map(current).set(item.id, checked));
     });
   }
 
@@ -72,60 +70,46 @@ export function SubmitChecklist({
     startTransition(async () => {
       const result = await deleteChecklistItem({ itemId });
       if (result?.error) return setError(result.error);
-      setItems((current) => current.filter((item) => item.id !== itemId));
-    });
-  }
-
-  function saveUrl() {
-    const value = url.trim();
-    startTransition(async () => {
-      const result = await setSubmissionUrl({
-        id: assignmentId,
-        url: value.length > 0 ? value : null,
-      });
-      if (result?.error) setError(result.error);
+      setSavedChanges((current) => new Map(current).set(itemId, null));
     });
   }
 
   function confirmSubmission() {
-    setError(null);
-    if (confirmed || !handedIn) return;
-    if (!requiredOk) {
-      setError("Check each required item when you are ready.");
-      return;
-    }
+    if (confirmed || !handedIn || !requiredOk) return;
+    setConfirmationError(null);
     startTransition(async () => {
       const result = await transitionAssignment({
         id: assignmentId,
         from: "exporting",
         to: "submitted",
       });
-      if ("error" in result && result.error) return setError(result.error);
+      if ("error" in result && result.error) return setConfirmationError(result.error);
       setConfirmed(true);
       router.refresh();
     });
   }
 
   return (
-    <div className="sd-submit-checklist-shell">
-      <section className="sd-submit-checklist" aria-labelledby="submission-checks-title">
-        <div className="sd-submit-checklist-heading">
-          <h2 id="submission-checks-title">FINAL CHECKS</h2>
-          <span>{items.filter((item) => item.checked).length}/{items.length}</span>
+    <>
+      <section className={styles.paper} aria-labelledby="submission-checks-title">
+        <div className={styles.panelHeading}>
+          <ClipboardCheck size={23} aria-hidden="true" />
+          <h2 id="submission-checks-title">Final checks</h2>
+          {items.length > 0 ? <span className={styles.checkCount}>{items.filter((item) => item.checked).length} of {items.length} complete</span> : null}
         </div>
         {items.length > 0 ? (
-          <ul>
+          <ul className={styles.checkList}>
             {items.map((item) => (
               <li key={item.id}>
                 <button type="button" role="checkbox" aria-checked={item.checked} onClick={() => toggle(item)} disabled={pending}>
-                  <span className="sd-submit-checkbox" data-checked={item.checked} aria-hidden="true">
+                  <span className={styles.checkboxMark} data-checked={item.checked} aria-hidden="true">
                     {item.checked ? <Check size={16} strokeWidth={3} /> : null}
                   </span>
                   <span>
                     <strong>{item.label}</strong>
                     {item.detail ? <small>{item.detail}</small> : null}
                   </span>
-                  {item.required ? <em>REQUIRED</em> : null}
+                  {item.required ? <em>Required</em> : null}
                 </button>
                 <button type="button" onClick={() => removeItem(item.id)} aria-label={`Remove ${item.label}`} disabled={pending}>
                   <Trash2 size={14} aria-hidden="true" />
@@ -134,12 +118,12 @@ export function SubmitChecklist({
             ))}
           </ul>
         ) : (
-          <p className="sd-submit-empty">Add any checks you want to make before submitting.</p>
+          <p className={styles.emptyChecks}>Add any checks you want to make before handing in your work.</p>
         )}
 
-        <details className="sd-submit-options">
+        <details className={styles.options}>
           <summary>Customize review</summary>
-          <form onSubmit={(event) => { event.preventDefault(); addItem(); }}>
+          <form className={styles.form} onSubmit={(event) => { event.preventDefault(); addItem(); }}>
             <label htmlFor="new-submission-check">Add a check</label>
             <div>
               <input
@@ -149,35 +133,30 @@ export function SubmitChecklist({
                 maxLength={200}
                 placeholder="Attach the rubric"
               />
-              <button type="submit" disabled={pending || !newItemLabel.trim()}>ADD</button>
+              <button type="submit" className={styles.secondary} disabled={pending || !newItemLabel.trim()}>Add</button>
             </div>
           </form>
-          <label htmlFor="submission-url">Submission link, optional</label>
-          <input
-            id="submission-url"
-            type="url"
-            value={url}
-            onChange={(event) => setUrl(event.target.value)}
-            onBlur={saveUrl}
-            placeholder="https://classroom.google.com/..."
-          />
         </details>
 
-        {error ? <p className="sd-source-calm-error" role="status">{error}</p> : null}
+        {error ? <p className={styles.notice} role="status">{error}</p> : null}
       </section>
 
-      {showFinalConfirmation ? <div className="sd-submit-footer">
-        <label className="sd-submit-confirmation"><input type="checkbox" checked={handedIn} disabled={pending || confirmed} onChange={event => setHandedIn(event.target.checked)} />I handed this in using my teacher&apos;s required method.</label>
+      {showFinalConfirmation ? <section className={styles.sendPanel} aria-labelledby="record-handoff-title">
+        <h2 id="record-handoff-title">Record hand-in</h2>
+        <p>Diana saves your confirmation in your Record.</p>
+        <label className={styles.confirmationCheckbox}><input type="checkbox" checked={handedIn} disabled={pending || confirmed} onChange={event => setHandedIn(event.target.checked)} />I handed this in using my teacher&apos;s required method.</label>
         <button
           type="button"
           onClick={confirmSubmission}
           disabled={pending || !requiredOk || !handedIn || confirmed}
-          aria-label="Confirm submission"
+          className={styles.primary}
         >
           {pending ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}
-          {pending ? "CONFIRMING" : confirmed ? "SUBMISSION CONFIRMED" : requiredOk ? "CONFIRM SUBMISSION" : "CHECK REQUIRED ITEMS"}
+          {pending ? "Recording hand-in" : confirmed ? "Hand-in recorded" : "Record hand-in in Diana"}
         </button>
-      </div> : null}
-    </div>
+        {!requiredOk ? <p className={styles.requiredNote}>Complete the required checks first.</p> : null}
+        {confirmationError ? <p className={styles.notice} role="status">{confirmationError}</p> : null}
+      </section> : null}
+    </>
   );
 }

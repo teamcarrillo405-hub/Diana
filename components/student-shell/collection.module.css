@@ -40,3 +40,24 @@
 @media(max-width:760px) { .main { padding:24px 18px 40px; } .heading h1 { font-size:38px; } .collection { display:block; } .items { display:flex; overflow:auto; gap:12px; margin-bottom:24px; } .items button { flex:0 0 190px; } .items button strong { font-size:20px; } .art { height:180px; } .stageContent h2 { font-size:30px; } .field select,.field input { font-size:16px; } }
 
 .collection[data-empty="true"] { grid-template-columns:1fr; }
+
+.back.back { display:inline-flex; align-items:center; min-height:44px; gap:8px; margin-bottom:8px; font-size:.88rem; text-underline-offset:4px; }
+:global([data-campus-shell]) .heading h1 { font:italic 850 clamp(2.5rem,5.7vw,5.2rem)/.96 var(--campus-display); overflow-wrap:anywhere; }
+:global([data-campus-shell]) .heading a { padding:8px 12px; border:1px solid var(--campus-rule); background:var(--campus-panel); min-height:44px; font-size:.86rem; text-decoration:none; }
+:global([data-campus-shell]) .heading a:hover { background:var(--campus-raised); }
+:global([data-campus-shell]) .eyebrow { font-size:.84rem; color:var(--campus-muted); }
+:global([data-campus-shell]) .primary.primary { background:var(--campus-action); color:var(--campus-action-text); border:1px solid var(--campus-border); border-radius:0; box-shadow:none; }
+.collection[data-stacked] { gap:16px; margin-top:0; }
+.collection[data-stacked] .search { min-height:44px; }
+.collection[data-stacked] .search input { font-size:.88rem; }
+.collection[data-stacked] .items { display:grid; grid-template-columns:minmax(0,1fr); gap:0; margin:0; padding:0; }
+.collection[data-stacked] .items button { padding:12px; border-block-start:1px solid var(--campus-rule); border-inline-start:3px solid transparent; }
+.collection[data-stacked] .items button[aria-selected="true"] { border-inline-start-color:var(--campus-focus); color:var(--campus-action-text); }
+.collection[data-stacked] .items button[aria-selected="true"]::before { background:var(--campus-action); clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%); }
+.collection[data-stacked] .items button small { font-size:.8rem; opacity:1; }
+.collection[data-stacked] .stage { padding:clamp(14px,3vw,32px); border:1px solid var(--campus-rule); border-top:3px solid var(--campus-border); background:var(--campus-panel); }
+.collection[data-stacked] .stageContent h2 { font-style:italic; }
+@media(max-width:760px) {
+  .collection[data-stacked] { display:grid; grid-template-columns:minmax(0,1fr); }
+  .collection[data-stacked] .items { max-height:180px; }
+}

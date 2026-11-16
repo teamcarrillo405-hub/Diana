@@ -1,144 +1,167 @@
 "use client";
 
-import { FileText, ImagePlus, Keyboard, Upload, X } from "lucide-react";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { ArrowRight, FileText, FileUp, ClipboardPaste, X } from "lucide-react";
+import Link from "next/link";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import type { FormEvent } from "react";
+import { createAssignmentFromInstructions, createAssignmentFromUpload } from "./actions";
+import styles from "./intake.module.css";
 
-import {
-  createAssignmentFromInstructions,
-  createAssignmentFromUpload,
-} from "./actions";
-
-type ClassOption = { id: string; name: string; color: string };
+type ClassOption = { id: string; name: string };
 type IntakeMode = "file" | "text";
 
-export function AssignmentUploadForm({ classes, initialClassId }: { classes: readonly ClassOption[]; initialClassId?: string }) {
+export function AssignmentUploadForm({ classes, initialClassId }: {
+  classes: readonly ClassOption[];
+  initialClassId?: string;
+}) {
   const router = useRouter();
   const fileInput = useRef<HTMLInputElement>(null);
+  const chooseFile = useRef<HTMLButtonElement>(null);
+  const requestId = useRef<string | null>(null);
+  const sending = useRef(false);
   const [pending, startTransition] = useTransition();
   const [mode, setMode] = useState<IntakeMode>("file");
-  const [classId, setClassId] = useState(classes.some(course=>course.id===initialClassId) ? initialClassId! : classes[0]?.id ?? "");
+  const [classId, setClassId] = useState(classes.find(({ id }) => id === initialClassId)?.id ?? classes[0]?.id ?? "");
   const [title, setTitle] = useState("");
+  const [dueAt, setDueAt] = useState("");
   const [instructions, setInstructions] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [uncertain, setUncertain] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const locked = pending || Boolean(savedId) || uncertain;
 
-  const fileLabel = useMemo(() => {
-    if (!file) return null;
-    const size = file.size < 1024 * 1024
-      ? `${Math.max(1, Math.round(file.size / 1024))} KB`
-      : `${(file.size / (1024 * 1024)).toFixed(1)} MB`;
-    return `${file.name} · ${size}`;
-  }, [file]);
+  function selectMode(nextMode: IntakeMode) {
+    setError(null);
+    setMode(nextMode);
+  }
 
   function selectFile(nextFile: File | null) {
     setError(null);
     setFile(nextFile);
-    if (nextFile && !title.trim()) {
-      setTitle(nextFile.name.replace(/\.[^.]+$/u, "").replace(/[_-]+/gu, " "));
-    }
+    if (!nextFile && fileInput.current) fileInput.current.value = "";
   }
 
-  function submit(event: React.FormEvent<HTMLFormElement>) {
+  function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if (sending.current) return;
     setError(null);
-    setMessage(null);
+    if (!classId) return setError("Choose a class.");
+    if (mode === "file" && !file) return setError("Choose a file.");
+    if (mode === "text" && instructions.trim().length < 2) return setError("Paste the assignment instructions.");
 
-    if (!classId) {
-      setError("Choose the class this belongs to.");
-      return;
-    }
-    if (mode === "file" && !file) {
-      setError("Choose a photo, PDF, or text file first.");
-      return;
-    }
-    if (mode === "text" && !instructions.trim()) {
-      setError("Paste the assignment instructions first.");
-      return;
-    }
+    const dueDate = dueAt ? new Date(dueAt) : null;
+    if (dueDate && Number.isNaN(dueDate.getTime())) return setError("Choose a valid due date.");
+    const date = dueDate?.toISOString() ?? null;
+    const id = requestId.current ??= crypto.randomUUID();
+    sending.current = true;
 
     startTransition(async () => {
-      const result = mode === "file"
-        ? await (() => {
-          const formData = new FormData();
-          formData.set("classId", classId);
-          formData.set("title", title.trim());
-          formData.set("file", file as File);
-          return createAssignmentFromUpload(formData);
-        })()
-        : await createAssignmentFromInstructions({
-          classId,
-          title: title.trim() || "New assignment",
-          instructions: instructions.trim(),
-        });
-
-      if (!result.ok) {
-        setError(result.error);
-        return;
+      try {
+        let result;
+        if (mode === "file" && file) {
+          const data = new FormData();
+          data.set("requestId", id);
+          data.set("classId", classId);
+          data.set("title", title.trim());
+          data.set("file", file);
+          if (date) data.set("dueAt", date);
+          result = await createAssignmentFromUpload(data);
+        } else {
+          result = await createAssignmentFromInstructions({ requestId: id, classId, title, dueAt: date, instructions });
+        }
+        if (!result.ok) {
+          if ("assignmentId" in result && result.assignmentId) setSavedId(result.assignmentId);
+          if ("uncertain" in result && result.uncertain) setUncertain(true);
+          setError(result.error);
+          return;
+        }
+        router.push(`/assignments/${result.assignmentId}/workspace`);
+      } catch {
+        setUncertain(true);
+        setError("Diana couldn’t confirm the save. Try again with the same assignment details.");
+      } finally {
+        sending.current = false;
       }
-      setMessage(result.warning ?? "Assignment ready. Opening your workspace.");
-      router.push(`/assignments/${result.assignmentId}/workspace`);
-      router.refresh();
     });
   }
 
   return (
-    <form className="sd-assignment-upload-form" onSubmit={submit}>
-      <div className="sd-assignment-upload-tabs" role="tablist" aria-label="How to add an assignment" onKeyDown={event=>{if (!["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) return; event.preventDefault(); const next = event.key === "Home" ? "file" : event.key === "End" ? "text" : mode === "file" ? "text" : "file"; setMode(next); setError(null); (event.currentTarget.querySelector(`[data-mode="${next}"]`) as HTMLButtonElement)?.focus();}}>
-        <button type="button" role="tab" data-mode="file" tabIndex={mode === "file" ? 0 : -1} aria-selected={mode === "file"} disabled={pending} onClick={() => { setMode("file"); setError(null); }}>
-          <Upload aria-hidden="true" /> Upload file
+    <form className={`${styles.panel} ${styles.form}`} onSubmit={submit}>
+      <div className={styles.tabs} role="group" aria-label="Assignment source">
+        <button type="button" aria-pressed={mode === "file"} disabled={locked} onClick={() => selectMode("file")}>
+          <FileUp size={16} aria-hidden="true" /> Upload file
         </button>
-        <button type="button" role="tab" data-mode="text" tabIndex={mode === "text" ? 0 : -1} aria-selected={mode === "text"} disabled={pending} onClick={() => { setMode("text"); setError(null); }}>
-          <Keyboard aria-hidden="true" /> Paste instructions
+        <button type="button" aria-pressed={mode === "text"} disabled={locked} onClick={() => selectMode("text")}>
+          <ClipboardPaste size={16} aria-hidden="true" /> Paste instructions
         </button>
       </div>
 
-      <div className="sd-assignment-upload-fields">
+      <fieldset className={styles.fields} disabled={locked} aria-label="Assignment details">
         <label>
-          <span>Class</span>
-          <select value={classId} onChange={(event) => setClassId(event.target.value)}>
-            {classes.map((course) => <option key={course.id} value={course.id}>{course.name}</option>)}
+          Class
+          <select value={classId} onChange={event => setClassId(event.target.value)}>
+            {classes.map(course => <option key={course.id} value={course.id}>{course.name}</option>)}
           </select>
         </label>
         <label>
           <span>Assignment name <small>optional</small></span>
-          <input value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Diana can name it from the file" maxLength={160} />
+          <input value={title} onChange={event => setTitle(event.target.value)} maxLength={160} />
         </label>
-      </div>
+        <label>
+          <span>Due date and time <small>optional</small></span>
+          <input type="datetime-local" value={dueAt} onChange={event => setDueAt(event.target.value)} />
+        </label>
+      </fieldset>
 
       {mode === "file" ? (
-        <section className="sd-assignment-dropzone" aria-labelledby="assignment-upload-title" onDragOver={event=>event.preventDefault()} onDrop={event=>{event.preventDefault();if(!pending)selectFile(event.dataTransfer.files[0] ?? null);}}>
+        <div className={styles.drop} data-dragging={dragging || undefined}
+          onDragOver={event => { event.preventDefault(); if (!locked) setDragging(true); }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={event => {
+            event.preventDefault();
+            setDragging(false);
+            if (!locked && event.dataTransfer.files[0]) selectFile(event.dataTransfer.files[0]);
+          }}>
           <input
             ref={fileInput}
+            hidden
             type="file"
             accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.txt,application/pdf,image/jpeg,image/png,image/webp,image/gif,text/plain"
-            capture="environment"
-            onChange={(event) => selectFile(event.target.files?.[0] ?? null)}
+            onChange={event => { if (event.target.files?.[0]) selectFile(event.target.files[0]); }}
           />
-          <ImagePlus aria-hidden="true" />
-          <h2 id="assignment-upload-title">{file ? "Assignment file ready" : "Drop your assignment here"}</h2>
-          <p>{fileLabel ?? "Photo, PDF, or text file. Up to 20 MB."}</p>
-          <button type="button" onClick={() => fileInput.current?.click()}>
-            {file ? "Choose another file" : "Choose a file"}
+          <FileText size={22} aria-hidden="true" />
+          <div className={styles.dropCopy} aria-live="polite">
+            <strong>{file?.name ?? "Drop a file here"}</strong>
+            <span className={styles.muted}>{file ? `${Math.max(1, Math.round(file.size / 1024))} KB` : "Photo, PDF, or text · 20 MB max"}</span>
+          </div>
+          <button ref={chooseFile} type="button" className={styles.secondary} disabled={locked} onClick={() => fileInput.current?.click()}>
+            {file ? "Change file" : "Choose file"}
           </button>
-          {file ? <button className="sd-assignment-upload-remove" type="button" onClick={() => selectFile(null)}><X aria-hidden="true" /> Remove file</button> : null}
-        </section>
+          {file && !locked ? (
+            <button className={`${styles.secondary} ${styles.full}`} type="button" onClick={() => { selectFile(null); chooseFile.current?.focus(); }}>
+              <X size={16} aria-hidden="true" /> Remove file
+            </button>
+          ) : null}
+        </div>
       ) : (
-        <label className="sd-assignment-instructions">
-          <span>Assignment instructions</span>
-          <textarea value={instructions} onChange={(event) => setInstructions(event.target.value)} placeholder="Paste the directions, rubric, or questions here." rows={9} maxLength={50000} />
-          <small>Diana uses this to build the first work unit. You can add the original file later.</small>
-        </label>
+        <fieldset className={styles.fields} disabled={locked}>
+          <label className={styles.full}>
+            Assignment instructions
+            <textarea value={instructions} onChange={event => setInstructions(event.target.value)} rows={5} maxLength={50000} />
+          </label>
+        </fieldset>
       )}
 
-      {error ? <p className="sd-assignment-upload-message" data-state="error" role="status">{error}</p> : null}
-      {message ? <p className="sd-assignment-upload-message" role="status">{message}</p> : null}
-
-      <div className="sd-assignment-upload-actions">
-        <p><FileText aria-hidden="true" /> Your original assignment stays attached to this workspace.</p>
-        <button type="submit" disabled={pending}>{pending ? "Adding your assignment..." : "Add to Work"}</button>
+      {error ? <p className={styles.problem} role="status">{error}</p> : null}
+      <div className={styles.actions}>
+        {savedId ? <Link className={styles.secondary} href={`/assignments/${savedId}/workspace`}>Open saved assignment</Link> : null}
+        <button type="submit" className={styles.primary} disabled={pending}>
+          {pending ? "Saving…" : savedId ? "Retry attachment" : uncertain ? "Retry save" : "Add to Work"}
+          <ArrowRight size={17} aria-hidden="true" />
+        </button>
       </div>
     </form>
   );

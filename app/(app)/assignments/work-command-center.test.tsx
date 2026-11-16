@@ -4,8 +4,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { WorkCommandCenter, type WorkCommandItem } from "./work-command-center";
 
 const item = (id: string, patch: Partial<WorkCommandItem> = {}): WorkCommandItem => ({ id, title: `Assignment ${id}`, className: "History", classColor: "#8b96bd", dueAt: "2026-09-24T21:00:00Z", minutes: 25, kind: "essay", status: "todo", reasons: [], ...patch });
-const renderWork = (assignments: WorkCommandItem[]) => render(<WorkCommandCenter assignments={assignments} nowIso="2026-09-24T12:00:00Z" timeZone="America/Los_Angeles" />);
-afterEach(cleanup);
+const renderWork = (assignments: WorkCommandItem[], props: { studentId?: string; restoreContext?: boolean } = {}) => render(<WorkCommandCenter assignments={assignments} nowIso="2026-09-24T12:00:00Z" timeZone="America/Los_Angeles" {...props} />);
+afterEach(() => { cleanup(); sessionStorage.clear(); });
 
 describe("connected Work collection", () => {
   it("opens the selected assignment's saved workspace", () => {
@@ -44,5 +44,30 @@ describe("connected Work collection", () => {
     unmount(); renderWork([]);
     expect(screen.getByRole("heading", { name: "No assignments yet" })).toBeVisible();
     expect(screen.getAllByRole("link", { name: "Add assignment" }).every(link => link.getAttribute("href") === "/quick-add")).toBe(true);
+  });
+  it("clears a hidden date selection when browsing another week and omits unknown estimates", () => {
+    renderWork([item("a", { minutes: null }), item("b", { dueAt: null })]);
+    fireEvent.click(screen.getByText("Any due date"));
+    fireEvent.click(screen.getByRole("button", { name: /Thursday, September 24/ }));
+    expect(screen.queryByRole("tab", { name: /Assignment b/ })).toBeNull();
+    expect(screen.queryByText("Estimated work")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Next week" }));
+    expect(screen.getByRole("tab", { name: /Assignment b/ })).toBeVisible();
+    expect(screen.getByRole("button", { name: "All dates" })).toHaveAttribute("aria-pressed", "true");
+  });
+  it("restores the student's saved Work status, search and choice only on return", () => {
+    const assignments = [item("a"), item("b", { status: "checking", title: "Notes to review" })];
+    const { unmount } = renderWork(assignments, { studentId: "student-a" });
+    fireEvent.click(screen.getByRole("button", { name: "Review 1" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Find assignment" }), { target: { value: "Notes" } });
+    fireEvent.click(screen.getByRole("link", { name: "Review work Notes to review" }));
+    unmount();
+    const returned = renderWork(assignments, { studentId: "student-a", restoreContext: true });
+    expect(screen.getByRole("textbox", { name: "Find assignment" })).toHaveValue("Notes");
+    expect(screen.getByRole("link", { name: "Review work Notes to review" })).toBeVisible();
+    returned.unmount();
+    renderWork(assignments, { studentId: "student-b", restoreContext: true });
+    expect(screen.getByRole("textbox", { name: "Find assignment" })).toHaveValue("");
+    expect(screen.getByRole("link", { name: "Start Assignment a" })).toBeVisible();
   });
 });
