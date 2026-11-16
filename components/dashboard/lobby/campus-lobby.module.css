@@ -363,17 +363,9 @@
   margin: 0; color: var(--campus-ink); font: italic 800 clamp(35px, 4.3vw, 55px)/1 var(--font-saira-condensed), sans-serif;
   text-transform: uppercase;
 }
-.campus.campus.campus.campus.campus.campus .checkInHeading > p:last-child,
-.campus.campus.campus.campus.campus.campus .previewCheckIn > p {
+.campus.campus.campus.campus.campus.campus .checkInHeading > p:last-child {
   margin: 12px 0 16px; color: var(--campus-muted); font: 400 14px/1.55 var(--font-lexend), sans-serif;
 }
-.campus.campus.campus.campus.campus.campus .previewCheckIn { padding-top: 6px; border-top: 1px solid var(--campus-rule); }
-.campus.campus.campus.campus.campus.campus .previewCheckIn > div { display: flex; flex-wrap: wrap; gap: 8px; }
-.campus.campus.campus.campus.campus.campus .previewCheckIn button {
-  min-height: 44px; padding: 8px 18px; border: 1px solid var(--campus-rule); color: var(--campus-ink);
-  background: #21362e; opacity: 1;
-}
-.campus.campus.campus.campus.campus.campus .previewCheckIn > button { margin-top: 14px; background: var(--campus-action); color: var(--school-primary-text, #fff); }
 :global(.dyslexia-font) .campus.campus.campus.campus.campus.campus .checkInHeading h2 { font-style: normal; text-transform: none; }
 
 @media (min-width: 761px) {
@@ -515,6 +507,6 @@
   :is(.campusTools, [data-today-stage-deck] > [data-lobby-week], [data-today-stage-deck] > [data-lobby-check-in], [data-lobby-check-in-note]) {
     background: Canvas; color: CanvasText; border-color: CanvasText;
   }
-  .campus.campus.campus.campus.campus.campus :is(.checkInHeading h2, .checkInHeading > p:last-child, .previewCheckIn > p) { color: CanvasText; }
+  .campus.campus.campus.campus.campus.campus :is(.checkInHeading h2, .checkInHeading > p:last-child) { color: CanvasText; }
   .campus.campus.campus.campus.campus.campus[data-campus-experience] .mobileCampusText :is(strong, span) { color: CanvasText; }
 }

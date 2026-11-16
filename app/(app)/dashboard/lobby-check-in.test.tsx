@@ -11,6 +11,11 @@ const saved = { energy: "okay" as const, sleepHours: 8, movementType: "walk" as 
 beforeEach(() => { mocks.getSupport.mockResolvedValue({ ok: true, need: null, personalizationEnabled: false }); });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.clearAllMocks(); });
 
+function openSharingPreference() {
+  fireEvent.click(screen.getByText("AI sharing preference"));
+  return screen.getByRole<HTMLInputElement>("checkbox", { name: /Allow general guidance/ });
+}
+
 describe("Today check-in persistence", () => {
   it("restores a saved check-in and does not write on mount", () => {
     render(<LobbyCheckIn appearance="today" initialValue={saved} sleepDate="2026-09-09" />);
@@ -69,19 +74,22 @@ describe("Today check-in persistence", () => {
 describe("Optional daily support choices", () => {
   it("starts with no sharing, and selecting a need does not save it automatically", async () => {
     render(<LobbyCheckIn initialValue={null} sleepDate="2026-09-09" />);
-    const select = await screen.findByRole("combobox", { name: "What would help right now?" });
-    await waitFor(() => expect(select.hasAttribute("disabled")).toBe(false));
-    const sharing = screen.getByRole("checkbox", { name: /Allow general guidance/ });
-    expect((sharing as HTMLInputElement).checked).toBe(false);
-    expect(screen.getByText(/Sharing changes apply to future requests; they cannot recall a request already sent/)).toBeTruthy();
-    expect((select as HTMLSelectElement).value).toBe("");
-    fireEvent.change(select, { target: { value: "food" } });
+    const food = screen.getByRole<HTMLInputElement>("radio", { name: "A snack or food" });
+    await waitFor(() => expect(food.disabled).toBe(false));
+    const sharing = openSharingPreference();
+    expect(sharing.checked).toBe(false);
+    expect(screen.getByText(/Sharing changes apply to future requests\. They cannot recall a request already sent/)).toBeTruthy();
+    expect(screen.getByRole("group", { name: /What would help right now/ }).closest("form")).not.toBeNull();
+    expect(screen.getAllByRole<HTMLInputElement>("radio").every(option => !option.checked)).toBe(true);
+    expect(food.compareDocumentPosition(screen.getByRole("button", { name: "Save check-in" })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    fireEvent.click(food);
     expect(mocks.saveNeed).not.toHaveBeenCalled();
     expect(mocks.saveSharing).not.toHaveBeenCalled();
     mocks.saveNeed.mockResolvedValue({ ok: true });
     fireEvent.click(screen.getByRole("button", { name: "Save support choice" }));
     await waitFor(() => expect(mocks.saveNeed).toHaveBeenCalledWith("food"));
     await screen.findByText("Support choice saved for 24 hours.");
+    expect(mocks.save).not.toHaveBeenCalled();
     expect(mocks.saveSharing).not.toHaveBeenCalled();
   });
 
@@ -90,9 +98,9 @@ describe("Optional daily support choices", () => {
     mocks.saveSharing.mockResolvedValue({ ok: true });
     mocks.saveNeed.mockResolvedValue({ ok: true });
     render(<LobbyCheckIn initialValue={null} sleepDate="2026-09-09" />);
-    const checkbox = await screen.findByRole("checkbox", { name: /Allow general guidance/ });
+    const checkbox = openSharingPreference();
     await waitFor(() => expect(checkbox.hasAttribute("disabled")).toBe(false));
-    expect((screen.getByRole("combobox", { name: "What would help right now?" }) as HTMLSelectElement).value).toBe("water");
+    expect(screen.getByRole<HTMLInputElement>("radio", { name: "Water" }).checked).toBe(true);
     fireEvent.click(checkbox);
     expect(mocks.saveSharing).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Save sharing preference" }));
@@ -106,9 +114,9 @@ describe("Optional daily support choices", () => {
   it("does not claim a failed save succeeded", async () => {
     mocks.saveNeed.mockResolvedValue({ ok: false, error: "Your support choice could not be saved yet." });
     render(<LobbyCheckIn initialValue={null} sleepDate="2026-09-09" />);
-    const select = await screen.findByRole("combobox", { name: "What would help right now?" });
-    await waitFor(() => expect(select.hasAttribute("disabled")).toBe(false));
-    fireEvent.change(select, { target: { value: "break" } });
+    const breakOption = screen.getByRole<HTMLInputElement>("radio", { name: "A break" });
+    await waitFor(() => expect(breakOption.disabled).toBe(false));
+    fireEvent.click(breakOption);
     fireEvent.click(screen.getByRole("button", { name: "Save support choice" }));
     expect(await screen.findByText("Your support choice could not be saved yet.")).toBeTruthy();
     expect(screen.queryByText("Support choice saved for 24 hours.")).toBeNull();
@@ -117,7 +125,7 @@ describe("Optional daily support choices", () => {
   it("shows that consent changes are unsaved and restores the last saved state on failure", async () => {
     mocks.saveSharing.mockResolvedValue({ ok: false, error: "Your sharing preference could not be saved yet." });
     render(<LobbyCheckIn initialValue={null} sleepDate="2026-09-09" />);
-    const checkbox = await screen.findByRole("checkbox", { name: /Allow general guidance/ }) as HTMLInputElement;
+    const checkbox = openSharingPreference();
     await waitFor(() => expect(checkbox.disabled).toBe(false));
     fireEvent.click(checkbox);
     expect(screen.getByText("Sharing preference changed. Save to apply it.")).toBeTruthy();
@@ -131,7 +139,7 @@ describe("Optional daily support choices", () => {
     mocks.getSupport.mockResolvedValue({ ok: true, need: null, personalizationEnabled: true });
     mocks.saveSharing.mockResolvedValue({ ok: true });
     render(<LobbyCheckIn initialValue={null} sleepDate="2026-09-09" />);
-    const checkbox = await screen.findByRole("checkbox", { name: /Allow general guidance/ }) as HTMLInputElement;
+    const checkbox = openSharingPreference();
     await waitFor(() => expect(checkbox.disabled).toBe(false));
     expect(checkbox.checked).toBe(true);
     fireEvent.click(checkbox);
@@ -145,9 +153,10 @@ describe("Optional daily support choices", () => {
       .mockResolvedValueOnce({ ok: true, need: "break", personalizationEnabled: false });
     render(<LobbyCheckIn initialValue={null} sleepDate="2026-09-09" />);
     const retry = await screen.findByRole("button", { name: "Retry loading support choices" });
-    expect((screen.getByRole("combobox", { name: "What would help right now?" }) as HTMLSelectElement).disabled).toBe(true);
+    const breakOption = screen.getByRole<HTMLInputElement>("radio", { name: "A break" });
+    expect(breakOption.disabled).toBe(true);
     fireEvent.click(retry);
-    await waitFor(() => expect((screen.getByRole("combobox", { name: "What would help right now?" }) as HTMLSelectElement).value).toBe("break"));
+    await waitFor(() => expect(breakOption.checked).toBe(true));
     expect(screen.queryByRole("button", { name: "Retry loading support choices" })).toBeNull();
   });
 });

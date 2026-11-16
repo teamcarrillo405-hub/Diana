@@ -1,18 +1,169 @@
-.form { display: grid; gap: 14px; }
-.energy { display: grid; gap: 6px; color: inherit; font-size: 14px; font-weight: 600; }
+.form {
+  --checkin-text: #2d2235;
+  --checkin-muted: #5d5362;
+  --checkin-border: #77647e;
+  --checkin-surface: #fff;
+  --checkin-action: #54216e;
+  --checkin-action-text: #fff;
+  --checkin-focus: #76538d;
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.campusForm {
+  --checkin-text: var(--campus-ink, #fff9ed);
+  --checkin-muted: var(--campus-muted, #d9dfd7);
+  --checkin-border: var(--campus-rule, #c4b88e85);
+  --checkin-surface: #1c2b26;
+  --checkin-action: var(--campus-action, #64316f);
+  --checkin-action-text: var(--school-primary-text, #fff);
+  --checkin-focus: #f1dca8;
+  color: var(--checkin-text);
+  color-scheme: dark;
+}
+.energy, .field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
 .energyOptions { display: flex; gap: 8px; }
-.energyOptions button { min-height: 44px; flex: 1; padding: 8px; border: 1px solid #655474; border-radius: 6px; background: #fff; color: #30223b; font-weight: 600; }
-.energyOptions button[aria-pressed="true"] { color: #fff; background: #54216e; border-color: #54216e; }
-.field { display: grid; gap: 6px; min-width: 0; font-size: 14px; font-weight: 600; }
-.field span { display: flex; gap: 8px; align-items: baseline; }
-.field small { font-size: 12px; font-weight: 400; }
-.field input, .field select { display: block; box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid #655474; border-radius: 6px; background: #fff; color: #231a2b; font: inherit; }
-.field input::placeholder { color: #5d5362; opacity: 1; }
-.movement { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
-.save { min-height: 44px; padding: 9px 16px; border: 1px solid #54216e; border-radius: 6px; background: #54216e; color: #fff; font-weight: 700; cursor: pointer; }
-.save:disabled { opacity: .65; cursor: default; }
-.save[data-state="saved"] { background: #f1eaf5; color: #30223b; }
-.status { font-size: 13px; line-height: 1.4; }
+/* Keep the Lobby controls above the legacy application-wide form rules. */
+.form.form.form.form :is(.energyOptions button, .field input, .field select, .supportOptions label, .supportActions button, .secondaryAction) {
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--checkin-border);
+  border-radius: 4px;
+  background: var(--checkin-surface);
+  color: var(--checkin-text);
+  font: inherit;
+  box-shadow: none;
+}
+.form.form.form.form .energyOptions button { flex: 1; width: auto; font-size: 14px; font-weight: 600; }
+.form.form.form.form :is(.energyOptions button[aria-pressed="true"], .supportOptions label:has(input:checked)) {
+  border-color: currentColor;
+  background: var(--checkin-action);
+  color: var(--checkin-action-text);
+}
+.field span {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 7px;
+}
+.form.form.form.form :is(.field > span, .supportOptions label > span, .sharing label > span, small, summary) {
+  font-family: inherit;
+  text-transform: none;
+  letter-spacing: normal;
+}
+.form.form.form.form :is(.field small, .supportChoices small) {
+  color: var(--checkin-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+.form.form.form.form .field :is(input, select) { display: block; width: 100%; }
+.form.form.form.form .field input::placeholder { color: var(--checkin-muted); opacity: 1; }
+.otherQuestions, .movement { display: grid; gap: 12px; }
+.movement { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); }
+@media (min-width: 960px) {
+  .campusForm .otherQuestions { grid-template-columns: minmax(0, .9fr) minmax(0, 1.6fr); }
+}
+.dailySupport {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--checkin-border);
+}
+.supportChoices { min-inline-size: 0; margin: 0; padding: 0; border: 0; }
+.supportChoices legend { margin-bottom: 4px; padding: 0; font-size: 14px; font-weight: 650; }
+.supportChoices small { margin-inline-start: 4px; }
+.form.form.form.form .supportNote { margin: 0 0 10px; color: var(--checkin-muted); font-size: 12px; line-height: 1.5; }
+.supportOptions {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, .85fr) minmax(0, .85fr);
+  gap: 8px;
+}
+.supportOptions label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.form.form.form.form :is(.supportOptions input, .sharing input) {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  accent-color: var(--checkin-focus);
+  box-shadow: none;
+}
+.supportOptions label:has(input:disabled) { cursor: default; }
+.supportActions { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.form.form.form.form :is(.supportActions button, .secondaryAction) { font-size: 13px; font-weight: 600; }
+.form.form.form.form .supportActions button:last-child { background: transparent; border-color: transparent; }
+.secondaryAction { justify-self: start; }
+.form.form.form.form .save {
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 16px;
+  border: 1px solid var(--checkin-border);
+  border-radius: 4px;
+  background: var(--checkin-action);
+  color: var(--checkin-action-text);
+  box-shadow: none;
+  font-weight: 700;
+}
+.form.form.form.form .save[data-state="saved"] {
+  background: var(--checkin-surface);
+  color: var(--checkin-text);
+}
+.form.form.form.form :is(button, input, select):disabled { cursor: default; }
+.form.form.form.form button:disabled { opacity: .75; }
+.form.form.form.readOnly button:disabled { opacity: 1; }
+.form.form.form.form :is(button, input, select, summary):focus-visible, .form .supportOptions label:has(input:focus-visible) {
+  outline: 2px solid var(--checkin-focus);
+  outline-offset: 3px;
+}
+.form.form.form.form .supportOptions input:focus-visible { outline: 0; }
+.form.form.form.form :is(button, .supportOptions label):hover:not(:disabled, :has(input:disabled)) { border-color: var(--checkin-focus); }
+.sharing {
+  padding-top: 4px;
+  border-top: 1px solid var(--checkin-border);
+  color: var(--checkin-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.sharing summary {
+  display: list-item;
+  align-content: center;
+  min-height: 44px;
+  color: var(--checkin-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.sharing label { display: flex; align-items: start; gap: 8px; }
+.form.form.form.form .sharing input { margin-top: 3px; }
+.form.form.form.form .sharing p { margin: 8px 0; color: var(--checkin-muted); }
+.form.form.form.form .status { margin: 0; color: var(--checkin-text); font-size: 13px; line-height: 1.4; }
 .status:empty { display: none; }
-.form :is(button, input, select):focus-visible { outline: 3px solid #8464a3; outline-offset: 2px; }
-@media (max-width: 320px) { .movement { grid-template-columns: 1fr; } }
+@media (max-width: 360px) {
+  .supportOptions label { gap: 5px; padding-inline: 5px; }
+}
+@media (forced-colors: active) {
+  .form.form.form.form :is(.energyOptions button[aria-pressed="true"], .supportOptions label:has(input:checked)) {
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+}

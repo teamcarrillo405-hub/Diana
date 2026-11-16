@@ -1,0 +1,191 @@
+.history {
+  --history-ink: var(--campus-ink, #fff9ed);
+  --history-muted: var(--campus-muted, #d9dfd7);
+  --history-rule: #d6c99c38;
+  --history-surface: #172822;
+  --sleep-bar: #dcc99b;
+  --activity-bar: #aacbb7;
+  min-width: 0;
+  margin-block-start: clamp(20px, 3vw, 32px);
+  color: var(--history-ink);
+}
+
+.history .header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  padding: 10px 0 10px 10px;
+  border-block-start: 1px solid var(--campus-rule, var(--history-rule));
+  border-inline-start: 3px solid var(--campus-border, #cbb485);
+}
+
+.history[aria-labelledby] .header > h3[id] {
+  margin: 0;
+  color: var(--history-ink);
+  font: italic 800 clamp(23px, 2.3vw, 29px)/1.05 var(--font-saira-condensed), sans-serif;
+  text-transform: uppercase;
+}
+
+.history[aria-labelledby] .header > p,
+.history[aria-labelledby] .chart + p.note {
+  margin: 0;
+  color: var(--history-muted);
+  font: 500 11px/1.4 var(--font-lexend), sans-serif;
+  text-transform: none;
+}
+
+.history[aria-labelledby] .chart + p.note {
+  margin-block-start: 7px;
+}
+
+.history .chart {
+  width: 100%;
+  table-layout: fixed;
+  border: 1px solid var(--history-rule);
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--history-surface);
+}
+
+.metricColumn { width: 78px; }
+
+.history[aria-labelledby] .chart :is(th[scope], td) {
+  min-width: 0;
+  padding: 5px 2px;
+  border: 0;
+  border-block-end: 1px solid var(--history-rule);
+  background: transparent;
+  color: var(--history-ink);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.history[aria-labelledby] .chart :is(th[scope], td) + :is(th, td) {
+  border-inline-start: 1px solid var(--history-rule);
+}
+
+.history[aria-labelledby] .chart tbody > tr:last-child > :is(th[scope], td) {
+  border-block-end: 0;
+}
+
+.history[aria-labelledby] .chart thead > tr > th[scope] {
+  background: #22392f;
+  color: var(--history-muted);
+  font: 700 clamp(12px, 1.2vw, 16px)/1.3 var(--font-saira-condensed), sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.history[aria-labelledby] .chart thead > tr > th[data-current] {
+  color: var(--history-ink);
+  box-shadow: inset 0 -2px var(--campus-border, #cbb485);
+}
+
+.history[aria-labelledby] .chart th[scope="row"] {
+  padding-inline: clamp(4px, 1vw, 10px) 2px;
+  color: var(--history-ink);
+  font: 700 clamp(13px, 1.35vw, 17px)/1.1 var(--font-saira-condensed), sans-serif;
+  letter-spacing: .04em;
+  text-align: start;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.history[aria-labelledby] .chart th[scope="row"] > small {
+  display: block;
+  margin-block-start: 2px;
+  color: var(--history-muted);
+  font: 400 10px/1.15 var(--font-lexend), sans-serif;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.energyPlot,
+.measurePlot {
+  position: relative;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  height: 29px;
+  background: repeating-linear-gradient(to top, var(--history-rule) 0 1px, transparent 1px 33.33%);
+}
+
+.energyPlot[data-energy]::after {
+  position: absolute;
+  inset-block-end: var(--energy-mark);
+  inset-inline-start: 50%;
+  width: 12px;
+  height: 4px;
+  background: var(--history-ink);
+  transform: translateX(-50%) skew(-17deg);
+  content: "";
+}
+
+.energyPlot[data-energy="low"] { --energy-mark: 0; }
+.energyPlot[data-energy="okay"] { --energy-mark: calc(50% - 2px); }
+.energyPlot[data-energy="good"] { --energy-mark: calc(100% - 4px); }
+
+.measurePlot {
+  height: clamp(24px, 4vw, 42px);
+  background: repeating-linear-gradient(to top, var(--history-rule) 0 1px, transparent 1px 50%);
+}
+
+.measurePlot > i {
+  width: 58%;
+  max-width: 23px;
+  height: var(--bar-height);
+  background: var(--sleep-bar);
+}
+
+.measurePlot > i[data-zero] { height: 2px; }
+.chart tr[data-series="activity"] .measurePlot > i { background: var(--activity-bar); }
+
+.value {
+  display: block;
+  min-height: 1.15em;
+  margin-block-start: 3px;
+  color: var(--history-ink);
+  font: 700 clamp(12px, 1.25vw, 16px)/1.15 var(--font-saira-condensed), sans-serif;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+:global(.dyslexia-font) .history[aria-labelledby] .header > h3[id],
+:global(.dyslexia-font) .history[aria-labelledby] .chart th[scope] {
+  font-style: normal;
+  text-transform: none;
+}
+
+@media (max-width: 760px) {
+  .metricColumn { width: 57px; }
+}
+
+@media (forced-colors: active) {
+  .history {
+    --history-ink: CanvasText;
+    --history-muted: CanvasText;
+    --history-rule: CanvasText;
+    --history-surface: Canvas;
+    --sleep-bar: CanvasText;
+    --activity-bar: Highlight;
+  }
+
+  .history .header { border-color: CanvasText; }
+  .history[aria-labelledby] .chart thead > tr > th[scope] { background: Canvas; }
+  .history[aria-labelledby] .chart thead > tr > th[data-current] { border-block-end: 2px solid Highlight; }
+  .measurePlot > i, .energyPlot[data-energy]::after { forced-color-adjust: none; }
+}

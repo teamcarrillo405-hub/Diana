@@ -23,7 +23,13 @@ describe("public Lobby preview", () => {
     expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
     fireEvent.click(screen.getByRole("tab", { name: "Check-in" }));
     const checkIn = within(screen.getByRole("tabpanel", { name: "Check-in" }));
-    expect(checkIn.getByText("Optional")).toBeVisible();
+    expect(checkIn.getAllByText("Optional")[0]).toBeVisible();
+    expect(checkIn.getByLabelText("Sleep hours")).toBeDisabled();
+    expect(checkIn.getByLabelText("Movement type")).toBeDisabled();
+    expect(checkIn.getByText("A snack or food")).toBeVisible();
+    expect(checkIn.getByText("Water")).toBeVisible();
+    expect(checkIn.getByText("A break")).toBeVisible();
+    expect(checkIn.getByRole("heading", { name: "Check-in history" })).toBeVisible();
     expect(checkIn.getByRole("button", { name: "Save check-in" })).toBeDisabled();
     fireEvent.click(screen.getByRole("tab", { name: "This Week" }));
     expect(screen.getByRole("heading", { name: "This Week" })).toBeVisible();

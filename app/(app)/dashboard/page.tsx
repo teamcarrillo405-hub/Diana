@@ -14,6 +14,7 @@ import { loadProfile } from "@/lib/profile";
 import { getLearnerProfile } from "@/lib/learning-loop/server";
 import { sessionAdaptationForMood } from "@/lib/emotional/session";
 import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/health";
+import { buildCheckInWeek, checkInWeekRange } from "@/lib/wellness/check-in-week";
 import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
 import { LastShownClassCookie } from "./last-shown-class-cookie";
 import { LobbyCheckIn } from "./lobby-check-in";
@@ -31,6 +32,7 @@ export default async function DashboardPage({
   const now = new Date();
   const timeZone = profile?.timezone || "America/Los_Angeles";
   const checkInDay = lobbyCheckInDayKey(now, timeZone);
+  const checkInRange = checkInWeekRange(checkInDay);
 
   const learnerProfile = profile
     ? await getLearnerProfile({ supabase, ownerId: profile.user_id })
@@ -56,6 +58,9 @@ export default async function DashboardPage({
     { data: weeklyAssignments, error: weeklyError },
     { data: focusLogs, error: focusError },
     { data: submittedAssignments, error: submittedError },
+    { data: weekEnergy },
+    { data: weekSleep },
+    { data: weekActivity },
   ] = await Promise.all([
     supabase
       .from("assignments")
@@ -110,7 +115,37 @@ export default async function DashboardPage({
       .gte("submitted_at", week.start)
       .lt("submitted_at", week.end)
       .in("status", ["submitted", "graded"]),
+    supabase
+      .from("task_signals")
+      .select("occurred_at, energy:value->>energy")
+      .eq("owner_id", user.id)
+      .eq("kind", "mood_checkin")
+      .in("value->>energy", ["low", "okay", "good"])
+      .gte("occurred_at", checkInRange.energySince)
+      .lte("occurred_at", now.toISOString())
+      .order("occurred_at", { ascending: false })
+      .order("id", { ascending: false }),
+    supabase
+      .from("sleep_logs")
+      .select("sleep_date, sleep_hours")
+      .eq("owner_id", user.id)
+      .gte("sleep_date", checkInRange.firstDay)
+      .lte("sleep_date", checkInRange.lastDay),
+    supabase
+      .from("wellness_activity_logs")
+      .select("logged_for, duration_minutes")
+      .eq("owner_id", user.id)
+      .gte("logged_for", checkInRange.firstDay)
+      .lte("logged_for", checkInRange.lastDay),
   ]);
+
+  const checkInWeek = buildCheckInWeek({
+    ...checkInRange,
+    timeZone,
+    energyLogs: weekEnergy,
+    sleepLogs: weekSleep,
+    activityLogs: weekActivity,
+  });
 
   const recentSignals = (signals ?? []).filter(
     (
@@ -183,6 +218,7 @@ export default async function DashboardPage({
       <TodayDashboard
         data={data}
         recommendation={recommendation}
+        checkInWeek={checkInWeek}
         schoolBranding={{
           name: profile?.school_name,
           primaryColor: profile?.school_primary_color,
