@@ -28,6 +28,7 @@ grant select on public.inbox_items, public.classes, storage.objects to authentic
 grant update (status, assignment_id, updated_at) on public.inbox_items to authenticated;
 grant update (id) on public.classes to authenticated;
 grant insert on public.assignments, public.assignment_sources to authenticated;
+grant select (id, owner_id) on public.assignments to authenticated;
 grant select (id) on public.assignment_sources to authenticated;
 
 do $permissions$
