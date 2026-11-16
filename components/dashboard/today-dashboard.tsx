@@ -7,12 +7,14 @@ import { StudentDesktopNav, type StudentNavigationProfile } from "@/components/s
 import type { TodayData } from "@/lib/dashboard/today-view";
 import type { LobbyEnergy } from "@/lib/dashboard/lobby-check-in";
 import { lobbyRecommendationReason, type LobbyCheckInUpdate, type LobbyRecommendation } from "@/lib/dashboard/lobby-recommendation";
+import type { CheckInWeek } from "@/lib/wellness/check-in-week";
 import { formatCampusName } from "@/lib/school-branding";
 import { schoolColor, schoolColorText, schoolLogo } from "@/lib/school-branding-display";
 import { TodayStageLayout, type TodayMode } from "./today-stage-layout";
 import { LobbyNow } from "./lobby/lobby-now";
 import { LobbyThisWeek } from "./lobby/lobby-this-week";
 import { LobbyCheckInCompletion } from "./lobby/lobby-check-in-completion";
+import { LobbyCheckInWeek } from "./lobby/lobby-check-in-week";
 import styles from "./today-dashboard.module.css";
 import proof from "./lobby/today-now-proof.module.css";
 import menu from "./lobby/today-lobby-review.module.css";
@@ -40,10 +42,11 @@ function SchoolPennant({ logo, compact = false }: { logo: string; compact?: bool
   </div>;
 }
 
-export function TodayDashboard({ data, profile, checkIn, schoolBranding, recommendation }: {
+export function TodayDashboard({ data, profile, checkIn, checkInWeek, schoolBranding, recommendation }: {
   data: TodayData;
   profile: StudentNavigationProfile;
   checkIn: ReactNode;
+  checkInWeek?: CheckInWeek;
   schoolBranding?: SchoolBranding;
   recommendation?: LobbyRecommendation;
 }) {
@@ -52,16 +55,18 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding, recomme
     data={data}
     navigation={<StudentDesktopNav active="Lobby" {...profile} />}
     checkIn={checkIn}
+    checkInWeek={checkInWeek}
     schoolBranding={schoolBranding}
     recommendation={recommendation}
     onRetry={() => router.refresh()}
   />;
 }
 
-export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry, preview, recommendation }: {
+export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBranding, onRetry, preview, recommendation }: {
   data: TodayData;
   navigation: ReactNode;
   checkIn?: ReactNode;
+  checkInWeek?: CheckInWeek;
   schoolBranding?: SchoolBranding;
   onRetry?: () => void;
   preview?: { logo: string };
@@ -141,17 +146,12 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
             <header className={campus.checkInHeading}>
               <p data-campus-eyebrow>Optional</p>
               <h2>Check-in</h2>
-              <p>Tell Diana how much energy you have today. A shorter assignment may move up on a low-energy day.</p>
+              <p>Share what would help today. On low-energy days, Diana may suggest a shorter assignment.</p>
             </header>
             <LobbyCheckInCompletion.Provider value={finishCheckIn}>
-              {preview ? <div className={campus.previewCheckIn}>
-                <p>How’s your energy today?</p>
-                <div role="group" aria-label="Energy choices">
-                  {["Low", "Okay", "Good"].map(value => <button key={value} type="button" disabled>{value}</button>)}
-                </div>
-                <button type="button" disabled>Save check-in</button>
-              </div> : checkIn}
+              {checkIn}
             </LobbyCheckInCompletion.Provider>
+            {checkInWeek && <LobbyCheckInWeek week={checkInWeek} />}
           </section>
           <section className={styles.panel} aria-label="This Week" data-review-performance data-lobby-week>
             <LobbyThisWeek data={data} sample={Boolean(preview)} />
