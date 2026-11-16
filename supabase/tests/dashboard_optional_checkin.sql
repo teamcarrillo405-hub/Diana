@@ -10,6 +10,18 @@ values
   ('00000000-0000-4000-8000-000000000802', 'authenticated', 'authenticated', 'optional-checkin-b@example.invalid', '', now(), '{}'::jsonb, '{"date_of_birth":"1990-01-01"}'::jsonb, now(), now());
 
 set local role authenticated;
+select set_config('request.jwt.claim.sub', '', true);
+do $no_identity$
+declare v_rejected boolean := false;
+begin
+  begin
+    perform public.record_dashboard_energy_check_in('low', '2030-01-15', null, null, null);
+  exception when raise_exception then
+    if sqlerrm = 'authentication required' then v_rejected := true; else raise; end if;
+  end;
+  if not v_rejected then raise exception 'check-in accepted a missing identity'; end if;
+end;
+$no_identity$;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000801', true);
 
 -- Exercise the RPC before adding any test-only table privileges. This must
