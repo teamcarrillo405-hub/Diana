@@ -282,3 +282,12 @@
   .screen.screen.screen.screen .recordLink { color: ButtonText; background: ButtonFace; border: 1px solid ButtonText; }
   .screen .recordLink::before { display: none; }
 }
+
+/* Tablet and smaller desktop layouts use the compact portrait, leaving
+   the complete study details unobstructed. */
+@media (min-width: 761px) and (max-width: 1299px) {
+  .screen.screen.screen.screen .heading { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 12px; align-items: start; }
+  .mobileDiana { display: block; width: 72px; height: 100px; overflow: hidden; border: 1px solid var(--school-trim, var(--school-secondary, #d7be87)); background: #17382c; }
+  .mobileDiana img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+}
+@media (forced-colors: active) { .screen.screen.screen.screen .heading { display: block; } .mobileDiana { display: none; } }
