@@ -15,7 +15,8 @@ describe("public Lobby preview", () => {
     const lobby = container.querySelector<HTMLElement>("[data-today-dashboard]");
     expect(lobby?.style.getPropertyValue("--school-primary")).toBe("#086224");
     expect(lobby?.style.getPropertyValue("--school-secondary")).toBe("#000000");
-    expect(screen.getAllByAltText("Tigard mark")).toHaveLength(2);
+    expect(screen.getAllByText("Tigard Campus")).toHaveLength(2);
+    expect(screen.getAllByAltText("School logo")).toHaveLength(2);
     expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
     fireEvent.click(screen.getByRole("tab", { name: "Progress" }));
     expect(screen.getByRole("heading", { name: "Progress" })).toBeVisible();

@@ -127,6 +127,7 @@ interface ScreenDesignOnboardingProps {
   readonly presentation?: "wizard" | "scroll";
   readonly landingConfig?: LandingPageConfig;
   readonly initialSchoolBranding?: {
+    schoolName?: string | null;
     primaryColor: string | null;
     secondaryColor: string | null;
     logoDataUrl: string | null;
@@ -848,6 +849,7 @@ function PersonalizeScreen({
   feedback,
 }: {
   readonly initialSchoolBranding: {
+    schoolName?: string | null;
     primaryColor: string | null;
     secondaryColor: string | null;
     logoDataUrl: string | null;

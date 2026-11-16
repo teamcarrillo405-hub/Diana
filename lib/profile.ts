@@ -82,7 +82,7 @@ type ProfileRow = Pick<
   | "tutor_complexity"
   | "learning_hurdle"
   | "study_schedule_preference"
-> & TeenGuardianPermissionProfileFields;
+> & TeenGuardianPermissionProfileFields & { school_name?: string | null };
 
 export type TutorPersona = "diana" | "xavier" | "maya";
 export type TutorStyle = "socratic" | "supportive" | "direct";
@@ -203,6 +203,7 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const extended = data as typeof data & Partial<TeenGuardianPermissionProfileFields>;
   return normalizeProfile({
     ...data,
+    school_name: data.school_name ?? null,
     school_primary_color: data.school_primary_color ?? null,
     school_secondary_color: data.school_secondary_color ?? null,
     school_logo_url: data.school_logo_url ?? null,

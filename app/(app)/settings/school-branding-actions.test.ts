@@ -38,6 +38,21 @@ describe("school branding persistence", () => {
     expect(mocks.update).toHaveBeenCalledWith({ school_primary_color: null, school_secondary_color: null, school_logo_url: null });
   });
 
+  it("saves and clears the optional school name without overwriting it for older clients", async () => {
+    await expect(saveSchoolBranding({ schoolName: "  Tigard  High School  ", primaryColor: null, secondaryColor: null, logoDataUrl: null })).resolves.toEqual({ ok: true });
+    expect(mocks.update.mock.calls[0][0].school_name).toBe("Tigard High School");
+    await expect(saveSchoolBranding({ schoolName: null, primaryColor: null, secondaryColor: null, logoDataUrl: null })).resolves.toEqual({ ok: true });
+    expect(mocks.update.mock.calls[1][0].school_name).toBeNull();
+    await expect(saveSchoolBranding({ primaryColor: null, secondaryColor: null, logoDataUrl: null })).resolves.toEqual({ ok: true });
+    expect(mocks.update.mock.calls[2][0]).not.toHaveProperty("school_name");
+  });
+
+  it("rejects invalid school names", async () => {
+    await expect(saveSchoolBranding({ schoolName: "a".repeat(81), primaryColor: null, secondaryColor: null, logoDataUrl: null })).resolves.toMatchObject({ ok: false });
+    await expect(saveSchoolBranding({ schoolName: "Bad\u0000name", primaryColor: null, secondaryColor: null, logoDataUrl: null })).resolves.toMatchObject({ ok: false });
+    expect(mocks.update).not.toHaveBeenCalled();
+  });
+
   it("keeps the same stored logo bytes when only colors change", async () => {
     const webp = await sharp({ create: { width: 300, height: 200, channels: 4, background: "#137966" } }).webp({ quality: 55 }).toBuffer();
     const savedLogo = `data:image/webp;base64,${webp.toString("base64")}`;

@@ -6,6 +6,7 @@ import { forwardRef, useId, useImperativeHandle, useRef, useState, useTransition
 import { saveSchoolBranding } from "@/app/(app)/settings/school-branding-actions";
 
 export type SchoolBrandingValues = {
+  schoolName?: string | null;
   primaryColor: string | null;
   secondaryColor: string | null;
   logoDataUrl: string | null;
@@ -29,6 +30,7 @@ export const SchoolBrandingForm = forwardRef<SchoolBrandingFormHandle, {
 }, ref) {
   const router = useRouter();
   const id = useId();
+  const [schoolName, setSchoolName] = useState(initialSchoolBranding.schoolName ?? "");
   const [primary, setPrimary] = useState(initialSchoolBranding.primaryColor ?? "");
   const [secondary, setSecondary] = useState(initialSchoolBranding.secondaryColor ?? "");
   const [logo, setLogo] = useState(initialSchoolBranding.logoDataUrl);
@@ -70,8 +72,8 @@ export const SchoolBrandingForm = forwardRef<SchoolBrandingFormHandle, {
       setMessage("Enter a six-digit color code, such as #764099, or leave it blank.");
       return false;
     }
-    const values = { primaryColor: first || null, secondaryColor: second || null, logoDataUrl: logo };
-    if (values.primaryColor === lastSaved.current.primaryColor && values.secondaryColor === lastSaved.current.secondaryColor && values.logoDataUrl === lastSaved.current.logoDataUrl) return true;
+    const values = { schoolName: schoolName.trim() || null, primaryColor: first || null, secondaryColor: second || null, logoDataUrl: logo };
+    if (values.schoolName === (lastSaved.current.schoolName ?? null) && values.primaryColor === lastSaved.current.primaryColor && values.secondaryColor === lastSaved.current.secondaryColor && values.logoDataUrl === lastSaved.current.logoDataUrl) return true;
     setMessage(null);
     saving.current = true;
     try {
@@ -103,10 +105,15 @@ export const SchoolBrandingForm = forwardRef<SchoolBrandingFormHandle, {
   return (
     <section className="space-y-3" aria-labelledby={`${id}-heading`}>
       <div>
-        <h2 id={`${id}-heading`} className="text-lg font-semibold">School colors and logo</h2>
-        <p className="text-sm text-muted">Optional. Your colors personalize navigation and buttons, and your logo appears on the Lobby. You can change or remove them anytime.</p>
+        <h2 id={`${id}-heading`} className="text-lg font-semibold">Your school look</h2>
+        <p className="text-sm text-muted">Optional. Add your school name, colors, and logo to personalize your Lobby. You can change or remove them anytime.</p>
       </div>
       <form onSubmit={submit} className="space-y-4">
+        <div className="space-y-1">
+          <label htmlFor={`${id}-school-name`} className="block text-sm font-medium">School name</label>
+          <input id={`${id}-school-name`} type="text" value={schoolName} disabled={busy} onChange={event => { setSchoolName(event.target.value); setMessage(null); }} placeholder="For example, Tigard High School" maxLength={80} className="h-11 w-full max-w-sm rounded border border-border bg-surface-soft px-3 text-sm text-fg" />
+          <p className="text-xs text-muted">Your Lobby will show your school as a campus name.</p>
+        </div>
         <div className="flex flex-wrap gap-4">
           {([
             { key: "primary", label: "First school color", value: primary, set: setPrimary, fallback: "#764099" },

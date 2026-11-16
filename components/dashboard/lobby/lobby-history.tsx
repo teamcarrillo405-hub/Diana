@@ -4,13 +4,12 @@ import type { TodayData } from "@/lib/dashboard/today-view";
 import styles from "./lobby-history-campus.module.css";
 
 /** Account-backed activity only. Completion and submission are distinct facts. */
-export function LobbyHistory({ data, sample = false, logoUrl }: { data: TodayData; sample?: boolean; logoUrl?: string | null }) {
+export function LobbyHistory({ data, sample = false }: { data: TodayData; sample?: boolean }) {
   return <div className={styles.history}>
     <header className={styles.heading}>
-      <p className={styles.eyebrow}><span>YOUR WORK</span><span className={styles.week}>{data.weekLabel}</span>{logoUrl && <span className={styles.mobileBadge} aria-hidden="true"><img src={logoUrl} alt="" width={32} height={32} /></span>}</p>
+      <p className={styles.eyebrow}><span>YOUR WORK</span><span className={styles.week}>{data.weekLabel}</span></p>
       <h2>My Work</h2>
       <p className={styles.description}>Your assignment record for this week.</p>
-      <div className={styles.mobilePortrait} aria-hidden="true"><img src="/assets/today-now/diana-relit-poster-v1.webp" alt="" width={72} height={100} /></div>
     </header>
     <section className={styles.workList} aria-labelledby="lobby-weekly-work-title">
       <div className={styles.workListHeader}><h3 id="lobby-weekly-work-title">This week’s assignments</h3><span>Due or submitted this week</span></div>

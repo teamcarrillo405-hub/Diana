@@ -2,7 +2,7 @@
 
 import { createRequire } from "node:module";
 import { revalidatePath } from "next/cache";
-import { normalizeSchoolColor, type SchoolBrandingInput } from "@/lib/school-branding";
+import { normalizeSchoolColor, normalizeSchoolName, type SchoolBrandingInput } from "@/lib/school-branding";
 import { validateUpload } from "@/lib/security/upload-validation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -80,9 +80,11 @@ export async function saveSchoolBranding(input: SchoolBrandingInput): Promise<Re
   if (!input || typeof input !== "object") return { ok: false, error: "Choose valid school colors." };
   const primaryColor = normalizeSchoolColor(input.primaryColor);
   const secondaryColor = normalizeSchoolColor(input.secondaryColor);
+  const schoolName = input.schoolName === undefined ? undefined : normalizeSchoolName(input.schoolName);
   if (primaryColor === undefined || secondaryColor === undefined ||
+      (input.schoolName !== undefined && schoolName === undefined) ||
       (input.logoDataUrl !== null && typeof input.logoDataUrl !== "string")) {
-    return { ok: false, error: "Choose valid school colors and logo." };
+    return { ok: false, error: "Choose a school name up to 80 characters, valid colors, and a logo." };
   }
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -105,6 +107,7 @@ export async function saveSchoolBranding(input: SchoolBrandingInput): Promise<Re
     return { ok: false, error: "Choose a PNG, JPG, or WebP logo under 1.2 MB." };
   }
   const { data, error } = await supabase.from("profiles").update({
+    ...(schoolName !== undefined ? { school_name: schoolName } : {}),
     school_primary_color: primaryColor,
     school_secondary_color: secondaryColor,
     school_logo_url: logo,

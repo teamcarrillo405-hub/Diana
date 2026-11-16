@@ -19,7 +19,7 @@ describe("SchoolBrandingForm", () => {
     fireEvent.change(screen.getByLabelText("First school color"), { target: { value: "#8C1D40" } });
     fireEvent.change(screen.getByLabelText("Second school color"), { target: { value: "#FFC627" } });
     fireEvent.click(screen.getByRole("button", { name: "Save school look" }));
-    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ primaryColor: "#8C1D40", secondaryColor: "#FFC627", logoDataUrl: logo }));
+    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ schoolName: null, primaryColor: "#8C1D40", secondaryColor: "#FFC627", logoDataUrl: logo }));
     expect(await screen.findByRole("status")).toHaveTextContent("School look saved.");
     expect(mocks.refresh).toHaveBeenCalled();
   });
@@ -30,9 +30,16 @@ describe("SchoolBrandingForm", () => {
     fireEvent.change(screen.getByLabelText("First school color"), { target: { value: "" } });
     fireEvent.click(screen.getByRole("button", { name: "Remove logo" }));
     fireEvent.click(screen.getByRole("button", { name: "Save school look" }));
-    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ primaryColor: null, secondaryColor: null, logoDataUrl: null }));
+    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ schoolName: null, primaryColor: null, secondaryColor: null, logoDataUrl: null }));
     expect(await screen.findByRole("status")).toHaveTextContent("Please try again.");
     expect(mocks.refresh).not.toHaveBeenCalled();
+  });
+
+  it("saves the entered school name and keeps previously selected colors", async () => {
+    render(<SchoolBrandingForm initialSchoolBranding={{ schoolName: null, primaryColor: "#8C1D40", secondaryColor: "#FFC627", logoDataUrl: null }} />);
+    fireEvent.change(screen.getByLabelText("School name"), { target: { value: "Tigard High School" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save school look" }));
+    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ schoolName: "Tigard High School", primaryColor: "#8C1D40", secondaryColor: "#FFC627", logoDataUrl: null }));
   });
 
   it("blocks invalid colors and unsupported logo files before saving", async () => {

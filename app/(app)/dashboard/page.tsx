@@ -167,7 +167,12 @@ export default async function DashboardPage({
       <LastShownClassCookie classId={ranked[0]?.class_id ?? null} />
       <TodayDashboard
         data={data}
-        schoolBranding={{ primaryColor: profile?.school_primary_color, secondaryColor: profile?.school_secondary_color, logoUrl: profile?.school_logo_url }}
+        schoolBranding={{
+          name: profile?.school_name,
+          primaryColor: profile?.school_primary_color,
+          secondaryColor: profile?.school_secondary_color,
+          logoUrl: profile?.school_logo_url,
+        }}
         profile={{
           displayName: profile?.display_name,
           photoUrl: profile?.photo_url,

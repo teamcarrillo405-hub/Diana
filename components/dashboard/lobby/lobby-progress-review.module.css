@@ -248,12 +248,7 @@
 .screen a.recordLink:hover::before { filter: brightness(1.15); }
 .headingContent { min-width: 0; }
 .titleMeta { display: inline-flex; align-items: center; gap: 8px; }
-.schoolMark { display: block; flex: none; width: 32px; height: 32px; padding: 3px; object-fit: contain; border-radius: 3px; background: #fff; }
-.mobileDiana { display: none; }
 @media (max-width: 760px) {
-  .screen.screen.screen.screen .heading { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 12px; align-items: start; }
-  .mobileDiana { display: block; width: 72px; height: 100px; overflow: hidden; border: 1px solid var(--school-trim, var(--school-secondary, #d7be87)); background: #17382c; }
-  .mobileDiana img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
   .screen.screen.screen .results > .assignmentResult,
   .screen.screen.screen .results > .focusResult { min-height: 140px; padding: 14px; }
   .screen.screen.screen.screen.screen .assignmentResult dd strong { font-size: 51px; }
@@ -267,8 +262,6 @@
 :global(.dyslexia-font) .screen.screen.screen.screen .recordLink { font-style: normal; font-size: 16px; line-height: 1.4; text-transform: none; }
 @media (forced-colors: active) {
   .screen.screen.screen.screen .heading { display: block; }
-  .mobileDiana { display: none; }
-  .schoolMark { display: none; }
   .screen.screen.screen .results > .assignmentResult,
   .screen.screen.screen .results > .focusResult { background: Canvas; color: CanvasText; border-color: CanvasText; }
   .screen.screen.screen.screen.screen .assignmentResult dt,
@@ -283,11 +276,48 @@
   .screen .recordLink::before { display: none; }
 }
 
-/* Tablet and smaller desktop layouts use the compact portrait, leaving
-   the complete study details unobstructed. */
-@media (min-width: 761px) and (max-width: 1299px) {
-  .screen.screen.screen.screen .heading { display: grid; grid-template-columns: minmax(0, 1fr) 72px; gap: 12px; align-items: start; }
-  .mobileDiana { display: block; width: 72px; height: 100px; overflow: hidden; border: 1px solid var(--school-trim, var(--school-secondary, #d7be87)); background: #17382c; }
-  .mobileDiana img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+/* One briefing rather than a set of separate statistic cards. */
+.screen.screen.screen.screen .heading { display: block; }
+.screen.screen.screen .results {
+  gap: 0;
+  border-block: 1px solid #c9d8cc65;
+  background: #142720;
 }
-@media (forced-colors: active) { .screen.screen.screen.screen .heading { display: block; } .mobileDiana { display: none; } }
+.screen.screen.screen .results > .assignmentResult {
+  min-height: 0;
+  border: 0;
+  border-left: 5px solid var(--school-trim, var(--school-secondary, #d7be87));
+  background: var(--school-primary, #254c3d);
+}
+.screen.screen.screen .results > .focusResult {
+  min-height: 0;
+  border: 0;
+  background: transparent;
+}
+.screen.screen.screen .statistics { gap: 26px; padding-top: 26px; }
+.screen.screen.screen .activity,
+.screen.screen.screen .classes {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.screen.screen.screen .activity { padding-right: 25px; border-right: 1px solid var(--stat-rule); }
+@media (max-width: 1100px) {
+  .screen.screen.screen .activity { padding-right: 0; border-right: 0; }
+  .screen.screen.screen .classes { padding-top: 20px; border-top: 1px solid var(--stat-rule); }
+}
+@media (max-width: 760px) {
+  .screen.screen.screen .results > .assignmentResult,
+  .screen.screen.screen .results > .focusResult { padding: 16px; }
+  .screen.screen.screen .statistics { gap: 20px; padding-top: 20px; }
+}
+@media (max-width: 500px) {
+  .screen.screen.screen .results { grid-template-columns: minmax(0, 1fr); }
+  .screen.screen.screen .results > .focusResult { border-top: 1px solid var(--stat-rule); }
+}
+@media (forced-colors: active) {
+  .screen.screen.screen .results { background: Canvas; border-color: CanvasText; }
+  .screen.screen.screen .results > .assignmentResult,
+  .screen.screen.screen .results > .focusResult { background: Canvas; color: CanvasText; border-color: CanvasText; }
+  .screen.screen.screen .activity, .screen.screen.screen .classes { border-color: CanvasText; }
+}

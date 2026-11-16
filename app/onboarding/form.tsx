@@ -18,6 +18,7 @@ export function OnboardingForm({
         initial.study_schedule_preference ?? "after_practice"
       }
       initialSchoolBranding={{
+        schoolName: initial.school_name ?? null,
         primaryColor: initial.school_primary_color ?? null,
         secondaryColor: initial.school_secondary_color ?? null,
         logoDataUrl: initial.school_logo_url ?? null,

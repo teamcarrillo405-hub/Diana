@@ -62,27 +62,29 @@ describe("ScreenDesignOnboarding", () => {
   });
 
   it("offers the school look with the student's previously saved choices", () => {
-    render(<ScreenDesignOnboarding initialSchoolBranding={{ primaryColor: "#112233", secondaryColor: "#abcdef", logoDataUrl: "data:image/webp;base64,AA==" }} />);
+    render(<ScreenDesignOnboarding initialSchoolBranding={{ schoolName: "Tigard High School", primaryColor: "#112233", secondaryColor: "#abcdef", logoDataUrl: "data:image/webp;base64,AA==" }} />);
 
     expect(screen.getByRole("region", { name: "School look" })).toBeInTheDocument();
+    expect(screen.getByLabelText("School name")).toHaveValue("Tigard High School");
     expect(screen.getByLabelText("First school color")).toHaveValue("#112233");
     expect(screen.getByLabelText("Second school color")).toHaveValue("#abcdef");
     expect(screen.getByAltText("Selected school logo")).toHaveAttribute("src", "data:image/webp;base64,AA==");
     expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
   });
 
-  it("saves school colors and logo when continuing without a separate save", async () => {
+  it("saves school name, colors and logo when continuing without a separate save", async () => {
     vi.mocked(saveSchoolBranding).mockResolvedValue({ ok: true });
     vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({ ok: true });
     render(<ScreenDesignOnboarding />);
 
+    fireEvent.change(screen.getByLabelText("School name"), { target: { value: "Tigard High School" } });
     fireEvent.change(screen.getByLabelText("First school color"), { target: { value: "#123456" } });
     fireEvent.change(screen.getByLabelText("Second school color"), { target: { value: "#abcdef" } });
     fireEvent.change(screen.getByLabelText("School logo"), { target: { files: [new File(["logo"], "school.png", { type: "image/png" })] } });
     await screen.findByAltText("Selected school logo");
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
-    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ primaryColor: "#123456", secondaryColor: "#abcdef", logoDataUrl: expect.stringMatching(/^data:image\/png;base64,/) }));
+    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ schoolName: "Tigard High School", primaryColor: "#123456", secondaryColor: "#abcdef", logoDataUrl: expect.stringMatching(/^data:image\/png;base64,/) }));
     expect(await screen.findByRole("heading", { name: "Connect your school" })).toBeInTheDocument();
   });
 

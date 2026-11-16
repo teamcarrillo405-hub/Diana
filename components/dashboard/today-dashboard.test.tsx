@@ -82,7 +82,7 @@ describe("connected Lobby", () => {
     expect(screen.queryByText(/0m session target/)).toBeNull();
   });
   it("applies the student's school colors and logo to the Lobby", () => {
-    const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} schoolBranding={{ primaryColor: "#8c1d40", secondaryColor: "#ffc627", logoUrl: "data:image/webp;base64,YWJj" }} />);
+    const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} schoolBranding={{ name: "Tigard High School", primaryColor: "#8c1d40", secondaryColor: "#ffc627", logoUrl: "data:image/webp;base64,YWJj" }} />);
     const lobby = container.querySelector<HTMLElement>("[data-today-dashboard]");
     expect(lobby?.style.getPropertyValue("--school-primary")).toBe("#8C1D40");
     expect(lobby?.style.getPropertyValue("--school-primary-text")).toBe("#FFFFFF");
@@ -91,7 +91,7 @@ describe("connected Lobby", () => {
     expect(screen.getAllByAltText("School logo")).toHaveLength(2);
     expect(container.querySelector("[data-school-scene] img")).toHaveAttribute("src", "data:image/webp;base64,YWJj");
     expect(container.querySelectorAll('img[src="/assets/today-now/campus-building-mark.svg"]')).toHaveLength(0);
-    expect(screen.getAllByText(/DIANA\s*CAMPUS/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Tigard Campus")).toHaveLength(2);
   });
   it("shows the campus building in both identity areas when no school logo is provided", () => {
     const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} />);
