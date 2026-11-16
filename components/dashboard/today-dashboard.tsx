@@ -37,7 +37,7 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding }: { dat
   const sceneStyle = {
     "--today-scene-image": "url('/assets/today-now/diana-campus-southwest-4k-v1.webp')",
     ...(primary ? { "--school-primary": primary, "--school-primary-text": schoolColorText(primary) } : {}),
-    ...(secondary ? { "--school-secondary": secondary, "--school-secondary-text": schoolColorText(secondary) } : {}),
+    ...(secondary ? { "--school-secondary": secondary, "--school-secondary-text": schoolColorText(secondary), "--school-trim": `color-mix(in srgb, ${secondary} 45%, white)` } : {}),
   } as CSSProperties;
   const isPaused = paused || mode !== "now" || dialog;
   useEffect(() => {
@@ -47,6 +47,7 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding }: { dat
   function closeDialog() { setDialog(false); origin.current?.focus(); }
   return <div className={`${styles.preview} ${proof.proof} ${menu.lobby} ${composition.composition} ${hub.lobby} ${live.root} ${campus.campus}`} data-student-shell data-today-dashboard data-lobby-mode={mode} data-now-composition data-now-studio data-school-primary={primary ? "true" : undefined} data-school-secondary={secondary ? "true" : undefined} style={sceneStyle}>
     <div className={composition.environment} aria-hidden="true"><Image src="/assets/today-now/diana-campus-southwest-4k-v1.webp" alt="" fill priority unoptimized sizes="100vw" /></div>
+    {logo && <div className={campus.schoolSceneBanner} data-school-scene aria-hidden="true"><span>YOUR SCHOOL</span><div><img src={logo} alt="" /></div></div>}
     <StudentDesktopNav active="Lobby" {...profile} />
     <div className={`${styles.frame} ${proof.proofFrame}`}>
       <div className={live.sceneTools}>
@@ -65,8 +66,8 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding }: { dat
           <Link className={live.allWork} href="/assignments">View all work</Link>
           <div className={campus.mobileGuide} aria-hidden="true"><div><span>YOUR STUDY SPACE</span><strong>One step at a time.</strong></div><div className={`${proof.mobileCharacter} ${campus.mobileFigure}`}><DianaIdleCharacter mobile assets={characterAssets} displayGrade="none" floorMaterial="satin" paused={isPaused} /></div></div>
         </section>
-        <section className={`${styles.panel} ${styles.studyPanel}`} aria-label="Study Progress" data-review-performance data-lobby-progress><LobbyProgress data={data} /></section>
-        <section className={`${styles.panel} ${campus.historyPanel}`} aria-label="My Work" data-review-performance data-lobby-history><LobbyHistory data={data} /></section>
+        <section className={`${styles.panel} ${styles.studyPanel}`} aria-label="Study Progress" data-review-performance data-lobby-progress><LobbyProgress data={data} logoUrl={logo} /></section>
+        <section className={`${styles.panel} ${campus.historyPanel}`} aria-label="My Work" data-review-performance data-lobby-history><LobbyHistory data={data} logoUrl={logo} /></section>
       </TodayStageLayout>
     </main></div>
     <dialog ref={dialogRef} className={`${hub.checkInDialog} ${live.dialog}`} aria-labelledby="lobby-dialog-title" onClose={closeDialog} onCancel={closeDialog}><button className={hub.close} aria-label="Close" onClick={closeDialog}><X size={20} /></button><h2 id="lobby-dialog-title">Check-in</h2><div hidden={!dialog}>{checkIn}</div></dialog>

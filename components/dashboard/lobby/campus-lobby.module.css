@@ -161,7 +161,7 @@
   content: ""; flex: none; width: 35px; height: 24px;
   background: linear-gradient(105deg, transparent 0 8%, var(--school-primary, #784080) 8% 23%, transparent 23% 37%, var(--school-primary, #784080) 37% 52%, transparent 52% 66%, var(--school-primary, #784080) 66% 81%, transparent 81%);
 }
-.campus.campus.campus.campus.campus.campus [data-campus-eyebrow]::after { content: ""; flex: 1; height: 2px; background: #d7be87; }
+.campus.campus.campus.campus.campus.campus [data-campus-eyebrow]::after { content: ""; flex: 1; height: 2px; background: var(--school-trim, #d7be87); }
 .campus.campus.campus.campus.campus.campus [data-now-subject] > span:not([data-subject-emblem]) {
   display: inline-block; min-width: min(76%, 315px); padding: 6px 28px 6px 18px;
   border: 0; background: #2c5948; color: #fff9eb;
@@ -363,4 +363,50 @@
 }
 :global(.dyslexia-font) .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button {
   font-size: 15px; letter-spacing: normal; text-transform: none;
+}
+
+/* A student's uploaded mark appears as a framed part of the room as well as
+   in the navigation. The mark is decorative here; it remains labeled in the rail. */
+.campus.campus { position: relative; }
+.schoolSceneBanner { display: none; }
+@media (min-width: 1300px) {
+  .campus.campus.campus.campus.campus.campus .schoolSceneBanner {
+    position: absolute; z-index: 1; top: 130px; left: clamp(760px, 46vw, 795px);
+    display: grid; gap: 6px; width: 178px; padding: 12px 12px 15px;
+    border: 1px solid var(--school-trim, #d7be87);
+    border-top: 5px solid var(--school-primary, #693574);
+    background: linear-gradient(155deg, #101d19f7, #080f0ff5);
+    box-shadow: 0 12px 28px #050b08a0, inset 0 0 0 3px #ffffff0b;
+    transform: perspective(700px) rotateY(3deg); pointer-events: none;
+  }
+  .campus.campus.campus.campus.campus.campus .schoolSceneBanner > span {
+    color: #fff; font: 700 12px/1.2 var(--font-saira-condensed), sans-serif;
+    letter-spacing: .08em; text-align: center;
+  }
+  .campus.campus.campus.campus.campus.campus .schoolSceneBanner > div {
+    display: grid; place-items: center; height: 94px; overflow: hidden; background: #fff;
+  }
+  .campus.campus.campus.campus.campus.campus .schoolSceneBanner img {
+    width: 100%; height: 100%; object-fit: contain;
+  }
+  .campus.campus.campus.campus.campus.campus:not([data-lobby-mode="now"]) .schoolSceneBanner { display: none; }
+  /* Keep the guide and room in view when a secondary section is selected. */
+  .campus.campus.campus.campus.campus.campus:not([data-lobby-mode="now"]) [data-today-stage-image] { opacity: 1; }
+  .campus.campus.campus.campus.campus.campus:not([data-lobby-mode="now"]) [data-lobby-progress],
+  .campus.campus.campus.campus.campus.campus:not([data-lobby-mode="now"]) [data-lobby-history] {
+    max-width: calc(100% - 300px);
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-image] {
+    width: min(34%, 390px); transform: translateY(36px) scale(1.08); transform-origin: center bottom;
+  }
+}
+@media (max-width: 760px) {
+  .campus.campus.campus.campus.campus.campus .mobileGuide { min-height: 92px; }
+  .campus.campus.campus.campus.campus.campus .mobileFigure { width: 94px; height: 108px; right: 12px; }
+}
+@media (forced-colors: active) { .schoolSceneBanner { display: none !important; } }
+@media (min-width: 1300px) {
+  .campus.campus.campus.campus.campus.campus:not([data-lobby-mode="now"])::before {
+    background: linear-gradient(90deg, #080f0ecc 0%, #080f0e99 48%, #080f0e40 78%, #080f0e10 100%);
+  }
 }

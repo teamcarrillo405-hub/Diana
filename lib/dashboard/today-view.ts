@@ -10,6 +10,7 @@ const DAY = 86_400_000;
 export type TodayAssignment = Pick<Assignment, "id" | "title" | "due_at" | "status" | "estimated_minutes" | "classes"> & { submitted_at?: string | null };
 export type TodayFocusLog = { id: number; started_at: string; target_ends_at: string | null; ended_at: string | null; elapsed_minutes: number | null; focus_state: string };
 export type TodayTask = { id: string; title: string; subject: string; color: string; minutes: number; due: string; date: string; day: string; month: string; ready: boolean; resumable?: boolean; href: string };
+export type TodayWorkRecord = { id: string; title: string; subject: string; status: string; timing: string; href: string };
 export type TodayData = ReturnType<typeof buildTodayView>;
 
 export function formatMinutes(value: number) {
@@ -108,6 +109,26 @@ export function buildTodayView(input: {
     addInterval(studied, start, end, log.elapsed_minutes);
     if (end >= week.boundaries[0] && end < week.boundaries[7]) sessions++;
   }
-  const submitted = new Set((input.submittedAssignments ?? []).filter(a => ["submitted", "graded"].includes(a.status) && a.submitted_at && Date.parse(a.submitted_at) <= input.now.getTime() && todayDateKey(a.submitted_at, week.zone) >= week.dates[0] && todayDateKey(a.submitted_at, week.zone) < week.dates[7]).map(a => a.id)).size;
-  return { plan, deadlines, earlierWork, otherReady, subjects, total: weekly.length, finished: weekly.filter(a => FINISHED.has(a.status)).length, submitted, sessions, planned: planned.map(Math.round), studied: studied.map(Math.round), currentDay: week.weekday, today: week.today, dateLabel: dateLabel(input.now, { weekday: "long", month: "short", day: "numeric" }), weekLabel: `${dateLabel(new Date(week.boundaries[0]), { month: "short", day: "numeric" })} - ${dateLabel(new Date(week.boundaries[7] - 1), { month: "short", day: "numeric" })}`, horizonLabel: dateLabel(new Date(localMidnight(week.horizon, week.zone) - 1), { weekday: "long", month: "short", day: "numeric" }), assignmentsUnavailable: input.assignments === null, weeklyUnavailable: input.weeklyAssignments === null, studyUnavailable: input.focusLogs === null, submissionsUnavailable: input.submittedAssignments === null };
+  const submittedThisWeek = [...new Map((input.submittedAssignments ?? []).filter(a => ["submitted", "graded"].includes(a.status) && a.submitted_at && Date.parse(a.submitted_at) <= input.now.getTime() && todayDateKey(a.submitted_at, week.zone) >= week.dates[0] && todayDateKey(a.submitted_at, week.zone) < week.dates[7]).map(a => [a.id, a])).values()];
+  const submitted = submittedThisWeek.length;
+  // These sources have due/submission dates, not last activity or completion
+  // timestamps. Show only this week's known records and label their actual date.
+  const submittedIds = new Set(submittedThisWeek.map(a => a.id));
+  const records = new Map(weekly.map(a => [a.id, a]));
+  submittedThisWeek.forEach(a => records.set(a.id, a));
+  const statusLabel = (status: string) => ({
+    captured: "Not started", todo: "Not started", planned: "Not started",
+    drafting: "In progress", in_progress: "In progress", checking: "In review",
+    done: "Marked done", exporting: "Ready to submit", submitted: "Submitted", graded: "Graded",
+  } as Record<string, string>)[status] ?? "See work for status";
+  const weekRecords: TodayWorkRecord[] = [...records.values()]
+    .map(a => {
+      const isSubmitted = submittedIds.has(a.id);
+      const when = isSubmitted ? a.submitted_at! : a.due_at!;
+      return { assignment: a, when, timing: `${isSubmitted ? "Submitted" : "Due"} ${dateLabel(when, { weekday: "short", month: "short", day: "numeric" })}` };
+    })
+    .sort((a, b) => Date.parse(a.when) - Date.parse(b.when) || a.assignment.title.localeCompare(b.assignment.title))
+    .slice(0, 5)
+    .map(({ assignment: a, timing }) => ({ id: a.id, title: normalizeDashboardAssignmentTitle(a.title), subject: subject(a), status: statusLabel(a.status), timing, href: `/assignments/${encodeURIComponent(a.id)}` }));
+  return { plan, deadlines, earlierWork, otherReady, subjects, weekRecords, total: weekly.length, finished: weekly.filter(a => FINISHED.has(a.status)).length, submitted, sessions, planned: planned.map(Math.round), studied: studied.map(Math.round), currentDay: week.weekday, today: week.today, dateLabel: dateLabel(input.now, { weekday: "long", month: "short", day: "numeric" }), weekLabel: `${dateLabel(new Date(week.boundaries[0]), { month: "short", day: "numeric" })} - ${dateLabel(new Date(week.boundaries[7] - 1), { month: "short", day: "numeric" })}`, horizonLabel: dateLabel(new Date(localMidnight(week.horizon, week.zone) - 1), { weekday: "long", month: "short", day: "numeric" }), assignmentsUnavailable: input.assignments === null, weeklyUnavailable: input.weeklyAssignments === null, studyUnavailable: input.focusLogs === null, submissionsUnavailable: input.submittedAssignments === null };
 }
