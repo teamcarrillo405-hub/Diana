@@ -28,9 +28,13 @@
   font-size: 14px;
   font-weight: 600;
 }
-.energyOptions { display: flex; gap: 8px; }
+.energyOptions, .supportOptions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
 /* Keep the Lobby controls above the legacy application-wide form rules. */
-.form.form.form.form :is(.energyOptions button, .field input, .field select, .supportOptions label, .supportActions button, .secondaryAction) {
+.form.form.form.form :is(.energyOptions button, .field input, .field select, .supportOptions label, .clearSupport, .secondaryAction) {
   box-sizing: border-box;
   min-height: 44px;
   padding: 8px 10px;
@@ -41,61 +45,79 @@
   font: inherit;
   box-shadow: none;
 }
-.form.form.form.form .energyOptions button { flex: 1; width: auto; font-size: 14px; font-weight: 600; }
+.form.form.form.form :is(.energyOptions button, .supportOptions label) {
+  width: auto;
+  padding-inline: 5px;
+  font-size: 14px;
+  font-weight: 600;
+}
 .form.form.form.form :is(.energyOptions button[aria-pressed="true"], .supportOptions label:has(input:checked)) {
   border-color: currentColor;
   background: var(--checkin-action);
   color: var(--checkin-action-text);
 }
-.field span {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 7px;
-}
-.form.form.form.form :is(.field > span, .supportOptions label > span, .sharing label > span, small, summary) {
+.form.form.form.form :is(.field > span, .supportOptions label > span, .sharing label > span, summary) {
   font-family: inherit;
   text-transform: none;
   letter-spacing: normal;
 }
-.form.form.form.form :is(.field small, .supportChoices small) {
-  color: var(--checkin-muted);
-  font-size: 12px;
-  font-weight: 400;
-}
 .form.form.form.form .field :is(input, select) { display: block; width: 100%; }
-.form.form.form.form .field input::placeholder { color: var(--checkin-muted); opacity: 1; }
-.otherQuestions, .movement { display: grid; gap: 12px; }
-.movement { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); }
-@media (min-width: 960px) {
-  .campusForm .otherQuestions { grid-template-columns: minmax(0, .9fr) minmax(0, 1.6fr); }
+.optionalQuestions { border-block: 1px solid var(--checkin-border); }
+.form.form.form.form .optionalQuestions > summary {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-inline-end: 6px;
+  color: var(--checkin-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.optionalQuestions > summary::-webkit-details-marker { display: none; }
+.optionalQuestions > summary::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-inline-end: 2px solid currentColor;
+  border-block-end: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+.optionalQuestions[open] > summary::after { transform: translateY(2px) rotate(225deg); }
+.otherQuestions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(124px, 100%), 1fr));
+  gap: 8px;
+  padding: 2px 0 12px;
 }
 .dailySupport {
   display: grid;
   gap: 8px;
   min-width: 0;
-  padding-top: 12px;
-  border-top: 1px solid var(--checkin-border);
 }
 .supportChoices { min-inline-size: 0; margin: 0; padding: 0; border: 0; }
-.supportChoices legend { margin-bottom: 4px; padding: 0; font-size: 14px; font-weight: 650; }
-.supportChoices small { margin-inline-start: 4px; }
-.form.form.form.form .supportNote { margin: 0 0 10px; color: var(--checkin-muted); font-size: 12px; line-height: 1.5; }
-.supportOptions {
-  display: grid;
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, .85fr) minmax(0, .85fr);
-  gap: 8px;
-}
+.supportChoices legend { margin-bottom: 6px; padding: 0; font-size: 14px; font-weight: 600; }
 .supportOptions label {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
   cursor: pointer;
 }
-.form.form.form.form :is(.supportOptions input, .sharing input) {
+.form.form.form.form .supportOptions input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: inherit;
+  box-shadow: none;
+}
+.form.form.form.form .sharing input {
   flex: 0 0 auto;
   width: 15px;
   height: 15px;
@@ -108,9 +130,25 @@
   box-shadow: none;
 }
 .supportOptions label:has(input:disabled) { cursor: default; }
-.supportActions { display: flex; flex-wrap: wrap; gap: 6px 10px; }
-.form.form.form.form :is(.supportActions button, .secondaryAction) { font-size: 13px; font-weight: 600; }
-.form.form.form.form .supportActions button:last-child { background: transparent; border-color: transparent; }
+.supportFootnote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 8px;
+  margin-block-start: 6px;
+}
+.form.form.form.form .supportNote { margin: 0; color: var(--checkin-muted); font-size: 12px; line-height: 1.5; }
+.form.form.form.form .clearSupport {
+  width: auto;
+  border-color: transparent;
+  background: transparent;
+  color: var(--checkin-text);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.form.form.form.form .secondaryAction { font-size: 13px; font-weight: 600; }
 .secondaryAction { justify-self: start; }
 .form.form.form.form .save {
   width: 100%;
@@ -156,9 +194,6 @@
 .form.form.form.form .sharing p { margin: 8px 0; color: var(--checkin-muted); }
 .form.form.form.form .status { margin: 0; color: var(--checkin-text); font-size: 13px; line-height: 1.4; }
 .status:empty { display: none; }
-@media (max-width: 360px) {
-  .supportOptions label { gap: 5px; padding-inline: 5px; }
-}
 @media (forced-colors: active) {
   .form.form.form.form :is(.energyOptions button[aria-pressed="true"], .supportOptions label:has(input:checked)) {
     border-color: Highlight;

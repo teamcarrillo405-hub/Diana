@@ -23,14 +23,21 @@ describe("public Lobby preview", () => {
     expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
     fireEvent.click(screen.getByRole("tab", { name: "Check-in" }));
     const checkIn = within(screen.getByRole("tabpanel", { name: "Check-in" }));
-    expect(checkIn.getAllByText("Optional")[0]).toBeVisible();
-    expect(checkIn.getByLabelText("Sleep hours")).toBeDisabled();
-    expect(checkIn.getByLabelText("Movement type")).toBeDisabled();
-    expect(checkIn.getByText("A snack or food")).toBeVisible();
-    expect(checkIn.getByText("Water")).toBeVisible();
-    expect(checkIn.getByText("A break")).toBeVisible();
-    expect(checkIn.getByRole("heading", { name: "Check-in history" })).toBeVisible();
+    expect(checkIn.getByText("Optional")).toBeVisible();
+    expect(checkIn.getByRole("button", { name: "Low" })).toBeDisabled();
+    for (const name of ["Snack", "Water", "Break"]) {
+      expect(checkIn.getByRole("radio", { name })).toBeDisabled();
+    }
     expect(checkIn.getByRole("button", { name: "Save check-in" })).toBeDisabled();
+    const fieldsSummary = checkIn.getByText("Sleep and activity", { exact: true });
+    const historySummary = checkIn.getByText("7-day history", { exact: true });
+    expect(fieldsSummary.closest("details")).not.toHaveAttribute("open");
+    expect(historySummary.closest("details")).not.toHaveAttribute("open");
+    fireEvent.click(fieldsSummary);
+    expect(checkIn.getByRole("spinbutton", { name: "Sleep hours" })).toBeDisabled();
+    expect(checkIn.getByRole("combobox", { name: "Activity" })).toBeDisabled();
+    fireEvent.click(historySummary);
+    expect(checkIn.getByRole("table", { name: /energy, sleep, and activity for the past seven days/i })).toBeVisible();
     fireEvent.click(screen.getByRole("tab", { name: "This Week" }));
     expect(screen.getByRole("heading", { name: "This Week" })).toBeVisible();
     expect(within(screen.getByRole("tabpanel", { name: "This Week" })).getAllByText("Due this week marked done")).toHaveLength(1);
