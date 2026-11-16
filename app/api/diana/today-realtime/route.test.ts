@@ -43,12 +43,15 @@ function chain(result: unknown, table = "") {
 }
 
 function makeSupabase() {
+  // Keep mocked support records fresh but older than the production clock that
+  // captures Date.now() before issuing these mocked reads.
+  const fixtureNow = Date.now() - 60_000;
   return {
     auth: { getUser: async () => ({ data: { user: mocks.signedIn ? { id: "student-1" } : null } }) },
     from: (table: string) => {
       if (table === "assignments") return chain({ data: [{ id: "a-1", title: "Nixon report", due_at: "2026-08-15T20:00:00Z", status: "captured", estimated_minutes: 60, classes: { name: "History" } }] });
-      if (table === "profiles") return chain({ data: { display_name: "Grayson", diagnoses: ["PRIVATE_DIAGNOSIS"], accommodations: ["reader", "private free text"], tutor_personalization_enabled: mocks.personalization, session_mood: "rough", last_mood_checkin_at: new Date().toISOString(), timezone: "America/Los_Angeles" }, error: null }, table);
-      if (table === "student_daily_support_needs") return chain({ data: { need: "food", updated_at: new Date().toISOString(), expires_at: new Date(Date.now() + 60_000).toISOString() }, error: null }, table);
+      if (table === "profiles") return chain({ data: { display_name: "Grayson", diagnoses: ["PRIVATE_DIAGNOSIS"], accommodations: ["reader", "private free text"], tutor_personalization_enabled: mocks.personalization, session_mood: "rough", last_mood_checkin_at: new Date(fixtureNow).toISOString(), timezone: "America/Los_Angeles" }, error: null }, table);
+      if (table === "student_daily_support_needs") return chain({ data: { need: "food", updated_at: new Date(fixtureNow).toISOString(), expires_at: new Date(fixtureNow + 120_000).toISOString() }, error: null }, table);
       return chain({ data: null });
     },
   };
