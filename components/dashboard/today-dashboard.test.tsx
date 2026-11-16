@@ -54,4 +54,12 @@ describe("connected Lobby", () => {
     fireEvent.click(screen.getByRole("tab", { name: "My Work" }));
     expect(screen.getAllByText("Unavailable")).toHaveLength(3);
   });
+  it("applies the student's school colors and logo to the Lobby", () => {
+    const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} schoolBranding={{ primaryColor: "#8c1d40", secondaryColor: "#ffc627", logoUrl: "data:image/webp;base64,YWJj" }} />);
+    const lobby = container.querySelector<HTMLElement>("[data-today-dashboard]");
+    expect(lobby?.style.getPropertyValue("--school-primary")).toBe("#8C1D40");
+    expect(lobby?.style.getPropertyValue("--school-primary-text")).toBe("#FFFFFF");
+    expect(lobby?.style.getPropertyValue("--school-secondary")).toBe("#FFC627");
+    expect(screen.getAllByAltText("School logo")).toHaveLength(2);
+  });
 });

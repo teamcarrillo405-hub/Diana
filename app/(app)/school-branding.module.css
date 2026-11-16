@@ -1,0 +1,18 @@
+/* Scope school colors to primary actions; warnings and other status colors stay independent. */
+.root.root.root[data-school-primary] :global(.diana-button-primary),
+.root.root.root[data-school-primary] :global(.sd-button-primary),
+.root.root.root[data-school-primary] :global(.sd-assignment-button--primary),
+.root.root.root[data-school-primary] :global(.sd-assignment-primary-action) {
+  background: var(--school-primary);
+  border-color: var(--school-secondary, var(--school-primary));
+  color: var(--school-primary-text);
+  box-shadow: var(--school-button-outline);
+}
+
+.root.root.root[data-school-primary] :global(.diana-button-primary):hover:not(:disabled),
+.root.root.root[data-school-primary] :global(.sd-button-primary):hover:not(:disabled),
+.root.root.root[data-school-primary] :global(.sd-assignment-button--primary):hover:not(:disabled),
+.root.root.root[data-school-primary] :global(.sd-assignment-primary-action):hover:not(:disabled) {
+  background: var(--school-primary);
+  color: var(--school-primary-text);
+}

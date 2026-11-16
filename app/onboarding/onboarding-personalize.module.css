@@ -64,6 +64,8 @@
 .page .option[data-active="true"] svg { visibility: visible; }
 .page.page .times button { min-height: 48px; padding: 10px; gap: 4px; font-size: 12px; }
 .page .times .option svg { width: 14px; height: 14px; }
+.page .schoolBranding { margin-top: 28px; padding-top: 22px; border-top: 1px solid #b4d0c340; }
+.page .schoolBrandingHint { margin: 0 0 10px; color: #c4d5c8; font-size: 12px; line-height: 1.5; }
 
 .page.page .photo {
   display: flex;

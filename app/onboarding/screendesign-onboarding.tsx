@@ -26,6 +26,7 @@ import {
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { DianaWordmark } from "@/components/screen-design/primitives";
 import { SourceMedia } from "@/components/screen-design/source-media";
+import { SchoolBrandingForm, type SchoolBrandingFormHandle } from "@/components/school-branding-form";
 import { savePlayerPhoto } from "@/app/(app)/settings/player-photo-actions";
 import {
   DEFAULT_LANDING_PAGE_CONFIG,
@@ -125,6 +126,11 @@ interface ScreenDesignOnboardingProps {
   readonly onComplete?: (answers: ScreenDesignOnboardingAnswers) => void;
   readonly presentation?: "wizard" | "scroll";
   readonly landingConfig?: LandingPageConfig;
+  readonly initialSchoolBranding?: {
+    primaryColor: string | null;
+    secondaryColor: string | null;
+    logoDataUrl: string | null;
+  };
 }
 
 export function ScreenDesignOnboarding({
@@ -134,6 +140,7 @@ export function ScreenDesignOnboarding({
   onComplete,
   presentation = "wizard",
   landingConfig = DEFAULT_LANDING_PAGE_CONFIG,
+  initialSchoolBranding = { primaryColor: null, secondaryColor: null, logoDataUrl: null },
 }: ScreenDesignOnboardingProps) {
   const router = useRouter();
   const [step, setStep] = useState<PublicHomeOnboardingStep>(initialStep);
@@ -146,6 +153,7 @@ export function ScreenDesignOnboarding({
   const [feedback, setFeedback] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const submittingRef = useRef(false);
+  const schoolBrandingRef = useRef<SchoolBrandingFormHandle>(null);
 
   const goTo = (nextStep: PublicHomeOnboardingStep) => {
     setFeedback(null);
@@ -191,6 +199,11 @@ export function ScreenDesignOnboarding({
     submittingRef.current = true;
     startTransition(async () => {
       try {
+        if (schoolBrandingRef.current && !await schoolBrandingRef.current.saveIfChanged()) {
+          submittingRef.current = false;
+          setFeedback("Check your school look and try continuing again.");
+          return;
+        }
         const result = await completeScreenDesignOnboarding({
           learningHurdle,
           studySchedulePreference,
@@ -305,6 +318,8 @@ export function ScreenDesignOnboarding({
 
   return (
     <PersonalizeScreen
+      initialSchoolBranding={initialSchoolBranding}
+      schoolBrandingRef={schoolBrandingRef}
       learningHurdle={learningHurdle}
       studySchedulePreference={studySchedulePreference}
       onLearningHurdleChange={setLearningHurdle}
@@ -822,6 +837,8 @@ function ScheduleScreen({
 }
 
 function PersonalizeScreen({
+  initialSchoolBranding,
+  schoolBrandingRef,
   learningHurdle,
   studySchedulePreference,
   onLearningHurdleChange,
@@ -830,6 +847,12 @@ function PersonalizeScreen({
   pending,
   feedback,
 }: {
+  readonly initialSchoolBranding: {
+    primaryColor: string | null;
+    secondaryColor: string | null;
+    logoDataUrl: string | null;
+  };
+  readonly schoolBrandingRef: React.RefObject<SchoolBrandingFormHandle | null>;
   readonly learningHurdle: LearningHurdle | null;
   readonly studySchedulePreference: StudySchedulePreference | null;
   readonly onLearningHurdleChange: (value: LearningHurdle) => void;
@@ -904,6 +927,10 @@ function PersonalizeScreen({
             </div>
           </section>
 
+          <section className={personalizeStyles.schoolBranding} aria-label="School look">
+            <p className={personalizeStyles.schoolBrandingHint}>Optional. Your choices will be saved when you continue.</p>
+            <SchoolBrandingForm ref={schoolBrandingRef} disabled={pending} initialSchoolBranding={initialSchoolBranding} />
+          </section>
           <ProfilePhotoOption className={personalizeStyles.photo} />
           <footer className={personalizeStyles.footer}>
             <p>You can change these anytime.</p>

@@ -55,4 +55,26 @@ describe("authenticated app age boundary", () => {
     expect(layout).toBeTruthy();
     expect(mocks.redirect).not.toHaveBeenCalled();
   });
+
+  it("provides valid school colors and contrasting action text to the app shell", async () => {
+    mocks.loadProfile.mockResolvedValue({
+      age_bracket: "13_to_17", onboarded_at: "2026-08-01T00:00:00.000Z",
+      school_primary_color: "#ffc627", school_secondary_color: "#8c1d40",
+    });
+    const layout = await AppLayout({ children: null });
+    expect(layout.props["data-school-primary"]).toBe("true");
+    expect(layout.props.style).toMatchObject({
+      "--school-primary": "#FFC627", "--school-primary-text": "#000000", "--school-secondary": "#8C1D40",
+    });
+  });
+
+  it("ignores invalid school colors", async () => {
+    mocks.loadProfile.mockResolvedValue({
+      age_bracket: "13_to_17", onboarded_at: "2026-08-01T00:00:00.000Z",
+      school_primary_color: "red; color: black", school_secondary_color: "#fff",
+    });
+    const layout = await AppLayout({ children: null });
+    expect(layout.props["data-school-primary"]).toBeUndefined();
+    expect(layout.props.style).toEqual({});
+  });
 });

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { resolveScreenDesignOnboardingStep } from "@/lib/onboarding/screendesign-step";
 import { completeScreenDesignOnboarding } from "./actions";
+import { saveSchoolBranding } from "@/app/(app)/settings/school-branding-actions";
 import { ScreenDesignOnboarding } from "./screendesign-onboarding";
 
 const push = vi.fn();
@@ -23,11 +24,16 @@ vi.mock("@/app/(app)/settings/player-photo-actions", () => ({
   savePlayerPhoto: vi.fn(),
 }));
 
+vi.mock("@/app/(app)/settings/school-branding-actions", () => ({
+  saveSchoolBranding: vi.fn(),
+}));
+
 describe("ScreenDesignOnboarding", () => {
   beforeEach(() => {
     push.mockReset();
     refresh.mockReset();
     vi.mocked(completeScreenDesignOnboarding).mockReset();
+    vi.mocked(saveSchoolBranding).mockReset();
   });
 
   afterEach(cleanup);
@@ -53,6 +59,55 @@ describe("ScreenDesignOnboarding", () => {
     expect(screen.getAllByRole("radio", { name: /./u })).toHaveLength(7);
     expect(screen.queryByText("DID YOU KNOW?")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "GET STARTED" })).not.toBeInTheDocument();
+  });
+
+  it("offers the school look with the student's previously saved choices", () => {
+    render(<ScreenDesignOnboarding initialSchoolBranding={{ primaryColor: "#112233", secondaryColor: "#abcdef", logoDataUrl: "data:image/webp;base64,AA==" }} />);
+
+    expect(screen.getByRole("region", { name: "School look" })).toBeInTheDocument();
+    expect(screen.getByLabelText("First school color")).toHaveValue("#112233");
+    expect(screen.getByLabelText("Second school color")).toHaveValue("#abcdef");
+    expect(screen.getByAltText("Selected school logo")).toHaveAttribute("src", "data:image/webp;base64,AA==");
+    expect(screen.getByRole("button", { name: "Continue" })).toBeEnabled();
+  });
+
+  it("saves school colors and logo when continuing without a separate save", async () => {
+    vi.mocked(saveSchoolBranding).mockResolvedValue({ ok: true });
+    vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({ ok: true });
+    render(<ScreenDesignOnboarding />);
+
+    fireEvent.change(screen.getByLabelText("First school color"), { target: { value: "#123456" } });
+    fireEvent.change(screen.getByLabelText("Second school color"), { target: { value: "#abcdef" } });
+    fireEvent.change(screen.getByLabelText("School logo"), { target: { files: [new File(["logo"], "school.png", { type: "image/png" })] } });
+    await screen.findByAltText("Selected school logo");
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    await waitFor(() => expect(saveSchoolBranding).toHaveBeenCalledWith({ primaryColor: "#123456", secondaryColor: "#abcdef", logoDataUrl: expect.stringMatching(/^data:image\/png;base64,/) }));
+    expect(await screen.findByRole("heading", { name: "Connect your school" })).toBeInTheDocument();
+  });
+
+  it("keeps onboarding open when the school look cannot be saved", async () => {
+    vi.mocked(saveSchoolBranding).mockResolvedValue({ ok: false, error: "Please try saving the school look again." });
+    render(<ScreenDesignOnboarding />);
+    fireEvent.change(screen.getByLabelText("First school color"), { target: { value: "#123456" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+
+    expect(await screen.findByText("Please try saving the school look again.")).toBeInTheDocument();
+    expect(completeScreenDesignOnboarding).not.toHaveBeenCalled();
+    expect(screen.getByRole("heading", { name: "Make it yours" })).toBeInTheDocument();
+  });
+
+  it("lets a student clear an unsupported logo and continue without branding", async () => {
+    vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({ ok: true });
+    render(<ScreenDesignOnboarding />);
+    fireEvent.change(screen.getByLabelText("School logo"), { target: { files: [new File(["bad"], "school.svg", { type: "image/svg+xml" })] } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText(/Choose a PNG, JPG, or WebP image/)).toBeInTheDocument();
+    expect(completeScreenDesignOnboarding).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Clear logo selection" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByRole("heading", { name: "Connect your school" })).toBeInTheDocument();
+    expect(saveSchoolBranding).not.toHaveBeenCalled();
   });
 
   it("supports keyboard selection in both preference groups", async () => {

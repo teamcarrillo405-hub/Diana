@@ -23,7 +23,7 @@
 .root.root.root :global(.sd-assignment-dropzone) p { color:#b6ccbe; font-size:12px; }
 .root.root.root :global(.sd-assignment-upload-actions), .root.root.root :global(.notes-editor-footer) { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px; border-top:1px solid #bdd4c733; padding-top:20px; }
 .root.root.root :global(.sd-assignment-upload-actions) p, .root.root.root :global(.notes-editor-footer) p { display:flex; align-items:center; gap:8px; font-size:11px; color:#adc4b6; max-width:54ch; }
-.root.root.root :global(.sd-assignment-upload-actions) button, .root.root.root :global(.notes-editor-done),.primary { background:#7951d5; color:#fff; border:0; border-radius:3px; min-height:46px; padding:12px 20px; }
+.root.root.root :global(.sd-assignment-upload-actions) button, .root.root.root :global(.notes-editor-done),.primary { background:var(--school-primary,#7951d5); color:var(--school-primary-text,#fff); border:0; border-radius:3px; min-height:46px; padding:12px 20px; }
 .root.root.root :global(.sd-assignment-upload-message) { color:#b5e3c5; font-size:13px; }
 .root.root.root :global(.sd-assignment-upload-message)[data-state="error"], .root.root.root :global(.is-error), .root.root.root :global(.is-warning) { color:#efc880; }
 .root.root.root :global(.notes-audio-capture), .root.root.root :global(.notes-doc-capture) { display:grid; gap:18px; }

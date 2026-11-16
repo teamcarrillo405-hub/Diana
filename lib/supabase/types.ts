@@ -5592,6 +5592,9 @@ export type Database = {
           reading_word_spacing: string
           reduced_motion: boolean
           rough_mode_until: string | null
+          school_primary_color: string | null
+          school_secondary_color: string | null
+          school_logo_url: string | null
           school_year: number | null
           session_mood: string | null
           study_schedule_preference: string | null
@@ -5656,6 +5659,9 @@ export type Database = {
           reading_word_spacing?: string
           reduced_motion?: boolean
           rough_mode_until?: string | null
+          school_primary_color?: string | null
+          school_secondary_color?: string | null
+          school_logo_url?: string | null
           school_year?: number | null
           session_mood?: string | null
           study_schedule_preference?: string | null
@@ -5720,6 +5726,9 @@ export type Database = {
           reading_word_spacing?: string
           reduced_motion?: boolean
           rough_mode_until?: string | null
+          school_primary_color?: string | null
+          school_secondary_color?: string | null
+          school_logo_url?: string | null
           school_year?: number | null
           session_mood?: string | null
           study_schedule_preference?: string | null

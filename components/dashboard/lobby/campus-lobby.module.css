@@ -7,6 +7,9 @@
 .campus.campus.campus.campus.campus.campus .railIdentity b { color: #f6d39c; }
 .railDate { margin-top: 9px; color: #c5d0c9; font: 400 12px/1.4 var(--font-lexend), sans-serif; }
 .mobileGuide { display: none; }
+.schoolLogo, .mobileSchoolLogo { object-fit: contain; background: #fff; border-radius: 4px; padding: 3px; }
+.schoolLogo { float: left; width: 48px; height: 48px; margin: 0 10px 0 0; }
+.mobileSchoolLogo { width: 36px; height: 36px; margin-right: 10px; vertical-align: middle; }
 
 @media (min-width: 761px) {
   .campus.campus.campus.campus.campus.campus [data-today-stage-workspace] { grid-template-columns: 205px minmax(0, 1fr); column-gap: clamp(24px, 3vw, 48px); }
@@ -72,6 +75,15 @@
   .historyGrid dd { margin: 9px 0 4px; color: #18332d; font-size: 30px; }
   .historyLink { color: #52237c; }
 }
+/* The primary color carries actions and selection; the secondary provides trim.
+   Foreground text is chosen from the actual school color for contrast. */
+.campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-start],
+.campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-start]:hover { background: var(--school-primary); border-color: var(--school-primary-text); color: var(--school-primary-text); box-shadow: 0 0 0 1px var(--school-primary-text); }
+.campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-rail-indicator] { background: var(--school-primary); -webkit-mask-image: none; mask-image: none; box-shadow: inset 4px 0 var(--school-secondary, var(--school-primary-text)); }
+.campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-stage-rail] button[aria-selected="true"] { color: var(--school-primary-text); }
+.campus.campus.campus.campus.campus.campus[data-school-primary] [data-student-navigation] nav a[aria-current]::after { background: var(--school-primary); }
+.campus.campus.campus.campus.campus.campus[data-school-secondary] [data-today-stage-deck] > section[aria-label="Today's Plan"] { border-left-color: var(--school-secondary); }
+.campus.campus.campus.campus.campus.campus[data-school-secondary] .historyGrid > div { border-top-color: var(--school-secondary); }
 @media (forced-colors: active) {
   .campus.campus.campus.campus.campus.campus [data-today-stage-deck] > section[aria-label="Today's Plan"], .campus.campus.campus.campus.campus.campus [data-lobby-history], .historyGrid > div { background: Canvas; color: CanvasText; border-color: CanvasText; }
   .history, .historyGrid dt, .historyGrid dd, .historyGrid p, .historyNote, .historyLink, .campus.campus.campus.campus.campus.campus .historyHeading > p { color: CanvasText; }

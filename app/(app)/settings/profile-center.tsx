@@ -9,6 +9,7 @@ import { AccentPicker } from "@/components/accent-picker";
 import { PwaSettings } from "@/components/pwa-settings";
 import { PushSettings } from "@/components/push-settings";
 import { ThemePicker } from "@/components/theme-picker";
+import { SchoolBrandingForm } from "@/components/school-branding-form";
 import type { ProfilePrefs } from "@/lib/profile";
 import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AdaptationPanel } from "./adaptation-panel";
@@ -193,6 +194,11 @@ function SettingsShell({
             <ThemePicker />
             <AccentPicker />
             <LobbyBackgroundPicker />
+            {editable ? <SchoolBrandingForm initialSchoolBranding={{
+              primaryColor: profile.school_primary_color ?? null,
+              secondaryColor: profile.school_secondary_color ?? null,
+              logoDataUrl: profile.school_logo_url ?? null,
+            }} /> : null}
           </SettingsPanel>
         ) : null}
 
