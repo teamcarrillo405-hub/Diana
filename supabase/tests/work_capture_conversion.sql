@@ -22,6 +22,14 @@ values
 alter table public.assignment_sources add constraint test_work_capture_rollback
   check (extracted_text is distinct from 'Force source write rejection') not valid;
 
+-- Reproduce the authenticated API grants present in the linked project.
+-- Fresh disposable Supabase projects omit those default public-table grants.
+grant select on public.inbox_items, public.classes, storage.objects to authenticated;
+grant update (status, assignment_id, updated_at) on public.inbox_items to authenticated;
+grant update (id) on public.classes to authenticated;
+grant insert on public.assignments, public.assignment_sources to authenticated;
+grant select (id) on public.assignment_sources to authenticated;
+
 do $permissions$
 begin
   if has_function_privilege('anon', 'public.confirm_work_capture(uuid,uuid,text,text,timestamptz,text)', 'execute')

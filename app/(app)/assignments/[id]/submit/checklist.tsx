@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ClipboardCheck, Loader2, Send, Trash2 } from "lucide-react";
 import styles from "@/components/student-shell/submission.module.css";
@@ -22,7 +22,7 @@ type Item = {
 
 export function SubmitChecklist({
   assignmentId,
-  items: initial,
+  items: savedItems,
   showFinalConfirmation = true,
 }: {
   assignmentId: string;
@@ -30,26 +30,26 @@ export function SubmitChecklist({
   showFinalConfirmation?: boolean;
 }) {
   const router = useRouter();
-  const [items, setItems] = useState(initial);
+  const [savedChanges, setSavedChanges] = useState<ReadonlyMap<string, boolean | null>>(() => new Map());
   const [error, setError] = useState<string | null>(null);
   const [confirmationError, setConfirmationError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [newItemLabel, setNewItemLabel] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [handedIn, setHandedIn] = useState(false);
-  useEffect(() => setItems(initial), [initial]);
+  const items = savedItems.flatMap((item) => {
+    const checked = savedChanges.get(item.id);
+    return checked === null ? [] : [{ ...item, checked: checked ?? item.checked }];
+  });
   const requiredOk = items.filter((item) => item.required).every((item) => item.checked);
 
   function toggle(item: Item) {
     const checked = !item.checked;
     setError(null);
-    setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, checked } : entry));
     startTransition(async () => {
       const result = await toggleChecklistItem({ itemId: item.id, checked });
-      if (result?.error) {
-        setItems((current) => current.map((entry) => entry.id === item.id ? { ...entry, checked: !checked } : entry));
-        setError(result.error);
-      }
+      if (result?.error) return setError(result.error);
+      setSavedChanges((current) => new Map(current).set(item.id, checked));
     });
   }
 
@@ -70,7 +70,7 @@ export function SubmitChecklist({
     startTransition(async () => {
       const result = await deleteChecklistItem({ itemId });
       if (result?.error) return setError(result.error);
-      setItems((current) => current.filter((item) => item.id !== itemId));
+      setSavedChanges((current) => new Map(current).set(itemId, null));
     });
   }
 

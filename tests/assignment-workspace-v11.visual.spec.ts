@@ -41,17 +41,21 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
   await page.getByRole("tab", { name: assignmentTitle }).first().click();
   const assignmentHref = await page.getByRole("link", { name: assignmentTitle }).first().getAttribute("href");
   expect(assignmentHref).toMatch(/^\/assignments\/[0-9a-f-]+\/workspace$/u);
-  await page.goto(assignmentHref!, { waitUntil: "domcontentloaded", timeout: 60_000 });
+  await page.goto(assignmentHref!, { waitUntil: "networkidle", timeout: 60_000 });
   await expect(page).toHaveURL(/\/assignments\/[0-9a-f-]+\/workspace$/u);
   await expect(page.locator('.sd-assignment-workspace[data-version="12"]')).toBeVisible();
 
   const emptyProblemState = page.getByRole("button", { name: "Add or import problem" });
   if (await emptyProblemState.isVisible().catch(() => false)) {
-    await emptyProblemState.click();
     const addProblemPanel = page.locator(".sd-assignment-add-problem-panel");
-    await expect(addProblemPanel).toHaveAttribute("open", "");
+    await expect(async () => {
+      if (await addProblemPanel.getAttribute("open") === null) await emptyProblemState.click();
+      expect(await addProblemPanel.getAttribute("open")).toBe("");
+    }).toPass({ timeout: 12_000 });
     await addProblemPanel.getByRole("textbox").fill("Solve 3x + 5 = 20");
     await addProblemPanel.getByRole("button", { name: "Add problem" }).click();
+    await expect(page.locator("#current-problem")).toContainText("Solve 3x + 5 = 20");
+    await addProblemPanel.locator("summary").click();
   }
   await expect(page.getByRole("textbox", { name: "Show your work" })).toBeVisible();
 
@@ -165,10 +169,13 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
   await expect(resizeHandle).toHaveAttribute("aria-valuenow", "240");
 
   const draft = "Subtract 5 from both sides, then divide by 3.";
+  const activeProblem = page.locator('.sd-assignment-problem-tab[aria-current="step"]');
+  const activeLabel = await activeProblem.locator(".sd-assignment-problem-tab-heading > span").textContent();
   const paper = page.getByRole("textbox", { name: "Show your work" });
   await paper.fill(draft);
   await expect(page.locator(".sd-assignment-inline-save")).toHaveAttribute("data-state", "synced");
   await page.reload({ waitUntil: "networkidle" });
+  await page.getByRole("navigation", { name: "problems" }).getByRole("button", { name: new RegExp(`^${activeLabel}\\b`) }).click();
   await expect(paper).toHaveValue(draft);
 
   await page.setViewportSize({ width: 1366, height: 768 });

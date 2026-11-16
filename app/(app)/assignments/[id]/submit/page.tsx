@@ -184,11 +184,10 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
           {timeSpent > 0 ? <p className={styles.focusedTime}><Clock3 size={16} aria-hidden="true" />{formatMinutes(timeSpent)} focused time</p> : null}
         </header>
 
-        <SectionTabs id="submission" label="Submission" sections={[
+        <SectionTabs key={id} id="submission" label="Submission" sections={[
           { id: "review", label: "Review", content: <AssignmentSubmissionPreview preview={preview} /> },
           { id: "hand-in", label: "Hand in", content: connectedProvider ? (
             <ExternalSubmissionSync
-              key={id}
               assignmentId={id}
               assignmentTitle={assignment.title}
               provider={assignment.external_source}

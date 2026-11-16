@@ -144,6 +144,10 @@ jobs:
   full-migration-chain:
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    concurrency:
+      group: diana-disposable-supabase
+      cancel-in-progress: false
+      queue: max
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
@@ -216,10 +220,9 @@ jobs:
   database-release-contract:
     runs-on: ubuntu-latest
     timeout-minutes: 25
-    # Supabase binds fixed local ports. Push and pull-request runs for the
-    # same repository must not start disposable stacks concurrently.
+    # This job and the full replay both bind the default Supabase ports.
     concurrency:
-      group: diana-database-release-contract
+      group: diana-disposable-supabase
       cancel-in-progress: false
       queue: max
     steps:
