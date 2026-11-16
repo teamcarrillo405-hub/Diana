@@ -18,9 +18,9 @@ export default async function ReferenceBookPage({params,searchParams}:{params:Pr
   const [profile,manifest]=await Promise.all([loadProfile(),textbookManifest().catch(()=>null)]);
   const initialPage=query.page===undefined?1:typeof query.page==="string"?Number(query.page):NaN;
   if(!Number.isInteger(initialPage)||initialPage<1||(manifest&&initialPage>(manifest.chapters.find(chapter=>chapter.number===initialChapter)?.pages??0)))notFound();
-  return <StudentShell active="Classes" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url}}>
+  return <StudentShell active="Classes" campus profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url}}>
     <main id="main-content" className={styles.main}>
-      <Link href={`/classes/${id}?materials=1`}>{course.data.name} / Materials</Link>
+      <Link className={styles.back} href={`/classes/${id}?materials=1`}>{course.data.name} / Materials</Link>
       <header className={styles.heading}><h1>Precalculus</h1></header>
       {manifest?<ReferenceTextbook chapters={manifest.chapters} classId={id} initialChapter={initialChapter} initialPage={initialPage}/>:<p>Reference chapters are being prepared. <a href={PRECALCULUS_BOOK.publisherUrl} target="_blank" rel="noreferrer">Open the publisher&apos;s book</a></p>}
     </main>

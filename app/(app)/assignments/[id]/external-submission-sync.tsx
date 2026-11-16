@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ExternalLink, FileText, Loader2, Send, X } from "lucide-react";
+import { FileText, Loader2, Send, X } from "lucide-react";
 
 import {
   checkConnectedProviderSubmissionStatus,
@@ -22,6 +23,8 @@ import {
 import type { PreparedAssignmentSubmissionFile } from "@/lib/assignment-submission-server";
 import { canonicalSubmissionPayloadForTarget } from "@/lib/assignment-submission";
 import type { AssignmentSubmissionPreview } from "@/lib/assignment-workspace-contracts";
+import styles from "@/components/student-shell/submission.module.css";
+import { SubmissionDestination } from "./submit/destination";
 
 type Provider = "canvas" | "google_classroom" | "ics" | "clever" | string | null;
 type SubmissionStatus = "not_started" | "opened_external" | "marked_submitted" | "not_supported" | string | null;
@@ -31,28 +34,20 @@ function providerLabel(provider: Provider) {
   return provider ? PROVIDER_LABEL[provider] ?? provider.replace(/_/gu, " ") : "school system";
 }
 
-function statusText(status: SubmissionStatus, receiptStatus: SubmissionReceiptStatus | null) {
-  if (receiptStatus === "submitted") return "Submission receipt confirmed.";
-  if (receiptStatus === "prepared" || receiptStatus === "confirmation_pending") return "The school system is still confirming this submission.";
-  if (receiptStatus === "not_accepted") return "The last direct submission needs attention.";
-  if (status === "opened_external") return "Opened in the school system.";
-  if (status === "marked_submitted") return "Marked submitted in Diana.";
-  if (status === "not_supported") return "Direct submission is not available for this assignment.";
-  return "Not submitted yet.";
-}
-
 function newIdempotencyKey() {
   return globalThis.crypto.randomUUID();
 }
 
-export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider, externalUrl, initialStatus, deliveryFile, preview }: {
+export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider, externalUrl, currentUrl = null, initialStatus, deliveryFile, preview, children }: {
   assignmentId: string;
   assignmentTitle: string;
   provider: Provider;
   externalUrl: string | null;
+  currentUrl?: string | null;
   initialStatus: SubmissionStatus;
   deliveryFile: PreparedAssignmentSubmissionFile | null;
   preview: AssignmentSubmissionPreview;
+  children?: ReactNode;
 }) {
   const [status, setStatus] = useState<SubmissionStatus>(initialStatus ?? "not_started");
   const [receiptStatus, setReceiptStatus] = useState<SubmissionReceiptStatus | null>(null);
@@ -62,7 +57,11 @@ export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider
     deliveryFile?.payloadDigest === preview.payloadDigest ? deliveryFile : null
   ));
   const [capabilities, setCapabilities] = useState<ProviderSubmissionCapabilities>(() => submissionCapabilities(provider));
+  const [connection, setConnection] = useState<"loading" | "ready" | "unavailable" | "reconnect">("loading");
   const [confirmation, setConfirmation] = useState<"text" | "file" | null>(null);
+  const confirmationTitle = useRef<HTMLHeadingElement>(null);
+  const reviewButton = useRef<HTMLButtonElement>(null);
+  const restoreReviewFocus = useRef(false);
   const idempotencyKey = useRef(newIdempotencyKey());
   const router = useRouter();
   const label = providerLabel(provider);
@@ -76,15 +75,16 @@ export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider
     void getConnectedProviderSubmissionState({ assignmentId }).then((result) => {
       if (!active) return;
       if (!result.ok) {
-        setMessage(result.error);
+        setConnection("unavailable");
         return;
       }
+      setConnection(result.connectionReady ? "ready" : "code" in result && result.code === "reconnect_required" ? "reconnect" : "unavailable");
       setCapabilities(result.capabilities);
       setReceiptStatus(result.receiptStatus);
       if (result.receiptDetail && (result.receiptStatus === "not_accepted" || result.receiptStatus === "confirmation_pending")) {
         setMessage(result.receiptDetail);
       }
-    });
+    }).catch(() => { if (active) setConnection("unavailable"); });
     return () => { active = false; };
   }, [assignmentId]);
 
@@ -93,15 +93,26 @@ export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider
     setConfirmation(null);
   }, [deliveryFile, preview.payloadDigest]);
 
+  useEffect(() => {
+    if (confirmation) confirmationTitle.current?.focus();
+    else if (restoreReviewFocus.current) {
+      restoreReviewFocus.current = false;
+      reviewButton.current?.focus();
+    }
+  }, [confirmation]);
+
   if (provider !== "canvas" && provider !== "google_classroom") return null;
 
   const directBlocked = receiptStatus === "submitted" || receiptStatus === "prepared" || receiptStatus === "confirmation_pending";
   const canCheckSubmission = receiptStatus === "prepared" || receiptStatus === "confirmation_pending";
   const canSubmitText = provider === "canvas"
+    && connection === "ready"
     && capabilities.capabilities.includes("submit_text")
     && !hasSpecialistArtifacts
     && !directBlocked;
-  const canSubmitFile = capabilities.capabilities.includes("upload_file")
+  const canSubmitFile = connection === "ready"
+    && capabilities.capabilities.includes("upload_file")
+    && (capabilities.allowedExtensions.length === 0 || capabilities.allowedExtensions.some((extension) => extension.toLowerCase() === "pdf"))
     && !requiresExternalBinaryHandoff
     && !directBlocked;
   const preferredSubmission: "text" | "file" | null = hasSpecialistArtifacts
@@ -109,10 +120,18 @@ export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider
     : canSubmitText ? "text" : canSubmitFile ? "file" : null;
   const providerNote = requiresExternalBinaryHandoff
     ? `Diana's PDF includes a canonical visible summary and attached bounded machine-readable artifact, but not the original CAD or media source file. Open ${label} and attach the source file there.`
-    : hasSpecialistArtifacts
+    : connection === "loading"
+    ? `Checking available hand-in options for ${label}.`
+    : connection === "reconnect"
+    ? `Reconnect ${label} to hand in from Diana. You can still hand in at school.`
+    : connection === "unavailable"
+    ? `Direct hand-in to ${label} is unavailable. Hand in using your teacher’s method.`
+    : hasSpecialistArtifacts && !directBlocked
     ? canSubmitFile
       ? `${label} will receive a PDF with a canonical visible summary and attached bounded machine-readable artifact.`
       : `${label} cannot receive Diana's specialist PDF directly. Open the assignment to complete the handoff there.`
+    : !preferredSubmission && !directBlocked && capabilities.capabilities.includes("upload_file")
+    ? `${label} accepts other file types for this assignment. Open the school assignment to hand it in.`
     : capabilities.note;
 
   function openConfirmation() {
@@ -143,6 +162,11 @@ export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider
       setAttachedFile(result.file);
       setConfirmation("file");
     });
+  }
+
+  function closeConfirmation() {
+    restoreReviewFocus.current = true;
+    setConfirmation(null);
   }
 
   function confirmDirectSubmission() {
@@ -201,13 +225,11 @@ export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider
     });
   }
 
-  function update(nextStatus: "opened_external" | "marked_submitted" | "not_supported") {
-    setMessage(null);
+  function openSchool() {
+    if (status === "opened_external" || status === "marked_submitted" || directBlocked) return;
     startTransition(async () => {
-      const result = await markExternalSubmission({ id: assignmentId, status: nextStatus });
-      if (result.error) return setMessage(result.error);
-      setStatus(nextStatus);
-      setMessage(result.message ?? "School system handoff saved");
+      const result = await markExternalSubmission({ id: assignmentId, status: "opened_external" });
+      if (!result.error) setStatus("opened_external");
     });
   }
 
@@ -215,52 +237,52 @@ export function ExternalSubmissionSync({ assignmentId, assignmentTitle, provider
   const confirmationOutput = confirmation === "file" ? attachedFile?.filename ?? preview.fileName : "The exact text shown in this review";
 
   return (
-    <section className="sd-provider-handoff" aria-labelledby="provider-handoff-title">
-      <div className="sd-provider-handoff-heading">
-        <div>
-          <p>School system</p>
-          <h2 id="provider-handoff-title">{label}</h2>
-        </div>
-        <span>{statusText(status, receiptStatus)}</span>
-      </div>
-      <p className="sd-provider-note">{providerNote}</p>
+    <div className={styles.handoff}>
+      <SubmissionDestination assignmentId={assignmentId} currentUrl={currentUrl} externalUrl={externalUrl} externalLabel={`Open in ${label}`} onOpenSchool={openSchool} title={label}>
+        {receiptStatus !== "submitted" && !canCheckSubmission ? <p role="status">{providerNote}</p> : null}
+        {connection === "reconnect" ? <Link href="/settings?section=connections" className={styles.inlineLink}>Manage school connections</Link> : null}
+      </SubmissionDestination>
+      {children}
 
-      {confirmation ? (
-        <section className="sd-provider-confirmation" aria-labelledby="provider-confirmation-title">
-          <div className="sd-provider-confirmation-heading">
-            <div><FileText size={20} aria-hidden="true" /><h3 id="provider-confirmation-title">Confirm what Diana will send</h3></div>
-            <button type="button" aria-label="Close submission confirmation" onClick={() => setConfirmation(null)} disabled={pending}><X size={20} aria-hidden="true" /></button>
-          </div>
-          <dl>
-            <div><dt>Destination</dt><dd>{label}</dd></div>
-            <div><dt>Assignment</dt><dd>{assignmentTitle}</dd></div>
-            <div><dt>Submission type</dt><dd>{confirmationType}</dd></div>
-            <div><dt>Output</dt><dd>{confirmationOutput}</dd></div>
-          </dl>
-          {confirmation === "text" ? <pre aria-label="Text Diana will submit">{lmsPayload.textPayload}</pre> : (
-            <p className="sd-provider-file-note">{hasSpecialistArtifacts
-              ? "This PDF contains the typed work, handwriting previews, a canonical visible specialist summary, and an attached bounded machine-readable artifact."
-              : "This PDF contains the typed work and handwriting previews shown above."}</p>
-          )}
-          <button type="button" className="sd-provider-confirm" onClick={confirmDirectSubmission} disabled={pending}>
-            {pending ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}
-            {pending ? "Sending" : `Confirm and send to ${label}`}
-          </button>
+      {preferredSubmission || directBlocked || receiptStatus === "not_accepted" || message ? (
+        <section className={styles.sendPanel} aria-labelledby="provider-handoff-title">
+          <h2 id="provider-handoff-title">{canCheckSubmission || receiptStatus === "submitted" ? "School confirmation" : `Send to ${label}`}</h2>
+          {canCheckSubmission ? <p>{label} is still confirming this hand-in. Check its status before sending again.</p> : null}
+          {receiptStatus === "submitted" && !message ? <p>{label} confirmed this hand-in.</p> : null}
+          {receiptStatus === "not_accepted" && !message ? <p>Review the previous attempt before trying again.</p> : null}
+          {canCheckSubmission ? <button className={styles.secondary} type="button" onClick={checkSubmissionStatus} disabled={pending}>Check submission status</button> : null}
+          {preferredSubmission ? (
+            <button ref={reviewButton} className={styles.secondary} type="button" onClick={openConfirmation} disabled={pending || !!confirmation}>
+              {pending && !confirmation ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <FileText size={18} aria-hidden="true" />}
+              {pending && !confirmation ? "Preparing" : preferredSubmission === "file" ? "Review PDF submission" : "Review Canvas submission"}
+            </button>
+          ) : null}
+          {confirmation ? (
+            <div className={styles.providerConfirmation}>
+              <div className={styles.panelHeading}>
+                <h3 ref={confirmationTitle} tabIndex={-1} id="provider-confirmation-title">Confirm what Diana will send</h3>
+                <button className={styles.iconButton} type="button" aria-label="Close submission confirmation" onClick={closeConfirmation} disabled={pending}><X size={20} aria-hidden="true" /></button>
+              </div>
+              <dl className={styles.facts}>
+                <div><dt>Destination</dt><dd>{label}</dd></div>
+                <div><dt>Assignment</dt><dd>{assignmentTitle}</dd></div>
+                <div><dt>Submission type</dt><dd>{confirmationType}</dd></div>
+                <div><dt>Output</dt><dd>{confirmationOutput}</dd></div>
+              </dl>
+              {confirmation === "text" ? <pre tabIndex={0} aria-label="Text Diana will submit">{lmsPayload.textPayload}</pre> : (
+                <p>{hasSpecialistArtifacts
+                  ? "This PDF contains the typed work, handwriting previews, a canonical visible specialist summary, and an attached bounded machine-readable artifact."
+                  : "This PDF contains the typed work and handwriting previews from Review."}</p>
+              )}
+              <button type="button" className={styles.primary} onClick={confirmDirectSubmission} disabled={pending || directBlocked}>
+                {pending ? <Loader2 size={20} className="animate-spin" aria-hidden="true" /> : <Send size={20} aria-hidden="true" />}
+                {pending ? "Sending" : `Confirm and send to ${label}`}
+              </button>
+            </div>
+          ) : null}
+          {message ? <p className={styles.notice} role="status">{message}</p> : null}
         </section>
       ) : null}
-
-      <div className="sd-provider-actions">
-        {canCheckSubmission ? <button type="button" onClick={checkSubmissionStatus} disabled={pending}>Check submission status</button> : null}
-        {preferredSubmission ? (
-          <button type="button" data-primary="true" onClick={openConfirmation} disabled={pending}>
-            {pending ? <Loader2 size={18} className="animate-spin" aria-hidden="true" /> : <CheckCircle2 size={18} aria-hidden="true" />}
-            {pending ? "Preparing" : preferredSubmission === "file" ? "Review PDF submission" : "Review Canvas submission"}
-          </button>
-        ) : null}
-        {externalUrl ? <a href={externalUrl} target="_blank" rel="noreferrer" onClick={() => update("opened_external")}><ExternalLink size={18} aria-hidden="true" />Open in {label}</a> : null}
-        {!preferredSubmission && !externalUrl ? <button type="button" onClick={() => update("not_supported")} disabled={pending}>Direct submission unavailable</button> : null}
-      </div>
-      {message ? <p className="sd-source-calm-error" role="status">{message}</p> : null}
-    </section>
+    </div>
   );
 }

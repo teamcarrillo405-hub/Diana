@@ -7413,6 +7413,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      confirm_work_capture: {
+        Args: {
+          p_capture_id: string
+          p_class_id: string
+          p_title: string
+          p_kind: string
+          p_due_at: string | null
+          p_photo_mime?: string
+        }
+        Returns: Json
+      }
+      dismiss_work_capture: {
+        Args: { p_capture_id: string }
+        Returns: Json
+      }
       account_deletion_delete_public_rows: {
         Args: {
           p_manifest_version: number

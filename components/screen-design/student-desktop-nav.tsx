@@ -12,12 +12,13 @@ export type StudentNavigationProfile = {
 
 type StudentDesktopNavProps = StudentNavigationProfile & {
   active?: StudentNavLabel;
+  showAdd?: boolean;
   wordmarkTone?: "light" | "dark";
   labelOverrides?: Partial<Record<StudentNavLabel, string>>;
 };
 
 /** The same primary navigation at every viewport size. */
-export function StudentDesktopNav({ active, displayName, photoUrl, photoOffsetX, photoOffsetY, labelOverrides }: StudentDesktopNavProps) {
+export function StudentDesktopNav({ active, displayName, photoUrl, photoOffsetX, photoOffsetY, labelOverrides, showAdd = true }: StudentDesktopNavProps) {
   const initials = (displayName ?? "Student")
     .trim()
     .split(/\s+/u)
@@ -35,7 +36,7 @@ export function StudentDesktopNav({ active, displayName, photoUrl, photoOffsetX,
       {STUDENT_NAV_DESTINATIONS.map(({ label, href }) => <Link key={href} href={href} aria-current={active === label ? "page" : undefined}>{labelOverrides?.[label] ?? label}</Link>)}
     </nav>
     <div className={styles.actions}>
-      <Link href="/quick-add" className={styles.add}><Plus size={18} aria-hidden="true" /><span>Add</span></Link>
+      {showAdd && <Link href="/quick-add" className={styles.add}><Plus size={18} aria-hidden="true" /><span>Add</span></Link>}
       <Link href="/settings" className={styles.account} aria-label={`${displayName?.trim() || "Student"} settings`} title="Settings">
         {photoUrl ? <img src={photoUrl} alt="" style={{ objectPosition: `${photoOffsetX ?? 50}% ${photoOffsetY ?? 50}%` }} /> : <span aria-hidden="true">{initials || "S"}</span>}
       </Link>

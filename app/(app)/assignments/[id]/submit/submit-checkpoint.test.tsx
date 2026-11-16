@@ -8,7 +8,6 @@ const mocks = vi.hoisted(() => ({
   refresh: vi.fn(),
   transitionAssignment: vi.fn(),
   toggleChecklistItem: vi.fn(),
-  setSubmissionUrl: vi.fn(),
   addChecklistItem: vi.fn(),
   deleteChecklistItem: vi.fn(),
 }));
@@ -20,7 +19,6 @@ vi.mock("next/navigation", () => ({
 vi.mock("../actions", () => ({
   transitionAssignment: mocks.transitionAssignment,
   toggleChecklistItem: mocks.toggleChecklistItem,
-  setSubmissionUrl: mocks.setSubmissionUrl,
   addChecklistItem: mocks.addChecklistItem,
   deleteChecklistItem: mocks.deleteChecklistItem,
 }));
@@ -49,22 +47,21 @@ describe("SubmitChecklist checkpoint", () => {
             position: 0,
           },
         ]}
-        currentUrl={null}
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Confirm submission" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Confirm submission" }));
+    expect(screen.getByRole("button", { name: "Record hand-in in Diana" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Record hand-in in Diana" }));
     expect(mocks.transitionAssignment).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("checkbox", { name: /I handed this in/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Confirm submission" }));
+    fireEvent.click(screen.getByRole("button", { name: "Record hand-in in Diana" }));
     await waitFor(() => {
       expect(mocks.transitionAssignment).toHaveBeenCalledWith({
         id: assignmentId,
         from: "exporting",
         to: "submitted",
       });
-      expect(screen.getByText("SUBMISSION CONFIRMED")).toBeTruthy();
+      expect(screen.getByText("Hand-in recorded")).toBeTruthy();
     });
   });
 });

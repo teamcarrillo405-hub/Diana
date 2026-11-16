@@ -3,6 +3,7 @@
 import {useCallback,useState} from "react";
 import {PdfSourcePage} from "./pdf-source-page";
 import styles from "./learning-material.module.css";
+import { isOriginalMaterialType, originalMaterialUrl } from "@/lib/learning-engine/material-navigation";
 
 type Source={id:string;title:string|null;mime_type:string|null;source_type:string;extracted_text:string|null};
 
@@ -20,8 +21,8 @@ export function OriginalMaterialReader({assignmentId,title,sources,initialSource
   const [pageCount,setPageCount]=useState(1);
   const ready=useCallback(()=>{},[]);
   const source=entries.find(entry=>entry.id===selected);
-  const url=source?`/api/materials/source?assignmentId=${encodeURIComponent(assignmentId)}&sourceId=${encodeURIComponent(source.id)}`:"";
-  const textSource=source&&["instructions","rubric","extracted_text"].includes(source.source_type);
+  const url=source?originalMaterialUrl(assignmentId,source.id):"";
+  const textSource=source&&(source.extracted_text || ["instructions","rubric","extracted_text"].includes(source.source_type));
 
   return <div className={styles.layout}>
     <nav className={styles.sources} aria-label="Material files">
@@ -37,9 +38,9 @@ export function OriginalMaterialReader({assignmentId,title,sources,initialSource
           <button className={`${styles.button} ${styles.secondary}`} disabled={page>=pageCount} onClick={()=>setPage(value=>value+1)}>Next page</button>
         </div>
         <PdfSourcePage url={url} pageNumber={page} onReady={ready} onPageCount={setPageCount}/>
-      </>:source?.mime_type&&["image/png","image/jpeg","image/webp"].includes(source.mime_type)?<div className={styles.regionImage}>
+      </>:isOriginalMaterialType(source?.mime_type)?<div className={styles.regionImage}>
         {/* The authenticated same-origin endpoint streams the original upload. */}
-        <img src={url} alt={source.title||"Assignment material"}/>
+        <img src={url} alt={source?.title||"Assignment material"}/>
       </div>:textSource?<p className={styles.passage}>{source.extracted_text||"No text is attached yet."}</p>:source?<p>Open the assignment to review this attachment.</p>:null}
     </section>
   </div>;

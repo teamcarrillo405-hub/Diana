@@ -531,7 +531,7 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
   const streamControllers = useRef<Record<string, AbortController>>({});
   const attachmentFiles = useRef<Record<string, File>>({});
   const previewUrls = useRef<Set<string>>(new Set());
-  const feedEndRef = useRef<HTMLDivElement | null>(null);
+  const mathFeedRef = useRef<HTMLDivElement | null>(null);
   const queueFlushInFlight = useRef<Promise<void> | null>(null);
   const queueFlushRequested = useRef(false);
   const syncNotice = useRef("");
@@ -939,10 +939,9 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
   }, [assignmentId, flushProblemMessageQueue, isUnitReview]);
 
   useEffect(() => {
-    if (typeof feedEndRef.current?.scrollIntoView === "function") {
-      feedEndRef.current.scrollIntoView({ block: "nearest" });
-    }
-  }, [mathMessages.length, streamPhase, chatMessages.length]);
+    const feed = mathFeedRef.current;
+    if (feed) feed.scrollTop = feed.scrollHeight;
+  }, [mathMessages.length, streamPhase]);
 
   useEffect(() => () => {
     streamControllers.current[threadKey]?.abort();
@@ -954,9 +953,9 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
 
   if (isUnitReview) {
     return (
-      <aside id="ask-diana" className="sd-assignment-diana-chat" aria-label="Ask Diana">
+      <aside id="ask-diana" className="sd-assignment-diana-chat" aria-label="Ask Diana" tabIndex={-1}>
         <h2 className="sd-assignment-chat-heading">Ask Diana</h2>
-        <div className="sd-assignment-diana-chat-feed" role="region" aria-label="Diana conversation" aria-live="polite" tabIndex={0}>
+        <div ref={mathFeedRef} className="sd-assignment-diana-chat-feed" role="region" aria-label="Diana conversation" aria-live="polite" tabIndex={0}>
           {displayMathMessages.length === 0 ? (
             <p className="sd-assignment-diana-empty">Ask Diana when you want a hint.</p>
           ) : null}
@@ -979,7 +978,6 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
             </article>
           ))}
           {streamPhase === "thinking" || reviewPending ? <article className="sd-assignment-diana-message sd-assignment-diana-thinking" data-role="assistant"><span /><span /><span /><p className="sr-only">Diana is thinking</p></article> : null}
-          <div ref={feedEndRef} />
         </div>
         {(streamPhase === "interrupted" || streamPhase === "retryable_error") ? (
           <div className="sd-assignment-chat-retry" role="status" data-provider-availability={currentProviderState?.availability}>

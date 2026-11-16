@@ -244,3 +244,12 @@
 .root.root .referenceBooks a { color:#eef5f1; text-underline-offset:4px; }
 .root.root .referenceBooks p { margin-top:8px; }
 .root.root .materials summary { cursor:pointer; min-height:44px; font:700 28px/1.2 var(--font-saira-condensed),sans-serif; }
+
+.root.root .materialHeading { display:grid; gap:6px; padding:16px 0 12px; }
+.root.root .materialHeading > p { font:800 .92rem/1.3 'Diana Campus Slab',Georgia,serif; color:var(--campus-muted); text-transform:uppercase; }
+.root.root .materialHeading > h1 { font:italic 850 clamp(2.8rem,6vw,5.2rem)/.95 var(--campus-display); text-transform:uppercase; }
+.root.root[data-campus-shell] .sectionHeading h3 { font-family:'Diana Campus Slab',Georgia,serif; font-size:1rem; }
+.root.root[data-campus-shell] .resourceRows > li { border-color:var(--campus-rule); background:var(--campus-panel); }
+.root.root[data-campus-shell] .resourceRows a { padding-inline:12px; min-height:66px; }
+.root.root[data-campus-shell] .resourceIcon { color:var(--campus-focus); }
+.root.root[data-campus-shell] .resourceRows small { color:var(--campus-muted); font-size:.8rem; }

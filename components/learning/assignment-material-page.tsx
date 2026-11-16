@@ -1,6 +1,8 @@
 import Link from "next/link";
 import {notFound,redirect} from "next/navigation";
 import {StudentShell} from "@/components/student-shell/student-shell";
+import { ArrowLeft, ArrowRight } from "lucide-react";
+import { assignmentDestination } from "@/lib/assignment-navigation";
 import styles from "@/components/student-shell/collection.module.css";
 import {createLearningClient,learningAccess} from "@/lib/learning-engine/server";
 import {loadProfile} from "@/lib/profile";
@@ -17,7 +19,7 @@ export async function AssignmentMaterialPage({assignmentId,classId,sourceId,vers
   if(!user)redirect("/login");
   const enhanced=await learningAccess("retrieval",user.id);
   const [assignment,sources,profile,problems]=await Promise.all([
-    client.from("assignments").select("id,title,class_id,kind,description,rubric_text").eq("id",assignmentId).eq("owner_id",user.id).maybeSingle(),
+    client.from("assignments").select("id,title,class_id,kind,status,description,rubric_text").eq("id",assignmentId).eq("owner_id",user.id).maybeSingle(),
     client.from("assignment_sources").select("id,title,source_type,import_status,mime_type,extracted_text").eq("assignment_id",assignmentId).eq("owner_id",user.id).order("created_at"),
     loadProfile(),
     client.from("assignment_problems").select("id",{count:"exact",head:true}).eq("assignment_id",assignmentId).eq("owner_id",user.id),
@@ -33,10 +35,11 @@ export async function AssignmentMaterialPage({assignmentId,classId,sourceId,vers
     ...(assignment.data.rubric_text?[{id:"assignment-rubric",title:"Rubric",source_type:"rubric",import_status:"imported"}]:[]),
     ...(sources.data??[]),
   ];
-  return <StudentShell active={classId?"Classes":"Work"} profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url}}>
+  return <StudentShell active={classId?"Classes":"Work"} campus profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url}}>
     <main id="main-content" className={styles.main}>
-      {classId&&<Link href={`/classes/${classId}?materials=1`}>{classRecord?.data?.name} / Materials</Link>}
-      <header className={styles.heading}><h1>Materials</h1><Link href={"/assignments/"+assignmentId+"/workspace"}>Open assignment</Link></header>
+      {classId&&<Link className={styles.back} href={`/classes/${classId}?materials=1&work=${assignmentId}`}><ArrowLeft size={16} aria-hidden="true" />Class materials</Link>}
+      <header className={styles.heading}><div><p className={styles.eyebrow}>{classRecord?.data?.name ?? "Work"}</p><h1>Assignment materials</h1></div><Link href={assignmentDestination(assignmentId,assignment.data.status)}>Back to assignment <ArrowRight size={16} aria-hidden="true" /></Link></header>
+      {sources.error ? <p role="status" className={styles.notice}>Attached files could not load. <Link href={materialDestination(assignmentId,classId ?? null,sourceId)}>Try again</Link></p> : null}
       {enhanced
         ? <LearningMaterial assignmentId={assignmentId} classId={classId} title={assignment.data.title} sources={materialSources} initialSourceId={sourceId} initialVersionId={versionId} initialPage={page} initialSubject={classRecord?.data?practiceSubjectForClass(classRecord.data.subject_category,classRecord.data.name):/\b(math|algebra|equations?|geometry|polynomial)\b/i.test(assignment.data.title)?"math":"reading"}/>
         : <OriginalMaterialReader assignmentId={assignmentId} title={assignment.data.title} sources={sources.data??[]} initialSourceId={sourceId} directions={assignment.data.description} rubric={assignment.data.rubric_text}/>}

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { z } from "zod";
 
 import { createClient } from "@/lib/supabase/server";
 import { ClassForm } from "./class-form";
@@ -71,7 +72,7 @@ function toSubjectCard(
 export default async function ClassesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ create?: string }>;
+  searchParams: Promise<{ create?: string; intake?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -111,8 +112,13 @@ export default async function ClassesPage({
     if (!gradeByCourse.has(grade.course_id)) gradeByCourse.set(grade.course_id, grade);
   }
   const cards = classRows.map((cls) => toSubjectCard(cls, assignmentRows, gradeByCourse));
-  const createOpen = (await searchParams).create === "1";
-  const createForm = <ClassForm />;
+  const { create, intake } = await searchParams;
+  const createOpen = create === "1";
+  const captureId = z.string().uuid().safeParse(intake);
+  const returnTo = createOpen
+    ? intake === "add" ? "/quick-add" : captureId.success ? `/assignments/captures/${captureId.data}` : undefined
+    : undefined;
+  const createForm = <ClassForm returnTo={returnTo} />;
   const navProfile = {
     displayName: profile?.display_name,
     photoUrl: profile?.photo_url,
@@ -124,6 +130,7 @@ export default async function ClassesPage({
     <EmptyClassLibrary
       createForm={createForm}
       createOpen={createOpen}
+      closeCreateHref={returnTo}
       profile={navProfile}
       unavailable={Boolean(classError || workError)}
     />
@@ -132,6 +139,7 @@ export default async function ClassesPage({
       cards={cards}
       createForm={createForm}
       createOpen={createOpen}
+      closeCreateHref={returnTo}
       profile={navProfile}
       unavailable={Boolean(classError || workError)}
     />

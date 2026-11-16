@@ -204,6 +204,10 @@ jobs:
             if ($LASTEXITCODE -ne 0) {
               throw "Optional dashboard check-in database contract did not pass."
             }
+            & psql -X "--dbname=$($databaseUrlMatch.Groups[1].Value)" -f "supabase/tests/work_capture_conversion.sql"
+            if ($LASTEXITCODE -ne 0) {
+              throw "Work capture conversion database contract did not pass."
+            }
           }
           finally {
             & npx --yes supabase@2.111.0 stop --workdir $workdir --no-backup

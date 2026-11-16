@@ -7,7 +7,7 @@ import styles from "./collection.module.css";
 
 export type CollectionItem = { id: string; title: string; meta: string; image?: string; content: ReactNode };
 
-export function SelectionCollection({ items, label, initial, empty, searchable = true }: { items: CollectionItem[]; label: string; initial?: string; empty: ReactNode; searchable?: boolean }) {
+export function SelectionCollection({ items, label, initial, empty, searchable = true, stacked = false }: { items: CollectionItem[]; label: string; initial?: string; empty: ReactNode; searchable?: boolean; stacked?: boolean }) {
   const id = useId();
   const [compact, setCompact] = useState(false);
   useEffect(() => { const media = window.matchMedia("(max-width: 760px)"); const update = () => setCompact(media.matches); update(); media.addEventListener("change", update); return () => media.removeEventListener("change", update); }, []);
@@ -16,11 +16,11 @@ export function SelectionCollection({ items, label, initial, empty, searchable =
   const refs = useRef(new Map<string, HTMLButtonElement>());
   const visible = items.filter(item => `${item.title} ${item.meta}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   const active = visible.find(item => item.id === selected) ?? visible[0];
-  useEffect(() => { if (!compact || !active) return; const button = refs.current.get(active.id); const rail = button?.parentElement; if (button && rail) rail.scrollLeft = button.offsetLeft - rail.offsetLeft; }, [active, compact]);
-  return <div className={styles.collection} data-empty={items.length === 0 || undefined}>
+  useEffect(() => { if (!compact || stacked || !active) return; const button = refs.current.get(active.id); const rail = button?.parentElement; if (button && rail) rail.scrollLeft = button.offsetLeft - rail.offsetLeft; }, [active, compact, stacked]);
+  return <div className={styles.collection} data-empty={items.length === 0 || undefined} data-stacked={stacked || undefined}>
     <aside className={styles.rail} aria-label={label} hidden={!items.length}>
       {searchable ? <label className={styles.search}><Search size={16} aria-hidden="true" /><input aria-label={`Search ${label.toLowerCase()}`} placeholder="Search" value={query} onChange={event => setQuery(event.target.value)} /></label> : null}
-      <div className={styles.items} role="tablist" aria-label={label} aria-orientation={compact ? "horizontal" : "vertical"}>
+      <div className={styles.items} role="tablist" aria-label={label} aria-orientation={compact && !stacked ? "horizontal" : "vertical"}>
         {visible.map((item,index) => <button type="button" role="tab" key={item.id} id={`${id}-${item.id}`} aria-controls={`${id}-panel`} aria-selected={item.id === active?.id} tabIndex={item.id === active?.id ? 0 : -1} ref={element => { if (element) refs.current.set(item.id,element); else refs.current.delete(item.id); }} onClick={() => setSelected(item.id)} onKeyDown={event => {
           const step = ["ArrowDown", "ArrowRight"].includes(event.key) ? 1 : ["ArrowUp", "ArrowLeft"].includes(event.key) ? -1 : 0;
           if (!step && event.key !== "Home" && event.key !== "End") return;

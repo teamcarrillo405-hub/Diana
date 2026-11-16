@@ -6,7 +6,7 @@ import { createClass } from "./actions";
 
 const COLORS = ["slate", "indigo", "emerald", "amber", "rose", "sky", "violet"] as const;
 
-export function ClassForm() {
+export function ClassForm({ returnTo }: { returnTo?: string }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [name, setName] = useState("");
@@ -21,6 +21,10 @@ export function ClassForm() {
     startTransition(async () => {
       const result = await createClass({ name: name.trim(), teacher: teacher.trim() || null, color });
       if (result?.error) return setError(result.error);
+      if (returnTo) {
+        router.replace(returnTo);
+        return;
+      }
       setName("");
       setTeacher("");
       router.refresh();

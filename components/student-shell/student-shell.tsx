@@ -3,10 +3,10 @@ import { StudentDesktopNav, type StudentNavigationProfile } from "@/components/s
 import type { StudentNavLabel } from "@/lib/navigation";
 import styles from "./student-shell.module.css";
 
-export function StudentShell({ active, profile, children, className = "", version = "12" }: { active: StudentNavLabel; profile?: StudentNavigationProfile; children: ReactNode; className?: string; version?: string }) {
-  return <div className={`${styles.root} ${className}`} data-student-shell data-version={version}>
+export function StudentShell({ active, profile, children, className = "", version = "12", campus = active === "Work", campusScene = false, showAdd = true }: { active: StudentNavLabel; profile?: StudentNavigationProfile; children: ReactNode; className?: string; version?: string; campus?: boolean; campusScene?: boolean; showAdd?: boolean }) {
+  return <div className={`${styles.root} ${className}`} data-student-shell data-version={version} data-campus-shell={campus || undefined} data-campus-scene={campus && campusScene || undefined}>
     <div className={styles.environment} aria-hidden="true" />
-    <StudentDesktopNav active={active} {...profile} />
+    <StudentDesktopNav active={active} showAdd={showAdd} {...profile} />
     {children}
   </div>;
 }

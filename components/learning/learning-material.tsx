@@ -11,6 +11,7 @@ import {LocalExerciseHelp} from "./local-exercise-help";
 import {domainSchema,type LearningDomain} from "@/lib/learning-engine/course-domains";
 import {PreparationStatus} from "./preparation-status";
 import {extractionQuality} from "@/lib/learning-engine/source-layout";
+import { isOriginalMaterialType, originalMaterialUrl } from "@/lib/learning-engine/material-navigation";
 
 const documentsSchema=z.object({documents:z.array(z.object({
   id:z.string(),metadata:documentVersionSchema,pages:z.array(sourcePageSchema),created_at:z.string(),
@@ -29,7 +30,7 @@ async function post(url:string,body:unknown):Promise<unknown>{
 }
 
 export function LearningMaterial({assignmentId,classId,title,sources,initialSubject,initialSourceId,initialVersionId,initialPage=1}:{
-  assignmentId:string;title:string;sources:Array<{id:string;title:string|null;source_type:string;import_status:string}>;
+  assignmentId:string;title:string;sources:Array<{id:string;title:string|null;source_type:string;import_status:string;mime_type?:string|null;extracted_text?:string|null}>;
   initialSubject:LearningDomain;
   initialSourceId?:string;
   classId?:string;initialVersionId?:string;initialPage?:number;
@@ -55,6 +56,7 @@ export function LearningMaterial({assignmentId,classId,title,sources,initialSubj
   const document=documents.find(item=>item.id===versionId);
   const quality=useMemo(()=>document?extractionQuality(document.pages):null,[document]);
   const sourceVersions=documents.filter(item=>item.metadata.documentId===sourceId);
+  const source = sources.find(item => item.id === sourceId);
   const page=document?.pages.find(item=>item.page===pageNumber)??document?.pages[0];
   const exercise=exercises.find(item=>item.id===exerciseId);
   const refresh=useCallback(async()=>{
@@ -147,6 +149,8 @@ export function LearningMaterial({assignmentId,classId,title,sources,initialSubj
       <PreparationStatus assignmentId={assignmentId} sources={sources} disabled={busy} onResume={async(id,category)=>{const next=domainSchema.parse(category);setSourceId(id);setSubject(next);await run(()=>index(id,next));}}/>
       <section className={styles.section} aria-label="Material">
         <h2>{title}</h2>
+        {isOriginalMaterialType(source?.mime_type) ? <a className={styles.originalLink} href={originalMaterialUrl(assignmentId,sourceId)} target="_blank" rel="noreferrer">Open original file</a> : null}
+        {!page && source?.extracted_text ? <div className={styles.passage}>{source.extracted_text}</div> : null}
         <div className={styles.toolbar}>
           <label className={styles.field}>Subject<select value={subject} onChange={event=>setSubject(domainSchema.parse(event.target.value))}>{domainSchema.options.map(value=><option key={value} value={value}>{value[0].toUpperCase()+value.slice(1)}</option>)}</select></label>
           <button className={styles.button} disabled={busy||!sourceId} onClick={()=>void run(index)}>Prepare material</button>

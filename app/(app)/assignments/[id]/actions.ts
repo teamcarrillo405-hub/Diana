@@ -12,6 +12,7 @@ import { recordStudentStateSnapshot } from "@/lib/student-state/server";
 import { loadAssignmentHomeworkKernel } from "@/lib/assignment-help/server-understanding";
 import { loadAssignmentSubmissionBundle } from "@/lib/assignment-submission-server";
 import { canonicalSubmissionPayloadForTarget } from "@/lib/assignment-submission";
+import { submissionWebLink } from "./submit/web-link";
 import { getValidCanvasToken } from "@/lib/lms/canvas";
 import {
   hydrateLmsConnectionForRuntime,
@@ -203,17 +204,19 @@ export async function toggleChecklistItem(input: z.infer<typeof Toggle>) {
   return { ok: true };
 }
 
-const Url = z.object({ id: z.string().uuid(), url: z.string().url().nullable() });
+const Url = z.object({ id: z.string().uuid(), url: z.string().nullable() });
 export async function setSubmissionUrl(input: z.infer<typeof Url>) {
   const parsed = Url.safeParse(input);
   if (!parsed.success) return { error: "Invalid input." };
+  const link = submissionWebLink(parsed.data.url);
+  if (parsed.data.url !== null && !link) return { error: "Enter a web link beginning with https:// or http://." };
 
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { error: "Not signed in." };
   const { error } = await supabase
     .from("assignments")
-    .update({ submission_url: parsed.data.url })
+    .update({ submission_url: link })
     .eq("id", parsed.data.id)
     .eq("owner_id", user.id);
   if (error) return { error: error.message };

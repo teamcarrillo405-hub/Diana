@@ -5,3 +5,11 @@
 .panel { padding-top:24px; }
 .panel[hidden] { display:none; }
 @media(max-width:640px) { .tabs { gap:0 20px; } .tabs.tabs button { min-height:48px; font-size:21px; } }
+
+:global([data-campus-shell]) .tabs.tabs { gap:4px; margin-top:12px; }
+:global([data-campus-shell]) .tabs.tabs button { min-height:44px; padding:8px 12px; isolation:isolate; font:800 .88rem/1.25 'Diana Campus Slab',Georgia,serif; color:var(--campus-muted); }
+:global([data-campus-shell]) .tabs.tabs button[aria-selected="true"] { color:var(--campus-action-text); }
+:global([data-campus-shell]) .tabs button[aria-selected="true"]::after { inset:0; z-index:-1; height:auto; background:var(--campus-action); border-bottom:3px solid var(--campus-border); clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); }
+@media(forced-colors:active) {
+  :global([data-campus-shell]) .tabs.tabs button[aria-selected="true"] { border-bottom:2px solid Highlight; }
+}

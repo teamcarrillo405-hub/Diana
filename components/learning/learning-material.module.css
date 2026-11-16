@@ -37,3 +37,16 @@
 .skillList{display:grid;gap:20px;padding-block:16px}.skillList p{line-height:1.6}.feedback ol{padding-left:24px;list-style:decimal}.feedback li{margin-block:8px}.feedback h3{font-weight:700;font-size:18px}
 .recognitionCapture{display:grid;gap:10px;max-width:36rem;padding:14px 0}.recognitionCapture button{justify-self:start}.recognitionCapture p{margin:0}
 @media(max-width:700px){.bookControls{grid-template-columns:minmax(0,1fr) 80px}.bookControls .toolbar{grid-column:1/-1}.bookSearch{flex-wrap:wrap}.bookSearch label{flex-basis:100%}}
+
+:global([data-campus-shell]) .sources { gap:0; }
+:global([data-campus-shell]) .source { padding:12px; min-height:44px; border-inline-start:3px solid transparent; border-top:1px solid var(--campus-rule); color:var(--campus-ink); font-size:.9rem; overflow-wrap:anywhere; }
+:global([data-campus-shell]) .source[aria-pressed=true] { border-inline-start-color:var(--campus-focus); background:var(--campus-action); color:var(--campus-action-text); clip-path:none; }
+:global([data-campus-shell]) .source:focus-visible { outline-offset:-3px; }
+:global([data-campus-shell]) .button { background:var(--campus-action); color:var(--campus-action-text); border:1px solid var(--campus-border); border-radius:0; }
+:global([data-campus-shell]) .secondary { background:var(--campus-panel); color:var(--campus-ink); border-color:var(--campus-rule); }
+:global([data-campus-shell]) .passage { background:#fbf6e9; color:#25261f !important; border:0; border-radius:0; padding:clamp(14px,3vw,28px); }
+:global([data-campus-shell]) .originalLink { display:inline-flex; align-items:center; min-height:44px; width:fit-content; padding:8px 12px; background:var(--campus-raised); border:1px solid var(--campus-rule); }
+@media(max-width:700px) {
+  :global([data-campus-shell]) .sources { display:grid; max-height:145px; overflow:auto; }
+  :global([data-campus-shell]) .source { min-width:0; }
+}

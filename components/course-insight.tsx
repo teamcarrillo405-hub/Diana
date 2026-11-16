@@ -15,9 +15,10 @@ export type CourseInsightAssignment = { id: string; title: string; kind: string 
 export type CourseInsightNote = { id: string; title: string | null; updatedAt: string };
 export type CourseInsightMaterial = {id:string;title:string;assignmentTitle:string;href:string};
 
-export function CourseInsight({ classId, className, teacher, assignments, notes, grade, sourceOpen, rubricForm, syllabusForm, profile, timeZone = "UTC", workUnavailable = false, notesUnavailable = false, materials=[],materialsUnavailable=false,practiceEnabled=false }: {
+export function CourseInsight({ classId, className, teacher, assignments, notes, grade, sourceOpen, workOrigin, rubricForm, syllabusForm, profile, timeZone = "UTC", workUnavailable = false, notesUnavailable = false, materials=[],materialsUnavailable=false,practiceEnabled=false }: {
   classId: string; className: string; teacher: string | null; assignments: readonly CourseInsightAssignment[]; notes: readonly CourseInsightNote[]; rubricTitle: string | null; grade: { label: string; percent: number | null } | null; sourceOpen: boolean; rubricForm: ReactNode; syllabusForm: ReactNode; profile?: StudentNavigationProfile; timeZone?: string; workUnavailable?: boolean; notesUnavailable?: boolean;
   materials?:readonly CourseInsightMaterial[];materialsUnavailable?:boolean;practiceEnabled?:boolean;
+  workOrigin?: CourseInsightAssignment;
 }) {
   const active = assignments.filter(assignment => assignment.status !== "submitted" && assignment.status !== "graded");
   const references=classReferenceResources(className);
@@ -34,10 +35,10 @@ export function CourseInsight({ classId, className, teacher, assignments, notes,
     if (notesUnavailable) return <p className={shell.muted} role="status">Notes could not load. <a href={`/classes/${classId}`}>Try again</a></p>;
     return rows.length ? <ul className={styles.resourceRows}>{rows.map(note => <li key={note.id}><Link href={`/notes/${note.id}`}><span className={styles.resourceIcon}><NotebookPen size={18} aria-hidden="true" /></span><span><strong>{note.title || "Untitled note"}</strong><small>Updated {date(note.updatedAt)}</small></span><ArrowRight size={16} aria-hidden="true" /></Link></li>)}</ul> : <p className={shell.muted}>No notes yet.</p>;
   }
-  return <StudentShell active="Classes" profile={profile} className={styles.root}>
+  return <StudentShell active="Classes" campus={sourceOpen} profile={profile} className={styles.root}>
     <main id="main-content" className={`${styles.main} ${styles.detailMain}`} tabIndex={-1}>
-      <header className={styles.pageHeading}><Link className={styles.textAction} href="/classes"><ArrowLeft size={18} aria-hidden="true" />Classes</Link><Link className={shell.secondary} href={`/classes/${classId}/settings`}><Settings size={16} aria-hidden="true" />Class settings</Link></header>
-      <ClassIdentity name={className} teacher={teacher} grade={grade} openCount={active.length} submittedCount={assignments.length - active.length} heading="h1" />
+      <header className={styles.pageHeading}><Link className={styles.textAction} href={workOrigin ? assignmentDestination(workOrigin.id, workOrigin.status) : "/classes"}><ArrowLeft size={18} aria-hidden="true" />{workOrigin ? "Back to assignment" : "Classes"}</Link><Link className={shell.secondary} href={`/classes/${classId}/settings`}><Settings size={16} aria-hidden="true" />Class settings</Link></header>
+      {sourceOpen ? <div className={styles.materialHeading}><p>{className}</p><h1>Class materials</h1></div> : <ClassIdentity name={className} teacher={teacher} grade={grade} openCount={active.length} submittedCount={assignments.length - active.length} heading="h1" />}
       <SectionTabs id="course" label="Class sections" initial={sourceOpen ? "materials" : "overview"} sections={[
         { id: "overview", label: "Overview", content: <div className={styles.overview}><section><div className={styles.sectionHeading}><h3>Current work</h3><Link className={styles.textAction} href={`/quick-add?class=${classId}`}><Plus size={16} aria-hidden="true" />Add work</Link></div>{workRows(active.slice(0, 4))}</section><section><div className={styles.sectionHeading}><h3>Recent notes</h3></div>{noteRows(notes.slice(0, 3))}</section></div> },
         { id: "assignments", label: "Assignments", content: <><div className={styles.sectionHeading}><h3>All work</h3><Link className={shell.secondary} href={`/quick-add?class=${classId}`}><Plus size={16} aria-hidden="true" />Add work</Link></div>{workRows(assignments)}</> },

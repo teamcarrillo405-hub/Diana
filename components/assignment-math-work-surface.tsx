@@ -379,7 +379,7 @@ export function MathWorkSurface({ assignmentId, problemId, work, workInk, onWork
         </details>
         <div className="sd-assignment-work-actions">
           {saveLabel ? <span className="sd-assignment-inline-save" data-state={saveState} role="status" title={saveError || saveLabel}>{saveState === "synced" ? <CheckCircle2 size={15} aria-hidden="true" /> : null}{saveLabel}</span> : null}
-          <button type="button" className="sd-assignment-review-action" data-primary={!reviewed && !done || undefined} onClick={onReview} disabled={!work.trim() && !workInk} aria-describedby={!work.trim() && !workInk ? "assignment-review-help" : undefined}>Review</button>
+          <button type="button" className="sd-assignment-review-action" data-primary={!reviewed && !done || undefined} onClick={onReview} disabled={!work.trim() && !workInk} aria-describedby={!work.trim() && !workInk ? "assignment-review-help" : undefined}>Review with Diana</button>
           {done ? (
             <span className="sd-assignment-done-state"><Check size={16} aria-hidden="true" /> Done</span>
           ) : null}
@@ -391,7 +391,7 @@ export function MathWorkSurface({ assignmentId, problemId, work, workInk, onWork
           </details>
         </div>
       </header>
-      {!work.trim() && !workInk ? <p id="assignment-review-help" className="sd-assignment-review-help">Add one step in your work to enable Review.</p> : null}
+      {!work.trim() && !workInk ? <p id="assignment-review-help" className="sd-assignment-review-help">Add a step before asking Diana to review.</p> : null}
       {saveState === "retryable_error" ? (
         <div className="sd-assignment-workspace-feedback" data-target="save" role="alert">
           <span>{saveError || "This work is still on this device and needs another sync attempt."}</span>

@@ -1,9 +1,9 @@
 import {NextResponse} from "next/server";
 import {z} from "zod";
 import {createClient} from "@/lib/supabase/server";
+import { isOriginalMaterialType } from "@/lib/learning-engine/material-navigation";
 
 const querySchema=z.object({assignmentId:z.string().uuid(),sourceId:z.string().uuid()});
-const allowedTypes=new Set(["application/pdf","image/png","image/jpeg","image/webp"]);
 
 /** Read-only original file access. AI rollout flags never hide a student's own files. */
 export async function GET(request:Request){
@@ -22,7 +22,7 @@ export async function GET(request:Request){
   const source=await client.from("assignment_sources").select("storage_key,mime_type").eq("id",sourceId).eq("assignment_id",assignmentId).eq("owner_id",user.id).maybeSingle();
   const key=source.data?.storage_key;
   const mime=source.data?.mime_type;
-  if(!key?.startsWith(user.id+"/")||!mime||!allowedTypes.has(mime))return NextResponse.json({error:"Original file is unavailable."},{status:404});
+  if(!key?.startsWith(user.id+"/")||!isOriginalMaterialType(mime))return NextResponse.json({error:"Original file is unavailable."},{status:404});
   const file=await client.storage.from("note-docs").download(key);
   if(file.error||!file.data||file.data.size>30_000_000)return NextResponse.json({error:"Original file is unavailable."},{status:503});
   return new Response(await file.data.arrayBuffer(),{headers:{"Content-Type":mime,"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"}});
