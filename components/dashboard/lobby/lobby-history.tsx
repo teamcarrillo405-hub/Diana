@@ -1,21 +1,23 @@
 import Link from "next/link";
 import { ArrowUpRight, BookOpenCheck, Send } from "lucide-react";
 import type { TodayData } from "@/lib/dashboard/today-view";
-import styles from "./campus-lobby.module.css";
+import styles from "./lobby-history-campus.module.css";
 
 /** Account-backed activity only. Completion and submission are distinct facts. */
-export function LobbyHistory({ data }: { data: TodayData }) {
+export function LobbyHistory({ data, sample = false }: { data: TodayData; sample?: boolean }) {
   return <div className={styles.history}>
-    <header className={styles.historyHeading}>
-      <p>YOUR WORK · {data.weekLabel}</p>
+    <header className={styles.heading}>
+      <p className={styles.eyebrow}><span>YOUR WORK</span><span className={styles.week}>{data.weekLabel}</span></p>
       <h2>My Work</h2>
-      <p>Your assignment record for this week.</p>
+      <p className={styles.description}>Your assignment record for this week.</p>
     </header>
-    <dl className={styles.historyGrid}>
-      <div><dt><BookOpenCheck size={19} aria-hidden="true" /> Due this week marked done</dt><dd>{data.weeklyUnavailable ? "Unavailable" : data.finished}<p>Includes submitted and graded assignments</p></dd></div>
-      <div><dt><Send size={19} aria-hidden="true" /> Submitted this week</dt><dd>{data.submissionsUnavailable ? "Unavailable" : data.submitted}<p>Based on submission date, regardless of due date</p></dd></div>
+    <dl className={styles.records} aria-label="This week's assignment record">
+      <div className={styles.record}><dt><BookOpenCheck size={21} aria-hidden="true" /> <span>Due this week marked done</span></dt><dd><strong>{data.weeklyUnavailable ? "Unavailable" : data.finished}</strong><p>Includes submitted and graded assignments</p></dd></div>
+      <div className={styles.record}><dt><Send size={21} aria-hidden="true" /> <span>Submitted this week</span></dt><dd><strong>{data.submissionsUnavailable ? "Unavailable" : data.submitted}</strong><p>Based on submission date, regardless of due date</p></dd></div>
     </dl>
-    <p className={styles.historyNote}>Marking work done and submitting it are separate steps.</p>
-    <Link className={styles.historyLink} href="/proof">View completed work <ArrowUpRight size={17} aria-hidden="true" /></Link>
+    <p className={styles.note}>Marking work done and submitting it are separate steps.</p>
+    {sample
+      ? <span className={styles.link} aria-disabled="true"><span>View completed work</span><ArrowUpRight size={21} aria-hidden="true" /></span>
+      : <Link className={styles.link} href="/proof"><span>View completed work</span><ArrowUpRight size={21} aria-hidden="true" /></Link>}
   </div>;
 }

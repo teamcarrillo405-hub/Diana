@@ -1,16 +1,26 @@
 // @vitest-environment jsdom
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import LobbyPreviewPage from "./page";
 
 vi.mock("@/components/dashboard/lobby/diana-idle-character", () => ({ DianaIdleCharacter: () => null }));
+afterEach(() => vi.unstubAllGlobals());
 
 describe("public Lobby preview", () => {
-  it("uses sample data and exposes no live links or enabled controls", () => {
+  it("switches sample sections without exposing live account actions", () => {
+    vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
     const { container } = render(<LobbyPreviewPage />);
     expect(screen.getByText(/Lobby design preview · Sample data · Read-only/)).toBeTruthy();
     expect(screen.getByText(/Linear equations practice set/i)).toBeTruthy();
     expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
-    expect([...container.querySelectorAll("button")].every(button => button.disabled)).toBe(true);
+    fireEvent.click(screen.getByRole("tab", { name: "Progress" }));
+    expect(screen.getByRole("heading", { name: "Progress" })).toBeVisible();
+    expect(within(screen.getByRole("tabpanel", { name: "Progress" })).getByText("Due this week marked done")).toBeVisible();
+    fireEvent.click(screen.getByRole("tab", { name: "My Work" }));
+    expect(screen.getByRole("heading", { name: "My Work" })).toBeVisible();
+    expect(screen.getByText("Submitted this week")).toBeVisible();
+    expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
+    fireEvent.click(screen.getByRole("tab", { name: "Now" }));
+    expect(screen.getByRole("button", { name: "Check-in" })).toBeDisabled();
   });
 });

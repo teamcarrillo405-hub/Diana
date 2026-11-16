@@ -90,3 +90,107 @@
   .classSymbol { color: CanvasText; }
 }
 .screen .recordLink { display:inline-flex; align-items:center; min-height:44px; margin-top:20px; color:var(--ink); font-size:13px; }
+
+/* The progress briefing uses the same campus palette and athletic type as
+   the Lobby's Now panel. Values remain records, never points or rewards. */
+.screen.screen.screen.screen.screen.screen.screen {
+  --ink: #fff9ed;
+  --muted: #d5dfd7;
+  --stat-rule: #c8d4c45c;
+  --stat-track: #ffffff20;
+  --mint: #e4ce9c;
+  --runway-grid: #d7e4d226;
+  --runway-planned: #c4d7ce;
+  --runway-study: #e4ce9c;
+  --runway-focus: #fff9ed;
+  background: #101a18f5;
+  border: 1px solid #cbb485;
+}
+.screen.screen.screen.screen .heading { margin: 0 0 22px; }
+.screen.screen.screen.screen .heading .eyebrow {
+  display: flex; align-items: center; gap: 10px; margin: 0 0 12px;
+  color: var(--ink); font: italic 800 23px/1 var(--font-saira-condensed), sans-serif;
+  text-transform: uppercase;
+}
+.screen.screen.screen.screen .heading .eyebrow::before {
+  content: ""; flex: none; width: 32px; height: 21px;
+  background: linear-gradient(105deg, transparent 0 8%, var(--school-primary, #784080) 8% 23%, transparent 23% 37%, var(--school-primary, #784080) 37% 52%, transparent 52% 66%, var(--school-primary, #784080) 66% 81%, transparent 81%);
+}
+.screen.screen.screen.screen .heading .eyebrow::after { content: ""; flex: 1; height: 1px; background: #d7be87; }
+.titleLine { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 20px; }
+.screen.screen.screen.screen .heading h2 { margin: 0; color: var(--ink); font: italic 800 clamp(40px, 4vw, 56px)/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
+.screen.screen.screen.screen .titleLine > span { color: var(--muted); font: 600 12px/1.4 var(--font-lexend), sans-serif; }
+.screen.screen.screen.screen .heading .intro { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; text-transform: none; }
+.screen .results { gap: 12px; padding: 0; border: 0; }
+.screen .results > div {
+  position: relative; min-height: 158px; padding: 16px 18px 18px;
+  border: 1px solid #c9d8cc52; border-top: 3px solid var(--school-secondary, #d7be87);
+  background: #20342ee8;
+}
+.screen.screen.screen.screen .results dt { min-height: 31px; margin-bottom: 6px; color: #e8eee6; font-size: 12px; font-weight: 600; line-height: 1.35; text-transform: none; }
+.screen .metric { min-height: 0; margin-bottom: 12px; gap: 8px; }
+.screen.screen.screen.screen .results dd strong { font: 800 clamp(44px, 4vw, 62px)/1 var(--font-saira-condensed), sans-serif; }
+.screen.screen.screen.screen .metric > span { font: 600 30px/1 var(--font-saira-condensed), sans-serif; }
+.screen .completion { height: 7px; }
+.screen.screen.screen.screen .timeGoal, .screen.screen.screen.screen .resultNote { margin: 0; font-size: 12px; line-height: 1.45; }
+.screen .statistics { gap: 12px; padding-top: 12px; }
+.screen .activity, .screen .classes { padding: 18px; border: 1px solid #c9d8cc52; background: #172820f5; }
+.screen.screen.screen.screen [data-runway-heading] > span:first-child,
+.screen.screen.screen.screen .sectionHeading h3 { font: italic 800 24px/1.1 var(--font-saira-condensed), sans-serif; }
+.screen.screen.screen.screen [data-runway-heading] > span:last-child,
+.screen.screen.screen.screen .sectionHeading > span { color: var(--muted); font-size: 10px; line-height: 1.5; }
+.screen.screen.screen.screen [data-runway-plot] { height: 185px; margin-top: 14px; }
+.screen .classList { margin-top: 8px; }
+.screen .classList li { min-height: 62px; padding: 10px 0; }
+.screen.screen.screen.screen .className, .screen.screen.screen.screen .classTime { font-size: 20px; }
+.screen .recordLink { min-height: 44px; margin-top: 16px; color: var(--ink); font: 700 18px/1.2 var(--font-saira-condensed), sans-serif; text-transform: uppercase; text-underline-offset: 4px; }
+.screen a.recordLink:focus-visible { outline: 3px solid #fff9ed; outline-offset: 4px; }
+@media (max-width: 1100px) {
+  .screen .statistics { gap: 12px; }
+  .screen .classes { padding-top: 18px; }
+}
+@media (max-width: 760px) {
+  /* The shared mobile panel supplies a light card and padding. Progress owns
+     its dark briefing surface, so remove only its immediate wrapper. */
+  section:has(> .screen.screen.screen.screen.screen.screen.screen.screen) {
+    padding: 0; border: 0; border-radius: 0; background: transparent;
+    box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  .screen.screen.screen.screen.screen.screen.screen { box-sizing: border-box; width: 100%; min-width: 0; padding: 18px; }
+  .screen.screen.screen.screen .heading h2 { font-size: 38px; }
+  .screen.screen.screen.screen .heading .eyebrow { font-size: 21px; }
+  .screen .titleLine { flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+  .screen.screen.screen.screen .titleLine > span { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+  .screen .results { gap: 8px; }
+  .screen .results > div { min-height: 140px; padding: 12px; }
+  .screen.screen.screen.screen .results dt { min-height: 33px; font-size: 11px; }
+  .screen.screen.screen.screen .results dd strong { font-size: 43px; }
+  .screen.screen.screen.screen .metric > span { font-size: 25px; }
+  .screen .activity, .screen .classes { padding: 14px; }
+  .screen.screen.screen.screen [data-runway-plot] { height: 160px; }
+}
+@media (max-width: 370px) {
+  .screen.screen.screen.screen .results dd strong { font-size: 37px; }
+  .screen.screen.screen.screen .timeGoal, .screen.screen.screen.screen .resultNote { font-size: 11px; }
+}
+@media (max-width: 360px) {
+  /* Give longer hour-and-minute values a full row and retain room for all
+     seven interactive day labels on narrow phones. */
+  .screen .results { grid-template-columns: minmax(0, 1fr); }
+  .screen .results > div { min-height: 0; }
+  .screen.screen.screen.screen .results dt { min-height: 0; }
+  .screen .activity, .screen .classes { padding: 12px; }
+  .screen.screen.screen.screen [data-runway-label] { font-size: 10px; letter-spacing: 0; }
+}
+:global(.dyslexia-font) .screen.screen.screen.screen .heading h2,
+:global(.dyslexia-font) .screen.screen.screen.screen .heading .eyebrow,
+:global(.dyslexia-font) .screen.screen.screen.screen [data-runway-heading] > span:first-child,
+:global(.dyslexia-font) .screen.screen.screen.screen .sectionHeading h3 {
+  font-style: normal; line-height: 1.3; text-transform: none;
+}
+@media (forced-colors: active) {
+  .screen.screen.screen.screen.screen.screen.screen { --ink: CanvasText; --muted: CanvasText; --stat-rule: CanvasText; --stat-track: Canvas; --mint: Highlight; --runway-planned: CanvasText; --runway-study: Highlight; --runway-focus: Highlight; background: Canvas; border-color: CanvasText; }
+  .screen .results > div, .screen .activity, .screen .classes { background: Canvas; border-color: CanvasText; }
+  .screen.screen.screen.screen .results dt { color: CanvasText; }
+  .screen a.recordLink:focus-visible { outline-color: Highlight; }
+}
