@@ -6,7 +6,7 @@ import { addDays, format, isValid, parseISO, startOfWeek } from "date-fns";
 import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, Inbox, Plus, Search } from "lucide-react";
 import { StudentShell } from "@/components/student-shell/student-shell";
 import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
-import { assignmentActionLabel, assignmentCollectionState, assignmentDestination, assignmentStatusLabel, type AssignmentCollectionState } from "@/lib/assignment-navigation";
+import { assignmentActionLabel, assignmentCollectionState, assignmentDestination, assignmentStatusLabel, subjectArtwork, type AssignmentCollectionState } from "@/lib/assignment-navigation";
 import { todayDateKey } from "@/lib/dashboard/today-view";
 import { formatCampusName } from "@/lib/school-branding";
 import type { AssignmentKind, AssignmentStatus } from "@/lib/supabase/types";
@@ -81,8 +81,10 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
   const [board, setBoard] = useState<BoardState>(() => ({
     category: initialCategory, query: "", subject: "all", selectedId: "", selectedDay: null, weekDay: today,
   }));
+  const [datesOpen, setDatesOpen] = useState(false);
   const { category, query, selectedId, selectedDay, weekDay } = board;
   const picks = useRef(new Map<string, HTMLButtonElement>());
+  const dateToggle = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const defaults: BoardState = { category: initialCategory, query: "", subject: "all", selectedId: "", selectedDay: null, weekDay: today };
@@ -91,14 +93,21 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
 
   const subjects = [...new Set(assignments.map(item => item.className))].sort();
   const subject = subjects.includes(board.subject) ? board.subject : "all";
-  const keyFor = (item: WorkCommandItem) => item.dueAt ? todayDateKey(item.dueAt, timeZone) : "undated";
   const filtered = assignments.filter(item =>
     assignmentCollectionState(item.status) === category
     && (subject === "all" || subject === item.className)
     && `${item.title} ${item.className}`.toLowerCase().includes(query.trim().toLowerCase()),
   );
-  const items = filtered.filter(item => selectedDay === null || keyFor(item) === selectedDay);
+  const itemsByDay = new Map<string, WorkCommandItem[]>();
+  for (const item of filtered) {
+    const day = item.dueAt ? todayDateKey(item.dueAt, timeZone) : "undated";
+    const dayItems = itemsByDay.get(day);
+    if (dayItems) dayItems.push(item);
+    else itemsByDay.set(day, [item]);
+  }
+  const items = selectedDay === null ? filtered : (itemsByDay.get(selectedDay) ?? []);
   const selected = items.find(item => item.id === selectedId) ?? items[0];
+  const artSubject = selected && /\bprimary sources?\b/iu.test(selected.title) ? "History" : selected?.className;
   const days = Array.from({ length: 7 }, (_, index) => addDays(startOfWeek(parseISO(weekDay), { weekStartsOn: 1 }), index));
   const selectedCategory = categories.find(entry => entry.id === category) ?? categories[0];
   const hasFilters = Boolean(query.trim()) || subject !== "all" || selectedDay !== null;
@@ -132,6 +141,14 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
     update({ weekDay: format(addDays(parseISO(weekDay), amount), "yyyy-MM-dd"), selectedDay: null });
   }
 
+  function pickDate(day: string | null) {
+    update(day === today ? { weekDay: today, selectedDay: day } : { selectedDay: day });
+    if (dateToggle.current?.getClientRects().length) {
+      setDatesOpen(false);
+      dateToggle.current.focus();
+    }
+  }
+
   return (
     <StudentShell active="Work" profile={profile} campusScene showAdd={false}>
       <main id="main-content" className={`${shell.main} ${styles.main}`} tabIndex={-1}>
@@ -143,42 +160,58 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
           </div>
         </header>
 
-        <div className={styles.categories} role="group" aria-label="Assignment status">
-          {categories.map(entry => {
-            const count = assignments.filter(item => assignmentCollectionState(item.status) === entry.id).length;
-            return <button key={entry.id} aria-label={`${entry.label} ${count}`} aria-pressed={category === entry.id} onClick={() => update({ category: entry.id })}>{entry.label}<span aria-hidden="true">{count}</span></button>;
-          })}
+        <div className={styles.toolbar}>
+          <div className={styles.categories} role="group" aria-label="Assignment status">
+            {categories.map(entry => {
+              const count = assignments.filter(item => assignmentCollectionState(item.status) === entry.id).length;
+              return <button key={entry.id} aria-label={`${entry.label} ${count}`} aria-pressed={category === entry.id} onClick={() => update({ category: entry.id })}>{entry.label}<span aria-hidden="true">{count}</span></button>;
+            })}
+          </div>
+          <div className={styles.filters}>
+            <label className={styles.search}><Search size={17} aria-hidden="true" /><input aria-label="Find assignment" placeholder="Search" value={query} maxLength={120} onChange={event => update({ query: event.target.value, selectedDay: null })} /></label>
+            <select aria-label="Subject" value={subject} onChange={event => update({ subject: event.target.value, selectedDay: null })}>
+              <option value="all">All subjects</option>
+              {subjects.map(name => <option key={name}>{name}</option>)}
+            </select>
+            <button ref={dateToggle} className={styles.dateToggle} type="button" aria-expanded={datesOpen} aria-controls="work-dates" onClick={() => setDatesOpen(open => !open)}>
+              <CalendarDays size={17} aria-hidden="true" />{dateLabel}
+            </button>
+          </div>
         </div>
 
-        <div className={styles.filters}>
-          <label className={styles.search}><Search size={17} aria-hidden="true" /><input aria-label="Find assignment" placeholder="Search" value={query} maxLength={120} onChange={event => update({ query: event.target.value, selectedDay: null })} /></label>
-          <select aria-label="Subject" value={subject} onChange={event => update({ subject: event.target.value, selectedDay: null })}>
-            <option value="all">All subjects</option>
-            {subjects.map(name => <option key={name}>{name}</option>)}
-          </select>
-          <details className={styles.dates}>
-            <summary><CalendarDays size={17} aria-hidden="true" />{dateLabel}</summary>
-            <div className={styles.datePanel}>
-              <div className={styles.dateHeading}>
-                <button aria-label="Previous week" onClick={() => changeWeek(-7)}><ChevronLeft size={20} aria-hidden="true" /></button>
-                <span>{format(days[0], "MMM d")} to {format(days[6], "MMM d, yyyy")}</span>
-                <button aria-label="Next week" onClick={() => changeWeek(7)}><ChevronRight size={20} aria-hidden="true" /></button>
-              </div>
-              <div className={styles.days} role="group" aria-label="Filter by due date">
-                {days.map(day => {
-                  const key = format(day, "yyyy-MM-dd");
-                  const count = filtered.filter(item => keyFor(item) === key).length;
-                  return <button key={key} aria-label={`${format(day, "EEEE, MMMM d")}, ${count} ${count === 1 ? "assignment" : "assignments"}`} aria-pressed={selectedDay === key} aria-current={key === today ? "date" : undefined} onClick={() => update({ selectedDay: selectedDay === key ? null : key })}><span>{format(day, "EEE")}</span><strong>{format(day, "d")}</strong></button>;
-                })}
-              </div>
-              <div className={styles.dateOptions}>
-                <button aria-pressed={selectedDay === null} onClick={() => update({ selectedDay: null })}>All dates</button>
-                <button aria-pressed={selectedDay === "undated"} onClick={() => update({ selectedDay: "undated" })}>No due date</button>
-                <button aria-pressed={selectedDay === today} onClick={() => update({ weekDay: today, selectedDay: today })}>Today</button>
-              </div>
+        <section id="work-dates" className={styles.datePanel} data-open={datesOpen} aria-label="Assignment dates" onKeyDown={event => {
+          if (event.key === "Escape" && datesOpen && dateToggle.current?.getClientRects().length) {
+            setDatesOpen(false);
+            dateToggle.current.focus();
+          }
+        }}>
+          <div className={styles.dateHeading}>
+            <span>{format(days[0], "MMM d")} to {format(days[6], "MMM d, yyyy")}</span>
+            <div className={styles.weekNavigation}>
+              <button aria-label="Previous week" onClick={() => changeWeek(-7)}><ChevronLeft size={19} aria-hidden="true" /></button>
+              <button aria-pressed={selectedDay === today} onClick={() => pickDate(today)}>Today</button>
+              <button aria-label="Next week" onClick={() => changeWeek(7)}><ChevronRight size={19} aria-hidden="true" /></button>
             </div>
-          </details>
-        </div>
+            <div className={styles.dateOptions}>
+              <button aria-pressed={selectedDay === null} onClick={() => pickDate(null)}>All dates</button>
+              <button aria-pressed={selectedDay === "undated"} onClick={() => pickDate("undated")}>No due date</button>
+            </div>
+          </div>
+          <div className={styles.days} role="group" aria-label="Filter by due date">
+            {days.map(day => {
+              const key = format(day, "yyyy-MM-dd");
+              const count = itemsByDay.get(key)?.length ?? 0;
+              const countLabel = `${count} ${count === 1 ? "assignment" : "assignments"}`;
+              return (
+                <button key={key} aria-label={`${format(day, "EEEE, MMMM d")}, ${countLabel}`} aria-pressed={selectedDay === key} aria-current={key === today ? "date" : undefined} onClick={() => pickDate(selectedDay === key ? null : key)}>
+                  <span>{format(day, "EEE")}</span>
+                  <strong>{format(day, "d")}</strong>
+                  <span>{count}<span className={styles.dayNoun}> {count === 1 ? "assignment" : "assignments"}</span></span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
         {unavailable ? <section className={styles.empty} role="status"><h2>Your work could not load</h2><Link className={shell.secondary} href="/assignments">Try again</Link></section> : selected ? (
           <div className={styles.board}>
@@ -198,15 +231,22 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
               </div>
             </section>
             <section id="selected-assignment" role="tabpanel" aria-labelledby={`assignment-${selected.id}`} className={styles.selected}>
-              <span className={styles.course}>{selected.className}</span>
-              <h2>{selected.title}</h2>
-              <dl className={styles.facts}>
-                <div><dt>Due</dt><dd>{selected.dueAt ? dueFormatter.format(new Date(selected.dueAt)) : "No due date"}</dd></div>
-                {selected.minutes !== null && <div><dt>Estimated work</dt><dd>{selected.minutes} min</dd></div>}
-                <div><dt>Status</dt><dd>{assignmentStatusLabel(selected.status)}</dd></div>
-              </dl>
-              <Link className={`${shell.primary} ${styles.open}`} href={assignmentDestination(selected.id, selected.status)} onClick={saveReturn} aria-label={`${assignmentActionLabel(selected.status)} ${selected.title}`}>{assignmentActionLabel(selected.status)}<ArrowRight size={20} aria-hidden="true" /></Link>
-              {selected.description && <details className={styles.instructions}><summary>Assignment instructions</summary><p>{selected.description}</p></details>}
+              <div className={styles.art} style={{ "--assignment-art": `url("${subjectArtwork(artSubject ?? selected.className)}")` } as CSSProperties}>
+                <div>
+                  <span className={styles.course}>{selected.className}</span>
+                  <h2>{selected.title}</h2>
+                </div>
+              </div>
+              <div className={styles.assignmentDetails}>
+                <h3>Assignment details</h3>
+                <dl className={styles.facts}>
+                  <div><dt>Due</dt><dd>{selected.dueAt ? dueFormatter.format(new Date(selected.dueAt)) : "No due date"}</dd></div>
+                  {selected.minutes !== null && <div><dt>Estimated work</dt><dd>{selected.minutes} min</dd></div>}
+                  <div><dt>Status</dt><dd>{assignmentStatusLabel(selected.status)}</dd></div>
+                </dl>
+                <Link className={`${shell.primary} ${styles.open}`} href={assignmentDestination(selected.id, selected.status)} onClick={saveReturn} aria-label={`${assignmentActionLabel(selected.status)} ${selected.title}`}>{assignmentActionLabel(selected.status)}<ArrowRight size={20} aria-hidden="true" /></Link>
+              </div>
+              {selected.description && <details key={selected.id} className={styles.instructions}><summary>Assignment instructions</summary><p>{selected.description}</p></details>}
             </section>
           </div>
         ) : (

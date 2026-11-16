@@ -13,17 +13,14 @@
   /* The Lobby keeps the shared navigation behavior, but gives its menu a campus treatment. */
   .campus.campus.campus.campus.campus.campus [data-student-navigation] { background: linear-gradient(100deg, #112c23, #101c1d 72%); border-bottom: 2px solid var(--school-secondary, #c9ad79); box-shadow: 0 8px 24px #07100d3d; }
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav { gap: clamp(6px, 1vw, 18px); }
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a { align-self: center; min-height: 46px; padding: 6px 12px; border: 1px solid transparent; color: #d9e3dc; }
+  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a { align-self: center; min-height: 46px; padding: 6px 12px; border: 1px solid transparent; }
+  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a:not([aria-current]) { color: #d9e3dc; }
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a:hover:not([aria-current]) { background: #ffffff12; color: #fff; }
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current] { background: var(--school-primary, #6d2c78); color: var(--school-primary-text, #fff); border-color: var(--school-primary-text, #eedbb8); border-bottom: 4px solid var(--school-secondary, #d5b889); }
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a::after { display: none; }
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-workspace] { grid-template-columns: 220px minmax(0, 1fr); column-gap: clamp(16px, 2vw, 30px); }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] { width: 220px; min-width: 0; padding: 20px 12px; align-self: start; border: 1px solid #e1d1ac80; border-top: 5px solid var(--school-secondary, #d5b889); background: linear-gradient(155deg, #1a3b30f7, #101b1ff7 72%); box-shadow: 0 18px 45px #060d0c99, inset 0 0 0 3px #ffffff08; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] > p { display: flow-root; height: auto; min-height: 64px; margin: 0 6px 15px; padding-bottom: 16px; border-bottom: 1px solid #dfd6bd80; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button { min-height: 52px; height: auto; padding: 12px 14px; border-radius: 0; color: #e1e5df; font-size: 22px; line-height: 1.1; }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"] { color: var(--school-primary-text, #fff); background: var(--school-primary, #6d2c78); background-image: linear-gradient(115deg, transparent 78%, #ffffff18 78% 82%, transparent 82%); border: 1px solid var(--school-primary-text, #e7cda5); border-left: 5px solid var(--school-secondary, #e2be7d); box-shadow: 0 4px 12px #070e0b55; }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]::after { content: ""; display: block; flex: none; width: 9px; height: 9px; margin-left: auto; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); }
   .campus.campus.campus.campus.campus.campus [data-today-rail-indicator] { display: none; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: min(66%, 590px); min-height: 0; padding: 26px 30px 22px; border: 1px solid #eadbc078; border-top: 4px solid var(--school-secondary, #d5b889); border-left: 1px solid #eadbc078; border-radius: 2px; background: linear-gradient(150deg, #142c27f5, #101b20f7 66%); box-shadow: 0 18px 46px #050d13a0, inset 0 0 0 4px #ffffff08; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
   .campus.campus.campus.campus.campus.campus [data-now-layout] { min-height: 0; }
@@ -46,7 +43,6 @@
 }
 
 @media (min-width: 761px) and (forced-colors: active) {
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current] { background: Highlight; color: HighlightText; border-color: HighlightText; }
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a:focus-visible { outline-color: Highlight; }
 }
 
@@ -115,16 +111,12 @@
    Foreground text is chosen from the actual school color for contrast. */
 .campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-start],
 .campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-start]:hover { background: var(--school-primary); border-color: var(--school-primary-text); color: var(--school-primary-text); box-shadow: 0 0 0 1px var(--school-primary-text); }
-.campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-rail-indicator] { background: var(--school-primary); -webkit-mask-image: none; mask-image: none; box-shadow: inset 4px 0 var(--school-secondary, var(--school-primary-text)), 0 0 0 1px var(--school-primary-text); }
-.campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-stage-rail] button[aria-selected="true"] { color: var(--school-primary-text); }
-.campus.campus.campus.campus.campus.campus[data-school-primary] [data-student-navigation] nav a[aria-current]::after { background: var(--school-primary); box-shadow: 0 0 0 1px var(--school-primary-text); }
 .campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-subject] > span:not([data-subject-emblem]) { background: var(--school-primary); color: var(--school-primary-text); }
 .campus.campus.campus.campus.campus.campus[data-school-secondary] .railIdentity b { padding-inline: 0.22em; border-radius: 2px; background: var(--school-secondary); color: var(--school-secondary-text); }
 .campus.campus.campus.campus.campus.campus[data-school-secondary] [data-today-stage-deck] > section[aria-label="Today's Plan"] { border-left-color: var(--school-secondary); }
 .campus.campus.campus.campus.campus.campus[data-school-secondary] .historyGrid > div { border-top-color: var(--school-secondary); }
 @media (forced-colors: active) {
   .campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-subject] > span:not([data-subject-emblem]) { background: Canvas; color: CanvasText; border-color: CanvasText; }
-  .campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-stage-rail] button[aria-selected="true"] { color: Highlight; border: 2px solid Highlight; text-decoration: underline; }
   .campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-start],
   .campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-start]:hover { background: ButtonFace; color: ButtonText; border-color: ButtonText; box-shadow: none; }
   .campus.campus.campus.campus.campus.campus[data-school-secondary] .railIdentity b { background: Canvas; color: CanvasText; }
@@ -208,15 +200,19 @@
 
 @media (min-width: 761px) {
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a { font: 900 21px/1 "Diana Campus Slab", Georgia, serif; letter-spacing: .02em; text-transform: uppercase; }
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current] { position: relative; isolation: isolate; border: 0; border-bottom: 4px solid var(--school-secondary, #d5b889); background: transparent; }
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current]::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--school-primary, #64316f); clip-path: polygon(11% 0, 100% 0, 89% 100%, 0 100%); }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] { min-height: var(--scene-height); padding-inline: 0; background: #102b22f5; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] > p { margin-inline: 14px; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button { display: flex; align-items: center; gap: 12px; font: 800 22px/1 var(--font-saira-condensed), sans-serif; letter-spacing: .025em; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button svg { flex: none; width: 21px; height: 21px; }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"] { position: relative; isolation: isolate; clip-path: none; border: 0; background: transparent; box-shadow: none; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"] { position: relative; isolation: isolate; border: 0; background: transparent; color: var(--school-primary-text, #fff); box-shadow: none; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]:disabled { opacity: 1; }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]::before { content: ""; display: block; position: absolute; z-index: -1; inset: 0; width: auto; height: auto; background: linear-gradient(to left, var(--school-secondary, #d5b889) 0 6px, var(--school-primary, #64316f) 6px); clip-path: polygon(0 0, 100% 0, 94% 100%, 0 100%); }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]::before {
+    content: ""; display: block; position: absolute; z-index: -1; inset: 0;
+    width: auto; height: auto; background: var(--school-primary, #64316f); box-shadow: none;
+    -webkit-mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat;
+    mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat;
+    mask-mode: luminance;
+  }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-deck] > section[aria-label="Today's Plan"] { padding: 24px 26px 20px; border-top: 1px solid #cbb485; background: #101a18ed; }
   .campus.campus.campus.campus.campus.campus [data-now-briefing] { gap: 16px; }
@@ -234,10 +230,7 @@
   .campus.campus.campus.campus.campus.campus .mobileGuide { margin: 12px -14px -14px; }
 }
 @media (forced-colors: active) {
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current] { background: Highlight; color: HighlightText; border-color: HighlightText; }
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current]::before { display: none; }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"],
-  .campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-stage-rail] button[aria-selected="true"] { background: Highlight; color: HighlightText; border: 2px solid HighlightText; forced-color-adjust: none; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"] { background: Highlight; color: HighlightText; border: 2px solid HighlightText; forced-color-adjust: none; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]::before { display: none; }
   .campus.campus.campus.campus.campus.campus [data-now-start],
   .campus.campus.campus.campus.campus.campus[data-school-primary] [data-now-start] { color: ButtonText; background: ButtonFace; border: 2px solid ButtonText; }
@@ -300,9 +293,6 @@
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button svg {
     width: 25px; height: 25px; flex: none;
   }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]::after {
-    display: none;
-  }
   .campus.campus.campus.campus.campus.campus [data-today-stage-deck] { padding: 64px 24px 40px 0; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: min(535px, 66%); }
 }
@@ -316,10 +306,6 @@
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railDate,
   .campus.campus.campus.campus.campus.campus[data-school-secondary] [data-today-stage-rail] .railIdentity b {
     color: CanvasText; background: transparent;
-  }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"],
-  .campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-stage-rail] button[aria-selected="true"] {
-    background: Highlight; color: HighlightText; border: 2px solid HighlightText;
   }
 }
 :global(.dyslexia-font) .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railIdentity {
@@ -412,8 +398,6 @@
   [data-today-stage-deck] > :is([data-lobby-week], [data-lobby-check-in]) {
     max-width: clamp(440px, calc(38vw + 148px), 700px);
   }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience]
-  [data-today-stage-rail] button[aria-selected="true"] { box-shadow: inset 3px 0 currentColor; }
   .campus.campus.campus.campus.campus.campus[data-campus-experience]::before {
     background: linear-gradient(90deg, #06140fd9, #0b171066 43%, #10140b12 77%, #12180f2e);
   }

@@ -2,7 +2,7 @@
    License and attribution are stored alongside the self-hosted font. */
 @font-face { font-family:'Diana Campus Slab'; src:url('/assets/fonts/roboto-slab-latin.woff2') format('woff2'); font-style:normal; font-weight:100 900; font-display:swap; }
 .navigation.navigation.navigation.navigation { position:relative; z-index:5; display:flex; align-items:center; gap:clamp(24px,2.5vw,42px); width:100%; min-height:82px; padding:0 32px; border-bottom:1px solid #d5e9df30; background:#0d161ad9; color:#f1f6f3; }
-.navigation.navigation.navigation.navigation .brand { display:flex; flex:none; align-items:center; width:126px; padding:0; border:0; background:none; }
+.navigation.navigation.navigation.navigation .brand { display:flex; flex:none; align-items:center; width:126px; padding:0; border:0; background:none; text-decoration:none; }
 .navigation.navigation.navigation.navigation .brand img { display:block; width:100%; height:auto; }
 .campusWordmark { display:none; }
 /* The campus wordmark keeps the accessible link name. */
@@ -68,26 +68,29 @@
 :global([data-campus-shell]) .navigation.navigation.navigation.navigation { background:#122019; border-bottom-color:#bdb39788; }
 :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav { gap:clamp(10px,1.2vw,20px); }
 :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav a {
-  isolation:isolate;
   padding-inline:clamp(10px,1.3vw,20px);
   color:#e9e9dc;
   font:850 clamp(14px,1.5vw,21px)/1 'Diana Campus Slab',Georgia,serif;
 }
-:global([data-campus-shell]) .navigation.navigation.navigation.navigation nav a::after {
+:is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a { isolation:isolate; }
+:is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a::after {
   inset:9px 0;
   z-index:-1;
   height:auto;
-  clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);
-  border-bottom:3px solid var(--campus-border);
   box-shadow:none;
-  background:var(--campus-action);
+  background:var(--campus-action,var(--school-primary,#64316f));
+  -webkit-mask:url('/assets/today-now/selection-brush-v1.webp') center / 100% 100% no-repeat;
+  mask:url('/assets/today-now/selection-brush-v1.webp') center / 100% 100% no-repeat;
+  mask-mode:luminance;
 }
-:global([data-campus-shell]) .navigation.navigation.navigation.navigation nav a[aria-current] { color:var(--campus-action-text); }
+:global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation nav a::after { inset:3px -3px; }
+:is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a[aria-current] { color:var(--campus-action-text,var(--school-primary-text,#fff)); }
 @media(max-width:760px) {
   :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav { gap:0; }
   :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav a { padding-inline:7px; font-size:clamp(11px,3.25vw,15px); }
-  :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav a::after { inset:5px 0; clip-path:polygon(5px 0,100% 0,calc(100% - 5px) 100%,0 100%); }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a::after { inset:5px 0; }
 }
 @media(forced-colors:active) {
-  :global([data-campus-shell]) .navigation.navigation.navigation.navigation nav a[aria-current] { border-bottom:3px solid Highlight; }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a[aria-current] { forced-color-adjust:none; background:Highlight; color:HighlightText; }
+  :is(:global([data-today-dashboard][data-now-studio]),:global([data-campus-shell])) .navigation.navigation.navigation.navigation nav a[aria-current]::after { display:none; }
 }

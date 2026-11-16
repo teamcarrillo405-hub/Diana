@@ -1,111 +1,253 @@
-.main.main { width:min(100%, 1420px); padding:clamp(26px,4vw,62px) clamp(16px,4vw,64px) 56px; }
-.header { display:flex; justify-content:space-between; align-items:end; gap:16px; padding-bottom:21px; border-bottom:1px solid var(--campus-rule); }
-.main.main .header p { color:var(--campus-muted); font:800 .9rem/1.25 'Diana Campus Slab',Georgia,serif; text-transform:uppercase; overflow-wrap:anywhere; }
-.main.main .header h1 { color:var(--campus-ink); font:italic 850 clamp(3rem,7vw,6.5rem)/.92 var(--campus-display); text-transform:uppercase; }
-.headerActions { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
-.headerActions a { white-space:nowrap; }
-.shortAdd { display:none; }
-.categories { display:flex; flex-wrap:wrap; align-items:stretch; gap:5px; margin-top:14px; }
-.main.main .categories button { position:relative; z-index:0; display:flex; align-items:center; justify-content:center; gap:9px; min-height:45px; padding:5px 17px; border:0; background:#181f1bed; color:var(--campus-muted); font:800 1.16rem/1.15 var(--campus-display); text-align:left; text-transform:uppercase; }
-.main.main .categories button:hover, .filters summary:hover { color:var(--campus-ink); background:var(--campus-raised); }
-.main.main .categories button[aria-pressed=true] { background:transparent; color:var(--campus-action-text); }
-.main.main .categories button[aria-pressed=true]::before { position:absolute; z-index:-1; inset:0; content:""; background:var(--campus-action); border-bottom:3px solid var(--campus-border); clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%); }
-.main.main .categories button span { font:600 .75rem/1 sans-serif; opacity:.9; }
+.main.main {
+  --work-surface: color-mix(in srgb, var(--campus-panel) 86%, transparent);
+  width: min(100%, 1536px);
+  padding: clamp(22px, 3vw, 42px) clamp(16px, 3.4vw, 52px) 56px;
+}
 
-.filters { display:grid; grid-template-columns:minmax(0,1fr) minmax(118px,175px) auto; gap:8px; margin:13px 0 15px; }
-.search, .main.main .filters select, .dates summary { min-height:44px; min-width:0; border:1px solid var(--campus-rule); border-radius:0; background:var(--campus-panel); color:var(--campus-ink); font-size:.85rem; }
-.search { display:flex; gap:8px; align-items:center; padding:0 10px; }
-.search svg, .dates summary svg { color:var(--campus-muted); flex:none; }
-.main.main .search input { width:100%; min-width:0; padding:0; border:0; background:none; color:inherit; }
-.main.main .search input::placeholder { color:var(--campus-muted); opacity:1; }
-.search:focus-within { outline:2px solid var(--campus-focus); outline-offset:2px; }
-.main.main .search input:focus-visible { outline:none !important; }
-.main.main .filters select { width:100%; padding:0 9px; }
-.dates { position:relative; }
-.dates summary { display:flex; align-items:center; justify-content:center; gap:7px; padding:0 10px; white-space:nowrap; cursor:pointer; }
-.dates summary::-webkit-details-marker { display:none; }
-.datePanel { position:absolute; z-index:4; top:calc(100% + 5px); right:0; width:min(420px,calc(100vw - 32px)); padding:9px; border:1px solid var(--campus-border); background:var(--campus-panel); box-shadow:0 14px 30px #0006; }
-.dateHeading, .dateOptions { display:flex; align-items:center; justify-content:space-between; gap:4px; }
-.dateHeading span { font-size:.87rem; }
-.main.main .datePanel button { display:inline-grid; place-items:center; min-width:36px; min-height:42px; padding:4px; border:1px solid var(--campus-rule); background:var(--campus-raised); color:var(--campus-ink); font-size:.81rem; }
-.main.main .datePanel button[aria-pressed=true] { border-color:var(--campus-focus); background:var(--campus-action); color:var(--campus-action-text); }
-.days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:3px; margin:6px 0; }
-.days button { min-width:0; }
-.days span { font-size:.73rem; }
-.days button[aria-current=date] strong { text-decoration:underline; text-underline-offset:3px; }
-.dateOptions button { width:100%; }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--campus-rule);
+}
 
-.board { display:grid; grid-template-columns:minmax(0, .95fr) minmax(0, 1.35fr); gap:17px; align-items:start; }
-.roster, .selected, .empty { min-width:0; border:1px solid var(--campus-rule); background:#161e19f5; }
-.main.main .roster h2 { padding:12px 16px; font:800 1.08rem/1.2 'Diana Campus Slab',Georgia,serif; text-transform:uppercase; }
-.rows { overflow-y:auto; max-height:min(54vh, 510px); scrollbar-color:var(--campus-border) var(--campus-panel); }
-.rows button { display:grid; grid-template-columns:5px minmax(0,1fr) auto; align-items:center; gap:9px; width:100%; min-height:62px; padding:9px 14px; border:0; border-top:1px solid var(--campus-rule); border-inline-start:3px solid transparent; color:var(--campus-ink); background:transparent; text-align:left; }
-.rows button:focus-visible { outline-offset:-3px; }
-.rows button:hover { background:var(--campus-raised); }
-.rows button[aria-selected=true] { border-inline-start-color:var(--campus-focus); background:color-mix(in srgb,var(--campus-action) 32%,var(--campus-panel)); }
-.classDot { height:19px; border-radius:0; background:var(--class-color); }
-.rowCopy { min-width:0; display:grid; gap:4px; }
-.main.main .rowCopy strong { display:-webkit-box; overflow:hidden; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow-wrap:anywhere; font-size:.94rem; line-height:1.2; font-weight:650; }
-.rowCopy > span, .rowDue { color:var(--campus-muted); font-size:.79rem; line-height:1.25; }
-.rowCopy > span { overflow-wrap:anywhere; }
-.rowDue { white-space:nowrap; }
-.selected { padding:clamp(16px,3.2vw,38px); border-top:3px solid var(--campus-border); }
-.course { display:inline-block; max-width:100%; padding:5px 13px; background:var(--campus-raised); border-left:3px solid var(--school-secondary,var(--campus-border)); color:var(--campus-muted); font:800 .92rem/1.23 'Diana Campus Slab',Georgia,serif; text-transform:uppercase; overflow-wrap:anywhere; }
-.main.main .selected h2 { margin:10px 0 13px; font:italic 850 clamp(2.25rem,5vw,4.9rem)/.98 var(--campus-display); text-transform:uppercase; overflow-wrap:anywhere; }
-.facts { display:flex; flex-wrap:wrap; gap:10px clamp(12px,2vw,24px); padding:0; margin:0 0 17px; }
-.facts div { display:grid; gap:4px; }
-.facts dt { color:var(--campus-muted); font-size:.74rem; }
-.facts dd { margin:0; color:var(--campus-ink); font-size:.9rem; }
-.open { width:min(100%,330px); justify-content:space-between !important; }
-.instructions { margin-top:16px; padding-top:11px; border-top:1px solid var(--campus-rule); font-size:.87rem; }
-.instructions summary { min-height:36px; cursor:pointer; }
-.main.main .instructions p { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; color:var(--campus-muted); }
-.empty { padding:25px; }
-.main.main .empty h2 { font:800 1.8rem/1.15 var(--campus-display); }
-.main.main .empty p { margin-top:7px; color:var(--campus-muted); }
-.empty :is(a,button) { margin-top:12px; }
+.main.main .header p { color: var(--campus-muted); font: 800 .84rem/1.25 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.main.main .header h1 { color: var(--campus-ink); font: italic 850 clamp(3.1rem, 5.3vw, 5.15rem)/.92 var(--campus-display); text-transform: uppercase; }
+.headerActions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.headerActions a { white-space: nowrap; }
+.shortAdd { display: none; }
+
+.toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; padding: 12px 0; }
+.categories { display: flex; flex-wrap: wrap; align-items: stretch; gap: 5px; }
+.main.main .categories button {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 44px;
+  padding: 5px 17px;
+  border: 0;
+  background: var(--work-surface);
+  color: var(--campus-muted);
+  font: 800 1.16rem/1.15 var(--campus-display);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.main.main .categories button:hover, .main.main .dateToggle:hover { color: var(--campus-ink); background: var(--campus-raised); }
+.main.main .categories button[aria-pressed=true] { background: transparent; color: var(--campus-action-text); }
+.main.main .categories button span { font: 600 .75rem/1 sans-serif; opacity: .9; }
+
+.filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(118px, 146px); flex: 0 1 370px; gap: 6px; }
+.search, .main.main .filters select, .main.main .dateToggle {
+  min-height: 44px;
+  min-width: 0;
+  border: 1px solid var(--campus-rule);
+  border-radius: 0;
+  background: var(--work-surface);
+  color: var(--campus-ink);
+  font-size: .85rem;
+}
+
+.search { display: flex; gap: 8px; align-items: center; padding: 0 10px; }
+.search svg, .dateToggle svg { color: var(--campus-muted); flex: none; }
+.main.main .search input { width: 100%; min-width: 0; padding: 0; border: 0; background: none; color: inherit; }
+.main.main .search input::placeholder { color: var(--campus-muted); opacity: 1; }
+.search:focus-within { outline: 2px solid var(--campus-focus); outline-offset: 2px; }
+.main.main .search input:focus-visible { outline: none !important; }
+.main.main .filters select { width: 100%; padding: 0 9px; color-scheme: dark; }
+.main.main .filters option { background: var(--campus-panel); }
+.dateToggle { display: none; }
+
+.datePanel { margin-bottom: 20px; padding-top: 12px; border-top: 1px solid var(--campus-rule); }
+.dateHeading, .weekNavigation, .dateOptions { display: flex; align-items: center; gap: 6px; }
+.dateHeading { gap: 16px; }
+.dateOptions { margin-inline-start: auto; }
+.dateHeading span { color: var(--campus-ink); font: 800 1.32rem/1 var(--campus-display); text-transform: uppercase; }
+.main.main .datePanel button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 38px;
+  padding: 4px 9px;
+  border: 1px solid var(--campus-rule);
+  background: var(--work-surface);
+  color: var(--campus-ink);
+  font-size: .81rem;
+}
+
+.main.main .datePanel button:hover { background: var(--campus-raised); }
+.main.main .datePanel button[aria-pressed=true] { position: relative; isolation: isolate; background: transparent; color: var(--campus-action-text); }
+.days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 7px; margin-top: 8px; }
+.main.main .days button { min-width: 0; min-height: 73px; align-content: center; justify-items: start; gap: 1px; padding: 8px 13px; border-width: 1px 0 0; }
+.main.main .days button[aria-current=date] { border-top: 2px solid var(--campus-focus); }
+.days span { text-align: start; font-size: .73rem; }
+.main.main .days strong { font: 850 1.8rem/1.02 var(--campus-display); }
+.days button[aria-current=date] strong { text-decoration: underline; text-underline-offset: 3px; }
+
+.board { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(0, 3.6fr); gap: clamp(11px, 1.4vw, 23px); align-items: start; }
+.roster, .assignmentDetails, .empty { min-width: 0; border: 1px solid var(--campus-rule); background: var(--work-surface); }
+.main.main .roster h2, .main.main .assignmentDetails h3 { padding: 12px 13px; font: 800 1.08rem/1.2 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; }
+.rows { overflow-y: auto; max-height: min(50vh, 470px); scrollbar-color: var(--campus-border) var(--campus-panel); }
+.rows button {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 4px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 70px;
+  padding: 9px 8px;
+  border: 0;
+  border-top: 1px solid var(--campus-rule);
+  border-inline-start: 3px solid transparent;
+  color: var(--campus-ink);
+  background: transparent;
+  text-align: left;
+}
+
+.rows button:focus-visible { outline-offset: -3px; }
+.rows button:hover { background: var(--campus-raised); }
+.rows button[aria-selected=true] { border-inline-start-color: var(--campus-focus); color: var(--campus-action-text); }
+.main.main .categories button[aria-pressed=true]::before,
+.main.main .datePanel button[aria-pressed=true]::before,
+.rows button[aria-selected=true]::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--campus-action);
+  -webkit-mask: url('/assets/today-now/selection-brush-v1.webp') center / 100% 118% no-repeat;
+  mask: url('/assets/today-now/selection-brush-v1.webp') center / 100% 118% no-repeat;
+  mask-mode: luminance;
+  pointer-events: none;
+  content: "";
+}
+
+.classDot { height: 19px; background: var(--class-color); }
+.rowCopy { min-width: 0; display: grid; gap: 4px; }
+.main.main .rowCopy strong { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; font-size: .92rem; line-height: 1.2; font-weight: 650; }
+.rowCopy > span, .rowDue { color: var(--campus-muted); font-size: .73rem; line-height: 1.25; }
+.rows button[aria-selected=true] :is(.rowCopy > span,.rowDue) { color: inherit; }
+.rowCopy > span { overflow-wrap: anywhere; }
+.rowDue { white-space: nowrap; }
+
+.selected { display: grid; grid-template-columns: minmax(0, 2.85fr) minmax(201px, 1fr); align-items: start; gap: clamp(11px, 1.4vw, 23px); min-width: 0; }
+.art {
+  display: grid;
+  align-items: end;
+  min-height: clamp(286px, 27vw, 400px);
+  padding: clamp(13px, 2.1vw, 31px);
+  border-top: 3px solid var(--campus-action);
+  background:
+    linear-gradient(0deg, #131914 0%, #131914e8 16%, #13191448 61%, #13191412 100%),
+    var(--assignment-art) center 48%/cover no-repeat,
+    var(--campus-panel);
+}
+
+.course { display: inline-block; max-width: 100%; padding: 4px 10px; background: var(--campus-action); color: var(--campus-action-text); font: 800 .84rem/1.23 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.main.main .selected h2 {
+  margin: 8px 0 0;
+  color: var(--campus-ink);
+  font: italic 850 clamp(2rem,3.55vw,3.8rem)/.98 var(--campus-display);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 8px #111a;
+}
+
+.assignmentDetails { border-top: 3px solid var(--campus-border); }
+.facts { display: grid; padding: 0 13px; margin: 0; }
+.facts div { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid var(--campus-rule); }
+.facts dt { color: var(--campus-muted); font-size: .74rem; }
+.facts dd { margin: 0; color: var(--campus-ink); font-size: .9rem; }
+.main.main .open { display: flex; justify-content: space-between; gap: 8px; margin: 7px 13px 14px; padding-inline: 12px; font-size: clamp(1.12rem, 1.55vw, 1.45rem); line-height: 1.1; }
+.main.main .open svg { flex: none; }
+.instructions { grid-column: 1; padding: 8px 14px 4px; border: 1px solid var(--campus-rule); background: var(--work-surface); font-size: .87rem; }
+.instructions summary { min-height: 36px; cursor: pointer; }
+.main.main .instructions p { padding-bottom: 9px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; color: var(--campus-muted); }
+.empty { padding: 25px; }
+.main.main .empty h2 { font: 800 1.8rem/1.15 var(--campus-display); }
+.main.main .empty p { margin-top: 7px; color: var(--campus-muted); }
+.empty :is(a,button) { margin-top: 12px; }
+
+@media(max-width:1020px) {
+  .filters { flex-basis: 300px; }
+  .main.main .categories button { padding-inline: 10px; }
+  .board { grid-template-columns: minmax(170px, .85fr) minmax(0, 2.8fr); }
+  .selected { grid-template-columns: minmax(0,1fr); }
+  .art { min-height: 270px; }
+  .assignmentDetails { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; }
+  .main.main .assignmentDetails h3 { grid-column: 1 / -1; }
+  .facts { display: flex; flex-wrap: wrap; gap: 3px 13px; }
+  .main.main .open { margin: 0 11px 8px; }
+}
 
 @media(max-width:760px) {
-  .header { align-items:center; gap:8px; padding-bottom:13px; }
-  .headerActions { justify-content:end; gap:6px; }
-  .headerActions a { padding:6px 7px !important; min-height:42px !important; font-size:.74rem !important; }
-  .headerActions a svg { width:14px; }
-  .categories { display:grid; grid-template-columns:1fr 1fr 1.35fr 1fr; gap:3px; margin-top:9px; }
-  .main.main .categories button { gap:3px; min-height:44px; padding-inline:4px; font-size:.92rem; white-space:normal; text-align:center; }
-  .main.main .categories button span { font-size:.67rem; }
-  .filters { grid-template-columns:minmax(0,1fr) minmax(0,.87fr) auto; gap:4px; margin:8px 0 9px; }
-  .main.main .filters select, .dates summary, .search { font-size:.73rem; padding-inline:5px; }
-  .search, .dates summary { gap:3px; }
-  .search svg, .dates summary svg { width:13px; }
-  .board { grid-template-columns:minmax(0,1fr); gap:8px; }
-  .main.main .roster h2 { padding:8px 10px; font-size:.86rem; }
-  .rows { max-height:114px; }
-  .rows button { min-height:52px; padding:6px 9px; gap:6px; }
-  .main.main .rowCopy strong { font-size:.85rem; }
-  .rowCopy > span, .rowDue { font-size:.73rem; }
-  .selected { padding:13px; }
-  .main.main .selected h2 { margin-top:7px; font-size:clamp(1.95rem,8vw,3.3rem); }
-  .facts { margin-bottom:12px; }
-  .open { width:100%; }
+  .main.main { padding-top: 16px; }
+  .header { align-items: center; gap: 8px; padding-bottom: 11px; }
+  .headerActions { flex-wrap: nowrap; justify-content: end; gap: 6px; }
+  .headerActions a { padding: 6px 7px !important; min-height: 44px !important; font-size: .74rem !important; }
+  .headerActions a svg { width: 14px; }
+  .toolbar { display: grid; grid-template-columns: minmax(0,1fr); gap: 7px; padding: 8px 0; }
+  .categories { display: grid; grid-template-columns: 1fr 1fr 1.35fr 1fr; gap: 3px; }
+  .main.main .categories button { gap: 3px; min-height: 44px; padding-inline: 4px; font-size: .92rem; white-space: normal; text-align: center; }
+  .main.main .categories button span { font-size: .67rem; }
+  .filters { grid-template-columns: minmax(0,1fr) minmax(0,.87fr) auto; gap: 4px; }
+  .main.main .filters select, .main.main .dateToggle, .search { font-size: .73rem; padding-inline: 5px; }
+  .main.main .dateToggle { display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
+  .search { gap: 3px; }
+  .search svg, .dateToggle svg { width: 13px; }
+  .datePanel { margin: 0 0 8px; padding: 6px; border: 1px solid var(--campus-rule); background: var(--campus-panel); }
+  .datePanel[data-open=false] { display: none; }
+  .dateHeading { justify-content: space-between; flex-wrap: wrap; gap: 4px; }
+  .dateHeading span { font-size: 1.04rem; }
+  .main.main .datePanel button { min-height: 44px; }
+  .weekNavigation { gap: 3px; }
+  .dateOptions { flex-basis: 100%; margin: 0; }
+  .days { gap: 3px; }
+  .main.main .days button { min-height: 61px; padding: 3px 1px; justify-items: center; }
+  .main.main .days strong { font-size: 1.45rem; }
+  .days span { font-size: .67rem; }
+  .dayNoun { display: none; }
+  .board, .selected { grid-template-columns: minmax(0,1fr); gap: 8px; }
+  .main.main .roster h2 { padding: 7px 10px; font-size: .86rem; }
+  .rows { max-height: 114px; }
+  .rows button { min-height: 52px; padding: 6px 9px; gap: 6px; }
+  .main.main .rowCopy strong { font-size: .85rem; }
+  .art { min-height: 137px; padding: 11px 13px; }
+  .main.main .selected h2 { margin-top: 5px; font-size: clamp(1.68rem,7.2vw,2.65rem); }
+  .instructions { padding: 0 10px; }
+  .instructions summary { display: list-item; min-height: 42px; align-content: center; }
+  .assignmentDetails { display: flex; flex-direction: column; align-items: stretch; border: 0; background: transparent; }
+  .assignmentDetails h3 { display: none; }
+  .facts { background: var(--work-surface); border: 1px solid var(--campus-rule); }
+  .facts div { border: 0; }
+  .main.main .open { order: -1; margin: 0 0 8px; padding-inline: 13px; }
 }
+
 @media(max-width:365px) {
-  .headerActions { gap:4px; }
-  .headerActions a { gap:4px; }
-  .headerActions a svg { display:none; }
-  .fullAdd { display:none; }
-  .shortAdd { display:inline; }
-  .rows { max-height:99px; }
-}
-@media(forced-colors:active) {
-  .main.main .categories button[aria-pressed=true], .rows button[aria-selected=true], .main.main .datePanel button[aria-pressed=true] { border-bottom:2px solid Highlight; }
+  .headerActions { gap: 4px; }
+  .headerActions a { gap: 4px; }
+  .headerActions a svg { display: none; }
+  .fullAdd { display: none; }
+  .shortAdd { display: inline; }
+  .rows { max-height: 99px; }
+  .art { min-height: 125px; }
 }
 
-@media(max-width:760px) {
-  .main.main { padding-top:16px; }
-  .headerActions { flex-wrap:nowrap; }
-  .headerActions a { min-height:44px !important; }
-  .selected { display:flex; flex-direction:column; align-items:flex-start; }
-  .selected .open { order:2; }
-  .selected .facts { order:3; margin:12px 0 0; }
-  .selected .instructions { order:4; width:100%; }
+@media(forced-colors:active) {
+  .main.main :is(.categories, .datePanel) button[aria-pressed=true],
+  .main.main .rows button[aria-selected=true] {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .main.main :is(.categories, .datePanel) button[aria-pressed=true]::before,
+  .main.main .rows button[aria-selected=true]::before { content: none; }
+  .main.main :is(.categories, .datePanel) button[aria-pressed=true]:focus-visible,
+  .main.main .rows button[aria-selected=true]:focus-visible { outline: 2px solid HighlightText; outline-offset: -3px; }
 }
