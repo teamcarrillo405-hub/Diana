@@ -28,8 +28,10 @@ export type DataChartSeries = {
   type: DataChartType;
   xLabel: string;
   yLabel: string;
+  xAxisType: "category" | "value";
   categories: string[];
   values: number[];
+  points: [number, number][];
 };
 
 export type DatasetImportResult =
@@ -199,24 +201,35 @@ export function chartSeriesForDataset(
   config: DataChartConfig,
 ): DataChartSeries | null {
   if (!dataset.columns[config.xColumn] || !dataset.columns[config.yColumn]) return null;
-  const categories: string[] = [];
-  const values: number[] = [];
-  for (const row of dataset.rows) {
-    const rawValue = row[config.yColumn]?.replaceAll(",", "").trim() ?? "";
-    if (!rawValue) continue;
-    const value = Number(rawValue);
-    if (!Number.isFinite(value)) continue;
-    categories.push((row[config.xColumn] ?? "").slice(0, 160));
-    values.push(value);
-  }
-  if (values.length === 0) return null;
+  const rows = dataset.rows.flatMap((row) => {
+    const y = chartNumber(row[config.yColumn]);
+    if (y === null) return [];
+    const label = (row[config.xColumn] ?? "").slice(0, 160);
+    return [{ label, x: chartNumber(row[config.xColumn]), y }];
+  });
+  const numericAxis = config.type === "scatter" || (config.type === "line"
+    && rows.some(({ x }) => x !== null) && rows.every(({ x, label }) => x !== null || !label.trim()));
+  const numericRows = numericAxis ? rows.filter((row): row is typeof row & { x: number } => row.x !== null) : [];
+  if (config.type === "line" && numericAxis) numericRows.sort((left, right) => left.x - right.x);
+  const shownRows = numericAxis ? numericRows : rows;
+  if (shownRows.length === 0) return null;
   return {
     type: config.type,
     xLabel: dataset.columns[config.xColumn]!,
     yLabel: dataset.columns[config.yColumn]!,
-    categories,
-    values,
+    xAxisType: numericAxis ? "value" : "category",
+    categories: shownRows.map(({ label }) => label),
+    values: shownRows.map(({ y }) => y),
+    points: numericRows.map(({ x, y }) => [x, y]),
   };
+}
+
+function chartNumber(input: string | undefined): number | null {
+  const text = input?.trim() ?? "";
+  // Ignore missing values, formula cells, and separators that do not form a number.
+  if (!/^[+-]?(?:(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/iu.test(text)) return null;
+  const number = Number(text.replaceAll(",", ""));
+  return Number.isFinite(number) ? number : null;
 }
 
 function findColumn(columns: readonly string[], candidates: readonly string[]): number {

@@ -1,0 +1,125 @@
+.reviewResult {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 14px clamp(12px, 2vw, 20px);
+  border: 1px solid #a49e8e;
+  border-inline-start: 4px solid var(--campus-action, #5b365f);
+  background: var(--aw-paper, #f7f3e7);
+  color: var(--aw-paper-ink, #27362e);
+  color-scheme: light;
+  overflow-wrap: anywhere;
+}
+
+.resultHeading,
+.transition h3 {
+  margin: 0;
+  font: italic 750 1.4rem/1.05 var(--campus-display, var(--font-saira-condensed), sans-serif);
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.resultHeading {
+  margin-bottom: 8px;
+  color: var(--aw-paper-ink, #27362e);
+}
+
+.reviewResult p + p, .reviewDetails {
+  margin-top: 8px;
+}
+
+.reviewDetails summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: .85rem;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.helpPrompts {
+  display: flex;
+  flex: 1 0 100%;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+:global(.dyslexia-font) .resultHeading,
+:global(.dyslexia-font) .transition h3 {
+  font-style: normal;
+  text-transform: none;
+}
+
+.transition {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 20px;
+  margin: 0 22px 14px;
+  padding: 10px 0 0;
+  border-top: 1px solid var(--aw-border, #b9b19b52);
+}
+
+.transition h3 {
+  color: var(--aw-ink, #fff8e8);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.transition .actions button {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--campus-border, #aca78e);
+  border-radius: 2px;
+  background: var(--campus-raised, #262e28);
+  color: var(--aw-ink, #fff8e8);
+  font: inherit;
+  font-size: .81rem;
+  font-weight: 650;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.transition .actions button[data-primary] {
+  background: var(--campus-action, #5b365f);
+  color: var(--campus-action-text, #fff8e8);
+}
+
+.transition .actions button:hover {
+  border-color: var(--campus-focus, #f4d69b);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 550px) {
+  .transition {
+    margin-inline: 12px;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions button {
+    flex: 1 1 118px;
+  }
+}
+
+@media (forced-colors: active) {
+  .reviewResult,
+  .transition {
+    border-color: CanvasText;
+  }
+
+  .transition .actions button[data-primary] {
+    border-color: Highlight;
+  }
+}

@@ -118,6 +118,8 @@ export function assignmentSubmissionReceiptProjection(
     fallbackBlocks: lmsPayload.specialistProjection.fallbackBlocks.map(semanticBlock),
     contextBlocks: lmsPayload.specialistProjection.contextBlocks.map(semanticBlock),
   };
+  const includesGraph = specialistProjection.contextBlocks.some((block) =>
+    block.type === "graph" || ((block.type === "spreadsheet" || block.type === "lab_data") && "dataset" in block.content && Boolean(block.content.dataset)));
   return {
     assignmentId: preview.assignmentId,
     assignmentTitle: preview.assignmentTitle,
@@ -127,6 +129,7 @@ export function assignmentSubmissionReceiptProjection(
     textPayload: lmsPayload.textPayload,
     universalTextPayload: lmsPayload.universalTextPayload,
     specialistProjection,
+    ...(includesGraph ? { graphRenderVersion: 1 } : {}),
     specialistDelivery: lmsPayload.specialistDelivery,
     universalFallback: lmsPayload.universalFallback,
     problems: preview.problems,

@@ -69,4 +69,35 @@ describe("subject workspace presentation", () => {
       expect.objectContaining({ label: "Problem 2", type: "problem", prompt: "Solve 3x + 1 = 10" }),
     ]);
   });
+
+  it("uses report sections and a lab canvas for distinct tasks in the same science class", () => {
+    const report = resolveAssignmentProfile({ kind: "other", className: "Biology", title: "History of microscopy report" });
+    const lab = resolveAssignmentProfile({ kind: "lab", className: "Biology", title: "Microscopy lab" });
+    expect(subjectPresentationFor(report)).toMatchObject({ unitNoun: "section", primaryCapability: null });
+    expect(subjectPresentationFor(report).units.map(({ label }) => label)).toEqual(["Focus", "Evidence and sources", "Draft"]);
+    expect(subjectPresentationFor(lab)).toMatchObject({ unitNoun: "lab step", primaryCapability: "data_lab" });
+  });
+
+  it("uses case brief and legal memo structure instead of generic response steps", () => {
+    const brief = resolveAssignmentProfile({ kind: "other", className: "Introduction to Law", title: "Case brief" });
+    const memo = resolveAssignmentProfile({ kind: "other", className: "Legal writing", title: "Legal memo" });
+    expect(subjectPresentationFor(brief).units.map(({ label }) => label)).toEqual([
+      "Case and citation", "Facts and procedural history", "Issue", "Rule", "Holding and reasoning",
+    ]);
+    expect(subjectPresentationFor(memo).units.map(({ label }) => label)).toEqual([
+      "Question presented", "Brief answer", "Relevant facts", "Analysis", "Conclusion",
+    ]);
+  });
+
+  it("uses explicitly listed teacher headings without guessing from source text", () => {
+    const report = resolveAssignmentProfile({ kind: "other", className: "History", title: "Research report" });
+    const presentation = subjectPresentationFor(report, {
+      directions: "Compare two assigned sources about the event.",
+      rubric: "Required sections:\n- Introduction\n- Historical context\n- Findings\n- References",
+      materialText: "Required sections: A, B, C",
+    });
+    expect(presentation.units.map(({ label }) => label)).toEqual(["Introduction", "Historical context", "Findings", "References"]);
+    expect(subjectPresentationFor(report, { directions: "Required sections: Intro, <i>findings</i>" }).units.map(({ label }) => label))
+      .toEqual(["Focus", "Evidence and sources", "Draft"]);
+  });
 });

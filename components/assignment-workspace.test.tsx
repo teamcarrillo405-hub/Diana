@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   getSession: vi.fn(),
   saveHandInPatch: vi.fn(),
   saveProblemWorkPatch: vi.fn(),
+  saveAssignmentArtifactBlock: vi.fn(),
   prepareAssignmentReview: vi.fn(),
   startAssignmentWorkspace: vi.fn(),
   selectAssignmentWorkspaceMode: vi.fn(),
@@ -36,6 +37,7 @@ vi.mock("@/app/(app)/assignments/[id]/hm-actions", () => ({
   prepareAssignmentReview: mocks.prepareAssignmentReview,
   saveHandInPatch: mocks.saveHandInPatch,
   saveProblemScaffold: vi.fn(),
+  saveAssignmentArtifactBlock: mocks.saveAssignmentArtifactBlock,
   saveProblemWorkPatch: mocks.saveProblemWorkPatch,
   markProblemReviewed: mocks.markProblemReviewed,
   markProblemDone: mocks.markProblemDone,
@@ -43,6 +45,7 @@ vi.mock("@/app/(app)/assignments/[id]/hm-actions", () => ({
   startAssignmentWorkspace: mocks.startAssignmentWorkspace,
 }));
 vi.mock("@/app/(app)/assignments/[id]/ai-tools-actions", () => ({ requestMathScaffold: vi.fn(), requestScienceScaffold: vi.fn() }));
+vi.mock("@/app/(app)/assignments/[id]/workspace/source-actions", () => ({ addAssignmentSourceFile: vi.fn() }));
 vi.mock("@/components/assignment-focus-clock", () => ({ AssignmentFocusClock: () => <section aria-label="Focus clock">Start focus 30-min</section> }));
 vi.mock("@/components/assignment-source-importer", () => ({ AssignmentSourceImporter: () => null }));
 vi.mock("@/components/assignment-plan-panel", () => ({ AssignmentPlanPanel: () => null }));
@@ -115,7 +118,7 @@ describe("AssignmentWorkspace reliability", () => {
     expect(screen.getByText("Review your work")).toBeVisible();
     expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments?return=1");
     expect(screen.getByRole("link", { name: "Class materials" })).toHaveAttribute("href", `/classes/${classId}?materials=1&work=${assignmentId}`);
-    const paper = screen.getByRole("textbox", { name: "Show your work" });
+    const paper = screen.getByRole("textbox", { name: "Your draft" });
     expect(paper).toHaveValue("Existing draft");
     expect(paper.compareDocumentPosition(screen.getByRole("complementary", { name: "Ask Diana" })) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
@@ -126,6 +129,48 @@ describe("AssignmentWorkspace reliability", () => {
     expect(mocks.prepareAssignmentReview).toHaveBeenCalledWith({ assignmentId });
     expect(mocks.saveProblemWorkPatch.mock.invocationCallOrder[0]).toBeLessThan(mocks.prepareAssignmentReview.mock.invocationCallOrder[0]);
     expect(mocks.reviewPanelProps.mock.calls.at(-1)?.[0]).toMatchObject({ mathReviewSignal: 0 });
+  });
+
+  it("saves the latest graph before submission review even when the autosave timer is still pending", async () => {
+    const profile = resolveAssignmentProfile({ kind: "other", className: "Economics", title: "Demand model" });
+    let finishFirstSave!: (result: { ok: true }) => void;
+    let finishLatestSave!: (result: { ok: true }) => void;
+    mocks.saveAssignmentArtifactBlock
+      .mockImplementationOnce(() => new Promise((resolve) => { finishFirstSave = resolve; }))
+      .mockImplementationOnce(() => new Promise((resolve) => { finishLatestSave = resolve; }));
+    render(<AssignmentWorkspace {...baseProps} status="checking" assignmentProfile={profile} initialMode="research" initialProblems={[{
+      id: "22222222-2222-4222-8222-222222222222", problemNumber: 1, problemText: "Explain the graph.", studentWork: { work: "Existing draft" },
+    }]} />);
+    const curve = await screen.findByRole("textbox", { name: "Curve 1" });
+    fireEvent.change(curve, { target: { value: "2x" } });
+    expect(mocks.saveAssignmentArtifactBlock).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Review submission" }));
+    await waitFor(() => expect(mocks.saveAssignmentArtifactBlock).toHaveBeenCalledTimes(1));
+    expect(mocks.saveAssignmentArtifactBlock.mock.calls[0][0]).toMatchObject({ block: { key: "graph", content: { expression: "2x" } } });
+    expect(mocks.prepareAssignmentReview).not.toHaveBeenCalled();
+
+    fireEvent.change(curve, { target: { value: "3x" } });
+    await act(async () => finishFirstSave({ ok: true }));
+    expect(mocks.saveAssignmentArtifactBlock).toHaveBeenCalledTimes(2);
+    expect(mocks.saveAssignmentArtifactBlock.mock.calls[1][0]).toMatchObject({ block: { key: "graph", content: { expression: "3x" } } });
+    expect(mocks.prepareAssignmentReview).not.toHaveBeenCalled();
+
+    await act(async () => finishLatestSave({ ok: true }));
+    expect(mocks.push).toHaveBeenCalledWith(`/assignments/${assignmentId}/submit`);
+  });
+
+  it("keeps the current graph visible and blocks submission review when its save pauses", async () => {
+    const profile = resolveAssignmentProfile({ kind: "other", className: "Economics", title: "Demand model" });
+    mocks.saveAssignmentArtifactBlock.mockResolvedValueOnce({ ok: false, error: "Graph save paused." });
+    render(<AssignmentWorkspace {...baseProps} status="checking" assignmentProfile={profile} initialMode="research" initialProblems={[{
+      id: "22222222-2222-4222-8222-222222222222", problemNumber: 1, problemText: "Explain the graph.", studentWork: { work: "Existing draft" },
+    }]} />);
+    const curve = await screen.findByRole("textbox", { name: "Curve 1" });
+    fireEvent.change(curve, { target: { value: "2x" } });
+    fireEvent.click(screen.getByRole("button", { name: "Review submission" }));
+    expect(await screen.findByText("A work tool could not save. Your changes are still here. Try again.")).toBeVisible();
+    expect(curve).toHaveValue("2x");
+    expect(mocks.prepareAssignmentReview).not.toHaveBeenCalled();
   });
 
   it("uses the Algebra shell and the persistent Diana thread for a writing unit", () => {
@@ -224,9 +269,10 @@ describe("AssignmentWorkspace reliability", () => {
     expect(problemsPanel.textContent).not.toContain("Previous");
     expect(problemsPanel.textContent).not.toContain("Next");
     expect(actions.textContent).toContain("Complete problems 1 through 3.");
-    expect(actions.textContent).toContain("Show each operation on both sides.");
-    expect(actions.textContent).toContain("Algebra worksheet");
-    const details = screen.getByText("Assignment details").closest("details");
+    const prompt = screen.getByRole("region", { name: "Current problem" });
+    expect(prompt.textContent).toContain("Show each operation on both sides.");
+    expect(prompt.textContent).toContain("Algebra worksheet");
+    const details = screen.getByText("Sources & rubric").closest("details");
     expect(details).toBeTruthy();
     expect(details?.hasAttribute("open")).toBe(false);
     details?.setAttribute("open", "");
@@ -244,7 +290,7 @@ describe("AssignmentWorkspace reliability", () => {
     }]} />);
 
     const problem = screen.getByText("Solve 2x = 10", { selector: ".sd-assignment-problem-text" });
-    const details = screen.getByText("Assignment details");
+    const details = screen.getByLabelText("Assignment actions");
 
     expect(problem.compareDocumentPosition(details) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.getByText("Problem 1", { selector: ".sd-assignment-problem-card .sd-assignment-mode-title" })).toHaveTextContent("Problem 1 1 of 1");
@@ -292,7 +338,7 @@ describe("AssignmentWorkspace reliability", () => {
 
     expect(screen.getByText("Confirm source")).toBeTruthy();
     expect(screen.getByText(/needs a quick check/i)).toBeTruthy();
-    expect(screen.getByText("needs check")).toBeTruthy();
+    expect(screen.getByText("Needs a check")).toBeTruthy();
   });
   beforeEach(() => {
     vi.clearAllMocks();
@@ -303,6 +349,7 @@ describe("AssignmentWorkspace reliability", () => {
     });
     mocks.saveHandInPatch.mockResolvedValue({ ok: true });
     mocks.saveProblemWorkPatch.mockResolvedValue({ ok: true });
+    mocks.saveAssignmentArtifactBlock.mockResolvedValue({ ok: true });
     mocks.markProblemReviewed.mockResolvedValue({
       ok: true,
       progressStatus: "in_progress",
@@ -370,7 +417,7 @@ describe("AssignmentWorkspace reliability", () => {
       scaffold: { unitLabel: "Claim", unitType: "section" },
       studentWork: {},
     }]} />);
-    fireEvent.change(screen.getByLabelText("Show your work"), { target: { value: "My current draft" } });
+    fireEvent.change(screen.getByLabelText("Your draft"), { target: { value: "My current draft" } });
     const reviewProps = mocks.reviewPanelProps.mock.calls.at(-1)?.[0] as { onMarkDone(): void };
     await act(async () => reviewProps.onMarkDone());
     fireEvent.click(screen.getByRole("button", { name: /review submission/i }));
@@ -395,11 +442,55 @@ describe("AssignmentWorkspace reliability", () => {
       studentWork: {},
     }]} />);
 
-    expect((screen.getByLabelText("Show your work") as HTMLTextAreaElement).value).toBe("Recovered draft");
+    expect((screen.getByLabelText("Your draft") as HTMLTextAreaElement).value).toBe("Recovered draft");
     await waitFor(() => expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({
       problemId,
       patch: { work: "Recovered draft" },
     }));
+  });
+
+  it("saves edits across multiple sections of the full draft", async () => {
+    const first = "22222222-2222-4222-8222-222222222222";
+    const second = "33333333-3333-4333-8333-333333333333";
+    render(<AssignmentWorkspace {...baseProps}
+      assignmentProfile={resolveAssignmentProfile({ kind: "essay", className: "English 9", title: "Research report" })}
+      initialProblems={[
+        { id: first, problemNumber: 1, problemText: "State the question.", scaffold: { unitLabel: "Research question" }, studentWork: { work: "Initial question" } },
+        { id: second, problemNumber: 2, problemText: "Cite your sources.", scaffold: { unitLabel: "Sources" }, studentWork: {} },
+      ]}
+    />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Full draft" }));
+    fireEvent.change(screen.getByLabelText("Research question"), { target: { value: "How does shade change temperatures?" } });
+    fireEvent.change(screen.getByLabelText("Sources"), { target: { value: "Schoolyard temperature measurements" } });
+
+    await waitFor(() => {
+      expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({ problemId: first, patch: { work: "How does shade change temperatures?" } });
+      expect(mocks.saveProblemWorkPatch).toHaveBeenCalledWith({ problemId: second, patch: { work: "Schoolyard temperature measurements" } });
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Full draft" }));
+    expect(screen.getByLabelText("Your draft")).toHaveValue("How does shade change temperatures?");
+  });
+
+  it("keeps a recorded review when a stale workspace refresh arrives", async () => {
+    const problem = {
+      id: "22222222-2222-4222-8222-222222222222",
+      problemNumber: 1,
+      problemText: "Solve x + 4 = 9",
+      studentWork: { work: "Subtract 4 from both sides." },
+    };
+    const { rerender } = render(<AssignmentWorkspace {...baseProps} initialProblems={[problem]} />);
+    const reviewProps = mocks.reviewPanelProps.mock.calls.at(-1)?.[0] as {
+      onReviewed(snapshot: Record<string, unknown>): Promise<boolean>;
+    };
+
+    await act(async () => reviewProps.onReviewed(problem.studentWork));
+    expect(mocks.reviewPanelProps.mock.calls.at(-1)?.[0]).toMatchObject({ reviewed: true });
+
+    rerender(<AssignmentWorkspace {...baseProps} initialProblems={[{ ...problem }]} />);
+
+    expect(mocks.reviewPanelProps.mock.calls.at(-1)?.[0]).toMatchObject({ reviewed: true });
+    expect(screen.getByLabelText("Your draft")).toHaveValue(problem.studentWork.work);
   });
   it("flushes recoverable math work before submission review", async () => {
     const problemId = "22222222-2222-4222-8222-222222222222";
@@ -653,7 +744,7 @@ describe("AssignmentWorkspace reliability", () => {
       studentWork: {},
     }]} />);
 
-    const tools = screen.getByRole("button", { name: "Tools" });
+    const tools = screen.getByRole("button", { name: "Assignment details" });
     fireEvent.click(tools);
     const close = screen.getAllByRole("button", { name: "Close assignment tools" })
       .find((button) => button.classList.contains("sd-assignment-tools-close"));

@@ -283,6 +283,7 @@ export async function addAssignmentSourceFile(formData: FormData) {
   const assignmentId = typeof formData.get("assignmentId") === "string" ? String(formData.get("assignmentId")) : "";
   const sourceId = formData.get("sourceId");
   const file = formData.get("file") as File | null;
+  const graphPhoto = formData.get("purpose") === "graph_photo";
   if (!z.string().uuid().safeParse(assignmentId).success || !file || typeof file === "string"
     || (sourceId !== null && (typeof sourceId !== "string" || !z.string().uuid().safeParse(sourceId).success))) {
     return { ok: false as const, error: "Choose a file first." };
@@ -290,6 +291,9 @@ export async function addAssignmentSourceFile(formData: FormData) {
   const validation = await validateFileUpload("assignmentSource", file);
   if (!validation.ok) return { ok: false as const, error: validation.error };
   const { extension, mimeType } = validation.value;
+  if (graphPhoto && !["image/jpeg", "image/png", "image/webp"].includes(mimeType)) {
+    return { ok: false as const, error: "Choose a JPG, PNG, or WebP photo of the graph." };
+  }
 
   const { supabase, user, store } = await ownerAndStore();
   if (!user || !store) return { ok: false as const, error: "Not signed in." };
@@ -332,7 +336,7 @@ export async function addAssignmentSourceFile(formData: FormData) {
     storage_key: storageKey,
     mime_type: mimeType,
     ...(stableText !== null ? { extracted_text: stableText } : {}),
-    import_status: stableText !== null ? "imported" : extension === "txt" ? "ready" : "extracting",
+    import_status: graphPhoto || stableText !== null ? "imported" : extension === "txt" ? "ready" : "extracting",
   }).select("id").single();
   if (sourceError || !source) {
     if (sourceId) {
@@ -346,6 +350,9 @@ export async function addAssignmentSourceFile(formData: FormData) {
     return { ok: false as const, error: sourceError?.message ?? "Couldn't add that source." };
   }
 
+  if (graphPhoto) {
+    return { ok: true as const, source: { id: source.id, title: file.name, mimeType }, extractionStatus: "imported" as const };
+  }
   if (extension === "txt") {
     if (stableText === null) {
       const text = await file.text();

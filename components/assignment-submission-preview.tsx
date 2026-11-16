@@ -7,8 +7,10 @@ import { AlertTriangle, Download, FileText } from "lucide-react";
 import { prepareCanonicalAssignmentDeliveryDownload } from "@/app/(app)/assignments/[id]/delivery-actions";
 import { parseAssignmentInkDocument } from "@/lib/assignment-ink";
 import { canonicalSubmissionPayloadForTarget } from "@/lib/assignment-submission";
+import { assignmentPlotForBlock } from "@/lib/specialist-artifacts/assignment-plots";
 import type { CanonicalRenderBlock } from "@/lib/specialist-artifacts/render-blocks";
 import type { AssignmentSubmissionPreview as SubmissionPreview } from "@/lib/assignment-workspace-contracts";
+import { AssignmentPlotPreview } from "./assignment-plot-preview";
 import styles from "./student-shell/submission.module.css";
 
 const RUNTIME_STATUS_LABEL = {
@@ -18,7 +20,7 @@ const RUNTIME_STATUS_LABEL = {
   unknown: "Status unknown",
 } as const;
 
-function InkPreview({ value, number }: { value: string; number: number }) {
+function InkPreview({ value, number, unitNoun }: { value: string; number: number; unitNoun: string }) {
   const document = parseAssignmentInkDocument(value);
   if (document.strokes.length === 0) return null;
   return (
@@ -28,7 +30,7 @@ function InkPreview({ value, number }: { value: string; number: number }) {
         viewBox={`0 0 ${document.logicalWidth} ${document.logicalHeight}`}
         preserveAspectRatio="xMidYMid meet"
         role="img"
-        aria-label={`Handwriting for problem ${number}`}
+        aria-label={`Handwriting for ${unitNoun} ${number}`}
       >
         {document.strokes.map((stroke) => (
           <polyline key={stroke.id} points={stroke.points.map((point) => `${point.x},${point.y}`).join(" ")} />
@@ -40,6 +42,7 @@ function InkPreview({ value, number }: { value: string; number: number }) {
 
 function SpecialistBlockPreview({ block }: { block: CanonicalRenderBlock }) {
   const fallbackVisible = block.runtimeHealth.status !== "healthy";
+  const projection = assignmentPlotForBlock(block);
   return (
     <article className={styles.workBlock} data-specialist-kind={block.type}>
       <header>
@@ -47,6 +50,8 @@ function SpecialistBlockPreview({ block }: { block: CanonicalRenderBlock }) {
         <span>{RUNTIME_STATUS_LABEL[block.runtimeHealth.status]}</span>
       </header>
       <p>{block.summary}</p>
+      {projection?.plot ? <AssignmentPlotPreview plot={projection.plot} /> : null}
+      {projection?.fallback ? <p>{projection.fallback}</p> : null}
       {block.plainText ? (
         <div className={styles.typedWork}>
           <strong>Specialist work</strong>
@@ -62,24 +67,20 @@ function SpecialistBlockPreview({ block }: { block: CanonicalRenderBlock }) {
   );
 }
 
-export function AssignmentSubmissionPreview({ preview }: { preview: SubmissionPreview }) {
+export function AssignmentSubmissionDownload({ assignmentId, payloadDigest }: Pick<SubmissionPreview, "assignmentId" | "payloadDigest">) {
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
-  const canonicalPayload = canonicalSubmissionPayloadForTarget(preview, "preview");
 
   function downloadPreparedPdf() {
     if (pending) return;
-    if (!preview.payloadDigest) {
-      setMessage("Refresh this review before preparing the PDF.");
+    if (!payloadDigest) {
+      setMessage("Refresh the page before preparing the PDF.");
       return;
     }
     setMessage(null);
     startTransition(async () => {
-      const result = await prepareCanonicalAssignmentDeliveryDownload({
-        assignmentId: preview.assignmentId,
-        payloadDigest: preview.payloadDigest ?? "",
-      });
+      const result = await prepareCanonicalAssignmentDeliveryDownload({ assignmentId, payloadDigest });
       if (!result.ok) {
         setMessage(result.error);
         return;
@@ -96,20 +97,43 @@ export function AssignmentSubmissionPreview({ preview }: { preview: SubmissionPr
   }
 
   return (
-    <section className={styles.paper} aria-labelledby="submission-preview-title">
-      <div className={styles.panelHeading}>
-        <FileText size={23} aria-hidden="true" /><h2 id="submission-preview-title">Your work</h2>
-        <button type="button" className={styles.secondary} disabled={pending} onClick={downloadPreparedPdf}>
-          <Download size={18} aria-hidden="true" /> {pending ? "Preparing PDF" : "Download PDF"}
-        </button>
-      </div>
-
+    <div className={styles.downloadAction}>
+      <button type="button" className={styles.secondary} disabled={pending} onClick={downloadPreparedPdf}>
+        <Download size={18} aria-hidden="true" /> {pending ? "Preparing PDF" : "Download PDF"}
+      </button>
       {message ? <p className={styles.notice} role="status">{message}</p> : null}
+    </div>
+  );
+}
+
+function capitalizeLabel(label: string) {
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+export function AssignmentSubmissionPreview({ preview, unitNoun = "problem", unitNounPlural = "problems" }: {
+  preview: SubmissionPreview;
+  unitNoun?: string;
+  unitNounPlural?: string;
+}) {
+  const canonicalPayload = canonicalSubmissionPayloadForTarget(preview, "preview");
+  const unitLabel = capitalizeLabel(unitNoun);
+  const unitsLabel = capitalizeLabel(unitNounPlural);
+  const incompleteLabel = preview.incompleteProblemNumbers.length === 1 ? unitLabel : unitsLabel;
+
+  return (
+    <section className={`${styles.paper} ${styles.reviewPaper}`} aria-labelledby="submission-preview-title">
+      <header className={styles.reviewHeader}>
+        <div className={styles.panelHeading}>
+          <FileText size={22} aria-hidden="true" />
+          <h2 id="submission-preview-title">Your work</h2>
+        </div>
+        <AssignmentSubmissionDownload assignmentId={preview.assignmentId} payloadDigest={preview.payloadDigest} />
+      </header>
 
       <dl className={styles.facts}>
         <div><dt>Destination</dt><dd>{preview.destination}</dd></div>
         <div><dt>PDF filename</dt><dd>{preview.fileName}</dd></div>
-        <div><dt>Problems</dt><dd>{preview.problems.length || "Full assignment"}</dd></div>
+        <div><dt>{unitsLabel}</dt><dd>{preview.problems.length || "Full assignment"}</dd></div>
       </dl>
 
       {canonicalPayload.specialistProjection.contextBlocks.length > 0 ? (
@@ -123,7 +147,7 @@ export function AssignmentSubmissionPreview({ preview }: { preview: SubmissionPr
       {preview.incompleteProblemNumbers.length > 0 ? (
         <div className={styles.notice} role="status">
           <AlertTriangle size={19} aria-hidden="true" />
-          <span><strong>Still marked incomplete:</strong> Problems {preview.incompleteProblemNumbers.join(", ")}. You can submit, but review these first.</span>
+          <span><strong>Still marked incomplete:</strong> {incompleteLabel} {preview.incompleteProblemNumbers.join(", ")}. You can hand in now or check your work first.</span>
         </div>
       ) : null}
 
@@ -131,10 +155,10 @@ export function AssignmentSubmissionPreview({ preview }: { preview: SubmissionPr
         <div className={styles.workBlocks}>
           {preview.problems.map((problem) => (
             <article key={problem.id} className={styles.workBlock} data-complete={problem.complete || undefined}>
-              <header><h3>Problem {problem.number}</h3><span>{problem.complete ? "Done" : "Incomplete"}</span></header>
+              <header><h3>{unitLabel} {problem.number}</h3><span>{problem.complete ? "Done" : "Incomplete"}</span></header>
               <p>{problem.prompt}</p>
               {problem.typedWork ? <div className={styles.typedWork}><strong>Student work</strong><pre>{problem.typedWork}</pre></div> : <p>No typed work saved.</p>}
-              <InkPreview value={problem.inkData} number={problem.number} />
+              <InkPreview value={problem.inkData} number={problem.number} unitNoun={unitNoun} />
             </article>
           ))}
         </div>

@@ -9,7 +9,9 @@ vi.mock("@/lib/supabase/server", () => ({ createClient: mocks.createClient }));
 vi.mock("@/lib/assignment-help/server-understanding", () => ({ loadAssignmentHomeworkKernel: vi.fn() }));
 vi.mock("./actions", () => ({ transitionAssignment: vi.fn() }));
 
-import { confirmAssignmentProblemText, markProblemDone, markProblemReviewed } from "./hm-actions";
+import { loadAssignmentHomeworkKernel } from "@/lib/assignment-help/server-understanding";
+import { transitionAssignment } from "./actions";
+import { confirmAssignmentProblemText, markProblemDone, markProblemReviewed, prepareAssignmentReview } from "./hm-actions";
 
 const problemId = "11111111-1111-4111-8111-111111111111";
 const assignmentId = "22222222-2222-4222-8222-222222222222";
@@ -48,6 +50,43 @@ function clientForRows(rows: unknown[]) {
   mocks.createClient.mockResolvedValue(client);
   return { client, authorshipInsert, queries };
 }
+
+describe("submission review readiness for saved sections", () => {
+  it.each([
+    { work: "The interview explains why families used the evening hours.", ready: true },
+    { work: "  ", ready: false },
+  ])("requires student work when the section has no artifact block ($ready)", async ({ work, ready }) => {
+    vi.clearAllMocks();
+    vi.mocked(loadAssignmentHomeworkKernel).mockResolvedValue({
+      assignment: { title: "Evidence and Claims", work_profile: "writing" },
+      profile: { legacyMode: "writing", artifactType: null },
+    } as unknown as Awaited<ReturnType<typeof loadAssignmentHomeworkKernel>>);
+    vi.mocked(transitionAssignment).mockResolvedValue({ ok: true });
+
+    const assignmentQuery = fluentResult({ status: "checking", saved_work: {} });
+    const problemQuery = fluentResult(null);
+    problemQuery.eq.mockReturnValueOnce(problemQuery).mockResolvedValueOnce({ data: [
+      { problem_number: 1, problem_text: "Compare two primary sources.", student_work: { work } },
+    ] });
+    const artifactQuery = { ...fluentResult(null), order: vi.fn().mockResolvedValue({ data: [] }) };
+    artifactQuery.select.mockReturnValue(artifactQuery);
+    artifactQuery.eq.mockReturnValue(artifactQuery);
+    mocks.createClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "student-1" } } }) },
+      from: vi.fn((table: string) => ({ assignments: assignmentQuery, assignment_problems: problemQuery, artifact_blocks: artifactQuery })[table]),
+    });
+
+    const result = await prepareAssignmentReview({ assignmentId });
+
+    if (ready) {
+      expect(result).toEqual({ ok: true });
+      expect(transitionAssignment).toHaveBeenCalledWith({ id: assignmentId, from: "checking", to: "exporting" });
+    } else {
+      expect(result).toEqual({ ok: false, error: "Add a little of your own work before reviewing the submission." });
+      expect(transitionAssignment).not.toHaveBeenCalled();
+    }
+  });
+});
 
 describe("assignment problem progress actions", () => {
   beforeEach(() => vi.clearAllMocks());

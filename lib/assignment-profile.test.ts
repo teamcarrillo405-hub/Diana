@@ -5,6 +5,7 @@ import {
   assignmentProfilePersistencePatch,
   reconcileWorkspaceWithAssignmentProfile,
   resolveAssignmentProfile,
+  setupSubjectForAssignmentProfile,
   SUBJECT_DOMAINS,
   type SubjectDomain,
 } from "./assignment-profile";
@@ -181,5 +182,81 @@ describe("assignment profile resolver", () => {
     }, profile, true);
 
     expect(reconciled.mode).toBe("reading");
+  });
+
+  it.each([
+    { className: "Algebra II", title: "Graphing worksheet", description: "Graph the two equations.", subjectDomain: "mathematics", deliverable: "worksheet", legacyMode: "math", artifactType: "problem_set" },
+    { className: "English 9", title: "Comparison report", description: "Compare two assigned articles about chemistry.", subjectDomain: "english_language_arts", deliverable: "report", legacyMode: "research", artifactType: "research_paper" },
+    { className: "U.S. History", title: "Research paper", description: "Use historical GDP and monetary policy as evidence.", subjectDomain: "social_studies", deliverable: "report", legacyMode: "research", artifactType: "research_paper" },
+    { className: "Biology", title: "Data analysis", description: "Write a lab report from the provided observations.", subjectDomain: "science", deliverable: "lab_report", legacyMode: "lab", artifactType: "lab_report" },
+    { className: "Biology", title: "Cell discovery report", description: "Write a report using the assigned articles on laboratory history.", subjectDomain: "science", deliverable: "report", legacyMode: "research", artifactType: "research_paper" },
+    { className: "Economics", title: "Demand model", description: "Graph supply and demand. Use the company balance sheet for context.", subjectDomain: "economics", deliverable: "graph_analysis", legacyMode: "research", artifactType: "economic_analysis" },
+    { className: "Economics", title: "Distribution report", description: "Use the company balance sheet as background for market equilibrium.", subjectDomain: "economics", deliverable: "report", legacyMode: "research", artifactType: "research_paper" },
+    { className: "Introduction to Law", title: "Case brief", description: "Brief the assigned case on a bank's trial balance.", subjectDomain: "general", deliverable: "legal_case_brief", legacyMode: "research", artifactType: "research_paper" },
+    { className: "Legal writing", title: "Case memo", description: "Apply the assigned case to the hypothetical facts.", subjectDomain: "general", deliverable: "legal_memo", legacyMode: "research", artifactType: "research_paper" },
+    { className: "Seminar", title: "Module A", description: "Complete the task that we discussed.", subjectDomain: "general", deliverable: "general_response", legacyMode: "handoff", artifactType: "submission_note" },
+  ])("routes $className / $title by subject and deliverable", ({ className, title, description, ...expected }) => {
+    const profile = resolveAssignmentProfile({ kind: "other", className, title, description });
+    expect(profile).toMatchObject(expected);
+  });
+
+  it("treats an assigned reading as source material and uses directions for the deliverable", () => {
+    expect(resolveAssignmentProfile({
+      kind: "other",
+      className: "Seminar",
+      title: "Week 3",
+      description: "Read the report and answer the following questions.",
+      sourceText: "Annual report with equations and gross domestic product calculations",
+    })).toMatchObject({ subjectDomain: "general", deliverable: "worksheet" });
+  });
+
+  it("refreshes a recognized automatic legacy profile without replacing a course-mode profile", () => {
+    const profile = {
+      ...resolveAssignmentProfile({ kind: "other", title: "Accounting trial balance" }),
+      routingSource: undefined,
+    };
+    const assignment = { kind: "other" as const, className: "Economics", title: "Market equilibrium model", profile };
+    expect(resolveAssignmentProfile({ ...assignment, workProfileSource: "weighted_context" })).toMatchObject({
+      subjectDomain: "economics",
+      deliverable: "graph_analysis",
+      routingSource: "inferred",
+    });
+    expect(resolveAssignmentProfile({ ...assignment, workProfileSource: "course_mode" })).toMatchObject({
+      subjectDomain: "accounting",
+      artifactType: "accounting_workbook",
+    });
+  });
+
+  it("round-trips a selected deliverable without replacing subject tools", () => {
+    const assignment = { kind: "other" as const, className: "Economics", title: "Demand model" };
+    const original = resolveAssignmentProfile(assignment);
+    const selected = resolveAssignmentProfile({ ...assignment, profile: original, deliverableOverride: "report" });
+    expect(selected).toMatchObject({ subjectDomain: "economics", capabilities: original.capabilities, deliverable: "report", routingSource: "student_selected" });
+    expect(resolveAssignmentProfile({ ...assignment, profile: selected })).toEqual(selected);
+    expect(resolveAssignmentProfile({ ...assignment, profile: selected, subjectOverride: "social_studies" })).toMatchObject({
+      subjectDomain: "social_studies",
+      deliverable: "report",
+      capabilities: ["rich_text"],
+    });
+  });
+
+  it("identifies a law class separately from the deliverable and preserves the general tool contract", () => {
+    const legalReport = resolveAssignmentProfile({ kind: "other", className: "Introduction to Law", title: "Research report" });
+    const historyBrief = resolveAssignmentProfile({ kind: "other", className: "U.S. History", title: "Case brief" });
+    expect(setupSubjectForAssignmentProfile(legalReport)).toBe("legal_studies");
+    expect(legalReport).toMatchObject({ subjectDomain: "general", deliverable: "report", capabilities: ["rich_text"] });
+    expect(setupSubjectForAssignmentProfile(historyBrief)).toBe("social_studies");
+    expect(historyBrief.deliverable).toBe("legal_case_brief");
+  });
+
+  it("round-trips Legal studies and a subsequent General selection independently of format", () => {
+    const assignment = { kind: "other" as const, className: "Introduction to Law", title: "Case brief" };
+    const selected = resolveAssignmentProfile({ ...assignment, subjectOverride: "legal_studies" });
+    expect(selected.legalCoursework).toBe(true);
+    expect(resolveAssignmentProfile({ ...assignment, profile: selected })).toEqual(selected);
+    const general = resolveAssignmentProfile({ ...assignment, profile: selected, subjectOverride: "general" });
+    const restored = resolveAssignmentProfile({ ...assignment, profile: general });
+    expect(setupSubjectForAssignmentProfile(restored)).toBe("general");
+    expect(restored.deliverable).toBe("legal_case_brief");
   });
 });

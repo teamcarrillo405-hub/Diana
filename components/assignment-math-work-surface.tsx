@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Eraser,
   GripHorizontal,
-  MoreHorizontal,
   PenLine,
   Redo2,
   Undo2,
@@ -77,9 +76,10 @@ export type MathWorkSurfaceProps = {
   saveError: string;
   onRetrySave(): void;
   initialPreference?: AssignmentWorkspacePreference;
+  draftLabel?: string;
 };
 
-export function MathWorkSurface({ assignmentId, problemId, work, workInk, onWorkChange, onInkChange, onClear, onUndoClear, onReview, reviewed, done, clearUndoAvailable, saveState, saveError, onRetrySave, initialPreference }: MathWorkSurfaceProps) {
+export function MathWorkSurface({ assignmentId, problemId, work, workInk, onWorkChange, onInkChange, onClear, onUndoClear, onReview, reviewed, done, clearUndoAvailable, saveState, saveError, onRetrySave, initialPreference, draftLabel }: MathWorkSurfaceProps) {
   const [paper, setPaper] = useState<WorkPaper>(initialPreference?.paperStyle ?? "lined");
   const [workHeight, setWorkHeight] = useState(initialPreference?.workHeight ?? 240);
   const workHeightRef = useRef(initialPreference?.workHeight ?? 240);
@@ -356,13 +356,13 @@ export function MathWorkSurface({ assignmentId, problemId, work, workInk, onWork
     commit(strokesRef.current);
   }
 
-  const saveLabel = assignmentDraftLabel(saveState);
+  const saveLabel = assignmentDraftLabel(saveState) || (work.trim() || workInk ? "Saved draft" : "");
 
   return (
     <section id="assignment-work" className="sd-assignment-work-surface" aria-label="Student work" tabIndex={-1}>
       <header className="sd-assignment-work-surface-header">
         <details className="sd-assignment-work-tools">
-          <summary>Work tools</summary>
+          <summary>Paper &amp; pen</summary>
           <div className="sd-assignment-work-tools-panel">
             <div className="sd-assignment-paper-control" role="group" aria-label="Work paper">
               <button type="button" aria-pressed={paper === "blank"} onClick={() => choosePaper("blank")}>Blank</button>
@@ -375,23 +375,18 @@ export function MathWorkSurface({ assignmentId, problemId, work, workInk, onWork
               <button type="button" disabled={undoStack.current.length === 0} onClick={undoInk} aria-label="Undo handwriting" title="Undo handwriting"><Undo2 size={18} aria-hidden="true" /><span>Undo</span></button>
               <button type="button" disabled={redoStack.current.length === 0} onClick={redoInk} aria-label="Redo handwriting" title="Redo handwriting"><Redo2 size={18} aria-hidden="true" /><span>Redo</span></button>
             </div>
+            <button type="button" onClick={onClear} disabled={!work && !workInk}>Clear work</button>
           </div>
         </details>
         <div className="sd-assignment-work-actions">
-          {saveLabel ? <span className="sd-assignment-inline-save" data-state={saveState} role="status" title={saveError || saveLabel}>{saveState === "synced" ? <CheckCircle2 size={15} aria-hidden="true" /> : null}{saveLabel}</span> : null}
           <button type="button" className="sd-assignment-review-action" data-primary={!reviewed && !done || undefined} onClick={onReview} disabled={!work.trim() && !workInk} aria-describedby={!work.trim() && !workInk ? "assignment-review-help" : undefined}>Review with Diana</button>
           {done ? (
             <span className="sd-assignment-done-state"><Check size={16} aria-hidden="true" /> Done</span>
           ) : null}
-          <details className="sd-assignment-work-more">
-            <summary aria-label="More work options" title="More work options"><MoreHorizontal size={19} aria-hidden="true" /></summary>
-            <div>
-              <button type="button" onClick={onClear} disabled={!work && !workInk}>Clear work</button>
-            </div>
-          </details>
         </div>
       </header>
-      {!work.trim() && !workInk ? <p id="assignment-review-help" className="sd-assignment-review-help">Add a step before asking Diana to review.</p> : null}
+      {saveLabel ? <span className="sd-assignment-inline-save" data-state={saveState} role="status" title={saveError || saveLabel}>{saveState === "synced" || saveState === "idle" ? <CheckCircle2 size={15} aria-hidden="true" /> : null}{saveLabel}</span> : null}
+      {!work.trim() && !workInk ? <p id="assignment-review-help" className="sr-only">Add some work to ask Diana for feedback.</p> : null}
       {saveState === "retryable_error" ? (
         <div className="sd-assignment-workspace-feedback" data-target="save" role="alert">
           <span>{saveError || "This work is still on this device and needs another sync attempt."}</span>
@@ -414,13 +409,13 @@ export function MathWorkSurface({ assignmentId, problemId, work, workInk, onWork
         <textarea
           ref={workTextarea}
           id="assignment-work-entry"
-          aria-label="Show your work"
+          aria-label={draftLabel ?? "Show your work"}
           value={work}
           onChange={(event) => onWorkChange(event.target.value)}
           onFocus={() => setTypingActive(true)}
           onBlur={() => setTypingActive(false)}
           aria-describedby="assignment-work-input-help"
-          placeholder="Show your work. Tap to type or drag to write."
+          placeholder={draftLabel ? "Start writing here…" : "Show your work. Tap to type or drag to write."}
           rows={10}
           className="sd-assignment-work-textarea"
         />

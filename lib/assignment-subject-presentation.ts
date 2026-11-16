@@ -71,6 +71,80 @@ const COPY: Record<AssignmentWorkProfile["subjectDomain"], { noun: string; plura
   general: { noun: "work step", plural: "work steps", units: [["Response", "section", "Start the assignment in your own words."], ["Evidence or work", "evidence", "Show the work or evidence that supports your response."]] },
 };
 
+const REPORT_UNITS = {
+  noun: "section",
+  plural: "sections",
+  units: [
+    ["Focus", "section", "State the report question and what the report needs to cover."],
+    ["Evidence and sources", "evidence", "Collect details from the assigned sources. Note the source and location for each key fact."],
+    ["Draft", "section", "Write the report in your own words using the required structure and evidence."],
+  ],
+} satisfies (typeof COPY)["general"];
+
+const LEGAL_CASE_BRIEF_UNITS = {
+  noun: "section",
+  plural: "sections",
+  units: [
+    ["Case and citation", "source", "Copy the case name, court, date, and citation from the assigned case."],
+    ["Facts and procedural history", "evidence", "Identify the facts that matter to the decision and what happened before this ruling."],
+    ["Issue", "section", "State the legal question the court decided."],
+    ["Rule", "section", "Identify the rule the court used and where it appears in the assigned source."],
+    ["Holding and reasoning", "section", "Explain how the court applied the rule to the facts and what it decided."],
+  ],
+} satisfies (typeof COPY)["general"];
+
+const LEGAL_MEMO_UNITS = {
+  noun: "section",
+  plural: "sections",
+  units: [
+    ["Question presented", "section", "State the legal question and the facts it depends on."],
+    ["Brief answer", "section", "Write a short answer that previews your reasoning."],
+    ["Relevant facts", "evidence", "Identify the facts that matter and distinguish established facts from assumptions."],
+    ["Analysis", "section", "Apply the assigned authority to the facts, check citations against the source, and consider competing interpretations."],
+    ["Conclusion", "section", "Summarize the answer supported by your analysis."],
+  ],
+} satisfies (typeof COPY)["general"];
+
+function presentationCopyFor(profile: AssignmentWorkProfile): (typeof COPY)["general"] {
+  switch (profile.deliverable) {
+    case "report": return REPORT_UNITS;
+    case "lab_report": return profile.subjectDomain === "advanced_technical_labs" ? COPY.advanced_technical_labs : COPY.science;
+    case "graph_analysis": return COPY.economics;
+    case "legal_case_brief": return LEGAL_CASE_BRIEF_UNITS;
+    case "legal_memo": return LEGAL_MEMO_UNITS;
+    case "general_response": return COPY.general;
+    case "worksheet": return profile.subjectDomain === "mathematics" ? COPY.mathematics : {
+      noun: "question",
+      plural: "questions",
+      units: [["Question 1", "problem", "Enter or import the first worksheet question, then show your reasoning."]],
+    };
+    default: return COPY[profile.subjectDomain];
+  }
+}
+
+const STRUCTURED_SECTION_FORMATS = new Set<AssignmentWorkProfile["deliverable"]>([
+  "report", "lab_report", "graph_analysis", "legal_case_brief", "legal_memo",
+]);
+
+function requiredHeadings(text: string | null | undefined): string[] {
+  const lines = (text ?? "").slice(0, 8000).split(/\r?\n/u);
+  const declaration = /^\s*(?:#{1,4}\s+)?(?:required\s+(?:report\s+)?(?:sections|headings)|include the following (?:sections|headings))\s*:\s*(.*?)\s*$/iu;
+  const index = lines.findIndex((line) => declaration.test(line));
+  if (index < 0) return [];
+  const inline = lines[index].match(declaration)?.[1];
+  const candidates = inline ? inline.split(/[,;]/u) : [];
+  if (!inline) {
+    for (const line of lines.slice(index + 1, index + 12)) {
+      const entry = line.match(/^\s*(?:[-*•]|\d{1,2}[.)])\s+(.+)$/u);
+      if (!entry) break;
+      candidates.push(entry[1]);
+    }
+  }
+  const labels = [...new Set(candidates.map((label) => label.trim()))];
+  return labels.length > 0 && labels.length <= 10 && labels.every((label) =>
+    label.length <= 60 && /^[\p{L}\p{N}][\p{L}\p{N} ’'&/()\-]*$/u.test(label)) ? labels : [];
+}
+
 function sourceText(packet: SourcePacketLike): string {
   const material = packet.materialText?.trim()
     ? [packet.materialText]
@@ -85,12 +159,29 @@ function sourceText(packet: SourcePacketLike): string {
 }
 
 export function subjectPresentationFor(profile: AssignmentWorkProfile, packet: SourcePacketLike = {}): SubjectWorkspacePresentation {
-  const copy = COPY[profile.subjectDomain];
-  const numbered = parseImportedProblems(sourceText(packet));
-  const units = (profile.subjectDomain === "mathematics" || profile.artifactType === "worksheet_response") && numbered.length > 0
-    ? numbered.map((item) => ({ label: `Problem ${item.number}`, type: "problem" as const, prompt: item.text, sourceAnchor: { label: "Imported assignment" } }))
+  const copy = presentationCopyFor(profile);
+  const importsQuestions = profile.deliverable === "worksheet" || (!profile.deliverable
+    && (profile.subjectDomain === "mathematics" || profile.artifactType === "worksheet_response"));
+  const numbered = importsQuestions ? parseImportedProblems(sourceText(packet)) : [];
+  const unitLabel = copy.noun === "question" ? "Question" : "Problem";
+  const headings = STRUCTURED_SECTION_FORMATS.has(profile.deliverable)
+    ? requiredHeadings(packet.directions) : [];
+  const listedHeadings = headings.length > 0 ? headings : STRUCTURED_SECTION_FORMATS.has(profile.deliverable)
+    ? requiredHeadings(packet.rubric) : [];
+  const sections = listedHeadings.length > 0
+    ? listedHeadings.map((heading) => {
+      const matching = copy.units.find(([label]) => label.toLowerCase() === heading.toLowerCase());
+      return { label: heading, type: matching?.[1] ?? "section" as const, prompt: matching?.[2] ?? "Follow the assignment directions and rubric for this section." };
+    })
     : copy.units.map(([label, type, prompt]) => ({ label, type, prompt }));
-  const requestedPrimary = PRIMARY_CAPABILITY[profile.subjectDomain] ?? null;
+  const units = numbered.length > 0
+    ? numbered.map((item) => ({ label: `${unitLabel} ${item.number}`, type: "problem" as const, prompt: item.text, sourceAnchor: { label: "Imported assignment" } }))
+    : sections;
+  const requestedPrimary = profile.deliverable === "graph_analysis" ? "graphing"
+    : profile.deliverable === "lab_report" ? "data_lab"
+    : profile.deliverable === "report" || profile.deliverable === "legal_case_brief"
+      || profile.deliverable === "legal_memo" || profile.deliverable === "general_response" ? null
+    : PRIMARY_CAPABILITY[profile.subjectDomain] ?? null;
   const primaryCapability = requestedPrimary && profile.capabilities.includes(requestedPrimary) ? requestedPrimary : null;
   return {
     unitNoun: copy.noun,

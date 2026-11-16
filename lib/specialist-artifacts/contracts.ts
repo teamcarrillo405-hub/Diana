@@ -2,6 +2,7 @@ import type {
   AssignmentCapability,
   UniversalTypedInkFallback,
 } from "@/lib/assignment-capabilities";
+import type { GraphCurve, GraphPhoto, GraphViewport } from "@/lib/native-tools/graph-work";
 
 export const SPECIALIST_ARTIFACT_CONTEXT_SCHEMA_VERSION = 3 as const;
 
@@ -62,6 +63,11 @@ export type SpecialistEquationPayload = {
 export type SpecialistGraphPayload = {
   expression: string;
   points: SpecialistGraphPoint[];
+  series?: GraphCurve[];
+  viewport?: GraphViewport;
+  xLabel?: string;
+  yLabel?: string;
+  photo?: GraphPhoto;
 };
 
 export type SpecialistLedgerRow = {

@@ -2,13 +2,14 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ArrowRight, CheckCircle2, Clock3, FilePenLine } from "lucide-react";
 
-import { AssignmentSubmissionPreview } from "@/components/assignment-submission-preview";
+import { AssignmentSubmissionDownload, AssignmentSubmissionPreview } from "@/components/assignment-submission-preview";
 import { StudentShell } from "@/components/student-shell/student-shell";
 import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import { SectionTabs } from "@/components/student-shell/section-tabs";
 import styles from "@/components/student-shell/submission.module.css";
 import { loadAssignmentSubmissionBundle } from "@/lib/assignment-submission-server";
 import { WORK_RETURN_PATH } from "@/lib/assignment-navigation";
+import { subjectPresentationFor } from "@/lib/assignment-subject-presentation";
 import { createClient } from "@/lib/supabase/server";
 import { ExternalSubmissionSync } from "../external-submission-sync";
 import { SubmitChecklist } from "./checklist";
@@ -64,7 +65,9 @@ function SubmittedAssignmentReceipt({ title, className, status, submittedAt, ext
   return (
     <StudentShell active="Work" className={styles.root} profile={navigationProfile}>
       <main id="main-content" className={styles.main}>
-        <Link href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to Work</Link>
+        <nav aria-label="Submission navigation" className={styles.routeLinks}>
+          <Link href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to Work</Link>
+        </nav>
         <section className={`${styles.paper} ${styles.receipt}`} aria-labelledby="submission-receipt-title">
           <div className={styles.receiptHeading}>
             <CheckCircle2 size={34} aria-hidden="true" />
@@ -170,42 +173,52 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
       }
     : null;
   const checks = <SubmitChecklist assignmentId={id} items={checklist} showFinalConfirmation={!connectedProvider} />;
+  const { unitNoun, unitNounPlural } = subjectPresentationFor(bundle.profile);
 
   return (
     <StudentShell active="Work" className={styles.root} profile={navigationProfile}>
       <main id="main-content" className={styles.main}>
-        <div className={styles.routeLinks}>
+        <nav aria-label="Submission navigation" className={styles.routeLinks}>
           <Link href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to Work</Link>
           <Link href={`/assignments/${id}/workspace`} className={styles.back}><FilePenLine size={17} aria-hidden="true" />Edit in workspace</Link>
-        </div>
+        </nav>
         <header className={styles.title}>
           <p className={styles.eyebrow}>{className}</p>
           <h1>{assignment.title}</h1>
           {timeSpent > 0 ? <p className={styles.focusedTime}><Clock3 size={16} aria-hidden="true" />{formatMinutes(timeSpent)} focused time</p> : null}
         </header>
 
-        <SectionTabs key={id} id="submission" label="Submission" sections={[
-          { id: "review", label: "Review", content: <AssignmentSubmissionPreview preview={preview} /> },
-          { id: "hand-in", label: "Hand in", content: connectedProvider ? (
-            <ExternalSubmissionSync
-              assignmentId={id}
-              assignmentTitle={assignment.title}
-              provider={assignment.external_source}
-              externalUrl={assignment.external_url}
-              currentUrl={assignment.submission_url}
-              initialStatus={assignment.submission_sync_status}
-              deliveryFile={deliveryFile}
-              preview={preview}
-            >{checks}</ExternalSubmissionSync>
-          ) : (
-            <div className={styles.handoff}>
-              <SubmissionDestination assignmentId={id} currentUrl={assignment.submission_url} externalUrl={assignment.external_url} externalLabel="Open school assignment" title="Hand in at school">
-                <p>Download your PDF from Review and hand it in using your teacher&apos;s required method.</p>
-              </SubmissionDestination>
-              {checks}
-            </div>
-          ) },
-        ]} />
+        <div className={styles.submissionFlow}>
+          <SectionTabs key={id} id="submission" label="Submission" sections={[
+            { id: "review", label: "Review", content: <AssignmentSubmissionPreview preview={preview} unitNoun={unitNoun} unitNounPlural={unitNounPlural} /> },
+            { id: "hand-in", label: "Hand in", content: connectedProvider ? (
+              <ExternalSubmissionSync
+                assignmentId={id}
+                assignmentTitle={assignment.title}
+                provider={assignment.external_source}
+                externalUrl={assignment.external_url}
+                currentUrl={assignment.submission_url}
+                initialStatus={assignment.submission_sync_status}
+                deliveryFile={deliveryFile}
+                preview={preview}
+              >{checks}</ExternalSubmissionSync>
+            ) : (
+              <div className={styles.handoff}>
+                <SubmissionDestination
+                  assignmentId={id}
+                  currentUrl={assignment.submission_url}
+                  externalUrl={assignment.external_url}
+                  externalLabel="Open school assignment"
+                  title="Hand in at school"
+                  extraAction={<AssignmentSubmissionDownload assignmentId={id} payloadDigest={preview.payloadDigest} />}
+                >
+                  <p>Download your PDF, then hand it in using your teacher&apos;s required method.</p>
+                </SubmissionDestination>
+                {checks}
+              </div>
+            ) },
+          ]} />
+        </div>
       </main>
     </StudentShell>
   );

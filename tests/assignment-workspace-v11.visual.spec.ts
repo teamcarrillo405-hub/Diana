@@ -140,7 +140,7 @@ test("keeps the Algebra learning loop readable and recoverable at every supporte
   }
 
   await page.setViewportSize({ width: 1024, height: 768 });
-  const toolsToggle = page.getByRole("button", { name: "Tools", exact: true });
+  const toolsToggle = page.getByRole("button", { name: "Assignment details", exact: true });
   await toolsToggle.click();
   await expect(page.locator("#assignment-utilities")).toHaveAttribute("data-open", "true");
   const closeTools = page.locator("#assignment-utilities").getByRole("button", { name: "Close assignment tools" });

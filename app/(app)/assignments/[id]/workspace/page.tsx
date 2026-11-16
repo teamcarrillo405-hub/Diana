@@ -99,6 +99,10 @@ export default async function AssignmentWorkspacePage({
 
   const artifactStore = supabase as unknown as ArtifactClient;
   const safetyStore = supabase as unknown as SafetyRpcClient;
+  const unitFields = "id, problem_number, problem_text, source, unit_type, student_work, scaffold, progress_status, reviewed_at, completed_at";
+  const readWorkUnits = () => supabase.from("assignment_problems")
+    .select(unitFields).eq("assignment_id", id).eq("owner_id", user.id)
+    .order("problem_number", { ascending: true });
   const [homeworkKernel, { data: stepsRow }, { data: problems }, { data: artifactRows }, { data: practicalGateData }, { data: problemMessages }, { data: workspacePreferences }, { data: navigationProfile }, { data: originalFiles }] = await Promise.all([
     loadAssignmentHomeworkKernel({
       supabase,
@@ -112,12 +116,7 @@ export default async function AssignmentWorkspacePage({
       .eq("assignment_id", id)
       .eq("owner_id", user.id)
       .maybeSingle(),
-    supabase
-      .from("assignment_problems")
-      .select("id, problem_number, problem_text, source, unit_type, student_work, scaffold, progress_status, reviewed_at, completed_at")
-      .eq("assignment_id", id)
-      .eq("owner_id", user.id)
-      .order("problem_number", { ascending: true }),
+    readWorkUnits(),
     artifactStore
       .from("artifact_blocks")
       .select("id, block_key, block_type, capability, label, position, content, plain_text, source_anchors")
@@ -169,21 +168,28 @@ export default async function AssignmentWorkspacePage({
     rubric: assignment.rubric_text,
     sourceText: [sourcePacket.directions, sourcePacket.rubric, sourcePacket.materialText].join("\n"),
   };
-  const detectedClassification = classifyWorkspaceMode(profileInput, legacyMode
+  const selectedSetup = assignmentProfile.routingSource === "student_selected";
+  const detectedClassification = classifyWorkspaceMode(profileInput, selectedSetup
+    ? { mode: assignmentProfile.legacyMode, source: "student_selected" }
+    : legacyMode
     ? { mode: legacyMode, source: "student_selected" }
     : { mode: assignment.work_profile, source: assignment.work_profile_source });
   const classification = reconcileWorkspaceWithAssignmentProfile(
     detectedClassification,
     assignmentProfile,
-    Boolean(legacyMode),
+    selectedSetup || Boolean(legacyMode),
   );
   const mode = classification.mode;
   const profilePatch = workProfilePersistencePatch(classification);
   const compositePatch = assignmentProfilePersistencePatch(assignmentProfile);
+  const savedProfile = asSavedWork(assignment.assignment_profile);
   if (
     assignment.work_profile !== profilePatch.work_profile ||
     assignment.work_profile_source !== profilePatch.work_profile_source ||
-    !assignment.assignment_profile
+    savedProfile.routingSource !== assignmentProfile.routingSource ||
+    savedProfile.deliverable !== assignmentProfile.deliverable ||
+    savedProfile.legalCoursework !== assignmentProfile.legalCoursework ||
+    savedProfile.subjectDomain !== assignmentProfile.subjectDomain
   ) {
     await supabase.from("assignments").update({
       ...profilePatch,
@@ -206,6 +212,7 @@ export default async function AssignmentWorkspacePage({
         problem_number: index + 1,
         problem_text: unit.prompt,
         source: "assignment_source",
+        unit_type: unit.type,
         student_work: index === 0 ? legacy.studentWork as unknown as Json : {} as Json,
         progress_status: index === 0 && legacy.hasStudentWork ? "in_progress" : "not_started",
         scaffold: {
@@ -215,8 +222,12 @@ export default async function AssignmentWorkspacePage({
           unitMetadata: unit.metadata ?? {},
         } as unknown as Json,
       })))
-      .select("id, problem_number, problem_text, source, unit_type, student_work, scaffold, progress_status, reviewed_at, completed_at");
+      .select(unitFields);
     if (!createUnitsError && created) workspaceProblems = created;
+    else if (createUnitsError?.code === "23505") {
+      const { data: concurrentUnits } = await readWorkUnits();
+      workspaceProblems = concurrentUnits ?? [];
+    }
   }
 
   return (
@@ -258,7 +269,8 @@ export default async function AssignmentWorkspacePage({
         problemNumber: problem.problem_number,
         problemText: problem.problem_text,
         source: problem.source,
-        unitType: problem.unit_type,
+        unitType: typeof asSavedWork(problem.scaffold).unitType === "string"
+          ? String(asSavedWork(problem.scaffold).unitType) : problem.unit_type,
         studentWork: asSavedWork(problem.student_work),
         scaffold: asSavedWork(problem.scaffold),
         progressStatus: problem.progress_status as "not_started" | "in_progress" | "done",

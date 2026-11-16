@@ -19,7 +19,7 @@ type Props = {
 
 export function SpecialistDataChart({ dataset, config, onRuntimeStateChange }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<EChartsType | null>(null);
+  const [chart, setChart] = useState<EChartsType | null>(null);
   const [message, setMessage] = useState("Loading the local chart renderer...");
   const series = useMemo(
     () => chartSeriesForDataset(dataset, config),
@@ -31,13 +31,15 @@ export function SpecialistDataChart({ dataset, config, onRuntimeStateChange }: P
     if (!host) return;
     let disposed = false;
     let observer: ResizeObserver | null = null;
+    let renderer: EChartsType | null = null;
     onRuntimeStateChange(activeRuntimeState("loading", ["Apache ECharts", "Papa Parse"]));
     void import("echarts").then((echarts) => {
       if (disposed) return;
       const chart = echarts.init(host, undefined, { renderer: "canvas" });
-      chartRef.current = chart;
+      renderer = chart;
       observer = new ResizeObserver(() => chart.resize());
       observer.observe(host);
+      setChart(chart);
       const state = activeRuntimeState(
         "ready",
         ["Apache ECharts", "Papa Parse"],
@@ -58,26 +60,28 @@ export function SpecialistDataChart({ dataset, config, onRuntimeStateChange }: P
     return () => {
       disposed = true;
       observer?.disconnect();
-      chartRef.current?.dispose();
-      chartRef.current = null;
+      renderer?.dispose();
       host.replaceChildren();
     };
   }, [onRuntimeStateChange]);
 
   useEffect(() => {
-    const chart = chartRef.current;
-    if (!chart || !series) return;
+    if (!chart || chart.isDisposed()) return;
+    if (!series) {
+      chart.clear();
+      return;
+    }
     chart.setOption({
       animation: false,
       aria: { enabled: true },
       grid: { left: 56, right: 20, top: 30, bottom: 56 },
-      tooltip: { trigger: "axis" },
+      tooltip: { trigger: series.type === "scatter" ? "item" : "axis" },
       xAxis: {
-        type: "category",
+        type: series.xAxisType,
         name: series.xLabel,
         nameLocation: "middle",
         nameGap: 36,
-        data: series.categories,
+        ...(series.xAxisType === "value" ? { scale: true } : { data: series.categories }),
         axisLabel: { hideOverlap: true },
       },
       yAxis: {
@@ -86,13 +90,13 @@ export function SpecialistDataChart({ dataset, config, onRuntimeStateChange }: P
       },
       series: [{
         type: series.type,
-        data: series.values,
+        data: series.xAxisType === "value" ? series.points : series.values,
         symbolSize: series.type === "scatter" ? 9 : undefined,
         itemStyle: { color: "#0f766e" },
         lineStyle: { color: "#0f766e", width: 3 },
       }],
     }, { notMerge: true });
-  }, [series]);
+  }, [chart, series]);
 
   return (
     <div className="mt-3">
@@ -100,10 +104,11 @@ export function SpecialistDataChart({ dataset, config, onRuntimeStateChange }: P
         ref={hostRef}
         className="h-[320px] w-full border border-slate-300 bg-white"
         role="img"
+        data-x-axis-type={series?.xAxisType}
         aria-label={series ? `${series.type} chart of ${series.yLabel} by ${series.xLabel}` : "Data chart preview"}
       />
       <p className="mb-0 mt-2 text-sm text-slate-700" aria-live="polite">
-        {series ? message : "Choose a numeric column to draw a chart."}
+        {series ? message : config.type === "scatter" ? "Choose numeric columns for both scatter plot axes." : "Choose a numeric column to draw a chart."}
       </p>
     </div>
   );

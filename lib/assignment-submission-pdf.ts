@@ -4,6 +4,15 @@ import { parseAssignmentInkDocument } from "@/lib/assignment-ink";
 import { canonicalSubmissionPayloadForTarget } from "@/lib/assignment-submission";
 import { assignmentSubmissionCanonicalPayloadBytes } from "@/lib/assignment-submission-server";
 import type { AssignmentSubmissionPreview } from "@/lib/assignment-workspace-contracts";
+import {
+  ASSIGNMENT_PLOT_COLORS,
+  ASSIGNMENT_PLOT_FRAME,
+  assignmentPlotForBlock,
+  assignmentPlotPath,
+  compactPlotLabel,
+  type AssignmentPlot,
+  type AssignmentPlotMark,
+} from "@/lib/specialist-artifacts/assignment-plots";
 import { utf8ByteLength } from "@/lib/specialist-artifacts/bounds";
 
 const PAGE_WIDTH = 612;
@@ -141,8 +150,8 @@ function wrapText(value: string, primaryFont: PDFFont, symbolFont: PDFFont, size
   return lines;
 }
 
-function drawGlyphLine(page: PDFPage, glyphs: readonly PdfGlyph[], y: number, size: number, color: ReturnType<typeof rgb>) {
-  let x = MARGIN;
+function drawGlyphLine(page: PDFPage, glyphs: readonly PdfGlyph[], y: number, size: number, color: ReturnType<typeof rgb>, startX = MARGIN) {
+  let x = startX;
   let runFont: PDFFont | null = null;
   let runText = "";
   let runWidth = 0;
@@ -163,6 +172,75 @@ function drawGlyphLine(page: PDFPage, glyphs: readonly PdfGlyph[], y: number, si
     runWidth += glyph.width;
   }
   flush();
+}
+
+function plotColor(hex: string) {
+  const value = Number.parseInt(hex.slice(1), 16);
+  return rgb(((value >> 16) & 255) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255);
+}
+
+const PLOT_SCALE = TEXT_WIDTH / ASSIGNMENT_PLOT_FRAME.width;
+const PLOT_HEIGHT = ASSIGNMENT_PLOT_FRAME.height * PLOT_SCALE;
+
+function drawAssignmentPlot(page: PDFPage, plot: AssignmentPlot, top: number, regular: PDFFont, bold: PDFFont, symbol: PDFFont) {
+  const frame = ASSIGNMENT_PLOT_FRAME;
+  const colors = ASSIGNMENT_PLOT_COLORS;
+  const x = (value: number) => MARGIN + value * PLOT_SCALE;
+  const y = (value: number) => top - value * PLOT_SCALE;
+  const line = (x1: number, y1: number, x2: number, y2: number, color: string, thickness: number) => page.drawLine({
+    start: { x: x(x1), y: y(y1) }, end: { x: x(x2), y: y(y2) }, color: plotColor(color), thickness,
+  });
+  const label = (value: string, xAt: number, yAt: number, alignment: "start" | "end" | "middle", font: PDFFont) => {
+    const size = 11;
+    const glyphs = pdfGlyphs(value, font, symbol, size);
+    const width = glyphWidth(glyphs);
+    const offset = alignment === "start" ? 0 : alignment === "end" ? width : width / 2;
+    drawGlyphLine(page, glyphs, y(yAt), size, plotColor(colors.ink), x(xAt) - offset);
+  };
+
+  page.drawRectangle({ x: MARGIN, y: y(frame.height), width: TEXT_WIDTH, height: PLOT_HEIGHT, color: plotColor(colors.background) });
+  for (const tick of plot.xTicks) {
+    line(tick.position, frame.top, tick.position, frame.bottom, colors.grid, .65);
+    label(tick.label, tick.position, frame.bottom + 19, "middle", regular);
+  }
+  for (const tick of plot.yTicks) {
+    line(frame.left, tick.position, frame.right, tick.position, colors.grid, .65);
+    label(tick.label, frame.left - 7, tick.position + 4, "end", regular);
+  }
+  if (plot.xZero !== null) line(plot.xZero, frame.top, plot.xZero, frame.bottom, colors.frame, 1);
+  if (plot.yZero !== null) line(frame.left, plot.yZero, frame.right, plot.yZero, colors.frame, 1);
+  page.drawRectangle({
+    x: x(frame.left), y: y(frame.bottom), width: x(frame.right) - x(frame.left), height: y(frame.top) - y(frame.bottom),
+    borderWidth: .9, borderColor: plotColor(colors.frame),
+  });
+  label(compactPlotLabel(plot.yLabel, 45), frame.left, frame.top - 12, "start", bold);
+  label(compactPlotLabel(plot.xLabel, 45), (frame.left + frame.right) / 2, frame.bottom + 39, "middle", bold);
+
+  for (const mark of plot.marks) {
+    const color = plotColor(mark.color);
+    if (mark.kind === "line") {
+      page.drawSvgPath(assignmentPlotPath(mark.paths), {
+        x: MARGIN, y: top, scale: PLOT_SCALE, borderColor: color, borderWidth: 2.7, borderDashArray: [...mark.dash],
+      });
+    } else if (mark.kind === "points") {
+      for (const point of mark.points) page.drawCircle({ x: x(point.x), y: y(point.y), size: 4.4 * PLOT_SCALE, color });
+    } else {
+      for (const bar of mark.bars) {
+        page.drawRectangle({ x: x(bar.x), y: y(bar.y + bar.height), width: bar.width * PLOT_SCALE, height: bar.height * PLOT_SCALE, color });
+      }
+    }
+  }
+}
+
+function drawPlotLegendMark(page: PDFPage, mark: AssignmentPlotMark, y: number) {
+  const color = plotColor(mark.color);
+  if (mark.kind === "line") {
+    page.drawLine({ start: { x: MARGIN, y }, end: { x: MARGIN + 17, y }, thickness: 2.5, color, dashArray: [...mark.dash] });
+  } else if (mark.kind === "points") {
+    page.drawCircle({ x: MARGIN + 8, y, size: 3.8, color });
+  } else {
+    page.drawRectangle({ x: MARGIN + 4, y: y - 4, width: 8, height: 8, color });
+  }
 }
 
 export function assignmentSubmissionPdfPayload(
@@ -222,15 +300,17 @@ export async function renderAssignmentSubmissionPdf(preview: AssignmentSubmissio
     if (y - height < MARGIN) nextPage();
   }
 
-  function drawLine(value: string, options: { font?: PDFFont; size?: number; color?: ReturnType<typeof rgb>; gap?: number } = {}) {
+  function drawLine(value: string, options: { font?: PDFFont; size?: number; color?: ReturnType<typeof rgb>; gap?: number; legendMark?: AssignmentPlotMark } = {}) {
     const size = options.size ?? 11;
     const lineHeight = size * 1.55;
     const selectedFont = options.font ?? regular;
     const color = options.color ?? rgb(0.08, 0.1, 0.14);
-    const lines = wrapText(value, selectedFont, symbol, size, TEXT_WIDTH);
-    for (const line of lines) {
+    const inset = options.legendMark ? 24 : 0;
+    const lines = wrapText(value, selectedFont, symbol, size, TEXT_WIDTH - inset);
+    for (const [index, line] of lines.entries()) {
       ensureSpace(lineHeight);
-      if (line.length > 0) drawGlyphLine(page, line, y, size, color);
+      if (index === 0 && options.legendMark) drawPlotLegendMark(page, options.legendMark, y + size / 3);
+      if (line.length > 0) drawGlyphLine(page, line, y, size, color, MARGIN + inset);
       y -= lineHeight;
     }
     y -= options.gap ?? 4;
@@ -249,6 +329,26 @@ export async function renderAssignmentSubmissionPdf(preview: AssignmentSubmissio
     });
   }
   if (payload.specialistDelivery.visibleSummaryIncluded) y -= 8;
+
+  for (const block of payload.specialistProjection.contextBlocks) {
+    const projection = assignmentPlotForBlock(block);
+    if (!projection) continue;
+    if (!projection.plot) {
+      drawLine(`${block.label}: ${projection.fallback}`, { size: 10, gap: 8 });
+      continue;
+    }
+    const plot = projection.plot;
+    const title = `${block.label}: ${plot.kind}`;
+    const titleLines = wrapText(title, bold, symbol, 12, TEXT_WIDTH).length;
+    ensureSpace(PLOT_HEIGHT + titleLines * 12 * 1.55 + 5);
+    drawLine(title, { font: bold, size: 12, gap: 5 });
+    drawAssignmentPlot(page, plot, y, regular, bold, symbol);
+    y -= PLOT_HEIGHT + 8;
+    drawLine(`Horizontal axis: ${plot.xLabel}. Vertical axis: ${plot.yLabel}.`, { size: 10, gap: 2 });
+    for (const mark of plot.marks) drawLine(mark.label, { size: 10, gap: 2, legendMark: mark });
+    if (plot.note) drawLine(plot.note, { size: 10, gap: 2 });
+    y -= 8;
+  }
   drawLine(payload.textPayload || "No typed work was added.", { size: 11, gap: 16 });
 
   for (const problem of preview.problems) {

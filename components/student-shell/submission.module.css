@@ -1,6 +1,6 @@
 .root {
-  --submission-paper: #f5eddd;
-  --submission-paper-light: #fffbef;
+  --submission-paper: #f7f3e7;
+  --submission-paper-light: #fffcf4;
   --submission-ink: #1c2720;
   --submission-muted: #4f5d50;
   --submission-rule: #bfb5a1;
@@ -8,10 +8,23 @@
   color-scheme: dark;
 }
 
+.root::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  block-size: clamp(260px, 28vw, 360px);
+  background:
+    linear-gradient(90deg, #111813f7, #111813cb 48%, #11181370),
+    url('/assets/work/college-classroom-1920.webp') right 40% / cover no-repeat;
+  mask-image: linear-gradient(#000 35%, transparent);
+  pointer-events: none;
+  content: "";
+}
+
 .root .main {
   width: min(100%, 72rem);
   margin-inline: auto;
-  padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 4vw, 3rem) 4rem;
+  padding: clamp(.5rem, 1vw, 1rem) clamp(.75rem, 3.5vw, 3rem) 4rem;
 }
 
 .root.root a.back {
@@ -19,52 +32,73 @@
   width: fit-content;
   min-height: 44px;
   align-items: center;
-  gap: 8px;
-  color: var(--campus-ink, #fff8e8);
-  font-size: .875rem;
+  gap: 7px;
+  color: var(--campus-muted, #c8d2c9);
+  font-size: .8rem;
   text-decoration: none;
 }
 
-.root.root .back:hover { text-decoration: underline; text-underline-offset: .25em; }
+.root.root .back:hover { color: var(--campus-ink, #fff8e8); text-decoration: underline; text-underline-offset: .25em; }
 
-.routeLinks { display: flex; flex-wrap: wrap; gap: 0 20px; }
+.routeLinks { display: flex; flex-wrap: wrap; gap: 0 clamp(.75rem, 3vw, 1.5rem); }
 
 .root .title {
   display: grid;
   justify-items: start;
-  gap: 8px;
-  margin: 12px 0 0;
-  padding: 18px 0 14px;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0 0 12px;
   color: var(--campus-ink, #fff8e8);
 }
 
 .root.root .title h1,
 .root.root .receiptHeading h1 {
-  font: italic 800 clamp(2.35rem, 5.8vw, 4.6rem)/.99 var(--campus-display, var(--font-saira-condensed), sans-serif);
+  font: italic 850 clamp(1.85rem, 5vw, 4rem)/.98 var(--campus-display, var(--font-saira-condensed), sans-serif);
   text-transform: uppercase;
+  text-wrap: balance;
   overflow-wrap: anywhere;
 }
 
+:global(.dyslexia-font) .root.root :is(.title, .receiptHeading) h1 { font-style: normal; text-transform: none; line-height: 1.15; }
+
 .root.root .eyebrow {
-  font: 700 .93rem/1.25 var(--font-barlow), sans-serif;
-  letter-spacing: .08em;
+  font: 750 .75rem/1.25 'Diana Campus Slab', Georgia, serif;
   text-transform: uppercase;
 }
 
 .root.root .title .eyebrow {
-  padding: 5px 11px 6px;
-  border-inline-start: 3px solid var(--submission-accent);
+  max-inline-size: 100%;
+  padding: 4px 14px 4px 8px;
   background: var(--campus-action, #503458);
   color: var(--campus-action-text, #fff8e8);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+  overflow-wrap: anywhere;
 }
 
 .root.root .focusedTime {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-block-start: 5px;
+  margin-block-start: 2px;
   color: var(--campus-muted, #c8d2c9);
-  font-size: .9rem;
+  font-size: .8rem;
+}
+
+.root.root .submissionFlow [role="tablist"] { gap: 8px; margin-block-start: 0; }
+.root.root .submissionFlow [role="tab"] { padding-inline: 18px; }
+.root.root .submissionFlow [role="tab"][aria-selected="true"] { border-bottom: 2px solid var(--campus-focus, #f4d69b); }
+.root.root .submissionFlow [role="tabpanel"] { padding-block-start: 14px; }
+
+@supports (mask-mode: luminance) {
+  .root.root .submissionFlow [role="tab"][aria-selected="true"]::after {
+    inset: 0 -2px;
+    border: 0;
+    clip-path: none;
+    mask:
+      linear-gradient(#000, #000) center / calc(100% - 18px) calc(100% - 18px) no-repeat,
+      url('/assets/today-now/selection-brush-v1.webp') center / 100% 100% no-repeat;
+    mask-mode: alpha, luminance;
+  }
 }
 
 .handoff {
@@ -99,8 +133,28 @@
 .root.root :is(.paper, .sendPanel) h2 {
   margin: 0;
   color: inherit;
-  font: 800 clamp(1.55rem, 3vw, 2.15rem)/1.03 var(--campus-display, var(--font-saira-condensed), sans-serif);
+  font: italic 800 clamp(1.45rem, 3vw, 2rem)/1.03 var(--campus-display, var(--font-saira-condensed), sans-serif);
   text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+:global(.dyslexia-font) .root.root :is(.paper, .sendPanel) h2 { font-style: normal; text-transform: none; line-height: 1.2; }
+
+.reviewHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.downloadAction {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.root.root .downloadAction .notice {
+  margin-block-end: 0;
   overflow-wrap: anywhere;
 }
 
@@ -173,6 +227,9 @@
 .root.root .sendPanel .secondary:hover:not(:disabled),
 .root.root .primary:hover:not(:disabled) { filter: brightness(1.14); }
 
+.root.root .sendPanel > .primary { min-height: 48px; }
+.root.root .sendPanel .primary:disabled { cursor: default; }
+
 .root.root :is(.secondary, .primary, .iconButton) svg { flex: none; }
 
 .root.root button:disabled {
@@ -224,6 +281,12 @@
   overflow-wrap: anywhere;
 }
 
+.reviewPaper .facts {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 5fr) minmax(0, 2fr);
+  column-gap: 1rem;
+}
+
 .workBlocks { display: grid; gap: 12px; }
 .workBlocks + .workBlock,
 .workBlocks + .workBlocks { margin-block-start: 12px; }
@@ -239,7 +302,7 @@
 
 .root.root .workBlock h3 {
   color: inherit;
-  font-size: 1rem;
+  font: 700 1.05rem/1.25 var(--font-barlow), sans-serif;
 }
 
 .workBlock header {
@@ -451,6 +514,7 @@
 }
 .receiptHeading > svg { flex: none; }
 .root.root .receiptHeading h1 { font-size: clamp(2.1rem, 5.5vw, 3.65rem); }
+.receipt .receiptHeading > svg { color: var(--submission-muted); }
 .root.root .receiptAssignment { font-weight: 650; overflow-wrap: anywhere; }
 .receiptAssignment span {
   display: block;
@@ -467,7 +531,41 @@
   .checkList em { grid-column: 2; margin-inline-start: 0; }
 }
 
+@media (max-width: 550px) {
+  .root::after {
+    block-size: 235px;
+    background:
+      linear-gradient(90deg, #111813f2, #11181383),
+      url('/assets/work/college-classroom-mobile.webp') 65% 44% / cover no-repeat;
+    mask-image: linear-gradient(#000 20%, transparent);
+  }
+
+  .root .title { margin-block-start: 6px; padding-block-end: 9px; }
+  .root.root .submissionFlow [role="tab"] { padding-inline: 14px; }
+  .root.root .submissionFlow [role="tabpanel"] { padding-block-start: 12px; }
+  .root .reviewPaper, .root .handoff > :is(.paper, .sendPanel), .root .receipt { padding: 12px; }
+  .reviewHeader .panelHeading { gap: 8px; }
+  .reviewPaper .facts { grid-template-columns: minmax(0, 1fr); gap: 6px; margin-block: 12px; }
+  .reviewPaper .facts > div { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 8px; align-items: baseline; }
+  .reviewPaper .facts dd { margin: 0; }
+  .root.root .main .sendPanel .primary { width: 100%; }
+  .receipt { margin-block-start: 12px; }
+}
+
+:global(.high-contrast) .root {
+  --submission-paper: #fff;
+  --submission-paper-light: #fff;
+  --submission-ink: #162019;
+  --submission-muted: #263329;
+  --submission-rule: #59655d;
+}
+:global(.high-contrast) .root::after { display: none; }
+
 @media (forced-colors: active) {
+  .root::after,
+  .root.root .submissionFlow [role="tab"][aria-selected="true"]::after { display: none; }
+  .root.root .submissionFlow [role="tab"][aria-selected="true"] { border-color: Highlight; }
+  .root.root .title .eyebrow { border: 1px solid CanvasText; clip-path: none; }
   .root.root :is(.paper, .sendPanel, .workBlock, .providerConfirmation, .receipt, .notice) {
     background: Canvas;
     border-color: CanvasText;
