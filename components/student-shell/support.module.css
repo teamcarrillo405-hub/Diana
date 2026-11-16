@@ -1,6 +1,6 @@
 .search { display:flex; gap:12px; margin:26px 0 18px; max-width:800px; }
 .search input { flex:1; min-width:0; }
-.search button,.primary { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border:0; border-radius:3px; padding:10px 20px; background:#7951d5; color:white; }
+.search button,.primary { display:inline-flex; align-items:center; justify-content:center; min-height:44px; border:0; border-radius:3px; padding:10px 20px; background:var(--school-primary,#7951d5); color:var(--school-primary-text,white); }
 .filters { display:flex; flex-wrap:wrap; gap:8px 28px; margin:0 0 28px; }
 .filters a { display:flex; align-items:center; min-height:44px; font-size:13px; }
 .filters a[aria-current] { color:#f4a6d2; border-bottom:3px solid #e796c3; }

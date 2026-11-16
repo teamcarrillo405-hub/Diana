@@ -28,7 +28,7 @@
 .response textarea { width:100%; padding:15px; border:1px solid #abbab0; border-radius:3px; color:#203429; background:#fffef9; font-size:15px; line-height:1.8; resize:vertical; }
 .actions { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; margin:26px 0 14px; }
 .actions button { min-height:44px; padding:10px 16px; border:1px solid #abbab0; border-radius:3px; background:transparent; color:#24382c; font-size:12px; box-shadow:none; }
-.primary.primary { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:12px 22px; border:0; border-radius:3px; background:#7853ca; color:white; font-size:13px; box-shadow:none; }
+.primary.primary { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:12px 22px; border:0; border-radius:3px; background:var(--school-primary,#7853ca); color:var(--school-primary-text,white); font-size:13px; box-shadow:var(--school-button-outline,none); }
 .root button:disabled { opacity:.45; cursor:default; }
 .root button:focus-visible { outline:2px solid #b89cea; outline-offset:4px; }
 .quiet { font-size:11px; color:#5b6e60; margin-top:14px; line-height:1.7; }

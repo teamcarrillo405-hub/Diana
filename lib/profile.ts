@@ -37,6 +37,9 @@ type ProfileRow = Pick<
   | "diagnoses"
   | "accommodations"
   | "school_year"
+  | "school_primary_color"
+  | "school_secondary_color"
+  | "school_logo_url"
   | "extra_time_pct"
   | "interests"
   | "mastery_signals"
@@ -200,6 +203,9 @@ export async function loadProfile(): Promise<ProfilePrefs | null> {
   const extended = data as typeof data & Partial<TeenGuardianPermissionProfileFields>;
   return normalizeProfile({
     ...data,
+    school_primary_color: data.school_primary_color ?? null,
+    school_secondary_color: data.school_secondary_color ?? null,
+    school_logo_url: data.school_logo_url ?? null,
     learning_hurdle: data.learning_hurdle ?? null,
     study_schedule_preference: data.study_schedule_preference ?? null,
     teen_guardian_permission_attested_at:
