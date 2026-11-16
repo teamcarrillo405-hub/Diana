@@ -25,6 +25,25 @@ beforeEach(() => {
 });
 
 describe("Supabase middleware", () => {
+  it("serves the exact public Lobby specimen without creating an auth client", async () => {
+    createServerClientMock.mockClear();
+    const response = await updateSession(requestFor("/lobby-preview"));
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(createServerClientMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps the actual student Lobby behind authentication", async () => {
+    const response = await updateSession(requestFor("/dashboard"));
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toContain("/login");
+  });
+
+  it("does not extend the public preview exception to child paths", async () => {
+    const response = await updateSession(requestFor("/lobby-preview/private"));
+    expect(response.status).toBe(404);
+  });
+
   it("excludes bearer-authenticated cron routes from session redirects", () => {
     const matcher = middlewareConfig.matcher.join("\n");
     const schedules = JSON.parse(
