@@ -11,7 +11,7 @@
   color: var(--history-ink);
 }
 
-.history[aria-labelledby] > .summary {
+.history[data-check-in-history][aria-labelledby] > summary.summary {
   display: flex;
   align-items: center;
   justify-content: space-between;
