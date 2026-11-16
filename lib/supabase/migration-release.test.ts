@@ -40,6 +40,7 @@ const expectedPostReleaseVersions: readonly string[] = [
   "20260929135915",
   "20260929141355",
   "20261115203000",
+  "20261116011830",
 ];
 const sequentialTypeMigrations = [
   "20260901200000_assignment_provider_missing_tombstone.sql",
