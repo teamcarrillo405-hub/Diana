@@ -4,7 +4,7 @@ import { CalendarDays, Clock3, Play } from "lucide-react";
 import type { TodayTask } from "@/lib/dashboard/today-view";
 import styles from "./today-now-proof.module.css";
 
-export function LobbyNow({ task, unavailable, onRetry, sample = false }: { task?: TodayTask; unavailable: boolean; onRetry?: () => void; sample?: boolean }) {
+export function LobbyNow({ task, unavailable, onRetry, sample = false, checkInNote }: { task?: TodayTask; unavailable: boolean; onRetry?: () => void; sample?: boolean; checkInNote?: string }) {
   const action = task && <><Play size={17} fill="currentColor" aria-hidden="true" /><span>{task.ready ? "Review submission" : task.resumable ? "Resume" : "Start"}</span></>;
   return <div className={styles.nowLayout} data-now-layout><div className={styles.briefing} data-now-briefing>
     {unavailable ? <div className={styles.empty} data-now-empty><h2>Your plan could not load</h2><button className={styles.start} data-now-start disabled={sample} onClick={onRetry}>Try again</button></div> : task ? <>
@@ -16,5 +16,6 @@ export function LobbyNow({ task, unavailable, onRetry, sample = false }: { task?
     </> : <div className={styles.empty} data-now-empty><h2>A little room to plan</h2>{sample
       ? <span className={styles.start} data-now-start aria-disabled="true">Add assignment</span>
       : <Link className={styles.start} data-now-start href="/quick-add">Add assignment</Link>}</div>}
+    {checkInNote && <p data-lobby-check-in-note role="status">{checkInNote}</p>}
   </div></div>;
 }

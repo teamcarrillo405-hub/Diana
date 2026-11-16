@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { LobbyCheckIn } from "./lobby-check-in";
+import { LobbyCheckInCompletion } from "@/components/dashboard/lobby/lobby-check-in-completion";
 
 const mocks = vi.hoisted(() => ({ save: vi.fn(), refresh: vi.fn(), getSupport: vi.fn(), saveNeed: vi.fn(), saveSharing: vi.fn() }));
 vi.mock("./actions", () => ({ saveLobbyCheckIn: mocks.save, getStudentSupportPreferences: mocks.getSupport, saveStudentDailySupportNeed: mocks.saveNeed, saveTutorPersonalizationPreference: mocks.saveSharing }));
@@ -14,30 +15,54 @@ describe("Today check-in persistence", () => {
   it("restores a saved check-in and does not write on mount", () => {
     render(<LobbyCheckIn appearance="today" initialValue={saved} sleepDate="2026-09-09" />);
     expect(screen.getByRole("button", { name: "Okay" }).getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByRole("slider", { name: "Sleep" }).getAttribute("value")).toBe("8");
+    expect((screen.getByRole("spinbutton", { name: "Sleep hours" }) as HTMLInputElement).value).toBe("8");
     expect(screen.getByRole("button", { name: "Saved for today" }).getAttribute("data-state")).toBe("saved");
     expect(mocks.save).not.toHaveBeenCalled();
   });
 
-  it("preserves autosave using the existing server action and refreshes after success", async () => {
-    vi.useFakeTimers(); mocks.save.mockResolvedValue({ ok: true });
+  it("saves energy only on explicit confirmation and does not invent optional values", async () => {
+    mocks.save.mockResolvedValue({ ok: true, signalId: "9007199254740993" });
+    const completed = vi.fn();
+    render(<LobbyCheckInCompletion.Provider value={completed}><LobbyCheckIn appearance="today" initialValue={null} sleepDate="2026-09-09" /></LobbyCheckInCompletion.Provider>);
+    expect((screen.getByRole("spinbutton", { name: "Sleep hours" }) as HTMLInputElement).value).toBe("");
+    expect((screen.getByRole("spinbutton", { name: "Movement minutes" }) as HTMLInputElement).value).toBe("");
+    fireEvent.click(screen.getByRole("button", { name: "Good" }));
+    expect(mocks.save).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Save check-in" }));
+    await waitFor(() => expect(completed).toHaveBeenCalledOnce());
+    expect(completed).toHaveBeenCalledWith("good", "9007199254740993");
+    expect(mocks.save).toHaveBeenCalledWith({ energy: "good", sleepHours: null, movementType: null, movementMinutes: null, sleepDate: "2026-09-09" });
+    expect(mocks.refresh).not.toHaveBeenCalled();
+  });
+
+  it("saves edited complete check-ins and refreshes without a parent callback", async () => {
+    mocks.save.mockResolvedValue({ ok: true, signalId: "42" });
     render(<LobbyCheckIn appearance="today" initialValue={saved} sleepDate="2026-09-09" />);
     fireEvent.click(screen.getByRole("button", { name: "Good" }));
-    await act(async () => { await vi.advanceTimersByTimeAsync(700); });
+    fireEvent.click(screen.getByRole("button", { name: "Save check-in" }));
+    await waitFor(() => expect(mocks.refresh).toHaveBeenCalledOnce());
     expect(mocks.save).toHaveBeenCalledWith({ ...saved, energy: "good", sleepDate: "2026-09-09" });
-    expect(mocks.refresh).toHaveBeenCalledOnce();
     expect(screen.getByRole("button", { name: "Saved for today" }).getAttribute("data-state")).toBe("saved");
   });
 
   it("does not report a rejected save as persisted and supports retry", async () => {
-    vi.useFakeTimers(); mocks.save.mockResolvedValueOnce({ ok: false, error: "The check-in could not be saved yet." }).mockResolvedValueOnce({ ok: true });
+    mocks.save.mockResolvedValueOnce({ ok: false, error: "The check-in could not be saved yet." }).mockResolvedValueOnce({ ok: true, signalId: "42" });
     render(<LobbyCheckIn appearance="today" initialValue={saved} sleepDate="2026-09-09" />);
     fireEvent.click(screen.getByRole("button", { name: "Good" }));
-    await act(async () => { await vi.advanceTimersByTimeAsync(700); });
+    fireEvent.click(screen.getByRole("button", { name: "Save check-in" }));
+    await screen.findByText("The check-in could not be saved yet.");
     expect(mocks.refresh).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole("button", { name: "Try again" }));
-    await act(async () => { await vi.advanceTimersByTimeAsync(700); });
-    expect(mocks.refresh).toHaveBeenCalledOnce();
+    await waitFor(() => expect(mocks.refresh).toHaveBeenCalledOnce());
+  });
+
+  it("requires both movement values when the student supplies one", async () => {
+    render(<LobbyCheckIn appearance="today" initialValue={null} sleepDate="2026-09-09" />);
+    fireEvent.click(screen.getByRole("button", { name: "Low" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Movement type" }), { target: { value: "walk" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save check-in" }));
+    expect(screen.getByText(/choose an activity and 1 to 180 minutes/i)).toBeTruthy();
+    expect(mocks.save).not.toHaveBeenCalled();
   });
 });
 

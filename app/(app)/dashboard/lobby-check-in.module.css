@@ -1,0 +1,18 @@
+.form { display: grid; gap: 14px; }
+.energy { display: grid; gap: 6px; color: inherit; font-size: 14px; font-weight: 600; }
+.energyOptions { display: flex; gap: 8px; }
+.energyOptions button { min-height: 44px; flex: 1; padding: 8px; border: 1px solid #655474; border-radius: 6px; background: #fff; color: #30223b; font-weight: 600; }
+.energyOptions button[aria-pressed="true"] { color: #fff; background: #54216e; border-color: #54216e; }
+.field { display: grid; gap: 6px; min-width: 0; font-size: 14px; font-weight: 600; }
+.field span { display: flex; gap: 8px; align-items: baseline; }
+.field small { font-size: 12px; font-weight: 400; }
+.field input, .field select { display: block; box-sizing: border-box; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid #655474; border-radius: 6px; background: #fff; color: #231a2b; font: inherit; }
+.field input::placeholder { color: #5d5362; opacity: 1; }
+.movement { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+.save { min-height: 44px; padding: 9px 16px; border: 1px solid #54216e; border-radius: 6px; background: #54216e; color: #fff; font-weight: 700; cursor: pointer; }
+.save:disabled { opacity: .65; cursor: default; }
+.save[data-state="saved"] { background: #f1eaf5; color: #30223b; }
+.status { font-size: 13px; line-height: 1.4; }
+.status:empty { display: none; }
+.form :is(button, input, select):focus-visible { outline: 3px solid #8464a3; outline-offset: 2px; }
+@media (max-width: 320px) { .movement { grid-template-columns: 1fr; } }

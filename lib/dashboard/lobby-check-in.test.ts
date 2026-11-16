@@ -24,10 +24,15 @@ describe("lobbyCheckInFromSignalValue", () => {
     });
   });
 
-  it("does not restore incomplete or unsupported values", () => {
+  it("restores energy without invented sleep or movement values", () => {
     expect(
       lobbyCheckInFromSignalValue({ energy: "okay", sleepHours: 8 }),
-    ).toBeNull();
+    ).toEqual({ energy: "okay", sleepHours: 8, movementType: null, movementMinutes: null });
+    expect(lobbyCheckInFromSignalValue({ energy: "low" })).toEqual({ energy: "low", sleepHours: null, movementType: null, movementMinutes: null });
+  });
+
+  it("does not restore invalid energy or a partial movement entry", () => {
+    expect(lobbyCheckInFromSignalValue({ energy: "okay", movementType: "walk" })).toBeNull();
     expect(
       lobbyCheckInFromSignalValue({
         energy: "great",

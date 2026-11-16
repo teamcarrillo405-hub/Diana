@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type CSSProperties, useEffect, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import styles from "@/components/dashboard/today-dashboard.module.css";
+import checkInStyles from "./lobby-check-in.module.css";
+import { useLobbyCheckInCompletion } from "@/components/dashboard/lobby/lobby-check-in-completion";
 
 import type { LobbyCheckInValue, LobbyEnergy, LobbyMovement, StudentDailySupportNeed } from "@/lib/dashboard/lobby-check-in";
 import { getStudentSupportPreferences, saveLobbyCheckIn, saveStudentDailySupportNeed, saveTutorPersonalizationPreference } from "./actions";
@@ -34,72 +36,70 @@ export function LobbyCheckIn({ initialValue, sleepDate, primary = false, appeara
   appearance?: "classic" | "today";
 }) {
   const router = useRouter();
+  const onCompleted = useLobbyCheckInCompletion();
   const [energy, setEnergy] = useState<LobbyEnergy | null>(initialValue?.energy ?? null);
-  const [sleepHours, setSleepHours] = useState(initialValue?.sleepHours ?? 8);
-  const [sleepLogged, setSleepLogged] = useState(initialValue !== null);
+  const [sleepHours, setSleepHours] = useState(initialValue?.sleepHours?.toString() ?? "");
   const [movementType, setMovementType] = useState<LobbyMovement | null>(initialValue?.movementType ?? null);
-  const [movementMinutes, setMovementMinutes] = useState(initialValue?.movementMinutes ?? 30);
+  const [movementMinutes, setMovementMinutes] = useState(initialValue?.movementMinutes?.toString() ?? "");
   const [saveState, setSaveState] = useState<SaveState>(initialValue ? "saved" : "choosing");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
-  const allChosen = Boolean(energy && sleepLogged && movementType && movementMinutes > 0);
-
-  useEffect(() => {
-    if (!allChosen || saveState !== "choosing" || !energy || !movementType) return;
-
-    const timer = window.setTimeout(() => {
-      setSaveState("saving");
-      setMessage(null);
-      startTransition(async () => {
-        const result = await saveLobbyCheckIn({ energy, sleepHours, movementType, movementMinutes, sleepDate });
-        if (!result.ok) {
-          setSaveState("error");
-          setMessage(result.error);
-          return;
-        }
-        setSaveState("saved");
-        router.refresh();
-      });
-    }, 650);
-    return () => window.clearTimeout(timer);
-  }, [allChosen, energy, movementMinutes, movementType, router, saveState, sleepDate, sleepHours]);
+  const saving = useRef(false);
 
   function choosing() {
     setMessage(null);
     setSaveState("choosing");
   }
 
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!energy || saving.current) return;
+    const sleep = sleepHours === "" ? null : Number(sleepHours);
+    const minutes = movementMinutes === "" ? null : Number(movementMinutes);
+    if ((sleep !== null && (!Number.isFinite(sleep) || sleep < 0 || sleep > 12)) ||
+        ((movementType === null) !== (minutes === null)) ||
+        (minutes !== null && (!Number.isInteger(minutes) || minutes < 1 || minutes > 180))) {
+      setSaveState("error");
+      setMessage("Enter sleep from 0 to 12 hours. For movement, choose an activity and 1 to 180 minutes, or leave both blank.");
+      return;
+    }
+    saving.current = true;
+    setSaveState("saving");
+    setMessage(null);
+    startTransition(async () => {
+      let result: Awaited<ReturnType<typeof saveLobbyCheckIn>>;
+      try {
+        result = await saveLobbyCheckIn({ energy, sleepHours: sleep, movementType, movementMinutes: minutes, sleepDate });
+      } catch {
+        saving.current = false;
+        setSaveState("error");
+        setMessage("The check-in could not be saved yet. Try again when ready.");
+        return;
+      }
+      saving.current = false;
+      if (!result.ok) { setSaveState("error"); setMessage(result.error); return; }
+      setSaveState("saved");
+      if (onCompleted) onCompleted(energy, result.signalId);
+      else router.refresh();
+    });
+  }
+
   const status = saveState === "saving" || pending ? "Saving" : saveState === "saved" ? "Saved for today" : "";
 
-  if (appearance === "today") return (<>
-    <form className={styles.checkIn} onSubmit={event => { event.preventDefault(); setSleepLogged(true); choosing(); }}>
-      <div className={styles.energyRow}><span>Energy</span><div role="group" aria-label="Energy" className={styles.energyOptions}>{ENERGY_OPTIONS.map(option => <button key={option.value} type="button" aria-pressed={energy === option.value} disabled={pending} onClick={() => { setEnergy(option.value); choosing(); }}>{option.label}</button>)}</div></div>
-      <label className={styles.rangeRow}><span>Sleep <output>{sleepHours} hrs</output></span><input type="range" min="0" max="12" step=".5" value={sleepHours} disabled={pending} onChange={event => { setSleepHours(Number(event.target.value)); setSleepLogged(true); choosing(); }} aria-label="Sleep" style={{ "--fill": `${sleepHours / 12 * 100}%` } as CSSProperties} /></label>
-      <div className={styles.movementRow}><label>Movement<select aria-label="Movement type" value={movementType ?? ""} disabled={pending} onChange={event => { setMovementType(event.target.value as LobbyMovement); choosing(); }}><option value="" disabled>Choose activity</option>{MOVEMENT_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label><label className={styles.rangeRow}><span><span className={styles.srOnly}>Movement minutes</span><output>{movementMinutes} min</output></span><input type="range" aria-label="Movement minutes" min="0" max="180" step="5" value={movementMinutes} disabled={pending} onChange={event => { setMovementMinutes(Number(event.target.value)); choosing(); }} style={{ "--fill": `${movementMinutes / 180 * 100}%` } as CSSProperties} /></label></div>
-      <button type="submit" className={styles.checkInSave} data-state={saveState} disabled={pending || !energy || !movementType || movementMinutes <= 0 || saveState === "saved"}>
-        {status || (saveState === "error" ? "Try again" : "Save check-in")}
-      </button>
-      <span className={message ? styles.emptyNote : styles.srOnly} role="status">{message ?? status}</span>
+  return <section className={appearance === "classic" ? "sd-lobby-checkin" : undefined} data-primary={primary || undefined}>
+    <form className={`${styles.checkIn} ${checkInStyles.form}`} onSubmit={submit} noValidate>
+      <div className={checkInStyles.energy}><span>Energy</span><div role="group" aria-label="Energy" className={checkInStyles.energyOptions}>{ENERGY_OPTIONS.map(option => <button key={option.value} type="button" aria-pressed={energy === option.value} disabled={pending} onClick={() => { setEnergy(option.value); choosing(); }}>{option.label}</button>)}</div></div>
+      <label className={checkInStyles.field}><span>Sleep hours <small>Optional</small></span><input type="number" min="0" max="12" step="0.5" inputMode="decimal" value={sleepHours} disabled={pending} onChange={event => { setSleepHours(event.currentTarget.value); choosing(); }} placeholder="Not shared" aria-label="Sleep hours" /></label>
+      <div className={checkInStyles.movement}>
+        <label className={checkInStyles.field}><span>Movement <small>Optional</small></span><select aria-label="Movement type" value={movementType ?? ""} disabled={pending} onChange={event => { setMovementType((event.currentTarget.value || null) as LobbyMovement | null); choosing(); }}><option value="">Not shared</option>{MOVEMENT_OPTIONS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
+        <label className={checkInStyles.field}><span>Minutes</span><input type="number" min="1" max="180" step="1" inputMode="numeric" aria-label="Movement minutes" placeholder="Not shared" value={movementMinutes} disabled={pending} onChange={event => { setMovementMinutes(event.currentTarget.value); choosing(); }} /></label>
+      </div>
+      <button type="submit" className={checkInStyles.save} data-state={saveState} disabled={pending || !energy || saveState === "saved"}>{status || (saveState === "error" ? "Try again" : "Save check-in")}</button>
+      <span role="status" aria-live="polite" className={checkInStyles.status}>{message ?? status}</span>
     </form>
+    {appearance === "classic" ? <Link href="/wellness" className="sd-lobby-checkin-open">Log wellness</Link> : null}
     <DailySupportPreferences />
-  </>
-  );
-
-  return (
-    <section className="sd-lobby-checkin" data-primary={primary || undefined}>
-      <div className="sd-lobby-checkin-sliders">
-        <EnergySlider energy={energy} disabled={pending} onSelect={(value) => { setEnergy(value); choosing(); }} />
-        <RangeSlider label="Sleep" value={sleepHours} min={0} max={12} step={0.5} valueLabel={`${sleepHours.toFixed(sleepHours % 1 ? 1 : 0)} hrs`} disabled={pending} onChange={(value) => { setSleepHours(value); setSleepLogged(true); choosing(); }} />
-        <MovementSlider activity={movementType} minutes={movementMinutes} disabled={pending} onActivityChange={(value) => { setMovementType(value); choosing(); }} onMinutesChange={(value) => { setMovementMinutes(value); choosing(); }} />
-      </div>
-      <div className="sd-lobby-checkin-status" data-state={saveState} aria-live="polite" hidden={!message && !status && saveState !== "error"}>
-        <span>{message ?? status}</span>
-        {saveState === "error" && allChosen ? <button type="button" onClick={() => setSaveState("choosing")}>Try again</button> : null}
-      </div>
-      <Link href="/wellness" className="sd-lobby-checkin-open">Log wellness</Link>
-      <DailySupportPreferences />
-    </section>
-  );
+  </section>;
 }
 
 function DailySupportPreferences() {
@@ -185,72 +185,4 @@ function DailySupportPreferences() {
     <p role="status">{message}</p>
     {!ready && message && <button type="button" style={{ minHeight: 44, padding: "8px 12px", background: "white", color: "#292035", border: "1px solid #655573", borderRadius: 6 }} onClick={() => { setMessage(""); setLoadAttempt((value) => value + 1); }}>Retry loading support choices</button>}
   </section>;
-}
-
-function EnergySlider({ energy, disabled, onSelect }: {
-  energy: LobbyEnergy | null;
-  disabled: boolean;
-  onSelect: (value: LobbyEnergy) => void;
-}) {
-  const selectedIndex = ENERGY_OPTIONS.findIndex((option) => option.value === energy);
-  const rangeValue = selectedIndex >= 0 ? selectedIndex : 1;
-  const style = { "--checkin-offset": `${Math.max(selectedIndex, 0) * (100 / ENERGY_OPTIONS.length)}%` } as CSSProperties;
-  return (
-    <div className="sd-lobby-checkin-slider-row" role="group" aria-label="Energy">
-      <span className="sd-lobby-checkin-slider-label">Energy</span>
-      <div className="sd-lobby-checkin-slider" style={style} data-selected={energy !== null || undefined}>
-        <input type="range" min={0} max={ENERGY_OPTIONS.length - 1} step={1} value={rangeValue} disabled={disabled} aria-label="Energy check-in" aria-valuetext={selectedIndex >= 0 ? ENERGY_OPTIONS[selectedIndex]?.label : "Not selected"} onChange={(event) => onSelect(ENERGY_OPTIONS[Number(event.currentTarget.value)]!.value)} />
-        <div className="sd-lobby-checkin-slider-labels" aria-hidden="true">
-          {ENERGY_OPTIONS.map((option, index) => <span key={option.value} data-active={selectedIndex === index || undefined}>{option.label}</span>)}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function RangeSlider({ label, value, min, max, step, valueLabel, disabled, onChange }: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  valueLabel: string;
-  disabled: boolean;
-  onChange: (value: number) => void;
-}) {
-  const percentage = ((value - min) / (max - min)) * 100;
-  const style = { "--checkin-range-fill": `${percentage}%` } as CSSProperties;
-  return (
-    <div className="sd-lobby-checkin-slider-row" role="group" aria-label={label}>
-      <span className="sd-lobby-checkin-slider-label">{label}</span>
-      <label className="sd-lobby-checkin-range" style={style}>
-        <input type="range" min={min} max={max} step={step} value={value} disabled={disabled} aria-label={label} aria-valuetext={valueLabel} onChange={(event) => onChange(Number(event.currentTarget.value))} />
-        <output>{valueLabel}</output>
-      </label>
-    </div>
-  );
-}
-
-function MovementSlider({ activity, minutes, disabled, onActivityChange, onMinutesChange }: {
-  activity: LobbyMovement | null;
-  minutes: number;
-  disabled: boolean;
-  onActivityChange: (value: LobbyMovement) => void;
-  onMinutesChange: (value: number) => void;
-}) {
-  return (
-    <div className="sd-lobby-checkin-slider-row sd-lobby-checkin-movement" role="group" aria-label="Movement">
-      <span className="sd-lobby-checkin-slider-label">Movement</span>
-      <div className="sd-lobby-checkin-movement-controls">
-        <label className="sd-lobby-checkin-activity-select">
-          <span className="sr-only">Movement type</span>
-          <select value={activity ?? ""} disabled={disabled} aria-label="Movement type" onChange={(event) => onActivityChange(event.currentTarget.value as LobbyMovement)}>
-            <option value="" disabled>Choose activity</option>
-            {MOVEMENT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
-        </label>
-        <RangeSlider label="Movement minutes" value={minutes} min={0} max={180} step={5} valueLabel={`${minutes} min`} disabled={disabled} onChange={onMinutesChange} />
-      </div>
-    </div>
-  );
 }

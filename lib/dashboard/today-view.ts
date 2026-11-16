@@ -13,6 +13,10 @@ export type TodayTask = { id: string; title: string; subject: string; color: str
 export type TodayWorkRecord = { id: string; title: string; subject: string; status: string; timing: string; href: string };
 export type TodayData = ReturnType<typeof buildTodayView>;
 
+export function isTodayPlanCandidate(assignment: Pick<Assignment, "status">): boolean {
+  return !FINISHED.has(assignment.status) && !CLOSED.has(assignment.status);
+}
+
 export function formatMinutes(value: number) {
   const minutes = Math.max(0, Math.round(value));
   const hours = Math.floor(minutes / 60);
@@ -80,7 +84,7 @@ export function buildTodayView(input: {
     const due = !key ? "No due date" : key === week.today ? "Today" : key === shiftDate(week.today, 1) ? "Tomorrow" : key < week.today ? "From earlier" : dateLabel(a.due_at!, { weekday: "short", month: "short", day: "numeric" });
     return { id: a.id, title: normalizeDashboardAssignmentTitle(a.title), subject: subject(a), color: color(subject(a)), minutes: Math.max(0, Math.round(minutes)), due: ready ? "Ready to submit" : due, date: key ? dateLabel(a.due_at!, { month: "short", day: "numeric" }) : "No due date", day: key ? key.slice(-2).replace(/^0/, "") : "", month: key ? dateLabel(a.due_at!, { month: "short" }).toUpperCase() : "", ready, resumable: a.status === "drafting", href: `/assignments/${encodeURIComponent(a.id)}${ready ? "/submit" : "/workspace"}` };
   };
-  const ranked = input.ranked.filter(a => !FINISHED.has(a.status) && !CLOSED.has(a.status));
+  const ranked = input.ranked.filter(isTodayPlanCandidate);
   const priority = ranked[0];
   const todayAssignments = ranked.filter(a => a.id !== priority?.id && a.due_at && todayDateKey(a.due_at, week.zone) === week.today);
   const plan = (priority ? [priority, ...todayAssignments] : todayAssignments).map(a => task(a, a.effective_minutes ?? a.estimated_minutes ?? 0));
