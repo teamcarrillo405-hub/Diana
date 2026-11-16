@@ -11,7 +11,11 @@ describe("public Lobby preview", () => {
     vi.stubGlobal("matchMedia", () => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() }));
     const { container } = render(<LobbyPreviewPage />);
     expect(screen.getByText(/Lobby design preview · Sample data · Read-only/)).toBeTruthy();
-    expect(screen.getByText(/Linear equations practice set/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Linear equations practice set/i })).toBeTruthy();
+    const lobby = container.querySelector<HTMLElement>("[data-today-dashboard]");
+    expect(lobby?.style.getPropertyValue("--school-primary")).toBe("#086224");
+    expect(lobby?.style.getPropertyValue("--school-secondary")).toBe("#000000");
+    expect(screen.getAllByAltText("Tigard mark")).toHaveLength(2);
     expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
     fireEvent.click(screen.getByRole("tab", { name: "Progress" }));
     expect(screen.getByRole("heading", { name: "Progress" })).toBeVisible();
@@ -19,6 +23,7 @@ describe("public Lobby preview", () => {
     fireEvent.click(screen.getByRole("tab", { name: "My Work" }));
     expect(screen.getByRole("heading", { name: "My Work" })).toBeVisible();
     expect(screen.getByText("Submitted this week")).toBeVisible();
+    expect(screen.getByText("Cell structure notes")).toBeVisible();
     expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
     fireEvent.click(screen.getByRole("tab", { name: "Now" }));
     expect(screen.getByRole("button", { name: "Check-in" })).toBeDisabled();

@@ -32,6 +32,36 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+describe("Lobby phone shortcuts", () => {
+  it("focuses and scrolls to the requested section without navigating", () => {
+    mockViewport(320);
+    const onSelectionChange = vi.fn();
+    const originalUrl = window.location.href;
+    render(<TodayStageLayout title="Lobby" modes={["now", "week", "milestones"]} labels={{ week: "Progress", milestones: "My Work" }} onSelectionChange={onSelectionChange}>
+      <section aria-label="Today's Plan">Plan</section>
+      <section aria-label="Study Progress">Progress</section>
+      <section aria-label="My Work">Work</section>
+    </TodayStageLayout>);
+    const progress = screen.getByRole("region", { name: "Study Progress" });
+    const scroll = vi.fn();
+    Object.defineProperty(progress, "scrollIntoView", { configurable: true, value: scroll });
+
+    fireEvent.click(screen.getByRole("button", { name: "Jump to Progress" }));
+
+    expect(document.activeElement).toBe(progress);
+    expect(scroll).toHaveBeenCalledOnce();
+    expect(scroll).toHaveBeenCalledWith({ block: "start", behavior: "auto" });
+    expect(onSelectionChange).toHaveBeenCalledWith("week");
+    expect(window.location.href).toBe(originalUrl);
+  });
+
+  it("does not add Lobby shortcuts to another Today layout", () => {
+    mockViewport(320);
+    renderStage();
+    expect(screen.queryByRole("navigation", { name: "Jump to Lobby section" })).toBeNull();
+  });
+});
+
 describe("Today stage breakpoint focus", () => {
   it("can rename a category without changing its panel identity or keyboard order", () => {
     mockViewport(1024);

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ChartNoAxesColumnIncreasing, ClipboardList, House } from "lucide-react";
 import { Children, cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactElement, type ReactNode } from "react";
 import styles from "./today-dashboard.module.css";
+import shortcuts from "./lobby-mobile-shortcuts.module.css";
 
 export type TodayMode = "now" | "week" | "upcoming" | "check-in" | "subjects" | "milestones";
 type PanelDefinition = { id: TodayMode; label: string };
@@ -40,6 +41,7 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
   const [stageMode, setStageMode] = useState(false);
   const idPrefix = useId();
   const tabs = useRef<Partial<Record<TodayMode, HTMLButtonElement>>>({});
+  const jumpButtons = useRef<Partial<Record<TodayMode, HTMLButtonElement>>>({});
   const breakpointFocus = useRef<{ from: Element; to: HTMLElement } | null>(null);
   const panels = Children.toArray(children).filter(isValidElement) as PanelElement[];
 
@@ -56,10 +58,11 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
       if (focused) {
         for (const { id } of definitions) {
           const tab = tabs.current[id];
+          const jumpButton = jumpButtons.current[id];
           const panel = document.getElementById(`${idPrefix}-${id}-panel`);
           const target = !media.matches && tab?.contains(focused)
             ? panel
-            : media.matches && panel?.contains(focused) && panel.dataset.active === "false"
+            : media.matches && (jumpButton?.contains(focused) || (panel?.contains(focused) && panel.dataset.active === "false"))
               ? Object.values(tabs.current).find(candidate => candidate?.getAttribute("aria-selected") === "true")
               : null;
           if (target) {
@@ -102,7 +105,23 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
     tabs.current[next.id]?.focus();
   }
 
-  return <div className={styles.stageWorkspace} data-today-stage-workspace>
+  function jumpToPanel(id: TodayMode) {
+    const panel = document.getElementById(`${idPrefix}-${id}-panel`);
+    if (!panel) return;
+    selectPanel(id);
+    // Put keyboard and assistive-technology focus at the destination as well as
+    // moving the viewport. Mobile keeps all sections available in the document.
+    panel.focus({ preventScroll: true });
+    panel.scrollIntoView?.({ block: "start", behavior: "auto" });
+  }
+
+  const showLobbyShortcuts = title === "Lobby" && definitions.length === 3 &&
+    definitions[0].id === "now" && definitions[1].id === "week" && definitions[2].id === "milestones";
+
+  return <div className={`${styles.stageWorkspace}${showLobbyShortcuts ? ` ${shortcuts.workspace}` : ""}`} data-today-stage-workspace>
+    {showLobbyShortcuts && <nav className={shortcuts.navigation} aria-label="Jump to Lobby section">
+      {definitions.map(panel => <button key={panel.id} ref={node => { jumpButtons.current[panel.id] = node ?? undefined; }} type="button" aria-label={`Jump to ${labels?.[panel.id] ?? panel.label}`} onClick={() => jumpToPanel(panel.id)}>{labels?.[panel.id] ?? panel.label}</button>)}
+    </nav>}
     <nav className={styles.stageRail} data-today-stage-rail aria-label={`${title} categories`} role="tablist" aria-orientation="vertical">
       <p className={styles.railKicker}>{railHeading ?? title}</p>
       {railIndicator && <span data-today-rail-indicator aria-hidden="true" style={{ "--selected-index": definitions.findIndex(panel => panel.id === activeId) } as CSSProperties} />}

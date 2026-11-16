@@ -78,6 +78,25 @@ describe("live Today data", () => {
     expect(data.submitted).toBe(1);
   });
 
+  it("lists only this week's due or submitted work without implying that done was submitted", () => {
+    const done = assignment("marked-done", { status: "done", due_at: "2026-09-10T19:00:00Z" });
+    const sent = assignment("sent", { status: "submitted", due_at: "2026-10-01T19:00:00Z", submitted_at: "2026-09-09T19:00:00Z" });
+    const data = buildTodayView({ ...input, weeklyAssignments: [done, done], submittedAssignments: [sent, sent, assignment("future", { status: "submitted", submitted_at: "2026-09-09T21:00:00Z" })] });
+    expect(data.weekRecords).toHaveLength(2);
+    expect(data.weekRecords[0]).toMatchObject({ id: "sent", status: "Submitted", timing: "Submitted Wed, Sep 9", href: "/assignments/sent" });
+    expect(data.weekRecords[1]).toMatchObject({ id: "marked-done", status: "Marked done", timing: "Due Thu, Sep 10" });
+  });
+
+  it("prefers the submitted record when a due-week assignment appears in both queries and limits the list", () => {
+    const sent = assignment("both", { status: "submitted", submitted_at: "2026-09-09T19:00:00Z" });
+    const more = Array.from({ length: 6 }, (_, i) => assignment(`a${i}`));
+    const data = buildTodayView({ ...input, weeklyAssignments: [sent, ...more], submittedAssignments: [sent] });
+    expect(data.weekRecords).toHaveLength(5);
+    expect(data.weekRecords.filter(record => record.id === "both")).toHaveLength(1);
+    expect(data.weekRecords.find(record => record.id === "both")?.timing).toBe("Submitted Wed, Sep 9");
+    expect(data.weekRecords.find(record => record.id === "both")?.status).toBe("Submitted");
+  });
+
   it("includes every subject with its real share", () => {
     const data = buildTodayView({ ...input, weeklyAssignments: Array.from({ length: 7 }, (_, i) => assignment(String(i), { classes: { name: `Subject ${i}` }, estimated_minutes: 10 })) });
     expect(data.subjects).toHaveLength(7);

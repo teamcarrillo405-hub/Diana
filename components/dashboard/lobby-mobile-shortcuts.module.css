@@ -1,0 +1,69 @@
+.navigation { display: none; }
+
+@media (max-width: 760px) {
+  .navigation.navigation {
+    position: sticky;
+    z-index: 15;
+    top: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+    margin: 0 0 12px;
+    padding: 5px;
+    border: 1px solid #e8ead180;
+    border-top: 3px solid var(--school-secondary, #d5b889);
+    background: #10261ef7;
+    box-shadow: 0 8px 22px #0008;
+  }
+
+  /* Override the app-wide button skin while staying scoped to the Lobby. */
+  .workspace.workspace.workspace .navigation.navigation button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 4px;
+    border: 1px solid #ffffff35;
+    border-radius: 0;
+    background: var(--school-primary, #63316f);
+    color: var(--school-primary-text, #fff);
+    box-shadow: none;
+    font: 700 17px/1.1 var(--font-saira-condensed), sans-serif;
+    text-transform: uppercase;
+  }
+
+  .workspace.workspace.workspace .navigation.navigation button:hover,
+  .workspace.workspace.workspace .navigation.navigation button:active {
+    background: var(--school-primary, #63316f);
+    color: var(--school-primary-text, #fff);
+    transform: none;
+  }
+
+  .workspace.workspace.workspace .navigation.navigation button:focus-visible {
+    outline: 3px solid var(--school-primary-text, #fff);
+    outline-offset: -4px;
+  }
+
+  .workspace :global([data-today-stage-deck]) > section {
+    scroll-margin-top: 76px;
+  }
+}
+
+:global(.dyslexia-font) .workspace.workspace.workspace .navigation.navigation button {
+  font-size: 14px;
+  text-transform: none;
+}
+
+@media (max-width: 360px) {
+  .workspace.workspace.workspace .navigation.navigation button { font-size: 15px; }
+}
+
+@media (forced-colors: active) {
+  .navigation.navigation { background: Canvas; border-color: CanvasText; }
+  .workspace.workspace.workspace .navigation.navigation button { color: ButtonText; background: ButtonFace; border: 1px solid ButtonText; }
+  .workspace.workspace.workspace .navigation.navigation button:hover,
+  .workspace.workspace.workspace .navigation.navigation button:active { color: ButtonText; background: ButtonFace; }
+  .workspace.workspace.workspace .navigation.navigation button:focus-visible { outline-color: Highlight; }
+}
