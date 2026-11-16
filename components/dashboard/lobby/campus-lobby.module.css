@@ -8,8 +8,8 @@
 .railDate { margin-top: 9px; color: #c5d0c9; font: 400 12px/1.4 var(--font-lexend), sans-serif; }
 .mobileGuide { display: none; }
 .schoolLogo, .mobileSchoolLogo { object-fit: contain; background: #fff; border-radius: 4px; padding: 3px; }
-.schoolLogo { float: left; width: 48px; height: 48px; margin: 0 10px 0 0; }
-.mobileSchoolLogo { width: 36px; height: 36px; margin-right: 10px; vertical-align: middle; }
+.schoolLogo { float: left; width: 64px; height: 64px; margin: 0 12px 0 0; padding: 5px; border: 2px solid var(--school-secondary, #d7be8a); box-shadow: 0 0 0 2px #0d1a18; }
+.mobileSchoolLogo { width: 42px; height: 42px; margin-right: 8px; padding: 4px; border: 2px solid var(--school-secondary, #d7be8a); vertical-align: middle; }
 
 @media (min-width: 761px) {
   /* The Lobby keeps the shared navigation behavior, but gives its menu a campus treatment. */
@@ -21,10 +21,13 @@
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a::after { display: none; }
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-workspace] { grid-template-columns: 220px minmax(0, 1fr); column-gap: clamp(16px, 2vw, 30px); }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] { width: 220px; min-width: 0; padding: 20px 12px; align-self: start; border: 1px solid #e1d1ac55; border-top: 4px solid var(--school-secondary, #d5b889); background: linear-gradient(160deg, #163329f5, #101b1ff2 72%); box-shadow: 0 18px 45px #060d0c66; }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] > p { height: auto; min-height: 64px; margin: 0 6px 15px; padding-bottom: 14px; border-bottom: 1px solid #dfd6bd55; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] { width: 220px; min-width: 0; padding: 20px 12px; align-self: start; border: 1px solid #e1d1ac80; border-top: 5px solid var(--school-secondary, #d5b889); background: linear-gradient(155deg, #1a3b30f7, #101b1ff7 72%); box-shadow: 0 18px 45px #060d0c99, inset 0 0 0 3px #ffffff08; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] > p { display: flow-root; height: auto; min-height: 64px; margin: 0 6px 15px; padding-bottom: 16px; border-bottom: 1px solid #dfd6bd80; }
+  /* Original Diana Campus fallback: a decorative mark, never a fabricated school crest. */
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] > p:not(:has(.schoolLogo))::before { content: ""; float: left; width: 64px; height: 64px; margin: 0 12px 0 0; box-sizing: border-box; border: 2px solid var(--school-secondary, #d7be8a); background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23f8f5eb' d='M19 12h14c13 0 20 8 20 20s-7 20-20 20H19V12zm10 9v22h4c7 0 11-4 11-11s-4-11-11-11h-4z'/%3E%3C/svg%3E") center / 46px 46px no-repeat, linear-gradient(180deg, #16352d 0 86%, var(--school-primary, #6d2c78) 86% 100%); box-shadow: inset 0 0 0 3px #101b1f, 0 0 0 2px #0d1a18; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button { min-height: 52px; height: auto; padding: 12px 14px; border-radius: 0; color: #e1e5df; font-size: 22px; line-height: 1.1; }
-  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"] { color: var(--school-primary-text, #fff); background: var(--school-primary, #6d2c78); border: 1px solid var(--school-primary-text, #e7cda5); border-left: 5px solid var(--school-secondary, #e2be7d); box-shadow: 0 4px 12px #070e0b55; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"] { color: var(--school-primary-text, #fff); background: var(--school-primary, #6d2c78); background-image: linear-gradient(115deg, transparent 78%, #ffffff18 78% 82%, transparent 82%); border: 1px solid var(--school-primary-text, #e7cda5); border-left: 5px solid var(--school-secondary, #e2be7d); box-shadow: 0 4px 12px #070e0b55; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]::after { content: ""; display: block; flex: none; width: 9px; height: 9px; margin-left: auto; border-top: 2px solid currentColor; border-right: 2px solid currentColor; transform: rotate(45deg); }
   .campus.campus.campus.campus.campus.campus [data-today-rail-indicator] { display: none; }
   .campus.campus.campus.campus.campus.campus [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: min(66%, 590px); min-height: 0; padding: 26px 30px 22px; border: 1px solid #eadbc078; border-top: 4px solid var(--school-secondary, #d5b889); border-left: 1px solid #eadbc078; border-radius: 2px; background: linear-gradient(150deg, #142c27f5, #101b20f7 66%); box-shadow: 0 18px 46px #050d13a0, inset 0 0 0 4px #ffffff08; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
   .campus.campus.campus.campus.campus.campus [data-now-layout] { min-height: 0; }
@@ -55,7 +58,7 @@
 .campus.campus.campus.campus.campus.campus .historyHeading > p:first-child { color: #dfc99f; font: 700 11px/1.4 var(--font-lexend), sans-serif; letter-spacing: .08em; text-transform: uppercase; }
 .campus.campus.campus.campus.campus.campus .historyHeading h2 { margin: 10px 0; color: inherit; font: 700 clamp(38px, 4vw, 56px)/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; }
 .campus.campus.campus.campus.campus.campus .historyHeading > p:last-child { margin: 0; color: #d2dbd4; font-size: 14px; line-height: 1.5; }
-.historyGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 26px 0 0; }
+.historyGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 26px 0 0; }
 .historyGrid > div { min-width: 0; padding: 20px; border: 1px solid #c2cec34d; border-top: 3px solid #d5b889; background: #132027e8; }
 .historyGrid dt { display: flex; align-items: center; gap: 8px; color: #e1e7e0; font-size: 13px; line-height: 1.4; }
 .historyGrid dt svg { color: #dfc99f; }
@@ -101,6 +104,9 @@
 @media (max-width: 760px) and (forced-colors: active) {
   .campus.campus.campus.campus.campus.campus [data-now-action] [data-now-meta] > span,
   .campus.campus.campus.campus.campus.campus [data-now-action] [data-now-meta] > span:last-child { color: CanvasText; }
+}
+@media (max-width: 360px) {
+  .mobileSchoolLogo { width: 36px; height: 36px; margin-right: 6px; }
 }
 /* The primary color carries actions and selection; the secondary provides trim.
    Foreground text is chosen from the actual school color for contrast. */

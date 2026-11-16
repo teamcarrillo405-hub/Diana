@@ -17,13 +17,13 @@ export function WeeklyRunway({ planned, studied, unavailable, initialDay = 2 }: 
   return <section className={styles.runway} aria-label="Weekly study activity">
     <div className={styles.runwayHeading} data-runway-heading>
       <span>Study activity</span>
-      <span>{scale} min scale</span>
+      <span>{unavailable ? "History unavailable" : `${scale} min scale`}</span>
     </div>
     <div className={styles.runwayPlot} data-runway-plot>
       <span className={styles.runwayGrid} aria-hidden="true" />
       <div className={styles.runwayColumns}>
         {weekDays.map((day, index) => {
-          const plannedHeight = `${((planned[index] ?? 0) / scale) * 100}%`;
+          const plannedHeight = unavailable ? "0%" : `${((planned[index] ?? 0) / scale) * 100}%`;
           const studiedHeight = unavailable ? "0%" : `${((studied[index] ?? 0) / scale) * 100}%`;
           const active = selected === index;
           return <button
@@ -35,7 +35,7 @@ export function WeeklyRunway({ planned, studied, unavailable, initialDay = 2 }: 
             onClick={() => setSelected(index)}
             onFocus={() => setSelected(index)}
             onMouseEnter={() => setSelected(index)}
-            aria-label={`${day}: ${planned[index] ?? 0} minutes planned, ${unavailable ? "study time unavailable" : `${studied[index] ?? 0} minutes studied`}`}
+            aria-label={unavailable ? `${day}: focus-session history unavailable` : `${day}: ${planned[index] ?? 0} minutes session target, ${studied[index] ?? 0} minutes completed`}
           >
             <span className={styles.runwayColumn} aria-hidden="true">
               <span className={styles.runwayPlanned} style={{ height: plannedHeight }} />
@@ -47,8 +47,8 @@ export function WeeklyRunway({ planned, studied, unavailable, initialDay = 2 }: 
       </div>
     </div>
     <div className={styles.runwayFooter} data-runway-footer>
-      <span className={styles.runwayLegend} aria-hidden="true"><i /><span>planned</span><i /><span>studied</span></span>
-      <p aria-live="polite">{selectedDay} <b>{selectedPlanned}m</b> planned <span>/</span> {unavailable ? "Unavailable" : <><b>{selectedStudied}m</b> studied</>}</p>
+      <span className={styles.runwayLegend} aria-hidden="true"><i /><span>session target</span><i /><span>completed</span></span>
+      <p aria-live="polite">{selectedDay} {unavailable ? "Focus-session history unavailable" : <><b>{selectedPlanned}m</b> session target <span>/</span> <b>{selectedStudied}m</b> completed</>}</p>
     </div>
   </section>;
 }

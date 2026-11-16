@@ -61,6 +61,24 @@
 .empty { padding-top: 28px; }
 .empty h2 { font-size: 30px; line-height: 1.3; }
 .empty p { line-height: 1.7; }
+
+/* A compact briefing strip keeps actual assignment details easy to scan. */
+.proof.proof.proof.proof.proof.proof.proof [data-now-action] [data-now-meta] {
+  display: flex; flex-wrap: wrap; gap: 10px 28px; width: 100%; margin: 0;
+  padding: 14px 0; border-block: 1px solid #d8ddcc40;
+}
+.proof.proof.proof.proof.proof.proof.proof .metaItem { min-width: 0; display: grid; gap: 6px; }
+.proof.proof.proof.proof.proof.proof.proof .metaItem dt { display: flex; align-items: center; gap: 6px; color: #cfddd5; font: 600 11px/1.35 var(--font-lexend), sans-serif; }
+.proof.proof.proof.proof.proof.proof.proof .metaItem dd { margin: 0; color: #fff8e9; font: 700 19px/1.2 var(--font-saira-condensed), sans-serif; overflow-wrap: anywhere; }
+@media (max-width: 760px) {
+  .proof.proof.proof.proof.proof.proof.proof [data-now-action] [data-now-meta] { gap: 10px 22px; padding: 12px 0; }
+  .proof.proof.proof.proof.proof.proof.proof .metaItem dd { font-size: 18px; }
+}
+@media (forced-colors: active) {
+  .proof.proof.proof.proof.proof.proof.proof [data-now-action] [data-now-meta] { border-color: CanvasText; }
+  .proof.proof.proof.proof.proof.proof.proof .metaItem dt,
+  .proof.proof.proof.proof.proof.proof.proof .metaItem dd { color: CanvasText; }
+}
 @media (min-width: 761px) {
   /* Keep form state mounted without compositing hidden frosted surfaces. */
   .proof.proof.proof [data-today-stage-deck] > section[data-active="false"] { display: none; }
