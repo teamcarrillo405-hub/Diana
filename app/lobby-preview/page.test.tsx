@@ -16,7 +16,11 @@ describe("public Lobby preview", () => {
     expect(lobby?.style.getPropertyValue("--school-primary")).toBe("#086224");
     expect(lobby?.style.getPropertyValue("--school-secondary")).toBe("#000000");
     expect(screen.getAllByText("Tigard Campus")).toHaveLength(2);
-    expect(screen.getAllByAltText("School logo")).toHaveLength(2);
+    expect(container.querySelector("[data-today-stage-rail] img")).toBeNull();
+    expect(screen.queryByText(/your personalized/i)).toBeNull();
+    const schoolLogos = [...container.querySelectorAll('img[src="/assets/school-examples/tigard-t-mark.jpg"]')];
+    expect(schoolLogos).toHaveLength(2);
+    expect(schoolLogos.every(logo => Boolean(logo.closest("[data-school-scene]")))).toBe(true);
     expect(container.querySelectorAll("a[href], form")).toHaveLength(0);
     fireEvent.click(screen.getByRole("tab", { name: "Progress" }));
     expect(screen.getByRole("heading", { name: "Progress" })).toBeVisible();
