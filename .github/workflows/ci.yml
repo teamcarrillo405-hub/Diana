@@ -200,6 +200,10 @@ jobs:
             if ($LASTEXITCODE -ne 0) {
               throw "Guardian under-13 database boundary did not pass."
             }
+            & psql -X "--dbname=$($databaseUrlMatch.Groups[1].Value)" -f "supabase/tests/dashboard_optional_checkin.sql"
+            if ($LASTEXITCODE -ne 0) {
+              throw "Optional dashboard check-in database contract did not pass."
+            }
           }
           finally {
             & npx --yes supabase@2.111.0 stop --workdir $workdir --no-backup

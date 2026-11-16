@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ChartNoAxesColumnIncreasing, ClipboardList, House } from "lucide-react";
+import { ChartNoAxesColumnIncreasing, ClipboardList, Heart, House } from "lucide-react";
 import { Children, cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactElement, type ReactNode } from "react";
 import styles from "./today-dashboard.module.css";
 import shortcuts from "./lobby-mobile-shortcuts.module.css";
@@ -32,12 +32,14 @@ const PANELS: readonly PanelDefinition[] = [
 const LOBBY_ICONS: Partial<Record<TodayMode, typeof House>> = {
   now: House,
   week: ChartNoAxesColumnIncreasing,
+  "check-in": Heart,
   milestones: ClipboardList,
 };
 
-export function TodayStageLayout({ children, imageSrc = "/images/today-future-academy-4k.webp", imageSizes = "(max-width: 760px) 100vw, 80vw", imageQuality = 75, artwork, railIndicator = false, labels, modes, title = "Today", railHeading, onSelectionChange }: { children: ReactNode; imageSrc?: string; imageSizes?: string; imageQuality?: number; artwork?: ReactNode; railIndicator?: boolean; labels?: Partial<Record<TodayMode, string>>; modes?: readonly TodayMode[]; title?: string; railHeading?: ReactNode; onSelectionChange?: (mode: TodayMode) => void }) {
+export function TodayStageLayout({ children, imageSrc = "/images/today-future-academy-4k.webp", imageSizes = "(max-width: 760px) 100vw, 80vw", imageQuality = 75, artwork, railIndicator = false, labels, modes, title = "Today", railHeading, selectedMode, onSelectionChange }: { children: ReactNode; imageSrc?: string; imageSizes?: string; imageQuality?: number; artwork?: ReactNode; railIndicator?: boolean; labels?: Partial<Record<TodayMode, string>>; modes?: readonly TodayMode[]; title?: string; railHeading?: ReactNode; selectedMode?: TodayMode; onSelectionChange?: (mode: TodayMode) => void }) {
   const definitions = useMemo(() => modes ? modes.map(id => PANELS.find(panel => panel.id === id)!) : PANELS, [modes]);
-  const [activeId, setActiveId] = useState<TodayMode>("now");
+  const [internalId, setInternalId] = useState<TodayMode>("now");
+  const activeId = selectedMode ?? internalId;
   const [stageMode, setStageMode] = useState(false);
   const idPrefix = useId();
   const tabs = useRef<Partial<Record<TodayMode, HTMLButtonElement>>>({});
@@ -89,7 +91,7 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
   function selectPanel(id: TodayMode) {
     if (id === activeId) return;
     onSelectionChange?.(id);
-    setActiveId(id);
+    if (selectedMode === undefined) setInternalId(id);
   }
 
   function onRailKeyDown(event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) {
@@ -115,8 +117,7 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
     panel.scrollIntoView?.({ block: "start", behavior: "auto" });
   }
 
-  const showLobbyShortcuts = title === "Lobby" && definitions.length === 3 &&
-    definitions[0].id === "now" && definitions[1].id === "week" && definitions[2].id === "milestones";
+  const showLobbyShortcuts = title === "Lobby" && definitions.length === 3;
 
   return <div className={`${styles.stageWorkspace}${showLobbyShortcuts ? ` ${shortcuts.workspace}` : ""}`} data-today-stage-workspace>
     {showLobbyShortcuts && <nav className={shortcuts.navigation} aria-label="Jump to Lobby section">

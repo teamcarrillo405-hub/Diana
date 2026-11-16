@@ -12,9 +12,9 @@ export type LobbyMovement =
 
 export type LobbyCheckInValue = Readonly<{
   energy: LobbyEnergy;
-  sleepHours: number;
-  movementType: LobbyMovement;
-  movementMinutes: number;
+  sleepHours: number | null;
+  movementType: LobbyMovement | null;
+  movementMinutes: number | null;
 }>;
 
 const CHECK_IN_RESET_OFFSET_MS = 60 * 1000;
@@ -49,15 +49,16 @@ export function lobbyCheckInFromSignalValue(
 
   const record = value as Record<string, unknown>;
   const energy = record.energy;
-  const sleepHours = record.sleepHours;
-  const movementType = record.movementType;
-  const movementMinutes = record.movementMinutes;
+  const sleepHours = record.sleepHours ?? null;
+  const movementType = record.movementType ?? null;
+  const movementMinutes = record.movementMinutes ?? null;
 
   if (
     !isEnergy(energy) ||
-    !isSleepHours(sleepHours) ||
-    !isMovement(movementType) ||
-    !isMovementMinutes(movementMinutes)
+    (sleepHours !== null && !isSleepHours(sleepHours)) ||
+    (movementType !== null && !isMovement(movementType)) ||
+    (movementMinutes !== null && !isMovementMinutes(movementMinutes)) ||
+    ((movementType === null) !== (movementMinutes === null))
   ) return null;
   return { energy, sleepHours, movementType, movementMinutes };
 }

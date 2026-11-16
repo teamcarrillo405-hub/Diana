@@ -241,18 +241,18 @@ export async function saveMoodCheckIn(
 
 const LobbyCheckInInput = z.object({
   energy: z.enum(["low", "okay", "good"]),
-  sleepHours: z.number().min(0).max(12),
-  movementType: z.enum(["walk", "run", "bike", "team_sport", "strength", "stretch", "dance", "other"]),
-  movementMinutes: z.number().int().min(1).max(180),
+  sleepHours: z.number().min(0).max(12).nullable(),
+  movementType: z.enum(["walk", "run", "bike", "team_sport", "strength", "stretch", "dance", "other"]).nullable(),
+  movementMinutes: z.number().int().min(1).max(180).nullable(),
   sleepDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-});
+}).refine(value => (value.movementType === null) === (value.movementMinutes === null));
 
 export async function saveLobbyCheckIn(
   input: z.infer<typeof LobbyCheckInInput>,
-): Promise<{ ok: true } | { ok: false; error: string }> {
+): Promise<{ ok: true; signalId: string } | { ok: false; error: string }> {
   const parsed = LobbyCheckInInput.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: "Add energy, sleep, and movement first." };
+    return { ok: false, error: "Choose energy and provide both movement fields, or leave movement blank." };
   }
 
   const supabase = await createClient();
@@ -261,45 +261,29 @@ export async function saveLobbyCheckIn(
   } = await supabase.auth.getUser();
   if (!user) return { ok: false, error: "Sign in to save this check-in." };
 
-  const body =
-    parsed.data.energy === "good" ? "ready" : parsed.data.energy;
-  const focus = "steady" as const;
-  const mood = moodFromReadiness({ body, focus });
-  const sleepQuality = parsed.data.sleepHours < 5
-    ? "rough"
-    : parsed.data.sleepHours < 7.5
-      ? "ok"
-      : "rested";
-
-  const { error } = await supabase.rpc("record_dashboard_wellness_check_in", {
-    p_mood: mood,
+  const { data: signalId, error } = await supabase.rpc("record_dashboard_energy_check_in", {
+    p_energy: parsed.data.energy,
     p_sleep_date: parsed.data.sleepDate,
-    p_sleep_quality: sleepQuality,
     p_sleep_hours: parsed.data.sleepHours,
-    p_focus_note: "",
     p_movement_type: parsed.data.movementType,
     p_movement_minutes: parsed.data.movementMinutes,
-    p_mood_metadata: {
-      body,
-      focus,
-      energy: parsed.data.energy,
-      sleepHours: parsed.data.sleepHours,
-      movementType: parsed.data.movementType,
-      movementMinutes: parsed.data.movementMinutes,
-    },
   });
-  if (error) {
+  if (error || typeof signalId !== "string" || !/^\d+$/u.test(signalId)) {
     return {
       ok: false,
       error: "The check-in could not be saved yet. Try again when ready.",
     };
   }
 
-  await maintainWellnessHistory(supabase);
+  try {
+    await maintainWellnessHistory(supabase);
+  } catch {
+    console.error("Wellness history retention could not run.");
+  }
 
   revalidatePath("/dashboard");
   revalidatePath("/wellness");
-  return { ok: true };
+  return { ok: true, signalId };
 }
 
 const ReflectionInput = z.object({

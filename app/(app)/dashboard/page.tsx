@@ -2,8 +2,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { rankAssignments } from "@/lib/scoring/next-five-minutes";
-import { buildTodayView, todayWeek } from "@/lib/dashboard/today-view";
+import { rankAssignments, type EnergyLevel } from "@/lib/scoring/next-five-minutes";
+import { buildTodayView, isTodayPlanCandidate, todayWeek } from "@/lib/dashboard/today-view";
+import { energyFromLobbyCheckIn } from "@/lib/dashboard/lobby-recommendation";
 import { TodayDashboard } from "@/components/dashboard/today-dashboard";
 import {
   lobbyCheckInDayKey,
@@ -75,11 +76,12 @@ export default async function DashboardPage({
       .order("occurred_at", { ascending: false }),
     supabase
       .from("task_signals")
-      .select("value, occurred_at")
+      .select("signal_id:id::text, value, occurred_at")
       .eq("owner_id", user.id)
       .eq("kind", "mood_checkin")
       .gte("occurred_at", new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString())
       .order("occurred_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(16),
     supabase
       .from("sleep_logs")
@@ -132,18 +134,22 @@ export default async function DashboardPage({
       : null,
     now,
   );
+  const initialCheckIn = lobbyCheckInFromSignalValue(latestReadinessSignal?.value);
   const readiness = readinessFromSignalValue(latestReadinessSignal?.value);
+  const energyOverride = search.energy === "low" || search.energy === "medium" || search.energy === "high"
+    ? search.energy
+    : undefined;
   const energy =
-    search.energy ??
-    energyFromBody(readiness?.body) ??
+    energyOverride ??
+    (initialCheckIn ? energyFromLobbyCheckIn(initialCheckIn.energy) : energyFromBody(readiness?.body)) ??
     sleepAdjustment.energyOverride ??
     adaptation.energyOverride ??
     "medium";
-  const ranked = rankAssignments(
+  const rankAtEnergy = (level: EnergyLevel) => rankAssignments(
     assignments ?? [],
     recentSignals,
     now,
-    energy,
+    level,
     {
       diagnoses: profile?.diagnoses ?? [],
       extra_time_pct: profile?.extra_time_pct ?? 0,
@@ -151,6 +157,7 @@ export default async function DashboardPage({
     lastShownClassId,
     learnerProfile,
   );
+  const ranked = rankAtEnergy(energy);
   const data = buildTodayView({
     now, timeZone, ranked,
     assignments: assignmentsError ? null : assignments ?? [],
@@ -158,15 +165,24 @@ export default async function DashboardPage({
     focusLogs: focusError ? null : focusLogs ?? [],
     submittedAssignments: submittedError ? null : submittedAssignments ?? [],
   });
-  const initialCheckIn = lobbyCheckInFromSignalValue(
-    latestReadinessSignal?.value,
-  );
+  const bestAtEnergy = (level: EnergyLevel) =>
+    (level === energy ? ranked : rankAtEnergy(level)).find(isTodayPlanCandidate)?.id ?? null;
+  const recommendation = assignmentsError ? undefined : {
+    energy,
+    signalId: initialCheckIn && latestReadinessSignal ? latestReadinessSignal.signal_id : null,
+    topByEnergy: {
+      low: bestAtEnergy("low"),
+      medium: bestAtEnergy("medium"),
+      high: bestAtEnergy("high"),
+    },
+  };
 
   return (
     <>
       <LastShownClassCookie classId={ranked[0]?.class_id ?? null} />
       <TodayDashboard
         data={data}
+        recommendation={recommendation}
         schoolBranding={{
           name: profile?.school_name,
           primaryColor: profile?.school_primary_color,

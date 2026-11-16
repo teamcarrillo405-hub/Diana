@@ -7996,6 +7996,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      record_dashboard_energy_check_in: {
+        Args: {
+          p_energy: string
+          p_sleep_date: string
+          p_sleep_hours: number | null
+          p_movement_type: string | null
+          p_movement_minutes: number | null
+        }
+        Returns: string
+      }
       record_guardian_consent_v1: {
         Args: {
           p_consent_scopes: string[]

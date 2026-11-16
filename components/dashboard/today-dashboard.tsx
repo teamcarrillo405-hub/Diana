@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Heart, X } from "lucide-react";
 import { StudentDesktopNav, type StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import type { TodayData } from "@/lib/dashboard/today-view";
+import type { LobbyEnergy } from "@/lib/dashboard/lobby-check-in";
+import { lobbyRecommendationReason, type LobbyCheckInUpdate, type LobbyRecommendation } from "@/lib/dashboard/lobby-recommendation";
 import { formatCampusName } from "@/lib/school-branding";
 import { schoolColor, schoolColorText, schoolLogo } from "@/lib/school-branding-display";
 import { TodayStageLayout, type TodayMode } from "./today-stage-layout";
 import { LobbyNow } from "./lobby/lobby-now";
-import { LobbyProgress } from "./lobby/lobby-progress";
-import { LobbyHistory } from "./lobby/lobby-history";
+import { LobbyThisWeek } from "./lobby/lobby-this-week";
+import { LobbyCheckInCompletion } from "./lobby/lobby-check-in-completion";
 import styles from "./today-dashboard.module.css";
 import proof from "./lobby/today-now-proof.module.css";
 import menu from "./lobby/today-lobby-review.module.css";
@@ -20,7 +21,7 @@ import hub from "./lobby/lobby-consolidation.module.css";
 import live from "./lobby/lobby-live.module.css";
 import campus from "./lobby/campus-lobby.module.css";
 
-const MODES: readonly TodayMode[] = ["now", "week", "milestones"];
+const MODES: readonly TodayMode[] = ["now", "check-in", "week"];
 const room = "/assets/today-now/diana-campus-with-guide-4k.webp";
 const mobileRoom = "/assets/today-now/diana-campus-with-guide-mobile.webp";
 
@@ -39,11 +40,12 @@ function SchoolPennant({ logo, compact = false }: { logo: string; compact?: bool
   </div>;
 }
 
-export function TodayDashboard({ data, profile, checkIn, schoolBranding }: {
+export function TodayDashboard({ data, profile, checkIn, schoolBranding, recommendation }: {
   data: TodayData;
   profile: StudentNavigationProfile;
   checkIn: ReactNode;
   schoolBranding?: SchoolBranding;
+  recommendation?: LobbyRecommendation;
 }) {
   const router = useRouter();
   return <CampusLobby
@@ -51,22 +53,24 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding }: {
     navigation={<StudentDesktopNav active="Lobby" {...profile} />}
     checkIn={checkIn}
     schoolBranding={schoolBranding}
+    recommendation={recommendation}
     onRetry={() => router.refresh()}
   />;
 }
 
-export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry, preview }: {
+export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry, preview, recommendation }: {
   data: TodayData;
   navigation: ReactNode;
   checkIn?: ReactNode;
   schoolBranding?: SchoolBranding;
   onRetry?: () => void;
   preview?: { logo: string };
+  recommendation?: LobbyRecommendation;
 }) {
   const [mode, setMode] = useState<TodayMode>("now");
-  const [dialog, setDialog] = useState(false);
-  const dialogRef = useRef<HTMLDialogElement>(null);
-  const origin = useRef<HTMLButtonElement | null>(null);
+  const [savedCheckIn, setSavedCheckIn] = useState<LobbyCheckInUpdate>();
+  const nowPanel = useRef<HTMLElement>(null);
+  const nextTask = data.plan[0];
   const primary = schoolColor(schoolBranding?.primaryColor);
   const secondary = schoolColor(schoolBranding?.secondaryColor);
   const logo = preview?.logo ?? schoolLogo(schoolBranding?.logoUrl);
@@ -78,15 +82,22 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
     ...(secondary ? { "--school-secondary": secondary, "--school-secondary-text": schoolColorText(secondary), "--school-trim": `color-mix(in srgb, ${secondary} 45%, white)` } : {}),
   } as CSSProperties;
 
-  useEffect(() => {
-    if (dialog && !dialogRef.current?.open) dialogRef.current?.showModal();
-    if (!dialog && dialogRef.current?.open) dialogRef.current.close();
-  }, [dialog]);
-
-  function closeDialog() {
-    setDialog(false);
-    origin.current?.focus();
+  const checkInNote = savedCheckIn
+    ? lobbyRecommendationReason(savedCheckIn, recommendation, nextTask) ?? "Check-in saved."
+    : undefined;
+  function finishCheckIn(energy: LobbyEnergy, signalId: string) {
+    setSavedCheckIn({ energy, signalId, before: recommendation, previousTask: nextTask });
+    setMode("now");
+    onRetry?.();
   }
+
+  useLayoutEffect(() => {
+    if (!savedCheckIn) return;
+    nowPanel.current?.focus({ preventScroll: true });
+    if (window.matchMedia?.("(max-width: 760px)").matches) {
+      nowPanel.current?.scrollIntoView?.({ block: "start" });
+    }
+  }, [savedCheckIn]);
 
   return <div
     className={`${styles.preview} ${proof.proof} ${menu.lobby} ${composition.composition} ${hub.lobby} ${live.root} ${campus.campus}`}
@@ -113,38 +124,40 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
           {logo && <SchoolPennant logo={logo} compact />}
         </div>
         <TodayStageLayout
-          title="Lobby" modes={MODES} labels={{ week: "Progress", milestones: "My Work" }} onSelectionChange={setMode}
+          title="Lobby" modes={MODES} labels={{ "check-in": "Check-in" }} selectedMode={mode} onSelectionChange={setMode}
           railHeading={<>
             <span className={campus.railIdentity}>{name}</span>
             <span className={campus.railDate}>{data.dateLabel}</span>
           </>}
           artwork={false}
         >
-          <section className={`${styles.panel} ${proof.nowPanel}`} aria-label="Today's Plan">
-            <LobbyNow task={data.plan[0]} unavailable={data.assignmentsUnavailable} onRetry={onRetry} sample={Boolean(preview)} />
-            <div className={hub.checkInAccess}>
-              <button className={hub.checkInTrigger} disabled={Boolean(preview)} onClick={event => { origin.current = event.currentTarget; setDialog(true); }}>
-                <Heart size={18} aria-hidden="true" />Check-in
-              </button>
-              <span className={hub.optional}>Optional</span>
-            </div>
+          <section ref={nowPanel} className={`${styles.panel} ${proof.nowPanel}`} aria-label="Today's Plan">
+            <LobbyNow task={nextTask} unavailable={data.assignmentsUnavailable} onRetry={onRetry} sample={Boolean(preview)} checkInNote={checkInNote} />
             {preview
               ? <a className={live.allWork} aria-disabled="true">View all work</a>
               : <Link className={live.allWork} href="/assignments">View all work</Link>}
           </section>
-          <section className={`${styles.panel} ${styles.studyPanel}`} aria-label="Study Progress" data-review-performance data-lobby-progress>
-            <LobbyProgress data={data} sample={Boolean(preview)} />
+          <section className={styles.panel} aria-label="Check-in" data-lobby-check-in>
+            <header className={campus.checkInHeading}>
+              <p data-campus-eyebrow>Optional</p>
+              <h2>Check-in</h2>
+              <p>Tell Diana how much energy you have today. A shorter assignment may move up on a low-energy day.</p>
+            </header>
+            <LobbyCheckInCompletion.Provider value={finishCheckIn}>
+              {preview ? <div className={campus.previewCheckIn}>
+                <p>How’s your energy today?</p>
+                <div role="group" aria-label="Energy choices">
+                  {["Low", "Okay", "Good"].map(value => <button key={value} type="button" disabled>{value}</button>)}
+                </div>
+                <button type="button" disabled>Save check-in</button>
+              </div> : checkIn}
+            </LobbyCheckInCompletion.Provider>
           </section>
-          <section className={`${styles.panel} ${campus.historyPanel}`} aria-label="My Work" data-review-performance data-lobby-history>
-            <LobbyHistory data={data} sample={Boolean(preview)} />
+          <section className={styles.panel} aria-label="This Week" data-review-performance data-lobby-week>
+            <LobbyThisWeek data={data} sample={Boolean(preview)} />
           </section>
         </TodayStageLayout>
       </main>
     </div>
-    {!preview && <dialog ref={dialogRef} className={`${hub.checkInDialog} ${live.dialog}`} aria-labelledby="lobby-dialog-title" onClose={closeDialog} onCancel={closeDialog}>
-      <button className={hub.close} aria-label="Close" onClick={closeDialog}><X size={20} /></button>
-      <h2 id="lobby-dialog-title">Check-in</h2>
-      <div hidden={!dialog}>{checkIn}</div>
-    </dialog>}
   </div>;
 }
