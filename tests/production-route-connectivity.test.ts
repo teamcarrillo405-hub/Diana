@@ -14,11 +14,18 @@ describe("production route connectivity", () => {
     expect(practiceSession).not.toContain('href="/capture"');
   });
 
-  it("routes inbox class creation to the supported classes state", () => {
+  it("returns to the intake screen after class creation", () => {
     const confirmForm = read("app/(app)/inbox/[id]/confirm-form.tsx");
+    const quickAdd = read("app/(app)/quick-add/page.tsx");
+    const classes = read("app/(app)/classes/page.tsx");
+    const classForm = read("app/(app)/classes/class-form.tsx");
 
-    expect(confirmForm).toContain('router.push("/classes?create=1")');
-    expect(confirmForm).not.toContain('router.push("/classes/new")');
+    expect(confirmForm).toContain('/classes?create=1&intake=${inboxItemId}');
+    expect(quickAdd).toContain('/classes?create=1&intake=add');
+    expect(classes).toContain('z.string().uuid().safeParse(intake)');
+    expect(classes).toContain('captureId.success ? `/assignments/captures/${captureId.data}`');
+    expect(classes).toContain('intake === "add" ? "/quick-add"');
+    expect(classForm).toContain('router.replace(returnTo)');
   });
 
   it("keeps Record and Sharing connected to mobile primary navigation", () => {
