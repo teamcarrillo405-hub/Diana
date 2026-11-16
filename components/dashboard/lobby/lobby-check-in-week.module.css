@@ -6,29 +6,33 @@
   --sleep-bar: #dcc99b;
   --activity-bar: #aacbb7;
   min-width: 0;
-  margin-block-start: clamp(20px, 3vw, 32px);
-  color: var(--history-ink);
-}
-
-.history .header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  padding: 10px 0 10px 10px;
+  margin-block-start: 8px;
   border-block-start: 1px solid var(--campus-rule, var(--history-rule));
-  border-inline-start: 3px solid var(--campus-border, #cbb485);
-}
-
-.history[aria-labelledby] .header > h3[id] {
-  margin: 0;
   color: var(--history-ink);
-  font: italic 800 clamp(23px, 2.3vw, 29px)/1.05 var(--font-saira-condensed), sans-serif;
-  text-transform: uppercase;
 }
 
-.history[aria-labelledby] .header > p,
+.history[aria-labelledby] > .summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  margin: 0;
+  padding: 2px 4px;
+  color: var(--history-ink);
+  font: italic 800 21px/1.15 var(--font-saira-condensed), sans-serif;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+}
+
+.summary::-webkit-details-marker { display: none; }
+.summary svg { flex-shrink: 0; }
+.history[open] > .summary svg { transform: rotate(180deg); }
+.history .summary:focus-visible { outline: 2px solid var(--history-ink); outline-offset: 2px; }
+
+.history[aria-labelledby] > p.range,
 .history[aria-labelledby] .chart + p.note {
   margin: 0;
   color: var(--history-muted);
@@ -36,6 +40,7 @@
   text-transform: none;
 }
 
+.history[aria-labelledby] > p.range { margin-block-end: 8px; }
 .history[aria-labelledby] .chart + p.note {
   margin-block-start: 7px;
 }
@@ -164,7 +169,7 @@
   border: 0;
 }
 
-:global(.dyslexia-font) .history[aria-labelledby] .header > h3[id],
+:global(.dyslexia-font) .history[aria-labelledby] > .summary,
 :global(.dyslexia-font) .history[aria-labelledby] .chart th[scope] {
   font-style: normal;
   text-transform: none;
@@ -184,7 +189,7 @@
     --activity-bar: Highlight;
   }
 
-  .history .header { border-color: CanvasText; }
+  .history { border-color: CanvasText; }
   .history[aria-labelledby] .chart thead > tr > th[scope] { background: Canvas; }
   .history[aria-labelledby] .chart thead > tr > th[data-current] { border-block-end: 2px solid Highlight; }
   .measurePlot > i, .energyPlot[data-energy]::after { forced-color-adjust: none; }

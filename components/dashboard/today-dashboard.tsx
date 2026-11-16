@@ -144,9 +144,11 @@ export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBran
           </section>
           <section className={styles.panel} aria-label="Check-in" data-lobby-check-in>
             <header className={campus.checkInHeading}>
-              <p data-campus-eyebrow>Optional</p>
-              <h2>Check-in</h2>
-              <p>Share what would help today. On low-energy days, Diana may suggest a shorter assignment.</p>
+              <div className={campus.checkInTitle}>
+                <h2>Check-in</h2>
+                <span>Optional</span>
+              </div>
+              <p>Energy helps Diana choose your next assignment.</p>
             </header>
             <LobbyCheckInCompletion.Provider value={finishCheckIn}>
               {checkIn}

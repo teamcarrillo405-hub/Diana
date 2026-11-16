@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import type { CheckInWeek } from "@/lib/wellness/check-in-week";
 import { LobbyCheckInWeek } from "./lobby-check-in-week";
@@ -16,8 +16,13 @@ const week: CheckInWeek = {
 afterEach(cleanup);
 
 describe("Lobby Check-in history", () => {
-  it("shows seven dates with accessible labels and distinguishes zero from gaps", () => {
+  it("keeps history collapsed until opened and makes all seven days readable", () => {
     render(<LobbyCheckInWeek week={week} />);
+    const summary = screen.getByText("7-day history");
+    const disclosure = summary.closest("details");
+    expect(disclosure).not.toHaveAttribute("open");
+    fireEvent.click(summary);
+    expect(disclosure).toHaveAttribute("open");
     const table = within(screen.getByRole("table", { name: "Energy, sleep, and activity for the past seven days" }));
     const columns = table.getAllByRole("columnheader");
     expect(columns).toHaveLength(8);
@@ -31,7 +36,8 @@ describe("Lobby Check-in history", () => {
 
   it("preserves readings when some history is unavailable", () => {
     render(<LobbyCheckInWeek week={{ ...week, unavailable: true }} />);
-    expect(screen.getByText("Some records couldn’t load. Blank spaces may be unavailable.")).toBeVisible();
+    fireEvent.click(screen.getByText("7-day history"));
+    expect(screen.getByText("Some records couldn’t load.")).toBeVisible();
     expect(screen.getByRole("cell", { name: "75 minutes" })).toBeVisible();
     expect(screen.getAllByRole("cell", { name: "No value available" })).toHaveLength(18);
   });

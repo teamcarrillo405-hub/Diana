@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { useId, type CSSProperties } from "react";
 import type { CheckInWeek } from "@/lib/wellness/check-in-week";
 import styles from "./lobby-check-in-week.module.css";
@@ -18,11 +19,12 @@ export function LobbyCheckInWeek({ week }: { week: CheckInWeek }) {
   const activityScale = Math.max(60, ...days.map(day => Math.ceil((day.activityMinutes ?? 0) / 30) * 30));
   const missingLabel = week.unavailable ? "No value available" : "Not shared";
 
-  return <section className={styles.history} aria-labelledby={heading}>
-    <header className={styles.header}>
-      <h3 id={heading}>Check-in history</h3>
-      <p><time dateTime={days[0].date}>{dateFormat.format(days[0].calendarDay)}</time><span aria-hidden="true"> / </span><span className={styles.srOnly}> to </span><time dateTime={latest.date}>{dateFormat.format(latest.calendarDay)}</time></p>
-    </header>
+  return <details className={styles.history} aria-labelledby={heading} data-check-in-history>
+    <summary id={heading} className={styles.summary}>
+      <span>7-day history</span>
+      <ChevronDown size={18} aria-hidden="true" />
+    </summary>
+    <p className={styles.range}><time dateTime={days[0].date}>{dateFormat.format(days[0].calendarDay)}</time> to <time dateTime={latest.date}>{dateFormat.format(latest.calendarDay)}</time></p>
     <table className={styles.chart}>
       <caption className={styles.srOnly}>Energy, sleep, and activity for the past seven days</caption>
       <colgroup><col className={styles.metricColumn} /><col span={days.length} /></colgroup>
@@ -50,8 +52,8 @@ export function LobbyCheckInWeek({ week }: { week: CheckInWeek }) {
         </tr>
       </tbody>
     </table>
-    <p className={styles.note}>{week.unavailable ? "Some records couldn’t load. Blank spaces may be unavailable." : "Blank spaces show where nothing was shared."}</p>
-  </section>;
+    <p className={styles.note}>{week.unavailable ? "Some records couldn’t load." : "Blank means no entry."}</p>
+  </details>;
 }
 
 function Measure({ value, scale, unit, missingLabel }: { value: number | null; scale: number; unit: "hours" | "minutes"; missingLabel: string }) {
