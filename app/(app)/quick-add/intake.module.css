@@ -110,16 +110,18 @@
   gap: 8px;
   min-height: 44px;
   padding: 8px 16px;
+  border: 0;
   border-block-end: 2px solid transparent;
+  background: var(--campus-panel);
   color: var(--campus-muted);
   font: 750 18px/1 var(--campus-display);
   text-transform: uppercase;
 }
 
 .main.main .tabs button[aria-pressed=true] {
-  border-block-end-color: var(--campus-focus);
-  background: var(--campus-raised);
-  color: var(--campus-ink);
+  border-block-end-color: var(--campus-border);
+  background: var(--campus-action);
+  color: var(--campus-action-text);
 }
 
 .fields {
