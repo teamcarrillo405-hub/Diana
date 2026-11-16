@@ -8,6 +8,8 @@ const PUBLIC_EXACT = new Set([
   "/how-it-works",
   "/student-control",
   "/trust",
+  // A static design specimen: no account data or live actions.
+  "/lobby-preview",
   "/early-access/unsubscribe",
   "/early-access/confirm",
   // The offline recovery screen must remain reachable without a session.
@@ -99,6 +101,10 @@ export async function updateSession(
   requestHeaders: Headers = new Headers(request.headers),
 ) {
   let response = NextResponse.next({ request: { headers: requestHeaders } });
+
+  // The public design specimen is deliberately independent of student sessions.
+  // Keep this exact-path exception narrow: /dashboard remains authenticated.
+  if (request.nextUrl.pathname === "/lobby-preview") return response;
 
   const supabase = createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
