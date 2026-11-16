@@ -10,6 +10,8 @@
 .schoolLogo, .mobileSchoolLogo { object-fit: contain; background: #fff; border-radius: 4px; padding: 3px; }
 .schoolLogo { float: left; width: 64px; height: 64px; margin: 0 12px 0 0; padding: 5px; border: 2px solid var(--school-secondary, #d7be8a); box-shadow: 0 0 0 2px #0d1a18; }
 .mobileSchoolLogo { width: 42px; height: 42px; margin-right: 8px; padding: 4px; border: 2px solid var(--school-secondary, #d7be8a); vertical-align: middle; }
+.customSchoolLogo { background: #fff; border-radius: 4px; padding: 4px; }
+.mobileCampus, .mobileCampusText { min-width: 0; }
 
 @media (min-width: 761px) {
   /* The Lobby keeps the shared navigation behavior, but gives its menu a campus treatment. */
@@ -69,6 +71,23 @@
 .historyLink:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 
 @media (max-width: 760px) {
+  .campus.campus.campus.campus.campus.campus .mobileCampus {
+    display: flex; align-items: center; gap: 7px; padding: 6px 8px; min-height: 48px;
+  }
+  .campus.campus.campus.campus.campus.campus .mobileCampus .mobileSchoolLogo {
+    flex: none; width: 38px; height: 34px; object-fit: contain; margin: 0; padding: 0; border: 0;
+    border-radius: 0; background: transparent;
+  }
+  .campus.campus.campus.campus.campus.campus .mobileCampus .mobileSchoolLogo.customSchoolLogo {
+    padding: 3px; border-radius: 3px; background: #fff;
+  }
+  .campus.campus.campus.campus.campus.campus .mobileCampusText { display: grid; gap: 2px; }
+  .campus.campus.campus.campus.campus.campus .mobileCampusText strong {
+    color: #fff9ed; font: 900 13px/1 "Diana Campus Slab", Georgia, serif;
+  }
+  .campus.campus.campus.campus.campus.campus .mobileCampusText > span {
+    color: #d9e2db; font: 400 10px/1.2 var(--font-lexend), sans-serif;
+  }
   .campus.campus.campus.campus.campus.campus [data-today-stage-deck] > section[aria-label="Today's Plan"] { overflow: hidden; border: 1px solid #d4c49e; border-left: 4px solid #b88c4f; border-radius: 3px; background: #f6f3ec; box-shadow: 0 12px 32px #080f1780; }
   .campus.campus.campus.campus.campus.campus [data-now-briefing] { padding: 22px 20px 20px; border-top: 4px solid var(--school-secondary, #d5b889); background: linear-gradient(145deg, #1c3831 0%, #101e20 82%); gap: 18px; }
   /* Start the task or empty-state message close to the top of the card. */
@@ -213,7 +232,7 @@
 .campus.campus.campus.campus.campus.campus .mobileGuide { grid-column: 1 / -1; }
 
 @media (min-width: 761px) {
-  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a { font: 800 21px/1 var(--font-saira-condensed), sans-serif; letter-spacing: .02em; text-transform: uppercase; }
+  .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a { font: 900 21px/1 "Diana Campus Slab", Georgia, serif; letter-spacing: .02em; text-transform: uppercase; }
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current] { position: relative; isolation: isolate; border: 0; border-bottom: 4px solid var(--school-secondary, #d5b889); background: transparent; }
   .campus.campus.campus.campus.campus.campus [data-student-navigation] nav a[aria-current]::before { content: ""; position: absolute; inset: 0; z-index: -1; background: var(--school-primary, #64316f); clip-path: polygon(11% 0, 100% 0, 89% 100%, 0 100%); }
   .campus.campus.campus.campus.campus.campus [data-today-stage-rail] { min-height: var(--scene-height); padding-inline: 0; background: #102b22f5; }
@@ -267,4 +286,81 @@
 }
 :global(.dyslexia-font) .campus.campus.campus.campus.campus.campus [data-now-start] {
   font-style: normal; font-weight: 700; font-size: clamp(20px, 2.2vw, 25px); line-height: 1.25; letter-spacing: normal; text-transform: none;
+}
+
+/* A campus identity and menu at the edge of the room, as in the approved
+   reference. The student's uploaded logo occupies the same crest position. */
+@media (min-width: 761px) {
+  .campus.campus.campus.campus.campus.campus > div:has(> main) {
+    width: 100%; max-width: none; margin: 0; padding: 0;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-workspace] {
+    grid-template-columns: 174px minmax(0, 1fr); column-gap: clamp(20px, 2.8vw, 36px);
+    min-height: max(var(--scene-height), calc(100svh - 76px));
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] {
+    width: 174px; min-width: 0; min-height: max(var(--scene-height), calc(100svh - 76px));
+    align-self: stretch; gap: 0; padding: 0; border: 0; border-right: 1px solid #d6c99c80;
+    border-radius: 0; background: #102d23f7; box-shadow: none;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] > p {
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    height: 200px; min-height: 200px; margin: 0 22px 31px; padding: 38px 0 22px;
+    border-bottom: 1px solid var(--school-secondary, #cdbb86); text-align: center;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .schoolLogo {
+    display: block; float: none; flex: none; width: 82px; height: 58px;
+    object-fit: contain; margin: 0 0 6px; padding: 0; border: 0; box-shadow: none;
+    border-radius: 0; background: transparent;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .schoolLogo.customSchoolLogo {
+    padding: 4px; border-radius: 4px; background: #fff;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railIdentity {
+    display: flex; flex-direction: column; color: #fff9ed;
+    font: 900 27px/.98 "Diana Campus Slab", Georgia, serif; letter-spacing: .01em;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railIdentity b,
+  .campus.campus.campus.campus.campus.campus[data-school-secondary] [data-today-stage-rail] .railIdentity b {
+    padding: 0; border-radius: 0; background: transparent; color: inherit; font-weight: 900;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railDate {
+    display: block; margin-top: 7px; color: #d8e3dc;
+    font: 400 11px/1.2 var(--font-lexend), sans-serif;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button {
+    width: 100%; height: 52px; min-height: 52px; padding: 10px 20px;
+    gap: 20px; border: 0; border-radius: 0; background: transparent; box-shadow: none;
+    font: 700 21px/1 var(--font-saira-condensed), sans-serif; letter-spacing: .02em;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button svg {
+    width: 25px; height: 25px; flex: none;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"]::after {
+    display: none;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-deck] { padding: 64px 24px 40px 0; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: min(535px, 66%); }
+}
+@media (min-width: 761px) and (max-width: 1000px) {
+  .campus.campus.campus.campus.campus.campus [data-today-stage-workspace] { grid-template-columns: 150px minmax(0, 1fr); column-gap: 20px; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] { width: 150px; }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button { padding-inline: 14px; gap: 14px; font-size: 19px; }
+}
+@media (min-width: 761px) and (forced-colors: active) {
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railIdentity,
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railDate,
+  .campus.campus.campus.campus.campus.campus[data-school-secondary] [data-today-stage-rail] .railIdentity b {
+    color: CanvasText; background: transparent;
+  }
+  .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button[aria-selected="true"],
+  .campus.campus.campus.campus.campus.campus[data-school-primary] [data-today-stage-rail] button[aria-selected="true"] {
+    background: Highlight; color: HighlightText; border: 2px solid HighlightText;
+  }
+}
+:global(.dyslexia-font) .campus.campus.campus.campus.campus.campus [data-today-stage-rail] .railIdentity {
+  font-size: 20px; line-height: 1.25;
+}
+:global(.dyslexia-font) .campus.campus.campus.campus.campus.campus [data-today-stage-rail] button {
+  font-size: 15px; letter-spacing: normal; text-transform: none;
 }

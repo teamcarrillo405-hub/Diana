@@ -31,6 +31,7 @@ export function StudentDesktopNav({ active, displayName, photoUrl, photoOffsetX,
       <img src="/screendesign/brand/diana-logo-tight-no-shadow.png" alt="Diana" width="140" height="46" />
       <span className={styles.campusWordmark} aria-hidden="true">Diana</span>
     </Link>
+    <span className={styles.campusTagline}>Your personalized<br />learning assistant</span>
     <nav aria-label="Primary">
       {STUDENT_NAV_DESTINATIONS.map(({ label, href }) => <Link key={href} href={href} aria-current={active === label ? "page" : undefined}>{labelOverrides?.[label] ?? label}</Link>)}
     </nav>

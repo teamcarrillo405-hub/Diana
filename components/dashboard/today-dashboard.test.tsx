@@ -89,6 +89,12 @@ describe("connected Lobby", () => {
     expect(lobby?.style.getPropertyValue("--school-secondary")).toBe("#FFC627");
     expect(lobby?.style.getPropertyValue("--school-secondary-text")).toBe("#000000");
     expect(screen.getAllByAltText("School logo")).toHaveLength(2);
+    expect(container.querySelectorAll('img[src="/assets/today-now/campus-building-mark.svg"]')).toHaveLength(0);
+    expect(screen.getAllByText(/DIANA\s*CAMPUS/i).length).toBeGreaterThan(0);
+  });
+  it("shows the campus building in both identity areas when no school logo is provided", () => {
+    const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} />);
+    expect(container.querySelectorAll('img[src="/assets/today-now/campus-building-mark.svg"]')).toHaveLength(2);
   });
   it("chooses readable identity text for dark secondary and light primary colors", () => {
     const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} schoolBranding={{ primaryColor: "#ffffff", secondaryColor: "#000000" }} />);
