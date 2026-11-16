@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Clock3, Heart, Pause, Play, Plus } from "lucide-react";
+import { CalendarDays, Clock3, Heart, Pause, Play, Plus } from "lucide-react";
 import { DianaIdleCharacter } from "@/components/dashboard/lobby/diana-idle-character";
 import layout from "@/components/dashboard/today-dashboard.module.css";
 import proof from "@/components/dashboard/lobby/today-now-proof.module.css";
@@ -54,7 +54,7 @@ export default function LobbyPreviewPage() {
                 <section className={`${layout.panel} ${proof.nowPanel} ${layout.stagePanel}`} aria-label="Today's Plan" data-active="true">
                   <div className={proof.nowLayout} data-now-layout><div className={proof.briefing} data-now-briefing>
                     <div data-now-heading><p className={proof.eyebrow} data-campus-eyebrow>YOUR NEXT MOVE</p><div data-now-identity><div className={proof.subject} data-now-subject><span>Algebra I</span></div></div><h2 className={proof.assignmentTitle} data-now-title>Linear equations practice set</h2></div>
-                    <div data-now-action><div className={proof.meta} data-now-meta><span><Clock3 size={16} aria-hidden="true" />35 min estimated</span><span>Tomorrow</span></div><a className={proof.start} data-now-start aria-disabled="true"><Play size={17} fill="currentColor" aria-hidden="true" /><span>Start</span></a></div>
+                    <div data-now-action><dl className={proof.meta} data-now-meta><div className={proof.metaItem}><dt><Clock3 size={15} aria-hidden="true" /> Estimated time</dt><dd>35 min</dd></div><div className={proof.metaItem}><dt><CalendarDays size={15} aria-hidden="true" /> Due</dt><dd>Tomorrow</dd></div></dl><a className={proof.start} data-now-start aria-disabled="true"><Play size={17} fill="currentColor" aria-hidden="true" /><span>Start</span></a></div>
                   </div></div>
                   <div className={hub.checkInAccess}><button className={hub.checkInTrigger} disabled><Heart size={18} aria-hidden="true" />Check-in</button><span className={hub.optional}>Optional</span></div>
                   <a className={live.allWork} aria-disabled="true">View all work</a>
