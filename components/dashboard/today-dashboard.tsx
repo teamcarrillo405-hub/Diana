@@ -2,15 +2,13 @@
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
-import { Heart, Pause, Play, X } from "lucide-react";
+import { Heart, X } from "lucide-react";
 import { StudentDesktopNav, type StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import type { TodayData } from "@/lib/dashboard/today-view";
 import { formatCampusName } from "@/lib/school-branding";
 import { schoolColor, schoolColorText, schoolLogo } from "@/lib/school-branding-display";
 import { TodayStageLayout, type TodayMode } from "./today-stage-layout";
-import { DianaIdleCharacter } from "./lobby/diana-idle-character";
 import { LobbyNow } from "./lobby/lobby-now";
 import { LobbyProgress } from "./lobby/lobby-progress";
 import { LobbyHistory } from "./lobby/lobby-history";
@@ -23,15 +21,8 @@ import live from "./lobby/lobby-live.module.css";
 import campus from "./lobby/campus-lobby.module.css";
 
 const MODES: readonly TodayMode[] = ["now", "week", "milestones"];
-const room = "/assets/today-now/diana-campus-southwest-4k-v1.webp";
-const characterAssets = {
-  poster: "/assets/today-now/diana-relit-poster-v1.webp",
-  motion: "/assets/today-now/diana-relit-motion-v1.webm",
-  posterPose: "relit" as const,
-  motionPose: "relit" as const,
-  pixelWidth: 752,
-  pixelHeight: 1920,
-};
+const room = "/assets/today-now/diana-campus-with-guide-4k.webp";
+const mobileRoom = "/assets/today-now/diana-campus-with-guide-mobile.webp";
 
 type SchoolBranding = {
   name?: string | null;
@@ -73,7 +64,6 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
   preview?: { logo: string };
 }) {
   const [mode, setMode] = useState<TodayMode>("now");
-  const [paused, setPaused] = useState(false);
   const [dialog, setDialog] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const origin = useRef<HTMLButtonElement | null>(null);
@@ -82,11 +72,11 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
   const logo = preview?.logo ?? schoolLogo(schoolBranding?.logoUrl);
   const name = formatCampusName(schoolBranding?.name);
   const sceneStyle = {
-    "--today-scene-image": `url('${room}')`,
+    "--today-scene-image": "none",
+    "--campus-mobile-scene": `url('${mobileRoom}')`,
     ...(primary ? { "--school-primary": primary, "--school-primary-text": schoolColorText(primary) } : {}),
     ...(secondary ? { "--school-secondary": secondary, "--school-secondary-text": schoolColorText(secondary), "--school-trim": `color-mix(in srgb, ${secondary} 45%, white)` } : {}),
   } as CSSProperties;
-  const isPaused = Boolean(preview) || paused || dialog;
 
   useEffect(() => {
     if (dialog && !dialogRef.current?.open) dialogRef.current?.showModal();
@@ -105,7 +95,10 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
   >
     <div className={`${composition.environment} ${campus.campusEnvironment}`} aria-hidden="true">
       <div className={campus.roomPlate}>
-        <Image src={room} alt="" fill priority unoptimized sizes="100vw" />
+        <picture className={campus.roomArt}>
+          <source media="(min-width: 1180px)" srcSet={room} />
+          <img data-campus-art src={mobileRoom} alt="" width={1010} height={428} fetchPriority="high" />
+        </picture>
         {logo && <SchoolPennant logo={logo} />}
       </div>
     </div>
@@ -118,13 +111,6 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
             <span className={campus.mobileCampusText}><strong>{name}</strong><span>{data.dateLabel}</span></span>
           </span>
           {logo && <SchoolPennant logo={logo} compact />}
-          <div className={campus.mobilePortrait} aria-hidden="true">
-            <DianaIdleCharacter mobile assets={characterAssets} floorMaterial="satin" paused={isPaused || mode !== "now"} />
-          </div>
-          {!preview && <button className={live.motionToggle} aria-label={paused ? "Resume Diana motion" : "Pause Diana motion"} aria-pressed={paused} onClick={() => setPaused(current => !current)}>
-            {paused ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}
-            <span>{paused ? "Resume motion" : "Pause motion"}</span>
-          </button>}
         </div>
         <TodayStageLayout
           title="Lobby" modes={MODES} labels={{ week: "Progress", milestones: "My Work" }} onSelectionChange={setMode}
@@ -132,7 +118,7 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
             <span className={campus.railIdentity}>{name}</span>
             <span className={campus.railDate}>{data.dateLabel}</span>
           </>}
-          artwork={<DianaIdleCharacter assets={characterAssets} floorMaterial="satin" paused={isPaused} />}
+          artwork={false}
         >
           <section className={`${styles.panel} ${proof.nowPanel}`} aria-label="Today's Plan">
             <LobbyNow task={data.plan[0]} unavailable={data.assignmentsUnavailable} onRetry={onRetry} sample={Boolean(preview)} />

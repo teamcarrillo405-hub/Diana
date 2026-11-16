@@ -5,7 +5,6 @@ import { TodayDashboard } from "./today-dashboard";
 import { buildTodayView, type TodayTask } from "@/lib/dashboard/today-view";
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
-vi.mock("./lobby/diana-idle-character", () => ({ DianaIdleCharacter: () => <div aria-hidden="true" /> }));
 const task: TodayTask = { id: "a", title: "History report", subject: "History", color: "#9828ff", minutes: 25, due: "Tomorrow", date: "Sep 10", day: "10", month: "SEP", ready: false, href: "/assignments/a/workspace" };
 const empty = () => buildTodayView({ now: new Date("2026-09-09T20:00:00Z"), timeZone: "America/Los_Angeles", ranked: [], assignments: [], weeklyAssignments: [], focusLogs: [], submittedAssignments: [] });
 
@@ -21,6 +20,8 @@ describe("connected Lobby", () => {
     expect(screen.getByRole("link", { name: "Start" })).toHaveAttribute("href", "/assignments/a/workspace");
     expect(screen.getAllByRole("tab").map(tab => tab.textContent)).toEqual(["Now", "Progress", "My Work"]);
     expect(container.querySelectorAll("#main-content")).toHaveLength(1);
+    expect(container.querySelectorAll("[data-campus-art]")).toHaveLength(1);
+    expect(container.querySelector("[data-today-stage-image] img, [data-today-stage-image] video")).toBeNull();
     expect(screen.queryByText(/sample data|local preview/i)).toBeNull();
   });
   it("retains check-in input across dialog close and reopen", () => {
