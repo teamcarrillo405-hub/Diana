@@ -1,9 +1,5 @@
 .root.root.root.root.root .sceneTools { position:absolute; z-index:2; right:0; bottom:0; display:flex; justify-content:flex-end; }
 .root.root.root.root.root .mobileDate { display:none; }
-.root.root.root.root.root .motionToggle { display:inline-flex; align-items:center; justify-content:center; gap:10px; width:auto; min-height:44px; padding:10px 14px; border:1px solid #ceddd43d; border-radius:3px; background:#101b20d9; color:#d7e3dd; font:400 13px/1.4 var(--font-lexend),sans-serif; box-shadow:none; white-space:nowrap; }
-.root.root.root.root.root .motionToggle svg { flex:none; width:18px; height:18px; }
-.root.root.root.root.root .motionToggle:hover { background:#243337; color:#fff; }
-.root.root.root.root.root .motionToggle:focus-visible { outline:2px solid #f1f6f3; outline-offset:4px; }
 @media(min-width:761px) {
   .root.root.root.root.root > div:has(> main) { width:min(1680px,calc(100% - 64px)); margin-top:32px; padding-bottom:48px; }
   /* Fit the longest label in the student's chosen reading font, then reserve a real gutter. */
@@ -29,9 +25,7 @@
 @media(max-width:760px) {
   .root.root.root.root.root .sceneTools { position:relative; right:auto; bottom:auto; justify-content:space-between; align-items:center; gap:12px; margin:0 0 16px; }
   .root.root.root.root.root .mobileDate { display:block; padding:6px 10px; border-radius:3px; background:#101b20ed; color:#f6f8f5; font-size:13px; line-height:1.5; }
-  .root.root.root.root.root .motionToggle { gap:8px; padding-inline:10px; font-size:12px; }
 }
-@media(prefers-reduced-motion:reduce) { .root.root.root.root.root .motionToggle { display:none; } }
 .root.root.root.root.root .allWork { display:inline-flex; min-height:44px; align-items:center; margin-top:14px; color:#ccded7; font-size:13px; text-decoration:none; }
 .root.root.root.root.root .dialog h2 { margin:0 0 24px; color:inherit; font:700 36px/1.1 var(--font-saira-condensed),sans-serif; }
 .root.root.root.root.root .dialog { --ink:#f0f6f3; --muted:#bccdc6; }

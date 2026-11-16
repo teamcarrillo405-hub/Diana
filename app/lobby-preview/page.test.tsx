@@ -3,7 +3,6 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import LobbyPreviewPage from "./page";
 
-vi.mock("@/components/dashboard/lobby/diana-idle-character", () => ({ DianaIdleCharacter: () => null }));
 afterEach(() => vi.unstubAllGlobals());
 
 describe("public Lobby preview", () => {
