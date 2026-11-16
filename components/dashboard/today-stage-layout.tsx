@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { ChartNoAxesColumnIncreasing, ClipboardList, House } from "lucide-react";
 import { Children, cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactElement, type ReactNode } from "react";
 import styles from "./today-dashboard.module.css";
 
@@ -27,6 +28,11 @@ const PANELS: readonly PanelDefinition[] = [
   { id: "subjects", label: "Subjects" },
   { id: "milestones", label: "Milestones" },
 ];
+const LOBBY_ICONS: Partial<Record<TodayMode, typeof House>> = {
+  now: House,
+  week: ChartNoAxesColumnIncreasing,
+  milestones: ClipboardList,
+};
 
 export function TodayStageLayout({ children, imageSrc = "/images/today-future-academy-4k.webp", imageSizes = "(max-width: 760px) 100vw, 80vw", imageQuality = 75, artwork, railIndicator = false, labels, modes, title = "Today", railHeading, onSelectionChange }: { children: ReactNode; imageSrc?: string; imageSizes?: string; imageQuality?: number; artwork?: ReactNode; railIndicator?: boolean; labels?: Partial<Record<TodayMode, string>>; modes?: readonly TodayMode[]; title?: string; railHeading?: ReactNode; onSelectionChange?: (mode: TodayMode) => void }) {
   const definitions = useMemo(() => modes ? modes.map(id => PANELS.find(panel => panel.id === id)!) : PANELS, [modes]);
@@ -102,6 +108,7 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
       {railIndicator && <span data-today-rail-indicator aria-hidden="true" style={{ "--selected-index": definitions.findIndex(panel => panel.id === activeId) } as CSSProperties} />}
       {definitions.map((panel, index) => {
         const selected = activeId === panel.id;
+        const LobbyIcon = title === "Lobby" ? LOBBY_ICONS[panel.id] : undefined;
         return <button
           key={panel.id}
           ref={node => { tabs.current[panel.id] = node ?? undefined; }}
@@ -114,6 +121,7 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
           onClick={() => selectPanel(panel.id)}
           onKeyDown={event => onRailKeyDown(event, index)}
         >
+          {LobbyIcon && <LobbyIcon size={21} strokeWidth={2.2} aria-hidden="true" focusable="false" />}
           <span>{labels?.[panel.id] ?? panel.label}</span>
         </button>;
       })}

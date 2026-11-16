@@ -1,6 +1,12 @@
 .navigation.navigation.navigation.navigation { position:relative; z-index:5; display:flex; align-items:center; gap:clamp(24px,2.5vw,42px); width:100%; min-height:82px; padding:0 32px; border-bottom:1px solid #d5e9df30; background:#0d161ad9; color:#f1f6f3; }
 .navigation.navigation.navigation.navigation .brand { display:flex; flex:none; align-items:center; width:126px; padding:0; border:0; background:none; }
 .navigation.navigation.navigation.navigation .brand img { display:block; width:100%; height:auto; }
+.campusWordmark { display:none; }
+/* A Lobby-only athletic wordmark. The labeled link retains its accessible name. */
+:global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .brand img { display:none; }
+:global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .campusWordmark { position:relative; display:inline-block; padding:0 2px 5px 1px; color:#fffaf0; font:italic 800 42px/.9 var(--font-saira-condensed),sans-serif; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap; }
+:global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .campusWordmark::after { position:absolute; right:2px; bottom:0; left:0; height:4px; content:""; background:var(--school-primary,#8f49a1); transform:skewX(-24deg); }
+:global(.dyslexia-font) :global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .campusWordmark { font-size:29px; font-style:normal; }
 .navigation.navigation.navigation.navigation nav { display:flex; align-self:stretch; align-items:stretch; gap:clamp(20px,2vw,30px); margin:0; min-width:0; }
 .navigation.navigation.navigation.navigation nav a { position:relative; display:flex; align-items:center; flex:none; min-height:60px; padding:4px 0; border:0; color:#b5c4c4; text-decoration:none; text-transform:uppercase; font:700 clamp(18px,1.8vw,26px)/1 var(--font-saira-condensed),sans-serif; transition:color 160ms ease; }
 .navigation.navigation.navigation.navigation nav a::after { position:absolute; bottom:0; left:0; right:0; height:3px; content:""; background:var(--school-secondary,var(--school-primary,#df3195)); box-shadow:var(--school-nav-ring,none); transform:scaleX(0); transform-origin:left; transition:transform 200ms cubic-bezier(.2,.8,.2,1); }
@@ -26,6 +32,8 @@
 @media(max-width:760px) {
   .navigation.navigation.navigation.navigation { padding:12px 18px 0; }
   .navigation.navigation.navigation.navigation .brand { width:106px; }
+  :global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .campusWordmark { font-size:35px; }
+  :global(.dyslexia-font) :global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .campusWordmark { font-size:25px; }
   .navigation.navigation.navigation.navigation nav { gap:8px; }
   .navigation.navigation.navigation.navigation nav a { min-height:48px; font-size:14px; }
   .navigation.navigation.navigation.navigation .actions { gap:4px; }
@@ -36,6 +44,8 @@
 @media(max-width:370px) {
   .navigation.navigation.navigation.navigation { padding-inline:14px; gap:0 8px; }
   .navigation.navigation.navigation.navigation .brand { width:92px; }
+  :global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .campusWordmark { font-size:31px; }
+  :global(.dyslexia-font) :global([data-today-dashboard][data-now-studio]) .navigation.navigation.navigation.navigation .campusWordmark { font-size:22px; }
   .navigation.navigation.navigation.navigation nav a { font-size:13px; }
   .navigation.navigation.navigation.navigation .actions a { padding-inline:6px; }
 }
