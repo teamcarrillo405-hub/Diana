@@ -31,19 +31,15 @@ const sampleData: TodayData = {
   assignmentsUnavailable: false, weeklyUnavailable: false, studyUnavailable: false, submissionsUnavailable: false,
 };
 const tigard = { name: "Tigard High School", primaryColor: "#086224", secondaryColor: "#000000" };
-const tigardMarks = {
-  logo: "/assets/school-examples/tigard-t-mark.jpg",
-  wordmark: "/assets/school-examples/tigard-wordmark.jpg",
-};
+const tigardLogo = "/assets/school-examples/tigard-t-mark.jpg";
 
 /** Sample actions never navigate to account routes. */
 export function LobbyPreviewContent() {
   return <>
     <div className={preview.notice} role="note">Lobby design preview · Sample data · Read-only · Tigard High School</div>
-    <CampusLobby data={sampleData} schoolBranding={tigard} preview={tigardMarks} navigation={
+    <CampusLobby data={sampleData} schoolBranding={tigard} preview={{ logo: tigardLogo }} navigation={
       <header className={navigation.navigation} data-student-navigation>
         <a className={navigation.brand} aria-label="Diana Lobby"><img src="/screendesign/brand/diana-logo-tight-no-shadow.png" alt="Diana" width="140" height="46" /><span className={navigation.campusWordmark} aria-hidden="true">Diana</span></a>
-        <span className={navigation.campusTagline}>Your personalized<br />learning assistant</span>
         <nav aria-label="Sample navigation">{["Lobby", "Work", "Classes", "Calendar", "More"].map(label => <a key={label} aria-current={label === "Lobby" ? "page" : undefined}>{label}</a>)}</nav>
         <div className={navigation.actions}><a className={navigation.add}><Plus size={18} aria-hidden="true" /><span>Add</span></a><a className={navigation.account} aria-label="Sample student"><span aria-hidden="true">S</span></a></div>
       </header>

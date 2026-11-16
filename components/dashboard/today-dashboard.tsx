@@ -24,7 +24,6 @@ import campus from "./lobby/campus-lobby.module.css";
 
 const MODES: readonly TodayMode[] = ["now", "week", "milestones"];
 const room = "/assets/today-now/diana-campus-southwest-4k-v1.webp";
-const campusMark = "/assets/today-now/campus-building-mark.svg";
 const characterAssets = {
   poster: "/assets/today-now/diana-relit-poster-v1.webp",
   motion: "/assets/today-now/diana-relit-motion-v1.webm",
@@ -40,6 +39,14 @@ type SchoolBranding = {
   secondaryColor?: string | null;
   logoUrl?: string | null;
 };
+
+function SchoolPennant({ logo, compact = false }: { logo: string; compact?: boolean }) {
+  return <div className={`${campus.schoolSceneBanner}${compact ? ` ${campus.compactPennant}` : ""}`} data-school-scene aria-hidden="true">
+    <div className={campus.pennant}>
+      <span className={campus.pennantMark}><img src={logo} alt="" /></span>
+    </div>
+  </div>;
+}
 
 export function TodayDashboard({ data, profile, checkIn, schoolBranding }: {
   data: TodayData;
@@ -63,7 +70,7 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
   checkIn?: ReactNode;
   schoolBranding?: SchoolBranding;
   onRetry?: () => void;
-  preview?: { logo: string; wordmark: string };
+  preview?: { logo: string };
 }) {
   const [mode, setMode] = useState<TodayMode>("now");
   const [paused, setPaused] = useState(false);
@@ -99,13 +106,7 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
     <div className={`${composition.environment} ${campus.campusEnvironment}`} aria-hidden="true">
       <div className={campus.roomPlate}>
         <Image src={room} alt="" fill priority unoptimized sizes="100vw" />
-        {logo && <div className={campus.schoolSceneBanner} data-school-scene>
-          <div className={campus.pennant}>
-            <span className={campus.pennantMark} data-wordmark={preview ? "" : undefined}>
-              <img src={preview?.wordmark ?? logo} alt="" />
-            </span>
-          </div>
-        </div>}
+        {logo && <SchoolPennant logo={logo} />}
       </div>
     </div>
     {navigation}
@@ -114,9 +115,9 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
         <h1 className={styles.srOnly}>{preview ? "Lobby design preview" : "Lobby"}</h1>
         <div className={`${live.sceneTools} ${campus.campusTools}`}>
           <span className={`${live.mobileDate} ${campus.mobileCampus}`}>
-            <img className={`${campus.mobileSchoolLogo}${logo ? ` ${campus.customSchoolLogo}` : ""}`} src={logo ?? campusMark} alt={logo ? "School logo" : ""} width={38} height={34} />
             <span className={campus.mobileCampusText}><strong>{name}</strong><span>{data.dateLabel}</span></span>
           </span>
+          {logo && <SchoolPennant logo={logo} compact />}
           <div className={campus.mobilePortrait} aria-hidden="true">
             <DianaIdleCharacter mobile assets={characterAssets} floorMaterial="satin" paused={isPaused || mode !== "now"} />
           </div>
@@ -128,7 +129,6 @@ export function CampusLobby({ data, navigation, checkIn, schoolBranding, onRetry
         <TodayStageLayout
           title="Lobby" modes={MODES} labels={{ week: "Progress", milestones: "My Work" }} onSelectionChange={setMode}
           railHeading={<>
-            <img className={`${campus.schoolLogo}${logo ? ` ${campus.customSchoolLogo}` : ""}`} src={logo ?? campusMark} alt={logo ? "School logo" : ""} width={82} height={62} />
             <span className={campus.railIdentity}>{name}</span>
             <span className={campus.railDate}>{data.dateLabel}</span>
           </>}

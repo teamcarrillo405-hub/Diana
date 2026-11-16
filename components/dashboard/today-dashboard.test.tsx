@@ -88,14 +88,17 @@ describe("connected Lobby", () => {
     expect(lobby?.style.getPropertyValue("--school-primary-text")).toBe("#FFFFFF");
     expect(lobby?.style.getPropertyValue("--school-secondary")).toBe("#FFC627");
     expect(lobby?.style.getPropertyValue("--school-secondary-text")).toBe("#000000");
-    expect(screen.getAllByAltText("School logo")).toHaveLength(2);
-    expect(container.querySelector("[data-school-scene] img")).toHaveAttribute("src", "data:image/webp;base64,YWJj");
-    expect(container.querySelectorAll('img[src="/assets/today-now/campus-building-mark.svg"]')).toHaveLength(0);
+    const schoolLogos = [...container.querySelectorAll('img[src="data:image/webp;base64,YWJj"]')];
+    expect(schoolLogos).toHaveLength(2);
+    expect(schoolLogos.every(logo => Boolean(logo.closest("[data-school-scene]")))).toBe(true);
+    expect(container.querySelector("[data-today-stage-rail] img")).toBeNull();
+    expect(screen.queryByText(/your personalized/i)).toBeNull();
     expect(screen.getAllByText("Tigard Campus")).toHaveLength(2);
   });
-  it("shows the campus building in both identity areas when no school logo is provided", () => {
+  it("keeps the campus name when no school logo is provided", () => {
     const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} />);
-    expect(container.querySelectorAll('img[src="/assets/today-now/campus-building-mark.svg"]')).toHaveLength(2);
+    expect(screen.getAllByText("Diana Campus")).toHaveLength(2);
+    expect(container.querySelector("[data-today-stage-rail] img")).toBeNull();
     expect(container.querySelector("[data-school-scene]")).toBeNull();
   });
   it("chooses readable identity text for dark secondary and light primary colors", () => {
