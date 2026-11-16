@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -77,6 +78,17 @@ describe("specialist editor reopen state", () => {
   afterEach(() => {
     cleanup();
     vi.useRealTimers();
+  });
+
+  it("does not save an empty graph on mount, then saves a student's first curve", async () => {
+    render(<StrictMode><AssignmentNativeTools assignmentId={assignmentId} assignmentTitle="Graph a curve" profile={profile("graphing")} initialBlocks={[]} /></StrictMode>);
+    await flushAutosave();
+    expect(mocks.saveBlock).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText("Curve 1", { exact: true }), { target: { value: "-x^2" } });
+    await flushAutosave();
+    expect(mocks.saveBlock).toHaveBeenCalledTimes(1);
+    expect(mocks.saveBlock).toHaveBeenCalledWith(expect.objectContaining({ block: expect.objectContaining({ key: "graph", plainText: "y = -x^2" }) }));
   });
 
   it("keeps code execution metadata and forward-compatible fields on autosave", async () => {

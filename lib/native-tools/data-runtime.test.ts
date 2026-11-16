@@ -47,4 +47,27 @@ describe("bounded delimited-data runtime", () => {
     expect(parseDelimitedDataset(tooManyRows, "data.csv")).toMatchObject({ ok: false });
     expect(parseDelimitedDataset("A,B\n1,2", "workbook.xlsx")).toMatchObject({ ok: false });
   });
+
+  it("keeps uneven spacing for numeric points and sorts a numeric line by x", () => {
+    const data = { fileName: "trials.csv", columns: ["Time", "Height"], rows: [["9", "5"], ["0", "1"], ["1", "3"], ["4", "6"], ["", "-1"]] };
+    expect(chartSeriesForDataset(data, { type: "scatter", xColumn: 0, yColumn: 1 })).toMatchObject({
+      xAxisType: "value", points: [[9, 5], [0, 1], [1, 3], [4, 6]],
+    });
+    expect(chartSeriesForDataset(data, { type: "line", xColumn: 0, yColumn: 1 })).toMatchObject({
+      xAxisType: "value", points: [[0, 1], [1, 3], [4, 6], [9, 5]],
+    });
+    expect(chartSeriesForDataset(data, { type: "bar", xColumn: 0, yColumn: 1 })).toMatchObject({
+      xAxisType: "category", categories: ["9", "0", "1", "4", ""], values: [5, 1, 3, 6, -1], points: [],
+    });
+  });
+
+  it("keeps categorical lines and does not invent numeric coordinates for missing or malformed values", () => {
+    const data = { fileName: "trials.csv", columns: ["Trial", "Height"], rows: [["A", "5"], ["B", ""], ["C", "1,2"], ["D", "1,250"], ["4", "-1.5"], ["", "12"]] };
+    expect(chartSeriesForDataset(data, { type: "line", xColumn: 0, yColumn: 1 })).toMatchObject({
+      xAxisType: "category", categories: ["A", "D", "4", ""], values: [5, 1250, -1.5, 12],
+    });
+    expect(chartSeriesForDataset(data, { type: "scatter", xColumn: 0, yColumn: 1 })).toMatchObject({
+      xAxisType: "value", points: [[4, -1.5]],
+    });
+  });
 });

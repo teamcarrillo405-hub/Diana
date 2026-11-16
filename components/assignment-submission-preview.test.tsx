@@ -64,10 +64,11 @@ describe("assignment submission specialist preview", () => {
     }} />);
 
     expect(screen.getByRole("heading", { name: "Function graph" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Function graph of y by x" }).querySelector("path")).not.toBeNull();
     expect(screen.getByText("Status unknown")).toBeInTheDocument();
     expect(screen.getByText("Function graph with 2 sampled points.")).toBeInTheDocument();
     expect(screen.getByText("Typed and handwriting work remains included in this submission.")).toBeInTheDocument();
     expect(screen.getByText(/Demand increases when the price falls\./u)).toBeInTheDocument();
-    expect(screen.getByText(/y = 10-x/u)).toBeInTheDocument();
+    expect(screen.getByText(/y = 10-x/u, { selector: "pre" })).toBeInTheDocument();
   });
 });

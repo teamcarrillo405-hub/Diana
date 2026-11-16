@@ -104,6 +104,32 @@ describe("universal assignment methodology", () => {
     expect(context).toContain("Review authority: deterministic");
     expect(context).toContain("Safety and dignity:");
   });
+
+  it("guides a case brief from the assigned opinion and asks for missing citation evidence", () => {
+    const profile = resolveAssignmentProfile({ kind: "other", className: "Introduction to Law", title: "Case brief" });
+    const understanding = buildAssignmentUnderstanding({
+      profile,
+      sourcePacket: buildSourcePacket({ description: "Brief the assigned opinion.", rubric_text: "Use the assigned citation format." }, []),
+    });
+    const context = formatMethodologyForTutor(understanding);
+    expect(context).toContain("Subject: legal studies");
+    expect(context).toContain("Deliverable: Case brief");
+    expect(context).toContain("Distinguish majority reasoning from concurrences and dissents");
+    expect(context).toContain("court, date, jurisdiction, citation, and quotations");
+    expect(context).toContain("Ask for the missing page or excerpt");
+    expect(understanding.helpContract.helpLevel).toBe(30);
+  });
+
+  it("uses the report's cited-evidence method while retaining science safety", () => {
+    const report = methodologyForProfile(resolveAssignmentProfile({ kind: "other", className: "Biology", title: "Cell discovery report" }));
+    const lab = methodologyForProfile(resolveAssignmentProfile({ kind: "lab", className: "Biology", title: "Cell observation lab" }));
+    expect(report.studentOutput).toContain("citations");
+    expect(report.evidenceExpectations).toEqual([]);
+    expect(report.safetyDignityConstraints).toEqual(lab.safetyDignityConstraints);
+    expect(lab.evidenceExpectations.map(({ artifactType }) => artifactType)).toContain("lab_report");
+    expect(lab.studentOutput).toContain("actual observations");
+  });
+
   it("summarizes uploaded assignment understanding and asks for confirmation when extraction is partial", () => {
     const profile = resolveAssignmentProfile({
       kind: "other",

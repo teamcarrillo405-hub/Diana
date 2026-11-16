@@ -280,7 +280,10 @@ export async function prepareAssignmentReview(input: z.infer<typeof WorkspaceLif
     problems: problems ?? [],
     blocks: parseStoredAssignmentArtifactBlocks(artifactRows),
   });
-  if (artifact.isEmpty) return { ok: false, error: "Add a little of your own work before reviewing the submission." };
+  const hasSavedProblemWork = problems?.some((problem) => hasMeaningfulProblemWork(problem.student_work));
+  if (artifact.isEmpty && !hasSavedProblemWork) {
+    return { ok: false, error: "Add a little of your own work before reviewing the submission." };
+  }
 
   let status = assignment.status as AssignmentStatus;
   const targets: AssignmentStatus[] = status === "todo"

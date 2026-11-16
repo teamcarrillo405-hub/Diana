@@ -2,6 +2,7 @@
 
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { resolveAssignmentProfile } from "@/lib/assignment-profile";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
@@ -42,6 +43,7 @@ vi.mock("./checklist", () => ({
 vi.mock("../actions", () => ({ setSubmissionUrl: vi.fn() }));
 
 vi.mock("@/components/assignment-submission-preview", () => ({
+  AssignmentSubmissionDownload: () => <button type="button">Download PDF</button>,
   AssignmentSubmissionPreview: () => <h2>Your work</h2>,
 }));
 
@@ -67,7 +69,7 @@ function mockAssignment(status: string, { source = "clever", savedLink = null, r
       classes: { name: "English 9" },
     },
     className: "English 9",
-    profile: { label: "Writing" },
+    profile: resolveAssignmentProfile({ kind: "essay", className: "English 9", title: "Identity quote response" }),
     preview: {
       assignmentId,
       assignmentTitle: "Identity quote response",
@@ -172,10 +174,12 @@ describe("assignment submission destination", () => {
     expect(screen.getByRole("link", { name: "Edit in workspace" })).toHaveAttribute("href", `/assignments/${assignmentId}/workspace`);
     fireEvent.click(screen.getByRole("tab", { name: "Hand in" }));
 
+    const download = screen.getByRole("button", { name: "Download PDF" });
     const destination = screen.getByRole("link", { name: "Open saved submission link" });
     const checks = screen.getByRole("heading", { name: "Final checks" });
     const record = screen.getByRole("button", { name: "Record hand-in in Diana" });
     expect(destination).toHaveAttribute("href", "https://school.example/hand-in");
+    expect(download.compareDocumentPosition(destination)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(destination.compareDocumentPosition(checks)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(checks.compareDocumentPosition(record)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
   });

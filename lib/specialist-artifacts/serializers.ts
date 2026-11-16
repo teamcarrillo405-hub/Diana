@@ -12,6 +12,7 @@ import {
   normalizeDataChartConfig,
   restoreImportedDataset,
 } from "@/lib/native-tools/data-runtime";
+import { readGraphSettings, readGraphViewport } from "@/lib/native-tools/graph-work";
 import { restoreSchoolGeoJsonImport } from "@/lib/native-tools/map-runtime";
 import { restoreMusicXmlImport } from "@/lib/native-tools/music-runtime";
 import {
@@ -463,16 +464,29 @@ export function serializeGraphArtifactContext(
       return x === null || y === null ? null : { x: rounded(x), y: rounded(y) };
     },
   });
+  const settings = readGraphSettings(source);
+  const viewport = readGraphViewport(source.viewport);
+  const graphMetadata: Partial<SpecialistArtifactPayloadByKind["graph"]> = {
+    ...(Array.isArray(source.series) ? { series: settings.series } : {}),
+    ...(viewport ? { viewport } : {}),
+    ...(typeof source.xLabel === "string" ? { xLabel: settings.xLabel } : {}),
+    ...(typeof source.yLabel === "string" ? { yLabel: settings.yLabel } : {}),
+    ...(settings.photo ? { photo: settings.photo } : {}),
+  };
+  const includeMetadata = jsonByteLength(graphMetadata) <= Math.floor(limits.maxBytes / 2);
+  if (!includeMetadata) state.fieldTruncated = true;
   const fitted = fitItemsToByteLimit({
     items: points.items,
     ...limits,
-    buildPayload: (items) => ({ expression, points: [...items] }),
+    buildPayload: (items) => ({ ...(includeMetadata ? graphMetadata : {}), expression, points: [...items] }),
   });
   return context({
     kind,
     runtimeSource: content,
     capability: "graphing",
-    summary: `Function graph with ${fitted.includedItems} sampled point${fitted.includedItems === 1 ? "" : "s"}.`,
+    summary: settings.photo
+      ? `Graph photo with ${fitted.includedItems} confirmed reading${fitted.includedItems === 1 ? "" : "s"}.`
+      : `Function graph with ${fitted.includedItems} sampled point${fitted.includedItems === 1 ? "" : "s"}.`,
     payload: fitted.payload,
     limits,
     includedItems: fitted.includedItems,

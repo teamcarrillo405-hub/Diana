@@ -1,22 +1,30 @@
 "use client";
 
 import { Plus, Play, Upload } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { saveAssignmentArtifactBlock } from "@/app/(app)/assignments/[id]/hm-actions";
 import { SpecialistCodeEditor } from "@/components/specialist-code-editor";
 import { SpecialistDataChart } from "@/components/specialist-data-chart";
+import { AssignmentPlotPreview } from "@/components/assignment-plot-preview";
+import { GraphPhotoReader } from "@/components/graph-photo-reader";
+import { AssignmentArtifactSavesContext } from "@/components/assignment-artifact-saves";
 import type { AssignmentArtifactBlockInput } from "@/lib/assignment-artifact";
 import type { AssignmentWorkProfile } from "@/lib/assignment-profile";
 import { runJavaScript } from "@/lib/computer-science/javascript-runner";
 import { runPython } from "@/lib/computer-science/pyodide-runner";
 import {
+  analyzeGraph,
+  evaluateGraphExpression,
   graphPoints,
   ledgerBalance,
   spreadsheetDisplayValue,
+  type GraphCheckResult,
+  type GraphSolutionPoint,
   type LedgerRow,
   type SpreadsheetCells,
 } from "@/lib/native-tools/deterministic";
+import { MAX_GRAPH_AXIS, MAX_GRAPH_CURVES, readGraphSettings, readGraphViewport } from "@/lib/native-tools/graph-work";
 import {
   MAX_DELIMITED_BYTES,
   datasetToSpreadsheetCells,
@@ -26,12 +34,14 @@ import {
   type DataChartConfig,
 } from "@/lib/native-tools/data-runtime";
 import { activeRuntimeState } from "@/lib/specialist-artifacts/active-state";
-import type { SpecialistActiveRuntimeState } from "@/lib/specialist-artifacts/contracts";
+import type { SpecialistActiveRuntimeState, SpecialistGraphPayload } from "@/lib/specialist-artifacts/contracts";
+import { projectAssignmentGraph } from "@/lib/specialist-artifacts/assignment-plots";
 import {
   mergeSpecialistEditorContent,
   restoreSpecialistCodeExecution,
   specialistEditorRuntimeState,
 } from "@/lib/specialist-artifacts/editor-state";
+import graphStyles from "./student-shell/graph-work.module.css";
 
 type NativeToolsProps = {
   assignmentId: string;
@@ -55,37 +65,65 @@ export function useBlockAutosave(
   artifactType: string,
   block: AssignmentArtifactBlockInput,
 ) {
+  const registry = useContext(AssignmentArtifactSavesContext);
   const [status, setStatus] = useState("");
-  const mounted = useRef(false);
-  const blockRef = useRef(block);
-  blockRef.current = block;
   const serialized = JSON.stringify(block);
+  const savedSerialization = useRef(serialized);
+  const latest = useRef({ block, serialized });
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inFlight = useRef<Promise<boolean> | null>(null);
+  latest.current = { block, serialized };
+
+  const flush = useCallback((): Promise<boolean> => {
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = null;
+    if (inFlight.current) return inFlight.current;
+    if (latest.current.serialized === savedSerialization.current) return Promise.resolve(true);
+    setStatus("Saving...");
+    const request = (async () => {
+      while (latest.current.serialized !== savedSerialization.current) {
+        const draft = latest.current;
+        const current = draft.block;
+        const result = await saveAssignmentArtifactBlock({
+          assignmentId,
+          artifactType,
+          block: {
+            key: current.key ?? current.id ?? "work-item",
+            type: current.type,
+            capability: current.capability,
+            label: current.label,
+            position: current.position ?? 100,
+            content: current.content,
+            plainText: current.plainText ?? "",
+            sourceAnchors: current.sourceAnchors ?? [],
+          },
+        }).catch(() => ({ ok: false as const, error: "Diana could not save this work item. Try again." }));
+        if (!result.ok) {
+          setStatus(result.error);
+          return false;
+        }
+        savedSerialization.current = draft.serialized;
+      }
+      setStatus("Saved");
+      return true;
+    })().finally(() => { inFlight.current = null; });
+    inFlight.current = request;
+    return request;
+  }, [artifactType, assignmentId]);
+
+  useEffect(() => registry?.register(flush), [flush, registry]);
   useEffect(() => {
-    if (!mounted.current) {
-      mounted.current = true;
+    if (serialized === savedSerialization.current && !inFlight.current) {
+      setStatus((current) => current ? "Saved" : current);
       return;
     }
     setStatus("Saving...");
-    const timer = setTimeout(async () => {
-      const currentBlock = blockRef.current;
-      const result = await saveAssignmentArtifactBlock({
-        assignmentId,
-        artifactType,
-        block: {
-          key: currentBlock.key ?? currentBlock.id ?? "work-item",
-          type: currentBlock.type,
-          capability: currentBlock.capability,
-          label: currentBlock.label,
-          position: currentBlock.position ?? 100,
-          content: currentBlock.content,
-          plainText: currentBlock.plainText ?? "",
-          sourceAnchors: currentBlock.sourceAnchors ?? [],
-        },
-      });
-      setStatus(result.ok ? "Saved" : result.error);
-    }, 600);
-    return () => clearTimeout(timer);
-  }, [artifactType, assignmentId, serialized]);
+    timer.current = setTimeout(() => { void flush(); }, 600);
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+      timer.current = null;
+    };
+  }, [flush, serialized]);
   return status;
 }
 
@@ -99,7 +137,7 @@ export function AssignmentNativeTools({ assignmentId, assignmentTitle, profile, 
   return (
     <section className="assignment-native-tools grid gap-5" aria-label="Assignment tools">
       {capabilities.has("equation_editor") ? <EquationTool assignmentId={assignmentId} artifactType={profile.artifactType} initial={initial("equations")} /> : null}
-      {capabilities.has("graphing") ? <GraphTool assignmentId={assignmentId} artifactType={profile.artifactType} initial={initial("graph")} /> : null}
+      {capabilities.has("graphing") ? <GraphTool assignmentId={assignmentId} artifactType={profile.artifactType} initial={initial("graph")} initialPhoto={initial("graph-photo")} /> : null}
       {capabilities.has("spreadsheet") ? <SpreadsheetTool assignmentId={assignmentId} artifactType={profile.artifactType} initial={initial("spreadsheet")} /> : null}
       {capabilities.has("accounting_ledger") ? <LedgerTool assignmentId={assignmentId} artifactType={profile.artifactType} initial={initial("ledger")} /> : null}
       {capabilities.has("code_runner") ? <CodeTool assignmentId={assignmentId} assignmentTitle={assignmentTitle} artifactType={profile.artifactType} initial={initial("code-runner")} /> : null}
@@ -161,36 +199,119 @@ type ToolProps = {
   initial?: AssignmentArtifactBlockInput;
 };
 
-function GraphTool({ assignmentId, artifactType, initial }: ToolProps) {
-  const persistedContent = initial?.content;
-  const [expression, setExpression] = useState(() => textValue(initial?.content.expression) || "x");
-  const points = useMemo(() => graphPoints(expression), [expression]);
-  const path = points.filter((point) => Math.abs(point.y) <= 10).map((point, index) => {
-    const px = ((point.x + 10) / 20) * 600;
-    const py = 200 - ((point.y + 10) / 20) * 200;
-    return `${index === 0 ? "M" : "L"}${px.toFixed(1)},${py.toFixed(1)}`;
-  }).join(" ");
+const AXIS_FIELDS = [["xMin", "X minimum"], ["xMax", "X maximum"], ["yMin", "Y minimum"], ["yMax", "Y maximum"]] as const;
+
+function plotNumber(value: number) {
+  return String(Number(value.toPrecision(6)));
+}
+
+function solutionText(point: GraphSolutionPoint) {
+  return `${point.precision === "approximate" ? "about " : ""}(${point.exactX ?? plotNumber(point.x)}, ${point.exactY ?? plotNumber(point.y)})`;
+}
+
+function graphCheckText(result: GraphCheckResult, kind: "intercepts" | "intersections") {
+  if (result.points.length) return result.points.map(solutionText).join(", ");
+  if (result.status === "overlap") return kind === "intercepts" ? "The curve lies on the x-axis where defined." : "The curves overlap where both are defined.";
+  if (result.status === "invalid") return "Check the equation and the x range.";
+  if (result.status === "indeterminate") return "No reliable result in this range. Try a narrower range or check the domain.";
+  return `No ${kind} found in this x range.`;
+}
+
+function GraphTool({ assignmentId, artifactType, initial, initialPhoto }: ToolProps & { initialPhoto?: AssignmentArtifactBlockInput }) {
+  const [settings] = useState(() => readGraphSettings(initial?.content));
+  const [series, setSeries] = useState(settings.series.length ? settings.series : [{ expression: "", label: "" }]);
+  const [viewport, setViewport] = useState(settings.viewport);
+  const [axisLabels, setAxisLabels] = useState({ xLabel: settings.xLabel, yLabel: settings.yLabel });
+  const [axisError, setAxisError] = useState("");
+  const [showChecks, setShowChecks] = useState(false);
+  const graphRange = useMemo(() => ({ min: viewport.xMin, max: viewport.xMax }), [viewport]);
+  const filledCurves = useMemo(() => series.filter((curve) => curve.expression.trim()), [series]);
+  const graphContent = useMemo<SpecialistGraphPayload>(() => ({
+    expression: filledCurves[0]?.expression.trim() ?? "", points: [], series: filledCurves,
+    viewport, ...axisLabels,
+  }), [axisLabels, filledCurves, viewport]);
+  const projection = useMemo(() => projectAssignmentGraph(graphContent), [graphContent]);
+  const points = useMemo(() => graphPoints(graphContent.expression, graphRange), [graphContent.expression, graphRange]);
   const block = useMemo<AssignmentArtifactBlockInput>(() => ({
     key: "graph",
     type: "graph",
     capability: "graphing",
     label: "Graph",
     position: 110,
-    content: mergeSpecialistEditorContent(persistedContent, { expression, points }),
-    plainText: expression ? `y = ${expression}` : "",
-  }), [expression, persistedContent, points]);
+    content: mergeSpecialistEditorContent(initial?.content, { ...graphContent, points }),
+    plainText: filledCurves.map((curve) => `${curve.label.trim() ? `${curve.label.trim()}: ` : ""}${/^\s*(?:y|f\s*\(\s*x\s*\))\s*=/iu.test(curve.expression) ? "" : "y = "}${curve.expression.trim()}`).join("\n"),
+  }), [filledCurves, graphContent, initial?.content, points]);
   const status = useBlockAutosave(assignmentId, artifactType, block);
+  const curveName = (index: number) => filledCurves[index]?.label.trim() || `Curve ${index + 1}`;
+  const checks = useMemo(() => showChecks ? filledCurves.map((curve, index) => ({
+    single: analyzeGraph({ expression: curve.expression, range: graphRange }),
+    comparisons: filledCurves.slice(index + 1).map((other) => analyzeGraph({ expression: curve.expression, comparison: other.expression, range: graphRange }).intersections),
+  })) : [], [filledCurves, graphRange, showChecks]);
   return (
-    <ToolFrame title="Graph" description="Graph a function from x = -10 to x = 10." status={status}>
-      <label className="block text-sm font-bold">y =
-        <input value={expression} onChange={(event) => setExpression(event.target.value)} className="ml-2 min-h-11 w-[min(32rem,85%)] border border-slate-400 bg-white px-3 font-mono" />
-      </label>
-      <svg viewBox="0 0 600 200" className="mt-3 w-full border border-slate-300 bg-white" role="img" aria-label={`Graph of y equals ${expression}`}>
-        <line x1="0" y1="100" x2="600" y2="100" stroke="#94a3b8" /><line x1="300" y1="0" x2="300" y2="200" stroke="#94a3b8" />
-        {path ? <path d={path} fill="none" stroke="#db2777" strokeWidth="3" /> : null}
-      </svg>
-      {!path ? <p className="mb-0 mt-2 text-sm font-bold text-amber-800">Use x, numbers, arithmetic, or sin, cos, tan, sqrt, abs, log, and exp.</p> : null}
-    </ToolFrame>
+    <section className={graphStyles.root} aria-labelledby="assignment-graph-title">
+      <header className={graphStyles.heading}><h2 id="assignment-graph-title">Graph</h2><span aria-live="polite">{status || (initial?.content.expression ? "Saved graph" : "")}</span></header>
+      <div className={graphStyles.curves}>
+        {series.map((curve, index) => (
+          <div key={index} className={graphStyles.curveRow}>
+            <label>Curve {index + 1}<input value={curve.expression} maxLength={160} placeholder={index === 0 ? "Example: 2x + 1" : "Example: 12 - x"} onChange={(event) => {
+              setShowChecks(false);
+              setSeries((current) => current.map((item, at) => at === index ? { ...item, expression: event.target.value } : item));
+            }} /></label>
+            {series.length > 1 || curve.label ? <label>Curve {index + 1} label<input value={curve.label} maxLength={48} placeholder="Optional" onChange={(event) => setSeries((current) => current.map((item, at) => at === index ? { ...item, label: event.target.value } : item))} /></label> : null}
+            {index > 0 ? <button type="button" aria-label={`Remove curve ${index + 1}`} onClick={() => { setShowChecks(false); setSeries((current) => current.filter((_, at) => at !== index)); }}>Remove</button> : null}
+          </div>
+        ))}
+      </div>
+      <div className={graphStyles.markerActions}>
+        {series.length < MAX_GRAPH_CURVES ? <button type="button" onClick={() => setSeries((current) => [...current, { expression: "", label: "" }])}>Add curve</button> : null}
+        <button type="button" className={graphStyles.primary} disabled={!filledCurves.length} onClick={() => setShowChecks(true)}>Check graph</button>
+      </div>
+      <details className={graphStyles.axes}>
+        <summary>Axes and units</summary>
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          const data = new FormData(event.currentTarget);
+          const limits = readGraphViewport(Object.fromEntries(AXIS_FIELDS.map(([key]) => [key, Number(data.get(key))])));
+          if (!limits) { setAxisError("Enter a minimum smaller than the maximum on both axes."); return; }
+          setViewport(limits);
+          setAxisLabels({ xLabel: String(data.get("xLabel")).trim() || "x", yLabel: String(data.get("yLabel")).trim() || "y" });
+          setShowChecks(false);
+          setAxisError("");
+        }}>
+          <div className={graphStyles.axisFields}>
+            {AXIS_FIELDS.map(([key, label]) => <label key={key}>{label}<input name={key} type="number" step="any" min={-MAX_GRAPH_AXIS} max={MAX_GRAPH_AXIS} defaultValue={viewport[key]} required /></label>)}
+            <label>X label and units<input name="xLabel" maxLength={48} defaultValue={axisLabels.xLabel} /></label>
+            <label>Y label and units<input name="yLabel" maxLength={48} defaultValue={axisLabels.yLabel} /></label>
+          </div>
+          <button type="submit">Apply axes</button>
+          {axisError ? <p role="alert">{axisError}</p> : null}
+        </form>
+      </details>
+      {projection?.plot ? <AssignmentPlotPreview plot={projection.plot} /> : filledCurves.length ? <p role="status">Check the equation or adjust the axes to show the curve.</p> : null}
+      {showChecks ? <section className={graphStyles.results} aria-label="Graph checks" aria-live="polite">
+        <h3>Graph checks</h3>
+        <dl>{checks.map(({ single, comparisons }, index) => (
+          <div key={index}>
+            <dt>{curveName(index)} x-intercepts</dt><dd>{graphCheckText(single.xIntercepts, "intercepts")}</dd>
+            <dt>{curveName(index)} y-intercept</dt><dd>{single.yIntercept ? solutionText(single.yIntercept) : "No defined value on the y-axis in this range."}</dd>
+            {comparisons.map((other, step) => other ? <div key={step}><dt>{curveName(index)} and {curveName(index + step + 1)} intersections</dt><dd>{graphCheckText(other, "intersections")}</dd></div> : null)}
+          </div>
+        ))}</dl>
+      </section> : null}
+      {filledCurves.length > 0 ? <details className={graphStyles.axes}>
+        <summary>Table of values</summary>
+        <div className={graphStyles.tableScroll} tabIndex={0} role="region" aria-label="Graph value table">
+          <table className={graphStyles.values}><caption>Sampled values across the x range</caption>
+            <thead><tr><th scope="col">{axisLabels.xLabel}</th>{filledCurves.map((_, index) => <th key={index} scope="col">{curveName(index)}</th>)}</tr></thead>
+            <tbody>{Array.from({ length: 9 }, (_, index) => viewport.xMin + (viewport.xMax - viewport.xMin) * index / 8).map((x) => <tr key={x}><th scope="row">{plotNumber(x)}</th>{filledCurves.map(({ expression }, index) => {
+              const y = evaluateGraphExpression(expression, x);
+              return <td key={index}>{y === null ? "Undefined" : plotNumber(y)}</td>;
+            })}</tr>)}</tbody>
+          </table>
+        </div>
+      </details> : null}
+      <GraphPhotoReader assignmentId={assignmentId} artifactType={artifactType} initial={initialPhoto?.content} />
+    </section>
   );
 }
 

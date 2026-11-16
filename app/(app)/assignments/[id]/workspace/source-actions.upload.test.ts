@@ -133,6 +133,23 @@ describe("signed assignment media upload authorization", () => {
     expect(clients.sourceUpdate.eq).toHaveBeenCalledWith("assignment_id",ASSIGNMENT_ID);
   });
 
+  it("stores a graph photo privately without sending the image for extraction", async () => {
+    const sourceId = "88888888-8888-4888-8888-888888888888";
+    const invoke = vi.fn();
+    const clients = attachmentSourceClient({ sourceId, invoke });
+    const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEklEQVR4nGP4//+/gIAAA4QCADTrBlvmdY7gAAAAAElFTkSuQmCC", "base64");
+    const formData = new FormData();
+    formData.set("assignmentId", ASSIGNMENT_ID);
+    formData.set("purpose", "graph_photo");
+    formData.set("file", new File([png], "worksheet.png", { type: "image/png" }));
+
+    await expect(addAssignmentSourceFile(formData)).resolves.toMatchObject({ ok: true, source: { id: sourceId, mimeType: "image/png" } });
+    expect(clients.insert).toHaveBeenCalledWith(expect.objectContaining({ owner_id: OWNER_ID, assignment_id: ASSIGNMENT_ID, import_status: "imported" }));
+    expect(clients.upload.mock.calls[0]?.[0]).toMatch(new RegExp(`^${OWNER_ID}/assignments/${ASSIGNMENT_ID}/`));
+    expect(mocks.extractNativeAssignmentSource).not.toHaveBeenCalled();
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
   it("does not claim extraction or contact the provider when original storage is unavailable",async()=>{
     const sourceId="88888888-8888-4888-8888-888888888888";
     const invoke=vi.fn();const clients=attachmentSourceClient({sourceId,invoke});

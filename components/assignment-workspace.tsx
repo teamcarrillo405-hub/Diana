@@ -10,6 +10,8 @@ import {
   CircleDot,
   Clock3,
   Eye,
+  MessageCircle,
+  Maximize2,
   PanelLeft,
   PenLine,
   Plus,
@@ -19,7 +21,7 @@ import {
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type KeyboardEvent as ReactKeyboardEvent, type ReactNode } from "react";
 
 import {
   addProblem,
@@ -32,6 +34,8 @@ import {
   saveProblemWorkPatch,
   startAssignmentWorkspace,
 } from "@/app/(app)/assignments/[id]/hm-actions";
+import { saveHomeworkSetup } from "@/app/(app)/assignments/[id]/workspace/setup-actions";
+import { AssignmentArtifactSavesContext, createAssignmentArtifactSaves } from "@/components/assignment-artifact-saves";
 import { AssignmentFocusClock } from "@/components/assignment-focus-clock";
 import { MathWorkSurface } from "@/components/assignment-math-work-surface";
 import { AssignmentSourceImporter } from "@/components/assignment-source-importer";
@@ -49,12 +53,13 @@ import type { AssignmentSourcePacket } from "@/lib/assignment-sources";
 import {
   type AssignmentArtifactBlockInput,
 } from "@/lib/assignment-artifact";
-import type { AssignmentWorkProfile } from "@/lib/assignment-profile";
+import { ASSIGNMENT_DELIVERABLES, ASSIGNMENT_DELIVERABLE_LABELS, ASSIGNMENT_SETUP_SUBJECTS, ASSIGNMENT_SUBJECT_LABELS, setupSubjectForAssignmentProfile, type AssignmentWorkProfile } from "@/lib/assignment-profile";
 import { subjectPresentationFor } from "@/lib/assignment-subject-presentation";
 import type { AssignmentCapability } from "@/lib/assignment-capabilities";
 import type { AssignmentPracticalGateView } from "@/lib/course-mode/practical-gate";
 import {
   AssignmentDraftCoordinator,
+  assignmentDraftLabel,
   type AssignmentProblemDraftPatch,
 } from "@/lib/assignment-draft-coordinator";
 import type {
@@ -171,7 +176,8 @@ export function AssignmentWorkspace({
   const displayTitle = displayAssignmentWorkspaceTitle(title);
   const mode = initialMode;
   const reviewingWork = status === "checking";
-  const [, setWorkspaceProblems] = useState(initialProblems);
+  const [workspaceProblems, setWorkspaceProblems] = useState(initialProblems);
+  const artifactSaves = useMemo(createAssignmentArtifactSaves, [assignmentId]);
   const flushMathWork = useRef<() => Promise<boolean>>(async () => true);
   const registerMathFlush = useCallback((flush: () => Promise<boolean>) => { flushMathWork.current = flush; }, []);
   const [message, setMessage] = useState("");
@@ -190,9 +196,16 @@ export function AssignmentWorkspace({
     void startAssignmentWorkspace({ assignmentId }).catch(() => undefined);
   }, [assignmentId]);
 
+  async function flushWorkspaceWork(): Promise<boolean> {
+    if (!(await flushMathWork.current())) return false;
+    if (await artifactSaves.flush()) return true;
+    setMessage("A work tool could not save. Your changes are still here. Try again.");
+    return false;
+  }
+
   function reviewSubmission() {
     startTransition(async () => {
-      if (!(await flushMathWork.current())) return;
+      if (!(await flushWorkspaceWork())) return;
       const result = await prepareAssignmentReview({ assignmentId });
       if (!result.ok) {
         setMessage(result.error);
@@ -201,6 +214,49 @@ export function AssignmentWorkspace({
       router.push(`/assignments/${assignmentId}/submit`);
     });
   }
+
+  function changeSetup(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    startTransition(async () => {
+      if (!(await flushWorkspaceWork())) return;
+      const result = await saveHomeworkSetup({ assignmentId, subject: form.get("subject"), deliverable: form.get("deliverable") });
+      if (!result.ok) {
+        setMessage(result.error);
+        return;
+      }
+      setMessage("Workspace setup saved.");
+      router.refresh();
+    });
+  }
+
+  const deliverable = assignmentProfile.deliverable;
+  const setupSubject = setupSubjectForAssignmentProfile(assignmentProfile);
+  const fullDraft = deliverable === "report" || deliverable === "lab_report" || deliverable === "legal_case_brief" || deliverable === "legal_memo";
+  const assignmentDirections = (sourcePacket.directions || description).trim();
+  const collapseDirections = presentation.unitNoun !== "problem" && assignmentDirections.length > 175;
+  const hasSourceMaterial = Boolean(sourcePacket.rubric || sources.length);
+  const promptResources = collapseDirections || hasSourceMaterial ? (
+    <details className={styles.sourceLinks}>
+      <summary><BookOpen size={16} aria-hidden="true" />{collapseDirections
+        ? hasSourceMaterial ? "Directions & sources" : "Full directions"
+        : sourcePacket.rubric && sources.length ? "Sources & rubric" : sourcePacket.rubric ? "Rubric" : "Assignment sources"}</summary>
+      {collapseDirections ? <p>{assignmentDirections}</p> : null}
+      {sourcePacket.rubric ? <p>{sourcePacket.rubric}</p> : null}
+      {sources.length > 0 ? <ul>
+        {sources.map((source) => {
+          const href = source.url || source.originalHref;
+          return <li key={source.id}>
+            {href ? <a href={href} target="_blank" rel="noreferrer" aria-label={source.originalHref && !source.url ? `Open source: ${source.title}` : undefined}>{source.title}</a>
+              : source.extracted_text ? <details><summary>{source.title}</summary><p>{source.extracted_text}</p></details>
+              : <span>{source.title}</span>}
+            {source.source_location ? <small>{source.source_location}</small> : null}
+            {source.import_status === "partial" || source.import_status === "extracting" ? <em>Needs a check</em> : null}
+          </li>;
+        })}
+      </ul> : null}
+    </details>
+  ) : null;
 
   const assignmentDetailsCard = (
     <details className="sd-assignment-math-action-card sd-assignment-details-card" aria-label="Assignment details">
@@ -215,32 +271,12 @@ export function AssignmentWorkspace({
             <span>{sourcePacket.directions || description}</span>
           </div>
         ) : null}
-        {sourcePacket.rubric ? (
-          <div className="sd-assignment-details-card-section">
-            <strong>Rubric</strong>
-            <span>{sourcePacket.rubric}</span>
-          </div>
-        ) : null}
         {needsSourceConfirmation ? (
           <div className="sd-assignment-source-confirmation" role="status">
             <strong>Confirm source</strong>
             <p>Diana found imported material that still needs a quick check before Diana relies on it.</p>
           </div>
         ) : null}
-        {sources.length > 0 ? (
-          <ul className="sd-assignment-details-source-list">
-            {sources.map((source) => {
-              const href = source.url || source.originalHref;
-              return <li key={source.id}>
-                {href ? <a href={href} target="_blank" rel="noreferrer" aria-label={source.originalHref && !source.url ? `Open source: ${source.title}` : undefined}>{source.title}</a> : <span>{source.title}</span>}
-                {source.source_location ? <small>{source.source_location}</small> : null}
-                {source.import_status === "partial" || source.import_status === "extracting" ? <em>needs check</em> : null}
-              </li>;
-            })}
-          </ul>
-        ) : (
-          <small>Diana will use the directions already connected to this assignment.</small>
-        )}
         <AssignmentSourceImporter assignmentId={assignmentId} />
       </div>
     </details>
@@ -257,31 +293,55 @@ export function AssignmentWorkspace({
     : assignmentProfile.subjectDomain === "social_studies" ? "history"
     : assignmentProfile.subjectDomain === "english_language_arts" ? (mode === "reading" ? "reading" : "english")
     : assignmentProfile.subjectDomain === "computer_science" ? "computing" : "other";
-  return (
+  const workspace = (
     <StudentShell active="Work" profile={navigationProfile} className={`${styles.root} sd-assignment-workspace`} version="12">
       <nav className="sd-assignment-skip-links" aria-label="Skip to workspace section">
         <a href="#current-problem">Assignment prompt</a>
-        <a href="#assignment-work">Your work</a>
-        <a href="#ask-diana">Ask Diana</a>
+        {workspaceProblems.length > 0 && <>
+          <a href="#assignment-work">Your work</a>
+          <a href="#ask-diana">Ask Diana</a>
+        </>}
       </nav>
       <main id="main-content" tabIndex={-1} className="sd-assignment-workspace-main">
-        <nav aria-label="Assignment navigation" className={styles.routeNav}>
-          <Link href={WORK_RETURN_PATH} className="sd-assignment-workspace-back"><ArrowLeft size={16} aria-hidden="true" /> Back to Work</Link>
-          {classId ? <Link href={`/classes/${encodeURIComponent(classId)}?materials=1&work=${encodeURIComponent(assignmentId)}`} className="sd-assignment-workspace-back"><BookOpen size={16} aria-hidden="true" /> Class materials</Link> : null}
-        </nav>
-        <header className={styles.heading}>
-          <div className={styles.titleBlock}>
-            <p>{courseLabel}{reviewingWork ? <span className={styles.reviewState}>Review your work</span> : null}</p>
-            <h1>{displayTitle}</h1>
-          </div>
+        <div className={styles.contextBar}>
+          <nav aria-label="Assignment navigation" className={styles.routeNav}>
+            <Link href={WORK_RETURN_PATH} className="sd-assignment-workspace-back"><ArrowLeft size={16} aria-hidden="true" /> Back to Work</Link>
+            {classId ? <Link href={`/classes/${encodeURIComponent(classId)}?materials=1&work=${encodeURIComponent(assignmentId)}`} className="sd-assignment-workspace-back"><BookOpen size={16} aria-hidden="true" /> Class materials</Link> : null}
+          </nav>
           <details className={styles.focusClock}>
-            <summary><Clock3 size={16} aria-hidden="true" /> Focus timer <ChevronDown size={14} aria-hidden="true" /></summary>
+            <summary aria-label="Focus timer"><Clock3 size={16} aria-hidden="true" /> <span>Focus timer</span> <ChevronDown size={14} aria-hidden="true" /></summary>
             <div className={styles.focusClockPanel}>{focusClock}</div>
           </details>
+        </div>
+        <header className={styles.heading}>
+          <div className={styles.titleBlock}>
+            <div className={styles.titleMeta}>
+              <p><span className={styles.courseLabel}>{courseLabel}</span>{reviewingWork ? <span className={styles.reviewState}>Review your work</span> : null}</p>
+              <details className={styles.setup}>
+                <summary>Set up for <strong>{deliverable ? ASSIGNMENT_DELIVERABLE_LABELS[deliverable] : ASSIGNMENT_SUBJECT_LABELS[setupSubject]}</strong><ChevronDown size={15} aria-hidden="true" /></summary>
+                <form key={`${setupSubject}-${deliverable}`} onSubmit={changeSetup}>
+                  <fieldset disabled={pending}>
+                    <legend className="sr-only">Assignment setup</legend>
+                    <label>Subject<select name="subject" defaultValue={setupSubject}>
+                      {ASSIGNMENT_SETUP_SUBJECTS.map((subject) => <option key={subject} value={subject}>{ASSIGNMENT_SUBJECT_LABELS[subject]}</option>)}
+                    </select></label>
+                    <label>Assignment type<select name="deliverable" defaultValue={deliverable ?? ""}>
+                      <option value="">Keep current type</option>
+                      {ASSIGNMENT_DELIVERABLES.map((format) => <option key={format} value={format}>{ASSIGNMENT_DELIVERABLE_LABELS[format]}</option>)}
+                    </select></label>
+                    <button type="submit">Save setup</button>
+                  </fieldset>
+                  <p>Changing the setup updates your tools and help. Your draft stays here.</p>
+                </form>
+              </details>
+            </div>
+            <h1>{displayTitle}</h1>
+          </div>
         </header>
         <div className="sd-assignment-workspace-body" data-work-first>
           <div className="sd-assignment-workspace-editor">
             <AssignmentWorkspaceShell
+              key={assignmentId}
               assignmentId={assignmentId}
               learningSubject={learningSubject}
               initialProblems={initialProblems}
@@ -293,10 +353,13 @@ export function AssignmentWorkspace({
               registerFlush={registerMathFlush}
               workspacePending={pending}
               reviewingWork={reviewingWork}
-              assignmentDirections={(sourcePacket.directions || description).trim()}
+              assignmentDirections={assignmentDirections}
+              collapseDirections={collapseDirections}
               starterMathPrompt={mode === "math" ? presentation.units.find((unit) => unit.type === "problem" && !unit.sourceAnchor)?.prompt : undefined}
               onReviewSubmission={reviewSubmission}
               assignmentDetails={assignmentDetailsCard}
+              promptResources={promptResources}
+              fullDraft={fullDraft}
               feedbackMessage={pending ? "Saving..." : message}
               template={mode}
               unitNoun={presentation.unitNoun}
@@ -313,6 +376,7 @@ export function AssignmentWorkspace({
       </main>
     </StudentShell>
   );
+  return <AssignmentArtifactSavesContext.Provider value={artifactSaves}>{workspace}</AssignmentArtifactSavesContext.Provider>;
 }
 function WorkspaceTools({ assignmentId, title, profile, initialBlocks, practicalGate, capabilities }: {
   assignmentId: string;
@@ -332,7 +396,7 @@ function WorkspaceTools({ assignmentId, title, profile, initialBlocks, practical
   );
 }
 
-function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, reviewingWork, onReviewSubmission, assignmentDirections, assignmentDetails, starterMathPrompt, feedbackMessage, template, unitNoun, unitNounPlural, primaryTools, optionalTools }: {
+function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, reviewingWork, onReviewSubmission, assignmentDirections, collapseDirections, assignmentDetails, promptResources, fullDraft, starterMathPrompt, feedbackMessage, template, unitNoun, unitNounPlural, primaryTools, optionalTools }: {
   assignmentId: string;
   learningSubject: LearningDomain;
   initialProblems: Problem[];
@@ -346,7 +410,10 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   reviewingWork: boolean;
   onReviewSubmission(): void;
   assignmentDirections: string;
+  collapseDirections: boolean;
   assignmentDetails: ReactNode;
+  promptResources: ReactNode;
+  fullDraft: boolean;
   starterMathPrompt?: string;
   feedbackMessage: string;
   template: AssignmentWorkspaceMode;
@@ -374,7 +441,10 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   const [clearUndo, setClearUndo] = useState<{ answer: string; work: string; workInk: string } | null>(null);
   const [toolsOpen, setToolsOpen] = useState(false);
   const [problemSheetOpen, setProblemSheetOpen] = useState(false);
+  const [draftFocus, setDraftFocus] = useState(false);
+  const [fullDraftOpen, setFullDraftOpen] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inFlightSaves = useRef(new Map<string, Promise<boolean>>());
   const clearUndoTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const toolsToggleRef = useRef<HTMLButtonElement | null>(null);
   const toolsCloseRef = useRef<HTMLButtonElement | null>(null);
@@ -385,6 +455,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   const problemPanelRef = useRef<HTMLElement | null>(null);
   const problemButtonRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const active = problems[activeIndex] ?? null;
+  const hasTeacherPrompt = Boolean(active?.scaffold?.unitLabel && unitNoun !== "problem" && assignmentDirections && active.problemText !== assignmentDirections);
   const [answer, setAnswer] = useState(() => savedText(active?.studentWork.answer));
   const [work, setWork] = useState(() => visibleMathWork(active?.studentWork));
   const [workInk, setWorkInk] = useState(() => savedText(active?.studentWork.workInk));
@@ -404,37 +475,40 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
     onProblemsChange(next);
   }, [onProblemsChange]);
 
-  const flushProblem = useCallback(async (problemId: string): Promise<boolean> => {
-    const patch = draftCoordinator.take(problemId);
-    if (!patch || Object.keys(patch).length === 0) return true;
-    if (!window.navigator.onLine) {
-      window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(patch));
-      draftCoordinator.restore(problemId, patch);
-      draftCoordinator.localOnly();
+  const flushProblem = useCallback((problemId: string): Promise<boolean> => {
+    const saves = inFlightSaves.current;
+    const previous = saves.get(problemId) ?? Promise.resolve(true);
+    const save = previous.then(async (proceeded) => {
+      if (!proceeded) return false;
+      const patch = draftCoordinator.take(problemId);
+      if (!patch || Object.keys(patch).length === 0) return true;
+      if (!window.navigator.onLine) {
+        window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(patch));
+        draftCoordinator.restore(problemId, patch);
+        draftCoordinator.localOnly();
+        return true;
+      }
+      draftCoordinator.syncing();
+      const result = await saveProblemWorkPatch({ problemId, patch }).catch(() => ({ ok: false as const, error: "This work is saved on this device. Try syncing again." }));
+      if (!result.ok) {
+        draftCoordinator.restore(problemId, patch);
+        const pending = draftCoordinator.get(problemId) ?? patch;
+        window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(pending));
+        if (result.error === "Not signed in.") draftCoordinator.sessionExpired();
+        else draftCoordinator.retryableError(result.error);
+        return false;
+      }
+      const remaining = draftCoordinator.get(problemId);
+      if (remaining) {
+        window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(remaining));
+      } else {
+        window.localStorage.removeItem(recoveryKey(problemId));
+      }
+      draftCoordinator.synced();
       return true;
-    }
-    if (saveTimer.current) {
-      clearTimeout(saveTimer.current);
-      saveTimer.current = null;
-    }
-    draftCoordinator.syncing();
-    const result = await saveProblemWorkPatch({ problemId, patch });
-    if (!result.ok) {
-      draftCoordinator.restore(problemId, patch);
-      const pending = draftCoordinator.get(problemId) ?? patch;
-      window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(pending));
-      if (result.error === "Not signed in.") draftCoordinator.sessionExpired();
-      else draftCoordinator.retryableError(result.error);
-      return false;
-    }
-    const remaining = draftCoordinator.get(problemId);
-    if (remaining) {
-      window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(remaining));
-    } else {
-      window.localStorage.removeItem(recoveryKey(problemId));
-    }
-    draftCoordinator.synced();
-    return true;
+    });
+    saves.set(problemId, save);
+    return save.finally(() => { if (saves.get(problemId) === save) saves.delete(problemId); });
   }, [draftCoordinator, recoveryKey]);
 
   const flushAllProblems = useCallback(async (): Promise<boolean> => {
@@ -442,8 +516,8 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
       clearTimeout(saveTimer.current);
       saveTimer.current = null;
     }
-    const problemIds = draftCoordinator.problemIds();
-    if (problemIds.length > 0 && !window.navigator.onLine) {
+    const problemIds = new Set([...inFlightSaves.current.keys(), ...draftCoordinator.problemIds()]);
+    if (problemIds.size > 0 && !window.navigator.onLine) {
       draftCoordinator.localOnly();
       onMessage("Connect to the internet before reviewing the submission.");
       return false;
@@ -455,7 +529,8 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   }, [draftCoordinator, flushProblem, onMessage]);
 
   useEffect(() => {
-    const recovered = normalizedInitialProblems.map((problem) => {
+    // Server revalidation can arrive with a snapshot older than this draft or review.
+    const recovered = problemsRef.current.map((problem) => {
       const raw = window.localStorage.getItem(recoveryKey(problem.id));
       if (!raw) return problem;
       try {
@@ -477,10 +552,10 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
     setWork(visibleMathWork(first?.studentWork));
     setWorkInk(savedText(first?.studentWork.workInk));
     if (draftCoordinator.hasPending()) {
-      onMessage("Recovered unsaved math work");
+      onMessage("Recovered your draft");
       saveTimer.current = setTimeout(() => void flushAllProblems(), 100);
     }
-  }, [assignmentId, draftCoordinator, flushAllProblems, normalizedInitialProblems, onMessage, onProblemsChange, recoveryKey]);
+  }, [assignmentId, draftCoordinator, flushAllProblems, onMessage, onProblemsChange, recoveryKey]);
 
   useEffect(() => {
     registerFlush(flushAllProblems);
@@ -504,6 +579,14 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   useEffect(() => {
     if (!toolsOpen) return;
     toolsCloseRef.current?.focus();
+    const compact = window.matchMedia?.("(max-width: 1100px)");
+    const onLayoutChange = (event: MediaQueryListEvent) => {
+      if (event.matches || draftFocus) return;
+      setToolsOpen(false);
+      if (!toolsPanelRef.current?.contains(document.activeElement) || document.activeElement === toolsCloseRef.current) {
+        toolsPanelRef.current?.querySelector("summary")?.focus();
+      }
+    };
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         setToolsOpen(false);
@@ -526,12 +609,24 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
       }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [toolsOpen]);
+    compact?.addEventListener?.("change", onLayoutChange);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      compact?.removeEventListener?.("change", onLayoutChange);
+    };
+  }, [draftFocus, toolsOpen]);
 
   useEffect(() => {
     if (!problemSheetOpen) return;
     (problemButtonRefs.current[activeIndex] ?? problemCloseRef.current)?.focus();
+    const compact = window.matchMedia?.("(max-width: 900px)");
+    const onLayoutChange = (event: MediaQueryListEvent) => {
+      if (event.matches || draftFocus) return;
+      setProblemSheetOpen(false);
+      if (!problemPanelRef.current?.contains(document.activeElement) || document.activeElement === problemCloseRef.current) {
+        (problemButtonRefs.current[activeIndex] ?? document.getElementById("current-problem"))?.focus();
+      }
+    };
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === "Escape") {
         setProblemSheetOpen(false);
@@ -554,13 +649,17 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
       }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [activeIndex, problemSheetOpen]);
+    compact?.addEventListener?.("change", onLayoutChange);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      compact?.removeEventListener?.("change", onLayoutChange);
+    };
+  }, [activeIndex, draftFocus, problemSheetOpen]);
 
   async function switchProblem(index: number) {
     if (active && !(await flushProblem(active.id))) return false;
     setActiveIndex(index);
-    const next = problems[index];
+    const next = problemsRef.current[index];
     setAnswer(savedText(next?.studentWork.answer));
     setWork(visibleMathWork(next?.studentWork));
     setWorkInk(savedText(next?.studentWork.workInk));
@@ -582,9 +681,8 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
     });
   }
 
-  function queueProblemSave(key: "answer" | "work" | "workInk", value: string) {
-    if (!active) return;
-    const problemId = active.id;
+  function queueProblemSave(key: "answer" | "work" | "workInk", value: string, problemId = active?.id) {
+    if (!problemId) return;
     const patch = draftCoordinator.queue(problemId, { [key]: value });
     window.localStorage.setItem(recoveryKey(problemId), JSON.stringify(patch));
     commitProblems((current) => current.map((problem) => {
@@ -605,7 +703,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
       return;
     }
     draftCoordinator.syncing();
-    saveTimer.current = setTimeout(() => void flushProblem(problemId), 500);
+    saveTimer.current = setTimeout(() => void flushAllProblems(), 500);
   }
 
   function previewProblems() {
@@ -714,7 +812,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   }
 
   async function recordProblemReview(reviewedSnapshot: Record<string, unknown>) {
-    if (!active || !(await flushProblem(active.id))) return;
+    if (!active || !(await flushProblem(active.id))) return false;
     const result = await markProblemReviewed({ problemId: active.id, reviewedSnapshot });
     if (!result.ok) {
       onMessage(result.error);
@@ -736,13 +834,18 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
     commitProblems((current) => current.map((problem) => problem.id === active.id
       ? { ...problem, progressStatus: result.progressStatus, reviewedAt: result.reviewedAt, completedAt: result.completedAt }
       : problem));
-    onMessage("Problem marked done");
+    onMessage(`${unitNoun[0]?.toUpperCase() ?? "W"}${unitNoun.slice(1)} marked done`);
+  }
+
+  function reviewCurrentWork() {
+    document.getElementById("ask-diana")?.focus();
+    setReviewSignal((current) => current + 1);
   }
 
   const totalProblems = Math.max(problems.length, 1);
 
   function openAddProblem() {
-    if (window.matchMedia?.("(max-width: 900px)").matches) setProblemSheetOpen(true);
+    if (draftFocus || window.matchMedia?.("(max-width: 900px)").matches) setProblemSheetOpen(true);
     window.requestAnimationFrame(() => {
       const details = addProblemDetailsRef.current;
       if (!details) return;
@@ -783,7 +886,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
 
   return (
     <div className="sd-assignment-mode sd-assignment-mode--math">
-      <div className="sd-assignment-math-room">
+      <div className="sd-assignment-math-room" data-draft-focus={draftFocus || undefined}>
         <div className={styles.compactTools}>
         <button
           ref={problemToggleRef}
@@ -803,9 +906,12 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
           aria-controls="assignment-utilities"
           onClick={() => setToolsOpen(true)}
         >
-          <Settings2 size={18} aria-hidden="true" /> Tools
+          <Settings2 size={18} aria-hidden="true" /> Assignment details
         </button>
         </div>
+        <button type="button" className={styles.focusToggle} aria-pressed={draftFocus} onClick={() => setDraftFocus((value) => !value)}>
+          <Maximize2 size={16} aria-hidden="true" /> Focus on draft
+        </button>
         {problemSheetOpen ? <button type="button" className="sd-assignment-problem-sheet-scrim" aria-label={`Dismiss ${unitNounPlural}`} tabIndex={-1} onClick={closeProblemSheet} /> : null}
         <aside ref={problemPanelRef} id="assignment-problem-rail" className="sd-assignment-math-left" aria-label={`Assignment ${unitNounPlural}`} role={problemSheetOpen ? "dialog" : undefined} aria-modal={problemSheetOpen || undefined} data-open={problemSheetOpen || undefined}>
           <button ref={problemCloseRef} type="button" className="sd-assignment-problems-close" aria-label={`Close ${unitNounPlural}`} onClick={closeProblemSheet}><X size={20} aria-hidden="true" /></button>
@@ -869,8 +975,20 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
           {problems.length > 0 && active ? (
             <>
               <section id="current-problem" className="sd-assignment-problem-card" aria-label={`Current ${unitNoun}`} tabIndex={-1}>
-                <h2 className="sd-assignment-mode-title">{unitLabel(active)} <span>{activeIndex + 1} of {totalProblems}</span></h2>
-                <p className="sd-assignment-problem-text">{needsFirstProblem && assignmentDirections ? assignmentDirections : active.problemText}</p>
+                <div className={styles.promptHeader}>
+                  <h2 className={`sd-assignment-mode-title ${styles.promptLabel}`} data-compact-duplicate={unitLabel(active) === `${unitNoun[0]?.toUpperCase() ?? "W"}${unitNoun.slice(1)} ${activeIndex + 1}` || undefined}>{unitLabel(active)} <span className={styles.problemPosition}>{activeIndex + 1} of {totalProblems}</span></h2>
+                  <a href="#ask-diana" className={styles.helpLink} aria-label="Ask Diana for help"><MessageCircle size={16} aria-hidden="true" /> Ask Diana</a>
+                </div>
+                <p className="sd-assignment-problem-text">{(needsFirstProblem || (hasTeacherPrompt && !collapseDirections)) && assignmentDirections ? assignmentDirections : active.problemText}</p>
+                {hasTeacherPrompt && !collapseDirections ? <p className={styles.unitCue}>{active.problemText}</p> : null}
+                {promptResources || fullDraft ? (
+                  <div className={styles.promptActions}>
+                    {promptResources}
+                    {fullDraft ? <div className={styles.draftViewToggle}>
+                      <button type="button" aria-pressed={fullDraftOpen} onClick={() => setFullDraftOpen((open) => !open)}>Full draft</button>
+                    </div> : null}
+                  </div>
+                ) : null}
                 {needsFirstProblem ? (
                   <button type="button" className={styles.promptAction} onClick={openAddProblem}>Add or import {unitNoun}</button>
                 ) : active.unitType === "problem" && (active.source === "assignment_source" || active.source === "photo_scan") ? (
@@ -880,7 +998,23 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                   </div>
                 ) : null}
               </section>
-              <MathWorkSurface
+              {fullDraft && fullDraftOpen ? (
+                <section id="assignment-work" className={styles.draftOverview} aria-label="Full draft" tabIndex={-1}>
+                  <header><h2>Full draft</h2><span role="status">{assignmentDraftLabel(draftState) || (problems.some((problem) => visibleMathWork(problem.studentWork)) ? "Saved draft" : "")}</span></header>
+                  <button type="button" className="sd-assignment-review-action" onClick={reviewCurrentWork} disabled={!work.trim() && !workInk}>Review this {unitNoun} with Diana</button>
+                  {draftState === "retryable_error" ? <div role="alert"><span>{draftError}</span> <button type="button" onClick={() => void flushAllProblems()}>Retry save</button></div> : null}
+                  {problems.map((problem, index) => (
+                    <label key={problem.id}><span>{unitLabel(problem)}</span>
+                      <textarea id={index === activeIndex ? "assignment-work-entry" : undefined} value={visibleMathWork(problem.studentWork)} rows={6}
+                        onChange={(event) => {
+                          const value = event.currentTarget.value;
+                          if (problem.id === active.id) setWork(value);
+                          queueProblemSave("work", value, problem.id);
+                        }} />
+                    </label>
+                  ))}
+                </section>
+              ) : <MathWorkSurface
                 key={active.id}
                 assignmentId={assignmentId}
                 problemId={active.id}
@@ -890,10 +1024,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                 onInkChange={(value) => { setWorkInk(value); queueProblemSave("workInk", value); }}
                 onClear={clearActiveWork}
                 onUndoClear={undoClearActiveWork}
-                onReview={() => {
-                  document.getElementById("ask-diana")?.focus();
-                  setReviewSignal((current) => current + 1);
-                }}
+                onReview={reviewCurrentWork}
                 reviewed={activeReviewed}
                 done={activeDone}
                 clearUndoAvailable={Boolean(clearUndo)}
@@ -901,7 +1032,8 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                 saveError={draftError}
                 onRetrySave={() => void flushAllProblems()}
                 initialPreference={preferencesByProblem.get(active.id)}
-              />
+                draftLabel={unitNoun === "problem" ? undefined : "Your draft"}
+              />}
               {showSubmissionReview ? (
                 <section className={styles.submissionReview} aria-labelledby="workspace-submission-review">
                   <div>
@@ -919,6 +1051,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                 assignmentId={assignmentId}
                 problemId={active.id}
                 template={template}
+                unitNoun={unitNoun}
                 aiMode={aiMode}
                 mathReviewSignal={reviewSignal}
                 reviewed={activeReviewed}
@@ -941,6 +1074,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
           ) : (
             <section id="current-problem" className="sd-assignment-empty-state" aria-label="Assignment prompt" tabIndex={-1}>
               {assignmentDirections ? <p className="sd-assignment-problem-text">{assignmentDirections}</p> : null}
+              {promptResources}
               <h2>Add the first {unitNoun}</h2>
               <p>Import from the assignment, or paste one {unitNoun}.</p>
               <button type="button" data-primary="true" onClick={openAddProblem}>Add or import {unitNoun}</button>

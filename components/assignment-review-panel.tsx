@@ -1,13 +1,15 @@
 "use client";
 
 import katex from "katex";
-import { Check, FileText, Image as ImageIcon, Plus, RotateCcw, Send, Sparkles, X } from "lucide-react";
+import { ArrowUp, Check, FileText, Image as ImageIcon, MessageCircle, Paperclip, RotateCcw, Send, Sparkles, X } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, useTransition, type FormEvent, type KeyboardEvent } from "react";
 
 import { requestAssignmentReview } from "@/app/(app)/assignments/[id]/ai-tools-actions";
 import { addAssignmentSourceFile, removeAssignmentSourceFile, retryAssignmentSourceExtraction } from "@/app/(app)/assignments/[id]/workspace/source-actions";
 import { upsertAssignmentProblemMessage } from "@/app/(app)/assignments/[id]/workspace-state-actions";
 import { AssignmentRealtimeTutor } from "@/components/assignment-realtime-tutor";
+import reviewStyles from "@/components/student-shell/homework-review.module.css";
+import workspaceStyles from "@/components/student-shell/workspace.module.css";
 import { VoiceTextarea } from "@/components/voice-textarea";
 import {
   parseTutorResponseEvidence,
@@ -26,6 +28,7 @@ import type { StudyHelperResult } from "@/lib/integrations/diana-study-helper-si
 type Props = {
   assignmentId: string;
   problemId?: string;
+  unitNoun?: string;
   template: AssignmentReviewTemplate;
   fields: AssignmentReviewField[];
   aiMode?: "red" | "yellow" | "green";
@@ -385,7 +388,7 @@ function MathCoachVisual({ visualAid }: { visualAid: AssignmentVisualAid }) {
 
 function VisualAidSvg({ visualAid }: { visualAid: AssignmentVisualAid }) {
   if (visualAid.kind === "balance") return <><line x1="160" y1="24" x2="160" y2="102" /><line x1="72" y1="62" x2="248" y2="62" /><path d="M88 62 L58 104 H118 Z" /><path d="M232 62 L202 104 H262 Z" /><text x="88" y="118" textAnchor="middle">side A</text><text x="232" y="118" textAnchor="middle">side B</text></>;
-  if (visualAid.kind === "coordinate_plane") return <><line x1="48" y1="66" x2="286" y2="66" /><line x1="160" y1="18" x2="160" y2="114" /><path d="M82 96 C124 74 178 52 240 34" /><circle cx="124" cy="74" r="5" /><circle cx="204" cy="48" r="5" /></>;
+  if (visualAid.kind === "coordinate_plane") return <><line x1="48" y1="66" x2="286" y2="66" /><line x1="160" y1="18" x2="160" y2="114" /><text x="292" y="71">x</text><text x="151" y="15">y</text></>;
   if (visualAid.kind === "fraction_bar") return <><rect x="54" y="42" width="212" height="26" rx="4" /><rect x="54" y="76" width="212" height="26" rx="4" /><line x1="107" y1="42" x2="107" y2="102" /><line x1="160" y1="42" x2="160" y2="102" /><line x1="213" y1="42" x2="213" y2="102" /></>;
   if (visualAid.kind === "geometry") return <><path d="M76 102 L152 30 L244 102 Z" /><path d="M152 30 L152 102" /><text x="152" y="120" textAnchor="middle">compare sides and angles</text></>;
   if (visualAid.kind === "table") return <><rect x="62" y="28" width="196" height="76" rx="4" /><line x1="62" y1="54" x2="258" y2="54" /><line x1="62" y1="80" x2="258" y2="80" /><line x1="128" y1="28" x2="128" y2="104" /><line x1="194" y1="28" x2="194" y2="104" /></>;
@@ -508,7 +511,7 @@ async function readStudyStream(response: Response, onEvent: (event: StudyBuddySt
   if (!terminalEventReceived) emit({ type: "interrupted", error: INTERRUPTED_CHAT_MESSAGE });
 }
 
-export function AssignmentReviewPanel({ assignmentId, problemId, template, fields, mathReviewSignal = 0, reviewed = false, done = false, hasNextProblem = false, reviewSnapshot, onReviewed, onMarkDone, onNextProblem, onReviewSubmission, showSubmissionAction = true, starterQuestion, initialMessages = [] }: Props) {
+export function AssignmentReviewPanel({ assignmentId, problemId, unitNoun = "problem", template, fields, mathReviewSignal = 0, reviewed = false, done = false, hasNextProblem = false, reviewSnapshot, onReviewed, onMarkDone, onNextProblem, onReviewSubmission, showSubmissionAction = true, starterQuestion, initialMessages = [] }: Props) {
   // A persisted work-unit gets the full Diana conversation regardless of
   // subject.  `template` still tells the review service which subject contract
   // to apply, but it no longer decides whether the student sees the modern chat.
@@ -951,23 +954,46 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
     for (const url of previewUrls.current) URL.revokeObjectURL?.(url);
   }, []);
 
+  const chatHeading = (
+    <header className={workspaceStyles.chatHeader}>
+      <div className={workspaceStyles.chatBrand}>
+        <span className={workspaceStyles.chatIcon}><MessageCircle size={20} aria-hidden="true" /></span>
+        <h2 className="sd-assignment-chat-heading">Ask Diana</h2>
+      </div>
+      {problemId ? <a href="#assignment-work" className={workspaceStyles.chatBack}><ArrowUp size={16} aria-hidden="true" /> Back to draft</a> : null}
+    </header>
+  );
+
   if (isUnitReview) {
     return (
       <aside id="ask-diana" className="sd-assignment-diana-chat" aria-label="Ask Diana" tabIndex={-1}>
-        <h2 className="sd-assignment-chat-heading">Ask Diana</h2>
+        {chatHeading}
         <div ref={mathFeedRef} className="sd-assignment-diana-chat-feed" role="region" aria-label="Diana conversation" aria-live="polite" tabIndex={0}>
           {displayMathMessages.length === 0 ? (
-            <p className="sd-assignment-diana-empty">Ask Diana when you want a hint.</p>
+            <p className="sd-assignment-diana-empty">Ask a question about this part of your work.</p>
           ) : null}
           {displayMathMessages.map((chatMessage) => (
-            <article key={chatMessage.id} className="sd-assignment-diana-message" data-role={chatMessage.role}>
+            <article key={chatMessage.id} className={chatMessage.result ? `sd-assignment-diana-message ${reviewStyles.reviewResult}` : "sd-assignment-diana-message"} data-role={chatMessage.role} data-review={Boolean(chatMessage.result) || undefined}>
+              {chatMessage.result
+                ? <h3 className={reviewStyles.resultHeading}>Review from Diana</h3>
+                : <span className={workspaceStyles.chatSpeaker}>{chatMessage.role === "student" ? "You" : "Diana"}</span>}
               {chatMessage.providerState?.visible ? (
                 <div className="sd-assignment-diana-status" role="status" data-provider-availability={chatMessage.providerState.availability}>
                   <strong>{chatMessage.providerState.title}</strong>
                   <span>{chatMessage.providerState.message}</span>
                 </div>
               ) : null}
-              <p>{chatMessage.text}</p>
+              {chatMessage.result ? <>
+                <p><strong>Next step</strong> {chatMessage.result.nextMove}</p>
+                {chatMessage.result.question ? <p>{chatMessage.result.question}</p> : null}
+                {chatMessage.result.strength || chatMessage.result.improvement ? (
+                  <details className={reviewStyles.reviewDetails}>
+                    <summary>More feedback</summary>
+                    {chatMessage.result.strength ? <p>{chatMessage.result.strength}</p> : null}
+                    {chatMessage.result.improvement ? <p>{chatMessage.result.improvement}</p> : null}
+                  </details>
+                ) : null}
+              </> : <p>{chatMessage.text}</p>}
               {chatMessage.attachments?.map((attachment) => <AttachmentCard key={attachment.id} attachment={attachment} />)}
               {chatMessage.result ? <MathCoachVisual visualAid={chatMessage.result.visualAid} /> : chatMessage.visualAid ? <MathCoachVisual visualAid={chatMessage.visualAid} /> : null}
               {chatMessage.evidence ? (
@@ -977,7 +1003,9 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
               ) : null}
             </article>
           ))}
-          {streamPhase === "thinking" || reviewPending ? <article className="sd-assignment-diana-message sd-assignment-diana-thinking" data-role="assistant"><span /><span /><span /><p className="sr-only">Diana is thinking</p></article> : null}
+          {streamPhase === "thinking" || reviewPending ? (
+            <p className="sd-assignment-diana-thinking">{reviewPending ? "Diana is reviewing your work…" : "Diana is thinking…"}</p>
+          ) : null}
         </div>
         {(streamPhase === "interrupted" || streamPhase === "retryable_error") ? (
           <div className="sd-assignment-chat-retry" role="status" data-provider-availability={currentProviderState?.availability}>
@@ -991,19 +1019,36 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
             <button type="button" onClick={retryLastReply}><RotateCcw size={17} aria-hidden="true" /> Retry reply</button>
           </div>
         ) : null}
-        {reviewed ? (
-          <div className="sd-assignment-review-transition" aria-label="Problem review actions">
-            {done ? (
-              hasNextProblem ? <button type="button" data-primary="true" onClick={onNextProblem}>Next problem</button> : showSubmissionAction ? <button type="button" data-primary="true" onClick={onReviewSubmission}>Review submission</button> : null
-            ) : (
-              <><button type="button" onClick={() => document.getElementById("assignment-work-entry")?.focus()}>Keep working</button><button type="button" data-primary="true" onClick={onMarkDone}>Mark problem done</button></>
-            )}
-          </div>
+        {reviewed && (!done || hasNextProblem || showSubmissionAction) ? (
+          <section className={reviewStyles.transition} aria-label="Review actions">
+            <h3>{done ? `${unitNoun[0]?.toUpperCase() ?? "W"}${unitNoun.slice(1)} marked done` : "After your review"}</h3>
+            <div className={reviewStyles.actions}>
+              {done ? (
+                hasNextProblem ? (
+                  <button type="button" data-primary="true" onClick={onNextProblem}>Next {unitNoun}</button>
+                ) : (
+                  <button type="button" data-primary="true" onClick={onReviewSubmission}>Review submission</button>
+                )
+              ) : (
+                <>
+                  <button type="button" onClick={() => document.getElementById("assignment-work-entry")?.focus()}>Keep working</button>
+                  <button type="button" data-primary="true" onClick={onMarkDone}>Mark {unitNoun} done</button>
+                </>
+              )}
+            </div>
+          </section>
         ) : null}
         {message && !busy && message !== "Review ready" ? <p className="sd-assignment-diana-status" role="status">{message}</p> : null}
         {activeAttachments.length > 0 ? <div className="sd-assignment-composer-attachments">{activeAttachments.map((attachment) => <AttachmentCard key={attachment.id} attachment={attachment} removable onRemove={() => void removeAttachment(attachment)} onRetry={() => void retryAttachment(attachment)} onConfirm={() => confirmAttachment(attachment)} />)}</div> : null}
         <form className="sd-assignment-diana-chat-input" onSubmit={submitMathQuestion}>
+          {!done && !mathQuestion && !busy ? (
+            <div className={reviewStyles.helpPrompts}>
+              <button type="button" onClick={() => { setMathQuestion("Can you break this into one smaller step?"); document.getElementById("assignment-diana-question")?.focus(); }}>A smaller step</button>
+              <button type="button" onClick={() => { setMathQuestion("Can you show me a similar example?"); document.getElementById("assignment-diana-question")?.focus(); }}>Show an example</button>
+            </div>
+          ) : null}
           <VoiceTextarea
+            id="assignment-diana-question"
             value={mathQuestion}
             onChange={(event) => setMathQuestion(event.target.value)}
             onInput={growComposer}
@@ -1016,17 +1061,17 @@ export function AssignmentReviewPanel({ assignmentId, problemId, template, field
             rows={2}
           />
           <input ref={photoInputRef} type="file" accept="image/*,.pdf" multiple className="sr-only" tabIndex={-1} aria-hidden="true" onChange={(event) => { const remaining = Math.max(0, 4 - activeAttachments.length); Array.from(event.target.files ?? []).slice(0, remaining).forEach(attachPhoto); event.currentTarget.value = ""; }} />
-          <button type="button" className="sd-assignment-diana-upload" disabled={busy || activeAttachments.length >= 4} onClick={() => photoInputRef.current?.click()} aria-label="Upload images or PDFs" title="Upload images or PDFs"><Plus size={21} aria-hidden="true" /></button>
-          <AssignmentRealtimeTutor assignmentId={assignmentId} fields={fields} sessionKey={threadKey} compact />
-          <button type="submit" className="sd-assignment-diana-send" disabled={busy || activeAttachments.some((attachment) => attachment.status === "uploading") || (!mathQuestion.trim() && !activeAttachments.some((attachment) => attachment.status === "ready"))} aria-label="Send message" title="Send message"><Send size={21} aria-hidden="true" /></button>
+          <button type="button" className="sd-assignment-diana-upload" disabled={busy || activeAttachments.length >= 4} onClick={() => photoInputRef.current?.click()} aria-label="Upload images or PDFs" title="Upload images or PDFs"><Paperclip size={17} aria-hidden="true" /></button>
+          <AssignmentRealtimeTutor assignmentId={assignmentId} fields={fields} sessionKey={threadKey} />
+          <button type="submit" className="sd-assignment-diana-send" disabled={busy || activeAttachments.some((attachment) => attachment.status === "uploading") || (!mathQuestion.trim() && !activeAttachments.some((attachment) => attachment.status === "ready"))} aria-label="Send message"><Send size={17} aria-hidden="true" /> Send</button>
         </form>
       </aside>
     );
   }
 
   return (
-    <aside id="ask-diana" className="sd-assignment-diana-chat sd-assignment-diana-chat--rail" aria-label="Ask Diana" aria-live="polite">
-      <h2 className="sd-assignment-chat-heading">Ask Diana</h2>
+    <aside id="ask-diana" className="sd-assignment-diana-chat sd-assignment-diana-chat--rail" aria-label="Ask Diana" aria-live="polite" tabIndex={-1}>
+      {chatHeading}
       <div className="sd-assignment-diana-chat-feed" role="region" aria-label="Diana conversation" tabIndex={0}>
         {chatMessages.map((chatMessage) => <article key={chatMessage.id} className="sd-assignment-diana-message" data-role={chatMessage.role}><p>{chatMessage.text}</p>{chatMessage.result ? <MathCoachVisual visualAid={chatMessage.result.visualAid} /> : null}</article>)}
       </div>

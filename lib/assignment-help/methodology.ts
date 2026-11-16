@@ -1,7 +1,9 @@
-import type {
-  AssignmentTaskIntent,
-  AssignmentWorkProfile,
-  SubjectDomain,
+import {
+  ASSIGNMENT_DELIVERABLE_LABELS,
+  type AssignmentDeliverable,
+  type AssignmentTaskIntent,
+  type AssignmentWorkProfile,
+  type SubjectDomain,
 } from "@/lib/assignment-profile";
 import type { AssignmentSourcePacket } from "@/lib/assignment-sources";
 import type { HomeworkMasteryReadiness } from "@/lib/mastery/homework-readiness";
@@ -379,6 +381,62 @@ const BASE_METHOD_BY_DOMAIN: Record<SubjectDomain, BaseSubjectMethodology> = {
   },
 };
 
+type DeliverableMethod = Pick<SubjectMethodology, "workUnitStrategy" | "studentOutput" | "reviewAction" | "packMethodology" | "visualSupports">;
+
+const METHODS_BY_DELIVERABLE: Partial<Record<AssignmentDeliverable, DeliverableMethod>> = {
+  worksheet: {
+    workUnitStrategy: "Keep the assigned question order, clarify the current prompt, and guide one reasoning step at a time.",
+    studentOutput: "Student-authored answers with the work or evidence requested for each question.",
+    reviewAction: "Check the current response against the exact question and its required explanation.",
+    packMethodology: ["Use the teacher's worksheet wording and the subject method that fits this question."],
+    visualSupports: ["question-by-question organizer"],
+  },
+  report: {
+    workUnitStrategy: "Identify the assigned report question and required sections. Collect evidence, develop the explanation, and revise the report in the teacher's order.",
+    studentOutput: "Student-authored report using the assigned structure, supported findings, and citations.",
+    reviewAction: "Check each required section, whether claims match the cited sources, and whether the writing distinguishes evidence from interpretation.",
+    packMethodology: ["Use the report requirements in the directions and rubric. Include a method or findings section only when the assignment calls for one."],
+    visualSupports: ["report outline", "source evidence organizer"],
+  },
+  lab_report: {
+    workUnitStrategy: "Use the assigned purpose, teacher-approved method, recorded observations, analysis, and conclusion. Follow the teacher's section requirements.",
+    studentOutput: "Student-authored lab report that identifies actual observations, units, results, and limitations.",
+    reviewAction: "Check whether the conclusion follows from the recorded results and whether measurements, units, and limitations are clear.",
+    packMethodology: ["Use the assigned method and student-owned observations. Ask for missing measurements or observations and keep unobserved results out of the report."],
+    visualSupports: ["observation table", "labeled graph"],
+  },
+  graph_analysis: {
+    workUnitStrategy: "Identify the assigned data or model, label axes and units, describe the result, and connect the explanation to the evidence.",
+    studentOutput: "Student-authored graph or model with an explanation of the relevant pattern and limitations.",
+    reviewAction: "Check the graph type, labels, units, assumptions, and whether the reasoning follows from the data or stated model.",
+    packMethodology: ["Use the course model or provided data. Distinguish a change in a curve from movement along it when applicable."],
+    visualSupports: ["labeled axes", "comparison table"],
+  },
+  legal_case_brief: {
+    workUnitStrategy: "Read the assigned opinion. Locate the citation, material facts, procedural history, issue, rule, holding, and reasoning one step at a time.",
+    studentOutput: "Student-authored case brief that links each key claim to a passage in the assigned opinion.",
+    reviewAction: "Compare the issue, rule, holding, and reasoning to the opinion. Distinguish majority reasoning from concurrences and dissents where present.",
+    packMethodology: ["Ask the student to find the exact passage supporting the rule or holding. Help them explain it in their own words."],
+    visualSupports: ["case brief outline", "opinion passage organizer"],
+  },
+  legal_memo: {
+    workUnitStrategy: "State the question presented, identify relevant facts, connect assigned legal authority to the facts, consider competing interpretations, and explain the conclusion.",
+    studentOutput: "Student-authored classroom legal memo applying assigned sources to the hypothetical facts.",
+    reviewAction: "Check whether the memo separates rule, application, and conclusion. Match each quoted rule or citation to the assigned authority.",
+    packMethodology: ["Use issue, rule, application, and conclusion when appropriate to the teacher's required memo format."],
+    visualSupports: ["rule and application organizer", "authority and citation organizer"],
+  },
+  general_response: {
+    workUnitStrategy: BASE_METHOD_BY_DOMAIN.general.workUnitStrategy,
+    studentOutput: BASE_METHOD_BY_DOMAIN.general.studentOutput,
+    reviewAction: BASE_METHOD_BY_DOMAIN.general.reviewAction,
+    packMethodology: ["Ask for the exact directions if the required output is unclear."],
+    visualSupports: BASE_METHOD_BY_DOMAIN.general.visualSupports,
+  },
+};
+
+const LEGAL_SOURCE_GUARDRAIL = "Use the assigned opinion or authority for the case name, court, date, jurisdiction, citation, and quotations. Ask for the missing page or excerpt when it cannot be verified. Keep help within the classroom exercise.";
+
 export function resolveHomeworkHelpContract(input: {
   supportIntensity?: SupportIntensity | null;
   readiness?: ReadinessCheckIn | null;
@@ -400,18 +458,25 @@ export function resolveHomeworkHelpContract(input: {
 export function methodologyForProfile(profile: AssignmentWorkProfile): SubjectMethodology {
   const base = BASE_METHOD_BY_DOMAIN[profile.subjectDomain] ?? BASE_METHOD_BY_DOMAIN.general;
   const pack = subjectPackForDomain(profile.subjectDomain);
+  const format = profile.deliverable && METHODS_BY_DELIVERABLE[profile.deliverable];
+  const legal = profile.legalCoursework || profile.deliverable === "legal_case_brief" || profile.deliverable === "legal_memo";
+  const evidenceExpectations = format
+    ? pack.artifactExpectations.filter((item) => item.artifactType === profile.artifactType)
+    : pack.artifactExpectations;
+  const reviewRules = !format || evidenceExpectations.length > 0 ? pack.reviewRules : [];
   return {
     ...base,
+    ...format,
     subjectPackId: pack.id,
     subjectPackLabel: pack.label,
-    packMethodology: [...pack.methodology],
-    evidenceExpectations: pack.artifactExpectations.map((expectation) => ({
+    packMethodology: [...(format?.packMethodology ?? pack.methodology)],
+    evidenceExpectations: evidenceExpectations.map((expectation) => ({
       artifactType: expectation.artifactType,
       requiredEvidence: [...expectation.requiredEvidence],
     })),
-    reviewRules: pack.reviewRules.map((rule) => ({ ...rule })),
+    reviewRules: reviewRules.map((rule) => ({ ...rule })),
     standardsFrameworkHints: pack.standardsFrameworkHints.map((hint) => ({ ...hint })),
-    safetyDignityConstraints: [...pack.safetyDignityConstraints],
+    safetyDignityConstraints: [...(legal ? [LEGAL_SOURCE_GUARDRAIL] : []), ...pack.safetyDignityConstraints],
   };
 }
 
@@ -471,7 +536,8 @@ export function buildAssignmentUnderstanding(input: {
 export function formatMethodologyForTutor(understanding: AssignmentUnderstanding): string {
   return [
     "Diana universal homework method:",
-    `Subject: ${understanding.profile.subjectDomain.replaceAll("_", " ")}`,
+    `Subject: ${understanding.profile.legalCoursework ? "legal studies" : understanding.profile.subjectDomain.replaceAll("_", " ")}`,
+    understanding.profile.deliverable ? `Deliverable: ${ASSIGNMENT_DELIVERABLE_LABELS[understanding.profile.deliverable]}` : "",
     `Work unit strategy: ${understanding.methodology.workUnitStrategy}`,
     `Expected student output: ${understanding.methodology.studentOutput}`,
     `Review action: ${understanding.methodology.reviewAction}`,

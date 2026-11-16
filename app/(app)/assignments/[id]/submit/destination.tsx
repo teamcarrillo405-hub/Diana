@@ -6,7 +6,7 @@ import styles from "@/components/student-shell/submission.module.css";
 import { setSubmissionUrl } from "../actions";
 import { submissionWebLink } from "./web-link";
 
-export function SubmissionDestination({ assignmentId, currentUrl, externalUrl, externalLabel, onOpenSchool, title, children }: {
+export function SubmissionDestination({ assignmentId, currentUrl, externalUrl, externalLabel, onOpenSchool, title, children, extraAction }: {
   assignmentId: string;
   currentUrl: string | null;
   externalUrl: string | null;
@@ -14,6 +14,7 @@ export function SubmissionDestination({ assignmentId, currentUrl, externalUrl, e
   onOpenSchool?: () => void;
   title: string;
   children: ReactNode;
+  extraAction?: ReactNode;
 }) {
   const inputId = useId();
   const [savedUrl, setSavedUrl] = useState(currentUrl);
@@ -47,8 +48,9 @@ export function SubmissionDestination({ assignmentId, currentUrl, externalUrl, e
         <div><p className={styles.eyebrow}>Destination</p><h2 id="submission-destination-title">{title}</h2></div>
       </div>
       <div className={styles.instructions}>{children}</div>
-      {directLink || studentLink ? (
+      {directLink || studentLink || extraAction ? (
         <div className={styles.controls}>
+          {extraAction}
           {directLink ? <a className={styles.secondary} href={directLink} target="_blank" rel="noopener noreferrer" onClick={onOpenSchool}><ExternalLink size={17} aria-hidden="true" />{externalLabel}</a> : null}
           {studentLink && studentLink !== directLink ? <a className={styles.secondary} href={studentLink} target="_blank" rel="noopener noreferrer"><ExternalLink size={17} aria-hidden="true" />Open saved submission link</a> : null}
         </div>
