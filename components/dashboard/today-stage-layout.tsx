@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { ChartNoAxesColumnIncreasing, ClipboardList, Heart, House } from "lucide-react";
-import { Children, cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactElement, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type FocusEvent, type KeyboardEvent, type ReactElement, type ReactNode } from "react";
 import styles from "./today-dashboard.module.css";
 import shortcuts from "./lobby-mobile-shortcuts.module.css";
 
@@ -41,11 +41,14 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
   const [internalId, setInternalId] = useState<TodayMode>("now");
   const activeId = selectedMode ?? internalId;
   const [stageMode, setStageMode] = useState(false);
+  const [mobileId, setMobileId] = useState<TodayMode>(definitions[0]?.id ?? "now");
   const idPrefix = useId();
   const tabs = useRef<Partial<Record<TodayMode, HTMLButtonElement>>>({});
   const jumpButtons = useRef<Partial<Record<TodayMode, HTMLButtonElement>>>({});
+  const shortcutNav = useRef<HTMLElement>(null);
   const breakpointFocus = useRef<{ from: Element; to: HTMLElement } | null>(null);
   const panels = Children.toArray(children).filter(isValidElement) as PanelElement[];
+  const showLobbyShortcuts = title === "Lobby" && definitions.length === 3;
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -88,6 +91,52 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
     }
   }, [stageMode]);
 
+  useEffect(() => {
+    const nav = shortcutNav.current;
+    if (!showLobbyShortcuts || stageMode || !nav) return;
+
+    const sections = definitions.flatMap(({ id }) => {
+      const element = document.getElementById(`${idPrefix}-${id}-panel`);
+      return element ? [{ id, element }] : [];
+    });
+    const last = sections.at(-1);
+    if (!last) return;
+
+    let frame: number | null = null;
+    const update = () => {
+      frame = null;
+      const navBounds = nav.getBoundingClientRect();
+      if (navBounds.height === 0) return;
+      // Sample just beneath the sticky shortcuts, inside the jump's scroll margin.
+      const readingLine = navBounds.bottom + 24;
+      let current = sections[0].id;
+      for (const { id, element } of sections) {
+        if (element.getBoundingClientRect().top <= readingLine) current = id;
+      }
+
+      // A short final section can be visible without ever reaching the reading line.
+      const scrollLimit = (document.scrollingElement ?? document.documentElement).scrollHeight - window.innerHeight;
+      if (scrollLimit > 0 && window.scrollY >= scrollLimit - 2) current = last.id;
+      setMobileId(current);
+    };
+    const schedule = () => {
+      if (frame === null) frame = window.requestAnimationFrame(update);
+    };
+
+    schedule();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
+    observer?.observe(nav);
+    sections.forEach(({ element }) => observer?.observe(element));
+    return () => {
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      observer?.disconnect();
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+  }, [definitions, idPrefix, showLobbyShortcuts, stageMode]);
+
   function selectPanel(id: TodayMode) {
     if (id === activeId) return;
     onSelectionChange?.(id);
@@ -111,17 +160,31 @@ export function TodayStageLayout({ children, imageSrc = "/images/today-future-ac
     const panel = document.getElementById(`${idPrefix}-${id}-panel`);
     if (!panel) return;
     selectPanel(id);
+    setMobileId(id);
     // Put keyboard and assistive-technology focus at the destination as well as
     // moving the viewport. Mobile keeps all sections available in the document.
     panel.focus({ preventScroll: true });
     panel.scrollIntoView?.({ block: "start", behavior: "auto" });
   }
 
-  const showLobbyShortcuts = title === "Lobby" && definitions.length === 3;
+  function followPanelFocus(event: FocusEvent<HTMLDivElement>) {
+    if (stageMode) return;
+    const panel = event.target.closest("[data-today-stage-deck] > [data-active]");
+    const definition = definitions.find(({ id }) => panel?.id === `${idPrefix}-${id}-panel`);
+    if (definition) setMobileId(definition.id);
+  }
 
-  return <div className={`${styles.stageWorkspace}${showLobbyShortcuts ? ` ${shortcuts.workspace}` : ""}`} data-today-stage-workspace>
-    {showLobbyShortcuts && <nav className={shortcuts.navigation} aria-label="Jump to Lobby section">
-      {definitions.map(panel => <button key={panel.id} ref={node => { jumpButtons.current[panel.id] = node ?? undefined; }} type="button" aria-label={`Jump to ${labels?.[panel.id] ?? panel.label}`} onClick={() => jumpToPanel(panel.id)}>{labels?.[panel.id] ?? panel.label}</button>)}
+  return <div className={`${styles.stageWorkspace}${showLobbyShortcuts ? ` ${shortcuts.workspace}` : ""}`} data-today-stage-workspace onFocusCapture={showLobbyShortcuts ? followPanelFocus : undefined}>
+    {showLobbyShortcuts && <nav ref={shortcutNav} className={shortcuts.navigation} aria-label="Jump to Lobby section">
+      {definitions.map(panel => <button
+        key={panel.id}
+        ref={node => { jumpButtons.current[panel.id] = node ?? undefined; }}
+        type="button"
+        aria-label={`Jump to ${labels?.[panel.id] ?? panel.label}`}
+        aria-controls={`${idPrefix}-${panel.id}-panel`}
+        aria-current={!stageMode && mobileId === panel.id ? "location" : undefined}
+        onClick={() => jumpToPanel(panel.id)}
+      >{labels?.[panel.id] ?? panel.label}</button>)}
     </nav>}
     <nav className={styles.stageRail} data-today-stage-rail aria-label={`${title} categories`} role="tablist" aria-orientation="vertical">
       <p className={styles.railKicker}>{railHeading ?? title}</p>

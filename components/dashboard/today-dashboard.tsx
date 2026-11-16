@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode }
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { StudentDesktopNav, type StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
-import type { TodayData } from "@/lib/dashboard/today-view";
+import { selectTodayLobbyTask, type TodayData } from "@/lib/dashboard/today-view";
 import type { LobbyEnergy } from "@/lib/dashboard/lobby-check-in";
 import { lobbyRecommendationReason, type LobbyCheckInUpdate, type LobbyRecommendation } from "@/lib/dashboard/lobby-recommendation";
 import type { CheckInWeek } from "@/lib/wellness/check-in-week";
@@ -75,7 +75,8 @@ export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBran
   const [mode, setMode] = useState<TodayMode>("now");
   const [savedCheckIn, setSavedCheckIn] = useState<LobbyCheckInUpdate>();
   const nowPanel = useRef<HTMLElement>(null);
-  const nextTask = data.plan[0];
+  const recommendedTask = data.plan[0];
+  const nextTask = selectTodayLobbyTask(data);
   const primary = schoolColor(schoolBranding?.primaryColor);
   const secondary = schoolColor(schoolBranding?.secondaryColor);
   const logo = preview?.logo ?? schoolLogo(schoolBranding?.logoUrl);
@@ -88,10 +89,10 @@ export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBran
   } as CSSProperties;
 
   const checkInNote = savedCheckIn
-    ? lobbyRecommendationReason(savedCheckIn, recommendation, nextTask) ?? "Check-in saved."
+    ? lobbyRecommendationReason(savedCheckIn, recommendation, recommendedTask) ?? "Check-in saved."
     : undefined;
   function finishCheckIn(energy: LobbyEnergy, signalId: string) {
-    setSavedCheckIn({ energy, signalId, before: recommendation, previousTask: nextTask });
+    setSavedCheckIn({ energy, signalId, before: recommendation, previousTask: recommendedTask });
     setMode("now");
     onRetry?.();
   }
@@ -112,7 +113,7 @@ export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBran
     <div className={`${composition.environment} ${campus.campusEnvironment}`} aria-hidden="true">
       <div className={campus.roomPlate}>
         <picture className={campus.roomArt}>
-          <source media="(min-width: 1180px)" srcSet={room} />
+          <source media="(min-width: 761px)" srcSet={room} />
           <img data-campus-art src={mobileRoom} alt="" width={1010} height={428} fetchPriority="high" />
         </picture>
         {logo && <SchoolPennant logo={logo} />}

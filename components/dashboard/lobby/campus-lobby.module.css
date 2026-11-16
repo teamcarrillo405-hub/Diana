@@ -339,6 +339,10 @@
   --campus-rule: #d6c99c70;
   --campus-border: var(--school-trim, #cbb485);
   --campus-action: var(--school-primary, #64316f);
+  --campus-control-font: 650 14px/1.4 var(--font-lexend), sans-serif;
+  --campus-title-font: italic 800 clamp(35px, 4.3vw, 55px)/1 var(--font-saira-condensed), sans-serif;
+  --campus-focus: #f1dca8;
+  --campus-panel-padding: clamp(17px, 2vw, 26px);
   /* Keep chrome legible even with two very light or very dark school colors. */
   --campus-chrome: color-mix(in srgb, var(--school-primary, #214c39) 22%, #10221e);
 }
@@ -351,12 +355,25 @@
 .mobileCampusText strong, .railIdentity { overflow-wrap: anywhere; text-transform: uppercase; }
 
 .campus.campus.campus.campus.campus.campus[data-campus-experience]
-[data-today-stage-deck] > :is([data-lobby-week], [data-lobby-check-in]) {
-  width: 100%; min-height: 0; height: fit-content; align-self: start; padding: clamp(17px, 2vw, 26px);
+[data-today-stage-deck] > :is(section[aria-label="Today's Plan"], [data-lobby-week], [data-lobby-check-in]) {
+  min-height: 0; height: fit-content; align-self: start;
   border: 1px solid var(--campus-border); border-radius: 0;
   background: var(--campus-panel); color: var(--campus-ink);
   box-shadow: 0 18px 42px #07110d7d, inset 0 0 0 3px #f4e7bb09;
   backdrop-filter: blur(9px);
+}
+.campus.campus.campus.campus.campus.campus[data-campus-experience]
+[data-today-stage-deck] > :is([data-lobby-week], [data-lobby-check-in]) {
+  width: 100%; padding: var(--campus-panel-padding);
+}
+.campus.campus.campus.campus.campus.campus[data-campus-experience] [data-now-start][data-submission-action] {
+  padding-inline: 18px 48px;
+  font-size: clamp(23px, 3vw, 34px);
+  line-height: 1.08;
+  text-wrap: balance;
+}
+.campus.campus.campus.campus.campus.campus[data-campus-experience] [data-now-start][data-submission-action]::after {
+  right: 7%; width: 23px; height: 20px;
 }
 .campus.campus.campus.campus.campus.campus [data-lobby-check-in] { --ink: #fff9ed; --muted: #d9dfd7; }
 .checkInTitle { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 12px; }
@@ -364,7 +381,7 @@
   color: var(--campus-muted); font: 500 12px/1.4 var(--font-lexend), sans-serif;
 }
 .campus.campus.campus.campus.campus.campus .checkInHeading h2 {
-  margin: 0; color: var(--campus-ink); font: italic 800 clamp(35px, 4.3vw, 55px)/1 var(--font-saira-condensed), sans-serif;
+  margin: 0; color: var(--campus-ink); font: var(--campus-title-font);
   text-transform: uppercase;
 }
 .campus.campus.campus.campus.campus.campus .checkInHeading > p:last-child {
@@ -387,19 +404,21 @@
     display: none;
   }
   .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-today-stage-deck] {
-    align-items: start; padding-block: clamp(42px, 7vh, 82px) 65px;
+    align-items: start; padding-block: clamp(30px, 6vh, 66px) 54px;
   }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience]
+  [data-today-stage-deck] > section[aria-label="Today's Plan"] { padding: var(--campus-panel-padding); }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience]
+  [data-today-stage-deck] > :is([data-lobby-week], [data-lobby-check-in]) {
+    max-width: clamp(440px, calc(38vw + 148px), 700px);
+  }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience]
+  [data-today-stage-rail] button[aria-selected="true"] { box-shadow: inset 3px 0 currentColor; }
   .campus.campus.campus.campus.campus.campus[data-campus-experience]::before {
     background: linear-gradient(90deg, #06140fd9, #0b171066 43%, #10140b12 77%, #12180f2e);
   }
 }
 
-@media (min-width: 1050px) {
-  .campus.campus.campus.campus.campus.campus[data-campus-experience]
-  [data-today-stage-deck] > :is([data-lobby-week], [data-lobby-check-in]) {
-    max-width: min(60%, 700px);
-  }
-}
 @media (min-width: 1051px) {
   .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-student-navigation] nav {
     flex: 1;
@@ -431,28 +450,37 @@
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: contain; object-position: center;
 }
-@media (min-width: 1180px) {
-  /* Diana, the table and the background share this plate. Keep the pennant
-     attached to the same image coordinates through a widescreen cover crop. */
+@media (min-width: 761px) {
+  /* Reframe Diana to the right as the stage narrows while keeping the pennant in view. */
   .campusEnvironment { max-height: 56.25vw; }
   .roomPlate {
-    inset: 0 auto auto 73%;
+    --campus-room-pan: clamp(0px, calc(448.4px - 38vw), 95px);
+    inset: 0 auto auto calc(73% + var(--campus-room-pan));
     width: max(100cqw, 177.7778cqh);
     height: max(100cqh, 56.25cqw);
     transform: translate(-73%, calc((100cqh - max(100cqh, 56.25cqw)) / 2));
   }
   .roomPlate > .schoolSceneBanner {
-    position: absolute; inset: 12% auto auto 92.6%;
+    position: absolute; inset: 12% auto auto calc(92.6% - var(--campus-room-pan));
     display: block; width: min(5.4%, 118px);
     perspective: 640px; transform: rotate(-2deg) rotateY(9deg);
     filter: drop-shadow(6px 9px 5px #180f07a6);
   }
 }
-@media (max-width: 1179px) {
+@media (min-width: 761px) and (max-width: 1179px) {
+  .campusEnvironment {
+    height: max(470px, 56.25vw); min-height: 0; max-height: none;
+    mask-image: linear-gradient(#000 0 84%, transparent 100%);
+  }
+  .roomPlate > .schoolSceneBanner { inset-inline-start: calc(92.6% - var(--campus-room-pan) - 6px); }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience]
+  [data-today-stage-deck] > section[aria-label="Today's Plan"] { width: min(535px, 75%); }
+}
+@media (max-width: 760px) {
   .campusEnvironment { display: none; }
   .campus.campus.campus.campus.campus.campus[data-campus-experience] .campusTools {
     position: relative; display: flex; justify-content: flex-start; align-items: flex-end;
-    min-height: clamp(135px, 41vw, 222px); margin-bottom: 10px; padding: 14px;
+    min-height: clamp(108px, 34vw, 185px); margin-bottom: 10px; padding: 12px 14px;
     border: 1px solid var(--campus-border);
     background: linear-gradient(90deg, #10221ef2, #10221edb 24%, transparent 70%),
       var(--campus-mobile-scene) 75% 42% / cover no-repeat, var(--campus-chrome);
@@ -462,39 +490,10 @@
     position: relative; z-index: 1; max-width: 57%; padding: 0; background: transparent;
   }
   .campusTools > .compactPennant {
-    position: absolute; top: 14px; right: 44%; z-index: 1;
-    display: block; width: 38px; transform: rotate(-2deg);
+    position: absolute; top: 10px; right: 37%; z-index: 1;
+    display: block; width: clamp(32px, 9.7vw, 38px); transform: rotate(-2deg);
     filter: drop-shadow(3px 4px 3px #180f0799);
   }
-}
-@media (min-width: 761px) and (max-width: 1179px) {
-  .campus.campus.campus.campus.campus.campus[data-campus-experience] .campusTools {
-    min-height: clamp(144px, 16vw, 198px); margin: 0; padding-inline: 24px;
-    border-width: 0 0 1px;
-    background: linear-gradient(90deg, var(--campus-chrome) 36%, transparent 72%),
-      var(--campus-mobile-scene) right 20% / auto 158% no-repeat, var(--campus-chrome);
-  }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience] .mobileCampus {
-    display: block; max-width: 49%;
-  }
-  .mobileCampusText { display: grid; gap: 5px; }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience] .mobileCampusText strong {
-    font: 900 25px/1.05 "Diana Campus Slab", Georgia, serif; color: var(--campus-ink);
-  }
-  .mobileCampusText > span { font-size: 13px; color: var(--campus-muted); }
-  .campusTools > .compactPennant { top: 13px; right: clamp(185px, 26vw, 260px); width: clamp(44px, 5.6vw, 64px); }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-today-stage-rail] { padding-top: 22px; }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-today-stage-rail] > p { display: none; }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-today-stage-deck] {
-    padding-block: 32px 45px;
-  }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-today-stage-deck] > section[aria-label="Today's Plan"] {
-    width: min(535px, 100%);
-  }
-  .campus.campus.campus.campus.campus.campus[data-campus-experience]
-  [data-today-stage-deck] > :is([data-lobby-week], [data-lobby-check-in]) { max-width: 700px; }
-}
-@media (max-width: 760px) {
   .campus.campus.campus.campus.campus.campus[data-campus-experience] .mobileCampusText strong {
     font-size: clamp(14px, 4.5vw, 20px); line-height: 1.13;
   }
@@ -502,13 +501,20 @@
     font-size: 12px; line-height: 1.3;
   }
 }
+@media (max-width: 760px) and (max-height: 760px) {
+  .campus.campus.campus.campus.campus.campus[data-campus-experience] .campusTools { min-height: clamp(88px, 25vw, 132px); }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-now-briefing] { padding-block: 16px 12px; gap: 12px; }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-campus-eyebrow] { margin-block-end: 10px; }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-now-title][data-long-title="true"] { font-size: clamp(24px, 7vw, 29px); }
+  .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-now-start] { min-height: 58px; }
+}
 :global(.dyslexia-font) .campus.campus.campus.campus.campus.campus[data-campus-experience] :is(.railIdentity, .mobileCampusText strong) {
   text-transform: none; line-height: 1.3;
 }
 @media (forced-colors: active) {
   .roomPlate, .schoolSceneBanner, .campusTools > .compactPennant { display: none; }
   .campus.campus.campus.campus.campus.campus[data-campus-experience]
-  :is(.campusTools, [data-today-stage-deck] > [data-lobby-week], [data-today-stage-deck] > [data-lobby-check-in], [data-lobby-check-in-note]) {
+  :is(.campusTools, [data-today-stage-deck] > section[aria-label="Today's Plan"], [data-today-stage-deck] > [data-lobby-week], [data-today-stage-deck] > [data-lobby-check-in], [data-lobby-check-in-note]) {
     background: Canvas; color: CanvasText; border-color: CanvasText;
   }
   .campus.campus.campus.campus.campus.campus :is(.checkInHeading h2, .checkInTitle > span, .checkInHeading > p:last-child) { color: CanvasText; }

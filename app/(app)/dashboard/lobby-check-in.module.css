@@ -17,7 +17,9 @@
   --checkin-surface: #1c2b26;
   --checkin-action: var(--campus-action, #64316f);
   --checkin-action-text: var(--school-primary-text, #fff);
-  --checkin-focus: #f1dca8;
+  --checkin-focus: var(--campus-focus, #f1dca8);
+  --checkin-corner: 0;
+  --checkin-selection-mark: inset 0 -3px currentColor;
   color: var(--checkin-text);
   color-scheme: dark;
 }
@@ -39,7 +41,7 @@
   min-height: 44px;
   padding: 8px 10px;
   border: 1px solid var(--checkin-border);
-  border-radius: 4px;
+  border-radius: var(--checkin-corner, 4px);
   background: var(--checkin-surface);
   color: var(--checkin-text);
   font: inherit;
@@ -55,6 +57,7 @@
   border-color: currentColor;
   background: var(--checkin-action);
   color: var(--checkin-action-text);
+  box-shadow: var(--checkin-selection-mark, none);
 }
 .form.form.form.form :is(.field > span, .supportOptions label > span, .sharing label > span, summary) {
   font-family: inherit;
@@ -63,28 +66,30 @@
 }
 .form.form.form.form .field :is(input, select) { display: block; width: 100%; }
 .optionalQuestions { border-block: 1px solid var(--checkin-border); }
-.form.form.form.form .optionalQuestions > summary {
+.form.form.form.form :is(.optionalQuestions, .sharing) > summary {
   display: flex;
   min-height: 44px;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding-inline-end: 6px;
+  margin: 0;
+  padding: 2px 4px 2px 0;
   color: var(--checkin-text);
-  font-size: 14px;
-  font-weight: 600;
+  font: var(--campus-control-font, 650 14px/1.4 var(--font-lexend), sans-serif);
   cursor: pointer;
+  list-style: none;
 }
-.optionalQuestions > summary::-webkit-details-marker { display: none; }
-.optionalQuestions > summary::after {
+:is(.optionalQuestions, .sharing) > summary::-webkit-details-marker { display: none; }
+:is(.optionalQuestions, .sharing) > summary::after {
   content: "";
+  flex: none;
   width: 8px;
   height: 8px;
   border-inline-end: 2px solid currentColor;
   border-block-end: 2px solid currentColor;
   transform: translateY(-2px) rotate(45deg);
 }
-.optionalQuestions[open] > summary::after { transform: translateY(2px) rotate(225deg); }
+:is(.optionalQuestions, .sharing)[open] > summary::after { transform: translateY(2px) rotate(225deg); }
 .otherQuestions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(124px, 100%), 1fr));
@@ -155,7 +160,7 @@
   min-height: 44px;
   padding: 9px 16px;
   border: 1px solid var(--checkin-border);
-  border-radius: 4px;
+  border-radius: var(--checkin-corner, 4px);
   background: var(--checkin-action);
   color: var(--checkin-action-text);
   box-shadow: none;
@@ -180,14 +185,6 @@
   color: var(--checkin-muted);
   font-size: 13px;
   line-height: 1.5;
-}
-.sharing summary {
-  display: list-item;
-  align-content: center;
-  min-height: 44px;
-  color: var(--checkin-text);
-  font-weight: 600;
-  cursor: pointer;
 }
 .sharing label { display: flex; align-items: start; gap: 8px; }
 .form.form.form.form .sharing input { margin-top: 3px; }

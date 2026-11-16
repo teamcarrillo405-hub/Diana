@@ -27,22 +27,29 @@
     padding: 8px 4px;
     border: 1px solid #ffffff35;
     border-radius: 0;
-    background: var(--school-primary, #63316f);
-    color: var(--school-primary-text, #fff);
+    background: #1a362c;
+    color: #fff8e9;
     box-shadow: none;
     font: 700 17px/1.1 var(--font-saira-condensed), sans-serif;
     text-transform: uppercase;
   }
 
-  .workspace.workspace.workspace .navigation.navigation button:hover,
-  .workspace.workspace.workspace .navigation.navigation button:active {
+  .workspace.workspace.workspace .navigation.navigation button:hover:not([aria-current]),
+  .workspace.workspace.workspace .navigation.navigation button:active:not([aria-current]) {
+    background: #244438;
+    transform: none;
+  }
+
+  .workspace.workspace.workspace .navigation.navigation button[aria-current="location"] {
     background: var(--school-primary, #63316f);
     color: var(--school-primary-text, #fff);
+    border-color: currentColor;
+    box-shadow: inset 0 -3px currentColor;
     transform: none;
   }
 
   .workspace.workspace.workspace .navigation.navigation button:focus-visible {
-    outline: 3px solid var(--school-primary-text, #fff);
+    outline: 3px solid currentColor;
     outline-offset: -4px;
   }
 
@@ -63,7 +70,8 @@
 @media (forced-colors: active) {
   .navigation.navigation { background: Canvas; border-color: CanvasText; }
   .workspace.workspace.workspace .navigation.navigation button { color: ButtonText; background: ButtonFace; border: 1px solid ButtonText; }
-  .workspace.workspace.workspace .navigation.navigation button:hover,
-  .workspace.workspace.workspace .navigation.navigation button:active { color: ButtonText; background: ButtonFace; }
+  .workspace.workspace.workspace .navigation.navigation button:hover:not([aria-current]),
+  .workspace.workspace.workspace .navigation.navigation button:active:not([aria-current]) { color: ButtonText; background: ButtonFace; }
+  .workspace.workspace.workspace .navigation.navigation button[aria-current="location"] { color: ButtonText; background: ButtonFace; border-block-end-width: 4px; border-color: ButtonText; }
   .workspace.workspace.workspace .navigation.navigation button:focus-visible { outline-color: Highlight; }
 }

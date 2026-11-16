@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TodayStageLayout } from "./today-stage-layout";
 
@@ -29,6 +29,7 @@ function mockViewport(initialWidth: number) {
 
 afterEach(() => {
   cleanup();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
@@ -46,13 +47,70 @@ describe("Lobby phone shortcuts", () => {
     const scroll = vi.fn();
     Object.defineProperty(progress, "scrollIntoView", { configurable: true, value: scroll });
 
-    fireEvent.click(screen.getByRole("button", { name: "Jump to Progress" }));
+    const shortcut = screen.getByRole("button", { name: "Jump to Progress" });
+    fireEvent.click(shortcut);
 
     expect(document.activeElement).toBe(progress);
     expect(scroll).toHaveBeenCalledOnce();
     expect(scroll).toHaveBeenCalledWith({ block: "start", behavior: "auto" });
     expect(onSelectionChange).toHaveBeenCalledWith("week");
+    expect(shortcut).toHaveAttribute("aria-current", "location");
+    expect(shortcut).toHaveAttribute("aria-controls", progress.id);
+    expect(screen.getByRole("button", { name: "Jump to Now" })).not.toHaveAttribute("aria-current");
     expect(window.location.href).toBe(originalUrl);
+  });
+
+  it("follows the sticky reading line and the last section while scrolling", async () => {
+    const resize = mockViewport(390);
+    const onSelectionChange = vi.fn();
+    vi.stubGlobal("innerHeight", 720);
+    vi.stubGlobal("scrollY", 0);
+    vi.spyOn(document.documentElement, "scrollHeight", "get").mockReturnValue(1710);
+    render(<TodayStageLayout title="Lobby" modes={["now", "check-in", "week"]} onSelectionChange={onSelectionChange}>
+      <section aria-label="Plan">Plan</section>
+      <section aria-label="Check-In">Check-in</section>
+      <section aria-label="This Week">Work</section>
+    </TodayStageLayout>);
+    const nav = screen.getByRole("navigation", { name: "Jump to Lobby section" });
+    vi.spyOn(nav, "getBoundingClientRect").mockImplementation(() => new DOMRect(0, Math.max(0, 120 - window.scrollY), 390, 58));
+    for (const [name, top, height] of [["Plan", 196, 580], ["Check-In", 800, 470], ["This Week", 1300, 410]] as const) {
+      vi.spyOn(screen.getByRole("region", { name }), "getBoundingClientRect").mockImplementation(() => new DOMRect(0, top - window.scrollY, 390, height));
+    }
+    const now = screen.getByRole("button", { name: "Jump to Now" });
+    const checkIn = screen.getByRole("button", { name: "Jump to Check-In" });
+    const week = screen.getByRole("button", { name: "Jump to This Week" });
+    expect(now).toHaveAttribute("aria-current", "location");
+
+    vi.stubGlobal("scrollY", 728);
+    fireEvent.scroll(window);
+    await waitFor(() => expect(checkIn).toHaveAttribute("aria-current", "location"));
+    expect(now).not.toHaveAttribute("aria-current");
+
+    vi.stubGlobal("scrollY", 990);
+    fireEvent.scroll(window);
+    await waitFor(() => expect(week).toHaveAttribute("aria-current", "location"));
+    expect(checkIn).not.toHaveAttribute("aria-current");
+    expect(onSelectionChange).not.toHaveBeenCalled();
+
+    resize(1024);
+    expect(week).not.toHaveAttribute("aria-current");
+    vi.stubGlobal("scrollY", 0);
+    resize(390);
+    await waitFor(() => expect(now).toHaveAttribute("aria-current", "location"));
+  });
+
+  it("marks a section when keyboard or Check-in return moves focus there", () => {
+    mockViewport(320);
+    render(<TodayStageLayout title="Lobby" modes={["now", "check-in", "week"]}>
+      <section aria-label="Plan">Plan</section>
+      <section aria-label="Check-In"><button type="button">Save</button></section>
+      <section aria-label="This Week">Work</section>
+    </TodayStageLayout>);
+
+    act(() => screen.getByRole("button", { name: "Save" }).focus());
+    expect(screen.getByRole("button", { name: "Jump to Check-In" })).toHaveAttribute("aria-current", "location");
+    act(() => screen.getByRole("region", { name: "Plan" }).focus({ preventScroll: true }));
+    expect(screen.getByRole("button", { name: "Jump to Now" })).toHaveAttribute("aria-current", "location");
   });
 
   it("does not add Lobby shortcuts to another Today layout", () => {
