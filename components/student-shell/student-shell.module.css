@@ -49,11 +49,20 @@
 .root.root[data-campus-shell] .secondary:hover { background:var(--campus-raised); }
 .root.root[data-campus-shell] .environment { background:radial-gradient(ellipse at top right,#323d2c,#131a16 55%,#111813); }
 .root.root[data-campus-scene] .environment {
-  position:absolute;
-  background:linear-gradient(90deg,#0f1914 4%,#142019e6 43%,#1420198a 74%,#12191263),linear-gradient(0deg,#111813 1%,transparent 67%),url('/assets/today-now/diana-campus-study-v1.webp') right top/cover no-repeat;
+  --classroom-image:url('/assets/work/college-classroom-1920.webp');
+  background:
+    linear-gradient(90deg,#0c1710e8 0%,#0f1a13ba 40%,#111a1573 73%,#161d1766 100%),
+    linear-gradient(0deg,#101711ee 0%,#111a1440 50%,#111a1410 100%),
+    var(--classroom-image) right 42% / cover no-repeat;
+}
+@media(min-width:1921px), (min-width:1200px) and (min-resolution:1.5dppx) {
+  .root.root[data-campus-scene] .environment { --classroom-image:url('/assets/work/college-classroom-4k.webp'); }
 }
 @media(max-width:760px) {
-  .root.root[data-campus-scene] .environment { background-position:center,center,60% top; }
+  .root.root[data-campus-scene] .environment {
+    --classroom-image:url('/assets/work/college-classroom-mobile.webp');
+    background-position:center,center,center 46%;
+  }
 }
 @media(forced-colors:active) {
   .root.root[data-campus-shell] :is(button,a,input,select,textarea,summary):focus-visible { outline-color:Highlight; }
