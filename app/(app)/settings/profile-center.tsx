@@ -195,6 +195,7 @@ function SettingsShell({
             <AccentPicker />
             <LobbyBackgroundPicker />
             {editable ? <SchoolBrandingForm initialSchoolBranding={{
+              schoolName: profile.school_name ?? null,
               primaryColor: profile.school_primary_color ?? null,
               secondaryColor: profile.school_secondary_color ?? null,
               logoDataUrl: profile.school_logo_url ?? null,

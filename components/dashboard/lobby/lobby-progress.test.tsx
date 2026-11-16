@@ -27,18 +27,10 @@ describe("Lobby progress", () => {
     expect(screen.queryByRole("link", { name: "View completed work" })).toBeNull();
   });
 
-  it("keeps the mobile Diana portrait decorative", () => {
-    const { container } = render(<LobbyProgress data={fixture()} />);
-    const portrait = container.querySelector('img[src="/assets/today-now/diana-relit-poster-v1.webp"]');
-    expect(portrait).toHaveAttribute("alt", "");
-    expect(portrait?.parentElement).toHaveAttribute("aria-hidden", "true");
-  });
-
-  it("shows a provided school mark as decoration without adding navigation", () => {
-    const logoUrl = "data:image/webp;base64,YWJj";
-    const { container } = render(<LobbyProgress data={fixture()} logoUrl={logoUrl} />);
-    const mark = container.querySelector(`img[src="${logoUrl}"]`);
-    expect(mark).toHaveAttribute("alt", "");
-    expect(mark).toHaveAttribute("aria-hidden", "true");
+  it("reports unavailable information without showing an empty goal", () => {
+    render(<LobbyProgress data={{ ...fixture(), weeklyUnavailable: true, studyUnavailable: true }} />);
+    expect(screen.getByText("Completion unavailable")).toBeVisible();
+    expect(screen.getByText("Focus history unavailable")).toBeVisible();
+    expect(screen.queryByRole("progressbar")).toBeNull();
   });
 });

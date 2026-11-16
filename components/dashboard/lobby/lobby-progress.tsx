@@ -7,7 +7,7 @@ import { WeeklyRunway } from "./weekly-runway";
 import activity from "./today-progress-review.module.css";
 import styles from "./lobby-progress-review.module.css";
 
-export function LobbyProgress({ data, sample = false, logoUrl }: { data: TodayData; sample?: boolean; logoUrl?: string | null }) {
+export function LobbyProgress({ data, sample = false }: { data: TodayData; sample?: boolean }) {
   const studied = data.studied.reduce((sum, minutes) => sum + minutes, 0);
   const planned = data.planned.reduce((sum, minutes) => sum + minutes, 0);
   const estimated = data.subjects.reduce((sum, subject) => sum + subject.minutes, 0);
@@ -15,10 +15,9 @@ export function LobbyProgress({ data, sample = false, logoUrl }: { data: TodayDa
     <header className={styles.heading}>
       <div className={styles.headingContent}>
         <p className={styles.eyebrow}>Your week</p>
-        <div className={styles.titleLine}><h2>Progress</h2><span className={styles.titleMeta}>{logoUrl && <img className={styles.schoolMark} src={logoUrl} alt="" aria-hidden="true" width={32} height={32} />}{data.weekLabel}</span></div>
+        <div className={styles.titleLine}><h2>Progress</h2><span className={styles.titleMeta}>{data.weekLabel}</span></div>
         <p className={styles.intro}>Focus time and work due this week</p>
       </div>
-      <div className={styles.mobileDiana} aria-hidden="true"><img src="/assets/today-now/diana-relit-poster-v1.webp" alt="" width={752} height={1920} /></div>
     </header>
     <dl className={styles.results} aria-label="Weekly results">
       <div className={styles.assignmentResult}>

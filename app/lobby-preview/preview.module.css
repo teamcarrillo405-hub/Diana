@@ -1,22 +1,14 @@
-.notice {
-  position: fixed;
-  z-index: 20;
-  left: 12px;
-  bottom: 12px;
-  max-width: calc(100% - 24px);
-  padding: 8px 12px;
-  border: 1px solid #f1dbad;
-  border-radius: 3px;
-  background: #132720;
-  color: #fff;
+.notice[role="note"] {
+  display: block;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  margin: 0;
+  padding: 7px 14px;
+  border: 0;
+  border-bottom: 1px solid #c8d1c16e;
+  border-radius: 0;
+  background: #10231c;
+  color: #f6f4ef;
   font: 600 12px/1.3 var(--font-lexend), sans-serif;
-}
-
-/* The supplied wordmark has white space around it; the image itself is
-   unchanged, and the frame reveals the mark at a readable scale. */
-.tigardSceneBanner.tigardSceneBanner.tigardSceneBanner.tigardSceneBanner.tigardSceneBanner.tigardSceneBanner.tigardSceneBanner img { width: 100%; height: auto; max-width: none; }
-.mobileTigardWordmark { display: none; }
-@media (max-width: 760px) {
-  .mobileTigardWordmark { display: block; width: 150px; height: 54px; overflow: hidden; margin: 0 0 12px; background: white; }
-  .mobileTigardWordmark img { display: block; width: 150px; height: 150px; max-width: none; margin-top: -46px; object-fit: contain; }
 }
