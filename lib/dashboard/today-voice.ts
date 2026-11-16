@@ -78,6 +78,7 @@ export type TodayDashboardVisualModel = Readonly<{
 }>;
 
 const ENERGY_LEVEL = { low: 0.32, okay: 0.62, good: 0.9 } as const;
+const NEUTRAL_VISUAL_LEVEL = 0.46;
 const MOVEMENT_TYPE_LEVEL = {
   walk: 0.5,
   run: 0.75,
@@ -100,11 +101,13 @@ export function buildTodayDashboardVisualModel(
     readiness: checkIn
       ? {
           energy: ENERGY_LEVEL[checkIn.energy],
-          sleep: checkIn.sleepHours / 12,
-          movement: Math.min(1, checkIn.movementMinutes / 60) * MOVEMENT_TYPE_LEVEL[checkIn.movementType],
+          sleep: checkIn.sleepHours === null ? NEUTRAL_VISUAL_LEVEL : checkIn.sleepHours / 12,
+          movement: checkIn.movementMinutes === null || checkIn.movementType === null
+            ? NEUTRAL_VISUAL_LEVEL
+            : Math.min(1, checkIn.movementMinutes / 60) * MOVEMENT_TYPE_LEVEL[checkIn.movementType],
           checkedIn: true,
         }
-      : { energy: 0.46, sleep: 0.46, movement: 0.46, checkedIn: false },
+      : { energy: NEUTRAL_VISUAL_LEVEL, sleep: NEUTRAL_VISUAL_LEVEL, movement: NEUTRAL_VISUAL_LEVEL, checkedIn: false },
   };
 }
 

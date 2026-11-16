@@ -42,6 +42,13 @@ describe("Today dashboard visual model", () => {
     expect(model.readiness.movement).toBeGreaterThan(0.7);
   });
 
+  it("keeps sleep and movement visuals neutral after an energy-only check-in", () => {
+    const model = buildTodayDashboardVisualModel({ attention: [] as never }, {
+      energy: "low", sleepHours: null, movementType: null, movementMinutes: null,
+    });
+    expect(model.readiness).toEqual({ energy: 0.32, sleep: 0.46, movement: 0.46, checkedIn: true });
+  });
+
   it("uses short voice status labels", () => {
     expect(todayVoicePhaseLabel("idle")).toBe("Ready");
     expect(todayVoicePhaseLabel("speaking")).toBe("Speaking");

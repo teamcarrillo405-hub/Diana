@@ -73,6 +73,9 @@ describe("connected Lobby", () => {
     // The same energy and task from a different save must not receive credit.
     rerender(<TodayDashboard data={{ ...empty(), plan: [shortened] }} profile={{}} checkIn={checkIn} recommendation={{ ...after, signalId: "28" }} />);
     expect(screen.getByRole("status")).toHaveTextContent("Check-in saved.");
+    // A separately reprioritized assignment would win even at the old energy.
+    rerender(<TodayDashboard data={{ ...empty(), plan: [shortened] }} profile={{}} checkIn={checkIn} recommendation={{ ...after, topByEnergy: { ...after.topByEnergy, medium: "b" } }} />);
+    expect(screen.getByRole("status")).toHaveTextContent("Check-in saved.");
   });
   it("applies the student's school colors and logo to the Lobby", () => {
     const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} schoolBranding={{ name: "Tigard High School", primaryColor: "#8c1d40", secondaryColor: "#ffc627", logoUrl: "data:image/webp;base64,YWJj" }} />);

@@ -76,11 +76,12 @@ export default async function DashboardPage({
       .order("occurred_at", { ascending: false }),
     supabase
       .from("task_signals")
-      .select("id, value, occurred_at")
+      .select("signal_id:id::text, value, occurred_at")
       .eq("owner_id", user.id)
       .eq("kind", "mood_checkin")
       .gte("occurred_at", new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString())
       .order("occurred_at", { ascending: false })
+      .order("id", { ascending: false })
       .limit(16),
     supabase
       .from("sleep_logs")
@@ -168,7 +169,7 @@ export default async function DashboardPage({
     (level === energy ? ranked : rankAtEnergy(level)).find(isTodayPlanCandidate)?.id ?? null;
   const recommendation = assignmentsError ? undefined : {
     energy,
-    signalId: initialCheckIn && latestReadinessSignal ? String(latestReadinessSignal.id) : null,
+    signalId: initialCheckIn && latestReadinessSignal ? latestReadinessSignal.signal_id : null,
     topByEnergy: {
       low: bestAtEnergy("low"),
       medium: bestAtEnergy("medium"),

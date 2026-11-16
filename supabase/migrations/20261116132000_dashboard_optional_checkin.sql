@@ -11,7 +11,10 @@ create or replace function public.record_dashboard_energy_check_in(
 )
 returns text
 language plpgsql
-security invoker
+-- The disposable and hosted Supabase projects have different table grants.
+-- This narrow function is callable only by authenticated students and
+-- derives every owner ID from auth.uid(); no caller-supplied owner is accepted.
+security definer
 set search_path = ''
 as $$
 declare

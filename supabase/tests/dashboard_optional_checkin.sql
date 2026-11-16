@@ -12,6 +12,28 @@ values
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000801', true);
 
+-- Exercise the RPC before adding any test-only table privileges. This must
+-- work even on a fresh replay where authenticated cannot select profiles.
+do $default_acl$
+declare v_signal_id text;
+begin
+  v_signal_id := public.record_dashboard_energy_check_in('low', '2030-01-15', null, null, null);
+  if v_signal_id is null or v_signal_id !~ '^[0-9]+$' then
+    raise exception 'energy-only check-in did not return a text signal ID';
+  end if;
+  perform set_config('test.dashboard_energy_signal_id', v_signal_id, true);
+end;
+$default_acl$;
+reset role;
+
+-- Temporary grants let this regression inspect owner RLS in fresh local
+-- projects without relying on hosted default grants. They roll back below.
+grant select on public.profiles, public.task_signals, public.sleep_logs, public.wellness_activity_logs to authenticated;
+grant update (focus_note) on public.sleep_logs to authenticated;
+grant insert on public.task_signals to authenticated;
+grant usage, select on sequence public.task_signals_id_seq to authenticated;
+set local role authenticated;
+
 do $contract$
 declare
   v_owner uuid := '00000000-0000-4000-8000-000000000801';
@@ -19,7 +41,7 @@ declare
   v_signal_count bigint;
   v_rejected boolean := false;
 begin
-  v_signal_id := public.record_dashboard_energy_check_in('low', '2030-01-15', null, null, null);
+  v_signal_id := current_setting('test.dashboard_energy_signal_id');
   if v_signal_id !~ '^[0-9]+$' or not exists (
     select 1 from public.task_signals where id::text = v_signal_id and owner_id = v_owner
       and kind = 'mood_checkin' and value ->> 'energy' = 'low'
@@ -62,12 +84,29 @@ $contract$;
 
 select set_config('request.jwt.claim.sub', '00000000-0000-4000-8000-000000000802', true);
 do $isolation$
+declare
+  v_foreign_write_denied boolean := false;
+  v_signal_id text;
 begin
   if exists (select 1 from public.task_signals where owner_id = '00000000-0000-4000-8000-000000000801')
      or exists (select 1 from public.sleep_logs where owner_id = '00000000-0000-4000-8000-000000000801')
   then raise exception 'another student can read check-in data'; end if;
   if has_function_privilege('anon', 'public.record_dashboard_energy_check_in(text,date,numeric,text,integer)', 'execute') then
     raise exception 'anonymous check-in execution is allowed';
+  end if;
+  if has_function_privilege('service_role', 'public.record_dashboard_energy_check_in(text,date,numeric,text,integer)', 'execute')
+     or not has_function_privilege('authenticated', 'public.record_dashboard_energy_check_in(text,date,numeric,text,integer)', 'execute') then
+    raise exception 'dashboard check-in execution ACL is incorrect';
+  end if;
+  begin
+    insert into public.task_signals (owner_id, kind, value)
+      values ('00000000-0000-4000-8000-000000000801', 'mood_checkin', '{"energy":"low"}'::jsonb);
+  exception when insufficient_privilege then v_foreign_write_denied := true;
+  end;
+  if not v_foreign_write_denied then raise exception 'foreign-owner signal insert was accepted'; end if;
+  v_signal_id := public.record_dashboard_energy_check_in('good', '2030-01-15', null, null, null);
+  if not exists (select 1 from public.task_signals where id::text = v_signal_id and owner_id = '00000000-0000-4000-8000-000000000802') then
+    raise exception 'second student check-in was not attributed to the caller';
   end if;
 end;
 $isolation$;
