@@ -35,9 +35,9 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding }: { dat
   const secondary = schoolColor(schoolBranding?.secondaryColor);
   const logo = schoolLogo(schoolBranding?.logoUrl);
   const sceneStyle = {
-    "--today-scene-image": "url('/assets/today-now/diana-campus-study-v1.webp')",
+    "--today-scene-image": "url('/assets/today-now/diana-campus-southwest-4k-v1.webp')",
     ...(primary ? { "--school-primary": primary, "--school-primary-text": schoolColorText(primary) } : {}),
-    ...(secondary ? { "--school-secondary": secondary } : {}),
+    ...(secondary ? { "--school-secondary": secondary, "--school-secondary-text": schoolColorText(secondary) } : {}),
   } as CSSProperties;
   const isPaused = paused || mode !== "now" || dialog;
   useEffect(() => {
@@ -46,7 +46,7 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding }: { dat
   }, [dialog]);
   function closeDialog() { setDialog(false); origin.current?.focus(); }
   return <div className={`${styles.preview} ${proof.proof} ${menu.lobby} ${composition.composition} ${hub.lobby} ${live.root} ${campus.campus}`} data-student-shell data-today-dashboard data-lobby-mode={mode} data-now-composition data-now-studio data-school-primary={primary ? "true" : undefined} data-school-secondary={secondary ? "true" : undefined} style={sceneStyle}>
-    <div className={composition.environment} aria-hidden="true"><Image src="/assets/today-now/diana-campus-study-v1.webp" alt="" fill priority unoptimized sizes="100vw" /></div>
+    <div className={composition.environment} aria-hidden="true"><Image src="/assets/today-now/diana-campus-southwest-4k-v1.webp" alt="" fill priority unoptimized sizes="100vw" /></div>
     <StudentDesktopNav active="Lobby" {...profile} />
     <div className={`${styles.frame} ${proof.proofFrame}`}>
       <div className={live.sceneTools}>

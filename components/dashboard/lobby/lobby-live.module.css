@@ -28,7 +28,7 @@
 }
 @media(max-width:760px) {
   .root.root.root.root.root .sceneTools { position:relative; right:auto; bottom:auto; justify-content:space-between; align-items:center; gap:12px; margin:0 0 16px; }
-  .root.root.root.root.root .mobileDate { display:block; color:#e0e8e3; font-size:13px; line-height:1.5; }
+  .root.root.root.root.root .mobileDate { display:block; padding:6px 10px; border-radius:3px; background:#101b20ed; color:#f6f8f5; font-size:13px; line-height:1.5; }
   .root.root.root.root.root .motionToggle { gap:8px; padding-inline:10px; font-size:12px; }
 }
 @media(prefers-reduced-motion:reduce) { .root.root.root.root.root .motionToggle { display:none; } }

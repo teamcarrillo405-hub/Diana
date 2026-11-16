@@ -60,6 +60,20 @@ describe("connected Lobby", () => {
     expect(lobby?.style.getPropertyValue("--school-primary")).toBe("#8C1D40");
     expect(lobby?.style.getPropertyValue("--school-primary-text")).toBe("#FFFFFF");
     expect(lobby?.style.getPropertyValue("--school-secondary")).toBe("#FFC627");
+    expect(lobby?.style.getPropertyValue("--school-secondary-text")).toBe("#000000");
     expect(screen.getAllByAltText("School logo")).toHaveLength(2);
+  });
+  it("chooses readable identity text for dark secondary and light primary colors", () => {
+    const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} schoolBranding={{ primaryColor: "#ffffff", secondaryColor: "#000000" }} />);
+    const lobby = container.querySelector<HTMLElement>("[data-today-dashboard]");
+    expect(lobby?.style.getPropertyValue("--school-primary-text")).toBe("#000000");
+    expect(lobby?.style.getPropertyValue("--school-secondary-text")).toBe("#FFFFFF");
+  });
+  it("ignores invalid colors while allowing an optional secondary color", () => {
+    const { container } = render(<TodayDashboard data={empty()} profile={{}} checkIn={null} schoolBranding={{ primaryColor: "red", secondaryColor: "#121212" }} />);
+    const lobby = container.querySelector<HTMLElement>("[data-today-dashboard]");
+    expect(lobby).not.toHaveAttribute("data-school-primary");
+    expect(lobby?.style.getPropertyValue("--school-primary")).toBe("");
+    expect(lobby?.style.getPropertyValue("--school-secondary-text")).toBe("#FFFFFF");
   });
 });
