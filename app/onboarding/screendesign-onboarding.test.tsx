@@ -104,8 +104,12 @@ describe("ScreenDesignOnboarding", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     expect(await screen.findByText(/Choose a PNG, JPG, or WebP image/)).toBeInTheDocument();
     expect(completeScreenDesignOnboarding).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Clear logo selection" }));
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    const clearLogoSelection = await screen.findByRole("button", { name: "Clear logo selection" });
+    await waitFor(() => expect(clearLogoSelection).toBeEnabled());
+    fireEvent.click(clearLogoSelection);
+    const continueButton = await screen.findByRole("button", { name: "Continue" });
+    await waitFor(() => expect(continueButton).toBeEnabled());
+    fireEvent.click(continueButton);
     expect(await screen.findByRole("heading", { name: "Connect your school" })).toBeInTheDocument();
     expect(saveSchoolBranding).not.toHaveBeenCalled();
   });

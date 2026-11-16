@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { CalendarDays, Clock3, Heart, Pause, Play, Plus } from "lucide-react";
+import { CalendarDays, ChartNoAxesColumnIncreasing, ClipboardList, Clock3, Heart, House, Pause, Play, Plus } from "lucide-react";
 import { DianaIdleCharacter } from "@/components/dashboard/lobby/diana-idle-character";
 import layout from "@/components/dashboard/today-dashboard.module.css";
 import proof from "@/components/dashboard/lobby/today-now-proof.module.css";
@@ -26,6 +26,11 @@ const characterAssets = {
   pixelWidth: 752,
   pixelHeight: 1920,
 };
+const previewTabs = [
+  { label: "Now", Icon: House },
+  { label: "Progress", Icon: ChartNoAxesColumnIncreasing },
+  { label: "My Work", Icon: ClipboardList },
+];
 
 /** A static design specimen. It has no student session, links or live actions. */
 export default function LobbyPreviewPage() {
@@ -34,7 +39,7 @@ export default function LobbyPreviewPage() {
     <div className={`${layout.preview} ${proof.proof} ${menu.lobby} ${composition.composition} ${hub.lobby} ${live.root} ${campus.campus}`} data-student-shell data-today-dashboard data-lobby-mode="now" data-now-composition data-now-studio>
       <div className={composition.environment} aria-hidden="true"><Image src="/assets/today-now/diana-campus-southwest-4k-v1.webp" alt="" fill priority unoptimized sizes="100vw" /></div>
       <header className={navigation.navigation} data-student-navigation>
-        <a className={navigation.brand} aria-label="Diana Lobby"><img src="/screendesign/brand/diana-logo-tight-no-shadow.png" alt="Diana" width="140" height="46" /></a>
+        <a className={navigation.brand} aria-label="Diana Lobby"><img src="/screendesign/brand/diana-logo-tight-no-shadow.png" alt="Diana" width="140" height="46" /><span className={navigation.campusWordmark} aria-hidden="true">Diana</span></a>
         <nav aria-label="Sample navigation">{["Lobby", "Work", "Classes", "Calendar", "More"].map(label => <a key={label} aria-current={label === "Lobby" ? "page" : undefined}>{label}</a>)}</nav>
         <div className={navigation.actions}><a className={navigation.add}><Plus size={18} aria-hidden="true" /><span>Add</span></a><a className={navigation.account} aria-label="Sample student"><span aria-hidden="true">S</span></a></div>
       </header>
@@ -45,7 +50,7 @@ export default function LobbyPreviewPage() {
           <div className={layout.stageWorkspace} data-today-stage-workspace>
             <nav className={layout.stageRail} data-today-stage-rail aria-label="Sample Lobby categories" role="tablist" aria-orientation="vertical">
               <p className={layout.railKicker}><span className={campus.railIdentity}>DIANA <b>CAMPUS</b></span><span className={campus.railDate}>Your campus</span></p>
-              {["Now", "Progress", "My Work"].map((label, index) => <button type="button" role="tab" key={label} disabled aria-selected={index === 0}><span>{label}</span></button>)}
+              {previewTabs.map(({ label, Icon }, index) => <button type="button" role="tab" key={label} disabled aria-selected={index === 0}><Icon size={21} strokeWidth={2.2} aria-hidden="true" focusable="false" /><span>{label}</span></button>)}
             </nav>
             <div className={layout.stage} data-today-stage>
               <div className={layout.stageImage} data-today-stage-image aria-hidden="true"><DianaIdleCharacter assets={characterAssets} displayGrade="none" floorMaterial="satin" paused /></div>

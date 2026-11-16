@@ -29,6 +29,7 @@ export function StudentDesktopNav({ active, displayName, photoUrl, photoOffsetX,
   return <header className={styles.navigation} data-student-navigation>
     <Link className={styles.brand} href="/dashboard" aria-label="Diana Lobby">
       <img src="/screendesign/brand/diana-logo-tight-no-shadow.png" alt="Diana" width="140" height="46" />
+      <span className={styles.campusWordmark} aria-hidden="true">Diana</span>
     </Link>
     <nav aria-label="Primary">
       {STUDENT_NAV_DESTINATIONS.map(({ label, href }) => <Link key={href} href={href} aria-current={active === label ? "page" : undefined}>{labelOverrides?.[label] ?? label}</Link>)}
