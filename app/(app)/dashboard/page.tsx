@@ -16,7 +16,6 @@ import { sleepRecoveryAdjustment, type SleepQuality } from "@/lib/wellness/healt
 import { energyFromBody, readinessFromSignalValue } from "@/lib/support/policy";
 import { LastShownClassCookie } from "./last-shown-class-cookie";
 import { LobbyCheckIn } from "./lobby-check-in";
-import { loadLobbyAchievements } from "@/lib/dashboard/lobby-achievements-server";
 
 export default async function DashboardPage({
   searchParams,
@@ -162,14 +161,12 @@ export default async function DashboardPage({
   const initialCheckIn = lobbyCheckInFromSignalValue(
     latestReadinessSignal?.value,
   );
-  const achievementLedger = await loadLobbyAchievements(supabase, user.id, timeZone);
 
   return (
     <>
       <LastShownClassCookie classId={ranked[0]?.class_id ?? null} />
       <TodayDashboard
         data={data}
-        achievementLedger={achievementLedger}
         profile={{
           displayName: profile?.display_name,
           photoUrl: profile?.photo_url,
