@@ -26,7 +26,7 @@ export function LobbyThisWeek({ data, sample = false }: { data: TodayData; sampl
       <div><dt>Submitted this week</dt><dd>{data.submissionsUnavailable ? "Unavailable" : <strong>{data.submitted}</strong>}</dd></div>
       <div><dt>Completed focus time</dt><dd>{data.studyUnavailable ? "Unavailable" : <strong>{formatMinutes(studied)}</strong>}</dd></div>
     </dl>
-    <p className={styles.summaryNote}>Done includes submitted and graded work due this week. Submissions count the date submitted; marking done and submitting are separate steps.</p>
+    <p className={styles.summaryNote}>Done includes submitted and graded work due this week. Submissions count by the date you turned them in. Marking done and submitting are separate steps.</p>
 
     <section className={styles.workList} aria-labelledby="lobby-weekly-work-title">
       <div className={styles.sectionHeader}><h3 id="lobby-weekly-work-title">This week’s assignments</h3><span>Due or submitted this week</span></div>
