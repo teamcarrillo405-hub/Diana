@@ -1,0 +1,4 @@
+Roboto Slab, designed by Christian Robertson.
+Copyright 2018 The Roboto Slab Project Authors (https://github.com/googlefonts/robotoslab).
+Licensed under the Apache License, Version 2.0; see roboto-slab-LICENSE.txt.
+Latin WOFF2 subset served by Google Fonts, version 36.

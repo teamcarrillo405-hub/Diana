@@ -40,16 +40,17 @@ export default function LobbyPreviewPage() {
       <div className={composition.environment} aria-hidden="true"><Image src="/assets/today-now/diana-campus-southwest-4k-v1.webp" alt="" fill priority unoptimized sizes="100vw" /></div>
       <header className={navigation.navigation} data-student-navigation>
         <a className={navigation.brand} aria-label="Diana Lobby"><img src="/screendesign/brand/diana-logo-tight-no-shadow.png" alt="Diana" width="140" height="46" /><span className={navigation.campusWordmark} aria-hidden="true">Diana</span></a>
+        <span className={navigation.campusTagline}>Your personalized<br />learning assistant</span>
         <nav aria-label="Sample navigation">{["Lobby", "Work", "Classes", "Calendar", "More"].map(label => <a key={label} aria-current={label === "Lobby" ? "page" : undefined}>{label}</a>)}</nav>
         <div className={navigation.actions}><a className={navigation.add}><Plus size={18} aria-hidden="true" /><span>Add</span></a><a className={navigation.account} aria-label="Sample student"><span aria-hidden="true">S</span></a></div>
       </header>
       <div className={`${layout.frame} ${proof.proofFrame}`}>
-        <div className={live.sceneTools}><span className={live.mobileDate}>Your campus</span><button className={live.motionToggle} disabled><Pause size={18} aria-hidden="true" /><span>Pause motion</span></button></div>
+        <div className={live.sceneTools}><span className={`${live.mobileDate} ${campus.mobileCampus}`}><img className={campus.mobileSchoolLogo} src="/assets/today-now/campus-building-mark.svg" alt="" width={38} height={34} /><span className={campus.mobileCampusText}><strong>DIANA CAMPUS</strong><span>Wednesday, Nov 18</span></span></span><button className={live.motionToggle} disabled><Pause size={18} aria-hidden="true" /><span>Pause motion</span></button></div>
         <main id="main-content" className={layout.grid} aria-label="Lobby preview">
           <h1 className={layout.srOnly}>Lobby design preview</h1>
           <div className={layout.stageWorkspace} data-today-stage-workspace>
             <nav className={layout.stageRail} data-today-stage-rail aria-label="Sample Lobby categories" role="tablist" aria-orientation="vertical">
-              <p className={layout.railKicker}><span className={campus.railIdentity}>DIANA <b>CAMPUS</b></span><span className={campus.railDate}>Your campus</span></p>
+              <p className={layout.railKicker}><img className={campus.schoolLogo} src="/assets/today-now/campus-building-mark.svg" alt="" width={82} height={62} /><span className={campus.railIdentity}>DIANA <b>CAMPUS</b></span><span className={campus.railDate}>Wednesday, Nov 18</span></p>
               {previewTabs.map(({ label, Icon }, index) => <button type="button" role="tab" key={label} disabled aria-selected={index === 0}><Icon size={21} strokeWidth={2.2} aria-hidden="true" focusable="false" /><span>{label}</span></button>)}
             </nav>
             <div className={layout.stage} data-today-stage>

@@ -50,12 +50,15 @@ export function TodayDashboard({ data, profile, checkIn, schoolBranding }: { dat
     <StudentDesktopNav active="Lobby" {...profile} />
     <div className={`${styles.frame} ${proof.proofFrame}`}>
       <div className={live.sceneTools}>
-        <span className={live.mobileDate}>{logo && <img className={campus.mobileSchoolLogo} src={logo} alt="School logo" width={44} height={44} />}{data.dateLabel}</span>
+        <span className={`${live.mobileDate} ${campus.mobileCampus}`}>
+          <img className={`${campus.mobileSchoolLogo}${logo ? ` ${campus.customSchoolLogo}` : ""}`} src={logo ?? "/assets/today-now/campus-building-mark.svg"} alt={logo ? "School logo" : ""} width={38} height={34} />
+          <span className={campus.mobileCampusText}><strong>DIANA CAMPUS</strong><span>{data.dateLabel}</span></span>
+        </span>
         <button className={live.motionToggle} aria-label={paused ? "Resume Diana motion" : "Pause Diana motion"} aria-pressed={paused} onClick={() => setPaused(!paused)}>{paused ? <Play size={18} aria-hidden="true" /> : <Pause size={18} aria-hidden="true" />}<span>{paused ? "Resume motion" : "Pause motion"}</span></button>
       </div>
       <main id="main-content" className={styles.grid} aria-label="Lobby" tabIndex={-1}>
       <h1 className={styles.srOnly}>Lobby</h1>
-      <TodayStageLayout title="Lobby" railHeading={<>{logo && <img className={campus.schoolLogo} src={logo} alt="School logo" width={56} height={56} />}<span className={campus.railIdentity}>DIANA <b>CAMPUS</b></span><span className={campus.railDate}>{data.dateLabel}</span></>} modes={MODES} labels={{ week: "Progress", milestones: "My Work" }} onSelectionChange={setMode} railIndicator artwork={<DianaIdleCharacter assets={characterAssets} displayGrade="none" floorMaterial="satin" paused={isPaused} />}>
+      <TodayStageLayout title="Lobby" railHeading={<><img className={`${campus.schoolLogo}${logo ? ` ${campus.customSchoolLogo}` : ""}`} src={logo ?? "/assets/today-now/campus-building-mark.svg"} alt={logo ? "School logo" : ""} width={82} height={62} /><span className={campus.railIdentity}>DIANA <b>CAMPUS</b></span><span className={campus.railDate}>{data.dateLabel}</span></>} modes={MODES} labels={{ week: "Progress", milestones: "My Work" }} onSelectionChange={setMode} railIndicator artwork={<DianaIdleCharacter assets={characterAssets} displayGrade="none" floorMaterial="satin" paused={isPaused} />}>
         <section className={`${styles.panel} ${proof.nowPanel}`} aria-label="Today's Plan">
           <LobbyNow task={data.plan[0]} unavailable={data.assignmentsUnavailable} onRetry={() => router.refresh()} />
           <div className={hub.checkInAccess}><button className={hub.checkInTrigger} onClick={event => { origin.current = event.currentTarget; setDialog(true); }}><Heart size={18} aria-hidden="true" />Check-in</button><span className={hub.optional}>Optional</span></div>
