@@ -251,7 +251,7 @@ export function AssessmentSession({
         <div className="text-right">
           <p className="m-0 text-sm font-bold text-slate-200">{answeredCount} of {items.length} answered</p>
           {remainingSeconds !== null ? (
-            <p className="mb-0 mt-1 text-sm font-black text-[#ff79da]" role="timer">
+            <p className="mb-0 mt-1 text-sm font-black text-[var(--campus-focus,#ff79da)]" role="timer">
               {formatAssessmentTime(remainingSeconds)}
             </p>
           ) : null}
@@ -301,8 +301,8 @@ export function AssessmentSession({
         </p>
       ) : null}
 
-      <fieldset className="course-mode-light mt-5 rounded-md border border-dashed border-white/30 bg-[#f4efe6] p-5 text-slate-950 sm:p-7">
-        <legend className="px-2 text-sm font-black">
+      <fieldset className="course-mode-light mt-5 min-w-0 rounded-md border border-dashed border-white/30 bg-[#f4efe6] p-5 text-slate-950 sm:p-7" aria-describedby={`prompt-${currentItem.id}`}>
+        <legend className="rounded-sm bg-[#f4efe6] px-2 py-1 text-sm font-black text-slate-950">
           {currentItem.pointsPossible} {currentItem.pointsPossible === 1 ? "point" : "points"}
         </legend>
         <h3 className="m-0 text-xl font-black">{currentItem.title}</h3>
@@ -399,7 +399,7 @@ export function AssessmentSession({
           <button
             type="button"
             onClick={() => void reviewSubmission()}
-            className="min-h-11 bg-[#db2777] px-5 font-black text-white"
+            className="min-h-11 bg-[var(--campus-action,#db2777)] px-5 font-black text-[var(--campus-action-text,white)]"
           >
             Review and submit
           </button>
@@ -431,7 +431,7 @@ export function AssessmentSession({
                 type="button"
                 disabled={submitting}
                 onClick={() => void confirmSubmission()}
-                className="inline-flex min-h-11 items-center gap-2 bg-[#db2777] px-5 font-black text-white disabled:opacity-60"
+                className="inline-flex min-h-11 items-center gap-2 bg-[var(--campus-action,#db2777)] px-5 font-black text-[var(--campus-action-text,white)] disabled:opacity-60"
               >
                 {submitting ? <Loader2 size={17} className="animate-spin" /> : null}
                 Submit assessment
@@ -503,7 +503,7 @@ export function AssessmentResponseReview({
                 </p>
               ) : null}
               {response?.teacherFeedback ? (
-                <div className="mt-3 border-l-4 border-[#db2777] bg-white p-4">
+                <div className="mt-3 border-l-4 border-[var(--campus-action,#db2777)] bg-white p-4">
                   <p className="m-0 text-xs font-black uppercase text-slate-600">Teacher feedback</p>
                   <p className="mb-0 mt-2 whitespace-pre-wrap text-slate-950">{response.teacherFeedback}</p>
                 </div>

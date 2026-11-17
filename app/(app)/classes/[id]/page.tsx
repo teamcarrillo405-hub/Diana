@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { z } from "zod";
 
 import { CourseInsight, type CourseInsightAssignment, type CourseInsightNote } from "@/components/course-insight";
 import type { AssignmentStatus } from "@/lib/supabase/types";
@@ -7,6 +8,8 @@ import { RubricForm } from "./rubric-form";
 import { SyllabusForm } from "./syllabus-form";
 import {materialDestination} from "@/lib/learning-engine/material-navigation";
 import {learningAccess} from "@/lib/learning-engine/server";
+import { loadStudentClassAssessments } from "@/lib/course-mode/student-class-assessments";
+import { formatCampusName } from "@/lib/school-branding";
 
 type ClassRow = {
   id: string;
@@ -40,7 +43,9 @@ type AssignmentRow = {
 };
 
 type NoteRow = { id: string; title: string | null; updated_at: string };
-type GradeRow = { final_percent: number; letter_grade: string | null };
+type GradeRow = { final_percent: number; letter_grade: string | null; confirmed_at: string };
+
+const Section = z.enum(["overview", "assignments", "materials", "notes", "quiz", "grades"]);
 
 async function materialDocument(
   supabase: Awaited<ReturnType<typeof createClient>>,
@@ -56,9 +61,10 @@ export default async function ClassDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ materials?: string; rubric?: string; work?: string }>;
+  searchParams: Promise<{ materials?: string; rubric?: string; work?: string; section?: string }>;
 }) {
   const { id } = await params;
+  if (!z.string().uuid().safeParse(id).success) notFound();
   const supabase = await createClient();
   const {
     data: { user },
@@ -74,7 +80,17 @@ export default async function ClassDetailPage({
   if (!classData) notFound();
 
   const cls = classData as ClassRow;
-  const [{ data: rubrics }, { data: syllabi }, { data: assignments, error: workError }, { data: notes, error: notesError }, { data: gradeRows }, { data: profile }] = await Promise.all([
+  const [
+    { data: rubrics },
+    { data: syllabi },
+    { data: assignments, error: workError },
+    { data: notes, error: notesError },
+    { data: gradeRows, error: gradeError },
+    { data: profile },
+    { data: quizzes, error: quizError },
+    assessments,
+    practiceEnabled,
+  ] = await Promise.all([
     supabase
       .from("rubrics")
       .select("id, title, raw_text, storage_key, original_filename")
@@ -106,18 +122,28 @@ export default async function ClassDetailPage({
     cls.course_mode_course_id
       ? supabase
           .from("final_grade_records")
-          .select("final_percent, letter_grade")
+          .select("final_percent, letter_grade, confirmed_at")
           .eq("student_id", user.id)
           .eq("course_id", cls.course_mode_course_id)
           .in("status", ["confirmed", "synced"])
           .order("confirmed_at", { ascending: false })
+          .order("version", { ascending: false })
+          .order("id", { ascending: false })
           .limit(1)
-      : Promise.resolve({ data: [] as GradeRow[] }),
+      : Promise.resolve({ data: [] as GradeRow[], error: null }),
     supabase
       .from("profiles")
-      .select("display_name, photo_url, photo_offset_x, photo_offset_y, timezone")
+      .select("display_name, photo_url, photo_offset_x, photo_offset_y, timezone, school_name, school_logo_url")
       .eq("user_id", user.id)
       .maybeSingle(),
+    supabase.from("study_artifacts")
+      .select("id, title, updated_at")
+      .eq("owner_id", user.id)
+      .eq("class_id", id)
+      .eq("artifact_type", "practice_test")
+      .order("updated_at", { ascending: false }),
+    loadStudentClassAssessments(supabase, user.id, id, cls.course_mode_course_id),
+    cls.ai_mode === "green" ? learningAccess("assessment", user.id) : Promise.resolve(false),
   ]);
 
   const rubricRow = ((rubrics ?? []) as RubricRow[])[0] ?? null;
@@ -131,8 +157,10 @@ export default async function ClassDetailPage({
   );
   const classNotes: CourseInsightNote[] = ((notes ?? []) as NoteRow[]).map((note) => ({ id: note.id, title: note.title, updatedAt: note.updated_at }));
   const currentGrade = ((gradeRows ?? []) as GradeRow[])[0] ?? null;
+  const gradeLetter = currentGrade?.letter_grade?.trim() || null;
   const requestedView = await searchParams;
   const sourceOpen = requestedView.materials === "1" || requestedView.rubric === "scan";
+  const initialSection = Section.safeParse(requestedView.section);
   const workOrigin = sourceOpen ? classAssignments.find(assignment => assignment.id === requestedView.work) : undefined;
   const assignmentIds=classAssignments.map(assignment=>assignment.id);
   const materialResult=assignmentIds.length?await supabase.from("assignment_sources")
@@ -148,10 +176,14 @@ export default async function ClassDetailPage({
       classId={cls.id}
       className={cls.name}
       teacher={cls.teacher}
+      campusName={formatCampusName(profile?.school_name)}
+      campusLogoUrl={profile?.school_logo_url}
       assignments={classAssignments}
       notes={classNotes}
       rubricTitle={rubricRow?.title ?? null}
-      grade={currentGrade ? { label: currentGrade.letter_grade ?? `${Math.round(currentGrade.final_percent)}%`, percent: currentGrade.letter_grade ? Math.round(currentGrade.final_percent) : null } : null}
+      grade={currentGrade ? { label: gradeLetter ?? `${currentGrade.final_percent}%`, percent: gradeLetter ? currentGrade.final_percent : null, confirmedAt: currentGrade.confirmed_at } : null}
+      gradeUnavailable={Boolean(gradeError)}
+      initialSection={initialSection.success ? initialSection.data : undefined}
       sourceOpen={sourceOpen}
       workOrigin={workOrigin}
       timeZone={profile?.timezone ?? "UTC"}
@@ -159,7 +191,10 @@ export default async function ClassDetailPage({
       notesUnavailable={Boolean(notesError)}
       materials={materials}
       materialsUnavailable={Boolean(materialResult.error)}
-      practiceEnabled={cls.ai_mode==="green"&&await learningAccess("assessment",user.id)}
+      practiceEnabled={practiceEnabled}
+      quizzes={(quizzes ?? []).map((quiz) => ({ id: quiz.id, title: quiz.title, updatedAt: quiz.updated_at }))}
+      quizzesUnavailable={Boolean(quizError)}
+      {...assessments}
       rubricForm={<RubricForm classId={cls.id} document={rubricDocument} />}
       syllabusForm={<SyllabusForm classId={cls.id} document={syllabusDocument} />}
       profile={{ displayName: profile?.display_name, photoUrl: profile?.photo_url, photoOffsetX: profile?.photo_offset_x, photoOffsetY: profile?.photo_offset_y }}

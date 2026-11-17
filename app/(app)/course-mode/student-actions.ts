@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { classAssessmentPath } from "@/lib/course-mode/student-assessment-release";
 import { createClient } from "@/lib/supabase/server";
 
 type RpcStore = {
@@ -71,19 +72,19 @@ export async function updateLessonProgress(formData: FormData) {
 }
 
 export async function startAssessmentAttempt(formData: FormData) {
-  const parsed = z.object({ blueprintId: z.string().uuid() }).safeParse({
+  const parsed = z.object({ blueprintId: z.string().uuid(), classId: z.string().uuid().optional() }).safeParse({
     blueprintId: formData.get("blueprintId"),
+    classId: formData.get("classId") ?? undefined,
   });
   if (!parsed.success) redirect("/classes");
   const { store } = await studentStore();
   const { data, error } = await store.rpc("start_assessment_attempt", {
     p_blueprint_id: parsed.data.blueprintId,
   });
-  if (error || typeof data !== "string") {
-    redirect(`/course-mode/assessments/${parsed.data.blueprintId}?status=not-started`);
-  }
-  revalidatePath(`/course-mode/assessments/${parsed.data.blueprintId}`);
-  redirect(`/course-mode/assessments/${parsed.data.blueprintId}?status=started`);
+  const path = classAssessmentPath(parsed.data.blueprintId, parsed.data.classId);
+  const started = !error && typeof data === "string";
+  if (started) revalidatePath(path);
+  redirect(`${path}?status=${started ? "started" : "not-started"}`);
 }
 
 export async function saveAssessmentResponseDraft(

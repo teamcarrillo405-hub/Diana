@@ -21,6 +21,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import {
   saveAssessmentResponseDraft,
+  startAssessmentAttempt,
   submitAssessmentAttempt,
 } from "./student-actions";
 
@@ -92,6 +93,19 @@ describe("Course Mode student assessment actions", () => {
       p_response: "Draft response",
     });
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns the signed student to the assessment inside their class after starting", async () => {
+    const classId = "66666666-6666-4666-8666-666666666666";
+    const input = new FormData();
+    input.set("classId", classId);
+    input.set("blueprintId", blueprintId);
+    mocks.rpc.mockResolvedValueOnce({ data: attemptId, error: null });
+
+    await startAssessmentAttempt(input);
+
+    expect(mocks.rpc).toHaveBeenCalledWith("start_assessment_attempt", { p_blueprint_id: blueprintId });
+    expect(mocks.redirect).toHaveBeenCalledWith(`/classes/${classId}/assessments/${blueprintId}?status=started`);
   });
 
   it("keeps the attempt open when any response is empty", async () => {

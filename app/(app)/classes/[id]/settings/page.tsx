@@ -65,7 +65,7 @@ export default async function ClassAiSettingsPage({
     redirect(`/classes/${classId}`);
   }
 
-  return <StudentShell active="Classes" version="12">
+  return <StudentShell active="Classes" campus version="12">
     <main id="main-content" className={styles.main}>
       <header className={styles.heading}><h1>Help rules</h1><Link href={`/classes/${id}`}>Back to {cls.name}</Link></header>
       {notice ? <p role="status">Your change could not be saved. Try again.</p> : null}

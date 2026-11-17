@@ -18,13 +18,16 @@ const StartStudyInput = z.object({
 });
 
 export async function createQuiz(formData: FormData): Promise<void> {
+  const classId = z.string().uuid().safeParse(formData.get("classId"));
+  const classQuery = classId.success ? `classId=${encodeURIComponent(classId.data)}` : "";
+  const classPrefix = classQuery ? `${classQuery}&` : "";
   const source = z.string().regex(/^(assignment|note):[0-9a-f-]{36}$/i).safeParse(formData.get("source"));
   const count = z.coerce.number().int().min(3).max(20).safeParse(formData.get("questionCount") ?? 6);
-  if (!source.success || !count.success) redirect("/study?notice=choose-source");
+  if (!source.success || !count.success) redirect(`/study?${classPrefix}notice=choose-source`);
   const [sourceType, sourceId] = source.data.split(":") as ["assignment" | "note", string];
   const result = await generateStudyArtifact({ sourceType, sourceId, artifactType: "practice_test", studyMode: "retrieval_quiz", questionCount: count.data });
-  if (!result.ok) redirect(`/study?source=${encodeURIComponent(source.data)}&questionCount=${count.data}&notice=${encodeURIComponent(result.error)}`);
-  redirect(`/study-artifacts/${result.id}`);
+  if (!result.ok) redirect(`/study?${classPrefix}source=${encodeURIComponent(source.data)}&questionCount=${count.data}&notice=${encodeURIComponent(result.error)}`);
+  redirect(`/study-artifacts/${result.id}${classQuery ? `?${classQuery}` : ""}`);
 }
 
 
