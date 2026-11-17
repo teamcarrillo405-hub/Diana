@@ -2,7 +2,7 @@
 import {useEffect,useRef,useState} from "react";
 import type {PDFDocumentProxy,RenderTask} from "pdfjs-dist";
 import styles from "./learning-material.module.css";
-export function PdfSourcePage({url,pageNumber,onReady,onPageCount}:{url:string;pageNumber:number;onReady:()=>void;onPageCount?:(count:number)=>void}){
+export function PdfSourcePage({url,pageNumber,onReady,onPageCount}:{url:string;pageNumber:number;onReady?:()=>void;onPageCount?:(count:number)=>void}){
   const canvas=useRef<HTMLCanvasElement>(null);
   const [notice,setNotice]=useState("Loading original page…");
   const [loaded,setLoaded]=useState<{url:string;document:PDFDocumentProxy}|null>(null);
@@ -39,7 +39,7 @@ export function PdfSourcePage({url,pageNumber,onReady,onPageCount}:{url:string;p
       canvas.current.width=viewport.width;canvas.current.height=viewport.height;
       render=page.render({canvas:canvas.current,viewport});
       await render.promise;
-      if(!disposed){setNotice("");ready.current();}
+      if(!disposed){setNotice("");ready.current?.();}
     })().catch(()=>{if(!disposed)setNotice("Original page is unavailable. Reopen this review to try again.");});
     return()=>{disposed=true;render?.cancel();};
   },[loaded,url,pageNumber]);

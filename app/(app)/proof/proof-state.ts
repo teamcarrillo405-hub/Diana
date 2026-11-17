@@ -1,10 +1,16 @@
+import type { AssignmentStatus } from "@/lib/supabase/types";
+
+type CompletedProofAssignment = {
+  id?: string | null;
+  title?: string | null;
+  kind?: string | null;
+  status?: AssignmentStatus | null;
+};
+
 export type CompletedProofRow = {
   id: string | number;
   occurred_at: string;
-  assignments?:
-    | { id?: string | null; title?: string | null; kind?: string | null }
-    | Array<{ id?: string | null; title?: string | null; kind?: string | null }>
-    | null;
+  assignments?: CompletedProofAssignment | CompletedProofAssignment[] | null;
 };
 
 export type AuthorshipProofRow = {

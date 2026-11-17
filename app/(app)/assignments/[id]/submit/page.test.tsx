@@ -138,7 +138,12 @@ describe("assignment submission destination", () => {
     expect(screen.getByText("canvas-submission-1")).toBeTruthy();
     expect(screen.getByText("22222222-2222-4222-8222-222222222222")).toBeTruthy();
     expect(screen.getByText(/A{12}/)).toBeTruthy();
-    expect(screen.getByRole("link", { name: /Open Record/ })).toHaveAttribute("href", "/proof");
+    const submittedWork = screen.getByRole("link", { name: "View submitted work" });
+    const record = screen.getByRole("link", { name: "Open Record" });
+    expect(submittedWork).toHaveAttribute("href", `/assignments/${assignmentId}/submitted-work`);
+    expect(record).toHaveAttribute("href", "/proof");
+    expect(submittedWork.compareDocumentPosition(record)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(screen.getByText("Jul 31, 2026, 12:00 PM UTC")).toHaveAttribute("datetime", "2026-07-31T12:00:00.000Z");
     expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments?return=1");
     expect(screen.queryByRole("link", { name: /assignment workspace/i })).toBeNull();
   });
