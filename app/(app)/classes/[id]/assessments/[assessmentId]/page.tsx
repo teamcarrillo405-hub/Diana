@@ -56,8 +56,8 @@ export default async function CourseAssessmentPage({
   const shown = requested.attemptId ? previous.find((attempt) => attempt.id === requested.attemptId) : active ?? previous[0];
   if (requested.attemptId && !shown) notFound();
 
-  // Question and score data follow the active attempt or the teacher's release rule.
-  const working = Boolean(shown && active?.id === shown.id && shown.blueprint_version === blueprint.version);
+  // An expired attempt can still hand in saved responses. Feedback follows the teacher's release rule.
+  const working = Boolean(shown && shown.status === "in_progress" && shown.blueprint_version === blueprint.version);
   const released = Boolean(shown && shown.blueprint_version === blueprint.version
     && assessmentFeedbackReleased(blueprint.feedback_release, blueprint.release_conditions, shown.status, now));
   const [itemsResult, responseResult] = shown && (working || released) ? await Promise.all([
