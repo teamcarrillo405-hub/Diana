@@ -622,6 +622,45 @@ export async function requestAssignmentReview(
       anchor.location,
     ].filter((value): value is string => Boolean(value?.trim())))),
   ].filter((anchor, index, anchors) => anchors.indexOf(anchor) === index).slice(0, 12);
+  // Keep the Next review receipt when durable assignment assistance is enabled
+  // here. Its rollout is coordinated separately with the Edge receipt gate.
+  if (process.env.DIANA_DURABLE_TASK_ASSISTANCE_ENABLED !== "true") {
+    const edgeContext = [
+      specialistContext ? `Canonical specialist artifact contexts:\n${specialistContext.slice(0, 4_000)}` : "",
+      homeworkContext,
+    ].filter(Boolean).join("\n\n").slice(0, 12_000);
+    try {
+      const { data, error } = await invokeHomeworkAction(supabase, "assignment-review", {
+        body: { ...parsed.data, ownerId, aiMode: "green", homeworkContext: edgeContext },
+      });
+      if (error) {
+        const refusal = "context" in error && error.context instanceof Response
+          ? await error.context.json().catch(() => null)
+          : null;
+        const guardedMessage = (refusal?.error === "safety_redirect" || refusal?.error === "daily_token_budget_reached")
+          && typeof refusal.message === "string" ? refusal.message : null;
+        return { ok: false, error: guardedMessage || "Diana review is unavailable right now. Try again in a moment." };
+      }
+      if (typeof data?.content !== "string") {
+        return { ok: false, error: "Diana could not verify the review response. Try again." };
+      }
+      const result: unknown = JSON.parse(data.content);
+      if (!isAssignmentReviewResult(result)) {
+        return { ok: false, error: "Diana could not verify the review response. Try again." };
+      }
+      const edgeAnchors = Array.isArray(data.sourceAnchors)
+        ? data.sourceAnchors.filter((anchor: unknown): anchor is string => typeof anchor === "string").slice(0, 12)
+        : [];
+      return {
+        ok: true,
+        result: parseAssignmentReviewResponse(data.content, template),
+        sourceAnchors: [...new Set([...edgeAnchors, ...sourceAnchors])].slice(0, 12),
+      };
+    } catch {
+      return { ok: false, error: "Diana could not verify the review response. Try again." };
+    }
+  }
+
   const localReview = await runLocalAssignmentReview({
     ownerId,
     assignmentId: parsed.data.assignmentId,
