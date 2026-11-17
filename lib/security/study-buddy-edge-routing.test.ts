@@ -13,7 +13,7 @@ describe("Study Buddy provider boundary", () => {
     expect(route).toContain("sourceAnchors: sourceEvidenceContext.validatedAnchors");
     expect(route).toContain('consumer: "ask_diana"');
     expect(route).toContain("specialistContext: canonicalSpecialistContext || undefined");
-    expect(route).toContain("parseStudyBuddyEdgeSuccess(data)");
+    expect(route).toContain('parseStudyBuddyEdgeSuccess(data, input.mode === "guide" ? input.problemId : null)');
     expect(route).toContain('from("authorship_log").insert');
     expect(route).not.toContain("process.env.OPENAI_API_KEY");
     expect(route).not.toContain("runOpenAIHomeworkJson");

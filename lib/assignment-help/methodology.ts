@@ -451,7 +451,7 @@ export function resolveHomeworkHelpContract(input: {
     studentOwnedBoundary: boundaryForLevel(helpLevel),
     presentationSupports: presentationSupportsFor(input.supportIntensity, input.readiness, attempts, input.accommodations),
     escalationReason: escalationReasonFor(helpLevel, input.supportIntensity, input.readiness, attempts),
-    stopBeforeAnswer: helpLevel < 75,
+    stopBeforeAnswer: true,
   };
 }
 

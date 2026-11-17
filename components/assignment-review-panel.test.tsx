@@ -215,6 +215,70 @@ describe("AssignmentReviewPanel math chat", () => {
     }));
   });
 
+  it("renders and saves an eligible worked solution only in Diana's chat", async () => {
+    const assignmentId = "11111111-1111-4111-8111-111111111111";
+    const problemId = "22222222-2222-4222-8222-222222222222";
+    const onReviewed = vi.fn();
+    const workedSolution = {
+      answer: "x = 5",
+      steps: ["Subtract 4 from both sides.", "Substitute 5 to check the original equation."],
+      checkQuestion: "Why does subtracting the same amount from both sides preserve equality?",
+    };
+    vi.stubGlobal("fetch", vi.fn(async () => sseResponse([
+      { type: "thinking" },
+      {
+        type: "complete",
+        response: { title: "Worked solution", main: "We can work through it now.", reason: "", steps: [], anchor: "Student work", workedSolution },
+        evidence: tutorEvidence,
+        providerState: availableProviderState,
+      },
+    ])));
+    const props = { assignmentId, problemId, template: "math" as const, aiMode: "green" as const, fields, onReviewed };
+    const { unmount } = render(<AssignmentReviewPanel {...props} />);
+    fireEvent.change(screen.getByLabelText("Message Diana"), { target: { value: "I'm still stuck. Please show the worked solution." } });
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+
+    const solution = await screen.findByRole("region", { name: "Worked solution" });
+    expect(solution.closest("article")?.getAttribute("data-role")).toBe("assistant");
+    expect(screen.getByText("x = 5")).toBeTruthy();
+    expect(screen.getByText("Subtract 4 from both sides.")).toBeTruthy();
+    expect(screen.getByText(workedSolution.checkQuestion)).toBeTruthy();
+    expect(mocks.requestAssignmentReview).not.toHaveBeenCalled();
+    expect(onReviewed).not.toHaveBeenCalled();
+    expect(screen.queryByRole("region", { name: "Review actions" })).toBeNull();
+
+    await waitFor(() => expect(mocks.upsertAssignmentProblemMessage).toHaveBeenCalledWith(expect.objectContaining({
+      problemId, role: "assistant", completionState: "complete", content: expect.stringContaining(`Answer\nx = 5`),
+    })));
+    const saved = mocks.upsertAssignmentProblemMessage.mock.calls.map(([entry]) => entry).find((entry) => entry.role === "assistant");
+    unmount();
+    render(<AssignmentReviewPanel {...props} initialMessages={[{
+      id: "saved-solution", problemId, role: "assistant", content: saved.content,
+      attachments: [], visualAid: null, completionState: "complete", clientTurnId: saved.clientTurnId, createdAt: "2026-01-01T12:00:00Z",
+    }]} />);
+    expect(screen.getByText(/Worked solution.*Answer\s*x = 5.*Check your understanding/u)).toBeTruthy();
+    expect(screen.queryByRole("region", { name: "Review actions" })).toBeNull();
+  });
+
+  it("shows an honest retry state when the worked solution cannot be checked", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => sseResponse([{
+      type: "complete",
+      response: {
+        title: "Worked solution", main: "x = 5", reason: "", steps: [], anchor: "Student work",
+        workedSolution: { answer: "x = 5", steps: [], checkQuestion: "Can you explain why?" },
+      },
+      evidence: tutorEvidence,
+      providerState: availableProviderState,
+    }])));
+    render(<AssignmentReviewPanel assignmentId="11111111-1111-4111-8111-111111111111" problemId="problem-1" template="math" aiMode="green" fields={fields} />);
+    fireEvent.change(screen.getByLabelText("Message Diana"), { target: { value: "Show the worked solution" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+
+    expect(await screen.findByRole("button", { name: "Retry reply" })).toBeTruthy();
+    expect(screen.queryByText("x = 5")).toBeNull();
+    expect(screen.getByText("Show the worked solution")).toBeTruthy();
+  });
+
   it("visibly labels a successful response when the provider is degraded", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => sseResponse([
       { type: "thinking" },
@@ -459,6 +523,25 @@ describe("AssignmentReviewPanel math chat", () => {
     expect(screen.getByRole("button", { name: "Retry reply" })).toBeTruthy();
     fireEvent.change(screen.getByLabelText("Message Diana"), { target: { value: "Continue" } });
     expect((screen.getByRole("button", { name: "Send message" }) as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it("saves the selected draft before dispatching Ask Diana and retries without losing the question", async () => {
+    const assignmentId = "11111111-1111-4111-8111-111111111111";
+    const problemId = "22222222-2222-4222-8222-222222222222";
+    const onBeforeAsk = vi.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    render(<AssignmentReviewPanel assignmentId={assignmentId} problemId={problemId} template="math" aiMode="green" fields={fields} onBeforeAsk={onBeforeAsk} />);
+
+    fireEvent.change(screen.getByLabelText("Message Diana"), { target: { value: "I am still stuck." } });
+    fireEvent.click(screen.getByRole("button", { name: "Send message" }));
+    await screen.findByText("Diana could not save your latest work. Retry when you’re ready.");
+    expect(vi.mocked(fetch).mock.calls.some(([url]) => url === "/api/diana/study-buddy/stream")).toBe(false);
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry reply" }));
+    await screen.findByText(/What should happen to the \+4/);
+    expect(onBeforeAsk.mock.calls).toEqual([[problemId], [problemId]]);
+    expect(vi.mocked(fetch)).toHaveBeenCalledWith("/api/diana/study-buddy/stream", expect.objectContaining({
+      body: expect.stringContaining("I am still stuck."),
+    }));
   });
 
   it("recovers queued chat writes after reload and flushes them when the browser comes online", async () => {

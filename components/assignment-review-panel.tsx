@@ -22,7 +22,7 @@ import {
   type VisibleTutorProviderState,
 } from "@/lib/assignment-help/provider-state";
 import type { AssignmentReviewField, AssignmentReviewResult, AssignmentReviewTemplate, AssignmentVisualAid } from "@/lib/assignment-review";
-import type { AssignmentProblemMessage, ChatAttachment, StructuredEquationRow, StudyBuddyStreamEvent } from "@/lib/assignment-workspace-contracts";
+import { parseWorkedSolution, type AssignmentProblemMessage, type ChatAttachment, type StructuredEquationRow, type StudyBuddyStreamEvent, type WorkedSolution } from "@/lib/assignment-workspace-contracts";
 import type { StudyHelperResult } from "@/lib/integrations/diana-study-helper-sidecar";
 
 type Props = {
@@ -37,6 +37,7 @@ type Props = {
   done?: boolean;
   hasNextProblem?: boolean;
   reviewSnapshot?: Record<string, unknown>;
+  onBeforeAsk?: (problemId: string) => Promise<boolean>;
   onReviewed?: (reviewedSnapshot: Record<string, unknown>) => boolean | void | Promise<boolean | void>;
   onMarkDone?: () => void;
   onNextProblem?: () => void;
@@ -51,6 +52,7 @@ type ChatMessage = {
   role: "assistant" | "student";
   text: string;
   result?: AssignmentReviewResult;
+  workedSolution?: WorkedSolution;
   visualAid?: AssignmentVisualAid;
   attachments?: ComposerAttachment[];
   clientTurnId?: string;
@@ -284,11 +286,28 @@ function mathAssistantText(result: AssignmentReviewResult): string {
 }
 
 function studyBuddyText(response: StudyHelperResult): string {
+  if (response.workedSolution) {
+    const { answer, steps, checkQuestion } = response.workedSolution;
+    return ["Worked solution", `Answer\n${answer}`, steps.map((step, index) => `${index + 1}. ${step}`).join("\n"), `Check your understanding\n${checkQuestion}`].join("\n\n");
+  }
   if (response.visualAid?.kind === "equation_steps") return response.main;
   return [
     response.main,
     Array.isArray(response.steps) && response.steps.length > 0 ? `Next move: ${response.steps[0]}` : "",
   ].filter(Boolean).join("\n\n");
+}
+
+function WorkedSolutionMessage({ solution }: { solution: WorkedSolution }) {
+  return (
+    <section className="grid gap-2" aria-label="Worked solution">
+      <h3 className="font-bold">Worked solution</h3>
+      <p><strong>Answer</strong> {solution.answer}</p>
+      <ol className="list-decimal space-y-1 ps-5 text-sm">
+        {solution.steps.map((step, index) => <li key={index}>{step}</li>)}
+      </ol>
+      <p><strong>Check your understanding</strong> {solution.checkQuestion}</p>
+    </section>
+  );
 }
 
 function fallbackEquationRows(visualAid: AssignmentVisualAid): StructuredEquationRow[] {
@@ -433,9 +452,14 @@ function parseStudyBuddyStreamEvent(value: unknown): StudyBuddyStreamEvent | nul
     const evidence = parseTutorResponseEvidence(candidate.evidence);
     const providerState = parseVisibleTutorProviderState(candidate.providerState);
     if (!evidence || !providerState) return null;
+    const response = candidate.response as StudyHelperResult;
+    const workedSolution = parseWorkedSolution(response.workedSolution);
+    if (response.workedSolution !== undefined && (
+      workedSolution === null || providerState.availability !== "available" || providerState.visible
+    )) return null;
     return {
       type: "complete",
-      response: candidate.response as StudyHelperResult,
+      response: workedSolution ? { ...response, workedSolution } : response,
       evidence,
       providerState,
     };
@@ -511,7 +535,7 @@ async function readStudyStream(response: Response, onEvent: (event: StudyBuddySt
   if (!terminalEventReceived) emit({ type: "interrupted", error: INTERRUPTED_CHAT_MESSAGE });
 }
 
-export function AssignmentReviewPanel({ assignmentId, problemId, unitNoun = "problem", template, fields, mathReviewSignal = 0, reviewed = false, done = false, hasNextProblem = false, reviewSnapshot, onReviewed, onMarkDone, onNextProblem, onReviewSubmission, showSubmissionAction = true, starterQuestion, initialMessages = [] }: Props) {
+export function AssignmentReviewPanel({ assignmentId, problemId, unitNoun = "problem", template, fields, mathReviewSignal = 0, reviewed = false, done = false, hasNextProblem = false, reviewSnapshot, onBeforeAsk, onReviewed, onMarkDone, onNextProblem, onReviewSubmission, showSubmissionAction = true, starterQuestion, initialMessages = [] }: Props) {
   // A persisted work-unit gets the full Diana conversation regardless of
   // subject.  `template` still tells the review service which subject contract
   // to apply, but it no longer decides whether the student sees the modern chat.
@@ -784,6 +808,13 @@ export function AssignmentReviewPanel({ assignmentId, problemId, unitNoun = "pro
     };
 
     try {
+      const draftSaved = !problemId || !onBeforeAsk || await onBeforeAsk(problemId);
+      if (controller.signal.aborted) throw new DOMException("The tutor request was interrupted.", "AbortError");
+      if (!draftSaved) {
+        setStreamPhases((current) => ({ ...current, [key]: "retryable_error" }));
+        setStreamErrors((current) => ({ ...current, [key]: "Diana could not save your latest work. Retry when you’re ready." }));
+        return;
+      }
       const source = fields.filter((field) => field.value.trim().length > 0).map((field) => `${field.label}: ${field.value}`).join("\n\n");
       const conversation = conversationMessages.slice(-10).map((turn) => ({ role: turn.role, text: turn.text }));
       const response = await fetch("/api/diana/study-buddy/stream", {
@@ -814,6 +845,7 @@ export function AssignmentReviewPanel({ assignmentId, problemId, unitNoun = "pro
             role: "assistant",
             text: finalText,
             visualAid: event.response.visualAid,
+            workedSolution: event.response.workedSolution,
             clientTurnId,
             completionState: "complete",
             evidence: event.evidence,
@@ -993,7 +1025,7 @@ export function AssignmentReviewPanel({ assignmentId, problemId, unitNoun = "pro
                     {chatMessage.result.improvement ? <p>{chatMessage.result.improvement}</p> : null}
                   </details>
                 ) : null}
-              </> : <p>{chatMessage.text}</p>}
+              </> : chatMessage.workedSolution ? <WorkedSolutionMessage solution={chatMessage.workedSolution} /> : <p>{chatMessage.text}</p>}
               {chatMessage.attachments?.map((attachment) => <AttachmentCard key={attachment.id} attachment={attachment} />)}
               {chatMessage.result ? <MathCoachVisual visualAid={chatMessage.result.visualAid} /> : chatMessage.visualAid ? <MathCoachVisual visualAid={chatMessage.visualAid} /> : null}
               {chatMessage.evidence ? (

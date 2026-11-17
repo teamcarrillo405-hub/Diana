@@ -6,7 +6,7 @@ const digest = async (value: string) => Array.from(new Uint8Array(await crypto.s
 export async function recordEdgeStudyBuddyAssistance(input: {
   enabled: boolean; client: AssistanceClient; ownerId: string; assignmentId: string | null;
   idempotencyKey?: string; mode: "guide" | "hint" | "quiz";
-  system: string; user: string; routing: unknown;
+  system: string; user: string; routing: unknown; maxTokens: number; selectedProblemId: string | null;
 }): Promise<void> {
   if (!input.enabled || !input.assignmentId) return;
   const key = input.idempotencyKey;
@@ -17,14 +17,15 @@ export async function recordEdgeStudyBuddyAssistance(input: {
   const kind = input.mode === "hint" ? "hint" : "guide";
   const payloadSha256 = await digest(JSON.stringify({ protocol: "study-buddy-edge-input-v1", ownerId: input.ownerId,
     assignmentId: input.assignmentId, requestId, channel: "api", kind, mode: input.mode,
-    system: input.system, user: input.user, routing: input.routing, maxTokens: 800, json: true }));
+    system: input.system, user: input.user, routing: input.routing, maxTokens: input.maxTokens, json: true,
+    ...(input.selectedProblemId ? { selectedProblemId: input.selectedProblemId } : {}) }));
   const expected = { schemaVersion: "assignment-assistance-v1", scope: "assignment", requestId,
-    ownerId: input.ownerId, assignmentId: input.assignmentId, selectedProblemId: null,
+    ownerId: input.ownerId, assignmentId: input.assignmentId, selectedProblemId: input.selectedProblemId,
     payloadSha256, channel: "api", kind, independenceBlocked: true };
   try {
     const result = await input.client.rpc("learning_begin_assignment_assistance", {
       p_assignment: input.assignmentId, p_request: requestId, p_payload_sha256: payloadSha256,
-      p_channel: "api", p_kind: kind, p_selected_problem: null,
+      p_channel: "api", p_kind: kind, p_selected_problem: input.selectedProblemId,
     });
     const receipt = result.data as Record<string, unknown> | null;
     if (result.error || !receipt || typeof receipt !== "object" || Array.isArray(receipt)

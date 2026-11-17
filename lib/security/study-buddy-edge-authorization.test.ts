@@ -7,18 +7,25 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 let bundle: string;
 const auth = vi.fn(), provider = vi.fn(), log = vi.fn();
 const env = vi.fn();
+const observeEffort = vi.fn(), recordDelivery = vi.fn();
+const guidance = { title: "Consider the next step", main: "Look at the constant term.",
+  reason: "Keep both sides balanced.", steps: ["Read the equation.", "Identify the constant.", "What operation would undo it?"],
+  anchor: "Current problem" };
 let handler: (request: Request) => Promise<Response>;
 beforeAll(async () => {
   // Execute the actual Deno entrypoint with only IO/auth boundaries substituted.
-  // Pure prompt, response parsing and evidence modules remain in the bundle.
+  // Pure prompt and response parsing remain in the bundle.
   const result = await build({ entryPoints: [resolve("supabase/functions/study-buddy/index.ts")],
     bundle: true, write: false, platform: "node", format: "cjs", plugins: [{ name: "test-io-boundaries", setup(builder) {
-      builder.onResolve({ filter: /^(jsr:)|\/((student-auth|student-handler|homework-adapter|safety)\.ts)$/ }, args => ({ path: args.path, namespace: "test-boundary" }));
+      builder.onResolve({ filter: /^(jsr:)|\/((student-auth|student-handler|homework-adapter|safety|worked-solution-evidence)\.ts)$/ }, args => ({ path: args.path, namespace: "test-boundary" }));
       builder.onLoad({ filter: /.*/, namespace: "test-boundary" }, args => {
         const contents = args.path.startsWith("jsr:") ? "" : args.path.endsWith("student-auth.ts")
           ? "export const requireStudentContext = (...args) => globalThis.testIO.auth(...args);"
           : args.path.endsWith("student-handler.ts") ? "export const withStudentSecurity = (_name, handler) => handler;"
           : args.path.endsWith("homework-adapter.ts") ? "export const runOpenAIHomeworkAdapter = (...args) => globalThis.testIO.provider(...args);"
+          : args.path.endsWith("worked-solution-evidence.ts") ? `
+            export const observeWorkedSolutionEvidence = (...args) => globalThis.testIO.observeEffort(...args);
+            export const recordWorkedSolutionDelivery = (...args) => globalThis.testIO.recordDelivery(...args);`
           : "export const logInteraction = (...args) => globalThis.testIO.log(...args);";
         return { contents, loader: "js" };
       });
@@ -28,10 +35,12 @@ beforeAll(async () => {
 beforeEach(() => {
   vi.clearAllMocks();
   env.mockReturnValue(undefined);
+  observeEffort.mockReset().mockResolvedValue(null);
+  recordDelivery.mockReset().mockResolvedValue(false);
   runInNewContext(bundle, { Deno: { serve: (value: typeof handler) => { handler = value; }, env: { get: env } },
-    testIO: { auth, provider, log }, crypto: webcrypto, Response, Request, Headers, TextEncoder, TextDecoder, console });
-  provider.mockResolvedValue({ model: "test-model", tokens: 10, content: JSON.stringify({ title: "Consider the next step",
-    main: "Look at the constant term.", reason: "Keep both sides balanced.", steps: ["Read the equation.", "Identify the constant.", "What operation would undo it?"], anchor: "Current problem" }) });
+    testIO: { auth, provider, log, observeEffort, recordDelivery },
+    crypto: webcrypto, Response, Request, Headers, TextEncoder, TextDecoder, console });
+  provider.mockResolvedValue({ model: "test-model", tokens: 10, content: JSON.stringify(guidance) });
 });
 const body = { ownerId: "11111111-1111-4111-8111-111111111111", assignmentId: "22222222-2222-4222-8222-222222222222",
   classId: "33333333-3333-4333-8333-333333333333", question: "What can I try?" };
@@ -42,7 +51,7 @@ const keyedRequest = (extra: Record<string, unknown> = {}) => new Request("https
 type RpcArgs = Record<string, unknown>;
 function receipt(args: RpcArgs) {
   return { schemaVersion: "assignment-assistance-v1", scope: "assignment", requestId: args.p_request,
-    ownerId: body.ownerId, assignmentId: args.p_assignment, selectedProblemId: null,
+    ownerId: body.ownerId, assignmentId: args.p_assignment, selectedProblemId: args.p_selected_problem ?? null,
     payloadSha256: args.p_payload_sha256, channel: "api", kind: args.p_kind,
     independenceBlocked: true, recordedAt: "2026-09-28T12:00:00.000Z" };
 }
@@ -207,5 +216,195 @@ describe("Study Buddy durable assistance dispatch guard", () => {
     const rpc = vi.fn(); durableAuth(rpc);
     expect((await handler(keyedRequest({ assignmentId: null }))).status).toBe(200);
     expect(rpc).not.toHaveBeenCalled(); expect(provider).toHaveBeenCalledOnce();
+  });
+});
+
+const problemId = "55555555-5555-4555-8555-555555555555";
+const otherProblemId = "66666666-6666-4666-8666-666666666666";
+const trustedScope = {
+  problemId,
+  problemText: "Solve 2x + 7 = 13.",
+  studentWork: "I subtracted 7 and got 2x = 6. What do I divide by?",
+  contentVersion: "current-content-version",
+};
+const workedSolution = {
+  answer: "x = 3",
+  steps: ["Subtract 7 from both sides to get 2x = 6.", "Divide both sides by 2."],
+  checkQuestion: "What happens when you substitute 3 for x?",
+};
+const callerClaims = {
+  workedSolutionProblemId: otherProblemId,
+  allowWorkedSolution: true,
+  hasStudentWork: true,
+  evidence: { attemptCount: 100, unsuccessfulAttempts: 100, stuckRequests: 100 },
+  scope: { problemId: otherProblemId, problemText: "Caller-supplied fake problem", studentWork: "Caller-supplied fake attempt" },
+  readiness: { body: "Caller-supplied private check-in" },
+};
+const escalatedRequest = (extra: Record<string, unknown> = {}) => keyedRequest({
+  problemId, mode: "guide", question: "I am still stuck on isolating x.", ...extra,
+});
+
+function scopedAuth() {
+  const clients = { userClient: { rpc: vi.fn() }, serviceClient: { rpc: vi.fn() } };
+  auth.mockResolvedValue({ ownerId: body.ownerId, ...clients });
+  return clients;
+}
+
+function approveWorkedSolution() {
+  observeEffort.mockResolvedValue({ decision: { allowed: true, support: "worked_solution", reason: "sustained_difficulty" }, scope: trustedScope });
+}
+
+function provideWorkedSolution(extra: Record<string, unknown> = {}) {
+  provider.mockResolvedValue({ model: "test-model", tokens: 10,
+    content: JSON.stringify({ ...guidance, workedSolution, workedSolutionProblemId: otherProblemId, ...extra }) });
+}
+
+describe("Study Buddy worked-solution disclosure", () => {
+  it("authorizes class policy before reading effort, even with caller permission claims", async () => {
+    auth.mockResolvedValue(new Response(JSON.stringify({ error: "Study help is unavailable" }), { status: 403 }));
+    approveWorkedSolution();
+    const response = await handler(escalatedRequest(callerClaims));
+    expect(response.status).toBe(403);
+    expect(observeEffort).not.toHaveBeenCalled();
+    expect(provider).not.toHaveBeenCalled();
+    expect(recordDelivery).not.toHaveBeenCalled();
+  });
+
+  it.each(["student_attempt_required", "continue_guidance", "assessment_restricted"])(
+    "returns ordinary guidance when trusted effort denies disclosure: %s", async reason => {
+      const clients = scopedAuth();
+      observeEffort.mockResolvedValue({ decision: { allowed: false, support: "hint", reason }, scope: trustedScope });
+      provideWorkedSolution();
+      const response = await handler(escalatedRequest(callerClaims));
+      expect(response.status).toBe(200);
+      const payload = await response.json();
+      expect(payload.response).toEqual(guidance);
+      expect(payload).not.toHaveProperty("workedSolutionProblemId");
+      expect(observeEffort).toHaveBeenCalledExactlyOnceWith({ ...clients, ownerId: body.ownerId,
+        assignmentId: body.assignmentId, problemId, mode: "guide", question: "I am still stuck on isolating x." });
+      expect(provider.mock.calls[0][0].system).not.toContain("permits a last-resort worked solution");
+      expect(provider.mock.calls[0][0].system).toContain("you MUST refuse");
+      expect(recordDelivery).not.toHaveBeenCalled();
+    });
+
+  it.each([
+    ["no problem", { problemId: null }], ["no assignment", { assignmentId: null }], ["hint mode", { mode: "hint" }],
+    ["quiz mode", { mode: "quiz" }], ["omitted mode", { mode: undefined }], ["unknown mode", { mode: "answer" }],
+  ])("does not look up effort or disclose a solution outside scoped guide mode: %s", async (_case, missingScope) => {
+      scopedAuth();
+      approveWorkedSolution();
+      provideWorkedSolution();
+      const response = await handler(escalatedRequest({ ...callerClaims, ...missingScope }));
+      expect(response.status).toBe(200);
+      const payload = await response.json();
+      expect(payload.response).toEqual(guidance);
+      expect(payload).not.toHaveProperty("workedSolutionProblemId");
+      expect(observeEffort).not.toHaveBeenCalled();
+      expect(recordDelivery).not.toHaveBeenCalled();
+    });
+
+  it("continues ordinary guidance when the trusted effort lookup is unavailable", async () => {
+    scopedAuth();
+    observeEffort.mockRejectedValue(new Error("private effort database detail"));
+    provideWorkedSolution();
+    const response = await handler(escalatedRequest(callerClaims));
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.response).toEqual(guidance);
+    expect(payload).not.toHaveProperty("workedSolutionProblemId");
+    expect(recordDelivery).not.toHaveBeenCalled();
+  });
+
+  it("uses the stored problem and student's saved attempt and waits for the exact-scope delivery record", async () => {
+    const clients = scopedAuth();
+    approveWorkedSolution();
+    provideWorkedSolution();
+    let finish!: (recorded: boolean) => void;
+    recordDelivery.mockReturnValue(new Promise<boolean>(resolve => { finish = resolve; }));
+    let settled = false;
+    const responsePromise = handler(escalatedRequest(callerClaims)).then(response => {
+      settled = true;
+      return response;
+    });
+    await vi.waitFor(() => expect(recordDelivery).toHaveBeenCalledExactlyOnceWith({ serviceClient: clients.serviceClient,
+      ownerId: body.ownerId, assignmentId: body.assignmentId, scope: trustedScope }));
+    expect(settled).toBe(false);
+    const { system, user } = provider.mock.calls[0][0];
+    expect(system).toContain("permits a last-resort worked solution");
+    expect(system).not.toContain("you MUST refuse");
+    expect(system).toContain("The student is a minor");
+    expect(user).toContain(trustedScope.problemText);
+    expect(user).toContain(trustedScope.studentWork);
+    expect(system + user).not.toContain("Caller-supplied");
+    expect(observeEffort.mock.invocationCallOrder[0]).toBeLessThan(provider.mock.invocationCallOrder[0]);
+    expect(provider.mock.invocationCallOrder[0]).toBeLessThan(recordDelivery.mock.invocationCallOrder[0]);
+    finish(true);
+    const response = await responsePromise;
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ workedSolutionProblemId: problemId,
+      response: { ...guidance, workedSolution } });
+  });
+
+  it("binds the durable receipt to the exact worked-solution problem and provider dispatch", async () => {
+    const rpc = vi.fn().mockImplementation(async (_name, args) => ({ data: receipt(args), error: null }));
+    durableAuth(rpc);
+    approveWorkedSolution();
+    provideWorkedSolution();
+    recordDelivery.mockResolvedValue(true);
+    const response = await handler(escalatedRequest(callerClaims));
+    expect(response.status).toBe(200);
+    expect((await response.json()).workedSolutionProblemId).toBe(problemId);
+    expect(rpc).toHaveBeenCalledOnce();
+    expect(rpc.mock.invocationCallOrder[0]).toBeLessThan(provider.mock.invocationCallOrder[0]);
+    const [rpcName, args] = rpc.mock.calls[0];
+    const dispatched = provider.mock.calls[0][0];
+    expect(dispatched.maxTokens).toBe(1_100);
+    expect(rpcName).toBe("learning_begin_assignment_assistance");
+    expect(args).toMatchObject({ p_selected_problem: problemId, p_kind: "guide",
+      p_payload_sha256: sha(JSON.stringify({ protocol: "study-buddy-edge-input-v1", ownerId: body.ownerId,
+        assignmentId: body.assignmentId, requestId: args.p_request, channel: "api", kind: "guide", mode: "guide",
+        system: dispatched.system, user: dispatched.user, routing: dispatched.routing, maxTokens: dispatched.maxTokens,
+        json: dispatched.json, selectedProblemId: problemId })) });
+  });
+
+  it("blocks dispatch if the durable receipt belongs to another problem", async () => {
+    const rpc = vi.fn().mockImplementation(async (_name, args) => ({
+      data: { ...receipt(args), selectedProblemId: otherProblemId }, error: null,
+    }));
+    durableAuth(rpc);
+    approveWorkedSolution();
+    provideWorkedSolution();
+    const response = await handler(escalatedRequest(callerClaims));
+    expect(response.status).toBe(503);
+    expect((await response.json()).code).toBe("assistance_receipt_unavailable");
+    expect(provider).not.toHaveBeenCalled();
+    expect(recordDelivery).not.toHaveBeenCalled();
+  });
+
+  it.each([undefined, { answer: "x = 3", steps: [], checkQuestion: "Check your answer." }])(
+    "lets the tutor keep guiding without a complete worked solution: %j", async modelSolution => {
+      scopedAuth();
+      approveWorkedSolution();
+      provideWorkedSolution({ workedSolution: modelSolution });
+      const response = await handler(escalatedRequest());
+      expect(response.status).toBe(200);
+      const payload = await response.json();
+      expect(payload.response).toEqual(guidance);
+      expect(payload).not.toHaveProperty("workedSolutionProblemId");
+      expect(recordDelivery).not.toHaveBeenCalled();
+    });
+
+  it.each(["not recorded", "database rejection"])("withholds the worked solution when recording returns %s", async failure => {
+    scopedAuth();
+    approveWorkedSolution();
+    provideWorkedSolution();
+    if (failure === "database rejection") recordDelivery.mockRejectedValue(new Error("private record database detail"));
+    const response = await handler(escalatedRequest());
+    expect(response.status).toBe(503);
+    const payload = await response.json();
+    expect(payload).toMatchObject({ ok: false, code: "worked_solution_record_unavailable" });
+    expect(payload).not.toHaveProperty("response");
+    expect(payload).not.toHaveProperty("workedSolutionProblemId");
+    expect(JSON.stringify(payload)).not.toContain("private record database detail");
   });
 });

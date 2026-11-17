@@ -41,10 +41,11 @@ import {
   linearEquationTutorEvidence,
   studyBuddySourceAnchorLabel,
 } from "@/lib/assignment-help/study-buddy-evidence";
-import type {
-  StudyHelperInput,
-  StudyHelperMode,
-  StudyHelperResult,
+import {
+  parseWorkedSolution,
+  type StudyHelperInput,
+  type StudyHelperMode,
+  type StudyHelperResult,
 } from "@/lib/integrations/diana-study-helper-sidecar";
 import {
   formatCanonicalSpecialistContextsForPrompt,
@@ -419,6 +420,7 @@ export async function POST(request: Request) {
           ownerId: user.id,
           classId: input.classId,
           assignmentId: input.assignmentId,
+          ...(input.problemId ? { problemId: input.problemId } : {}),
           source: configuredInput.source,
           question: configuredInput.question,
           mode: configuredInput.mode,
@@ -433,7 +435,7 @@ export async function POST(request: Request) {
           correlationId: request.headers.get("x-request-id") ?? undefined,
         },
       });
-      const edgeSuccess = parseStudyBuddyEdgeSuccess(data);
+      const edgeSuccess = parseStudyBuddyEdgeSuccess(data, input.mode === "guide" ? input.problemId : null);
       if (error || !edgeSuccess) {
         const failure = await studyBuddyEdgeFailure(error, data);
         if (!deterministicLinearResult || failure.status !== 503 || failure.guardBlocked) {
@@ -506,6 +508,7 @@ export async function POST(request: Request) {
           model: providerModel,
           responseOrigin: providerResult.origin,
           responseProviderTokens: providerResult.tokens,
+          ...(result.workedSolution && input.problemId ? { workedSolutionProblemId: input.problemId } : {}),
           durableAssistance: assistance?.status === "recorded" ? {
             scope: assistance.receipt.scope, requestId: assistance.receipt.requestId,
             payloadSha256: assistance.receipt.payloadSha256, recordedAt: assistance.receipt.recordedAt,
@@ -587,7 +590,7 @@ type StudyBuddyEdgeSuccess = {
   tokens: number;
 };
 
-function parseStudyBuddyEdgeSuccess(value: unknown): StudyBuddyEdgeSuccess | null {
+function parseStudyBuddyEdgeSuccess(value: unknown, problemId: string | null): StudyBuddyEdgeSuccess | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const candidate = value as Record<string, unknown>;
   const evidence = parseTutorResponseEvidence(candidate.evidence);
@@ -606,9 +609,13 @@ function parseStudyBuddyEdgeSuccess(value: unknown): StudyBuddyEdgeSuccess | nul
     providerState.availability !== "available" ||
     providerState.visible
   ) return null;
+  const workedSolution = candidate.response.workedSolution === undefined
+    ? undefined : parseWorkedSolution(candidate.response.workedSolution);
+  if (candidate.response.workedSolution !== undefined
+    && (!problemId || candidate.workedSolutionProblemId !== problemId || !workedSolution)) return null;
   return {
     ok: true,
-    response: candidate.response,
+    response: { ...candidate.response, ...(workedSolution ? { workedSolution } : {}) },
     evidence,
     providerState,
     model: candidate.model,

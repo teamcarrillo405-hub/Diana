@@ -1,4 +1,5 @@
 import type { AssignmentVisualAid } from "@/lib/assignment-review";
+import type { WorkedSolution } from "@/lib/assignment-workspace-contracts";
 import { composeSystemPrompt } from "@/lib/ai/system-prompts";
 import {
   createSidecarChatRequest,
@@ -15,6 +16,7 @@ import type { BreakdownStep } from "@/lib/task-breakdown/types";
 
 export { isDianaVoiceSidecarEnabled as isDianaStudyHelperEnabled };
 export { resolveDianaVoiceSidecarConfig as resolveDianaStudyHelperConfig };
+export { parseWorkedSolution, type WorkedSolution } from "@/lib/assignment-workspace-contracts";
 
 export type StudyHelperMode = "guide" | "hint" | "quiz";
 
@@ -35,6 +37,7 @@ export type StudyHelperResult = {
   steps: string[];
   anchor: string;
   visualAid?: AssignmentVisualAid;
+  workedSolution?: WorkedSolution;
 };
 
 export type BreakDownInput = {

@@ -54,7 +54,7 @@ describe("universal assignment methodology", () => {
     expect(resolveHomeworkHelpContract({ attempts: { incorrectAttempts: 1 } }).helpLevel).toBe(45);
     expect(resolveHomeworkHelpContract({ attempts: { incorrectAttempts: 2 } }).helpLevel).toBe(60);
     expect(resolveHomeworkHelpContract({ attempts: { incorrectAttempts: 3 } }).helpLevel).toBe(75);
-    expect(resolveHomeworkHelpContract({ attempts: { stuckRequests: 3 } }).stopBeforeAnswer).toBe(false);
+    expect(resolveHomeworkHelpContract({ attempts: { stuckRequests: 3 } }).stopBeforeAnswer).toBe(true);
   });
 
   it("provides subject-specific adapters for specialized high-school classes", () => {

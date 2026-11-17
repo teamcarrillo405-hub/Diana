@@ -1065,6 +1065,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                 done={activeDone}
                 hasNextProblem={activeIndex < problems.length - 1}
                 reviewSnapshot={active.studentWork}
+                onBeforeAsk={flushProblem}
                 onReviewed={recordProblemReview}
                 onMarkDone={() => void completeActiveProblem()}
                 onNextProblem={() => void switchProblem(activeIndex + 1)}

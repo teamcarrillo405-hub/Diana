@@ -121,6 +121,36 @@ describe("study buddy stream route", () => {
     });
   });
 
+  it("releases a worked solution only as part of the verified complete event", async () => {
+    const workedSolution = {
+      answer: "x = 5",
+      steps: ["Subtract 4 from both sides.", "Check the result in the original equation."],
+      checkQuestion: "How does substituting 5 show the equation is balanced?",
+    };
+    mocks.runBuffered.mockResolvedValueOnce(Response.json({
+      ok: true,
+      response: { title: "Worked solution", main: workedSolution.answer, reason: "", steps: [], anchor: "Student work", workedSolution },
+      evidence, providerState: availableProviderState,
+    }));
+
+    const result = events(await (await POST(request())).text());
+    expect(result.map(({ type }) => type)).toEqual(["thinking", "complete"]);
+    expect(result[1]).toMatchObject({ response: { workedSolution } });
+  });
+
+  it("keeps an invalid worked solution out of both stream deltas and the complete event", async () => {
+    const answer = "x = 5";
+    mocks.runBuffered.mockResolvedValueOnce(Response.json({
+      ok: true,
+      response: { title: "Worked solution", main: answer, reason: "", steps: [], anchor: "Student work", workedSolution: { answer, steps: [], checkQuestion: "  " } },
+      evidence, providerState: availableProviderState,
+    }));
+
+    const body = await (await POST(request())).text();
+    expect(events(body).map(({ type }) => type)).toEqual(["thinking", "retryable_error"]);
+    expect(body).not.toContain(answer);
+  });
+
   it("does not emit a normal completion when the reliability envelope is missing", async () => {
     mocks.runBuffered.mockResolvedValue(new Response(JSON.stringify({
       ok: true,

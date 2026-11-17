@@ -2,9 +2,10 @@ import { POST as runBufferedStudyBuddy } from "../route";
 
 import { parseTutorResponseEvidence } from "@/lib/ai/tutor-response-evidence";
 import { parseVisibleTutorProviderState } from "@/lib/assignment-help/provider-state";
-import type {
-  StudyBuddyRouteResponse,
-  StudyBuddyStreamEvent,
+import {
+  parseWorkedSolution,
+  type StudyBuddyRouteResponse,
+  type StudyBuddyStreamEvent,
 } from "@/lib/assignment-workspace-contracts";
 import type { StudyHelperResult } from "@/lib/integrations/diana-study-helper-sidecar";
 
@@ -56,8 +57,13 @@ export async function POST(request: Request) {
         const providerState = parseVisibleTutorProviderState(
           "providerState" in payload ? payload.providerState : null,
         );
-        const completeEnvelope = payload.ok && payload.response && evidence && providerState
-          ? { response: payload.response, evidence, providerState,
+        const disclosed = payload.ok ? payload.response?.workedSolution : undefined;
+        const workedSolution = parseWorkedSolution(disclosed);
+        const canComplete = disclosed === undefined || (
+          workedSolution !== null && providerState?.availability === "available" && !providerState.visible
+        );
+        const completeEnvelope = payload.ok && payload.response && evidence && providerState && canComplete
+          ? { response: workedSolution ? { ...payload.response, workedSolution } : payload.response, evidence, providerState,
               ...(payload.provider ? { provider: payload.provider } : {}),
               ...(payload.routing ? { routing: payload.routing } : {}),
             }
@@ -93,7 +99,7 @@ export async function POST(request: Request) {
           return;
         }
 
-        if (!completeEnvelope.providerState.visible) {
+        if (!completeEnvelope.providerState.visible && !completeEnvelope.response.workedSolution) {
           for (const delta of textChunks(responseText(completeEnvelope.response))) {
             controller.enqueue(encodeEvent({ type: "streaming", delta }));
           }

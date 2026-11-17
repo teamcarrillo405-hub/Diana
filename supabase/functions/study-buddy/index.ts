@@ -1,4 +1,4 @@
-import { STUDY_BUDDY_PROMPT, buildUserPrompt, FALLBACK_RESULT, parseResult, type StudyMode, type ConversationTurn, type RoutingInput } from "../_shared/study-buddy-prompt.ts";
+import { STUDY_BUDDY_PROMPT, WORKED_SOLUTION_INSTRUCTION, buildUserPrompt, FALLBACK_RESULT, parseResult, type StudyMode, type ConversationTurn, type RoutingInput } from "../_shared/study-buddy-prompt.ts";
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { requireStudentContext } from "../_shared/student-auth.ts";
 import { runOpenAIHomeworkAdapter } from "../_shared/homework-adapter.ts";
@@ -10,6 +10,7 @@ import { composeSystemPrompt } from "../_shared/system-prompts.ts";
 import { withStudentSecurity } from "../_shared/student-handler.ts";
 import { loadStudentSupportPersonalization } from "../_shared/student-support-context.ts";
 import { recordEdgeStudyBuddyAssistance } from "../_shared/learning/study-buddy-assistance.ts";
+import { observeWorkedSolutionEvidence, recordWorkedSolutionDelivery } from "../_shared/learning/worked-solution-evidence.ts";
 import {
   edgeAiGuidanceEvidence,
   edgeNeedsMoreInformationEvidence,
@@ -85,6 +86,7 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
     const body = await request.json() as Record<string, unknown>;
     const ownerId = boundedText(body.ownerId, 128);
     const assignmentId = boundedText(body.assignmentId, 128) || null;
+    const problemId = boundedText(body.problemId, 128) || null;
     const source = boundedText(body.source, 20_000);
     const question = boundedText(body.question, 1_000);
     const mode: StudyMode = body.mode === "hint" ? "hint" : body.mode === "quiz" ? "quiz" : "guide";
@@ -108,6 +110,11 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
     });
     if (auth instanceof Response) return auth;
     const supabase = auth.serviceClient;
+    const observed = assignmentId && problemId && body.mode === "guide"
+      ? await observeWorkedSolutionEvidence({ userClient: auth.userClient, serviceClient: supabase, ownerId: auth.ownerId,
+          assignmentId, problemId, mode, question }).catch(() => null)
+      : null;
+    const workedScope = observed?.decision.allowed ? observed.scope : undefined;
     const userPrompt = buildUserPrompt({
       mode,
       tutorPersona: allowedChoice(body.tutorPersona, ["diana", "xavier", "maya"], "diana"),
@@ -119,17 +126,20 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
       routing,
       sourceAnchors,
       specialistContext,
+      selectedWork: workedScope ? { problemText: workedScope.problemText, studentWork: workedScope.studentWork } : undefined,
     });
     const fallbackContent = JSON.stringify(FALLBACK_RESULT);
     const personalization = await loadStudentSupportPersonalization(auth.userClient, auth.ownerId);
-    const system = composeSystemPrompt(STUDY_BUDDY_PROMPT, {
-      includeRefuseRedirect: true, includeFrustration: true, includeMinorSafety: true,
+    const tutoringPrompt = composeSystemPrompt(STUDY_BUDDY_PROMPT, {
+      includeRefuseRedirect: !workedScope, includeFrustration: true, includeMinorSafety: true,
       personalization,
     });
+    const system = workedScope ? `${tutoringPrompt}\n\n${WORKED_SOLUTION_INSTRUCTION}` : tutoringPrompt;
+    const maxTokens = workedScope ? 1_100 : 800;
     try {
       await recordEdgeStudyBuddyAssistance({ enabled: Deno.env.get("DIANA_DURABLE_TASK_ASSISTANCE_ENABLED") === "true",
         client: auth.userClient, ownerId: auth.ownerId, assignmentId, idempotencyKey, mode,
-        system, user: userPrompt, routing });
+        system, user: userPrompt, routing, maxTokens, selectedProblemId: workedScope?.problemId ?? null });
     } catch {
       return jsonResponse({ ok: false, code: "assistance_receipt_unavailable",
         error: "Diana study help is paused while this work is saved. Please try again." }, 503);
@@ -140,13 +150,13 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
       task: "study_buddy",
       system,
       user: userPrompt,
-      maxTokens: 800,
+      maxTokens,
       json: true,
       fallbackContent,
       routing,
       idempotencyKey,
     });
-    const parsedResponse = parseResult(ai.content);
+    const parsedResponse = parseResult(ai.content, Boolean(workedScope));
     const response = parsedResponse.response;
     const providerDegraded = ai.model.endsWith(":fallback") ||
       ai.content === fallbackContent ||
@@ -181,6 +191,13 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
       }, 503);
     }
 
+    if (response.workedSolution && (!assignmentId || !workedScope || !await recordWorkedSolutionDelivery({
+      serviceClient: supabase, ownerId: auth.ownerId, assignmentId, scope: workedScope,
+    }).catch(() => false))) {
+      return jsonResponse({ ok: false, code: "worked_solution_record_unavailable",
+        error: "Diana could not save this worked solution to your learning record. Try again in a moment." }, 503);
+    }
+
     return jsonResponse({
       ok: true,
       response,
@@ -188,6 +205,7 @@ Deno.serve(withStudentSecurity("study-buddy", async (request: Request) => {
       providerState,
       model: ai.model,
       tokens: ai.tokens,
+      ...(response.workedSolution && workedScope ? { workedSolutionProblemId: workedScope.problemId } : {}),
     });
   } catch (error) {
     if (error instanceof Response) return error;

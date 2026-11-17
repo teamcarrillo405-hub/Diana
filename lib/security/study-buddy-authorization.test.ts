@@ -274,6 +274,32 @@ describe("Study Buddy durable assignment assistance before response release", ()
     expect(mocks.invoke).not.toHaveBeenCalled();
   });
 
+  it.each(["matched", "missing", "different", "hint"])("releases a worked solution only for its exact selected guide problem (%s)", async (scope) => {
+    rows.assignment_problems = [{ id: PROBLEM, owner_id: OWNER, assignment_id: ASSIGNMENT, problem_number: 1,
+      problem_text: "Find the slope of x² at x=2.", source: "manual", unit_type: "problem", student_work: { work: "I substituted into f(x) first." } }];
+    mocks.local.mockReturnValue(null);
+    const workedSolution = { answer: "4", steps: ["Differentiate x² to get 2x.", "Evaluate 2x at x=2."], checkQuestion: "What does the derivative measure?" };
+    mocks.invoke.mockResolvedValue({ error: null, data: { ok: true,
+      response: { title: "Tangent slope", main: "Connect the derivative to the tangent.", reason: "The derivative gives slope.",
+        steps: ["Review the power rule."], anchor: "Selected problem", workedSolution },
+      ...(scope !== "missing" ? { workedSolutionProblemId: scope === "different" ? FOREIGN : PROBLEM } : {}),
+      evidence: createTutorResponseEvidence({ verificationLevel: "ai_guidance", confidence: 0 }),
+      providerState: resolveVisibleTutorProviderState({ availability: "available" }), model: "synthetic-api", tokens: 12 } });
+    const mode = scope === "hint" ? "hint" : "guide";
+    const response = await POST(request({ assignmentId: ASSIGNMENT, problemId: PROBLEM, mode }, "worked-solution"));
+    const body = await response.json();
+    expect(mocks.invoke).toHaveBeenCalledWith("study-buddy", expect.objectContaining({
+      body: expect.objectContaining({ assignmentId: ASSIGNMENT, problemId: PROBLEM, mode }),
+    }));
+    if (scope === "matched") {
+      expect(response.status).toBe(200);
+      expect(body.response.workedSolution).toEqual(workedSolution);
+    } else {
+      expect(response.status).toBe(503);
+      expect(body).not.toHaveProperty("response");
+    }
+  });
+
   it("preserves the original API-channel receipt when provider unavailability uses local fallback", async () => {
     rows.assignment_problems = [{ id: PROBLEM, owner_id: OWNER, assignment_id: ASSIGNMENT, problem_number: 1,
       problem_text: "Solve 2x+1=5.", source: "manual", unit_type: "problem", unit_label: null }];

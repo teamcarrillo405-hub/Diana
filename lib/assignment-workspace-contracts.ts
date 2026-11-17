@@ -46,6 +46,22 @@ export type AssignmentWorkspacePreference = {
   workHeight: number;
 };
 
+export type WorkedSolution = {
+  answer: string;
+  steps: string[];
+  checkQuestion: string;
+};
+
+export function parseWorkedSolution(value: unknown): WorkedSolution | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const { answer, steps, checkQuestion } = value as Record<string, unknown>;
+  const isShortText = (item: unknown, maximum = 500): item is string =>
+    typeof item === "string" && item.trim().length > 0 && item.trim().length <= maximum;
+  if (!isShortText(answer, 1200) || !isShortText(checkQuestion) || !Array.isArray(steps)
+    || steps.length === 0 || steps.length > 6 || !Array.from(steps).every((step) => isShortText(step))) return null;
+  return { answer: answer.trim(), steps: steps.map((step) => step.trim()), checkQuestion: checkQuestion.trim() };
+}
+
 export type StudyBuddyRouteSuccess = {
   ok: true;
   response: StudyHelperResult;
