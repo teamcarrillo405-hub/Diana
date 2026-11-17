@@ -48,17 +48,22 @@
 .root.root[data-campus-shell] .secondary { background:var(--campus-panel); border-color:var(--campus-rule); color:var(--campus-ink); }
 .root.root[data-campus-shell] .secondary:hover { background:var(--campus-raised); }
 .root.root[data-campus-shell] .environment { background:radial-gradient(ellipse at top right,#323d2c,#131a16 55%,#111813); }
+.root[data-campus-scene="classes"], .classesRoom {
+  --classes-room-image:url('/assets/classes/academic-hall-1920.webp');
+}
 .root.root[data-campus-scene] .environment {
   --classroom-image:url('/assets/work/college-classroom-1920.webp');
   background:
     linear-gradient(90deg,#0c1710e8 0%,#0f1a13ba 40%,#111a1573 73%,#161d1766 100%),
     linear-gradient(0deg,#101711ee 0%,#111a1440 50%,#111a1410 100%),
-    var(--classroom-image) right 42% / cover no-repeat;
+    var(--classes-room-image,var(--classroom-image)) right 42% / cover no-repeat;
 }
 @media(min-width:1921px), (min-width:1200px) and (min-resolution:1.5dppx) {
   .root.root[data-campus-scene] .environment { --classroom-image:url('/assets/work/college-classroom-4k.webp'); }
+  .root[data-campus-scene="classes"], .classesRoom { --classes-room-image:url('/assets/classes/academic-hall-4k.webp'); }
 }
 @media(max-width:760px) {
+  .root[data-campus-scene="classes"], .classesRoom { --classes-room-image:url('/assets/classes/academic-hall-mobile.webp'); }
   .root.root[data-campus-scene] .environment {
     --classroom-image:url('/assets/work/college-classroom-mobile.webp');
     background-position:center,center,center 46%;

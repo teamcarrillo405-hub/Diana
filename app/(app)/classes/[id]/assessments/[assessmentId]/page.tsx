@@ -84,7 +84,7 @@ export default async function CourseAssessmentPage({
   const unavailable = Boolean(attemptError || itemsResult.error || responseResult.error || ((working || released) && !items.length));
 
   return (
-    <StudentShell active="Classes" campus className={styles.root} profile={{
+    <StudentShell active="Classes" campus className={`${styles.root} ${shell.classesRoom}`} profile={{
       displayName: profile?.display_name, photoUrl: profile?.photo_url,
       photoOffsetX: profile?.photo_offset_x, photoOffsetY: profile?.photo_offset_y,
     }}>
