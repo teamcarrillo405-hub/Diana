@@ -88,6 +88,8 @@ describe("assignment Edge Function ownership contracts", () => {
     expect(source).toContain("Canonical specialist artifact contexts:");
     expect(reviewSource).toContain("sourceAnchorsForKernel(kernel)");
     expect(reviewSource).toContain("runLocalAssignmentReview({");
+    expect(reviewSource).toContain('invokeHomeworkAction(supabase, "assignment-review"');
+    expect(reviewSource).toContain('process.env.DIANA_DURABLE_TASK_ASSISTANCE_ENABLED !== "true"');
     expect(source).toContain('task: "assignment_review"');
     expect(reviewSource).toContain("homeworkContext");
     expect(reviewSource).toContain("createLinearEquationReview(parsed.data.fields");

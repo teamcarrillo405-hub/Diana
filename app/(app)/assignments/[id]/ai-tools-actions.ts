@@ -463,6 +463,14 @@ function isAssignmentReviewResult(value: unknown): value is AssignmentReviewResu
     isAssignmentVisualAid(candidate.visualAid);
 }
 
+function isLegacyUnavailableReview(review: AssignmentReviewResult): boolean {
+  // Older Edge deployments return this placeholder as an otherwise valid review.
+  return review.strength === "You have started with your own work."
+    && review.improvement === "Make one connection to the assignment directions clearer."
+    && review.nextMove === "Add one specific detail that supports your main idea."
+    && review.question === "Which detail best supports your next move?";
+}
+
 function fallbackAssignmentReviewValue(template: AssignmentReviewTemplate): AssignmentReviewResult {
   return parseAssignmentReviewResponse("", template);
 }
@@ -622,6 +630,51 @@ export async function requestAssignmentReview(
       anchor.location,
     ].filter((value): value is string => Boolean(value?.trim())))),
   ].filter((anchor, index, anchors) => anchors.indexOf(anchor) === index).slice(0, 12);
+  // Keep the Next review receipt when durable assignment assistance is enabled
+  // here. Its rollout is coordinated separately with the Edge receipt gate.
+  if (process.env.DIANA_DURABLE_TASK_ASSISTANCE_ENABLED !== "true") {
+    const edgeContext = [
+      specialistContext ? `Canonical specialist artifact contexts:\n${specialistContext.slice(0, 4_000)}` : "",
+      homeworkContext,
+    ].filter(Boolean).join("\n\n").slice(0, 12_000);
+    try {
+      const { data, error } = await invokeHomeworkAction(supabase, "assignment-review", {
+        body: { ...parsed.data, ownerId, aiMode: "green", homeworkContext: edgeContext },
+      });
+      if (error) {
+        const response = "context" in error && error.context instanceof Response ? error.context : null;
+        const refusal = await response?.json().catch(() => null);
+        const guardedMessage = (refusal?.error === "safety_redirect" || refusal?.error === "daily_token_budget_reached")
+          && typeof refusal.message === "string" ? refusal.message : null;
+        if (guardedMessage) return { ok: false, error: guardedMessage };
+        if (response?.status === 429 && typeof refusal?.error === "string" && refusal.error.includes("quota")) {
+          return { ok: false, error: "Diana study help is paused for today. Try again tomorrow." };
+        }
+        return { ok: false, error: "Diana review is unavailable right now. Try again in a moment." };
+      }
+      if (typeof data?.content !== "string") {
+        return { ok: false, error: "Diana could not verify the review response. Try again." };
+      }
+      const result: unknown = JSON.parse(data.content);
+      if (!isAssignmentReviewResult(result)) {
+        return { ok: false, error: "Diana could not verify the review response. Try again." };
+      }
+      if (isLegacyUnavailableReview(result)) {
+        return { ok: false, error: "Diana review is unavailable right now. Try again in a moment." };
+      }
+      const edgeAnchors = Array.isArray(data.sourceAnchors)
+        ? data.sourceAnchors.filter((anchor: unknown): anchor is string => typeof anchor === "string").slice(0, 12)
+        : [];
+      return {
+        ok: true,
+        result: parseAssignmentReviewResponse(data.content, template),
+        sourceAnchors: [...new Set([...edgeAnchors, ...sourceAnchors])].slice(0, 12),
+      };
+    } catch {
+      return { ok: false, error: "Diana could not verify the review response. Try again." };
+    }
+  }
+
   const localReview = await runLocalAssignmentReview({
     ownerId,
     assignmentId: parsed.data.assignmentId,

@@ -172,6 +172,28 @@
 
 .root.root > figure { min-width: 0; }
 
+.root.root.stemChecks p { margin: 0; color: var(--graph-ink); font-size: .88rem; line-height: 1.5; }
+.stemForm { display: grid; min-width: 0; gap: 10px; padding-top: 12px; border-block-start: 1px solid var(--graph-rule); }
+.root.root .stemForm h3 { margin: 0; color: var(--graph-ink); font-size: 1rem; }
+.stemFields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 165px), 1fr)); gap: 10px; min-width: 0; }
+.stemWideField { grid-column: 1 / -1; }
+.root.root.stemChecks :is(select, textarea) {
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 7px 9px;
+  border: 1px solid var(--graph-rule);
+  border-radius: 2px;
+  background: var(--graph-field);
+  color: var(--graph-ink);
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.root.root.stemChecks textarea { resize: vertical; }
+.root.root.stemChecks :is(select, textarea):focus-visible { outline: 2px solid #185843; outline-offset: 2px; }
+.stemForm [role="status"]:empty { display: none; }
+.stemForm .results ul { margin: 4px 0 0; padding-inline-start: 20px; font-size: .82rem; line-height: 1.5; }
+
 @media (max-width: 600px) {
   .curveRow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .curveRow button { grid-column: 1 / -1; justify-self: start; }

@@ -1,7 +1,7 @@
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 
 import { parseAssignmentInkDocument } from "@/lib/assignment-ink";
-import { canonicalSubmissionPayloadForTarget } from "@/lib/assignment-submission";
+import { canonicalSubmissionPayloadForTarget, composeCanonicalSubmissionText } from "@/lib/assignment-submission";
 import { assignmentSubmissionCanonicalPayloadBytes } from "@/lib/assignment-submission-server";
 import type { AssignmentSubmissionPreview } from "@/lib/assignment-workspace-contracts";
 import {
@@ -14,6 +14,7 @@ import {
   type AssignmentPlotMark,
 } from "@/lib/specialist-artifacts/assignment-plots";
 import { utf8ByteLength } from "@/lib/specialist-artifacts/bounds";
+import { projectCanonicalRenderDocument } from "@/lib/specialist-artifacts/render-blocks";
 
 const PAGE_WIDTH = 612;
 const PAGE_HEIGHT = 792;
@@ -249,6 +250,32 @@ export function assignmentSubmissionPdfPayload(
   return canonicalSubmissionPayloadForTarget(preview, "export");
 }
 
+function visiblePdfBody(preview: AssignmentSubmissionPreview, canonicalText: string): string {
+  const { specialistRenderDocument, universalTextPayload } = preview;
+  if (!specialistRenderDocument || universalTextPayload === undefined) return canonicalText;
+
+  // The PDF already prints the title, and equation records may mirror typed
+  // reasoning for authorship checks. Keep both intact in the attached record.
+  const title = preview.assignmentTitle.trim();
+  const titleBreak = `${title}\n\n`;
+  const universalText = universalTextPayload === title ? ""
+    : universalTextPayload.startsWith(titleBreak) ? universalTextPayload.slice(titleBreak.length) : universalTextPayload;
+  const blocks = specialistRenderDocument.blocks.map((block) => {
+    if (block.type !== "equation") return block;
+    const { studentAuthoredText, reasoning, answer } = block.content;
+    if (!studentAuthoredText || (studentAuthoredText !== reasoning && studentAuthoredText !== answer)) return block;
+    const duplicate = `\n\n${studentAuthoredText}`;
+    return block.plainText.endsWith(duplicate)
+      ? { ...block, plainText: block.plainText.slice(0, -duplicate.length) }
+      : block;
+  });
+  const projection = projectCanonicalRenderDocument({ ...specialistRenderDocument, blocks }, "export");
+  return composeCanonicalSubmissionText(
+    composeCanonicalSubmissionText(universalText, projection.fallbackPlainText),
+    projection.plainText,
+  );
+}
+
 export function assignmentSubmissionPdfSpecialistNotices(
   preview: AssignmentSubmissionPreview,
 ): string[] {
@@ -349,7 +376,7 @@ export async function renderAssignmentSubmissionPdf(preview: AssignmentSubmissio
     if (plot.note) drawLine(plot.note, { size: 10, gap: 2 });
     y -= 8;
   }
-  drawLine(payload.textPayload || "No typed work was added.", { size: 11, gap: 16 });
+  drawLine(visiblePdfBody(preview, payload.textPayload) || "No typed work was added.", { size: 11, gap: 16 });
 
   for (const problem of preview.problems) {
     const inkDocument = parseAssignmentInkDocument(problem.inkData);

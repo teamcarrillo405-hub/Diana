@@ -101,3 +101,17 @@ describe("visible charts in exported homework", () => {
     expect(texts).toContain("y = unsupported(x)");
   });
 });
+
+it("prints the title and mirrored reasoning once while keeping additional typed STEM work", async () => {
+  const reasoning = "The average velocity is the change in position divided by elapsed time.";
+  const terms = "Your displacement: 0 m";
+  const blocks: AssignmentArtifactBlockInput[] = [
+    { key: "reasoning", type: "equation", capability: "equation_editor", label: "Reasoning", content: { reasoning, studentAuthoredText: reasoning } },
+    { key: "stem-checks", type: "equation", capability: "equation_editor", label: "Physics work", content: { studentAuthoredText: terms } },
+  ];
+  const texts = pdfText(await visiblePdfOperators(blocks));
+  expect(texts.filter((text) => text === assignment.title)).toHaveLength(1);
+  expect(texts.filter((text) => text === reasoning)).toHaveLength(1);
+  expect(texts).toContain(terms);
+  expect(submission(blocks).specialistRenderDocument?.blocks[0]?.plainText.split(reasoning)).toHaveLength(3);
+});

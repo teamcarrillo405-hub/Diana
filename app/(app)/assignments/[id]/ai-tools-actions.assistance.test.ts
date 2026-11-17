@@ -34,6 +34,7 @@ describe('assignment action assistance boundary', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     vi.stubEnv('OPENAI_API_KEY', '')
+    vi.stubEnv('DIANA_DURABLE_TASK_ASSISTANCE_ENABLED', 'true')
     mocks.user.mockResolvedValue({ data: { user: { id: ownerId } } })
     mocks.client.mockResolvedValue({ auth: { getUser: mocks.user }, functions: { invoke: mocks.invoke } })
     mocks.kernel.mockResolvedValue(kernel())
@@ -128,6 +129,54 @@ describe('assignment action assistance boundary', () => {
     expect(await requestAssignmentReview(input)).toEqual({ ok: false, error: 'Help is disabled.' })
     expect(mocks.local).not.toHaveBeenCalled()
     expect(mocks.receipt).not.toHaveBeenCalled()
+    expect(mocks.provider).not.toHaveBeenCalled()
+    expect(mocks.invoke).not.toHaveBeenCalled()
+  })
+
+  it('reviews non-linear work through the guarded Edge service without a Vercel provider key', async () => {
+    vi.stubEnv('DIANA_DURABLE_TASK_ASSISTANCE_ENABLED', '')
+    mocks.local.mockReturnValue(null)
+    mocks.invoke.mockResolvedValue({ data: { content: JSON.stringify(localResult), sourceAnchors: ['Worksheet | Page 1'] }, error: null })
+    const labInput = { ...input, template: 'lab' as const, fields: [{ label: 'Reasoning', value: 'I found the average velocity from the slope.' }] }
+    expect(await requestAssignmentReview(labInput)).toMatchObject({ ok: true, result: localResult, sourceAnchors: ['Worksheet | Page 1', 'Page 1', 'Worksheet'] })
+    expect(mocks.invoke).toHaveBeenCalledExactlyOnceWith('assignment-review', { body: {
+      assignmentId, ownerId, template: 'lab', aiMode: 'green', focus: input.focus, question: input.question,
+      fields: labInput.fields, homeworkContext: 'Canonical specialist artifact contexts:\nVerified specialist context\n\nVerified assignment context',
+      idempotencyKey: expect.stringMatching(/^assignment-review:[a-f0-9]{64}$/),
+    } })
+    expect(mocks.provider).not.toHaveBeenCalled()
+    expect(mocks.receipt).not.toHaveBeenCalled()
+  })
+
+  it('does not turn a rejected Edge review or malformed payload into completed review', async () => {
+    vi.stubEnv('DIANA_DURABLE_TASK_ASSISTANCE_ENABLED', '')
+    mocks.local.mockReturnValue(null)
+    mocks.invoke.mockResolvedValueOnce({ data: null, error: new Error('Private provider details') })
+    mocks.invoke.mockResolvedValueOnce({ data: { content: '{"title":"Review"}' }, error: null })
+    expect(await requestAssignmentReview(input)).toEqual({ ok: false, error: 'Diana review is unavailable right now. Try again in a moment.' })
+    expect(await requestAssignmentReview(input)).toEqual({ ok: false, error: 'Diana could not verify the review response. Try again.' })
+    expect(mocks.provider).not.toHaveBeenCalled()
+  })
+
+  it('preserves the guarded review service’s student safety redirect', async () => {
+    vi.stubEnv('DIANA_DURABLE_TASK_ASSISTANCE_ENABLED', '')
+    mocks.local.mockReturnValue(null)
+    const message = 'Please talk with a trusted adult.'
+    const context = Response.json({ error: 'safety_redirect', message }, { status: 422 })
+    mocks.invoke.mockResolvedValueOnce({ data: null, error: Object.assign(new Error('Edge response'), { context }) })
+    expect(await requestAssignmentReview(input)).toEqual({ ok: false, error: message })
+    expect(mocks.provider).not.toHaveBeenCalled()
+  })
+
+  it('does not advance review on a legacy provider outage placeholder', async () => {
+    vi.stubEnv('DIANA_DURABLE_TASK_ASSISTANCE_ENABLED', '')
+    mocks.local.mockReturnValue(null)
+    mocks.invoke.mockResolvedValueOnce({ data: { content: JSON.stringify({ ...localResult,
+      title: 'Diana review', strength: 'You have started with your own work.',
+      improvement: 'Make one connection to the assignment directions clearer.',
+      nextMove: 'Add one specific detail that supports your main idea.', question: 'Which detail best supports your next move?',
+    }) }, error: null })
+    expect(await requestAssignmentReview(input)).toEqual({ ok: false, error: 'Diana review is unavailable right now. Try again in a moment.' })
     expect(mocks.provider).not.toHaveBeenCalled()
   })
 

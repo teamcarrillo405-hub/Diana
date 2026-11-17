@@ -449,11 +449,18 @@
 .root.root.root :global(.sd-assignment-source-card-list) :is(a,small) { display:block; color:#d1e8dc; }
 .root.root.root :global(.sd-assignment-tools-toggle), .root.root.root :global(.sd-assignment-tools-close), .root.root.root :global(.sd-assignment-problems-toggle), .root.root.root :global(.sd-assignment-problems-close), .root.root.root :global(.sd-assignment-problem-sheet-scrim), .root.root.root :global(.sd-assignment-tools-scrim) { display:none; }
 .root.root.root :global(.sd-assignment-primary-tool) { padding:18px; background:var(--aw-paper); color:var(--aw-paper-ink); border-top:1px solid #9cb5a144; color-scheme:light; }
+.root.root.root :global(.assignment-native-tools),
 .root.root.root :global(.assignment-technical-tools) {
   min-inline-size:0;
   grid-template-columns:minmax(0,1fr);
 }
-.root.root.root :global(.assignment-lab-table):focus-visible {
+.root.root.root :global(.assignment-spreadsheet-chart-settings) {
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,8rem),1fr));
+}
+.root.root.root :global(.assignment-spreadsheet-chart-settings) :is(label,select) { min-inline-size:0; }
+.root.root.root :global(.assignment-spreadsheet-table) { max-inline-size:100%; }
+.root.root.root :global(.assignment-lab-table):focus-visible,
+.root.root.root :global(.assignment-spreadsheet-table):focus-visible {
   outline:2px solid #185843;
   outline-offset:2px;
 }
@@ -634,6 +641,7 @@
   .root.root.root :global(.sd-assignment-problem-tab[data-active="true"]) { border:2px solid Highlight; border-inline-start-width:5px; }
   .root.root.root :global(.sd-assignment-problem-tab):focus-visible,
   .root.root.root :global(.assignment-lab-table):focus-visible,
+  .root.root.root :global(.assignment-spreadsheet-table):focus-visible,
   .root.root.root :global(.sd-assignment-work-surface) :is(button,summary,textarea):focus-visible,
   .root.root.root .draftOverview :is(button,textarea):focus-visible { outline-color:Highlight; }
   .root.root.root .focusToggle[aria-pressed="true"],
