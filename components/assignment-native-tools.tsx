@@ -391,7 +391,7 @@ function SpreadsheetTool({ assignmentId, artifactType, initial }: ToolProps) {
         </label>
         <span className="text-sm font-bold text-slate-700" aria-live="polite">{importMessage}</span>
       </div>
-      <div className="overflow-x-auto"><table className="w-full min-w-[520px] border-collapse text-sm"><thead><tr><th aria-label="Row" />{SHEET_COLUMNS.map((column) => <th key={column} className="border border-slate-300 bg-slate-100 p-2">{column}</th>)}</tr></thead><tbody>
+      <div className="assignment-spreadsheet-table overflow-x-auto" role="region" aria-label="Spreadsheet cells" tabIndex={0}><table className="w-full min-w-[520px] border-collapse text-sm"><thead><tr><th aria-label="Row" />{SHEET_COLUMNS.map((column) => <th key={column} className="border border-slate-300 bg-slate-100 p-2">{column}</th>)}</tr></thead><tbody>
         {SHEET_ROWS.map((row) => <tr key={row}><th className="border border-slate-300 bg-slate-100 p-2">{row}</th>{SHEET_COLUMNS.map((column) => {
           const key = `${column}${row}`;
           const display = spreadsheetDisplayValue(key, cells);
@@ -400,7 +400,7 @@ function SpreadsheetTool({ assignmentId, artifactType, initial }: ToolProps) {
       </tbody></table></div>
       {dataset ? (
         <section className="mt-4 border-t border-slate-300 pt-4" aria-label="Imported data chart">
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="assignment-spreadsheet-chart-settings grid gap-2">
             <label className="text-sm font-bold">Chart type
               <select value={chartConfig.type} onChange={(event) => setChartConfig((current) => ({ ...current, type: event.target.value === "line" || event.target.value === "scatter" ? event.target.value : "bar" }))} className="mt-1 min-h-10 w-full border border-slate-400 bg-white px-2">
                 <option value="bar">Bar</option><option value="line">Line</option><option value="scatter">Scatter</option>
@@ -414,7 +414,7 @@ function SpreadsheetTool({ assignmentId, artifactType, initial }: ToolProps) {
             </label>
           </div>
           <SpecialistDataChart dataset={dataset} config={chartConfig} onRuntimeStateChange={setRuntimeState} />
-          <div className="mt-3 max-h-64 overflow-auto"><table className="w-full min-w-[520px] border-collapse text-sm"><thead><tr>{dataset.columns.slice(0, 8).map((column) => <th key={column} className="border border-slate-300 bg-slate-100 p-2 text-left">{column}</th>)}</tr></thead><tbody>{dataset.rows.slice(0, 8).map((row, rowIndex) => <tr key={rowIndex}>{row.slice(0, 8).map((value, columnIndex) => <td key={columnIndex} className="border border-slate-300 bg-white p-2">{value}</td>)}</tr>)}</tbody></table></div>
+          <div className="assignment-spreadsheet-table mt-3 max-h-64 overflow-auto" role="region" aria-label="Imported spreadsheet data" tabIndex={0}><table className="w-full min-w-[520px] border-collapse text-sm"><thead><tr>{dataset.columns.slice(0, 8).map((column) => <th key={column} className="border border-slate-300 bg-slate-100 p-2 text-left">{column}</th>)}</tr></thead><tbody>{dataset.rows.slice(0, 8).map((row, rowIndex) => <tr key={rowIndex}>{row.slice(0, 8).map((value, columnIndex) => <td key={columnIndex} className="border border-slate-300 bg-white p-2">{value}</td>)}</tr>)}</tbody></table></div>
           <p className="mb-0 mt-2 text-xs text-slate-600">Preview shows up to 8 rows and 8 columns. The bounded import remains in the specialist artifact context.</p>
         </section>
       ) : null}

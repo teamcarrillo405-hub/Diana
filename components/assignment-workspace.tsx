@@ -75,6 +75,10 @@ const AssignmentNativeTools = dynamic(
   () => import("@/components/assignment-native-tools").then((module) => module.AssignmentNativeTools),
   { ssr: false },
 );
+const HomeworkStemChecks = dynamic(
+  () => import("@/components/homework-stem-checks").then((module) => module.HomeworkStemChecks),
+  { ssr: false },
+);
 const AssignmentCreativeTools = dynamic(
   () => import("@/components/assignment-creative-tools").then((module) => module.AssignmentCreativeTools),
   { ssr: false },
@@ -364,6 +368,7 @@ export function AssignmentWorkspace({
               template={mode}
               unitNoun={presentation.unitNoun}
               unitNounPlural={presentation.unitNounPlural}
+              stemChecks={<HomeworkStemChecks assignmentId={assignmentId} artifactType={assignmentProfile.artifactType} course={courseLabel} title={title} initial={initialArtifactBlocks.find((block) => block.key === "stem-checks")} />}
               primaryTools={presentation.primaryCapability ? (
                 <WorkspaceTools assignmentId={assignmentId} title={title} profile={assignmentProfile} initialBlocks={initialArtifactBlocks} practicalGate={practicalGate} capabilities={[presentation.primaryCapability]} />
               ) : null}
@@ -396,7 +401,7 @@ function WorkspaceTools({ assignmentId, title, profile, initialBlocks, practical
   );
 }
 
-function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, reviewingWork, onReviewSubmission, assignmentDirections, collapseDirections, assignmentDetails, promptResources, fullDraft, starterMathPrompt, feedbackMessage, template, unitNoun, unitNounPlural, primaryTools, optionalTools }: {
+function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProblems, initialProblemMessages, initialWorkspacePreferences, aiMode, onMessage, onProblemsChange, registerFlush, workspacePending, reviewingWork, onReviewSubmission, assignmentDirections, collapseDirections, assignmentDetails, promptResources, fullDraft, starterMathPrompt, feedbackMessage, template, unitNoun, unitNounPlural, stemChecks, primaryTools, optionalTools }: {
   assignmentId: string;
   learningSubject: LearningDomain;
   initialProblems: Problem[];
@@ -419,6 +424,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
   template: AssignmentWorkspaceMode;
   unitNoun: string;
   unitNounPlural: string;
+  stemChecks: ReactNode;
   primaryTools: ReactNode;
   optionalTools: ReactNode;
 }) {
@@ -1046,6 +1052,7 @@ function AssignmentWorkspaceShell({ assignmentId, learningSubject, initialProble
                 </section>
               ) : null}
               {feedbackMessage ? <p className="sd-assignment-workspace-status-line" role="status">{feedbackMessage}</p> : null}
+              {stemChecks}
               {primaryTools ? <section className="sd-assignment-primary-tool" aria-label={`Primary ${unitNoun} tool`}>{primaryTools}</section> : null}
               <AssignmentReviewPanel
                 assignmentId={assignmentId}

@@ -296,7 +296,11 @@ export function graphPoints(expression: string, range: GraphRange = DEFAULT_GRAP
   return graphSegments(expression, range).flat();
 }
 
-function exactPolynomialValue(coefficients: Polynomial | null, x: Rational): Rational | null {
+export function graphPolynomialCoefficients(expression: string): Polynomial | null {
+  return parseGraphExpression(expression)?.polynomial ?? null;
+}
+
+export function exactPolynomialValue(coefficients: Polynomial | null, x: Rational): Rational | null {
   try { return coefficients?.reduceRight((value, coefficient) => add(multiply(value, x), coefficient), ZERO) ?? null; }
   catch { return null; }
 }
