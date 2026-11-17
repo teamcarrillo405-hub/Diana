@@ -8,9 +8,7 @@ import type { StudentNavigationProfile } from "@/components/screen-design/studen
 import { subjectArtwork } from "@/lib/assignment-navigation";
 import { calendarTimeZone } from "@/lib/calendar/time-zone";
 import { formatCampusName } from "@/lib/school-branding";
-import { schoolLogo } from "@/lib/school-branding-display";
 import shell from "@/components/student-shell/student-shell.module.css";
-import classroom from "../assignments/work-collection.module.css";
 import styles from "./classes-roster.module.css";
 
 export type SubjectLibraryCardModel = {
@@ -34,7 +32,6 @@ type Props = {
   closeCreateHref?: string;
   profile?: StudentNavigationProfile;
   schoolName?: string | null;
-  schoolLogoUrl?: string | null;
   timeZone?: string | null;
   unavailable?: boolean;
   workUnavailable?: boolean;
@@ -100,7 +97,7 @@ function FeaturedClass({ card, timeZone, workUnavailable }: {
 export function EmptyClassLibrary(props: Props) { return <MyClassesGrid {...props} cards={[]} />; }
 
 export function MyClassesGrid({
-  cards, createForm, createOpen, closeCreateHref, profile, schoolName, schoolLogoUrl, timeZone,
+  cards, createForm, createOpen, closeCreateHref, profile, schoolName, timeZone,
   unavailable = false, workUnavailable = false,
 }: Props & { cards: SubjectLibraryCardModel[] }) {
   const [query, setQuery] = useState("");
@@ -109,7 +106,6 @@ export function MyClassesGrid({
   const filter = query.trim().toLowerCase();
   const visible = cards.filter(card => `${card.name} ${card.teacher ?? ""}`.toLowerCase().includes(filter));
   const selected = visible.find(card => card.id === selectedId) ?? visible[0];
-  const logo = schoolLogo(schoolLogoUrl);
 
   function moveSelection(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const direction = event.key === "ArrowDown" ? 1 : event.key === "ArrowUp" ? -1 : 0;
@@ -125,9 +121,6 @@ export function MyClassesGrid({
 
   return <StudentShell active="Classes" campus campusScene profile={profile} className={styles.root}>
     <main id="main-content" className={styles.main} tabIndex={-1}>
-      {logo && <div className={classroom.roomBanner} aria-hidden="true" data-classroom-banner>
-        <div className={classroom.bannerFabric}><span><img src={logo} alt="" /></span></div>
-      </div>}
       <header className={styles.pageHeading}>
         <div className={styles.pageTitle}><p>{formatCampusName(schoolName)}</p><h1>Classes</h1></div>
         <Link href={createOpen ? closeCreateHref ?? "/classes" : "/classes?create=1"} className={shell.secondary}>

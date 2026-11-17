@@ -104,7 +104,7 @@ export default async function ClassesPage({
       .order("id", { ascending: false }),
     supabase
       .from("profiles")
-      .select("display_name, photo_url, photo_offset_x, photo_offset_y, school_name, school_logo_url, timezone")
+      .select("display_name, photo_url, photo_offset_x, photo_offset_y, school_name, timezone")
       .eq("user_id", user.id)
       .maybeSingle(),
   ]);
@@ -136,7 +136,6 @@ export default async function ClassesPage({
     closeCreateHref: returnTo,
     profile: navProfile,
     schoolName: profile?.school_name,
-    schoolLogoUrl: profile?.school_logo_url,
     timeZone: profile?.timezone,
     unavailable: Boolean(classError),
     workUnavailable: Boolean(workError),

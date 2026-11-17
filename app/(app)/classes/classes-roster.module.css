@@ -309,8 +309,6 @@
 
 @media (max-width: 700px) {
   .main { padding: 18px 15px 38px; }
-  .main:has([data-classroom-banner]) .pageTitle p { max-width: 17ch; }
-  .main [data-classroom-banner] { inset-inline-start: 46%; }
   .root .pageTitle h1 { font-size: clamp(2.55rem, 12vw, 3.3rem); }
   .root .pageTitle p { font-size: .7rem; }
   .pageHeading { padding-bottom: 11px; margin-bottom: 12px; }
@@ -332,7 +330,6 @@
 }
 
 @media (forced-colors: active) {
-  .root [data-classroom-banner] { display: none; }
   .root.root .classTabs button[aria-selected="true"] {
     border: 2px solid Highlight;
     background: Highlight;

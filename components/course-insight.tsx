@@ -11,7 +11,6 @@ import shell from "@/components/student-shell/student-shell.module.css";
 import { assignmentActionLabel, assignmentDestination, assignmentStatusLabel } from "@/lib/assignment-navigation";
 import { calendarTimeZone } from "@/lib/calendar/time-zone";
 import { classReferenceResources } from "@/lib/learning-engine/open-resources";
-import { schoolLogo } from "@/lib/school-branding-display";
 import type { AssignmentStatus } from "@/lib/supabase/types";
 
 export type CourseInsightAssignment = {
@@ -62,7 +61,6 @@ type CourseInsightProps = {
   syllabusForm: ReactNode;
   profile?: StudentNavigationProfile;
   campusName?: string;
-  campusLogoUrl?: string | null;
   timeZone?: string;
   workUnavailable?: boolean;
   notesUnavailable?: boolean;
@@ -94,13 +92,12 @@ export function CourseInsight({
   quizzes = [], quizzesUnavailable = false, teacherQuizzes = [], teacherQuizzesUnavailable = false,
   quizAssignments = [], practiceEnabled = false,
   sourceOpen, initialSection = "overview", workOrigin, rubricForm, syllabusForm, profile,
-  campusName, campusLogoUrl, timeZone = "UTC", workUnavailable = false, notesUnavailable = false,
+  campusName, timeZone = "UTC", workUnavailable = false, notesUnavailable = false,
 }: CourseInsightProps) {
   const classPath = `/classes/${encodeURIComponent(classId)}`;
   const active = assignments.filter(assignment => assignment.status !== "submitted" && assignment.status !== "graded" && assignment.status !== "abandoned");
   const completed = assignments.filter(assignment => assignment.status === "submitted" || assignment.status === "graded");
   const references = classReferenceResources(className);
-  const schoolMark = schoolLogo(campusLogoUrl);
   const section = sourceOpen ? "materials" : initialSection;
   const dateFormatter = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: calendarTimeZone(timeZone) });
   const date = (value?: string | null) => {
@@ -274,7 +271,6 @@ export function CourseInsight({
           <Link className={styles.textAction} href={workOrigin ? assignmentDestination(workOrigin.id, workOrigin.status) : "/classes"}>
             <ArrowLeft size={18} aria-hidden="true" />{workOrigin ? "Back to assignment" : "Back to Classes"}
           </Link>
-          {schoolMark ? <div className={styles.roomBanner} aria-hidden="true"><span><img src={schoolMark} alt="" /></span></div> : null}
           <Link className={shell.secondary} href={`${classPath}/settings`}><Settings size={16} aria-hidden="true" />Class settings</Link>
         </header>
         {sourceOpen ? (

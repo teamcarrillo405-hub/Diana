@@ -133,7 +133,7 @@ export default async function ClassDetailPage({
       : Promise.resolve({ data: [] as GradeRow[], error: null }),
     supabase
       .from("profiles")
-      .select("display_name, photo_url, photo_offset_x, photo_offset_y, timezone, school_name, school_logo_url")
+      .select("display_name, photo_url, photo_offset_x, photo_offset_y, timezone, school_name")
       .eq("user_id", user.id)
       .maybeSingle(),
     supabase.from("study_artifacts")
@@ -177,7 +177,6 @@ export default async function ClassDetailPage({
       className={cls.name}
       teacher={cls.teacher}
       campusName={formatCampusName(profile?.school_name)}
-      campusLogoUrl={profile?.school_logo_url}
       assignments={classAssignments}
       notes={classNotes}
       rubricTitle={rubricRow?.title ?? null}
