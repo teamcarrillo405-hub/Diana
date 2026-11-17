@@ -190,7 +190,12 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
 
         <div className={styles.submissionFlow}>
           <SectionTabs key={id} id="submission" label="Submission" sections={[
-            { id: "review", label: "Review", content: <AssignmentSubmissionPreview preview={preview} unitNoun={unitNoun} unitNounPlural={unitNounPlural} /> },
+            {
+              id: "review",
+              label: "Review",
+              content: <AssignmentSubmissionPreview preview={preview} unitNoun={unitNoun} unitNounPlural={unitNounPlural} />,
+              continueAction: { label: "Continue to hand in", className: `${styles.primary} ${styles.continueAction}` },
+            },
             { id: "hand-in", label: "Hand in", content: connectedProvider ? (
               <ExternalSubmissionSync
                 assignmentId={id}

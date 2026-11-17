@@ -36,7 +36,7 @@ export default async function CaptureReviewPage({ params }: { params: Promise<{ 
   const heading = item?.status === "converted" ? "Assignment added" : item?.status === "dismissed" ? "Capture set aside" : "Review capture";
 
   return (
-    <StudentShell active="Work">
+    <StudentShell active="Work" className={styles.room}>
       <main id="main-content" tabIndex={-1} className={styles.main}>
         <Link href={CAPTURES_PATH} className={styles.back}><ArrowLeft size={17} aria-hidden="true" /> Captured work</Link>
         <header className={styles.heading}><h1>{heading}</h1></header>
@@ -64,7 +64,7 @@ export default async function CaptureReviewPage({ params }: { params: Promise<{ 
                 <img src={photo.data.signedUrl} alt="Captured schoolwork" />
               ) : (
                 <div className={styles.notice}><p>Photo couldn’t load.</p><Link className={styles.secondary} href={reviewPath}>Try again</Link></div>
-              ) : <p>{original}</p>}
+              ) : <p className={styles.sourceText}>{original}</p>}
             </section>
             <ConfirmForm
               inboxItemId={item.id}

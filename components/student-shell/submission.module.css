@@ -106,6 +106,17 @@
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   align-items: start;
   gap: clamp(.9rem, 2vw, 1.5rem);
+  padding: clamp(.65rem, 2vw, 1.25rem);
+  border: 1px solid var(--campus-rule, #b9b19b52);
+  background: var(--campus-panel, #181f1b);
+}
+
+.root.root .main .continueAction {
+  display: flex;
+  width: fit-content;
+  min-height: 48px;
+  margin-block-start: 14px;
+  margin-inline-start: auto;
 }
 
 .paper,
@@ -548,7 +559,8 @@
   .reviewPaper .facts { grid-template-columns: minmax(0, 1fr); gap: 6px; margin-block: 12px; }
   .reviewPaper .facts > div { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 8px; align-items: baseline; }
   .reviewPaper .facts dd { margin: 0; }
-  .root.root .main .sendPanel .primary { width: 100%; }
+  .handoff { padding: .5rem; gap: .65rem; }
+  .root.root .main :is(.sendPanel .primary, .continueAction) { width: 100%; }
   .receipt { margin-block-start: 12px; }
 }
 
@@ -566,7 +578,7 @@
   .root.root .submissionFlow [role="tab"][aria-selected="true"]::after { display: none; }
   .root.root .submissionFlow [role="tab"][aria-selected="true"] { border-color: Highlight; }
   .root.root .title .eyebrow { border: 1px solid CanvasText; clip-path: none; }
-  .root.root :is(.paper, .sendPanel, .workBlock, .providerConfirmation, .receipt, .notice) {
+  .root.root :is(.handoff, .paper, .sendPanel, .workBlock, .providerConfirmation, .receipt, .notice) {
     background: Canvas;
     border-color: CanvasText;
     color: CanvasText;

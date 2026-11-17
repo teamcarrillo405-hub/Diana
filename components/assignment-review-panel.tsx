@@ -343,11 +343,9 @@ function MathToken({ value }: { value: string }) {
   return <span dangerouslySetInnerHTML={{ __html: markup }} />;
 }
 
-function EquationRows({ visualAid }: { visualAid: AssignmentVisualAid }) {
-  const rows = visualAid.equationRows?.length ? visualAid.equationRows : fallbackEquationRows(visualAid);
-  if (rows.length === 0) return null;
+function EquationRows({ rows }: { rows: readonly StructuredEquationRow[] }) {
   return (
-    <div className="sd-equation-rows" aria-label="Diana math steps">
+    <div className={`sd-equation-rows ${reviewStyles.equationRows}`} role="group" aria-label="Diana math steps">
       {rows.map((row, rowIndex) => row.kind === "divider" ? (
         <span key={`divider-${rowIndex}`} className="sd-equation-divider" aria-hidden="true" />
       ) : (
@@ -364,26 +362,37 @@ function EquationRows({ visualAid }: { visualAid: AssignmentVisualAid }) {
 
 function MathCoachVisual({ visualAid }: { visualAid: AssignmentVisualAid }) {
   if (visualAid.kind === "none") return null;
+  const title = visualAid.title || "Visual helper";
+  const steps = visualAid.steps.filter((step) => typeof step === "string" && step.trim());
   if (visualAid.kind === "equation_steps") {
-    const turn = visualAid.steps[3]?.trim();
+    const rows = visualAid.equationRows?.length ? visualAid.equationRows : fallbackEquationRows({ ...visualAid, steps });
+    const turn = steps[3]?.trim();
     return (
-      <div className="sd-assignment-diana-equation-card">
-        <EquationRows visualAid={visualAid} />
-        {turn ? <p>{turn}</p> : null}
+      <div className={`sd-assignment-diana-equation-card ${reviewStyles.visual}`}>
+        {rows.length > 0 ? <EquationRows rows={rows} /> : <VisualSteps steps={steps} label="Equation steps" />}
+        {rows.length > 0 && turn ? <p>{turn}</p> : null}
+        {rows.length === 0 && steps.length === 0 && visualAid.description ? <p>{visualAid.description}</p> : null}
       </div>
     );
   }
 
   return (
-    <div className="sd-assignment-diana-visual" aria-label="Diana visual helper" data-kind={visualAid.kind}>
-      <div><Sparkles size={14} aria-hidden="true" /><strong>{visualAid.title || "Visual helper"}</strong></div>
-      <svg viewBox="0 0 320 132" role="img" aria-label={visualAid.title || "Diana visual helper"}>
-        <VisualAidSvg visualAid={visualAid} />
-      </svg>
-      <p>{visualAid.description}</p>
-      {visualAid.steps.length > 0 ? <ol>{visualAid.steps.map((step) => <li key={step}>{step}</li>)}</ol> : null}
-    </div>
+    <figure className={`sd-assignment-diana-visual ${reviewStyles.visual}`} data-kind={visualAid.kind}>
+      <figcaption><Sparkles size={14} aria-hidden="true" />{title}</figcaption>
+      {visualAid.description ? <p>{visualAid.description}</p> : null}
+      {visualAid.kind === "process" ? null : (
+        <svg className={reviewStyles.sketch} viewBox="0 0 320 132" fill="none" stroke="currentColor" role="img" aria-label={title}>
+          <VisualAidSvg visualAid={visualAid} />
+        </svg>
+      )}
+      <VisualSteps steps={steps} label={visualAid.kind === "process" ? "Process steps" : "Visual aid steps"} />
+    </figure>
   );
+}
+
+function VisualSteps({ steps, label }: { steps: readonly string[]; label: string }) {
+  if (steps.length === 0) return null;
+  return <ol className={reviewStyles.visualSteps} aria-label={label}>{steps.map((step, index) => <li key={index}>{step}</li>)}</ol>;
 }
 
 function VisualAidSvg({ visualAid }: { visualAid: AssignmentVisualAid }) {
@@ -392,7 +401,6 @@ function VisualAidSvg({ visualAid }: { visualAid: AssignmentVisualAid }) {
   if (visualAid.kind === "fraction_bar") return <><rect x="54" y="42" width="212" height="26" rx="4" /><rect x="54" y="76" width="212" height="26" rx="4" /><line x1="107" y1="42" x2="107" y2="102" /><line x1="160" y1="42" x2="160" y2="102" /><line x1="213" y1="42" x2="213" y2="102" /></>;
   if (visualAid.kind === "geometry") return <><path d="M76 102 L152 30 L244 102 Z" /><path d="M152 30 L152 102" /><text x="152" y="120" textAnchor="middle">compare sides and angles</text></>;
   if (visualAid.kind === "table") return <><rect x="62" y="28" width="196" height="76" rx="4" /><line x1="62" y1="54" x2="258" y2="54" /><line x1="62" y1="80" x2="258" y2="80" /><line x1="128" y1="28" x2="128" y2="104" /><line x1="194" y1="28" x2="194" y2="104" /></>;
-  if (visualAid.kind === "process") return <><rect x="42" y="46" width="70" height="38" rx="8" /><rect x="126" y="46" width="70" height="38" rx="8" /><rect x="210" y="46" width="70" height="38" rx="8" /><line x1="112" y1="65" x2="126" y2="65" /><line x1="196" y1="65" x2="210" y2="65" /></>;
   return <><line x1="34" y1="72" x2="286" y2="72" />{[0, 1, 2, 3, 4, 5].map((tick) => <line key={tick} x1={52 + tick * 44} y1="62" x2={52 + tick * 44} y2="82" />)}<path d="M90 52 C126 24 194 24 230 52" /><circle cx="96" cy="72" r="7" /><circle cx="224" cy="72" r="7" /></>;
 }
 

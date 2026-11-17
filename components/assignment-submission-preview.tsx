@@ -17,11 +17,12 @@ const RUNTIME_STATUS_LABEL = {
   healthy: "Available",
   degraded: "Limited",
   unavailable: "Unavailable",
-  unknown: "Status unknown",
 } as const;
 
-function InkPreview({ value, number, unitNoun }: { value: string; number: number; unitNoun: string }) {
-  const document = parseAssignmentInkDocument(value);
+type SubmissionProblem = SubmissionPreview["problems"][number];
+type EquationBlock = CanonicalRenderBlock<"equation">;
+
+function InkPreview({ document, label }: { document: ReturnType<typeof parseAssignmentInkDocument>; label: string }) {
   if (document.strokes.length === 0) return null;
   return (
     <figure className={styles.inkPreview}>
@@ -30,7 +31,7 @@ function InkPreview({ value, number, unitNoun }: { value: string; number: number
         viewBox={`0 0 ${document.logicalWidth} ${document.logicalHeight}`}
         preserveAspectRatio="xMidYMid meet"
         role="img"
-        aria-label={`Handwriting for ${unitNoun} ${number}`}
+        aria-label={`Handwriting for ${label}`}
       >
         {document.strokes.map((stroke) => (
           <polyline key={stroke.id} points={stroke.points.map((point) => `${point.x},${point.y}`).join(" ")} />
@@ -40,22 +41,32 @@ function InkPreview({ value, number, unitNoun }: { value: string; number: number
   );
 }
 
+function specialistDisplayText(block: CanonicalRenderBlock): string {
+  if (block.type !== "equation") return block.plainText;
+  const { studentAuthoredText, reasoning, answer } = block.content;
+  if (!studentAuthoredText || (studentAuthoredText !== reasoning && studentAuthoredText !== answer)) return block.plainText;
+  const duplicate = `\n\n${studentAuthoredText}`;
+  return block.plainText.endsWith(duplicate) ? block.plainText.slice(0, -duplicate.length) : block.plainText;
+}
+
 function SpecialistBlockPreview({ block }: { block: CanonicalRenderBlock }) {
-  const fallbackVisible = block.runtimeHealth.status !== "healthy";
+  const toolStatus = block.runtimeHealth.status;
+  const fallbackVisible = toolStatus === "degraded" || toolStatus === "unavailable";
   const projection = assignmentPlotForBlock(block);
+  const work = specialistDisplayText(block);
   return (
     <article className={styles.workBlock} data-specialist-kind={block.type}>
       <header>
         <h3>{block.label}</h3>
-        <span>{RUNTIME_STATUS_LABEL[block.runtimeHealth.status]}</span>
+        {toolStatus !== "unknown" ? <span>{RUNTIME_STATUS_LABEL[toolStatus]}</span> : null}
       </header>
       <p>{block.summary}</p>
       {projection?.plot ? <AssignmentPlotPreview plot={projection.plot} /> : null}
       {projection?.fallback ? <p>{projection.fallback}</p> : null}
-      {block.plainText ? (
+      {work ? (
         <div className={styles.typedWork}>
           <strong>Specialist work</strong>
-          <pre>{block.plainText}</pre>
+          <pre>{work}</pre>
         </div>
       ) : null}
       {fallbackVisible ? (
@@ -63,6 +74,45 @@ function SpecialistBlockPreview({ block }: { block: CanonicalRenderBlock }) {
           Typed and handwriting work remains included in this submission.
         </p>
       ) : null}
+    </article>
+  );
+}
+
+function workFields(problem: SubmissionProblem, equation?: EquationBlock) {
+  const { reasoning, answer, latex, explanation, handwriting, studentAuthoredText } = equation?.content ?? {};
+  // The generated equation block mirrors this same work for downstream delivery.
+  const mirroredText = [reasoning || answer, handwriting ? "Handwritten work attached." : ""].filter(Boolean).join("\n");
+  const fields = [
+    { label: answer === problem.typedWork ? "Answer" : "Student work", value: problem.typedWork },
+    { label: "Reasoning", value: reasoning },
+    { label: "Answer", value: answer },
+    { label: "Notation", value: latex },
+    { label: "Explanation", value: explanation },
+    { label: "Additional student work", value: studentAuthoredText === mirroredText ? "" : studentAuthoredText },
+  ];
+  const shown = new Set<string>();
+  return fields.flatMap(({ label, value }) => {
+    if (!value || shown.has(value)) return [];
+    shown.add(value);
+    return [{ label, value }];
+  });
+}
+
+function WorkUnitPreview({ problem, label, equation }: { problem: SubmissionProblem; label: string; equation?: EquationBlock }) {
+  const fields = workFields(problem, equation);
+  const ink = parseAssignmentInkDocument(problem.inkData || equation?.content.handwriting || "");
+  const toolStatus = equation?.runtimeHealth.status;
+  const toolLimited = toolStatus === "degraded" || toolStatus === "unavailable";
+  return (
+    <article className={styles.workBlock} data-complete={problem.complete || undefined}>
+      <header><h3>{label}</h3><span>{problem.complete ? "Complete" : "Incomplete"}</span></header>
+      {problem.prompt.trim() && problem.prompt.trim() !== label ? <p>{problem.prompt}</p> : null}
+      {fields.map(({ label: fieldLabel, value }) => (
+        <div key={fieldLabel} className={styles.typedWork}><strong>{fieldLabel}</strong><pre>{value}</pre></div>
+      ))}
+      {fields.length === 0 && ink.strokes.length === 0 ? <p>No work saved yet.</p> : null}
+      <InkPreview document={ink} label={label} />
+      {toolLimited ? <p>Equation tool {RUNTIME_STATUS_LABEL[toolStatus].toLowerCase()}. Saved work is included in this submission.</p> : null}
     </article>
   );
 }
@@ -118,7 +168,19 @@ export function AssignmentSubmissionPreview({ preview, unitNoun = "problem", uni
   const canonicalPayload = canonicalSubmissionPayloadForTarget(preview, "preview");
   const unitLabel = capitalizeLabel(unitNoun);
   const unitsLabel = capitalizeLabel(unitNounPlural);
-  const incompleteLabel = preview.incompleteProblemNumbers.length === 1 ? unitLabel : unitsLabel;
+  const equationById = new Map(canonicalPayload.specialistProjection.contextBlocks.flatMap((block) =>
+    block.type === "equation" ? [[block.id, block] as const] : []));
+  const groupedEquations = new Set<string>();
+  const workUnits = preview.problems.map((problem) => {
+    const block = equationById.get(`problem-${problem.number}`);
+    const equation = block && block.content.problemText === problem.prompt.trim() ? block : undefined;
+    if (equation) groupedEquations.add(equation.id);
+    return { problem, equation, label: preview.problemLabels?.[problem.id]?.trim() || `${unitLabel} ${problem.number}` };
+  });
+  const pendingNumbers = new Set(preview.incompleteProblemNumbers);
+  const incompleteLabel = workUnits.filter(({ problem }) => pendingNumbers.has(problem.number)).map(({ label }) => label).join(", ")
+    || `${preview.incompleteProblemNumbers.length === 1 ? unitLabel : unitsLabel} ${preview.incompleteProblemNumbers.join(", ")}`;
+  const specialistBlocks = canonicalPayload.specialistProjection.contextBlocks.filter((block) => !groupedEquations.has(block.id));
 
   return (
     <section className={`${styles.paper} ${styles.reviewPaper}`} aria-labelledby="submission-preview-title">
@@ -136,31 +198,16 @@ export function AssignmentSubmissionPreview({ preview, unitNoun = "problem", uni
         <div><dt>{unitsLabel}</dt><dd>{preview.problems.length || "Full assignment"}</dd></div>
       </dl>
 
-      {canonicalPayload.specialistProjection.contextBlocks.length > 0 ? (
-        <div className={styles.workBlocks} aria-label="Specialist assignment work">
-          {canonicalPayload.specialistProjection.contextBlocks.map((block) => (
-            <SpecialistBlockPreview key={block.id} block={block} />
-          ))}
-        </div>
-      ) : null}
-
       {preview.incompleteProblemNumbers.length > 0 ? (
         <div className={styles.notice} role="status">
           <AlertTriangle size={19} aria-hidden="true" />
-          <span><strong>Still marked incomplete:</strong> {incompleteLabel} {preview.incompleteProblemNumbers.join(", ")}. You can hand in now or check your work first.</span>
+          <span><strong>Still marked incomplete:</strong> {incompleteLabel}. You can hand in now or check your work first.</span>
         </div>
       ) : null}
 
-      {preview.problems.length > 0 ? (
+      {workUnits.length > 0 ? (
         <div className={styles.workBlocks}>
-          {preview.problems.map((problem) => (
-            <article key={problem.id} className={styles.workBlock} data-complete={problem.complete || undefined}>
-              <header><h3>{unitLabel} {problem.number}</h3><span>{problem.complete ? "Done" : "Incomplete"}</span></header>
-              <p>{problem.prompt}</p>
-              {problem.typedWork ? <div className={styles.typedWork}><strong>Student work</strong><pre>{problem.typedWork}</pre></div> : <p>No typed work saved.</p>}
-              <InkPreview value={problem.inkData} number={problem.number} unitNoun={unitNoun} />
-            </article>
-          ))}
+          {workUnits.map(({ problem, label, equation }) => <WorkUnitPreview key={problem.id} problem={problem} label={label} equation={equation} />)}
         </div>
       ) : (
         <div className={`${styles.workBlock} ${styles.typedWork}`}>
@@ -168,6 +215,11 @@ export function AssignmentSubmissionPreview({ preview, unitNoun = "problem", uni
           <pre>{(preview.universalTextPayload ?? canonicalPayload.universalTextPayload) || (canonicalPayload.specialistProjection.contextBlocks.length === 0 ? canonicalPayload.textPayload : "No typed work saved.") || "No work saved yet."}</pre>
         </div>
       )}
+      {specialistBlocks.length > 0 ? (
+        <div className={styles.workBlocks} aria-label="Specialist assignment work">
+          {specialistBlocks.map((block) => <SpecialistBlockPreview key={block.id} block={block} />)}
+        </div>
+      ) : null}
     </section>
   );
 }

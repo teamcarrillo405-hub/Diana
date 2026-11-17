@@ -1,3 +1,16 @@
+.room::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 auto;
+  block-size: clamp(230px, 28vw, 360px);
+  background:
+    linear-gradient(90deg, #111813f5 18%, #11181392),
+    url('/assets/work/college-classroom-1920.webp') right 40% / cover no-repeat;
+  mask-image: linear-gradient(#000 30%, transparent);
+  pointer-events: none;
+  content: "";
+}
+
 .main.main {
   width: min(100%, 1120px);
   margin-inline: auto;
@@ -124,6 +137,22 @@
   color: var(--campus-action-text);
 }
 
+@supports (mask-mode: luminance) {
+  .main.main .tabs button { position: relative; isolation: isolate; }
+  .main.main .tabs button[aria-pressed=true] { background: var(--campus-panel); }
+  .main.main .tabs button[aria-pressed=true]::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: var(--campus-action);
+    mask:
+      linear-gradient(#000, #000) center / calc(100% - 16px) calc(100% - 16px) no-repeat,
+      url('/assets/today-now/selection-brush-v1.webp') center / 100% 100% no-repeat;
+    mask-mode: alpha, luminance;
+    content: "";
+  }
+}
+
 .fields {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1.15fr);
@@ -216,11 +245,23 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, .9fr);
   align-items: start;
-  gap: 16px;
+  border: 1px solid var(--campus-rule);
+  border-block-start: 3px solid var(--campus-action);
+  background: var(--campus-panel);
 }
+
+.reviewGrid > .panel { border: 0; background: transparent; }
+.reviewGrid > .reviewForm { border-inline-start: 1px solid var(--campus-rule); }
 
 .original { display: grid; gap: 14px; }
 .original p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14px; line-height: 1.7; }
+.main.main .sourceText {
+  max-height: 22rem;
+  overflow: auto;
+  padding: clamp(12px, 2vw, 18px);
+  background: #f7f3e7;
+  color: #1c2720;
+}
 
 .original img {
   display: block;
@@ -229,7 +270,7 @@
   object-fit: contain;
   object-position: center top;
   border: 1px solid var(--campus-rule);
-  background: #101813;
+  background: #f7f3e7;
 }
 
 .reviewForm .fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -237,14 +278,29 @@
 
 @media (max-width: 720px) {
   .main.main .heading { margin-bottom: 14px; }
-  .reviewGrid { grid-template-columns: 1fr; gap: 12px; }
+  .reviewGrid { grid-template-columns: minmax(0, 1fr); }
+  .reviewGrid > .reviewForm { border-inline-start: 0; border-block-start: 1px solid var(--campus-rule); }
   .fields { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 440px) {
+  .room::after {
+    background:
+      linear-gradient(90deg, #111813f2, #11181383),
+      url('/assets/work/college-classroom-mobile.webp') 65% 44% / cover no-repeat;
+  }
   .drop { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
   .drop > svg { display: none; }
   .main.main .tabs button { padding-inline: 9px; }
   .form { gap: 12px; }
   .reviewForm .fields { grid-template-columns: minmax(0, 1fr); }
+  .reviewForm .actions > .primary { flex: 1; }
+}
+
+:global(.high-contrast) .room::after { display: none; }
+
+@media (forced-colors: active) {
+  .room::after, .main.main .tabs button[aria-pressed=true]::before { display: none; }
+  .main.main .tabs button[aria-pressed=true] { border-block-end-color: Highlight; }
+  .main.main .sourceText, .original img { background: Canvas; color: CanvasText; }
 }

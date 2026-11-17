@@ -172,7 +172,10 @@ describe("assignment submission destination", () => {
     render(await SubmitPage({ params: Promise.resolve({ id: assignmentId }) }));
     expect(screen.getByRole("link", { name: "Back to Work" })).toHaveAttribute("href", "/assignments?return=1");
     expect(screen.getByRole("link", { name: "Edit in workspace" })).toHaveAttribute("href", `/assignments/${assignmentId}/workspace`);
-    fireEvent.click(screen.getByRole("tab", { name: "Hand in" }));
+    expect(screen.getByRole("tabpanel", { name: "Review" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Continue to hand in" }));
+    expect(screen.getByRole("tab", { name: "Hand in" })).toHaveFocus();
+    expect(screen.getByRole("tabpanel", { name: "Hand in" })).toBeTruthy();
 
     const download = screen.getByRole("button", { name: "Download PDF" });
     const destination = screen.getByRole("link", { name: "Open saved submission link" });

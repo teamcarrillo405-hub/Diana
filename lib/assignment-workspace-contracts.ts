@@ -162,6 +162,8 @@ export type AssignmentSubmissionPreview = {
   textPayload: string;
   universalTextPayload?: string;
   specialistRenderDocument?: CanonicalRenderDocument;
+  /** Display-only unit headings. Delivery receipts use the canonical problems below. */
+  problemLabels?: Record<string, string>;
   problems: Array<{
     id: string;
     number: number;

@@ -1,4 +1,4 @@
-const CACHE_NAME = "diana-pwa-v34";
+const CACHE_NAME = "diana-pwa-v35";
 // Only public fallback HTML is cacheable. Signed-in navigation and RSC responses
 // must never survive an account change in a shared browser.
 const CORE_ROUTES = ["/offline"];

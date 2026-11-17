@@ -9,6 +9,7 @@ import type { StudentNavigationProfile } from "@/components/screen-design/studen
 import { assignmentActionLabel, assignmentCollectionState, assignmentDestination, assignmentStatusLabel, subjectArtwork, type AssignmentCollectionState } from "@/lib/assignment-navigation";
 import { todayDateKey } from "@/lib/dashboard/today-view";
 import { formatCampusName } from "@/lib/school-branding";
+import { schoolLogo } from "@/lib/school-branding-display";
 import type { AssignmentKind, AssignmentStatus } from "@/lib/supabase/types";
 import shell from "@/components/student-shell/student-shell.module.css";
 import styles from "./work-collection.module.css";
@@ -50,6 +51,7 @@ type Props = StudentNavigationProfile & {
   initialCategory?: AssignmentCollectionState;
   captureCount?: number;
   schoolName?: string | null;
+  schoolLogoUrl?: string | null;
   studentId?: string;
   restoreContext?: boolean;
 };
@@ -75,8 +77,10 @@ function restoreBoard(key: string, defaults: BoardState): BoardState {
   }
 }
 
-export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unavailable = false, initialCategory = "active", captureCount = 0, schoolName, studentId, restoreContext = false, ...profile }: Props) {
+export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unavailable = false, initialCategory = "active", captureCount = 0, schoolName, schoolLogoUrl, studentId, restoreContext = false, ...profile }: Props) {
   const today = todayDateKey(nowIso, timeZone);
+  const campusName = formatCampusName(schoolName);
+  const campusLogo = schoolLogo(schoolLogoUrl);
   const storageKey = studentId ? `diana.work.board.${studentId}` : null;
   const [board, setBoard] = useState<BoardState>(() => ({
     category: initialCategory, query: "", subject: "all", selectedId: "", selectedDay: null, weekDay: today,
@@ -152,10 +156,13 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
   return (
     <StudentShell active="Work" profile={profile} campusScene showAdd={false}>
       <main id="main-content" className={`${shell.main} ${styles.main}`} tabIndex={-1}>
+        {campusLogo && <div className={styles.roomBanner} data-work-campus-banner aria-hidden="true">
+          <div className={styles.bannerFabric}><span><img src={campusLogo} alt="" /></span></div>
+        </div>}
         <header className={styles.header}>
-          <div><p>{formatCampusName(schoolName)}</p><h1>Work</h1></div>
+          <div className={styles.identity}><p>{campusName}</p><h1>Work</h1></div>
           <div className={styles.headerActions}>
-            {captureCount > 0 && <Link className={shell.secondary} href="/assignments/captures" onClick={saveReturn}><Inbox size={17} aria-hidden="true" />Captured <span>{captureCount}</span></Link>}
+            {captureCount > 0 && <Link className={shell.secondary} href="/assignments/captures" onClick={saveReturn}><Inbox size={17} aria-hidden="true" /><span>Captured</span><span className={styles.captureCount}>{captureCount}</span></Link>}
             <Link className={shell.secondary} href="/quick-add" onClick={saveReturn} aria-label="Add assignment"><Plus size={18} aria-hidden="true" /><span className={styles.fullAdd}>Add assignment</span><span className={styles.shortAdd}>Add</span></Link>
           </div>
         </header>
@@ -164,7 +171,10 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
           <div className={styles.categories} role="group" aria-label="Assignment status">
             {categories.map(entry => {
               const count = assignments.filter(item => assignmentCollectionState(item.status) === entry.id).length;
-              return <button key={entry.id} aria-label={`${entry.label} ${count}`} aria-pressed={category === entry.id} onClick={() => update({ category: entry.id })}>{entry.label}<span aria-hidden="true">{count}</span></button>;
+              return <button key={entry.id} aria-label={`${entry.label} ${count}`} aria-pressed={category === entry.id} onClick={() => update({ category: entry.id })}>
+                {entry.id === "ready" ? <><span className={styles.fullStatus}>Ready to submit</span><span className={styles.shortStatus}>Ready</span></> : entry.label}
+                <span className={styles.categoryCount} aria-hidden="true">{count}</span>
+              </button>;
             })}
           </div>
           <div className={styles.filters}>
@@ -204,9 +214,9 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
               const countLabel = `${count} ${count === 1 ? "assignment" : "assignments"}`;
               return (
                 <button key={key} aria-label={`${format(day, "EEEE, MMMM d")}, ${countLabel}`} aria-pressed={selectedDay === key} aria-current={key === today ? "date" : undefined} onClick={() => pickDate(selectedDay === key ? null : key)}>
-                  <span>{format(day, "EEE")}</span>
-                  <strong>{format(day, "d")}</strong>
-                  <span>{count}<span className={styles.dayNoun}> {count === 1 ? "assignment" : "assignments"}</span></span>
+                  <span className={styles.dayWeekday}>{format(day, "EEE")}</span>
+                  <strong className={styles.dayDate}>{format(day, "d")}</strong>
+                  <span className={styles.dayCount} data-empty={count === 0 || undefined} aria-hidden="true">{count}<span className={styles.dayNoun}> {count === 1 ? "assignment" : "assignments"}</span></span>
                 </button>
               );
             })}
@@ -231,20 +241,22 @@ export function WorkCommandCenter({ assignments, nowIso, timeZone = "UTC", unava
               </div>
             </section>
             <section id="selected-assignment" role="tabpanel" aria-labelledby={`assignment-${selected.id}`} className={styles.selected}>
-              <div className={styles.art} style={{ "--assignment-art": `url("${subjectArtwork(artSubject ?? selected.className)}")` } as CSSProperties}>
-                <div>
-                  <span className={styles.course}>{selected.className}</span>
-                  <h2>{selected.title}</h2>
+              <div className={styles.featured}>
+                <div className={styles.art} style={{ "--assignment-art": `url("${subjectArtwork(artSubject ?? selected.className)}")` } as CSSProperties}>
+                  <div>
+                    <span className={styles.course}>{selected.className}</span>
+                    <h2>{selected.title}</h2>
+                  </div>
                 </div>
-              </div>
-              <div className={styles.assignmentDetails}>
-                <h3>Assignment details</h3>
-                <dl className={styles.facts}>
-                  <div><dt>Due</dt><dd>{selected.dueAt ? dueFormatter.format(new Date(selected.dueAt)) : "No due date"}</dd></div>
-                  {selected.minutes !== null && <div><dt>Estimated work</dt><dd>{selected.minutes} min</dd></div>}
-                  <div><dt>Status</dt><dd>{assignmentStatusLabel(selected.status)}</dd></div>
-                </dl>
-                <Link className={`${shell.primary} ${styles.open}`} href={assignmentDestination(selected.id, selected.status)} onClick={saveReturn} aria-label={`${assignmentActionLabel(selected.status)} ${selected.title}`}>{assignmentActionLabel(selected.status)}<ArrowRight size={20} aria-hidden="true" /></Link>
+                <div className={styles.assignmentDetails}>
+                  <h3>Assignment details</h3>
+                  <dl className={styles.facts}>
+                    <div><dt>Due</dt><dd>{selected.dueAt ? dueFormatter.format(new Date(selected.dueAt)) : "No due date"}</dd></div>
+                    {selected.minutes !== null && <div><dt>Estimated work</dt><dd>{selected.minutes} min</dd></div>}
+                    <div><dt>Status</dt><dd>{assignmentStatusLabel(selected.status)}</dd></div>
+                  </dl>
+                  <Link className={`${shell.primary} ${styles.open}`} href={assignmentDestination(selected.id, selected.status)} onClick={saveReturn} aria-label={`${assignmentActionLabel(selected.status)} ${selected.title}`}>{assignmentActionLabel(selected.status)}<ArrowRight size={20} aria-hidden="true" /></Link>
+                </div>
               </div>
               {selected.description && <details key={selected.id} className={styles.instructions}><summary>Assignment instructions</summary><p>{selected.description}</p></details>}
             </section>

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
@@ -281,7 +281,37 @@ describe("AssignmentReviewPanel math chat", () => {
       question: "",
     })));
     expect(await screen.findByText(/Try subtracting the same value/)).toBeTruthy();
-    expect(screen.getByLabelText("Diana visual helper")).toBeTruthy();
+    expect(screen.getByRole("img", { name: "Equation balance" })).toHaveAttribute("fill", "none");
+  });
+
+  it("shows the actual chemistry review steps in reading order without empty diagram boxes", async () => {
+    const steps = ["Convert the solution volume to liters.", "Divide the moles of solute by the volume in liters.", "Check the concentration unit and significant figures."];
+    mocks.requestAssignmentReview.mockResolvedValueOnce({
+      ok: true,
+      sourceAnchors: [],
+      result: {
+        title: "Chemistry review",
+        strength: "The conversion is present.",
+        improvement: "Show the units in each line.",
+        nextMove: "Check that the units cancel correctly.",
+        question: "What unit should remain?",
+        evidenceAnchor: "Student work",
+        visualAid: { kind: "process", title: "Molarity setup", description: "Keep the units visible.", steps },
+      },
+    });
+    const props = {
+      assignmentId: "11111111-1111-4111-8111-111111111111", problemId: "22222222-2222-4222-8222-222222222222",
+      template: "lab", aiMode: "green",
+      fields: [{ label: "Student work", value: "I used 0.250 mol and converted the volume to liters." }],
+    } as const;
+    const fields = [...props.fields];
+    const { rerender } = render(<AssignmentReviewPanel {...props} fields={fields} />);
+    rerender(<AssignmentReviewPanel {...props} fields={fields} mathReviewSignal={1} />);
+
+    const sequence = await screen.findByRole("list", { name: "Process steps" });
+    expect(within(sequence).getAllByRole("listitem").map((step) => step.textContent)).toEqual(steps);
+    expect(sequence.closest("figure")).toHaveTextContent("Molarity setup");
+    expect(screen.queryByRole("img", { name: "Molarity setup" })).not.toBeInTheDocument();
   });
 
   it("keeps each problem conversation separate", async () => {

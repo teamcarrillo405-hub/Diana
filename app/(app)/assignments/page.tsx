@@ -86,6 +86,7 @@ export default async function AssignmentsPage({ searchParams }: { searchParams: 
       studentId={user.id}
       restoreContext={!view && returnToBoard === "1"}
       schoolName={profile?.school_name}
+      schoolLogoUrl={profile?.school_logo_url}
       captureCount={captures.count ?? 0}
       assignments={collection.map(
         (assignment): WorkCommandItem => ({

@@ -1,8 +1,68 @@
 .main.main {
-  --work-surface: color-mix(in srgb, var(--campus-panel) 86%, transparent);
+  --work-surface: color-mix(in srgb, var(--campus-panel) 93%, transparent);
+  --work-feature: #18231c;
+  --work-trim: color-mix(in srgb, var(--school-secondary, #cfb583) 60%, var(--campus-border));
+  --work-edge: color-mix(in srgb, var(--campus-action) 76%, var(--campus-muted));
+  position: relative;
+  isolation: isolate;
   width: min(100%, 1536px);
   padding: clamp(22px, 3vw, 42px) clamp(16px, 3.4vw, 52px) 56px;
 }
+
+.main::before {
+  position: fixed;
+  inset: 74px 0 auto;
+  z-index: -2;
+  height: clamp(260px, 46vh, 480px);
+  background: radial-gradient(ellipse at 95% 8%, #141e17a0, #131e175c 52%, transparent 78%);
+  mask-image: linear-gradient(#000 17%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
+.roomBanner {
+  position: absolute;
+  z-index: -1;
+  inset: 17px auto auto 56%;
+  width: clamp(70px, 7.4vw, 120px);
+  padding-top: 4px;
+  transform: rotate(-1.25deg);
+  filter: drop-shadow(7px 7px 7px #0a100aba);
+  pointer-events: none;
+}
+
+.roomBanner::before {
+  position: absolute;
+  inset: 0 -5px auto;
+  height: 5px;
+  border-radius: 1px;
+  background: linear-gradient(#aaa083, #574d39 55%, #201a13);
+  content: "";
+}
+
+.bannerFabric {
+  display: grid;
+  justify-items: center;
+  align-items: start;
+  min-height: clamp(94px, 10.2vw, 150px);
+  padding: 17% 14% 34%;
+  border-inline: 2px solid var(--work-trim);
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 50% 100%, 0 82%);
+  background:
+    linear-gradient(90deg, #0006, transparent 23%, #fff1 62%, #0005),
+    repeating-linear-gradient(94deg, #0001 0 3px, transparent 3px 7px),
+    color-mix(in srgb, var(--campus-action) 59%, #1b231d);
+  box-shadow: inset 0 8px 9px #0005;
+}
+.bannerFabric span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  width: 86%;
+  background: #e0d3b3;
+  box-shadow: inset 0 0 0 1px #362a224d, 0 2px 2px #0005;
+}
+.bannerFabric img { display: block; width: 82%; height: 82%; object-fit: contain; }
 
 .header {
   display: flex;
@@ -13,13 +73,15 @@
   border-bottom: 1px solid var(--campus-rule);
 }
 
+.identity { min-width: 0; }
 .main.main .header p { color: var(--campus-muted); font: 800 .84rem/1.25 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; overflow-wrap: anywhere; }
 .main.main .header h1 { color: var(--campus-ink); font: italic 850 clamp(3.1rem, 5.3vw, 5.15rem)/.92 var(--campus-display); text-transform: uppercase; }
 .headerActions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .headerActions a { white-space: nowrap; }
-.shortAdd { display: none; }
+.captureCount { color: var(--campus-muted); }
+.shortAdd, .shortStatus { display: none; }
 
-.toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px; padding: 12px 0; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; padding: 9px 0; }
 .categories { display: flex; flex-wrap: wrap; align-items: stretch; gap: 5px; }
 .main.main .categories button {
   position: relative;
@@ -31,7 +93,7 @@
   min-height: 44px;
   padding: 5px 17px;
   border: 0;
-  background: var(--work-surface);
+  background: color-mix(in srgb, var(--work-surface) 70%, transparent);
   color: var(--campus-muted);
   font: 800 1.16rem/1.15 var(--campus-display);
   text-align: left;
@@ -40,13 +102,13 @@
 
 .main.main .categories button:hover, .main.main .dateToggle:hover { color: var(--campus-ink); background: var(--campus-raised); }
 .main.main .categories button[aria-pressed=true] { background: transparent; color: var(--campus-action-text); }
-.main.main .categories button span { font: 600 .75rem/1 sans-serif; opacity: .9; }
+.main.main .categories button .categoryCount { font: 600 .72rem/1 sans-serif; opacity: .8; }
 
 .filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(118px, 146px); flex: 0 1 370px; gap: 6px; }
 .search, .main.main .filters select, .main.main .dateToggle {
   min-height: 44px;
   min-width: 0;
-  border: 1px solid var(--campus-rule);
+  border: 1px solid color-mix(in srgb, var(--campus-rule) 70%, transparent);
   border-radius: 0;
   background: var(--work-surface);
   color: var(--campus-ink);
@@ -63,7 +125,7 @@
 .main.main .filters option { background: var(--campus-panel); }
 .dateToggle { display: none; }
 
-.datePanel { margin-bottom: 20px; padding-top: 12px; border-top: 1px solid var(--campus-rule); }
+.datePanel { margin-bottom: 17px; padding-top: 9px; border-top: 1px solid var(--campus-rule); }
 .dateHeading, .weekNavigation, .dateOptions { display: flex; align-items: center; gap: 6px; }
 .dateHeading { gap: 16px; }
 .dateOptions { margin-inline-start: auto; }
@@ -71,8 +133,8 @@
 .main.main .datePanel button {
   display: inline-grid;
   place-items: center;
-  min-width: 36px;
-  min-height: 38px;
+  min-width: 44px;
+  min-height: 44px;
   padding: 4px 9px;
   border: 1px solid var(--campus-rule);
   background: var(--work-surface);
@@ -82,16 +144,19 @@
 
 .main.main .datePanel button:hover { background: var(--campus-raised); }
 .main.main .datePanel button[aria-pressed=true] { position: relative; isolation: isolate; background: transparent; color: var(--campus-action-text); }
-.days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 7px; margin-top: 8px; }
-.main.main .days button { min-width: 0; min-height: 73px; align-content: center; justify-items: start; gap: 1px; padding: 8px 13px; border-width: 1px 0 0; }
+.days { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 6px; margin-top: 6px; }
+.main.main .days button { min-width: 0; min-height: 68px; align-content: center; justify-items: start; gap: 2px; padding: 5px 12px; border-width: 1px 0 0; }
 .main.main .days button[aria-current=date] { border-top: 2px solid var(--campus-focus); }
-.days span { text-align: start; font-size: .73rem; }
-.main.main .days strong { font: 850 1.8rem/1.02 var(--campus-display); }
-.days button[aria-current=date] strong { text-decoration: underline; text-underline-offset: 3px; }
+.dayWeekday { font-size: .72rem; }
+.main.main .dayDate { font: 850 1.65rem/1.02 var(--campus-display); }
+.dayCount { font-size: .7rem; color: var(--campus-muted); white-space: nowrap; }
+.dayCount[data-empty] { opacity: .72; }
+.days button[aria-pressed=true] .dayCount { color: inherit; opacity: 1; }
+.days button[aria-current=date] .dayDate { text-decoration: underline; text-underline-offset: 3px; }
 
-.board { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(0, 3.6fr); gap: clamp(11px, 1.4vw, 23px); align-items: start; }
-.roster, .assignmentDetails, .empty { min-width: 0; border: 1px solid var(--campus-rule); background: var(--work-surface); }
-.main.main .roster h2, .main.main .assignmentDetails h3 { padding: 12px 13px; font: 800 1.08rem/1.2 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; }
+.board { display: grid; grid-template-columns: minmax(204px, 1fr) minmax(0, 4.45fr); gap: clamp(11px, 1.35vw, 22px); align-items: start; }
+.roster, .empty { min-width: 0; border: 1px solid var(--campus-rule); background: var(--work-surface); }
+.main.main .roster h2 { padding: 11px 13px; font: 800 1.04rem/1.2 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; }
 .rows { overflow-y: auto; max-height: min(50vh, 470px); scrollbar-color: var(--campus-border) var(--campus-panel); }
 .rows button {
   position: relative;
@@ -130,44 +195,66 @@
 
 .classDot { height: 19px; background: var(--class-color); }
 .rowCopy { min-width: 0; display: grid; gap: 4px; }
-.main.main .rowCopy strong { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; font-size: .92rem; line-height: 1.2; font-weight: 650; }
+.main.main .rowCopy strong { overflow-wrap: anywhere; font-size: .91rem; line-height: 1.25; font-weight: 650; }
 .rowCopy > span, .rowDue { color: var(--campus-muted); font-size: .73rem; line-height: 1.25; }
 .rows button[aria-selected=true] :is(.rowCopy > span,.rowDue) { color: inherit; }
 .rowCopy > span { overflow-wrap: anywhere; }
 .rowDue { white-space: nowrap; }
 
-.selected { display: grid; grid-template-columns: minmax(0, 2.85fr) minmax(201px, 1fr); align-items: start; gap: clamp(11px, 1.4vw, 23px); min-width: 0; }
+.selected { display: grid; gap: 12px; min-width: 0; }
+.featured {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(218px, 1fr);
+  min-width: 0;
+  border: 1px solid var(--campus-rule);
+  border-top: 3px solid var(--work-edge);
+  background: var(--work-feature);
+  box-shadow: 0 18px 35px #0a100a45;
+}
 .art {
+  --art-seam: linear-gradient(90deg, transparent 66%, #17221c38 81%, var(--work-feature) 100%);
+  position: relative;
   display: grid;
   align-items: end;
-  min-height: clamp(286px, 27vw, 400px);
+  min-width: 0;
+  min-height: clamp(280px, 26.5vw, 397px);
   padding: clamp(13px, 2.1vw, 31px);
-  border-top: 3px solid var(--campus-action);
   background:
-    linear-gradient(0deg, #131914 0%, #131914e8 16%, #13191448 61%, #13191412 100%),
-    var(--assignment-art) center 48%/cover no-repeat,
-    var(--campus-panel);
+    var(--art-seam),
+    linear-gradient(0deg, #121c16 0%, #131d16ed 16%, #1b231c5e 54%, #1c241e2b 100%),
+    var(--assignment-art) center 48% / cover no-repeat,
+    var(--work-feature);
 }
 
-.course { display: inline-block; max-width: 100%; padding: 4px 10px; background: var(--campus-action); color: var(--campus-action-text); font: 800 .84rem/1.23 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; overflow-wrap: anywhere; }
+.course { display: inline-block; max-width: 100%; padding: 5px 10px; border-inline-start: 3px solid var(--work-trim); background: var(--campus-action); color: var(--campus-action-text); font: 800 .83rem/1.23 'Diana Campus Slab',Georgia,serif; text-transform: uppercase; overflow-wrap: anywhere; }
 .main.main .selected h2 {
   margin: 8px 0 0;
   color: var(--campus-ink);
   font: italic 850 clamp(2rem,3.55vw,3.8rem)/.98 var(--campus-display);
   text-transform: uppercase;
   overflow-wrap: anywhere;
+  text-wrap: balance;
   text-shadow: 0 1px 8px #111a;
 }
 
-.assignmentDetails { border-top: 3px solid var(--campus-border); }
-.facts { display: grid; padding: 0 13px; margin: 0; }
-.facts div { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid var(--campus-rule); }
+.assignmentDetails {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  padding: clamp(13px, 1.45vw, 22px);
+  background: linear-gradient(114deg, var(--work-feature), #121b16 83%);
+}
+.main.main .assignmentDetails h3 { color: var(--campus-muted); font: 800 .94rem/1.15 var(--campus-display); text-transform: uppercase; }
+.facts { display: grid; margin: 0; }
+.facts div { display: grid; gap: 4px; padding: 9px 0; border-top: 1px solid var(--campus-rule); min-width: 0; }
 .facts dt { color: var(--campus-muted); font-size: .74rem; }
-.facts dd { margin: 0; color: var(--campus-ink); font-size: .9rem; }
-.main.main .open { display: flex; justify-content: space-between; gap: 8px; margin: 7px 13px 14px; padding-inline: 12px; font-size: clamp(1.12rem, 1.55vw, 1.45rem); line-height: 1.1; }
+.facts dd { margin: 0; color: var(--campus-ink); font-size: .91rem; overflow-wrap: anywhere; }
+.main.main .open { display: flex; justify-content: space-between; min-width: 0; gap: 8px; padding-inline: 13px; border-inline-start: 4px solid var(--work-trim); font-size: clamp(1.16rem, 1.65vw, 1.52rem); line-height: 1.05; }
 .main.main .open svg { flex: none; }
-.instructions { grid-column: 1; padding: 8px 14px 4px; border: 1px solid var(--campus-rule); background: var(--work-surface); font-size: .87rem; }
-.instructions summary { min-height: 36px; cursor: pointer; }
+.instructions { padding: 0 14px; border: 1px solid var(--campus-rule); background: var(--work-surface); font-size: .87rem; }
+.instructions summary { min-height: 44px; align-content: center; cursor: pointer; }
 .main.main .instructions p { padding-bottom: 9px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.6; color: var(--campus-muted); }
 .empty { padding: 25px; }
 .main.main .empty h2 { font: 800 1.8rem/1.15 var(--campus-display); }
@@ -175,27 +262,46 @@
 .empty :is(a,button) { margin-top: 12px; }
 
 @media(max-width:1020px) {
+  .main::before { inset-block-start: 110px; }
+  .roomBanner { inset-inline-start: clamp(148px,19.4%,199px); width: clamp(48px,5.5vw,58px); }
+  .roomBanner::before { inset-inline: -3px; }
+  .bannerFabric { min-height: 76px; }
   .filters { flex-basis: 300px; }
   .main.main .categories button { padding-inline: 10px; }
-  .board { grid-template-columns: minmax(170px, .85fr) minmax(0, 2.8fr); }
-  .selected { grid-template-columns: minmax(0,1fr); }
-  .art { min-height: 270px; }
-  .assignmentDetails { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; }
+  .days .dayNoun { display: none; }
+  .main.main .days button { min-height: 64px; padding-inline: 8px; }
+  .board { grid-template-columns: minmax(198px, 1fr) minmax(0, 2.75fr); }
+  .rows button { grid-template-columns: 4px minmax(0,1fr); gap: 4px 7px; }
+  .classDot { grid-row: 1 / 3; }
+  .rowDue { grid-column: 2; }
+  .featured { grid-template-columns: minmax(0,1fr); }
+  .art { --art-seam: linear-gradient(0deg, var(--work-feature), transparent 42%); min-height: 250px; }
+  .assignmentDetails { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 4px 11px; padding: 0 12px 12px; }
   .main.main .assignmentDetails h3 { grid-column: 1 / -1; }
-  .facts { display: flex; flex-wrap: wrap; gap: 3px 13px; }
-  .main.main .open { margin: 0 11px 8px; }
+  .facts { display: grid; grid-template-columns: repeat(auto-fit,minmax(71px,1fr)); gap: 7px; }
+  .facts div { padding-block: 6px 0; }
+  .main.main .open { min-height: 48px; }
 }
 
 @media(max-width:760px) {
-  .main.main { padding-top: 16px; }
-  .header { align-items: center; gap: 8px; padding-bottom: 11px; }
-  .headerActions { flex-wrap: nowrap; justify-content: end; gap: 6px; }
-  .headerActions a { padding: 6px 7px !important; min-height: 44px !important; font-size: .74rem !important; }
+  .main.main { --work-compact-row-height: 4rem; padding-top: 14px; }
+  .main::before { inset-block-start: 106px; }
+  .roomBanner { inset: 9px auto auto 39%; width: 37px; opacity: .8; }
+  .roomBanner::before { inset-inline: -3px; }
+  .bannerFabric { min-height: 56px; padding-inline: 10%; border-inline-width: 1px; }
+  .header { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 6px; padding-bottom: 9px; }
+  .main.main .header p { max-width: 17em; font-size: .73rem; }
+  .main:has(.roomBanner) .identity p { max-width: min(17em,calc(39vw - 22px)); }
+  .main.main .header h1 { font-size: clamp(2.75rem,12.6vw,3.55rem); }
+  .headerActions { flex-wrap: nowrap; justify-content: end; gap: 5px; }
+  .headerActions a { gap: 4px !important; padding: 6px 8px !important; min-height: 44px !important; font-size: .74rem !important; }
   .headerActions a svg { width: 14px; }
-  .toolbar { display: grid; grid-template-columns: minmax(0,1fr); gap: 7px; padding: 8px 0; }
-  .categories { display: grid; grid-template-columns: 1fr 1fr 1.35fr 1fr; gap: 3px; }
-  .main.main .categories button { gap: 3px; min-height: 44px; padding-inline: 4px; font-size: .92rem; white-space: normal; text-align: center; }
-  .main.main .categories button span { font-size: .67rem; }
+  .fullAdd, .fullStatus { display: none; }
+  .shortAdd, .shortStatus { display: inline; }
+  .toolbar { display: grid; grid-template-columns: minmax(0,1fr); gap: 6px; padding: 7px 0; }
+  .categories { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 3px; }
+  .main.main .categories button { flex-wrap: wrap; gap: 2px 4px; min-height: 44px; padding-inline: 3px; font-size: .92rem; text-align: center; overflow-wrap: anywhere; }
+  .main.main .categories button .categoryCount { font-size: .66rem; }
   .filters { grid-template-columns: minmax(0,1fr) minmax(0,.87fr) auto; gap: 4px; }
   .main.main .filters select, .main.main .dateToggle, .search { font-size: .73rem; padding-inline: 5px; }
   .main.main .dateToggle { display: flex; align-items: center; justify-content: center; gap: 3px; white-space: nowrap; }
@@ -210,36 +316,50 @@
   .dateOptions { flex-basis: 100%; margin: 0; }
   .days { gap: 3px; }
   .main.main .days button { min-height: 61px; padding: 3px 1px; justify-items: center; }
-  .main.main .days strong { font-size: 1.45rem; }
-  .days span { font-size: .67rem; }
-  .dayNoun { display: none; }
+  .main.main .dayDate { font-size: 1.45rem; }
+  .dayWeekday, .dayCount { font-size: .67rem; }
   .board, .selected { grid-template-columns: minmax(0,1fr); gap: 8px; }
   .main.main .roster h2 { padding: 7px 10px; font-size: .86rem; }
-  .rows { max-height: 114px; }
-  .rows button { min-height: 52px; padding: 6px 9px; gap: 6px; }
-  .main.main .rowCopy strong { font-size: .85rem; }
-  .art { min-height: 137px; padding: 11px 13px; }
+  .rows { max-block-size: calc(2 * var(--work-compact-row-height)); scroll-snap-type: y mandatory; }
+  .rows button { grid-template-columns: 4px minmax(0,1fr) auto; block-size: var(--work-compact-row-height); min-block-size: var(--work-compact-row-height); padding: 5px 8px; gap: 6px; scroll-snap-align: start; }
+  .classDot { grid-row: auto; }
+  .rowDue { grid-column: auto; }
+  .rowCopy { gap: 3px; }
+  .main.main .rowCopy strong { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: .85rem; }
+  .rowCopy > span { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .art { min-height: clamp(125px,34vw,160px); padding: 11px 13px; }
   .main.main .selected h2 { margin-top: 5px; font-size: clamp(1.68rem,7.2vw,2.65rem); }
   .instructions { padding: 0 10px; }
-  .instructions summary { display: list-item; min-height: 42px; align-content: center; }
-  .assignmentDetails { display: flex; flex-direction: column; align-items: stretch; border: 0; background: transparent; }
+  .assignmentDetails { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 0 9px 8px; background: var(--work-feature); }
   .assignmentDetails h3 { display: none; }
-  .facts { background: var(--work-surface); border: 1px solid var(--campus-rule); }
-  .facts div { border: 0; }
-  .main.main .open { order: -1; margin: 0 0 8px; padding-inline: 13px; }
+  .facts { gap: 7px; padding-inline: 3px; }
+  .facts div { padding-block: 5px 0; border-color: color-mix(in srgb, var(--campus-rule) 60%, transparent); }
+  .facts dt { font-size: .68rem; }
+  .facts dd { font-size: .8rem; }
+  .main.main .open { order: -1; min-height: 49px; padding-inline: 13px; }
 }
 
 @media(max-width:365px) {
-  .headerActions { gap: 4px; }
-  .headerActions a { gap: 4px; }
+  .roomBanner { inset-inline-start: 42%; width: 32px; }
+  .bannerFabric { min-height: 52px; }
+  .main:has(.roomBanner) .identity p { max-width: calc(42vw - 22px); }
   .headerActions a svg { display: none; }
-  .fullAdd { display: none; }
-  .shortAdd { display: inline; }
-  .rows { max-height: 99px; }
-  .art { min-height: 125px; }
+  .main.main .categories button { font-size: .84rem; }
+  .filters { grid-template-columns: minmax(70px,.88fr) minmax(88px,1fr) auto; }
+  .main.main .filters select {
+    appearance: none;
+    padding-inline: 6px 17px;
+    background:
+      linear-gradient(45deg, transparent 50%, var(--campus-muted) 50%) calc(100% - 10px) calc(50% + 1px) / 4px 4px no-repeat,
+      linear-gradient(135deg, var(--campus-muted) 50%, transparent 50%) calc(100% - 6px) calc(50% + 1px) / 4px 4px no-repeat,
+      var(--work-surface);
+  }
 }
 
 @media(forced-colors:active) {
+  .roomBanner, .main::before { display: none; }
+  .main.main .filters select { appearance: auto; background: Canvas; }
+  .dayCount[data-empty] { opacity: 1; }
   .main.main :is(.categories, .datePanel) button[aria-pressed=true],
   .main.main .rows button[aria-selected=true] {
     forced-color-adjust: none;
