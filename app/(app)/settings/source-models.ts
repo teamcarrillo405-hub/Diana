@@ -145,6 +145,7 @@ export interface LmsConnectionView {
   readonly state: "attention" | "pending" | "school-managed" | "synced";
   readonly message: string | null;
   readonly schoolManaged: boolean;
+  readonly calendarEnabled?: boolean;
 }
 
 function calmConnectionMessage(value: unknown): string | null {
@@ -180,6 +181,7 @@ export function sanitizeLmsConnections(
         state,
         message,
         schoolManaged,
+        ...(row.provider === "google_classroom" ? { calendarEnabled: row.config.calendar_enabled === true } : {}),
       };
     }),
   );

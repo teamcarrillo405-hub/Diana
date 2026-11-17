@@ -112,6 +112,15 @@ describe("assignment submission destination", () => {
   });
   afterEach(cleanup);
 
+  it.each(["exporting", "submitted"])("keeps Calendar context through %s review and hand-in", async status => {
+    mockAssignment(status);
+    const calendarReturn = "/calendar?day=2026-11-17&view=week&item=assignment-one";
+    render(await SubmitPage({ params: Promise.resolve({ id: assignmentId }), searchParams: Promise.resolve({ calendarReturn }) }));
+    expect(screen.getByRole("link", { name: "Back to Calendar" })).toHaveAttribute("href", calendarReturn);
+    const forward = screen.getByRole("link", { name: status === "submitted" ? "View submitted work" : "Edit in workspace" });
+    expect(new URL(forward.getAttribute("href")!, "https://diana.test").searchParams.get("calendarReturn")).toBe(calendarReturn);
+  });
+
   it("sends editable assignment states back to the workspace", async () => {
     mockAssignment("drafting");
 

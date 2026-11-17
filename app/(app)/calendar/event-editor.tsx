@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ImagePlus, X } from "lucide-react";
-import { EVENT_CATEGORIES, REMINDERS, validatePersonalEvent, type EventCategory, type PersonalEvent } from "@/lib/calendar/personal-events";
+import { calendarTimeChoiceNotice, EVENT_CATEGORIES, personalEventEndDay, REMINDERS, validatePersonalEvent, type EventCategory, type PersonalEvent } from "@/lib/calendar/personal-events";
 import base from "@/components/student-shell/command.module.css";
 import styles from "./personal-calendar.module.css";
 
-export function EventEditor({ initial, onSave, onCancel, timeZone }: { timeZone: string; initial: PersonalEvent; onSave: (event: PersonalEvent) => Promise<void>; onCancel: () => void }) {
+export function EventEditor({ initial, onSave, onCancel, timeZone, assignmentTitle }: { timeZone: string; initial: PersonalEvent; assignmentTitle?: string; onSave: (event: PersonalEvent) => Promise<void>; onCancel: () => void }) {
   const [draft, setDraft] = useState(initial);
   const [error, setError] = useState<string | null>(null);
   const [reading, setReading] = useState(false);
@@ -21,7 +21,7 @@ export function EventEditor({ initial, onSave, onCancel, timeZone }: { timeZone:
   }
   async function submit(event: FormEvent) {
     event.preventDefault();
-    const message = validatePersonalEvent(draft);
+    const message = validatePersonalEvent(draft, draft.timeZone ?? timeZone);
     if (message) { setError(message); requestAnimationFrame(() => errorRef.current?.focus()); return; }
     setSaving(true);
     try { await onSave({ ...draft, title: draft.title.trim(), location: draft.location.trim(), notes: draft.notes.trim() }); }
@@ -39,13 +39,20 @@ export function EventEditor({ initial, onSave, onCancel, timeZone }: { timeZone:
     next.onerror = () => { setReading(false); setError("This photo could not be opened. Try another image."); };
     next.readAsDataURL(file);
   }
-  return <form className={styles.editor} onSubmit={submit} noValidate>
-    <label className={styles.wide}>Event title<input autoFocus autoComplete="off" value={draft.title} maxLength={100} onChange={event => update("title", event.target.value)} placeholder="Practice, a performance, a plan..." /></label>
-    <label>Category<select value={draft.category} onChange={event => update("category", event.target.value as EventCategory)}>{EVENT_CATEGORIES.map(category => <option key={category}>{category}</option>)}</select></label>
-    <label>Date<input type="date" value={draft.day} onChange={event => update("day", event.target.value)} /></label>
+  return <form className={styles.editor} onSubmit={submit} noValidate aria-busy={saving}>
+    <div className={styles.editorBody}>
+    {assignmentTitle && draft.assignmentId && <p className={`${styles.formNotice} ${styles.wide}`}>Linked assignment · {assignmentTitle}</p>}
+    <label className={styles.wide}>Event title<input autoFocus autoComplete="off" value={draft.title} maxLength={100} onChange={event => update("title", event.target.value)} placeholder="What are you planning?" /></label>
+    <label>Start date<input type="date" value={draft.day} onChange={event => { const day = event.target.value; setDraft(current => ({ ...current, day, endDay: personalEventEndDay(current) === current.day ? day : current.endDay })); setError(null); }} /></label>
+    <label>End date<input type="date" min={draft.day} value={personalEventEndDay(draft)} onChange={event => update("endDay", event.target.value)} /></label>
     <label className={`${styles.allDay} ${styles.wide}`}><input type="checkbox" checked={draft.allDay} onChange={event => update("allDay", event.target.checked)} /><span>All day</span></label>
     {!draft.allDay && <><label>Start time<input type="time" value={draft.time} onChange={event => update("time", event.target.value)} /></label><label>End time<input type="time" value={draft.endTime} onChange={event => update("endTime", event.target.value)} /></label></>}
-    <label className={styles.wide}>Location <span>(optional)</span><input value={draft.location} maxLength={120} onChange={event => update("location", event.target.value)} placeholder="School gym, auditorium, home..." /></label>
+    <p className={`${styles.formNotice} ${styles.wide}`}>Times use {timeZone.split("/").at(-1)?.replaceAll("_", " ")} ({timeZone}).</p>
+    {calendarTimeChoiceNotice(draft, draft.timeZone ?? timeZone) && <p className={`${styles.formNotice} ${styles.wide}`}>{calendarTimeChoiceNotice(draft, draft.timeZone ?? timeZone)}</p>}
+    {initial.repeat === "weekly" && <p className={`${styles.formNotice} ${styles.wide}`}>Changes apply to the entire repeating series.</p>}
+    <details className={`${styles.optionalDetails} ${styles.wide}`} open={initial.repeat === "weekly" || undefined}><summary>Details and reminders</summary><div className={styles.optionalFields}>
+    <label>Category<select value={draft.category} onChange={event => { const category = event.target.value as EventCategory; setDraft(current => ({ ...current, category, assignmentId: category === "Study" ? current.assignmentId : undefined })); setError(null); }}>{EVENT_CATEGORIES.map(category => <option key={category}>{category}</option>)}</select></label>
+    <label className={styles.wide}>Location <span>(optional)</span><input value={draft.location} maxLength={120} onChange={event => update("location", event.target.value)} placeholder="School library, classroom, home" /></label>
     <label>Repeat<select value={draft.repeat} onChange={event => update("repeat", event.target.value as PersonalEvent["repeat"])}><option value="none">Does not repeat</option><option value="weekly">Every week</option></select></label>
     <label>Calendar reminder<select value={draft.reminder} onChange={event => update("reminder", event.target.value)}>{REMINDERS.map(reminder => <option key={reminder.value} value={reminder.value}>{reminder.label}</option>)}</select></label>
     {draft.repeat === "weekly" && <label className={styles.wide}>Repeat until<input type="date" min={draft.day} value={draft.repeatUntil} onChange={event => update("repeatUntil", event.target.value)} /></label>}
@@ -56,9 +63,10 @@ export function EventEditor({ initial, onSave, onCancel, timeZone }: { timeZone:
       <button type="button" className={styles.photoButton} disabled={reading} onClick={() => fileInput.current?.click()}><ImagePlus aria-hidden="true" />{reading ? "Opening photo..." : draft.photo ? "Change photo" : "Add photo"}</button>
       {draft.photo && <button type="button" className={styles.removePhoto} title="Remove photo" aria-label="Remove photo" onClick={() => update("photo", "")}><X aria-hidden="true" /></button>}
     </div>
+    <p className={`${styles.formNotice} ${styles.wide}`}>Reminders travel with the event when you add it to your device calendar.</p>
+    </div></details>
     {error && <p ref={errorRef} tabIndex={-1} className={`${styles.formError} ${styles.wide}`} role="alert">{error}</p>}
-    <p className={`${styles.formNotice} ${styles.wide}`}>{timeZone}. Reminders are included when you add this event to your device calendar.</p>
-    {initial.repeat === "weekly" && <p className={`${styles.formNotice} ${styles.wide}`}>Changes apply to the entire repeating series.</p>}
+    </div>
     <div className={`${styles.formActions} ${styles.wide}`}><button type="button" className={base.secondary} disabled={saving} onClick={onCancel}>Cancel</button><button type="submit" disabled={reading || saving} className={base.launch}>{saving ? "Saving..." : initial.id ? "Save changes" : "Add event"}</button></div>
   </form>;
 }

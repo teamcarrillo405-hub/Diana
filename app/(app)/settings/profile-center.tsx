@@ -252,6 +252,12 @@ function SettingsShell({
                         {connection.state === "synced" ? "Connected and synced" : connection.state === "attention" ? "Needs attention" : "Connection set up"}
                       </span>
                     </div>
+                    {connection.provider === "google_classroom" ? <span className="sd-settings-connection-actions">
+                      {connection.calendarEnabled ? <Link href="/calendar">Google Calendar</Link> : null}
+                      {connection.state === "attention" ? <Link href={connection.calendarEnabled
+                        ? "/api/lms/google-oauth/start?calendar=1&return_to=/calendar"
+                        : "/api/lms/google-oauth/start"}>{connection.calendarEnabled ? "Reconnect Google Calendar" : "Reconnect Google Classroom"}</Link> : null}
+                    </span> : null}
                   </div>
                 ))
               ) : (

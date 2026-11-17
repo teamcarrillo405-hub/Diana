@@ -1,68 +1,41 @@
 import { expect, test } from "@playwright/test";
-
 import { openQaSession } from "./helpers/qa";
 
-test("calendar keeps the student shell and a readable month grid", async ({ page }) => {
+test("Calendar uses its campus scene and retains Month selection on reload", async ({ page }) => {
   test.setTimeout(120_000);
   await openQaSession(page, { variant: "grayson" });
-
-  await page.goto("/calendar", { waitUntil: "networkidle" });
-  await expect(page.getByRole("navigation", { name: "Calendar view" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "day", exact: true })).toHaveCount(0);
-  await expect(page.getByText("Google Calendar", { exact: true })).toBeVisible();
-  await expect(page.locator(".sd-calendar-weekday-desktop").first()).toHaveCSS("color", "rgb(24, 33, 38)");
-  await expect(page.locator(".sd-calendar-month")).toBeVisible();
-  await page.screenshot({ path: "test-results/calendar-before.png", fullPage: false });
+  await page.goto("/calendar?day=2026-11-17&view=month", { waitUntil: "networkidle" });
+  await expect(page.locator('[data-campus-scene="calendar"]')).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Month", exact: true })).toHaveAttribute("aria-selected", "true");
+  await page.getByRole("button", { name: /Thursday, November 19,/ }).click();
+  await expect(page).toHaveURL(/day=2026-11-19&view=month/);
+  await expect(page.getByRole("region", { name: "Selected date agenda" })).toContainText("Thursday, November 19");
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page.getByRole("tab", { name: "Month", exact: true })).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByRole("region", { name: "Selected date agenda" })).toContainText("Thursday, November 19");
 });
 
-test("calendar renders an hourly Week and Today schedule", async ({ page }) => {
-  test.setTimeout(120_000);
-  await openQaSession(page, { variant: "grayson" });
-
-  await page.goto("/calendar", { waitUntil: "networkidle" });
-  await page.getByRole("link", { name: "week", exact: true }).click();
-  await expect(page.locator('.sd-calendar-schedule[data-view="week"]')).toBeVisible();
-  await expect(page.locator(".sd-calendar-time-scale span")).toHaveCount(24);
-  await expect(page.locator(".sd-calendar-schedule-heading")).toHaveCount(7);
-  await page.screenshot({ path: "test-results/calendar-week-hourly.png", fullPage: false });
-
-  await page.locator(".sd-calendar-today").click();
-  await expect(page.locator('.sd-calendar-schedule[data-view="day"]')).toBeVisible();
-  await expect(page.locator(".sd-calendar-time-scale span")).toHaveCount(24);
-  await expect(page.locator(".sd-calendar-schedule-heading")).toHaveCount(1);
-  await page.screenshot({ path: "test-results/calendar-today-hourly.png", fullPage: false });
-});
-
-test("calendar shares the desktop content edge used by the student header", async ({ page }) => {
-  test.setTimeout(120_000);
-  await page.setViewportSize({ width: 1600, height: 1000 });
-  await openQaSession(page, { variant: "grayson" });
-
-  await page.goto("/calendar", { waitUntil: "networkidle" });
-  const edges = await page.evaluate(() => {
-    const brand = document.querySelector(".sd-student-desktop-brand");
-    const calendar = document.querySelector(".sd-calendar-layout");
-    return {
-      brandLeft: brand?.getBoundingClientRect().left ?? 0,
-      calendarLeft: calendar?.getBoundingClientRect().left ?? 0,
-      calendarRight: calendar?.getBoundingClientRect().right ?? 0,
-      viewport: window.innerWidth,
-    };
+for (const width of [1440, 390, 320]) {
+  test(`Calendar views and event editor fit ${width}px`, async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.setViewportSize({ width, height: width > 760 ? 900 : 844 });
+    await openQaSession(page, { variant: "grayson" });
+    await page.goto("/calendar?day=2026-11-17", { waitUntil: "networkidle" });
+    for (const view of ["Schedule", "Week", "Month"]) {
+      await page.getByRole("tab", { name: view, exact: true }).click();
+      await expect(page.getByRole("tab", { name: view, exact: true })).toHaveAttribute("aria-selected", "true");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+    await page.getByRole("button", { name: "Add event", exact: true }).click();
+    const editor = page.getByRole("dialog", { name: "Add event", exact: true });
+    await expect(editor).toBeVisible();
+    const save = editor.getByRole("button", { name: "Add event", exact: true });
+    await expect(save).toBeInViewport();
+    await expect(editor.getByRole("textbox", { name: "Event title", exact: true })).toBeFocused();
+    await editor.getByText("Details and reminders", { exact: true }).click();
+    await expect(save).toBeInViewport();
+    await page.keyboard.press("Escape");
+    await expect(editor).not.toBeVisible();
+    await expect(page.getByRole("button", { name: "Add event", exact: true })).toBeFocused();
   });
-  expect(Math.abs(edges.brandLeft - edges.calendarLeft)).toBeLessThanOrEqual(2);
-  expect(edges.viewport - edges.calendarRight).toBeLessThanOrEqual(30);
-  await page.screenshot({ path: "test-results/calendar-wide.png", fullPage: false });
-});
-
-test("calendar keeps the month and agenda readable on a phone", async ({ page }) => {
-  test.setTimeout(120_000);
-  await page.setViewportSize({ width: 390, height: 844 });
-  await openQaSession(page, { variant: "grayson" });
-
-  await page.goto("/calendar", { waitUntil: "networkidle" });
-  await expect(page.getByRole("link", { name: "day", exact: true })).toHaveCount(0);
-  await expect(page.locator(".sd-calendar-month")).toBeVisible();
-  await expect(page.locator(".sd-calendar-events")).toBeVisible();
-  await expect(page.locator("body")).toHaveJSProperty("scrollWidth", 390);
-  await page.screenshot({ path: "test-results/calendar-mobile.png", fullPage: false });
-});
+}

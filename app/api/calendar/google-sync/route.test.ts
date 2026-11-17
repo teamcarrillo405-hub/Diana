@@ -90,6 +90,13 @@ describe("Google Calendar LMS credential policy", () => {
     );
   });
 
+  it("returns the completed primary-calendar reconciliation metadata", async () => {
+    const result = { imported: 0, removed: 2, applied: true,
+      syncedAt: "2026-11-17T15:00:00Z", rangeStart: "2026-10-13T15:00:00Z", rangeEnd: "2027-05-17T15:00:00Z" };
+    mocks.syncGoogleCalendarEvents.mockResolvedValue(result);
+    expect(await (await POST()).json()).toMatchObject({ ok: true, calendarId: "primary", ...result });
+  });
+
   it.each([
     [new LmsReconnectRequiredError("google_classroom"), 401, "reconnect_required"],
     [new LmsCredentialVaultUnavailableError(), 503, "credential_vault_unavailable"],
@@ -111,7 +118,7 @@ describe("Google Calendar LMS credential policy", () => {
     const response = await POST();
 
     expect(response.status).toBe(401);
-    expect(await response.json()).toMatchObject({ code: "reconnect_required" });
+    expect(await response.json()).toMatchObject({ code: "reconnect_required", error: "Reconnect Google Calendar to continue syncing." });
   });
 
   it("checks the Google import flag before reading the connection", async () => {

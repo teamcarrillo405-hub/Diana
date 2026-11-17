@@ -2123,6 +2123,12 @@ export type Database = {
           },
         ]
       }
+      calendar_week_plans: {
+        Row: { owner_id: string; week_start: string; available_minutes: number; updated_at: string }
+        Insert: { owner_id: string; week_start: string; available_minutes: number; updated_at?: string }
+        Update: { owner_id?: string; week_start?: string; available_minutes?: number; updated_at?: string }
+        Relationships: []
+      }
       personal_calendar_events: {
         Row: { id: string; owner_id: string; event: Json; time_zone: string; photo_key: string | null; deleted_at: string | null; created_at: string; updated_at: string }
         Insert: { id?: string; owner_id: string; event: Json; time_zone?: string; photo_key?: string | null; deleted_at?: string | null; created_at?: string; updated_at?: string }
@@ -7413,6 +7419,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      reconcile_google_calendar_snapshot: {
+        Args: { p_range_start: string; p_range_end: string; p_snapshot_at: string; p_events: Json; p_complete: boolean }
+        Returns: Json
+      }
       confirm_work_capture: {
         Args: {
           p_capture_id: string

@@ -50,6 +50,15 @@ async function renderWork(fields: Partial<SubmittedWork>) {
 afterEach(cleanup);
 
 describe("submitted work viewer", () => {
+  it("preserves the selected Calendar item through the saved-copy and receipt links", async () => {
+    mocks.auth.mockResolvedValue({ data: { user: { id: "student" } } });
+    mocks.loadWork.mockResolvedValue(work);
+    const calendarReturn = "/calendar?day=2026-11-17&view=month&item=assignment-one";
+    render(await SubmittedWorkPage({ params: Promise.resolve({ id: assignmentId }), searchParams: Promise.resolve({ calendarReturn }) }));
+    expect(screen.getByRole("link", { name: "Back to Calendar" })).toHaveAttribute("href", calendarReturn);
+    const receipt = screen.getByRole("link", { name: "Back to submission" });
+    expect(new URL(receipt.getAttribute("href")!, "https://diana.test").searchParams.get("calendarReturn")).toBe(calendarReturn);
+  });
   it("shows a pre-hand-in Diana copy with a read-only download", async () => {
     await renderWork({
       copy: { kind: "file", id: fileId, filename: "identity-quote-response.pdf", mimeType: "application/pdf", source: "diana" },

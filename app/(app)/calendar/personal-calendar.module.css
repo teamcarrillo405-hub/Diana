@@ -1,100 +1,99 @@
-.root.root .composition { display: grid; grid-template-columns: minmax(0, 1fr) 350px; gap: 52px; align-items: start; }
-.root.root .dayBoard, .root.root .selectedEvent { min-width: 0; }
-.root.root .addEvent { min-width: 142px; min-height: 44px; padding: 10px 18px; font-size: 21px; }
-.root.root .dayHeading { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding: 0 0 22px; }
-.root.root .dayHeading span { font: 500 12px/1.4 var(--font-barlow), sans-serif; color: #bed1c9; }
-.root.root .dayHeading > span { font-size: 10px; padding-bottom: 4px; white-space: nowrap; }
-.root.root .dayHeading h2 { font: 800 44px/1 var(--font-saira-condensed), sans-serif; text-transform: uppercase; margin: 4px 0 0; }
-.root.root .deadlineLane { border-top: 1px solid #d4e7df40; border-bottom: 1px solid #d4e7df40; padding: 17px 0; }
-.root.root .deadlineLane h3, .root.root .dayTimeline h3 { display: flex; align-items: center; gap: 10px; font: 600 12px/1.4 var(--font-barlow), sans-serif; text-transform: uppercase; color: #c5d9d0; margin: 0 0 16px; }
-.root.root .deadlineLane h3 svg { width: 16px; height: 16px; }
-.root.root .deadlineLane h3 > span, .root.root .dayTimeline h3 > span { margin-left: auto; font-variant-numeric: tabular-nums; }
-.root.root .deadlineLane > p { color: #b3c9be; font-size: 12px; padding: 8px 0; }
-.root.root .deadline { width: 100%; display: flex; justify-content: flex-start; gap: 14px; align-items: center; padding: 14px 16px; border: 0; border-left: 2px solid var(--event-color); color: #f5faf7; background: #06191d91; text-align: left; }
-.root.root .deadline + .deadline { margin-top: 8px; }
-.root.root .deadline > svg { width: 23px; height: 23px; flex-shrink: 0; color: var(--event-color); }
-.root.root .deadline > span { min-width: 0; display: grid; gap: 6px; }
-.root.root .deadline strong { font: 700 24px/1.15 var(--font-saira-condensed), sans-serif; overflow-wrap: anywhere; }
-.root.root .deadline small { color: #d0dbd8; font: 500 11px/1.5 var(--font-barlow), sans-serif; }
-.root.root .deadline .submitted { margin-left: auto; color: #69eac1; }
-.root.root .deadline[aria-selected="true"] { background: #ae12666b; border-color: var(--pink); }
-.root.root .dayTimeline { padding-top: 25px; }
-.root.root .scheduleItem { position: relative; isolation: isolate; display: grid; grid-template-columns: 88px 22px minmax(0, 1fr); align-items: stretch; justify-content: stretch; width: 100%; min-height: 122px; padding: 0; border: 0; text-align: left; color: #eff6f1; background: transparent; }
-.root.root .agendaTime { display: flex; flex-direction: column; gap: 7px; padding: 20px 10px 20px 0; font: 700 20px/1.2 var(--font-saira-condensed), sans-serif; font-variant-numeric: tabular-nums; }
-.root.root .agendaTime small { font: 500 12px/1.2 var(--font-barlow), sans-serif; color: #b7cbc1; }
-.root.root .timeMarker { position: relative; }
-.root.root .timeMarker::before { content: ""; position: absolute; width: 1px; background: #c1d8cc36; top: 0; bottom: 0; left: 5px; }
-.root.root .timeMarker::after { content: ""; position: absolute; width: 9px; height: 9px; background: var(--event-color); top: 25px; left: 1px; transform: rotate(45deg); }
-.root.root .scheduleItem:last-child .timeMarker::before { bottom: 34px; }
-.root.root .agendaCopy { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 17px 20px; gap: 7px; margin: 3px 0 11px; min-width: 0; }
-.root.root .agendaCopy small { font: 600 10px/1.2 var(--font-barlow), sans-serif; color: var(--event-color); }
-.root.root .agendaCopy > strong { font: 800 30px/1.05 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
-.root.root .agendaCopy > span { color: #bfd0c8; font: 500 12px/1.5 var(--font-barlow), sans-serif; overflow-wrap: anywhere; }
-.root.root .scheduleItem[aria-selected="true"] .agendaCopy::before { content: ""; position: absolute; inset: 0 -5px; z-index: -1; background: #b3126d; mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; -webkit-mask: url("/assets/today-now/selection-brush-v1.webp") center / 100% 100% no-repeat; mask-mode: luminance; }
-.root.root .scheduleItem[aria-selected="true"] .agendaCopy small, .root.root .scheduleItem[aria-selected="true"] .agendaCopy > span { color: #fff; }
-.root.root .scheduleItem:hover:not([aria-selected="true"]) .agendaCopy { background: #c0e3d40c; }
-.root.root .scheduleItem:hover { background: transparent; color: #eff6f1; }
-.root.root .deadline[aria-selected="true"]:hover { background: #ae12666b; color: #fff; }
-.root.root .deadline:hover:not([aria-selected="true"]) { background: #23423b; }
-.root.root .eventArrival { animation: arrival 240ms ease-out both; }
-.root.root .eventPhoto { position: relative; width: 100%; height: 175px; overflow: hidden; border-top: 2px solid var(--event-color); background: #193c38; }
-.root.root .eventPhoto img { width: 100%; height: 100%; object-fit: cover; object-position: center 68%; }
-.root.root .eventPhoto > span { position: absolute; bottom: 12px; left: 14px; padding: 5px 8px; background: #081819eb; color: #f0f8f4; font: 600 11px/1.2 var(--font-barlow), sans-serif; text-transform: uppercase; }
-.root.root .eventDetails { padding-top: 22px; }
-.root.root .eventTime { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 6px 10px; }
-.root.root .eventTime > span:first-child { grid-column: 1 / -1; color: #c3d5cc; font: 600 11px/1.4 var(--font-barlow), sans-serif; }
-.root.root .eventTime strong { font: 800 50px/.95 var(--font-saira-condensed), sans-serif; }
-.root.root .eventTime > span:last-child:not(:first-child) { font: 600 14px/1 var(--font-barlow), sans-serif; color: #c3d5cc; }
-.root.root .eventDetails h2 { margin: 22px 0 10px; font: 800 32px/1.04 var(--font-saira-condensed), sans-serif; text-transform: uppercase; overflow-wrap: anywhere; }
-.root.root .eventDetails h2:focus-visible { outline: 2px solid #f9c6e3; outline-offset: 5px; }
-.root.root .eventBrief { font-size: 12px; line-height: 1.7; color: #c6d7ce; margin-bottom: 14px; overflow-wrap: anywhere; }
-.root.root .overlap { display: flex; gap: 9px; padding: 11px 0; border-block: 1px solid #f5c77559; color: #ffe0a4; font-size: 11px; line-height: 1.6; }
-.root.root .overlap svg { flex: none; width: 16px; height: 16px; margin-top: 1px; }
-.root.root .eventActions { display: flex; align-items: stretch; gap: 12px; margin-top: 22px; }
-.root.root .eventActions > button:first-child { flex: 1; min-width: 0; font-size: 22px; }
-.root.root .deleteEvent { width: 48px; min-height: 48px; padding: 0; border: 1px solid #d5e4de4a; display: grid; place-items: center; color: #d4e1d9; background: transparent; }
-.root.root .deleteEvent:hover { background: #244038; }
-.root.root .deleteEvent svg { width: 20px; height: 20px; }
-.root.root .emptySchedule { padding: 25px 0; font-size: 13px; color: #c1d2c8; }
-.root.root div.emptySchedule { display: grid; justify-items: start; align-content: center; gap: 18px; min-height: 330px; }
-.root.root .emptySchedule h2 { font: 700 32px/1 var(--font-saira-condensed), sans-serif; }
-.root.root .emptySchedule > svg { width: 36px; height: 36px; }
-.root.root .status { position: fixed; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.root.root .editorDialog { width: 650px; max-width: calc(100% - 32px); max-height: 90dvh; padding: 30px; }
-.root.root .editor { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px 20px; margin-top: 20px; }
-.root.root .editor label { display: block; position: static; min-width: 0; margin: 0; padding: 0; font: 500 12px/1.5 var(--font-lexend), sans-serif; color: #edf4ef; }
-.root.root .editor label::before, .root.root .editor label::after, .root.root .editor label > span::before, .root.root .editor label > span::after { display: none; }
-.root.root .editor label > span { display: inline; position: static; margin: 0; padding: 0; background: none; border: 0; font: inherit; color: #b9cec3; letter-spacing: 0; text-transform: none; }
-.root.root .editor input:not([type="checkbox"]):not([type="file"]), .root.root .editor select, .root.root .editor textarea { display: block; width: 100%; min-width: 0; min-height: 44px; margin: 7px 0 0; padding: 10px 12px; border: 1px solid #a1c0b461; border-radius: 3px; background: #0c1d21; color: #f4f8f5; font: 400 14px/1.4 var(--font-barlow), sans-serif; color-scheme: dark; }
-.root.root .editor textarea { resize: vertical; min-height: 70px; }
-.root.root .editor input::placeholder { color: #a7bcb3; }
-.root.root .editor input:focus-visible, .root.root .editor select:focus-visible, .root.root .editor textarea:focus-visible { outline: 2px solid #f6bddb; outline-offset: 3px; }
-.root.root .wide { grid-column: 1 / -1; }
-.root.root .editor .allDay { display: flex; align-items: center; gap: 10px; min-height: 28px; }
-.root.root .editor .allDay input { position: static; appearance: auto; opacity: 1; width: 18px; height: 18px; min-height: 18px; margin: 0; padding: 0; box-shadow: none; background: transparent; accent-color: #984cff; }
-.root.root .editor .allDay input::before, .root.root .editor .allDay input::after { display: none; }
-.root.root .editor .allDay > span { color: #f4f8f5; }
-.root.root .photoTools { display: flex; align-items: center; gap: 12px; }
-.root.root .photoTools img { width: 70px; height: 48px; object-fit: cover; }
-.root.root .photoButton, .root.root .removePhoto { display: flex; align-items: center; gap: 9px; padding: 8px 0; min-height: 40px; border: 0; background: transparent; color: #d7e6db; font-size: 12px; }
-.root.root .removePhoto { padding: 8px; }
-.root.root .photoButton svg, .root.root .removePhoto svg { width: 19px; height: 19px; }
-.root.root .formNotice { margin: 0; color: #b8cec1; font-size: 11px; line-height: 1.6; }
-.root.root .formError { padding: 10px 12px; border-left: 2px solid #ffcb74; color: #ffdda4; background: #ffc9740f; font-size: 12px; line-height: 1.5; }
-.root.root .formActions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 6px; }
-.root.root .formActions button { min-height: 44px; }
-.root.root .formActions button:last-child { font-size: 22px; padding: 10px 20px; }
-@keyframes arrival { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 1100px) { .root.root .composition { grid-template-columns: minmax(0, 1fr) 300px; gap: 30px; } .root.root .agendaCopy > strong { font-size: 27px; } .root.root .agendaCopy { padding-inline: 14px; } .root.root .scheduleItem { grid-template-columns: 77px 18px minmax(0, 1fr); } .root.root .eventTime strong { font-size: 45px; } }
-@media (max-width: 760px) { .root.root .composition { display: block; } .root.root .selectedEvent { margin-top: 28px; border-top: 1px solid #bdd9cb45; padding-top: 24px; } .root.root .dayHeading h2 { font-size: 38px; } .root.root .eventPhoto { height: auto; aspect-ratio: 16 / 8; } .root.root .eventDetails h2 { font-size: 33px; } .root.root .addEvent { min-width: 116px; padding-inline: 12px; font-size: 19px; } .root.root .scheduleItem { min-height: 117px; } .root.root .agendaCopy > strong { font-size: 28px; } .root.root .editorDialog { width: calc(100% - 24px); padding: 26px 20px; } .root.root .editor { gap: 15px 12px; } .root.root .editor input:not([type="checkbox"]):not([type="file"]), .root.root .editor select, .root.root .editor textarea { font-size: 16px; padding-inline: 9px; } .root.root .formActions { flex-wrap: wrap; } }
-@media (prefers-reduced-motion: reduce) { .root.root .eventArrival { animation: none; } }
-.root.root .connection { margin-top:28px; max-width:640px; }
-.root.root .connection :global(.sd-calendar-google-sync) { background:#142326; border:1px solid #bad1c640; border-radius:2px; padding:18px; color:#dce9e1; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-.root.root .connection :global(.sd-calendar-google-sync) p { color:#eef7f2; }
-.root.root .connection :global(.sd-calendar-google-sync) span { color:#b8c7c7; font-size:12px; }
-.root.root .connection :global(.sd-calendar-google-sync) :is(button,a) { display:inline-flex; align-items:center; gap:8px; color:#fff; padding:10px; min-height:44px; }
-.root.root .status { display:flex; align-items:center; justify-content:center; gap:12px; }
-.root.root .status { position:fixed; z-index:95; bottom:20px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 32px); height:auto; overflow:visible; clip-path:none; background:#122428; border:1px solid #b8d4c866; color:#edf6ef; padding:10px 16px; font-size:13px; box-shadow:0 8px 24px #0007; }
+.root.root .composition { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:28px; align-items:start; }
+.root.root .dayBoard,.root.root .selectedEvent { min-width:0; background:#18211bea; border:1px solid var(--campus-rule); padding:24px; }
+.root.root .selectedEvent { position:sticky; top:96px; }
+.root.root .dayHeading { display:flex; justify-content:space-between; align-items:flex-end; gap:16px; padding-bottom:22px; }
+.root.root .dayHeading :is(p,span) { font-size:14px; color:var(--campus-muted); }
+.root.root .dayHeading > span { max-width:140px; overflow-wrap:normal; text-align:right; }
+.root.root .dayHeading h2 { font:italic 800 2.5rem/1 var(--campus-display); text-transform:uppercase; margin-top:6px; }
+.root.root :is(.deadlineLane,.dayTimeline) h3 { display:flex; align-items:center; gap:10px; font:750 1.25rem/1.2 var(--campus-display); margin:0 0 12px; text-transform:uppercase; }
+.root.root :is(.deadlineLane,.dayTimeline) h3 > span { margin-left:auto; }
+.root.root .deadlineLane { border-block:1px solid var(--campus-rule); padding-block:18px; }
+.root.root .dayTimeline { padding-top:22px; }
+.root.root :is(.deadlineLane,.dayTimeline) > p { font-size:16px; color:var(--campus-muted); }
+.root.root .deadline { position:relative; isolation:isolate; display:flex; align-items:center; gap:12px; min-height:76px; width:100%; padding:12px; border:0; border-left:2px solid var(--event-color); background:var(--campus-raised); color:var(--campus-ink); text-align:left; }
+.root.root .deadline + .deadline { margin-top:8px; }
+.root.root .deadline > svg { flex:none; width:22px; height:22px; }
+.root.root .deadline > span { display:grid; min-width:0; gap:5px; }
+.root.root .deadline strong { font:800 1.45rem/1.12 var(--campus-display); overflow-wrap:anywhere; }
+.root.root .deadline small { font-size:14px; line-height:1.4; }
+.root.root .scheduleItem { display:grid; grid-template-columns:88px 16px minmax(0,1fr); align-items:stretch; width:100%; min-height:90px; padding:0; border:0; color:var(--campus-ink); background:transparent; text-align:left; }
+.root.root .agendaTime { padding-block:16px; display:grid; align-content:center; gap:5px; font-size:16px; font-weight:650; }
+.root.root .agendaTime small { font-size:14px; color:var(--campus-muted); }
+.root.root .timeMarker { position:relative; }
+.root.root .timeMarker::before { content:""; position:absolute; width:1px; background:var(--campus-rule); inset:0 auto 0 4px; }
+.root.root .timeMarker::after { content:""; position:absolute; width:8px; height:8px; left:0; top:30px; transform:rotate(45deg); background:var(--event-color); }
+.root.root .agendaCopy { position:relative; isolation:isolate; display:grid; align-content:center; gap:4px; padding:12px; min-width:0; margin-block:4px; }
+.root.root .agendaCopy :is(small,span) { font-size:14px; line-height:1.4; overflow-wrap:anywhere; }
+.root.root .agendaCopy strong { font:800 1.55rem/1.08 var(--campus-display); text-transform:uppercase; overflow-wrap:anywhere; }
+.root.root .scheduleItem[aria-selected=true] .agendaCopy::before,.root.root .deadline[aria-selected=true]::before { content:""; position:absolute; inset:0; z-index:-1; background:var(--campus-action); mask:url('/assets/today-now/selection-brush-v1.webp') center/100% 100% no-repeat; mask-mode:luminance; }
+.root.root .deadline[aria-selected=true],.root.root .scheduleItem[aria-selected=true] .agendaCopy { color:var(--campus-action-text); background:transparent; }
+.root.root .eventPhoto { height:160px; overflow:hidden; margin:-24px -24px 20px; }
+.root.root .eventPhoto img { width:100%; height:100%; object-fit:cover; }
+.root.root .eventTime { display:grid; gap:7px; margin-block:12px 18px; }
+.root.root .eventTime span { font-size:14px; color:var(--campus-muted); }
+.root.root .eventTime strong { font:800 1.8rem/1.1 var(--campus-display); }
+.root.root .eventDetails h2 { font:italic 800 2rem/1.04 var(--campus-display); text-transform:uppercase; overflow-wrap:anywhere; margin:0 0 16px; }
+.root.root .eventBrief { font-size:16px; line-height:1.65; overflow-wrap:anywhere; }
+.root.root .overlap { display:flex; align-items:flex-start; gap:10px; margin-top:18px; border-block:1px solid #d5b26770; padding-block:12px; color:#f7dca1; font-size:14px; line-height:1.5; }
+.root.root .overlap svg { flex:none; margin-top:2px; }
+.root.root .eventActions { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+.root.root .eventActions > :is(a,button) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; border:1px solid var(--campus-border); border-radius:0; padding:12px; text-decoration:none; font:800 1.15rem/1.15 var(--campus-display)!important; color:var(--campus-ink); background:var(--campus-panel); white-space:normal; }
+.root.root .eventActions > :first-child { flex:1; background:var(--campus-action); color:var(--campus-action-text); }
+.root.root .eventActions > :first-child:hover { background:var(--campus-action); filter:brightness(1.12); }
+.root.root .eventActions > a:last-child,.root.root .eventActions > button:last-child:not(.deleteEvent) { flex-basis:100%; }
+.root.root .eventActions .deleteEvent { flex:0 0 46px; padding:10px; }
+.root.root .emptySchedule { display:grid; gap:16px; justify-items:start; padding-block:28px; font-size:16px; color:var(--campus-muted); }
+.root.root .emptySchedule h2 { font:italic 800 2rem/1.1 var(--campus-display); text-transform:uppercase; }
+.root.root .itemSheet { display:none; }
+.root.root .editorDialog { padding:0; width:640px; max-width:calc(100% - 32px); max-height:90dvh; overflow:hidden; }
+.root.root .editorHeader { display:flex; align-items:flex-start; gap:16px; padding:22px 24px 16px; border-bottom:1px solid var(--campus-rule); }
+.root.root .editorHeader > div { flex:1; min-width:0; }
+.root.root .editorHeader h2 { margin:8px 0 0; }
+.root.root .editor { display:flex; flex-direction:column; max-height:calc(90dvh - 122px); min-height:0; }
+.root.root .editorBody { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; overflow-y:auto; padding:22px 24px; }
+.root.root .wide { grid-column:1/-1; }
+.root.root .editor label { display:block; min-width:0; font-size:14px; color:var(--campus-ink); }
+.root.root .editor label > span { color:var(--campus-muted); font:inherit; }
+.root.root .editor input:not([type=checkbox]):not([type=file]),.root.root .editor select,.root.root .editor textarea { display:block; width:100%; min-width:0; min-height:44px; margin-top:6px; padding:10px 12px; border:1px solid var(--campus-border); border-radius:0; color:var(--campus-ink); background:#111a14; font-size:16px; color-scheme:dark; }
+.root.root .editor textarea { min-height:88px; resize:vertical; }
+.root.root .editor .allDay { display:flex; align-items:center; gap:12px; min-height:44px; }
+.root.root .allDay input { width:22px; height:22px; accent-color:var(--campus-action); }
+.root.root .optionalDetails { border-block:1px solid var(--campus-rule); }
+.root.root .optionalDetails summary { min-height:44px; padding-block:12px; cursor:pointer; font-size:16px; }
+.root.root .optionalFields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding-bottom:18px; }
+.root.root .photoTools { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.root.root .photoTools img { width:80px; height:60px; object-fit:cover; }
+.root.root :is(.photoButton,.removePhoto) { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:10px 12px; border:1px solid var(--campus-rule); background:var(--campus-panel); color:var(--campus-ink); font-size:16px; }
+.root.root .formNotice { margin:0; font-size:14px; line-height:1.6; color:var(--campus-muted); overflow-wrap:anywhere; }
+.root.root .formError { margin-block:14px; padding:12px 14px; border-left:3px solid #e9bf6c; background:#7f591c2e; color:#ffe0a3; font-size:16px; line-height:1.5; }
+.root.root .formError a { text-decoration:underline; padding:8px; }
+.root.root .formActions { display:flex; justify-content:flex-end; gap:12px; padding:16px 24px; border-top:1px solid var(--campus-rule); background:var(--campus-panel); flex:none; }
+.root.root .formActions button { min-height:44px; padding:12px 18px; border:1px solid var(--campus-border); border-radius:0; font:800 1.15rem/1.1 var(--campus-display)!important; color:var(--campus-ink); background:var(--campus-panel); white-space:normal; }
+.root.root .formActions button:last-child { background:var(--campus-action); color:var(--campus-action-text); }
+.root.root .formActions button:last-child:hover { background:var(--campus-action); filter:brightness(1.12); }
+.root.root .connection { margin-top:24px; }
+.root.root .status { position:fixed; z-index:95; bottom:16px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:12px; width:max-content; max-width:calc(100% - 32px); background:var(--campus-panel); border:1px solid var(--campus-border); color:var(--campus-ink); padding:12px 16px; font-size:16px; }
 .root.root .status:empty { display:none; }
-.root.root .eventActions { flex-wrap:wrap; }
-.root.root .eventActions > a:last-child { flex-basis:100%; }
+@media(max-width:1100px) { .root.root .composition { grid-template-columns:minmax(0,1fr) 320px; gap:20px; } .root.root :is(.dayBoard,.selectedEvent) { padding:18px; } }
+@media(max-width:760px) {
+  .root.root .composition { display:block; }
+  .root.root .selectedEvent { display:none; }
+  .root.root .dayBoard { padding:18px 14px; }
+  .root.root .dayHeading { align-items:flex-start; gap:10px; }
+  .root.root .dayHeading h2 { font-size:2rem; }
+  .root.root .dayHeading > span { max-width:100px; font-size:14px; }
+  .root.root .scheduleItem { grid-template-columns:72px 12px minmax(0,1fr); }
+  .root.root .agendaCopy { padding:12px 8px; }
+  .root.root .agendaCopy strong { font-size:1.4rem; }
+  .root.root .deadline { padding-inline:10px; }
+  .root.root .deadline strong { font-size:1.35rem; }
+  .root.root .itemSheet[open] { display:block; inset:auto 0 0; margin:0; width:100%; max-width:100%; max-height:90dvh; padding:20px; border-bottom:0; }
+  .root.root .itemSheet .eventPhoto { margin:12px 0 20px; }
+  .root.root .editorDialog { max-height:95dvh; max-width:calc(100% - 16px); }
+  .root.root .editorHeader { padding:16px; }
+  .root.root .editorHeader h2 { font-size:1.65rem; }
+  .root.root .editor { max-height:calc(95dvh - 118px); }
+  .root.root .editorBody { padding:16px; gap:14px 12px; }
+  .root.root .formActions { padding:14px 16px; }
+  .root.root .editor input:not([type=checkbox]):not([type=file]),.root.root .editor select { padding-inline:8px; }
+}

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { buildCalendarReturnHref } from "../calendar-return";
 
 import {
   issueLmsOAuthState,
@@ -176,6 +177,46 @@ afterEach(() => {
 });
 
 describe("provider canary OAuth callback fixtures", () => {
+  it("returns Calendar configuration errors to the selected date and view", async () => {
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
+    vi.stubEnv("GOOGLE_CLIENT_SECRET", "");
+    const { GET } = await import("@/app/api/lms/google-oauth/start/route");
+    const returnTo = "/calendar?day=2026-11-17&view=week&item=google-one";
+    const request = new URL("https://diana.example/api/lms/google-oauth/start");
+    request.searchParams.set("calendar", "1");
+    request.searchParams.set("return_to", returnTo);
+    const response = await GET(new Request(request));
+    const location = new URL(response.headers.get("location")!);
+    expect(location.pathname).toBe("/calendar");
+    expect(location.searchParams.get("day")).toBe("2026-11-17");
+    expect(location.searchParams.get("view")).toBe("week");
+    expect(location.searchParams.get("item")).toBe("google-one");
+    expect(location.searchParams.get("classroom")).toBe("not-configured");
+  });
+
+  it("returns declined Google consent to Calendar without a token exchange", async () => {
+    vi.stubEnv("DIANA_LMS_GOOGLE_IMPORT_ENABLED", "true");
+    const returnTo = buildCalendarReturnHref({ day: "2026-11-18", view: "month", item: "google-one~2026-11-18" }) as `/calendar?${string}`;
+    const issued = issueLmsOAuthState({ provider: "google_classroom", ownerId: "student-1", secret: "test-oauth-state-secret",
+      context: { calendar: true, courseMode: false, returnTo } });
+    mocks.cookies.mockResolvedValue(cookieStore({ google_oauth_state: issued.cookieVerifier }));
+    const network = vi.fn();
+    vi.stubGlobal("fetch", network);
+    const { GET } = await import("@/app/api/lms/google-oauth/callback/route");
+    const request = new URL("https://diana.example/api/lms/google-oauth/callback");
+    request.searchParams.set("state", issued.state);
+    request.searchParams.set("error", "access_denied");
+    const response = await GET(new Request(request));
+    const location = new URL(response.headers.get("location")!);
+    expect(location.pathname).toBe("/calendar");
+    expect(location.searchParams.get("day")).toBe("2026-11-18");
+    expect(location.searchParams.get("view")).toBe("month");
+    expect(location.searchParams.get("item")).toBe("google-one~2026-11-18");
+    expect(location.searchParams.get("classroom")).toBe("denied");
+    expect(network).not.toHaveBeenCalled();
+    expect(mocks.saveLmsConnectionForRuntime).not.toHaveBeenCalled();
+  });
+
   it("issues Canvas and Google start states bound to the initiating Diana user", async () => {
     vi.stubEnv("CANVAS_ALLOWED_ORIGINS", "https://canvas.example.edu");
 

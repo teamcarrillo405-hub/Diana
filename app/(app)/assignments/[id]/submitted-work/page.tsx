@@ -7,13 +7,15 @@ import { StudentShell } from "@/components/student-shell/student-shell";
 import styles from "@/components/student-shell/submission.module.css";
 import { SubmittedPdfPreview } from "@/components/submitted-pdf-preview";
 import { WORK_RETURN_PATH } from "@/lib/assignment-navigation";
+import { safeCalendarReturnHref, withCalendarReturn } from "@/lib/calendar-return";
 import { formatHandInTime } from "@/lib/assignment-submission-time";
 import { loadSubmittedWork, submittedFilePath } from "@/lib/assignment-submitted-work";
 import { loadProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { submissionWebLink } from "../submit/web-link";
 
-export default async function SubmittedWorkPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function SubmittedWorkPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams?: Promise<{ calendarReturn?: string }> }) {
+  const calendarReturn = safeCalendarReturnHref((await searchParams)?.calendarReturn);
   const id = z.string().uuid().safeParse((await params).id);
   if (!id.success) notFound();
 
@@ -44,8 +46,8 @@ export default async function SubmittedWorkPage({ params }: { params: Promise<{ 
     }}>
       <main id="main-content" className={styles.main}>
         <nav aria-label="Submission navigation" className={styles.routeLinks}>
-          <Link href={`/assignments/${assignment.id}/submit`} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to submission</Link>
-          <Link href={WORK_RETURN_PATH} className={styles.back}>Back to Work</Link>
+          <Link href={withCalendarReturn(`/assignments/${assignment.id}/submit`, calendarReturn)} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to submission</Link>
+          <Link href={calendarReturn ?? WORK_RETURN_PATH} className={styles.back}>{calendarReturn ? "Back to Calendar" : "Back to Work"}</Link>
         </nav>
         <header className={styles.title}>
           <p className={styles.eyebrow}>Submitted work</p>

@@ -44,6 +44,7 @@ import { StudentShell } from "@/components/student-shell/student-shell";
 import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import styles from "@/components/student-shell/workspace.module.css";
 import { WORK_RETURN_PATH } from "@/lib/assignment-navigation";
+import { safeCalendarReturnHref, withCalendarReturn } from "@/lib/calendar-return";
 import {
   displayAssignmentWorkspaceTitle,
   type AssignmentWorkspaceMode,
@@ -109,6 +110,7 @@ type ProblemPreviewDraft = {
 };
 type AssignmentWorkspaceProps = {
   assignmentId: string;
+  calendarReturn?: string | null;
   classId?: string;
   navigationProfile?: StudentNavigationProfile;
   title: string;
@@ -158,6 +160,7 @@ function starterQuestionForProblem(problemText: string): string {
 
 export function AssignmentWorkspace({
   assignmentId,
+  calendarReturn,
   classId,
   navigationProfile,
   title,
@@ -177,6 +180,7 @@ export function AssignmentWorkspace({
   initialWorkspacePreferences = [],
   estimatedMinutes,
 }: AssignmentWorkspaceProps) {
+  const returnToCalendar = safeCalendarReturnHref(calendarReturn);
   const displayTitle = displayAssignmentWorkspaceTitle(title);
   const mode = initialMode;
   const reviewingWork = status === "checking";
@@ -215,7 +219,7 @@ export function AssignmentWorkspace({
         setMessage(result.error);
         return;
       }
-      router.push(`/assignments/${assignmentId}/submit`);
+      router.push(withCalendarReturn(`/assignments/${assignmentId}/submit`, returnToCalendar));
     });
   }
 
@@ -309,7 +313,7 @@ export function AssignmentWorkspace({
       <main id="main-content" tabIndex={-1} className="sd-assignment-workspace-main">
         <div className={styles.contextBar}>
           <nav aria-label="Assignment navigation" className={styles.routeNav}>
-            <Link href={WORK_RETURN_PATH} className="sd-assignment-workspace-back"><ArrowLeft size={16} aria-hidden="true" /> Back to Work</Link>
+            <Link href={returnToCalendar ?? WORK_RETURN_PATH} className="sd-assignment-workspace-back"><ArrowLeft size={16} aria-hidden="true" /> {returnToCalendar ? "Back to Calendar" : "Back to Work"}</Link>
             {classId ? <Link href={`/classes/${encodeURIComponent(classId)}?materials=1&work=${encodeURIComponent(assignmentId)}`} className="sd-assignment-workspace-back"><BookOpen size={16} aria-hidden="true" /> Class materials</Link> : null}
           </nav>
           <details className={styles.focusClock}>
