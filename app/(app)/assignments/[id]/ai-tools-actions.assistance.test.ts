@@ -168,6 +168,18 @@ describe('assignment action assistance boundary', () => {
     expect(mocks.provider).not.toHaveBeenCalled()
   })
 
+  it('does not advance review on a legacy provider outage placeholder', async () => {
+    vi.stubEnv('DIANA_DURABLE_TASK_ASSISTANCE_ENABLED', '')
+    mocks.local.mockReturnValue(null)
+    mocks.invoke.mockResolvedValueOnce({ data: { content: JSON.stringify({ ...localResult,
+      title: 'Diana review', strength: 'You have started with your own work.',
+      improvement: 'Make one connection to the assignment directions clearer.',
+      nextMove: 'Add one specific detail that supports your main idea.', question: 'Which detail best supports your next move?',
+    }) }, error: null })
+    expect(await requestAssignmentReview(input)).toEqual({ ok: false, error: 'Diana review is unavailable right now. Try again in a moment.' })
+    expect(mocks.provider).not.toHaveBeenCalled()
+  })
+
   it('forwards stable owner-bound retry keys to the authoritative Edge boundary', async () => {
     const args = { assignmentId, requestId, aiMode: 'green' as const, prompt: 'Help', history: [] }
     await requestMathStep(args)
