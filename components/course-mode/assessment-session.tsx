@@ -8,6 +8,7 @@ import {
   saveAssessmentResponseDraft,
   submitAssessmentAttempt,
 } from "@/app/(app)/course-mode/student-actions";
+import { classAssessmentPath } from "@/lib/course-mode/student-assessment-release";
 
 export type AssessmentSessionItem = {
   id: string;
@@ -30,6 +31,7 @@ export type AssessmentReviewResponse = {
 };
 
 type AssessmentSessionProps = {
+  classId: string;
   blueprintId: string;
   attemptId: string;
   attemptNumber: number;
@@ -83,6 +85,7 @@ function readableResponse(item: AssessmentSessionItem, response: unknown) {
 }
 
 export function AssessmentSession({
+  classId,
   blueprintId,
   attemptId,
   attemptNumber,
@@ -224,7 +227,7 @@ export function AssessmentSession({
       return;
     }
     const status = result.status ?? "scored";
-    router.replace(`/course-mode/assessments/${blueprintId}?status=${status}`);
+    router.replace(`${classAssessmentPath(blueprintId, classId)}?status=${status}`);
     router.refresh();
   };
 

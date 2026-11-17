@@ -28,6 +28,7 @@ import {
   type AssessmentSessionItem,
 } from "./assessment-session";
 
+const classId = "55555555-5555-4555-8555-555555555555";
 const blueprintId = "11111111-1111-4111-8111-111111111111";
 const attemptId = "22222222-2222-4222-8222-222222222222";
 const items: AssessmentSessionItem[] = [
@@ -55,6 +56,7 @@ const items: AssessmentSessionItem[] = [
 function renderSession(initialResponses: Record<string, string | string[]> = {}) {
   return render(
     <AssessmentSession
+      classId={classId}
       blueprintId={blueprintId}
       attemptId={attemptId}
       attemptNumber={1}
@@ -108,7 +110,8 @@ describe("AssessmentSession", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("requires explicit confirmation and submits the complete response set", async () => {
+  it.each(["teacher-review", "scored"])("requires confirmation and returns %s submissions to the Classes assessment", async (status) => {
+    mocks.submitAttempt.mockResolvedValue({ ok: true, status });
     renderSession({
       [items[0].id]: "Complete response",
       [items[1].id]: "B",
@@ -133,7 +136,7 @@ describe("AssessmentSession", () => {
     }));
     await waitFor(() => {
       expect(mocks.replace).toHaveBeenCalledWith(
-        `/course-mode/assessments/${blueprintId}?status=teacher-review`,
+        `/classes/${classId}/assessments/${blueprintId}?status=${status}`,
       );
       expect(mocks.refresh).toHaveBeenCalled();
     });

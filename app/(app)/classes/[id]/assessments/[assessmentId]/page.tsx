@@ -106,7 +106,7 @@ export default async function CourseAssessmentPage({
             </form>
           </div>
         ) : null}
-        {!unavailable && working && shown ? <AssessmentSession key={shown.id} blueprintId={id} attemptId={shown.id}
+        {!unavailable && working && shown ? <AssessmentSession key={shown.id} classId={cls.id} blueprintId={id} attemptId={shown.id}
           attemptNumber={shown.attempt_number} items={items} initialResponses={initialResponses} expiresAt={shown.expires_at}
           allottedMinutes={shown.allotted_minutes} extraTimePct={shown.extra_time_pct} /> : null}
         {!unavailable && released && shown ? <AssessmentResponseReview attemptNumber={shown.attempt_number}
