@@ -18,9 +18,10 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
 export default async function StudyArtifactDetailPage({
-  params,
+  params, searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ classId?: string }>;
 }) {
   const { id } = await params;
   const supabase = await createClient();
@@ -29,11 +30,14 @@ export default async function StudyArtifactDetailPage({
 
   const { data: row } = await supabase
     .from("study_artifacts")
-    .select("id, owner_id, title, artifact_type, study_mode, source_type, source_id, payload, cards_saved_count, practice_settings, authorship_receipt, ai_policy, created_at")
+    .select("id, owner_id, title, artifact_type, study_mode, source_type, source_id, class_id, payload, cards_saved_count, practice_settings, authorship_receipt, ai_policy, created_at")
     .eq("id", id)
     .eq("owner_id", user.id)
     .maybeSingle();
   if (!row) notFound();
+  const { classId: requestedClassId } = await searchParams;
+  const classId = row.class_id === requestedClassId ? row.class_id : null;
+  const savedHref = classId ? `/classes/${encodeURIComponent(classId)}?section=quiz` : "/study?view=saved";
 
   const rawPayload = isRecord(row.payload) ? row.payload : {};
   const artifact = completeStudyArtifact({
@@ -57,10 +61,10 @@ export default async function StudyArtifactDetailPage({
       storedPayload: row.payload, artifact,
     }));
   } catch {
-    return <StudentShell active="More"><main id="main-content" className={styles.main}>
+    return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)}><main id="main-content" className={styles.main}>
       <h1>Study support is unavailable right now</h1>
       <p>Your saved work is still here. Try opening it again in a moment.</p>
-      <Link href="/study?view=saved">Back to saved practice</Link>
+      <Link href={savedHref}>Back to saved practice</Link>
     </main></StudentShell>;
   }
 
@@ -74,6 +78,7 @@ export default async function StudyArtifactDetailPage({
         artifactId={row.id}
         artifactTitle={artifact.title}
         assignmentId={assignmentId}
+        classId={classId}
         quiz={artifact.quiz}
         initialProgress={progress}
         initialResult={result}
@@ -82,8 +87,8 @@ export default async function StudyArtifactDetailPage({
     );
   }
 
-  return <StudentShell active="More"><main id="main-content" className={styles.main}>
-    <Link href="/study?view=saved" className={styles.muted}><ArrowLeft size={16} aria-hidden="true" /> Back to Quiz</Link>
+  return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)}><main id="main-content" className={styles.main}>
+    <Link href={savedHref} className={styles.muted}><ArrowLeft size={16} aria-hidden="true" />{classId ? "Back to class" : "Back to Quiz"}</Link>
     <header className={styles.heading}><h1>{artifact.title}</h1></header>
     {artifact.type === "study_guide" ? <section className={styles.reading} aria-label="Study guide sections">{artifact.guide.map(section=><article key={section.heading}><h2>{section.heading}</h2><ul>{section.bullets.map(bullet=><li key={bullet}>{bullet}</li>)}</ul></article>)}</section> : <ArtifactFlashcards artifactId={row.id} cards={artifact.cards} savedCount={row.cards_saved_count ?? 0} />}
     <div className={styles.actions}><Link href={`/study?source=${row.source_type}:${row.source_id}`}>Create quiz from this source</Link><Link href={row.source_type === "assignment" ? `/assignments/${row.source_id}/workspace` : `/notes/${row.source_id}`}>Open source</Link></div>

@@ -1,0 +1,79 @@
+.figure {
+  container-type: inline-size;
+  min-inline-size: 0;
+  margin: 0;
+  padding: .75rem;
+  border: 1px solid #a49e8e;
+  background: #fffef8;
+  color: #263a30;
+}
+
+.plotFrame {
+  position: relative;
+  margin: .5rem .45rem 1.8rem 3.5rem;
+  outline: 1px solid #82948d;
+  background: #fff;
+}
+
+.plot {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.tickLabels {
+  position: absolute;
+  inset: 0;
+  font-size: .75rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  pointer-events: none;
+}
+
+.xTick,
+.yTick {
+  position: absolute;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.xTick {
+  top: calc(100% + .38rem);
+  max-width: 18%;
+  transform: translateX(-50%);
+}
+
+.xTick[data-edge="start"] { transform: none; }
+.xTick[data-edge="end"] { transform: translateX(-100%); }
+
+.yTick {
+  right: calc(100% + .35rem);
+  max-width: 3.2rem;
+  transform: translateY(-50%);
+}
+
+.axisValues summary {
+  min-height: 44px;
+  padding-block: .65rem;
+  cursor: pointer;
+}
+
+.axisValues dl > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem .65rem;
+}
+
+.axisValues dt { font-weight: 650; }
+.axisValues dd { margin: 0; }
+
+@container (max-width: 415px) {
+  .xTick { max-width: 31%; }
+  .xTick[data-secondary] { display: none; }
+}
+
+@media (forced-colors: active) {
+  .figure { border-color: CanvasText; }
+}

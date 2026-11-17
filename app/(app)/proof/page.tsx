@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { WORK_RETURN_PATH } from "@/lib/assignment-navigation";
+import { assignmentActionLabel, assignmentDestination, WORK_RETURN_PATH } from "@/lib/assignment-navigation";
 import { StudentShell } from "@/components/student-shell/student-shell";
 import { SectionTabs } from "@/components/student-shell/section-tabs";
 import { SelectionCollection, type CollectionItem } from "@/components/student-shell/selection-collection";
@@ -60,7 +60,7 @@ export default async function ProofPage({
     await Promise.all([
       supabase
         .from("task_signals")
-        .select("id, occurred_at, assignments(id, title, kind)")
+        .select("id, occurred_at, assignments(id, title, kind, status)")
         .eq("owner_id", user.id)
         .eq("kind", "completed")
         .order("occurred_at", { ascending: false })
@@ -108,7 +108,20 @@ export default async function ProofPage({
   const workItems: CollectionItem[] = completedRows.flatMap(row => {
     const assignment = Array.isArray(row.assignments) ? row.assignments[0] : row.assignments;
     if (!assignment?.id || !assignment.title) return [];
-    return [{ id: String(row.id), title: assignment.title, meta: `${formatKind(assignment.kind ?? "Assignment")} · ${formatDate(row.occurred_at)}`, content: <div className={styles.actions}><Link className={styles.primary} href={`/assignments/${assignment.id}`}>Open work</Link></div> }];
+
+    const status = assignment.status;
+    const submitted = status === "submitted" || status === "graded";
+    const href = submitted
+      ? assignmentDestination(assignment.id, status)
+      : `/assignments/${encodeURIComponent(assignment.id)}`;
+    return [{
+      id: String(row.id),
+      title: assignment.title,
+      meta: `${formatKind(assignment.kind ?? "Assignment")} · ${formatDate(row.occurred_at)}`,
+      content: <div className={styles.actions}>
+        <Link className={styles.primary} href={href}>{submitted ? assignmentActionLabel(status) : "Open work"}</Link>
+      </div>,
+    }];
   });
   return <StudentShell active="More" campus profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
     <main id="main-content" className={styles.main}>

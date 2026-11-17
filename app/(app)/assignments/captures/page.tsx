@@ -25,7 +25,7 @@ export default async function CapturesPage() {
   const date = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
 
   return (
-    <StudentShell active="Work">
+    <StudentShell active="Work" className={styles.room}>
       <main id="main-content" className={styles.main} tabIndex={-1}>
         <Link href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={17} aria-hidden="true" /> Work</Link>
         <header className={styles.heading}><h1>Captured work</h1></header>
@@ -54,7 +54,10 @@ export default async function CapturesPage() {
             })}
           </ul>
         ) : (
-          <section className={`${styles.panel} ${styles.notice}`}><h2>No captures to review</h2></section>
+          <section className={`${styles.panel} ${styles.notice}`}>
+            <h2>No captures to review</h2>
+            <Link href="/quick-add" className={styles.primary}>Add an assignment <ArrowRight size={18} aria-hidden="true" /></Link>
+          </section>
         )}
       </main>
     </StudentShell>

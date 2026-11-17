@@ -28,6 +28,7 @@ import {
   type AssessmentSessionItem,
 } from "./assessment-session";
 
+const classId = "55555555-5555-4555-8555-555555555555";
 const blueprintId = "11111111-1111-4111-8111-111111111111";
 const attemptId = "22222222-2222-4222-8222-222222222222";
 const items: AssessmentSessionItem[] = [
@@ -52,14 +53,16 @@ const items: AssessmentSessionItem[] = [
   },
 ];
 
-function renderSession(initialResponses: Record<string, string | string[]> = {}) {
+function renderSession(initialResponses: Record<string, string | string[]> = {}, expiresAt?: string) {
   return render(
     <AssessmentSession
+      classId={classId}
       blueprintId={blueprintId}
       attemptId={attemptId}
       attemptNumber={1}
       items={items}
       initialResponses={initialResponses}
+      expiresAt={expiresAt}
     />,
   );
 }
@@ -108,7 +111,8 @@ describe("AssessmentSession", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("requires explicit confirmation and submits the complete response set", async () => {
+  it.each(["teacher-review", "scored"])("requires confirmation and returns %s submissions to the Classes assessment", async (status) => {
+    mocks.submitAttempt.mockResolvedValue({ ok: true, status });
     renderSession({
       [items[0].id]: "Complete response",
       [items[1].id]: "B",
@@ -133,10 +137,36 @@ describe("AssessmentSession", () => {
     }));
     await waitFor(() => {
       expect(mocks.replace).toHaveBeenCalledWith(
-        `/course-mode/assessments/${blueprintId}?status=teacher-review`,
+        `/classes/${classId}/assessments/${blueprintId}?status=${status}`,
       );
       expect(mocks.refresh).toHaveBeenCalled();
     });
+    expect(mocks.saveDraft).toHaveBeenCalledTimes(1);
+  });
+
+  it("locks answers at expiry and explicitly hands in saved responses without another draft save", async () => {
+    vi.useFakeTimers();
+    const now = new Date("2026-11-17T18:00:00Z");
+    vi.setSystemTime(now);
+    renderSession({ [items[0].id]: "Saved response", [items[1].id]: "B" }, new Date(now.getTime() + 1_000).toISOString());
+
+    await act(async () => { await vi.advanceTimersByTimeAsync(700); });
+    fireEvent.change(screen.getByLabelText("Your response"), { target: { value: "Edit awaiting autosave" } });
+    await act(async () => { await vi.advanceTimersByTimeAsync(500); });
+
+    expect(screen.getByLabelText("Your response")).toBeDisabled();
+    expect(screen.getByText("Responses locked")).toBeVisible();
+    expect(mocks.saveDraft).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+    expect(screen.getByRole("radio", { name: "Result B" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Review and submit" }));
+    expect(screen.getByRole("dialog")).toHaveTextContent("Only responses saved before time ended will be submitted.");
+    expect(mocks.submitAttempt).not.toHaveBeenCalled();
+    await act(async () => { fireEvent.click(screen.getByRole("button", { name: "Submit assessment" })); });
+
+    expect(mocks.submitAttempt).toHaveBeenCalledWith({ blueprintId, attemptId, responses: [] });
+    expect(mocks.saveDraft).not.toHaveBeenCalled();
+    expect(mocks.replace).toHaveBeenCalledWith(`/classes/${classId}/assessments/${blueprintId}?status=teacher-review`);
   });
 });
 

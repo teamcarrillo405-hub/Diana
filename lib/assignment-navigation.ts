@@ -16,6 +16,10 @@ export function assignmentDestination(id: string, status: string) {
   return `${base}${status === "exporting" || status === "submitted" || status === "graded" ? "/submit" : "/workspace"}`;
 }
 
+export function submittedWorkPath(id: string) {
+  return `/assignments/${encodeURIComponent(id)}/submitted-work`;
+}
+
 export function assignmentActionLabel(status: AssignmentStatus) {
   if (status === "submitted" || status === "graded") return "View submission";
   if (status === "exporting") return "Review submission";

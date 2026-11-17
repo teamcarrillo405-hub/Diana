@@ -134,8 +134,8 @@ function QuizReviewChat({
   );
 }
 
-export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, quiz, initialProgress, initialResult, initialSupportState }: {
-  artifactId: string; artifactTitle: string; assignmentId: string | null; quiz: StudyArtifactQuizItem[]; initialProgress: PracticeProgress; initialResult: PracticeScoreSummary | null; initialSupportState?: QuizSupportState;
+export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, classId, quiz, initialProgress, initialResult, initialSupportState }: {
+  artifactId: string; artifactTitle: string; assignmentId: string | null; classId?: string | null; quiz: StudyArtifactQuizItem[]; initialProgress: PracticeProgress; initialResult: PracticeScoreSummary | null; initialSupportState?: QuizSupportState;
 }) {
   const router = useRouter();
   const [isSaving, startTransition] = useTransition();
@@ -154,8 +154,9 @@ export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, q
   const answeredCount = Object.values(responses).filter(value=>value.trim()).length;
   const item = quiz[currentQuestion];
   const response = drafts[String(currentQuestion)] ?? responses[String(currentQuestion)] ?? "";
-  const returnHref = assignmentId ? `/assignments/${assignmentId}/workspace` : "/study?view=saved";
-  const returnLabel = assignmentId ? "Back to assignment" : "Back to Quiz";
+  const savedHref = classId ? `/classes/${encodeURIComponent(classId)}?section=quiz` : "/study?view=saved";
+  const returnHref = !classId && assignmentId ? `/assignments/${assignmentId}/workspace` : savedHref;
+  const returnLabel = classId ? "Back to class" : assignmentId ? "Back to assignment" : "Back to Quiz";
   const quizSource = useMemo(()=>[`Quiz: ${artifactTitle}`,...quiz.map((question,index)=>`Question ${index+1}: ${question.question}\nStudent response: ${responses[String(index)] || "No saved response"}\nSource: ${question.sourceAnchor}`)].join("\n\n"),[artifactTitle,quiz,responses]);
   const hasUnsaved = Object.entries(drafts).some(([key,value])=>value !== (responses[key] ?? ""));
 
@@ -183,10 +184,10 @@ export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, q
       requestAnimationFrame(()=>heading.current?.focus());
     });
   }
-  return <StudentShell active="More" version="12" className={styles.root}>
+  return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)} version="12" className={styles.root}>
     <main id="main-content" className={styles.main}>
       <Link className={styles.back} href={returnHref}>{returnLabel}</Link>
-      <header className={styles.heading}><div><p>Quiz</p><h1>{artifactTitle}</h1></div><Link href="/study?view=saved">Saved practice</Link></header>
+      <header className={styles.heading}><div><p>Quiz</p><h1>{artifactTitle}</h1></div>{!classId ? <Link href={savedHref}>Saved practice</Link> : null}</header>
       {!item ? <section className={styles.paper}><h2>No questions yet</h2><Link href="/study">Choose work to create a quiz</Link></section> : completed ? <div className={styles.results}>
         <section className={styles.paper} aria-label="Quiz result"><CheckCircle2 size={28} aria-hidden="true" /><p>Quiz complete</p><h2 ref={heading} tabIndex={-1}>Your answers</h2><p>{answeredCount} responses saved</p>{result?.percentage != null ? <strong>{result.percentage}% on auto-checked questions</strong> : null}
           <div className={styles.answers}>{quiz.map((question,index)=>{const score=result?.results[index]; return <article key={index}><h3>Question {index+1}</h3><p>{question.question}</p><blockquote>{responses[String(index)] || "No response saved"}</blockquote><span>{score?.category === "matched" ? "Checked" : score?.category === "check_again" ? "Review again" : "Written response saved"}</span>{score?.scored ? <p>Answer: {score.expectedAnswer}</p> : <p className={styles.quiet}>This response has no automatic score.</p>}<small>{question.sourceAnchor}</small></article>;})}</div>

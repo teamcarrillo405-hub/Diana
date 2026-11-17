@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { WorkCommandCenter, type WorkCommandItem } from "./work-command-center";
 
 const item = (id: string, patch: Partial<WorkCommandItem> = {}): WorkCommandItem => ({ id, title: `Assignment ${id}`, className: "History", classColor: "#8b96bd", dueAt: "2026-09-24T21:00:00Z", minutes: 25, kind: "essay", status: "todo", reasons: [], ...patch });
-const renderWork = (assignments: WorkCommandItem[], props: { studentId?: string; restoreContext?: boolean } = {}) => render(<WorkCommandCenter assignments={assignments} nowIso="2026-09-24T12:00:00Z" timeZone="America/Los_Angeles" {...props} />);
+const renderWork = (assignments: WorkCommandItem[], props: { studentId?: string; restoreContext?: boolean; schoolName?: string; schoolLogoUrl?: string } = {}) => render(<WorkCommandCenter assignments={assignments} nowIso="2026-09-24T12:00:00Z" timeZone="America/Los_Angeles" {...props} />);
 afterEach(() => { cleanup(); sessionStorage.clear(); });
 
 describe("connected Work collection", () => {
@@ -69,5 +69,22 @@ describe("connected Work collection", () => {
     renderWork(assignments, { studentId: "student-b", restoreContext: true });
     expect(screen.getByRole("textbox", { name: "Find assignment" })).toHaveValue("");
     expect(screen.getByRole("link", { name: "Start Assignment a" })).toBeVisible();
+  });
+
+  it("displays the configured school logo once on the classroom banner and keeps the campus name readable", () => {
+    const logo = "data:image/webp;base64,AAAA";
+    const { container } = renderWork([item("a")], { schoolName: "Tigard High School", schoolLogoUrl: logo });
+    expect(screen.getByText("Tigard Campus")).toBeVisible();
+    const banner = container.querySelector("[data-work-campus-banner]");
+    expect(banner).toHaveAttribute("aria-hidden", "true");
+    expect(banner?.querySelector("img")).toHaveAttribute("src", logo);
+    expect(container.querySelectorAll(`img[src="${logo}"]`)).toHaveLength(1);
+    expect(screen.getByRole("button", { name: "Thursday, September 24, 1 assignment" })).toBeVisible();
+  });
+
+  it("preserves the default campus name and ignores an invalid logo URL", () => {
+    const { container } = renderWork([item("a")], { schoolLogoUrl: "https://example.com/logo.svg" });
+    expect(screen.getByText("Diana Campus")).toBeVisible();
+    expect(container.querySelector("[data-work-campus-banner]")).toBeNull();
   });
 });

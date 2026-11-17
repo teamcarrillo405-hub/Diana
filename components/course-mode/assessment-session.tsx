@@ -8,6 +8,7 @@ import {
   saveAssessmentResponseDraft,
   submitAssessmentAttempt,
 } from "@/app/(app)/course-mode/student-actions";
+import { classAssessmentPath } from "@/lib/course-mode/student-assessment-release";
 
 export type AssessmentSessionItem = {
   id: string;
@@ -30,6 +31,7 @@ export type AssessmentReviewResponse = {
 };
 
 type AssessmentSessionProps = {
+  classId: string;
   blueprintId: string;
   attemptId: string;
   attemptNumber: number;
@@ -83,6 +85,7 @@ function readableResponse(item: AssessmentSessionItem, response: unknown) {
 }
 
 export function AssessmentSession({
+  classId,
   blueprintId,
   attemptId,
   attemptNumber,
@@ -107,6 +110,8 @@ export function AssessmentSession({
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(() =>
     expiresAt ? Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 1000)) : null,
   );
+  const deadline = expiresAt ? Date.parse(expiresAt) : Infinity;
+  const expired = remainingSeconds === 0;
   const saveTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map());
   const saveQueues = useRef<Map<string, Promise<boolean>>>(new Map());
 
@@ -128,6 +133,12 @@ export function AssessmentSession({
     return () => window.clearInterval(timer);
   }, [expiresAt]);
 
+  useEffect(() => {
+    if (!expired) return;
+    for (const timer of saveTimers.current.values()) clearTimeout(timer);
+    saveTimers.current.clear();
+  }, [expired]);
+
   const currentItem = items[currentIndex];
   const answeredCount = useMemo(
     () => items.filter((item) => responseHasContent(responses[item.id])).length,
@@ -138,12 +149,14 @@ export function AssessmentSession({
     itemId: string,
     response: AssessmentResponse,
   ) => {
+    if (Date.now() >= deadline) return false;
     const pending = saveTimers.current.get(itemId);
     if (pending) clearTimeout(pending);
     saveTimers.current.delete(itemId);
     setSaveStates((current) => ({ ...current, [itemId]: "saving" }));
     const priorSave = saveQueues.current.get(itemId) ?? Promise.resolve(true);
     const queuedSave = priorSave.catch(() => false).then(async () => {
+      if (Date.now() >= deadline) return false;
       const result = await saveAssessmentResponseDraft({
         blueprintId,
         attemptId,
@@ -163,9 +176,10 @@ export function AssessmentSession({
       }));
     }
     return saved;
-  }, [attemptId, blueprintId]);
+  }, [attemptId, blueprintId, deadline]);
 
   const updateResponse = (itemId: string, response: AssessmentResponse) => {
+    if (Date.now() >= deadline) return;
     setResponses((current) => ({ ...current, [itemId]: response }));
     setSaveStates((current) => ({ ...current, [itemId]: "saving" }));
     setMessage("");
@@ -178,15 +192,14 @@ export function AssessmentSession({
 
   const moveToQuestion = async (nextIndex: number) => {
     if (!currentItem || nextIndex < 0 || nextIndex >= items.length) return;
-    await saveResponse(currentItem.id, responses[currentItem.id] ?? "");
+    if (Date.now() < deadline) await saveResponse(currentItem.id, responses[currentItem.id] ?? "");
     setCurrentIndex(nextIndex);
   };
 
-  const reviewSubmission = async () => {
+  const reviewSubmission = () => {
     if (!currentItem) return;
-    await saveResponse(currentItem.id, responses[currentItem.id] ?? "");
     const firstOpenIndex = items.findIndex((item) => !responseHasContent(responses[item.id]));
-    if (firstOpenIndex >= 0) {
+    if (Date.now() < deadline && firstOpenIndex >= 0) {
       setCurrentIndex(firstOpenIndex);
       setMessage(`Question ${firstOpenIndex + 1} still needs a response.`);
       return;
@@ -200,19 +213,12 @@ export function AssessmentSession({
     setMessage("");
     for (const timer of saveTimers.current.values()) clearTimeout(timer);
     saveTimers.current.clear();
-    const draftsSaved = await Promise.all(
-      items.map((item) => saveResponse(item.id, responses[item.id] ?? "")),
-    );
-    if (draftsSaved.some((saved) => !saved)) {
-      setSubmitting(false);
-      setShowConfirmation(false);
-      setMessage("One response still needs to be saved. Try again.");
-      return;
-    }
+    // Let pending autosaves settle before the server owns the final save and submission.
+    await Promise.allSettled([...saveQueues.current.values()]);
     const result = await submitAssessmentAttempt({
       blueprintId,
       attemptId,
-      responses: items.map((item) => ({
+      responses: Date.now() >= deadline ? [] : items.map((item) => ({
         itemId: item.id,
         response: responses[item.id] ?? "",
       })),
@@ -224,7 +230,7 @@ export function AssessmentSession({
       return;
     }
     const status = result.status ?? "scored";
-    router.replace(`/course-mode/assessments/${blueprintId}?status=${status}`);
+    router.replace(`${classAssessmentPath(blueprintId, classId)}?status=${status}`);
     router.refresh();
   };
 
@@ -251,7 +257,7 @@ export function AssessmentSession({
         <div className="text-right">
           <p className="m-0 text-sm font-bold text-slate-200">{answeredCount} of {items.length} answered</p>
           {remainingSeconds !== null ? (
-            <p className="mb-0 mt-1 text-sm font-black text-[#ff79da]" role="timer">
+            <p className="mb-0 mt-1 text-sm font-black text-[var(--campus-focus,#ff79da)]" role="timer">
               {formatAssessmentTime(remainingSeconds)}
             </p>
           ) : null}
@@ -262,10 +268,12 @@ export function AssessmentSession({
             </p>
           ) : null}
           <p className="mb-0 mt-1 flex min-h-5 items-center justify-end gap-1 text-xs text-slate-300" role="status" aria-live="polite">
-            {currentSaveState === "saving" ? <><Loader2 size={13} className="animate-spin" /> Saving</> : null}
-            {currentSaveState === "saved" ? <><Check size={13} /> Saved</> : null}
-            {currentSaveState === "error" ? "Save needs another try" : null}
-            {currentSaveState === "idle" ? <><Save size={13} /> Changes save automatically</> : null}
+            {expired ? "Responses locked" : <>
+              {currentSaveState === "saving" ? <><Loader2 size={13} className="animate-spin" /> Saving</> : null}
+              {currentSaveState === "saved" ? <><Check size={13} /> Saved</> : null}
+              {currentSaveState === "error" ? "Save needs another try" : null}
+              {currentSaveState === "idle" ? <><Save size={13} /> Changes save automatically</> : null}
+            </>}
           </p>
         </div>
       </div>
@@ -295,14 +303,18 @@ export function AssessmentSession({
         })}
       </nav>
 
+      {expired ? <p className="mt-4 border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950" role="status">
+        Time has ended. You can hand in the responses saved before time ended.
+      </p> : null}
+
       {message ? (
         <p className="mt-4 border border-amber-400 bg-amber-50 p-3 text-sm font-bold text-amber-950" role="alert">
           {message}
         </p>
       ) : null}
 
-      <fieldset className="course-mode-light mt-5 rounded-md border border-dashed border-white/30 bg-[#f4efe6] p-5 text-slate-950 sm:p-7">
-        <legend className="px-2 text-sm font-black">
+      <fieldset disabled={expired || submitting} className="course-mode-light mt-5 min-w-0 rounded-md border border-dashed border-white/30 bg-[#f4efe6] p-5 text-slate-950 sm:p-7" aria-describedby={`prompt-${currentItem.id}`}>
+        <legend className="rounded-sm bg-[#f4efe6] px-2 py-1 text-sm font-black text-slate-950">
           {currentItem.pointsPossible} {currentItem.pointsPossible === 1 ? "point" : "points"}
         </legend>
         <h3 className="m-0 text-xl font-black">{currentItem.title}</h3>
@@ -393,13 +405,13 @@ export function AssessmentSession({
             onClick={() => void moveToQuestion(currentIndex + 1)}
             className="inline-flex min-h-11 items-center gap-2 bg-white px-5 font-black text-slate-950"
           >
-            Save and next <ChevronRight size={18} />
+            {expired ? "Next" : "Save and next"} <ChevronRight size={18} />
           </button>
         ) : (
           <button
             type="button"
             onClick={() => void reviewSubmission()}
-            className="min-h-11 bg-[#db2777] px-5 font-black text-white"
+            className="min-h-11 bg-[var(--campus-action,#db2777)] px-5 font-black text-[var(--campus-action-text,white)]"
           >
             Review and submit
           </button>
@@ -416,7 +428,8 @@ export function AssessmentSession({
           >
             <h2 id="submit-assessment-title" className="m-0 text-2xl font-black">Submit this assessment?</h2>
             <p className="mb-0 mt-3 leading-7 text-slate-700">
-              All {items.length} responses are ready. After submission, this attempt can no longer be edited.
+              {expired ? "Only responses saved before time ended will be submitted. Your teacher can help if a response wasn’t saved."
+                : `All ${items.length} responses are ready. After submission, this attempt can no longer be edited.`}
             </p>
             <div className="mt-6 flex flex-wrap justify-end gap-3">
               <button
@@ -425,13 +438,13 @@ export function AssessmentSession({
                 onClick={() => setShowConfirmation(false)}
                 className="min-h-11 border border-slate-400 bg-white px-4 font-black text-slate-950"
               >
-                Keep working
+                {expired ? "Back to responses" : "Keep working"}
               </button>
               <button
                 type="button"
                 disabled={submitting}
                 onClick={() => void confirmSubmission()}
-                className="inline-flex min-h-11 items-center gap-2 bg-[#db2777] px-5 font-black text-white disabled:opacity-60"
+                className="inline-flex min-h-11 items-center gap-2 bg-[var(--campus-action,#db2777)] px-5 font-black text-[var(--campus-action-text,white)] disabled:opacity-60"
               >
                 {submitting ? <Loader2 size={17} className="animate-spin" /> : null}
                 Submit assessment
@@ -503,7 +516,7 @@ export function AssessmentResponseReview({
                 </p>
               ) : null}
               {response?.teacherFeedback ? (
-                <div className="mt-3 border-l-4 border-[#db2777] bg-white p-4">
+                <div className="mt-3 border-l-4 border-[var(--campus-action,#db2777)] bg-white p-4">
                   <p className="m-0 text-xs font-black uppercase text-slate-600">Teacher feedback</p>
                   <p className="mb-0 mt-2 whitespace-pre-wrap text-slate-950">{response.teacherFeedback}</p>
                 </div>

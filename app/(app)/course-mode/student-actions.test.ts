@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   createClient: vi.fn(),
   revalidatePath: vi.fn(),
   redirect: vi.fn(),
   rpc: vi.fn(),
+  expiresAt: null as string | null,
 }));
 
 vi.mock("next/cache", () => ({
@@ -21,6 +22,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import {
   saveAssessmentResponseDraft,
+  startAssessmentAttempt,
   submitAssessmentAttempt,
 } from "./student-actions";
 
@@ -40,6 +42,7 @@ function assessmentAttemptQuery() {
         blueprint_id: blueprintId,
         student_id: userId,
         status: "in_progress",
+        expires_at: mocks.expiresAt,
       },
       error: null,
     })),
@@ -61,6 +64,7 @@ function assessmentItemsQuery() {
 describe("Course Mode student assessment actions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.expiresAt = null;
     const attemptQuery = assessmentAttemptQuery();
     const itemQuery = assessmentItemsQuery();
     mocks.createClient.mockResolvedValue({
@@ -75,6 +79,8 @@ describe("Course Mode student assessment actions", () => {
       rpc: mocks.rpc,
     });
   });
+
+  afterEach(() => { vi.useRealTimers(); });
 
   it("saves a draft through the existing response RPC", async () => {
     mocks.rpc.mockResolvedValueOnce({ data: true, error: null });
@@ -92,6 +98,19 @@ describe("Course Mode student assessment actions", () => {
       p_response: "Draft response",
     });
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("returns the signed student to the assessment inside their class after starting", async () => {
+    const classId = "66666666-6666-4666-8666-666666666666";
+    const input = new FormData();
+    input.set("classId", classId);
+    input.set("blueprintId", blueprintId);
+    mocks.rpc.mockResolvedValueOnce({ data: attemptId, error: null });
+
+    await startAssessmentAttempt(input);
+
+    expect(mocks.rpc).toHaveBeenCalledWith("start_assessment_attempt", { p_blueprint_id: blueprintId });
+    expect(mocks.redirect).toHaveBeenCalledWith(`/classes/${classId}/assessments/${blueprintId}?status=started`);
   });
 
   it("keeps the attempt open when any response is empty", async () => {
@@ -143,5 +162,51 @@ describe("Course Mode student assessment actions", () => {
       }],
       ["submit_assessment_attempt", { p_attempt_id: attemptId }],
     ]);
+  });
+
+  it("submits an expired attempt from stored responses and ignores client edits", async () => {
+    mocks.expiresAt = "2026-11-17T18:00:00Z";
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-17T18:00:01Z"));
+    mocks.rpc.mockResolvedValueOnce({ data: { submitted: true, requiresTeacherScore: false }, error: null });
+
+    const result = await submitAssessmentAttempt({
+      blueprintId, attemptId, responses: [{ itemId: firstItemId, response: "Change after expiry" }],
+    });
+
+    expect(result).toEqual({ ok: true, status: "scored" });
+    expect(mocks.rpc.mock.calls).toEqual([["submit_assessment_attempt", { p_attempt_id: attemptId }]]);
+  });
+
+  it("preserves the database rule for missing saved responses after expiry", async () => {
+    mocks.expiresAt = "2026-11-17T18:00:00Z";
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-17T18:00:01Z"));
+    mocks.rpc.mockResolvedValueOnce({
+      data: { submitted: false, reason: "Every assessment item needs a response." }, error: null,
+    });
+
+    const result = await submitAssessmentAttempt({ blueprintId, attemptId, responses: [] });
+
+    expect(result).toEqual({ ok: false, message: "Some responses weren’t saved before time ended. Ask your teacher to reopen this attempt." });
+    expect(mocks.rpc.mock.calls).toEqual([["submit_assessment_attempt", { p_attempt_id: attemptId }]]);
+  });
+
+  it("continues with saved responses when time ends during the final server save", async () => {
+    mocks.expiresAt = "2026-11-17T18:00:01Z";
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-11-17T18:00:00Z"));
+    mocks.rpc.mockImplementationOnce(async () => {
+      vi.setSystemTime(new Date("2026-11-17T18:00:02Z"));
+      return { data: false, error: null };
+    }).mockResolvedValueOnce({ data: { submitted: true, requiresTeacherScore: true }, error: null });
+
+    const result = await submitAssessmentAttempt({ blueprintId, attemptId, responses: [
+      { itemId: firstItemId, response: "Response one" },
+      { itemId: secondItemId, response: "A" },
+    ] });
+
+    expect(result).toEqual({ ok: true, status: "teacher-review" });
+    expect(mocks.rpc.mock.calls.map(([name]) => name)).toEqual(["save_assessment_response", "submit_assessment_attempt"]);
   });
 });

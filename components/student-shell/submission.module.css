@@ -15,7 +15,7 @@
   block-size: clamp(260px, 28vw, 360px);
   background:
     linear-gradient(90deg, #111813f7, #111813cb 48%, #11181370),
-    url('/assets/work/college-classroom-1920.webp') right 40% / cover no-repeat;
+    var(--classes-room-image, url('/assets/work/college-classroom-1920.webp')) right 40% / cover no-repeat;
   mask-image: linear-gradient(#000 35%, transparent);
   pointer-events: none;
   content: "";
@@ -106,6 +106,17 @@
   grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
   align-items: start;
   gap: clamp(.9rem, 2vw, 1.5rem);
+  padding: clamp(.65rem, 2vw, 1.25rem);
+  border: 1px solid var(--campus-rule, #b9b19b52);
+  background: var(--campus-panel, #181f1b);
+}
+
+.root.root .main .continueAction {
+  display: flex;
+  width: fit-content;
+  min-height: 48px;
+  margin-block-start: 14px;
+  margin-inline-start: auto;
 }
 
 .paper,
@@ -175,7 +186,8 @@
 
 .root .instructions,
 .root.root .sendPanel > p,
-.root.root .receipt > p {
+.root.root .receiptDetails > p,
+.root.root .savedCopyNote {
   margin-block: 12px 0;
   font-size: .9375rem;
   line-height: 1.62;
@@ -506,22 +518,79 @@
 .receipt {
   max-width: 53rem;
   margin: 22px auto 0;
+  border: 1px solid var(--campus-rule, #b9b19b52);
 }
 .receiptHeading {
   display: flex;
   align-items: center;
   gap: 10px 16px;
+  padding: clamp(.8rem, 3vw, 1.75rem);
+  border-block-end: 3px solid var(--campus-action, #503458);
+  background: var(--campus-panel, #181f1b);
+  color: var(--campus-ink, #fff8e8);
 }
 .receiptHeading > svg { flex: none; }
 .root.root .receiptHeading h1 { font-size: clamp(2.1rem, 5.5vw, 3.65rem); }
-.receipt .receiptHeading > svg { color: var(--submission-muted); }
-.root.root .receiptAssignment { font-weight: 650; overflow-wrap: anywhere; }
+.root.root .receiptHeading .eyebrow, .receipt .receiptHeading > svg { color: var(--campus-muted, #c8d2c9); }
+.receiptDetails { border: none; }
+.root.root .paper .receiptAssignment {
+  font: 700 clamp(1.18rem, 3.2vw, 1.6rem)/1.28 var(--font-lexend), sans-serif;
+  text-transform: none;
+}
 .receiptAssignment span {
   display: block;
+  margin-block-start: 3px;
   color: var(--submission-muted);
   font-size: .875rem;
   font-weight: 450;
 }
+
+.root.root .submittedMeta {
+  color: var(--campus-muted, #c8d2c9);
+  font-size: .875rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+.submittedPacket { margin-block-start: 10px; }
+.submittedPacketHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: .6rem 1rem;
+}
+.submittedPacketHeader .panelHeading { flex-wrap: nowrap; }
+.submittedPacketHeader .panelHeading > div { min-width: 0; }
+.root.root .submittedPacketHeader .controls { margin-block-start: 0; }
+.root.root .savedFilename {
+  margin-block-start: 4px;
+  color: var(--submission-muted);
+  font-size: .8125rem;
+  overflow-wrap: anywhere;
+}
+
+.pdfPreview,
+.root.root .submittedText {
+  margin-block-start: 16px;
+  border: 1px solid var(--submission-rule);
+  background: var(--submission-paper-light);
+  color: var(--submission-ink);
+}
+.pdfPreview { padding: clamp(.25rem, 1.5vw, 1rem); }
+.pdfPreview canvas { max-width: 52rem; margin-inline: auto; }
+.root.root .submittedText { padding: clamp(.75rem, 3vw, 1.55rem); }
+.pdfPager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem .75rem;
+  padding-block-end: .6rem;
+  font-size: .8125rem;
+}
+.root.root .pdfPager .secondary:disabled { opacity: .65; }
 
 @media (max-width: 735px) {
   .handoff { grid-template-columns: minmax(0, 1fr); }
@@ -536,20 +605,24 @@
     block-size: 235px;
     background:
       linear-gradient(90deg, #111813f2, #11181383),
-      url('/assets/work/college-classroom-mobile.webp') 65% 44% / cover no-repeat;
+      var(--classes-room-image, url('/assets/work/college-classroom-mobile.webp')) 65% 44% / cover no-repeat;
     mask-image: linear-gradient(#000 20%, transparent);
   }
 
   .root .title { margin-block-start: 6px; padding-block-end: 9px; }
   .root.root .submissionFlow [role="tab"] { padding-inline: 14px; }
   .root.root .submissionFlow [role="tabpanel"] { padding-block-start: 12px; }
-  .root .reviewPaper, .root .handoff > :is(.paper, .sendPanel), .root .receipt { padding: 12px; }
+  .root .reviewPaper, .root .handoff > :is(.paper, .sendPanel), .root .receiptDetails, .root .submittedPacket { padding: 12px; }
   .reviewHeader .panelHeading { gap: 8px; }
   .reviewPaper .facts { grid-template-columns: minmax(0, 1fr); gap: 6px; margin-block: 12px; }
   .reviewPaper .facts > div { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); gap: 8px; align-items: baseline; }
   .reviewPaper .facts dd { margin: 0; }
-  .root.root .main .sendPanel .primary { width: 100%; }
+  .handoff { padding: .5rem; gap: .65rem; }
+  .root.root .main :is(.sendPanel .primary, .continueAction) { width: 100%; }
   .receipt { margin-block-start: 12px; }
+  .root.root .receiptHeading h1 { font-size: clamp(1.9rem, 6.8vw, 2.4rem); }
+  .receiptHeading > svg { width: 26px; height: 26px; }
+  .root.root .main .receiptDetails .primary { min-height: 48px; }
 }
 
 :global(.high-contrast) .root {
@@ -566,7 +639,7 @@
   .root.root .submissionFlow [role="tab"][aria-selected="true"]::after { display: none; }
   .root.root .submissionFlow [role="tab"][aria-selected="true"] { border-color: Highlight; }
   .root.root .title .eyebrow { border: 1px solid CanvasText; clip-path: none; }
-  .root.root :is(.paper, .sendPanel, .workBlock, .providerConfirmation, .receipt, .notice) {
+  .root.root :is(.handoff, .paper, .sendPanel, .workBlock, .providerConfirmation, .receipt, .receiptHeading, .notice, .pdfPreview, .submittedText) {
     background: Canvas;
     border-color: CanvasText;
     color: CanvasText;

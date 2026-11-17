@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { classAssessmentPath } from "@/lib/course-mode/student-assessment-release";
 import { createClient } from "@/lib/supabase/server";
 
 type RpcStore = {
@@ -71,19 +72,19 @@ export async function updateLessonProgress(formData: FormData) {
 }
 
 export async function startAssessmentAttempt(formData: FormData) {
-  const parsed = z.object({ blueprintId: z.string().uuid() }).safeParse({
+  const parsed = z.object({ blueprintId: z.string().uuid(), classId: z.string().uuid().optional() }).safeParse({
     blueprintId: formData.get("blueprintId"),
+    classId: formData.get("classId") ?? undefined,
   });
   if (!parsed.success) redirect("/classes");
   const { store } = await studentStore();
   const { data, error } = await store.rpc("start_assessment_attempt", {
     p_blueprint_id: parsed.data.blueprintId,
   });
-  if (error || typeof data !== "string") {
-    redirect(`/course-mode/assessments/${parsed.data.blueprintId}?status=not-started`);
-  }
-  revalidatePath(`/course-mode/assessments/${parsed.data.blueprintId}`);
-  redirect(`/course-mode/assessments/${parsed.data.blueprintId}?status=started`);
+  const path = classAssessmentPath(parsed.data.blueprintId, parsed.data.classId);
+  const started = !error && typeof data === "string";
+  if (started) revalidatePath(path);
+  redirect(`${path}?status=${started ? "started" : "not-started"}`);
 }
 
 export async function saveAssessmentResponseDraft(
@@ -123,35 +124,35 @@ export async function submitAssessmentAttempt(
   if (!attempt) {
     return { ok: false, message: "This attempt is no longer open." };
   }
-  const expired = typeof attempt.expires_at === "string"
-    && Date.parse(attempt.expires_at) <= Date.now();
+  const deadline = typeof attempt.expires_at === "string" ? Date.parse(attempt.expires_at) : Infinity;
 
-  const { data: items } = await query.from("assessment_items")
-    .select("id")
-    .eq("blueprint_id", parsed.data.blueprintId);
-  const itemIds = new Set<string>((items ?? []).map((item: { id: string }) => item.id));
-  const responsesByItem = new Map<string, string | string[]>(
-    parsed.data.responses.map((response) => [response.itemId, response.response]),
-  );
-  if (
-    itemIds.size === 0
-    || responsesByItem.size !== itemIds.size
-    || [...itemIds].some((itemId) => {
-      const response = responsesByItem.get(itemId);
-      return response === undefined || !hasAssessmentResponse(response);
-    })
-  ) {
-    return { ok: false, message: "Add a response to every question before submitting." };
-  }
-
-  if (!expired) {
+  if (Date.now() < deadline) {
+    const { data: items } = await query.from("assessment_items")
+      .select("id")
+      .eq("blueprint_id", parsed.data.blueprintId);
+    const itemIds = new Set<string>((items ?? []).map((item: { id: string }) => item.id));
+    const responsesByItem = new Map<string, string | string[]>(
+      parsed.data.responses.map((response) => [response.itemId, response.response]),
+    );
+    if (Date.now() < deadline && (
+      itemIds.size === 0
+      || responsesByItem.size !== itemIds.size
+      || [...itemIds].some((itemId) => {
+        const response = responsesByItem.get(itemId);
+        return response === undefined || !hasAssessmentResponse(response);
+      })
+    )) {
+      return { ok: false, message: "Add a response to every question before submitting." };
+    }
     for (const itemId of itemIds) {
+      if (Date.now() >= deadline) break;
       const { data, error } = await store.rpc("save_assessment_response", {
         p_attempt_id: attempt.id,
         p_item_id: itemId,
         p_response: responsesByItem.get(itemId),
       });
       if (error || !data) {
+        if (!error && Date.now() >= deadline) break;
         return { ok: false, message: "One response still needs to be saved. Try again." };
       }
     }
@@ -163,7 +164,9 @@ export async function submitAssessmentAttempt(
   if (submitError || !submitted?.submitted) {
     return {
       ok: false,
-      message: submitted?.reason ?? "The assessment is still open. Review each response and try again.",
+      message: Date.now() >= deadline && submitted?.reason === "Every assessment item needs a response."
+        ? "Some responses weren’t saved before time ended. Ask your teacher to reopen this attempt."
+        : submitted?.reason ?? "The assessment is still open. Review each response and try again.",
     };
   }
   revalidatePath(`/course-mode/assessments/${parsed.data.blueprintId}`);

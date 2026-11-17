@@ -371,12 +371,16 @@ export function buildAssignmentSubmissionPreview(input: {
   submissionType: AssignmentSubmissionPreview["submissionType"];
 }): AssignmentSubmissionPreview {
   const canonical = buildCanonicalAssignmentSubmission(input);
+  const problemLabels: Array<[string, string]> = [];
   const problems = [...input.problems]
     .sort((left, right) => left.problem_number - right.problem_number)
     .map((problem) => {
       const studentWork = record(problem.student_work);
+      const id = problem.id ?? `problem-${problem.problem_number}`;
+      const label = text(record(problem.scaffold).unitLabel);
+      if (label) problemLabels.push([id, label]);
       return {
-        id: problem.id ?? `problem-${problem.problem_number}`,
+        id,
         number: problem.problem_number,
         prompt: problem.problem_text,
         typedWork: text(studentWork.work) || text(studentWork.answer),
@@ -395,6 +399,7 @@ export function buildAssignmentSubmissionPreview(input: {
     textPayload: canonical.textPayload,
     universalTextPayload: canonical.universalTextPayload,
     specialistRenderDocument: canonical.specialistRenderDocument,
+    ...(problemLabels.length > 0 ? { problemLabels: Object.fromEntries(problemLabels) } : {}),
     problems,
     incompleteProblemNumbers: problems.filter((problem) => !problem.complete).map((problem) => problem.number),
   };

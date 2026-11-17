@@ -26,7 +26,7 @@ export default async function QuickAddPage({
   const retryPath = classId ? `/quick-add?classId=${encodeURIComponent(classId)}` : "/quick-add";
 
   return (
-    <StudentShell active="Work" showAdd={false} profile={{
+    <StudentShell active="Work" showAdd={false} className={styles.room} profile={{
       displayName: profile?.display_name,
       photoUrl: profile?.photo_url,
       photoOffsetX: profile?.photo_offset_x,

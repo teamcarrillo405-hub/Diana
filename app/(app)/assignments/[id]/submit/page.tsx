@@ -8,7 +8,8 @@ import type { StudentNavigationProfile } from "@/components/screen-design/studen
 import { SectionTabs } from "@/components/student-shell/section-tabs";
 import styles from "@/components/student-shell/submission.module.css";
 import { loadAssignmentSubmissionBundle } from "@/lib/assignment-submission-server";
-import { WORK_RETURN_PATH } from "@/lib/assignment-navigation";
+import { submittedWorkPath, WORK_RETURN_PATH } from "@/lib/assignment-navigation";
+import { formatHandInTime } from "@/lib/assignment-submission-time";
 import { subjectPresentationFor } from "@/lib/assignment-subject-presentation";
 import { createClient } from "@/lib/supabase/server";
 import { ExternalSubmissionSync } from "../external-submission-sync";
@@ -29,17 +30,6 @@ function submissionPageState(status: string): "review" | "receipt" | "workspace"
   return "workspace";
 }
 
-function formatReceiptDate(value: string | null): string | null {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
-}
-
 type SubmissionReceipt = {
   id: string;
   provider: string | null;
@@ -48,11 +38,13 @@ type SubmissionReceipt = {
   payloadDigest: string | null;
 };
 
-function SubmittedAssignmentReceipt({ title, className, status, submittedAt, externalSource, receipt, navigationProfile }: {
+function SubmittedAssignmentReceipt({ assignmentId, title, className, status, submittedAt, timeZone, externalSource, receipt, navigationProfile }: {
+  assignmentId: string;
   title: string;
   className: string;
   status: string;
   submittedAt: string | null;
+  timeZone?: string | null;
   externalSource: string | null;
   receipt: SubmissionReceipt | null;
   navigationProfile?: StudentNavigationProfile;
@@ -61,14 +53,14 @@ function SubmittedAssignmentReceipt({ title, className, status, submittedAt, ext
   const provider = receipt?.providerReceiptId && receipt.provider === externalSource
     ? externalSource === "canvas" ? "Canvas" : externalSource === "google_classroom" ? "Google Classroom" : null
     : null;
-  const submittedDate = formatReceiptDate(submittedAt);
+  const submittedDate = formatHandInTime(submittedAt, timeZone);
   return (
     <StudentShell active="Work" className={styles.root} profile={navigationProfile}>
       <main id="main-content" className={styles.main}>
         <nav aria-label="Submission navigation" className={styles.routeLinks}>
           <Link href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={18} aria-hidden="true" />Back to Work</Link>
         </nav>
-        <section className={`${styles.paper} ${styles.receipt}`} aria-labelledby="submission-receipt-title">
+        <section className={styles.receipt} aria-labelledby="submission-receipt-title">
           <div className={styles.receiptHeading}>
             <CheckCircle2 size={34} aria-hidden="true" />
             <div>
@@ -76,23 +68,27 @@ function SubmittedAssignmentReceipt({ title, className, status, submittedAt, ext
               <h1 id="submission-receipt-title">{graded ? "Grade recorded" : provider ? "Submission confirmed" : "Submission recorded"}</h1>
             </div>
           </div>
-          <p className={styles.receiptAssignment}>{title} <span>{className}</span></p>
-          <p>{provider ? `${provider} confirmed this hand-in.` : externalSource === "canvas" || externalSource === "google_classroom" ? "This hand-in is recorded in Diana. Check your school assignment for its confirmation." : "This hand-in is recorded in Diana."}</p>
-          {submittedDate || receipt?.filename ? <dl className={styles.facts}>
-            {submittedDate ? <div><dt>Hand-in recorded</dt><dd>{submittedDate}</dd></div> : null}
-            {receipt?.filename ? <div><dt>Submitted file</dt><dd>{receipt.filename}</dd></div> : null}
-          </dl> : null}
-          <div className={styles.controls}>
-            <Link href="/proof" className={styles.primary}>Open Record<ArrowRight size={18} aria-hidden="true" /></Link>
-          </div>
-          {receipt ? <details className={styles.options}>
-            <summary>Receipt details</summary>
+          <div className={`${styles.paper} ${styles.receiptDetails}`}>
+            <h2 className={styles.receiptAssignment}>{title} <span>{className}</span></h2>
+            <p>{provider ? `${provider} confirmed this hand-in.` : externalSource === "canvas" || externalSource === "google_classroom" ? "This hand-in is recorded in Diana. Check your school assignment for its confirmation." : "This hand-in is recorded in Diana."}</p>
             <dl className={styles.facts}>
-              <div><dt>Diana receipt ID</dt><dd>{receipt.id}</dd></div>
-              {provider ? <div><dt>{provider} receipt ID</dt><dd>{receipt.providerReceiptId}</dd></div> : null}
-              {receipt.payloadDigest ? <div><dt>File fingerprint</dt><dd>{receipt.payloadDigest.slice(0, 12).toUpperCase()}</dd></div> : null}
+              <div><dt>Destination</dt><dd>{provider ?? "School hand-in"}</dd></div>
+              {submittedAt && submittedDate ? <div><dt>Hand-in recorded</dt><dd><time dateTime={submittedAt}>{submittedDate}</time></dd></div> : null}
+              {receipt?.filename ? <div><dt>Submitted file</dt><dd>{receipt.filename}</dd></div> : null}
             </dl>
-          </details> : null}
+            <div className={styles.controls}>
+              <Link href={submittedWorkPath(assignmentId)} className={styles.primary}>View submitted work<ArrowRight size={18} aria-hidden="true" /></Link>
+              <Link href="/proof" className={styles.secondary}>Open Record</Link>
+            </div>
+            {receipt ? <details className={styles.options}>
+              <summary>Receipt details</summary>
+              <dl className={styles.facts}>
+                <div><dt>Diana receipt ID</dt><dd>{receipt.id}</dd></div>
+                {provider ? <div><dt>{provider} receipt ID</dt><dd>{receipt.providerReceiptId}</dd></div> : null}
+                {receipt.payloadDigest ? <div><dt>File fingerprint</dt><dd>{receipt.payloadDigest.slice(0, 12).toUpperCase()}</dd></div> : null}
+              </dl>
+            </details> : null}
+          </div>
         </section>
       </main>
     </StudentShell>
@@ -107,7 +103,7 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
 
   const [bundle, { data: profile }] = await Promise.all([
     loadAssignmentSubmissionBundle({ supabase, ownerId: user.id, assignmentId: id }),
-    supabase.from("profiles").select("display_name, photo_url, photo_offset_x, photo_offset_y").eq("user_id", user.id).maybeSingle(),
+    supabase.from("profiles").select("display_name, photo_url, photo_offset_x, photo_offset_y, timezone").eq("user_id", user.id).maybeSingle(),
   ]);
   if (!bundle) notFound();
   const { assignment, className, preview } = bundle;
@@ -139,7 +135,7 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
           payloadDigest: relation?.payload_digest ?? null,
         }
       : null;
-    return <SubmittedAssignmentReceipt title={assignment.title} className={className} status={assignment.status} submittedAt={assignment.submitted_at} externalSource={assignment.external_source} receipt={submissionReceipt} navigationProfile={navigationProfile} />;
+    return <SubmittedAssignmentReceipt assignmentId={id} title={assignment.title} className={className} status={assignment.status} submittedAt={assignment.submitted_at} timeZone={profile?.timezone} externalSource={assignment.external_source} receipt={submissionReceipt} navigationProfile={navigationProfile} />;
   }
 
   const [{ data: items }, { data: timeLogs }] = await Promise.all([
@@ -190,7 +186,12 @@ export default async function SubmitPage({ params }: { params: Promise<{ id: str
 
         <div className={styles.submissionFlow}>
           <SectionTabs key={id} id="submission" label="Submission" sections={[
-            { id: "review", label: "Review", content: <AssignmentSubmissionPreview preview={preview} unitNoun={unitNoun} unitNounPlural={unitNounPlural} /> },
+            {
+              id: "review",
+              label: "Review",
+              content: <AssignmentSubmissionPreview preview={preview} unitNoun={unitNoun} unitNounPlural={unitNounPlural} />,
+              continueAction: { label: "Continue to hand in", className: `${styles.primary} ${styles.continueAction}` },
+            },
             { id: "hand-in", label: "Hand in", content: connectedProvider ? (
               <ExternalSubmissionSync
                 assignmentId={id}

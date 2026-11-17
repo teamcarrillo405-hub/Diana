@@ -39,16 +39,18 @@ export default async function StudyPage({ searchParams }: { searchParams: Promis
   const materialEnabled=await learningAccess("retrieval",user.id);
   const sourceItems: CollectionItem[] = sources.map(source=>({id:source.id,title:source.title,meta:`${source.subject} · ${source.kind}`,image:subjectArtwork(source.subject),content:<form key={source.id} action={createQuiz}>
     <input type="hidden" name="source" value={source.id} />
+    {classId ? <input type="hidden" name="classId" value={classId} /> : null}
     {materialEnabled&&source.kind==="Assignment"&&<div className={styles.actions}><Link href={"/study/material/"+source.id.slice("assignment:".length)}>Prepare material</Link></div>}
     <label className={styles.field}>Questions<select name="questionCount" defaultValue={requestedCount}>{[3,6,10,15,20].map(count=><option key={count} value={count}>{count} questions</option>)}</select></label>
     <div className={styles.actions}><ActionSubmit pendingLabel="Creating quiz">Create quiz</ActionSubmit><Link href={source.href}>Open source</Link></div>
   </form>}));
-  const savedItems: CollectionItem[] = (artifacts.data ?? []).map(row=>({id:row.id,title:row.title,meta:`${className(row.classes)} · ${row.artifact_type === "study_guide" ? "Guide" : "Quiz"}`,image:subjectArtwork(className(row.classes)),content:<div key={row.id} className={styles.actions}><Link className={styles.primary} href={`/study-artifacts/${row.id}`}>{row.artifact_type === "study_guide" ? "Open guide" : "Open quiz"}</Link></div>}));
+  const classQuery = classId ? `?classId=${encodeURIComponent(classId)}` : "";
+  const savedItems: CollectionItem[] = (artifacts.data ?? []).map(row=>({id:row.id,title:row.title,meta:`${className(row.classes)} · ${row.artifact_type === "study_guide" ? "Guide" : "Quiz"}`,image:subjectArtwork(className(row.classes)),content:<div key={row.id} className={styles.actions}><Link className={styles.primary} href={`/study-artifacts/${row.id}${classQuery}`}>{row.artifact_type === "study_guide" ? "Open guide" : "Open quiz"}</Link></div>}));
   const unavailable = assignments.error || notes.error || artifacts.error;
-  return <StudentShell active="More" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
+  return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)} profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
     <main id="main-content" className={styles.main}>
       <header className={styles.heading}><h1>Quiz</h1>{(due.count ?? 0)>0 ? <Link href="/study/recall">Recall · {due.count} ready</Link> : <Link href="/more">Back to More</Link>}</header>
-      {classId ? <div className={styles.filters}><Link href="/study">All classes</Link><Link href={`/classes/${classId}`}>Back to class</Link></div> : null}
+      {classId ? <div className={styles.filters}><Link href={`/classes/${classId}?section=quiz`}>Back to class</Link><Link href="/study">All practice</Link></div> : null}
       {unavailable ? <p role="status" className={styles.notice}>Some material could not load. <Link href="/study">Try again</Link></p> : null}
       {params.notice ? <p role="status" className={styles.notice}>{params.notice === "choose-source" ? "Choose an assignment or note first." : params.notice === "assignment-not-found" ? "That assignment is unavailable." : params.notice.slice(0,240)}</p> : null}
       <SectionTabs id="quiz" label="Quiz sections" initial={params.view === "saved" ? "saved" : "source"} sections={[
