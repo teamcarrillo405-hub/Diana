@@ -1,12 +1,12 @@
-const CACHE_NAME = "diana-pwa-v35";
+const CACHE_NAME = "diana-pwa-v36";
 // Only public fallback HTML is cacheable. Signed-in navigation and RSC responses
 // must never survive an account change in a shared browser.
-const CORE_ROUTES = ["/offline"];
+const CORE_ROUTES = ["/offline", "/icons/diana-icon.svg"];
 const SYNC_TAG = "diana-offline-sync";
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    cachePublicOfflinePage().then(() => self.skipWaiting()),
+    cachePublicOfflinePage(),
   );
 });
 
@@ -43,10 +43,16 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/vendor/diana-recognition/") || url.pathname === "/manifest.webmanifest" || url.pathname === "/icon") {
+  if (isPublicStaticAsset(url.pathname) || url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/vendor/diana-recognition/") || url.pathname === "/manifest.webmanifest" || url.pathname === "/icon") {
     event.respondWith(staleWhileRevalidate(request));
   }
 });
+
+// A new worker waits for existing pages to close, preserving unsaved work.
+// Only immutable, repository-owned presentation assets enter the shared cache.
+function isPublicStaticAsset(path) {
+  return /^\/assets\/(?:campus|work|classes|calendar|fonts)\/[a-z0-9._-]+\.(?:webp|woff2)$/.test(path) || /^\/assets\/today-now\/(?:diana-campus-with-guide-(?:4k|mobile)|selection-brush-v1)\.webp$/.test(path) || path === "/icons/diana-icon.svg";
+}
 
 self.addEventListener("sync", (event) => {
   if (event.tag !== SYNC_TAG) return;

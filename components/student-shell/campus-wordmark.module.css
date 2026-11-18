@@ -1,0 +1,4 @@
+.link { display:inline-flex; text-decoration:none; color:inherit; }
+.wordmark { display:inline-block; color:#17251e; font:800 italic clamp(38px,4vw,58px)/.95 var(--font-saira-condensed),Impact,sans-serif; text-transform:uppercase; letter-spacing:.025em; transform:skew(-6deg); }
+.wordmark[data-light] { color:#fff8e8; }
+.wordmark[data-compact] { font-size:38px; }

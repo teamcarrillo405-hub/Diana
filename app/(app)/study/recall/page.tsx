@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { loadProfile } from "@/lib/profile";
+import { StudentShell } from "@/components/student-shell/student-shell";
+import styles from "@/components/student-shell/quiz.module.css";
 import { RecallSession } from "./recall-session";
 import Link from "next/link";
 import { authorizeRecallDisclosure } from "@/lib/learning-engine/recall-assistance";
@@ -18,9 +20,9 @@ export default async function RecallPage({ searchParams }: { searchParams: Promi
   try {
     await authorizeRecallDisclosure(supabase, user.id, data ?? []);
   } catch {
-    return <main id="main-content"><h1>Recall is unavailable right now</h1>
+    return <StudentShell active="More" scene="seminar" mode="focus" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url}}><main id="main-content" className={styles.main}><section className={styles.paper}><h1>Recall is unavailable right now</h1>
       <p>Your saved cards are still here. Try opening them again in a moment.</p>
-      <Link href="/study?view=saved">Back to saved practice</Link></main>;
+      <Link href="/study?view=saved">Back to saved practice</Link></section></main></StudentShell>;
   }
-  return <RecallSession queue={data ?? []} ttsProvider={profile?.tts_provider ?? "browser"} ttsSpeed={profile?.tts_speed ?? 1} ttsPitch={profile?.tts_pitch ?? 1} ttsVoice={profile?.tts_voice ?? ""} nowIso={nowIso} />;
+  return <RecallSession navigationProfile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}} queue={data ?? []} ttsProvider={profile?.tts_provider ?? "browser"} ttsSpeed={profile?.tts_speed ?? 1} ttsPitch={profile?.tts_pitch ?? 1} ttsVoice={profile?.tts_voice ?? ""} nowIso={nowIso} />;
 }

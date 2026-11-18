@@ -1,0 +1,52 @@
+{
+  "timestamp": "2026-11-18T07:13:56.713Z",
+  "target": "http://127.0.0.1:3140",
+  "fixture": "verified synthetic owner; one authorized PDF delivery artifact",
+  "checks": [
+    {
+      "name": "Review shows synthetic saved work and PDF action",
+      "ok": true
+    },
+    {
+      "name": "Hand-in shows PDF and explicit hand-in directions",
+      "ok": true
+    },
+    {
+      "name": "Hand-in Download PDF produces readable assignment",
+      "ok": true,
+      "detail": "1 pages, 3114 bytes, 3/3 phrases"
+    },
+    {
+      "name": "Prepared PDF belongs to synthetic owner and does not submit work",
+      "ok": true
+    },
+    {
+      "name": "Authenticated canonical PDF endpoint and no-store",
+      "ok": true,
+      "detail": "HTTP 200"
+    },
+    {
+      "name": "Canonical PDF parses with nonempty pages",
+      "ok": true,
+      "detail": "1 pages, 3114 bytes"
+    },
+    {
+      "name": "Export contains assignment title and student work",
+      "ok": true,
+      "detail": "matched 3/3 expected phrases"
+    },
+    {
+      "name": "First assignment page rasterizes",
+      "ok": true
+    },
+    {
+      "name": "Synthetic shared summary print",
+      "ok": null,
+      "detail": "Skipped: existing synthetic share unavailable or expired; no new share was created."
+    }
+  ],
+  "limitations": [
+    "The test creates one synthetic PDF storage object and database binding for the retained fixture; cleanup metadata is recorded separately.",
+    "No external school submission, user accounts, paid providers, email, or real student data were used."
+  ]
+}

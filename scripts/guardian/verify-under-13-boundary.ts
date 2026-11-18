@@ -49,7 +49,7 @@ const foundationMigration = read(
 const signupDenied = learnerAccessForAgeBracket("under_13").accountAccess
   !== "allowed"
   && signupSource.includes("validateDateOfBirth")
-  && signupSource.includes('access.accountAccess !== "allowed"');
+  && signupSource.includes('learnerAccessForAgeBracket(validatedDob.bracket).accountAccess !== "allowed"');
 const authenticatedAppDenied = authenticatedLayoutSource.includes(
   'profile?.age_bracket === "under_13"',
 ) && authenticatedLayoutSource.includes('redirect("/")');

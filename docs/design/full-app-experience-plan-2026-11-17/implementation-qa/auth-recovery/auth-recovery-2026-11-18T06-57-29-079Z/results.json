@@ -1,0 +1,35 @@
+{
+  "version": "auth-recovery-provider-integration-v1",
+  "run": "auth-recovery-2026-11-18T06-57-29-079Z",
+  "base": "http://127.0.0.1:3140",
+  "startedAt": "2026-11-18T06:57:29.079Z",
+  "scope": "Production-mode loopback pages, actual Supabase recovery token verification and password updates on a separate disposable synthetic owner.",
+  "checks": [
+    {
+      "name": "local-production-preflight",
+      "ok": false,
+      "code": "recovery-signing-config",
+      "message": "The existing recovery signing configuration is unavailable. No fixture was created."
+    }
+  ],
+  "screenshots": [],
+  "cleanup": {
+    "status": "no-fixture-created"
+  },
+  "exclusions": [
+    "No reset email was requested or sent. SMTP, email delivery, redirect allow-list and email-template publication remain unverified.",
+    "No real student account, Google connection, tutoring provider, AI service or paid media was used.",
+    "Only passing checks can establish token_hash recovery. The emailed same-browser PKCE round trip is outside this gate."
+  ],
+  "fatal": {
+    "code": "recovery-signing-config",
+    "message": "The existing recovery signing configuration is unavailable. No fixture was created."
+  },
+  "finishedAt": "2026-11-18T06:57:29.105Z",
+  "totals": {
+    "checks": 1,
+    "passed": 0,
+    "rejected": 1,
+    "screenshots": 0
+  }
+}

@@ -17,7 +17,7 @@ export function ArtifactFlashcards({artifactId,cards,savedCount=0}:{artifactId:s
   function update(field:"front"|"back",value:string){setDrafts(current=>current.map((card,i)=>i===index ? {...card,[field]:value} : card));}
   function save(){startTransition(async()=>{const response=await saveArtifactFlashcards({artifactId,cards:drafts});setResult(response.ok ? {count:response.count} : {error:response.error});});}
   if(!card)return <p>No recall questions in this set yet.</p>;
-  return <section className={styles.paper} aria-label="Recall quiz">
+  return <section className={`${styles.paper} reading-view`} aria-label="Recall quiz">
     <p className={styles.eyebrow}>Recall · {index+1} of {drafts.length}</p><h2>{card.front}</h2>
     {revealed ? <p>{card.back}</p> : <button className={styles.primary} onClick={()=>setRevealed(true)}>Reveal answer</button>}
     <p className={styles.quiet}>{card.sourceAnchor}</p>

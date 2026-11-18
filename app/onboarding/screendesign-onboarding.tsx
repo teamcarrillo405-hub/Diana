@@ -25,6 +25,7 @@ import {
 
 import { ScreenDesignViewport } from "@/components/screen-design/screen-design-viewport";
 import { DianaWordmark } from "@/components/screen-design/primitives";
+import { CampusWordmark } from "@/components/student-shell/campus-wordmark";
 import { SourceMedia } from "@/components/screen-design/source-media";
 import { SchoolBrandingForm, type SchoolBrandingFormHandle } from "@/components/school-branding-form";
 import { savePlayerPhoto } from "@/app/(app)/settings/player-photo-actions";
@@ -66,7 +67,7 @@ const HURDLE_OPTIONS: readonly {
   {
     id: "exam_stress",
     label: "Exam Stress",
-    description: "Clutch performance under pressure.",
+    description: "A calmer plan for exams.",
     icon: BrainCircuit,
   },
   {
@@ -78,7 +79,7 @@ const HURDLE_OPTIONS: readonly {
   {
     id: "staying_consistent",
     label: "Staying Consistent",
-    description: "Hitting your study marks daily.",
+    description: "Find a routine that fits.",
     icon: Target,
   },
 ] as const;
@@ -92,21 +93,21 @@ const SCHEDULE_OPTIONS: readonly {
 }[] = [
   {
     id: "morning",
-    label: "Morning Hustle",
+    label: "Morning",
     description: "Before classes & early gym sessions.",
     icon: Sun,
     tone: "morning",
   },
   {
     id: "after_practice",
-    label: "After-Practice Grind",
-    description: "Post-workout focus boost.",
+    label: "Afternoon",
+    description: "After classes or activities.",
     icon: Dumbbell,
     tone: "practice",
   },
   {
     id: "late_night",
-    label: "Late Night Sessions",
+    label: "Evening",
     description: "Quiet focus when everyone else is asleep.",
     icon: Moon,
     tone: "night",
@@ -121,6 +122,7 @@ const STUDY_TIME_LABELS: Record<StudySchedulePreference, string> = {
 
 interface ScreenDesignOnboardingProps {
   readonly initialStep?: ScreenDesignOnboardingStep;
+  readonly providerConnections?: { googleClassroom: boolean; canvas: boolean };
   readonly initialLearningHurdle?: LearningHurdle | null;
   readonly initialStudySchedulePreference?: StudySchedulePreference | null;
   readonly onComplete?: (answers: ScreenDesignOnboardingAnswers) => void;
@@ -136,6 +138,7 @@ interface ScreenDesignOnboardingProps {
 
 export function ScreenDesignOnboarding({
   initialStep = "personalize",
+  providerConnections = { googleClassroom: false, canvas: false },
   initialLearningHurdle = "exam_stress",
   initialStudySchedulePreference = "after_practice",
   onComplete,
@@ -311,6 +314,7 @@ export function ScreenDesignOnboarding({
   if (step === "connect") {
     return (
       <ConnectSchoolScreen
+        providers={providerConnections}
         onBack={() => goTo("personalize")}
         onSkip={() => router.push("/dashboard")}
       />
@@ -864,9 +868,9 @@ function PersonalizeScreen({
   readonly feedback: string | null;
 }) {
   return (
-    <div className={personalizeStyles.page} data-entry-shell>
+    <div className={personalizeStyles.page} data-entry-shell data-campus-family="services">
       <header className={connectionStyles.topbar}>
-        <DianaWordmark tight tone="light" alt="DIANA logo" />
+        <CampusWordmark light />
         <span>Account setup</span>
       </header>
 
@@ -949,31 +953,24 @@ function PersonalizeScreen({
           {feedback ? <p className={connectionStyles.setupFeedback} role="status">{feedback}</p> : null}
         </section>
 
-        <figure className={personalizeStyles.image}>
-          <img
-            src="/images/onboarding-study-sunlight.png"
-            alt=""
-            fetchPriority="high"
-            width={1024}
-            height={1536}
-          />
-        </figure>
       </main>
     </div>
   );
 }
 
 function ConnectSchoolScreen({
+  providers,
   onBack,
   onSkip,
 }: {
+  readonly providers: { googleClassroom: boolean; canvas: boolean };
   readonly onBack: () => void;
   readonly onSkip: () => void;
 }) {
   return (
-    <div className={personalizeStyles.page} data-entry-shell>
+    <div className={personalizeStyles.page} data-entry-shell data-campus-family="services">
       <header className={connectionStyles.topbar}>
-        <DianaWordmark tight tone="light" alt="DIANA logo" />
+        <CampusWordmark light />
         <span>Account setup</span>
       </header>
 
@@ -1005,12 +1002,12 @@ function ConnectSchoolScreen({
               <h2 id="google-classroom-title">Google Classroom</h2>
               <p>Use the Google account you use for school.</p>
             </div>
-            <a
-              className={`${connectionStyles.primaryAction} ${personalizeStyles.connectionPrimaryAction}`}
+            {providers.googleClassroom ? <a
+              className={`${connectionStyles.primaryAction}`}
               href="/api/lms/google-oauth/start?return_to=/dashboard"
             >
               Connect Google Classroom
-            </a>
+            </a> : <p className={connectionStyles.availability}>Google Classroom is not available here yet. You can add your work yourself.</p>}
           </section>
 
           <section className={connectionStyles.providerCard} aria-labelledby="canvas-title">
@@ -1021,7 +1018,7 @@ function ConnectSchoolScreen({
               <h2 id="canvas-title">Canvas</h2>
               <p>Use the Canvas address your school gave you.</p>
             </div>
-            <form
+            {providers.canvas ? <form
               action="/api/lms/canvas-oauth/start"
               method="get"
               className={connectionStyles.canvasForm}
@@ -1038,12 +1035,12 @@ function ConnectSchoolScreen({
                 <input name="return_to" type="hidden" value="/dashboard" />
                 <button
                   type="submit"
-                  className={`${connectionStyles.primaryAction} ${personalizeStyles.connectionPrimaryAction}`}
+                  className={`${connectionStyles.primaryAction}`}
                 >
                   Connect Canvas
                 </button>
               </div>
-            </form>
+            </form> : <p className={connectionStyles.availability}>Canvas is not available here yet. You can connect later in Settings.</p>}
           </section>
         </div>
 

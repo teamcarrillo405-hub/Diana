@@ -5,6 +5,7 @@ import { CheckCircle2, Circle, Loader2, Send, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState, useTransition } from "react";
 
+import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import { StudentShell } from "@/components/student-shell/student-shell";
 import styles from "@/components/student-shell/quiz.module.css";
 import type { StudyArtifactQuizItem } from "@/lib/study-helper/artifacts";
@@ -134,8 +135,8 @@ function QuizReviewChat({
   );
 }
 
-export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, classId, quiz, initialProgress, initialResult, initialSupportState }: {
-  artifactId: string; artifactTitle: string; assignmentId: string | null; classId?: string | null; quiz: StudyArtifactQuizItem[]; initialProgress: PracticeProgress; initialResult: PracticeScoreSummary | null; initialSupportState?: QuizSupportState;
+export function PracticeTestSession({ navigationProfile, artifactId, artifactTitle, assignmentId, classId, quiz, initialProgress, initialResult, initialSupportState }: {
+  navigationProfile?: StudentNavigationProfile; artifactId: string; artifactTitle: string; assignmentId: string | null; classId?: string | null; quiz: StudyArtifactQuizItem[]; initialProgress: PracticeProgress; initialResult: PracticeScoreSummary | null; initialSupportState?: QuizSupportState;
 }) {
   const router = useRouter();
   const [isSaving, startTransition] = useTransition();
@@ -184,12 +185,12 @@ export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, c
       requestAnimationFrame(()=>heading.current?.focus());
     });
   }
-  return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)} version="12" className={styles.root}>
+  return <StudentShell profile={navigationProfile} active={classId ? "Classes" : "More"} scene={classId ? "classes" : "seminar"} mode="focus" version="13" className={styles.root}>
     <main id="main-content" className={styles.main}>
       <Link className={styles.back} href={returnHref}>{returnLabel}</Link>
       <header className={styles.heading}><div><p>Quiz</p><h1>{artifactTitle}</h1></div>{!classId ? <Link href={savedHref}>Saved practice</Link> : null}</header>
-      {!item ? <section className={styles.paper}><h2>No questions yet</h2><Link href="/study">Choose work to create a quiz</Link></section> : completed ? <div className={styles.results}>
-        <section className={styles.paper} aria-label="Quiz result"><CheckCircle2 size={28} aria-hidden="true" /><p>Quiz complete</p><h2 ref={heading} tabIndex={-1}>Your answers</h2><p>{answeredCount} responses saved</p>{result?.percentage != null ? <strong>{result.percentage}% on auto-checked questions</strong> : null}
+      {!item ? <section className={`${styles.paper} reading-view`}><h2>No questions yet</h2><Link href="/study">Choose work to create a quiz</Link></section> : completed ? <div className={styles.results}>
+        <section className={`${styles.paper} reading-view`} aria-label="Quiz result"><CheckCircle2 size={28} aria-hidden="true" /><p>Quiz complete</p><h2 ref={heading} tabIndex={-1}>Your answers</h2><p>{answeredCount} responses saved</p>{result?.percentage != null ? <strong>{result.percentage}% on auto-checked questions</strong> : null}
           <div className={styles.answers}>{quiz.map((question,index)=>{const score=result?.results[index]; return <article key={index}><h3>Question {index+1}</h3><p>{question.question}</p><blockquote>{responses[String(index)] || "No response saved"}</blockquote><span>{score?.category === "matched" ? "Checked" : score?.category === "check_again" ? "Review again" : "Written response saved"}</span>{score?.scored ? <p>Answer: {score.expectedAnswer}</p> : <p className={styles.quiet}>This response has no automatic score.</p>}<small>{question.sourceAnchor}</small></article>;})}</div>
           <button className={styles.primary} disabled={isSaving} onClick={restart}>Try another pass</button><p role="status">{status}</p>
         </section>
@@ -199,7 +200,7 @@ export function PracticeTestSession({ artifactId, artifactTitle, assignmentId, c
           const draft=drafts[String(index)]; const saved=Boolean(responses[String(index)]?.trim()); const dirty=draft !== undefined && draft !== (responses[String(index)] ?? "");
           return <button key={`${index}-${question.question}`} ref={el=>{if(el)questionButtons.current.set(index,el);else questionButtons.current.delete(index);}} type="button" disabled={isSaving} onClick={()=>chooseQuestion(index)} aria-current={index===currentQuestion ? "step" : undefined} tabIndex={index===currentQuestion ? 0 : -1} onKeyDown={event=>{const direction=event.key==="ArrowDown"?1:event.key==="ArrowUp"?-1:0;if(!direction)return;event.preventDefault();const next=(index+direction+quiz.length)%quiz.length;chooseQuestion(next);questionButtons.current.get(next)?.focus();}}><strong>Question {index+1}</strong><small>{dirty ? "Draft" : saved ? "Saved" : index===currentQuestion ? "Current" : "Not started"}</small>{saved && !dirty ? <CheckCircle2 size={16} aria-label="Response saved" /> : <Circle size={16} aria-hidden="true" />}</button>;
         })}</nav></aside>
-        <section className={styles.paper} aria-label="Current quiz question"><p className={styles.eyebrow}>{item.choices.length ? "Choose" : "Your words"} · {currentQuestion+1} of {quiz.length}</p><h2 ref={heading} tabIndex={-1}>{item.question}</h2>
+        <section className={`${styles.paper} reading-view`} aria-label="Current quiz question"><p className={styles.eyebrow}>{item.choices.length ? "Choose" : "Your words"} · {currentQuestion+1} of {quiz.length}</p><h2 ref={heading} tabIndex={-1}>{item.question}</h2>
           {showHint ? <p className={styles.hint}>{item.hint}</p> : null}
           {item.choices.length ? <fieldset className={styles.choices}><legend className="sr-only">Quiz choices</legend>{item.choices.map((choice,index)=><label key={`${index}-${choice}`} data-selected={response===choice}><input type="radio" name={`question-${currentQuestion}`} value={choice} checked={response===choice} disabled={isSaving} onChange={()=>setDrafts(current=>({...current,[currentQuestion]:choice}))} />{choice}</label>)}</fieldset> : <label className={styles.response}>Your response<textarea aria-label="Practice response" value={response} disabled={isSaving} onChange={event=>setDrafts(current=>({...current,[currentQuestion]:event.target.value}))} maxLength={2000} rows={7} placeholder="Write your answer" /></label>}
           <div className={styles.actions}><button disabled={isSaving || currentQuestion===0} onClick={()=>chooseQuestion(currentQuestion-1)}>Previous</button><button className={styles.primary} disabled={isSaving || !response.trim()} onClick={()=>saveResponse(currentQuestion===quiz.length-1)}>{isSaving ? "Saving" : currentQuestion===quiz.length-1 ? "Finish quiz" : "Save and continue"}</button></div><p role="status" className={styles.quiet}>{status || (hasUnsaved ? "Draft · Save to keep your answers" : "")}</p>

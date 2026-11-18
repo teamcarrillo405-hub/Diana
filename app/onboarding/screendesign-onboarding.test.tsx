@@ -157,7 +157,7 @@ describe("ScreenDesignOnboarding", () => {
 
   it("saves preferences before offering the second optional school screen", async () => {
     vi.mocked(completeScreenDesignOnboarding).mockResolvedValue({ ok: true });
-    render(<ScreenDesignOnboarding />);
+    render(<ScreenDesignOnboarding providerConnections={{googleClassroom:true,canvas:true}} />);
 
     fireEvent.click(screen.getByRole("radio", { name: /Time Management/iu }));
     fireEvent.click(screen.getByRole("radio", { name: /Morning/iu }));
@@ -181,6 +181,15 @@ describe("ScreenDesignOnboarding", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Back" }));
     expect(screen.getByRole("heading", { name: "Make it yours" })).toBeInTheDocument();
+  });
+
+  it("does not advertise provider connections that are disabled", () => {
+    render(<ScreenDesignOnboarding initialStep="connect" />);
+    expect(screen.queryByRole("link", { name:"Connect Google Classroom" })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Canvas school address")).not.toBeInTheDocument();
+    expect(screen.getByText(/Google Classroom is not available here yet/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", {name:"Skip for now"}));
+    expect(push).toHaveBeenCalledWith("/dashboard");
   });
 
   it("keeps the first screen in place after a calm persistence error", async () => {

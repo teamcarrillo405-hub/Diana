@@ -35,7 +35,7 @@
   pointer-events:none;
   background:
     linear-gradient(90deg,#111813f7,#111813cb 48%,#11181370),
-    url('/assets/work/college-classroom-1920.webp') right 40% / cover no-repeat;
+    var(--campus-work-image,url('/assets/work/college-classroom-1920.webp')) right 40% / cover no-repeat;
   mask-image:linear-gradient(#000 35%,transparent);
 }
 .root.root.root :is(button,summary) { box-shadow:none; border-radius:3px; }
@@ -585,7 +585,7 @@
     block-size:235px;
     background:
       linear-gradient(90deg,#111813f2,#11181383),
-      url('/assets/work/college-classroom-mobile.webp') 65% 44% / cover no-repeat;
+      var(--campus-work-image,url('/assets/work/college-classroom-mobile.webp')) 65% 44% / cover no-repeat;
     mask-image:linear-gradient(#000 20%,transparent);
   }
   .root.root.root :global(.sd-assignment-workspace-main) { padding-top:6px; }

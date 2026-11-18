@@ -1,0 +1,67 @@
+{
+  "version": "campus-experience-browser-qa-v1",
+  "startedAt": "2026-11-18T07:10:32.364Z",
+  "base": "http://127.0.0.1:3140",
+  "run": "campus-2026-11-18T07-10-32-363Z",
+  "scope": "Targeted correction of the canonical Now diagnostic only. The initial and first follow-up results remain historical evidence.",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "results": [],
+  "checks": [
+    {
+      "name": "lobby-router-refresh-desktop",
+      "ok": true,
+      "viewport": "desktop",
+      "actualRouterRefreshRequest": "GET /dashboard",
+      "canonicalDefaultAccepted": true,
+      "savedNotice": "Check-in saved.",
+      "nativeReloadRetained": true,
+      "screenshots": [
+        "desktop-lobby-router-refresh.png",
+        "desktop-lobby-browser-reload.png"
+      ]
+    },
+    {
+      "name": "lobby-router-refresh-phone",
+      "ok": true,
+      "viewport": "phone",
+      "actualRouterRefreshRequest": "GET /dashboard",
+      "canonicalDefaultAccepted": true,
+      "savedNotice": "Check-in saved.",
+      "nativeReloadRetained": true,
+      "screenshots": [
+        "phone-lobby-router-refresh.png",
+        "phone-lobby-browser-reload.png"
+      ]
+    }
+  ],
+  "exclusions": [
+    "Real user data and passwords",
+    "Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation",
+    "Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees"
+  ],
+  "cleanup": {
+    "status": "retained-by-request",
+    "syntheticOnly": true,
+    "reuseCommand": "node scripts/qa-campus-experience.mjs --reuse-fixture --keep-fixture"
+  },
+  "finishedAt": "2026-11-18T07:10:41.215Z",
+  "totals": {
+    "screens": 0,
+    "screenPasses": 0,
+    "screenFailures": 0,
+    "checks": 2,
+    "checkPasses": 2,
+    "checkFailures": 0
+  }
+}

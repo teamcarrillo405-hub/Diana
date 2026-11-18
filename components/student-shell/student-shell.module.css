@@ -75,3 +75,13 @@
 @media(forced-colors:active) {
   .root.root[data-campus-shell] :is(button,a,input,select,textarea,summary):focus-visible { outline-color:Highlight; }
 }
+
+/* All routes share the same campus; focused pages keep scenery outside the paper. */
+.root.root[data-campus-shell] { --campus-action:var(--school-primary,#355745); }
+.root.root .environment { background:radial-gradient(ellipse at top right,#323d2c,#131a16 55%,#111813); }
+.root.root[data-campus-scene] .environment { background:linear-gradient(90deg,#0c1710e8,#0f1a13ba 40%,#111a1573 73%,#161d1766),linear-gradient(0deg,#101711ee,#111a1440 50%,#111a1410),var(--campus-scene-image) center/cover no-repeat; }
+.root.root[data-campus-mode="header"] .environment { position:absolute;bottom:auto;height:420px;mask-image:linear-gradient(#000 55%,transparent); }
+.root.root[data-campus-mode="focus"] .environment { opacity:.38; }
+.root.root[data-campus-mode="document"] .environment,.root.root[data-campus-mode="system"] .environment { background:none; }
+.root.root[data-campus-shell] .secondary,.root.root[data-campus-shell] .muted { font-size:14px; }
+@media(max-width:760px) { .root.root[data-campus-scene] .environment { background-position:center,center,center 46%; } }

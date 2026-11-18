@@ -13,10 +13,10 @@
 .root.root.root :global(.sd-notes-chat-head) p { color:#b9cdbf; font-size:11px; }
 .root.root.root :global(.sd-notes-chat-history) { display:grid; gap:12px; max-height:440px; overflow:auto; }
 .root.root.root :global(.sd-notes-chat-turn) { padding:14px; background:#11261b99; line-height:1.8; white-space:pre-wrap; }
-.root.root.root :global(.sd-notes-chat-turn--student) { background:#48325c88; }
+.root.root.root :global(.sd-notes-chat-turn--student) { background:var(--campus-raised,#262e28); }
 .root.root.root :global(.sd-notes-chat-composer) { padding:12px; background:#f1f4e9; color:#203426; border-radius:3px; display:grid; grid-template-columns:1fr auto; gap:8px; align-items:end; }
 .root.root.root :global(.sd-notes-chat-composer) textarea { width:100%; min-height:74px; border:0; background:transparent; color:#203426; resize:vertical; padding:0; }
-.root.root.root :global(.sd-notes-chat-composer) button { padding:0; width:42px; min-width:42px; height:42px; color:#fff; background:#7951d5; }
+.root.root.root :global(.sd-notes-chat-composer) button { padding:0; width:42px; min-width:42px; height:42px; color:#fff; background:var(--campus-action,#5b365f); }
 .root.root.root :global(.sd-note-detail-main) { width:min(100%,1400px); padding:24px 36px 60px; margin:auto; }
 .root.root.root :global(.sd-note-detail-back) { display:inline-flex; gap:8px; align-items:center; min-height:44px; font-size:12px; color:#c8d9ce; margin-bottom:24px; }
 .root.root.root :global(.sd-note-detail-grid) { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:36px; align-items:start; }
@@ -26,7 +26,7 @@
 .root.root.root :global(.sd-note-detail-editor) h1 { font:700 38px/1.2 var(--font-saira-condensed),sans-serif; text-transform:uppercase; margin:0 0 24px; }
 .root.root.root :global(.sd-note-detail-editor) textarea { width:100%; min-height:390px; resize:vertical; padding:24px; border:0; background:#f4f4e8; color:#27392c; font-size:16px; line-height:1.8; }
 .root.root.root :global(.sd-note-detail-save-row) { display:flex; align-items:center; gap:16px; margin-top:16px; font-size:12px; }
-.root.root.root :global(.sd-note-detail-save-row) button { background:#7951d5; border:0; color:#fff; }
+.root.root.root :global(.sd-note-detail-save-row) button { background:var(--campus-action,#5b365f); border:0; color:#fff; }
 .root.root.root :global(.sd-note-detail-rail) { display:grid; gap:26px; background:transparent; border:0; padding:0; box-shadow:none; }
 .root.root.root :global(.sd-note-detail-rail) label { display:grid; gap:10px; font-size:12px; }
 .root.root.root :global(.sd-note-detail-tools) { grid-column:1 / -1; border-top:1px solid #bfd6c43d; padding:20px 0; }
@@ -41,3 +41,15 @@
 .root.root.root :global(.notes-delete-panel) { border-top:1px solid #bfd6c43d; padding-top:20px; }
 .root.root.root :global(.bg-danger) { background:#be965a; color:#221b13; }
 @media(max-width:850px) { .root.root.root :global(.sd-note-detail-grid) { grid-template-columns:1fr; } .root.root.root :global(.sd-note-detail-main) { padding:20px 18px 40px; } .root.root.root :global(.sd-note-detail-editor) h1 { font-size:30px; } .root.root.root :is(input,textarea,select) { font-size:16px; } }
+
+.root.root.root :is(input,select,textarea),.excerpt,.root.root.root :global(.sd-notes-chat) { font-size:1rem; }
+.root.root.root :global(.sd-notes-chat-head) p,.root.root.root :global(.sd-note-detail-save-row),.root.root.root :global(.sd-note-detail-rail) label { font-size:.9rem; line-height:1.65; }
+.root.root.root :global(.sd-note-detail-editor) h1 { font-style:italic; font-weight:850; }
+.root.root.root :global(.sd-note-detail-rail) { padding:20px; border:1px solid var(--campus-rule); background:var(--campus-panel); }
+.root.root.root :global(.sd-notes-chat-composer) button,.root.root.root :global(.sd-note-detail-save-row) button { color:var(--campus-action-text); }
+.root.root.root :global(.sd-notes-chat-composer) button { width:44px; min-width:44px; height:44px; }
+.root.root.root :is(button,input,select,textarea,a,summary):focus-visible { outline:3px solid var(--campus-focus); outline-offset:3px; }
+.root.root.root :global(.notes-reading-surface) { font-size:1rem; line-height:1.8; }
+.root.root.root :global(.notes-reading-surface) :is(button,a,textarea):focus-visible { outline-color:#185843; }
+@media(max-width:850px) { .root.root.root :global(.sd-note-detail-rail) { padding:18px; } }
+.root.root.root :global(.sd-notes-chat-head) h2 { color:var(--campus-ink,#fff8e8); }

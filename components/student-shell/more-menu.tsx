@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Link from "next/link";
+import { navigationHistoryState } from "@/lib/navigation-history";
 import { StudentShell } from "./student-shell";
 import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import { ChevronRight, Search, X } from "lucide-react";
 import { MORE_SECTIONS, type MoreMode } from "./more-destinations";
 
 import styles from "./more-menu.module.css";
+import { formatCampusName } from "@/lib/school-branding";
 
-export function MoreMenu({ profile }: { profile?: StudentNavigationProfile }) {
-  const [mode, setMode] = useState<MoreMode>("study");
+export function MoreMenu({ profile, schoolName, initialMode = "study" }: { profile?: StudentNavigationProfile; schoolName?: string | null; initialMode?: MoreMode }) {
+  const [mode, setMode] = useState<MoreMode>(initialMode);
   const [query, setQuery] = useState("");
   const [compact, setCompact] = useState(false);
   const tabs = useRef(new Map<MoreMode, HTMLButtonElement>());
@@ -24,27 +26,44 @@ export function MoreMenu({ profile }: { profile?: StudentNavigationProfile }) {
     return () => media.removeEventListener("change", update);
   }, []);
 
+  useEffect(() => {
+    const restore = () => {
+      const section = new URL(window.location.href).searchParams.get("section");
+      setMode(MORE_SECTIONS.find(item => item.id === section)?.id ?? "study");
+    };
+    restore();
+    window.addEventListener("popstate", restore);
+    return () => window.removeEventListener("popstate", restore);
+  }, []);
+
+  function selectMode(next: MoreMode) {
+    setMode(next);
+    const url = new URL(window.location.href);
+    url.searchParams.set("section", next);
+    window.history.replaceState(navigationHistoryState(window.history.state), "", url.pathname + url.search);
+  }
+
   function onTabKey(event: KeyboardEvent<HTMLButtonElement>, index: number) {
     const step = ["ArrowRight", "ArrowDown"].includes(event.key) ? 1 : ["ArrowLeft", "ArrowUp"].includes(event.key) ? -1 : 0;
     if (!step && event.key !== "Home" && event.key !== "End") return;
     event.preventDefault();
     const next = event.key === "Home" ? 0 : event.key === "End" ? MORE_SECTIONS.length - 1 : (index + step + MORE_SECTIONS.length) % MORE_SECTIONS.length;
     const id = MORE_SECTIONS[next].id;
-    setMode(id);
+    selectMode(id);
     tabs.current.get(id)?.focus({ preventScroll: true });
     tabs.current.get(id)?.scrollIntoView?.({ block: "nearest", inline: "nearest", behavior: "auto" });
   }
 
-  return <StudentShell active="More" profile={profile} className={styles.root}>
+  return <StudentShell active="More" scene="commons" mode="scenic" profile={profile} className={styles.root}>
     <main className={styles.main} id="main-content" tabIndex={-1}>
       <aside className={styles.rail}>
-        <h1>More</h1>
+        <p className={styles.campusName}>{formatCampusName(schoolName)}</p><h1>More</h1>
         <div className={styles.tabs} role="tablist" aria-label="More categories" aria-orientation={compact ? "horizontal" : "vertical"}>
           {MORE_SECTIONS.map((section, index) => <button
             type="button" role="tab" key={section.id} id={`more-tab-${section.id}`} aria-label={section.title} aria-controls={`more-panel-${section.id}`}
             aria-selected={mode === section.id} tabIndex={mode === section.id ? 0 : -1}
             ref={element => { if (element) tabs.current.set(section.id, element); else tabs.current.delete(section.id); }}
-            onClick={() => setMode(section.id)} onKeyDown={event => onTabKey(event, index)}
+            onClick={() => selectMode(section.id)} onKeyDown={event => onTabKey(event, index)}
           >{section.id === "study" ? <><span className={styles.wideLabel}>Study tools</span><span className={styles.shortLabel}>Tools</span></> : section.title}</button>)}
         </div>
       </aside>

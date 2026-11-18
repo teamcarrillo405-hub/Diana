@@ -8,6 +8,7 @@ import { completeStudyArtifact } from "@/lib/study-helper/artifacts";
 import { normalizePracticeProgress } from "@/lib/study-helper/practice-progress";
 import { scorePracticeTest } from "@/lib/study-helper/practice-scoring";
 import { normalizeQuizSupportState } from "@/lib/study-helper/quiz-support-fading";
+import { loadProfile } from "@/lib/profile";
 import { createClient } from "@/lib/supabase/server";
 import { authorizeSavedArtifactDisclosure } from "@/lib/learning-engine/saved-artifact-assistance";
 
@@ -35,6 +36,8 @@ export default async function StudyArtifactDetailPage({
     .eq("owner_id", user.id)
     .maybeSingle();
   if (!row) notFound();
+  const profile = await loadProfile();
+  const navigationProfile = {displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y};
   const { classId: requestedClassId } = await searchParams;
   const classId = row.class_id === requestedClassId ? row.class_id : null;
   const savedHref = classId ? `/classes/${encodeURIComponent(classId)}?section=quiz` : "/study?view=saved";
@@ -61,7 +64,7 @@ export default async function StudyArtifactDetailPage({
       storedPayload: row.payload, artifact,
     }));
   } catch {
-    return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)}><main id="main-content" className={styles.main}>
+    return <StudentShell profile={navigationProfile} active={classId ? "Classes" : "More"} scene={classId ? "classes" : "seminar"} mode="focus"><main id="main-content" className={styles.main}>
       <h1>Study support is unavailable right now</h1>
       <p>Your saved work is still here. Try opening it again in a moment.</p>
       <Link href={savedHref}>Back to saved practice</Link>
@@ -75,6 +78,7 @@ export default async function StudyArtifactDetailPage({
       : null;
     return (
       <PracticeTestSession
+        navigationProfile={navigationProfile}
         artifactId={row.id}
         artifactTitle={artifact.title}
         assignmentId={assignmentId}
@@ -87,10 +91,10 @@ export default async function StudyArtifactDetailPage({
     );
   }
 
-  return <StudentShell active={classId ? "Classes" : "More"} campus={Boolean(classId)}><main id="main-content" className={styles.main}>
+  return <StudentShell profile={navigationProfile} active={classId ? "Classes" : "More"} scene={classId ? "classes" : "seminar"} mode="focus"><main id="main-content" className={styles.main}>
     <Link href={savedHref} className={styles.muted}><ArrowLeft size={16} aria-hidden="true" />{classId ? "Back to class" : "Back to Quiz"}</Link>
     <header className={styles.heading}><h1>{artifact.title}</h1></header>
-    {artifact.type === "study_guide" ? <section className={styles.reading} aria-label="Study guide sections">{artifact.guide.map(section=><article key={section.heading}><h2>{section.heading}</h2><ul>{section.bullets.map(bullet=><li key={bullet}>{bullet}</li>)}</ul></article>)}</section> : <ArtifactFlashcards artifactId={row.id} cards={artifact.cards} savedCount={row.cards_saved_count ?? 0} />}
+    {artifact.type === "study_guide" ? <section className={`${styles.reading} reading-view`} aria-label="Study guide sections">{artifact.guide.map(section=><article key={section.heading}><h2>{section.heading}</h2><ul>{section.bullets.map(bullet=><li key={bullet}>{bullet}</li>)}</ul></article>)}</section> : <ArtifactFlashcards artifactId={row.id} cards={artifact.cards} savedCount={row.cards_saved_count ?? 0} />}
     <div className={styles.actions}><Link href={`/study?source=${row.source_type}:${row.source_id}`}>Create quiz from this source</Link><Link href={row.source_type === "assignment" ? `/assignments/${row.source_id}/workspace` : `/notes/${row.source_id}`}>Open source</Link></div>
     <details className={styles.muted}><summary>How Diana helped</summary><p>{artifact.authorshipReceipt}</p></details>
   </main></StudentShell>;

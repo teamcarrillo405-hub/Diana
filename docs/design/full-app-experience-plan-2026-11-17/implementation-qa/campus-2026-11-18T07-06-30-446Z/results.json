@@ -1,0 +1,448 @@
+{
+  "version": "campus-experience-browser-qa-v1",
+  "startedAt": "2026-11-18T07:06:30.448Z",
+  "base": "http://127.0.0.1:3140",
+  "run": "campus-2026-11-18T07-06-30-446Z",
+  "scope": "Targeted superseding evidence for initial reading, contrast, navigation, callback, and diagnostic-selector findings. Initial 110-state report remains unchanged.",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "results": [
+    {
+      "slug": "public-home",
+      "path": "/",
+      "family": "public landing",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Your AI Tutor",
+      "scene": null,
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/",
+      "screenshot": "desktop-public-home.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "auth-callback-empty",
+      "path": "/auth/callback",
+      "family": "callback recovery",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Try a fresh link",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 1240,
+      "finalPath": "/auth/result",
+      "screenshot": "desktop-auth-callback-empty.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "note-detail",
+      "path": "/notes/8ec54e60-9bb7-4249-8591-f693ce221ca6",
+      "family": "library focus",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Linear relationships notes",
+      "scene": "library",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 1400,
+      "finalPath": "/notes/8ec54e60-9bb7-4249-8591-f693ce221ca6",
+      "screenshot": "desktop-note-detail.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "practice",
+      "path": "/study-artifacts/86e9ff40-2d1c-4a44-8b9a-efafe2716c7c",
+      "family": "seminar focus",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Linear relationships practice",
+      "scene": "seminar",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 1440,
+      "finalPath": "/study-artifacts/86e9ff40-2d1c-4a44-8b9a-efafe2716c7c",
+      "screenshot": "desktop-practice.png",
+      "productCapture": "desktop-practice-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "check-in-history",
+      "path": "/wellness",
+      "family": "courtyard",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Check-in history",
+      "scene": "courtyard",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 1368,
+      "finalPath": "/wellness",
+      "screenshot": "desktop-check-in-history.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "account-access",
+      "path": "/upgrade",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Your Diana access",
+      "scene": "services",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 1400,
+      "finalPath": "/upgrade",
+      "screenshot": "desktop-account-access.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "public-home",
+      "path": "/",
+      "family": "public landing",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Your AI Tutor",
+      "scene": null,
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/",
+      "screenshot": "phone-public-home.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "auth-callback-empty",
+      "path": "/auth/callback",
+      "family": "callback recovery",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Try a fresh link",
+      "scene": "entry",
+      "mode": null,
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/auth/result",
+      "screenshot": "phone-auth-callback-empty.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "note-detail",
+      "path": "/notes/8ec54e60-9bb7-4249-8591-f693ce221ca6",
+      "family": "library focus",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Linear relationships notes",
+      "scene": "library",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/notes/8ec54e60-9bb7-4249-8591-f693ce221ca6",
+      "screenshot": "phone-note-detail.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "practice",
+      "path": "/study-artifacts/86e9ff40-2d1c-4a44-8b9a-efafe2716c7c",
+      "family": "seminar focus",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Linear relationships practice",
+      "scene": "seminar",
+      "mode": "focus",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/study-artifacts/86e9ff40-2d1c-4a44-8b9a-efafe2716c7c",
+      "screenshot": "phone-practice.png",
+      "productCapture": "phone-practice-product.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "check-in-history",
+      "path": "/wellness",
+      "family": "courtyard",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Check-in history",
+      "scene": "courtyard",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 366,
+      "finalPath": "/wellness",
+      "screenshot": "phone-check-in-history.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "account-access",
+      "path": "/upgrade",
+      "family": "services",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Your Diana access",
+      "scene": "services",
+      "mode": "scenic",
+      "missingVisibleImages": [],
+      "mainWidth": 390,
+      "finalPath": "/upgrade",
+      "screenshot": "phone-account-access.png",
+      "pageErrors": [],
+      "assetErrors": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "fake-sign-in-error-desktop",
+      "ok": true,
+      "viewport": "desktop",
+      "fakeProviderCalls": 1,
+      "realProviderCalls": 0,
+      "screenshot": "desktop-sign-in-fake-error.png"
+    },
+    {
+      "name": "reading-preferences-desktop",
+      "ok": true,
+      "viewport": "desktop",
+      "surfaces": [
+        {
+          "surface": "note-editor",
+          "font": "\"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, sans-serif",
+          "letterSpacing": "0.63px",
+          "wordSpacing": "1.44px",
+          "lineHeight": "33.3px",
+          "fontSize": "18px",
+          "hook": true,
+          "screenshot": "desktop-reading-note-editor.png"
+        },
+        {
+          "surface": "quiz-question",
+          "font": "\"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, sans-serif",
+          "letterSpacing": "1.02375px",
+          "wordSpacing": "2.34px",
+          "lineHeight": "54.1125px",
+          "fontSize": "29.25px",
+          "hook": true,
+          "screenshot": "desktop-reading-quiz-question.png"
+        }
+      ],
+      "profileBacked": true
+    },
+    {
+      "name": "theme-and-contrast-desktop",
+      "ok": true,
+      "viewport": "desktop",
+      "states": [
+        {
+          "theme": "light",
+          "paper": "rgb(255, 253, 248)",
+          "ink": "rgb(36, 53, 43)",
+          "rootClass": "__variable_9d0602 __variable_3e997d __variable_25aa8c light",
+          "contrast": 12.76,
+          "screenshot": "desktop-theme-light.png"
+        },
+        {
+          "theme": "dark",
+          "paper": "rgb(36, 46, 39)",
+          "ink": "rgb(248, 244, 233)",
+          "rootClass": "__variable_9d0602 __variable_3e997d __variable_25aa8c dark",
+          "contrast": 12.78,
+          "screenshot": "desktop-theme-dark.png"
+        },
+        {
+          "theme": null,
+          "paper": "rgb(36, 46, 39)",
+          "ink": "rgb(248, 244, 233)",
+          "rootClass": "__variable_9d0602 __variable_3e997d __variable_25aa8c",
+          "contrast": 12.78,
+          "screenshot": "desktop-theme-device.png"
+        }
+      ],
+      "selectedChoice": {
+        "paper": "color(srgb 0.175843 0.222118 0.190745)",
+        "ink": "rgb(248, 244, 233)"
+      },
+      "selectedChoiceContrast": 11.03,
+      "highContrast": {
+        "paper": "rgb(0, 0, 0)",
+        "ink": "rgb(255, 255, 255)",
+        "savedPreference": true
+      },
+      "motion": {
+        "savedPreference": true,
+        "animation": "none",
+        "transition": "0s"
+      },
+      "screenshot": "desktop-high-contrast-reading.png"
+    },
+    {
+      "name": "lobby-router-refresh-desktop",
+      "ok": false,
+      "error": "router.refresh requested a stale Lobby URL: /dashboard?_rsc=b0iRp4K9J-CG1-IY"
+    },
+    {
+      "name": "fake-sign-in-error-phone",
+      "ok": true,
+      "viewport": "phone",
+      "fakeProviderCalls": 1,
+      "realProviderCalls": 0,
+      "screenshot": "phone-sign-in-fake-error.png"
+    },
+    {
+      "name": "reading-preferences-phone",
+      "ok": true,
+      "viewport": "phone",
+      "surfaces": [
+        {
+          "surface": "note-editor",
+          "font": "\"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, sans-serif",
+          "letterSpacing": "0.63px",
+          "wordSpacing": "1.44px",
+          "lineHeight": "33.3px",
+          "fontSize": "18px",
+          "hook": true,
+          "screenshot": "phone-reading-note-editor.png"
+        },
+        {
+          "surface": "quiz-question",
+          "font": "\"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible Next\", \"Atkinson Hyperlegible\", system-ui, sans-serif",
+          "letterSpacing": "1.02375px",
+          "wordSpacing": "2.34px",
+          "lineHeight": "54.1125px",
+          "fontSize": "29.25px",
+          "hook": true,
+          "screenshot": "phone-reading-quiz-question.png"
+        }
+      ],
+      "profileBacked": true
+    },
+    {
+      "name": "theme-and-contrast-phone",
+      "ok": true,
+      "viewport": "phone",
+      "states": [
+        {
+          "theme": "light",
+          "paper": "rgb(255, 253, 248)",
+          "ink": "rgb(36, 53, 43)",
+          "rootClass": "__variable_9d0602 __variable_3e997d __variable_25aa8c light",
+          "contrast": 12.76,
+          "screenshot": "phone-theme-light.png"
+        },
+        {
+          "theme": "dark",
+          "paper": "rgb(36, 46, 39)",
+          "ink": "rgb(248, 244, 233)",
+          "rootClass": "__variable_9d0602 __variable_3e997d __variable_25aa8c dark",
+          "contrast": 12.78,
+          "screenshot": "phone-theme-dark.png"
+        },
+        {
+          "theme": null,
+          "paper": "rgb(36, 46, 39)",
+          "ink": "rgb(248, 244, 233)",
+          "rootClass": "__variable_9d0602 __variable_3e997d __variable_25aa8c",
+          "contrast": 12.78,
+          "screenshot": "phone-theme-device.png"
+        }
+      ],
+      "selectedChoice": {
+        "paper": "color(srgb 0.175843 0.222118 0.190745)",
+        "ink": "rgb(248, 244, 233)"
+      },
+      "selectedChoiceContrast": 11.03,
+      "highContrast": {
+        "paper": "rgb(0, 0, 0)",
+        "ink": "rgb(255, 255, 255)",
+        "savedPreference": true
+      },
+      "motion": {
+        "savedPreference": true,
+        "animation": "none",
+        "transition": "0s"
+      },
+      "screenshot": "phone-high-contrast-reading.png"
+    },
+    {
+      "name": "lobby-router-refresh-phone",
+      "ok": false,
+      "error": "router.refresh requested a stale Lobby URL: /dashboard?_rsc=b0iRp4K9J-CG1-IY"
+    }
+  ],
+  "exclusions": [
+    "Real user data and passwords",
+    "Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation",
+    "Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees"
+  ],
+  "cleanup": {
+    "status": "retained-by-request",
+    "syntheticOnly": true,
+    "reuseCommand": "node scripts/qa-campus-experience.mjs --reuse-fixture --keep-fixture"
+  },
+  "finishedAt": "2026-11-18T07:07:00.242Z",
+  "totals": {
+    "screens": 12,
+    "screenPasses": 12,
+    "screenFailures": 0,
+    "checks": 8,
+    "checkPasses": 6,
+    "checkFailures": 2
+  }
+}

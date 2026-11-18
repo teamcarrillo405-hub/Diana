@@ -1,0 +1,112 @@
+{
+  "version": "auth-recovery-provider-integration-v1",
+  "run": "auth-recovery-2026-11-18T07-11-23-779Z",
+  "base": "http://localhost:3140",
+  "startedAt": "2026-11-18T07:11:23.779Z",
+  "scope": "Production-mode loopback pages, actual Supabase recovery token verification and password updates on a separate disposable synthetic owner.",
+  "checks": [
+    {
+      "name": "local-production-preflight",
+      "ok": true,
+      "loopback": true,
+      "loginAvailable": true,
+      "noDevelopmentClientObserved": true,
+      "existingProviderConfigurationPresent": true,
+      "serverRecoveryCapability": "verified by actual callback later in this gate"
+    },
+    {
+      "name": "separate-disposable-owner",
+      "ok": true,
+      "separateOwner": true,
+      "ownershipMarkerVerified": true,
+      "mailSent": false
+    },
+    {
+      "name": "desktop-untrusted-session-cannot-reset",
+      "ok": true,
+      "deniedWithoutProof": true,
+      "screenshot": "desktop-reset-unavailable.png"
+    },
+    {
+      "name": "desktop-actual-recovery-token",
+      "ok": true,
+      "providerTokenVerified": true,
+      "requestHost": "localhost",
+      "finalHost": "localhost",
+      "hostConsistent": true,
+      "cleanResetUrl": true,
+      "httpOnlyProof": true,
+      "sameSiteLax": true,
+      "preexistingStaleForm": true,
+      "mailSent": false,
+      "screenshot": "desktop-reset-ready.png"
+    },
+    {
+      "name": "desktop-same-session-password-save",
+      "ok": false,
+      "code": "password-save-unconfirmed",
+      "message": "The authorized reset form did not confirm the password save. Safe action/UI/revision flags are recorded."
+    }
+  ],
+  "screenshots": [
+    {
+      "viewport": "desktop",
+      "state": "reset-unavailable",
+      "file": "desktop-reset-unavailable.png",
+      "overflow": false,
+      "method": null,
+      "scene": "entry"
+    },
+    {
+      "viewport": "desktop",
+      "state": "reset-ready",
+      "file": "desktop-reset-ready.png",
+      "overflow": false,
+      "method": "post",
+      "scene": "entry"
+    },
+    {
+      "viewport": "desktop",
+      "state": "password-save-unavailable",
+      "file": "desktop-password-save-unavailable.png",
+      "overflow": false,
+      "method": null,
+      "scene": "entry"
+    }
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true,
+    "exactOwnershipMarkerChecked": true
+  },
+  "exclusions": [
+    "No reset email was requested or sent. SMTP, email delivery, redirect allow-list and email-template publication remain unverified.",
+    "No real student account, Google connection, tutoring provider, AI service or paid media was used.",
+    "Only passing checks can establish token_hash recovery. The emailed same-browser PKCE round trip is outside this gate."
+  ],
+  "saveDiagnostics": {
+    "host": "localhost",
+    "actionObserved": true,
+    "originMatched": true,
+    "actionStatuses": [
+      200
+    ],
+    "pageErrorKinds": [],
+    "heading": "Request a fresh link",
+    "linkUnavailable": true,
+    "passwordNotSaved": false,
+    "connectionPaused": false,
+    "passwordRevisionAdvanced": true
+  },
+  "fatal": {
+    "code": "password-save-unconfirmed",
+    "message": "The authorized reset form did not confirm the password save. Safe action/UI/revision flags are recorded."
+  },
+  "finishedAt": "2026-11-18T07:11:47.887Z",
+  "totals": {
+    "checks": 5,
+    "passed": 4,
+    "rejected": 1,
+    "screenshots": 3
+  }
+}

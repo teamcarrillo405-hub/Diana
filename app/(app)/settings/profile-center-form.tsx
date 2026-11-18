@@ -10,9 +10,11 @@ import { profileSchoolYearLabel } from "./source-models";
 export function ProfileCenterForm({
   profile,
   formId = "profile-center-form",
+  readOnly = false,
 }: {
   profile: ProfilePrefs;
   formId?: string;
+  readOnly?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -27,6 +29,7 @@ export function ProfileCenterForm({
       className="sd-profile-form"
       onSubmit={(event) => {
         event.preventDefault();
+        if (readOnly || pending) return;
         const formData = new FormData(event.currentTarget);
         const schoolYear = String(formData.get("school_year") ?? "").trim();
         startTransition(async () => {
@@ -44,7 +47,7 @@ export function ProfileCenterForm({
         });
       }}
     >
-      <fieldset disabled={pending}>
+      <fieldset disabled={pending || readOnly}>
         <label>
           <span>Display name</span>
           <input name="display_name" defaultValue={profile.display_name ?? ""} maxLength={80} />

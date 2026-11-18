@@ -3,6 +3,7 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { navigationHistoryState } from "@/lib/navigation-history";
 import { StudentDesktopNav, type StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import { selectTodayLobbyTask, type TodayData } from "@/lib/dashboard/today-view";
 import type { LobbyEnergy } from "@/lib/dashboard/lobby-check-in";
@@ -73,6 +74,24 @@ export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBran
   recommendation?: LobbyRecommendation;
 }) {
   const [mode, setMode] = useState<TodayMode>("now");
+  useLayoutEffect(() => {
+    if (preview) return;
+    function restoreView() {
+      const view = new URLSearchParams(window.location.search).get("view");
+      setMode(MODES.includes(view as TodayMode) ? view as TodayMode : "now");
+    }
+    restoreView();
+    window.addEventListener("popstate", restoreView);
+    return () => window.removeEventListener("popstate", restoreView);
+  }, [preview]);
+  function selectMode(next: TodayMode) {
+    setMode(next);
+    if (preview) return;
+    const url = new URL(window.location.href);
+    if (next === "now") url.searchParams.delete("view");
+    else url.searchParams.set("view", next);
+    window.history.replaceState(navigationHistoryState(window.history.state), "", url.pathname + url.search + url.hash);
+  }
   const [savedCheckIn, setSavedCheckIn] = useState<LobbyCheckInUpdate>();
   const nowPanel = useRef<HTMLElement>(null);
   const recommendedTask = data.plan[0];
@@ -93,7 +112,7 @@ export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBran
     : undefined;
   function finishCheckIn(energy: LobbyEnergy, signalId: string) {
     setSavedCheckIn({ energy, signalId, before: recommendation, previousTask: recommendedTask });
-    setMode("now");
+    selectMode("now");
     onRetry?.();
   }
 
@@ -130,7 +149,7 @@ export function CampusLobby({ data, navigation, checkIn, checkInWeek, schoolBran
           {logo && <SchoolPennant logo={logo} compact />}
         </div>
         <TodayStageLayout
-          title="Lobby" modes={MODES} labels={{ "check-in": "Check-in" }} selectedMode={mode} onSelectionChange={setMode}
+          title="Lobby" modes={MODES} labels={{ "check-in": "Check-in" }} selectedMode={mode} onSelectionChange={selectMode}
           railHeading={<>
             <span className={campus.railIdentity}>{name}</span>
             <span className={campus.railDate}>{data.dateLabel}</span>

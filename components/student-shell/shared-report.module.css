@@ -1,10 +1,10 @@
-.root { min-height:100dvh; padding:40px 20px; background:linear-gradient(90deg,#0a1012e6,#0a1012a0),url('/assets/today-now/diana-signature-studio-v1-1678.webp') center/cover fixed; font-family:var(--font-lexend),sans-serif; }
+.root { min-height:100dvh; padding:40px 20px; background:#121a16; font-family:var(--font-lexend),sans-serif; }
 .paper { width:min(100%,1000px); margin:auto; padding:48px; color:#23382b; background:#f3f4e9; border-radius:3px; }
 .paper header > img { width:145px; height:auto; margin-bottom:34px; }
 .paper header p { color:#526353; margin:12px 0; }
 .paper h1 { font:700 48px/1.1 var(--font-saira-condensed),sans-serif; text-transform:uppercase; margin:18px 0 30px; }
 .paper h2 { font:700 28px/1.3 var(--font-saira-condensed),sans-serif; margin:0 0 18px; }
-.paper p { font-size:15px; line-height:1.85; white-space:pre-wrap; }
+.paper p { font-size:16px; line-height:1.85; white-space:pre-wrap; }
 .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:28px; padding:24px 0; border-block:1px solid #23442b33; }
 .stats dt { font-size:12px; }.stats dd { font:700 36px/1.2 var(--font-saira-condensed),sans-serif; margin:12px 0 0; }
 .paper section { margin-top:34px; }
@@ -12,6 +12,16 @@
 .paper small { font-size:12px; color:#526353; }
 .list { list-style:none; padding:0; }.list li { display:flex; justify-content:space-between; gap:20px; padding:18px 0; border-bottom:1px solid #23442b33; font-size:14px; }
 .paper details { padding:18px 0; border-bottom:1px solid #23442b33; }.paper summary { cursor:pointer; min-height:44px; font-size:17px; }
-.paper footer { margin-top:36px; border-top:1px solid #23442b33; padding-top:24px; display:flex; flex-wrap:wrap; gap:24px; align-items:center; justify-content:space-between; }.paper footer p { font-size:12px; }.paper button { background:#7951d5; color:#fff; padding:12px 20px; min-height:44px; border:0; border-radius:3px; font:inherit; cursor:pointer; }
+.paper footer { margin-top:36px; border-top:1px solid #23442b33; padding-top:24px; display:flex; flex-wrap:wrap; gap:24px; align-items:center; justify-content:space-between; }.paper footer p { font-size:12px; }.paper button { background:#204a37; color:#fff8e8; padding:12px 20px; min-height:44px; border:0; border-radius:3px; font:inherit; cursor:pointer; }
 @media(max-width:600px) { .root { padding:18px 12px; }.paper { padding:26px 20px; }.paper h1 { font-size:36px; }.stats { gap:14px; grid-template-columns:1fr; }.stats > div { display:flex; align-items:center; justify-content:space-between; }.stats dd { margin:0; } }
-@media print { .root { background:#fff; padding:0; }.paper { padding:0; width:100%; background:#fff; }.paper button { display:none; }.paper section,.paper article { break-inside:avoid; } }
+@media print {
+  @page { margin:18mm; }
+  .root { background:#fff; padding:0; }
+  .paper { padding:0; width:100%; background:#fff; }
+  /* The legacy app-wide button selector otherwise overrides this print rule. */
+  .root .paper footer button { display:none !important; }
+  .paper section,.paper article { break-inside:avoid; }
+}
+
+.paper button:focus-visible,.paper a:focus-visible { outline:3px solid #185843; outline-offset:3px; }
+@media print { .root { color:#000; }.paper { color:#000; } }

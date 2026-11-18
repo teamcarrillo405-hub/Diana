@@ -1,0 +1,142 @@
+/* Saved reading preferences complement the campus shell without restyling its menus. */
+:root {
+  --campus-reading-paper:#faf8f3;
+  --campus-reading-raised:#fffdf8;
+  --campus-reading-ink:#24352b;
+  --campus-reading-muted:#4f6156;
+  --campus-reading-rule:#8d9c91;
+  --campus-reading-link:#165a3c;
+  --campus-reading-scheme:light;
+}
+:root.dark {
+  --campus-reading-paper:#1a211c;
+  --campus-reading-raised:#242e27;
+  --campus-reading-ink:#f8f4e9;
+  --campus-reading-muted:#d0d9d1;
+  --campus-reading-rule:#9ca99e;
+  --campus-reading-link:#b7e6c8;
+  --campus-reading-scheme:dark;
+}
+@media(prefers-color-scheme:dark) {
+  :root:not(.light) {
+    --campus-reading-paper:#1a211c;
+    --campus-reading-raised:#242e27;
+    --campus-reading-ink:#f8f4e9;
+    --campus-reading-muted:#d0d9d1;
+    --campus-reading-rule:#9ca99e;
+    --campus-reading-link:#b7e6c8;
+    --campus-reading-scheme:dark;
+  }
+}
+.diana-app-shell {
+  --campus-reading-size:16px;
+  --campus-reading-line:1.55;
+  --campus-reading-letter:.02em;
+  --campus-reading-word:normal;
+  --campus-reading-font:var(--font-lexend),system-ui,sans-serif;
+}
+.diana-app-shell.font-size-small { --campus-reading-size:14px; }
+.diana-app-shell.font-size-large { --campus-reading-size:18px; }
+.diana-app-shell.font-size-xlarge { --campus-reading-size:20px; }
+.diana-app-shell.line-spacing-compact { --campus-reading-line:1.35; }
+.diana-app-shell.line-spacing-loose { --campus-reading-line:1.85; }
+.diana-app-shell.reading-letter-wide { --campus-reading-letter:.035em; }
+.diana-app-shell.reading-letter-wider { --campus-reading-letter:.055em; }
+.diana-app-shell.dyslexia-font,.diana-app-shell.reading-word-wide { --campus-reading-word:.08em; }
+.diana-app-shell.reading-word-wider { --campus-reading-word:.14em; }
+.diana-app-shell.reading-font-atkinson { --campus-reading-font:var(--font-atkinson),'Atkinson Hyperlegible Next',system-ui,sans-serif; }
+.diana-app-shell.reading-font-opendyslexic { --campus-reading-font:'OpenDyslexic',system-ui,sans-serif; }
+
+/* Both foreground and paper change together. Math, graphs and code retain their own typesetting. */
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view {
+  background:var(--campus-reading-paper);
+  color:var(--campus-reading-ink);
+  border-color:var(--campus-reading-rule);
+  color-scheme:var(--campus-reading-scheme);
+  font-family:var(--campus-reading-font);
+  font-size:var(--campus-reading-size,16px);
+  line-height:var(--campus-reading-line,1.55);
+  letter-spacing:var(--campus-reading-letter,.02em);
+  word-spacing:var(--campus-reading-word,normal);
+}
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view :is(p,li,blockquote,dt,dd,.reading-content,[data-reading-surface="true"]) {
+  color:var(--campus-reading-ink);
+  font-size:var(--campus-reading-size,16px);
+  line-height:var(--campus-reading-line,1.55);
+}
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view :not(:where(.katex,.katex *,svg,svg *,pre,pre *,code,code *)) {
+  letter-spacing:var(--campus-reading-letter,.02em);
+  word-spacing:var(--campus-reading-word,normal);
+}
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view :is(.text-muted,small) { color:var(--campus-reading-muted); }
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view :is(a:not([class]),button:not([class])) { color:var(--campus-reading-link); }
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view [aria-current="true"] { background:color-mix(in srgb,var(--campus-reading-link) 14%,var(--campus-reading-paper));color:var(--campus-reading-ink); }
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view :is(button,a,input,textarea,select,[tabindex]):focus-visible { outline-color:var(--campus-reading-link); }
+
+/* Actual form fields follow the display choice; scenic menus and navigation stay campus dark. */
+[data-student-shell][data-campus-shell][data-campus-family][data-campus-mode]:not([data-campus-mode="scenic"]) main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="hidden"]),select,textarea),
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="hidden"]),select,textarea) {
+  background:var(--campus-reading-raised);
+  color:var(--campus-reading-ink);
+  caret-color:var(--campus-reading-ink);
+  border-color:var(--campus-reading-rule);
+  color-scheme:var(--campus-reading-scheme);
+  font-family:var(--campus-reading-font);
+  font-size:max(1rem,var(--campus-reading-size,16px));
+  line-height:var(--campus-reading-line,1.55);
+  letter-spacing:var(--campus-reading-letter,.02em);
+  word-spacing:var(--campus-reading-word,normal);
+}
+[data-student-shell][data-campus-shell][data-campus-family][data-campus-mode]:not([data-campus-mode="scenic"]) main :is(input,textarea)::placeholder { color:var(--campus-reading-muted);opacity:1; }
+
+/* Opt-in comfort settings apply to every campus family, including overlays. */
+.reduced-motion [data-campus-family],.reduced-motion [data-campus-family] *,.reduced-motion [data-campus-family] *::before,.reduced-motion [data-campus-family] *::after {
+  animation:none!important;
+  transition:none!important;
+  scroll-behavior:auto!important;
+}
+.high-contrast {
+  --campus-reading-paper:#fff;
+  --campus-reading-raised:#fff;
+  --campus-reading-ink:#000;
+  --campus-reading-muted:#202820;
+  --campus-reading-rule:#263b2d;
+  --campus-reading-link:#00452a;
+}
+:root.dark .high-contrast {
+  --campus-reading-paper:#000;
+  --campus-reading-raised:#000;
+  --campus-reading-ink:#fff;
+  --campus-reading-muted:#fff;
+  --campus-reading-rule:#fff;
+  --campus-reading-link:#b5ffd4;
+}
+@media(prefers-color-scheme:dark) {
+  :root:not(.light) .high-contrast {
+    --campus-reading-paper:#000;
+    --campus-reading-raised:#000;
+    --campus-reading-ink:#fff;
+    --campus-reading-muted:#fff;
+    --campus-reading-rule:#fff;
+    --campus-reading-link:#b5ffd4;
+  }
+}
+.high-contrast [data-student-shell][data-campus-shell][data-campus-family] {
+  --campus-ink:#fff;--campus-muted:#fff;--campus-panel:#000;--campus-raised:#000;--campus-rule:#fff;--campus-border:#fff;--campus-focus:#ffe194;
+}
+.high-contrast [data-student-shell][data-campus-shell][data-campus-family] main .reading-view { border:2px solid var(--campus-reading-rule);box-shadow:none; }
+.high-contrast [data-student-shell][data-campus-shell][data-campus-family] main :is(.sd-notes-chat-turn,.sd-quiz-review-chat-messages article) { background:var(--campus-panel);color:var(--campus-ink);border:1px solid var(--campus-rule); }
+@media(forced-colors:active) {
+  [data-student-shell][data-campus-shell][data-campus-family] main .reading-view {
+    --campus-reading-paper:Canvas;--campus-reading-raised:Field;--campus-reading-ink:CanvasText;--campus-reading-muted:CanvasText;--campus-reading-rule:CanvasText;--campus-reading-link:LinkText;
+  }
+}
+/* Question prose follows the saved reading scale and spacing inside the paper. */
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view h2 {
+  font-size:max(1.625rem,calc(var(--campus-reading-size,16px) * 1.625));
+  line-height:var(--campus-reading-line,1.55);
+}
+[data-student-shell][data-campus-shell][data-campus-family] main .reading-view h3 {
+  font-size:max(1rem,var(--campus-reading-size,16px));
+  line-height:var(--campus-reading-line,1.55);
+}

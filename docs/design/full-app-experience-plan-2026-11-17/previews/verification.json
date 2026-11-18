@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "viewport": "desktop",
+      "decodedImages": 38,
+      "overflow": false,
+      "errors": [],
+      "filterWorks": true
+    },
+    {
+      "viewport": "phone",
+      "decodedImages": 38,
+      "overflow": false,
+      "errors": [],
+      "filterWorks": true
+    }
+  ]
+}

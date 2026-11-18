@@ -25,6 +25,11 @@ beforeEach(() => {
 });
 
 describe("Supabase middleware", () => {
+  it.each(["/forgot-password", "/reset-password"])("serves the exact public recovery page %s without exposing nested paths", async (path) => {
+    createServerClientMock.mockClear();
+    expect((await updateSession(requestFor(path))).status).toBe(200);
+    expect((await updateSession(requestFor(path + "/private"))).status).toBe(404);
+  });
   it("serves the exact public Lobby specimen without creating an auth client", async () => {
     createServerClientMock.mockClear();
     const response = await updateSession(requestFor("/lobby-preview"));

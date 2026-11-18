@@ -86,3 +86,7 @@ public/assets/candidates/landing/
 
 # Backend export bundles (generated)
 /export/
+
+# Local native image masters and full rendered QA matrices; ship curated WebP previews.
+/.planning/tmp/campus-artwork/
+/docs/design/full-app-experience-plan-2026-11-17/implementation-qa/**/*.png

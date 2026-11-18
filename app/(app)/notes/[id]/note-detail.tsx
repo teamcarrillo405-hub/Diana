@@ -9,6 +9,7 @@ import { VocabHoverProvider } from "@/components/vocab-hover-provider";
 import { ReadingAnnotationControl } from "@/components/reading-annotation-control";
 import { ReadingLevelAdapter } from "@/components/reading-level-adapter";
 import { StudyArtifactPanel } from "@/components/study-artifact-panel";
+import type { StudentNavigationProfile } from "@/components/screen-design/student-desktop-nav";
 import { StudentShell } from "@/components/student-shell/student-shell";
 import styles from "@/components/student-shell/notes.module.css";
 import type { RelatedNote } from "@/lib/notes/related";
@@ -27,6 +28,7 @@ import {
 } from "./actions";
 
 export function NoteDetail({
+  navigationProfile,
   id,
   title,
   bodyText,
@@ -48,6 +50,7 @@ export function NoteDetail({
   aiMode,
   classes,
 }: {
+  navigationProfile?: StudentNavigationProfile;
   id: string;
   title: string;
   bodyText: string;
@@ -185,7 +188,7 @@ export function NoteDetail({
   }
 
   return (
-    <StudentShell active="More" className={styles.root} version="12">
+    <StudentShell profile={navigationProfile} active="More" scene="library" mode="focus" className={styles.root} version="13">
       <main id="main-content" className="sd-note-detail-main">
         <div className="sd-note-detail-frame">
           <Link href="/notes" className="sd-note-detail-back"><ArrowLeft size={18} aria-hidden="true" /> Back to notes</Link>
@@ -194,6 +197,7 @@ export function NoteDetail({
           <div className="sd-note-detail-kicker">{classes.find((item) => item.id === classId)?.name ?? "Notes"}</div>
           <h1 id="notes-overview-title">{title}</h1>
           <textarea
+            className="reading-view"
             aria-label="Note body"
             value={body}
             onChange={(event) => { bodyRef.current = event.target.value; setBody(event.target.value); setSaveStatus("Unsaved changes"); }}
@@ -368,7 +372,7 @@ export function NoteDetail({
                 />
               )}
               <div
-                className="mt-3 whitespace-pre-wrap"
+                className="reading-view mt-3 whitespace-pre-wrap"
                 onMouseUp={captureSelection}
                 onKeyUp={captureSelection}
               >

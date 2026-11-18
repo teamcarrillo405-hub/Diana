@@ -1,0 +1,1533 @@
+{
+  "baseline": "25477d594afdd83a7ac5b91ee9e09ddbadf579cf",
+  "planDate": "2026-11-17",
+  "evidence": "Source inventory, not a rendered-page or feature-eligibility certification. Policy precedes physical page files.",
+  "counts": {
+    "pageFiles": 93,
+    "pageKinds": {
+      "rendered page candidate": 45,
+      "middleware redirect": 27,
+      "page redirect": 15,
+      "preview/QA candidate; verify gate": 4,
+      "public read-only specimen": 1,
+      "retired boundary (404)": 1
+    },
+    "boundaryAndLayoutFiles": 19,
+    "technicalRouteHandlers": 84,
+    "staticHtmlFiles": 4,
+    "conditionalNativeSurfaces": 2,
+    "brandingSourceFiles": 4
+  },
+  "pages": [
+    {
+      "route": "/",
+      "source": "app/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Public welcome",
+      "background": "PUBLIC-EXISTING",
+      "imageAction": "KEEP; update brand and product captures",
+      "wave": "7"
+    },
+    {
+      "route": "/ap",
+      "source": "app/(app)/ap/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/study",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/assignments",
+      "source": "app/(app)/assignments/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Work and homework",
+      "background": "KEEP-02 / PLAIN",
+      "imageAction": "KEEP classroom; shallow header on focus tasks",
+      "wave": "3"
+    },
+    {
+      "route": "/assignments/[id]",
+      "source": "app/(app)/assignments/[id]/page.tsx",
+      "kind": "page redirect",
+      "destination": "/assignments/[id]/workspace OR /assignments/[id]/submit (lifecycle; login is a conditional guard)",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/assignments/[id]/submit",
+      "source": "app/(app)/assignments/[id]/submit/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Work and homework",
+      "background": "KEEP-02 / PLAIN",
+      "imageAction": "KEEP classroom; shallow header on focus tasks",
+      "wave": "3"
+    },
+    {
+      "route": "/assignments/[id]/submitted-work",
+      "source": "app/(app)/assignments/[id]/submitted-work/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Work and homework",
+      "background": "KEEP-02 / PLAIN",
+      "imageAction": "KEEP classroom; shallow header on focus tasks",
+      "wave": "3"
+    },
+    {
+      "route": "/assignments/[id]/workspace",
+      "source": "app/(app)/assignments/[id]/workspace/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Work and homework",
+      "background": "KEEP-02 / PLAIN",
+      "imageAction": "KEEP classroom; shallow header on focus tasks",
+      "wave": "3"
+    },
+    {
+      "route": "/assignments/captures",
+      "source": "app/(app)/assignments/captures/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Work and homework",
+      "background": "KEEP-02 / PLAIN",
+      "imageAction": "KEEP classroom; shallow header on focus tasks",
+      "wave": "3"
+    },
+    {
+      "route": "/assignments/captures/[id]",
+      "source": "app/(app)/assignments/captures/[id]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Work and homework",
+      "background": "KEEP-02 / PLAIN",
+      "imageAction": "KEEP classroom; shallow header on focus tasks",
+      "wave": "3"
+    },
+    {
+      "route": "/assignments/new",
+      "source": "app/(app)/assignments/new/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/quick-add",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/body-double",
+      "source": "app/(app)/body-double/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/break-down",
+      "source": "app/(app)/break-down/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/assignments",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/calendar",
+      "source": "app/(app)/calendar/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Calendar",
+      "background": "KEEP-04",
+      "imageAction": "KEEP planning room and approved dialogs",
+      "wave": "3"
+    },
+    {
+      "route": "/classes",
+      "source": "app/(app)/classes/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]",
+      "source": "app/(app)/classes/[id]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]/assessments/[assessmentId]",
+      "source": "app/(app)/classes/[id]/assessments/[assessmentId]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]/materials/[assignmentId]",
+      "source": "app/(app)/classes/[id]/materials/[assignmentId]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]/materials/[assignmentId]/practice",
+      "source": "app/(app)/classes/[id]/materials/[assignmentId]/practice/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]/practice",
+      "source": "app/(app)/classes/[id]/practice/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]/reference/[bookId]",
+      "source": "app/(app)/classes/[id]/reference/[bookId]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]/reference/[bookId]/ask",
+      "source": "app/(app)/classes/[id]/reference/[bookId]/ask/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/classes/[id]/settings",
+      "source": "app/(app)/classes/[id]/settings/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Classes",
+      "background": "KEEP-03 / PLAIN",
+      "imageAction": "KEEP academic hall; plain reader/practice surfaces",
+      "wave": "3"
+    },
+    {
+      "route": "/concepts/[id]",
+      "source": "app/(app)/concepts/[id]/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/study",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/dashboard",
+      "source": "app/(app)/dashboard/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Lobby",
+      "background": "KEEP-01",
+      "imageAction": "KEEP approved integrated Lobby room",
+      "wave": "3"
+    },
+    {
+      "route": "/early-access/confirm",
+      "source": "app/early-access/confirm/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Public information",
+      "background": "NEW-01 / PLAIN",
+      "imageAction": "REUSE shallow masthead; plain reading surface",
+      "wave": "1"
+    },
+    {
+      "route": "/early-access/unsubscribe",
+      "source": "app/early-access/unsubscribe/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Public information",
+      "background": "NEW-01 / PLAIN",
+      "imageAction": "REUSE shallow masthead; plain reading surface",
+      "wave": "1"
+    },
+    {
+      "route": "/how-it-works",
+      "source": "app/how-it-works/page.tsx",
+      "kind": "page redirect",
+      "destination": "/#how-it-works",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/inbox",
+      "source": "app/(app)/inbox/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/assignments/captures",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/inbox/[id]",
+      "source": "app/(app)/inbox/[id]/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/assignments/captures/[id]",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/insights",
+      "source": "app/(app)/insights/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/proof",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/knowledge-graph",
+      "source": "app/(app)/knowledge-graph/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/study",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/assignment-world",
+      "source": "app/landing-3d/assignment-world/page.tsx",
+      "kind": "preview/QA candidate; verify gate",
+      "destination": "",
+      "family": "Preview and QA",
+      "background": "NONE",
+      "imageAction": "NO production-art budget; verify redirect/gate",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/calendar-concept-review",
+      "source": "app/landing-3d/calendar-concept-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/calendar",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/classes-concept-review",
+      "source": "app/landing-3d/classes-concept-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/classes",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/hero-product-capture",
+      "source": "app/landing-3d/hero-product-capture/page.tsx",
+      "kind": "preview/QA candidate; verify gate",
+      "destination": "",
+      "family": "Preview and QA",
+      "background": "NONE",
+      "imageAction": "NO production-art budget; verify redirect/gate",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/logo-mask",
+      "source": "app/landing-3d/logo-mask/page.tsx",
+      "kind": "preview/QA candidate; verify gate",
+      "destination": "",
+      "family": "Preview and QA",
+      "background": "NONE",
+      "imageAction": "NO production-art budget; verify redirect/gate",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/more-concept-review",
+      "source": "app/landing-3d/more-concept-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/more",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/onboarding-preview",
+      "source": "app/landing-3d/onboarding-preview/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/onboarding",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/remaining-concept-review",
+      "source": "app/landing-3d/remaining-concept-review/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/more",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/remaining-concept-review/[screen]",
+      "source": "app/landing-3d/remaining-concept-review/[screen]/page.tsx",
+      "kind": "page redirect",
+      "destination": "dynamic target; inspect source",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/settings-concept-review",
+      "source": "app/landing-3d/settings-concept-review/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/settings",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/submission-concept-review",
+      "source": "app/landing-3d/submission-concept-review/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/assignments?view=ready",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/test-prep-concept-review",
+      "source": "app/landing-3d/test-prep-concept-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/study",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/today-motion-review",
+      "source": "app/landing-3d/today-motion-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/today-now-assets",
+      "source": "app/landing-3d/today-now-assets/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/today-now-composition",
+      "source": "app/landing-3d/today-now-composition/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/today-preview",
+      "source": "app/landing-3d/today-preview/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/today-preview/integration",
+      "source": "app/landing-3d/today-preview/integration/page.tsx",
+      "kind": "page redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/work-capture-review",
+      "source": "app/landing-3d/work-capture-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/quick-add",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/work-concept-review",
+      "source": "app/landing-3d/work-concept-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/assignments",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/landing-3d/workspace-concept-review",
+      "source": "app/landing-3d/workspace-concept-review/page.tsx",
+      "kind": "page redirect",
+      "destination": "/assignments",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/lobby-preview",
+      "source": "app/lobby-preview/page.tsx",
+      "kind": "public read-only specimen",
+      "destination": "",
+      "family": "Public Lobby specimen",
+      "background": "KEEP-01",
+      "imageAction": "KEEP room; align read-only wrapper",
+      "wave": "7"
+    },
+    {
+      "route": "/login",
+      "source": "app/(auth)/login/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Account entry",
+      "background": "NEW-01",
+      "imageAction": "NEW shared entry; opaque readable form",
+      "wave": "1"
+    },
+    {
+      "route": "/me",
+      "source": "app/(app)/me/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Account and services",
+      "background": "NEW-06 / PLAIN",
+      "imageAction": "REUSE subdued services header; opaque forms",
+      "wave": "2"
+    },
+    {
+      "route": "/more",
+      "source": "app/(app)/more/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "More and search",
+      "background": "NEW-02",
+      "imageAction": "NEW student commons; opaque directory/results",
+      "wave": "2"
+    },
+    {
+      "route": "/notes",
+      "source": "app/(app)/notes/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Notes",
+      "background": "NEW-03 / PLAIN",
+      "imageAction": "NEW library family; plain editor surface",
+      "wave": "4"
+    },
+    {
+      "route": "/notes/[id]",
+      "source": "app/(app)/notes/[id]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Notes",
+      "background": "NEW-03 / PLAIN",
+      "imageAction": "NEW library family; plain editor surface",
+      "wave": "4"
+    },
+    {
+      "route": "/notes/new",
+      "source": "app/(app)/notes/new/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Notes",
+      "background": "NEW-03 / PLAIN",
+      "imageAction": "NEW library family; plain editor surface",
+      "wave": "4"
+    },
+    {
+      "route": "/notifications",
+      "source": "app/(app)/notifications/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/calendar",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/offline",
+      "source": "app/offline/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "System recovery",
+      "background": "SYSTEM",
+      "imageAction": "SMALL local/CSS fallback; no new room",
+      "wave": "0"
+    },
+    {
+      "route": "/onboarding",
+      "source": "app/onboarding/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Onboarding",
+      "background": "NEW-06",
+      "imageAction": "REUSE coordinated student-services orientation scene",
+      "wave": "1"
+    },
+    {
+      "route": "/onboarding/done",
+      "source": "app/onboarding/done/page.tsx",
+      "kind": "page redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/parent-share",
+      "source": "app/(app)/parent-share/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/sharing",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/proof",
+      "source": "app/(app)/proof/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Completed work",
+      "background": "KEEP-03",
+      "imageAction": "REUSE approved commons/library header",
+      "wave": "6"
+    },
+    {
+      "route": "/public-not-found",
+      "source": "app/public-not-found/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "System recovery",
+      "background": "SYSTEM",
+      "imageAction": "SMALL local/CSS fallback; no new room",
+      "wave": "0"
+    },
+    {
+      "route": "/qa/smart-loading-preview",
+      "source": "app/(app)/qa/smart-loading-preview/page.tsx",
+      "kind": "preview/QA candidate; verify gate",
+      "destination": "",
+      "family": "Preview and QA",
+      "background": "NONE",
+      "imageAction": "NO production-art budget; verify redirect/gate",
+      "wave": "7"
+    },
+    {
+      "route": "/qa/smart-loading-probe",
+      "source": "app/(app)/qa/smart-loading-probe/page.tsx",
+      "kind": "retired boundary (404)",
+      "destination": "",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/quick-add",
+      "source": "app/(app)/quick-add/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Work and homework",
+      "background": "KEEP-02 / PLAIN",
+      "imageAction": "KEEP classroom; shallow header on focus tasks",
+      "wave": "3"
+    },
+    {
+      "route": "/search",
+      "source": "app/(app)/search/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "More and search",
+      "background": "NEW-02",
+      "imageAction": "NEW student commons; opaque directory/results",
+      "wave": "2"
+    },
+    {
+      "route": "/settings",
+      "source": "app/(app)/settings/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Account and services",
+      "background": "NEW-06 / PLAIN",
+      "imageAction": "REUSE subdued services header; opaque forms",
+      "wave": "2"
+    },
+    {
+      "route": "/settings/ai-history",
+      "source": "app/(app)/settings/ai-history/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/settings?section=ai#ai-history-export",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/settings/course-review",
+      "source": "app/(app)/settings/course-review/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Staff and access",
+      "background": "NEW-06 / PLAIN",
+      "imageAction": "REUSE services perimeter; plain review/access form",
+      "wave": "7"
+    },
+    {
+      "route": "/settings/goals",
+      "source": "app/(app)/settings/goals/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/settings?section=goals",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/settings/tutor",
+      "source": "app/(app)/settings/tutor/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/settings?section=tutor",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/share/[token]",
+      "source": "app/share/[token]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Public shared report",
+      "background": "PLAIN",
+      "imageAction": "NO scenic background under report",
+      "wave": "6"
+    },
+    {
+      "route": "/sharing",
+      "source": "app/(app)/sharing/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Sharing",
+      "background": "NEW-06 / PLAIN",
+      "imageAction": "REUSE services header; plain permission form",
+      "wave": "6"
+    },
+    {
+      "route": "/signup",
+      "source": "app/(auth)/signup/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Account entry",
+      "background": "NEW-01",
+      "imageAction": "NEW shared entry; opaque readable form",
+      "wave": "1"
+    },
+    {
+      "route": "/student-control",
+      "source": "app/student-control/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Public information",
+      "background": "NEW-01 / PLAIN",
+      "imageAction": "REUSE shallow masthead; plain reading surface",
+      "wave": "1"
+    },
+    {
+      "route": "/study",
+      "source": "app/(app)/study/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Study and practice",
+      "background": "NEW-05 / PLAIN",
+      "imageAction": "NEW seminar-room header; plain question/reader surface",
+      "wave": "5"
+    },
+    {
+      "route": "/study-artifacts",
+      "source": "app/(app)/study-artifacts/page.tsx",
+      "kind": "page redirect",
+      "destination": "/study?view=saved (preserves class context)",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/study-artifacts/[id]",
+      "source": "app/(app)/study-artifacts/[id]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Study and practice",
+      "background": "NEW-05 / PLAIN",
+      "imageAction": "NEW seminar-room header; plain question/reader surface",
+      "wave": "5"
+    },
+    {
+      "route": "/study-artifacts/new",
+      "source": "app/(app)/study-artifacts/new/page.tsx",
+      "kind": "page redirect",
+      "destination": "/study (preserves source/class context)",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/study-buddy",
+      "source": "app/(app)/study-buddy/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/assignments",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/study-groups",
+      "source": "app/(app)/study-groups/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/study",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/study/material/[assignmentId]",
+      "source": "app/(app)/study/material/[assignmentId]/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Material reader",
+      "background": "ORIGIN / PLAIN",
+      "imageAction": "Class-bound redirects to Classes; classless reader keeps Work",
+      "wave": "3"
+    },
+    {
+      "route": "/study/recall",
+      "source": "app/(app)/study/recall/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Study and practice",
+      "background": "NEW-05 / PLAIN",
+      "imageAction": "NEW seminar-room header; plain question/reader surface",
+      "wave": "5"
+    },
+    {
+      "route": "/teacher-share",
+      "source": "app/(app)/teacher-share/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/sharing",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/templates",
+      "source": "app/(app)/templates/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/quick-add",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/timer",
+      "source": "app/(app)/timer/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/dashboard",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/trust",
+      "source": "app/trust/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Public information",
+      "background": "NEW-01 / PLAIN",
+      "imageAction": "REUSE shallow masthead; plain reading surface",
+      "wave": "1"
+    },
+    {
+      "route": "/upgrade",
+      "source": "app/(app)/upgrade/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Staff and access",
+      "background": "NEW-06 / PLAIN",
+      "imageAction": "REUSE services perimeter; plain review/access form",
+      "wave": "7"
+    },
+    {
+      "route": "/voice",
+      "source": "app/(app)/voice/page.tsx",
+      "kind": "middleware redirect",
+      "destination": "/notes/new?mode=voice",
+      "family": "Compatibility and retirement",
+      "background": "NONE: destination owns scene",
+      "imageAction": "NO separate background",
+      "wave": "7"
+    },
+    {
+      "route": "/wellness",
+      "source": "app/(app)/wellness/page.tsx",
+      "kind": "rendered page candidate",
+      "destination": "",
+      "family": "Check-in history",
+      "background": "NEW-04 / PLAIN",
+      "imageAction": "NEW quiet courtyard header; plain charts",
+      "wave": "6"
+    }
+  ],
+  "boundaries": [
+    {
+      "source": "app/(app)/assignments/loading.tsx",
+      "type": "loading",
+      "scope": "/assignments",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/assignments/not-found.tsx",
+      "type": "not-found",
+      "scope": "/assignments",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/assignments/[id]/loading.tsx",
+      "type": "loading",
+      "scope": "/assignments/[id]",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/classes/[id]/loading.tsx",
+      "type": "loading",
+      "scope": "/classes/[id]",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/dashboard/layout.tsx",
+      "type": "layout",
+      "scope": "/dashboard",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/dashboard/loading.tsx",
+      "type": "loading",
+      "scope": "/dashboard",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/error.tsx",
+      "type": "error",
+      "scope": "/",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/layout.tsx",
+      "type": "layout",
+      "scope": "/",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/loading.tsx",
+      "type": "loading",
+      "scope": "/",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/not-found.tsx",
+      "type": "not-found",
+      "scope": "/",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/notes/loading.tsx",
+      "type": "loading",
+      "scope": "/notes",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/proof/loading.tsx",
+      "type": "loading",
+      "scope": "/proof",
+      "authenticated": true
+    },
+    {
+      "source": "app/(app)/template.tsx",
+      "type": "template",
+      "scope": "/",
+      "authenticated": true
+    },
+    {
+      "source": "app/(auth)/layout.tsx",
+      "type": "layout",
+      "scope": "/",
+      "authenticated": false
+    },
+    {
+      "source": "app/early-access/layout.tsx",
+      "type": "layout",
+      "scope": "/early-access",
+      "authenticated": false
+    },
+    {
+      "source": "app/error.tsx",
+      "type": "error",
+      "scope": "/",
+      "authenticated": false
+    },
+    {
+      "source": "app/landing-3d/logo-mask/layout.tsx",
+      "type": "layout",
+      "scope": "/landing-3d/logo-mask",
+      "authenticated": false
+    },
+    {
+      "source": "app/layout.tsx",
+      "type": "layout",
+      "scope": "/",
+      "authenticated": false
+    },
+    {
+      "source": "app/not-found.tsx",
+      "type": "not-found",
+      "scope": "/",
+      "authenticated": false
+    }
+  ],
+  "technicalHandlers": [
+    {
+      "route": "/api/assignments/[id]/submission-artifact",
+      "source": "app/api/assignments/[id]/submission-artifact/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/assignments/[id]/submitted-file/[fileId]",
+      "source": "app/api/assignments/[id]/submitted-file/[fileId]/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/billing/checkout",
+      "source": "app/api/billing/checkout/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/build-info",
+      "source": "app/api/build-info/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/calendar.ics",
+      "source": "app/api/calendar.ics/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/calendar/google-sync",
+      "source": "app/api/calendar/google-sync/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/canva/callback",
+      "source": "app/api/canva/callback/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/canva/connect",
+      "source": "app/api/canva/connect/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/cron/account-deletion",
+      "source": "app/api/cron/account-deletion/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/cron/ai-budget-reconciliation",
+      "source": "app/api/cron/ai-budget-reconciliation/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/cron/assignment-media-cleanup",
+      "source": "app/api/cron/assignment-media-cleanup/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/cron/lms-sync",
+      "source": "app/api/cron/lms-sync/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/cron/media-retention",
+      "source": "app/api/cron/media-retention/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/assignment-realtime",
+      "source": "app/api/diana/assignment-realtime/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/assignment-realtime/reason",
+      "source": "app/api/diana/assignment-realtime/reason/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/break-down",
+      "source": "app/api/diana/break-down/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/openai-status",
+      "source": "app/api/diana/openai-status/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/study-buddy",
+      "source": "app/api/diana/study-buddy/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/study-buddy/stream",
+      "source": "app/api/diana/study-buddy/stream/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/today-realtime",
+      "source": "app/api/diana/today-realtime/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/today-tools",
+      "source": "app/api/diana/today-tools/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/voice-candidate",
+      "source": "app/api/diana/voice-candidate/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/diana/voice-candidate/status",
+      "source": "app/api/diana/voice-candidate/status/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/email/parent-digest",
+      "source": "app/api/email/parent-digest/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/health",
+      "source": "app/api/health/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/language-tool/check",
+      "source": "app/api/language-tool/check/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/attempts",
+      "source": "app/api/learning/attempts/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/chapter-practice",
+      "source": "app/api/learning/chapter-practice/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/course-practice",
+      "source": "app/api/learning/course-practice/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/course-review",
+      "source": "app/api/learning/course-review/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/documents",
+      "source": "app/api/learning/documents/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/exercises",
+      "source": "app/api/learning/exercises/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/index",
+      "source": "app/api/learning/index/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/ingest",
+      "source": "app/api/learning/ingest/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/jobs",
+      "source": "app/api/learning/jobs/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/local-recognition",
+      "source": "app/api/learning/local-recognition/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/material-practice",
+      "source": "app/api/learning/material-practice/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/offline-package",
+      "source": "app/api/learning/offline-package/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/problem-state",
+      "source": "app/api/learning/problem-state/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/response-review",
+      "source": "app/api/learning/response-review/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/retrieve",
+      "source": "app/api/learning/retrieve/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/session",
+      "source": "app/api/learning/session/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/source",
+      "source": "app/api/learning/source/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/sync",
+      "source": "app/api/learning/sync/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/learning/tutor",
+      "source": "app/api/learning/tutor/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/canvas-oauth/callback",
+      "source": "app/api/lms/canvas-oauth/callback/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/canvas-oauth/start",
+      "source": "app/api/lms/canvas-oauth/start/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/canvas-sync",
+      "source": "app/api/lms/canvas-sync/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/classroom-sync",
+      "source": "app/api/lms/classroom-sync/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/gitlab-sync",
+      "source": "app/api/lms/gitlab-sync/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/google-oauth/callback",
+      "source": "app/api/lms/google-oauth/callback/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/google-oauth/start",
+      "source": "app/api/lms/google-oauth/start/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/ics-sync",
+      "source": "app/api/lms/ics-sync/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/lms/sync-all",
+      "source": "app/api/lms/sync-all/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/materials/source",
+      "source": "app/api/materials/source/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/materials/textbook",
+      "source": "app/api/materials/textbook/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/monitoring/error",
+      "source": "app/api/monitoring/error/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/monitoring/event",
+      "source": "app/api/monitoring/event/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/monitoring/vitals",
+      "source": "app/api/monitoring/vitals/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/operations/metrics/prometheus",
+      "source": "app/api/operations/metrics/prometheus/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/profile/handoff",
+      "source": "app/api/profile/handoff/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/push/send-due",
+      "source": "app/api/push/send-due/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/push/subscribe",
+      "source": "app/api/push/subscribe/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/pwa/reminders",
+      "source": "app/api/pwa/reminders/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/qa/anonymous-session",
+      "source": "app/api/qa/anonymous-session/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/qa/onboarding-persistence",
+      "source": "app/api/qa/onboarding-persistence/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/qa/reset-onboarding",
+      "source": "app/api/qa/reset-onboarding/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/qa/suspense-gate",
+      "source": "app/api/qa/suspense-gate/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/readiness",
+      "source": "app/api/readiness/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/research/integrated-retrieval",
+      "source": "app/api/research/integrated-retrieval/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/share-target",
+      "source": "app/api/share-target/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/workers/authorize",
+      "source": "app/api/workers/authorize/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/workers/claim",
+      "source": "app/api/workers/claim/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/workers/complete",
+      "source": "app/api/workers/complete/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/workers/metrics",
+      "source": "app/api/workers/metrics/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/workers/metrics/prometheus",
+      "source": "app/api/workers/metrics/prometheus/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/api/workers/version",
+      "source": "app/api/workers/version/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/auth/callback",
+      "source": "app/auth/callback/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/calendar/events/[id]/export",
+      "source": "app/(app)/calendar/events/[id]/export/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/classes/[id]/mastery/export",
+      "source": "app/(app)/classes/[id]/mastery/export/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/landing-3d/today-idle-review",
+      "source": "app/landing-3d/today-idle-review/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/landing-3d/today-motion-review/clip",
+      "source": "app/landing-3d/today-motion-review/clip/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/landing-3d/today-now-assets/relit-media",
+      "source": "app/landing-3d/today-now-assets/relit-media/route.ts",
+      "designedPage": false
+    },
+    {
+      "route": "/qa-session",
+      "source": "app/qa-session/route.ts",
+      "designedPage": false
+    }
+  ],
+  "staticDocuments": [
+    {
+      "route": "/assets/landing-cinematic-v3/index.html",
+      "source": "public/assets/landing-cinematic-v3/index.html",
+      "kind": "bundled HTML asset / standalone preview; verify exposure"
+    },
+    {
+      "route": "/assets/landing-cinematic-v3/privacy.html",
+      "source": "public/assets/landing-cinematic-v3/privacy.html",
+      "kind": "bundled HTML asset / standalone preview; verify exposure"
+    },
+    {
+      "route": "/privacy.html",
+      "source": "public/privacy.html",
+      "kind": "bundled HTML asset / standalone preview; verify exposure"
+    },
+    {
+      "route": "/trust.html",
+      "source": "public/trust.html",
+      "kind": "bundled HTML asset / standalone preview; verify exposure"
+    }
+  ],
+  "desktopWrapperSurfaces": [
+    {
+      "surface": "Native startup/backing window",
+      "source": "electron/main.cjs",
+      "background": "SYSTEM",
+      "status": "Conditional desktop wrapper; no shipped channel inferred"
+    },
+    {
+      "surface": "Standalone launch-failure data HTML",
+      "source": "electron/main.cjs",
+      "background": "SYSTEM",
+      "status": "Conditional desktop wrapper; no new room"
+    }
+  ],
+  "brandingSurfaces": [
+    "app/icon.tsx",
+    "app/manifest.ts",
+    "public/icons/diana-icon.svg",
+    "app/layout.tsx"
+  ]
+}

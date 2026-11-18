@@ -8,7 +8,7 @@ import styles from "../(app)/quick-add/intake.module.css";
 
 export default function OfflinePage() {
   return (
-    <StudentShell active="Work" showAdd={false} className={styles.room}>
+    <StudentShell active="Work" scene="work" mode="focus" showAdd={false} className={styles.room}>
       <PwaRuntime />
       <main id="main-content" className={styles.main} tabIndex={-1}>
         <a href={WORK_RETURN_PATH} className={styles.back}><ArrowLeft size={17} aria-hidden="true" />Back to Work</a>

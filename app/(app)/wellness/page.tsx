@@ -34,7 +34,7 @@ export default async function WellnessPage() {
   });
 
   return (
-    <StudentShell active="More" version="12" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
+    <StudentShell active="More" scene="courtyard" mode="header" version="13" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
       <WellnessClient today={today} summary={summary} />
     </StudentShell>
   );

@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "baseline": "25477d594afdd83a7ac5b91ee9e09ddbadf579cf",
+  "sourcePageFiles": 93,
+  "stateChecklistRows": 80,
+  "newSceneBriefs": 6,
+  "existingScenes": 4,
+  "checks": [
+    {
+      "label": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "search": true,
+      "redirectCount": 42,
+      "renderedCount": 45,
+      "sceneFilter": true,
+      "noPageOverflow": true
+    },
+    {
+      "label": "phone",
+      "width": 390,
+      "height": 844,
+      "search": true,
+      "redirectCount": 42,
+      "renderedCount": 45,
+      "sceneFilter": true,
+      "noPageOverflow": true
+    }
+  ],
+  "browserErrors": [],
+  "externalNetworkAllowed": false,
+  "generatedImages": 0
+}

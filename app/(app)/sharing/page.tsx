@@ -17,7 +17,7 @@ export default async function SharingPage() {
     .eq("user_id", user.id)
     .maybeSingle();
 
-  return <StudentShell active="More" version="12" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
+  return <StudentShell active="More" scene="services" mode="header" version="13" profile={{displayName:profile?.display_name,photoUrl:profile?.photo_url,photoOffsetX:profile?.photo_offset_x,photoOffsetY:profile?.photo_offset_y}}>
     <main id="main-content" className={styles.main}>
       <header className={styles.heading}><h1>Sharing</h1><Link href="/more">Back to More</Link></header>
       <section className={support.panel}><ParentSharingView /></section>

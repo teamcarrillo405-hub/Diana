@@ -159,9 +159,9 @@ export default async function ClassDetailPage({
   const currentGrade = ((gradeRows ?? []) as GradeRow[])[0] ?? null;
   const gradeLetter = currentGrade?.letter_grade?.trim() || null;
   const requestedView = await searchParams;
-  const sourceOpen = requestedView.materials === "1" || requestedView.rubric === "scan";
+  const sourceOpen = !Section.safeParse(requestedView.section).success && (requestedView.materials === "1" || requestedView.rubric === "scan");
   const initialSection = Section.safeParse(requestedView.section);
-  const workOrigin = sourceOpen ? classAssignments.find(assignment => assignment.id === requestedView.work) : undefined;
+  const workOrigin = classAssignments.find(assignment => assignment.id === requestedView.work);
   const assignmentIds=classAssignments.map(assignment=>assignment.id);
   const materialResult=assignmentIds.length?await supabase.from("assignment_sources")
     .select("id,title,assignment_id").eq("owner_id",user.id).in("assignment_id",assignmentIds).order("created_at",{ascending:false})

@@ -12,11 +12,19 @@ const task: TodayTask = { id: "a", title: "History report", subject: "History", 
 const empty = () => buildTodayView({ now: new Date("2026-09-09T20:00:00Z"), timeZone: "America/Los_Angeles", ranked: [], assignments: [], weeklyAssignments: [], focusLogs: [], submittedAssignments: [] });
 
 describe("connected Lobby", () => {
-  afterEach(cleanup);
+  afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
   beforeEach(() => {
     HTMLDialogElement.prototype.showModal = function () { this.open = true; };
     HTMLDialogElement.prototype.close = function () { this.open = false; };
     Object.defineProperty(window, "matchMedia", { configurable: true, value: vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })) });
+  });
+  it("restores Check-in from its link and keeps unrelated URL context on section changes", () => {
+    window.history.replaceState({ retained: true }, "", "/dashboard?view=check-in&source=wellness");
+    render(<TodayDashboard data={empty()} profile={{}} checkIn={<p>Optional check-in fields</p>} />);
+    expect(screen.getByRole("tab", { name: "Check-in" })).toHaveAttribute("aria-selected", "true");
+    fireEvent.click(screen.getByRole("tab", { name: "This Week" }));
+    expect(window.location.search).toBe("?view=week&source=wellness");
+    expect(window.history.state).toEqual({ retained: true });
   });
   it("opens the real workspace and keeps the approved three-category menu", () => {
     const { container } = render(<TodayDashboard data={{ ...empty(), plan: [task] }} profile={{}} checkIn={null} />);

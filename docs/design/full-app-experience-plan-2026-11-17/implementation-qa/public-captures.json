@@ -1,0 +1,78 @@
+{
+  "sourceRun": "campus-2026-11-18T06-52-31-658Z",
+  "data": "Fictional Casey Morgan, Ridgeview Campus, no real account or school logo",
+  "captures": [
+    {
+      "file": "public/assets/landing-cinematic-v3/lobby.webp",
+      "source": "desktop-lobby-now.png",
+      "sha256": "fc443e6f1e228eec85813784243d63cad85f298d9ae2d992d2317bc772891f24"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/lobby-mobile.webp",
+      "source": "phone-lobby-now.png",
+      "sha256": "b127e1fc8890c0dfccb410cedca34f3d25b5435610d69d9716151b8d2d30d1ad"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/check-in.webp",
+      "source": "desktop-lobby-check-in.png",
+      "sha256": "c2f168ba9cd5e033c3954ecd5d70380ec37c947c5c3c584c4b8a6804a6fb70cc"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/check-in-mobile.webp",
+      "source": "phone-lobby-check-in.png",
+      "sha256": "b127e1fc8890c0dfccb410cedca34f3d25b5435610d69d9716151b8d2d30d1ad"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/control-work.webp",
+      "source": "desktop-work.png",
+      "sha256": "e22a7ab0d6e77ee8013a9b16a732d69bf8314e178697a6e6820e586cc785891e"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/control-work-mobile.webp",
+      "source": "phone-work.png",
+      "sha256": "da77adca53b0e99e53f865f3304f182e5ef2ec1794053e37cb055599ce5f4766"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/work-through-it.webp",
+      "source": "desktop-workspace.png",
+      "sha256": "47a060abd6fa180ad63ff76b6ac800e7a7e75c0f29c02435341965711b0f93ff"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/work-through-it-mobile.webp",
+      "source": "phone-workspace.png",
+      "sha256": "a9deac0aea998352d1cabc28007e6e19e7d85e95d65df64a31c8609deb967a54"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/practice-desktop.webp",
+      "source": "desktop-practice-product.png",
+      "sha256": "f292080177d810af3ce9a703a9bce4315a424623f614c1e5a2d348312cad9d2f",
+      "sourceRun": "campus-2026-11-18T07-06-30-446Z"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/practice-mobile.webp",
+      "source": "phone-practice-product.png",
+      "sha256": "7252a818dc603cd15f2e6dcd43010533b9a17a4cebe49f50f69eadf3186d6f10",
+      "sourceRun": "campus-2026-11-18T07-06-30-446Z"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/calendar.webp",
+      "source": "desktop-calendar.png",
+      "sha256": "e80a6b40818de7493a69b96474ed36d0c995dbe79c60c52174c512e43250e09e"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/calendar-mobile.webp",
+      "source": "phone-calendar.png",
+      "sha256": "8a712f41184bee4dd1c17b2d5f628e4d9fde940971fb4cad417076f643ee089f"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/control-do-work.webp",
+      "source": "desktop-settings-tutor.png",
+      "sha256": "86d83daf7965df5f3ac0a68fe53916be037be660196b6f5d770bfe3ab9c3c8fc"
+    },
+    {
+      "file": "public/assets/landing-cinematic-v3/control-complete.webp",
+      "source": "desktop-review.png",
+      "sha256": "4f87916f9eaee53caabc1fdcf65af8a8ddc4153d7ebdac89f3ad956a7120a15f"
+    }
+  ]
+}

@@ -39,7 +39,7 @@ function renderClass(overrides: Partial<Parameters<typeof CourseInsight>[0]> = {
   );
 }
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); window.history.replaceState(null, "", "/"); });
 
 describe("CourseInsight", () => {
   it("keeps the next assignment, class note and material linked to their real destinations", () => {

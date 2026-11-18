@@ -5,11 +5,11 @@ import { Clock3, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { AccentPicker } from "@/components/accent-picker";
 import { PwaSettings } from "@/components/pwa-settings";
 import { PushSettings } from "@/components/push-settings";
 import { ThemePicker } from "@/components/theme-picker";
 import { SchoolBrandingForm } from "@/components/school-branding-form";
+import { formatCampusName } from "@/lib/school-branding";
 import type { ProfilePrefs } from "@/lib/profile";
 import { AccessibilityPrefs } from "./accessibility-prefs";
 import { AdaptationPanel } from "./adaptation-panel";
@@ -19,12 +19,15 @@ import { CanvaSection } from "./canva-section";
 import { IepImport } from "./iep-import";
 import type { LmsConnectionView } from "./source-models";
 import { profileSchoolYearLabel } from "./source-models";
-import { LobbyBackgroundPicker } from "./lobby-background-picker";
 import { PlayerPhoto } from "./player-photo";
 import { ProfileCenterForm } from "./profile-center-form";
 import { SourceDisconnectButton } from "./source-disconnect-button";
 import { TutorPreferences } from "./tutor/tutor-preferences";
 import { SignOutButton } from "./sign-out";
+import { AccountSecurity } from "./account-security";
+import { lmsProviderCapabilities } from "@/lib/lms/provider-features";
+import { availableConnectionOptions, reconnectConnectionOption } from "./connection-options";
+import { ConnectionChoices } from "./connection-choices";
 
 export function ProfileCenter({
   profile,
@@ -49,7 +52,7 @@ export function ProfileCenter({
 
 
   return (
-    <StudentShell active="More" className={styles.root} version="12" profile={{displayName,photoUrl:safePhoto,photoOffsetX:profile.photo_offset_x,photoOffsetY:profile.photo_offset_y}}>
+    <StudentShell active="More" scene="services" mode="header" className={styles.root} version="12" profile={{displayName,photoUrl:safePhoto,photoOffsetX:profile.photo_offset_x,photoOffsetY:profile.photo_offset_y}}>
       <SettingsShell
         profile={profile}
         connections={connections}
@@ -107,7 +110,7 @@ const SETTINGS_RAIL = [
   {
     title: "Account",
     items: [
-      
+      { section: "security", label: "Security", href: "/settings?section=security" },
       { section: "sign-out", label: "Sign out", href: "/settings?section=sign-out" },
     ],
   },
@@ -135,6 +138,8 @@ function SettingsShell({
   const requested = section === "reading" ? "accessibility" : section === "study" ? "ai" : section === "learning-loop" ? "learning" : section;
   const activeSection = SETTINGS_RAIL.some(group => group.items.some(item => item.section === requested)) ? requested : "profile";
   const activeLabel = settingLabel(activeSection);
+  const capabilities = lmsProviderCapabilities();
+  const connectionOptions = availableConnectionOptions(connections, capabilities);
 
   return (
     <div className="sd-settings-desktop">
@@ -144,7 +149,8 @@ function SettingsShell({
       </details>
       <SettingsRail activeSection={activeSection} />
 
-      <main id="main-content" className="sd-settings-workspace">
+      <main id="main-content" className="sd-settings-workspace" tabIndex={-1}>
+        <div className="sd-settings-context"><p>{formatCampusName(profile.school_name)}</p><Link href="/more?section=account">Back to More</Link></div>
         {activeSection === "profile" ? (
           <article className="sd-settings-panel sd-settings-profile-card">
             <header className="sd-settings-panel-head">
@@ -174,7 +180,7 @@ function SettingsShell({
             </div>
 
             <div className="sd-settings-profile-fields">
-              <ProfileCenterForm profile={profile} formId="desktop-profile-center-form" />
+              <ProfileCenterForm profile={profile} formId="desktop-profile-center-form" readOnly={!editable} />
             </div>
             {editable ? (
               <details className="sd-settings-photo"><summary>Lobby photo</summary>
@@ -192,9 +198,7 @@ function SettingsShell({
 
         {activeSection === "appearance" ? (
           <SettingsPanel title="Appearance">
-            <ThemePicker />
-            <AccentPicker />
-            <LobbyBackgroundPicker />
+            <div className="sd-settings-display"><h2>Display preference</h2><p>Choose the appearance that is easiest for you to read.</p><ThemePicker /></div>
             {editable ? <SchoolBrandingForm initialSchoolBranding={{
               schoolName: profile.school_name ?? null,
               primaryColor: profile.school_primary_color ?? null,
@@ -240,40 +244,29 @@ function SettingsShell({
         {activeSection === "connections" ? (
           <SettingsPanel title="Connections & IEP">
             <section className="sd-settings-connection-block" id="school-materials" aria-labelledby="school-platforms-heading">
-              <h2 id="school-platforms-heading">School platforms</h2>
-              <p>Bring in classes, assignments, and due dates from your school account.</p>
+              <h2 id="school-platforms-heading">School and calendar connections</h2>
+              <p>Calendar access is separate from your school work.</p>
               <div className="sd-settings-connection-list">
-              {connections.length > 0 ? (
-                connections.map((connection) => (
-                  <div className="sd-settings-connection-row" key={connection.id}>
-                    <div>
-                      <strong>{connection.calendarOnly ? "Google Calendar" : SETTINGS_PROVIDER_LABEL[connection.provider]}</strong>
-                      <p>{connection.message ?? (connection.schoolManaged ? "Managed by your school." : "Connected to Diana.")}</p>
-                      <span className="sd-settings-connection-status" data-state={connection.state}>
-                        {connection.state === "synced" ? "Connected and synced" : connection.state === "attention" ? "Needs attention" : "Connection set up"}
-                      </span>
-                    </div>
-                    {connection.provider === "google_classroom" ? <span className="sd-settings-connection-actions">
-                      {connection.calendarEnabled ? <Link href="/calendar">Google Calendar</Link> : null}
-                      {connection.state === "attention" ? <Link href={connection.calendarOnly
-                        ? "/api/lms/google-oauth/start?calendar=1&return_to=/calendar"
-                        : "/api/lms/google-oauth/start"}>{connection.calendarOnly ? "Reconnect Google Calendar" : "Reconnect Google Classroom"}</Link> : null}
-                      {editable ? <SourceDisconnectButton connectionId={connection.id} calendarOnly={connection.calendarOnly} /> : null}
-                    </span> : null}
-                  </div>
-                ))
-              ) : (
-                <div className="sd-settings-connection-row">
+              {connections.map((connection) => {
+                const reconnect = reconnectConnectionOption(connection, capabilities);
+                return <div className="sd-settings-connection-row" key={connection.id}>
                   <div>
-                    <strong>Learning platforms</strong>
-                    <p>Connect Canvas LMS or Google Classroom to bring in your classes and due dates.</p>
+                    <strong>{connection.calendarOnly ? "Google Calendar" : SETTINGS_PROVIDER_LABEL[connection.provider]}</strong>
+                    <p>{connection.message ?? (connection.schoolManaged ? "Managed by your school." : "Connected to Diana.")}</p>
+                    <span className="sd-settings-connection-status" data-state={connection.state}>
+                      {connection.state === "synced" ? "Connected and synced" : connection.state === "attention" ? "Needs attention" : "Connection set up"}
+                    </span>
                   </div>
-                  <span className="sd-settings-connection-actions">
-                    <Link href="/api/lms/canvas-oauth/start">Canvas LMS</Link>
-                    <Link href="/api/lms/google-oauth/start">Classroom</Link>
-                  </span>
-                </div>
-              )}
+                  {connection.provider === "google_classroom" ? <div className="sd-settings-connection-actions">
+                    {connection.calendarEnabled ? <Link href="/calendar">Open Google Calendar</Link> : null}
+                    {connection.state === "attention" && reconnect ? <Link href={reconnect.href}>{reconnect.label}</Link> : null}
+                    {connection.state === "attention" && !reconnect ? <p>Reconnecting this service is not available right now.</p> : null}
+                    {editable ? <SourceDisconnectButton connectionId={connection.id} calendarOnly={connection.calendarOnly} /> : null}
+                  </div> : null}
+                </div>;
+              })}
+              {editable && connectionOptions.length ? <div className="sd-settings-connect-options"><h3>Add a connection</h3><ConnectionChoices options={connectionOptions} /><p>Google Calendar reads your schedule. Classroom and Canvas bring in school work when available.</p></div> : null}
+              {!connections.length && !connectionOptions.length ? <p>School connections are not available right now. You can still add work and calendar events in Diana.</p> : null}
               </div>
             </section>
             {editable ? (
@@ -290,6 +283,8 @@ function SettingsShell({
             ) : null}
           </SettingsPanel>
         ) : null}
+
+        {activeSection === "security" ? <SettingsPanel title="Account security">{editable ? <AccountSecurity email={email} /> : <p>Open your account settings to manage sign-in.</p>}</SettingsPanel> : null}
 
         {activeSection === "sign-out" ? (
           <SettingsPanel title="Sign out">

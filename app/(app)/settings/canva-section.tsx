@@ -21,7 +21,7 @@ export async function CanvaSection() {
       </p>
       {!env ? (
         <p className="text-xs text-muted">
-          Not set up yet: an admin needs to add Canva developer keys (see docs/CANVA_SETUP.md).
+          Canva is not available right now. You can still create posters and slides in your own design tools.
         </p>
       ) : connected ? (
         <div className="flex items-center justify-between gap-3">

@@ -21,9 +21,7 @@ describe("SmartLoading", () => {
     expect(screen.getByRole("status")).toHaveTextContent("Getting your notes ready");
     expect(screen.getByRole("status")).toHaveAttribute("aria-live", "polite");
     expect(screen.getByRole("status")).toHaveAttribute("aria-atomic", "true");
-    expect(screen.getByRole("img", { name: "Diana" }).getAttribute("src")).toMatch(
-      /(?:\/screendesign\/|screendesign%2F)/u,
-    );
+    expect(screen.getByRole("img", { name: "Diana" })).toHaveTextContent("Diana");
   });
 
   it("uses one wordmark and one route-safe message", () => {
@@ -36,8 +34,8 @@ describe("SmartLoading", () => {
     const css = readFileSync(join(process.cwd(), "components/student-shell/recovery.module.css"), "utf8");
     expect(css).toContain("@media(prefers-reduced-motion:reduce)");
     expect(css).toContain("animation:none");
-    expect(css).toContain("loading-progress-forward 3.6s linear forwards");
-    expect(css).not.toContain("infinite alternate");
+    expect(css).toContain("loading-activity 1.5s ease-in-out infinite alternate");
+    expect(css).not.toContain("scaleX(.9)");
     expect(componentSource).not.toMatch(/setTimeout|setInterval|requestAnimationFrame/u);
   });
 });

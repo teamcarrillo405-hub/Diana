@@ -1,0 +1,34 @@
+@font-face { font-family:"Diana Campus Slab";src:url('/assets/fonts/roboto-slab-latin.woff2') format('woff2');font-style:normal;font-weight:100 900;font-display:swap; }
+:root {
+ --campus-entry-image:url('/assets/campus/entry-1920.webp');
+ --campus-lobby-image:url('/assets/today-now/diana-campus-with-guide-4k.webp');
+ --campus-work-image:url('/assets/work/college-classroom-1920.webp');
+ --campus-classes-image:url('/assets/classes/academic-hall-1920.webp');
+ --campus-calendar-image:url('/assets/calendar/campus-planning-1920.webp');
+ --campus-commons-image:url('/assets/campus/commons-1920.webp');
+ --campus-library-image:url('/assets/campus/library-1920.webp');
+ --campus-seminar-image:url('/assets/campus/seminar-1920.webp');
+ --campus-services-image:url('/assets/campus/services-1920.webp');
+ --campus-courtyard-image:url('/assets/campus/courtyard-1920.webp');
+ --campus-ink:#fff8e8;--campus-muted:#c8d2c9;--campus-panel:#181f1b;--campus-raised:#262e28;--campus-rule:#b9b19b52;--campus-border:#aca78e;--campus-focus:#f4d69b;--campus-action:var(--school-primary,#355745);--campus-action-text:var(--school-primary-text,#fff8e8);--campus-display:var(--font-saira-condensed),sans-serif;
+}
+[data-campus-family="entry"] { --campus-scene-image:var(--campus-entry-image); }
+[data-campus-family="services"] { --campus-scene-image:var(--campus-services-image); }
+[data-campus-family] { --campus-action:var(--school-primary,#355745);--campus-action-text:var(--school-primary-text,#fff8e8); }
+@media(min-width:1921px), (min-width:1200px) and (min-resolution:1.5dppx) {
+ :root { --campus-work-image:url('/assets/work/college-classroom-4k.webp');--campus-classes-image:url('/assets/classes/academic-hall-4k.webp');--campus-calendar-image:url('/assets/calendar/campus-planning-4k.webp'); }
+}
+@media(max-width:760px) {
+ :root { --campus-lobby-image:url('/assets/today-now/diana-campus-with-guide-mobile.webp');--campus-work-image:url('/assets/work/college-classroom-mobile.webp');--campus-classes-image:url('/assets/classes/academic-hall-mobile.webp');--campus-calendar-image:url('/assets/calendar/campus-planning-mobile.webp'); }
+}
+/* Supportive preferences apply to reading surfaces; school colors stay on navigation. */
+:root.light [data-campus-mode="document"] { color:#17251e; }
+@media(prefers-reduced-motion:reduce) { [data-campus-family] *,[data-campus-family] *::before,[data-campus-family] *::after { animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important; } }
+@media(forced-colors:active) { [data-campus-family] { --campus-ink:CanvasText;--campus-muted:CanvasText;--campus-panel:Canvas;--campus-raised:Canvas;--campus-focus:Highlight; } }
+
+@media(min-width:1921px), (min-width:1200px) and (min-resolution:1.5dppx) {
+ :root { --campus-entry-image:url('/assets/campus/entry-4k.webp');--campus-commons-image:url('/assets/campus/commons-4k.webp');--campus-library-image:url('/assets/campus/library-4k.webp');--campus-seminar-image:url('/assets/campus/seminar-4k.webp');--campus-services-image:url('/assets/campus/services-4k.webp');--campus-courtyard-image:url('/assets/campus/courtyard-4k.webp'); }
+}
+@media(max-width:760px) {
+ :root { --campus-entry-image:url('/assets/campus/entry-mobile.webp');--campus-commons-image:url('/assets/campus/commons-mobile.webp');--campus-library-image:url('/assets/campus/library-mobile.webp');--campus-seminar-image:url('/assets/campus/seminar-mobile.webp');--campus-services-image:url('/assets/campus/services-mobile.webp');--campus-courtyard-image:url('/assets/campus/courtyard-mobile.webp'); }
+}

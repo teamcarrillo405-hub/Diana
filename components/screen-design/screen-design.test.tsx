@@ -127,10 +127,7 @@ describe("ScreenDesign source primitives", () => {
       "href",
       "/assignments",
     );
-    expect(screen.getByRole("img", { name: "Diana" })).toHaveAttribute(
-      "src",
-      expect.stringContaining("screendesign"),
-    );
+    expect(screen.getByRole("img", { name: "Diana" })).toHaveTextContent("Diana");
   });
 });
 
