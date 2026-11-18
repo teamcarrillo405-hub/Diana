@@ -1,0 +1,410 @@
+{
+  "version": "campus-experience-browser-qa-v1",
+  "startedAt": "2026-11-18T09:22:15.002Z",
+  "base": "http://127.0.0.1:3140",
+  "run": "campus-polish-tutor-final-2026-11-18",
+  "scope": "Targeted verification of literal tutor action classes after the CSS Modules selector correction.",
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 1000
+    },
+    {
+      "name": "phone",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "name": "narrow",
+      "width": 320,
+      "height": 844
+    },
+    {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    }
+  ],
+  "results": [
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "desktop",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 1440,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 800,
+      "finalPath": "/settings",
+      "screenshot": "desktop-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "phone",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 390,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 358,
+      "finalPath": "/settings",
+      "screenshot": "phone-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "narrow",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 320,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 288,
+      "finalPath": "/settings",
+      "screenshot": "narrow-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    },
+    {
+      "slug": "settings-tutor",
+      "path": "/settings?section=tutor",
+      "family": "services",
+      "viewport": "tablet",
+      "ok": true,
+      "status": 200,
+      "overflow": false,
+      "documentWidth": 768,
+      "heading": "Diana coaching",
+      "scene": "services",
+      "mode": "header",
+      "missingVisibleImages": [],
+      "mainWidth": 736,
+      "finalPath": "/settings",
+      "screenshot": "tablet-settings-tutor.png",
+      "pageErrors": [],
+      "assetErrors": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "polish-layout-desktop-settings-tutor",
+      "ok": true,
+      "viewport": "desktop",
+      "slug": "settings-tutor",
+      "headerHeight": 76,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 205.71875,
+          "right": 313.59375,
+          "width": 107.875,
+          "height": 75
+        },
+        {
+          "label": "Work",
+          "left": 330.859375,
+          "right": 437.359375,
+          "width": 106.5,
+          "height": 75
+        },
+        {
+          "label": "Classes",
+          "left": 454.625,
+          "right": 585.671875,
+          "width": 131.046875,
+          "height": 75
+        },
+        {
+          "label": "Calendar",
+          "left": 602.9375,
+          "right": 755.984375,
+          "width": 153.046875,
+          "height": 75
+        },
+        {
+          "label": "More",
+          "left": 773.25,
+          "right": 875.515625,
+          "width": 102.265625,
+          "height": 75
+        }
+      ]
+    },
+    {
+      "name": "tutor-controls-desktop",
+      "ok": true,
+      "viewport": "desktop",
+      "states": [
+        {
+          "label": "Choose tutor",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        },
+        {
+          "label": "Save tutor style",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        }
+      ],
+      "syntheticPreferenceSaved": true,
+      "screenshot": "desktop-tutor-style.png",
+      "aiCalls": 0
+    },
+    {
+      "name": "polish-layout-phone-settings-tutor",
+      "ok": true,
+      "viewport": "phone",
+      "slug": "settings-tutor",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 14,
+          "right": 79.515625,
+          "width": 65.515625,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 79.515625,
+          "right": 144.21875,
+          "width": 64.703125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 144.21875,
+          "right": 222.765625,
+          "width": 78.546875,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 222.765625,
+          "right": 313.578125,
+          "width": 90.8125,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 313.578125,
+          "right": 376,
+          "width": 62.421875,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "tutor-controls-phone",
+      "ok": true,
+      "viewport": "phone",
+      "states": [
+        {
+          "label": "Choose tutor",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        },
+        {
+          "label": "Save tutor style",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        }
+      ],
+      "syntheticPreferenceSaved": true,
+      "screenshot": "phone-tutor-style.png",
+      "aiCalls": 0
+    },
+    {
+      "name": "polish-layout-narrow-settings-tutor",
+      "ok": true,
+      "viewport": "narrow",
+      "slug": "settings-tutor",
+      "headerHeight": 93,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 12,
+          "right": 64.734375,
+          "width": 52.734375,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 64.734375,
+          "right": 116.6875,
+          "width": 51.953125,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 116.6875,
+          "right": 181.671875,
+          "width": 64.984375,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 181.671875,
+          "right": 258.1875,
+          "width": 76.515625,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 258.1875,
+          "right": 308,
+          "width": 49.8125,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "tutor-controls-narrow",
+      "ok": true,
+      "viewport": "narrow",
+      "states": [
+        {
+          "label": "Choose tutor",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        },
+        {
+          "label": "Save tutor style",
+          "height": 52,
+          "size": 24,
+          "mask": "url(\"http://127.0.0.1:3140/assets/today-now/selection-brush-v1.webp\")",
+          "ink": "rgb(255, 255, 255)",
+          "paint": "rgb(36, 86, 59)",
+          "forced": {
+            "mask": "none",
+            "border": 1
+          }
+        }
+      ],
+      "syntheticPreferenceSaved": true,
+      "screenshot": "narrow-tutor-style.png",
+      "aiCalls": 0
+    },
+    {
+      "name": "polish-layout-tablet-settings-tutor",
+      "ok": true,
+      "viewport": "tablet",
+      "slug": "settings-tutor",
+      "headerHeight": 95,
+      "links": [
+        {
+          "label": "Lobby",
+          "left": 24,
+          "right": 151.8125,
+          "width": 127.8125,
+          "height": 44
+        },
+        {
+          "label": "Work",
+          "left": 161.8125,
+          "right": 288.71875,
+          "width": 126.90625,
+          "height": 44
+        },
+        {
+          "label": "Classes",
+          "left": 298.71875,
+          "right": 441.984375,
+          "width": 143.265625,
+          "height": 44
+        },
+        {
+          "label": "Calendar",
+          "left": 451.984375,
+          "right": 609.921875,
+          "width": 157.9375,
+          "height": 44
+        },
+        {
+          "label": "More",
+          "left": 619.921875,
+          "right": 744,
+          "width": 124.078125,
+          "height": 44
+        }
+      ]
+    },
+    {
+      "name": "tutor-controls-tablet",
+      "ok": false,
+      "error": "locator.waitFor: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Save tutor style', exact: true }) to be visible\u001b[22m\n"
+    }
+  ],
+  "exclusions": [
+    "Real user data and passwords",
+    "Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation",
+    "Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees"
+  ],
+  "cleanup": {
+    "status": "deleted-and-verified",
+    "syntheticOnly": true
+  },
+  "finishedAt": "2026-11-18T09:22:59.651Z",
+  "totals": {
+    "screens": 4,
+    "screenPasses": 4,
+    "screenFailures": 0,
+    "checks": 8,
+    "checkPasses": 7,
+    "checkFailures": 1
+  }
+}

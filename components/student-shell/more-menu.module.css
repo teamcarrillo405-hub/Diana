@@ -1,7 +1,7 @@
 .root { --menu-rule:var(--campus-rule,#b9b19b52); }
 .main { display:grid; grid-template-columns:240px minmax(0,650px); gap:clamp(32px,5vw,80px); width:min(100%,1744px); min-height:calc(100dvh - 76px); margin:0 auto; padding:clamp(32px,4vw,64px) 48px 80px; outline:none; }
 .rail { min-width:0; }
-.root .campusName { margin:0 0 10px 12px; color:var(--campus-muted); font-size:.85rem; font-weight:650; text-transform:uppercase; overflow-wrap:anywhere; }
+.root .campusName { margin:0 0 10px 12px; color:var(--campus-muted); font-size:.85rem; font-weight:650; text-transform:uppercase; overflow-wrap:normal; word-break:normal; text-wrap:balance; }
 .root .rail h1 { margin:0 0 26px 12px; color:var(--campus-ink); font:italic 850 42px/1 var(--campus-display); text-transform:uppercase; }
 .tabs { display:grid; gap:10px; }
 .shortLabel { display:none; }
@@ -40,14 +40,14 @@
 @media(max-width:1200px) { .main { grid-template-columns:200px minmax(0,650px); gap:36px; padding:36px 28px 64px; } .root.root .tabs button { font-size:21px; } }
 @media(max-width:950px) { .main { grid-template-columns:170px minmax(0,1fr); gap:24px; padding-inline:24px; } .root.root .tabs button { font-size:19px; } }
 @media(max-width:760px) {
- .main { display:block; min-height:calc(100dvh - 116px); padding:24px 18px 40px; }
+ .main { display:block; min-height:calc(100dvh - 96px); padding:16px 18px 40px; }
  .root .campusName { margin-left:0; font-size:.8rem; }
- .root .rail h1 { margin:0 0 16px; font-size:38px; }
- .tabs { grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; padding:4px 0 12px; }
+ .root .rail h1 { margin:0 0 8px; font-size:36px; }
+ .tabs { grid-template-columns:repeat(4,minmax(0,1fr)); gap:4px; padding:4px 0; border-block:1px solid var(--menu-rule); background:var(--campus-panel); }
  .wideLabel { display:none; } .shortLabel { display:inline; }
  .root.root .tabs button { justify-content:center; min-width:0; min-height:48px; width:100%; padding:8px 2px; font-size:13px; white-space:nowrap; }
  .root.root .tabs button::before { inset:2px -2px; }
- .stage { margin-top:18px; padding:20px 16px; }
+ .stage { margin-top:12px; padding:20px 16px; }
  .panelHeading { margin-bottom:24px; }
  .root .panelHeading h2 { font-size:38px; }
  .root .destinations a { gap:12px; min-height:70px; padding-inline:2px; }

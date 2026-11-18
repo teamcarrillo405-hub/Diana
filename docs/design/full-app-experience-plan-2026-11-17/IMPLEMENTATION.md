@@ -4,7 +4,7 @@ November 17, 2026, America/Los_Angeles. Base: `25477d594afdd83a7ac5b91ee9e09ddba
 
 The planned application and design changes are implemented and verified locally. Production is unchanged pending the requested desktop/phone visual review. Email delivery and public Google verification remain external release work; neither is represented as completed.
 
-[Open the no-sign-in desktop and phone gallery](previews/index.html). It contains 19 paired views with fictional student data. [Original page inventory and plan](README.md).
+[Open the no-sign-in desktop and phone gallery](previews/index.html). It contains 20 paired views with fictional student data. [Original page inventory and plan](README.md).
 
 ## Delivered
 
@@ -41,11 +41,15 @@ Original PNG masters and the complete diagnostic screenshot matrices stay local.
 - Production service worker: a dedicated proxy physically cut the network. Saved packs remained searchable, an offline draft survived reload, an unvisited assignment route received the public saved-packs fallback, public font/scene assets cached, and sensitive HTML/API/RSC/private files did not enter shared Cache Storage. Native renderer follow-up passed 10/10, including 320/390px reflow and escaped diagnostics. Native Electron itself was not launched.
 - Actual Hand-in Download PDF produced a parsed, visually reviewed one-page synthetic PDF; owner/assignment binding was verified and the work remained unsubmitted. Valid/expired public summary and restricted aggregate content passed desktop/phone. Its printed PDF now has margins and excludes the Print action; final print follow-up passed 3/3.
 - Final function-trace gate passed: 185 routes, largest estimated function 39,344,237 bytes, below the 240 MB gate.
-- Gallery verification: all 38 images decoded, filters work, and desktop/phone have no overflow or browser errors.
+- Gallery verification: all 40 images decoded, filters work, and desktop/phone have no overflow or browser errors.
 
 [Browser findings and corrected evidence](implementation-qa/findings-and-corrections.md) · [Authentication proof](implementation-qa/auth-recovery/README.md) · [Offline proof](implementation-qa/offline/README.md) · [PDF and public-share proof](implementation-qa/pdf/README.md).
 
 This is representative rendered and functional verification, not exhaustive certification of every route permutation, assignment subject or device. Existing tutoring, IEP time adjustments, teacher policy, ownership, authorship and export logic were preserved.
+
+## Menu polish follow-up
+
+November 18: stronger brush selection and primary actions, bounded Settings and Quiz composition, brighter secondary room depth with opaque controls, compact 93px phone / 95px tablet navigation, and corrected campus-name wrapping and profile initials. Saved reading preferences still apply to form fields. [Polish changes and final desktop/phone evidence](implementation-qa/polish.md). The gallery now includes the final captures. No new images were generated, and production remains held for visual review.
 
 ## Cloud verification follow-up
 

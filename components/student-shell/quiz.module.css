@@ -11,7 +11,7 @@
 .rail p { color:#c1d4c7; font-size:11px; margin:10px 0 20px; }
 .rail nav { display:grid; gap:10px; max-height:580px; overflow:auto; padding:8px; margin:0 -8px; }
 .rail button { position:relative; isolation:isolate; display:block; width:100%; min-height:70px; border:0; border-radius:0; color:#c1d4c7; background:transparent; padding:16px 10px; text-align:left; box-shadow:none; }
-.rail button::before { content:""; position:absolute; inset:0; z-index:-1; clip-path:polygon(1% 8%,96% 0,100% 91%,3% 100%); }
+.rail button::before { content:""; position:absolute; inset:0; z-index:-1; -webkit-mask:url('/assets/today-now/selection-brush-v1.webp') center/100% 100% no-repeat; mask:url('/assets/today-now/selection-brush-v1.webp') center/100% 100% no-repeat; mask-mode:luminance; }
 .rail button[aria-current="step"]::before { background:var(--campus-action,#5b365f); }
 .rail button[aria-current="step"] { color:#fff; }
 .rail strong { display:block; font:700 21px/1.2 var(--font-saira-condensed),sans-serif; text-transform:uppercase; }
@@ -66,3 +66,8 @@
 .root .paper :is(button,a,input,textarea,summary):focus-visible { outline:3px solid #185843; outline-offset:3px; }
 .root .paper :is(.primary,.support) { color:var(--campus-action-text); background:var(--campus-action); border:1px solid var(--campus-border); }
 @media(max-width:760px) { .tools { padding:18px; } }
+
+@media(forced-colors:active) {
+  .rail button[aria-current="step"] { forced-color-adjust:none; background:Highlight; color:HighlightText; border:2px solid Highlight; }
+  .rail button[aria-current="step"]::before { display:none; }
+}

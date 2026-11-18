@@ -19,7 +19,14 @@ const privateDir = resolve('.tmp/campus-experience-qa');
 const manifestPath = join(privateDir, 'fixture-private.json');
 const followUp = args.has('--follow-up');
 const refreshOnly = args.has('--refresh-only');
-const viewportList = [{name:'desktop',width:1440,height:1000}, {name:'phone',width:390,height:844}];
+const tutorOnly = args.has('--polish-tutor');
+const polish = args.has('--polish') || tutorOnly;
+const viewportList = [{name:'desktop',width:1440,height:1000}, {name:'phone',width:390,height:844}, ...(polish ? [{name:'narrow',width:320,height:844},{name:'tablet',width:768,height:1024}] : [])];
+const selectedViewport = [...args].find(arg=>arg.startsWith('--viewport='))?.slice('--viewport='.length);
+if(selectedViewport){
+  if(!viewportList.some(viewport=>viewport.name===selectedViewport))throw new Error('Requested viewport is not in this gate scope.');
+  viewportList.splice(0,viewportList.length,...viewportList.filter(viewport=>viewport.name===selectedViewport));
+}
 const settingsSections = ['profile','appearance','notifications','accessibility','goals','learning','tutor','ai','connections','security','sign-out'];
 const moreSections = ['study','record','wellness','account'];
 const publicCases = [
@@ -73,7 +80,7 @@ if(args.has('--plan')) {
 }
 await mkdir(outDir,{recursive:true});
 await mkdir(privateDir,{recursive:true});
-const report={version:'campus-experience-browser-qa-v1',startedAt:new Date().toISOString(),base:base.origin,run:stamp,scope:refreshOnly?'Targeted correction of the canonical Now diagnostic only. The initial and first follow-up results remain historical evidence.':followUp?'Targeted superseding evidence for initial reading, contrast, navigation, callback, and diagnostic-selector findings. Initial 110-state report remains unchanged.':'Representative rendered campus states, not exhaustive route or tutoring certification.',viewports:viewportList,results:[],checks:[],exclusions:['Real user data and passwords','Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation','Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees'],cleanup:{status:'not-started'}};
+const report={version:'campus-experience-browser-qa-v1',startedAt:new Date().toISOString(),base:base.origin,run:stamp,scope:tutorOnly?'Targeted verification of literal tutor action classes after the CSS Modules selector correction.':polish?'Focused visual polish: selected menu, form, paper and navigation states at desktop, phone, narrow phone and tablet widths. No full application regression rerun.':refreshOnly?'Targeted correction of the canonical Now diagnostic only. The initial and first follow-up results remain historical evidence.':followUp?'Targeted superseding evidence for initial reading, contrast, navigation, callback, and diagnostic-selector findings. Initial 110-state report remains unchanged.':'Representative rendered campus states, not exhaustive route or tutoring certification.',viewports:viewportList,results:[],checks:[],exclusions:['Real user data and passwords','Real Google consent, Calendar account linking, mail delivery, provider billing, and AI/media generation','Subject accuracy, learning outcomes, every assessment/course/group variation, and offline device guarantees'],cleanup:{status:'not-started'}};
 let browser,admin,fixture;
 function safeError(error) {return String(error?.message ?? error).replace(/https?:\/\/[^\s)]+/g,'[url]').replace(/eyJ[A-Za-z0-9._-]+/g,'[redacted-token]').slice(0,400);}
 async function check(name, fn) {try {const evidence=await fn();report.checks.push({name,ok:true,...evidence});}catch(error){report.checks.push({name,ok:false,error:safeError(error)});}}
@@ -275,6 +282,82 @@ async function fakeSignInError(page,viewport) {
   await assert((await page.getByRole('link',{name:'Forgot password?'}).getAttribute('href'))?.includes('%2Fdashboard'),'External sign-in destination was not normalized.');
   return {viewport:viewport.name,fakeProviderCalls:fakeCalls,realProviderCalls:0,screenshot:await screenshot(page,'sign-in-fake-error',viewport)};
 }
+async function tutorControls(page,viewport) {
+  const back=page.getByRole('button',{name:'Back to tutor gallery',exact:true});
+  if(await back.isVisible())await back.click();
+  const states=[];
+  for(const label of ['Choose tutor','Save tutor style']) {
+    const button=page.getByRole('button',{name:label,exact:true});await button.waitFor({state:'visible'});
+    const style=await button.evaluate(element=>{const css=getComputedStyle(element),paint=getComputedStyle(element,'::before'),box=element.getBoundingClientRect();return {height:box.height,size:parseFloat(css.fontSize),mask:paint.maskImage,ink:css.color,paint:paint.backgroundColor};});
+    await assert(style.height>=52 && style.size>=24 && style.mask.includes('selection-brush') && (contrastRatio(style.ink,style.paint)??0)>=4.5,'Tutor action did not receive the shared athletic brush styling.');
+    await page.keyboard.press('Tab');await button.focus();await assert(await button.evaluate(element=>getComputedStyle(element).outlineStyle)!=='none','Tutor action lacks keyboard focus.');
+    await page.emulateMedia({forcedColors:'active'});const forced=await button.evaluate(element=>({mask:getComputedStyle(element,'::before').display,border:parseFloat(getComputedStyle(element).borderTopWidth)}));
+    await assert(forced.mask==='none' && forced.border>=1,'Tutor action lacks a forced-color fallback.');await page.emulateMedia({forcedColors:'none'});
+    await button.click();
+    const status=page.locator('.sd-tutor-status');await status.waitFor({state:'visible'});
+    await assert((await status.innerText()).trim()==='Tutor preferences saved.','The synthetic tutor preference save was not confirmed.');
+    await page.waitForFunction(()=>!document.querySelector('.sd-tutor-primary')?.disabled);
+    states.push({label,...style,forced});
+  }
+  await assert(!(await inspect(page,viewport)).overflow,'Tutor style screen overflows.');
+  return {viewport:viewport.name,states,syntheticPreferenceSaved:true,screenshot:await screenshot(page,'tutor-style',viewport),aiCalls:0};
+}
+async function polishLayout(page,viewport,slug) {
+  const metrics=await page.locator('[data-student-navigation]').evaluate(element=>{
+    const header=element.getBoundingClientRect();
+    const links=[...element.querySelectorAll('nav a')].map(link=>{const box=link.getBoundingClientRect();return {label:link.textContent.trim(),left:box.left,right:box.right,width:box.width,height:box.height};});
+    return {headerHeight:header.height,links};
+  });
+  await assert(metrics.links.length===5 && metrics.links.every(link=>link.width>=43.9 && link.height>=43.9 && link.left>=0 && link.right<=viewport.width+1),'Primary navigation has clipped or undersized targets.');
+  if(viewport.width<=1050)await assert(metrics.headerHeight<=100,'Compact navigation consumes more than 100px.');
+  if(slug==='lobby-now' && viewport.width>1050) {
+    const identity=await page.locator('[data-today-stage-rail]').innerText();
+    await assert(identity.includes('RIDGEVIEW')||identity.includes('Ridgeview'),'Campus identity missing.');
+  }
+  if(slug==='settings-profile') {
+    const save=await page.getByRole('button',{name:'Save settings',exact:true}).boundingBox();
+    await assert(save?.height>=44 && save.width>=44,'Profile save target is too small.');
+  }
+  return {viewport:viewport.name,slug,...metrics};
+}
+async function polishInteractions(page,viewport) {
+  await open(page,'/more');await settle(page);
+  if(viewport.width<=760){const labels=await page.locator('[role=tablist][aria-label="More categories"]').evaluate(element=>({paper:getComputedStyle(element).backgroundColor,ink:getComputedStyle(element.querySelector('[aria-selected="false"]')).color}));await assert((contrastRatio(labels.paper,labels.ink)??0)>=4.5,'Phone menu labels lack stable contrast.');}
+  const tools=page.getByRole('tab',{name:'Study tools',exact:true});await tools.focus();await tools.press('ArrowRight');
+  await assert(await page.getByRole('tab',{name:'Record',exact:true}).getAttribute('aria-selected')==='true','More keyboard selection did not move.');
+  await page.reload({waitUntil:'domcontentloaded'});await settle(page);
+  await assert(await page.getByRole('tab',{name:'Record',exact:true}).getAttribute('aria-selected')==='true','More selection did not survive reload.');
+  await open(page,'/study');await settle(page);
+  const choose=page.getByRole('tab',{name:'Choose work',exact:true});await choose.focus();await choose.press('ArrowRight');
+  await assert(await page.getByRole('tab',{name:'Saved practice',exact:true}).getAttribute('aria-selected')==='true','Quiz keyboard selection did not move.');
+  await choose.click();
+  const create=page.getByRole('button',{name:'Create quiz',exact:true});
+  const brush=await create.evaluate(element=>{const style=getComputedStyle(element),paint=getComputedStyle(element,'::before'),box=element.getBoundingClientRect();return {height:box.height,font:style.fontFamily,size:style.fontSize,ink:style.color,paint:paint.backgroundColor,mask:paint.maskImage,focus:style.outlineStyle};});
+  await assert(brush.height>=52 && brush.mask.includes('selection-brush'),'Quiz action lacks the expected visible brush or target size.');
+  await assert((contrastRatio(brush.ink,brush.paint)??0)>=4.5,'Quiz action text lacks sufficient contrast.');
+  await page.keyboard.press('Tab');await create.focus();const focus=await create.evaluate(element=>getComputedStyle(element).outlineStyle);await assert(focus!=='none','Quiz action has no keyboard focus indicator.');
+  const formState=await create.evaluate(element=>({source:element.form?.querySelector('[name="source"]')?.value,count:element.form?.querySelector('[name="questionCount"]')?.value}));
+  await assert(Boolean(formState.source) && formState.count==='6','Quiz source or question-count binding changed.');
+  await page.emulateMedia({forcedColors:'active'});
+  const forced=await choose.evaluate(element=>{const style=getComputedStyle(element),paint=getComputedStyle(element,'::after');return {mask:paint.display,background:style.backgroundColor,border:parseFloat(style.borderBottomWidth)};});
+  await assert(forced.mask==='none' && forced.border>=2 && forced.background!=='rgba(0, 0, 0, 0)','Selected quiz tab has no forced-color fallback.');
+  await page.emulateMedia({forcedColors:'none'});
+  await open(page,'/settings');await settle(page);
+  if(viewport.width<=850){const sections=page.locator('.sd-settings-mobile-sections');await sections.locator('summary').click();await assert(await sections.getByRole('link',{name:'Security',exact:true}).isVisible(),'Phone settings sections are unreachable.');await sections.locator('summary').click();}
+  const name=page.getByLabel('Display name',{exact:true});await name.fill('Casey Morgan Preview');
+  await page.getByRole('button',{name:'Save settings',exact:true}).click();
+  await page.locator('.sd-profile-form-message[data-tone="ok"]').waitFor({state:'visible',timeout:15000});
+  await page.reload({waitUntil:'domcontentloaded'});await settle(page);
+  await assert(await page.getByLabel('Display name',{exact:true}).inputValue()==='Casey Morgan Preview','Profile save did not survive reload.');
+  const input=await page.getByLabel('Display name',{exact:true}).evaluate(element=>{const style=getComputedStyle(element);return {paper:style.backgroundColor,ink:style.color};});
+  await assert((contrastRatio(input.paper,input.ink)??0)>=4.5,'Profile field text lacks sufficient contrast.');
+  await updateProfile({display_name:'Casey Morgan',reading_font:'atkinson',font_size:'large',line_spacing:'loose',reading_letter_spacing:'wide',reading_word_spacing:'wide',high_contrast:true});
+  await open(page,'/settings');await settle(page);
+  const preferences=await page.getByLabel('Display name',{exact:true}).evaluate(element=>{const style=getComputedStyle(element);return {font:style.fontFamily,size:style.fontSize,letter:style.letterSpacing,word:style.wordSpacing,paper:style.backgroundColor,ink:style.color};});
+  await assert(/atkinson/i.test(preferences.font) && parseFloat(preferences.size)>=18 && parseFloat(preferences.letter)>0 && parseFloat(preferences.word)>0 && (contrastRatio(preferences.paper,preferences.ink)??0)>=7,'Saved accessibility preferences did not reach the Settings form.');
+  await updateProfile({reading_font:'system',font_size:'normal',line_spacing:'normal',reading_letter_spacing:'normal',reading_word_spacing:'normal',high_contrast:false});
+  return {viewport:viewport.name,preferences,moreKeyboardAndReload:true,quizKeyboard:true,quizFormBinding:formState,quizAction:brush,quizActionFocus:focus,forcedColors:forced,profileSaveAndReload:true,inputContrast:contrastRatio(input.paper,input.ink),aiAndMailCalls:0};
+}
 async function cleanupFixture() {
   if(!fixture||!admin)return;
   await validateFixture(fixture);
@@ -308,6 +391,19 @@ try {
   browser=await chromium.launch({headless:true});
   for(const viewport of viewportList){
     await updateProfile({extra_time_pct:0,tts_enabled:false,accommodations:[]});
+    if(polish) {
+      const context=await newContext(viewport,true),page=await context.newPage();
+      const selected=tutorOnly?['settings-tutor']:['lobby-now','work','classes','calendar','more-study','quiz-hub','notes','note-detail','practice','settings-profile','settings-appearance','settings-security','check-in-history','workspace'];
+      const compact=tutorOnly?['settings-tutor']:['lobby-now','work','classes','calendar','more-study','quiz-hub','settings-profile'];
+      for(const test of privateCases(fixture).filter(test=>(['narrow','tablet'].includes(viewport.name)?compact:selected).includes(test.slug))) {
+        const row=await capture(page,test,viewport,true);
+        if(row.ok)await check('polish-layout-'+viewport.name+'-'+test.slug,()=>polishLayout(page,viewport,test.slug));
+      }
+      if(tutorOnly)await check('tutor-controls-'+viewport.name,()=>tutorControls(page,viewport));
+      if(!tutorOnly&&['desktop','phone'].includes(viewport.name))await check('polish-interactions-'+viewport.name,()=>polishInteractions(page,viewport));
+      await context.close();
+      continue;
+    }
     if(refreshOnly) {
       const context=await newContext(viewport,true),page=await context.newPage();
       await check(`lobby-router-refresh-${viewport.name}`,()=>lobbyRouterRefresh(page,viewport));
@@ -337,7 +433,7 @@ try {
     }
     await context.close();
   }
-  if(!followUp&&!refreshOnly) {
+  if(!followUp&&!refreshOnly&&!polish) {
   const tablet={name:'tablet',width:768,height:1024};const tabletContext=await newContext(tablet,true);
   await check('primary-navigation-tablet',()=>primaryNavigation(tabletContext,tablet));await tabletContext.close();
   }

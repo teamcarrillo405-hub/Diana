@@ -338,7 +338,7 @@
 .roomArt > img { object-fit: cover; object-position: center; }
 .schoolSceneBanner { display: none; }
 .campus[data-campus-experience] [data-today-stage-image] { display: none; }
-.mobileCampusText strong, .railIdentity { overflow-wrap: anywhere; text-transform: uppercase; }
+.mobileCampusText strong, .railIdentity { overflow-wrap: break-word; word-break: normal; text-wrap: balance; text-transform: uppercase; }
 
 .campus.campus.campus.campus.campus.campus[data-campus-experience]
 [data-today-stage-deck] > :is(section[aria-label="Today's Plan"], [data-lobby-week], [data-lobby-check-in]) {
@@ -384,7 +384,7 @@
     height: auto; min-height: 0; margin-inline: 16px; border-color: var(--campus-border);
   }
   .campus.campus.campus.campus.campus.campus[data-campus-experience] [data-today-stage-rail] .railIdentity {
-    display: block; max-width: 100%; font-size: clamp(18px, 1.8vw, 27px); line-height: 1.13;
+    display: block; max-width: 100%; font-size: clamp(17px, 1.35vw, 21px); line-height: 1.18;
   }
   .campus.campus.campus.campus.campus.campus[data-campus-experience] .campusTools {
     display: none;
