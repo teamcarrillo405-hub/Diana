@@ -21,6 +21,11 @@ const assignment: CalendarItem = {
 };
 const event = { ...newPersonalEvent("2026-11-17"), id: "22222222-2222-4222-8222-222222222222", title: "Study at the library" };
 function openCalendar(props: Partial<Parameters<typeof StudentCalendar>[0]> = {}) {
+  const url = new URL(window.location.href);
+  if (props.initialDay) url.searchParams.set("day", props.initialDay);
+  if (props.initialView) url.searchParams.set("view", props.initialView.toLowerCase());
+  if (props.initialItem) url.searchParams.set("item", props.initialItem);
+  window.history.replaceState(null, "", url);
   return render(<StudentCalendar today="2026-11-17" timeZone="America/Los_Angeles" importedItems={[assignment]} savedEvents={[event]} profile={{}} sync={<span>Google Calendar</span>} schoolName="Tigard High School" {...props} />);
 }
 
@@ -70,6 +75,70 @@ describe("Calendar event editor", () => {
 afterEach(cleanup);
 
 describe("campus Calendar interactions", () => {
+  it("keeps the server's safe date when a restored URL contains an impossible day", () => {
+    window.history.replaceState(null, "", "/calendar?day=2026-02-31&view=week&item=assignment-one");
+    render(<StudentCalendar today="2026-11-17" timeZone="America/Los_Angeles" importedItems={[assignment]} savedEvents={[event]} profile={{}} sync={<span>Google Calendar</span>} initialDay="2026-11-17" />);
+    expect(screen.getByRole("tab", { name: "Week" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("heading", { name: "Nov 16 - 22, 2026" })).toBeTruthy();
+    fireEvent.click(screen.getByRole("tab", { name: "Schedule" }));
+    expect(screen.getByRole("tab", { name: "Biology lab observations" }).getAttribute("aria-selected")).toBe("true");
+  });
+
+  it.each([false, true])("restores the current URL when Back remounts stale cached Calendar props (phone: %s)", async (phone) => {
+    mocks.phone = phone;
+    window.history.replaceState(null, "", `/calendar?day=2026-11-17&view=schedule&item=${event.id}%402026-11-17`);
+    render(<StudentCalendar today="2026-11-17" timeZone="America/Los_Angeles" importedItems={[assignment]} savedEvents={[event]} profile={{}} sync={<span>Google Calendar</span>} initialDay="2026-11-19" initialView="Month" />);
+    await waitFor(() => expect(screen.getByRole("tab", { name: "Schedule" }).getAttribute("aria-selected")).toBe("true"));
+    expect(screen.getByRole("tab", { name: "Study at the library" }).getAttribute("aria-selected")).toBe("true");
+    expect(within(screen.getByRole("tablist", { name: "Schedule days" })).getByRole("tab", { name: "Tuesday, November 17" }).getAttribute("aria-selected")).toBe("true");
+  });
+
+  it.each([false, true])("keeps Next's canonical date, view, and selection through save and reload (phone: %s)", async (phone) => {
+    mocks.phone = phone;
+    const nativeReplaceState = window.history.replaceState.bind(window.history);
+    const tree = { calendar: "retained router tree" };
+    nativeReplaceState({ __NA: true, __PRIVATE_NEXTJS_INTERNALS_TREE: tree }, "", "/calendar?day=2026-11-19&view=month");
+    let canonicalUrl = window.location.pathname + window.location.search;
+    // Model the installed Next router: internal history payloads bypass URL synchronization.
+    const replaceState = vi.spyOn(window.history, "replaceState").mockImplementation((data, unused, url) => {
+      if (data?.__NA || data?._N) {
+        nativeReplaceState(data, unused, url);
+        return;
+      }
+      const state = { ...data, __NA: true, __PRIVATE_NEXTJS_INTERNALS_TREE: tree };
+      if (url) canonicalUrl = String(url);
+      nativeReplaceState(state, unused, url);
+    });
+    try {
+      mocks.save.mockImplementation(async (draft) => {
+        // The server-action request and its revalidation use Next's canonical URL.
+        expect(canonicalUrl).toBe(`/calendar?day=2026-11-17&view=schedule&item=${event.id}%402026-11-17`);
+        return { event: { ...draft, id: event.id } };
+      });
+      const rendered = openCalendar({ initialDay: "2026-11-19", initialView: "Month" });
+      fireEvent.click(screen.getByRole("button", { name: /^Tuesday, November 17,/ }));
+      fireEvent.click(screen.getByRole("tab", { name: "Schedule" }));
+      fireEvent.click(screen.getByRole("tab", { name: "Study at the library" }));
+      const details = phone ? screen.getByRole("dialog", { name: "Study at the library" }) : document.getElementById("selected-event")!;
+      fireEvent.click(within(details).getByRole("button", { name: "Edit event" }));
+      const editor = await screen.findByRole("dialog", { name: "Edit event" });
+      fireEvent.change(within(editor).getByLabelText("Event title"), { target: { value: "Campus review" } });
+      fireEvent.change(within(editor).getByLabelText("Start date"), { target: { value: "2026-11-20" } });
+      fireEvent.click(within(editor).getByRole("button", { name: "Save changes" }));
+      await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+      await waitFor(() => expect(canonicalUrl).toBe(`/calendar?day=2026-11-20&view=schedule&item=${event.id}%402026-11-20`));
+      expect(window.location.pathname + window.location.search).toBe(canonicalUrl);
+      expect(window.history.state).toEqual({ __NA: true, __PRIVATE_NEXTJS_INTERNALS_TREE: tree });
+      rendered.unmount();
+      const params = new URL(canonicalUrl, window.location.origin).searchParams;
+      openCalendar({ initialDay: params.get("day")!, initialView: "Schedule", initialItem: params.get("item")!, savedEvents: [{ ...event, day: "2026-11-20", title: "Campus review" }] });
+      expect(screen.getByRole("tab", { name: "Schedule" }).getAttribute("aria-selected")).toBe("true");
+      expect(screen.getByRole("tab", { name: "Campus review" }).getAttribute("aria-selected")).toBe("true");
+    } finally {
+      replaceState.mockRestore();
+    }
+  });
+
   it("keeps Month and its chosen date in the URL", () => {
     openCalendar({ initialView: "Month" });
     fireEvent.click(screen.getByRole("button", { name: /Thursday, November 19, 0 items/ }));
